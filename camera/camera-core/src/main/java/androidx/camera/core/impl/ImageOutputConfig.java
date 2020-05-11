@@ -26,7 +26,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.AspectRatio;
-import androidx.camera.core.impl.Config.Option;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -35,7 +34,7 @@ import java.util.List;
 /**
  * Configuration containing options for configuring the output image data of a pipeline.
  */
-public interface ImageOutputConfig {
+public interface ImageOutputConfig extends ReadableConfig {
     /**
      * Default aspect ratio for portrait and landscape
      */
@@ -102,7 +101,9 @@ public interface ImageOutputConfig {
      * configuration.
      */
     @Nullable
-    Rational getTargetAspectRatioCustom(@Nullable Rational valueIfMissing);
+    default Rational getTargetAspectRatioCustom(@Nullable Rational valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, valueIfMissing);
+    }
 
     /**
      * Retrieves the aspect ratio of the target intending to use images from this configuration.
@@ -115,7 +116,9 @@ public interface ImageOutputConfig {
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    Rational getTargetAspectRatioCustom();
+    default Rational getTargetAspectRatioCustom() {
+        return retrieveOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM);
+    }
 
     /**
      * Verifies whether the aspect ratio of the target intending to use images from this
@@ -123,7 +126,9 @@ public interface ImageOutputConfig {
      *
      * @return true is the value exists in this configuration, false otherwise.
      */
-    boolean hasTargetAspectRatio();
+    default boolean hasTargetAspectRatio() {
+        return containsOption(OPTION_TARGET_ASPECT_RATIO);
+    }
 
     /**
      * Retrieves the aspect ratio of the target intending to use images from this configuration.
@@ -132,7 +137,9 @@ public interface ImageOutputConfig {
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @AspectRatio.Ratio
-    int getTargetAspectRatio();
+    default int getTargetAspectRatio() {
+        return retrieveOption(OPTION_TARGET_ASPECT_RATIO);
+    }
 
     /**
      * Retrieves the rotation of the target intending to use images from this configuration.
@@ -146,7 +153,9 @@ public interface ImageOutputConfig {
      * configuration.
      */
     @RotationValue
-    int getTargetRotation(int valueIfMissing);
+    default int getTargetRotation(int valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_ROTATION, valueIfMissing);
+    }
 
     /**
      * Retrieves the rotation of the target intending to use images from this configuration.
@@ -159,7 +168,9 @@ public interface ImageOutputConfig {
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @RotationValue
-    int getTargetRotation();
+    default int getTargetRotation() {
+        return retrieveOption(OPTION_TARGET_ROTATION);
+    }
 
     /**
      * Retrieves the resolution of the target intending to use from this configuration.
@@ -169,7 +180,9 @@ public interface ImageOutputConfig {
      * configuration.
      */
     @Nullable
-    Size getTargetResolution(@Nullable Size valueIfMissing);
+    default Size getTargetResolution(@Nullable Size valueIfMissing) {
+        return retrieveOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, valueIfMissing);
+    }
 
     /**
      * Retrieves the resolution of the target intending to use from this configuration.
@@ -178,7 +191,9 @@ public interface ImageOutputConfig {
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    Size getTargetResolution();
+    default Size getTargetResolution() {
+        return retrieveOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION);
+    }
 
     /**
      * Retrieves the default resolution of the target intending to use from this configuration.
@@ -188,7 +203,9 @@ public interface ImageOutputConfig {
      * configuration.
      */
     @Nullable
-    Size getDefaultResolution(@Nullable Size valueIfMissing);
+    default Size getDefaultResolution(@Nullable Size valueIfMissing) {
+        return retrieveOption(OPTION_DEFAULT_RESOLUTION, valueIfMissing);
+    }
 
     /**
      * Retrieves the default resolution of the target intending to use from this configuration.
@@ -197,7 +214,9 @@ public interface ImageOutputConfig {
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    Size getDefaultResolution();
+    default Size getDefaultResolution() {
+        return retrieveOption(OPTION_DEFAULT_RESOLUTION);
+    }
 
     /**
      * Retrieves the max resolution limitation of the target intending to use from this
@@ -208,7 +227,9 @@ public interface ImageOutputConfig {
      * configuration.
      */
     @Nullable
-    Size getMaxResolution(@Nullable Size valueIfMissing);
+    default Size getMaxResolution(@Nullable Size valueIfMissing) {
+        return retrieveOption(OPTION_MAX_RESOLUTION, valueIfMissing);
+    }
 
     /**
      * Retrieves the max resolution limitation of the target intending to use from this
@@ -218,7 +239,9 @@ public interface ImageOutputConfig {
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    Size getMaxResolution();
+    default Size getMaxResolution() {
+        return retrieveOption(OPTION_MAX_RESOLUTION);
+    }
 
     /**
      * Retrieves the supported resolutions can be used by the target from this configuration.
@@ -232,8 +255,10 @@ public interface ImageOutputConfig {
      * configuration.
      */
     @Nullable
-    List<Pair<Integer, Size[]>> getSupportedResolutions(
-            @Nullable List<Pair<Integer, Size[]>> valueIfMissing);
+    default List<Pair<Integer, Size[]>> getSupportedResolutions(
+            @Nullable List<Pair<Integer, Size[]>> valueIfMissing) {
+        return retrieveOption(OPTION_SUPPORTED_RESOLUTIONS, valueIfMissing);
+    }
 
     /**
      * Retrieves the supported resolutions can be used by the target from this configuration.
@@ -246,7 +271,9 @@ public interface ImageOutputConfig {
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    List<Pair<Integer, Size[]>> getSupportedResolutions();
+    default List<Pair<Integer, Size[]>> getSupportedResolutions() {
+        return retrieveOption(OPTION_SUPPORTED_RESOLUTIONS);
+    }
 
     /**
      * Builder for a {@link ImageOutputConfig}.

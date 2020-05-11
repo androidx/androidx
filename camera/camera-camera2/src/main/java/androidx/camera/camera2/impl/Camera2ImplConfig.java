@@ -29,6 +29,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
+import androidx.camera.core.impl.ReadableConfig;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,7 +37,7 @@ import java.util.Set;
 /**
  * Internal shared implementation details for camera 2 interop.
  */
-public final class Camera2ImplConfig implements Config {
+public final class Camera2ImplConfig implements ReadableConfig {
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY)
@@ -202,42 +203,11 @@ public final class Camera2ImplConfig implements Config {
         return mConfig.retrieveOption(CAMERA_EVENT_CALLBACK_OPTION, valueIfMissing);
     }
 
-    // Start of the default implementation of Config
-    // *********************************************************************************************
-
-    // Implementations of Config default methods
-
-    @Override
-    public boolean containsOption(@NonNull Option<?> id) {
-        return mConfig.containsOption(id);
-    }
-
-    @Override
-    @Nullable
-    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id) {
-        return mConfig.retrieveOption(id);
-    }
-
-    @Override
-    @Nullable
-    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id,
-            @Nullable ValueT valueIfMissing) {
-        return mConfig.retrieveOption(id, valueIfMissing);
-    }
-
-    @Override
-    public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
-        mConfig.findOptions(idStem, matcher);
-    }
-
-    @Override
     @NonNull
-    public Set<Option<?>> listOptions() {
-        return mConfig.listOptions();
+    @Override
+    public Config getConfig() {
+        return mConfig;
     }
-
-    // End of the default implementation of Config
-    // *********************************************************************************************
 
     /**
      * Builder for creating {@link Camera2ImplConfig} instance.

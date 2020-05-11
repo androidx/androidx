@@ -29,8 +29,8 @@ import androidx.camera.core.internal.UseCaseEventConfig;
  *
  * @param <T> The use case being configured.
  */
-public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Config,
-        UseCaseEventConfig , ImageInputConfig {
+public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCaseEventConfig,
+        ImageInputConfig {
     // Option Declarations:
     // *********************************************************************************************
 
@@ -86,7 +86,9 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * configuration.
      */
     @Nullable
-    SessionConfig getDefaultSessionConfig(@Nullable SessionConfig valueIfMissing);
+    default SessionConfig getDefaultSessionConfig(@Nullable SessionConfig valueIfMissing) {
+        return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG, valueIfMissing);
+    }
 
     /**
      * Retrieves the default session configuration for this use case.
@@ -98,7 +100,9 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    SessionConfig getDefaultSessionConfig();
+    default SessionConfig getDefaultSessionConfig() {
+        return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG);
+    }
 
     /**
      * Retrieves the default capture configuration for this use case.
@@ -111,7 +115,9 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * configuration.
      */
     @Nullable
-    CaptureConfig getDefaultCaptureConfig(@Nullable CaptureConfig valueIfMissing);
+    default CaptureConfig getDefaultCaptureConfig(@Nullable CaptureConfig valueIfMissing) {
+        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG, valueIfMissing);
+    }
 
     /**
      * Retrieves the default capture configuration for this use case.
@@ -123,7 +129,9 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    CaptureConfig getDefaultCaptureConfig();
+    default CaptureConfig getDefaultCaptureConfig() {
+        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG);
+    }
 
     /**
      * Retrieves the {@link SessionConfig.OptionUnpacker} for this use case.
@@ -138,8 +146,10 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * configuration.
      */
     @Nullable
-    SessionConfig.OptionUnpacker getSessionOptionUnpacker(
-            @Nullable SessionConfig.OptionUnpacker valueIfMissing);
+    default SessionConfig.OptionUnpacker getSessionOptionUnpacker(
+            @Nullable SessionConfig.OptionUnpacker valueIfMissing) {
+        return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER, valueIfMissing);
+    }
 
     /**
      * Retrieves the {@link SessionConfig.OptionUnpacker} for this use case.
@@ -153,7 +163,9 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    SessionConfig.OptionUnpacker getSessionOptionUnpacker();
+    default SessionConfig.OptionUnpacker getSessionOptionUnpacker() {
+        return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER);
+    }
 
     /**
      * Retrieves the {@link CaptureConfig.OptionUnpacker} for this use case.
@@ -168,8 +180,10 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * configuration.
      */
     @Nullable
-    CaptureConfig.OptionUnpacker getCaptureOptionUnpacker(
-            @Nullable CaptureConfig.OptionUnpacker valueIfMissing);
+    default CaptureConfig.OptionUnpacker getCaptureOptionUnpacker(
+            @Nullable CaptureConfig.OptionUnpacker valueIfMissing) {
+        return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER, valueIfMissing);
+    }
 
     /**
      * Retrieves the {@link CaptureConfig.OptionUnpacker} for this use case.
@@ -183,7 +197,9 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    CaptureConfig.OptionUnpacker getCaptureOptionUnpacker();
+    default CaptureConfig.OptionUnpacker getCaptureOptionUnpacker() {
+        return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER);
+    }
 
     /**
      * Retrieves the surface occupancy priority of the target intending to use from this
@@ -193,7 +209,9 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
      */
-    int getSurfaceOccupancyPriority(int valueIfMissing);
+    default int getSurfaceOccupancyPriority(int valueIfMissing) {
+        return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, valueIfMissing);
+    }
 
     /**
      * Retrieves the surface occupancy priority of the target intending to use from this
@@ -202,7 +220,9 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    int getSurfaceOccupancyPriority();
+    default int getSurfaceOccupancyPriority() {
+        return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
+    }
 
     /**
      * Retrieves the camera selector that this use case requires.
@@ -212,7 +232,9 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * configuration.
      */
     @Nullable
-    CameraSelector getCameraSelector(@Nullable CameraSelector valueIfMissing);
+    default CameraSelector getCameraSelector(@Nullable CameraSelector valueIfMissing) {
+        return retrieveOption(OPTION_CAMERA_SELECTOR, valueIfMissing);
+    }
 
     /**
      * Retrieves the camera selector that this use case requires.
@@ -221,7 +243,9 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    CameraSelector getCameraSelector();
+    default CameraSelector getCameraSelector() {
+        return retrieveOption(OPTION_CAMERA_SELECTOR);
+    }
 
     /**
      * Builder for a {@link UseCase}.
