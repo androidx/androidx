@@ -89,6 +89,8 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas) {
         y: Float,
         paint: Paint
     ) {
+        val typeface = paint.getTypeface() ?: Typeface.DEFAULT
+        val skijaFont = org.jetbrains.skija.Font(typeface.skijaTypeface, paint.textSize)
         val buffer = skijaFont.hbFont.shape(text.toString(), org.jetbrains.skija.FontFeature.EMPTY)
         skijaCanvas.drawTextBuffer(buffer, x, y, skijaFont.skFont, paint.skijaPaint)
     }
@@ -113,6 +115,15 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas) {
     ) {
         val skijaRoundedRect = RoundedRect.makeLTRB(left, top, right, bottom, rx, ry)
         skijaCanvas.drawRoundedRect(skijaRoundedRect, paint.skijaPaint)
+    }
+
+    fun drawCircle(
+        cx: Float,
+        cy: Float,
+        radius: Float,
+        paint: Paint
+    ) {
+        skijaCanvas.drawCircle(cx, cy, radius, paint.skijaPaint)
     }
 
     fun clipRect(left: Float, top: Float, right: Float, bottom: Float, op: Region.Op): Boolean {
