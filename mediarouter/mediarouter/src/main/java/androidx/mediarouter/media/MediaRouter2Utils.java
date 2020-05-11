@@ -24,6 +24,7 @@ import android.annotation.SuppressLint;
 import android.content.IntentFilter;
 import android.media.MediaRoute2Info;
 import android.media.RouteDiscoveryPreference;
+import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -46,7 +47,12 @@ class MediaRouter2Utils {
 
     private MediaRouter2Utils() {}
 
-    public static MediaRoute2Info toFwkMediaRoute2Info(MediaRouteDescriptor descriptor) {
+    @Nullable
+    public static MediaRoute2Info toFwkMediaRoute2Info(@Nullable MediaRouteDescriptor descriptor) {
+        if (descriptor == null) {
+            return null;
+        }
+
         MediaRoute2Info.Builder builder = new MediaRoute2Info.Builder(descriptor.getId(),
                 descriptor.getName())
                 .setDescription(descriptor.getDescription())
@@ -71,6 +77,45 @@ class MediaRouter2Utils {
         return builder.build();
     }
 
+    @Nullable
+    public static MediaRouteDescriptor toMediaRouteDescriptor(
+            @Nullable MediaRoute2Info fwkMediaRoute2Info) {
+        if (fwkMediaRoute2Info == null) {
+            return null;
+        }
+
+        MediaRouteDescriptor.Builder builder = new MediaRouteDescriptor.Builder(
+                // TODO: We may need to use the original ID by using extras.
+                fwkMediaRoute2Info.getId(), fwkMediaRoute2Info.getName().toString())
+                .addControlFilters(getIntentFiltersFromFeatures(fwkMediaRoute2Info.getFeatures()))
+                .setConnectionState(fwkMediaRoute2Info.getConnectionState())
+                .setVolumeHandling(fwkMediaRoute2Info.getVolumeHandling())
+                .setVolumeMax(fwkMediaRoute2Info.getVolumeMax())
+                .setVolume(fwkMediaRoute2Info.getVolume())
+                .setExtras(fwkMediaRoute2Info.getExtras())
+                .setEnabled(true)
+                .setCanDisconnect(false);
+
+        CharSequence description = fwkMediaRoute2Info.getDescription();
+        if (description != null) {
+            builder.setDescription(description.toString());
+        }
+
+        Uri iconUri = fwkMediaRoute2Info.getIconUri();
+        if (iconUri != null) {
+            builder.setIconUri(iconUri);
+        }
+
+        // TODO: Set device type by using extras.
+        // builder.setDeviceType()
+
+        // TODO: Set 'dynamic group route' related values properly
+        // builder.setIsDynamicGroupRoute();
+        // builder.addGroupMemberIds();
+
+        return builder.build();
+    }
+
     static Collection<String> getFeaturesFromIntentFilters(List<IntentFilter> controlFilters) {
         Set<String> features = new HashSet<String>();
         for (IntentFilter filter : controlFilters) {
@@ -80,6 +125,21 @@ class MediaRouter2Utils {
             }
         }
         return features;
+    }
+
+    @NonNull
+    static List<IntentFilter> getIntentFiltersFromFeatures(@Nullable Collection<String> features) {
+        if (features == null) {
+            return new ArrayList<>();
+        }
+        return features.stream().distinct().map(f -> {
+            IntentFilter filter = new IntentFilter();
+            filter.addCategory(toControlCategory(f));
+            // TODO: Add actions by using extras. (see RemotePlaybackClient#detectFeatures())
+            // filter.addAction(MediaControlIntent.ACTION_PLAY);
+            // filter.addAction(MediaControlIntent.ACTION_SEEK);
+            return filter;
+        }).collect(Collectors.toList());
     }
 
     @NonNull

@@ -687,7 +687,7 @@ public final class MediaRouter {
                 sGlobal.updateDiscoveryRequest();
                 sGlobal.updateMR2RouteDiscoveryPreferenceFwk();
             } else {
-                sGlobal.updateMr2RouteProvider();
+                sGlobal.updateMr2ProviderShouldRegisterCallbackFwk();
                 sGlobal.updateDiscoveryRequest();
             }
         }
@@ -717,7 +717,7 @@ public final class MediaRouter {
                 sGlobal.updateDiscoveryRequest();
                 sGlobal.updateMR2RouteDiscoveryPreferenceFwk();
             } else {
-                sGlobal.updateMr2RouteProvider();
+                sGlobal.updateMr2ProviderShouldRegisterCallbackFwk();
                 sGlobal.updateDiscoveryRequest();
             }
         }
@@ -2204,7 +2204,7 @@ public final class MediaRouter {
         final MediaRouter2.RouteCallback mMr2RouteCallbackFwk;
         final MediaRouter2.TransferCallback mMr2TransferCallbackFwk;
         final Executor mMr2CbExecutor;
-        final MediaRoute2Provider mMediaRoute2Provider;
+        final MediaRoute2Provider mMr2Provider;
         final ArrayList<WeakReference<MediaRouter>> mRouters = new ArrayList<>();
         private final ArrayList<RouteInfo> mRoutes = new ArrayList<>();
         private final Map<Pair<String, String>, String> mUniqueIdMap = new HashMap<>();
@@ -2264,17 +2264,17 @@ public final class MediaRouter {
                     }
                 };
                 if (USE_FWK_MR2_ACTIVELY) {
-                    mMediaRoute2Provider =
+                    mMr2Provider =
                             new MediaRoute2Provider(mApplicationContext, mMediaRouter2Fwk);
                 } else {
-                    mMediaRoute2Provider = null;
+                    mMr2Provider = null;
                 }
             } else {
                 mMediaRouter2Fwk = null;
                 mMr2RouteCallbackFwk = null;
                 mMr2TransferCallbackFwk = null;
                 mMr2CbExecutor = null;
-                mMediaRoute2Provider = null;
+                mMr2Provider = null;
             }
             // Add the system media route provider for interoperating with
             // the framework media router.  This one is special and receives
@@ -2500,7 +2500,8 @@ public final class MediaRouter {
             mIsTransferEnabled = true;
             mRegisteredProviderWatcher.enableTransfer();
             if (USE_FWK_MR2_ACTIVELY) {
-                addProvider(mMediaRoute2Provider);
+                updateMr2ProviderShouldRegisterCallbackFwk();
+                addProvider(mMr2Provider);
             } else {
                 updateMR2RouteDiscoveryPreferenceFwk();
             }
@@ -2606,7 +2607,7 @@ public final class MediaRouter {
             }
         }
 
-        void updateMr2RouteProvider() {
+        void updateMr2ProviderShouldRegisterCallbackFwk() {
             if (!BuildCompat.isAtLeastR() || !mIsTransferEnabled) {
                 return;
             }
@@ -2624,7 +2625,7 @@ public final class MediaRouter {
                     }
                 }
             }
-            mMediaRoute2Provider.setShouldRegisterCallback(callbackExists);
+            mMr2Provider.setShouldRegisterCallbackFwk(callbackExists);
         }
 
         @Override

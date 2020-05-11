@@ -28,6 +28,7 @@ import androidx.annotation.RequiresApi;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 /**
  * Provides routes and RouteController by using MediaRouter2.
@@ -40,9 +41,10 @@ class MediaRoute2Provider extends MediaRouteProvider {
     private final MediaRouter2.RouteCallback mMr2RouteCallbackFwk;
     private final Handler mHandler;
     private final Executor mHandlerExecutor;
-    private final List<MediaRoute2Info> mRoutes = new ArrayList<>();
 
-    private boolean mShouldRegisterCallback;
+    private List<MediaRoute2Info> mRoutes = new ArrayList<>();
+
+    private boolean mShouldRegisterCallbackFwk;
 
     MediaRoute2Provider(@NonNull Context context, @NonNull MediaRouter2 mediaRouter2Fwk) {
         super(context);
@@ -77,14 +79,13 @@ class MediaRoute2Provider extends MediaRouteProvider {
         return new DynamicMediaRoute2Controller(initialMemberRouteId);
     }
 
-    void setShouldRegisterCallback(boolean shouldRegisterCallback) {
-        mShouldRegisterCallback = shouldRegisterCallback;
-        updateMr2FwkCallbacks();
+    void setShouldRegisterCallbackFwk(boolean shouldRegisterCallbackFwk) {
+        mShouldRegisterCallbackFwk = shouldRegisterCallbackFwk;
     }
 
     // TODO: Also Handle TransferCallback here
     private void updateMr2FwkCallbacks() {
-        if (mShouldRegisterCallback) {
+        if (mShouldRegisterCallbackFwk) {
             mMediaRouter2Fwk.registerRouteCallback(mHandlerExecutor, mMr2RouteCallbackFwk,
                     MediaRouter2Utils.toDiscoveryPreference(getDiscoveryRequest()));
         } else {
@@ -93,10 +94,24 @@ class MediaRoute2Provider extends MediaRouteProvider {
     }
 
     protected void refreshRoutes() {
-        // TODO: 1. Exclude the system routes.
-        //       2. Find if there was any changes from mRoutes. If none, return.
-        //       3. Convert the [MediaRoute2Info]s to [RouteInfo]s
-        //       4. Call setDescriptor()
+        // Syetem routes should not be published by this provider.
+        List<MediaRoute2Info> newRoutes = mMediaRouter2Fwk.getRoutes().stream().distinct()
+                .filter(r -> !r.isSystemRoute())
+                .collect(Collectors.toList());
+
+        if (newRoutes.equals(mRoutes)) {
+            return;
+        }
+        mRoutes = newRoutes;
+
+        List<MediaRouteDescriptor> routeDescriptors = mRoutes.stream()
+                .map(MediaRouter2Utils::toMediaRouteDescriptor)
+                .collect(Collectors.toList());
+        MediaRouteProviderDescriptor descriptor = new MediaRouteProviderDescriptor.Builder()
+                .setSupportsDynamicGroupRoute(true)
+                .addRoutes(routeDescriptors)
+                .build();
+        setDescriptor(descriptor);
     }
 
     private class RouteCallback extends MediaRouter2.RouteCallback {
