@@ -342,20 +342,6 @@ package androidx.ui.core {
     method @Deprecated public static androidx.ui.core.DrawModifier drawWithContent(kotlin.jvm.functions.Function1<? super androidx.ui.core.ContentDrawScope,kotlin.Unit> onDraw);
   }
 
-  public final class DrawNode extends androidx.ui.core.ComponentNode {
-    ctor public DrawNode();
-    method public boolean getNeedsPaint();
-    method public kotlin.jvm.functions.Function3<androidx.ui.unit.Density,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? getOnPaint();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.ContentDrawScope,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? getOnPaintWithChildren();
-    method public void invalidate();
-    method public void setNeedsPaint(boolean p);
-    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit>? value);
-    method public void setOnPaintWithChildren(kotlin.jvm.functions.Function3<? super androidx.ui.core.ContentDrawScope,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit>? value);
-    property public final boolean needsPaint;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.unit.Density,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? onPaint;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.ContentDrawScope,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? onPaintWithChildren;
-  }
-
   public abstract class DrawScope extends androidx.ui.graphics.painter.CanvasScope implements androidx.ui.unit.Density {
     ctor public DrawScope();
     method public abstract androidx.ui.core.LayoutDirection getLayoutDirection();
@@ -686,7 +672,6 @@ package androidx.ui.core {
     method public void observeMeasureModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void onAttach(androidx.ui.core.ComponentNode node);
     method public void onDetach(androidx.ui.core.ComponentNode node);
-    method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
     method public void onInvalidate(androidx.ui.core.LayoutNode layoutNode);
     method public void onRequestMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);

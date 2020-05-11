@@ -22,7 +22,6 @@ import androidx.compose.isJoinedKey
 import androidx.compose.joinedKeyLeft
 import androidx.compose.joinedKeyRight
 import androidx.compose.keySourceInfoOf
-import androidx.ui.core.DrawNode
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.ModifierInfo
 import androidx.ui.core.globalPosition
@@ -138,7 +137,6 @@ private fun SlotReader.getGroup(): Group {
     // Calculate bounding box
     val box = when (node) {
         is LayoutNode -> boundsOfLayoutNode(node)
-        is DrawNode -> boundsOfLayoutNode(node.parentLayoutNode!!)
         else -> if (children.isEmpty()) emptyBox else
             children.map { g -> g.box }.reduce { acc, box -> box.union(acc) }
     }

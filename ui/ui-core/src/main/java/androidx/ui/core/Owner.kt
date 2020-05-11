@@ -119,13 +119,6 @@ interface Owner {
         set
 
     /**
-     * Called from a [DrawNode], this registers with the underlying view system that a
-     * redraw of the given [drawNode] is required. It may cause other nodes to redraw, if
-     * necessary.
-     */
-    fun onInvalidate(drawNode: DrawNode)
-
-    /**
      * Called from a [LayoutNode], this registers with the underlying view system that a
      * redraw of the given [layoutNode] is required. It may cause other nodes to redraw, if
      * necessary. Note that [LayoutNode]s are able to draw due to draw modifiers applied to them.
