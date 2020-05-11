@@ -16,6 +16,11 @@ package androidx.ui.input {
     method public void process(androidx.ui.input.EditingBuffer buffer);
   }
 
+  public final class DeleteAllEditOp implements androidx.ui.input.EditOperation {
+    ctor public DeleteAllEditOp();
+    method public void process(androidx.ui.input.EditingBuffer buffer);
+  }
+
   public final class DeleteSurroundingTextEditOp implements androidx.ui.input.EditOperation {
     ctor public DeleteSurroundingTextEditOp(int beforeLength, int afterLength);
     method public int component1();

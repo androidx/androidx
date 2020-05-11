@@ -31,10 +31,12 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.setContent
 import androidx.ui.geometry.Rect
+import androidx.ui.input.textInputServiceFactory
 import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
+import androidx.ui.test.TextInputServiceForTests
 import androidx.ui.test.isOnUiThread
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
@@ -159,11 +161,13 @@ class AndroidComposeTestRule<T : ComponentActivity>(
         private val base: Statement
     ) : Statement() {
         override fun evaluate() {
+            val oldTextInputFactory = textInputServiceFactory
             beforeEvaluate()
             try {
                 base.evaluate()
             } finally {
                 afterEvaluate()
+                textInputServiceFactory = oldTextInputFactory
             }
         }
 
@@ -171,6 +175,9 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             transitionsEnabled = !disableTransitions
             AndroidOwnerRegistry.setupRegistry()
             registerComposeWithEspresso()
+            textInputServiceFactory = {
+                TextInputServiceForTests(it)
+            }
         }
 
         private fun afterEvaluate() {

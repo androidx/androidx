@@ -68,8 +68,8 @@ import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.painter.drawCanvas
-import androidx.ui.input.TextInputService
 import androidx.ui.input.TextInputServiceAndroid
+import androidx.ui.input.textInputServiceFactory
 import androidx.ui.savedinstancestate.UiSavedStateRegistry
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.text.font.Font
@@ -791,7 +791,7 @@ internal class AndroidComposeView constructor(
 
     private val textInputServiceAndroid = TextInputServiceAndroid(this)
 
-    override val textInputService = TextInputService(textInputServiceAndroid)
+    override val textInputService = textInputServiceFactory(textInputServiceAndroid)
 
     override val fontLoader: Font.ResourceLoader = AndroidFontResourceLoader(context)
 

@@ -16,7 +16,9 @@
 
 package androidx.ui.input
 
+import androidx.annotation.RestrictTo
 import androidx.ui.geometry.Rect
+import org.jetbrains.annotations.TestOnly
 
 /**
  * The input session token.
@@ -153,3 +155,10 @@ interface PlatformTextInputService {
      */
     fun notifyFocusedRect(rect: Rect)
 }
+
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+var textInputServiceFactory: (PlatformTextInputService) -> TextInputService =
+    { TextInputService(it) }
+    @TestOnly
+    set
