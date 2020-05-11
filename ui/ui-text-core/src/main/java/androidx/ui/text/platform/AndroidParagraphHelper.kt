@@ -65,6 +65,7 @@ import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
+import androidx.ui.util.fastForEach
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 import android.os.LocaleList as AndroidLocaleList
@@ -426,7 +427,8 @@ internal fun createStyledText(
         }
     }
 
-    for ((placeholder, start, end) in placeholders) {
+    placeholders.fastForEach {
+        val (placeholder, start, end) = it
         with(placeholder) {
             spannableString.setSpanWithPriority(
                 PlaceholderSpan(

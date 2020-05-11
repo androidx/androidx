@@ -680,6 +680,19 @@ class LayoutNode : ComponentNode(), Measurable {
     private var outerZIndexModifier: ZIndexModifier? = null
 
     /**
+     * The inner-most layer wrapper. Used for performance for LayoutNodeWrapper.findLayer().
+     */
+    internal var innerLayerWrapper: LayerWrapper? = null
+
+    /**
+     * Returns the inner-most layer as part of this LayoutNode or from the containing LayoutNode.
+     * This is added for performance so that LayoutNodeWrapper.findLayer() can be faster.
+     */
+    internal fun findLayer(): OwnedLayer? {
+        return innerLayerWrapper?.layer ?: parentLayoutNode?.findLayer()
+    }
+
+    /**
      * The [Modifier] currently applied to this node.
      */
     var modifier: Modifier = Modifier
@@ -693,6 +706,7 @@ class LayoutNode : ComponentNode(), Measurable {
             onPositionedCallbacks.clear()
             onChildPositionedCallbacks.clear()
             outerZIndexModifier = null
+            innerLayerWrapper = null
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
                 var wrapper = toWrap
                 // The order in which the following blocks occur matters.  For example, the
@@ -709,7 +723,11 @@ class LayoutNode : ComponentNode(), Measurable {
                     wrapper = ModifiedDrawNode(wrapper, mod)
                 }
                 if (mod is DrawLayerModifier) {
-                    wrapper = LayerWrapper(wrapper, mod)
+                    val layerWrapper = LayerWrapper(wrapper, mod)
+                    wrapper = layerWrapper
+                    if (innerLayerWrapper == null) {
+                        innerLayerWrapper = layerWrapper
+                    }
                 }
                 if (mod is FocusModifier) {
                     require(mod is FocusModifierImpl)

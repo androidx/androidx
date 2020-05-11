@@ -67,6 +67,7 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.max
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
+import androidx.ui.util.fastFirstOrNull
 
 /**
  * A TabRow contains a row of [Tab]s, and displays an indicator underneath the currently
@@ -285,13 +286,13 @@ private fun ScrollableTabRow(
 
                 // The divider is measured with its own height, and width equal to the total width
                 // of the tab row, and then placed on top of the tabs.
-                measurables.firstOrNull { it.tag == dividerTag }
+                measurables.fastFirstOrNull { it.tag == dividerTag }
                     ?.measure(constraints.copy(minWidth = layoutWidth, maxWidth = layoutWidth))
                     ?.run { place(IntPx.Zero, layoutHeight - height) }
 
                 // The indicator container is measured to fill the entire space occupied by the tab
                 // row, and then placed on top of the divider.
-                measurables.firstOrNull { it.tag == indicatorTag }
+                measurables.fastFirstOrNull { it.tag == indicatorTag }
                     ?.measure(Constraints.fixed(layoutWidth, layoutHeight))
                     ?.place(IntPx.Zero, IntPx.Zero)
             }
