@@ -41,7 +41,7 @@ import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class IsDisplayedTests {
+class IsDisplayedTest {
 
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
