@@ -21,11 +21,11 @@ import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.focus.FocusModifier
-import androidx.ui.focus.FocusState.Focused
-import androidx.ui.focus.FocusState.NotFocusable
-import androidx.ui.focus.FocusState.NotFocused
-import androidx.ui.focus.focusState
+import androidx.ui.core.focus.FocusModifier
+import androidx.ui.core.focus.FocusState.Focused
+import androidx.ui.core.focus.FocusState.NotFocusable
+import androidx.ui.core.focus.FocusState.NotFocused
+import androidx.ui.core.focus.focusState
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement

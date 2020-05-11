@@ -17,11 +17,6 @@
 package androidx.ui.core.focus
 
 import androidx.compose.Model
-import androidx.ui.focus.FocusDetailedState
-import androidx.ui.focus.FocusModifier
-
-fun createFocusModifier(focusDetailedState: FocusDetailedState): FocusModifier =
-    FocusModifierImpl(focusDetailedState)
 
 @Model
 internal class FocusModifierImpl(

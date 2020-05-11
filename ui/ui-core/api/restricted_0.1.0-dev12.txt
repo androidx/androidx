@@ -974,11 +974,46 @@ package androidx.ui.core.clipboard {
 
 package androidx.ui.core.focus {
 
-  public final class FocusModifierImplKt {
-    method public static androidx.ui.focus.FocusModifier createFocusModifier(androidx.ui.focus.FocusDetailedState focusDetailedState);
+  public enum FocusDetailedState {
+    enum_constant public static final androidx.ui.core.focus.FocusDetailedState Active;
+    enum_constant public static final androidx.ui.core.focus.FocusDetailedState ActiveParent;
+    enum_constant public static final androidx.ui.core.focus.FocusDetailedState Captured;
+    enum_constant public static final androidx.ui.core.focus.FocusDetailedState Disabled;
+    enum_constant public static final androidx.ui.core.focus.FocusDetailedState Inactive;
+  }
+
+  public interface FocusModifier extends androidx.ui.core.Modifier.Element {
+    method public boolean captureFocus();
+    method public boolean freeFocus();
+    method public androidx.ui.core.focus.FocusDetailedState getFocusDetailedState();
+    method public void requestFocus();
+    property public abstract androidx.ui.core.focus.FocusDetailedState focusDetailedState;
+  }
+
+  public final class FocusModifierKt {
+    method public static androidx.ui.core.focus.FocusModifier FocusModifier();
+    method public static androidx.ui.core.focus.FocusState getFocusState(androidx.ui.core.focus.FocusModifier);
   }
 
   public final class FocusNodeUtilsKt {
+  }
+
+  @Deprecated public final class FocusOperator {
+    ctor @Deprecated public FocusOperator();
+  }
+
+  public enum FocusState {
+    enum_constant public static final androidx.ui.core.focus.FocusState Focused;
+    enum_constant public static final androidx.ui.core.focus.FocusState NotFocusable;
+    enum_constant public static final androidx.ui.core.focus.FocusState NotFocused;
+  }
+
+  public final class FocusStateKt {
+    method public static androidx.ui.core.focus.FocusState focusState(androidx.ui.core.focus.FocusDetailedState);
+  }
+
+  public final class FocusableKt {
+    method @Deprecated public static void Focusable(Object focusOperator, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> children);
   }
 
 }
@@ -1934,49 +1969,6 @@ package androidx.ui.core.texttoolbar {
 package androidx.ui.core.texttoolbar.actionmodecallback {
 
   public final class TextActionModeCallbackKt {
-  }
-
-}
-
-package androidx.ui.focus {
-
-  public enum FocusDetailedState {
-    enum_constant public static final androidx.ui.focus.FocusDetailedState Active;
-    enum_constant public static final androidx.ui.focus.FocusDetailedState ActiveParent;
-    enum_constant public static final androidx.ui.focus.FocusDetailedState Captured;
-    enum_constant public static final androidx.ui.focus.FocusDetailedState Disabled;
-    enum_constant public static final androidx.ui.focus.FocusDetailedState Inactive;
-  }
-
-  public interface FocusModifier extends androidx.ui.core.Modifier.Element {
-    method public boolean captureFocus();
-    method public boolean freeFocus();
-    method public androidx.ui.focus.FocusDetailedState getFocusDetailedState();
-    method public void requestFocus();
-    property public abstract androidx.ui.focus.FocusDetailedState focusDetailedState;
-  }
-
-  public final class FocusModifierProviderKt {
-    method public static androidx.ui.focus.FocusModifier FocusModifier();
-    method public static androidx.ui.focus.FocusState getFocusState(androidx.ui.focus.FocusModifier);
-  }
-
-  @Deprecated public final class FocusOperator {
-    ctor @Deprecated public FocusOperator();
-  }
-
-  public enum FocusState {
-    enum_constant public static final androidx.ui.focus.FocusState Focused;
-    enum_constant public static final androidx.ui.focus.FocusState NotFocusable;
-    enum_constant public static final androidx.ui.focus.FocusState NotFocused;
-  }
-
-  public final class FocusStateKt {
-    method public static androidx.ui.focus.FocusState focusState(androidx.ui.focus.FocusDetailedState);
-  }
-
-  public final class FocusableKt {
-    method @Deprecated public static void Focusable(Object focusOperator, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> children);
   }
 
 }

@@ -63,8 +63,8 @@ import androidx.ui.core.semantics.getOrNull
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.core.texttoolbar.AndroidTextToolbar
 import androidx.ui.core.texttoolbar.TextToolbar
-import androidx.ui.focus.FocusDetailedState.Active
-import androidx.ui.focus.FocusDetailedState.Inactive
+import androidx.ui.core.focus.FocusDetailedState.Active
+import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.painter.drawCanvas
@@ -133,6 +133,7 @@ internal class AndroidComposeView constructor(
             }
         }
     }
+
     override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
     private var semanticsNodes: MutableMap<Int, SemanticsNodeCopy> = mutableMapOf()
     private var semanticsRoot = SemanticsNodeCopy(semanticsOwner.rootSemanticsNode)
@@ -687,7 +688,8 @@ internal class AndroidComposeView constructor(
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         // TODO(b/154633012): move this to a proper place
         if ((context.getSystemService(Context.ACCESSIBILITY_SERVICE)
-                    as AccessibilityManager).isEnabled) {
+                    as AccessibilityManager).isEnabled
+        ) {
             checkForSemanticsChanges()
         }
 

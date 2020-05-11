@@ -22,7 +22,7 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
-import androidx.ui.focus.FocusModifier
+import androidx.ui.core.focus.FocusModifier
 import androidx.ui.input.EditorValue
 import androidx.ui.layout.width
 import androidx.ui.test.createComposeRule
