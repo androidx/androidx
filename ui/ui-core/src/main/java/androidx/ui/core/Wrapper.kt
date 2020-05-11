@@ -148,32 +148,12 @@ fun ComponentActivity.setContent(
     // on the main thread.
     recomposer: Recomposer = Recomposer.current(),
     content: @Composable () -> Unit
-): Composition = setContent(this, recomposer, content)
-
-/**
- * Composes the given composable into the given activity. The composable will become the root view
- * of the given activity.
- *
- * @param content Composable that will be the content of the activity.
- */
-@Deprecated(
-    "Your activity should extend androidx.activity.ComponentActivity " +
-            "or AppCompatActivity"
-)
-fun Activity.setContent(
-    content: @Composable () -> Unit
-): Composition = setContent(null, Recomposer.current(), content)
-
-private fun Activity.setContent(
-    lifecycleOwner: LifecycleOwner?,
-    recomposer: Recomposer,
-    content: @Composable () -> Unit
 ): Composition {
     FrameManager.ensureStarted()
     val composeView: AndroidOwner = window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0) as? AndroidOwner
-        ?: createOwner(this, lifecycleOwner).also {
+        ?: createOwner(this, this).also {
             setContentView(it.view, DefaultLayoutParams)
         }
     return doSetContent(this, composeView, recomposer, content)
