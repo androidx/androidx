@@ -16,4 +16,6 @@
 
 package android.graphics
 
-class Path
+class Path {
+    val skijaPath = org.jetbrains.skija.Path()
+}
