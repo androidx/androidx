@@ -29,6 +29,7 @@ import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
+import androidx.ui.material.Button
 import androidx.ui.unit.dp
 
 import javax.swing.WindowConstants
@@ -53,9 +54,16 @@ fun main() {
 @Composable
 fun App() {
     Box(Modifier.fillMaxSize(), backgroundColor = Color.Green)
-    Box(Modifier.padding(40.dp) + Modifier.drawBackground(color = Color.Blue))
-    Text(text = "Привет! 你好! Desktop Compose!",
-        color = Color.Black,
-        modifier = Modifier.preferredHeight(56.dp).wrapContentSize(Alignment.Center)
-    )
+    Box(Modifier.padding(40.dp) + Modifier.drawBackground(color = Color.Blue)) {
+            Text(text = "Привет! 你好! Desktop Compose!",
+                color = Color.Black,
+                modifier = Modifier.preferredHeight(56.dp).wrapContentSize(Alignment.Center)
+            )
+        }
+    var text = "Base"
+    Button(onClick = {
+        text = "Clicked"
+    }) {
+        Text(text)
+    }
 }
