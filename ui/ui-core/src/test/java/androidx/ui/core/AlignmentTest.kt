@@ -52,6 +52,7 @@ class AlignmentTest {
             Alignment.TopCenter.align(space, LayoutDirection.Rtl)
         )
     }
+
     @Test
     fun testAlign_topEnd() {
         assertEquals(
@@ -87,6 +88,7 @@ class AlignmentTest {
             Alignment.Center.align(space, LayoutDirection.Rtl)
         )
     }
+
     @Test
     fun testAlign_centerEnd() {
         assertEquals(
@@ -122,6 +124,7 @@ class AlignmentTest {
             Alignment.BottomCenter.align(space, LayoutDirection.Rtl)
         )
     }
+
     @Test
     fun testAlign_bottomEnd() {
         assertEquals(
@@ -191,6 +194,102 @@ class AlignmentTest {
         assertEquals(
             0.ipx,
             Alignment.End.align(space1D, LayoutDirection.Rtl)
+        )
+    }
+
+    @Test
+    fun testAbsoluteAlign_left() {
+        assertEquals(
+            0.ipx,
+            AbsoluteAlignment.Left.align(space1D)
+        )
+        assertEquals(
+            0.ipx,
+            AbsoluteAlignment.Left.align(space1D, LayoutDirection.Rtl)
+        )
+    }
+
+    @Test
+    fun testAbsoluteAlign_right() {
+        assertEquals(
+            100.ipx,
+            AbsoluteAlignment.Right.align(space1D)
+        )
+        assertEquals(
+            100.ipx,
+            AbsoluteAlignment.Right.align(space1D, LayoutDirection.Rtl)
+        )
+    }
+
+    @Test
+    fun testAbsoluteAlign_topLeft() {
+        assertEquals(
+            IntPxPosition(0.ipx, 0.ipx),
+            AbsoluteAlignment.TopLeft.align(space, LayoutDirection.Ltr)
+        )
+        assertEquals(
+            IntPxPosition(0.ipx, 0.ipx),
+            AbsoluteAlignment.TopLeft.align(space, LayoutDirection.Rtl)
+        )
+    }
+
+    @Test
+    fun testAbsoluteAlign_topRight() {
+        assertEquals(
+            IntPxPosition(100.ipx, 0.ipx),
+            AbsoluteAlignment.TopRight.align(space, LayoutDirection.Ltr)
+        )
+        assertEquals(
+            IntPxPosition(100.ipx, 0.ipx),
+            AbsoluteAlignment.TopRight.align(space, LayoutDirection.Rtl)
+        )
+    }
+
+    @Test
+    fun testAbsoluteAlign_centerLeft() {
+        assertEquals(
+            IntPxPosition(0.ipx, 50.ipx),
+            AbsoluteAlignment.CenterLeft.align(space, LayoutDirection.Ltr)
+        )
+        assertEquals(
+            IntPxPosition(0.ipx, 50.ipx),
+            AbsoluteAlignment.CenterLeft.align(space, LayoutDirection.Rtl)
+        )
+    }
+
+    @Test
+    fun testAbsoluteAlign_centerRight() {
+        assertEquals(
+            IntPxPosition(100.ipx, 50.ipx),
+            AbsoluteAlignment.CenterRight.align(space, LayoutDirection.Ltr)
+        )
+        assertEquals(
+            IntPxPosition(100.ipx, 50.ipx),
+            AbsoluteAlignment.CenterRight.align(space, LayoutDirection.Rtl)
+        )
+    }
+
+    @Test
+    fun testAbsoluteAlign_bottomLeft() {
+        assertEquals(
+            IntPxPosition(0.ipx, 100.ipx),
+            AbsoluteAlignment.BottomLeft.align(space, LayoutDirection.Ltr)
+        )
+        assertEquals(
+            IntPxPosition(0.ipx, 100.ipx),
+            AbsoluteAlignment.BottomLeft.align(space, LayoutDirection.Rtl)
+        )
+    }
+
+    @Test
+    fun testAbsoluteAlign_bottomRight() {
+        assertEquals(
+            IntPxPosition(100.ipx, 100.ipx),
+            AbsoluteAlignment.BottomRight.align(space, LayoutDirection.Ltr)
+        )
+        assertEquals(
+            IntPxPosition(100.ipx, 100.ipx),
+            AbsoluteAlignment.BottomRight.align(space, LayoutDirection.Rtl)
         )
     }
 }

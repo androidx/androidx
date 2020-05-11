@@ -144,4 +144,8 @@ private fun Alignment.toColumnArrangement() = object : Arrangement.Vertical {
     }
 }
 
-private fun Alignment.toColumnGravity() = Alignment.Horizontal(horizontalBias)
+private fun Alignment.toColumnGravity() = object : Alignment.Horizontal {
+    override fun align(size: IntPx, layoutDirection: LayoutDirection): IntPx {
+        return align(IntPxSize(size, 0.ipx), layoutDirection).x
+    }
+}
