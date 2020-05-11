@@ -17,23 +17,27 @@
 package androidx.ui.test
 
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
-import androidx.ui.layout.padding
-import androidx.ui.semantics.Semantics
-import androidx.ui.text.TextStyle
-import androidx.ui.unit.IntPx
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.height
+import androidx.ui.layout.size
+import androidx.ui.layout.width
+import androidx.ui.test.util.BoundaryNode
+import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.sp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,139 +50,90 @@ class IsDisplayedTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
+    private val colors = listOf(Color.Red, Color.Green, Color.Blue)
+
+    @Composable
+    private fun Item(i: Int, width: Dp? = null, height: Dp? = null) {
+        BoundaryNode("item$i") {
+            Box(
+                modifier = with(Modifier) { width?.let { width(it) } ?: fillMaxWidth() } +
+                        with(Modifier) { height?.let { height(it) } ?: fillMaxHeight() },
+                backgroundColor = colors[i % colors.size]
+            )
+        }
+    }
+
     @Test
     fun componentInScrollable_isDisplayed() {
-        createScrollableContent()
+        composeTestRule.setContent {
+            VerticalScroller(modifier = Modifier.size(100.dp)) {
+                Column {
+                    repeat(10) { Item(it, height = 30.dp) }
+                }
+            }
+        }
 
-        findByText("2")
+        findByTag("item0")
             .assertIsDisplayed()
     }
 
     @Test
     fun componentInScrollable_isNotDisplayed() {
-        createScrollableContent()
-
-        findByText("50")
-            .assertIsNotDisplayed()
-    }
-
-    private fun createScrollableContent() {
         composeTestRule.setContent {
-            val style = TextStyle(fontSize = 30.sp)
-            VerticalScroller(modifier = Modifier.padding(10.dp)) {
+            VerticalScroller(modifier = Modifier.size(100.dp)) {
                 Column {
-                    for (i in 1..100) {
-                        Semantics(container = true) {
-                            Text(text = i.toString(), style = style)
-                        }
-                    }
+                    repeat(10) { Item(it, height = 30.dp) }
                 }
             }
         }
+
+        findByTag("item4")
+            .assertIsNotDisplayed()
     }
 
     @Test
     fun toggleParentVisibility() {
-        /*
-        - topNode
-        -- secondNode
-        --- thirdNode
-        ---- Text
-         */
+        var place by mutableStateOf(true)
 
-        val model = AssertsUiTestsModel(true)
-
+        // Place `Stack { Item(0) }` or not, based on the value of [place]
         composeTestRule.setContent {
-            val lastNode = @Composable {
+            Layout({
                 Stack {
-                    Semantics(container = true) {
-                        Text("Foo")
+                    // Item instead of BoundaryNode because we need non-zero size
+                    Item(0)
+                }
+            }) { measurables, constraints, _ ->
+                if (place) {
+                    val placeable = measurables[0].measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
                     }
+                } else {
+                    layout(0.ipx, 0.ipx) {}
                 }
             }
-
-            val thirdNode = @Composable {
-                Stack {
-                    lastNode()
-                }
-            }
-
-            val secondNode = @Composable {
-                Layout({
-                    thirdNode()
-                }) { measurables, constraints, _ ->
-                    if (model.value) {
-                        val placeable = measurables[0].measure(constraints)
-                        layout(placeable.width, placeable.height) {
-                            placeable.place(0.ipx, 0.ipx)
-                        }
-                    } else {
-                        layout(0.ipx, 0.ipx) {}
-                    }
-                }
-            }
-
-            val topNode = @Composable {
-                Layout({
-                    secondNode()
-                }) { measurables, constraints, _ ->
-                    if (model.value) {
-                        val placeable = measurables[0].measure(constraints)
-                        layout(placeable.width, placeable.height) {
-                            placeable.place(0.ipx, 0.ipx)
-                        }
-                    } else {
-                        layout(0.ipx, 0.ipx) {
-                        }
-                    }
-                }
-            }
-
-            topNode()
         }
 
-        findByText("Foo")
+        findByTag("item0")
             .assertIsDisplayed()
 
-        runOnUiThread {
-            model.value = false
+        runOnIdleCompose {
+            place = false
         }
 
-        findByText("Foo")
+        findByTag("item0")
             .assertIsNotDisplayed()
     }
 
     @Test
     fun rowTooSmall() {
         composeTestRule.setContent {
-            val style = TextStyle(fontSize = 30.sp)
-            Stack {
-                // TODO(popam): remove this when a modifier can be used instead
-                Layout(
-                    children = {
-                        Row {
-                            for (i in 1..100) {
-                                Semantics(container = true) {
-                                    Text(text = i.toString(), style = style)
-                                }
-                            }
-                        }
-                    },
-                    modifier = Modifier.gravity(Alignment.Center)
-                ) { measurables, constraints, _ ->
-                    val placeable =
-                        measurables[0].measure(constraints.copy(maxWidth = IntPx.Infinity))
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0.ipx, 0.ipx)
-                    }
-                }
+            Row(modifier = Modifier.size(100.dp)) {
+                repeat(10) { Item(it, width = 30.dp) }
             }
         }
 
-        findByText("90")
+        findByTag("item9")
             .assertIsNotDisplayed()
     }
 }
-
-@Model
-class AssertsUiTestsModel(var value: Boolean)
