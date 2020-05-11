@@ -23,10 +23,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import android.graphics.Rect;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.core.content.ContextCompat;
@@ -47,6 +49,7 @@ import java.util.List;
 public final class SurfaceRequestTest {
 
     private static final Size FAKE_SIZE = new Size(0, 0);
+    private static final Rect FAKE_VIEW_PORT_RECT = new Rect(0, 0, 640, 480);
     private static final Consumer<SurfaceRequest.Result> NO_OP_RESULT_LISTENER = ignored -> {
     };
     private static final Surface MOCK_SURFACE = mock(Surface.class);
@@ -187,8 +190,29 @@ public final class SurfaceRequestTest {
         verify(listener, timeout(500)).run();
     }
 
+    @Test
+    public void createSurfaceRequestWithViewPort_viewPortIsSet() {
+        assertThat(createNewRequest(FAKE_SIZE, FAKE_VIEW_PORT_RECT).getViewPortRect()).isEqualTo(
+                FAKE_VIEW_PORT_RECT);
+    }
+
+    @Test
+    public void createSurfaceRequestWithNullViewPort_viewPortIsFullSurface() {
+        // Arrange.
+        Size size = new Size(200, 100);
+
+        // Assert.
+        assertThat(createNewRequest(size, null).getViewPortRect()).isEqualTo(
+                new Rect(0, 0, size.getWidth(), size.getHeight()));
+    }
+
     private SurfaceRequest createNewRequest(@NonNull Size size) {
-        SurfaceRequest request = new SurfaceRequest(size, new FakeCameraInfoInternal());
+        return createNewRequest(size, FAKE_VIEW_PORT_RECT);
+    }
+
+    private SurfaceRequest createNewRequest(@NonNull Size size, @Nullable Rect viewPortRect) {
+        SurfaceRequest request = new SurfaceRequest(size, new FakeCameraInfoInternal(),
+                viewPortRect);
         mSurfaceRequests.add(request);
         return request;
     }
