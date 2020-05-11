@@ -18,10 +18,13 @@ package androidx.appcompat.content.res;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.drawable.Drawable;
 
+import androidx.appcompat.graphics.drawable.MyDrawable;
 import androidx.appcompat.resources.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -58,5 +61,12 @@ public class AppCompatResourcesTestCase {
     @Test
     public void testGetAnimatedStateListDrawable() {
         assertNotNull(AppCompatResources.getDrawable(mContext, R.drawable.asl_heart));
+    }
+
+    @Test
+    public void testGetCustomDrawable() {
+        Drawable custom = AppCompatResources.getDrawable(mContext, R.drawable.my_drawable);
+        assertNotNull(custom);
+        assertTrue(custom instanceof MyDrawable);
     }
 }

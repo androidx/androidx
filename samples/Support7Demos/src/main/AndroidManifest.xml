@@ -733,6 +733,16 @@
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
+
+        <!-- Custom drawable activity -->
+        <activity android:name=".drawable.CustomDrawableActivity"
+            android:label="@string/custom_drawable"
+            android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
