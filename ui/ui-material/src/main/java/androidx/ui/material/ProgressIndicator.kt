@@ -26,6 +26,7 @@ import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.DrawScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.LayoutDirection
 import androidx.ui.foundation.Canvas
@@ -126,12 +127,11 @@ fun LinearProgressIndicator(
     }
 }
 
-private fun CanvasScope.drawLinearIndicator(
+private fun DrawScope.drawLinearIndicator(
     startFraction: Float,
     endFraction: Float,
     color: Color,
-    stroke: Stroke,
-    layoutDirection: LayoutDirection = LayoutDirection.Ltr
+    stroke: Stroke
 ) {
     val width = size.width
     val height = size.height
@@ -146,11 +146,10 @@ private fun CanvasScope.drawLinearIndicator(
     drawLine(color, Offset(barStart, yOffset), Offset(barEnd, yOffset), stroke)
 }
 
-private fun CanvasScope.drawLinearIndicatorBackground(
+private fun DrawScope.drawLinearIndicatorBackground(
     color: Color,
-    stroke: Stroke,
-    layoutDirection: LayoutDirection = LayoutDirection.Ltr
-) = drawLinearIndicator(0f, 1f, color, stroke, layoutDirection)
+    stroke: Stroke
+) = drawLinearIndicator(0f, 1f, color, stroke)
 
 /**
  * A determinate circular progress indicator that represents progress by drawing an arc ranging from
