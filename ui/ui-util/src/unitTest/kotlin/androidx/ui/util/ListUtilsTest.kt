@@ -18,6 +18,7 @@ package androidx.ui.util
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,5 +69,16 @@ class ListUtilsTest {
     fun anyFound() {
         val list = listOf(0, -1, -500, 1)
         assertTrue(list.fastAny { it > 0 })
+    }
+
+    @Test
+    fun firstOrNullNotFound() {
+        val list = listOf(0, -1, -500)
+        assertNull(list.fastFirstOrNull { it > 0 })
+    }
+    @Test
+    fun firstOrNullFound() {
+        val list = listOf(0, -1, -500, 1)
+        assertEquals(1, list.fastFirstOrNull { it > 0 })
     }
 }

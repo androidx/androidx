@@ -172,6 +172,8 @@ inline class TextUnit(val packedValue: Long) {
     }
 
     companion object {
+        internal val TextUnitTypes = arrayOf(TextUnitType.Inherit, TextUnitType.Sp, TextUnitType.Em)
+
         /**
          * Creates a SP unit [TextUnit].
          */
@@ -221,12 +223,7 @@ inline class TextUnit(val packedValue: Long) {
      *
      * @throws RuntimeException if unknown unknown unit type is appeared.
      */
-    val type: TextUnitType get() = when (rawType) {
-        UNIT_TYPE_INHERIT -> TextUnitType.Inherit
-        UNIT_TYPE_SP -> TextUnitType.Sp
-        UNIT_TYPE_EM -> TextUnitType.Em
-        else -> throw RuntimeException("packed TextUnit has unknown unit type.")
-    }
+    val type: TextUnitType get() = TextUnitTypes[(rawType ushr 32).toInt()]
 
     /**
      * True if this is [TextUnit.Inherit], otherwise false.

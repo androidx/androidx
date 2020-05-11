@@ -290,7 +290,13 @@ internal abstract class LayoutNodeWrapper(
     /**
      * Returns the layer that this wrapper will draw into.
      */
-    open fun findLayer(): OwnedLayer? = wrappedBy?.findLayer()
+    open fun findLayer(): OwnedLayer? {
+        return if (layoutNode.innerLayerWrapper != null) {
+            wrappedBy?.findLayer()
+        } else {
+            layoutNode.findLayer()
+        }
+    }
 
     /**
      * Returns the first [ModifiedFocusNode] in the wrapper list that wraps this

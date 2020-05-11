@@ -30,6 +30,7 @@ import androidx.ui.foundation.animation.AnchorsFlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
+import androidx.ui.util.fastFirstOrNull
 
 /**
  * Higher-level component that allows dragging around anchored positions binded to different states
@@ -74,7 +75,7 @@ internal fun <T> StateDraggable(
     val forceAnimationCheck = state { true }
 
     val anchors = remember(anchorsToState) { anchorsToState.map { it.first } }
-    val currentValue = anchorsToState.firstOrNull { it.second == state }!!.first
+    val currentValue = anchorsToState.fastFirstOrNull { it.second == state }!!.first
     val flingConfig =
         AnchorsFlingConfig(anchors, animationBuilder, onAnimationEnd = { reason, finalValue, _ ->
             if (reason != AnimationEndReason.Interrupted) {

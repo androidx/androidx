@@ -28,6 +28,7 @@ import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.toPxSize
 import androidx.ui.util.fastAny
+import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.fastForEach
 
 internal class InnerPlaceable(
@@ -62,7 +63,7 @@ internal class InnerPlaceable(
             null
         } else {
             layoutNode.layoutChildren
-                    .firstOrNull { it.parentData != null }?.parentData
+                    .fastFirstOrNull { it.parentData != null }?.parentData
         }
 
     override fun findFocusWrapperWrappingThisWrapper() =
