@@ -26,6 +26,7 @@ import androidx.ui.core.focus.FocusState.Focused
 import androidx.ui.core.focus.FocusState.NotFocusable
 import androidx.ui.core.focus.FocusState.NotFocused
 import androidx.ui.core.focus.focusState
+import androidx.ui.core.keyinput.keyInputFilter
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
@@ -58,7 +59,9 @@ fun KeyInputDemo() {
 private fun FocusableText(text: MutableState<String>) {
     val focusModifier = FocusModifier()
     Text(
-        modifier = focusModifier.tapGestureFilter { focusModifier.requestFocus() },
+        modifier = focusModifier
+            .keyInputFilter()
+            .tapGestureFilter { focusModifier.requestFocus() },
         text = text.value,
         color = when (focusModifier.focusState) {
             Focused -> Color.Green

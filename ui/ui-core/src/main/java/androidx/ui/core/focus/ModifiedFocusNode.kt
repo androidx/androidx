@@ -252,16 +252,16 @@ internal class ModifiedFocusNode(
         return owner.requestFocus()
     }
 
-    override fun findFocusWrapperWrappingThisWrapper() = this
+    override fun findPreviousFocusWrapper() = this
 
-    override fun findFocusWrapperWrappedByThisWrapper() = this
+    override fun findNextFocusWrapper() = this
 
     // TODO(b/152051577): Measure the performance of focusableChildren.
     //  Consider caching the children.
     internal fun focusableChildren(): List<ModifiedFocusNode> {
         // Check the modifier chain that this focus node is part of. If it has a focus modifier,
         // that means you have found the only focusable child for this node.
-        val focusableChild = wrapped.findFocusWrapperWrappedByThisWrapper()
+        val focusableChild = wrapped.findNextFocusWrapper()
         // findChildFocusNodeInWrapperChain()
         if (focusableChild != null) {
             return listOf(focusableChild)
