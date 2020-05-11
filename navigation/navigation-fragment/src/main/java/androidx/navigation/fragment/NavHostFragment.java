@@ -123,6 +123,7 @@ public class NavHostFragment extends Fragment implements NavHost {
 
     private NavHostController mNavController;
     private Boolean mIsPrimaryBeforeOnCreate = null;
+    private View mViewParent;
 
     // State that will be saved and restored
     private int mGraphId;
@@ -335,9 +336,9 @@ public class NavHostFragment extends Fragment implements NavHost {
         // When added programmatically, we need to set the NavController on the parent - i.e.,
         // the View that has the ID matching this NavHostFragment.
         if (view.getParent() != null) {
-            View rootView = (View) view.getParent();
-            if (rootView.getId() == getId()) {
-                Navigation.setViewNavController(rootView, mNavController);
+            mViewParent = (View) view.getParent();
+            if (mViewParent.getId() == getId()) {
+                Navigation.setViewNavController(mViewParent, mNavController);
             }
         }
     }
@@ -379,5 +380,14 @@ public class NavHostFragment extends Fragment implements NavHost {
         if (mGraphId != 0) {
             outState.putInt(KEY_GRAPH_ID, mGraphId);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mViewParent != null && Navigation.findNavController(mViewParent) == mNavController) {
+            Navigation.setViewNavController(mViewParent, null);
+        }
+        mViewParent = null;
     }
 }
