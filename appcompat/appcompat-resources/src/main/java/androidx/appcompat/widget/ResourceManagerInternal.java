@@ -36,7 +36,6 @@ import android.util.Xml;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
 import androidx.appcompat.resources.R;
@@ -106,6 +105,7 @@ public final class ResourceManagerInternal {
             manager.addDelegate("vector", new VdcInflateDelegate());
             manager.addDelegate("animated-vector", new AvdcInflateDelegate());
             manager.addDelegate("animated-selector", new AsldcInflateDelegate());
+            manager.addDelegate("drawable", new DrawableDelegate());
         }
     }
 
@@ -533,7 +533,6 @@ public final class ResourceManagerInternal {
         }
     }
 
-    @RequiresApi(11)
     static class AsldcInflateDelegate implements InflateDelegate {
         @Override
         public Drawable createFromXmlInner(@NonNull Context context, @NonNull XmlPullParser parser,
@@ -545,6 +544,32 @@ public final class ResourceManagerInternal {
                 Log.e("AsldcInflateDelegate", "Exception while inflating <animated-selector>", e);
                 return null;
             }
+        }
+    }
+
+    static class DrawableDelegate implements InflateDelegate {
+        @Override
+        public Drawable createFromXmlInner(@NonNull Context context, @NonNull XmlPullParser parser,
+                @NonNull AttributeSet attrs, @Nullable Resources.Theme theme) {
+            String className = attrs.getClassAttribute();
+            if (className != null) {
+                try {
+                    Class<? extends Drawable> drawableClass =
+                            DrawableDelegate.class.getClassLoader().loadClass(className)
+                                    .asSubclass(Drawable.class);
+                    Drawable drawable = drawableClass.getDeclaredConstructor().newInstance();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        drawable.inflate(context.getResources(), parser, attrs, theme);
+                    } else {
+                        drawable.inflate(context.getResources(), parser, attrs);
+                    }
+                    return drawable;
+                } catch (Exception e) {
+                    Log.e("DrawableDelegate", "Exception while inflating <drawable>", e);
+                    return null;
+                }
+            }
+            return null;
         }
     }
 }
