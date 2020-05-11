@@ -344,7 +344,6 @@ private fun ComponentNode.findHighestConsecutiveAncestor(
  * for all ancestors.
  */
 fun SemanticsNode.findClosestParentNode(selector: (SemanticsNode) -> Boolean): SemanticsNode? {
-    // TODO(b/143866294): move this to the testing side after the hierarchy isn't flattened anymore
     var currentParent = parent
     while (currentParent != null) {
         if (currentParent.isSemanticBoundary && selector(currentParent)) {
