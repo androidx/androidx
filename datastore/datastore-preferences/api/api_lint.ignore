@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+BuilderSetStyle: androidx.datastore.preferences.Preferences.Builder#remove(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.datastore.preferences.Preferences.Builder.remove(String)

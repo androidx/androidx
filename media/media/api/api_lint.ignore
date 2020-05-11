@@ -21,8 +21,16 @@ ActionValue: androidx.media.MediaBrowserServiceCompat.BrowserRoot#EXTRA_SUGGESTE
     Inconsistent extra value; expected `androidx.media.extra.SUGGESTED`, was `android.service.media.extra.SUGGESTED`
 
 
-CallbackMethodName: android.support.v4.media.session.MediaControllerCompat.Callback:
-    Callback method names must follow the on<Something> style: binderDied
+BuilderSetStyle: android.support.v4.media.MediaMetadataCompat.Builder#putBitmap(String, android.graphics.Bitmap):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method android.support.v4.media.MediaMetadataCompat.Builder.putBitmap(String,android.graphics.Bitmap)
+BuilderSetStyle: android.support.v4.media.MediaMetadataCompat.Builder#putLong(String, long):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method android.support.v4.media.MediaMetadataCompat.Builder.putLong(String,long)
+BuilderSetStyle: android.support.v4.media.MediaMetadataCompat.Builder#putRating(String, android.support.v4.media.RatingCompat):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method android.support.v4.media.MediaMetadataCompat.Builder.putRating(String,android.support.v4.media.RatingCompat)
+BuilderSetStyle: android.support.v4.media.MediaMetadataCompat.Builder#putString(String, String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method android.support.v4.media.MediaMetadataCompat.Builder.putString(String,String)
+BuilderSetStyle: android.support.v4.media.MediaMetadataCompat.Builder#putText(String, CharSequence):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method android.support.v4.media.MediaMetadataCompat.Builder.putText(String,CharSequence)
 
 
 ContextNameSuffix: androidx.media.MediaBrowserServiceCompat:

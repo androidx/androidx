@@ -1,6 +1,16 @@
 // Baseline format: 1.0
-CallbackMethodName: androidx.media2.common.DataSourceCallback:
-    Callback method names must follow the on<Something> style: readAt
+BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putBitmap(String, android.graphics.Bitmap):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putBitmap(String,android.graphics.Bitmap)
+BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putFloat(String, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putFloat(String,float)
+BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putLong(String, long):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putLong(String,long)
+BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putRating(String, androidx.media2.common.Rating):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putRating(String,androidx.media2.common.Rating)
+BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putString(String, String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putString(String,String)
+BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putText(String, CharSequence):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putText(String,CharSequence)
 
 
 GenericException: androidx.media2.common.SessionPlayer#close():

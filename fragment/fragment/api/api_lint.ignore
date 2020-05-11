@@ -27,18 +27,10 @@ MissingNullability: androidx.fragment.app.Fragment#startIntentSenderForResult(an
     Missing nullability on parameter `intent` in method `startIntentSenderForResult`
 MissingNullability: androidx.fragment.app.FragmentActivity#onNewIntent(android.content.Intent) parameter #0:
     Missing nullability on parameter `intent` in method `onNewIntent`
-MissingNullability: androidx.fragment.app.FragmentActivity#startActivityForResult(android.content.Intent, int) parameter #0:
-    Missing nullability on parameter `intent` in method `startActivityForResult`
-MissingNullability: androidx.fragment.app.FragmentActivity#startActivityForResult(android.content.Intent, int, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `intent` in method `startActivityForResult`
 MissingNullability: androidx.fragment.app.FragmentActivity#startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int) parameter #1:
     Missing nullability on parameter `intent` in method `startActivityFromFragment`
 MissingNullability: androidx.fragment.app.FragmentActivity#startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle) parameter #1:
     Missing nullability on parameter `intent` in method `startActivityFromFragment`
-MissingNullability: androidx.fragment.app.FragmentActivity#startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent, int, int, int) parameter #0:
-    Missing nullability on parameter `intent` in method `startIntentSenderForResult`
-MissingNullability: androidx.fragment.app.FragmentActivity#startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `intent` in method `startIntentSenderForResult`
 MissingNullability: androidx.fragment.app.FragmentActivity#startIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) parameter #1:
     Missing nullability on parameter `intent` in method `startIntentSenderFromFragment`
 MissingNullability: androidx.fragment.app.FragmentController#getActiveFragments(java.util.List<androidx.fragment.app.Fragment>) parameter #0:
