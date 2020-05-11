@@ -94,6 +94,7 @@ import java.util.stream.Collectors;
  * done from the main thread of the process.
  * </p>
  */
+// TODO: Add the javadoc for manifest requirements about 'Package visibility' in Android 11
 public final class MediaRouter {
     static final String TAG = "MediaRouter";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
@@ -142,6 +143,10 @@ public final class MediaRouter {
     // MediaRouter objects are instantiated so it is guaranteed to be
     // valid whenever any instance method is invoked.
     static GlobalMediaRouter sGlobal;
+
+    // TODO: After implementation of b/155377435 is complete, remove this variable and
+    //       related logic. Before then, test the new code with setting this value to true.
+    static final boolean USE_FWK_MR2_ACTIVELY = false;
 
     // Context-bound state of the media router.
     final Context mContext;
@@ -678,8 +683,13 @@ public final class MediaRouter {
             updateNeeded = true;
         }
         if (updateNeeded) {
-            sGlobal.updateDiscoveryRequest();
-            sGlobal.updateMR2RouteDiscoveryPreferenceFwk();
+            if (!USE_FWK_MR2_ACTIVELY) {
+                sGlobal.updateDiscoveryRequest();
+                sGlobal.updateMR2RouteDiscoveryPreferenceFwk();
+            } else {
+                sGlobal.updateMr2RouteProvider();
+                sGlobal.updateDiscoveryRequest();
+            }
         }
     }
 
@@ -703,8 +713,13 @@ public final class MediaRouter {
         int index = findCallbackRecord(callback);
         if (index >= 0) {
             mCallbackRecords.remove(index);
-            sGlobal.updateDiscoveryRequest();
-            sGlobal.updateMR2RouteDiscoveryPreferenceFwk();
+            if (!USE_FWK_MR2_ACTIVELY) {
+                sGlobal.updateDiscoveryRequest();
+                sGlobal.updateMR2RouteDiscoveryPreferenceFwk();
+            } else {
+                sGlobal.updateMr2RouteProvider();
+                sGlobal.updateDiscoveryRequest();
+            }
         }
     }
 
@@ -2189,6 +2204,7 @@ public final class MediaRouter {
         final MediaRouter2.RouteCallback mMr2RouteCallbackFwk;
         final MediaRouter2.TransferCallback mMr2TransferCallbackFwk;
         final Executor mMr2CbExecutor;
+        final MediaRoute2Provider mMediaRoute2Provider;
         final ArrayList<WeakReference<MediaRouter>> mRouters = new ArrayList<>();
         private final ArrayList<RouteInfo> mRoutes = new ArrayList<>();
         private final Map<Pair<String, String>, String> mUniqueIdMap = new HashMap<>();
@@ -2247,11 +2263,18 @@ public final class MediaRouter {
                         mCallbackHandler.post(command);
                     }
                 };
+                if (USE_FWK_MR2_ACTIVELY) {
+                    mMediaRoute2Provider =
+                            new MediaRoute2Provider(mApplicationContext, mMediaRouter2Fwk);
+                } else {
+                    mMediaRoute2Provider = null;
+                }
             } else {
                 mMediaRouter2Fwk = null;
                 mMr2RouteCallbackFwk = null;
                 mMr2TransferCallbackFwk = null;
                 mMr2CbExecutor = null;
+                mMediaRoute2Provider = null;
             }
             // Add the system media route provider for interoperating with
             // the framework media router.  This one is special and receives
@@ -2476,7 +2499,11 @@ public final class MediaRouter {
             }
             mIsTransferEnabled = true;
             mRegisteredProviderWatcher.enableTransfer();
-            updateMR2RouteDiscoveryPreferenceFwk();
+            if (USE_FWK_MR2_ACTIVELY) {
+                addProvider(mMediaRoute2Provider);
+            } else {
+                updateMR2RouteDiscoveryPreferenceFwk();
+            }
         }
 
         public void updateDiscoveryRequest() {
@@ -2577,6 +2604,27 @@ public final class MediaRouter {
                 mMediaRouter2Fwk.unregisterRouteCallback(mMr2RouteCallbackFwk);
                 mMediaRouter2Fwk.unregisterTransferCallback(mMr2TransferCallbackFwk);
             }
+        }
+
+        void updateMr2RouteProvider() {
+            if (!BuildCompat.isAtLeastR() || !mIsTransferEnabled) {
+                return;
+            }
+
+            boolean callbackExists = false;
+            for (int i = mRouters.size(); --i >= 0; ) {
+                MediaRouter router = mRouters.get(i).get();
+                if (router == null) {
+                    mRouters.remove(i);
+                } else {
+                    final int count = router.mCallbackRecords.size();
+                    if (count > 0) {
+                        callbackExists = true;
+                        break;
+                    }
+                }
+            }
+            mMediaRoute2Provider.setShouldRegisterCallback(callbackExists);
         }
 
         @Override
