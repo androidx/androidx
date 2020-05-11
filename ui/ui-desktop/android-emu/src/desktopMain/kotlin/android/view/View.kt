@@ -18,6 +18,7 @@ package android.view
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Rect
 import android.util.LayoutDirection
 
 open class View(val context: Context) {
@@ -26,6 +27,14 @@ open class View(val context: Context) {
         val LAYOUT_DIRECTION_LTR = LayoutDirection.LTR
         @JvmField
         val LAYOUT_DIRECTION_RTL = LayoutDirection.RTL
+
+        @JvmStatic
+        fun generateViewId(): Int {
+            // TODO: atomic in Android.
+            return sNextGeneratedId++
+        }
+
+        var sNextGeneratedId: Int = 1
     }
 
     open class AccessibilityDelegate()
@@ -51,7 +60,7 @@ open class View(val context: Context) {
 
     fun requestLayout() {}
 
-    fun invalidate() {}
+    open fun invalidate() {}
 
     open fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {}
 
@@ -78,5 +87,43 @@ open class View(val context: Context) {
                 return measureSpec
             }
         }
+    }
+
+    var id: Int = generateViewId()
+
+    var scaleX: Float = 1.0f
+    var scaleY: Float = 1.0f
+    var translationX: Float = 0.0f
+    var translationY: Float = 0.0f
+    var elevation: Float = 0.0f
+    var rotation: Float = 0.0f
+    var rotationX: Float = 0.0f
+    var rotationY: Float = 0.0f
+    var pivotX: Float = 0.0f
+    var pivotY: Float = 0.0f
+
+    var left: Int = 0
+    var top: Int = 0
+    var width: Int = 0
+    var height: Int = 0
+
+    var alpha: Float = 0.0f
+
+    var clipBounds: Rect? = null
+
+    var clipToOutline: Boolean = false
+
+    var outlineProvider: ViewOutlineProvider? = null
+
+    var drawingTime: Long = 0
+
+    var mRecreateDisplayList: Boolean = false
+
+    fun layout(l: Int, t: Int, r: Int, b: Int) {
+        println("View.layout")
+    }
+
+    fun updateDisplayListIfDirty() {
+        println("View.updateDisplayListIfDirty")
     }
 }
