@@ -17,6 +17,7 @@
 package androidx.ui.test
 
 import androidx.ui.core.AndroidOwner
+import androidx.ui.core.ComponentNode
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsNode
@@ -289,9 +290,13 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
     // hierarchy check - check layout nodes are visible
     val errorMessageOnFail = "Failed to perform isDisplayed check."
     val node = fetchSemanticsNode(errorMessageOnFail)
-    if (node.componentNode.findClosestParentNode {
-            it is LayoutNode && !it.isPlaced
-        } != null) {
+
+    fun isNotPlaced(node: ComponentNode): Boolean {
+        return node is LayoutNode && !node.isPlaced
+    }
+
+    val componentNode = node.componentNode
+    if (isNotPlaced(componentNode) || componentNode.findClosestParentNode(::isNotPlaced) != null) {
         return false
     }
 
