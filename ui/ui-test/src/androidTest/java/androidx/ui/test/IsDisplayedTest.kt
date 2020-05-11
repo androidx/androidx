@@ -63,6 +63,20 @@ class IsDisplayedTest {
         }
     }
 
+    @Composable
+    fun PlaceConditionally(place: Boolean, child: @Composable () -> Unit) {
+        Layout(children = child) { measurables, constraints, _ ->
+            if (place) {
+                val placeable = measurables[0].measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    placeable.place(0.ipx, 0.ipx)
+                }
+            } else {
+                layout(0.ipx, 0.ipx) {}
+            }
+        }
+    }
+
     @Test
     fun componentInScrollable_isDisplayed() {
         composeTestRule.setContent {
@@ -92,24 +106,36 @@ class IsDisplayedTest {
     }
 
     @Test
-    fun toggleParentVisibility() {
+    fun togglePlacement() {
         var place by mutableStateOf(true)
 
-        // Place `Stack { Item(0) }` or not, based on the value of [place]
         composeTestRule.setContent {
-            Layout({
+            PlaceConditionally(place) {
+                // Item instead of BoundaryNode because we need non-zero size
+                Item(0)
+            }
+        }
+
+        findByTag("item0")
+            .assertIsDisplayed()
+
+        runOnIdleCompose {
+            place = false
+        }
+
+        findByTag("item0")
+            .assertIsNotDisplayed()
+    }
+
+    @Test
+    fun toggleParentPlacement() {
+        var place by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            PlaceConditionally(place) {
                 Stack {
                     // Item instead of BoundaryNode because we need non-zero size
                     Item(0)
-                }
-            }) { measurables, constraints, _ ->
-                if (place) {
-                    val placeable = measurables[0].measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0.ipx, 0.ipx)
-                    }
-                } else {
-                    layout(0.ipx, 0.ipx) {}
                 }
             }
         }
