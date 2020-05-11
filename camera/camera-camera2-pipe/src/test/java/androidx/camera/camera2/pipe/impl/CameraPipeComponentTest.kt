@@ -19,19 +19,18 @@ package androidx.camera.camera2.pipe.impl
 import android.content.Context
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.CameraPipeRobolectricTestRunner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.internal.DoNotInstrument
 
 @SmallTest
-@RunWith(RobolectricTestRunner::class)
-@DoNotInstrument
+@RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraPipeComponentTest {
     @Test
@@ -54,7 +53,7 @@ class CameraPipeComponentTest {
             .cameraPipeModule(CameraPipeModule(CameraPipe.Config(context)))
             .build()
 
-        val cameraId = "0"
+        val cameraId = CameraId("0")
         val config = CameraGraph.Config(cameraId, listOf())
         val module = CameraGraphModule(config)
         val builder = component.cameraGraphComponentBuilder()
@@ -71,7 +70,7 @@ class CameraPipeComponentTest {
             .build()
 
         val graphComponent = component.cameraGraphComponentBuilder()
-            .cameraGraphModule(CameraGraphModule(CameraGraph.Config("0", listOf())))
+            .cameraGraphModule(CameraGraphModule(CameraGraph.Config(CameraId("0"), listOf())))
             .build()
 
         val graph = graphComponent.cameraGraph()

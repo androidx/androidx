@@ -16,41 +16,37 @@
 
 package androidx.camera.camera2.pipe
 
-import android.graphics.ImageFormat
 import android.os.Build
 import android.util.Size
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.internal.DoNotInstrument
 
 @SmallTest
-@RunWith(RobolectricTestRunner::class)
-@DoNotInstrument
+@RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class StreamTest {
 
     private val streamConfig1 = StreamConfig(
         size = Size(640, 480),
-        format = ImageFormat.YUV_420_888,
-        camera = "test",
+        format = StreamFormat.YUV_420_888,
+        camera = CameraId("test"),
         type = StreamType.SURFACE
     )
 
     private val streamConfig2 = StreamConfig(
         size = Size(640, 480),
-        format = ImageFormat.YUV_420_888,
-        camera = "test",
+        format = StreamFormat.YUV_420_888,
+        camera = CameraId("test"),
         type = StreamType.SURFACE
     )
 
     private val streamConfig3 = StreamConfig(
         size = Size(640, 480),
-        format = ImageFormat.JPEG,
-        camera = "test",
+        format = StreamFormat.JPEG,
+        camera = CameraId("test"),
         type = StreamType.SURFACE
     )
 
@@ -68,8 +64,8 @@ class StreamTest {
 
     @Test
     fun streamsFromSameConfigAreDifferent() {
-        val stream1 = Stream(streamConfig1, 1)
-        val stream2 = Stream(streamConfig1, 2)
+        val stream1 = Stream(streamConfig1, StreamId(1))
+        val stream2 = Stream(streamConfig1, StreamId(2))
 
         assertThat(stream1).isNotEqualTo(stream2)
         assertThat(stream1).isNotEqualTo(streamConfig1)

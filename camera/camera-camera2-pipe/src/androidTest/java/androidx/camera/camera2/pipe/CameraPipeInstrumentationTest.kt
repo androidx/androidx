@@ -17,12 +17,12 @@
 package androidx.camera.camera2.pipe
 
 import androidx.test.filters.SmallTest
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class CameraPipeInstrumentationTest {
     @Test fun test() {}
 }
