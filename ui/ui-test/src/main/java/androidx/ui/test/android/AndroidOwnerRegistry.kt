@@ -37,7 +37,7 @@ internal object AndroidOwnerRegistry {
     /**
      * Returns if the registry is setup to receive registrations from [AndroidOwner]s
      */
-    val isSetup: Boolean
+    val isSetUp: Boolean
         get() = AndroidOwner.onAndroidOwnerCreatedCallback == ::onAndroidOwnerCreated
 
     /**
