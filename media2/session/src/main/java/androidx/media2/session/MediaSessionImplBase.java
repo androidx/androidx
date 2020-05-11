@@ -123,7 +123,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     private final String mSessionId;
     private final SessionToken mSessionToken;
     private final AudioManager mAudioManager;
-    private final SessionPlayer.PlayerCallback mPlayerCallback;
+    private final SessionPlayerCallback mPlayerCallback;
     private final MediaSession mInstance;
     private final PendingIntent mSessionActivity;
     private final PendingIntent mMediaButtonIntent;
@@ -131,10 +131,17 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            MediaController.PlaybackInfo mPlaybackInfo;
+    MediaController.PlaybackInfo mPlaybackInfo;
 
     @GuardedBy("mLock")
-    private SessionPlayer mPlayer;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable
+    VolumeProviderCompat mVolumeProviderCompat;
+
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    SessionPlayer mPlayer;
+
     @GuardedBy("mLock")
     private MediaBrowserServiceCompat mBrowserServiceLegacyStub;
 
@@ -247,12 +254,16 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         final SessionPlayer oldPlayer;
         final MediaController.PlaybackInfo info = createPlaybackInfo(player, null);
 
+        VolumeProviderCompat volumeProviderCompat = player instanceof RemoteSessionPlayer
+                ? createVolumeProviderCompat((RemoteSessionPlayer) player) : null;
+
         synchronized (mLock) {
             isPlaybackInfoChanged = !info.equals(mPlaybackInfo);
 
             oldPlayer = mPlayer;
             mPlayer = player;
             mPlaybackInfo = info;
+            mVolumeProviderCompat = volumeProviderCompat;
 
             if (oldPlayer != mPlayer) {
                 if (oldPlayer != null) {
@@ -285,26 +296,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         }
 
         if (player instanceof RemoteSessionPlayer) {
-            final RemoteSessionPlayer remotePlayer = (RemoteSessionPlayer) player;
-            VolumeProviderCompat volumeProvider =
-                    new VolumeProviderCompat(remotePlayer.getVolumeControlType(),
-                            remotePlayer.getMaxVolume(),
-                            remotePlayer.getVolume()) {
-                        // TODO(b/138091975) Do not ignore the returned Future.
-                        @SuppressWarnings("FutureReturnValueIgnored")
-                        @Override
-                        public void onSetVolumeTo(int volume) {
-                            remotePlayer.setVolume(volume);
-                        }
-
-                        // TODO(b/138091975) Do not ignore the returned Future.
-                        @SuppressWarnings("FutureReturnValueIgnored")
-                        @Override
-                        public void onAdjustVolume(int direction) {
-                            remotePlayer.adjustVolume(direction);
-                        }
-                    };
-            mSessionCompat.setPlaybackToRemote(volumeProvider);
+            mSessionCompat.setPlaybackToRemote(volumeProviderCompat);
         } else {
             int stream = getLegacyStreamType(player.getAudioAttributes());
             mSessionCompat.setPlaybackToLocal(stream);
@@ -1323,6 +1315,26 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         return new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name);
     }
 
+    private static VolumeProviderCompat createVolumeProviderCompat(
+            @NonNull RemoteSessionPlayer player) {
+        return new VolumeProviderCompat(player.getVolumeControlType(), player.getMaxVolume(),
+                player.getVolume()) {
+            // TODO(b/138091975) Do not ignore the returned Future.
+            @SuppressWarnings("FutureReturnValueIgnored")
+            @Override
+            public void onSetVolumeTo(int volume) {
+                player.setVolume(volume);
+            }
+
+            // TODO(b/138091975) Do not ignore the returned Future.
+            @SuppressWarnings("FutureReturnValueIgnored")
+            @Override
+            public void onAdjustVolume(int direction) {
+                player.adjustVolume(direction);
+            }
+        };
+    }
+
     ///////////////////////////////////////////////////
     // Inner classes
     ///////////////////////////////////////////////////
@@ -1336,7 +1348,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         void run(ControllerCb controller, int seq) throws RemoteException;
     }
 
-    private static class SessionPlayerCallback extends SessionPlayer.PlayerCallback implements
+    private static class SessionPlayerCallback extends RemoteSessionPlayer.Callback implements
             MediaItem.OnMetadataChangedListener {
         private final WeakReference<MediaSessionImplBase> mSession;
         private MediaItem mMediaItem;
@@ -1615,6 +1627,32 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             if (!notifyingPended) {
                 // Forcefully notify, if updateCurrentMediaItemMetadataWithDuration wouldn't.
                 notifyCurrentMediaItemChanged(currentMediaItem);
+            }
+        }
+
+        @Override
+        public void onVolumeChanged(@NonNull RemoteSessionPlayer player, int volume) {
+            MediaSessionImplBase session = getSession();
+            if (session == null) {
+                return;
+            }
+            MediaController.PlaybackInfo newInfo =
+                    session.createPlaybackInfo(player, /* audioAttributes= */ null);
+            MediaController.PlaybackInfo oldInfo;
+            VolumeProviderCompat volumeProviderCompat;
+            synchronized (session.mLock) {
+                if (session.mPlayer != player) {
+                    return;
+                }
+                oldInfo = session.mPlaybackInfo;
+                session.mPlaybackInfo = newInfo;
+                volumeProviderCompat = session.mVolumeProviderCompat;
+            }
+            if (!ObjectsCompat.equals(newInfo, oldInfo)) {
+                session.notifyPlaybackInfoChangedNotLocked(newInfo);
+            }
+            if (volumeProviderCompat != null) {
+                volumeProviderCompat.setCurrentVolume(volume);
             }
         }
 
