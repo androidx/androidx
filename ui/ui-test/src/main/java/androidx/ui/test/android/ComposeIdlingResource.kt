@@ -141,16 +141,16 @@ private object FirstDrawIdlingResource : BaseIdlingResource() {
     override fun getName(): String = "FirstDrawIdlingResource"
 
     override fun isIdleNow(): Boolean {
-        return AndroidOwnerRegistry.haveAllDrawn().also {
+        return FirstDrawRegistry.haveAllDrawn().also {
             if (!it) {
-                AndroidOwnerRegistry.setOnDrawnCallback(::transitionToIdle)
+                FirstDrawRegistry.setOnDrawnCallback(::transitionToIdle)
             }
         }
     }
 
     override fun unregisterSelfFromEspresso() {
         super.unregisterSelfFromEspresso()
-        AndroidOwnerRegistry.setOnDrawnCallback(null)
+        FirstDrawRegistry.setOnDrawnCallback(null)
     }
 }
 
