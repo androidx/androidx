@@ -23,6 +23,7 @@ internal object ClassNames {
         ClassName.get("dagger.hilt.android.components", "ActivityRetainedComponent")
     val APPLICATION_COMPONENT =
         ClassName.get("dagger.hilt.android.components", "ApplicationComponent")
+    val ASSISTED = ClassName.get("androidx.hilt", "Assisted")
     val BINDS = ClassName.get("dagger", "Binds")
     val CONTEXT = ClassName.get("android.content", "Context")
     val NON_NULL = ClassName.get("androidx.annotation", "NonNull")
@@ -34,9 +35,11 @@ internal object ClassNames {
     val VIEW_MODEL_ASSISTED_FACTORY =
         ClassName.get("androidx.hilt.lifecycle", "ViewModelAssistedFactory")
     val VIEW_MODEL = ClassName.get("androidx.lifecycle", "ViewModel")
+    val VIEW_MODEL_INJECT = ClassName.get("androidx.hilt.lifecycle", "ViewModelInject")
     val SAVED_STATE_HANDLE = ClassName.get("androidx.lifecycle", "SavedStateHandle")
     val STRING_KEY = ClassName.get("dagger.multibindings", "StringKey")
     val WORKER = ClassName.get("androidx.work", "Worker")
     val WORKER_ASSISTED_FACTORY = ClassName.get("androidx.hilt.work", "WorkerAssistedFactory")
+    val WORKER_INJECT = ClassName.get("androidx.hilt.work", "WorkerInject")
     val WORKER_PARAMETERS = ClassName.get("androidx.work", "WorkerParameters")
 }

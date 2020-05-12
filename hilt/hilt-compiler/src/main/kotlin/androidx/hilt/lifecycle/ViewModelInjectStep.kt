@@ -16,12 +16,10 @@
 
 package androidx.hilt.lifecycle
 
-import androidx.hilt.Assisted
+import androidx.hilt.AndroidXHiltProcessor
 import androidx.hilt.ClassNames
 import androidx.hilt.ext.hasAnnotation
-import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.MoreElements
-import com.google.common.collect.SetMultimap
 import com.squareup.javapoet.TypeName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
@@ -37,19 +35,17 @@ import javax.tools.Diagnostic
  */
 class ViewModelInjectStep(
     private val processingEnv: ProcessingEnvironment
-) : BasicAnnotationProcessor.ProcessingStep {
+) : AndroidXHiltProcessor.Step {
 
     private val elements = processingEnv.elementUtils
     private val types = processingEnv.typeUtils
     private val messager = processingEnv.messager
 
-    override fun annotations() = setOf(ViewModelInject::class.java)
+    override fun annotation() = ClassNames.VIEW_MODEL_INJECT.canonicalName()
 
-    override fun process(
-        elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
-    ): MutableSet<out Element> {
+    override fun process(annotatedElements: Set<Element>) {
         val parsedElements = mutableSetOf<TypeElement>()
-        elementsByAnnotation[ViewModelInject::class.java].forEach { element ->
+        annotatedElements.forEach { element ->
             val constructorElement = MoreElements.asExecutable(element)
             val typeElement = MoreElements.asType(constructorElement.enclosingElement)
             if (parsedElements.add(typeElement)) {
@@ -61,7 +57,6 @@ class ViewModelInjectStep(
                 }
             }
         }
-        return mutableSetOf()
     }
 
     private fun parse(
@@ -84,7 +79,7 @@ class ViewModelInjectStep(
         }
 
         ElementFilter.constructorsIn(typeElement.enclosedElements).filter {
-            it.hasAnnotation(ViewModelInject::class)
+            it.hasAnnotation(ClassNames.VIEW_MODEL_INJECT.canonicalName())
         }.let { constructors ->
             if (constructors.size > 1) {
                 error("Multiple @ViewModelInject annotated constructors found.", typeElement)
@@ -113,7 +108,7 @@ class ViewModelInjectStep(
                 valid = false
             }
             firstOrNull()?.let {
-                if (!it.hasAnnotation(Assisted::class)) {
+                if (!it.hasAnnotation(ClassNames.ASSISTED.canonicalName())) {
                     error("Missing @Assisted annotation in param '${it.simpleName}'.", it)
                     valid = false
                 }

@@ -16,12 +16,10 @@
 
 package androidx.hilt.work
 
-import androidx.hilt.Assisted
+import androidx.hilt.AndroidXHiltProcessor
 import androidx.hilt.ClassNames
 import androidx.hilt.ext.hasAnnotation
-import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.MoreElements
-import com.google.common.collect.SetMultimap
 import com.squareup.javapoet.TypeName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
@@ -37,19 +35,17 @@ import javax.tools.Diagnostic
  */
 class WorkerInjectStep(
     private val processingEnv: ProcessingEnvironment
-) : BasicAnnotationProcessor.ProcessingStep {
+) : AndroidXHiltProcessor.Step {
 
     private val elements = processingEnv.elementUtils
     private val types = processingEnv.typeUtils
     private val messager = processingEnv.messager
 
-    override fun annotations() = setOf(WorkerInject::class.java)
+    override fun annotation() = ClassNames.WORKER_INJECT.canonicalName()
 
-    override fun process(
-        elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
-    ): MutableSet<out Element> {
+    override fun process(annotatedElements: Set<Element>) {
         val parsedElements = mutableSetOf<TypeElement>()
-        elementsByAnnotation[WorkerInject::class.java].forEach { element ->
+        annotatedElements.forEach { element ->
             val constructorElement =
                 MoreElements.asExecutable(element)
             val typeElement =
@@ -63,7 +59,6 @@ class WorkerInjectStep(
                 }
             }
         }
-        return mutableSetOf()
     }
 
     private fun parse(
@@ -86,7 +81,7 @@ class WorkerInjectStep(
         }
 
         ElementFilter.constructorsIn(typeElement.enclosedElements).filter {
-            it.hasAnnotation(WorkerInject::class)
+            it.hasAnnotation(ClassNames.WORKER_INJECT.canonicalName())
         }.let { constructors ->
             if (constructors.size > 1) {
                 error("Multiple @WorkerInject annotated constructors found.", typeElement)
@@ -114,7 +109,7 @@ class WorkerInjectStep(
                 valid = false
             }
             firstOrNull()?.let {
-                if (!it.hasAnnotation(Assisted::class)) {
+                if (!it.hasAnnotation(ClassNames.ASSISTED.canonicalName())) {
                     error("Missing @Assisted annotation in param '${it.simpleName}'.", it)
                     valid = false
                 }
@@ -130,7 +125,7 @@ class WorkerInjectStep(
                 valid = false
             }
             firstOrNull()?.let {
-                if (!it.hasAnnotation(Assisted::class)) {
+                if (!it.hasAnnotation(ClassNames.ASSISTED.canonicalName())) {
                     error("Missing @Assisted annotation in param '${it.simpleName}'.", it)
                     valid = false
                 }

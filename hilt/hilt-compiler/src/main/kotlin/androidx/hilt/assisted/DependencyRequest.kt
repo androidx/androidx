@@ -16,7 +16,6 @@
 
 package androidx.hilt.assisted
 
-import androidx.hilt.Assisted
 import androidx.hilt.ClassNames
 import androidx.hilt.ext.hasAnnotation
 import com.squareup.javapoet.AnnotationSpec
@@ -60,7 +59,7 @@ internal fun VariableElement.toDependencyRequest(): DependencyRequest {
     return DependencyRequest(
         name = simpleName.toString(),
         type = type,
-        isAssisted = hasAnnotation(Assisted::class) && qualifier == null,
+        isAssisted = hasAnnotation(ClassNames.ASSISTED.canonicalName()) && qualifier == null,
         qualifier = qualifier
     )
 }
