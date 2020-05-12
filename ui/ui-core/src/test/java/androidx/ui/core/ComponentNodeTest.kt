@@ -91,8 +91,8 @@ class ComponentNodeTest {
         node.removeAt(index = 0, count = 2)
         assertEquals(0, node.count)
 
-        val child3 = DrawNode()
-        val child4 = DrawNode()
+        val child3 = LayoutNode()
+        val child4 = LayoutNode()
 
         node.insertAt(0, child1)
         node.insertAt(1, child2)
@@ -194,28 +194,13 @@ class ComponentNodeTest {
     }
 
     @Test
-    fun drawNodeChildcounts() {
-        val node = DrawNode()
-        assertEquals(0, node.count)
-    }
-
-    @Test
-    fun drawNodeAdd() {
-        val node = DrawNode()
-        val child = DrawNode()
-        node.insertAt(0, child)
-        assertEquals(1, node.count)
-        assertEquals(child, node[0])
-    }
-
-    @Test
     fun childAdd() {
         val node = LayoutNode()
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(1)).onAttach(node)
 
-        val child = DrawNode()
+        val child = LayoutNode()
         node.insertAt(0, child)
         verify(owner, times(1)).onAttach(child)
         assertEquals(1, node.count)
@@ -252,7 +237,7 @@ class ComponentNodeTest {
         val node = LayoutNode()
         val owner = mock(Owner::class.java)
         node.attach(owner)
-        val child = DrawNode()
+        val child = LayoutNode()
         node.insertAt(0, child)
         node.removeAt(index = 0, count = 1)
         verify(owner, times(1)).onDetach(child)
@@ -315,7 +300,7 @@ class ComponentNodeTest {
     @Test
     fun testLayoutNodeAdd() {
         val (layout, child1, child2) = createSimpleLayout()
-        val inserted = DrawNode()
+        val inserted = LayoutNode()
         layout.insertAt(0, inserted)
         val children = mutableListOf<ComponentNode>()
         layout.visitChildren { children.add(it) }
@@ -328,8 +313,8 @@ class ComponentNodeTest {
     @Test
     fun testLayoutNodeRemove() {
         val (layout, child1, _) = createSimpleLayout()
-        val child3 = DrawNode()
-        val child4 = DrawNode()
+        val child3 = LayoutNode()
+        val child4 = LayoutNode()
         layout.insertAt(2, child3)
         layout.insertAt(3, child4)
         layout.removeAt(index = 1, count = 2)
@@ -344,8 +329,8 @@ class ComponentNodeTest {
     @Test
     fun testMoveChildren() {
         val (layout, child1, child2) = createSimpleLayout()
-        val child3 = DrawNode()
-        val child4 = DrawNode()
+        val child3 = LayoutNode()
+        val child4 = LayoutNode()
         layout.insertAt(2, child3)
         layout.insertAt(3, child4)
 
@@ -368,26 +353,6 @@ class ComponentNodeTest {
         assertEquals(child2, children[1])
         assertEquals(child3, children[2])
         assertEquals(child4, children[3])
-    }
-
-    @Test
-    fun testInvalidate() {
-        val node = DrawNode()
-        node.invalidate()
-        assertTrue(node.needsPaint)
-
-        val owner = mock(Owner::class.java)
-        node.attach(owner)
-        verify(owner, times(1)).onInvalidate(node)
-
-        node.needsPaint = false
-        reset(owner)
-        node.invalidate()
-        verify(owner, times(1)).onInvalidate(node)
-
-        reset(owner)
-        node.invalidate()
-        verify(owner, times(0)).onInvalidate(node)
     }
 
     @Test
@@ -636,7 +601,7 @@ class ComponentNodeTest {
     fun testAddBeyondCurrent() {
         val node = LayoutNode()
         thrown.expect(IndexOutOfBoundsException::class.java)
-        node.insertAt(1, DrawNode())
+        node.insertAt(1, LayoutNode())
     }
 
     // ComponentNode shouldn't allow adding below 0
@@ -644,14 +609,14 @@ class ComponentNodeTest {
     fun testAddBelowZero() {
         val node = LayoutNode()
         thrown.expect(IndexOutOfBoundsException::class.java)
-        node.insertAt(-1, DrawNode())
+        node.insertAt(-1, LayoutNode())
     }
 
     // ComponentNode should error when removing at index < 0
     @Test
     fun testRemoveNegativeIndex() {
         val node = LayoutNode()
-        node.insertAt(0, DrawNode())
+        node.insertAt(0, LayoutNode())
         thrown.expect(IndexOutOfBoundsException::class.java)
         node.removeAt(-1, 1)
     }
@@ -660,7 +625,7 @@ class ComponentNodeTest {
     @Test
     fun testRemoveBeyondIndex() {
         val node = LayoutNode()
-        node.insertAt(0, DrawNode())
+        node.insertAt(0, LayoutNode())
         thrown.expect(IndexOutOfBoundsException::class.java)
         node.removeAt(1, 1)
     }
@@ -669,7 +634,7 @@ class ComponentNodeTest {
     @Test
     fun testRemoveNegativeCount() {
         val node = LayoutNode()
-        node.insertAt(0, DrawNode())
+        node.insertAt(0, LayoutNode())
         thrown.expect(IllegalArgumentException::class.java)
         node.removeAt(0, -1)
     }
@@ -678,7 +643,7 @@ class ComponentNodeTest {
     @Test
     fun testRemoveWithIndexBeyondSize() {
         val node = LayoutNode()
-        node.insertAt(0, DrawNode())
+        node.insertAt(0, LayoutNode())
         thrown.expect(IndexOutOfBoundsException::class.java)
         node.removeAt(0, 2)
     }
@@ -695,8 +660,8 @@ class ComponentNodeTest {
     @Test
     fun testRemoveTwoItems() {
         val node = LayoutNode()
-        node.insertAt(0, DrawNode())
-        node.insertAt(0, DrawNode())
+        node.insertAt(0, LayoutNode())
+        node.insertAt(0, LayoutNode())
         node.removeAt(0, 2)
         assertEquals(0, node.count)
     }

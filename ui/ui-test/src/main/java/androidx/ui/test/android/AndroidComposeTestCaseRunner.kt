@@ -36,9 +36,6 @@ import androidx.compose.Recomposer
 import androidx.compose.frames.currentFrame
 import androidx.compose.frames.inFrame
 import androidx.ui.core.AndroidOwner
-import androidx.ui.core.ComponentNode
-import androidx.ui.core.DrawNode
-import androidx.ui.core.Owner
 import androidx.ui.core.setContent
 import androidx.ui.test.ComposeBenchmarkScope
 import androidx.ui.test.ComposeTestCase
@@ -312,18 +309,6 @@ private fun invalidateViews(view: View) {
             val child = view.getChildAt(i)
             invalidateViews(child)
         }
-    }
-    if (view is Owner) {
-        invalidateComponentNodes(view.root)
-    }
-}
-
-private fun invalidateComponentNodes(node: ComponentNode) {
-    if (node is DrawNode) {
-        node.invalidate()
-    }
-    node.visitChildren { child ->
-        invalidateComponentNodes(child)
     }
 }
 

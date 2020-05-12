@@ -26,7 +26,6 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.round
 import androidx.ui.util.fastForEach
 
@@ -286,44 +285,6 @@ private val ZIndexComparator = Comparator<ComponentNode> { node1, node2 ->
  * this means that the ComponentNode is currently a part of a component tree.
  */
 fun ComponentNode.isAttached() = owner != null
-
-/**
- * Backing node for the Draw component.
- */
-class DrawNode : ComponentNode() {
-    var onPaintWithChildren: (ContentDrawScope.(canvas: Canvas, parentSize: PxSize) -> Unit)? = null
-        set(value) {
-            field = value
-            invalidate()
-        }
-
-    var onPaint: (Density.(canvas: Canvas, parentSize: PxSize) -> Unit)? = null
-        set(value) {
-            field = value
-            invalidate()
-        }
-
-    var needsPaint = false
-
-    override fun attach(owner: Owner) {
-        super.attach(owner)
-        needsPaint = true
-        owner.onInvalidate(this)
-    }
-
-    override fun detach() {
-        invalidate()
-        super.detach()
-        needsPaint = false
-    }
-
-    fun invalidate() {
-        if (!needsPaint) {
-            needsPaint = true
-            owner?.onInvalidate(this)
-        }
-    }
-}
 
 /**
  * Backing node for Layout component.
