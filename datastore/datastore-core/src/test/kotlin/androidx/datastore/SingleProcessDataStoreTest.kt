@@ -175,11 +175,24 @@ class SingleProcessDataStoreTest {
     @Test
     fun testWriteToNonExistentDir() = runBlockingTest {
         val fileInNonExistentDir = File(tmp.newFolder(), "/this/does/not/exist/foo.pb")
-        val newStore = newDataStore(fileInNonExistentDir)
+        var newStore = newDataStore(fileInNonExistentDir)
 
         newStore.updateData { 1 }
 
         assertThat(newStore.dataFlow.first()).isEqualTo(1)
+
+        newStore = newDataStore(fileInNonExistentDir)
+        assertThat(newStore.dataFlow.first()).isEqualTo(1)
+    }
+
+    @Test
+    fun testWriteToDirFails() = runBlockingTest {
+        val directoryFile = File(tmp.newFolder(), "/this/is/a/directory")
+        directoryFile.mkdirs()
+        assertThat(directoryFile.isDirectory)
+
+        val newStore = newDataStore(directoryFile)
+        assertThrows<IOException> { newStore.dataFlow.first() }
     }
 
     @Test

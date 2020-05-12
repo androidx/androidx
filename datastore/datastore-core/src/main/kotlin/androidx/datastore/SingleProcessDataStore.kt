@@ -185,8 +185,10 @@ class SingleProcessDataStore<T>(
             override suspend fun updateData(transform: suspend (t: T) -> T): T {
                 return updateLock.withLock() {
                     if (initializationComplete) {
-                        throw IllegalStateException("InitializerApi.updateData should not be " +
-                                "called after initialization is complete.")
+                        throw IllegalStateException(
+                            "InitializerApi.updateData should not be " +
+                                    "called after initialization is complete."
+                        )
                     }
 
                     val newData = transform(initData)
@@ -269,7 +271,8 @@ class SingleProcessDataStore<T>(
     private fun writeData(newData: T) {
         // TODO(b/151635324): consider caching produceFile result.
         val file = produceFile()
-        file.mkdirs()
+        file.createParentDirectories()
+
         val scratchFile = File(file.absolutePath + SCRATCH_SUFFIX)
         try {
             FileOutputStream(scratchFile).use { stream ->
@@ -278,12 +281,25 @@ class SingleProcessDataStore<T>(
                 // TODO(b/151635324): fsync the directory, otherwise a badly timed crash could
                 //  result in reverting to a previous state.
             }
-            scratchFile.renameTo(file)
+            if (!scratchFile.renameTo(file)) {
+                throw IOException("$scratchFile could not be renamed to $file")
+            }
         } catch (ex: IOException) {
             if (scratchFile.exists()) {
                 scratchFile.delete()
             }
             throw ex
+        }
+    }
+
+    private fun File.createParentDirectories() {
+        val parent: File? = canonicalFile.parentFile
+
+        parent?.let {
+            it.mkdirs()
+            if (!it.isDirectory) {
+                throw IOException("Unable to create parent directories of $this")
+            }
         }
     }
 
