@@ -39,10 +39,13 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
+import androidx.ui.core.Ref
 import androidx.ui.core.drawBehind
 import androidx.ui.core.offset
 import androidx.ui.core.tag
 import androidx.ui.core.focus.FocusModifier
+import androidx.ui.core.focus.FocusState
+import androidx.ui.core.focus.focusState
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
@@ -65,6 +68,7 @@ import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.LastBaseline
+import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.lerp
@@ -103,6 +107,10 @@ import androidx.ui.unit.max
  *
  * @sample androidx.ui.material.samples.PasswordFilledTextField
  *
+ * Hiding a software keyboard on IME action performed:
+ *
+ * @sample androidx.ui.material.samples.TextFieldWithHideKeyboardOnImeAction
+ *
  * If apart from input text change you also want to observe the cursor location or selection range,
  * use a FilledTextField overload with the [TextFieldValue] parameter instead.
  *
@@ -133,11 +141,16 @@ import androidx.ui.unit.max
  * with the specified [ImeAction]
  * @param onImeActionPerformed is triggered when the input service performs an [ImeAction].
  * Note that the emitted IME action may be different from what you specified through the
- * [imeAction] field
+ * [imeAction] field. The callback also exposes a [SoftwareKeyboardController] instance as a
+ * parameter that can be used to request to hide the software keyboard
  * @param visualTransformation transforms the visual representation of the input [value].
  * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
  * text field. By default no visual transformation is applied
- * @param onFocusChange the callback triggered when the text field gets or loses the focus
+ * @param onFocusChange a callback to be invoked when the text field gets or loses the focus
+ * @param onTextInputStarted a callback to be invoked when the connection with the platform's text
+ * input service (e.g. software keyboard on Android) has been established. Called with the
+ * [SoftwareKeyboardController] instance that can be used to request to show or hide the software
+ * keyboard
  * @param activeColor the color of the label, bottom indicator and the cursor when the text field is
  * in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
@@ -162,8 +175,9 @@ fun FilledTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
-    onImeActionPerformed: (ImeAction) -> Unit = {},
+    onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit = { _, _ -> },
     onFocusChange: (Boolean) -> Unit = {},
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
     errorColor: Color = MaterialTheme.colors.error,
@@ -200,6 +214,7 @@ fun FilledTextField(
         imeAction = imeAction,
         onImeActionPerformed = onImeActionPerformed,
         onFocusChange = onFocusChange,
+        onTextInputStarted = onTextInputStarted,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
         errorColor = errorColor,
@@ -246,11 +261,16 @@ fun FilledTextField(
  * with the specified [ImeAction]
  * @param onImeActionPerformed is triggered when the input service performs an [ImeAction].
  * Note that the emitted IME action may be different from what you specified through the
- * [imeAction] field
+ * [imeAction] field. The callback also exposes a [SoftwareKeyboardController] instance as a
+ * parameter that can be used to request to hide the software keyboard
  * @param visualTransformation transforms the visual representation of the input [value].
  * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
  * text field. By default no visual transformation is applied
- * @param onFocusChange the callback triggered when the text field gets or loses the focus
+ * @param onFocusChange a callback to be invoked when the text field gets or loses the focus
+ * @param onTextInputStarted a callback to be invoked when the connection with the platform's text
+ * input service (e.g. software keyboard on Android) has been established. Called with the
+ * [SoftwareKeyboardController] instance that can be used to request to show or hide the software
+ * keyboard
  * @param activeColor the color of the label, bottom indicator and the cursor when the text field is
  * in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
@@ -275,8 +295,9 @@ fun FilledTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
-    onImeActionPerformed: (ImeAction) -> Unit = {},
+    onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit = { _, _ -> },
     onFocusChange: (Boolean) -> Unit = {},
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
     errorColor: Color = MaterialTheme.colors.error,
@@ -299,6 +320,7 @@ fun FilledTextField(
         imeAction = imeAction,
         onImeActionPerformed = onImeActionPerformed,
         onFocusChange = onFocusChange,
+        onTextInputStarted = onTextInputStarted,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
         errorColor = errorColor,
@@ -324,8 +346,9 @@ private fun FilledTextFieldImpl(
     visualTransformation: VisualTransformation,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
-    onImeActionPerformed: (ImeAction) -> Unit,
+    onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit,
     onFocusChange: (Boolean) -> Unit,
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit,
     activeColor: Color,
     inactiveColor: Color,
     errorColor: Color,
@@ -333,11 +356,11 @@ private fun FilledTextFieldImpl(
     shape: Shape
 ) {
     val focusModifier = FocusModifier()
-    var shouldFocus by state { false }
-    var focused by state { false }
-    val inputState = stateFor(value.text, focused) {
+    val keyboardController: Ref<SoftwareKeyboardController> = remember { Ref() }
+
+    val inputState = stateFor(value.text, focusModifier.focusState) {
         when {
-            focused -> InputPhase.Focused
+            focusModifier.focusState == FocusState.Focused -> InputPhase.Focused
             value.text.isEmpty() -> InputPhase.UnfocusedEmpty
             else -> InputPhase.UnfocusedNotEmpty
         }
@@ -366,15 +389,18 @@ private fun FilledTextFieldImpl(
                 modifier = tagModifier + focusModifier,
                 textStyle = textStyle,
                 onValueChange = onValueChange,
-                onFocusChange = {
-                    focused = it
-                    onFocusChange(it)
-                },
+                onFocusChange = onFocusChange,
                 cursorColor = if (isErrorValue) errorColor else activeColor,
                 visualTransformation = visualTransformation,
                 keyboardType = keyboardType,
                 imeAction = imeAction,
-                onImeActionPerformed = onImeActionPerformed
+                onImeActionPerformed = {
+                    onImeActionPerformed(it, keyboardController.value)
+                },
+                onTextInputStarted = {
+                    keyboardController.value = it
+                    onTextInputStarted(it)
+                }
             )
         }
     }
@@ -390,11 +416,6 @@ private fun FilledTextFieldImpl(
             shape = shape,
             color = backgroundColor.applyAlpha(alpha = ContainerAlpha)
         ) {
-            if (shouldFocus) {
-                focusModifier.requestFocus()
-                shouldFocus = false
-            }
-
             val emphasisLevels = EmphasisAmbient.current
             val emphasizedActiveColor = emphasisLevels.high.applyEmphasis(activeColor)
             val labelInactiveColor = emphasisLevels.medium.applyEmphasis(inactiveColor)
@@ -431,7 +452,8 @@ private fun FilledTextFieldImpl(
                 IconsTextFieldLayout(
                     modifier = Modifier
                         .clickable(indication = RippleIndication(bounded = false)) {
-                            shouldFocus = true
+                            focusModifier.requestFocus()
+                            keyboardController.value?.showSoftwareKeyboard()
                         }
                         .drawIndicatorLine(
                             lineWidth = indicatorWidth,

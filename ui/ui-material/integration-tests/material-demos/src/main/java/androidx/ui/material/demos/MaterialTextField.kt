@@ -51,6 +51,7 @@ import androidx.ui.material.samples.FilledTextFieldWithIcons
 import androidx.ui.material.samples.FilledTextFieldWithPlaceholder
 import androidx.ui.material.samples.PasswordFilledTextField
 import androidx.ui.material.samples.TextFieldWithHelperMessage
+import androidx.ui.material.samples.TextFieldWithHideKeyboardOnImeAction
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
@@ -74,6 +75,8 @@ fun TextFieldsDemo() {
         FilledTextFieldWithErrorState()
         Text("Text field with helper/error message")
         TextFieldWithHelperMessage()
+        Text("Hide keyboard on IME action")
+        TextFieldWithHideKeyboardOnImeAction()
         Text("TextFieldValue overload")
         FilledTextFieldSample()
     }

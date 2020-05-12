@@ -49,10 +49,12 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.doGesture
+import androidx.ui.test.doSendImeAction
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendClick
 import androidx.ui.text.FirstBaseline
+import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
@@ -718,6 +720,59 @@ class FilledTextFieldTest {
                 // avoid elevation artifacts
                 shapeOverlapPixelCount = with(testRule.density) { 1.dp.toPx().value }
             )
+    }
+
+    @Test
+    fun testOnTextInputStartedCallback() {
+        var controller: SoftwareKeyboardController? = null
+
+        testRule.setMaterialContent {
+            TestTag("textField") {
+                FilledTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {},
+                    onTextInputStarted = {
+                        controller = it
+                    }
+                )
+            }
+        }
+        assertThat(controller).isNull()
+
+        findByTag("textField")
+            .doClick()
+
+        runOnIdleCompose {
+            assertThat(controller).isNotNull()
+        }
+    }
+
+    @Test
+    fun testImeActionCallback_withSoftwareKeyboardController() {
+        var controller: SoftwareKeyboardController? = null
+
+        testRule.setMaterialContent {
+            TestTag("textField") {
+                FilledTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {},
+                    imeAction = ImeAction.Go,
+                    onImeActionPerformed = { _, softwareKeyboardController ->
+                        controller = softwareKeyboardController
+                    }
+                )
+            }
+        }
+        assertThat(controller).isNull()
+
+        findByTag("textField")
+            .doSendImeAction()
+
+        runOnIdleCompose {
+            assertThat(controller).isNotNull()
+        }
     }
 
     private fun clickAndAdvanceClock(tag: String, time: Long) {

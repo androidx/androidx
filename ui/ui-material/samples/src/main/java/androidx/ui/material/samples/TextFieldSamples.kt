@@ -25,6 +25,7 @@ import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.currentTextStyle
+import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.layout.Column
@@ -149,5 +150,24 @@ fun FilledTextFieldSample() {
         value = text,
         onValueChange = { text = it },
         label = { Text("Label") }
+    )
+}
+
+@Sampled
+@Composable
+fun TextFieldWithHideKeyboardOnImeAction() {
+    var text by savedInstanceState { "" }
+
+    FilledTextField(
+        value = text,
+        onValueChange = { text = it },
+        label = { Text("Label", style = currentTextStyle()) },
+        imeAction = ImeAction.Done,
+        onImeActionPerformed = { action, softwareController ->
+            if (action == ImeAction.Done) {
+                softwareController?.hideSoftwareKeyboard()
+                // do something here
+            }
+        }
     )
 }
