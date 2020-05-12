@@ -82,11 +82,26 @@ function_core_check() {
     fi
 }
 
+function_setup_go() {
+    if [ -f /d/fpsgo/common/force_onoff ]; then
+        # Disable fpsgo
+        echo 0 > /d/fpsgo/common/force_onoff
+        fpsgoState=`cat /d/fpsgo/common/force_onoff`
+        if [ "$fpsgoState" != "0" ] && [ "$fpsgoState" != "force off" ]; then
+            echo "Failed to disable fpsgo"
+            exit -1
+        fi
+    fi
+}
+
 # Find the min or max (little vs big) of CPU max frequency, and lock cores of the selected type to
 # an available frequency that's >= $CPU_TARGET_FREQ_PERCENT% of max. Disable other cores.
 function_lock_cpu() {
     CPU_BASE=/sys/devices/system/cpu
     GOV=cpufreq/scaling_governor
+
+    # Options to make clock locking on go devices more sticky.
+    function_setup_go
 
     # Find max CPU freq, and associated list of available freqs
     cpuIdealFreq=$CPU_IDEAL_START_FREQ_KHZ
@@ -95,9 +110,14 @@ function_lock_cpu() {
     enableIndices=''
     disableIndices=''
     cpu=0
-    while [ -f ${CPU_BASE}/cpu${cpu}/online ]; do
-        # enable core, so we can find its frequencies
-        echo 1 > ${CPU_BASE}/cpu${cpu}/online
+    while [ -d ${CPU_BASE}/cpu${cpu}/cpufreq ]; do
+        # Try to enable core, so we can find its frequencies.
+        # Note: In cases where the online file is inaccessible, it represents a
+        # core which cannot be turned off, so we simply assume it is enabled if
+        # this command fails.
+        if [ -f "$CPU_BASE/cpu$cpu/online" ]; then
+            echo 1 > ${CPU_BASE}/cpu${cpu}/online || true
+        fi
 
         # set userspace governor on all CPUs to ensure freq scaling is disabled
         echo userspace > ${CPU_BASE}/cpu${cpu}/${GOV}
@@ -139,13 +159,17 @@ function_lock_cpu() {
 
     # Chose a frequency to lock to that's >= $CPU_TARGET_FREQ_PERCENT% of max
     # (below, 100M = 1K for KHz->MHz * 100 for %)
-    TARGET_FREQ_MHZ=$(( (${cpuIdealFreq} * ${CPU_TARGET_FREQ_PERCENT}) / 100000 ))
+    TARGET_FREQ_MHZ=$(( ($cpuIdealFreq * $CPU_TARGET_FREQ_PERCENT) / 100000 ))
     chosenFreq=0
+    chosenFreqDiff=100000000
     for freq in ${cpuAvailFreq}; do
         freqMhz=$(( ${freq} / 1000 ))
         if [ ${freqMhz} -ge ${TARGET_FREQ_MHZ} ]; then
-            chosenFreq=${freq}
-            break
+            newChosenFreqDiff=$(( $freq - $TARGET_FREQ_MHZ ))
+            if [ $newChosenFreqDiff -lt $chosenFreqDiff ]; then
+                chosenFreq=${freq}
+                chosenFreqDiff=$(( $chosenFreq - $TARGET_FREQ_MHZ ))
+            fi
         fi
     done
 
@@ -153,16 +177,27 @@ function_lock_cpu() {
     for cpu in ${enableIndices}; do
         freq=${CPU_BASE}/cpu$cpu/cpufreq
 
-        echo 1 > ${CPU_BASE}/cpu${cpu}/online
+        # Try to enable core, so we can find its frequencies.
+        # Note: In cases where the online file is inaccessible, it represents a
+        # core which cannot be turned off, so we simply assume it is enabled if
+        # this command fails.
+        if [ -f "$CPU_BASE/cpu$cpu/online" ]; then
+            echo 1 > ${CPU_BASE}/cpu${cpu}/online || true
+        fi
+
+        # scaling_max_freq must be set before scaling_min_freq
         echo ${chosenFreq} > ${freq}/scaling_max_freq
         echo ${chosenFreq} > ${freq}/scaling_min_freq
         echo ${chosenFreq} > ${freq}/scaling_setspeed
+
+        # Give system a bit of time to propagate the change to scaling_setspeed.
+        sleep 0.1
 
         # validate setting the freq worked
         obsCur=`cat ${freq}/scaling_cur_freq`
         obsMin=`cat ${freq}/scaling_min_freq`
         obsMax=`cat ${freq}/scaling_max_freq`
-        if [ obsCur -ne ${chosenFreq} ] || [ obsMin -ne ${chosenFreq} ] || [ obsMax -ne ${chosenFreq} ]; then
+        if [ "$obsCur" -ne "$chosenFreq" ] || [ "$obsMin" -ne "$chosenFreq" ] || [ "$obsMax" -ne "$chosenFreq" ]; then
             echo "Failed to set CPU$cpu to $chosenFreq Hz! Aborting..."
             echo "scaling_cur_freq = $obsCur"
             echo "scaling_min_freq = $obsMin"
@@ -273,16 +308,20 @@ function_cut_first_from_space_seperated_list() {
 }
 
 # kill processes that manage thermals / scaling
-stop thermal-engine
-stop perfd
-stop vendor.thermal-engine
-stop vendor.perfd
-setprop vendor.powerhal.init 0
-setprop ctl.interface_restart android.hardware.power@1.0::IPower/default
+stop thermal-engine || true
+stop perfd || true
+stop vendor.thermal-engine || true
+stop vendor.perfd || true
+setprop vendor.powerhal.init 0 || true
+setprop ctl.interface_restart android.hardware.power@1.0::IPower/default || true
 
 function_lock_cpu
 
-function_lock_gpu_kgsl
+if [ "$DEVICE" -ne "wembley" ]; then
+    function_lock_gpu_kgsl
+else
+    echo "Unable to lock gpu clocks of $MODEL ($DEVICE)."
+fi
 
 # Memory bus - hardcoded per-device for now
 if [ ${DEVICE} == "marlin" ] || [ ${DEVICE} == "sailfish" ]; then
