@@ -31,9 +31,11 @@ import static org.mockito.Mockito.when;
 
 import android.Manifest;
 import android.content.Context;
+import android.graphics.SurfaceTexture;
 import android.os.Build;
 import android.util.Size;
 import android.view.LayoutInflater;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -44,6 +46,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.testing.fakes.FakeActivity;
+import androidx.camera.view.preview.transform.transformation.Transformation;
 import androidx.camera.view.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
@@ -57,6 +60,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -78,6 +83,34 @@ public class PreviewViewTest {
     private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
         return new SurfaceRequest(new Size(640, 480), cameraInfo);
     }
+
+    private CountDownLatch mCountDownLatch = new CountDownLatch(1);
+
+    private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
+            new TextureView.SurfaceTextureListener() {
+                @Override
+                public void onSurfaceTextureAvailable(SurfaceTexture surface, int width,
+                        int height) {
+
+                    mCountDownLatch.countDown();
+                }
+
+                @Override
+                public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width,
+                        int height) {
+
+                }
+
+                @Override
+                public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                    return false;
+                }
+
+                @Override
+                public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+                }
+            };
 
     @After
     public void tearDown() {
@@ -272,6 +305,65 @@ public class PreviewViewTest {
         });
 
         verify(implementation, timeout(1_000).times(1)).redrawPreview();
+    }
+
+    @Test
+    public void sensorDimensionFlippedCorrectly() throws Throwable {
+        final AtomicReference<PreviewView> previewView = new AtomicReference<>();
+        final AtomicReference<FrameLayout> container = new AtomicReference<>();
+        final AtomicReference<TextureView> textureView = new AtomicReference<>();
+        final Size containerSize = new Size(800, 1000);
+        final Size bufferSize = new Size(2000, 1000);
+
+        // Creates mock CameraInfo to return sensor degrees as 90. This means the sensor
+        // dimension flip is needed in related transform calculations.
+        final CameraInfo cameraInfo = mock(CameraInfo.class);
+        when(cameraInfo.getImplementationType()).thenReturn(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        when(cameraInfo.getSensorRotationDegrees()).thenReturn(90);
+
+        mActivityRule.runOnUiThread(() -> {
+            previewView.set(new PreviewView(mContext));
+
+            container.set(new FrameLayout(mContext));
+            container.get().addView(previewView.get());
+            setContentView(container.get());
+            // Sets as TEXTURE_VIEW mode so that we can verify the TextureView result
+            // transformation.
+            previewView.get().setPreferredImplementationMode(TEXTURE_VIEW);
+            previewView.get().setScaleType(PreviewView.ScaleType.FILL_CENTER);
+
+            // Sets container size as 640x480
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                    containerSize.getWidth(), containerSize.getHeight());
+            container.get().setLayoutParams(layoutParams);
+
+            // Creates surface provider and request surface for 1080p surface size.
+            Preview.SurfaceProvider surfaceProvider =
+                    previewView.get().createSurfaceProvider();
+            mSurfaceRequest = new SurfaceRequest(bufferSize, cameraInfo);
+            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+
+            // Retrieves the TextureView
+            textureView.set((TextureView) previewView.get().mImplementation.getPreview());
+
+            // Sets SurfaceTextureListener to wait for surface texture available.
+            mCountDownLatch = new CountDownLatch(1);
+            textureView.get().setSurfaceTextureListener(mSurfaceTextureListener);
+
+        });
+
+        // Wait for surface texture available.
+        mCountDownLatch.await(1, TimeUnit.SECONDS);
+
+        // Retrieves the transformation applied to the TextureView
+        Transformation resultTransformation = Transformation.getTransformation(textureView.get());
+        float[] resultTransformParameters = new float[]{resultTransformation.getScaleX(),
+                resultTransformation.getScaleY(), resultTransformation.getTransX(),
+                resultTransformation.getTransY(), resultTransformation.getRotation()};
+
+        float[] expectedTransformParameters = new float[]{0.4f, 1.6f, -600.0f, 0.0f, 0.0f};
+
+        assertThat(resultTransformParameters).isEqualTo(expectedTransformParameters);
     }
 
     private void setContentView(View view) {
