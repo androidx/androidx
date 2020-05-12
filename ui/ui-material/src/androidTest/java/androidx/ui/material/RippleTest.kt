@@ -25,17 +25,18 @@ import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.ui.core.DrawScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.drawBackground
-import androidx.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.RectangleShape
+import androidx.ui.graphics.painter.clipRect
 import androidx.ui.layout.Row
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
@@ -57,8 +58,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
-import androidx.ui.unit.toPxSize
-import androidx.ui.unit.toRect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -226,7 +225,7 @@ class RippleTest {
 
         composeTestRule.setMaterialContent {
             RippleCallback(
-                onDraw = { _, _ -> drawLatch.countDown() },
+                onDraw = { drawLatch.countDown() },
                 onDispose = { disposeLatch.countDown() }
             ) {
                 Card {
@@ -279,7 +278,7 @@ class RippleTest {
                 })
                 effectCreated = true
                 return object : RippleEffect {
-                    override fun draw(canvas: Canvas, size: IntPxSize, color: Color) {}
+                    override fun DrawScope.draw(color: Color) {}
                     override fun finish(canceled: Boolean) {}
                 }
             }
@@ -345,7 +344,7 @@ class RippleTest {
             RippleCallback(
                 defaultColor = { color },
                 opacityCallback = { opacity },
-                onDraw = { _, actualColor ->
+                onDraw = { actualColor ->
                     assertEquals(color.copy(alpha = opacity), actualColor)
                     drawLatch.countDown()
                 }
@@ -371,7 +370,7 @@ class RippleTest {
         composeTestRule.setMaterialContent {
             RippleCallback(
                 opacityCallback = { opacity },
-                onDraw = { _, actualColor ->
+                onDraw = { actualColor ->
                     assertEquals(color.copy(alpha = opacity), actualColor)
                     drawLatch.countDown()
                 }
@@ -421,7 +420,7 @@ class RippleTest {
         composeTestRule.setMaterialContent {
             RippleCallback(
                 defaultColor = { colorState },
-                onDraw = { _, color ->
+                onDraw = { color ->
                     actualColor = color
                     drawLatch.countDown()
                 }
@@ -464,10 +463,12 @@ class RippleTest {
     @Composable
     fun DrawRectRippleCallback(children: @Composable () -> Unit) {
         RippleCallback(
-            onDraw = { canvas, _ ->
-                canvas.drawRect(
-                    Rect(-100000f, -100000f, 100000f, 100000f),
-                    Paint().apply { this.color = Color.Red })
+            onDraw = {
+                drawRect(
+                    Color.Red,
+                    topLeft = Offset(-100000f, -100000f),
+                    size = Size(200000f, 200000f)
+                )
             },
             children = children
         )
@@ -475,7 +476,7 @@ class RippleTest {
 
     @Composable
     private fun RippleCallback(
-        onDraw: (Canvas, Color) -> Unit = { _, _ -> },
+        onDraw: DrawScope.(Color) -> Unit = { _ -> },
         onDispose: () -> Unit = {},
         onEffectCreated: () -> Unit = {},
         defaultColor: @Composable () -> Color = { Color(0) },
@@ -491,7 +492,7 @@ class RippleTest {
     }
 
     private fun testRippleEffect(
-        onDraw: (Canvas, Color) -> Unit,
+        onDraw: DrawScope.(Color) -> Unit,
         onDispose: () -> Unit,
         onEffectCreated: () -> Unit
     ): RippleEffectFactory =
@@ -508,14 +509,13 @@ class RippleTest {
                 onEffectCreated()
                 return object : RippleEffect {
 
-                    override fun draw(canvas: Canvas, size: IntPxSize, color: Color) {
+                    override fun DrawScope.draw(color: Color) {
                         if (clipped) {
-                            canvas.save()
-                            canvas.clipRect(size.toPxSize().toRect())
-                        }
-                        onDraw(canvas, color)
-                        if (clipped) {
-                            canvas.restore()
+                            clipRect {
+                                this@draw.onDraw(color)
+                            }
+                        } else {
+                            this@draw.onDraw(color)
                         }
                     }
 
