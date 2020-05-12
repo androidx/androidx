@@ -74,6 +74,10 @@ repositories {
     mavenCentral()
     google()
     gradlePluginPortal()
+    val metalavaBuildId: String? = findProperty("metalavaBuildId") as String?
+    if (metalavaBuildId != null) {
+        maven(url="https://androidx.dev/metalava/builds/${metalavaBuildId}/artifacts/repo/m2repository")
+    }
 
     ivy {
         setUrl("https://download.jetbrains.com/kotlin/native/builds/releases")
