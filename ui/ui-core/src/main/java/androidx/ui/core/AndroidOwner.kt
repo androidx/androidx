@@ -59,9 +59,7 @@ import androidx.ui.core.texttoolbar.AndroidTextToolbar
 import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.core.focus.FocusDetailedState.Active
 import androidx.ui.core.focus.FocusDetailedState.Inactive
-import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.input.TextInputServiceAndroid
 import androidx.ui.input.textInputServiceFactory
 import androidx.ui.savedinstancestate.UiSavedStateRegistry
@@ -243,10 +241,6 @@ internal class AndroidComposeView constructor(
         clipChildren = false
         root.isPlaced = true
         ViewCompat.setAccessibilityDelegate(this, accessibilityDelegate)
-    }
-
-    override fun onInvalidate(drawNode: DrawNode) {
-        invalidate(drawNode)
     }
 
     override fun onInvalidate(layoutNode: LayoutNode) {
@@ -505,37 +499,6 @@ internal class AndroidComposeView constructor(
     ) {
         trace("AndroidOwner:callDraw") {
             when (node) {
-                is DrawNode -> {
-                    val onPaintWithChildren = node.onPaintWithChildren
-                    if (onPaintWithChildren != null) {
-                        val ownerData = node.ownerData
-                        val receiver: DrawScopeImpl
-                        val size = Size(parentSize.width.value, parentSize.height.value)
-                        if (ownerData == null) {
-                            receiver = DrawScopeImpl(node, density)
-                            node.ownerData = receiver
-                        } else {
-                            receiver = ownerData as DrawScopeImpl
-                            receiver.childDrawn = false
-                            receiver.currentDensity = density
-                        }
-                        receiver.draw(canvas, size) {
-                            onPaintWithChildren(receiver, canvas, parentSize)
-                        }
-
-                        if (!receiver.childDrawn) {
-                            with(receiver) {
-                                with(density) {
-                                    drawContent()
-                                }
-                            }
-                        }
-                    } else {
-                        val onPaint = node.onPaint!!
-                        density.onPaint(canvas, parentSize)
-                    }
-                    node.needsPaint = false
-                }
                 is LayoutNode -> {
                     if (node.isPlaced) {
                         require(!node.needsRemeasure) { "$node is not measured, draw requested" }
@@ -745,28 +708,6 @@ internal class AndroidComposeView constructor(
     override fun dispatchRestoreInstanceState(container: SparseArray<Parcelable>) {
         val superState = savedStateDelegate.dispatchRestoreInstanceState(container)
         onRestoreInstanceState(superState)
-    }
-
-    private inner class DrawScopeImpl(
-        private val drawNode: DrawNode,
-        var currentDensity: Density
-    ) : Density by currentDensity, ContentDrawScope() {
-        internal var childDrawn = false
-        // Draw composable does not support Rtl and will be removed soon anyway.
-        // The only place where Draw is in use is Table which will be updated anyway b/150276337.
-        override val layoutDirection: LayoutDirection = LayoutDirection.Ltr
-
-        override fun drawContent() {
-            if (childDrawn) {
-                throw IllegalStateException("Cannot call drawContent() twice within Draw element")
-            }
-            childDrawn = true
-            drawCanvas { canvas, pxSize ->
-                drawNode.visitChildren { child ->
-                    callDraw(canvas, child, pxSize)
-                }
-            }
-        }
     }
 
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
