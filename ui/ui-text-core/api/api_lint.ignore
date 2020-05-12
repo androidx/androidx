@@ -39,8 +39,8 @@ MissingNullability: androidx.ui.text.style.BaselineShift#toString-impl(float):
     Missing nullability on method `toString-impl` return
 
 
-SetterReturnsThis: androidx.ui.text.AnnotatedString.Builder#addAnnotationString(String, String, int, int):
-    Methods must return the builder object (return type androidx.ui.text.AnnotatedString.Builder instead of void): method androidx.ui.text.AnnotatedString.Builder.addAnnotationString(String,String,int,int)
+SetterReturnsThis: androidx.ui.text.AnnotatedString.Builder#addStringAnnotation(String, String, int, int):
+    Methods must return the builder object (return type androidx.ui.text.AnnotatedString.Builder instead of void): method androidx.ui.text.AnnotatedString.Builder.addStringAnnotation(String,String,int,int)
 SetterReturnsThis: androidx.ui.text.AnnotatedString.Builder#addStyle(androidx.ui.text.ParagraphStyle, int, int):
     Methods must return the builder object (return type androidx.ui.text.AnnotatedString.Builder instead of void): method androidx.ui.text.AnnotatedString.Builder.addStyle(androidx.ui.text.ParagraphStyle,int,int)
 SetterReturnsThis: androidx.ui.text.AnnotatedString.Builder#addStyle(androidx.ui.text.SpanStyle, int, int):

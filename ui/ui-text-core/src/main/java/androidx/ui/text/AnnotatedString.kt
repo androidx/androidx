@@ -194,7 +194,7 @@ data class AnnotatedString internal constructor(
             }
 
             text.annotations.forEach {
-                addAnnotationString(it.tag, it.item, start + it.start, start + it.end)
+                addStringAnnotation(it.tag, it.item, start + it.start, start + it.end)
             }
         }
 
@@ -230,7 +230,7 @@ data class AnnotatedString internal constructor(
          * @param end the exclusive end offset of the range
          * @see getStringAnnotations
          */
-        fun addAnnotationString(scope: String, annotation: String, start: Int, end: Int) {
+        fun addStringAnnotation(scope: String, annotation: String, start: Int, end: Int) {
             annotations.add(MutableItem(annotation, start, end, scope))
         }
 
