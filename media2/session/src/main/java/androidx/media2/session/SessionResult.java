@@ -43,7 +43,7 @@ import java.lang.annotation.RetentionPolicy;
  * Result class to be used with {@link ListenableFuture} for asynchronous calls between
  * {@link MediaSession} and {@link MediaController}.
  */
-@VersionedParcelize
+@VersionedParcelize(isCustom = true)
 public class SessionResult extends CustomVersionedParcelable implements RemoteResult {
     /**
      * Result code representing that the command is successfully completed.

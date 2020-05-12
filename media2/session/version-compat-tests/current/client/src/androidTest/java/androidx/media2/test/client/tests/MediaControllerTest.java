@@ -51,6 +51,7 @@ import androidx.media2.session.MediaController.ControllerCallbackRunnable;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
+import androidx.media2.session.SessionResult;
 import androidx.media2.session.SessionToken;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
@@ -618,6 +619,22 @@ public class MediaControllerTest extends MediaSessionTestBase {
         }
 
         assertTrue("All futures should be completed", latch.await(10, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void play_returnsSessionResultWithMediaItem() throws Exception {
+        if (!MediaTestUtils.isServiceToT()) {
+            // SessionResult had a null item until media2-session 1.0.x (b/154885520).
+            return;
+        }
+
+        RemoteMediaSession session = mRemoteSession;
+        session.getMockPlayer().createAndSetDummyPlaylist(/* size= */ 1);
+        session.getMockPlayer().setCurrentMediaItem(/* index= */ 0);
+
+        MediaController controller = createController(session.getToken());
+        SessionResult result = controller.play().get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        assertNotNull(result.getMediaItem());
     }
 
     RemoteMediaSession createRemoteMediaSession(String id, Bundle tokenExtras) {
