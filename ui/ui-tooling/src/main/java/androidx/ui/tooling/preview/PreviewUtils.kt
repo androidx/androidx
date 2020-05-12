@@ -16,10 +16,14 @@
 
 package androidx.ui.tooling.preview
 
+import android.util.Log
 import androidx.compose.Composer
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import kotlin.math.ceil
+import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.jvm.isAccessible
 
 /**
  * Returns true if the [methodTypes] and [actualTypes] are compatible. This means that every
@@ -190,4 +194,64 @@ internal fun invokeComposableViaReflection(
     } catch (e: ReflectiveOperationException) {
         throw ClassNotFoundException("Composable Method '$className.$methodName' not found", e)
     }
+}
+
+/**
+ * Tries to find the [KClass] of the [PreviewParameterProvider] corresponding to the given FQN.
+ */
+internal fun String.asPreviewProviderClass(): KClass<out PreviewParameterProvider<*>>? {
+    try {
+        @Suppress("UNCHECKED_CAST")
+        return Class.forName(this).kotlin as? KClass<out PreviewParameterProvider<*>>
+    } catch (e: ClassNotFoundException) {
+        Log.e("PreviewProvider", "Unable to find provider '$this'", e)
+        return null
+    }
+}
+
+/**
+ * Returns an array with some values of a [PreviewParameterProvider]. If the given provider class
+ * is `null`, returns an empty array. Otherwise, if the given `parameterProviderIndex` is a valid
+ * index, returns a single-element array containing the value corresponding to that particular
+ * index in the provider's sequence. Finally, returns an array with all the values of the
+ * provider's sequence if `parameterProviderIndex` is invalid, e.g. negative.
+ */
+internal fun getPreviewProviderParameters(
+    parameterProviderClass: KClass<out PreviewParameterProvider<*>>?,
+    parameterProviderIndex: Int
+): Array<Any?> {
+    if (parameterProviderClass != null) {
+        try {
+            val constructor = parameterProviderClass.constructors
+                .singleOrNull { it.parameters.all(KParameter::isOptional) }
+                ?.apply {
+                    isAccessible = true
+                }
+                ?: throw IllegalArgumentException(
+                    "PreviewParameterProvider constructor can not" +
+                            " have parameters"
+                )
+            val params = constructor.callBy(emptyMap())
+            if (parameterProviderIndex < 0) {
+                return params.values.toArray(params.count)
+            }
+            return arrayOf(params.values.elementAt(parameterProviderIndex))
+        } catch (e: KotlinReflectionNotSupportedError) {
+            // kotlin-reflect runtime dependency not found. Suggest adding it.
+            throw IllegalStateException(
+                "Deploying Compose Previews with PreviewParameterProvider " +
+                        "arguments requires adding a dependency to the kotlin-reflect library.\n" +
+                        "Consider adding 'debugImplementation " +
+                        "\"org.jetbrains.kotlin:kotlin-reflect:\$kotlin_version\"' " +
+                        "to the module's build.gradle."
+            )
+        }
+    } else {
+        return emptyArray()
+    }
+}
+
+private fun Sequence<Any?>.toArray(size: Int): Array<Any?> {
+    val iter = iterator()
+    return Array(size) { iter.next() }
 }
