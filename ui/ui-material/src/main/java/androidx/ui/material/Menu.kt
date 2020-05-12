@@ -16,10 +16,18 @@
 
 package androidx.ui.material
 
+import androidx.animation.FloatPropKey
+import androidx.animation.LinearOutSlowInEasing
+import androidx.animation.transitionDefinition
 import androidx.compose.Composable
+import androidx.compose.getValue
+import androidx.compose.setValue
+import androidx.compose.state
+import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DropdownPopup
 import androidx.ui.core.Modifier
+import androidx.ui.core.drawLayer
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
@@ -63,10 +71,13 @@ fun DropdownMenu(
     dropdownModifier: Modifier = Modifier,
     dropdownContent: @Composable ColumnScope.() -> Unit
 ) {
+    var visibleMenu by state { expanded }
+    if (expanded) visibleMenu = true
+
     Box(toggleModifier) {
         toggle()
 
-        if (expanded) {
+        if (visibleMenu) {
             DropdownPopup(
                 isFocusable = true,
                 onDismissRequest = onDismissRequest,
@@ -76,17 +87,30 @@ fun DropdownMenu(
                     IntPxPosition(-MenuElevation.toIntPx(), -MenuElevation.toIntPx())
                 }
             ) {
-                Card(
-                    // Padding to account for the elevation, otherwise it is clipped.
-                    modifier = Modifier.padding(MenuElevation),
-                    elevation = MenuElevation
-                ) {
-                    Column(
-                        dropdownModifier
-                            .padding(vertical = DropdownMenuVerticalPadding)
-                            .preferredWidth(IntrinsicSize.Max),
-                        children = dropdownContent
-                    )
+                Transition(
+                    definition = DropdownMenuOpenCloseTransition,
+                    initState = !expanded,
+                    toState = expanded,
+                    onStateChangeFinished = {
+                        visibleMenu = it
+                    }
+                ) { state ->
+                    val scale = state[Scale]
+                    val alpha = state[Alpha]
+                    Card(
+                        modifier = Modifier
+                            .drawLayer(scaleX = scale, scaleY = scale, alpha = alpha, clip = true)
+                            // Padding to account for the elevation, otherwise it is clipped.
+                            .padding(MenuElevation),
+                        elevation = MenuElevation
+                    ) {
+                        Column(
+                            dropdownModifier
+                                .padding(vertical = DropdownMenuVerticalPadding)
+                                .preferredWidth(IntrinsicSize.Max),
+                            children = dropdownContent
+                        )
+                    }
                 }
             }
         }
@@ -141,3 +165,41 @@ internal val DropdownMenuVerticalPadding = 8.dp
 internal val DropdownMenuItemDefaultMinWidth = 112.dp
 internal val DropdownMenuItemDefaultMaxWidth = 280.dp
 internal val DropdownMenuItemDefaultMinHeight = 48.dp
+
+private val Scale = FloatPropKey()
+private val Alpha = FloatPropKey()
+internal val InTransitionDuration = 120
+internal val OutTransitionDuration = 75
+
+private val DropdownMenuOpenCloseTransition = transitionDefinition {
+    state(false) {
+        // Menu is dismissed.
+        this[Scale] = 0f
+        this[Alpha] = 0f
+    }
+    state(true) {
+        // Menu is expanded.
+        this[Scale] = 1f
+        this[Alpha] = 1f
+    }
+    transition(false, true) {
+        // Dismissed to expanded.
+        Scale using tween {
+            duration = InTransitionDuration
+            easing = LinearOutSlowInEasing
+        }
+        Alpha using tween {
+            duration = 30
+        }
+    }
+    transition(true, false) {
+        // Expanded to dismissed.
+        Scale using tween {
+            duration = 1
+            delay = OutTransitionDuration - 1
+        }
+        Alpha using tween {
+            duration = OutTransitionDuration
+        }
+    }
+}

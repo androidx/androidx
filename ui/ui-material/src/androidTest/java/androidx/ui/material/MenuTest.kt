@@ -37,6 +37,7 @@ import androidx.ui.test.hasAnyChildThat
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.isPopup
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.waitForIdle
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -48,12 +49,13 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class MenuTest {
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val composeTestRule = createComposeRule()
 
     @Test
     fun menu_canBeTriggered() {
         var expanded by mutableStateOf(false)
 
+        composeTestRule.clockTestRule.pauseClock()
         composeTestRule.setContent {
             DropdownMenu(
                 expanded = expanded,
@@ -69,13 +71,21 @@ class MenuTest {
                 }
             }
         }
+        findByTag("MenuContent").assertDoesNotExist()
 
-        findByTag("MenuContent").assertDoesNotExist()
         runOnIdleCompose { expanded = true }
+        waitForIdle()
+        composeTestRule.clockTestRule.advanceClock(InTransitionDuration.toLong())
         findByTag("MenuContent").assertExists()
+
         runOnIdleCompose { expanded = false }
+        waitForIdle()
+        composeTestRule.clockTestRule.advanceClock(OutTransitionDuration.toLong())
         findByTag("MenuContent").assertDoesNotExist()
+
         runOnIdleCompose { expanded = true }
+        waitForIdle()
+        composeTestRule.clockTestRule.advanceClock(InTransitionDuration.toLong())
         findByTag("MenuContent").assertExists()
     }
 
