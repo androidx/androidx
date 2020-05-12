@@ -19,6 +19,7 @@
 package androidx.paging.samples
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.viewModels
@@ -26,9 +27,11 @@ import androidx.annotation.Sampled
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
+import androidx.paging.LoadState
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -81,6 +84,42 @@ fun pagingDataAdapterSample() {
 
 internal class UserPagingAdapter : BasePagingAdapter<User>()
 internal class UserListViewModel : BaseViewModel<User>()
+
+internal class MyActivityBinding {
+    lateinit var root: View
+    lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    lateinit var recyclerView: RecyclerView
+
+    companion object {
+        @Suppress("UNUSED_PARAMETER")
+        fun inflate(layoutInflater: LayoutInflater): MyActivityBinding {
+            return MyActivityBinding()
+        }
+    }
+}
+
+@Sampled
+fun refreshSample() {
+    class MyActivity : AppCompatActivity() {
+        private lateinit var binding: MyActivityBinding
+        private val pagingAdapter = UserPagingAdapter()
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            binding = MyActivityBinding.inflate(layoutInflater)
+            setContentView(binding.root)
+
+            binding.recyclerView.adapter = pagingAdapter
+            pagingAdapter.addLoadStateListener { _, loadState ->
+                binding.swipeRefreshLayout.isRefreshing = loadState is LoadState.Loading
+            }
+
+            binding.swipeRefreshLayout.setOnRefreshListener {
+                pagingAdapter.refresh()
+            }
+        }
+    }
+}
 
 @Sampled
 fun presentDataSample() {
