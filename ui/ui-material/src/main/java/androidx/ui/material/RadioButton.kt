@@ -208,22 +208,13 @@ fun RadioButton(
                 generateTransitionDefinition(color, unselectedColor)
             }
             Transition(definition = definition, toState = selected) { state ->
-                val outerPx: Float
-                val innerPx: Float
-                val gapWidth: Float
-                val radioStroke: Stroke
-                with(DensityAmbient.current) {
-                    outerPx = state[OuterRadiusProp].toPx().value
-                    innerPx = state[InnerRadiusProp].toPx().value
-                    gapWidth = state[GapProp].toPx().value
-                    radioStroke = Stroke(RadioStrokeWidth.toPx().value)
-                }
+                val radioStroke = Stroke(RadioStrokeWidth.value * DensityAmbient.current.density)
                 Canvas(Modifier.padding(RadioButtonPadding).preferredSize(RadioButtonSize)) {
                     drawRadio(
                         state[ColorProp],
-                        outerPx,
-                        innerPx,
-                        gapWidth,
+                        state[OuterRadiusProp].toPx().value,
+                        state[InnerRadiusProp].toPx().value,
+                        state[GapProp].toPx().value,
                         radioStroke
                     )
                 }
