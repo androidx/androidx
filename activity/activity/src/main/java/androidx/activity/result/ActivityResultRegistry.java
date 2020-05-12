@@ -215,6 +215,7 @@ public abstract class ActivityResultRegistry {
         if (mPendingResults.containsKey(key)) {
             Log.w(LOG_TAG, "Dropping pending result for request " + key + ": "
                     + mPendingResults.<ActivityResult>getParcelable(key));
+            mPendingResults.remove(key);
         }
     }
 
