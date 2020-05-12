@@ -672,6 +672,8 @@ package androidx.media {
     method public int getPid();
     method public int getUid();
     field public static final String LEGACY_CONTROLLER = "android.media.session.MediaController";
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int UNKNOWN_PID = -1; // 0xffffffff
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int UNKNOWN_UID = -1; // 0xffffffff
   }
 
   public abstract class VolumeProviderCompat {
