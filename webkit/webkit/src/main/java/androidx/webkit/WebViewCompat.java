@@ -31,6 +31,7 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -45,6 +46,7 @@ import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -641,6 +643,29 @@ public class WebViewCompat {
                 WebViewFeatureInternal.getFeature(WebViewFeature.WEB_MESSAGE_LISTENER);
         if (feature.isSupportedByWebView()) {
             getProvider(webview).removeWebMessageListener(jsObjectName);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * TODO(ctzsm): Add Javadoc.
+     * TODO(ctzsm): unhide when ready.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            name = WebViewFeature.DOCUMENT_START_SCRIPT,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static @NonNull ScriptReferenceCompat addDocumentStartJavascript(
+            @NonNull WebView webview,
+            @NonNull String script,
+            @NonNull Set<String> allowedOriginRules) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.DOCUMENT_START_SCRIPT);
+        if (feature.isSupportedByWebView()) {
+            return getProvider(webview).addDocumentStartJavascript(
+                    script, allowedOriginRules.toArray(new String[0]));
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

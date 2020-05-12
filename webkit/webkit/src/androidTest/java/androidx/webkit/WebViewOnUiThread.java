@@ -38,6 +38,7 @@ import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 
@@ -241,6 +242,13 @@ public class WebViewOnUiThread {
     public void removeWebMessageListener(final String jsObjectName) {
         WebkitUtils.onMainThreadSync(
                 () -> WebViewCompat.removeWebMessageListener(mWebView, jsObjectName));
+    }
+
+    public ScriptReferenceCompat addDocumentStartJavascript(
+            String script, Set<String> allowedOriginRules) {
+        return WebkitUtils.onMainThreadSync(() -> {
+            return WebViewCompat.addDocumentStartJavascript(mWebView, script, allowedOriginRules);
+        });
     }
 
     public void addJavascriptInterface(final Object object, final String name) {
