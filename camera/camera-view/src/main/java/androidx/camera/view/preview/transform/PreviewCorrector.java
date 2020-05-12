@@ -18,6 +18,7 @@ package androidx.camera.view.preview.transform;
 
 import android.util.Pair;
 import android.util.Size;
+import android.view.Surface;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -37,12 +38,24 @@ final class PreviewCorrector {
      *                                  {@link android.view.SurfaceView})
      * @param bufferSize                Camera output size
      * @param sensorDimensionFlipNeeded True if the sensor x and y dimensions need to be flipped.
+     * @param deviceRotation            If the app is not running in remote display mode, set the
+     *                                  parameter as {@link RotationTransform#ROTATION_AUTOMATIC}.
+     *                                  Then, the rotation value queried from the preview will be
+     *                                  used to do the transformation calculations. If the app is
+     *                                  running in remote display mode, the device rotation value
+     *                                  needs to be provided to make the result be rotated into
+     *                                  correct orientation. The device rotation should be obtained
+     *                                  from {@link android.view.OrientationEventListener} and
+     *                                  needs to be converted into {@link Surface#ROTATION_0},
+     *                                  {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180}
+     *                                  , or {@link Surface#ROTATION_270}.
      */
     @NonNull
     static PreviewCorrectionTransformation getCorrectionTransformation(
             @NonNull final View container, @NonNull final View preview,
-            @NonNull final Size bufferSize, final boolean sensorDimensionFlipNeeded) {
-        final int rotation = (int) RotationTransform.getRotationDegrees(preview);
+            @NonNull final Size bufferSize, final boolean sensorDimensionFlipNeeded,
+            final int deviceRotation) {
+        final int rotation = (int) RotationTransform.getRotationDegrees(preview, deviceRotation);
         final Pair<Float, Float> scaleXY = getCorrectionScale(container, preview,
                 bufferSize, sensorDimensionFlipNeeded);
         return new PreviewCorrectionTransformation(scaleXY.first, scaleXY.second, -rotation);

@@ -22,8 +22,29 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 final class RotationTransform {
+    // Queries rotation value from view automatically.
+    static final int ROTATION_AUTOMATIC = -1;
 
     private RotationTransform() {
+    }
+
+    /**
+     * Computes the rotation in degrees from its natural orientation.
+     *
+     * <p>When a application is running in remote display, the correct rotation degrees should
+     * be obtained from the device rotation. The rotation from the {@link View} may cause incorrect
+     * transform calculation results.
+     *
+     * @param view The {@link View} used to show the preview.
+     * @param deviceRotation The device rotation value provided by the developers.
+     * @return The rotation in degrees from its natural orientation.
+     */
+    static float getRotationDegrees(@NonNull final View view, final int deviceRotation) {
+        if (deviceRotation != ROTATION_AUTOMATIC) {
+            return SurfaceRotation.rotationDegreesFromSurfaceRotation(deviceRotation);
+        } else {
+            return getRotationDegrees(view);
+        }
     }
 
     /** Computes the rotation of a {@link View} in degrees from its natural orientation. */
