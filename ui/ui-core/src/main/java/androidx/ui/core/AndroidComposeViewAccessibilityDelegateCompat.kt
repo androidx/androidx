@@ -100,7 +100,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
             info.setSource(view)
             semanticsNode = view.semanticsOwner.rootSemanticsNode
-            info.setParent(ViewCompat.getParentForAccessibility(view) as View)
+            info.setParent(ViewCompat.getParentForAccessibility(view) as? View)
         } else {
             semanticsNode = view.semanticsOwner.rootSemanticsNode.findChildById(virtualViewId)
             if (semanticsNode == null) {
@@ -280,16 +280,24 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (!isAccessibilityFocused(virtualViewId)) {
             // Clear focus from the previously focused view, if applicable.
             if (focusedVirtualViewId != InvalidId) {
-                sendEventForVirtualView(focusedVirtualViewId,
-                    AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED, null)
+                sendEventForVirtualView(
+                    focusedVirtualViewId,
+                    AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED,
+                    null,
+                    null
+                )
             }
 
             // Set focus on the new view.
             focusedVirtualViewId = virtualViewId
 
             view.invalidate()
-            sendEventForVirtualView(virtualViewId,
-                AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED, null)
+            sendEventForVirtualView(
+                virtualViewId,
+                AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED,
+                null,
+                null
+            )
             return true
         }
         return false
@@ -310,12 +318,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      *
      * @param virtualViewId The virtual view id for which to send an event.
      * @param eventType The type of event to send.
+     * @param contentChangeType The contentChangeType of this event.
+     * @param contentDescription Content description of this event.
      * @return true if the event was sent successfully.
      */
     fun sendEventForVirtualView(
         virtualViewId: Int,
         eventType: Int,
-        contentChangeType: Int?
+        contentChangeType: Int?,
+        contentDescription: CharSequence?
     ): Boolean {
         if ((virtualViewId == InvalidId) || !accessibilityManager.isEnabled()) {
             return false
@@ -326,6 +337,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val event: AccessibilityEvent = createEvent(virtualViewId, eventType)
         if (contentChangeType != null) {
             event.contentChangeTypes = contentChangeType
+        }
+        if (contentDescription != null) {
+            event.contentDescription = contentDescription
         }
         return parent.requestSendAccessibilityEvent(view, event)
     }
@@ -363,8 +377,12 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (isAccessibilityFocused(virtualViewId)) {
             focusedVirtualViewId = InvalidId
             view.invalidate()
-            sendEventForVirtualView(virtualViewId,
-                AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED, null)
+            sendEventForVirtualView(
+                virtualViewId,
+                AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED,
+                null,
+                null
+            )
             return true
         }
         return false
@@ -498,9 +516,18 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         Stay consistent with framework behavior by sending ENTER/EXIT pairs
         in reverse order. This is accurate as of API 18.
         */
-        sendEventForVirtualView(virtualViewId, AccessibilityEvent.TYPE_VIEW_HOVER_ENTER, null)
-        sendEventForVirtualView(previousVirtualViewId, AccessibilityEvent
-            .TYPE_VIEW_HOVER_EXIT, null)
+        sendEventForVirtualView(
+            virtualViewId,
+            AccessibilityEvent.TYPE_VIEW_HOVER_ENTER,
+            null,
+            null
+        )
+        sendEventForVirtualView(
+            previousVirtualViewId,
+            AccessibilityEvent.TYPE_VIEW_HOVER_EXIT,
+            null,
+            null
+        )
     }
 
     override fun getAccessibilityNodeProvider(host: View?): AccessibilityNodeProviderCompat {
