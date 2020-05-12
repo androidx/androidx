@@ -26,18 +26,16 @@ import static androidx.media2.test.common.CommonConstants.KEY_CURRENT_POSITION;
 import static androidx.media2.test.common.CommonConstants.KEY_CURRENT_VOLUME;
 import static androidx.media2.test.common.CommonConstants.KEY_MAX_VOLUME;
 import static androidx.media2.test.common.CommonConstants.KEY_MEDIA_ITEM;
-import static androidx.media2.test.common.CommonConstants.KEY_METADATA;
+import static androidx.media2.test.common.CommonConstants.KEY_PLAYBACK_SPEED;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
-import static androidx.media2.test.common.CommonConstants.KEY_SPEED;
+import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST_METADATA;
 import static androidx.media2.test.common.CommonConstants.KEY_TRACK_INFO;
 import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
-import static androidx.media2.test.common.MediaSessionConstants
-        .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
+import static androidx.media2.test.common.MediaSessionConstants.TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
 import static androidx.media2.test.common.MediaSessionConstants.TEST_GET_SESSION_ACTIVITY;
-import static androidx.media2.test.common.MediaSessionConstants
-        .TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST;
+import static androidx.media2.test.common.MediaSessionConstants.TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -222,7 +220,7 @@ public class MediaSessionProviderService extends Service {
                 localPlayer.mLastBufferingState = config.getInt(KEY_BUFFERING_STATE);
                 localPlayer.mCurrentPosition = config.getLong(KEY_CURRENT_POSITION);
                 localPlayer.mBufferedPosition = config.getLong(KEY_BUFFERED_POSITION);
-                localPlayer.mPlaybackSpeed = config.getFloat(KEY_SPEED);
+                localPlayer.mPlaybackSpeed = config.getFloat(KEY_PLAYBACK_SPEED);
 
                 ParcelImplListSlice listSlice = config.getParcelable(KEY_PLAYLIST);
                 if (listSlice != null) {
@@ -232,7 +230,8 @@ public class MediaSessionProviderService extends Service {
                 ParcelImpl currentItem = config.getParcelable(KEY_MEDIA_ITEM);
                 localPlayer.mCurrentMediaItem = (currentItem == null)
                         ? null : (MediaItem) MediaParcelUtils.fromParcelable(currentItem);
-                localPlayer.mMetadata = ParcelUtils.getVersionedParcelable(config, KEY_METADATA);
+                localPlayer.mMetadata = ParcelUtils.getVersionedParcelable(config,
+                        KEY_PLAYLIST_METADATA);
                 ParcelImpl videoSize = config.getParcelable(KEY_VIDEO_SIZE);
                 if (videoSize != null) {
                     localPlayer.mVideoSize = MediaParcelUtils.fromParcelable(videoSize);
