@@ -138,12 +138,13 @@ import androidx.ui.unit.max
  * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
  * text field. By default no visual transformation is applied
  * @param onFocusChange the callback triggered when the text field gets or loses the focus
- * @param activeColor the color of the label and bottom indicator when the text field is in focus
+ * @param activeColor the color of the label, bottom indicator and the cursor when the text field is
+ * in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
  * focus, and the color of label and bottom indicator when the text field is not in focus
- * @param errorColor the alternative color of the label, bottom indicator and trailing icon used
- * when [isErrorValue] is set to true
- * @param backgroundColor the background color of the text field's container. To a color provided
+ * @param errorColor the alternative color of the label, bottom indicator, cursor and trailing icon
+ * used when [isErrorValue] is set to true
+ * @param backgroundColor the background color of the text field's container. To the color provided
  * here there will be applied a transparency alpha defined by Material Design specifications
  * @param shape the shape of the text field's container
  */
@@ -250,12 +251,13 @@ fun FilledTextField(
  * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
  * text field. By default no visual transformation is applied
  * @param onFocusChange the callback triggered when the text field gets or loses the focus
- * @param activeColor the color of the label and bottom indicator when the text field is in focus
+ * @param activeColor the color of the label, bottom indicator and the cursor when the text field is
+ * in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
  * focus, and the color of label and bottom indicator when the text field is not in focus
- * @param errorColor the alternative color of the label, bottom indicator and trailing icon used
- * when [isErrorValue] is set to true
- * @param backgroundColor the background color of the text field's container. To a color provided
+ * @param errorColor the alternative color of the label, bottom indicator, cursor and trailing icon
+ * used when [isErrorValue] is set to true
+ * @param backgroundColor the background color of the text field's container. To the color provided
  * here there will be applied a transparency alpha defined by Material Design specifications
  * @param shape the shape of the text field's container
  */
@@ -368,7 +370,7 @@ private fun FilledTextFieldImpl(
                     focused = it
                     onFocusChange(it)
                 },
-                cursorColor = if (isErrorValue) errorColor else MaterialTheme.colors.primary,
+                cursorColor = if (isErrorValue) errorColor else activeColor,
                 visualTransformation = visualTransformation,
                 keyboardType = keyboardType,
                 imeAction = imeAction,
@@ -386,7 +388,7 @@ private fun FilledTextFieldImpl(
         Surface(
             modifier = textFieldModifier,
             shape = shape,
-            color = backgroundColor.copy(alpha = ContainerAlpha)
+            color = backgroundColor.applyAlpha(alpha = ContainerAlpha)
         ) {
             Clickable(onClick = { shouldFocus = true }, modifier = Modifier.ripple(false)) {
                 if (shouldFocus) {
@@ -397,7 +399,8 @@ private fun FilledTextFieldImpl(
                 val emphasisLevels = EmphasisAmbient.current
                 val emphasizedActiveColor = emphasisLevels.high.applyEmphasis(activeColor)
                 val labelInactiveColor = emphasisLevels.medium.applyEmphasis(inactiveColor)
-                val indicatorInactiveColor = inactiveColor.copy(alpha = IndicatorInactiveAlpha)
+                val indicatorInactiveColor =
+                    inactiveColor.applyAlpha(alpha = IndicatorInactiveAlpha)
 
                 TextFieldTransitionScope.transition(
                     inputState = inputState.value,
@@ -412,7 +415,7 @@ private fun FilledTextFieldImpl(
                         labelProgress
                     )
 
-                    val leadingColor = inactiveColor.copy(alpha = TrailingLeadingAlpha)
+                    val leadingColor = inactiveColor.applyAlpha(alpha = TrailingLeadingAlpha)
                     val trailingColor = if (isErrorValue) errorColor else leadingColor
 
                     // text field with label and placeholder
@@ -456,7 +459,14 @@ private fun FilledTextFieldImpl(
 }
 
 /**
- * Sets content color, typography and emphasis for [children] composable
+ * Set alpha if the color is not translucent
+ */
+private fun Color.applyAlpha(alpha: Float): Color {
+    return if (this.alpha != 1f) this else this.copy(alpha = alpha)
+}
+
+/**
+ * Set content color, typography and emphasis for [children] composable
  */
 @Composable
 private fun Decoration(
