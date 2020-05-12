@@ -37,6 +37,7 @@ import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.Paint
 import androidx.ui.text.font.Font
 import androidx.ui.text.selection.TextSelectionDelegate
 import androidx.ui.text.style.TextAlign
@@ -121,7 +122,7 @@ fun CoreText(
                         TextDelegate.paintBackground(
                             it.min,
                             it.max,
-                            DefaultSelectionColor,
+                            state.selectionPaint,
                             canvas,
                             layoutResult
                         )
@@ -251,6 +252,11 @@ private class TextState(
     var layoutResult: TextLayoutResult? = null
     /** The global position calculated during the last onPositioned callback */
     var previousGlobalPosition: PxPosition = PxPosition.Origin
+    /** The paint used to draw highlight background for selected text. */
+    val selectionPaint: Paint = Paint().apply {
+        isAntiAlias = true
+        color = DefaultSelectionColor
+    }
 }
 
 /**
