@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
@@ -38,6 +39,7 @@ import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.view.preview.transform.PreviewTransform;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.concurrent.Executor;
@@ -51,6 +53,8 @@ import java.util.concurrent.Executor;
  */
 public class PreviewView extends FrameLayout {
 
+    @ColorRes
+    static final int DEFAULT_BACKGROUND_COLOR = android.R.color.black;
     private static final ImplementationMode DEFAULT_IMPL_MODE = ImplementationMode.SURFACE_VIEW;
 
     @NonNull
@@ -102,6 +106,12 @@ public class PreviewView extends FrameLayout {
             setScaleType(ScaleType.fromId(scaleTypeId));
         } finally {
             attributes.recycle();
+        }
+
+        // Set background only if it wasn't already set. A default background prevents the content
+        // behind the PreviewView from being visible before the preview starts streaming.
+        if (getBackground() == null) {
+            setBackgroundColor(ContextCompat.getColor(getContext(), DEFAULT_BACKGROUND_COLOR));
         }
     }
 
