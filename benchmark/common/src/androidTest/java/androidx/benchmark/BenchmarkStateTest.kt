@@ -59,28 +59,31 @@ class BenchmarkStateTest {
 
     @Test
     fun validateMetrics() {
-        // would be better to mock the clock, but going with minimal changes for now
         val state = BenchmarkState()
         while (state.keepRunning()) {
             runAndSpin(durationUs = 300) {
-                allocate(100)
+                // note, important here to not do too much work - this test may run on an
+                // extremely slow device, or wacky emulator.
+                allocate(40)
             }
 
             state.pauseTiming()
             runAndSpin(durationUs = 600) {
-                allocate(200)
+                allocate(80)
             }
             state.resumeTiming()
         }
+        // The point of these asserts are to verify that pause/resume work, and that metrics that
+        // come out are reasonable, not perfect - this isn't always run in stable perf environments
         val medianTime = state.getReport().getStats("timeNs").median
         assertTrue(
             "median time (ns) $medianTime should be approximately 300us",
-            medianTime in us2ns(280)..us2ns(350)
+            medianTime in us2ns(280)..us2ns(450)
         )
         val medianAlloc = state.getReport().getStats("allocationCount").median
         assertTrue(
-            "median allocs $medianAlloc should be approximately 100",
-            medianAlloc in 100..110
+            "median allocs $medianAlloc should be approximately 40",
+            medianAlloc in 40..50
         )
     }
 
