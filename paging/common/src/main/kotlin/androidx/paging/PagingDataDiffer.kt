@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
+import androidx.paging.LoadType.REFRESH
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -61,7 +62,7 @@ abstract class PagingDataDiffer<T : Any>(
             pagingData.flow
                 .collect { event ->
                     withContext(mainDispatcher) {
-                        if (event is PageEvent.Insert && event.loadType == LoadType.REFRESH) {
+                        if (event is PageEvent.Insert && event.loadType == REFRESH) {
                             val newPresenter = PagePresenter(event)
                             val transformedLastAccessedIndex = performDiff(
                                 previousList = presenter,
@@ -113,6 +114,22 @@ abstract class PagingDataDiffer<T : Any>(
         receiver?.retry()
     }
 
+    /**
+     * Refresh the data presented by this [PagingDataDiffer].
+     *
+     * [refresh] triggers the creation of a new [PagingData] with a new instance of [PagingSource]
+     * to represent an updated snapshot of the backing dataset. If a [RemoteMediator] is set,
+     * calling [refresh] will also trigger a call to [RemoteMediator.load] with [LoadType] [REFRESH]
+     * to allow [RemoteMediator] to check for updates to the dataset backing [PagingSource].
+     *
+     * Note: This API is intended for UI-driven refresh signals, such as swipe-to-refresh.
+     * Invalidation due repository-layer signals, such as DB-updates, should instead use
+     * [PagingSource.invalidate].
+     *
+     * @see PagingSource.invalidate
+     *
+     * @sample androidx.paging.samples.refreshSample
+     */
     fun refresh() {
         receiver?.refresh()
     }
