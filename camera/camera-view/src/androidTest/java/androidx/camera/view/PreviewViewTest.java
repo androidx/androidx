@@ -46,6 +46,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.view.preview.transform.transformation.Transformation;
 import androidx.camera.view.test.R;
@@ -56,6 +57,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Rule;
@@ -427,11 +430,9 @@ public class PreviewViewTest {
             return null;
         }
 
-        @SuppressWarnings("ConstantConditions")
-        @NonNull
         @Override
-        public Preview.SurfaceProvider getSurfaceProvider() {
-            return null;
+        void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest,
+                @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener) {
         }
 
         @Override
@@ -444,6 +445,12 @@ public class PreviewViewTest {
 
         @Override
         void onDetachedFromWindow() {
+        }
+
+        @Override
+        @NonNull
+        ListenableFuture<Void> waitForNextFrame() {
+            return Futures.immediateFuture(null);
         }
     }
 }

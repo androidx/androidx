@@ -190,7 +190,7 @@ public class PreviewView extends FrameLayout {
             mImplementation = computeImplementation(actualImplementationMode);
             mImplementation.init(this, mPreviewTransform);
 
-            mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+            mImplementation.onSurfaceRequested(surfaceRequest, null);
         };
     }
 
