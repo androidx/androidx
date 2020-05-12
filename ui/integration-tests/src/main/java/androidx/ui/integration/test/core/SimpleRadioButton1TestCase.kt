@@ -17,7 +17,6 @@
 package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
@@ -41,10 +40,9 @@ class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
             gravity = ContentGravity.Center
         ) {
             val innerSize = getInnerSize().value
-            val density = DensityAmbient.current
             Canvas(Modifier.preferredSize(innerSize)) {
                 drawOutline(
-                    CircleShape.createOutline(PxSize(Px(size.width), Px(size.height)), density),
+                    CircleShape.createOutline(PxSize(Px(size.width), Px(size.height)), this),
                     Color.Cyan
                 )
             }
