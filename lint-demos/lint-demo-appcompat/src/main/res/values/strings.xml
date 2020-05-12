@@ -16,4 +16,5 @@
 
 <resources>
     <string name="activity_sample_code">Lint Demo AppCompat</string>
+    <string name="sample_text">Sample</string>
 </resources>
