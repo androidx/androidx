@@ -71,7 +71,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @hide In the earlier stage, the VideoCapture is deprioritized.
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-@SuppressWarnings("ClassCanBeStatic") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
 public class VideoCapture extends UseCase {
 
     /**
@@ -948,7 +947,7 @@ public class VideoCapture extends UseCase {
         public Location location;
     }
 
-    private final class VideoSavedListenerWrapper implements OnVideoSavedCallback {
+    private static final class VideoSavedListenerWrapper implements OnVideoSavedCallback {
 
         @NonNull
         Executor mExecutor;

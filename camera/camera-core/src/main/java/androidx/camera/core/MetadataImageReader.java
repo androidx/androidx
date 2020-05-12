@@ -245,8 +245,8 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
     public void setOnImageAvailableListener(@NonNull OnImageAvailableListener listener,
             @NonNull Executor executor) {
         synchronized (mLock) {
-            mListener = listener;
-            mExecutor = executor;
+            mListener = Preconditions.checkNotNull(listener);
+            mExecutor = Preconditions.checkNotNull(executor);
             mImageReaderProxy.setOnImageAvailableListener(mTransformedListener, executor);
         }
     }
@@ -259,28 +259,26 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
     }
 
     private void enqueueImageProxy(SettableImageProxy image) {
+        ImageReaderProxy.OnImageAvailableListener listener;
+        Executor executor;
         synchronized (mLock) {
             if (mMatchedImageProxies.size() < getMaxImages()) {
                 image.addOnImageCloseListener(this);
                 mMatchedImageProxies.add(image);
-                if (mListener != null) {
-                    if (mExecutor != null) {
-                        mExecutor.execute(
-                                new Runnable() {
-                                    // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
-                                    @SuppressWarnings("GuardedBy")
-                                    @Override
-                                    public void run() {
-                                        mListener.onImageAvailable(MetadataImageReader.this);
-                                    }
-                                });
-                    } else {
-                        mListener.onImageAvailable(MetadataImageReader.this);
-                    }
-                }
+                listener = mListener;
+                executor = mExecutor;
             } else {
                 Log.d("TAG", "Maximum image number reached.");
                 image.close();
+                listener = null;
+                executor = null;
+            }
+        }
+        if (listener != null) {
+            if (executor != null) {
+                executor.execute(() -> listener.onImageAvailable(this));
+            } else {
+                listener.onImageAvailable(this);
             }
         }
     }
