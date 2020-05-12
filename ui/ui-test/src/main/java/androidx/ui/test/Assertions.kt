@@ -16,13 +16,12 @@
 
 package androidx.ui.test
 
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.unit.PxBounds
@@ -30,7 +29,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.height
 import androidx.ui.unit.px
-import androidx.ui.unit.toPx
 import androidx.ui.unit.width
 
 /**
@@ -300,6 +298,12 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
         return false
     }
 
+    (componentNode.owner as? AndroidOwner)?.let {
+        if (!ViewMatchers.isDisplayed().matches(it.view)) {
+            return false
+        }
+    }
+
     // check node doesn't clip unintentionally (e.g. row too small for content)
     val globalRect = node.globalBounds
     if (!node.isInScreenBounds()) {
@@ -325,22 +329,4 @@ private fun SemanticsNode.isInScreenBounds(): Boolean {
             nodeBounds.left >= screenBounds.left &&
             nodeBounds.right <= screenBounds.right &&
             nodeBounds.bottom <= screenBounds.bottom
-}
-
-/**
- * Returns `true` if the given [rectangle] is completely contained within this
- * [LayoutNode].
- */
-private fun LayoutNode.contains(rectangle: PxBounds): Boolean {
-    val globalPositionTopLeft = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-    // TODO: This method generates a lot of objects when it could compare primitives
-
-    val rect = Rect.fromLTWH(
-        globalPositionTopLeft.x.value,
-        globalPositionTopLeft.y.value,
-        width.toPx().value + 1f,
-        height.toPx().value + 1f)
-
-    return rect.contains(Offset(rectangle.left.value, rectangle.top.value)) &&
-            rect.contains(Offset(rectangle.right.value, rectangle.bottom.value))
 }
