@@ -320,6 +320,11 @@ package androidx.ui.test {
     property public abstract boolean isPaused;
   }
 
+  public final class TextActionsKt {
+    method public static void doClearText(androidx.ui.test.SemanticsNodeInteraction, boolean alreadyHasFocus = false);
+    method public static void doSendText(androidx.ui.test.SemanticsNodeInteraction, String text, boolean alreadyHasFocus = false);
+  }
+
 }
 
 package androidx.ui.test.android {
