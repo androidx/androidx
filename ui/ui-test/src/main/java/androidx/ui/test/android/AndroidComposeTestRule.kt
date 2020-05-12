@@ -174,6 +174,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
         private fun beforeEvaluate() {
             transitionsEnabled = !disableTransitions
             AndroidOwnerRegistry.setupRegistry()
+            FirstDrawRegistry.setupRegistry()
             registerComposeWithEspresso()
             textInputServiceFactory = {
                 TextInputServiceForTests(it)
@@ -183,6 +184,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
         private fun afterEvaluate() {
             transitionsEnabled = true
             AndroidOwnerRegistry.tearDownRegistry()
+            FirstDrawRegistry.tearDownRegistry()
             // Dispose the content
             if (disposeContentHook != null) {
                 runOnUiThread {
