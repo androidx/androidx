@@ -61,6 +61,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -151,6 +152,44 @@ class ScrollerTest {
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
+    fun verticalScroller_Reversed() {
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = ManualAnimationClock(0),
+            isReversed = true
+        )
+        val height = 30
+        val expectedOffset = defaultCellSize * colors.size - height
+
+        composeVerticalScroller(scrollerPosition, height = height)
+
+        validateVerticalScroller(offset = expectedOffset, height = height)
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun verticalScroller_LargeContent_Reversed_ScrollToEnd() {
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = ManualAnimationClock(0),
+            isReversed = true
+        )
+        val height = 20
+        val scrollDistance = 10
+        val expectedOffset = defaultCellSize * colors.size - height - scrollDistance
+
+        composeVerticalScroller(scrollerPosition, height = height)
+
+        runOnIdleCompose {
+            scrollerPosition.scrollTo(scrollDistance.toFloat())
+        }
+
+        runOnIdleCompose {} // Just so the block below is correct
+        validateVerticalScroller(offset = expectedOffset, height = height)
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
     fun horizontalScroller_SmallContent() {
         val width = 40
 
@@ -193,6 +232,46 @@ class ScrollerTest {
         validateHorizontalScroller(offset = scrollDistance, width = width)
     }
 
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun horizontalScroller_reversed() {
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = ManualAnimationClock(0),
+            isReversed = true
+        )
+        val width = 30
+        val expectedOffset = defaultCellSize * colors.size - width
+
+        composeHorizontalScroller(scrollerPosition, width = width)
+
+        validateHorizontalScroller(offset = expectedOffset, width = width)
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun horizontalScroller_LargeContent_Reversed_ScrollToEnd() {
+        val width = 30
+        val scrollDistance = 10
+
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = ManualAnimationClock(0),
+            isReversed = true
+        )
+
+        val expectedOffset = defaultCellSize * colors.size - width - scrollDistance
+
+        composeHorizontalScroller(scrollerPosition, width = width)
+
+        runOnIdleCompose {
+            scrollerPosition.scrollTo(scrollDistance.toFloat())
+        }
+
+        runOnIdleCompose {} // Just so the block below is correct
+        validateHorizontalScroller(offset = expectedOffset, width = width)
+    }
+
     @Test
     fun verticalScroller_scrollTo_scrollForward() {
         createScrollableContent(isVertical = true)
@@ -206,6 +285,40 @@ class ScrollerTest {
     @Test
     fun horizontalScroller_scrollTo_scrollForward() {
         createScrollableContent(isVertical = false)
+
+        findByText("50")
+            .assertIsNotDisplayed()
+            .doScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Ignore("Unignore when b/156389287 is fixed for proper reverve delegation")
+    @Test
+    fun verticalScroller_reversed_scrollTo_scrollForward() {
+        createScrollableContent(
+            isVertical = true, scrollerPosition = ScrollerPosition(
+                FlingConfig(ExponentialDecay()),
+                animationClock = ManualAnimationClock(0),
+                isReversed = true
+            )
+        )
+
+        findByText("50")
+            .assertIsNotDisplayed()
+            .doScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Ignore("Unignore when b/156389287 is fixed for proper reverve delegation")
+    @Test
+    fun horizontalScroller_reversed_scrollTo_scrollForward() {
+        createScrollableContent(
+            isVertical = false, scrollerPosition = ScrollerPosition(
+                FlingConfig(ExponentialDecay()),
+                animationClock = ManualAnimationClock(0),
+                isReversed = true
+            )
+        )
 
         findByText("50")
             .assertIsNotDisplayed()
