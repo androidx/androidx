@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package android.graphics
+package android.os
 
-class Matrix() {
-    fun isIdentity() = true
+val theLooper = Looper()
+
+public class Looper() {
+    companion object {
+        @JvmStatic
+        fun myLooper(): Looper = theLooper
+    }
 }

@@ -18,7 +18,9 @@ package android.view
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Matrix
 import android.graphics.Rect
+import android.os.Handler
 import android.util.LayoutDirection
 
 open class View(val context: Context) {
@@ -64,16 +66,25 @@ open class View(val context: Context) {
 
     open fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {}
 
+    open fun onLayout (changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {}
+
     open fun onAttachedToWindow() {}
 
     open fun dispatchDraw(canvas: Canvas) {}
+
+    open fun dispatchTouchEvent(event: MotionEvent): Boolean = true
+
+    open fun getLocationOnScreen(outLocation: IntArray) {
+        outLocation[0] = 0
+        outLocation[1] = 0
+    }
 
     fun setMeasuredDimension(measuredWidth: Int, measuredHeight: Int) {}
 
     fun getTag(key: Int): Any? = null
     fun setTag(key: Int, obj: Any?) {}
 
-    fun getParent(): ViewParent? = null
+    var parent: ViewParent? = null
 
     class MeasureSpec {
         companion object {
@@ -131,4 +142,10 @@ open class View(val context: Context) {
     fun updateDisplayListIfDirty() {
         println("View.updateDisplayListIfDirty")
     }
+
+    fun getMatrix(): Matrix {
+        return Matrix()
+    }
+
+    val handler = Handler()
 }

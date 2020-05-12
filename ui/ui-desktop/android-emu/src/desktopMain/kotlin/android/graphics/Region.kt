@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package android.graphics
+
 class Region {
     enum class Op(val skija: org.jetbrains.skija.Canvas.ClipOp) {
         DIFFERENCE(org.jetbrains.skija.Canvas.ClipOp.DIFFERENCE),

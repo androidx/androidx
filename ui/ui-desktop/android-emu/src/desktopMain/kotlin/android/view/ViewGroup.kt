@@ -18,11 +18,12 @@ package android.view
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Region
 import android.graphics.Outline
 import android.graphics.Rect
 import org.jetbrains.skija.RoundedRect
 
-abstract class ViewGroup(context: Context) : View(context) {
+abstract class ViewGroup(context: Context) : View(context), ViewParent {
     var clipChildren: Boolean = true
     var children = mutableListOf<View>()
     val childCount = children.count()
@@ -33,13 +34,21 @@ abstract class ViewGroup(context: Context) : View(context) {
         children.clear()
     }
 
+    fun removeView(view: View) {
+        view.parent = null
+        children.remove(view)
+    }
+
     fun addView(child: android.view.View) {
-        children.add(child)
+        addView(child, null)
     }
 
     fun addView(child: android.view.View, params: ViewGroup.LayoutParams?) {
+        child.parent = this
         children.add(child)
     }
+
+    override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
 
     fun drawChild(canvas: Canvas, view: View, drawingTime: Long): Boolean {
         canvas.save()

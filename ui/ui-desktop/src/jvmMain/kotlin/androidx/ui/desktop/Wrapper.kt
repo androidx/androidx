@@ -16,6 +16,7 @@
 package androidx.ui.desktop
 
 import android.content.Context
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.View
 
@@ -74,6 +75,27 @@ private class Renderer(
             androidCanvas = android.graphics.Canvas(canvas)
         }
         view.onMeasure(width, height)
+        view.onLayout(true, 0, 0, width, height)
         view.dispatchDraw(androidCanvas!!)
+    }
+
+    override fun onMouseClicked(x: Int, y: Int, modifiers: Int) {}
+
+    override fun onMousePressed(x: Int, y: Int, awtModifiers: Int) {
+        view.dispatchTouchEvent(
+            MotionEvent(x, y, MotionEvent.ACTION_DOWN or modifiers(awtModifiers)))
+    }
+
+    override fun onMouseReleased(x: Int, y: Int, awtModifiers: Int) {
+        view.dispatchTouchEvent(MotionEvent(x, y, MotionEvent.ACTION_UP or modifiers(awtModifiers)))
+    }
+
+    override fun onMouseDragged(x: Int, y: Int, awtModifiers: Int) {
+        view.dispatchTouchEvent(MotionEvent(x, y,
+            MotionEvent.ACTION_MOVE or modifiers(awtModifiers)))
+    }
+
+    private fun modifiers(awtModifiers: Int): Int {
+        return 0
     }
 }
