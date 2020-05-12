@@ -241,12 +241,15 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                     }
                 });
 
-        Bundle config = RemoteMediaSession.createMockPlayerConnectorConfig(
-                testState, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
-                0f /* speed */, testAudioAttributes, testPlaylist, null /* currentItem */,
-                null /* metadata */);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setPlayerState(testState)
+                .setAudioAttributes(testAudioAttributes)
+                .setPlaylist(testPlaylist)
+                .setPlaylistMetadata(null)
+                .setCurrentMediaItem(null)
+                .build();
 
-        mRemoteSession2.updatePlayer(config);
+        mRemoteSession2.updatePlayer(playerConfig);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -488,8 +491,12 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         MediaController controller = createController(mRemoteSession2.getToken(), true, null,
                 callback);
 
-        Bundle playerConfig = RemoteMediaSession.createMockPlayerConnectorConfig(
-                volumeControlType, maxVolume, currentVolume, attrs);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setVolumeControlType(volumeControlType)
+                .setMaxVolume(maxVolume)
+                .setCurrentVolume(currentVolume)
+                .setAudioAttributes(attrs)
+                .build();
         mRemoteSession2.updatePlayer(playerConfig);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
