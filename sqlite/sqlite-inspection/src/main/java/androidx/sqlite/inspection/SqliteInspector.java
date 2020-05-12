@@ -417,7 +417,6 @@ final class SqliteInspector extends Inspector {
                 DatabaseOpenedEvent
                         .newBuilder()
                         .setDatabaseId(databaseId)
-                        .setName(path)
                         .setPath(path)
         ).build().toByteArray());
     }
