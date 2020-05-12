@@ -22,10 +22,18 @@ import java.io.OutputStream
 
 internal class TestingSerializer(
     override val defaultValue: Byte = 0,
+    @Volatile var failReadWithCorruptionException: Boolean = false,
     @Volatile var failingRead: Boolean = false,
     @Volatile var failingWrite: Boolean = false
 ) : DataStore.Serializer<Byte> {
     override fun readFrom(input: InputStream): Byte {
+        if (failReadWithCorruptionException) {
+            throw DataStore.Serializer.CorruptionException(
+                "CorruptionException",
+                IOException()
+            )
+        }
+
         if (failingRead) {
             throw IOException("I was asked to fail on reads")
         }
