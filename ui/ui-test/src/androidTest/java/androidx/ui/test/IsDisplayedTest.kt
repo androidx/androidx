@@ -16,13 +16,25 @@
 
 package androidx.ui.test
 
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import androidx.activity.ComponentActivity
 import androidx.compose.Composable
+import androidx.compose.Recomposer
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.ViewInteraction
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
+import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
@@ -34,10 +46,13 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.height
 import androidx.ui.layout.size
 import androidx.ui.layout.width
+import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
+import org.hamcrest.CoreMatchers.allOf
+import org.hamcrest.CoreMatchers.not
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +63,7 @@ import org.junit.runners.JUnit4
 class IsDisplayedTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val composeTestRule = AndroidComposeTestRule<ComponentActivity>(disableTransitions = true)
 
     private val colors = listOf(Color.Red, Color.Green, Color.Blue)
 
@@ -161,5 +176,68 @@ class IsDisplayedTest {
 
         findByTag("item9")
             .assertIsNotDisplayed()
+    }
+
+    @Test
+    fun viewVisibility_androidComposeView() {
+        val activity = composeTestRule.activityTestRule.activity
+        val androidComposeView = runOnUiThread {
+            // FrameLayout(id=100, w=100, h=100)
+            // '- AndroidComposeView
+            FrameLayout(activity).apply {
+                id = 100
+                layoutParams = ViewGroup.MarginLayoutParams(100, 100)
+                activity.setContentView(this)
+                setContent(Recomposer.current()) {
+                    Item(0)
+                }
+            }.getChildAt(0)
+        }
+
+        fun onComposeView(): ViewInteraction {
+            return onView(allOf(withParent(withId(100))))
+        }
+
+        onComposeView().check(matches(isDisplayed()))
+        findByTag("item0").assertIsDisplayed()
+
+        runOnIdleCompose {
+            androidComposeView.visibility = View.GONE
+        }
+
+        onComposeView().check(matches(not(isDisplayed())))
+        findByTag("item0").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun viewVisibility_parentView() {
+        val activity = composeTestRule.activityTestRule.activity
+        val composeContainer = runOnUiThread {
+            // FrameLayout
+            // '- FrameLayout(id=100, w=100, h=100) -> composeContainer
+            //    '- AndroidComposeView
+            FrameLayout(activity).apply {
+                id = 100
+                layoutParams = ViewGroup.MarginLayoutParams(100, 100)
+                activity.setContentView(FrameLayout(activity).also { it.addView(this) })
+                setContent(Recomposer.current()) {
+                    Item(0)
+                }
+            }
+        }
+
+        fun onComposeView(): ViewInteraction {
+            return onView(allOf(withParent(withId(100))))
+        }
+
+        onComposeView().check(matches(isDisplayed()))
+        findByTag("item0").assertIsDisplayed()
+
+        runOnIdleCompose {
+            composeContainer.visibility = View.GONE
+        }
+
+        onComposeView().check(matches(not(isDisplayed())))
+        findByTag("item0").assertIsNotDisplayed()
     }
 }
