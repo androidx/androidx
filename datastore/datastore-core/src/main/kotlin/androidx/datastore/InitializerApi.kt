@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.datastore.handlers
 
-import androidx.datastore.CorruptionException
+package androidx.datastore
+
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
-import androidx.datastore.CorruptionHandler
 
 /**
- * Default corruption handler which does nothing but rethrow the exception.
+ * The initializer API allows changes to be made to store before data is accessed through
+ * data or updateData.
+ *
+ * Initializers are executed in the order in which they are added. They must be idempotent
+ * since they are run each time the DataStore starts, and they may be run multiple times by a
+ * single instance if a downstream initializer fails.
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-class NoOpCorruptionHandler<T> : CorruptionHandler<T> {
-
-    @Throws(CorruptionException::class)
-    override suspend fun handleCorruption(ex: CorruptionException): T {
-        throw ex
-    }
+interface InitializerApi<T> {
+    suspend fun updateData(transform: suspend (t: T) -> T): T
 }

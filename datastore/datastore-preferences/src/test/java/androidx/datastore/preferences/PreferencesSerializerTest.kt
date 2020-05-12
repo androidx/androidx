@@ -16,7 +16,7 @@
 
 package androidx.datastore.preferences
 
-import androidx.datastore.DataStore
+import androidx.datastore.CorruptionException
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -141,7 +141,7 @@ class PreferencesSerializerTest {
         // Not a valid proto - protos cannot start with a 0 byte.
         testFile.writeBytes(byteArrayOf(0, 1, 2, 3, 4))
 
-        assertThrows<DataStore.Serializer.CorruptionException> {
+        assertThrows<CorruptionException> {
             testFile.inputStream().use {
                 preferencesSerializer.readFrom(it)
             }

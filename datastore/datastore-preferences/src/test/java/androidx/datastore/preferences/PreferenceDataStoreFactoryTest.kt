@@ -61,7 +61,7 @@ class PreferenceDataStoreFactoryTest {
         assertThat(store.updateData {
             it.toBuilder().setString("key", "value").build()
         }).isEqualTo(expectedPreferences)
-        assertThat(store.dataFlow.first()).isEqualTo(expectedPreferences)
+        assertThat(store.data.first()).isEqualTo(expectedPreferences)
     }
 
     @Test
@@ -79,7 +79,7 @@ class PreferenceDataStoreFactoryTest {
             },
             scope = dataStoreScope
         )
-        assertThat(store.dataFlow.first()).isEqualTo(valueToReplace)
+        assertThat(store.data.first()).isEqualTo(valueToReplace)
     }
 
     @Test
@@ -118,6 +118,6 @@ class PreferenceDataStoreFactoryTest {
             scope = dataStoreScope
         )
 
-        assertThat(store.dataFlow.first()).isEqualTo(expectedPreferences)
+        assertThat(store.data.first()).isEqualTo(expectedPreferences)
     }
 }

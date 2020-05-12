@@ -16,7 +16,8 @@
 
 package androidx.datastore.protos
 
-import androidx.datastore.DataStore
+import androidx.datastore.CorruptionException
+import androidx.datastore.Serializer
 import com.google.protobuf.ExtensionRegistryLite
 import com.google.protobuf.InvalidProtocolBufferException
 import com.google.protobuf.MessageLite
@@ -32,14 +33,14 @@ internal class ProtoSerializer<T : MessageLite>(
      *  necessary, use {@code ExtensionRegistryLite.getEmptyRegistry()}.
      */
     private val extensionRegistryLite: ExtensionRegistryLite
-) : DataStore.Serializer<T> {
+) : Serializer<T> {
 
     @Suppress("UNCHECKED_CAST")
     override fun readFrom(input: InputStream): T {
         try {
             return defaultValue.parserForType.parseFrom(input, extensionRegistryLite) as T
         } catch (invalidProtocolBufferException: InvalidProtocolBufferException) {
-            throw DataStore.Serializer.CorruptionException(
+            throw CorruptionException(
                 "Cannot read proto.", invalidProtocolBufferException
             )
         }

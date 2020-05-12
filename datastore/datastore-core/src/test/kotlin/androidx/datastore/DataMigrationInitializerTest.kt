@@ -59,7 +59,7 @@ class DataMigrationInitializerTest {
             )
         )
 
-        assertThat(store.dataFlow.first()).isEqualTo(100)
+        assertThat(store.data.first()).isEqualTo(100)
     }
 
     @Test
@@ -75,7 +75,7 @@ class DataMigrationInitializerTest {
             )
         )
 
-        assertThat(store.dataFlow.first()).isEqualTo(5)
+        assertThat(store.data.first()).isEqualTo(5)
     }
 
     @Test
@@ -94,7 +94,7 @@ class DataMigrationInitializerTest {
             )
         )
 
-        val getData = async { store.dataFlow.first() }
+        val getData = async { store.data.first() }
 
         continueMigration.complete(5)
         cleanUpFinished.await()
@@ -118,7 +118,7 @@ class DataMigrationInitializerTest {
             )
         )
 
-        val getData = async { store.dataFlow.first() }
+        val getData = async { store.data.first() }
 
         continueMigration.completeExceptionally(IOException("Failed migration"))
 
@@ -145,7 +145,7 @@ class DataMigrationInitializerTest {
             serializer = serializer
         )
 
-        val getData = async { store.dataFlow.first() }
+        val getData = async { store.data.first() }
 
         continueMigration.complete(1)
 
@@ -166,7 +166,7 @@ class DataMigrationInitializerTest {
             )
         )
 
-        assertThrows<IOException> { store.dataFlow.first() }
+        assertThrows<IOException> { store.data.first() }
     }
 
     @Test
@@ -179,7 +179,7 @@ class DataMigrationInitializerTest {
             )
         )
 
-        assertThat(store.dataFlow.first()).isEqualTo(0)
+        assertThat(store.data.first()).isEqualTo(0)
     }
 
     @Test
@@ -204,15 +204,15 @@ class DataMigrationInitializerTest {
 
         serializer.failingWrite = true
 
-        assertThrows<IOException> { store.dataFlow.first() }
+        assertThrows<IOException> { store.data.first() }
 
         serializer.failingWrite = false
 
-        assertThat(store.dataFlow.first()).isEqualTo(99)
+        assertThat(store.data.first()).isEqualTo(99)
     }
 
     private fun newDataStore(
-        initTasksList: List<suspend (api: DataStore.InitializerApi<Byte>) -> Unit> = listOf(),
+        initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
         serializer: TestingSerializer = TestingSerializer()
     ): DataStore<Byte> {
         return SingleProcessDataStore(

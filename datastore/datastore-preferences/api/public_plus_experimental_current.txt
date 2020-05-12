@@ -4,6 +4,9 @@ package androidx.datastore.preferences {
   public final class PreferenceDataStoreFactory {
     ctor public PreferenceDataStoreFactory();
     method public androidx.datastore.DataStore<androidx.datastore.preferences.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler = null, java.util.List<? extends kotlin.jvm.functions.Function0<? extends androidx.datastore.DataMigration<androidx.datastore.preferences.Preferences>>> migrationProducers = listOf(), kotlinx.coroutines.CoroutineScope scope = CoroutineScope(Dispatchers.IO + SupervisorJob()));
+    method public androidx.datastore.DataStore<androidx.datastore.preferences.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler = null, java.util.List<? extends kotlin.jvm.functions.Function0<? extends androidx.datastore.DataMigration<androidx.datastore.preferences.Preferences>>> migrationProducers = listOf());
+    method public androidx.datastore.DataStore<androidx.datastore.preferences.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler = null);
+    method public androidx.datastore.DataStore<androidx.datastore.preferences.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
   }
 
   public final class Preferences {

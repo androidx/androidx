@@ -16,7 +16,7 @@
 
 package androidx.datastore.protos
 
-import androidx.datastore.DataStore
+import androidx.datastore.CorruptionException
 import org.junit.Test
 import androidx.testing.TestMessageProto.FooProto
 import androidx.testing.TestMessageProto.ExtendableProto
@@ -89,7 +89,7 @@ class ProtoSerializerTest {
             ExtensionRegistryLite.getEmptyRegistry()
         )
 
-        assertThrows<DataStore.Serializer.CorruptionException> {
+        assertThrows<CorruptionException> {
             file.inputStream().use { protoSerializer.readFrom(it) }
         }
     }

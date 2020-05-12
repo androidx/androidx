@@ -57,7 +57,7 @@ class ReplaceFileCorruptionHandlerTest {
             scope = TestCoroutineScope()
         )
 
-        assertThat(store.dataFlow.first()).isEqualTo(10)
+        assertThat(store.data.first()).isEqualTo(10)
     }
 
     @Test
@@ -91,7 +91,7 @@ class ReplaceFileCorruptionHandlerTest {
         plus1.await()
         minus2.await()
 
-        assertThat(store.dataFlow.first()).isEqualTo(9)
+        assertThat(store.data.first()).isEqualTo(9)
     }
 
     @Test
@@ -105,10 +105,10 @@ class ReplaceFileCorruptionHandlerTest {
             scope = TestCoroutineScope()
         )
 
-        assertThrows<IOException> { store.dataFlow.first() }
+        assertThrows<IOException> { store.data.first() }
 
         // Confirm that the error is still thrown since data was never replaced:
-        assertThrows<IOException> { store.dataFlow.first() }
+        assertThrows<IOException> { store.data.first() }
     }
 
     private suspend fun preSeedData(file: File, byte: Byte) {
