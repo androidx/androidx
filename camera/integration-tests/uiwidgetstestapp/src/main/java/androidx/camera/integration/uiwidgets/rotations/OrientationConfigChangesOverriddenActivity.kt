@@ -18,16 +18,22 @@ package androidx.camera.integration.uiwidgets.rotations
 
 import android.content.Context
 import android.hardware.display.DisplayManager
-import kotlinx.android.synthetic.main.activity_rotations_main.previewView
 
 class OrientationConfigChangesOverriddenActivity : CameraActivity() {
+
+    private val mDisplayManager by lazy {
+        getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+    }
 
     private val mDisplayListener by lazy {
         object : DisplayManager.DisplayListener {
             override fun onDisplayChanged(displayId: Int) {
-                val rotation = previewView.display.rotation
-                mImageAnalysis.targetRotation = rotation
-                mImageCapture.targetRotation = rotation
+                val display = mDisplayManager.getDisplay(displayId)
+                if (display != null) {
+                    val rotation = display.rotation
+                    mImageAnalysis.targetRotation = rotation
+                    mImageCapture.targetRotation = rotation
+                }
             }
 
             override fun onDisplayAdded(displayId: Int) {
@@ -40,13 +46,11 @@ class OrientationConfigChangesOverriddenActivity : CameraActivity() {
 
     override fun onStart() {
         super.onStart()
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        displayManager.registerDisplayListener(mDisplayListener, null)
+        mDisplayManager.registerDisplayListener(mDisplayListener, null)
     }
 
     override fun onStop() {
         super.onStop()
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        displayManager.unregisterDisplayListener(mDisplayListener)
+        mDisplayManager.unregisterDisplayListener(mDisplayListener)
     }
 }

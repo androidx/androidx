@@ -110,11 +110,18 @@ open class CameraActivity : AppCompatActivity() {
             }
         mCamera = cameraProvider.bindToLifecycle(
             this,
-            CameraSelector.DEFAULT_BACK_CAMERA,
+            getCameraSelector(),
             preview,
             mImageAnalysis,
             mImageCapture
         )
+    }
+
+    private fun getCameraSelector(): CameraSelector {
+        val lensFacing = intent.getIntExtra(KEY_LENS_FACING, CameraSelector.LENS_FACING_BACK)
+        return CameraSelector.Builder()
+            .requireLensFacing(lensFacing)
+            .build()
     }
 
     private fun createAnalyzer(): ImageAnalysis.Analyzer {
@@ -245,9 +252,16 @@ open class CameraActivity : AppCompatActivity() {
     @VisibleForTesting
     var mCapturedImageRotation = -1
     // Todo: Delete captured images when test finishes
+
+    @VisibleForTesting
+    fun getSensorRotationRelativeToAnalysisTargetRotation(): Int {
+        val targetRotation = mImageAnalysis.targetRotation
+        return mCamera.cameraInfo.getSensorRotationDegrees(targetRotation)
+    }
     // endregion
 
     companion object {
+        const val KEY_LENS_FACING = "lens-facing"
         const val KEY_IMAGE_CAPTURE_MODE = "image-capture-mode"
         const val IMAGE_CAPTURE_MODE_IN_MEMORY = 0
         const val IMAGE_CAPTURE_MODE_FILE = 1
@@ -257,6 +271,6 @@ open class CameraActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
         private const val REQUEST_CODE_PERMISSIONS = 20
         private val PERMISSIONS =
-            arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            arrayOf(Manifest.permission.CAMERA)
     }
 }
