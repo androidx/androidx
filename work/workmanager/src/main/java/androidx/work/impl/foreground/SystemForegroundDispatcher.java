@@ -142,10 +142,10 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             if (workSpec != null) {
                 removed = mTrackedWorkSpecs.remove(workSpec);
             }
-        }
-        if (removed) {
-            // Stop tracking constraints.
-            mConstraintsTracker.replace(mTrackedWorkSpecs);
+            if (removed) {
+                // Stop tracking constraints.
+                mConstraintsTracker.replace(mTrackedWorkSpecs);
+            }
         }
 
         // Promote new notifications to the foreground if necessary.
@@ -214,7 +214,9 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     @MainThread
     void onDestroy() {
         mCallback = null;
-        mConstraintsTracker.reset();
+        synchronized (mLock) {
+            mConstraintsTracker.reset();
+        }
         mWorkManagerImpl.getProcessor().removeExecutionListener(this);
     }
 
@@ -233,8 +235,8 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
                     synchronized (mLock) {
                         mWorkSpecById.put(workSpecId, workSpec);
                         mTrackedWorkSpecs.add(workSpec);
+                        mConstraintsTracker.replace(mTrackedWorkSpecs);
                     }
-                    mConstraintsTracker.replace(mTrackedWorkSpecs);
                 }
             }
         });
