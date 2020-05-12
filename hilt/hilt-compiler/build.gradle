@@ -32,8 +32,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":hilt:hilt-common"))
-
     implementation(KOTLIN_STDLIB)
     compileOnly(AUTO_SERVICE_ANNOTATIONS)
     kapt(AUTO_SERVICE_PROCESSOR)
@@ -47,18 +45,40 @@ dependencies {
     testImplementation(GOOGLE_COMPILE_TESTING)
     testImplementation(HILT_ANDROID)
     testImplementation fileTree(
+            dir: "${new File(project(":hilt:hilt-common").buildDir, "libJar")}",
+            include : "*.jar")
+    testImplementation fileTree(
             dir: "${new File(project(":hilt:hilt-lifecycle-viewmodel").buildDir, "libJar")}",
             include : "*.jar")
     testImplementation fileTree(
             dir: "${new File(project(":hilt:hilt-work").buildDir, "libJar")}",
             include : "*.jar")
     testImplementation fileTree(
+            dir: "${new File(project.buildDir, "extractedJar")}",
+            include : "*.jar")
+    testImplementation fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar")
 }
 
-tasks.findByName("compileKotlin").dependsOn(":hilt:hilt-lifecycle-viewmodel:jarDebug")
-tasks.findByName("compileKotlin").dependsOn(":hilt:hilt-work:jarDebug")
+// Extract Hilt classes.jar to be used for compile-testing.
+tasks.register("extractHiltJar", Exec).configure {
+    def aarPath = project.configurations.testRuntimeClasspath.find {
+        it.path.contains("com/google/dagger/hilt-android/") && it.name.endsWith(".aar")
+    }
+    inputs.file(aarPath)
+    outputs.dir(new File(project.buildDir, "extractedJar"))
+    workingDir(project.buildDir)
+    executable("unzip")
+    args("-o", "$aarPath", "classes.jar", "-d", "extractedJar")
+}
+
+tasks.named("compileKotlin").configure {
+    dependsOn(":hilt:hilt-common:jarDebug")
+    dependsOn(":hilt:hilt-lifecycle-viewmodel:jarDebug")
+    dependsOn(":hilt:hilt-work:jarDebug")
+    dependsOn(":hilt:hilt-compiler:extractHiltJar")
+}
 
 androidx {
     name = "AndroidX Hilt Extension Compiler"

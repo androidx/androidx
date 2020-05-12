@@ -18,23 +18,49 @@ package androidx.hilt
 
 import androidx.hilt.lifecycle.ViewModelInjectStep
 import androidx.hilt.work.WorkerInjectStep
-import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.service.AutoService
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
+import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Processor
+import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
+import javax.lang.model.element.Element
+import javax.lang.model.element.TypeElement
 
 /**
  * Annotation processor for the various AndroidX Hilt extensions.
  */
 @AutoService(Processor::class)
 @IncrementalAnnotationProcessor(ISOLATING)
-class AndroidXHiltProcessor : BasicAnnotationProcessor() {
-    override fun initSteps() = listOf(
+class AndroidXHiltProcessor : AbstractProcessor() {
+
+    override fun getSupportedAnnotationTypes() = setOf(
+        ClassNames.VIEW_MODEL_INJECT.canonicalName(),
+        ClassNames.WORKER_INJECT.canonicalName()
+    )
+
+    override fun getSupportedSourceVersion() = SourceVersion.latest()
+
+    override fun process(
+        annotations: MutableSet<out TypeElement>,
+        roundEnv: RoundEnvironment
+    ): Boolean {
+        getSteps().forEach { step ->
+            annotations.firstOrNull { it.qualifiedName.contentEquals(step.annotation()) }?.let {
+                step.process(roundEnv.getElementsAnnotatedWith(it))
+            }
+        }
+        return false
+    }
+
+    private fun getSteps() = listOf(
         ViewModelInjectStep(processingEnv),
         WorkerInjectStep(processingEnv)
     )
 
-    override fun getSupportedSourceVersion() = SourceVersion.latest()
+    interface Step {
+        fun annotation(): String
+        fun process(annotatedElements: Set<Element>)
+    }
 }
