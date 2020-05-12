@@ -771,7 +771,12 @@ package androidx.ui.core {
   public final class PopupKt {
     method public static void DropdownPopup(androidx.ui.core.DropDownAlignment dropDownAlignment = androidx.ui.core.DropDownAlignment.Start, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopStart, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Popup(androidx.ui.core.PopupPositionProvider popupPositionProvider, boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static boolean isPopupLayout(android.view.View view, String? testTag = null);
+  }
+
+  public interface PopupPositionProvider {
+    method public androidx.ui.unit.IntPxPosition calculatePosition(androidx.ui.unit.IntPxPosition parentLayoutPosition, androidx.ui.unit.IntPxSize parentLayoutSize, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize popupSize);
   }
 
   public final class Ref<T> {

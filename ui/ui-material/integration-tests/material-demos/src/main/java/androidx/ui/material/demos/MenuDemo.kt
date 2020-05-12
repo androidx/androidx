@@ -26,15 +26,49 @@ import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.material.Divider
+import androidx.ui.core.LayoutDirection
+import androidx.ui.layout.Stack
+import androidx.ui.layout.ltr
 import androidx.ui.material.DropdownMenu
 import androidx.ui.material.DropdownMenuItem
 import androidx.ui.material.IconButton
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.MoreVert
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.Position
+import androidx.ui.unit.dp
 
 @Composable
 fun MenuDemo() {
+    Stack(Modifier.ltr) {
+        for (i in 0..10) {
+            for (j in 0..10) {
+                MenuInstance(
+                    Modifier.fillMaxSize().wrapContentSize(
+                        object : Alignment {
+                            override fun align(
+                                size: IntPxSize,
+                                layoutDirection: LayoutDirection
+                            ) = IntPxPosition(size.width * i / 10f, size.height * j / 10f)
+                        }
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MenuInstance(modifier: Modifier = Modifier) {
+    val options = listOf(
+        "Refresh",
+        "Settings",
+        "Send Feedback",
+        "Help",
+        "Signout"
+    )
+
     var expanded by state { false }
 
     val iconButton = @Composable {
@@ -46,17 +80,13 @@ fun MenuDemo() {
         expanded = expanded,
         onDismissRequest = { expanded = false },
         toggle = iconButton,
-        toggleModifier = Modifier.fillMaxSize().wrapContentSize(Alignment.TopStart)
+        dropdownOffset = Position(-12.dp, -12.dp),
+        toggleModifier = modifier
     ) {
-        DropdownMenuItem(onClick = { /* Handle refresh! */ }) {
-            Text("Refresh")
-        }
-        DropdownMenuItem(onClick = { /* Handle settings! */ }) {
-            Text("Settings")
-        }
-        Divider()
-        DropdownMenuItem(onClick = { /* Handle send feedback! */ }) {
-            Text("Send Feedback")
+        options.forEach {
+            DropdownMenuItem(onClick = {}) {
+                Text(it)
+            }
         }
     }
 }

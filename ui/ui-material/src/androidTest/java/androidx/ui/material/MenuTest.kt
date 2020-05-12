@@ -16,10 +16,12 @@
 
 package androidx.ui.material
 
+import android.util.DisplayMetrics
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.MediumTest
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
@@ -38,7 +40,12 @@ import androidx.ui.test.hasTestTag
 import androidx.ui.test.isPopup
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.waitForIdle
+import androidx.ui.unit.Density
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.Position
 import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -120,5 +127,112 @@ class MenuTest {
                     DropdownMenuVerticalPadding.toIntPx() * 2 + MenuElevation.toIntPx() * 2
             )
         }
+    }
+
+    @Test
+    fun menu_positioning_bottomEnd() {
+        val screenWidth = 500
+        val screenHeight = 1000
+        val density = Density(1f)
+        val displayMetrics = DisplayMetrics().apply {
+            widthPixels = screenWidth
+            heightPixels = screenHeight
+        }
+        val anchorPosition = IntPxPosition(100.ipx, 200.ipx)
+        val anchorSize = IntPxSize(10.ipx, 20.ipx)
+        val inset = with(density) { MenuElevation.toIntPx() }
+        val offsetX = 20
+        val offsetY = 40
+        val popupSize = IntPxSize(50.ipx, 80.ipx)
+
+        val ltrPosition = DropdownMenuPositionProvider(
+            Position(offsetX.dp, offsetY.dp),
+            density,
+            displayMetrics
+        ).calculatePosition(
+            anchorPosition,
+            anchorSize,
+            LayoutDirection.Ltr,
+            popupSize
+        )
+
+        assertThat(ltrPosition.x).isEqualTo(
+            anchorPosition.x + anchorSize.width - inset + offsetX.ipx
+        )
+        assertThat(ltrPosition.y).isEqualTo(
+            anchorPosition.y + anchorSize.height - inset + offsetY.ipx
+        )
+
+        val rtlPosition = DropdownMenuPositionProvider(
+            Position(offsetX.dp, offsetY.dp),
+            density,
+            displayMetrics
+        ).calculatePosition(
+            anchorPosition,
+            anchorSize,
+            LayoutDirection.Rtl,
+            popupSize
+        )
+
+        assertThat(rtlPosition.x).isEqualTo(
+            anchorPosition.x - popupSize.width + inset - offsetX.ipx
+        )
+        assertThat(rtlPosition.y).isEqualTo(
+            anchorPosition.y + anchorSize.height - inset + offsetY.ipx
+        )
+    }
+
+    @Test
+    fun menu_positioning_topStart() {
+        val screenWidth = 500
+        val screenHeight = 1000
+        val density = Density(1f)
+        val displayMetrics = DisplayMetrics().apply {
+            widthPixels = screenWidth
+            heightPixels = screenHeight
+        }
+        val anchorPosition = IntPxPosition(450.ipx, 950.ipx)
+        val anchorPositionRtl = IntPxPosition(50.ipx, 950.ipx)
+        val anchorSize = IntPxSize(10.ipx, 20.ipx)
+        val inset = with(density) { MenuElevation.toIntPx() }
+        val offsetX = 20
+        val offsetY = 40
+        val popupSize = IntPxSize(150.ipx, 80.ipx)
+
+        val ltrPosition = DropdownMenuPositionProvider(
+            Position(offsetX.dp, offsetY.dp),
+            density,
+            displayMetrics
+        ).calculatePosition(
+            anchorPosition,
+            anchorSize,
+            LayoutDirection.Ltr,
+            popupSize
+        )
+
+        assertThat(ltrPosition.x).isEqualTo(
+            anchorPosition.x - popupSize.width + inset - offsetX.ipx
+        )
+        assertThat(ltrPosition.y).isEqualTo(
+            anchorPosition.y - popupSize.height + inset - offsetY.ipx
+        )
+
+        val rtlPosition = DropdownMenuPositionProvider(
+            Position(offsetX.dp, offsetY.dp),
+            density,
+            displayMetrics
+        ).calculatePosition(
+            anchorPositionRtl,
+            anchorSize,
+            LayoutDirection.Rtl,
+            popupSize
+        )
+
+        assertThat(rtlPosition.x).isEqualTo(
+            anchorPositionRtl.x + anchorSize.width - inset + offsetX.ipx
+        )
+        assertThat(rtlPosition.y).isEqualTo(
+            anchorPositionRtl.y - popupSize.height + inset - offsetY.ipx
+        )
     }
 }

@@ -16,17 +16,23 @@
 
 package androidx.ui.material
 
+import android.util.DisplayMetrics
 import androidx.animation.FloatPropKey
 import androidx.animation.LinearOutSlowInEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
+import androidx.compose.Immutable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.Transition
+import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.DropdownPopup
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
+import androidx.ui.core.Popup
+import androidx.ui.core.PopupPositionProvider
+import androidx.ui.unit.Position
 import androidx.ui.core.drawLayer
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
@@ -40,8 +46,11 @@ import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
 import androidx.ui.material.ripple.ripple
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 
 /**
  * A Material Design [dropdown menu](https://material.io/components/menus#dropdown-menu).
@@ -52,6 +61,12 @@ import androidx.ui.unit.dp
  * [DropdownMenuItem] can be used to achieve items as defined by the Material Design spec.
  * [onDismissRequest] will be called when the menu should close - for example when there is a
  * tap outside the menu, or when the back key is pressed.
+ * The menu will do a best effort to be fully visible on screen. It will try to expand
+ * horizontally, depending on layout direction, to the end of the [toggle], then to the start of
+ * the [toggle], and then screen end-aligned. Vertically, it will try to expand to the bottom
+ * of the [toggle], then from the top of the [toggle], and then screen top-aligned. A
+ * [dropdownOffset] can be provided to adjust the positioning of the menu for cases when the
+ * layout bounds of the [toggle] do not coincide with its visual bounds.
  *
  * Example usage:
  * @sample androidx.ui.material.samples.MenuSample
@@ -60,6 +75,7 @@ import androidx.ui.unit.dp
  * @param expanded Whether the menu is currently open or dismissed
  * @param onDismissRequest Called when the menu should be dismiss
  * @param toggleModifier The modifier to be applied to the toggle
+ * @param dropdownOffset Offset to be added to the position of the menu
  * @param dropdownModifier Modifier to be applied to the menu content
  */
 @Composable
@@ -68,6 +84,7 @@ fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     toggleModifier: Modifier = Modifier,
+    dropdownOffset: Position = Position(0.dp, 0.dp),
     dropdownModifier: Modifier = Modifier,
     dropdownContent: @Composable ColumnScope.() -> Unit
 ) {
@@ -78,14 +95,16 @@ fun DropdownMenu(
         toggle()
 
         if (visibleMenu) {
-            DropdownPopup(
+            val popupPositionProvider = DropdownMenuPositionProvider(
+                dropdownOffset,
+                DensityAmbient.current,
+                ContextAmbient.current.resources.displayMetrics
+            )
+
+            Popup(
                 isFocusable = true,
                 onDismissRequest = onDismissRequest,
-                offset = with(DensityAmbient.current) {
-                    // Compensate for the padding added below.
-                    // TODO(popam, b/156890315): add elevation to Popup
-                    IntPxPosition(-MenuElevation.toIntPx(), -MenuElevation.toIntPx())
-                }
+                popupPositionProvider = popupPositionProvider
             ) {
                 Transition(
                     definition = DropdownMenuOpenCloseTransition,
@@ -159,6 +178,7 @@ fun DropdownMenuItem(
     }
 }
 
+// Size constants.
 internal val MenuElevation = 8.dp
 internal val DropdownMenuHorizontalPadding = 16.dp
 internal val DropdownMenuVerticalPadding = 8.dp
@@ -166,6 +186,7 @@ internal val DropdownMenuItemDefaultMinWidth = 112.dp
 internal val DropdownMenuItemDefaultMaxWidth = 280.dp
 internal val DropdownMenuItemDefaultMinHeight = 48.dp
 
+// Menu open/close animation.
 private val Scale = FloatPropKey()
 private val Alpha = FloatPropKey()
 internal val InTransitionDuration = 120
@@ -201,5 +222,58 @@ private val DropdownMenuOpenCloseTransition = transitionDefinition {
         Alpha using tween {
             duration = OutTransitionDuration
         }
+    }
+}
+
+// Menu positioning.
+
+/**
+ * Calculates the position of a Material [DropdownMenu].
+ */
+// TODO(popam): Investigate if this can/should consider the app window size rather than screen size
+@Immutable
+internal data class DropdownMenuPositionProvider(
+    val contentOffset: Position,
+    val density: Density,
+    val displayMetrics: DisplayMetrics
+) : PopupPositionProvider {
+    override fun calculatePosition(
+        parentLayoutPosition: IntPxPosition,
+        parentLayoutSize: IntPxSize,
+        layoutDirection: LayoutDirection,
+        popupSize: IntPxSize
+    ): IntPxPosition {
+        // The padding inset that accommodates elevation, needs to be taken into account.
+        val inset = with(density) { MenuElevation.toIntPx() }
+        val realPopupWidth = popupSize.width - inset * 2
+        val realPopupHeight = popupSize.height - inset * 2
+        val contentOffsetX = with(density) { contentOffset.x.toIntPx() }
+        val contentOffsetY = with(density) { contentOffset.y.toIntPx() }
+        val parentRight = parentLayoutPosition.x + parentLayoutSize.width
+        val parentBottom = parentLayoutPosition.y + parentLayoutSize.height
+
+        // Compute horizontal position.
+        val toRight = parentRight + contentOffsetX
+        val toLeft = parentLayoutPosition.x - contentOffsetX - realPopupWidth
+        val toDisplayRight = displayMetrics.widthPixels.ipx - realPopupWidth
+        val toDisplayLeft = 0.ipx
+        val x = if (layoutDirection == LayoutDirection.Ltr) {
+            sequenceOf(toRight, toLeft, toDisplayRight)
+        } else {
+            sequenceOf(toLeft, toRight, toDisplayLeft)
+        }.firstOrNull {
+            it >= 0.ipx && it + realPopupWidth <= displayMetrics.widthPixels.ipx
+        } ?: toLeft
+
+        // Compute vertical position.
+        val toBottom = parentBottom + contentOffsetY
+        val toTop = parentLayoutPosition.y - contentOffsetY - realPopupHeight
+        val toCenter = parentLayoutPosition.y - realPopupHeight / 2
+        val toDisplayBottom = displayMetrics.heightPixels.ipx - realPopupHeight
+        val y = sequenceOf(toBottom, toTop, toCenter, toDisplayBottom).firstOrNull {
+            it >= 0.ipx && it + realPopupHeight <= displayMetrics.heightPixels.ipx
+        } ?: toTop
+
+        return IntPxPosition(x - inset, y - inset)
     }
 }

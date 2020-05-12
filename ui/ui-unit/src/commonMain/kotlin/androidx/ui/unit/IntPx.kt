@@ -279,6 +279,13 @@ data class IntPxSize @PublishedApi internal constructor(@PublishedApi internal v
         IntPxSize(width = width / other, height = height / other)
 
     override fun toString(): String = "$width x $height"
+
+    companion object {
+        /**
+         * [IntPxSize] with zero values.
+         */
+        val Zero = IntPxSize(0.ipx, 0.ipx)
+    }
 }
 
 /**
