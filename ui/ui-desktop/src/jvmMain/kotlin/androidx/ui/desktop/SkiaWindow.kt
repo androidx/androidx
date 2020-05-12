@@ -48,14 +48,13 @@ private class SkijaState {
         if (renderTarget != null) {
             renderTarget!!.close()
         }
-        textureId = 0
     }
 }
 
 interface SkiaRenderer {
     fun onInit()
     fun onRender(canvas: Canvas, width: Int, height: Int)
-    fun onReshape(width: Int, height: Int)
+    fun onReshape(canvas: Canvas, width: Int, height: Int)
     fun onDispose()
 
     fun onMouseClicked(x: Int, y: Int, modifiers: Int)
@@ -116,11 +115,12 @@ class SkiaWindow(
                 height: Int
             ) {
                 initSkija(glCanvas, skijaState, false)
-                renderer!!.onReshape(width, height)
+                renderer!!.onReshape(skijaState.canvas!!, width, height)
             }
 
             override fun init(drawable: GLAutoDrawable?) {
-                initSkija(glCanvas, skijaState, true)
+                skijaState.context = Context.makeGL()
+                initSkija(glCanvas, skijaState, false)
                 renderer!!.onInit()
             }
 
@@ -133,7 +133,6 @@ class SkiaWindow(
                     val gl = drawable!!.gl!!
                     drawable.swapBuffers()
                     gl.glBindTexture(GL.GL_TEXTURE_2D, textureId)
-                    canvas!!.clear(0xFFFFFFFF)
                     renderer!!.onRender(
                         canvas!!, glCanvas.width, glCanvas.height
                     )
@@ -183,7 +182,6 @@ class SkiaWindow(
                 fbId.toLong(),
                 BackendRenderTarget.FramebufferFormat.GR_GL_RGBA8.toLong()
             )
-            context = Context.makeGL()
             surface = Surface.makeFromBackendRenderTarget(
                 context,
                 renderTarget,
