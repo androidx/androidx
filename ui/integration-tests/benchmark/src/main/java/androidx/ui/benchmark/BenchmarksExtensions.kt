@@ -17,10 +17,14 @@
 package androidx.ui.benchmark
 
 import android.view.View
+import androidx.benchmark.junit4.BenchmarkRule
+import androidx.benchmark.junit4.measureRepeated
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.test.assertNoPendingChanges
 import androidx.ui.benchmark.android.AndroidTestCase
+import androidx.ui.graphics.Canvas
+import androidx.ui.integration.test.DrawCapture
 import androidx.ui.test.doFramesUntilNoChangesPending
 import androidx.ui.test.recomposeAssertHadChanges
 import androidx.ui.test.setupContent
@@ -507,6 +511,26 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasureLayout(
             }
             measure()
             assertNoPendingChanges()
+        }
+    }
+}
+
+/**
+ *  Benchmark a block of code with paint operations on canvas.
+ */
+inline fun <T> BenchmarkRule.measureRepeatedRecordingCanvas(
+    width: Int,
+    height: Int,
+    crossinline block: BenchmarkRule.(Canvas) -> T
+) {
+    val capture = DrawCapture()
+    measureRepeated {
+        val canvas = runWithTimingDisabled {
+            capture.beginRecording(width, height)
+        }
+        block(canvas)
+        runWithTimingDisabled {
+            capture.endRecording()
         }
     }
 }
