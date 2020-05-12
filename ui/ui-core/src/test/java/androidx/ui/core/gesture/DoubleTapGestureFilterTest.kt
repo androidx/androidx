@@ -16,7 +16,11 @@
 
 package androidx.ui.core.gesture
 
+import androidx.ui.core.CustomEventDispatcher
+import androidx.ui.core.PointerId
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.gesture.customevents.DelayUpEvent
+import androidx.ui.core.gesture.customevents.DelayUpMessage
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
@@ -31,8 +35,10 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,6 +57,7 @@ class DoubleTapGestureFilterTest {
     @Suppress("DEPRECATION")
     private val testContext = kotlinx.coroutines.test.TestCoroutineContext()
     private val onDoubleTap: (PxPosition) -> Unit = mock()
+    private val customEventDispatcher: CustomEventDispatcher = mock()
     private lateinit var filter: DoubleTapGestureFilter
 
     @Before
@@ -58,6 +65,7 @@ class DoubleTapGestureFilterTest {
         filter = DoubleTapGestureFilter(testContext)
         filter.onDoubleTap = onDoubleTap
         filter.doubleTapTimeout = DoubleTapTimeoutMillis
+        filter.onInit(customEventDispatcher)
     }
 
     // Tests that verify conditions under which onDoubleTap will not be called.
@@ -795,5 +803,166 @@ class DoubleTapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(up2)
 
         verify(onDoubleTap).invoke(any())
+    }
+
+    // Verifies correct behavior around dispatching custom messages with simple cases
+
+    @Test
+    fun onPointerInput_downUp_delayUpToCorrectPointersAndRetained() {
+        val down1 = down(123, 0.milliseconds)
+        val up = down1.up(duration = 1.milliseconds)
+
+        filter::onPointerInput.invokeOverAllPasses(down1)
+        filter::onPointerInput.invokeOverAllPasses(up)
+
+        verify(customEventDispatcher)
+            .dispatchCustomEvent(DelayUpEvent(DelayUpMessage.DelayUp, setOf(PointerId(123))))
+        verify(customEventDispatcher)
+            .retainHitPaths(setOf(PointerId(123)))
+        verifyNoMoreInteractions(customEventDispatcher)
+    }
+
+    @Test
+    fun onPointerInput_downUpDownBeforeTimeOut_delayUpConsumedToCorrectPointersAndReleased() {
+        val down1 = down(123, 0.milliseconds)
+        val up = down1.up(duration = 1.milliseconds)
+        val delay1 = 1L
+        val down2 = down(456, 2.milliseconds)
+
+        filter::onPointerInput.invokeOverAllPasses(down1)
+        filter::onPointerInput.invokeOverAllPasses(up)
+        reset(customEventDispatcher)
+        testContext.advanceTimeBy(delay1, TimeUnit.MILLISECONDS)
+        filter::onPointerInput.invokeOverAllPasses(down2)
+
+        verify(customEventDispatcher).dispatchCustomEvent(
+            DelayUpEvent(DelayUpMessage.DelayedUpConsumed, setOf(PointerId(123)))
+        )
+        verify(customEventDispatcher).releaseHitPaths(
+            setOf(PointerId(123))
+        )
+        verifyNoMoreInteractions(customEventDispatcher)
+    }
+
+    @Test
+    fun onPointerInput_downUpTimeOut_delayUpNotConsumedToCorrectPointersAndReleased() {
+        val down1 = down(123, 0.milliseconds)
+        val up = down1.up(duration = 1.milliseconds)
+        val delay1 = 1000L
+
+        filter::onPointerInput.invokeOverAllPasses(down1)
+        filter::onPointerInput.invokeOverAllPasses(up)
+        reset(customEventDispatcher)
+        testContext.advanceTimeBy(delay1, TimeUnit.MILLISECONDS)
+
+        verify(customEventDispatcher).dispatchCustomEvent(
+            DelayUpEvent(DelayUpMessage.DelayedUpNotConsumed, setOf(PointerId(123)))
+        )
+        verify(customEventDispatcher).releaseHitPaths(
+            setOf(PointerId(123))
+        )
+        verifyNoMoreInteractions(customEventDispatcher)
+    }
+
+    // Verifies correct behavior around dispatching custom messages in relation to other factors
+
+    @Test
+    fun onPointerInput_downUpConsumed_noCustomMessageDispatched() {
+        val down1 = down(123, 0.milliseconds)
+        val upConsumed = down1.up(duration = 1.milliseconds).consumeDownChange()
+
+        filter::onPointerInput.invokeOverAllPasses(down1)
+        filter::onPointerInput.invokeOverAllPasses(upConsumed)
+
+        verifyNoMoreInteractions(customEventDispatcher)
+    }
+
+    @Test
+    fun onPointerInput_downUpConsumedDownBeforeTimeout_noCustomMessageDispatched() {
+        val down1 = down(123, 0.milliseconds)
+        val upConsumed = down1.up(duration = 1.milliseconds).consumeDownChange()
+        val delay1 = 1L
+        val down2 = down(456, 2.milliseconds)
+
+        filter::onPointerInput.invokeOverAllPasses(down1)
+        filter::onPointerInput.invokeOverAllPasses(upConsumed)
+        testContext.advanceTimeBy(delay1, TimeUnit.MILLISECONDS)
+        filter::onPointerInput.invokeOverAllPasses(down2)
+
+        verifyNoMoreInteractions(customEventDispatcher)
+    }
+
+    @Test
+    fun onPointerInput_downUpConsumedTimeout_noCustomMessageDispatched() {
+        val down1 = down(123, 0.milliseconds)
+        val upConsumed = down1.up(duration = 1.milliseconds).consumeDownChange()
+        val delay1 = 1000L
+
+        filter::onPointerInput.invokeOverAllPasses(down1)
+        filter::onPointerInput.invokeOverAllPasses(upConsumed)
+        testContext.advanceTimeBy(delay1, TimeUnit.MILLISECONDS)
+
+        verifyNoMoreInteractions(customEventDispatcher)
+    }
+
+    @Test
+    fun onCancel_downUpCancelTimeOut_delayUpConsumedToCorrectPointersAndReleased() {
+        val down1 = down(123, 0.milliseconds)
+        val up = down1.up(duration = 1.milliseconds)
+        val delay1 = 1000L
+
+        filter::onPointerInput.invokeOverAllPasses(down1)
+        filter::onPointerInput.invokeOverAllPasses(up)
+        reset(customEventDispatcher)
+        filter.onCancel()
+        testContext.advanceTimeBy(delay1, TimeUnit.MILLISECONDS)
+
+        verify(customEventDispatcher).dispatchCustomEvent(
+            DelayUpEvent(DelayUpMessage.DelayedUpConsumed, setOf(PointerId(123)))
+        )
+        verify(customEventDispatcher).releaseHitPaths(
+            setOf(PointerId(123))
+        )
+        verifyNoMoreInteractions(customEventDispatcher)
+    }
+
+    @Test
+    fun onPointerInput_downUpCancelDownBeforeTimeOut_noMessageDispatched() {
+        val down1 = down(123, 0.milliseconds)
+        val up = down1.up(duration = 1.milliseconds)
+        val delay1 = 1L
+        val down2 = down(456, 2.milliseconds)
+
+        filter::onPointerInput.invokeOverAllPasses(down1)
+        filter::onPointerInput.invokeOverAllPasses(up)
+        testContext.advanceTimeBy(delay1, TimeUnit.MILLISECONDS)
+        filter.onCancel()
+        reset(customEventDispatcher)
+        filter::onPointerInput.invokeOverAllPasses(down2)
+
+        verifyNoMoreInteractions(customEventDispatcher)
+    }
+
+    @Test
+    fun onPointerInput_downUpCancelDownUp_delayUpToCorrectPointersAndRetained() {
+        val down1 = down(123, 0.milliseconds)
+        val up = down1.up(duration = 1.milliseconds)
+        val delay1 = 1L
+        val down2 = down(456, 2.milliseconds)
+        val up2 = down2.up(3.milliseconds)
+
+        filter::onPointerInput.invokeOverAllPasses(down1)
+        filter::onPointerInput.invokeOverAllPasses(up)
+        testContext.advanceTimeBy(delay1, TimeUnit.MILLISECONDS)
+        filter.onCancel()
+        reset(customEventDispatcher)
+        filter::onPointerInput.invokeOverAllPasses(down2)
+        filter::onPointerInput.invokeOverAllPasses(up2)
+
+        verify(customEventDispatcher)
+            .dispatchCustomEvent(DelayUpEvent(DelayUpMessage.DelayUp, setOf(PointerId(456))))
+        verify(customEventDispatcher)
+            .retainHitPaths(setOf(PointerId(456)))
+        verifyNoMoreInteractions(customEventDispatcher)
     }
 }
