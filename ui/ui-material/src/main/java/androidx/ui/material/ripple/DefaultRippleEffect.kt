@@ -30,9 +30,9 @@ import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.ui.animation.PxPositionPropKey
 import androidx.ui.animation.PxPropKey
-import androidx.ui.graphics.Canvas
+import androidx.ui.core.DrawScope
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
+import androidx.ui.graphics.painter.clipRect
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
@@ -47,7 +47,6 @@ import androidx.ui.unit.max
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.toOffset
 import androidx.ui.unit.toPxSize
-import androidx.ui.unit.toRect
 
 /**
  * Used to specify this type of [RippleEffect] for [ripple].
@@ -108,7 +107,6 @@ private class DefaultRippleEffect(
     private val animation: TransitionAnimation<RippleTransition.State>
     private var transitionState = RippleTransition.State.Initial
     private var finishRequested = false
-    private val paint = Paint()
     private var animationPulse by mutableStateOf(0L)
 
     init {
@@ -144,7 +142,7 @@ private class DefaultRippleEffect(
         animation.toState(RippleTransition.State.Finished)
     }
 
-    override fun draw(canvas: Canvas, size: IntPxSize, color: Color) {
+    override fun DrawScope.draw(color: Color) {
         animationPulse // model read so we will be redrawn with the next animation values
 
         val alpha = if (transitionState == RippleTransition.State.Initial && finishRequested) {
@@ -153,19 +151,17 @@ private class DefaultRippleEffect(
         } else {
             animation[RippleTransition.Alpha]
         }
-        paint.color = color.copy(alpha = color.alpha * alpha)
-
-        if (clipped) {
-            canvas.save()
-            canvas.clipRect(size.toPxSize().toRect())
-        }
 
         val centerOffset = animation[RippleTransition.Center].toOffset()
         val radius = animation[RippleTransition.Radius].value
-        canvas.drawCircle(centerOffset, radius, paint)
 
+        val modulatedColor = color.copy(alpha = color.alpha * alpha)
         if (clipped) {
-            canvas.restore()
+            clipRect {
+                drawCircle(modulatedColor, radius, centerOffset)
+            }
+        } else {
+            drawCircle(modulatedColor, radius, centerOffset)
         }
     }
 }

@@ -331,7 +331,7 @@ package androidx.ui.material.ripple {
 
   public interface RippleEffect {
     method public default void dispose();
-    method public void draw-_wst67s(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.IntPxSize size, long color);
+    method public void draw-W2xXVUk(androidx.ui.core.DrawScope, long color);
     method public void finish(boolean canceled);
   }
 
