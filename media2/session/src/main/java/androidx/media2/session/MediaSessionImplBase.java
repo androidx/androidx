@@ -227,7 +227,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mbrComponent,
                 mMediaButtonIntent, mSessionToken.getExtras(), mSessionToken);
         // NOTE: mSessionLegacyStub should be created after mSessionCompat created.
-        mSessionLegacyStub = new MediaSessionLegacyStub(this);
+        mSessionLegacyStub = new MediaSessionLegacyStub(this, mHandler);
 
         mSessionCompat.setSessionActivity(sessionActivity);
         mSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
@@ -967,6 +967,11 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     @Override
     public MediaSessionCompat getSessionCompat() {
         return mSessionCompat;
+    }
+
+    @Override
+    public void setLegacyControllerConnectionTimeoutMs(long timeoutMs) {
+        mSessionLegacyStub.setLegacyControllerDisconnectTimeoutMs(timeoutMs);
     }
 
     @Override

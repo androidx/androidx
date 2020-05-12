@@ -432,6 +432,17 @@ public class MediaSession implements AutoCloseable {
     }
 
     /**
+     * Sets the timeout for disconnecting legacy controller.
+     * @param timeoutMs timeout in millis
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public void setLegacyControllerConnectionTimeoutMs(long timeoutMs) {
+        mImpl.setLegacyControllerConnectionTimeoutMs(timeoutMs);
+    }
+
+    /**
      * Handles the controller's connection request from {@link MediaSessionService}.
      *
      * @param controller controller aidl
@@ -507,7 +518,11 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Called when a controller is disconnected
+         * Called when a controller is disconnected.
+         * <p>
+         * Interoperability: For legacy controller, this is called when the controller doesn't send
+         * any command for a while. It's because there were no explicit disconnect API in legacy
+         * controller API.
          *
          * @param session the session for this event
          * @param controller controller information
@@ -1207,6 +1222,7 @@ public class MediaSession implements AutoCloseable {
         // Internally used methods
         MediaSession getInstance();
         MediaSessionCompat getSessionCompat();
+        void setLegacyControllerConnectionTimeoutMs(long timeoutMs);
         Context getContext();
         Executor getCallbackExecutor();
         SessionCallback getCallback();
