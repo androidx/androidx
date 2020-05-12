@@ -172,6 +172,7 @@ public class PreviewView extends FrameLayout {
             CameraInfo cameraInfo = surfaceRequest.getCameraInfo();
             final ImplementationMode actualImplementationMode =
                     computeImplementationMode(cameraInfo, mPreferredImplementationMode);
+            mPreviewTransform.setSensorDimensionFlipNeeded(isSensorDimensionFlipNeeded(cameraInfo));
             mImplementation = computeImplementation(actualImplementationMode);
             mImplementation.init(this, mPreviewTransform);
 
@@ -243,6 +244,17 @@ public class PreviewView extends FrameLayout {
                 throw new IllegalStateException(
                         "Unsupported implementation mode " + mode);
         }
+    }
+
+    private boolean isSensorDimensionFlipNeeded(@NonNull CameraInfo cameraInfo) {
+        int sensorDegrees;
+
+        // Retrieve sensor rotation degrees when there is camera info.
+        sensorDegrees = cameraInfo.getSensorRotationDegrees();
+
+        // When the sensor degrees value is 90 or 270, the width/height of the surface resolution
+        // need to be swapped to do the scale related calculations.
+        return sensorDegrees % 180 == 90;
     }
 
     /**
