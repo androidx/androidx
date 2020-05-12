@@ -55,13 +55,9 @@ final class ProcessingSurface extends DeferrableSurface {
 
     // Callback when Image is ready from InputImageReader.
     private final ImageReaderProxy.OnImageAvailableListener mTransformedListener =
-            new ImageReaderProxy.OnImageAvailableListener() {
-                @SuppressWarnings("GuardedBy")
-                @Override
-                public void onImageAvailable(@NonNull ImageReaderProxy reader) {
-                    synchronized (mLock) {
-                        imageIncoming(reader);
-                    }
+            reader -> {
+                synchronized (mLock) {
+                    imageIncoming(reader);
                 }
             };
 
@@ -172,11 +168,12 @@ final class ProcessingSurface extends DeferrableSurface {
         getTerminationFuture().addListener(this::release, directExecutor());
     }
 
-    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
     @Override
     @NonNull
     public ListenableFuture<Surface> provideSurface() {
-        return Futures.immediateFuture(mInputSurface);
+        synchronized (mLock) {
+            return Futures.immediateFuture(mInputSurface);
+        }
     }
 
     /**

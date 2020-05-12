@@ -74,7 +74,6 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
     /**
      * Clear and release all cameras from the repository.
      */
-    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
     @NonNull
     public ListenableFuture<Void> deinit() {
         synchronized (mCamerasLock) {
@@ -93,8 +92,9 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
                 // CameraRepository is initialized and deinitialized multiple times in quick
                 // succession.
                 currentFuture = CallbackToFutureAdapter.getFuture((completer) -> {
-                    Preconditions.checkState(Thread.holdsLock(mCamerasLock));
-                    mDeinitCompleter = completer;
+                    synchronized (mCamerasLock) {
+                        mDeinitCompleter = completer;
+                    }
                     return "CameraRepository-deinit";
                 });
                 mDeinitFuture = currentFuture;

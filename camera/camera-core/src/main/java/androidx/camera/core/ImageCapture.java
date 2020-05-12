@@ -147,7 +147,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>When capturing to memory, the captured image is made available through an {@link ImageProxy}
  * via an {@link ImageCapture.OnImageCapturedCallback}.
  */
-@SuppressWarnings("ClassCanBeStatic") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
 public final class ImageCapture extends UseCase {
 
     /**
