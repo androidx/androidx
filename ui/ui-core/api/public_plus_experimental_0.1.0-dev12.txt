@@ -812,26 +812,6 @@ package androidx.ui.core {
     method public static boolean positionChangedIgnoreConsumed(androidx.ui.core.PointerInputChange);
   }
 
-  public final class PointerInputNode extends androidx.ui.core.ComponentNode {
-    ctor public PointerInputNode();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getCancelHandler();
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.CustomEvent,androidx.ui.core.PointerEventPass,kotlin.Unit>? getCustomEventHandler();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? getInitHandler();
-    method public kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.unit.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> getPointerInputHandler();
-    method public void setCancelHandler(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setCustomEventHandler(kotlin.jvm.functions.Function2<? super androidx.ui.core.CustomEvent,? super androidx.ui.core.PointerEventPass,kotlin.Unit>? p);
-    method public void setInitHandler(kotlin.jvm.functions.Function1<? super androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? p);
-    method public void setPointerInputHandler(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>> p);
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit> cancelHandler;
-    property public final kotlin.jvm.functions.Function2<androidx.ui.core.CustomEvent,androidx.ui.core.PointerEventPass,kotlin.Unit>? customEventHandler;
-    property public final kotlin.jvm.functions.Function1<androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? initHandler;
-    property public final kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.unit.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler;
-  }
-
-  public final class PointerInputWrapperKt {
-    method public static inline void PointerInput(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler, kotlin.jvm.functions.Function0<kotlin.Unit> cancelHandler, kotlin.jvm.functions.Function1<? super androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? initHandler = null, kotlin.jvm.functions.Function2<? super androidx.ui.core.CustomEvent,? super androidx.ui.core.PointerEventPass,kotlin.Unit>? customEventHandler = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
   public final class PopupKt {
     method public static void DropdownPopup(androidx.ui.core.DropDownAlignment dropDownAlignment = androidx.ui.core.DropDownAlignment.Start, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopStart, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);

@@ -2273,35 +2273,35 @@ class HitPathTrackerTest {
     // Pin -> Ln
     @Test
     fun processCancel_singlePin_cancelHandlerIsCalled() {
-        val pointerInputNode: PointerInputFilter = PointerInputFilterMock()
-        hitPathTracker.addHitPath(PointerId(3), listOf(pointerInputNode))
+        val pif: PointerInputFilter = PointerInputFilterMock()
+        hitPathTracker.addHitPath(PointerId(3), listOf(pif))
 
         hitPathTracker.processCancel()
 
-        verify(pointerInputNode).onCancel()
+        verify(pif).onCancel()
     }
 
     // Pin -> Pin -> Pin
     @Test
     fun processCancel_3Pins_cancelHandlersCalledOnceInOrder() {
-        val pointerInputNodeChild: PointerInputFilter = PointerInputFilterMock()
-        val pointerInputNodeMiddle: PointerInputFilter = PointerInputFilterMock()
-        val pointerInputNodeParent: PointerInputFilter = PointerInputFilterMock()
+        val childPif: PointerInputFilter = PointerInputFilterMock()
+        val middlePif: PointerInputFilter = PointerInputFilterMock()
+        val parentPif: PointerInputFilter = PointerInputFilterMock()
         hitPathTracker.addHitPath(
             PointerId(3),
-            listOf(pointerInputNodeParent, pointerInputNodeMiddle, pointerInputNodeChild)
+            listOf(parentPif, middlePif, childPif)
         )
 
         hitPathTracker.processCancel()
 
         inOrder(
-            pointerInputNodeParent,
-            pointerInputNodeMiddle,
-            pointerInputNodeChild
+            parentPif,
+            middlePif,
+            childPif
         ) {
-            verify(pointerInputNodeChild).onCancel()
-            verify(pointerInputNodeMiddle).onCancel()
-            verify(pointerInputNodeParent).onCancel()
+            verify(childPif).onCancel()
+            verify(middlePif).onCancel()
+            verify(parentPif).onCancel()
         }
     }
 
@@ -2354,8 +2354,8 @@ class HitPathTrackerTest {
     // Pin -> Ln
     @Test
     fun processCancel_singlePin_cleared() {
-        val pointerInputNode: PointerInputFilter = PointerInputFilterMock()
-        hitPathTracker.addHitPath(PointerId(3), listOf(pointerInputNode))
+        val pif: PointerInputFilter = PointerInputFilterMock()
+        hitPathTracker.addHitPath(PointerId(3), listOf(pif))
 
         hitPathTracker.processCancel()
 
@@ -2365,12 +2365,12 @@ class HitPathTrackerTest {
     // Pin -> Pin -> Pin
     @Test
     fun processCancel_3Pins_cleared() {
-        val pointerInputNodeChild: PointerInputFilter = PointerInputFilterMock()
-        val pointerInputNodeMiddle: PointerInputFilter = PointerInputFilterMock()
-        val pointerInputNodeParent: PointerInputFilter = PointerInputFilterMock()
+        val childPif: PointerInputFilter = PointerInputFilterMock()
+        val middlePif: PointerInputFilter = PointerInputFilterMock()
+        val parentPif: PointerInputFilter = PointerInputFilterMock()
         hitPathTracker.addHitPath(
             PointerId(3),
-            listOf(pointerInputNodeParent, pointerInputNodeMiddle, pointerInputNodeChild)
+            listOf(parentPif, middlePif, childPif)
         )
 
         hitPathTracker.processCancel()

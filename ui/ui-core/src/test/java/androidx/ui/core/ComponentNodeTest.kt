@@ -210,7 +210,7 @@ class ComponentNodeTest {
 
     @Test
     fun childAdd() {
-        val node = PointerInputNode()
+        val node = LayoutNode()
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(1)).onAttach(node)
@@ -225,16 +225,16 @@ class ComponentNodeTest {
 
     @Test
     fun childCount() {
-        val node = PointerInputNode()
+        val node = LayoutNode()
         assertEquals(0, node.count)
-        node.insertAt(0, PointerInputNode())
+        node.insertAt(0, LayoutNode())
         assertEquals(1, node.count)
     }
 
     @Test
     fun childGet() {
-        val node = PointerInputNode()
-        val child = PointerInputNode()
+        val node = LayoutNode()
+        val child = LayoutNode()
         node.insertAt(0, child)
         assertEquals(child, node[0])
     }
@@ -249,7 +249,7 @@ class ComponentNodeTest {
 
     @Test
     fun childRemove() {
-        val node = PointerInputNode()
+        val node = LayoutNode()
         val owner = mock(Owner::class.java)
         node.attach(owner)
         val child = DrawNode()
@@ -294,59 +294,11 @@ class ComponentNodeTest {
         assertNull(childLayoutNode.parentLayoutNode)
     }
 
-    // layoutNode hierarchy should be set properly when a GestureNode is a child of a LayoutNode
-    @Test
-    fun directLayoutAndGestureNodesHierarchy() {
-        val layoutNode = LayoutNode()
-        val singleChildNode = PointerInputNode()
-        layoutNode.insertAt(0, singleChildNode)
-
-        assertNull(layoutNode.parentLayoutNode)
-        assertEquals(layoutNode, singleChildNode.parentLayoutNode)
-        val layoutNodeChildren = findLayoutNodeChildren(layoutNode)
-        assertEquals(0, layoutNodeChildren.size)
-
-        val childLayoutNodes = findLayoutNodeChildren(singleChildNode)
-        assertEquals(0, childLayoutNodes.size)
-
-        layoutNode.removeAt(index = 0, count = 1)
-        assertNull(singleChildNode.parentLayoutNode)
-    }
-
-    // layoutNode hierarchy should be set properly when a LayoutNode is a grandchild of a LayoutNode
-    @Test
-    fun indirectLayoutNodeHierarchy() {
-        val layoutNode = LayoutNode()
-        val intermediate = PointerInputNode()
-        val childLayoutNode = LayoutNode()
-        layoutNode.insertAt(0, intermediate)
-        assertEquals(layoutNode, intermediate.parentLayoutNode)
-
-        intermediate.insertAt(0, childLayoutNode)
-
-        assertNull(layoutNode.parentLayoutNode)
-        assertEquals(layoutNode, childLayoutNode.parentLayoutNode)
-
-        val layoutNodeChildren = findLayoutNodeChildren(layoutNode)
-        assertEquals(1, layoutNodeChildren.size)
-        assertEquals(childLayoutNode, layoutNodeChildren[0])
-
-        val intermediateLayoutNodeChildren = findLayoutNodeChildren(intermediate)
-        assertEquals(1, intermediateLayoutNodeChildren.size)
-        assertEquals(childLayoutNode, intermediateLayoutNodeChildren[0])
-
-        intermediate.removeAt(index = 0, count = 1)
-        assertNull(childLayoutNode.parentLayoutNode)
-
-        val intermediateLayoutNodeChildren2 = findLayoutNodeChildren(intermediate)
-        assertEquals(0, intermediateLayoutNodeChildren2.size)
-    }
-
-    // Test visitChildren() for LayoutNode and a SingleChildNode
+    // Test visitChildren() for nodes.
     @Test
     fun visitChildren() {
         val (node1, node2, node3) = createSimpleLayout()
-        val node4 = PointerInputNode()
+        val node4 = LayoutNode()
         node3.insertAt(0, node4)
         val nodes = mutableListOf<ComponentNode>()
         node1.visitChildren { nodes.add(it) }
@@ -682,71 +634,71 @@ class ComponentNodeTest {
     // ComponentNode shouldn't allow adding beyond the count
     @Test
     fun testAddBeyondCurrent() {
-        val pointerInputNode = PointerInputNode()
+        val node = LayoutNode()
         thrown.expect(IndexOutOfBoundsException::class.java)
-        pointerInputNode.insertAt(1, DrawNode())
+        node.insertAt(1, DrawNode())
     }
 
     // ComponentNode shouldn't allow adding below 0
     @Test
     fun testAddBelowZero() {
-        val pointerInputNode = PointerInputNode()
+        val node = LayoutNode()
         thrown.expect(IndexOutOfBoundsException::class.java)
-        pointerInputNode.insertAt(-1, DrawNode())
+        node.insertAt(-1, DrawNode())
     }
 
     // ComponentNode should error when removing at index < 0
     @Test
     fun testRemoveNegativeIndex() {
-        val pointerInputNode = PointerInputNode()
-        pointerInputNode.insertAt(0, DrawNode())
+        val node = LayoutNode()
+        node.insertAt(0, DrawNode())
         thrown.expect(IndexOutOfBoundsException::class.java)
-        pointerInputNode.removeAt(-1, 1)
+        node.removeAt(-1, 1)
     }
 
     // ComponentNode should error when removing at index > count
     @Test
     fun testRemoveBeyondIndex() {
-        val pointerInputNode = PointerInputNode()
-        pointerInputNode.insertAt(0, DrawNode())
+        val node = LayoutNode()
+        node.insertAt(0, DrawNode())
         thrown.expect(IndexOutOfBoundsException::class.java)
-        pointerInputNode.removeAt(1, 1)
+        node.removeAt(1, 1)
     }
 
     // ComponentNode should error when removing at count < 0
     @Test
     fun testRemoveNegativeCount() {
-        val pointerInputNode = PointerInputNode()
-        pointerInputNode.insertAt(0, DrawNode())
+        val node = LayoutNode()
+        node.insertAt(0, DrawNode())
         thrown.expect(IllegalArgumentException::class.java)
-        pointerInputNode.removeAt(0, -1)
+        node.removeAt(0, -1)
     }
 
     // ComponentNode should error when removing at count > entry count
     @Test
-    fun testReplaceoMany() {
-        val pointerInputNode = PointerInputNode()
-        pointerInputNode.insertAt(0, DrawNode())
+    fun testRemoveWithIndexBeyondSize() {
+        val node = LayoutNode()
+        node.insertAt(0, DrawNode())
         thrown.expect(IndexOutOfBoundsException::class.java)
-        pointerInputNode.removeAt(0, 2)
+        node.removeAt(0, 2)
     }
 
     // ComponentNode should error when there aren't enough items
     @Test
-    fun testReplaceoMany2() {
-        val pointerInputNode = PointerInputNode()
+    fun testRemoveWithIndexEqualToSize() {
+        val node = LayoutNode()
         thrown.expect(IndexOutOfBoundsException::class.java)
-        pointerInputNode.removeAt(0, 1)
+        node.removeAt(0, 1)
     }
 
     // ComponentNode should allow removing two items
     @Test
     fun testRemoveTwoItems() {
-        val pointerInputNode = PointerInputNode()
-        pointerInputNode.insertAt(0, DrawNode())
-        pointerInputNode.insertAt(0, DrawNode())
-        pointerInputNode.removeAt(0, 2)
-        assertEquals(0, pointerInputNode.count)
+        val node = LayoutNode()
+        node.insertAt(0, DrawNode())
+        node.insertAt(0, DrawNode())
+        node.removeAt(0, 2)
+        assertEquals(0, node.count)
     }
 
     // The layout coordinates of a LayoutNode should be attached when
