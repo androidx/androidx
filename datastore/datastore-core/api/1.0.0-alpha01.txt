@@ -1,6 +1,10 @@
 // Signature format: 3.0
 package androidx.datastore {
 
+  public interface CorruptionHandler<T> {
+    method public suspend Object? handleCorruption(androidx.datastore.DataStore.Serializer.CorruptionException ex, kotlin.coroutines.Continuation<? super T> p);
+  }
+
   public interface DataMigration<T> {
     method public suspend Object? cleanUp(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public suspend Object? migrate(T? currentData, kotlin.coroutines.Continuation<? super T> p);
@@ -24,11 +28,24 @@ package androidx.datastore {
     property public abstract T! defaultValue;
   }
 
+  public static final class DataStore.Serializer.CorruptionException extends java.io.IOException {
+    ctor public DataStore.Serializer.CorruptionException(String message, Throwable cause);
+  }
+
   public final class SingleProcessDataStore<T> implements androidx.datastore.DataStore<T> {
-    ctor public SingleProcessDataStore(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.DataStore.Serializer<T> serializer, java.util.List<? extends kotlin.jvm.functions.Function2<? super androidx.datastore.DataStore.InitializerApi<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>> initTasksList, kotlinx.coroutines.CoroutineScope scope);
+    ctor public SingleProcessDataStore(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.DataStore.Serializer<T> serializer, java.util.List<? extends kotlin.jvm.functions.Function2<? super androidx.datastore.DataStore.InitializerApi<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>> initTasksList, androidx.datastore.CorruptionHandler<T> corruptionHandler, kotlinx.coroutines.CoroutineScope scope);
     method public kotlinx.coroutines.flow.Flow<T> getDataFlow();
     method public suspend Object? updateData(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> transform, kotlin.coroutines.Continuation<? super T> p);
     property public kotlinx.coroutines.flow.Flow<T> dataFlow;
+  }
+
+}
+
+package androidx.datastore.handlers {
+
+  public final class ReplaceFileCorruptionHandler<T> implements androidx.datastore.CorruptionHandler<T> {
+    ctor public ReplaceFileCorruptionHandler(kotlin.jvm.functions.Function1<? super androidx.datastore.DataStore.Serializer.CorruptionException,? extends T> produceNewData);
+    method public suspend Object? handleCorruption(androidx.datastore.DataStore.Serializer.CorruptionException ex, kotlin.coroutines.Continuation<? super T> p) throws java.io.IOException;
   }
 
 }

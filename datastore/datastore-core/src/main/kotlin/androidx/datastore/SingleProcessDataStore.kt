@@ -15,6 +15,7 @@
  */
 package androidx.datastore
 
+import androidx.datastore.handlers.NoOpCorruptionHandler
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,6 +60,7 @@ class SingleProcessDataStore<T>(
      * result in deadlock.
      */
     initTasksList: List<suspend (api: DataStore.InitializerApi<T>) -> Unit> = emptyList(),
+    private val corruptionHandler: CorruptionHandler<T> = NoOpCorruptionHandler<T>(),
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 ) : DataStore<T> {
 
@@ -174,7 +176,7 @@ class SingleProcessDataStore<T>(
         }
 
         val updateLock = Mutex()
-        var initData = readData()
+        var initData = readDataOrHandleCorruption()
 
         var initializationComplete: Boolean = false
 
@@ -205,6 +207,27 @@ class SingleProcessDataStore<T>(
         }
 
         dataChannel.offer(initData)
+    }
+
+    private suspend fun readDataOrHandleCorruption(): T {
+        try {
+            return readData()
+        } catch (ex: DataStore.Serializer.CorruptionException) {
+
+            val newData: T = corruptionHandler.handleCorruption(ex)
+
+            try {
+                writeData(newData)
+            } catch (writeEx: IOException) {
+                // If we fail to write the handled data, add the new exception as a suppressed
+                // exception.
+                ex.addSuppressed(writeEx)
+                throw ex
+            }
+
+            // If we reach this point, we've successfully replaced the data on disk with newData.
+            return newData
+        }
     }
 
     private suspend fun readData(): T {
