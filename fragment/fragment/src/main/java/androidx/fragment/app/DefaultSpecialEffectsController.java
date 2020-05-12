@@ -224,73 +224,74 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 removeCancellationSignal(transitionInfo.getOperation(),
                         transitionInfo.getSignal());
             }
-        } else {
-            ArrayList<View> enteringViews = new ArrayList<>();
-            // These transitions run together, overlapping one another
-            Object mergedTransition = null;
-            // These transitions run only after all of the other transitions complete
-            Object mergedNonOverlappingTransition = null;
-            // Now iterate through the set of transitions and merge them together
-            for (final TransitionInfo transitionInfo : transitionInfos) {
-                Object transition = transitionImpl.cloneTransition(transitionInfo.getTransition());
-                if (transition == null) {
-                    // Nothing more to do if the transition is null
-                    removeCancellationSignal(transitionInfo.getOperation(),
-                            transitionInfo.getSignal());
-                } else {
-                    // Target the Transition to *only* the set of transitioning views
-                    ArrayList<View> transitioningViews = new ArrayList<>();
-                    captureTransitioningViews(transitioningViews,
-                            transitionInfo.getOperation().getFragment().mView);
-                    transitionImpl.addTargets(transition, transitioningViews);
-                    if (transitionInfo.getOperation().getType().equals(Operation.Type.ADD)) {
-                        enteringViews.addAll(transitioningViews);
-                    }
-                    // Now determine how this transition should be merged together
-                    if (transitionInfo.isOverlapAllowed()) {
-                        // Overlap is allowed, so add them to the mergeTransition set
-                        mergedTransition = transitionImpl.mergeTransitionsTogether(
-                                mergedTransition, transition, null);
-                    } else {
-                        // Overlap is not allowed, add them to the mergedNonOverlappingTransition
-                        mergedNonOverlappingTransition = transitionImpl.mergeTransitionsTogether(
-                                mergedNonOverlappingTransition, transition, null);
-                    }
-                }
-            }
-
-            // Make sure that the mergedNonOverlappingTransition set
-            // runs after the mergedTransition set is complete
-            mergedTransition = transitionImpl.mergeTransitionsInSequence(mergedTransition,
-                    mergedNonOverlappingTransition, null);
-
-            // Now set up our cancellation and completion signal on the completely
-            // merged transition set
-            for (final TransitionInfo transitionInfo : transitionInfos) {
-                Object transition = transitionInfo.getTransition();
-                if (transition != null) {
-                    transitionImpl.setListenerForTransitionEnd(
-                            transitionInfo.getOperation().getFragment(),
-                            mergedTransition,
-                            transitionInfo.getSignal(),
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    removeCancellationSignal(transitionInfo.getOperation(),
-                                            transitionInfo.getSignal());
-                                }
-                            });
-                }
-            }
-            // First, hide all of the entering views so they're in
-            // the correct initial state
-            FragmentTransition.setViewVisibility(enteringViews, View.INVISIBLE);
-            // Now actually start the transition
-            transitionImpl.beginDelayedTransition(getContainer(), mergedTransition);
-            // Then, show all of the entering views, putting them into
-            // the correct final state
-            FragmentTransition.setViewVisibility(enteringViews, View.VISIBLE);
+            return;
         }
+
+        ArrayList<View> enteringViews = new ArrayList<>();
+        // These transitions run together, overlapping one another
+        Object mergedTransition = null;
+        // These transitions run only after all of the other transitions complete
+        Object mergedNonOverlappingTransition = null;
+        // Now iterate through the set of transitions and merge them together
+        for (final TransitionInfo transitionInfo : transitionInfos) {
+            Object transition = transitionImpl.cloneTransition(transitionInfo.getTransition());
+            if (transition == null) {
+                // Nothing more to do if the transition is null
+                removeCancellationSignal(transitionInfo.getOperation(),
+                        transitionInfo.getSignal());
+            } else {
+                // Target the Transition to *only* the set of transitioning views
+                ArrayList<View> transitioningViews = new ArrayList<>();
+                captureTransitioningViews(transitioningViews,
+                        transitionInfo.getOperation().getFragment().mView);
+                transitionImpl.addTargets(transition, transitioningViews);
+                if (transitionInfo.getOperation().getType().equals(Operation.Type.ADD)) {
+                    enteringViews.addAll(transitioningViews);
+                }
+                // Now determine how this transition should be merged together
+                if (transitionInfo.isOverlapAllowed()) {
+                    // Overlap is allowed, so add them to the mergeTransition set
+                    mergedTransition = transitionImpl.mergeTransitionsTogether(
+                            mergedTransition, transition, null);
+                } else {
+                    // Overlap is not allowed, add them to the mergedNonOverlappingTransition
+                    mergedNonOverlappingTransition = transitionImpl.mergeTransitionsTogether(
+                            mergedNonOverlappingTransition, transition, null);
+                }
+            }
+        }
+
+        // Make sure that the mergedNonOverlappingTransition set
+        // runs after the mergedTransition set is complete
+        mergedTransition = transitionImpl.mergeTransitionsInSequence(mergedTransition,
+                mergedNonOverlappingTransition, null);
+
+        // Now set up our cancellation and completion signal on the completely
+        // merged transition set
+        for (final TransitionInfo transitionInfo : transitionInfos) {
+            Object transition = transitionInfo.getTransition();
+            if (transition != null) {
+                transitionImpl.setListenerForTransitionEnd(
+                        transitionInfo.getOperation().getFragment(),
+                        mergedTransition,
+                        transitionInfo.getSignal(),
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                removeCancellationSignal(transitionInfo.getOperation(),
+                                        transitionInfo.getSignal());
+                            }
+                        });
+            }
+        }
+        // First, hide all of the entering views so they're in
+        // the correct initial state
+        FragmentTransition.setViewVisibility(enteringViews, View.INVISIBLE);
+        // Now actually start the transition
+        transitionImpl.beginDelayedTransition(getContainer(), mergedTransition);
+        // Then, show all of the entering views, putting them into
+        // the correct final state
+        FragmentTransition.setViewVisibility(enteringViews, View.VISIBLE);
     }
 
     /**
