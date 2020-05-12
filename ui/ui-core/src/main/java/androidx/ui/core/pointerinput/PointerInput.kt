@@ -22,7 +22,6 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInputNode
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -80,7 +79,7 @@ abstract class PointerInputFilter {
     open fun onInit(customEventDispatcher: CustomEventDispatcher) {}
 
     /**
-     * Invoked when a [CustomEvent] is dispatched by a [PointerInputNode].
+     * Invoked when a [CustomEvent] is dispatched by a [PointerInputFilter].
      *
      * Dispatch occurs over all passes of [PointerEventPass].
      *
