@@ -25,10 +25,10 @@ internal class TestingSerializer(
     @Volatile var failReadWithCorruptionException: Boolean = false,
     @Volatile var failingRead: Boolean = false,
     @Volatile var failingWrite: Boolean = false
-) : DataStore.Serializer<Byte> {
+) : Serializer<Byte> {
     override fun readFrom(input: InputStream): Byte {
         if (failReadWithCorruptionException) {
-            throw DataStore.Serializer.CorruptionException(
+            throw CorruptionException(
                 "CorruptionException",
                 IOException()
             )

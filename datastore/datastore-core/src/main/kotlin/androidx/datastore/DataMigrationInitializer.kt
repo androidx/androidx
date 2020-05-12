@@ -36,7 +36,7 @@ class DataMigrationInitializer<T>() {
          * functions.
          */
         fun <T> getInitializer(migrationTaskFactories: List<() -> DataMigration<T>>):
-                suspend (api: DataStore.InitializerApi<T>) -> Unit {
+                suspend (api: InitializerApi<T>) -> Unit {
             return { api ->
                 val migrations = migrationTaskFactories.map { it() }
                 runMigrations(migrations, api)
@@ -45,7 +45,7 @@ class DataMigrationInitializer<T>() {
 
         private suspend fun <T> runMigrations(
             migrations: List<DataMigration<T>>,
-            api: DataStore.InitializerApi<T>
+            api: InitializerApi<T>
         ) {
             val migrationsToRun = migrations.filter { it.shouldMigrate() }
 

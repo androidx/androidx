@@ -16,8 +16,8 @@
 
 package androidx.datastore.handlers
 
+import androidx.datastore.CorruptionException
 import androidx.datastore.CorruptionHandler
-import androidx.datastore.DataStore
 import java.io.IOException
 
 /**
@@ -33,11 +33,11 @@ class ReplaceFileCorruptionHandler<T>(
      * fails, nothing will be written to disk. Since the exception will be swallowed after
      * writing the data, this is a good place to log the exception.
      */
-    private val produceNewData: (DataStore.Serializer.CorruptionException) -> T
+    private val produceNewData: (CorruptionException) -> T
 ) : CorruptionHandler<T> {
 
     @Throws(IOException::class)
-    override suspend fun handleCorruption(ex: DataStore.Serializer.CorruptionException): T {
+    override suspend fun handleCorruption(ex: CorruptionException): T {
         return produceNewData(ex)
     }
 }

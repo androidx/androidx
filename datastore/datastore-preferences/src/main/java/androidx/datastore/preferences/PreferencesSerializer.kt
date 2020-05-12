@@ -16,10 +16,11 @@
 
 package androidx.datastore.preferences
 
+import androidx.datastore.CorruptionException
 import androidx.datastore.preferences.PreferencesProto.PreferenceMap
 import androidx.datastore.preferences.PreferencesProto.Value
 import androidx.datastore.preferences.PreferencesProto.StringSet
-import androidx.datastore.DataStore
+import androidx.datastore.Serializer
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.IOException
 import java.io.InputStream
@@ -31,15 +32,15 @@ import java.io.OutputStream
  * TODO(b/156533452): this is a temporary implementation to allow for development. This will be
  * replaced before launching.
  */
-internal object PreferencesSerializer : DataStore.Serializer<Preferences> {
+internal object PreferencesSerializer : Serializer<Preferences> {
     override val defaultValue = Preferences.empty()
 
-    @Throws(IOException::class, DataStore.Serializer.CorruptionException::class)
+    @Throws(IOException::class, CorruptionException::class)
     override fun readFrom(input: InputStream): Preferences {
         val preferencesProto = try {
             PreferenceMap.parseFrom(input)
         } catch (invalidProtocolBufferException: InvalidProtocolBufferException) {
-            throw DataStore.Serializer.CorruptionException(
+            throw CorruptionException(
                 "Unable to parse preferences proto.",
                 invalidProtocolBufferException
             )
@@ -52,7 +53,7 @@ internal object PreferencesSerializer : DataStore.Serializer<Preferences> {
         return Preferences(preferencesMap)
     }
 
-    @Throws(IOException::class, DataStore.Serializer.CorruptionException::class)
+    @Throws(IOException::class, CorruptionException::class)
     override fun writeTo(t: Preferences, output: OutputStream) {
         val preferences = t.getAll()
         val protoBuilder = PreferenceMap.newBuilder()
@@ -91,8 +92,8 @@ internal object PreferencesSerializer : DataStore.Serializer<Preferences> {
             Value.ValueCase.STRING -> value.string
             Value.ValueCase.STRING_SET -> value.stringSet.stringsList.toSet()
             Value.ValueCase.VALUE_NOT_SET ->
-                throw DataStore.Serializer.CorruptionException("Value not set.")
-            null -> throw DataStore.Serializer.CorruptionException("Value case is null.")
+                throw CorruptionException("Value not set.")
+            null -> throw CorruptionException("Value case is null.")
         }
     }
 }
