@@ -83,7 +83,7 @@ internal class UserPagingAdapter : BasePagingAdapter<User>()
 internal class UserListViewModel : BaseViewModel<User>()
 
 @Sampled
-fun presentDataSample() {
+fun submitDataFlowSample() {
     class MyFlowActivity : AppCompatActivity() {
         val pagingAdapter = UserPagingAdapter()
 
@@ -95,9 +95,9 @@ fun presentDataSample() {
             lifecycleScope.launch {
                 viewModel.pagingFlow
                     .collectLatest { pagingData ->
-                        // presentData suspends until loading this generation of data stops
+                        // submitData suspends until loading this generation of data stops
                         // so be sure to use collectLatest {} when presenting a Flow<PagingData>
-                        pagingAdapter.presentData(pagingData)
+                        pagingAdapter.submitData(pagingData)
                     }
             }
         }
