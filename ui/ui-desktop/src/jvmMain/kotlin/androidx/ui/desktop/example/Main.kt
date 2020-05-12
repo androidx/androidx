@@ -16,6 +16,7 @@
 package androidx.ui.desktop.example
 
 import androidx.compose.Composable
+import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.graphics.Color
@@ -32,6 +33,7 @@ import androidx.ui.material.Button
 import androidx.ui.material.CircularProgressIndicator
 import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.Scaffold
+import androidx.ui.material.Slider
 import androidx.ui.material.TopAppBar
 import androidx.ui.unit.dp
 
@@ -65,26 +67,30 @@ fun App() {
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text("BUTTON") },
-                onClick = { }
+                onClick = {
+                    println("Floating button clicked")
+                }
             )
         },
         bodyContent = { modifier ->
+            val amount = state { 0 }
             Column(modifier.fillMaxSize(), Arrangement.SpaceEvenly) {
                 Text(
-                    text = "Привет! 你好! Desktop Compose!",
+                    text = "Привет! 你好! Desktop Compose ${amount.value}",
                     color = Color.Black,
                     modifier = Modifier
                         .drawBackground(Color.Blue)
                         .preferredHeight(56.dp)
                         .wrapContentSize(Alignment.Center)
                 )
-                var text = "Base"
                 Button(onClick = {
-                    text = "Clicked"
+                    amount.value++
                 }) {
-                    Text(text)
+                    Text("Base")
                 }
                 CircularProgressIndicator()
+                Slider(value = amount.value.toFloat() / 100f,
+                    onValueChange = { amount.value = (it * 100).toInt() })
             }
         }
     )

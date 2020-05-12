@@ -98,7 +98,7 @@ open class Paint {
             skijaPaint.setAntiAlias(value)
         }
 
-    var textSize: Float = 0f
+    var textSize: Float = 20f
 
     private var typeface: Typeface? = null
     fun getTypeface(): Typeface? = typeface

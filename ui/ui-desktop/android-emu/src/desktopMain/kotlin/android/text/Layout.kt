@@ -148,17 +148,17 @@ open class Layout(
     }
 
     open fun draw(c: Canvas) {
-        println("Layout.draw1: $mText")
+        // println("Layout.draw1: $mText")
         draw(c, null, null, 0)
     }
 
     open fun draw(canvas: Canvas, highlight: Path?, highlightpaint: Paint?, cursorOffset: Int) {
-        println("Layout.draw2")
+        // println("Layout.draw2")
         drawText(canvas, 0, 1)
     }
 
     fun drawText(canvas: Canvas, firstLine: Int, lastLine: Int) {
-        println("Layout.drawText: $firstLine .. $lastLine")
+        // println("Layout.drawText: $firstLine .. $lastLine")
         canvas.drawText(mText, 0, mText.length, 0.5f, 0.5f, mWorkPaint)
     }
 
