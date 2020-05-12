@@ -124,6 +124,27 @@ interface CustomEventDispatcher {
     //  But I think that is ok since pointer input nodes should  never be able to live for longer
     //  than the HitPathTracker that would be responsible for tracking them.
     fun dispatchCustomEvent(event: CustomEvent)
+
+    /**
+     * Arranges to retain the hit paths associated with the provided [pointerIds] such that if
+     * they are requested to be removed for any reason, they are retained.
+     *
+     * For example, this is useful when a pointer input filter wants to be able to send future
+     * custom messages to a another after the pointer has actually be released from the screen
+     * (such as in the case where a Double Tap gesture detector may want to delay a Single Tap
+     * gesture detector from firing but later may allow it to do so even after the pointer
+     * associated with the Single Tap Gesture detector no longer exists.
+     */
+    fun retainHitPaths(pointerIds: Set<PointerId>)
+
+    /**
+     * Arranges to release any hit paths associated with the provided [pointerIds] such that if
+     * they will be requested to be removed in the future, they will be removed upon request.
+     *
+     * If they were already requested to be removed while they were retained, they will be
+     * removed immediately upon release.
+     */
+    fun releaseHitPaths(pointerIds: Set<PointerId>)
 }
 
 // PointerInputChange extension functions

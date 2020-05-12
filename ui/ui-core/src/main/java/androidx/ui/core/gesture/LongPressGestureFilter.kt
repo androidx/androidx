@@ -30,6 +30,7 @@ import androidx.ui.core.changedToUp
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.gesture.customevents.LongPressFiredEvent
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
@@ -171,5 +172,3 @@ internal class LongPressGestureFilter(
         pointerPositions.clear()
     }
 }
-
-object LongPressFiredEvent : CustomEvent

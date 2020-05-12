@@ -17,14 +17,19 @@
 package androidx.ui.core.gesture
 
 import androidx.compose.remember
+import androidx.ui.core.CustomEvent
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
+import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.gesture.customevents.DelayUpEvent
+import androidx.ui.core.gesture.customevents.DelayUpMessage
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.unit.IntPxSize
 import androidx.ui.util.fastAny
@@ -42,16 +47,20 @@ import androidx.ui.util.fastAny
  * - While it has at least one pointer touching it, no [PointerInputChange] has had any
  *   movement consumed (as that would indicate that something in the heirarchy moved and this a
  *   press should be cancelled.
+ * - It also fully cooperates with [DelayUpEvent] [CustomEvent]s it receives such that it will delay
+ *   calling [onTap] if all of it's up events are being blocked.  If it was being blocked and later
+ *   is allowed to fire it's up event (which is [onTap]) it will do so and consume the delayed up
+ *   custom event such that no other gesture filters will also respond to the delayed up.
  *
  *   @param onTap Called when a tap has occurred.
  */
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
+
 fun Modifier.tapGestureFilter(
     onTap: () -> Unit
 ): Modifier = composed {
     val filter = remember { TapGestureFilter() }
     filter.onTap = onTap
-    filter.consumeDownOnStart = false
     PointerInputModifierImpl(filter)
 }
 
@@ -64,14 +73,12 @@ internal class TapGestureFilter : PointerInputFilter() {
     lateinit var onTap: () -> Unit
 
     /**
-     * True if down change should be consumed when start is called.  The default is true.
-     */
-    var consumeDownOnStart = true
-
-    /**
      * True when we are primed to call [onTap] and may be consuming all down changes.
      */
-    private var active = false
+    private var primed = false
+
+    private var downPointers: MutableSet<PointerId> = mutableSetOf()
+    private var upBlockedPointers: MutableSet<PointerId> = mutableSetOf()
 
     override fun onPointerInput(
         changes: List<PointerInputChange>,
@@ -79,47 +86,89 @@ internal class TapGestureFilter : PointerInputFilter() {
         bounds: IntPxSize
     ): List<PointerInputChange> {
 
-        var internalChanges = changes
-
         if (pass == PointerEventPass.PostUp) {
 
-            if (internalChanges.all { it.changedToDown() }) {
-                // If we have not yet started and all of the changes changed to down, we are
-                // starting.
-                active = true
-            } else if (active && internalChanges.all { it.changedToUp() }) {
-                // If we have started and all of the changes changed to up, we are stopping.
-                active = false
-                internalChanges = internalChanges.map { it.consumeDownChange() }
+            if (primed &&
+                changes.all { it.changedToUp() } &&
+                changes.fastAny { !upBlockedPointers.contains(it.id) }
+            ) {
+                // If we are primed, all pointers went up, and at least one of the pointers is
+                // not blocked, we can fire, reset, and consume all of the up events.
+                reset()
                 onTap.invoke()
-            } else if (!internalChanges.anyPointersInBounds(bounds)) {
-                // If none of the pointers are in bounds of our bounds, we should reset and wait
-                // till all pointers are changing to down.
+                return changes.map { it.consumeDownChange() }
+            }
+
+            if (changes.all { it.changedToDown() }) {
+                // If all of the changes are down, can become primed.
+                primed = true
+            }
+
+            if (primed) {
+                changes.forEach {
+                    if (it.changedToDown()) {
+                        downPointers.add(it.id)
+                    }
+                    if (it.changedToUpIgnoreConsumed()) {
+                        downPointers.remove(it.id)
+                    }
+                }
+            }
+        }
+
+        if (pass == PointerEventPass.PostDown && primed) {
+
+            val anyPositionChangeConsumed = changes.fastAny { it.anyPositionChangeConsumed() }
+
+            val noPointersInBounds =
+                upBlockedPointers.isEmpty() && !changes.anyPointersInBounds(bounds)
+
+            if (anyPositionChangeConsumed || noPointersInBounds) {
+                // If we are on the final pass, we are primed, and either we aren't blocked and
+                // all pointers are out of bounds.
                 reset()
             }
-
-            if (active && consumeDownOnStart) {
-                // If we have started, we should consume the down change on all changes.
-                internalChanges = internalChanges.map { it.consumeDownChange() }
-            }
         }
 
-        if (pass == PointerEventPass.PostDown && active &&
-            internalChanges.fastAny { it.anyPositionChangeConsumed() }
-        ) {
-            // On the final pass, if we have started and any of the changes had consumed
-            // position changes, we cancel.
-            reset()
-        }
-
-        return internalChanges
+        return changes
     }
 
     override fun onCancel() {
         reset()
     }
 
+    override fun onCustomEvent(customEvent: CustomEvent, pass: PointerEventPass) {
+        if (!primed || pass != PointerEventPass.PostUp || customEvent !is DelayUpEvent) {
+            return
+        }
+
+        if (customEvent.message == DelayUpMessage.DelayUp) {
+            // If the message is to DelayUp, track all currently down pointers that are also ones
+            // we are supposed to block the up event for.
+            customEvent.pointers.forEach {
+                if (downPointers.contains(it)) {
+                    upBlockedPointers.add(it)
+                }
+            }
+            return
+        }
+
+        upBlockedPointers.removeAll(customEvent.pointers)
+        if (upBlockedPointers.isEmpty() && downPointers.isEmpty()) {
+            // At this point, we were primed, no pointers were down, and we are unblocked, so we
+            // are at least resetting.
+            reset()
+            if (customEvent.message == DelayUpMessage.DelayedUpNotConsumed) {
+                // If the up was not consumed, then we can fire our callback and consume it.
+                onTap.invoke()
+                customEvent.message = DelayUpMessage.DelayedUpConsumed
+            }
+        }
+    }
+
     private fun reset() {
-        active = false
+        primed = false
+        upBlockedPointers.clear()
+        downPointers.clear()
     }
 }

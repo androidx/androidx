@@ -21,6 +21,7 @@ import androidx.ui.demos.common.DemoCategory
 import androidx.ui.core.demos.autofill.ExplicitAutofillTypesDemo
 import androidx.ui.core.demos.focus.FocusableDemo
 import androidx.ui.core.demos.gestures.DoubleTapGestureDetectorDemo
+import androidx.ui.core.demos.gestures.DoubleTapInTapDemo
 import androidx.ui.core.demos.gestures.DragScaleGestureDetectorDemo
 import androidx.ui.core.demos.gestures.LongPressDragGestureDetectorDemo
 import androidx.ui.core.demos.gestures.LongPressGestureDetectorDemo
@@ -60,7 +61,8 @@ private val GestureDemos = DemoCategory("Gestures", listOf(
         ComposableDemo("Nested long press") { NestedLongPressDemo() },
         ComposableDemo("Nested scaling") { NestedScalingDemo() },
         ComposableDemo("Popup drag") { PopupDragDemo() },
-        ComposableDemo("Drag and scale") { DragScaleGestureDetectorDemo() }
+        ComposableDemo("Drag and scale") { DragScaleGestureDetectorDemo() },
+        ComposableDemo("Double tap in tap") { DoubleTapInTapDemo() }
     ))
 ))
 

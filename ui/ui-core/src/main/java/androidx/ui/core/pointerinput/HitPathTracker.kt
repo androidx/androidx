@@ -34,6 +34,16 @@ internal class HitPathTracker {
     @VisibleForTesting
     internal val root: NodeParent = NodeParent()
 
+    private val hitPathsToRetain: MutableMap<PointerId, Int> = mutableMapOf()
+    private val retainedHitPaths: MutableSet<PointerId> = mutableSetOf()
+
+    private val dispatchChangesRetVal = object : DispatchChangesRetVal {
+        lateinit var changes: List<PointerInputChange>
+        var wasDispatchedToSomething: Boolean = false
+        override operator fun component1() = changes
+        override operator fun component2() = wasDispatchedToSomething
+    }
+
     /**
      * Associates a [pointerId] to a list of hit [pointerInputFilters] and keeps track of them.
      *
@@ -66,8 +76,8 @@ internal class HitPathTracker {
             parent.children.add(node)
             parent = node
 
-            // TODO(shepshapard): Is CustomEventDispatcherImpl instantiated even if initHandler is
-            //  null?
+            // TODO(shepshapard): Would be nice to not create CustomEventDispatcherImpl if the
+            //  pointerInputFilter isn't going to use it.
             pointerInputFilter.onInit(
                 CustomEventDispatcherImpl(
                     node,
@@ -80,27 +90,62 @@ internal class HitPathTracker {
     /**
      * Stops tracking the [pointerId] and stops tracking any [PointerInputFilter]s that are
      * therefore no longer associated with any pointer ids.
+     *
+     * Note: if a [PointerInputFilter] retains a hit path by calling
+     * [CustomEventDispatcher.retainHitPaths], the hit paths will not actually be removed when
+     * this method is called, but instead the paths will be marked for removal when the hit path
+     * is released via [CustomEventDispatcher.releaseHitPaths].
      */
     fun removeHitPath(pointerId: PointerId) {
-        root.removePointerId(pointerId)
+        if (hitPathsToRetain.containsKey(pointerId)) {
+            retainedHitPaths.add(pointerId)
+        } else {
+            removeHitPathInternal(pointerId)
+            removeHitPathInternal(pointerId)
+        }
     }
 
     /**
-     * Dispatches [pointerInputChanges] through the hierarchy; first down the hierarchy, passing
-     * [downPass] to each [PointerInputFilter], and then up the hierarchy with [upPass] if [upPass]
-     * is not null.
+     * Dispatches [pointerInputChanges] through the hierarchy.
+     *
+     * Returns a [DispatchChangesRetVal] that should not be referenced directly, but instead
+     * should be destrutured immediately.  Each instance of [HitPathTracker] reuses a single
+     * [DispatchChangesRetVal] and mutates it for each return for performance reasons.
+     *
+     * [DispatchChangesRetVal.component1] references the resulting changes after dispatch.
+     * [DispatchChangesRetVal.component2] is true if the dispatch reached at least one
+     * [PointerInputModifier].
+     *
+     * @param pointerInputChanges The changes to dispatch.
+     *
+     * @return The DispatchChangesRetVal that should be destructured immediately.
      */
-    fun dispatchChanges(
-        pointerInputChanges: List<PointerInputChange>,
-        downPass: PointerEventPass,
-        upPass: PointerEventPass? = null
-    ): List<PointerInputChange> {
-
-        // TODO(b/124523868): It may be more efficient for PointerInputFilters to be able to opt in
-        //  or out of passes.
+    fun dispatchChanges(pointerInputChanges: List<PointerInputChange>): DispatchChangesRetVal {
         val idToChangesMap = pointerInputChanges.associateByTo(mutableMapOf()) { it.id }
-        root.dispatchChanges(idToChangesMap, downPass, upPass)
-        return idToChangesMap.values.toList()
+        var dispatchHit = false
+
+        dispatchHit =
+            root.dispatchChanges(
+                idToChangesMap,
+                PointerEventPass.InitialDown,
+                PointerEventPass.PreUp
+            ) || dispatchHit
+        dispatchHit =
+            root.dispatchChanges(
+                idToChangesMap,
+                PointerEventPass.PreDown,
+                PointerEventPass.PostUp
+            ) || dispatchHit
+        dispatchHit =
+            root.dispatchChanges(
+                idToChangesMap,
+                PointerEventPass.PostDown,
+                null
+            ) || dispatchHit
+
+        dispatchChangesRetVal.wasDispatchedToSomething = dispatchHit
+        dispatchChangesRetVal.changes = idToChangesMap.values.toList()
+        return dispatchChangesRetVal
     }
 
     /**
@@ -143,15 +188,6 @@ internal class HitPathTracker {
         )
     }
 
-    private class CustomEventDispatcherImpl(
-        val dispatchingNode: Node,
-        val hitPathTracker: HitPathTracker
-    ) : CustomEventDispatcher {
-        override fun dispatchCustomEvent(event: CustomEvent) {
-            hitPathTracker.dispatchCustomEvent(event, dispatchingNode)
-        }
-    }
-
     /**
      * Dispatches cancel events to all tracked [PointerInputFilter]s to notify them that
      * [PointerInputFilter.onPointerInput] will not be called again until all pointers have been
@@ -159,6 +195,8 @@ internal class HitPathTracker {
      * data.
      */
     fun processCancel() {
+        hitPathsToRetain.clear()
+        retainedHitPaths.clear()
         root.dispatchCancel()
         root.clear()
     }
@@ -174,9 +212,64 @@ internal class HitPathTracker {
     }
 
     /**
-     * Returns true if HitPathTracker is tracking something.
+     * Arranges to retain the hit paths associated with the provided [pointerIds] such that if
+     * they are requested to be removed for any reason, they are retained.
      */
-    fun isEmpty() = root.children.isEmpty()
+    private fun retainHitPaths(pointerIds: Set<PointerId>) {
+        pointerIds.forEach { pointerId ->
+            hitPathsToRetain.putOrUpdate(pointerId, 1) { value ->
+                value + 1
+            }
+        }
+    }
+
+    /**
+     * Arranges to release any hit paths associated with the provided [pointerIds] such that if
+     * they will be requested to be removed in the future, they will be removed upon request.
+     *
+     * If they were already requested to be removed while they were retained, they will be
+     * removed immediately upon release.
+     */
+    private fun releaseHitPaths(pointerIds: Set<PointerId>) {
+        pointerIds.forEach {
+            val removed = hitPathsToRetain.removeOrUpdate(
+                it,
+                { value -> value == 1 },
+                { value -> value - 1 })
+            if (removed && retainedHitPaths.remove(it)) {
+                removeHitPathInternal(it)
+            }
+        }
+    }
+
+    /**
+     * Actually removes hit paths.
+     */
+    private fun removeHitPathInternal(pointerId: PointerId) {
+        root.removePointerId(pointerId)
+    }
+
+    internal interface DispatchChangesRetVal {
+        operator fun component1(): List<PointerInputChange>
+        operator fun component2(): Boolean
+    }
+
+    private class CustomEventDispatcherImpl(
+        val dispatchingNode: Node,
+        val hitPathTracker: HitPathTracker
+    ) : CustomEventDispatcher {
+        override fun dispatchCustomEvent(event: CustomEvent) {
+            hitPathTracker.dispatchCustomEvent(event, dispatchingNode)
+        }
+
+        override fun retainHitPaths(pointerIds: Set<PointerId>) {
+            hitPathTracker.retainHitPaths(pointerIds)
+        }
+
+        override fun releaseHitPaths(pointerIds: Set<PointerId>) {
+            hitPathTracker.releaseHitPaths(pointerIds)
+        }
+    }
 }
 
 /**
@@ -197,8 +290,13 @@ internal open class NodeParent {
         pointerInputChanges: MutableMap<PointerId, PointerInputChange>,
         downPass: PointerEventPass,
         upPass: PointerEventPass?
-    ) {
-        children.forEach { it.dispatchChanges(pointerInputChanges, downPass, upPass) }
+    ): Boolean {
+        var dispatchedToSomething = false
+        children.forEach {
+            dispatchedToSomething =
+                it.dispatchChanges(pointerInputChanges, downPass, upPass) || dispatchedToSomething
+        }
+        return dispatchedToSomething
     }
 
     /**
@@ -305,7 +403,7 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
         pointerInputChanges: MutableMap<PointerId, PointerInputChange>,
         downPass: PointerEventPass,
         upPass: PointerEventPass?
-    ) {
+    ): Boolean {
         // Filter for changes that are associated with pointer ids that are relevant to this node.
         val relevantChanges =
             pointerInputChanges.filterTo(mutableMapOf()) { entry ->
@@ -313,13 +411,7 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
             }
 
         if (relevantChanges.isEmpty()) {
-            throw IllegalStateException(
-                "Currently, HitPathTracker is operating under the assumption that there should " +
-                        "never be a circumstance in which it is tracking a PointerInputFilter " +
-                        "where when it receives pointerInputChanges, none are relevant to that " +
-                        "PointerInputFilter.  This assumption may not hold true in the future, " +
-                        "but currently it assumes it can abide by this contract."
-            )
+            return false
         }
 
         // For each relevant change:
@@ -352,6 +444,8 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
 
         // Mutate the pointerInputChanges with the ones we modified.
         pointerInputChanges.putAll(relevantChanges)
+
+        return true
     }
 
     /**
@@ -439,4 +533,40 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
             entry.setValue(f(entry.value))
         }
     }
+}
+
+private inline fun <K, V> MutableMap<K, V>.putOrUpdate(
+    key: K,
+    putValue: V,
+    updateBlock: (valueToUpdate: V) -> V
+) {
+    val value = get(key)
+    if (value == null) {
+        put(key, putValue)
+    } else {
+        put(key, updateBlock(value))
+    }
+}
+
+/**
+ * Removes the item at [key] if [removePredicate] returns true, otherwise updates the item with the
+ * value returned by [updateBlock].
+ *
+ * @return True if value was removed, false if updated.
+ */
+private inline fun <K, V> MutableMap<K, V>.removeOrUpdate(
+    key: K,
+    removePredicate: (valueToRemove: V) -> Boolean,
+    updateBlock: (valueToUpdate: V) -> V
+): Boolean {
+    val value = get(key)
+    if (value != null) {
+        if (removePredicate(value)) {
+            remove(key)
+            return true
+        } else {
+            put(key, updateBlock(value))
+        }
+    }
+    return false
 }
