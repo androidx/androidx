@@ -197,9 +197,14 @@ message DatabaseOpenedEvent {
 }
 
 // Notification of a database connection closed (database no longer query-able)
+// TODO: consider consolidating with DatabaseOpenedEvent
 message DatabaseClosedEvent {
-  // Id uniquely identifying a connection to a database.
+  // Id uniquely identifying a connection to a database. Required to perform
+  // requests on the database.
   int32 database_id = 1;
+  // Path to db file or ":memory" if it is in-memory database.
+  // Note: there is no guarantee that it is necessarily unique between databases.
+  string path = 2;
 }
 
 // An event sent when an operation that could potentially change the contents of a database has
