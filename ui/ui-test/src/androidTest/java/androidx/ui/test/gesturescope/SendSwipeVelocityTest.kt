@@ -34,7 +34,7 @@ import androidx.ui.test.util.assertOnlyLastEventIsUp
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.downEvents
 import androidx.ui.test.util.isAlmostEqualTo
-import androidx.ui.test.util.isMonotonousBetween
+import androidx.ui.test.util.isMonotonicBetween
 import androidx.ui.test.util.recordedDuration
 import androidx.ui.unit.Duration
 import androidx.ui.unit.PxPosition
@@ -151,7 +151,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
 
                 // Check coordinates
                 events.first().position.isAlmostEqualTo(start)
-                downEvents.isMonotonousBetween(start, end)
+                downEvents.isMonotonicBetween(start, end)
                 events.last().position.isAlmostEqualTo(end)
 
                 // Check timestamps

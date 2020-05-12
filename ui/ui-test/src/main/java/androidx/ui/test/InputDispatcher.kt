@@ -61,6 +61,25 @@ internal interface InputDispatcher {
         curve: (Long) -> PxPosition,
         duration: Duration,
         keyTimes: List<Long> = emptyList()
+    ) {
+        sendSwipes(listOf(curve), duration, keyTimes)
+    }
+
+    /**
+     * Sends swipe gestures from `curve(0)` to `curve([duration])`, following the route defined
+     * by [curves]. Will force sampling of an event at all times defined in [keyTimes]. The number
+     * of events sampled between the key times is implementation dependent. This method blocks
+     * until all input events have been dispatched.
+     *
+     * @param curves The functions that define the position of the gesture over time
+     * @param duration The duration of the gestures
+     * @param keyTimes An optional list of timestamps in milliseconds at which a move event must
+     * be sampled
+     */
+    fun sendSwipes(
+        curves: List<(Long) -> PxPosition>,
+        duration: Duration,
+        keyTimes: List<Long> = emptyList()
     )
 
     /**
