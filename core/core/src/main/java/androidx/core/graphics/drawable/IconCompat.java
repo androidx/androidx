@@ -213,7 +213,7 @@ public class IconCompat extends CustomVersionedParcelable {
      */
     @RestrictTo(LIBRARY)
     @ParcelField(value = 8, defaultValue = "null")
-    String mString1;
+    public String mString1;
 
     /**
      * Create an Icon pointing to a drawable resource.
@@ -797,6 +797,7 @@ public class IconCompat extends CustomVersionedParcelable {
      * Adds this Icon to a Bundle that can be read back with the same parameters
      * to {@link #createFromBundle(Bundle)}.
      */
+    @NonNull
     public Bundle toBundle() {
         Bundle bundle = new Bundle();
         switch (mType) {
