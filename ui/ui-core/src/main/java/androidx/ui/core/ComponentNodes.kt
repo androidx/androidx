@@ -1080,6 +1080,29 @@ class ModifierInfo(
 )
 
 /**
+ * The key used in DataNode.
+ *
+ * @param T Identifies the type used in the value
+ * @property name A unique name identifying the type of the key.
+ */
+// TODO(mount): Make this inline
+class DataNodeKey<T>(val name: String)
+
+/**
+ * A ComponentNode that stores a value in the emitted hierarchy
+ *
+ * @param T The type used for the value
+ * @property key The key object used to identify the key
+ * @property value The value of the data being stored in the hierarchy
+ */
+class DataNode<T>(val key: DataNodeKey<T>, var value: T) : ComponentNode() {
+    override fun attach(owner: Owner) {
+        super.attach(owner)
+        parentLayoutNode?.requestRemeasure()
+    }
+}
+
+/**
  * Returns [ComponentNode.owner] or throws if it is null.
  */
 fun ComponentNode.requireOwner(): Owner = owner ?: ErrorMessages.NodeShouldBeAttached.state()
@@ -1148,3 +1171,8 @@ fun ComponentNode.findClosestParentNode(selector: (ComponentNode) -> Boolean): C
  * Returns `true` if this ComponentNode has no descendant [LayoutNode]s.
  */
 fun ComponentNode.hasNoLayoutDescendants() = findLastLayoutChild { true } == null
+
+/**
+ * DataNodeKey for ParentData
+ */
+val ParentDataKey = DataNodeKey<Any>("Compose:ParentData")
