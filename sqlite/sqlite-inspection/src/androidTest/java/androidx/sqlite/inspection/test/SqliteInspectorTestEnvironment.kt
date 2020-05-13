@@ -16,6 +16,7 @@
 
 package androidx.sqlite.inspection.test
 
+import android.app.Application
 import android.database.sqlite.SQLiteDatabase
 import androidx.inspection.InspectorEnvironment
 import androidx.inspection.testing.InspectorTester
@@ -77,6 +78,10 @@ class SqliteInspectorTestEnvironment(
         environment.registerInstancesToFind(databases)
     }
 
+    fun registerApplication(application: Application) {
+        environment.registerInstancesToFind(listOf(application))
+    }
+
     fun consumeRegisteredHooks(): List<Hook> =
         environment.consumeRegisteredHooks()
 
@@ -133,7 +138,7 @@ private class FakeInspectorEnvironment : InspectorEnvironment {
     @Suppress("UNCHECKED_CAST")
     // TODO: implement actual findInstances behaviour
     override fun <T : Any?> findInstances(clazz: Class<T>): MutableList<T> =
-        instancesToFind.map { it as T }.toMutableList()
+        instancesToFind.filter { clazz.isInstance(it) }.map { it as T }.toMutableList()
 
     override fun registerEntryHook(
         originClass: Class<*>,
