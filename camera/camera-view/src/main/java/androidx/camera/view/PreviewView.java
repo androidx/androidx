@@ -239,8 +239,9 @@ public class PreviewView extends FrameLayout {
      * <p>{@link Surface#ROTATION_270}: orientation >= 45 && orientation < 135
      *
      * @param deviceRotation The device rotation value, expressed as one of
-     * {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180}, or
-     * {@link Surface#ROTATION_270}.
+     *                       {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     *                       {@link Surface#ROTATION_180}, or
+     *                       {@link Surface#ROTATION_270}.
      */
     public void setDeviceRotationForRemoteDisplayMode(final int deviceRotation) {
         // This only take effect when it is remote display mode.
@@ -342,14 +343,25 @@ public class PreviewView extends FrameLayout {
     }
 
     /**
-     * The implementation mode of a {@link PreviewView}
-     *
-     * <p>Specifies how the Preview surface will be implemented internally: Using a
-     * {@link android.view.SurfaceView} or a {@link android.view.TextureView} (which is the default)
-     * </p>
+     * The implementation mode of a {@link PreviewView}.
+     * <p>
+     * {@link PreviewView} manages the preview {@link Surface} by either using a
+     * {@link android.view.SurfaceView} or a {@link android.view.TextureView}. A
+     * {@link android.view.SurfaceView} is generally better than a
+     * {@link android.view.TextureView} when it comes to certain key metrics, including power and
+     * latency, which is why {@link PreviewView} tries to use a {@link android.view.SurfaceView} by
+     * default, but will fall back to use a {@link android.view.TextureView} when it's explicitly
+     * set by calling {@link #setPreferredImplementationMode(ImplementationMode)} with
+     * {@link ImplementationMode#TEXTURE_VIEW}, or when the device does not support using a
+     * {@link android.view.SurfaceView} well (for example on LEGACY devices and devices running
+     * on API 24 or less).
      */
     public enum ImplementationMode {
-        /** Use a {@link android.view.SurfaceView} for the preview */
+        /**
+         * Use a {@link android.view.SurfaceView} for the preview. If the device doesn't support
+         * it well, {@link PreviewView} will fall back to use a {@link android.view.TextureView}
+         * instead.
+         */
         SURFACE_VIEW,
 
         /** Use a {@link android.view.TextureView} for the preview */
