@@ -16,7 +16,10 @@
 package androidx.appsearch.compiler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -24,20 +27,27 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 
 /**
  * Processes AppSearchDocument annotations.
  */
-@SupportedAnnotationTypes({DocumentProcessor.APP_SEARCH_DOCUMENT_CLASS})
+@SupportedAnnotationTypes({IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedOptions({DocumentProcessor.OUTPUT_DIR_OPTION})
 public class DocumentProcessor extends AbstractProcessor {
-    static final String APP_SEARCH_DOCUMENT_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument";
+    /**
+     * This property causes us to write output to a different folder instead of the usual filer
+     * location. It should only be used for testing.
+     */
+    @VisibleForTesting
+    static final String OUTPUT_DIR_OPTION = "AppSearch.DocumentProcessor.OutputDir";
 
     private Messager mMessager;
 
@@ -75,20 +85,38 @@ public class DocumentProcessor extends AbstractProcessor {
         // Find the TypeElement corresponding to the @AppSearchDocument annotation. We can't use the
         // annotation class directly because the appsearch project compiles only on Android, but
         // this annotation processor runs on the host.
-        TypeElement appSearchDocument = findAnnotation(set, APP_SEARCH_DOCUMENT_CLASS);
+        TypeElement appSearchDocument =
+                findAnnotation(set, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
 
         for (Element element : roundEnvironment.getElementsAnnotatedWith(appSearchDocument)) {
             if (element.getKind() != ElementKind.CLASS) {
                 throw new ProcessingException(
                         "@AppSearchDocument annotation on something other than a class", element);
             }
-            processAppSearchDocument(element);
+            processAppSearchDocument((TypeElement) element);
         }
     }
 
-    private void processAppSearchDocument(@NonNull Element element) throws ProcessingException {
-        // TODO(b/156296904): Use this model to produce output files
-        AppSearchDocumentModel.create(element);
+    private void processAppSearchDocument(@NonNull TypeElement element) throws ProcessingException {
+        AppSearchDocumentModel model = AppSearchDocumentModel.create(processingEnv, element);
+        CodeGenerator generator = CodeGenerator.generate(processingEnv, model);
+        String outputDir = processingEnv.getOptions().get(OUTPUT_DIR_OPTION);
+        try {
+            if (outputDir == null || outputDir.isEmpty()) {
+                generator.writeToFiler();
+            } else {
+                mMessager.printMessage(
+                        Diagnostic.Kind.NOTE,
+                        "Writing output to \"" + outputDir
+                                + "\" due to the presence of -A" + OUTPUT_DIR_OPTION);
+                generator.writeToFolder(new File(outputDir));
+            }
+        } catch (IOException e) {
+            ProcessingException pe =
+                    new ProcessingException("Failed to write output", model.getClassElement());
+            pe.initCause(e);
+            throw pe;
+        }
     }
 
     private TypeElement findAnnotation(Set<? extends TypeElement> set, String name) {

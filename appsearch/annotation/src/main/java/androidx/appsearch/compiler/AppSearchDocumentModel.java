@@ -18,6 +18,7 @@ package androidx.appsearch.compiler;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -25,11 +26,13 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
 /**
@@ -39,25 +42,17 @@ import javax.lang.model.element.VariableElement;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class AppSearchDocumentModel {
 
-    private static final String URI_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument.Uri";
-    private static final String CREATION_TIMESTAMP_MILLIS_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument.CreationTimestampMillis";
-    private static final String TTL_MILLIS_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument.TtlMillis";
-    private static final String SCORE_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument.Score";
-    private static final String PROPERTY_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument.Property";
-
     /** Determines how the annotation processor has decided to read the value of a field. */
     private enum ReadKind { FIELD, GETTER }
     /** Determines how the annotation processor has decided to write the value of a field. */
     private enum WriteKind { FIELD, SETTER, CONSTRUCTOR }
 
-    private final Element mClass;
+    private final IntrospectionHelper mIntrospectionHelper;
+    private final TypeElement mClass;
+    private final AnnotationMirror mAppSearchDocumentAnnotation;
     private final Set<ExecutableElement> mConstructors = new LinkedHashSet<>();
     private final Set<ExecutableElement> mMethods = new LinkedHashSet<>();
+    private final Map<String, VariableElement> mPropertyFields = new LinkedHashMap<>();
     private final Map<String, VariableElement> mAppSearchFields = new LinkedHashMap<>();
     private final Map<VariableElement, ReadKind> mReadKinds = new HashMap<>();
     private final Map<VariableElement, WriteKind> mWriteKinds = new HashMap<>();
@@ -65,11 +60,18 @@ class AppSearchDocumentModel {
     // TODO(b/156296904): use this for output
     // private ExecutableElement mChosenConstructor = null;
 
-    private AppSearchDocumentModel(@NonNull Element clazz) throws ProcessingException {
+    private AppSearchDocumentModel(
+            @NonNull ProcessingEnvironment env,
+            @NonNull TypeElement clazz)
+            throws ProcessingException {
+        mIntrospectionHelper = new IntrospectionHelper(env);
         mClass = clazz;
         if (mClass.getModifiers().contains(Modifier.PRIVATE)) {
             throw new ProcessingException("@AppSearchDocument annotated class is private", mClass);
         }
+
+        mAppSearchDocumentAnnotation = mIntrospectionHelper.getAnnotation(
+                mClass, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
 
         // Scan methods and constructors. AppSearch doesn't define any annotations that apply to
         // these, but we will need this info when processing fields to make sure the fields can
@@ -90,26 +92,44 @@ class AppSearchDocumentModel {
         mReadKinds.size();
     }
 
+    public TypeElement getClassElement() {
+        return mClass;
+    }
+
+    public String getSchemaName() {
+        Map<String, Object> params =
+                mIntrospectionHelper.getAnnotationParams(mAppSearchDocumentAnnotation);
+        String name = params.get("name").toString();
+        if (name.isEmpty()) {
+            return mClass.getSimpleName().toString();
+        }
+        return name;
+    }
+
+    public Collection<VariableElement> getPropertyFields() {
+        return mPropertyFields.values();
+    }
+
     private void scanFields() throws ProcessingException {
         Element uriField = null;
         Element creationTimestampField = null;
         Element ttlField = null;
         Element scoreField = null;
-        Map<String, Element> propertyFields = new LinkedHashMap<>();
         for (Element childElement : mClass.getEnclosedElements()) {
             if (!childElement.getKind().isField()) continue;
             VariableElement child = (VariableElement) childElement;
             for (AnnotationMirror annotation : child.getAnnotationMirrors()) {
                 String annotationFq = annotation.getAnnotationType().toString();
                 boolean isAppSearchField = true;
-                if (URI_CLASS.equals(annotationFq)) {
+                if (IntrospectionHelper.URI_CLASS.equals(annotationFq)) {
                     if (uriField != null) {
                         throw new ProcessingException(
                                 "Class contains multiple fields annotated @Uri", child);
                     }
                     uriField = child;
 
-                } else if (CREATION_TIMESTAMP_MILLIS_CLASS.equals(annotationFq)) {
+                } else if (
+                        IntrospectionHelper.CREATION_TIMESTAMP_MILLIS_CLASS.equals(annotationFq)) {
                     if (creationTimestampField != null) {
                         throw new ProcessingException(
                                 "Class contains multiple fields annotated @CreationTimestampMillis",
@@ -117,22 +137,22 @@ class AppSearchDocumentModel {
                     }
                     creationTimestampField = child;
 
-                } else if (TTL_MILLIS_CLASS.equals(annotationFq)) {
+                } else if (IntrospectionHelper.TTL_MILLIS_CLASS.equals(annotationFq)) {
                     if (ttlField != null) {
                         throw new ProcessingException(
                                 "Class contains multiple fields annotated @TtlMillis", child);
                     }
                     ttlField = child;
 
-                } else if (SCORE_CLASS.equals(annotationFq)) {
+                } else if (IntrospectionHelper.SCORE_CLASS.equals(annotationFq)) {
                     if (scoreField != null) {
                         throw new ProcessingException(
                                 "Class contains multiple fields annotated @Score", child);
                     }
                     scoreField = child;
 
-                } else if (PROPERTY_CLASS.equals(annotationFq)) {
-                    propertyFields.put(child.getSimpleName().toString(), child);
+                } else if (IntrospectionHelper.PROPERTY_CLASS.equals(annotationFq)) {
+                    mPropertyFields.put(child.getSimpleName().toString(), child);
 
                 } else {
                     isAppSearchField = false;
@@ -154,10 +174,6 @@ class AppSearchDocumentModel {
         for (VariableElement appSearchField : mAppSearchFields.values()) {
             chooseAccessKinds(appSearchField);
         }
-
-        // TODO(b/156296904): This line is to squash a populated-but-not-used warning. Use this map
-        // for source file output and remove this line.
-        propertyFields.size();
     }
 
     /**
@@ -346,8 +362,9 @@ class AppSearchDocumentModel {
      *
      * @throws ProcessingException if the @{@code AppSearchDocument}-annotated class is invalid.
      */
-    public static AppSearchDocumentModel create(@NonNull Element clazz)
+    public static AppSearchDocumentModel create(
+            @NonNull ProcessingEnvironment env, @NonNull TypeElement clazz)
             throws ProcessingException {
-        return new AppSearchDocumentModel(clazz);
+        return new AppSearchDocumentModel(env, clazz);
     }
 }

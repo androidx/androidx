@@ -197,4 +197,14 @@ public @interface AppSearchDocument {
          */
         boolean required() default false;
     }
+
+    /**
+     * The schema name of this type.
+     *
+     * <p>This string is the key to which the complete schema definition is associated in the
+     * AppSearch database. It can be specified to replace an existing type with a new definition.
+     *
+     * <p>If not specified, it will be automatically set to the simple name of the annotated class.
+     */
+    String name() default "";
 }
