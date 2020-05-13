@@ -24,6 +24,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.PixelCopy
+import android.view.ViewTreeObserver
 import android.view.Window
 import androidx.annotation.RequiresApi
 import androidx.ui.core.AndroidOwner
@@ -64,6 +65,35 @@ internal fun captureRegionToBitmap(
     handler: Handler,
     window: Window
 ): Bitmap {
+    // first we wait for the drawing to happen
+    val drawLatch = CountDownLatch(1)
+    val decorView = window.decorView
+    handler.post {
+        if (Build.VERSION.SDK_INT >= 29) {
+            decorView.viewTreeObserver.registerFrameCommitCallback {
+                drawLatch.countDown()
+            }
+        } else {
+            decorView.viewTreeObserver.addOnDrawListener(object : ViewTreeObserver.OnDrawListener {
+                var handled = false
+                override fun onDraw() {
+                    if (!handled) {
+                        handled = true
+                        handler.post {
+                            drawLatch.countDown()
+                            decorView.viewTreeObserver.removeOnDrawListener(this)
+                        }
+                    }
+                }
+            })
+        }
+        decorView.invalidate()
+    }
+    if (!drawLatch.await(1, TimeUnit.SECONDS)) {
+        throw AssertionError("Failed waiting for DecorView redraw!")
+    }
+
+    // and then request the pixel copy of the drawn buffer
     val destBitmap = Bitmap.createBitmap(
         captureRect.width.roundToInt(),
         captureRect.height.roundToInt(),

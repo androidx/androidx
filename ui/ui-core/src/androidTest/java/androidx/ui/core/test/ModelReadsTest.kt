@@ -136,8 +136,8 @@ class ModelReadsTest {
             positionModel.offset = 10.ipx
         }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        assertFalse(drawLatch.await(200, TimeUnit.MILLISECONDS))
     }
 
     @Test
