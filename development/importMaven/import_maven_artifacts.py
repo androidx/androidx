@@ -23,6 +23,11 @@ NAME_HELP = '''
   E.g. android.arch.work:work-runtime-ktx:1.0.0-alpha07
 '''
 
+METALAVA_BUILD_ID_HELP = '''
+  The build id of https://ci.android.com/builds/branches/aosp-metalava-master/grid?
+  to use for metalava prebuilt fetching.
+'''
+
 if sys.version_info[0] < 3: raise Exception("Python 2 is not supported by this script. If your system python calls python 2 after python 2 end-of-life on Jan 1 2020, you should probably change it.")
 
 def main():
@@ -34,6 +39,8 @@ def main():
         description='Helps download maven artifacts to prebuilts.')
     parser.add_argument('-n', '--name', help=NAME_HELP,
                         required=True, dest='name')
+    parser.add_argument('-mb', '--metalava-build-id', help=METALAVA_BUILD_ID_HELP,
+                        required=False, dest='matalava_build_id')
     parse_result = parser.parse_args()
     artifact_name = parse_result.name
     if ("kotlin-native-linux" in artifact_name): artifact_name = fix_kotlin_native(artifact_name)
@@ -41,6 +48,9 @@ def main():
     # Add -Dorg.gradle.debug=true to debug or --stacktrace to see the stack trace
     command = './gradlew --build-file build.gradle.kts -PartifactName=%s' % (
         artifact_name)
+    matalava_build_id = parse_result.matalava_build_id
+    if (matalava_build_id):
+      command = command + ' -PmetalavaBuildId=%s' % (matalava_build_id)
     process = subprocess.Popen(command,
                                shell=True,
                                stdin=subprocess.PIPE)
