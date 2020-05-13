@@ -63,20 +63,25 @@ private class Renderer(
     override fun onDispose() {
     }
 
-    override fun onReshape(width: Int, height: Int) {
-        androidCanvas = null
-    }
-
-    override fun onRender(canvas: Canvas, width: Int, height: Int) {
-        clocks.forEach {
-            it.clockTimeMillis += 1000 / fps
-        }
+    fun draw(canvas: Canvas, width: Int, height: Int) {
         if (androidCanvas == null) {
             androidCanvas = android.graphics.Canvas(canvas)
         }
         view.onMeasure(width, height)
         view.onLayout(true, 0, 0, width, height)
         view.dispatchDraw(androidCanvas!!)
+    }
+
+    override fun onReshape(canvas: Canvas, width: Int, height: Int) {
+        androidCanvas = null
+        draw(canvas, width, height)
+    }
+
+    override fun onRender(canvas: Canvas, width: Int, height: Int) {
+        clocks.forEach {
+            it.clockTimeMillis += 1000 / fps
+        }
+        draw(canvas, width, height)
     }
 
     override fun onMouseClicked(x: Int, y: Int, modifiers: Int) {}
