@@ -27,10 +27,12 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabasePossiblyChange
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event.OneOfCase.DATABASE_POSSIBLY_CHANGED
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -74,6 +76,8 @@ class InvalidationTest {
     }
 
     @Test
+    @FlakyTest // TODO: deflake
+    @Ignore
     fun test_throttling(): Unit = runBlocking {
         // Starting to track databases makes the inspector register hooks
         testEnvironment.sendCommand(MessageFactory.createTrackDatabasesCommand())
