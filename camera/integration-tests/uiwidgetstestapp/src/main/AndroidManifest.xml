@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2020 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +16,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.camera.integration.uiwidgets">
-    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
@@ -28,6 +27,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Rotations -->
+        <activity
+            android:name=".rotations.UnlockedOrientationActivity"
+            android:screenOrientation="fullSensor" />
+        <activity
+            android:name=".rotations.LockedOrientationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".rotations.OrientationConfigChangesOverriddenActivity"
+            android:configChanges="orientation|screenSize" />
     </application>
+
+    <uses-permission android:name="android.permission.CAMERA" />
 
 </manifest>
