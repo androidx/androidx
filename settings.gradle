@@ -109,6 +109,7 @@ includeProject(":camera:integration-tests:camera-testapp-extensions", "camera/in
 includeProject(":camera:integration-tests:camera-testapp-timing", "camera/integration-tests/timingtestapp")
 includeProject(":camera:integration-tests:camera-testapp-view", "camera/integration-tests/viewtestapp")
 includeProject(":camera:integration-tests:camera-testlib-extensions", "camera/integration-tests/extensionstestlib")
+includeProject(":camera:integration-tests:camera-testapp-uiwidgets", "camera/integration-tests/uiwidgetstestapp")
 includeProject(":cardview:cardview", "cardview/cardview")
 includeProject(":collection:collection", "collection/collection")
 includeProject(":collection:collection-benchmark", "collection/collection-benchmark")
