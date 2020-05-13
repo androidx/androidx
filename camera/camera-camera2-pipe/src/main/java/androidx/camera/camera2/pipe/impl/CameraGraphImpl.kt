@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.pipe
+package androidx.camera.camera2.pipe.impl
 
-import androidx.test.filters.SmallTest
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import android.content.Context
+import androidx.camera.camera2.pipe.CameraGraph
+import javax.inject.Inject
 
-@SmallTest
-@RunWith(JUnit4::class)
-class CameraPipeTest {
-    @Test fun test() {}
+@CameraGraphScope
+class CameraGraphImpl @Inject constructor(
+    private val context: Context,
+    private val config: CameraGraph.Config
+) : CameraGraph {
+    override fun start() {
+        TODO("Not Implemented")
+    }
+
+    override fun stop() {
+        TODO("Not Implemented")
+    }
 }

@@ -16,7 +16,13 @@
 
 package androidx.camera.camera2.pipe
 
-/**
- * Interface to configure and access the camera device wrappers.
- */
-interface CameraPipe
+import androidx.test.filters.SmallTest
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+
+@SmallTest
+@RunWith(JUnit4::class)
+class CameraPipeInstrumentationTest {
+    @Test fun test() {}
+}
