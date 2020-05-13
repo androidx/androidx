@@ -46,6 +46,7 @@ import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * An {@link Activity} to exercise WebMessageListener related functionality.
@@ -187,15 +188,16 @@ public class WebMessageListenerActivity extends AppCompatActivity {
         webView.setWebViewClient(new MyWebViewClient(assetLoader));
         webView.getSettings().setJavaScriptEnabled(true);
 
+        HashSet allowedOriginRules = new HashSet(Arrays.asList("https://example.com"));
         // Add WebMessageListeners.
-        WebViewCompat.addWebMessageListener(webView, "replyObject",
-                Arrays.asList("https://example.com"), new ReplyMessageListener(mReplyProxyButton));
+        WebViewCompat.addWebMessageListener(webView, "replyObject", allowedOriginRules,
+                new ReplyMessageListener(mReplyProxyButton));
         WebViewCompat.addWebMessageListener(webView, "replyWithMessagePortObject",
-                Arrays.asList("https://example.com"), new MessagePortMessageListener(mPortButton));
-        WebViewCompat.addWebMessageListener(webView, "toastObject",
-                Arrays.asList("https://example.com"), new ToastMessageListener(this));
-        WebViewCompat.addWebMessageListener(webView, "multipleMessagesObject",
-                Arrays.asList("https://example.com"), new MultipleMessagesListener(mTextView));
+                allowedOriginRules, new MessagePortMessageListener(mPortButton));
+        WebViewCompat.addWebMessageListener(
+                webView, "toastObject", allowedOriginRules, new ToastMessageListener(this));
+        WebViewCompat.addWebMessageListener(webView, "multipleMessagesObject", allowedOriginRules,
+                new MultipleMessagesListener(mTextView));
 
         webView.loadUrl(
                 Uri.withAppendedPath(mExampleUri, "www/web_message_listener.html").toString());
