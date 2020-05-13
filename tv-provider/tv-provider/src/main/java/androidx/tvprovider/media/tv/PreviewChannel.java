@@ -399,7 +399,9 @@ public class PreviewChannel {
          */
         @NonNull
         public Builder setDescription(@Nullable CharSequence description) {
-            if (description != null) {
+            if (description == null) {
+                mValues.remove(Channels.COLUMN_DESCRIPTION);
+            } else {
                 mValues.put(Channels.COLUMN_DESCRIPTION, description.toString());
             }
             return this;

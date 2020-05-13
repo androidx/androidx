@@ -321,6 +321,22 @@ public class PreviewChannelHelperTest {
         assertTrue(channelsEqual(builder.build(), channelFromTvProvider));
     }
 
+    @Test
+    public void testPreviewChannelsCreationUsingSameBuilder() throws IOException {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
+            return;
+        }
+        PreviewChannelHelper helper = new PreviewChannelHelper(mContext);
+        PreviewChannel.Builder builder = createFullyPopulatedPreviewChannel();
+        long channelId1 = helper.publishDefaultChannel(builder.build());
+        PreviewChannel channelFromTvProvider = getPreviewChannel(helper, channelId1);
+        assertTrue(channelsEqual(builder.build(), channelFromTvProvider));
+        builder.setDescription(null);
+        long channelId2 = helper.publishChannel(builder.build());
+        channelFromTvProvider = getPreviewChannel(helper, channelId2);
+        assertTrue(channelsEqual(builder.build(), channelFromTvProvider));
+    }
+
     /**
      * All this method is actually doing is
      * <pre>
@@ -368,6 +384,7 @@ public class PreviewChannelHelperTest {
         List<PreviewChannel> allChannels = helper.getAllChannels();
         assertEquals(4, allChannels.size());
     }
+
 
     /**
      * Test UR of CRUD
@@ -577,7 +594,7 @@ public class PreviewChannelHelperTest {
         boolean result = channelA.getDisplayName().equals(channelB.getDisplayName())
                 && channelA.getType().equals(channelB.getType())
                 && channelA.getAppLinkIntentUri().equals(channelB.getAppLinkIntentUri())
-                && channelA.getDescription().equals(channelB.getDescription())
+                && Objects.equals(channelA.getDescription(), channelB.getDescription())
                 && channelA.getPackageName().equals(channelB.getPackageName())
                 && channelA.getInternalProviderFlag1() == channelB.getInternalProviderFlag1()
                 && channelA.getInternalProviderFlag2() == channelB.getInternalProviderFlag2()
