@@ -38,6 +38,7 @@ import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -155,13 +156,14 @@ public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivit
         // If you only intend to communicate with a limited number of origins, prefer only injecting
         // the listener in those frames.
         WebViewCompat.addWebMessageListener(webView, "restrictedObject",
-                Arrays.asList("https://example.com"),
+                new HashSet(Arrays.asList("https://example.com")),
                 new AvailableInAllowedOriginsFrameMessageListener());
 
         // If you need to communicate with a wider set of origins but are aware of some origins
         // matching your filter that you need to block communication with, you can check the sending
         // frame's origin on the Java side in onPostMessage().
-        WebViewCompat.addWebMessageListener(webView, "allFramesObject", Arrays.asList("*"),
+        WebViewCompat.addWebMessageListener(webView, "allFramesObject",
+                new HashSet(Arrays.asList("*")),
                 new AvailableInAllFramesMessageListener(this, Arrays.asList("malicious.com")));
 
         webView.loadUrl(
