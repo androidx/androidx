@@ -242,7 +242,7 @@ private class TextState(
     /**
      * The current selection range, used by selection.
      * This should be a state as every time we update the value during the selection we
-     * need to redraw it. @Model observation during onDraw callback will make it work.
+     * need to redraw it. state observation during onDraw callback will make it work.
      */
     var selectionRange by mutableStateOf<TextRange?>(null, StructurallyEqual)
     /** The last layout coordinates for the Text's layout, used by selection */

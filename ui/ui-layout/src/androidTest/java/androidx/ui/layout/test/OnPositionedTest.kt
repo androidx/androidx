@@ -18,9 +18,10 @@ package androidx.ui.layout.test
 
 import android.widget.FrameLayout
 import androidx.compose.Composable
-import androidx.compose.Model
 import androidx.compose.Recomposer
+import androidx.compose.State
 import androidx.compose.emptyContent
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
@@ -35,6 +36,7 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
+import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -215,7 +217,7 @@ class OnPositionedTest : LayoutTest() {
 
     @Test
     fun justAddedOnPositionedCallbackFiredWithoutLayoutChanges() = with(density) {
-        val needCallback = NeedCallback(false)
+        val needCallback = mutableStateOf(false)
 
         val positionedLatch = CountDownLatch(1)
         show {
@@ -234,7 +236,7 @@ class OnPositionedTest : LayoutTest() {
 
     @Test
     fun testRepositionTriggersCallback() {
-        val modelLeft = SizeModel(30.dp)
+        val left = mutableStateOf(30.dp)
         var realLeft: Px? = null
 
         var positionedLatch = CountDownLatch(1)
@@ -246,7 +248,7 @@ class OnPositionedTest : LayoutTest() {
                         positionedLatch.countDown()
                     }
                         .fillMaxSize()
-                        .padding(start = modelLeft.size),
+                        .padding(start = left.value),
                     children = emptyContent()
                 )
             }
@@ -254,7 +256,7 @@ class OnPositionedTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         positionedLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread { modelLeft.size = 40.dp }
+        activityTestRule.runOnUiThread { left.value = 40.dp }
 
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         with(density) {
@@ -267,12 +269,12 @@ class OnPositionedTest : LayoutTest() {
         // when we reposition any parent layout is causes the change in global
         // position of all the children down the tree(for example during the scrolling).
         // children should be able to react on this change.
-        val modelLeft = SizeModel(20.dp)
+        val left = mutableStateOf(20.dp)
         var realLeft: Px? = null
         var positionedLatch = CountDownLatch(1)
         show {
             Stack {
-                Offset(modelLeft) {
+                Offset(left) {
                     Container(width = 10.dp, height = 10.dp) {
                         Container(width = 10.dp, height = 10.dp) {
                             Container(
@@ -292,7 +294,7 @@ class OnPositionedTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         positionedLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread { modelLeft.size = 40.dp }
+        activityTestRule.runOnUiThread { left.value = 40.dp }
 
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         with(density) {
@@ -319,15 +321,12 @@ class OnPositionedTest : LayoutTest() {
     }
 
     @Composable
-    private fun Offset(sizeModel: SizeModel, children: @Composable () -> Unit) {
+    private fun Offset(sizeModel: State<Dp>, children: @Composable () -> Unit) {
         // simple copy of Padding which doesn't recompose when the size changes
         Layout(children) { measurables, constraints, _ ->
             layout(constraints.maxWidth, constraints.maxHeight) {
-                measurables.first().measure(constraints).place(sizeModel.size.toPx(), 0.px)
+                measurables.first().measure(constraints).place(sizeModel.value.toPx(), 0.px)
             }
         }
     }
 }
-
-@Model
-private data class NeedCallback(var value: Boolean)
