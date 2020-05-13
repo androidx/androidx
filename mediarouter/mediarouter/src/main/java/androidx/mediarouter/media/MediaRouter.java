@@ -146,7 +146,7 @@ public final class MediaRouter {
 
     // TODO: After implementation of b/155377435 is complete, remove this variable and
     //       related logic. Before then, test the new code with setting this value to true.
-    static final boolean USE_FWK_MR2_ACTIVELY = false;
+    static final boolean USE_FWK_MR2_PROTOCOL = false;
 
     // Context-bound state of the media router.
     final Context mContext;
@@ -683,12 +683,9 @@ public final class MediaRouter {
             updateNeeded = true;
         }
         if (updateNeeded) {
-            if (!USE_FWK_MR2_ACTIVELY) {
-                sGlobal.updateDiscoveryRequest();
-                sGlobal.updateMR2RouteDiscoveryPreferenceFwk();
-            } else {
-                sGlobal.updateMr2ProviderShouldRegisterCallbackFwk();
-                sGlobal.updateDiscoveryRequest();
+            sGlobal.updateDiscoveryRequest();
+            if (!USE_FWK_MR2_PROTOCOL) {
+                sGlobal.updateMr2RouteDiscoveryPreferenceFwk();
             }
         }
     }
@@ -713,12 +710,9 @@ public final class MediaRouter {
         int index = findCallbackRecord(callback);
         if (index >= 0) {
             mCallbackRecords.remove(index);
-            if (!USE_FWK_MR2_ACTIVELY) {
-                sGlobal.updateDiscoveryRequest();
-                sGlobal.updateMR2RouteDiscoveryPreferenceFwk();
-            } else {
-                sGlobal.updateMr2ProviderShouldRegisterCallbackFwk();
-                sGlobal.updateDiscoveryRequest();
+            sGlobal.updateDiscoveryRequest();
+            if (!USE_FWK_MR2_PROTOCOL) {
+                sGlobal.updateMr2RouteDiscoveryPreferenceFwk();
             }
         }
     }
@@ -882,6 +876,17 @@ public final class MediaRouter {
             throw new IllegalStateException("The media router service must only be "
                     + "accessed on the application's main thread.");
         }
+    }
+
+    /**
+     * Returns how many {@link MediaRouter.Callback callbacks} are registered throughout the all
+     * {@link MediaRouter media routers} in this process.
+     */
+    static int getGlobalCallbackCount() {
+        if (sGlobal == null) {
+            return 0;
+        }
+        return sGlobal.getCallbackCount();
     }
 
     /**
@@ -2229,6 +2234,7 @@ public final class MediaRouter {
         private final Map<String, RouteController> mRouteControllerMap = new HashMap<>();
         private MediaRouteDiscoveryRequest mDiscoveryRequest;
         private boolean mIsTransferEnabled;
+        private int mCallbackCount;
         private MediaSessionRecord mMediaSession;
         MediaSessionCompat mRccMediaSession;
         private MediaSessionCompat mCompatSession;
@@ -2256,14 +2262,14 @@ public final class MediaRouter {
             if (BuildCompat.isAtLeastR()) {
                 mMediaRouter2Fwk = MediaRouter2.getInstance(mApplicationContext);
                 mMr2RouteCallbackFwk = new MediaRouter2.RouteCallback() {};
-                mMr2TransferCallbackFwk = new MR2TransferCallback();
+                mMr2TransferCallbackFwk = new Mr2TransferCallback();
                 mMr2CbExecutor = new Executor() {
                     @Override
                     public void execute(@NonNull Runnable command) {
                         mCallbackHandler.post(command);
                     }
                 };
-                if (USE_FWK_MR2_ACTIVELY) {
+                if (USE_FWK_MR2_PROTOCOL) {
                     mMr2Provider =
                             new MediaRoute2Provider(mApplicationContext, mMediaRouter2Fwk);
                 } else {
@@ -2499,11 +2505,10 @@ public final class MediaRouter {
             }
             mIsTransferEnabled = true;
             mRegisteredProviderWatcher.enableTransfer();
-            if (USE_FWK_MR2_ACTIVELY) {
-                updateMr2ProviderShouldRegisterCallbackFwk();
+            if (USE_FWK_MR2_PROTOCOL) {
                 addProvider(mMr2Provider);
             } else {
-                updateMR2RouteDiscoveryPreferenceFwk();
+                updateMr2RouteDiscoveryPreferenceFwk();
             }
         }
 
@@ -2512,12 +2517,15 @@ public final class MediaRouter {
             boolean discover = false;
             boolean activeScan = false;
             MediaRouteSelector.Builder builder = new MediaRouteSelector.Builder();
+
+            int callbackCount = 0;
             for (int i = mRouters.size(); --i >= 0; ) {
                 MediaRouter router = mRouters.get(i).get();
                 if (router == null) {
                     mRouters.remove(i);
                 } else {
                     final int count = router.mCallbackRecords.size();
+                    callbackCount += count;
                     for (int j = 0; j < count; j++) {
                         CallbackRecord callback = router.mCallbackRecords.get(j);
                         builder.addSelector(callback.mSelector);
@@ -2536,6 +2544,8 @@ public final class MediaRouter {
                     }
                 }
             }
+
+            mCallbackCount = callbackCount;
             MediaRouteSelector selector = discover ? builder.build() : MediaRouteSelector.EMPTY;
 
             // Create a new discovery request.
@@ -2571,7 +2581,7 @@ public final class MediaRouter {
             }
         }
 
-        void updateMR2RouteDiscoveryPreferenceFwk() {
+        void updateMr2RouteDiscoveryPreferenceFwk() {
             if (!BuildCompat.isAtLeastR() || !mIsTransferEnabled) {
                 return;
             }
@@ -2607,25 +2617,8 @@ public final class MediaRouter {
             }
         }
 
-        void updateMr2ProviderShouldRegisterCallbackFwk() {
-            if (!BuildCompat.isAtLeastR() || !mIsTransferEnabled) {
-                return;
-            }
-
-            boolean callbackExists = false;
-            for (int i = mRouters.size(); --i >= 0; ) {
-                MediaRouter router = mRouters.get(i).get();
-                if (router == null) {
-                    mRouters.remove(i);
-                } else {
-                    final int count = router.mCallbackRecords.size();
-                    if (count > 0) {
-                        callbackExists = true;
-                        break;
-                    }
-                }
-            }
-            mMr2Provider.setShouldRegisterCallbackFwk(callbackExists);
+        int getCallbackCount() {
+            return mCallbackCount;
         }
 
         @Override
@@ -3261,7 +3254,7 @@ public final class MediaRouter {
         }
 
         @RequiresApi(30)
-        private final class MR2TransferCallback extends MediaRouter2.TransferCallback {
+        private final class Mr2TransferCallback extends MediaRouter2.TransferCallback {
             @Override
             public void onTransfer(@NonNull MediaRouter2.RoutingController oldController,
                     @NonNull MediaRouter2.RoutingController newController) {
