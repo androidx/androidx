@@ -73,9 +73,9 @@ public abstract class UseCase {
 
     private UseCaseConfig<?> mUseCaseConfig;
 
-    private final Object mBoundCameraLock = new Object();
-    @GuardedBy("mBoundCameraLock")
-    private CameraInternal mBoundCamera;
+    private final Object mCameraLock = new Object();
+    @GuardedBy("mCameraLock")
+    private CameraInternal mCamera;
 
     /**
      * Creates a named instance of the use case.
@@ -128,8 +128,7 @@ public abstract class UseCase {
     protected final void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig) {
         // Attempt to retrieve builder containing defaults for this use case's config
         Builder<?, ?, ?> defaultBuilder =
-                getDefaultBuilder(
-                        getBoundCamera() == null ? null : getBoundCamera().getCameraInfo());
+                getDefaultBuilder(getCamera() == null ? null : getCamera().getCameraInfo());
 
         // Combine with default configuration.
         mUseCaseConfig = applyDefaults(useCaseConfig, defaultBuilder);
@@ -295,29 +294,29 @@ public abstract class UseCase {
     }
 
     /**
-     * Returns the camera ID for the currently bound camera, or throws an exception if no camera is
-     * bound.
+     * Returns the camera ID for the currently attached camera, or throws an exception if no
+     * camera is attached.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected String getBoundCameraId() {
-        return Preconditions.checkNotNull(getBoundCamera(),
-                "No camera bound to use case: " + this).getCameraInfoInternal().getCameraId();
+    protected String getCameraId() {
+        return Preconditions.checkNotNull(getCamera(),
+                "No camera attached to use case: " + this).getCameraInfoInternal().getCameraId();
     }
 
     /**
-     * Checks whether the provided camera ID is the currently bound camera ID.
+     * Checks whether the provided camera ID is the currently attached camera ID.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected boolean isCurrentlyBoundCamera(@NonNull String cameraId) {
-        if (getBoundCamera() == null) {
+    protected boolean isCurrentCamera(@NonNull String cameraId) {
+        if (getCamera() == null) {
             return false;
         }
-        return Objects.equals(cameraId, getBoundCameraId());
+        return Objects.equals(cameraId, getCameraId());
     }
 
     /**
@@ -363,15 +362,15 @@ public abstract class UseCase {
     }
 
     /**
-     * Returns the currently bound {@link Camera} or {@code null} if none is bound.
+     * Returns the currently attached {@link Camera} or {@code null} if none is attached.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public CameraInternal getBoundCamera() {
-        synchronized (mBoundCameraLock) {
-            return mBoundCamera;
+    public CameraInternal getCamera() {
+        synchronized (mCameraLock) {
+            return mCamera;
         }
     }
 
@@ -404,9 +403,8 @@ public abstract class UseCase {
      * <p>Override to create necessary objects like {@link ImageReader} depending
      * on the resolution.
      *
-     * @param suggestedResolution The suggested resolution that depends on camera
-     *                            device capability and what and how many use cases will be
-     *                            bound.
+     * @param suggestedResolution The suggested resolution that depends on camera device
+     *                            capability and what and how many use cases will be bound.
      * @return The resolution that finally used to create the SessionConfig to
      * attach to the camera device.
      * @hide
@@ -433,8 +431,8 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected void onAttach(@NonNull CameraInternal camera) {
-        synchronized (mBoundCameraLock) {
-            mBoundCamera = camera;
+        synchronized (mCameraLock) {
+            mCamera = camera;
             addStateChangeCallback(camera);
         }
         updateUseCaseConfig(mUseCaseConfig);
@@ -461,11 +459,11 @@ public abstract class UseCase {
             eventCallback.onUnbind();
         }
 
-        synchronized (mBoundCameraLock) {
-            if (mBoundCamera != null) {
-                mBoundCamera.removeOnlineUseCase(Collections.singleton(this));
-                removeStateChangeCallback(mBoundCamera);
-                mBoundCamera = null;
+        synchronized (mCameraLock) {
+            if (mCamera != null) {
+                mCamera.removeOnlineUseCase(Collections.singleton(this));
+                removeStateChangeCallback(mCamera);
+                mCamera = null;
             }
         }
     }
@@ -496,11 +494,11 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected CameraControlInternal getCameraControl() {
-        synchronized (mBoundCameraLock) {
-            if (mBoundCamera == null) {
+        synchronized (mCameraLock) {
+            if (mCamera == null) {
                 return CameraControlInternal.DEFAULT_EMPTY_INSTANCE;
             }
-            return mBoundCamera.getCameraControlInternal();
+            return mCamera.getCameraControlInternal();
         }
     }
 

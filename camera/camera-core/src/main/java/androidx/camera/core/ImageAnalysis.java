@@ -219,10 +219,10 @@ public final class ImageAnalysis extends UseCase {
                     @NonNull SessionConfig.SessionError error) {
                 clearPipeline();
 
-                // Ensure the bound camera has not changed before resetting.
-                // TODO(b/143915543): Ensure this never gets called by a camera that is not bound
+                // Ensure the attached camera has not changed before resetting.
+                // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
                 //  to this use case so we don't need to do this check.
-                if (isCurrentlyBoundCamera(cameraId)) {
+                if (isCurrentCamera(cameraId)) {
                     // Only reset the pipeline when the bound camera is the same.
                     SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
                             resolution);
@@ -475,7 +475,7 @@ public final class ImageAnalysis extends UseCase {
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
         final ImageAnalysisConfig config = (ImageAnalysisConfig) getUseCaseConfig();
 
-        SessionConfig.Builder sessionConfigBuilder = createPipeline(getBoundCameraId(), config,
+        SessionConfig.Builder sessionConfigBuilder = createPipeline(getCameraId(), config,
                 suggestedResolution);
         updateSessionConfig(sessionConfigBuilder.build());
 
@@ -484,7 +484,7 @@ public final class ImageAnalysis extends UseCase {
 
     private void tryUpdateRelativeRotation() {
         ImageOutputConfig config = (ImageOutputConfig) getUseCaseConfig();
-        CameraInfoInternal cameraInfoInternal = getBoundCamera().getCameraInfoInternal();
+        CameraInfoInternal cameraInfoInternal = getCamera().getCameraInfoInternal();
         mImageAnalysisAbstractAnalyzer.setRelativeRotation(
                 cameraInfoInternal.getSensorRotationDegrees(
                         config.getTargetRotation(Surface.ROTATION_0)));
