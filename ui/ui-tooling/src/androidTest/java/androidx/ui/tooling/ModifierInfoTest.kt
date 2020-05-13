@@ -62,7 +62,11 @@ class ModifierInfoTest : ToolingTest() {
         }
 
         activityTestRule.runOnUiThread {
-            val modifierInfo = slotTableRecord.findGroupForFile("ModifierInfoTest")!!.all()
+            val tree = slotTableRecord.store.first().asTree()
+            val modifierInfo = tree.firstOrNull {
+                it.position?.contains("ModifierInfoTest.kt") == true && it.box.right.value > 0
+            }!!
+                .all()
                 .map {
                     it.modifierInfo
                 }

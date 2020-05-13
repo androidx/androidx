@@ -46,7 +46,10 @@ private val syncLoadedTypefaces = mutableMapOf<FontFamily, Typeface>()
  */
 @Composable
 fun fontResource(fontFamily: FontFamily): Typeface {
-    val context = ContextAmbient.current
+    return fontResourceFromContext(ContextAmbient.current, fontFamily)
+}
+
+internal fun fontResourceFromContext(context: Context, fontFamily: FontFamily): Typeface {
     if (fontFamily is SystemFontFamily || fontFamily is LoadedFontFamily) {
         synchronized(cacheLock) {
             return syncLoadedTypefaces.getOrPut(fontFamily) {
@@ -81,6 +84,7 @@ fun loadFontResource(
     pendingFontFamily: FontFamily? = null,
     failedFontFamily: FontFamily? = null
 ): DeferredResource<Typeface> {
+    val context = ContextAmbient.current
     val pendingTypeface = if (pendingFontFamily == null) {
         null
     } else if (!pendingFontFamily.canLoadSynchronously) {
@@ -89,7 +93,7 @@ fun loadFontResource(
     } else {
         synchronized(cacheLock) {
             syncLoadedTypefaces.getOrPut(pendingFontFamily) {
-                fontResource(pendingFontFamily)
+                fontResourceFromContext(context, pendingFontFamily)
             }
         }
     }
@@ -102,7 +106,7 @@ fun loadFontResource(
     } else {
         synchronized(cacheLock) {
             syncLoadedTypefaces.getOrPut(failedFontFamily) {
-                fontResource(failedFontFamily)
+                fontResourceFromContext(context, failedFontFamily)
             }
         }
     }
@@ -131,10 +135,11 @@ fun loadFontResource(
     pendingTypeface: Typeface? = null,
     failedTypeface: Typeface? = null
 ): DeferredResource<Typeface> {
+    val context = ContextAmbient.current
     if (fontFamily.canLoadSynchronously) {
         val typeface = synchronized(cacheLock) {
             syncLoadedTypefaces.getOrPut(fontFamily) {
-                fontResource(fontFamily)
+                fontResourceFromContext(context, fontFamily)
             }
         }
         return DeferredResource(
@@ -150,7 +155,6 @@ fun loadFontResource(
                 pendingResource = pendingTypeface,
                 failedResource = failedTypeface)
         }
-        val context = ContextAmbient.current
         val key = fontFamily.cacheKey(context)
         return loadResource(key, pendingTypeface, failedTypeface) {
             typefaceFromFontFamily(context, fontFamily)

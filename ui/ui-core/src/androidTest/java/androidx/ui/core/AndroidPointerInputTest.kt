@@ -28,6 +28,7 @@ import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.setValue
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.pointerinput.PointerInputFilter
@@ -144,6 +145,7 @@ class AndroidPointerInputTest {
         assertThat(actual).isTrue()
     }
 
+    @FlakyTest(bugId = 156512138)
     @Test
     fun dispatchTouchEvent_movementNotConsumed_requestDisallowInterceptTouchEventNotCalled() {
         dispatchTouchEvent_movementConsumptionInCompose(
@@ -152,6 +154,7 @@ class AndroidPointerInputTest {
         )
     }
 
+    @FlakyTest(bugId = 156512138)
     @Test
     fun dispatchTouchEvent_movementConsumed_requestDisallowInterceptTouchEventCalled() {
         dispatchTouchEvent_movementConsumptionInCompose(
