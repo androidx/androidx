@@ -34,19 +34,19 @@ import java.util.HashMap;
 import java.util.List;
 
 @SmallTest
-public class AppSearchDocumentTest {
+public class GenericDocumentTest {
     private static final byte[] sByteArray1 = new byte[]{(byte) 1, (byte) 2, (byte) 3};
     private static final byte[] sByteArray2 = new byte[]{(byte) 4, (byte) 5, (byte) 6};
-    private static final AppSearchDocument sDocumentProperties1 = new AppSearchDocument
+    private static final GenericDocument sDocumentProperties1 = new GenericDocument
             .Builder("sDocumentProperties1", "sDocumentPropertiesSchemaType1")
             .build();
-    private static final AppSearchDocument sDocumentProperties2 = new AppSearchDocument
+    private static final GenericDocument sDocumentProperties2 = new GenericDocument
             .Builder("sDocumentProperties2", "sDocumentPropertiesSchemaType2")
             .build();
 
     @Test
     public void testDocumentEquals_Identical() {
-        AppSearchDocument document1 = new AppSearchDocument.Builder("uri1", "schemaType1")
+        GenericDocument document1 = new GenericDocument.Builder("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setTtlMillis(1L)
                 .setProperty("longKey1", 1L, 2L, 3L)
@@ -56,7 +56,7 @@ public class AppSearchDocumentTest {
                 .setProperty("byteKey1", sByteArray1, sByteArray2)
                 .setProperty("documentKey1", sDocumentProperties1, sDocumentProperties2)
                 .build();
-        AppSearchDocument document2 = new AppSearchDocument.Builder("uri1", "schemaType1")
+        GenericDocument document2 = new GenericDocument.Builder("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setTtlMillis(1L)
                 .setProperty("longKey1", 1L, 2L, 3L)
@@ -72,7 +72,7 @@ public class AppSearchDocumentTest {
 
     @Test
     public void testDocumentEquals_DifferentOrder() {
-        AppSearchDocument document1 = new AppSearchDocument.Builder("uri1", "schemaType1")
+        GenericDocument document1 = new GenericDocument.Builder("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setProperty("longKey1", 1L, 2L, 3L)
                 .setProperty("byteKey1", sByteArray1, sByteArray2)
@@ -83,7 +83,7 @@ public class AppSearchDocumentTest {
                 .build();
 
         // Create second document with same parameter but different order.
-        AppSearchDocument document2 = new AppSearchDocument.Builder("uri1", "schemaType1")
+        GenericDocument document2 = new GenericDocument.Builder("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setProperty("booleanKey1", true, false, true)
                 .setProperty("documentKey1", sDocumentProperties1, sDocumentProperties2)
@@ -98,13 +98,13 @@ public class AppSearchDocumentTest {
 
     @Test
     public void testDocumentEquals_Failure() {
-        AppSearchDocument document1 = new AppSearchDocument.Builder("uri1", "schemaType1")
+        GenericDocument document1 = new GenericDocument.Builder("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setProperty("longKey1", 1L, 2L, 3L)
                 .build();
 
         // Create second document with same order but different value.
-        AppSearchDocument document2 = new AppSearchDocument.Builder("uri1", "schemaType1")
+        GenericDocument document2 = new GenericDocument.Builder("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setProperty("longKey1", 1L, 2L, 4L) // Different
                 .build();
@@ -114,13 +114,13 @@ public class AppSearchDocumentTest {
 
     @Test
     public void testDocumentEquals_Failure_RepeatedFieldOrder() {
-        AppSearchDocument document1 = new AppSearchDocument.Builder("uri1", "schemaType1")
+        GenericDocument document1 = new GenericDocument.Builder("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setProperty("booleanKey1", true, false, true)
                 .build();
 
         // Create second document with same order but different value.
-        AppSearchDocument document2 = new AppSearchDocument.Builder("uri1", "schemaType1")
+        GenericDocument document2 = new GenericDocument.Builder("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setProperty("booleanKey1", true, true, false) // Different
                 .build();
@@ -130,7 +130,7 @@ public class AppSearchDocumentTest {
 
     @Test
     public void testDocumentGetSingleValue() {
-        AppSearchDocument document = new AppSearchDocument.Builder("uri1", "schemaType1")
+        GenericDocument document = new GenericDocument.Builder("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setScore(1)
                 .setTtlMillis(1L)
@@ -157,7 +157,7 @@ public class AppSearchDocumentTest {
 
     @Test
     public void testDocumentGetArrayValues() {
-        AppSearchDocument document = new AppSearchDocument.Builder("uri1", "schemaType1")
+        GenericDocument document = new GenericDocument.Builder("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setProperty("longKey1", 1L, 2L, 3L)
                 .setProperty("doubleKey1", 1.0, 2.0, 3.0)
@@ -184,7 +184,7 @@ public class AppSearchDocumentTest {
 
     @Test
     public void testDocumentGetValues_DifferentTypes() {
-        AppSearchDocument document = new AppSearchDocument.Builder("uri1", "schemaType1")
+        GenericDocument document = new GenericDocument.Builder("uri1", "schemaType1")
                 .setScore(1)
                 .setProperty("longKey1", 1L)
                 .setProperty("booleanKey1", true, false, true)
@@ -211,14 +211,14 @@ public class AppSearchDocumentTest {
 
     @Test
     public void testDocumentInvalid() {
-        AppSearchDocument.Builder builder = new AppSearchDocument.Builder("uri1", "schemaType1");
+        GenericDocument.Builder builder = new GenericDocument.Builder("uri1", "schemaType1");
         assertThrows(
                 IllegalArgumentException.class, () -> builder.setProperty("test", new boolean[]{}));
     }
 
     @Test
     public void testDocumentProtoPopulation() {
-        AppSearchDocument document = new AppSearchDocument.Builder("uri1", "schemaType1")
+        GenericDocument document = new GenericDocument.Builder("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setScore(1)
                 .setTtlMillis(1L)

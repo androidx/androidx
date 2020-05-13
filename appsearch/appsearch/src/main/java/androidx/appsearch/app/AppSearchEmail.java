@@ -23,16 +23,16 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 
 /**
- * Encapsulates a {@link AppSearchDocument} that represent an email.
+ * Encapsulates a {@link GenericDocument} that represent an email.
  *
- * <p>This class is a higher level implement of {@link AppSearchDocument}.
+ * <p>This class is a higher level implement of {@link GenericDocument}.
  *
  * <p>This class will eventually migrate to Jetpack, where it will become public API.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class AppSearchEmail extends AppSearchDocument {
+public class AppSearchEmail extends GenericDocument {
     /** The name of the schema type for {@link AppSearchEmail} documents.*/
     public static final String SCHEMA_TYPE = "builtin:Email";
 
@@ -90,11 +90,11 @@ public class AppSearchEmail extends AppSearchDocument {
 
     /**
      * Creates a new {@link AppSearchEmail} from the contents of an existing
-     * {@link AppSearchDocument}.
+     * {@link GenericDocument}.
      *
-     * @param document The {@link AppSearchDocument} containing the email content.
+     * @param document The {@link GenericDocument} containing the email content.
      */
-    public AppSearchEmail(@NonNull AppSearchDocument document) {
+    public AppSearchEmail(@NonNull GenericDocument document) {
         super(document);
     }
 
@@ -166,7 +166,7 @@ public class AppSearchEmail extends AppSearchDocument {
     /**
      * The builder class for {@link AppSearchEmail}.
      */
-    public static class Builder extends AppSearchDocument.Builder<AppSearchEmail.Builder> {
+    public static class Builder extends GenericDocument.Builder<AppSearchEmail.Builder> {
 
         /**
          * Create a new {@link AppSearchEmail.Builder}

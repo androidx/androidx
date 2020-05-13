@@ -36,12 +36,12 @@ import java.util.Objects;
 /**
  * Represents a document unit.
  *
- * <p>Documents are constructed via {@link AppSearchDocument.Builder}.
+ * <p>Documents are constructed via {@link GenericDocument.Builder}.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class AppSearchDocument {
-    private static final String TAG = "AppSearchDocument";
+public class GenericDocument {
+    private static final String TAG = "GenericDocument";
 
     /**
      * The maximum number of elements in a repeatable field. Will reject the request if exceed
@@ -56,7 +56,7 @@ public class AppSearchDocument {
     private static final int MAX_STRING_LENGTH = 20_000;
 
     /**
-     * Contains {@link AppSearchDocument} basic information (uri, schemaType etc) and properties
+     * Contains {@link GenericDocument} basic information (uri, schemaType etc) and properties
      * ordered by keys.
      */
     @NonNull
@@ -67,28 +67,28 @@ public class AppSearchDocument {
     private final Map<String, Object> mProperties;
 
     /**
-     * Creates a new {@link AppSearchDocument}.
-     * @param proto Contains {@link AppSearchDocument} basic information (uri, schemaType etc) and
+     * Creates a new {@link GenericDocument}.
+     * @param proto Contains {@link GenericDocument} basic information (uri, schemaType etc) and
      *               properties ordered by keys.
      * @param propertiesMap Contains all properties in {@link #mProto} to support get properties
      *                      via keys.
      */
-    AppSearchDocument(@NonNull DocumentProto proto,
+    GenericDocument(@NonNull DocumentProto proto,
             @NonNull Map<String, Object> propertiesMap) {
         mProto = proto;
         mProperties = propertiesMap;
     }
 
     /**
-     * Creates a new {@link AppSearchDocument} from an existing instance.
+     * Creates a new {@link GenericDocument} from an existing instance.
      *
      * <p>This method should be only used by constructor of a subclass.
      */
-    protected AppSearchDocument(@NonNull AppSearchDocument document) {
+    protected GenericDocument(@NonNull GenericDocument document) {
         this(document.mProto, document.mProperties);
     }
 
-    AppSearchDocument(@NonNull DocumentProto documentProto) {
+    GenericDocument(@NonNull DocumentProto documentProto) {
         this(documentProto, new ArrayMap<>());
         for (int i = 0; i < documentProto.getPropertiesCount(); i++) {
             PropertyProto property = documentProto.getProperties(i);
@@ -124,10 +124,10 @@ public class AppSearchDocument {
                 }
                 mProperties.put(name, values);
             } else if (property.getDocumentValuesCount() > 0) {
-                AppSearchDocument[] values =
-                        new AppSearchDocument[property.getDocumentValuesCount()];
+                GenericDocument[] values =
+                        new GenericDocument[property.getDocumentValuesCount()];
                 for (int j = 0; j < values.length; j++) {
-                    values[j] = new AppSearchDocument(property.getDocumentValues(j));
+                    values[j] = new GenericDocument(property.getDocumentValues(j));
                 }
                 mProperties.put(name, values);
             } else {
@@ -137,9 +137,9 @@ public class AppSearchDocument {
     }
 
     /**
-     * Get the {@link DocumentProto} of the {@link AppSearchDocument}.
+     * Get the {@link DocumentProto} of the {@link GenericDocument}.
      *
-     * <p>The {@link DocumentProto} contains {@link AppSearchDocument}'s basic information and all
+     * <p>The {@link DocumentProto} contains {@link GenericDocument}'s basic information and all
      *    properties ordered by keys.
      */
     @NonNull
@@ -147,25 +147,25 @@ public class AppSearchDocument {
         return mProto;
     }
 
-    /** Returns the URI of the {@link AppSearchDocument}. */
+    /** Returns the URI of the {@link GenericDocument}. */
     @NonNull
     public String getUri() {
         return mProto.getUri();
     }
 
-    /** Returns the schema type of the {@link AppSearchDocument}. */
+    /** Returns the schema type of the {@link GenericDocument}. */
     @NonNull
     public String getSchemaType() {
         return mProto.getSchema();
     }
 
-    /** Returns the creation timestamp of the {@link AppSearchDocument}, in milliseconds. */
+    /** Returns the creation timestamp of the {@link GenericDocument}, in milliseconds. */
     public long getCreationTimestampMillis() {
         return mProto.getCreationTimestampMs();
     }
 
     /**
-     * Returns the TTL (Time To Live) of the {@link AppSearchDocument}, in milliseconds.
+     * Returns the TTL (Time To Live) of the {@link GenericDocument}, in milliseconds.
      *
      * <p>The default value is 0, which means the document is permanent and won't be auto-deleted
      *    until the app is uninstalled.
@@ -175,10 +175,10 @@ public class AppSearchDocument {
     }
 
     /**
-     * Returns the score of the {@link AppSearchDocument}.
+     * Returns the score of the {@link GenericDocument}.
      *
      * <p>The score is a query-independent measure of the document's quality, relative to other
-     * {@link AppSearchDocument}s of the same type.
+     * {@link GenericDocument}s of the same type.
      *
      * <p>The default value is 0.
      */
@@ -270,15 +270,15 @@ public class AppSearchDocument {
     }
 
     /**
-     * Retrieves a {@link AppSearchDocument} value by key.
+     * Retrieves a {@link GenericDocument} value by key.
      *
      * @param key The key to look for.
-     * @return The first {@link AppSearchDocument} associated with the given key or {@code null} if
+     * @return The first {@link GenericDocument} associated with the given key or {@code null} if
      *         there is no such key or the value is of a different type.
      */
     @Nullable
-    public AppSearchDocument getPropertyDocument(@NonNull String key) {
-        AppSearchDocument[] propertyArray = getPropertyDocumentArray(key);
+    public GenericDocument getPropertyDocument(@NonNull String key) {
+        GenericDocument[] propertyArray = getPropertyDocumentArray(key);
         if (propertyArray == null || propertyArray.length == 0) {
             return null;
         }
@@ -358,15 +358,15 @@ public class AppSearchDocument {
     }
 
     /**
-     * Retrieves a repeated {@link AppSearchDocument} property by key.
+     * Retrieves a repeated {@link GenericDocument} property by key.
      *
      * @param key The key to look for.
-     * @return The {@link AppSearchDocument[]} associated with the given key, or {@code null} if no
+     * @return The {@link GenericDocument[]} associated with the given key, or {@code null} if no
      *         value is set or the value is of a different type.
      */
     @Nullable
-    public AppSearchDocument[] getPropertyDocumentArray(@NonNull String key) {
-        return getAndCastPropertyArray(key, AppSearchDocument[].class);
+    public GenericDocument[] getPropertyDocumentArray(@NonNull String key) {
+        return getAndCastPropertyArray(key, GenericDocument[].class);
     }
 
     /**
@@ -394,10 +394,10 @@ public class AppSearchDocument {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof AppSearchDocument)) {
+        if (!(other instanceof GenericDocument)) {
             return false;
         }
-        AppSearchDocument otherDocument = (AppSearchDocument) other;
+        GenericDocument otherDocument = (GenericDocument) other;
         return this.mProto.equals(otherDocument.mProto);
     }
 
@@ -415,7 +415,7 @@ public class AppSearchDocument {
     }
 
     /**
-     * The builder class for {@link AppSearchDocument}.
+     * The builder class for {@link GenericDocument}.
      *
      * @param <BuilderType> Type of subclass who extend this.
      */
@@ -426,10 +426,10 @@ public class AppSearchDocument {
         private final BuilderType mBuilderTypeInstance;
 
         /**
-         * Create a new {@link AppSearchDocument.Builder}.
+         * Create a new {@link GenericDocument.Builder}.
          *
-         * @param uri The uri of {@link AppSearchDocument}.
-         * @param schemaType The schema type of the {@link AppSearchDocument}. The passed-in
+         * @param uri The uri of {@link GenericDocument}.
+         * @param schemaType The schema type of the {@link GenericDocument}. The passed-in
          *        {@code schemaType} must be defined using {@link AppSearchManager#setSchema} prior
          *        to inserting a document of this {@code schemaType} into the AppSearch index using
          *        {@link AppSearchManager#putDocuments}. Otherwise, the document will be
@@ -444,10 +444,10 @@ public class AppSearchDocument {
         }
 
         /**
-         * Sets the score of the {@link AppSearchDocument}.
+         * Sets the score of the {@link GenericDocument}.
          *
          * <p>The score is a query-independent measure of the document's quality, relative to
-         * other {@link AppSearchDocument}s of the same type.
+         * other {@link GenericDocument}s of the same type.
          *
          * @throws IllegalArgumentException If the provided value is negative.
          */
@@ -461,7 +461,7 @@ public class AppSearchDocument {
         }
 
         /**
-         * Set the creation timestamp in milliseconds of the {@link AppSearchDocument}. Should be
+         * Set the creation timestamp in milliseconds of the {@link GenericDocument}. Should be
          * set using a value obtained from the {@link System#currentTimeMillis()} time base.
          */
         @NonNull
@@ -471,7 +471,7 @@ public class AppSearchDocument {
         }
 
         /**
-         * Set the TTL (Time To Live) of the {@link AppSearchDocument}, in milliseconds.
+         * Set the TTL (Time To Live) of the {@link GenericDocument}, in milliseconds.
          *
          * <p>After this many milliseconds since the {@link #setCreationTimestampMillis creation
          * timestamp}, the document is deleted.
@@ -553,14 +553,14 @@ public class AppSearchDocument {
         }
 
         /**
-         * Sets one or multiple {@link AppSearchDocument} values for a property, replacing its
+         * Sets one or multiple {@link GenericDocument} values for a property, replacing its
          * previous values.
          *
          * @param key The key associated with the {@code values}.
-         * @param values The {@link AppSearchDocument} values of the property.
+         * @param values The {@link GenericDocument} values of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull AppSearchDocument... values) {
+        public BuilderType setProperty(@NonNull String key, @NonNull GenericDocument... values) {
             putInPropertyMap(key, values);
             return mBuilderTypeInstance;
         }
@@ -610,7 +610,7 @@ public class AppSearchDocument {
             mProperties.put(key, values);
         }
 
-        private void putInPropertyMap(@NonNull String key, @NonNull AppSearchDocument[] values) {
+        private void putInPropertyMap(@NonNull String key, @NonNull GenericDocument[] values) {
             Objects.requireNonNull(key);
             Objects.requireNonNull(values);
             for (int i = 0; i < values.length; i++) {
@@ -633,9 +633,9 @@ public class AppSearchDocument {
             }
         }
 
-        /** Builds the {@link AppSearchDocument} object. */
+        /** Builds the {@link GenericDocument} object. */
         @NonNull
-        public AppSearchDocument build() {
+        public GenericDocument build() {
             // Build proto by sorting the keys in mProperties to exclude the influence of
             // order. Therefore documents will generate same proto as long as the contents are
             // same. Note that the order of repeated fields is still preserved.
@@ -661,8 +661,8 @@ public class AppSearchDocument {
                     for (String value : (String[]) values) {
                         propertyProto.addStringValues(value);
                     }
-                } else if (values instanceof AppSearchDocument[]) {
-                    for (AppSearchDocument value : (AppSearchDocument[]) values) {
+                } else if (values instanceof GenericDocument[]) {
+                    for (GenericDocument value : (GenericDocument[]) values) {
                         propertyProto.addDocumentValues(value.getProto());
                     }
                 } else if (values instanceof byte[][]) {
@@ -676,7 +676,7 @@ public class AppSearchDocument {
                 }
                 mProtoBuilder.addProperties(propertyProto);
             }
-            return new AppSearchDocument(mProtoBuilder.build(), mProperties);
+            return new GenericDocument(mProtoBuilder.build(), mProperties);
         }
     }
 }
