@@ -179,7 +179,7 @@ final class SqliteInspector extends Inspector {
                 new DatabaseRegistry.Callback() {
                     @Override
                     public void onPostEvent(int databaseId, String path) {
-                        dispatchDatabaseClosedEvent(databaseId);
+                        dispatchDatabaseClosedEvent(databaseId, path);
                     }
                 });
     }
@@ -414,17 +414,13 @@ final class SqliteInspector extends Inspector {
 
     private void dispatchDatabaseOpenedEvent(int databaseId, String path) {
         getConnection().sendEvent(Event.newBuilder().setDatabaseOpened(
-                DatabaseOpenedEvent
-                        .newBuilder()
-                        .setDatabaseId(databaseId)
-                        .setName(path)
-                        .setPath(path)
+                DatabaseOpenedEvent.newBuilder().setDatabaseId(databaseId).setPath(path)
         ).build().toByteArray());
     }
 
-    private void dispatchDatabaseClosedEvent(int databaseId) {
+    private void dispatchDatabaseClosedEvent(int databaseId, String path) {
         getConnection().sendEvent(Event.newBuilder().setDatabaseClosed(
-                DatabaseClosedEvent.newBuilder().setDatabaseId(databaseId)
+                DatabaseClosedEvent.newBuilder().setDatabaseId(databaseId).setPath(path)
         ).build().toByteArray());
     }
 

@@ -174,7 +174,7 @@ class TrackDatabasesTest {
             openDatabase(path, hooks).let { db ->
                 val id = receiveOpenedEventId(db)
                 closeDatabase(db, hooks)
-                receiveClosedEvent(id)
+                receiveClosedEvent(id, db.displayName)
                 assertClosed(db)
             }
         }
@@ -202,7 +202,7 @@ class TrackDatabasesTest {
         dbs.forEach { (id, db) ->
             assertClosed(db)
             hooks.triggerOnAllReferencesReleased(db)
-            receiveClosedEvent(id)
+            receiveClosedEvent(id, db.displayName)
         }
         assertNoQueuedEvents()
 
@@ -236,7 +236,7 @@ class TrackDatabasesTest {
         openDatabase("db1", hooks).let { db ->
             val id = receiveOpenedEventId(db)
             closeDatabase(db, hooks)
-            receiveClosedEvent(id)
+            receiveClosedEvent(id, db.displayName)
             assertClosed(db)
             assertNoQueuedEvents()
         }
@@ -256,7 +256,7 @@ class TrackDatabasesTest {
             // pass 2
             closeDatabase(db, hooks)
             assertClosed(db)
-            receiveClosedEvent(id)
+            receiveClosedEvent(id, db.displayName)
             assertNoQueuedEvents()
         }
     }
@@ -274,7 +274,7 @@ class TrackDatabasesTest {
         openDatabase(databaseName, hooks).let { db ->
             id = receiveOpenedEventId(db)
             closeDatabase(db, hooks)
-            receiveClosedEvent(id)
+            receiveClosedEvent(id, db.displayName)
             assertClosed(db)
         }
         testEnvironment.assertNoQueuedEvents()
@@ -282,7 +282,7 @@ class TrackDatabasesTest {
         openDatabase(databaseName, hooks).let { db ->
             assertThat(receiveOpenedEventId(db)).isEqualTo(id)
             closeDatabase(db, hooks)
-            receiveClosedEvent(id)
+            receiveClosedEvent(id, db.displayName)
             assertClosed(db)
         }
         testEnvironment.assertNoQueuedEvents()
@@ -328,7 +328,7 @@ class TrackDatabasesTest {
         assertNoQueuedEvents()
 
         closeDatabase(db1b, hooks)
-        receiveClosedEvent(id1a)
+        receiveClosedEvent(id1a, db1a.displayName)
     }
 
     private fun assertNoQueuedEvents() {
@@ -364,10 +364,11 @@ class TrackDatabasesTest {
             it.databaseOpened.databaseId
         }
 
-    private suspend fun receiveClosedEvent(id: Int) =
+    private suspend fun receiveClosedEvent(id: Int, path: String) =
         testEnvironment.receiveEvent().let {
             assertThat(it.oneOfCase).isEqualTo(Event.OneOfCase.DATABASE_CLOSED)
             assertThat(it.databaseClosed.databaseId).isEqualTo(id)
+            assertThat(it.databaseClosed.path).isEqualTo(path)
         }
 
     @Suppress("UNCHECKED_CAST")
