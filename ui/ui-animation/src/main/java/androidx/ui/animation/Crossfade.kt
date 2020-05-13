@@ -43,7 +43,7 @@ import androidx.ui.layout.Stack
 fun <T> Crossfade(
     current: T,
     animation: AnimationBuilder<Float> = TweenBuilder(),
-    children: @Composable (T) -> Unit
+    children: @Composable() (T) -> Unit
 ) {
     val state = remember { CrossfadeState<T>() }
     if (current != state.current) {
@@ -95,7 +95,7 @@ private data class CrossfadeAnimationItem<T>(
     val transition: CrossfadeTransition
 )
 
-private typealias CrossfadeTransition = @Composable (children: @Composable () -> Unit) -> Unit
+private typealias CrossfadeTransition = @Composable() (children: @Composable() () -> Unit) -> Unit
 
 @Composable
 private fun animatedOpacity(

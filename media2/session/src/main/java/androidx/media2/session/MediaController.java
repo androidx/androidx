@@ -469,6 +469,160 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
+     * Requests that the {@link SessionPlayer} associated with the connected {@link MediaSession}
+     * starts playback for a specific media id.
+     *
+     * @param mediaId the non-empty media id
+     * @param extras optional extras that can include extra information about the media item
+     *               to be played
+     * @return a {@link ListenableFuture} representing the pending completion of the command
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @NonNull
+    public ListenableFuture<SessionResult> playFromMediaId(@NonNull String mediaId,
+            @Nullable Bundle extras) {
+        if (TextUtils.isEmpty(mediaId)) {
+            throw new IllegalArgumentException("mediaId shouldn't be empty");
+        }
+        if (isConnected()) {
+            return getImpl().playFromMediaId(mediaId, extras);
+        }
+        return createDisconnectedFuture();
+    }
+
+    /**
+     * Requests that the {@link SessionPlayer} associated with the connected {@link MediaSession}
+     * starts playback for a specific search query.
+     *
+     * @param query the non-empty search query
+     * @param extras optional extras that can include extra information about the query
+     * @return a {@link ListenableFuture} representing the pending completion of the command
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @NonNull
+    public ListenableFuture<SessionResult> playFromSearch(@NonNull String query,
+            @Nullable Bundle extras) {
+        if (TextUtils.isEmpty(query)) {
+            throw new IllegalArgumentException("query shouldn't be empty");
+        }
+        if (isConnected()) {
+            return getImpl().playFromSearch(query, extras);
+        }
+        return createDisconnectedFuture();
+    }
+
+    /**
+     * Requests that the {@link SessionPlayer} associated with the connected {@link MediaSession}
+     * starts playback for a specific {@link Uri}.
+     *
+     * @param uri the URI of the requested media
+     * @param extras optional extras that can include extra information about the media item
+     *               to be played
+     * @return a {@link ListenableFuture} representing the pending completion of the command
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @NonNull
+    public ListenableFuture<SessionResult> playFromUri(@NonNull Uri uri,
+            @Nullable Bundle extras) {
+        if (uri == null) {
+            throw new NullPointerException("uri shouldn't be null");
+        }
+        if (isConnected()) {
+            return getImpl().playFromUri(uri, extras);
+        }
+        return createDisconnectedFuture();
+    }
+
+    /**
+     * Requests that the {@link SessionPlayer} associated with the connected {@link MediaSession}
+     * prepares a media item with the media id for playback.
+     * In other words, other sessions can continue to play during the preparation of this session.
+     * This method can be used to speed up the start of the playback.
+     * Once the prepare is done, the session will change its playback state to
+     * {@link SessionPlayer#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be called to start
+     * playback. If the prepare is not needed, {@link #playFromMediaId} can be directly called
+     * without this method.
+     *
+     * @param mediaId the non-empty media id
+     * @param extras optional extras that can include extra information about the media item
+     *               to be prepared
+     * @return a {@link ListenableFuture} representing the pending completion of the command
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @NonNull
+    public ListenableFuture<SessionResult> prepareFromMediaId(@NonNull String mediaId,
+            @Nullable Bundle extras) {
+        if (TextUtils.isEmpty(mediaId)) {
+            throw new IllegalArgumentException("mediaId shouldn't be empty");
+        }
+        if (isConnected()) {
+            return getImpl().prepareFromMediaId(mediaId, extras);
+        }
+        return createDisconnectedFuture();
+    }
+
+    /**
+     * Requests that the {@link SessionPlayer} associated with the connected {@link MediaSession}
+     * prepares a media item with the specific search query for playback.
+     * In other words, other sessions can continue to play during the preparation of this session.
+     * This method can be used to speed up the start of the playback.
+     * Once the prepare is done, the session will change its playback state to
+     * {@link SessionPlayer#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be called to start
+     * playback. If the prepare is not needed, {@link #playFromSearch} can be directly called
+     * without this method.
+     *
+     * @param query the non-empty search query
+     * @param extras optional extras that can include extra information about the query
+     * @return a {@link ListenableFuture} representing the pending completion of the command
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @NonNull
+    public ListenableFuture<SessionResult> prepareFromSearch(@NonNull String query,
+            @Nullable Bundle extras) {
+        if (TextUtils.isEmpty(query)) {
+            throw new IllegalArgumentException("query shouldn't be empty");
+        }
+        if (isConnected()) {
+            return getImpl().prepareFromSearch(query, extras);
+        }
+        return createDisconnectedFuture();
+    }
+
+    /**
+     * Requests that the {@link SessionPlayer} associated with the connected {@link MediaSession}
+     * prepares a media item with the specific {@link Uri} for playback.
+     * In other words, other sessions can continue to play during the preparation of this session.
+     * This method can be used to speed up the start of the playback.
+     * Once the prepare is done, the session will change its playback state to
+     * {@link SessionPlayer#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be called to start
+     * playback. If the prepare is not needed, {@link #playFromUri} can be directly called
+     * without this method.
+     *
+     * @param uri the URI of the requested media
+     * @param extras optional extras that can include extra information about the media item
+     *               to be prepared
+     * @return a {@link ListenableFuture} representing the pending completion of the command
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @NonNull
+    public ListenableFuture<SessionResult> prepareFromUri(@NonNull Uri uri,
+            @Nullable Bundle extras) {
+        if (uri == null) {
+            throw new NullPointerException("uri shouldn't be null");
+        }
+        if (isConnected()) {
+            return getImpl().prepareFromUri(uri, extras);
+        }
+        return createDisconnectedFuture();
+    }
+
+    /**
      * Requests that the connected {@link MediaSession} sets the volume of the output that is
      * playing on. The command will be ignored if it does not support
      * {@link VolumeProviderCompat#VOLUME_CONTROL_ABSOLUTE}.
@@ -1462,6 +1616,17 @@ public class MediaController implements AutoCloseable {
         ListenableFuture<SessionResult> seekTo(long pos);
         ListenableFuture<SessionResult> skipForward();
         ListenableFuture<SessionResult> skipBackward();
+        ListenableFuture<SessionResult> playFromMediaId(@NonNull String mediaId,
+                @Nullable Bundle extras);
+        ListenableFuture<SessionResult> playFromSearch(@NonNull String query,
+                @Nullable Bundle extras);
+        ListenableFuture<SessionResult> playFromUri(@NonNull Uri uri, @Nullable Bundle extras);
+        ListenableFuture<SessionResult> prepareFromMediaId(@NonNull String mediaId,
+                @Nullable Bundle extras);
+        ListenableFuture<SessionResult> prepareFromSearch(@NonNull String query,
+                @Nullable Bundle extras);
+        ListenableFuture<SessionResult> prepareFromUri(@NonNull Uri uri,
+                @Nullable Bundle extras);
         ListenableFuture<SessionResult> setVolumeTo(int value, @VolumeFlags int flags);
         ListenableFuture<SessionResult> adjustVolume(@VolumeDirection int direction,
                 @VolumeFlags int flags);

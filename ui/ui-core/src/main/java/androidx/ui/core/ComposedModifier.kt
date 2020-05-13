@@ -29,11 +29,11 @@ import androidx.compose.Composer
  * applying a [Modifier] to an element tree node.
  */
 fun Modifier.composed(
-    factory: @Composable Modifier.() -> Modifier
+    factory: @Composable() Modifier.() -> Modifier
 ): Modifier = this + ComposedModifier(factory)
 
 private data class ComposedModifier(
-    val factory: @Composable Modifier.() -> Modifier
+    val factory: @Composable() Modifier.() -> Modifier
 ) : Modifier.Element
 
 /**

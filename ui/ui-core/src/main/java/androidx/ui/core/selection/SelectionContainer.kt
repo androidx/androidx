@@ -50,7 +50,7 @@ import androidx.ui.unit.round
  * Default SelectionContainer to be used in order to make composables selectable by default.
  */
 @Composable
-internal fun SelectionContainer(children: @Composable () -> Unit) {
+internal fun SelectionContainer(children: @Composable() () -> Unit) {
     val selection = state<Selection?> { null }
     SelectionContainer(
         selection = selection.value,
@@ -71,7 +71,7 @@ fun SelectionContainer(
     selection: Selection?,
     /** A function containing customized behaviour when selection changes. */
     onSelectionChange: (Selection?) -> Unit,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val registrarImpl = remember { SelectionRegistrarImpl() }
     val manager = remember { SelectionManager(registrarImpl) }
@@ -119,7 +119,7 @@ private fun SelectionFloatingToolBar(manager: SelectionManager, selection: Selec
 private fun Handle(
     manager: SelectionManager,
     isStartHandle: Boolean,
-    handle: @Composable () -> Unit
+    handle: @Composable() () -> Unit
 ) {
     val offset = if (isStartHandle) manager.startHandlePosition else manager.endHandlePosition
     val selection = manager.selection
@@ -152,7 +152,7 @@ private fun Handle(
  * the children.
  */
 @Composable
-private fun Wrap(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
+private fun Wrap(modifier: Modifier = Modifier, children: @Composable() () -> Unit) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { measurable ->
             measurable.measure(constraints)
@@ -182,7 +182,7 @@ internal fun SimpleContainer(
     modifier: Modifier = Modifier,
     width: Dp? = null,
     height: Dp? = null,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Layout(children, modifier) { measurables, incomingConstraints, _ ->
         val containerConstraints = Constraints()

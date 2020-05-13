@@ -416,7 +416,6 @@ class TextFieldTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textFieldNotFocused_cursorNotRendered() {
         composeTestRule.setContent {
             TestTag("textField") {

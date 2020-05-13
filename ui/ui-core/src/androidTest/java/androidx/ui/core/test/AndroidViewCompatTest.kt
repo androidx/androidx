@@ -146,7 +146,7 @@ class AndroidViewCompatTest {
             Align {
                 TestTag("content") {
                     Semantics(container = true) {
-                        Container(Modifier.drawLayer()) {
+                        Container(Modifier.drawLayer(clipToBounds = false)) {
                             ColoredSquareView(color = colorModel.color, ref = squareRef)
                         }
                     }
@@ -445,7 +445,7 @@ class AndroidViewCompatTest {
     @Composable
     fun Container(
         modifier: Modifier = Modifier,
-        children: @Composable () -> Unit
+        children: @Composable() () -> Unit
     ) {
         Layout(children, modifier) { measurables, constraints, _ ->
             val placeable = measurables[0].measure(constraints)

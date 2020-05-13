@@ -18,7 +18,6 @@
 import unittest
 import os
 from GitClient import *
-from AndroidXMarkdown import *
 
 class GitClientTestImpl(GitClient):
 	def __init__(self, workingDir):
@@ -777,71 +776,7 @@ class TestGitClient(unittest.TestCase):
 		self.assertEqual(commitA.projectDir, commitB.projectDir)
 		self.assertEqual(commitA.summary, commitB.summary)
 		self.assertEqual(commitA.releaseNote, commitB.releaseNote)
-
-class TestMarkdown(unittest.TestCase):
-
-	def test_markdownCorrectlyFormatsForOneArtifactWithNoCommit(self):
-		releaseNotes = LibraryReleaseNotes(
-			groupId = "groupId",
-			artifactIds = ["artifactId"],
-			version = "version",
-			releaseDate = "01-01-1970",
-			fromSHA = "fromSHA",
-			untilSHA = "untilSHA",
-			projectDir = "projectDir",
-			requiresSameVersion = True,
-			commitList = [],
-			forceIncludeAllCommits = False
-		)
-		self.assertEqual(releaseNotes.groupId, "groupId")
-		self.assertEqual(releaseNotes.artifactIds, ["artifactId"])
-		self.assertEqual(releaseNotes.version, "version")
-		self.assertEqual(str(releaseNotes.releaseDate), "January 1, 1970")
-		self.assertEqual(releaseNotes.fromSHA, "fromSHA")
-		self.assertEqual(releaseNotes.untilSHA, "untilSHA")
-		self.assertEqual(releaseNotes.projectDir, "projectDir")
-		self.assertEqual(releaseNotes.requiresSameVersion, True)
-		self.assertEqual(releaseNotes.forceIncludeAllCommits, False)
-		self.assertEqual(str(releaseNotes.diffLogLink),
-			"[Version version contains" + \
-			" these commits.](https://android.googlesource.com/" + \
-			"platform/frameworks/support/+log/fromSHA..untilSHA/projectDir)"
-		)
-		self.assertEqual(releaseNotes.commits, [])
-		self.assertEqual(str(releaseNotes.commitMarkdownList),
-			"\n{# **New Features** #}\n\n" + \
-			"\n{# **API Changes** #}\n\n" + \
-			"\n{# **Bug Fixes** #}\n\n" + \
-			"\n{# **External Contribution** #}\n\n"
-		)
-		self.assertEqual(releaseNotes.getFormattedReleaseSummary(),
-			"`groupId:artifactId:version` is released." + \
-			" [Version version contains these commits.](https://android.googlesource.com/" + \
-			"platform/frameworks/support/+log/fromSHA..untilSHA/projectDir)\n"
-		)
-		self.assertEqual(releaseNotes.bugsFixed, [])
-
-	def test_markdownCorrectlyFormatsGittilesLinkWithNoFromSHA(self):
-		releaseNotes = LibraryReleaseNotes(
-			groupId = "groupId",
-			artifactIds = ["artifactId"],
-			version = "version",
-			releaseDate = "01-01-1970",
-			fromSHA = "",
-			untilSHA = "untilSHA",
-			projectDir = "projectDir",
-			requiresSameVersion = True,
-			commitList = [],
-			forceIncludeAllCommits = False
-		)
-		self.assertEqual(releaseNotes.fromSHA, "")
-		self.assertEqual(releaseNotes.untilSHA, "untilSHA")
-		self.assertEqual(releaseNotes.projectDir, "projectDir")
-		self.assertEqual(str(releaseNotes.diffLogLink),
-			"[Version version contains" + \
-			" these commits.](https://android.googlesource.com/" + \
-			"platform/frameworks/support/+log/untilSHA/projectDir)"
-		)
+	
 
 if __name__ == '__main__':
 	unittest.main()

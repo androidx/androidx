@@ -47,8 +47,8 @@ val BigTestConstraints = DpConstraints(maxWidth = 5000.dp, maxHeight = 5000.dp)
 fun ComposeTestRule.setContentAndGetPixelSize(
     parentConstraints: DpConstraints = BigTestConstraints,
     // TODO : figure out better way to make it flexible
-    performSetContent: (@Composable () -> Unit) -> Unit = { setContent(it) },
-    children: @Composable () -> Unit
+    performSetContent: (@Composable() () -> Unit) -> Unit = { setContent(it) },
+    children: @Composable() () -> Unit
 ): PxSize {
     var realSize: PxSize? = null
     performSetContent {
@@ -73,7 +73,7 @@ fun ComposeTestRule.setContentAndGetPixelSize(
  */
 fun ComposeTestRule.setContentAndCollectSizes(
     parentConstraints: DpConstraints = BigTestConstraints,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ): CollectedSizes {
     val size = setContentAndGetPixelSize(parentConstraints, { setContent(it) }, children)
     return CollectedSizes(size, density)

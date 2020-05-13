@@ -18,7 +18,6 @@ package androidx.ui.foundation
 
 import android.content.Context
 import androidx.compose.Composable
-import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
@@ -64,7 +63,7 @@ private inline class LayoutIndex(val value: Int)
 
 private class ListState<T> {
     lateinit var recomposer: Recomposer
-    lateinit var itemCallback: @Composable (T) -> Unit
+    lateinit var itemCallback: @Composable() (T) -> Unit
     lateinit var data: List<T>
 
     var forceRecompose = false
@@ -121,12 +120,6 @@ private class ListState<T> {
      * Cached to avoid recreations
      */
     val onScrollDeltaConsumptionRequestedListener: (Float) -> Float = { onScroll(it) }
-
-    /**
-     * Tracks the correspondence between the child layout nodes and their compositions, so that
-     * they can be disposed later
-     */
-    private val compositionsForLayoutNodes = mutableMapOf<LayoutNode, Composition>()
 
     // TODO: really want an Int here
     private fun onScroll(distance: Float): Float {
@@ -332,8 +325,7 @@ private class ListState<T> {
 
             // Remove no-longer-needed items from the start of the list
             if (itemIndexOffset > firstComposedItem) {
-                val count = (itemIndexOffset - firstComposedItem).value
-                removeAndDisposeChildren(fromIndex = LayoutIndex(0), count = count)
+                rootNode.removeAt(0, (itemIndexOffset - firstComposedItem).value)
             }
             firstComposedItem = itemIndexOffset
 
@@ -346,12 +338,11 @@ private class ListState<T> {
             // Remove no-longer-needed items from the end of the list
             val layoutChildrenInNode = rootNode.layoutChildren.size
             if (layoutChildrenInNode > numDesiredChildren) {
-                val count = layoutChildrenInNode - numDesiredChildren
-                removeAndDisposeChildren(
+                rootNode.removeAt(
                     // We've already removed the extras at the start, so the desired children
                     // start at index 0
-                    fromIndex = LayoutIndex(numDesiredChildren),
-                    count = count
+                    index = numDesiredChildren,
+                    count = layoutChildrenInNode - numDesiredChildren
                 )
             }
 
@@ -362,23 +353,6 @@ private class ListState<T> {
                     currentY += it.height.value
                 }
             }
-        }
-    }
-
-    private fun removeAndDisposeChildren(
-        fromIndex: LayoutIndex,
-        count: Int
-    ) {
-        for (i in 1..count) {
-            val node = rootNode.layoutChildren[fromIndex.value]
-            rootNode.removeAt(
-                index = fromIndex.value,
-                // remove one at a time to avoid creating unnecessary data structures
-                // to store the nodes we're about to dispose
-                count = 1
-            )
-            compositionFor(node).dispose()
-            compositionsForLayoutNodes.remove(node)
         }
     }
 
@@ -400,12 +374,6 @@ private class ListState<T> {
             }
         }
         forceRecompose = false
-    }
-
-    private fun compositionFor(childNode: LayoutNode): Composition {
-        return compositionsForLayoutNodes[childNode] ?: throw IllegalStateException(
-            "No composition found for child $childNode"
-        )
     }
 
     private fun getNodeForDataIndex(dataIndex: DataIndex): LayoutNode {
@@ -493,10 +461,9 @@ private class ListState<T> {
             node = rootNode.layoutChildren[layoutIndex.value]
         }
         // TODO(b/150390669): Review use of @Untracked
-        val composition = subcomposeInto(context!!, node, recomposer, compositionRef) @Untracked {
+        subcomposeInto(context!!, node, recomposer, compositionRef) @Untracked {
             itemCallback(data[dataIndex.value])
         }
-        compositionsForLayoutNodes[node] = composition
         return node
     }
 }
@@ -513,7 +480,7 @@ private class ListState<T> {
 fun <T> AdapterList(
     data: List<T>,
     modifier: Modifier = Modifier,
-    itemCallback: @Composable (T) -> Unit
+    itemCallback: @Composable() (T) -> Unit
 ) {
     val state = remember { ListState<T>() }
     state.recomposer = currentComposer.recomposer
@@ -524,17 +491,15 @@ fun <T> AdapterList(
     state.forceRecompose = true
 
     androidx.ui.core.LayoutNode(
-        modifier = currentComposer.materialize(
-            modifier
-                .scrollable(
-                    dragDirection = DragDirection.Vertical,
-                    scrollableState = ScrollableState(
-                        onScrollDeltaConsumptionRequested =
-                        state.onScrollDeltaConsumptionRequestedListener
-                    )
+        modifier = currentComposer.materialize(modifier
+            .scrollable(
+                dragDirection = DragDirection.Vertical,
+                scrollableState = ScrollableState(
+                    onScrollDeltaConsumptionRequested =
+                    state.onScrollDeltaConsumptionRequestedListener
                 )
-                .clipToBounds()
-        ),
+            )
+            .clipToBounds()),
         ref = state.rootNodeRef,
         measureBlocks = state.measureBlocks
     )

@@ -99,7 +99,7 @@ class StackTest : LayoutTest() {
 
     @Test
     fun testStack_withMultipleAlignedChildren() = with(density) {
-        val size = 200.ipx
+        val size = 250.ipx
         val sizeDp = size.toDp()
         val doubleSizeDp = sizeDp * 2
         val doubleSize = (sizeDp * 2).toIntPx()

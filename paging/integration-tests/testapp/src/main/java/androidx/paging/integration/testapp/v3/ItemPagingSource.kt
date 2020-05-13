@@ -19,6 +19,7 @@ package androidx.paging.integration.testapp.v3
 import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.paging.ExperimentalPagingApi
+import androidx.paging.LoadType
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import kotlinx.coroutines.delay

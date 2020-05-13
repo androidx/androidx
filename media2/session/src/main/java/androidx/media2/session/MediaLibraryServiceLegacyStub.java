@@ -25,6 +25,7 @@ import static androidx.media2.session.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES
 import android.content.Context;
 import android.os.BadParcelableException;
 import android.os.Bundle;
+import android.os.Process;
 import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -46,7 +47,6 @@ import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionImpl;
 import androidx.media2.session.MediaSession.CommandButton;
-import androidx.media2.session.MediaSession.ControllerCb;
 import androidx.media2.session.MediaSession.ControllerInfo;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
     private static final String TAG = "MLS2LegacyStub";
     private static final boolean DEBUG = false;
 
-    private final ControllerCb mBrowserLegacyCbForBroadcast;
+    private final ControllerInfo mControllersForAll;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final MediaLibrarySessionImpl mLibrarySessionImpl;
@@ -71,7 +71,10 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
             MediaSessionCompat.Token token) {
         super(context, session, token);
         mLibrarySessionImpl = session;
-        mBrowserLegacyCbForBroadcast = new BrowserLegacyCbForBroadcast(this);
+        mControllersForAll = new ControllerInfo(new RemoteUserInfo(
+                RemoteUserInfo.LEGACY_CONTROLLER, Process.myPid(), Process.myUid()),
+                MediaUtils.VERSION_UNKNOWN, false /* trusted */,
+                new BrowserLegacyCbForAll(this), null /* connectionHints */);
     }
 
     @Override
@@ -354,8 +357,8 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
                 new BrowserLegacyCb(remoteUserInfo), null /* connectionHints */);
     }
 
-    ControllerCb getBrowserLegacyCbForBroadcast() {
-        return mBrowserLegacyCbForBroadcast;
+    ControllerInfo getControllersForAll() {
+        return mControllersForAll;
     }
 
     private ControllerInfo getCurrentController() {
@@ -634,11 +637,13 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
     }
 
-    // Intentionally static class to prevent lint warning 'SyntheticAccessor' in constructor.
-    private static class BrowserLegacyCbForBroadcast extends BaseBrowserLegacyCb {
+    /**
+     * Intentionally static class to prevent lint warning 'SynteheticAccessor' in constructor.
+     */
+    private static class BrowserLegacyCbForAll extends BaseBrowserLegacyCb {
         private final MediaBrowserServiceCompat mService;
 
-        BrowserLegacyCbForBroadcast(MediaBrowserServiceCompat service) {
+        BrowserLegacyCbForAll(MediaBrowserServiceCompat service) {
             mService = service;
         }
 

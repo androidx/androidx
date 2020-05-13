@@ -654,7 +654,7 @@ private fun Modifier.background(
 fun FixedSize(
     size: State<IntPx>,
     modifier: Modifier = Modifier,
-    children: @Composable () -> Unit = emptyContent()
+    children: @Composable() () -> Unit = emptyContent()
 ) {
     Layout(children = children, modifier = modifier) { measurables, _, _ ->
         val newConstraints = Constraints.fixed(size.value, size.value)

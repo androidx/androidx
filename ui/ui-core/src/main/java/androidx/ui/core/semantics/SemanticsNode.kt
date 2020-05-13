@@ -302,7 +302,7 @@ class SemanticsNode internal constructor(
             return node?.outerSemantics?.semanticsNode()
         }
 
-    internal fun <T : Function<Boolean>> canPerformAction(
+    internal fun <T : Function<Unit>> canPerformAction(
         action: SemanticsPropertyKey<AccessibilityAction<T>>
     ) =
         this.config.contains(action)

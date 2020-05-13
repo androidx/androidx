@@ -29,7 +29,7 @@ import androidx.ui.unit.PxSize
 
 fun ComposeTestRule.setMaterialContent(
     modifier: Modifier = Modifier,
-    composable: @Composable () -> Unit
+    composable: @Composable() () -> Unit
 ) {
     setContent {
         MaterialTheme {
@@ -45,7 +45,7 @@ fun <T> ComposeTestRule.runOnIdleComposeWithDensity(action: Density.() -> T): T 
 fun ComposeTestRule.setMaterialContentAndCollectSizes(
     modifier: Modifier = Modifier,
     parentConstraints: DpConstraints = BigTestConstraints,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ): CollectedSizes {
     val sizes = setMaterialContentAndGetPixelSize(modifier, parentConstraints, children)
     return CollectedSizes(sizes, density)
@@ -54,7 +54,7 @@ fun ComposeTestRule.setMaterialContentAndCollectSizes(
 fun ComposeTestRule.setMaterialContentAndGetPixelSize(
     modifier: Modifier = Modifier,
     parentConstraints: DpConstraints = BigTestConstraints,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ): PxSize = setContentAndGetPixelSize(
     parentConstraints,
     { setMaterialContent(composable = it) }

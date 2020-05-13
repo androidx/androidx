@@ -53,7 +53,7 @@ fun FlowRow(
     crossAxisAlignment: FlowCrossAxisAlignment = FlowCrossAxisAlignment.Start,
     crossAxisSpacing: Dp = 0.dp,
     lastLineMainAxisAlignment: FlowMainAxisAlignment = mainAxisAlignment,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Flow(
         orientation = LayoutOrientation.Horizontal,
@@ -92,7 +92,7 @@ fun FlowColumn(
     crossAxisAlignment: FlowCrossAxisAlignment = FlowCrossAxisAlignment.Start,
     crossAxisSpacing: Dp = 0.dp,
     lastLineMainAxisAlignment: FlowMainAxisAlignment = mainAxisAlignment,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Flow(
         orientation = LayoutOrientation.Vertical,
@@ -138,7 +138,7 @@ private fun Flow(
     crossAxisAlignment: FlowCrossAxisAlignment,
     crossAxisSpacing: Dp,
     lastLineMainAxisAlignment: FlowMainAxisAlignment,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ) {
     fun Placeable.mainAxisSize() =
         if (orientation == LayoutOrientation.Horizontal) width else height

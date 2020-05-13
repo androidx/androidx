@@ -180,7 +180,7 @@ class ComposedModifierTest {
 }
 
 private fun compose(
-    block: @Composable () -> Unit
+    block: @Composable() () -> Unit
 ): Composer<Unit> = UnitComposer().apply {
     compose(block)
     applyChanges()
@@ -209,7 +209,7 @@ private class UnitComposer : Composer<Unit>(
     Applier(Unit, UnitApplierAdapter),
     NoOpSchedulingRecomposer
 ) {
-    fun compose(composable: @Composable () -> Unit) {
+    fun compose(composable: @Composable() () -> Unit) {
         composeRoot {
             @Suppress("UNCHECKED_CAST")
             val fn = composable as (Composer<*>) -> Unit

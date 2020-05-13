@@ -67,10 +67,10 @@ import androidx.ui.unit.dp
 @Composable
 fun AlertDialog(
     onCloseRequest: () -> Unit,
-    title: @Composable (() -> Unit)? = null,
-    text: @Composable () -> Unit,
-    confirmButton: @Composable () -> Unit,
-    dismissButton: @Composable (() -> Unit)? = null,
+    title: @Composable() (() -> Unit)? = null,
+    text: @Composable() () -> Unit,
+    confirmButton: @Composable() () -> Unit,
+    dismissButton: @Composable() (() -> Unit)? = null,
     buttonLayout: AlertDialogButtonLayout = SideBySide,
     shape: Shape = MaterialTheme.shapes.medium
 ) {
@@ -109,9 +109,9 @@ fun AlertDialog(
 @Composable
 fun AlertDialog(
     onCloseRequest: () -> Unit,
-    title: (@Composable () -> Unit)? = null,
-    text: @Composable () -> Unit,
-    buttons: @Composable () -> Unit,
+    title: (@Composable() () -> Unit)? = null,
+    text: @Composable() () -> Unit,
+    buttons: @Composable() () -> Unit,
     shape: Shape = MaterialTheme.shapes.medium
 ) {
     // TODO: Find a cleaner way to pass the properties of the MaterialTheme
@@ -167,8 +167,8 @@ enum class AlertDialogButtonLayout {
 
 @Composable
 private fun AlertDialogButtonLayout(
-    confirmButton: @Composable () -> Unit,
-    dismissButton: @Composable (() -> Unit)?,
+    confirmButton: @Composable() () -> Unit,
+    dismissButton: @Composable() (() -> Unit)?,
     buttonLayout: AlertDialogButtonLayout
 ) {
     Box(ButtonsBoxModifier, gravity = ContentGravity.CenterEnd) {

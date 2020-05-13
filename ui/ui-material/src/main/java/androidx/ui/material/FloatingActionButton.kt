@@ -65,7 +65,7 @@ fun FloatingActionButton(
     backgroundColor: Color = MaterialTheme.colors.secondary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = 6.dp,
-    icon: @Composable () -> Unit
+    icon: @Composable() () -> Unit
 ) {
     // Since we're adding layouts in between the clickable layer and the content, we need to
     // merge all descendants, or we'll get multiple nodes
@@ -116,10 +116,10 @@ fun FloatingActionButton(
  */
 @Composable
 fun ExtendedFloatingActionButton(
-    text: @Composable () -> Unit,
+    text: @Composable() () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    icon: @Composable (() -> Unit)? = null,
+    icon: @Composable() (() -> Unit)? = null,
     shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     backgroundColor: Color = MaterialTheme.colors.secondary,
     contentColor: Color = contentColorFor(backgroundColor),

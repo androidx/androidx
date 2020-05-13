@@ -319,7 +319,7 @@ class OnPositionedTest : LayoutTest() {
     }
 
     @Composable
-    private fun Offset(sizeModel: SizeModel, children: @Composable () -> Unit) {
+    private fun Offset(sizeModel: SizeModel, children: @Composable() () -> Unit) {
         // simple copy of Padding which doesn't recompose when the size changes
         Layout(children) { measurables, constraints, _ ->
             layout(constraints.maxWidth, constraints.maxHeight) {

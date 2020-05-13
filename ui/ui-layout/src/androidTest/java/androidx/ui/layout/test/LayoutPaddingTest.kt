@@ -122,7 +122,7 @@ class LayoutPaddingTest : LayoutTest() {
     @Test
     fun paddingAllAppliedToChild() = with(density) {
         val padding = 10.dp
-        testPaddingIsAppliedImplementation(padding) { child: @Composable () -> Unit ->
+        testPaddingIsAppliedImplementation(padding) { child: @Composable() () -> Unit ->
             TestBox(modifier = Modifier.padding(padding), body = child)
         }
     }
@@ -144,7 +144,7 @@ class LayoutPaddingTest : LayoutTest() {
             paddingTop,
             paddingRight,
             paddingBottom
-        ) { child: @Composable () -> Unit ->
+        ) { child: @Composable() () -> Unit ->
             TestBox(modifier = padding, body = child)
         }
     }
@@ -159,7 +159,7 @@ class LayoutPaddingTest : LayoutTest() {
     @Test
     fun insufficientSpaceAvailable() = with(density) {
         val padding = 30.dp
-        testPaddingWithInsufficientSpaceImplementation(padding) { child: @Composable () -> Unit ->
+        testPaddingWithInsufficientSpaceImplementation(padding) { child: @Composable() () -> Unit ->
             TestBox(modifier = Modifier.padding(padding), body = child)
         }
     }
@@ -225,7 +225,7 @@ class LayoutPaddingTest : LayoutTest() {
 
     @Test
     fun testRtlSupport() = with(density) {
-        val sizeDp = 100.ipx.toDp()
+        val sizeDp = 150.ipx.toDp()
         val size = sizeDp.toIntPx()
         val padding1Dp = 5.dp
         val padding2Dp = 10.dp
@@ -342,7 +342,7 @@ class LayoutPaddingTest : LayoutTest() {
 
     private fun testPaddingIsAppliedImplementation(
         padding: Dp,
-        paddingContainer: @Composable (@Composable () -> Unit) -> Unit
+        paddingContainer: @Composable() (@Composable() () -> Unit) -> Unit
     ) = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
@@ -389,7 +389,7 @@ class LayoutPaddingTest : LayoutTest() {
         top: Dp,
         right: Dp,
         bottom: Dp,
-        paddingContainer: @Composable ((@Composable () -> Unit) -> Unit)
+        paddingContainer: @Composable() ((@Composable() () -> Unit) -> Unit)
     ) = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
@@ -441,7 +441,7 @@ class LayoutPaddingTest : LayoutTest() {
 
     private fun testPaddingWithInsufficientSpaceImplementation(
         padding: Dp,
-        paddingContainer: @Composable (@Composable () -> Unit) -> Unit
+        paddingContainer: @Composable() (@Composable() () -> Unit) -> Unit
     ) = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
@@ -483,7 +483,7 @@ class LayoutPaddingTest : LayoutTest() {
      * with the same constraints it received.
      */
     @Composable
-    private fun TestBox(modifier: Modifier = Modifier, body: @Composable () -> Unit) {
+    private fun TestBox(modifier: Modifier = Modifier, body: @Composable() () -> Unit) {
         Layout(children = body, modifier = modifier) { measurables, constraints, _ ->
             require(measurables.size == 1) {
                 "TestBox received ${measurables.size} children; must have exactly 1"

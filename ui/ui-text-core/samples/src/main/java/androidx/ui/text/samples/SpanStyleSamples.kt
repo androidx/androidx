@@ -22,6 +22,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
+import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp
 
 @Sampled

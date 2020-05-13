@@ -37,6 +37,7 @@ import org.robolectric.shadow.api.Shadow
 @SmallTest
 @RunWith(ComposeUiRobolectricTestRunner::class)
 @Config(
+    manifest = Config.NONE,
     shadows = [ShadowAutofillManager::class],
     minSdk = 26
 )
@@ -52,7 +53,8 @@ class AndroidAutofillTest {
 
     @Before
     fun setup() {
-        val activity = Robolectric.buildActivity(Activity::class.java).get()
+        @Suppress("DEPRECATION") // Robolectric.setupActivity is deprecated
+        val activity = Robolectric.setupActivity(Activity::class.java)
         view = View(activity)
         activity.setContentView(view)
 

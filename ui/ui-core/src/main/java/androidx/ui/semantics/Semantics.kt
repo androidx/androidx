@@ -40,7 +40,7 @@ fun Semantics(
      */
     mergeAllDescendants: Boolean = false,
     properties: (SemanticsPropertyReceiver.() -> Unit)? = null,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ) {
     @Suppress("DEPRECATION")
     PassThroughLayout(

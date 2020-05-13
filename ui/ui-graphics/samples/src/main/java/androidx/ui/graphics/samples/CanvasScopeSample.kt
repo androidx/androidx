@@ -17,6 +17,7 @@
 package androidx.ui.graphics.samples
 
 import androidx.annotation.Sampled
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -25,6 +26,8 @@ import androidx.ui.graphics.painter.CanvasScope
 import androidx.ui.graphics.painter.inset
 import androidx.ui.graphics.painter.rotate
 import androidx.ui.graphics.painter.withTransform
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxSize
 
 /**
  * Sample showing how to use CanvasScope to issue drawing commands into

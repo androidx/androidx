@@ -37,7 +37,7 @@ class SemanticsOwner(rootNode: ComponentNode) {
         rootNode
     )
 
-    private fun <T : Function<Boolean>> getSemanticsActionHandlerForId(
+    private fun <T : Function<Unit>> getSemanticsActionHandlerForId(
         id: Int,
         action: SemanticsPropertyKey<AccessibilityAction<T>>
     ): AccessibilityAction<*>? {

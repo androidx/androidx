@@ -36,12 +36,12 @@ data class RippleTheme(
      * The effect that will be used to calculate the [ripple] color when it is not explicitly
      * set in a [ripple].
      */
-    val defaultColor: @Composable () -> Color,
+    val defaultColor: @Composable() () -> Color,
     /**
      * The effect that will be used to calculate the opacity applied to the [ripple] color.
      * For example, it can be different in dark and light modes.
      */
-    val opacity: @Composable () -> Float
+    val opacity: @Composable() () -> Float
 )
 
 /**

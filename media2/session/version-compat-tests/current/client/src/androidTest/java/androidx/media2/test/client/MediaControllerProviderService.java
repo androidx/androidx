@@ -331,6 +331,48 @@ public class MediaControllerProviderService extends Service {
         }
 
         @Override
+        public void playFromMediaId(String controllerId, String mediaId, Bundle extras)
+                throws RemoteException {
+            MediaController controller = mMediaControllerMap.get(controllerId);
+            controller.playFromMediaId(mediaId, extras);
+        }
+
+        @Override
+        public void playFromSearch(String controllerId, String query, Bundle extras)
+                throws RemoteException {
+            MediaController controller = mMediaControllerMap.get(controllerId);
+            controller.playFromSearch(query, extras);
+        }
+
+        @Override
+        public void playFromUri(String controllerId, Uri uri, Bundle extras)
+                throws RemoteException {
+            MediaController controller = mMediaControllerMap.get(controllerId);
+            controller.playFromUri(uri, extras);
+        }
+
+        @Override
+        public void prepareFromMediaId(String controllerId, String mediaId, Bundle extras)
+                throws RemoteException {
+            MediaController controller = mMediaControllerMap.get(controllerId);
+            controller.prepareFromMediaId(mediaId, extras);
+        }
+
+        @Override
+        public void prepareFromSearch(String controllerId, String query, Bundle extras)
+                throws RemoteException {
+            MediaController controller = mMediaControllerMap.get(controllerId);
+            controller.prepareFromSearch(query, extras);
+        }
+
+        @Override
+        public void prepareFromUri(String controllerId, Uri uri, Bundle extras)
+                throws RemoteException {
+            MediaController controller = mMediaControllerMap.get(controllerId);
+            controller.prepareFromUri(uri, extras);
+        }
+
+        @Override
         public void setRating(String controllerId, String mediaId, ParcelImpl rating)
                 throws RemoteException {
             MediaController controller = mMediaControllerMap.get(controllerId);

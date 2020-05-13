@@ -37,6 +37,7 @@ import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.graphics.painter.translate
+import androidx.ui.graphics.withSave
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -86,7 +87,7 @@ fun drawVector(
     alignment: Alignment = DefaultAlignment,
     contentScale: ContentScale = ContentScale.Inside,
     name: String = "",
-    children: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): Modifier {
     val density = DensityAmbient.current
     val widthPx = with(density) { defaultWidth.toPx() }
@@ -135,7 +136,7 @@ fun drawVector(
     alignment: Alignment = DefaultAlignment,
     contentScale: ContentScale = ContentScale.Inside,
     name: String = "",
-    children: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): Modifier = Modifier.drawVector(
     defaultWidth = defaultWidth,
     defaultHeight = defaultHeight,
@@ -174,7 +175,7 @@ fun Modifier.drawVector(
     alignment: Alignment = DefaultAlignment,
     contentScale: ContentScale = ContentScale.Inside,
     name: String = "",
-    children: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): Modifier = composed {
     val vector = remember(name, viewportWidth, viewportHeight) {
         VectorComponent(
@@ -236,7 +237,7 @@ fun VectorScope.Group(
     translationX: Float = DefaultTranslationX,
     translationY: Float = DefaultTranslationY,
     clipPathData: List<PathNode> = EmptyPath,
-    children: @Composable VectorScope.() -> Unit
+    children: @Composable() VectorScope.() -> Unit
 ) {
     GroupComponent(
         name = name,

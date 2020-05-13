@@ -19,6 +19,7 @@ package androidx.ui.foundation
 import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SmallTest
+import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient

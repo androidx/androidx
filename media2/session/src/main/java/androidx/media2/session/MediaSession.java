@@ -654,6 +654,149 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
+         * Called when a controller requested to play a specific mediaId through
+         * {@link MediaController#playFromMediaId(String, Bundle)}.
+         *
+         * @param session the session for this event
+         * @param controller controller information
+         * @param mediaId non-empty media id
+         * @param extras optional extra bundle
+         * @see SessionCommand#COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @ResultCode
+        public int onPlayFromMediaId(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull String mediaId,
+                @Nullable Bundle extras) {
+            return RESULT_ERROR_NOT_SUPPORTED;
+        }
+
+        /**
+         * Called when a controller requested to begin playback from a search query through
+         * {@link MediaController#playFromSearch(String, Bundle)}
+         *
+         * @param session the session for this event
+         * @param controller controller information
+         * @param query non-empty search query.
+         * @param extras optional extra bundle
+         * @see SessionCommand#COMMAND_CODE_SESSION_PLAY_FROM_SEARCH
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @ResultCode
+        public int onPlayFromSearch(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull String query,
+                @Nullable Bundle extras) {
+            return RESULT_ERROR_NOT_SUPPORTED;
+        }
+
+        /**
+         * Called when a controller requested to play a specific media item represented by a URI
+         * through {@link MediaController#playFromUri(Uri, Bundle)}
+         *
+         * @param session the session for this event
+         * @param controller controller information
+         * @param uri uri
+         * @param extras optional extra bundle
+         * @see SessionCommand#COMMAND_CODE_SESSION_PLAY_FROM_URI
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @ResultCode
+        public int onPlayFromUri(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull Uri uri,
+                @Nullable Bundle extras) {
+            return RESULT_ERROR_NOT_SUPPORTED;
+        }
+
+        /**
+         * Called when a controller requested to prepare for playing a specific mediaId through
+         * {@link MediaController#prepareFromMediaId(String, Bundle)}.
+         * <p>
+         * During the prepare, a session should not hold audio focus in order to allow
+         * other sessions play seamlessly. The state of playback should be updated to
+         * {@link SessionPlayer#PLAYER_STATE_PAUSED} after the prepare is done.
+         * <p>
+         * The playback of the prepared content should start in the later calls of
+         * {@link SessionPlayer#play()}.
+         * <p>
+         * Override {@link #onPlayFromMediaId} to handle requests for starting
+         * playback without preparation.
+         *
+         * @param session the session for this event
+         * @param controller controller information
+         * @param mediaId non-empty media id
+         * @param extras optional extra bundle
+         * @see SessionCommand#COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @ResultCode
+        public int onPrepareFromMediaId(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull String mediaId,
+                @Nullable Bundle extras) {
+            return RESULT_ERROR_NOT_SUPPORTED;
+        }
+
+        /**
+         * Called when a controller requested to prepare playback from a search query through
+         * {@link MediaController#prepareFromSearch(String, Bundle)}.
+         * <p>
+         * During the prepare, a session should not hold audio focus in order to allow
+         * other sessions play seamlessly. The state of playback should be updated to
+         * {@link SessionPlayer#PLAYER_STATE_PAUSED} after the prepare is done.
+         * <p>
+         * The playback of the prepared content should start in the later calls of
+         * {@link SessionPlayer#play()}.
+         * <p>
+         * Override {@link #onPlayFromSearch} to handle requests for starting playback without
+         * preparation.
+         *
+         * @param session the session for this event
+         * @param controller controller information
+         * @param query non-empty search query
+         * @param extras optional extra bundle
+         * @see SessionCommand#COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @ResultCode
+        public int onPrepareFromSearch(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull String query,
+                @Nullable Bundle extras) {
+            return RESULT_ERROR_NOT_SUPPORTED;
+        }
+
+        /**
+         * Called when a controller requested to prepare a specific media item represented by a URI
+         * through {@link MediaController#prepareFromUri(Uri, Bundle)}.
+         * <p>
+         * During the prepare, a session should not hold audio focus in order to allow
+         * other sessions play seamlessly. The state of playback should be updated to
+         * {@link SessionPlayer#PLAYER_STATE_PAUSED} after the prepare is done.
+         * <p>
+         * The playback of the prepared content should start in the later calls of
+         * {@link SessionPlayer#play()}.
+         * <p>
+         * Override {@link #onPlayFromUri} to handle requests for starting playback without
+         * preparation.
+         *
+         * @param session the session for this event
+         * @param controller controller information
+         * @param uri uri
+         * @param extras optional extra bundle
+         * @see SessionCommand#COMMAND_CODE_SESSION_PREPARE_FROM_URI
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @ResultCode
+        public int onPrepareFromUri(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull Uri uri, @Nullable Bundle extras) {
+            return RESULT_ERROR_NOT_SUPPORTED;
+        }
+
+        /**
          * Called when a controller called {@link MediaController#fastForward()}.
          * <p>
          * It can be implemented in many ways. For example, it can be implemented by seeking forward

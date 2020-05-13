@@ -58,7 +58,7 @@ import kotlin.math.ceil
  *
  * @param rtl: Flag to indicate contents of the [Painter] should render for right to left languages
  *
- * @sample androidx.ui.core.samples.PainterModifierSample
+ * @sample androidx.ui.framework.samples.PainterModifierSample
  */
 @Deprecated(
     "Use Modifier.paint",

@@ -18,6 +18,7 @@ package androidx.ui.layout.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier

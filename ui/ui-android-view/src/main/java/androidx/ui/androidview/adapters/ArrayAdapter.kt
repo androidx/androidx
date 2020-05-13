@@ -30,7 +30,7 @@ import androidx.ui.core.setViewContent
 
 // TODO(lmr): This should be moved to a separate module, but needs to be one that is not IR-compiled
 class ArrayAdapter<T> : BaseAdapter(), Filterable {
-    var composable: (@Composable (T) -> Unit)? = null
+    var composable: (@Composable() (T) -> Unit)? = null
     var items: MutableList<T>? = null
     var itemLayoutResourceId: Int = android.R.layout.simple_list_item_1
     var itemFieldId: Int = 0

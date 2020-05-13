@@ -462,7 +462,7 @@ class RippleTest {
     }
 
     @Composable
-    fun DrawRectRippleCallback(children: @Composable () -> Unit) {
+    fun DrawRectRippleCallback(children: @Composable() () -> Unit) {
         RippleCallback(
             onDraw = { canvas, _ ->
                 canvas.drawRect(
@@ -478,9 +478,9 @@ class RippleTest {
         onDraw: (Canvas, Color) -> Unit = { _, _ -> },
         onDispose: () -> Unit = {},
         onEffectCreated: () -> Unit = {},
-        defaultColor: @Composable () -> Color = { Color(0) },
-        opacityCallback: @Composable () -> Float = { 1f },
-        children: @Composable () -> Unit
+        defaultColor: @Composable() () -> Color = { Color(0) },
+        opacityCallback: @Composable() () -> Float = { 1f },
+        children: @Composable() () -> Unit
     ) {
         val theme = RippleTheme(
             testRippleEffect(onDraw, onDispose, onEffectCreated),

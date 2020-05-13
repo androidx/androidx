@@ -82,8 +82,8 @@ fun ModalDrawerLayout(
     drawerState: DrawerState,
     onStateChange: (DrawerState) -> Unit,
     gesturesEnabled: Boolean = true,
-    drawerContent: @Composable () -> Unit,
-    bodyContent: @Composable () -> Unit
+    drawerContent: @Composable() () -> Unit,
+    bodyContent: @Composable() () -> Unit
 ) {
     Box(Modifier.fillMaxSize()) {
         WithConstraints {
@@ -148,8 +148,8 @@ fun BottomDrawerLayout(
     drawerState: DrawerState,
     onStateChange: (DrawerState) -> Unit,
     gesturesEnabled: Boolean = true,
-    drawerContent: @Composable () -> Unit,
-    bodyContent: @Composable () -> Unit
+    drawerContent: @Composable() () -> Unit,
+    bodyContent: @Composable() () -> Unit
 ) {
     Box(Modifier.fillMaxSize()) {
         WithConstraints {
@@ -207,7 +207,7 @@ fun BottomDrawerLayout(
 private fun DrawerContent(
     xOffset: AnimatedFloat,
     constraints: DpConstraints,
-    content: @Composable () -> Unit
+    content: @Composable() () -> Unit
 ) {
     WithOffset(xOffset = xOffset) {
         Box(
@@ -231,7 +231,7 @@ private fun DrawerContent(
 private fun BottomDrawerContent(
     yOffset: AnimatedFloat,
     constraints: DpConstraints,
-    content: @Composable () -> Unit
+    content: @Composable() () -> Unit
 ) {
     WithOffset(yOffset = yOffset) {
         Box(
@@ -278,7 +278,7 @@ private fun Scrim(
 private fun WithOffset(
     xOffset: AnimatedFloat? = null,
     yOffset: AnimatedFloat? = null,
-    child: @Composable () -> Unit
+    child: @Composable() () -> Unit
 ) {
     Layout(children = {
         Box(Modifier.clipToBounds(), children = child)

@@ -61,7 +61,7 @@ import androidx.ui.unit.ipx
 fun ConstraintLayout(
     constraintSet: ConstraintSet,
     modifier: Modifier = Modifier,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val measurer = remember { Measurer() }
     @Suppress("Deprecation")

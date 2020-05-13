@@ -51,7 +51,7 @@ internal fun RowColumnImpl(
     arrangement: Arrangement,
     crossAxisSize: SizeMode,
     crossAxisAlignment: Any,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ) {
     fun Placeable.mainAxisSize() =
         if (orientation == LayoutOrientation.Horizontal) width else height

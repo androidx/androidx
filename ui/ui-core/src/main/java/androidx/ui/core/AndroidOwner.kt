@@ -56,6 +56,7 @@ import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.pointerinput.MotionEventAdapter
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.ProcessResult
+import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.semantics.getAllSemanticsNodesToMap
@@ -76,6 +77,7 @@ import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
@@ -115,7 +117,7 @@ internal class AndroidComposeView constructor(
         it.measureBlocks = RootMeasureBlocks
         it.layoutDirection =
             context.applicationContext.resources.configuration.localeLayoutDirection
-        it.modifier = Modifier.drawLayer() + focusModifier
+        it.modifier = Modifier.drawLayer(clipToBounds = false) + focusModifier
     }
 
     // LayoutNodes that need measure and layout

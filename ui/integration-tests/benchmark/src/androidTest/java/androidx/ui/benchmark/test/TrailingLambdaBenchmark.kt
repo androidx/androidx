@@ -90,12 +90,12 @@ private sealed class TrailingLambdaTestCase() : ComposeTestCase,
     }
 
     @Composable
-    abstract fun emitContent(number: Int, content: @Composable () -> Unit)
+    abstract fun emitContent(number: Int, content: @Composable() () -> Unit)
 }
 
 private class WithTrailingLambdas : TrailingLambdaTestCase() {
     @Composable
-    override fun emitContent(number: Int, content: @Composable () -> Unit) {
+    override fun emitContent(number: Int, content: @Composable() () -> Unit) {
         EmptyComposable(number = number) {
             content()
         }
@@ -104,12 +104,12 @@ private class WithTrailingLambdas : TrailingLambdaTestCase() {
 
 private class WithoutTrailingLambdas : TrailingLambdaTestCase() {
     @Composable
-    override fun emitContent(number: Int, content: @Composable () -> Unit) {
+    override fun emitContent(number: Int, content: @Composable() () -> Unit) {
         EmptyComposable(number = number, children = content)
     }
 }
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
-private fun EmptyComposable(number: Int, children: @Composable () -> Unit) {
+private fun EmptyComposable(number: Int, children: @Composable() () -> Unit) {
 }

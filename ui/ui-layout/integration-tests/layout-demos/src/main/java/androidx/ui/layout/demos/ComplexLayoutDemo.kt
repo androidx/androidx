@@ -27,6 +27,7 @@ import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.rtl
 import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 
 @Composable
 fun ComplexLayoutDemo() {

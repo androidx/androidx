@@ -16,8 +16,10 @@
 
 package androidx.ui.node
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.ComponentNode

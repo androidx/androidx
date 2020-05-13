@@ -25,6 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -317,6 +318,169 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
                 .setId("testOnSkipBackward").build()) {
             RemoteMediaController controller = createRemoteController(session.getToken());
             controller.skipBackward();
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    public void onPlayFromSearch() throws InterruptedException {
+        prepareLooper();
+        final String testQuery = "random query";
+        final Bundle testExtras = TestUtils.createTestBundle();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
+            @Override
+            public int onPlayFromSearch(MediaSession session, ControllerInfo controller,
+                    String query, Bundle extras) {
+                assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
+                assertEquals(testQuery, query);
+                assertTrue(TestUtils.equals(testExtras, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnPlayFromSearch").build()) {
+            RemoteMediaController controller = createRemoteController(session.getToken());
+
+            controller.playFromSearch(testQuery, testExtras);
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    public void onPlayFromUri() throws InterruptedException {
+        prepareLooper();
+        final Uri testUri = Uri.parse("foo://boo");
+        final Bundle testExtras = TestUtils.createTestBundle();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
+            @Override
+            public int onPlayFromUri(MediaSession session, ControllerInfo controller, Uri uri,
+                    Bundle extras) {
+                assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
+                assertEquals(testUri, uri);
+                assertTrue(TestUtils.equals(extras, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnPlayFromUri")
+                .build()) {
+            RemoteMediaController controller = createRemoteController(session.getToken());
+
+            controller.playFromUri(testUri, testExtras);
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    public void onPlayFromMediaId() throws InterruptedException {
+        prepareLooper();
+        final String testMediaId = "media_id";
+        final Bundle testExtras = TestUtils.createTestBundle();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
+            @Override
+            public int onPlayFromMediaId(MediaSession session, ControllerInfo controller,
+                    String mediaId, Bundle extras) {
+                assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
+                assertEquals(mediaId, mediaId);
+                assertTrue(TestUtils.equals(testExtras, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnPlayFromMediaId").build()) {
+            RemoteMediaController controller = createRemoteController(session.getToken());
+
+            controller.playFromMediaId(testMediaId, testExtras);
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    public void onPrepareFromSearch() throws InterruptedException {
+        prepareLooper();
+        final String testQuery = "random query";
+        final Bundle testExtras = TestUtils.createTestBundle();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
+            @Override
+            public int onPrepareFromSearch(MediaSession session, ControllerInfo controller,
+                    String query, Bundle extras) {
+                assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
+                assertEquals(testQuery, query);
+                assertTrue(TestUtils.equals(testExtras, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnPrepareFromSearch").build()) {
+            RemoteMediaController controller = createRemoteController(session.getToken());
+
+            controller.prepareFromSearch(testQuery, testExtras);
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    public void onPrepareFromUri() throws InterruptedException {
+        prepareLooper();
+        final Uri testUri = Uri.parse("foo://boo");
+        final Bundle testExtras = TestUtils.createTestBundle();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
+            @Override
+            public int onPrepareFromUri(MediaSession session, ControllerInfo controller, Uri uri,
+                    Bundle extras) {
+                assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
+                assertEquals(testUri, uri);
+                assertTrue(TestUtils.equals(testExtras, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnPrepareFromUri").build()) {
+            RemoteMediaController controller = createRemoteController(session.getToken());
+
+            controller.prepareFromUri(testUri, testExtras);
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    public void onPrepareFromMediaId() throws InterruptedException {
+        prepareLooper();
+        final String testMediaId = "media_id";
+        final Bundle testExtras = TestUtils.createTestBundle();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
+            @Override
+            public int onPrepareFromMediaId(MediaSession session, ControllerInfo controller,
+                    String mediaId, Bundle extras) {
+                assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
+                assertEquals(testMediaId, mediaId);
+                assertTrue(TestUtils.equals(testExtras, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnPrepareFromMediaId").build()) {
+            RemoteMediaController controller = createRemoteController(session.getToken());
+
+            controller.prepareFromMediaId(testMediaId, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
