@@ -39,15 +39,15 @@ fun CrossfadeDemo() {
     var current by state { tabs[0] }
     Column {
         Row {
-            tabs.forEach {
+            tabs.forEach { tab ->
                 Box(
                     Modifier.tapGestureFilter(onTap = {
-                        Log.e("Crossfade", "Switch to $it")
-                        current = it
+                        Log.e("Crossfade", "Switch to $tab")
+                        current = tab
                     })
                         .weight(1f, true)
                         .preferredHeight(48.dp),
-                    backgroundColor = it.color
+                    backgroundColor = tab.color
                 )
             }
         }

@@ -1052,7 +1052,7 @@ package androidx.ui.core.gesture {
   }
 
   public final class TapGestureFilterKt {
-    method public static androidx.ui.core.Modifier tapGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onTap);
+    method public static androidx.ui.core.Modifier tapGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onTap);
   }
 
   public final class TouchSlopExceededGestureFilterKt {

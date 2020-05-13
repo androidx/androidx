@@ -39,7 +39,7 @@ fun DoubleTapInTapDemo() {
     val innerColor = state { defaultColor }
     val outerColor = state { defaultColor }
 
-    val onTap = {
+    val onTap: (PxPosition) -> Unit = {
         outerColor.value = outerColor.value.next()
     }
 
@@ -48,12 +48,16 @@ fun DoubleTapInTapDemo() {
     }
 
     Column {
-        Text("Demonstrates interaction between DoubleTapGestureFilter and TapGestureFilter in an " +
-                "edge case that is nevertheless supported.")
-        Text("Double tap the inner box to change the inner box color. Tap anywhere in the outer " +
-                "box once (including the inner box) to change the outer box background color. Tap" +
-                " rapidly with one or more fingers anywhere and the colors should change as one " +
-                "would expect.")
+        Text(
+            "Demonstrates interaction between DoubleTapGestureFilter and TapGestureFilter in an " +
+                    "edge case that is nevertheless supported."
+        )
+        Text(
+            "Double tap the inner box to change the inner box color. Tap anywhere in the outer " +
+                    "box once (including the inner box) to change the outer box background " +
+                    "color. Tap rapidly with one or more fingers anywhere and the colors should" +
+                    "change as one would expect."
+        )
         Box(
             Modifier
 

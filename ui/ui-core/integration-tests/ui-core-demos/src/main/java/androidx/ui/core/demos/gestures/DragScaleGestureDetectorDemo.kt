@@ -58,7 +58,7 @@ fun DragScaleGestureDetectorDemo() {
         }
     }
 
-    val onRelease = {
+    val onRelease: (PxPosition) -> Unit = {
         dragInScale.value = !dragInScale.value
     }
 

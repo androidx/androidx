@@ -26,6 +26,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
+import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
 /**
@@ -35,7 +36,7 @@ import androidx.ui.unit.dp
 fun PressReleasedGestureDetectorDemo() {
     val color = state { Colors.random() }
 
-    val onTap = {
+    val onTap: (PxPosition) -> Unit = {
         color.value = color.value.anotherRandomColor()
     }
 

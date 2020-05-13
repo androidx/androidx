@@ -32,11 +32,14 @@ import androidx.ui.core.gesture.customevents.DelayUpEvent
 import androidx.ui.core.gesture.customevents.DelayUpMessage
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
 import androidx.ui.util.fastAny
 
 /**
  * This gesture detector fires a callback when a traditional press is being released.  This is
  * generally the same thing as "onTap" or "onClick".
+ *
+ * [onTap] is called with the position of the last pointer to go "up".
  *
  * More specifically, it will call [onTap] if:
  * - All of the first [PointerInputChange]s it receives during the [PointerEventPass.PostUp] pass
@@ -57,7 +60,7 @@ import androidx.ui.util.fastAny
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
 
 fun Modifier.tapGestureFilter(
-    onTap: () -> Unit
+    onTap: (PxPosition) -> Unit
 ): Modifier = composed {
     val filter = remember { TapGestureFilter() }
     filter.onTap = onTap
@@ -70,7 +73,7 @@ internal class TapGestureFilter : PointerInputFilter() {
      *
      * This should be used to fire a state changing event as if a button was pressed.
      */
-    lateinit var onTap: () -> Unit
+    lateinit var onTap: (PxPosition) -> Unit
 
     /**
      * True when we are primed to call [onTap] and may be consuming all down changes.
@@ -79,6 +82,7 @@ internal class TapGestureFilter : PointerInputFilter() {
 
     private var downPointers: MutableSet<PointerId> = mutableSetOf()
     private var upBlockedPointers: MutableSet<PointerId> = mutableSetOf()
+    private var lastPxPosition: PxPosition? = null
 
     override fun onPointerInput(
         changes: List<PointerInputChange>,
@@ -89,17 +93,23 @@ internal class TapGestureFilter : PointerInputFilter() {
         if (pass == PointerEventPass.PostUp) {
 
             if (primed &&
-                changes.all { it.changedToUp() } &&
-                changes.fastAny { !upBlockedPointers.contains(it.id) }
+                changes.all { it.changedToUp() }
             ) {
-                // If we are primed, all pointers went up, and at least one of the pointers is
-                // not blocked, we can fire, reset, and consume all of the up events.
-                reset()
-                onTap.invoke()
-                return changes.map { it.consumeDownChange() }
+                val pointerPxPosition: PxPosition = changes[0].previous.position!!
+                if (changes.fastAny { !upBlockedPointers.contains(it.id) }) {
+                    // If we are primed, all pointers went up, and at least one of the pointers is
+                    // not blocked, we can fire, reset, and consume all of the up events.
+                    reset()
+                    onTap.invoke(pointerPxPosition)
+                    return changes.map { it.consumeDownChange() }
+                } else {
+                    lastPxPosition = pointerPxPosition
+                }
             }
 
             if (changes.all { it.changedToDown() }) {
+                // Reset in case we were incorrectly left waiting on a delayUp message.
+                reset()
                 // If all of the changes are down, can become primed.
                 primed = true
             }
@@ -155,14 +165,14 @@ internal class TapGestureFilter : PointerInputFilter() {
 
         upBlockedPointers.removeAll(customEvent.pointers)
         if (upBlockedPointers.isEmpty() && downPointers.isEmpty()) {
+            if (customEvent.message == DelayUpMessage.DelayedUpNotConsumed) {
+                // If the up was not consumed, then we can fire our callback and consume it.
+                onTap.invoke(lastPxPosition!!)
+                customEvent.message = DelayUpMessage.DelayedUpConsumed
+            }
             // At this point, we were primed, no pointers were down, and we are unblocked, so we
             // are at least resetting.
             reset()
-            if (customEvent.message == DelayUpMessage.DelayedUpNotConsumed) {
-                // If the up was not consumed, then we can fire our callback and consume it.
-                onTap.invoke()
-                customEvent.message = DelayUpMessage.DelayedUpConsumed
-            }
         }
     }
 
@@ -170,5 +180,6 @@ internal class TapGestureFilter : PointerInputFilter() {
         primed = false
         upBlockedPointers.clear()
         downPointers.clear()
+        lastPxPosition = null
     }
 }
