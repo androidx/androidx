@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 import android.Manifest;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.Size;
 import android.view.LayoutInflater;
@@ -48,6 +49,7 @@ import androidx.camera.core.SurfaceRequest;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.view.preview.transform.transformation.Transformation;
 import androidx.camera.view.test.R;
+import androidx.core.content.ContextCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -364,6 +366,45 @@ public class PreviewViewTest {
         float[] expectedTransformParameters = new float[]{0.4f, 1.6f, -600.0f, 0.0f, 0.0f};
 
         assertThat(resultTransformParameters).isEqualTo(expectedTransformParameters);
+    }
+
+    @Test
+    @UiThreadTest
+    public void setsDefaultBackground_whenBackgroundNotExplicitlySet() {
+        final PreviewView previewView = new PreviewView(mContext);
+
+        assertThat(previewView.getBackground()).isInstanceOf(ColorDrawable.class);
+
+        final ColorDrawable actualBackground = (ColorDrawable) previewView.getBackground();
+        final int expectedBackground = ContextCompat.getColor(mContext,
+                PreviewView.DEFAULT_BACKGROUND_COLOR);
+        assertThat(actualBackground.getColor()).isEqualTo(expectedBackground);
+    }
+
+    @Test
+    @UiThreadTest
+    public void overridesDefaultBackground_whenBackgroundExplicitlySet_programmatically() {
+        final PreviewView previewView = new PreviewView(mContext);
+        final int backgroundColor = ContextCompat.getColor(mContext, android.R.color.white);
+        previewView.setBackgroundColor(backgroundColor);
+
+        assertThat(previewView.getBackground()).isInstanceOf(ColorDrawable.class);
+
+        final ColorDrawable actualBackground = (ColorDrawable) previewView.getBackground();
+        assertThat(actualBackground.getColor()).isEqualTo(backgroundColor);
+    }
+
+    @Test
+    @UiThreadTest
+    public void overridesDefaultBackground_whenBackgroundExplicitlySet_xml() {
+        final PreviewView previewView = (PreviewView) LayoutInflater.from(mContext).inflate(
+                R.layout.preview_view_background_white, null);
+
+        assertThat(previewView.getBackground()).isInstanceOf(ColorDrawable.class);
+
+        final ColorDrawable actualBackground = (ColorDrawable) previewView.getBackground();
+        final int expectedBackground = ContextCompat.getColor(mContext, android.R.color.white);
+        assertThat(actualBackground.getColor()).isEqualTo(expectedBackground);
     }
 
     private void setContentView(View view) {
