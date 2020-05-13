@@ -20,6 +20,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import androidx.annotation.NonNull;
 
+import java.io.File;
 import java.util.Objects;
 
 final class DatabaseExtensions {
@@ -35,7 +36,7 @@ final class DatabaseExtensions {
     static String pathForDatabase(@NonNull SQLiteDatabase database) {
         return isInMemoryDatabase(database)
                 ? String.format(sInMemoryDatabaseNameFormat, database.hashCode())
-                : database.getPath();
+                : new File(database.getPath()).getAbsolutePath();
     }
 
     /** Thread-safe as {@link SQLiteDatabase#getPath} is thread-safe. */
