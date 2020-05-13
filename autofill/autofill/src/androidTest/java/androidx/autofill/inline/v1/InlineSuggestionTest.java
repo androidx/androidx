@@ -100,7 +100,7 @@ public class InlineSuggestionTest {
         addView(view);
 
         verifyVisibility(true, false, false, false);
-        TestUtils.verifyPaddingForDp(mContext, view, 11, 0, 11, 0);
+        TestUtils.verifyPaddingForDp(mContext, view, 13, 0, 13, 0);
 
         TextView titleView = mLinearLayout.findViewById(R.id.autofill_inline_suggestion_title);
         assertEquals(TITLE, titleView.getText());
@@ -120,7 +120,7 @@ public class InlineSuggestionTest {
         addView(view);
 
         verifyVisibility(true, false, false, false);
-        TestUtils.verifyPaddingForDp(mContext, view, 11, 0, 11, 0);
+        TestUtils.verifyPaddingForDp(mContext, view, 13, 0, 13, 0);
 
         TextView titleView = mLinearLayout.findViewById(R.id.autofill_inline_suggestion_title);
         assertEquals(TITLE, titleView.getText());
@@ -140,7 +140,7 @@ public class InlineSuggestionTest {
         addView(view);
 
         verifyVisibility(false, false, true, false);
-        TestUtils.verifyPaddingForDp(mContext, view, 11, 0, 11, 0);
+        TestUtils.verifyPaddingForDp(mContext, view, 13, 0, 13, 0);
     }
 
     @Test
