@@ -21,14 +21,21 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.Composable
+import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.emptyContent
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.ipx
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.never
@@ -153,6 +160,56 @@ class AndroidPointerInputTest {
         )
     }
 
+    @Test
+    fun dispatchTouchEvent_notMeasuredLayoutsAreMeasuredFirst() {
+        val size = mutableStateOf(10)
+        val latch = CountDownLatch(1)
+        var consumedDownPosition: PxPosition? = null
+        rule.runOnUiThread {
+            container.setContent(Recomposer.current()) {
+                Layout(
+                    {},
+                    Modifier
+                        .consumeDownGestureFilter {
+                            consumedDownPosition = it
+                        }
+                        .onPositioned {
+                            latch.countDown()
+                        }
+                ) { _, _, _ ->
+                    val sizePx = size.value.ipx
+                    layout(sizePx, sizePx) {}
+                }
+            }
+        }
+
+        assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue()
+
+        rule.runOnUiThread {
+            androidComposeView = container.getChildAt(0) as AndroidComposeView
+
+            // we update size from 10 to 20 pixels
+            size.value = 20
+            // this call will synchronously mark the LayoutNode as needs remeasure
+            FrameManager.nextFrame()
+
+            val ownerPosition = androidComposeView.calculatePosition()
+            val motionEvent = MotionEvent(
+                0,
+                MotionEvent.ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(ownerPosition.x.value + 15f, ownerPosition.y.value + 15f))
+            )
+
+            // we expect it to first remeasure and only then process
+            androidComposeView.dispatchTouchEvent(motionEvent)
+
+            assertThat(consumedDownPosition).isEqualTo(PxPosition(15.px, 15.px))
+        }
+    }
+
     private fun dispatchTouchEvent_movementConsumptionInCompose(
         consumeMovement: Boolean,
         callsRequestDisallowInterceptTouchEvent: Boolean
@@ -209,8 +266,14 @@ class AndroidPointerInputTest {
 }
 
 fun Modifier.consumeMovementGestureFilter(consumeMovement: Boolean = false): Modifier = composed {
-    val filter = remember { ConsumeMovementGestureFilter(consumeMovement) }
+    val filter = remember(consumeMovement) { ConsumeMovementGestureFilter(consumeMovement) }
     PointerInputModifierImpl(filter)
+}
+
+fun Modifier.consumeDownGestureFilter(onDown: (PxPosition) -> Unit): Modifier = composed {
+    val filter = remember { ConsumeDownChangeFilter() }
+    filter.onDown = onDown
+    this + PointerInputModifierImpl(filter)
 }
 
 private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
@@ -227,6 +290,24 @@ private class ConsumeMovementGestureFilter(val consumeMovement: Boolean) : Point
         } else {
             changes
         }
+
+    override fun onCancel() {}
+}
+
+private class ConsumeDownChangeFilter : PointerInputFilter() {
+    var onDown by mutableStateOf<(PxPosition) -> Unit>({})
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ) = changes.map {
+        if (it.changedToDown()) {
+            onDown(it.current.position!!)
+            it.consumeDownChange()
+        } else {
+            it
+        }
+    }
 
     override fun onCancel() {}
 }
