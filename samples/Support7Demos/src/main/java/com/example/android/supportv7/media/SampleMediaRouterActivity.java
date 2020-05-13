@@ -244,10 +244,11 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         // Populate an array adapter with streaming media items.
         String[] mediaNames = getResources().getStringArray(R.array.media_names);
         String[] mediaUris = getResources().getStringArray(R.array.media_uris);
+        String[] mediaMimes = getResources().getStringArray(R.array.media_mimes);
         mLibraryItems = new LibraryAdapter();
         for (int i = 0; i < mediaNames.length; i++) {
             mLibraryItems.add(new MediaItem(
-                    "[streaming] "+mediaNames[i], Uri.parse(mediaUris[i]), "video/mp4"));
+                    "[streaming] " + mediaNames[i], Uri.parse(mediaUris[i]), mediaMimes[i]));
         }
 
         // Scan local external storage directory for media files.

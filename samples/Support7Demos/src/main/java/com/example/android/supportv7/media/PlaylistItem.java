@@ -30,6 +30,7 @@ final class PlaylistItem {
     private final String mSessionId;
     private final String mItemId;
     private final Uri mUri;
+    private final String mMime;
     private final String mTitle;
     private final PendingIntent mUpdateReceiver;
     // changeable states
@@ -45,6 +46,7 @@ final class PlaylistItem {
         mItemId = iid;
         mTitle = title;
         mUri = uri;
+        mMime = mime;
         mUpdateReceiver = pi;
         setTimestamp(SystemClock.elapsedRealtime());
     }
@@ -87,6 +89,10 @@ final class PlaylistItem {
 
     public Uri getUri() {
         return mUri;
+    }
+
+    public String getMime() {
+        return mMime;
     }
 
     public PendingIntent getUpdateReceiver() {
