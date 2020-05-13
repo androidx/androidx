@@ -33,14 +33,13 @@ import kotlinx.coroutines.flow.Flow
  * This class is a convenience wrapper around [AsyncPagingDataDiffer] that implements common default
  * behavior for item counting, and listening to update events.
  *
- * To present a [Flow]<[PagingData]>, you would connect generally use
- * [collectLatest][kotlinx.coroutines.flow.collectLatest], and
- * call [presentData] on the latest generation of [PagingData].
+ * To present a [Pager], use [collectLatest][kotlinx.coroutines.flow.collectLatest] to observe
+ * [Pager.flow] and call [submitData] whenever a new [PagingData] is emitted.
  *
- * If you are using RxJava or LiveData as your reactive stream API, you would typically connect
- * those to [submitData].
+ * If using RxJava and LiveData extensions on [Pager], use the non-suspending overload of
+ * [submitData], which accepts a [Lifecycle].
  *
- * PagingDataAdapter listens to internal PagingData loading events as
+ * [PagingDataAdapter] listens to internal [PagingData] loading events as
  * [pages][PagingSource.LoadResult.Page] are loaded, and uses [DiffUtil] on a background thread to
  * compute fine grained updates as updated content in the form of new PagingData objects are
  * received.
@@ -72,30 +71,38 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     }
 
     /**
-     * Present the new [PagingData], and suspend as long as it is not invalidated.
+     * Present a [PagingData] until it is either invalidated or another call to [submitData] is
+     * made.
      *
-     * This method should be called on the same [CoroutineDispatcher] where updates will be
-     * dispatched to UI, typically [Dispatchers.Main].
+     * [submitData] should be called on the same [CoroutineDispatcher] where updates will be
+     * dispatched to UI, typically [Dispatchers.Main] (this is done for you if you use
+     * `lifecycleScope.launch {}`).
      *
-     * This method is typically used when observing a [Flow]. For a RxJava or LiveData stream,
-     * see [submitData]
+     * This method is typically used when collecting from a [Flow] produced by [Pager]. For RxJava
+     * or LiveData support, use the non-suspending overload of [submitData], which accepts a
+     * [Lifecycle].
      *
-     * @sample androidx.paging.samples.presentDataSample
-     * @see [submitData]
+     * @sample androidx.paging.samples.submitDataFlowSample
+     *
+     * @see [Pager]
      */
-    suspend fun presentData(pagingData: PagingData<T>) {
-        differ.presentData(pagingData)
+    suspend fun submitData(pagingData: PagingData<T>) {
+        differ.submitData(pagingData)
     }
 
     /**
-     * Present the new PagingData until the next call to submitData.
+     * Present a [PagingData] until it is either invalidated or another call to [submitData] is
+     * made.
      *
-     * This method is typically used when observing a RxJava or LiveData stream. For [Flow], see
-     * [presentData]
+     * This method is typically used when observing a RxJava or LiveData stream produced by [Pager].
+     * For [Flow] support, use the suspending overload of [submitData], which automates cancellation
+     * via [CoroutineScope][kotlinx.coroutines.CoroutineScope] instead of relying of [Lifecycle].
      *
      * @sample androidx.paging.samples.submitDataLiveDataSample
      * @sample androidx.paging.samples.submitDataRxSample
-     * @see [presentData]
+     *
+     * @see submitData
+     * @see [Pager]
      */
     fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
         differ.submitData(lifecycle, pagingData)

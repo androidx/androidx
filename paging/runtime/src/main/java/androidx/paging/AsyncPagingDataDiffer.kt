@@ -33,6 +33,14 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicReference
 
+/**
+ * Helper class for mapping a [PagingData] into a
+ * [RecyclerView.Adapter][androidx.recyclerview.widget.RecyclerView.Adapter].
+ *
+ * For simplicity, [PagingDataAdapter] can often be used in place of this class.
+ * [AsyncPagingDataDiffer] is exposed for complex cases, and where overriding [PagingDataAdapter] to
+ * support paging isn't convenient.
+ */
 class AsyncPagingDataDiffer<T : Any>(
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
@@ -135,7 +143,21 @@ class AsyncPagingDataDiffer<T : Any>(
 
     private val job = AtomicReference<Job?>(null)
 
-    suspend fun presentData(pagingData: PagingData<T>) {
+    /**
+     * Present a [PagingData] until it is either invalidated or another call to [submitData] is
+     * made.
+     *
+     * [submitData] should be called on the same [CoroutineDispatcher] where updates will be
+     * dispatched to UI, typically [Dispatchers.Main]. (this is done for you if you use
+     * `lifecycleScope.launch {}`).
+     *
+     * This method is typically used when collecting from a [Flow][kotlinx.coroutines.flow.Flow]
+     * produced by [Pager]. For RxJava or LiveData support, use the non-suspending overload of
+     * [submitData], which accepts a [Lifecycle].
+     *
+     * @see [Pager]
+     */
+    suspend fun submitData(pagingData: PagingData<T>) {
         try {
             job.get()?.cancelAndJoin()
         } finally {
@@ -143,6 +165,18 @@ class AsyncPagingDataDiffer<T : Any>(
         }
     }
 
+    /**
+     * Present a [PagingData] until it is either invalidated or another call to [submitData] is
+     * made.
+     *
+     * This method is typically used when observing a RxJava or LiveData stream produced by [Pager].
+     * For [Flow][kotlinx.coroutines.flow.Flow] support, use the suspending overload of
+     * [submitData], which automates cancellation via
+     * [CoroutineScope][kotlinx.coroutines.CoroutineScope] instead of relying of [Lifecycle].
+     *
+     * @see submitData
+     * @see [Pager]
+     */
     fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
         var oldJob: Job?
         var newJob: Job
