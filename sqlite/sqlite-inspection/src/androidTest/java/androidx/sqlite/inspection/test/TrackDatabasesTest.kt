@@ -16,6 +16,7 @@
 
 package androidx.sqlite.inspection.test
 
+import android.app.Application
 import android.database.sqlite.SQLiteDatabase
 import androidx.inspection.InspectorEnvironment.ExitHook
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event
@@ -262,6 +263,64 @@ class TrackDatabasesTest {
     }
 
     @Test
+    fun test_findInstances_closed() = runBlocking {
+        val db1a = Database("db1").createInstance(temporaryFolder)
+        val db2 = Database("db2").createInstance(temporaryFolder)
+        assertOpen(db1a)
+        assertOpen(db2)
+        db1a.close()
+        assertClosed(db1a)
+
+        // given
+        testEnvironment.registerAlreadyOpenDatabases(listOf(db1a, db2))
+        val hooks = startTracking()
+        val id1 = receiveClosedEventId(db1a)
+        val id2 = receiveOpenedEventId(db2)
+        assertNoQueuedEvents()
+
+        val db1b = openDatabase("db1", hooks)
+        assertThat(receiveOpenedEventId(db1a)).isEqualTo(id1)
+        assertNoQueuedEvents()
+
+        closeDatabase(db1b, hooks)
+        receiveClosedEvent(id1, db1a.displayName)
+
+        closeDatabase(db2, hooks)
+        receiveClosedEvent(id2, db2.displayName)
+    }
+
+    @Test
+    fun test_findInstances_disk() = runBlocking {
+        val db1a = Database("db1").createInstance(temporaryFolder)
+        val db2 = Database("db2").createInstance(temporaryFolder)
+        val application = object : Application() {
+            override fun databaseList(): Array<String> =
+                arrayOf(db1a.absolutePath, db2.absolutePath)
+            override fun getDatabasePath(name: String?) =
+                getInstrumentation().context.getDatabasePath(name)
+        }
+
+        testEnvironment.registerApplication(application)
+        val hooks = startTracking()
+
+        val id1 = receiveClosedEventId(db1a.absolutePath)
+        val id2 = receiveClosedEventId(db2.absolutePath)
+        assertNoQueuedEvents()
+
+        val db1b = openDatabase("db1", hooks)
+        receiveOpenedEvent(id1, db1a.absolutePath)
+        assertNoQueuedEvents()
+
+        openDatabase("db2", hooks)
+        receiveOpenedEvent(id2, db2.absolutePath)
+        assertNoQueuedEvents()
+
+        closeDatabase(db1b, hooks)
+        receiveClosedEvent(id1, db1a.absolutePath)
+        assertNoQueuedEvents()
+    }
+
+    @Test
     fun test_on_closed_and_reopened() = runBlocking {
         // given
         val hooks = startTracking()
@@ -358,10 +417,30 @@ class TrackDatabasesTest {
     }
 
     private suspend fun receiveOpenedEventId(database: SQLiteDatabase): Int =
+        receiveOpenedEventId(database.displayName)
+
+    private suspend fun receiveOpenedEventId(displayName: String): Int =
         testEnvironment.receiveEvent().let {
             assertThat(it.oneOfCase).isEqualTo(Event.OneOfCase.DATABASE_OPENED)
-            assertThat(it.databaseOpened.path).isEqualTo(database.displayName)
+            assertThat(it.databaseOpened.path).isEqualTo(displayName)
             it.databaseOpened.databaseId
+        }
+
+    private suspend fun receiveClosedEventId(displayName: String): Int =
+        testEnvironment.receiveEvent().let {
+            assertThat(it.oneOfCase).isEqualTo(Event.OneOfCase.DATABASE_CLOSED)
+            assertThat(it.databaseClosed.path).isEqualTo(displayName)
+            it.databaseClosed.databaseId
+        }
+
+    private suspend fun receiveClosedEventId(database: SQLiteDatabase): Int =
+        receiveClosedEventId(database.displayName)
+
+    private suspend fun receiveOpenedEvent(id: Int, path: String) =
+        testEnvironment.receiveEvent().let {
+            assertThat(it.oneOfCase).isEqualTo(Event.OneOfCase.DATABASE_OPENED)
+            assertThat(it.databaseOpened.databaseId).isEqualTo(id)
+            assertThat(it.databaseOpened.path).isEqualTo(path)
         }
 
     private suspend fun receiveClosedEvent(id: Int, path: String) =

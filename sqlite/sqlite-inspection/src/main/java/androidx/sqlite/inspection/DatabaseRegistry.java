@@ -141,6 +141,21 @@ class DatabaseRegistry {
         }
     }
 
+    /**
+     * Should be called at the start of inspection to pre-populate the list of databases with
+     * ones on disk.
+     */
+    void notifyOnDiskDatabase(@NonNull String path) {
+        synchronized (mLock) {
+            Integer currentId = mPathToId.get(path);
+            if (currentId == null) {
+                int id = mNextId++;
+                mPathToId.put(path, id);
+                mOnClosedCallback.onPostEvent(id, path);
+            }
+        }
+    }
+
     /** Thread-safe */
     private void handleDatabaseSignal(@NonNull SQLiteDatabase database) {
         Integer notifyOpenedId = null;
@@ -156,11 +171,12 @@ class DatabaseRegistry {
             final boolean isOpen = database.isOpen();
 
             if (id == NOT_TRACKED) { // handling a transition: not tracked -> tracked
-                // TODO: notify of found closed databases
+                id = mNextId++;
+                registerReference(id, database);
                 if (isOpen) {
-                    id = mNextId++;
-                    registerReference(id, database);
                     notifyOpenedId = id;
+                } else {
+                    notifyClosedId = id;
                 }
             } else if (isOpen) { // handling a transition: tracked(closed) -> tracked(open)
                 // There are two scenarios here:
@@ -223,7 +239,10 @@ class DatabaseRegistry {
                 mPathToId.put(pathForDatabase(database), id);
             }
         }
-        references.add(database);
+        // mDatabases only tracks open instances
+        if (database.isOpen()) {
+            references.add(database);
+        }
     }
 
     @GuardedBy("mLock")
