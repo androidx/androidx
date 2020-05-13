@@ -100,6 +100,7 @@ object PagingTypeNames {
             ClassName.get(PAGING_PACKAGE, "PositionalDataSource")
     val DATA_SOURCE_FACTORY: ClassName =
             ClassName.get(PAGING_PACKAGE, "DataSource.Factory")
+    val PAGING_SOURCE: ClassName = ClassName.get(PAGING_PACKAGE, "PagingSource")
 }
 
 object LifecyclesTypeNames {
