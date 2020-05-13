@@ -123,12 +123,12 @@ object Scaffold {
 @Composable
 fun Scaffold(
     scaffoldState: ScaffoldState = remember { ScaffoldState() },
-    topAppBar: @Composable (() -> Unit)? = null,
-    bottomAppBar: @Composable ((FabConfiguration?) -> Unit)? = null,
-    floatingActionButton: @Composable (() -> Unit)? = null,
+    topAppBar: @Composable() (() -> Unit)? = null,
+    bottomAppBar: @Composable() ((FabConfiguration?) -> Unit)? = null,
+    floatingActionButton: @Composable() (() -> Unit)? = null,
     floatingActionButtonPosition: FabPosition = FabPosition.End,
-    drawerContent: @Composable (() -> Unit)? = null,
-    bodyContent: @Composable (Modifier) -> Unit
+    drawerContent: @Composable() (() -> Unit)? = null,
+    bodyContent: @Composable() (Modifier) -> Unit
 ) {
     val child = @Composable {
         Surface(color = MaterialTheme.colors.background) {
@@ -174,8 +174,8 @@ private fun ScaffoldBottom(
     modifier: Modifier,
     scaffoldState: ScaffoldState,
     fabPos: FabPosition,
-    fab: @Composable (() -> Unit)? = null,
-    bottomBar: @Composable ((FabConfiguration?) -> Unit)? = null
+    fab: @Composable() (() -> Unit)? = null,
+    bottomBar: @Composable() ((FabConfiguration?) -> Unit)? = null
 ) {
     if (fabPos != FabPosition.CenterDocked && fabPos != FabPosition.EndDocked) {
         Column(modifier.fillMaxWidth()) {
@@ -218,8 +218,8 @@ private fun ScaffoldBottom(
 private fun DockedBottomBar(
     modifier: Modifier,
     fabPosition: FabPosition,
-    fab: @Composable () -> Unit,
-    bottomBar: @Composable () -> Unit
+    fab: @Composable() () -> Unit,
+    bottomBar: @Composable() () -> Unit
 ) {
     Layout(
         modifier = modifier,
@@ -251,7 +251,7 @@ private fun DockedBottomBar(
 private fun ScaffoldContent(
     modifier: Modifier,
     scaffoldState: ScaffoldState,
-    content: @Composable (Modifier) -> Unit
+    content: @Composable() (Modifier) -> Unit
 ) {
     ScaffoldSlot(modifier) {
         val bottomSpace = with(DensityAmbient.current) {
@@ -264,7 +264,7 @@ private fun ScaffoldContent(
 @Composable
 private fun BottomBarContainer(
     scaffoldState: ScaffoldState,
-    bottomBar: @Composable ((FabConfiguration?) -> Unit)
+    bottomBar: @Composable() ((FabConfiguration?) -> Unit)
 ) {
     onDispose(callback = { scaffoldState.bottomBarSize = null })
     ScaffoldSlot(
@@ -282,7 +282,7 @@ private fun FabContainer(
     fabPos: FabPosition,
     modifier: Modifier,
     scaffoldState: ScaffoldState,
-    fab: @Composable () -> Unit
+    fab: @Composable() () -> Unit
 ) {
     onDispose { scaffoldState.fabConfiguration = null }
     ScaffoldSlot(
@@ -312,7 +312,7 @@ private fun FabContainer(
  * Default slot implementation for Scaffold slots content
  */
 @Composable
-private fun ScaffoldSlot(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+private fun ScaffoldSlot(modifier: Modifier = Modifier, content: @Composable() () -> Unit) {
     Stack(modifier) { content() }
 }
 

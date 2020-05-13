@@ -85,6 +85,7 @@ dependencies {
     // depend on the shadowed version so that it tests with the shipped artifact
     kaptAndroidTest project(path: ":room:room-compiler", configuration: 'shadowAndImplementation')
 
+    androidTestImplementation(project(":arch:core-runtime")) // Added for b/155802460
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER) {

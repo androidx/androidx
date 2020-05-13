@@ -329,7 +329,7 @@ class ErrorMessagesTest {
     @Composable
     fun TestButton(
         onClick: (() -> Unit)? = null,
-        children: @Composable () -> Unit
+        children: @Composable() () -> Unit
     ) {
         // Since we're adding layouts in between the clickable layer and the content, we need to
         // merge all descendants, or we'll get multiple nodes

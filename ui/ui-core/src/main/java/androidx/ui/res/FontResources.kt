@@ -73,7 +73,7 @@ fun fontResource(fontFamily: FontFamily): Typeface {
  * @throws IllegalArgumentException if [FontFamily] other than synchronously loadable ones are
  * passed as an argument of pendingFontFamily or failedFontFamily.
  *
- * @sample androidx.ui.core.samples.FontResourcesFontFamily
+ * @sample androidx.ui.framework.samples.FontResourcesFontFamily
  */
 @Composable
 fun loadFontResource(
@@ -123,7 +123,7 @@ fun loadFontResource(
  * @throws IllegalArgumentException if [FontFamily] other than synchronously loadable ones are
  * passed as an argument of pendingFontFamily or failedFontFamily.
  *
- * @sample androidx.ui.core.samples.FontResourcesTypeface
+ * @sample androidx.ui.framework.samples.FontResourcesTypeface
  */
 @Composable
 fun loadFontResource(

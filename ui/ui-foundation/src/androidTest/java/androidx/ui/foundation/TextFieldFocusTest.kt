@@ -17,13 +17,16 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
+import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.focus.FocusModifier
 import androidx.ui.input.EditorValue
+import androidx.ui.input.TextInputService
 import androidx.ui.layout.width
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
@@ -31,6 +34,9 @@ import androidx.ui.test.runOnUiThread
 import androidx.ui.text.CoreTextField
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

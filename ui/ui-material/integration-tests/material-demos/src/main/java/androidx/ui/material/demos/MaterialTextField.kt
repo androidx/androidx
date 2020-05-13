@@ -88,7 +88,7 @@ fun FilledTextFieldDemo() {
         val characterCounterChecked by savedInstanceState { false }
         var selectedOption by savedInstanceState { Option.None }
 
-        val textField = @Composable {
+        val textField = @Composable() {
             FilledTextField(
                 value = text,
                 onValueChange = { text = it },
@@ -145,7 +145,7 @@ fun FilledTextFieldDemo() {
  */
 @Composable
 private fun TextFieldWithMessage(
-    textField: @Composable () -> Unit,
+    textField: @Composable() () -> Unit,
     helperMessageOption: Option
 ) {
     val typography = MaterialTheme.typography.caption

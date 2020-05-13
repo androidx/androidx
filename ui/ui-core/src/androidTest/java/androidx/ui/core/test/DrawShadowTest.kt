@@ -93,7 +93,7 @@ class DrawShadowTest {
     fun shadowDrawnInsideRenderNode() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                ShadowContainer(modifier = Modifier.drawLayer())
+                ShadowContainer(modifier = Modifier.drawLayer(clipToBounds = false))
             }
         }
 
@@ -131,7 +131,7 @@ class DrawShadowTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                ShadowContainer(elevation, modifier = Modifier.drawLayer(clip = true))
+                ShadowContainer(elevation, modifier = Modifier.drawLayer(clipToBounds = true))
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))

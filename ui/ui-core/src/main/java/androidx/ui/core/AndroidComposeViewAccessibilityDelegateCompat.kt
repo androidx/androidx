@@ -405,10 +405,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             AccessibilityNodeInfoCompat.ACTION_CLEAR_ACCESSIBILITY_FOCUS ->
                 return clearAccessibilityFocus(virtualViewId)
             AccessibilityNodeInfoCompat.ACTION_CLICK -> {
-                return if (node.canPerformAction(SemanticsActions.OnClick)) {
+                if (node.config.contains(SemanticsActions.OnClick)) {
                     node.config[SemanticsActions.OnClick].action()
+                    return true
                 } else {
-                    false
+                    return false
                 }
             }
             // TODO: handling for other system actions

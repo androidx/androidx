@@ -36,6 +36,7 @@ import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
+import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.Shape
@@ -378,9 +379,11 @@ class ClipTest {
         }
 
         val clip = object : DrawLayerModifier {
-            override val shape: Shape
+            override val outlineShape: Shape?
                 get() = model.value
-            override val clip: Boolean
+            override val clipToBounds: Boolean
+                get() = true
+            override val clipToOutline: Boolean
                 get() = true
         }
 

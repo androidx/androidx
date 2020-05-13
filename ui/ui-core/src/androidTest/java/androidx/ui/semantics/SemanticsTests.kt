@@ -357,10 +357,7 @@ class SemanticsTests {
         composeTestRule.setContent {
             Semantics(container = true, properties = {
                 accessibilityLabel = if (isAfter.value) afterLabel else beforeLabel
-                onClick(action = {
-                    if (isAfter.value) afterAction() else beforeAction()
-                    return@onClick true
-                })
+                onClick(action = if (isAfter.value) afterAction else beforeAction)
                 testTag = TestTag
             }) {
                 SimpleTestLayout {
@@ -392,7 +389,7 @@ private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: Semanti
  * children reasonably.  Useful for Semantics hierarchy testing
  */
 @Composable
-private fun SimpleTestLayout(children: @Composable () -> Unit) {
+private fun SimpleTestLayout(children: @Composable() () -> Unit) {
     Layout(children = children) { measurables, constraints, _ ->
         if (measurables.isEmpty()) {
             layout(constraints.minWidth, constraints.minHeight) {}

@@ -345,8 +345,8 @@ class RememberSavedInstanceStateTest {
 
 @Composable
 private fun WrapRegistry(
-    wrap: @Composable (UiSavedStateRegistry) -> UiSavedStateRegistry,
-    children: @Composable () -> Unit
+    wrap: @Composable() (UiSavedStateRegistry) -> UiSavedStateRegistry,
+    children: @Composable() () -> Unit
 ) {
     Providers(
         UiSavedStateRegistryAmbient provides wrap(UiSavedStateRegistryAmbient.current!!),

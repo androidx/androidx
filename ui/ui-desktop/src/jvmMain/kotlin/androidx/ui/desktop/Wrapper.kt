@@ -33,7 +33,7 @@ import javax.swing.SwingUtilities
 
 import org.jetbrains.skija.Canvas
 
-fun SkiaWindow.setContent(content: @Composable () -> Unit) {
+fun SkiaWindow.setContent(content: @Composable() () -> Unit) {
     SwingUtilities.invokeLater {
         println("start composing!")
 

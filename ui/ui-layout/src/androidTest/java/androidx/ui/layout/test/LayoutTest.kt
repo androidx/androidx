@@ -90,7 +90,7 @@ open class LayoutTest {
         activityTestRule.runOnUiThread(runnable)
     }
 
-    internal fun show(composable: @Composable () -> Unit) {
+    internal fun show(composable: @Composable() () -> Unit) {
         val runnable: Runnable = object : Runnable {
             override fun run() {
                 activity.setContent(Recomposer.current(), composable)
@@ -150,7 +150,7 @@ open class LayoutTest {
     }
 
     internal fun testIntrinsics(
-        vararg layouts: @Composable () -> Unit,
+        vararg layouts: @Composable() () -> Unit,
         test: ((IntPx) -> IntPx, (IntPx) -> IntPx, (IntPx) -> IntPx, (IntPx) -> IntPx) -> Unit
     ) {
         layouts.forEach { layout ->
@@ -194,7 +194,7 @@ open class LayoutTest {
     }
 
     @Composable
-    internal fun WithInfiniteConstraints(children: @Composable () -> Unit) {
+    internal fun WithInfiniteConstraints(children: @Composable() () -> Unit) {
         Layout(children) { measurables, _, _ ->
             val placeables = measurables.map { it.measure(Constraints()) }
             layout(0.ipx, 0.ipx) {
@@ -207,7 +207,7 @@ open class LayoutTest {
     internal fun ConstrainedBox(
         constraints: DpConstraints,
         modifier: Modifier = Modifier,
-        children: @Composable () -> Unit
+        children: @Composable() () -> Unit
     ) {
         Layout(
             children,
@@ -364,7 +364,7 @@ open class LayoutTest {
         constraints: DpConstraints = DpConstraints(),
         width: Dp? = null,
         height: Dp? = null,
-        children: @Composable () -> Unit
+        children: @Composable() () -> Unit
     ) {
         Layout(children, modifier) { measurables, incomingConstraints, _ ->
             val containerConstraints = Constraints(constraints)

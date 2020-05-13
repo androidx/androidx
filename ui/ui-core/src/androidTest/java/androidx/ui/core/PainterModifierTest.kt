@@ -422,7 +422,7 @@ class PainterModifierTest {
      * before giving them to their child
      */
     @Composable
-    fun NoMinSizeContainer(children: @Composable () -> Unit) {
+    fun NoMinSizeContainer(children: @Composable() () -> Unit) {
         Layout(children) { measurables, constraints, _ ->
             val loosenedConstraints = constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
             val placeables = measurables.map { it.measure(loosenedConstraints) }
@@ -442,7 +442,7 @@ class PainterModifierTest {
     @Composable
     fun NoIntrinsicSizeContainer(
         modifier: Modifier = Modifier,
-        children: @Composable () -> Unit
+        children: @Composable() () -> Unit
     ) {
         Layout(children, modifier) { measurables, constraints, _ ->
             val placeables = measurables.map { it.measure(constraints) }

@@ -20,7 +20,6 @@ import android.annotation.TargetApi
 import android.graphics.Matrix
 import android.graphics.RenderNode
 import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.RectangleShape
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.toPxSize
@@ -72,16 +71,10 @@ internal class RenderNodeLayer(
         renderNode.rotationY = drawLayerModifier.rotationY
         renderNode.pivotX = transformOrigin.pivotFractionX * renderNode.width
         renderNode.pivotY = transformOrigin.pivotFractionY * renderNode.height
-        val shape = drawLayerModifier.shape
-        val clip = drawLayerModifier.clip
-        renderNode.clipToOutline = clip && shape !== RectangleShape
-        renderNode.clipToBounds = clip && shape === RectangleShape
-        val shapeChanged = outlineResolver.update(
-            shape,
-            renderNode.alpha,
-            renderNode.clipToOutline,
-            renderNode.elevation
-        )
+        renderNode.clipToOutline =
+            drawLayerModifier.clipToOutline && drawLayerModifier.outlineShape != null
+        renderNode.clipToBounds = drawLayerModifier.clipToBounds
+        val shapeChanged = outlineResolver.update(drawLayerModifier.outlineShape, renderNode.alpha)
         renderNode.setOutline(outlineResolver.outline)
         val isClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {

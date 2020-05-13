@@ -348,7 +348,7 @@ class RtlLayoutTest {
     }
 
     @Composable
-    private fun UpdateLayoutDirection(ld: LayoutDirection, children: @Composable () -> Unit) {
+    private fun UpdateLayoutDirection(ld: LayoutDirection, children: @Composable() () -> Unit) {
         Layout(children) { measurables, constraints, _ ->
             val placeable = measurables[0].measure(constraints, ld)
             layout(placeable.width, placeable.height) {
@@ -363,7 +363,7 @@ class RtlLayoutTest {
         top: Dp,
         end: Dp,
         bottom: Dp,
-        children: @Composable () -> Unit
+        children: @Composable() () -> Unit
     ) {
         Layout(children) { measurables, constraints, _ ->
             val childConstraints = constraints.offset(

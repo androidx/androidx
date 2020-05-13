@@ -187,7 +187,7 @@ class DrawLayerTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 Padding(10.ipx) {
-                    FixedSize(10.ipx, Modifier.drawLayer(clip = true)) {
+                    FixedSize(10.ipx, Modifier.drawLayer(clipToBounds = true)) {
                         FixedSize(
                             10.ipx,
                             Modifier.drawLayer(scaleX = 2f) + positioner
@@ -212,7 +212,7 @@ class DrawLayerTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 Padding(10.ipx) {
-                    FixedSize(10.ipx, Modifier.drawLayer(clip = true)) {
+                    FixedSize(10.ipx, Modifier.drawLayer(clipToBounds = true)) {
                         FixedSize(
                             10.ipx,
                             PaddingModifier(20.ipx) +

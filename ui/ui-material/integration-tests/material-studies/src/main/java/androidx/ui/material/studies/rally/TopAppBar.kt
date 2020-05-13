@@ -89,7 +89,7 @@ private fun RallyTab(
 @Composable
 private fun TabTransition(
     selected: Boolean,
-    children: @Composable (color: Color) -> Unit
+    children: @Composable() (color: Color) -> Unit
 ) {
     val color = MaterialTheme.colors.onSurface
     val transitionDefinition = remember {

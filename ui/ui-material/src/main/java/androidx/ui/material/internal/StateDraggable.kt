@@ -69,7 +69,7 @@ internal fun <T> StateDraggable(
     enabled: Boolean = true,
     minValue: Float = Float.MIN_VALUE,
     maxValue: Float = Float.MAX_VALUE,
-    content: @Composable (AnimatedFloat) -> Unit
+    content: @Composable() (AnimatedFloat) -> Unit
 ) {
     val forceAnimationCheck = state { true }
 

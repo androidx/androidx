@@ -434,6 +434,9 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         if (controller == null) {
             return false;
         }
+        if (controller.equals(mSessionLegacyStub.getControllersForAll())) {
+            return true;
+        }
         return mSessionStub.getConnectedControllersManager().isConnected(controller)
                 || mSessionLegacyStub.getConnectedControllersManager().isConnected(controller);
     }
@@ -1220,32 +1223,34 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     void dispatchRemoteControllerTaskWithoutReturn(@NonNull RemoteControllerTask task) {
         List<ControllerInfo> controllers =
                 mSessionStub.getConnectedControllersManager().getConnectedControllers();
+        controllers.add(mSessionLegacyStub.getControllersForAll());
         for (int i = 0; i < controllers.size(); i++) {
             ControllerInfo controller = controllers.get(i);
             dispatchRemoteControllerTaskWithoutReturn(controller, task);
-        }
-        try {
-            task.run(mSessionLegacyStub.getControllerLegacyCbForBroadcast(), /* seq= */ 0);
-        } catch (RemoteException e) {
-            Log.e(TAG, "Exception in using media1 API", e);
         }
     }
 
     void dispatchRemoteControllerTaskWithoutReturn(@NonNull ControllerInfo controller,
             @NonNull RemoteControllerTask task) {
+        if (!isConnected(controller)) {
+            // Do not send command to an unconnected controller.
+            return;
+        }
         try {
             final int seq;
             final SequencedFutureManager manager =
                     mSessionStub.getConnectedControllersManager()
                             .getSequencedFutureManager(controller);
-            if (manager == null) {
-                if (DEBUG) {
-                    Log.d(TAG, "Skipping dispatching task to disconnected controller"
-                            + ", controller=" + controller);
-                }
-                return;
+            if (manager != null) {
+                seq = manager.obtainNextSequenceNumber();
+            } else {
+                // Can be null in two cases. Use the 0 as sequence number in both cases because
+                //     Case 1) Controller is from the legacy stub
+                //             -> Sequence number isn't needed, so 0 is OK
+                //     Case 2) Controller is removed after the connection check above
+                //             -> Call will fail below or ignored by the controller, so 0 is OK.
+                seq = 0;
             }
-            seq = manager.obtainNextSequenceNumber();
             task.run(controller.getControllerCb(), seq);
         } catch (DeadObjectException e) {
             onDeadObjectException(controller, e);

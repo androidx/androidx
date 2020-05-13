@@ -54,13 +54,13 @@ interface ComposeTestRule : TestRule {
      *
      * @throws IllegalStateException if called more than once per test.
      */
-    fun setContent(composable: @Composable () -> Unit)
+    fun setContent(composable: @Composable() () -> Unit)
 
     /**
      * Takes the given content and prepares it for execution-controlled test via
      * [ComposeTestCaseSetup].
      */
-    fun forGivenContent(composable: @Composable () -> Unit): ComposeTestCaseSetup
+    fun forGivenContent(composable: @Composable() () -> Unit): ComposeTestCaseSetup
 
     /**
      * Takes the given test case and prepares it for execution-controlled test via

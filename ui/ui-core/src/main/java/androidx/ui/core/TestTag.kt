@@ -30,6 +30,6 @@ import androidx.ui.semantics.testTag
  * setting this on does not already create a boundary, you will need to create one.
  */
 @Composable
-fun TestTag(tag: String, children: @Composable () -> Unit) {
+fun TestTag(tag: String, children: @Composable() () -> Unit) {
     Semantics(properties = { testTag = tag }, children = children)
 }

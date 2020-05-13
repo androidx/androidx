@@ -38,6 +38,7 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.test.ComposeTestCase
+import androidx.ui.text.TextStyle
 import androidx.ui.unit.px
 import kotlin.random.Random
 

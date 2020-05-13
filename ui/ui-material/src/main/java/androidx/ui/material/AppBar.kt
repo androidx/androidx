@@ -79,10 +79,10 @@ import kotlin.math.sqrt
  */
 @Composable
 fun TopAppBar(
-    title: @Composable () -> Unit,
+    title: @Composable() () -> Unit,
     modifier: Modifier = Modifier,
-    navigationIcon: @Composable (() -> Unit)? = null,
-    actions: @Composable RowScope.() -> Unit = {},
+    navigationIcon: @Composable() (() -> Unit)? = null,
+    actions: @Composable() RowScope.() -> Unit = {},
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = TopAppBarElevation
@@ -141,7 +141,7 @@ fun TopAppBar(
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = TopAppBarElevation,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable() RowScope.() -> Unit
 ) {
     AppBar(
         backgroundColor,
@@ -235,7 +235,7 @@ fun BottomAppBar(
     contentColor: Color = contentColorFor(backgroundColor),
     fabConfiguration: FabConfiguration? = null,
     cutoutShape: Shape? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable() RowScope.() -> Unit
 ) {
     val shape = if (cutoutShape == null || fabConfiguration == null) {
         RectangleShape
@@ -497,7 +497,7 @@ private fun AppBar(
     elevation: Dp,
     shape: Shape,
     modifier: Modifier = Modifier,
-    children: @Composable RowScope.() -> Unit
+    children: @Composable() RowScope.() -> Unit
 ) {
     Surface(
         color = backgroundColor,

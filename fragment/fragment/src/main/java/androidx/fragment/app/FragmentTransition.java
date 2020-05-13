@@ -1070,6 +1070,7 @@ class FragmentTransition {
     /**
      * Sets the visibility of all Views in {@code views} to {@code visibility}.
      */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     static void setViewVisibility(ArrayList<View> views, int visibility) {
         if (views == null) {
             return;

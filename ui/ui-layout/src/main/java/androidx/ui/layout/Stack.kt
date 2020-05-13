@@ -44,9 +44,9 @@ import androidx.ui.unit.max
 @Composable
 fun Stack(
     modifier: Modifier = Modifier,
-    children: @Composable StackScope.() -> Unit
+    children: @Composable() StackScope.() -> Unit
 ) {
-    val stackChildren: @Composable () -> Unit = { StackScope().children() }
+    val stackChildren: @Composable() () -> Unit = { StackScope().children() }
 
     Layout(stackChildren, modifier = modifier) { measurables, constraints, layoutDirection ->
         val placeables = arrayOfNulls<Placeable>(measurables.size)

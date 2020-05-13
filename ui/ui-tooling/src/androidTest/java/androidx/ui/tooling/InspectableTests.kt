@@ -23,7 +23,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
@@ -42,9 +44,8 @@ import org.junit.runners.JUnit4
 class InspectableTests : ToolingTest() {
     @Test
     fun simpleInspection() {
-        val slotTableRecord = SlotTableRecord.create()
         show {
-            Inspectable(slotTableRecord) {
+            Inspectable {
                 Column {
                     Box(Modifier.preferredSize(100.dp).drawBehind {
                         drawRect(Color(0xFF))
@@ -54,7 +55,7 @@ class InspectableTests : ToolingTest() {
         }
 
         // Should be able to find the group for this test
-        val group = slotTableRecord.findGroupForFile("InspectableTests")
+        val group = tables.findGroupForFile("InspectableTests")
         assertNotNull(group)
 
         // The group should have a non-empty bounding box
@@ -79,7 +80,7 @@ class InspectableTests : ToolingTest() {
     fun inInspectionMode() {
         var displayed = false
         show {
-            Inspectable(SlotTableRecord.create()) {
+            Inspectable {
                 Column {
                     InInspectionModeOnly {
                         Box(Modifier.preferredSize(100.dp).drawBackground(Color(0xFF)))
@@ -108,8 +109,8 @@ class InspectableTests : ToolingTest() {
     }
 }
 
-internal fun SlotTableRecord.findGroupForFile(fileName: String) =
-    store.map { it.findGroupForFile(fileName) }.filterNotNull().firstOrNull()
+fun Iterable<SlotTable>.findGroupForFile(fileName: String) =
+    map { it.findGroupForFile(fileName) }.filterNotNull().firstOrNull()
 
 fun SlotTable.findGroupForFile(fileName: String) = asTree().findGroupForFile(fileName)
 fun Group.findGroupForFile(fileName: String): Group? {

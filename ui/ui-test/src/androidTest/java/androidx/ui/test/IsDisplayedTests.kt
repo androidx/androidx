@@ -42,6 +42,7 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
+import androidx.ui.unit.toRect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Rule
@@ -198,7 +199,6 @@ class IsDisplayedTests {
             Semantics(container = true, properties = {
                 ScrollTo(action = { _, _ ->
                     wasScrollToCalled = true
-                    return@ScrollTo true
                 })
             }) {
                 Box {
@@ -247,7 +247,6 @@ class IsDisplayedTests {
                 ScrollTo(action = { x, y ->
                     currentScrollPositionY = y
                     currentScrollPositionX = x
-                    return@ScrollTo true
                 })
             }) {
                 val red = Color(alpha = 0xFF, red = 0xFF, green = 0, blue = 0)

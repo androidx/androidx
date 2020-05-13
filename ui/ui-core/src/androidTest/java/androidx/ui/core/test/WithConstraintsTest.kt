@@ -841,7 +841,7 @@ fun Container(
     width: IntPx,
     height: IntPx,
     modifier: Modifier = Modifier,
-    children: @Composable () ->
+    children: @Composable() () ->
     Unit
 ) {
     Layout(
@@ -868,7 +868,7 @@ fun Container(
 fun ContainerChildrenAffectsParentSize(
     width: IntPx,
     height: IntPx,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Layout(children = children, measureBlock = remember<MeasureBlock>(width, height) {
         { measurables, _, _ ->
@@ -884,7 +884,7 @@ fun ContainerChildrenAffectsParentSize(
 }
 
 @Composable
-private fun ChangingConstraintsLayout(size: ValueModel<IntPx>, children: @Composable () -> Unit) {
+private fun ChangingConstraintsLayout(size: ValueModel<IntPx>, children: @Composable() () -> Unit) {
     Layout(children) { measurables, _, _ ->
         layout(100.ipx, 100.ipx) {
             val constraints = Constraints.fixed(size.value, size.value)
@@ -896,7 +896,7 @@ private fun ChangingConstraintsLayout(size: ValueModel<IntPx>, children: @Compos
 @Composable
 private fun ChangingLayoutDirectionLayout(
     direction: State<LayoutDirection>,
-    children: @Composable () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Layout(children) { measurables, _, _ ->
         layout(100.ipx, 100.ipx) {

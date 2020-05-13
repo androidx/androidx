@@ -572,7 +572,7 @@ class ScrollableTest {
         }
     }
 
-    private fun setScrollableContent(scrollableModifierFactory: @Composable () -> Modifier) {
+    private fun setScrollableContent(scrollableModifierFactory: @Composable() () -> Modifier) {
         composeTestRule.setContent {
             Stack {
                 val scrollable = scrollableModifierFactory()

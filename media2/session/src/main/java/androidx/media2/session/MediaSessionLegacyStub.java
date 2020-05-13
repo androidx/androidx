@@ -26,6 +26,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -51,7 +52,6 @@ import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MediaSession.CommandButton;
-import androidx.media2.session.MediaSession.ControllerCb;
 import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.SessionCommand.CommandCode;
 
@@ -86,13 +86,17 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     final MediaSession.MediaSessionImpl mSessionImpl;
     final MediaSessionManager mSessionManager;
     final Context mContext;
-    final ControllerCb mControllerLegacyCbForBroadcast;
+    final ControllerInfo mControllerInfoForAll;
 
     MediaSessionLegacyStub(MediaSession.MediaSessionImpl session) {
         mSessionImpl = session;
         mContext = mSessionImpl.getContext();
         mSessionManager = MediaSessionManager.getSessionManager(mContext);
-        mControllerLegacyCbForBroadcast = new ControllerLegacyCbForBroadcast();
+        mControllerInfoForAll = new ControllerInfo(
+                new RemoteUserInfo(
+                        RemoteUserInfo.LEGACY_CONTROLLER, Process.myPid(), Process.myUid()),
+                MediaUtils.VERSION_UNKNOWN, false /* trusted */,
+                new ControllerLegacyCbForAll(), null /* connectionHints */);
         mConnectedControllersManager = new ConnectedControllersManager<>(session);
     }
 
@@ -128,17 +132,51 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPrepareFromMediaId(final String mediaId, final Bundle extras) {
-        // TODO(b/145644087): Support this
+        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
+                new SessionTask() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "onPrepareFromMediaId(): Ignoring empty mediaId from "
+                                    + controller);
+                            return;
+                        }
+                        mSessionImpl.getCallback().onPrepareFromMediaId(mSessionImpl.getInstance(),
+                                controller, mediaId, extras);
+                    }
+                });
     }
 
     @Override
     public void onPrepareFromSearch(final String query, final Bundle extras) {
-        // TODO(b/145644087): Support this
+        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
+                new SessionTask() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        if (TextUtils.isEmpty(query)) {
+                            Log.w(TAG, "onPrepareFromSearch(): Ignoring empty query from "
+                                    + controller);
+                            return;
+                        }
+                        mSessionImpl.getCallback().onPrepareFromSearch(mSessionImpl.getInstance(),
+                                controller, query, extras);
+                    }
+                });
     }
 
     @Override
     public void onPrepareFromUri(final Uri uri, final Bundle extras) {
-        // TODO(b/145644087): Support this
+        if (uri == null) {
+            return;
+        }
+        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI,
+                new SessionTask() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        mSessionImpl.getCallback().onPrepareFromUri(mSessionImpl.getInstance(),
+                                controller, uri, extras);
+                    }
+                });
     }
 
     @Override
@@ -155,17 +193,51 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPlayFromMediaId(final String mediaId, final Bundle extras) {
-        // TODO(b/145644087): Support this
+        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
+                new SessionTask() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "onPlayFromMediaId(): Ignoring empty mediaId from "
+                                    + controller);
+                            return;
+                        }
+                        mSessionImpl.getCallback().onPlayFromMediaId(mSessionImpl.getInstance(),
+                                controller, mediaId, extras);
+                    }
+                });
     }
 
     @Override
     public void onPlayFromSearch(final String query, final Bundle extras) {
-        // TODO(b/145644087): Support this
+        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
+                new SessionTask() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        if (TextUtils.isEmpty(query)) {
+                            Log.w(TAG, "onPlayFromSearch(): Ignoring empty query from "
+                                    + controller);
+                            return;
+                        }
+                        mSessionImpl.getCallback().onPlayFromSearch(mSessionImpl.getInstance(),
+                                controller, query, extras);
+                    }
+                });
     }
 
     @Override
     public void onPlayFromUri(final Uri uri, final Bundle extras) {
-        // TODO(b/145644087): Support this
+        if (uri == null) {
+            return;
+        }
+        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_URI,
+                new SessionTask() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        mSessionImpl.getCallback().onPlayFromUri(mSessionImpl.getInstance(),
+                                controller, uri, extras);
+                    }
+                });
     }
 
     @Override
@@ -429,8 +501,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 });
     }
 
-    ControllerCb getControllerLegacyCbForBroadcast() {
-        return mControllerLegacyCbForBroadcast;
+    ControllerInfo getControllersForAll() {
+        return mControllerInfoForAll;
     }
 
     ConnectedControllersManager<RemoteUserInfo> getConnectedControllersManager() {
@@ -707,8 +779,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     }
 
     // TODO: Find a way to notify error through PlaybackStateCompat
-    final class ControllerLegacyCbForBroadcast extends MediaSession.ControllerCb {
-        ControllerLegacyCbForBroadcast() {
+    final class ControllerLegacyCbForAll extends MediaSession.ControllerCb {
+        ControllerLegacyCbForAll() {
         }
 
         @Override

@@ -64,7 +64,7 @@ class HotReloadTests {
             TextView(id = id, text = text)
         }
 
-        @Composable fun column(children: @Composable () -> Unit) {
+        @Composable fun column(children: @Composable() () -> Unit) {
             LinearLayout { children() }
         }
 
@@ -112,7 +112,7 @@ class HotReloadTests {
             }
         }
 
-        @Composable fun columnNode(children: @Composable () -> Unit) {
+        @Composable fun columnNode(children: @Composable() () -> Unit) {
             children()
         }
 

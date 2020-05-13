@@ -22,7 +22,6 @@ import androidx.ui.geometry.Rect
 import androidx.ui.geometry.isSimple
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
-import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.asAndroidPath
 import androidx.ui.unit.Density
@@ -45,9 +44,9 @@ internal class OutlineResolver(private val density: Density) {
     private var size: PxSize = PxSize.Zero
 
     /**
-     * The [Shape] of the Outline of the Layer.
+     * The [Shape] of the Outline of the Layer. `null` indicates that there is no outline.
      */
-    private var shape: Shape = RectangleShape
+    private var shape: Shape? = null
 
     /**
      * Asymmetric rounded rectangles need to use a Path. This caches that Path so that
@@ -62,6 +61,11 @@ internal class OutlineResolver(private val density: Density) {
      * Path to clip in [clipPath].
      */
     private var outlinePath: Path? = null
+
+    /**
+     * The opacity of the outline, which is the same as the opacity of the layer.
+     */
+    private var alpha = 1f
 
     /**
      * True when there's been an update that caused a change in the path and the Outline
@@ -82,7 +86,7 @@ internal class OutlineResolver(private val density: Density) {
     val outline: android.graphics.Outline?
         get() {
             updateCache()
-            return if (!outlineNeeded || cachedOutline.isEmpty) null else cachedOutline
+            return if (shape == null) null else cachedOutline
         }
 
     /**
@@ -97,23 +101,31 @@ internal class OutlineResolver(private val density: Density) {
         }
 
     /**
-     * True when we are going to clip or have a non-zero elevation for shadows.
+     * `true` when an Outline can be used. This can be `true` even if the outline
+     * doesn't support clipping because it may be used for shadows. An Outline
+     * is not supported when the shape is `null` or a concave path is used on
+     * pre-Q devices.
      */
-    private var outlineNeeded = false
+    val supportsNativeOutline: Boolean
+        get() {
+            if (shape == null) {
+                return false
+            }
+            updateCache()
+            return !cachedOutline.isEmpty
+        }
 
     /**
      * Updates the values of the outline. Returns `true` when the shape has changed.
      */
-    fun update(shape: Shape, alpha: Float, clipToOutline: Boolean, elevation: Float): Boolean {
-        cachedOutline.alpha = alpha
+    fun update(shape: Shape?, alpha: Float): Boolean {
         val shapeChanged = this.shape != shape
         if (shapeChanged) {
             this.shape = shape
             cacheIsDirty = true
         }
-        val outlineNeeded = clipToOutline || elevation > 0f
-        if (this.outlineNeeded != outlineNeeded) {
-            this.outlineNeeded = outlineNeeded
+        if (this.alpha != alpha) {
+            this.alpha = alpha
             cacheIsDirty = true
         }
         return shapeChanged
@@ -133,14 +145,17 @@ internal class OutlineResolver(private val density: Density) {
         if (cacheIsDirty) {
             cacheIsDirty = false
             usePathForClip = false
-            if (outlineNeeded && size.width > 0.px && size.height > 0.px) {
-                when (val outline = shape.createOutline(size, density)) {
-                    is Outline.Rectangle -> updateCacheWithRect(outline.rect)
-                    is Outline.Rounded -> updateCacheWithRRect(outline.rrect)
-                    is Outline.Generic -> updateCacheWithPath(outline.path)
-                }
-            } else {
+            val shape = this.shape
+            if (shape == null || size.width == 0.px || size.height == 0.px) {
                 cachedOutline.setEmpty()
+                return
+            }
+            cachedOutline.alpha = alpha
+            val outline = shape.createOutline(size, density)
+            when (outline) {
+                is Outline.Rectangle -> updateCacheWithRect(outline.rect)
+                is Outline.Rounded -> updateCacheWithRRect(outline.rrect)
+                is Outline.Generic -> updateCacheWithPath(outline.path)
             }
         }
     }

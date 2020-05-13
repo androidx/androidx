@@ -59,7 +59,7 @@ inline fun PointerInput(
     noinline cancelHandler: () -> Unit,
     noinline initHandler: ((CustomEventDispatcher) -> Unit)? = null,
     noinline customEventHandler: ((CustomEvent, PointerEventPass) -> Unit)? = null,
-    crossinline children: @Composable () -> Unit
+    crossinline children: @Composable() () -> Unit
 ) {
     // Hide the internals of PointerInputNode.
     PointerInputNode(

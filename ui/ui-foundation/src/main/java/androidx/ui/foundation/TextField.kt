@@ -23,11 +23,13 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.Modifier
+import androidx.ui.core.composed
 import androidx.ui.core.drawBehind
 import androidx.ui.focus.FocusModifier
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.graphics.painter.Stroke
 import androidx.ui.graphics.useOrElse
 import androidx.ui.input.EditorValue
@@ -36,6 +38,7 @@ import androidx.ui.input.KeyboardType
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.defaultMinSizeConstraints
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.listSaver
 import androidx.ui.text.CoreTextField

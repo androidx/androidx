@@ -85,7 +85,7 @@ fun BottomNavigation(
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = BottomNavigationElevation,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable() RowScope.() -> Unit
 ) {
     Surface(
         color = backgroundColor,
@@ -128,8 +128,8 @@ fun BottomNavigation(
  */
 @Composable
 fun BottomNavigationItem(
-    icon: @Composable () -> Unit,
-    text: @Composable () -> Unit = emptyContent(),
+    icon: @Composable() () -> Unit,
+    text: @Composable() () -> Unit = emptyContent(),
     selected: Boolean,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier,
@@ -178,7 +178,7 @@ private fun BottomNavigationTransition(
     activeColor: Color,
     inactiveColor: Color,
     selected: Boolean,
-    content: @Composable (animationProgress: Float) -> Unit
+    content: @Composable() (animationProgress: Float) -> Unit
 ) {
     val animationProgress = animate(
         target = if (selected) 1f else 0f,
@@ -204,8 +204,8 @@ private fun BottomNavigationTransition(
  */
 @Composable
 private fun BottomNavigationItemBaselineLayout(
-    icon: @Composable () -> Unit,
-    text: @Composable () -> Unit,
+    icon: @Composable() () -> Unit,
+    text: @Composable() () -> Unit,
     @FloatRange(from = 0.0, to = 1.0) iconPositionAnimationProgress: Float
 ) {
     Layout(

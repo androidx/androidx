@@ -66,6 +66,7 @@ import androidx.testutils.PollingCheck;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1107,14 +1108,45 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void setMediaUri() throws Exception {
+    @Ignore("This tests hidden API, which isn't public at this moment.")
+    public void playFromSearch() throws Exception {
+        final String request = "random query";
+        final Bundle bundle = new Bundle();
+        bundle.putString("key", "value");
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionCallback callback = new SessionCallback() {
+            @Override
+            public int onPlayFromSearch(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull String query, Bundle extras) {
+                super.onPlayFromSearch(session, controller, query, extras);
+                assertEquals(mContext.getPackageName(), controller.getPackageName());
+                assertEquals(request, query);
+                assertTrue(TestUtils.equals(bundle, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testPlayFromSearch").build()) {
+            MediaController controller = createController(session.getToken());
+            SessionResult result = controller.playFromSearch(request, bundle)
+                    .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            assertEquals(RESULT_SUCCESS, result.getResultCode());
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
+    public void playFromUri() throws Exception {
         final Uri request = Uri.parse("foo://boo");
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onSetMediaUri(@NonNull MediaSession session,
+            public int onPlayFromUri(@NonNull MediaSession session,
                     @NonNull ControllerInfo controller, @NonNull Uri uri, Bundle extras) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 assertEquals(request, uri);
@@ -1125,9 +1157,125 @@ public class MediaControllerTest extends MediaSessionTestBase {
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
-                .setId("testSetMediaUri").build()) {
+                .setId("testPlayFromUri").build()) {
             MediaController controller = createController(session.getToken());
-            SessionResult result = controller.setMediaUri(request, bundle)
+            SessionResult result = controller.playFromUri(request, bundle)
+                    .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            assertEquals(RESULT_SUCCESS, result.getResultCode());
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
+    public void playFromMediaId() throws Exception {
+        final String request = "media_id";
+        final Bundle bundle = new Bundle();
+        bundle.putString("key", "value");
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionCallback callback = new SessionCallback() {
+            @Override
+            public int onPlayFromMediaId(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull String mediaId, Bundle extras) {
+                assertEquals(mContext.getPackageName(), controller.getPackageName());
+                assertEquals(request, mediaId);
+                assertTrue(TestUtils.equals(bundle, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testPlayFromMediaId").build()) {
+            MediaController controller = createController(session.getToken());
+            SessionResult result = controller.playFromMediaId(request, bundle)
+                    .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            assertEquals(RESULT_SUCCESS, result.getResultCode());
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
+    public void prepareFromSearch() throws Exception {
+        final String request = "random query";
+        final Bundle bundle = new Bundle();
+        bundle.putString("key", "value");
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionCallback callback = new SessionCallback() {
+            @Override
+            public int onPrepareFromSearch(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull String query, Bundle extras) {
+                assertEquals(mContext.getPackageName(), controller.getPackageName());
+                assertEquals(request, query);
+                assertTrue(TestUtils.equals(bundle, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testPrepareFromSearch").build()) {
+            MediaController controller = createController(session.getToken());
+            SessionResult result = controller.prepareFromSearch(request, bundle)
+                    .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            assertEquals(RESULT_SUCCESS, result.getResultCode());
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
+    public void prepareFromUri() throws Exception {
+        final Uri request = Uri.parse("foo://boo");
+        final Bundle bundle = new Bundle();
+        bundle.putString("key", "value");
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionCallback callback = new SessionCallback() {
+            @Override
+            public int onPrepareFromUri(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull Uri uri, Bundle extras) {
+                assertEquals(mContext.getPackageName(), controller.getPackageName());
+                assertEquals(request, uri);
+                assertTrue(TestUtils.equals(bundle, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testPrepareFromUri").build()) {
+            MediaController controller = createController(session.getToken());
+            SessionResult result = controller.prepareFromUri(request, bundle)
+                    .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            assertEquals(RESULT_SUCCESS, result.getResultCode());
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
+    public void prepareFromMediaId() throws Exception {
+        final String request = "media_id";
+        final Bundle bundle = new Bundle();
+        bundle.putString("key", "value");
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionCallback callback = new SessionCallback() {
+            @Override
+            public int onPrepareFromMediaId(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull String mediaId, Bundle extras) {
+                assertEquals(mContext.getPackageName(), controller.getPackageName());
+                assertEquals(request, mediaId);
+                assertTrue(TestUtils.equals(bundle, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testPrepareFromMediaId").build()) {
+            MediaController controller = createController(session.getToken());
+            SessionResult result = controller.prepareFromMediaId(request, bundle)
                     .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
             assertEquals(RESULT_SUCCESS, result.getResultCode());
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -1453,7 +1601,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final ControllerCallback callback = new ControllerCallback() {
             @Override
             public void onPlaylistChanged(@NonNull MediaController controller,
-                    @Nullable List<MediaItem> list, @Nullable MediaMetadata metadata) {
+                    @NonNull List<MediaItem> list, @Nullable MediaMetadata metadata) {
                 switch ((int) latch.getCount()) {
                     case 2:
                         assertEquals(currentItemIdx, controller.getCurrentMediaItemIndex());
@@ -1461,7 +1609,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
                         break;
                     case 1:
                         assertEquals(currentItemIdx, controller.getCurrentMediaItemIndex());
-                        assertNotNull(list);
                         assertTrue(list.get(1).getMetadata().containsKey(
                                 MediaMetadata.METADATA_KEY_DURATION));
                         assertEquals(duration, list.get(1).getMetadata().getLong(

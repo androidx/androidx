@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.CheckResult
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
@@ -113,7 +112,6 @@ internal class PagerState<Key : Any, Value : Any>(
     /**
      * @return true if insert was applied, false otherwise.
      */
-    @CheckResult
     fun insert(loadId: Int, loadType: LoadType, page: Page<Key, Value>): Boolean {
         when (loadType) {
             REFRESH -> {

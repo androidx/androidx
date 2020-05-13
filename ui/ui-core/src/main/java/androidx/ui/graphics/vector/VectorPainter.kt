@@ -60,7 +60,7 @@ fun VectorPainter(
     viewportWidth: Float = Float.NaN,
     viewportHeight: Float = Float.NaN,
     name: String = RootGroupName,
-    children: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): VectorPainter {
     val density = DensityAmbient.current
     val widthPx = with(density) { defaultWidth.toPx() }
@@ -136,7 +136,7 @@ private fun createVector(
     defaultHeight: Px,
     viewportWidth: Float = defaultWidth.value,
     viewportHeight: Float = defaultHeight.value,
-    children: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): VectorComponent {
     val vector =
         remember(name, viewportWidth, viewportHeight) {

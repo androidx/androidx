@@ -97,7 +97,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
      * @throws IllegalStateException if called more than once per test.
      */
     @SuppressWarnings("SyntheticAccessor")
-    override fun setContent(composable: @Composable () -> Unit) {
+    override fun setContent(composable: @Composable() () -> Unit) {
         check(disposeContentHook == null) {
             "Cannot call setContent twice per test!"
         }
@@ -125,7 +125,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
         }
     }
 
-    override fun forGivenContent(composable: @Composable () -> Unit): ComposeTestCaseSetup {
+    override fun forGivenContent(composable: @Composable() () -> Unit): ComposeTestCaseSetup {
         return forGivenTestCase(object : ComposeTestCase {
             @Composable
             override fun emitContent() {

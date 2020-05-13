@@ -35,6 +35,7 @@ import androidx.ui.input.OffsetMap
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TransformedText
+import androidx.ui.input.VisualTransformation
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm

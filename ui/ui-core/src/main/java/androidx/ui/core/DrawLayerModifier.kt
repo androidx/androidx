@@ -18,7 +18,6 @@ package androidx.ui.core
 
 import androidx.annotation.FloatRange
 import androidx.compose.Immutable
-import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.util.packFloats
 import androidx.ui.util.unpackFloat1
@@ -104,7 +103,7 @@ interface DrawLayerModifier : Modifier.Element {
 
     /**
      * Sets the elevation for the shadow in pixels. With the [shadowElevation] > 0f and
-     * [shape] set, a shadow is produced.
+     * [outlineShape] set, a shadow is produced.
      */
     @get:FloatRange(from = 0.0)
     val shadowElevation: Float get() = 0f
@@ -135,15 +134,28 @@ interface DrawLayerModifier : Modifier.Element {
     val transformOrigin: TransformOrigin get() = TransformOrigin.Center
 
     /**
-     * The [Shape] of the layer. When [shadowElevation] is non-zero a shadow is produced using
-     * this [shape]. When [clip] is `true` contents will be clipped to this [shape].
+     * The [Shape] of the layer. When [shadowElevation] is non-zero and [outlineShape] is non-null,
+     * a shadow is produced. When [clipToOutline] is `true` and [outlineShape] is non-null, the
+     * contents will be clipped to the outline.
      */
-    val shape: Shape get() = RectangleShape
+    val outlineShape: Shape? get() = null
 
     /**
-     * Set to `true` to clip the content to the [shape].
+     * Set to `true` to clip the content to the size of the layer or `false` to allow
+     * drawing outside of the layer's bounds. This a convenient way to clip to the bounding
+     * rectangle. When [clipToOutline] is `true` the contents are clipped by both the
+     * bounding rectangle and the [outlineShape].
+     *
+     * @see clipToOutline
      */
-    val clip: Boolean get() = false
+    val clipToBounds: Boolean get() = false
+
+    /**
+     * Clips the content to the [outlineShape]. If [outlineShape] is null, no clipping will occur.
+     * When both [clipToBounds] and [clipToOutline] are `true`, the content will be clipped by
+     * both the bounding rectangle and the [outlineShape].
+     */
+    val clipToOutline: Boolean get() = false
 }
 
 private data class SimpleDrawLayerModifier(
@@ -157,9 +169,68 @@ private data class SimpleDrawLayerModifier(
     override val rotationY: Float,
     override val rotationZ: Float,
     override val transformOrigin: TransformOrigin,
-    override val shape: Shape,
-    override val clip: Boolean
+    override val outlineShape: Shape?,
+    override val clipToBounds: Boolean,
+    override val clipToOutline: Boolean
 ) : DrawLayerModifier
+
+/**
+ * Create a [DrawLayerModifier] with fixed properties.
+ *
+ * @sample androidx.ui.core.samples.ChangeOpacity
+ *
+ * @param scaleX [DrawLayerModifier.scaleX]
+ * @param scaleY [DrawLayerModifier.scaleY]
+ * @param alpha [DrawLayerModifier.alpha]
+ * @param translationX [DrawLayerModifier.translationX]
+ * @param translationY [DrawLayerModifier.translationY]
+ * @param elevation [DrawLayerModifier.shadowElevation]
+ * @param rotationX [DrawLayerModifier.rotationX]
+ * @param rotationY [DrawLayerModifier.rotationY]
+ * @param rotationZ [DrawLayerModifier.rotationZ]
+ * @param transformOrigin [DrawLayerModifier.transformOrigin]
+ * @param outlineShape [DrawLayerModifier.outlineShape]
+ * @param clipToBounds [DrawLayerModifier.clipToBounds]
+ * @param clipToOutline [DrawLayerModifier.clipToOutline]
+ */
+@Deprecated(
+    "Use Modifier.drawLayer",
+    replaceWith = ReplaceWith(
+        "Modifier.drawLayer(scaleX, scaleY, alpha, elevation, rotationX, rotationY, rotationZ, " +
+                "transformOrigin, outlineShape, clipToBounds, clipToOutline)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.core.drawLayer"
+    )
+)
+fun drawLayer(
+    scaleX: Float = 1f,
+    scaleY: Float = 1f,
+    alpha: Float = 1f,
+    translationX: Float = 0f,
+    translationY: Float = 0f,
+    elevation: Float = 0f,
+    rotationX: Float = 0f,
+    rotationY: Float = 0f,
+    rotationZ: Float = 0f,
+    transformOrigin: TransformOrigin = TransformOrigin.Center,
+    outlineShape: Shape? = null,
+    clipToBounds: Boolean = false,
+    clipToOutline: Boolean = false
+): Modifier = SimpleDrawLayerModifier(
+    scaleX = scaleX,
+    scaleY = scaleY,
+    alpha = alpha,
+    translationX = translationX,
+    translationY = translationY,
+    shadowElevation = elevation,
+    rotationX = rotationX,
+    rotationY = rotationY,
+    rotationZ = rotationZ,
+    transformOrigin = transformOrigin,
+    outlineShape = outlineShape,
+    clipToBounds = clipToBounds,
+    clipToOutline = clipToOutline
+)
 
 /**
  * Draw the content into a layer. This permits applying special effects and transformations:
@@ -173,8 +244,9 @@ private data class SimpleDrawLayerModifier(
  * @param rotationX [DrawLayerModifier.rotationX]
  * @param rotationY [DrawLayerModifier.rotationY]
  * @param rotationZ [DrawLayerModifier.rotationZ]
- * @param shape [DrawLayerModifier.shape]
- * @param clip [DrawLayerModifier.clip]
+ * @param outlineShape [DrawLayerModifier.outlineShape]
+ * @param clipToBounds [DrawLayerModifier.clipToBounds]
+ * @param clipToOutline [DrawLayerModifier.clipToOutline]
  */
 fun Modifier.drawLayer(
     scaleX: Float = 1f,
@@ -187,8 +259,9 @@ fun Modifier.drawLayer(
     rotationY: Float = 0f,
     rotationZ: Float = 0f,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
-    shape: Shape = RectangleShape,
-    clip: Boolean = false
+    outlineShape: Shape? = null,
+    clipToBounds: Boolean = false,
+    clipToOutline: Boolean = false
 ) = this + SimpleDrawLayerModifier(
     scaleX = scaleX,
     scaleY = scaleY,
@@ -200,6 +273,7 @@ fun Modifier.drawLayer(
     rotationY = rotationY,
     rotationZ = rotationZ,
     transformOrigin = transformOrigin,
-    shape = shape,
-    clip = clip
+    outlineShape = outlineShape,
+    clipToBounds = clipToBounds,
+    clipToOutline = clipToOutline
 )

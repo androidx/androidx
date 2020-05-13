@@ -64,8 +64,8 @@ import androidx.ui.unit.max
  */
 @Composable
 fun Snackbar(
-    text: @Composable () -> Unit,
-    action: @Composable (() -> Unit)? = null,
+    text: @Composable() () -> Unit,
+    action: @Composable() (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     actionOnNewLine: Boolean = false,
     shape: Shape = MaterialTheme.shapes.small,
@@ -96,7 +96,7 @@ fun Snackbar(
 }
 
 @Composable
-private fun TextOnlySnackbar(text: @Composable () -> Unit) {
+private fun TextOnlySnackbar(text: @Composable() () -> Unit) {
     Layout(
         text,
         modifier = Modifier.padding(start = HorizontalSpacing, end = HorizontalSpacing)
@@ -118,8 +118,8 @@ private fun TextOnlySnackbar(text: @Composable () -> Unit) {
 
 @Composable
 private fun NewLineButtonSnackbar(
-    text: @Composable () -> Unit,
-    action: @Composable () -> Unit
+    text: @Composable() () -> Unit,
+    action: @Composable() () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -142,8 +142,8 @@ private fun NewLineButtonSnackbar(
 
 @Composable
 private fun OneRowSnackbar(
-    text: @Composable () -> Unit,
-    action: @Composable () -> Unit
+    text: @Composable() () -> Unit,
+    action: @Composable() () -> Unit
 ) {
     val textTag = "text"
     val actionTag = "action"
