@@ -74,7 +74,7 @@ class ImagePainterTest {
     fun testImagePainter() {
         val imagePainter = ImagePainter(createTestSrcImage())
         val dst = createTestDstImage()
-        imagePainter.draw(Canvas(dst), srcSize)
+        drawPainter(imagePainter, Canvas(dst), srcSize)
 
         val pixelmap = dst.toPixelMap()
         assertEquals(white, pixelmap[195, 5])
@@ -89,7 +89,7 @@ class ImagePainterTest {
         val dst = createTestDstImage()
 
         val flagCanvas = LayerFlagCanvas(Canvas(dst))
-        imagePainter.draw(flagCanvas, srcSize, alpha = 0.5f)
+        drawPainter(imagePainter, flagCanvas, srcSize, alpha = 0.5f)
 
         // ImagePainter's optimized application of alpha should be applied here
         // instead of Painter's default implementation that invokes Canvas.saveLayer
@@ -113,7 +113,9 @@ class ImagePainterTest {
     fun testImagePainterTint() {
         val imagePainter = ImagePainter(createTestSrcImage())
         val dst = createTestDstImage()
-        imagePainter.draw(
+
+        drawPainter(
+            imagePainter,
             Canvas(dst),
             srcSize,
             colorFilter = ColorFilter(Color.Cyan, BlendMode.srcIn)
@@ -140,7 +142,7 @@ class ImagePainterTest {
         val intrinsicSize = topLeftPainter.intrinsicSize
         assertEquals(50.0f, intrinsicSize.width.value)
         assertEquals(50.0f, intrinsicSize.height.value)
-        topLeftPainter.draw(Canvas(dst), intrinsicSize)
+        drawPainter(topLeftPainter, Canvas(dst), intrinsicSize)
 
         val topLeftMap = dst.toPixelMap()
         assertEquals(Color.Blue, topLeftMap[0, 0])
@@ -154,7 +156,8 @@ class ImagePainterTest {
         )
 
         val topRightDst = createTestDstImage()
-        topRightPainter.draw(Canvas(topRightDst), topRightPainter.intrinsicSize)
+        drawPainter(topRightPainter, Canvas(topRightDst), topRightPainter.intrinsicSize)
+
         val topRightMap = topRightDst.toPixelMap()
         assertEquals(Color.Blue, topRightMap[0, 0])
         assertEquals(Color.Red, topRightMap[0, 49])
@@ -166,7 +169,7 @@ class ImagePainterTest {
             srcSize = Size(50.0f, 50.0f)
         )
 
-        bottomLeftPainter.draw(canvas, bottomLeftPainter.intrinsicSize)
+        drawPainter(bottomLeftPainter, canvas, bottomLeftPainter.intrinsicSize)
 
         val bottomLeftMap = dst.toPixelMap()
         assertEquals(Color.Blue, bottomLeftMap[0, 0])
@@ -179,7 +182,7 @@ class ImagePainterTest {
             srcSize = Size(50.0f, 50.0f)
         )
 
-        bottomRightPainter.draw(canvas, bottomRightPainter.intrinsicSize)
+        drawPainter(bottomRightPainter, canvas, bottomRightPainter.intrinsicSize)
 
         val bottomRightMap = dst.toPixelMap()
         assertEquals(Color.Red, bottomRightMap[0, 0])

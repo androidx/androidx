@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawModifier
-import androidx.ui.core.DrawScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.geometry.Offset
@@ -37,6 +36,7 @@ import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.addOutline
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.graphics.painter.Fill
 import androidx.ui.graphics.painter.Stroke
 import androidx.ui.unit.Density

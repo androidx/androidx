@@ -21,11 +21,11 @@ import androidx.compose.emptyContent
 import androidx.compose.remember
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.DrawScope
 import androidx.ui.core.drawBehind
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp

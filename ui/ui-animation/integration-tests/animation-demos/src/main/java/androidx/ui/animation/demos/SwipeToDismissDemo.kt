@@ -35,7 +35,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
@@ -137,7 +137,7 @@ private fun SwipeToDismiss() {
     }
 }
 
-private fun CanvasScope.drawLeftItems(
+private fun DrawScope.drawLeftItems(
     horizontalOffset: Float,
     width: Float,
     height: Float,
@@ -157,7 +157,7 @@ private fun CanvasScope.drawLeftItems(
     }
 }
 
-private fun CanvasScope.drawDismissingItem(
+private fun DrawScope.drawDismissingItem(
     bottom: Float,
     width: Float,
     height: Float,

@@ -26,11 +26,11 @@ import androidx.ui.unit.PxSize.Companion.UnspecifiedSize
  */
 data class ColorPainter(val color: Color) : Painter() {
 
-    private var alpha: Float = CanvasScope.DefaultAlpha
+    private var alpha: Float = DrawScope.DefaultAlpha
 
     private var colorFilter: ColorFilter? = null
 
-    override fun CanvasScope.onDraw() {
+    override fun DrawScope.onDraw() {
         drawRect(color = color, alpha = alpha, colorFilter = colorFilter)
     }
 

@@ -26,9 +26,8 @@ import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.DrawScope
-import androidx.ui.core.Modifier
 import androidx.ui.core.LayoutDirection
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.DeterminateProgressIndicator
 import androidx.ui.foundation.Strings
@@ -36,7 +35,7 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.graphics.painter.Stroke
 import androidx.ui.graphics.vectormath.degrees
 import androidx.ui.layout.padding
@@ -232,7 +231,7 @@ fun CircularProgressIndicator(
     }
 }
 
-private fun CanvasScope.drawCircularIndicator(
+private fun DrawScope.drawCircularIndicator(
     startAngle: Float,
     sweep: Float,
     color: Color,
@@ -267,14 +266,14 @@ object ProgressIndicatorConstants {
     val DefaultStrokeWidth = 4.dp
 }
 
-private fun CanvasScope.drawDeterminateCircularIndicator(
+private fun DrawScope.drawDeterminateCircularIndicator(
     startAngle: Float,
     sweep: Float,
     color: Color,
     stroke: Stroke
 ) = drawCircularIndicator(startAngle, sweep, color, stroke)
 
-private fun CanvasScope.drawIndeterminateCircularIndicator(
+private fun DrawScope.drawIndeterminateCircularIndicator(
     startAngle: Float,
     strokeWidth: Dp,
     sweep: Float,

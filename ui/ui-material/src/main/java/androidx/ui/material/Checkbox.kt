@@ -38,7 +38,7 @@ import androidx.ui.geometry.shrink
 import androidx.ui.graphics.ClipOp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.graphics.painter.Stroke
 import androidx.ui.graphics.painter.clipRect
 import androidx.ui.layout.padding
@@ -148,7 +148,7 @@ private fun DrawCheckbox(value: ToggleableState, activeColor: Color, modifier: M
     }
 }
 
-private fun CanvasScope.drawBox(
+private fun DrawScope.drawBox(
     color: Color,
     innerRadiusFraction: Float,
     radius: Float,
@@ -214,7 +214,7 @@ private fun CanvasScope.drawBox(
     }
 }
 
-private fun CanvasScope.drawCheck(
+private fun DrawScope.drawCheck(
     checkFraction: Float,
     crossCenterGravitation: Float,
     strokeWidthPx: Float

@@ -45,11 +45,11 @@ data class ImagePainter(
 
     private val size: PxSize = validateSize(srcOffset, srcSize)
 
-    private var alpha: Float = CanvasScope.DefaultAlpha
+    private var alpha: Float = DrawScope.DefaultAlpha
 
     private var colorFilter: ColorFilter? = null
 
-    override fun CanvasScope.onDraw() {
+    override fun DrawScope.onDraw() {
         drawImage(
             image,
             srcOffset,
