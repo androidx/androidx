@@ -62,6 +62,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.content.LocusIdCompat;
+import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.text.BidiFormatter;
 import androidx.core.view.GravityCompat;
@@ -1644,6 +1645,35 @@ public class NotificationCompat {
          */
         public Builder setShortcutId(String shortcutId) {
             mShortcutId = shortcutId;
+            return this;
+        }
+
+        /**
+         * Populates this notification with given {@link ShortcutInfoCompat}.
+         *
+         * <p>Sets {@link androidx.core.content.pm.ShortcutInfoCompat#getId() shortcutId} based on
+         * the given shortcut. In addition, it also sets {@link LocusIdCompat locusId} and
+         * {@link #setContentTitle(CharSequence) contentTitle} if they were empty.
+         *
+         */
+        @NonNull
+        public Builder setShortcutInfo(@Nullable final ShortcutInfoCompat shortcutInfo) {
+            // TODO: b/156784300 add sanity check to filter long-lived and sharing shortcut
+            if (shortcutInfo == null) {
+                return this;
+            }
+            mShortcutId = shortcutInfo.getId();
+            if (mLocusId == null) {
+                if (shortcutInfo.getLocusId() != null) {
+                    mLocusId = shortcutInfo.getLocusId();
+                } else if (shortcutInfo.getId() != null) {
+                    mLocusId = new LocusIdCompat(shortcutInfo.getId());
+                }
+            }
+            if (mContentTitle == null) {
+                setContentTitle(shortcutInfo.getShortLabel());
+            }
+            // TODO: b/156784300 include person info
             return this;
         }
 
