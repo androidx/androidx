@@ -72,7 +72,7 @@ fun cachedInSample() {
                         pagingData.map { UiModel(it) }
                     }
                     .collectLatest {
-                        pagingAdapter.presentData(it)
+                        pagingAdapter.submitData(it)
                     }
             }
         }

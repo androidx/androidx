@@ -127,7 +127,7 @@ class AsyncPagingDataDifferTest {
 
         val job = launch {
             pager.flow.collect {
-                differ.presentData(it)
+                differ.submitData(it)
             }
         }
 
@@ -188,7 +188,7 @@ class AsyncPagingDataDifferTest {
                 currentPagedSource!!
             }
 
-            val job = launch { pager.flow.collectLatest { differ.presentData(it) } }
+            val job = launch { pager.flow.collectLatest { differ.submitData(it) } }
 
             // Load REFRESH [50, 51]
             advanceUntilIdle()
@@ -243,7 +243,7 @@ class AsyncPagingDataDifferTest {
 
             val job2 = launch {
                 pager2.flow.collectLatest {
-                    differ.presentData(it)
+                    differ.submitData(it)
                 }
             }
 
