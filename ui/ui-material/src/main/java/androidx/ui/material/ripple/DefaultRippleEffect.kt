@@ -31,8 +31,8 @@ import androidx.compose.setValue
 import androidx.ui.animation.PxPositionPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.DrawScope
-import androidx.ui.graphics.painter.clipRect
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize

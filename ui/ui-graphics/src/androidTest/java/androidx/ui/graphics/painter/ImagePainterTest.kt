@@ -27,6 +27,7 @@ import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.compositeOver
+import androidx.ui.graphics.drawscope.drawPainter
 import androidx.ui.graphics.toPixelMap
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize

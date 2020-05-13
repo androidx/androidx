@@ -34,7 +34,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.drawBorder
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.clipRect
+import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight

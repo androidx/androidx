@@ -23,7 +23,7 @@ import androidx.ui.foundation.Image
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.graphics.painter.DrawScope
+import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.layout.padding
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize

@@ -28,7 +28,7 @@ import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.rotate
+import androidx.ui.graphics.drawscope.rotate
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize

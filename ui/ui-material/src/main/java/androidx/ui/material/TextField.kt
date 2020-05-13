@@ -58,7 +58,7 @@ import androidx.ui.graphics.Shape
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.VisualTransformation
-import androidx.ui.graphics.painter.Stroke
+import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.ripple

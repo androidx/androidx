@@ -39,7 +39,7 @@ import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.Shape
-import androidx.ui.graphics.painter.DrawScope
+import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx

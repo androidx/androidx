@@ -36,9 +36,9 @@ import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.addOutline
-import androidx.ui.graphics.painter.DrawScope
-import androidx.ui.graphics.painter.Fill
-import androidx.ui.graphics.painter.Stroke
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.Fill
+import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Px

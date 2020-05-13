@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics.painter
+package androidx.ui.graphics.drawscope
 
 import android.graphics.PathEffect
 import androidx.annotation.FloatRange
@@ -250,7 +250,7 @@ inline fun DrawScope.withTransform(
  *
  * @sample androidx.ui.graphics.samples.canvasScopeSample
  */
-@CanvasScopeMarker
+@DrawScopeMarker
 abstract class DrawScope : Density {
 
     @PublishedApi internal var canvas: Canvas? = null

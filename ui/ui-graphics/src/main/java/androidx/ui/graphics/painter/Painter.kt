@@ -21,6 +21,8 @@ import androidx.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.Paint
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.graphics.withSaveLayer
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize

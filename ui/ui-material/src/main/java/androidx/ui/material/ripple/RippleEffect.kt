@@ -17,7 +17,7 @@
 package androidx.ui.material.ripple
 
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.DrawScope
+import androidx.ui.graphics.drawscope.DrawScope
 
 /**
  * [RippleEffect]s are drawn as part of [ripple] as a visual indicator for a pressed state.
