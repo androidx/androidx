@@ -140,9 +140,8 @@ public class MediaUtils {
      * {@link MediaItem}'s subclass object cannot be parceled due to the security issue.
      *
      * @param item an item
-     * @return
+     * @return upcasted item
      */
-    // TODO(b/139255697): Provide the functionality in the media2-common.
     @Nullable
     public static MediaItem upcastForPreparceling(@Nullable MediaItem item) {
         if (item == null || item.getClass() == MediaItem.class) {
@@ -156,11 +155,11 @@ public class MediaUtils {
 
     /**
      * Upcasts a {@link VideoSize} subclass to the {@link MediaItem} type for pre-parceling.
-     * Note that {@link VideoSize}'s subclass object cannot be parceled due to security issue
-     * and the issue that remote apps may not have the subclass.
+     * Note that {@link VideoSize}'s subclass object cannot be parceled due the issue that remote
+     * apps may not have the subclass.
      *
-     * @param size
-     * @return
+     * @param size a size
+     * @return upcasted size
      */
     @Nullable
     public static VideoSize upcastForPreparceling(@Nullable VideoSize size) {
@@ -172,11 +171,11 @@ public class MediaUtils {
 
     /**
      * Upcasts a {@link TrackInfo} subclass to the {@link TrackInfo} type for pre-parceling.
-     * Note that {@link TrackInfo}'s subclass object cannot be parceled due to security issue
-     * and the issue that remote apps may not have the subclass.
+     * Note that {@link TrackInfo}'s subclass object cannot be parceled due to the issue that remote
+     * apps may not have the subclass.
      *
-     * @param track
-     * @return
+     * @param track a track
+     * @return upcasted track
      */
     @Nullable
     public static TrackInfo upcastForPreparceling(@Nullable TrackInfo track) {
@@ -189,10 +188,10 @@ public class MediaUtils {
     /**
      * Upcasts a list of {@link TrackInfo} subclass objects to a List of {@link TrackInfo} type
      * for pre-parceling. Note that {@link TrackInfo}'s subclass object cannot be parceled due
-     * to security issue and the issue that remote apps may not have the subclass.
+     * to the issue that remote apps may not have the subclass.
      *
-     * @param tracks
-     * @return
+     * @param tracks a list of tracks
+     * @return list of upcasted tracks
      */
     @Nullable
     public static List<TrackInfo> upcastForPreparceling(@Nullable List<TrackInfo> tracks) {
