@@ -25,10 +25,9 @@ import androidx.ui.core.DrawScope
 import androidx.ui.core.drawBehind
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
-import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.text.style.TextDirection
+import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -38,37 +37,60 @@ private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())
 
 @Composable
 private fun SelectionHandle(left: Boolean) {
-    val paint = remember { Paint().also { it.isAntiAlias = true } }
-    paint.color = HANDLE_COLOR
+    val selectionHandleCache = remember { SelectionHandleCache() }
     HandleDrawLayout(width = HANDLE_WIDTH, height = HANDLE_HEIGHT) {
-        drawCanvas { canvas, _ ->
-            val path = Path().apply {
-                addRect(
-                    Rect(
-                        top = 0f,
-                        bottom = 0.5f * HANDLE_HEIGHT.toPx().value,
-                        left = if (left) {
-                            0.5f * HANDLE_WIDTH.toPx().value
-                        } else {
-                            0f
-                        },
-                        right = if (left) {
-                            HANDLE_WIDTH.toPx().value
-                        } else {
-                            0.5f * HANDLE_WIDTH.toPx().value
-                        }
+        drawPath(selectionHandleCache.createPath(this, left), HANDLE_COLOR)
+    }
+}
+
+/**
+ * Class used to cache a Path object to represent a selection handle
+ * based on the given handle direction
+ */
+private class SelectionHandleCache {
+    private var path: Path? = null
+    private var left: Boolean = false
+
+    fun createPath(density: Density, left: Boolean): Path {
+        return with(density) {
+            val current = path
+            if (this@SelectionHandleCache.left == left && current != null) {
+                // If we have already created the Path for the correct handle direction
+                // return it
+                current
+            } else {
+                this@SelectionHandleCache.left = left
+                // Otherwise, if this is the first time we are creating the Path
+                // or the current handle direction is different than the one we
+                // previously created, recreate the path and cache the result
+                (current ?: Path().also { path = it }).apply {
+                    reset()
+                    addRect(
+                        Rect(
+                            top = 0f,
+                            bottom = 0.5f * HANDLE_HEIGHT.toPx().value,
+                            left = if (left) {
+                                0.5f * HANDLE_WIDTH.toPx().value
+                            } else {
+                                0f
+                            },
+                            right = if (left) {
+                                HANDLE_WIDTH.toPx().value
+                            } else {
+                                0.5f * HANDLE_WIDTH.toPx().value
+                            }
+                        )
                     )
-                )
-                addOval(
-                    Rect(
-                        top = 0f,
-                        bottom = HANDLE_HEIGHT.toPx().value,
-                        left = 0f,
-                        right = HANDLE_WIDTH.toPx().value
+                    addOval(
+                        Rect(
+                            top = 0f,
+                            bottom = HANDLE_HEIGHT.toPx().value,
+                            left = 0f,
+                            right = HANDLE_WIDTH.toPx().value
+                        )
                     )
-                )
+                }
             }
-            canvas.drawPath(path, paint)
         }
     }
 }
