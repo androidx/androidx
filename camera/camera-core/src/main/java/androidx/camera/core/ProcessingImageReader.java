@@ -36,6 +36,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -132,7 +133,9 @@ class ProcessingImageReader implements ImageReaderProxy {
     final CaptureProcessor mCaptureProcessor;
 
     @GuardedBy("mLock")
-    SettableImageProxyBundle mSettableImageProxyBundle = null;
+    @NonNull
+    SettableImageProxyBundle mSettableImageProxyBundle =
+            new SettableImageProxyBundle(Collections.emptyList());
 
     private final List<Integer> mCaptureIdList = new ArrayList<>();
 
@@ -206,6 +209,7 @@ class ProcessingImageReader implements ImageReaderProxy {
             mInputImageReader.close();
             mOutputImageReader.close();
             mSettableImageProxyBundle.close();
+
             mClosed = true;
         }
     }
@@ -254,6 +258,19 @@ class ProcessingImageReader implements ImageReaderProxy {
             mExecutor = Preconditions.checkNotNull(executor);
             mInputImageReader.setOnImageAvailableListener(mTransformedListener, executor);
             mOutputImageReader.setOnImageAvailableListener(mImageProcessedListener, executor);
+        }
+    }
+
+    @Override
+    public void clearOnImageAvailableListener() {
+        synchronized (mLock) {
+            mListener = null;
+            mExecutor = null;
+            mInputImageReader.clearOnImageAvailableListener();
+            mOutputImageReader.clearOnImageAvailableListener();
+
+            mSettableImageProxyBundle.close();
+
         }
     }
 

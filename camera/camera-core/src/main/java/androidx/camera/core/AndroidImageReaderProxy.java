@@ -95,7 +95,7 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
     }
 
     private boolean isImageReaderContextNotInitializedException(RuntimeException e) {
-        return  "ImageReaderContext is not initialized".equals(e.getMessage());
+        return "ImageReaderContext is not initialized".equals(e.getMessage());
     }
 
     @Override
@@ -135,21 +135,14 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
             @NonNull Executor executor) {
         // ImageReader does not accept an executor. As a workaround, the callback is run on main
         // handler then immediately posted to the executor.
-        ImageReader.OnImageAvailableListener transformedListener =
-                new ImageReader.OnImageAvailableListener() {
-                    @Override
-                    public void onImageAvailable(ImageReader reader) {
-                        executor.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                listener.onImageAvailable(AndroidImageReaderProxy.this);
-                            }
-                        });
-
-                    }
-                };
+        ImageReader.OnImageAvailableListener transformedListener = (imageReader) ->
+                executor.execute(() -> listener.onImageAvailable(AndroidImageReaderProxy.this));
         mImageReader.setOnImageAvailableListener(transformedListener,
                 MainThreadAsyncHandler.getInstance());
     }
 
+    @Override
+    public synchronized void clearOnImageAvailableListener() {
+        mImageReader.setOnImageAvailableListener(null, null);
+    }
 }

@@ -97,7 +97,7 @@ public final class ProcessingImageReaderTest {
     }
 
     @Test
-    public void canSetFuturesInSettableImawgeProxyBundle()
+    public void canSetFuturesInSettableImageProxyBundle()
             throws InterruptedException, TimeoutException, ExecutionException {
         // Sets the callback from ProcessingImageReader to start processing
         CaptureProcessor captureProcessor = mock(CaptureProcessor.class);
