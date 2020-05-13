@@ -65,7 +65,6 @@ import androidx.ui.core.setContent
 import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
@@ -218,19 +217,12 @@ class AndroidLayoutDrawTest {
         composeMovingSquaresWithRepaintBoundary(model, offset)
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
 
-        drawLatch = CountDownLatch(1)
+        positionLatch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR {
-            // there isn't going to be a normal draw because we are just moving the repaint
-            // boundary, but we should have a draw cycle
-            activityTestRule.findAndroidComposeView().viewTreeObserver.addOnDrawListener(object :
-                ViewTreeObserver.OnDrawListener {
-                override fun onDraw() {
-                    drawLatch.countDown()
-                }
-            })
             offset.offset = 20.ipx
         }
 
+        assertTrue(positionLatch!!.await(1, TimeUnit.SECONDS))
         validateSquareColors(outerColor = blue, innerColor = white, offset = 10, size = 10)
     }
 
@@ -2491,6 +2483,28 @@ class AndroidLayoutDrawTest {
         }
     }
 
+    private var positionLatch: CountDownLatch? = null
+
+    @Composable
+    fun Position(
+        size: IntPx,
+        offset: OffsetModel,
+        modifier: Modifier = Modifier,
+        children: @Composable () -> Unit
+    ) {
+        Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
+            val placeables = measurables.map { m ->
+                m.measure(constraints)
+            }
+            layout(size, size) {
+                placeables.forEach { child ->
+                    child.place(offset.offset, offset.offset)
+                }
+                positionLatch?.countDown()
+            }
+        }
+    }
+
     fun Modifier.drawLatchModifier() = drawBehind { drawLatch.countDown() }
 }
 
@@ -2700,25 +2714,6 @@ fun TwoMeasureLayout(
             latch.countDown()
         }
         layout(0.ipx, 0.ipx) { }
-    }
-}
-
-@Composable
-fun Position(
-    size: IntPx,
-    offset: OffsetModel,
-    modifier: Modifier = Modifier,
-    children: @Composable () -> Unit
-) {
-    Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
-        val placeables = measurables.map { m ->
-            m.measure(constraints)
-        }
-        layout(size, size) {
-            placeables.forEach { child ->
-                child.place(offset.offset, offset.offset)
-            }
-        }
     }
 }
 
