@@ -2,9 +2,10 @@
 package androidx.ui.animation {
 
   public final class AnimatedFloatModel extends androidx.animation.AnimatedFloat {
-    ctor public AnimatedFloatModel(float value, androidx.animation.AnimationClockObservable clock, float visibilityThreshold);
-    method public Float getValue();
+    ctor public AnimatedFloatModel(float initialValue, androidx.animation.AnimationClockObservable clock, float visibilityThreshold);
+    method public Float! getValue();
     method protected void setValue(float p);
+    property public Float! value;
   }
 
   public final class AnimatedValueEffectsKt {
@@ -14,9 +15,10 @@ package androidx.ui.animation {
   }
 
   public final class AnimatedValueModel<T, V extends androidx.animation.AnimationVector> extends androidx.animation.AnimatedValue<T,V> {
-    ctor public AnimatedValueModel(T! value, androidx.animation.TwoWayConverter<T,V> typeConverter, androidx.animation.AnimationClockObservable clock, V? visibilityThreshold);
+    ctor public AnimatedValueModel(T! initialValue, androidx.animation.TwoWayConverter<T,V> typeConverter, androidx.animation.AnimationClockObservable clock, V? visibilityThreshold);
     method public T! getValue();
-    method protected void setValue(T? p);
+    method protected void setValue(T! p);
+    property public T! value;
   }
 
   public final class ColorPropKey implements androidx.animation.PropKey<androidx.ui.graphics.Color,androidx.animation.AnimationVector4D> {
