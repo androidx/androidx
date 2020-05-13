@@ -22,6 +22,7 @@ import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.semantics.SemanticsModifier
 import androidx.ui.core.semantics.SemanticsWrapper
 import androidx.ui.core.focus.FocusModifier
+import androidx.ui.core.semantics.outerSemantics
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
@@ -220,6 +221,9 @@ sealed class ComponentNode {
      */
     open fun detach() {
         val owner = owner ?: ErrorMessages.OwnerAlreadyDetached.state()
+        if (outerSemantics != null) {
+            owner.onSemanticsChange()
+        }
         owner.onDetach(this)
         this.owner = null
         depth = 0
@@ -609,6 +613,9 @@ class LayoutNode : ComponentNode(), Measurable {
 
             // Rebuild layoutNodeWrapper
             val oldPlaceable = layoutNodeWrapper
+            if (outerSemantics != null && isAttached()) {
+                owner!!.onSemanticsChange()
+            }
             val addedCallback = hasNewPositioningCallback()
             onPositionedCallbacks.clear()
             onChildPositionedCallbacks.clear()
@@ -651,6 +658,9 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 if (mod is SemanticsModifier) {
                     wrapper = SemanticsWrapper(wrapper, mod)
+                    if (isAttached()) {
+                        owner!!.onSemanticsChange()
+                    }
                 }
                 if (mod is ZIndexModifier) {
                     outerZIndexModifier = mod
