@@ -49,7 +49,11 @@ class BoundsTest : ToolingTest() {
         }
 
         activityTestRule.runOnUiThread {
-            val boundingBoxes = slotTableRecord.findGroupForFile("BoundsTest")!!.all()
+            val tree = slotTableRecord.store.first().asTree()
+            val boundingBoxes = tree.firstOrNull {
+                it.position?.contains("BoundsTest.kt") == true && it.box.right.value > 0
+            }!!
+                .all()
                 .filter {
                     val name = it.position
                     name != null && name.contains("BoundsTest.kt")

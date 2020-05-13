@@ -19,14 +19,7 @@ package androidx.ui.tooling.preview
 import androidx.compose.Composer
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
-
-/**
- * Suffix added by the Kotlin compiler to a synthetic method generated for functions accepting
- * default parameters. The parameter with the $default suffix will take two additional
- * parameters, the second to last being a bitmask indicating which parameters contain default
- * values and the last one being an unused Object and hence set to null in this code.
- */
-private const val DEFAULT_SUFFIX = "\$default"
+import kotlin.math.ceil
 
 /**
  * Returns true if the [methodTypes] and [actualTypes] are compatible. This means that every
@@ -50,21 +43,28 @@ private fun Class<*>.getDeclaredCompatibleMethod(methodName: String, vararg args
     } ?: throw NoSuchMethodException("$methodName not found")
 }
 
+private inline fun <reified T> T.dup(count: Int): Array<T> {
+    return (0..count).map { this }.toTypedArray()
+}
+
 /**
  * Find the given method by name. If the method has parameters, this function will try to find
  * the version that accepts default parameters.
  */
 private fun Class<*>.findComposableMethod(methodName: String, vararg args: Any?): Method {
     val method = try {
+        // without defaults
+        val changedParams = changedParamCount(args.size, 0)
         getDeclaredCompatibleMethod(
             methodName,
             *args.mapNotNull { it?.javaClass }.toTypedArray(),
-            Composer::class.java
+            Composer::class.java, // composer param
+            Int::class.java, // key param
+            *Int::class.java.dup(changedParams) // changed params
         )
     } catch (e: ReflectiveOperationException) {
         try {
-            val defaultMethodName = "$methodName$DEFAULT_SUFFIX"
-            declaredMethods.find { it.name == defaultMethodName }
+            declaredMethods.find { it.name == methodName }
         } catch (e: ReflectiveOperationException) {
             null
         }
@@ -90,11 +90,6 @@ private fun Class<*>.getDefaultValue(): Any? = when (name) {
 }
 
 /**
- * Returns true if the [Method] is the synthetic method generated for handling default parameters
- */
-private fun Method.isDefaultMethod() = name.endsWith(DEFAULT_SUFFIX)
-
-/**
  * Calls the method on the given [instance]. If the method accepts default values, this function
  * will call it with the correct options set.
  */
@@ -103,29 +98,67 @@ private fun Method.invokeComposableMethod(
     composer: Composer<*>,
     vararg args: Any?
 ): Any? {
-    if (!isDefaultMethod()) {
-        return invoke(instance, *args, composer)
-    }
+    val composerIndex = parameterTypes.indexOfLast { it == Composer::class.java }
+    val realParams = composerIndex
+    val thisParams = if (instance != null) 1 else 0
+    val changedParams = changedParamCount(realParams, thisParams)
+    val totalParamsWithoutDefaults = realParams +
+            1 + // composer
+            1 + // key
+            changedParams
+    val totalParams = parameterTypes.size
+    val isDefault = totalParams != totalParamsWithoutDefaults
+    val defaultParams = if (isDefault)
+        defaultParamCount(realParams)
+    else
+        0
 
-    check(isDefaultMethod())
-    // When calling into methods with default parameters, the last three parameters are used or
-    // reserved by the compiler. The synthetic method generated looks like:
-    // aMethodWithDefault$default(...method parameters..., Composer, Mask, Unused)
-    //
-    // The Mask is used to indicate which parameters will use the default values, in our case,
-    // all. The Composer is pased to @Composable functions. The last parameter is not used.
-    val nParameters = parameterTypes.size
-    val defaultArgs = Array(nParameters) { idx ->
+    check(
+        realParams +
+        1 + // composer
+        1 + // key
+        changedParams +
+        defaultParams ==
+                totalParams
+    )
+
+    val keyIndex = composerIndex + 1
+    val changedStartIndex = keyIndex + 1
+    val defaultStartIndex = changedStartIndex + changedParams
+
+    val arguments = Array(totalParams) { idx ->
         when (idx) {
-            // The Composer parameter is added by the compiler
-            nParameters - 3 -> composer
+            // pass in "empty" value for all real parameters since we will be using defaults.
+            in 0 until realParams -> args.getOrElse(idx) { parameterTypes[idx].getDefaultValue() }
+            // the composer is the first synthetic parameter
+            composerIndex -> composer
+            // since this is the root we don't need to be anything unique. 0 should suffice.
+            keyIndex -> 0
+            // changed parameters should be 0 to indicate "uncertain"
+            in changedStartIndex until defaultStartIndex -> 0
             // Default values mask, all parameters set to use defaults
-            nParameters - 2 -> 0xFFFFFFFF.toInt()
-            else -> parameterTypes[idx].getDefaultValue()
+            in defaultStartIndex until totalParams -> 0b111111111111111111111.toInt()
+            else -> error("Unexpected index")
         }
     }
+    return invoke(instance, *arguments)
+}
 
-    return invoke(instance, *defaultArgs)
+private const val SLOTS_PER_INT = 15
+private const val BITS_PER_INT = 31
+
+private fun changedParamCount(realValueParams: Int, thisParams: Int): Int {
+    if (realValueParams == 0) return 1
+    val totalParams = realValueParams + thisParams
+    return ceil(
+        totalParams.toDouble() / SLOTS_PER_INT.toDouble()
+    ).toInt()
+}
+
+private fun defaultParamCount(realValueParams: Int): Int {
+    return ceil(
+        realValueParams.toDouble() / BITS_PER_INT.toDouble()
+    ).toInt()
 }
 
 /**
@@ -155,6 +188,6 @@ internal fun invokeComposableViaReflection(
             method.invokeComposableMethod(instance, composer, *args)
         }
     } catch (e: ReflectiveOperationException) {
-        throw ClassNotFoundException("Composable Method not found", e)
+        throw ClassNotFoundException("Composable Method '$className.$methodName' not found", e)
     }
 }

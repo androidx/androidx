@@ -212,8 +212,8 @@ private class UnitComposer : Composer<Unit>(
     fun compose(composable: @Composable () -> Unit) {
         composeRoot {
             @Suppress("UNCHECKED_CAST")
-            val fn = composable as (Composer<*>) -> Unit
-            fn(this@UnitComposer)
+            val fn = composable as (Composer<*>, Int, Int) -> Unit
+            fn(this@UnitComposer, 0, 0)
         }
     }
 }
