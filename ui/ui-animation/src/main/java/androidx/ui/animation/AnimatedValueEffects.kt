@@ -24,8 +24,11 @@ import androidx.animation.AnimationVector4D
 import androidx.animation.Spring
 import androidx.animation.TwoWayConverter
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.StructurallyEqual
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.graphics.Color
 
@@ -82,7 +85,7 @@ fun animatedColor(
 ): AnimatedValue<Color, AnimationVector4D> = clock.asDisposableClock().let { disposableClock ->
     remember(disposableClock) {
         AnimatedValueModel(
-            value = initVal,
+            initialValue = initVal,
             typeConverter = ColorToVectorConverter(initVal.colorSpace),
             clock = disposableClock
         )
@@ -93,29 +96,31 @@ fun animatedColor(
  * Model class for [AnimatedValue]. This class tracks the value field change, so that composables
  * that read from this field can get promptly recomposed as the animation updates the value.
  *
- * @param value The overridden value field that can only be mutated by animation
+ * @param initialValue The overridden value field that can only be mutated by animation
  * @param typeConverter The converter for converting any value of type [T] to an
  *                      [AnimationVector] type
  * @param clock The animation clock that will be used to drive the animation
  */
-@Model
 class AnimatedValueModel<T, V : AnimationVector>(
-    override var value: T,
+    initialValue: T,
     typeConverter: TwoWayConverter<T, V>,
     clock: AnimationClockObservable,
     visibilityThreshold: V? = null
-) : AnimatedValue<T, V>(typeConverter, clock, visibilityThreshold)
+) : AnimatedValue<T, V>(typeConverter, clock, visibilityThreshold) {
+    override var value: T by mutableStateOf(initialValue, StructurallyEqual)
+}
 
 /**
  * Model class for [AnimatedFloat]. This class tracks the value field change, so that composables
  * that read from this field can get promptly recomposed as the animation updates the value.
  *
- * @param value The overridden value field that can only be mutated by animation
+ * @param initialValue The overridden value field that can only be mutated by animation
  * @param clock The animation clock that will be used to drive the animation
  */
-@Model
 class AnimatedFloatModel(
-    override var value: Float,
+    initialValue: Float,
     clock: AnimationClockObservable,
     visibilityThreshold: Float = Spring.DefaultDisplacementThreshold
-) : AnimatedFloat(clock, visibilityThreshold)
+) : AnimatedFloat(clock, visibilityThreshold) {
+    override var value: Float by mutableStateOf(initialValue, StructurallyEqual)
+}
