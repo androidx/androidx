@@ -37,7 +37,6 @@ import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -231,7 +230,7 @@ public class WebViewOnUiThread {
         });
     }
 
-    public void addWebMessageListener(String jsObjectName, List<String> allowedOriginRules,
+    public void addWebMessageListener(String jsObjectName, Set<String> allowedOriginRules,
             final WebViewCompat.WebMessageListener listener) {
         WebkitUtils.onMainThreadSync(() -> {
             WebViewCompat.addWebMessageListener(

@@ -30,7 +30,6 @@ import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -47,8 +46,7 @@ public class WebViewDocumentStartJavascriptTest {
     private static final String JS_OBJECT_NAME = "myObject";
     private static final String BASIC_USAGE = "<!DOCTYPE html><html><body></body></html>";
     private static final String BASIC_SCRIPT = "myObject.postMessage('hello');";
-    private static final Set<String> MATCH_EXAMPLE_COM_SET = new HashSet(Arrays.asList(BASE_URI));
-    private static final List<String> MATCH_EXAMPLE_COM = Arrays.asList(BASE_URI);
+    private static final Set<String> MATCH_EXAMPLE_COM = new HashSet(Arrays.asList(BASE_URI));
 
     private WebViewOnUiThread mWebViewOnUiThread;
     private TestWebMessageListener mListener = new TestWebMessageListener();
@@ -104,7 +102,7 @@ public class WebViewDocumentStartJavascriptTest {
     @Test
     public void testAddDocumentStartJavascriptBasicUsage() throws Exception {
         mWebViewOnUiThread.addWebMessageListener(JS_OBJECT_NAME, MATCH_EXAMPLE_COM, mListener);
-        mWebViewOnUiThread.addDocumentStartJavascript(BASIC_SCRIPT, MATCH_EXAMPLE_COM_SET);
+        mWebViewOnUiThread.addDocumentStartJavascript(BASIC_SCRIPT, MATCH_EXAMPLE_COM);
 
         loadHtmlSync(BASIC_USAGE);
         TestWebMessageListener.Data data = mListener.waitForOnPostMessage();
@@ -117,7 +115,7 @@ public class WebViewDocumentStartJavascriptTest {
     public void testAddDocumentStartJavascriptRemoveScript() throws Exception {
         mWebViewOnUiThread.addWebMessageListener(JS_OBJECT_NAME, MATCH_EXAMPLE_COM, mListener);
         ScriptReferenceCompat scriptReference =
-                mWebViewOnUiThread.addDocumentStartJavascript(BASIC_SCRIPT, MATCH_EXAMPLE_COM_SET);
+                mWebViewOnUiThread.addDocumentStartJavascript(BASIC_SCRIPT, MATCH_EXAMPLE_COM);
 
         loadHtmlSync(BASIC_USAGE);
         TestWebMessageListener.Data data = mListener.waitForOnPostMessage();

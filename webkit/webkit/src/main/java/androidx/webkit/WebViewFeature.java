@@ -422,7 +422,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers {@link WebViewCompat#addWebMessageListener(android.webkit.WebView,
-     * String, List, WebViewCompat.WebMessageListener)} and {@link
+     * String, Set, WebViewCompat.WebMessageListener)} and {@link
      * WebViewCompat#removeWebMessageListener(android.webkit.WebView, String)}.
      */
     public static final String WEB_MESSAGE_LISTENER = "WEB_MESSAGE_LISTENER";
