@@ -1175,7 +1175,7 @@ package androidx.core.graphics.drawable {
     method public androidx.core.graphics.drawable.IconCompat! setTint(@ColorInt int);
     method public androidx.core.graphics.drawable.IconCompat! setTintList(android.content.res.ColorStateList!);
     method public androidx.core.graphics.drawable.IconCompat! setTintMode(android.graphics.PorterDuff.Mode!);
-    method public android.os.Bundle! toBundle();
+    method public android.os.Bundle toBundle();
     method @Deprecated @RequiresApi(23) public android.graphics.drawable.Icon toIcon();
     method @RequiresApi(23) public android.graphics.drawable.Icon toIcon(android.content.Context?);
     field public static final int TYPE_ADAPTIVE_BITMAP = 5; // 0x5
