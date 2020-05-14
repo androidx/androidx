@@ -16,9 +16,9 @@
 
 package androidx.paging
 
+import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import java.util.concurrent.Executor
@@ -39,13 +39,15 @@ import java.util.concurrent.Executor
 class LivePagedListBuilder<Key : Any, Value : Any> {
     private val pagingSourceFactory: (() -> PagingSource<Key, Value>)?
     private val dataSourceFactory: DataSource.Factory<Key, Value>?
+
     @Suppress("DEPRECATION")
     private val config: PagedList.Config
     private var coroutineScope: CoroutineScope = GlobalScope
     private var initialLoadKey: Key? = null
+
     @Suppress("DEPRECATION")
     private var boundaryCallback: PagedList.BoundaryCallback<Value>? = null
-    private var fetchDispatcher = Dispatchers.IO
+    private var fetchDispatcher = ArchTaskExecutor.getIOThreadExecutor().asCoroutineDispatcher()
 
     /**
      * Creates a [LivePagedListBuilder] with required parameters.
@@ -257,7 +259,9 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      *
      * The library will wrap this as a [kotlinx.coroutines.CoroutineDispatcher].
      *
-     * If not set, defaults to [Dispatchers.IO].
+     * If not set, defaults to a
+     * [ExecutorCoroutineDispatcher][kotlinx.coroutines.ExecutorCoroutineDispatcher] backed by
+     * [ArchTaskExecutor.getIOThreadExecutor].
      *
      * @param fetchExecutor [Executor] for fetching data from [PagingSource]s.
      * @return this
@@ -289,7 +293,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
             config,
             boundaryCallback,
             pagingSourceFactory,
-            Dispatchers.Main.immediate,
+            ArchTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher(),
             fetchDispatcher
         )
     }

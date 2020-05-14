@@ -23,9 +23,9 @@ import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.REFRESH
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executor
@@ -247,7 +247,8 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     coroutineScope: CoroutineScope = GlobalScope,
-    fetchDispatcher: CoroutineDispatcher = Dispatchers.IO
+    fetchDispatcher: CoroutineDispatcher = ArchTaskExecutor.getIOThreadExecutor()
+        .asCoroutineDispatcher()
 ): LiveData<PagedList<Value>> {
     return LivePagedList(
         coroutineScope,
@@ -255,7 +256,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
         config,
         boundaryCallback,
         this,
-        Dispatchers.Main.immediate,
+        ArchTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher(),
         fetchDispatcher
     )
 }
@@ -298,7 +299,8 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     coroutineScope: CoroutineScope = GlobalScope,
-    fetchDispatcher: CoroutineDispatcher = Dispatchers.IO
+    fetchDispatcher: CoroutineDispatcher = ArchTaskExecutor.getIOThreadExecutor()
+        .asCoroutineDispatcher()
 ): LiveData<PagedList<Value>> {
     return LivePagedList(
         coroutineScope,
@@ -306,7 +308,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
         PagedList.Config.Builder().setPageSize(pageSize).build(),
         boundaryCallback,
         this,
-        Dispatchers.Main.immediate,
+        ArchTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher(),
         fetchDispatcher
     )
 }
