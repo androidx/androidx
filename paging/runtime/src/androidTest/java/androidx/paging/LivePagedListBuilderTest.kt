@@ -127,7 +127,10 @@ class LivePagedListBuilderTest {
 
     @Test
     fun initialValueOnMainThread() {
+        // Reset ArchTaskExecutor delegate so that main thread != default test executor, to
+        // represent the common case when writing tests.
         ArchTaskExecutor.getInstance().setDelegate(null)
+
         @Suppress("DEPRECATION")
         LivePagedListBuilder(MockDataSourceFactory()::create, 2)
             .build()
