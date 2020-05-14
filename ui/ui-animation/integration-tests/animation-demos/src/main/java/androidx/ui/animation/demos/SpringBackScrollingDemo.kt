@@ -31,7 +31,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxWidth
@@ -104,7 +104,7 @@ fun SpringBackScrollingDemo() {
     }
 }
 
-private fun CanvasScope.drawRects(animScroll: Float) {
+private fun DrawScope.drawRects(animScroll: Float) {
     val width = size.width / 2f
     val scroll = animScroll + width / 2
     var startingPos = scroll % width

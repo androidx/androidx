@@ -25,7 +25,6 @@ import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.DrawScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
@@ -36,6 +35,7 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.graphics.painter.clipRect
 import androidx.ui.layout.Row
 import androidx.ui.layout.padding

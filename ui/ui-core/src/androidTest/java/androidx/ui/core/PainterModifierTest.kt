@@ -34,9 +34,11 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.compositeOver
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.toArgb
+import androidx.ui.layout.ltr
+import androidx.ui.layout.rtl
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
@@ -373,15 +375,14 @@ class PainterModifierTest {
         rtl: Boolean = false,
         latch: CountDownLatch
     ) {
-        with(DensityAmbient.current) {
-            val p = LatchPainter(containerWidth, containerHeight, latch)
-            AtLeastSize(
-                modifier = Modifier.background(Color.White)
-                    .paint(p, alpha = alpha, colorFilter = colorFilter, rtl = rtl),
-                size = containerWidth.roundToInt().ipx
-            ) {
-                // Intentionally empty
-            }
+        val p = LatchPainter(containerWidth, containerHeight, latch)
+        AtLeastSize(
+            modifier = Modifier.background(Color.White)
+                .plus(if (rtl) Modifier.rtl else Modifier.ltr)
+                .paint(p, alpha = alpha, colorFilter = colorFilter),
+            size = containerWidth.roundToInt().ipx
+        ) {
+            // Intentionally empty
         }
     }
 
@@ -406,12 +407,12 @@ class PainterModifierTest {
                 Px(height)
             )
 
-        override fun applyRtl(rtl: Boolean): Boolean {
-            color = if (rtl) Color.Blue else Color.Red
+        override fun applyLayoutDirection(layoutDirection: LayoutDirection): Boolean {
+            color = if (layoutDirection == LayoutDirection.Rtl) Color.Blue else Color.Red
             return true
         }
 
-        override fun CanvasScope.onDraw() {
+        override fun DrawScope.onDraw() {
             drawRect(color = color)
             latch.countDown()
         }

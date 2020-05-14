@@ -333,7 +333,7 @@ package androidx.ui.material.ripple {
 
   public interface RippleEffect {
     method public default void dispose();
-    method public void draw-W2xXVUk(androidx.ui.core.DrawScope, long color);
+    method public void draw-aFmCyno(androidx.ui.graphics.painter.DrawScope, long color);
     method public void finish(boolean canceled);
   }
 
