@@ -16,13 +16,4 @@
 
 package android.os
 
-val theLooper = Looper()
-
-public class Looper() {
-    companion object {
-        @JvmStatic
-        fun myLooper(): Looper = theLooper
-        @JvmStatic
-        fun getMainLooper(): Looper = theLooper
-    }
-}
+class Message
