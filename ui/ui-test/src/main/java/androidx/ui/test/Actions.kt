@@ -94,8 +94,14 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
 fun SemanticsNodeInteraction.doGesture(
     block: GestureScope.() -> Unit
 ): SemanticsNodeInteraction {
-    val scope = GestureScope(this)
-    scope.block()
+    val node = fetchSemanticsNode("Failed to perform a gesture.")
+    with(GestureScope(node)) {
+        try {
+            block()
+        } finally {
+            dispose()
+        }
+    }
     return this
 }
 
@@ -123,8 +129,14 @@ fun SemanticsNodeInteraction.doGesture(
 fun SemanticsNodeInteraction.doPartialGesture(
     block: PartialGestureScope.() -> Unit
 ): SemanticsNodeInteraction {
-    val scope = PartialGestureScope(this)
-    scope.block()
+    val node = fetchSemanticsNode("Failed to perform a partial gesture.")
+    with(PartialGestureScope(node)) {
+        try {
+            block()
+        } finally {
+            dispose()
+        }
+    }
     return this
 }
 

@@ -58,14 +58,6 @@ class SemanticsNodeInteraction internal constructor(
     }
 
     /**
-     * Executes the given [action] on an [InputDispatcher] that sends the input to the underlying
-     * input system.
-     */
-    internal fun sendInput(action: (InputDispatcher) -> Unit) {
-        action(inputDispatcherFactory(fetchOneOrDie("Failed to dispatch input")))
-    }
-
-    /**
      * Returns the semantics node captured by this object.
      *
      * Note: Accessing this object involves synchronization with your UI. If you are accessing this

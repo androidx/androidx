@@ -17,7 +17,10 @@
 package androidx.ui.test
 
 import androidx.annotation.FloatRange
+import androidx.ui.core.AndroidOwner
 import androidx.ui.core.gesture.LongPressTimeout
+import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
@@ -45,13 +48,28 @@ private const val edgeFuzzFactor = 0.083f
  */
 private val doubleClickDelay = 145.milliseconds
 
-sealed class BaseGestureScope(
-    internal val semanticsNodeInteraction: SemanticsNodeInteraction
-) {
+sealed class BaseGestureScope(node: SemanticsNode) {
     // TODO(b/133217292): Better error: explain which gesture couldn't be performed
-    // TODO: Avoid calling this multiple times as it involves synchronization.
-    internal inline val semanticsNode
-        get() = semanticsNodeInteraction.fetchSemanticsNode("Failed to perform a gesture.")
+    private var _semanticsNode: SemanticsNode? = node
+    internal val semanticsNode
+        get() = checkNotNull(_semanticsNode) {
+            "Can't query SemanticsNode, (Partial)GestureScope has already been disposed"
+        }
+
+    // TODO(b/133217292): Better error: explain which gesture couldn't be performed
+    private var _inputDispatcher: InputDispatcher? = run {
+        val view = (semanticsNode.componentNode.owner as AndroidOwner).view
+        AndroidInputDispatcher { view.dispatchTouchEvent(it) }
+    }
+    internal val inputDispatcher
+        get() = checkNotNull(_inputDispatcher) {
+            "Can't send gesture, (Partial)GestureScope has already been disposed"
+        }
+
+    internal fun dispose() {
+        _semanticsNode = null
+        _inputDispatcher = null
+    }
 }
 
 /**
@@ -86,10 +104,10 @@ fun BaseGestureScope.localToGlobal(position: PxPosition): PxPosition {
 }
 
 /**
- * The receiver scope for injecting gestures on the node identified by the
- * [semanticsNodeInteraction]. Gestures can be injected by calling methods defined on
- * [GestureScope], such as [sendSwipeUp]. The [semanticsNodeInteraction] can be found by one of
- * the finder methods such as [findByTag].
+ * The receiver scope for injecting gestures on the [semanticsNode] identified by the
+ * corresponding [SemanticsNodeInteraction]. Gestures can be injected by calling methods defined
+ * on [GestureScope], such as [sendSwipeUp]. The [SemanticsNodeInteraction] can be found by one
+ * of the finder methods such as [findByTag].
  *
  * Example usage:
  * ```
@@ -100,8 +118,8 @@ fun BaseGestureScope.localToGlobal(position: PxPosition): PxPosition {
  * ```
  */
 class GestureScope internal constructor(
-    semanticsNodeInteraction: SemanticsNodeInteraction
-) : BaseGestureScope(semanticsNodeInteraction)
+    semanticsNode: SemanticsNode
+) : BaseGestureScope(semanticsNode)
 
 /**
  * Performs a click gesture at the given [position] on the associated component. The [position]
@@ -113,9 +131,7 @@ class GestureScope internal constructor(
  * @param position The position where to click, in the component's local coordinate system
  */
 fun GestureScope.sendClick(position: PxPosition) {
-    semanticsNodeInteraction.sendInput {
-        it.sendClick(localToGlobal(position))
-    }
+    inputDispatcher.sendClick(localToGlobal(position))
 }
 
 /**
@@ -164,11 +180,9 @@ fun GestureScope.sendLongClick() {
  */
 fun GestureScope.sendDoubleClick(position: PxPosition) {
     val globalPosition = localToGlobal(position)
-    semanticsNodeInteraction.sendInput {
-        it.sendClick(globalPosition)
-        it.delay(doubleClickDelay)
-        it.sendClick(globalPosition)
-    }
+    inputDispatcher.sendClick(globalPosition)
+    inputDispatcher.delay(doubleClickDelay)
+    inputDispatcher.sendClick(globalPosition)
 }
 
 /**
@@ -200,9 +214,7 @@ fun GestureScope.sendSwipe(
 ) {
     val globalStart = localToGlobal(start)
     val globalEnd = localToGlobal(end)
-    semanticsNodeInteraction.sendInput {
-        it.sendSwipe(globalStart, globalEnd, duration)
-    }
+    inputDispatcher.sendSwipe(globalStart, globalEnd, duration)
 }
 
 /**
@@ -231,15 +243,13 @@ fun GestureScope.sendPinch(
     val globalEnd1 = localToGlobal(end1)
     val durationFloat = duration.inMilliseconds().toFloat()
 
-    semanticsNodeInteraction.sendInput { dispatcher ->
-        dispatcher.sendSwipes(
-            listOf<(Long) -> PxPosition>(
-                { androidx.ui.unit.lerp(globalStart0, globalEnd0, it / durationFloat) },
-                { androidx.ui.unit.lerp(globalStart1, globalEnd1, it / durationFloat) }
-            ),
-            duration
-        )
-    }
+    inputDispatcher.sendSwipes(
+        listOf<(Long) -> PxPosition>(
+            { androidx.ui.unit.lerp(globalStart0, globalEnd0, it / durationFloat) },
+            { androidx.ui.unit.lerp(globalStart1, globalEnd1, it / durationFloat) }
+        ),
+        duration
+    )
 }
 
 /**
@@ -298,9 +308,7 @@ fun GestureScope.sendSwipeWithVelocity(
     val fx = createFunctionForVelocity(durationMs, globalStart.x.value, globalEnd.x.value, vx)
     val fy = createFunctionForVelocity(durationMs, globalStart.y.value, globalEnd.y.value, vy)
 
-    semanticsNodeInteraction.sendInput {
-        it.sendSwipe({ t -> PxPosition(fx(t).px, fy(t).px) }, duration)
-    }
+    inputDispatcher.sendSwipe({ t -> PxPosition(fx(t).px, fy(t).px) }, duration)
 }
 
 /**
@@ -426,10 +434,10 @@ private fun createFunctionForVelocity(
 }
 
 /**
- * The receiver scope for injecting partial gestures on the node identified by the
- * [semanticsNodeInteraction]. Gestures can be injected by calling methods defined on
- * [PartialGestureScope], such as [sendDown]. The [semanticsNodeInteraction] can be found by one
- * of the finder methods such as [findByTag].
+ * The receiver scope for injecting partial gestures on the [semanticsNode] identified by the
+ * corresponding [SemanticsNodeInteraction]. Gestures can be injected by calling methods defined
+ * on [PartialGestureScope], such as [sendDown]. The [SemanticsNodeInteraction] can be found by
+ * one of the finder methods such as [findByTag].
  *
  * Example usage:
  * ```
@@ -442,8 +450,8 @@ private fun createFunctionForVelocity(
  * ```
  */
 class PartialGestureScope internal constructor(
-    semanticsNodeInteraction: SemanticsNodeInteraction
-) : BaseGestureScope(semanticsNodeInteraction)
+    semanticsNode: SemanticsNode
+) : BaseGestureScope(semanticsNode)
 
 /**
  * A token to be shared between individual motion events that form a single gesture. It is
@@ -469,11 +477,7 @@ class GestureToken internal constructor(
  */
 fun PartialGestureScope.sendDown(position: PxPosition): GestureToken {
     val globalPosition = localToGlobal(position)
-    lateinit var token: GestureToken
-    semanticsNodeInteraction.sendInput {
-        token = it.sendDown(globalPosition)
-    }
-    return token
+    return inputDispatcher.sendDown(globalPosition)
 }
 
 /**
@@ -487,9 +491,7 @@ fun PartialGestureScope.sendDown(position: PxPosition): GestureToken {
  */
 fun PartialGestureScope.sendMoveTo(token: GestureToken, position: PxPosition) {
     val globalPosition = localToGlobal(position)
-    semanticsNodeInteraction.sendInput {
-        it.sendMove(token, globalPosition)
-    }
+    inputDispatcher.sendMove(token, globalPosition)
 }
 
 /**
@@ -504,9 +506,7 @@ fun PartialGestureScope.sendMoveTo(token: GestureToken, position: PxPosition) {
  */
 fun PartialGestureScope.sendMoveBy(token: GestureToken, delta: PxPosition) {
     val globalPosition = token.lastPosition + delta
-    semanticsNodeInteraction.sendInput {
-        it.sendMove(token, globalPosition)
-    }
+    inputDispatcher.sendMove(token, globalPosition)
 }
 
 /**
@@ -520,9 +520,7 @@ fun PartialGestureScope.sendMoveBy(token: GestureToken, delta: PxPosition) {
  */
 fun PartialGestureScope.sendUp(token: GestureToken, position: PxPosition? = null) {
     val globalPosition = position?.let { localToGlobal(it) } ?: token.lastPosition
-    semanticsNodeInteraction.sendInput {
-        it.sendUp(token, globalPosition)
-    }
+    inputDispatcher.sendUp(token, globalPosition)
 }
 
 /**
@@ -536,7 +534,5 @@ fun PartialGestureScope.sendUp(token: GestureToken, position: PxPosition? = null
  */
 fun PartialGestureScope.sendCancel(token: GestureToken, position: PxPosition? = null) {
     val globalPosition = position?.let { localToGlobal(it) } ?: token.lastPosition
-    semanticsNodeInteraction.sendInput {
-        it.sendCancel(token, globalPosition)
-    }
+    inputDispatcher.sendCancel(token, globalPosition)
 }
