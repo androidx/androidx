@@ -126,7 +126,7 @@ public class RemotePlayer extends Player {
         if (DEBUG) {
             Log.d(TAG, "play: item=" + item);
         }
-        mClient.play(item.getUri(), "video/mp4", null, item.getPosition(), null,
+        mClient.play(item.getUri(), item.getMime(), null, item.getPosition(), null,
                 new ItemActionCallback() {
             @Override
             public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus,
@@ -359,7 +359,7 @@ public class RemotePlayer extends Player {
         if (DEBUG) {
             Log.d(TAG, "enqueue: item=" + item);
         }
-        mClient.enqueue(item.getUri(), "video/mp4", null, 0, null, new ItemActionCallback() {
+        mClient.enqueue(item.getUri(), item.getMime(), null, 0, null, new ItemActionCallback() {
             @Override
             public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus,
                     String itemId, MediaItemStatus itemStatus) {
