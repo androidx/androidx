@@ -671,7 +671,21 @@ class LayoutNode : ComponentNode(), Measurable {
      * elevation as a zIndex. We will have a separate zIndex modifier later instead to decouple
      * this features.
      */
-    internal val zIndex: Float get() = outerZIndexModifier?.zIndex ?: 0f
+    internal val zIndex: Float
+        get() {
+            @Suppress("DEPRECATION")
+            return if (useChildZIndex) {
+                // While some temporary components for adding semantics have to add
+                // PassThroughLayout it breaks zIndex calculation via adding extra layout layer.
+                // To workaround it we use the zIndex of the first child of PassThroughLayout
+                layoutChildren.firstOrNull()?.zIndex ?: 0f
+            } else {
+                outerZIndexModifier?.zIndex ?: 0f
+            }
+        }
+
+    @Deprecated("To be removed when we remove PassThroughLayout")
+    internal var useChildZIndex = false
 
     /**
      * The outermost ZIndexModifier in the modifier chain or `null` if there are no
