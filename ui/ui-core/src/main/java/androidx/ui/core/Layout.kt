@@ -208,7 +208,8 @@ fun PassThroughLayout(
     LayoutNode(
         modifier = currentComposer.materialize(modifier),
         measureBlocks = measureBlocks,
-        handlesParentData = false
+        handlesParentData = false,
+        useChildZIndex = true
     ) {
         children()
     }
