@@ -17,7 +17,7 @@
 package androidx.appsearch.app.customer;
 
 import androidx.annotation.NonNull;
-import androidx.appsearch.app.AppSearchDocument;
+import androidx.appsearch.app.GenericDocument;
 import androidx.test.filters.SmallTest;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -25,10 +25,10 @@ import static com.google.common.truth.Truth.assertThat;
 import org.junit.Test;
 
 /**
- * Tests that {@link AppSearchDocument} and {@link AppSearchDocument.Builder} are extendable by
+ * Tests that {@link GenericDocument} and {@link GenericDocument.Builder} are extendable by
  * developers.
  *
- * <p>This class is intentionally in a different package than {@link AppSearchDocument} to make sure
+ * <p>This class is intentionally in a different package than {@link GenericDocument} to make sure
  * there are no package-private methods required for external developers to add custom types.
  */
 @SmallTest
@@ -36,10 +36,10 @@ public class CustomerDocumentTest {
 
     private static byte[] sByteArray1 = new byte[]{(byte) 1, (byte) 2, (byte) 3};
     private static byte[] sByteArray2 = new byte[]{(byte) 4, (byte) 5, (byte) 6};
-    private static AppSearchDocument sDocumentProperties1 = new AppSearchDocument
+    private static GenericDocument sDocumentProperties1 = new GenericDocument
             .Builder("sDocumentProperties1", "sDocumentPropertiesSchemaType1")
             .build();
-    private static AppSearchDocument sDocumentProperties2 = new AppSearchDocument
+    private static GenericDocument sDocumentProperties2 = new GenericDocument
             .Builder("sDocumentProperties2", "sDocumentPropertiesSchemaType2")
             .build();
 
@@ -76,15 +76,15 @@ public class CustomerDocumentTest {
 
     /**
      * An example document type for test purposes, defined outside of
-     * {@link androidx.appsearch.app.AppSearchDocument} (the way an external developer would define
+     * {@link GenericDocument} (the way an external developer would define
      * it).
      */
-    private static class CustomerDocument extends AppSearchDocument {
-        private CustomerDocument(AppSearchDocument document) {
+    private static class CustomerDocument extends GenericDocument {
+        private CustomerDocument(GenericDocument document) {
             super(document);
         }
 
-        public static class Builder extends AppSearchDocument.Builder<CustomerDocument.Builder> {
+        public static class Builder extends GenericDocument.Builder<CustomerDocument.Builder> {
             private Builder(@NonNull String uri) {
                 super(uri, "customerDocument");
             }

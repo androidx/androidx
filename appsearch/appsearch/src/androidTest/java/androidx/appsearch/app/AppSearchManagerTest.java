@@ -97,7 +97,7 @@ public class AppSearchManagerTest {
         checkIsSuccess(mAppSearch.putDocuments(ImmutableList.of(inEmail)));
 
         // Get the document
-        List<AppSearchDocument> outDocuments = doGet("uri1");
+        List<GenericDocument> outDocuments = doGet("uri1");
         assertThat(outDocuments).hasSize(1);
         AppSearchEmail outEmail = new AppSearchEmail(outDocuments.get(0));
         assertThat(outEmail).isEqualTo(inEmail);
@@ -119,7 +119,7 @@ public class AppSearchManagerTest {
         checkIsSuccess(mAppSearch.putDocuments(ImmutableList.of(inEmail)));
 
         // Query for the document
-        List<AppSearchDocument> results = doQuery("body");
+        List<GenericDocument> results = doQuery("body");
         assertThat(results).hasSize(1);
         assertThat(results.get(0)).isEqualTo(inEmail);
 
@@ -142,12 +142,12 @@ public class AppSearchManagerTest {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        AppSearchDocument inDoc =
-                new AppSearchDocument.Builder("uri2", "Test").setProperty("foo", "body").build();
+        GenericDocument inDoc =
+                new GenericDocument.Builder("uri2", "Test").setProperty("foo", "body").build();
         checkIsSuccess(mAppSearch.putDocuments(ImmutableList.of(inEmail, inDoc)));
 
         // Query for the documents
-        List<AppSearchDocument> results = doQuery("body");
+        List<GenericDocument> results = doQuery("body");
         assertThat(results).hasSize(2);
         assertThat(results).containsExactly(inEmail, inDoc);
 
@@ -187,7 +187,7 @@ public class AppSearchManagerTest {
         checkIsSuccess(mAppSearch.delete(ImmutableList.of("uri1")));
 
         // Make sure it's really gone
-        AppSearchBatchResult<String, AppSearchDocument> getResult =
+        AppSearchBatchResult<String, GenericDocument> getResult =
                 mAppSearch.getDocuments(ImmutableList.of("uri1", "uri2")).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
@@ -222,8 +222,8 @@ public class AppSearchManagerTest {
                         .setSubject("testPut example 2")
                         .setBody("This is the body of the testPut second email")
                         .build();
-        AppSearchDocument document1 =
-                new AppSearchDocument.Builder("uri3", "schemaType")
+        GenericDocument document1 =
+                new GenericDocument.Builder("uri3", "schemaType")
                         .setProperty("foo", "bar").build();
         checkIsSuccess(mAppSearch.putDocuments(ImmutableList.of(email1, email2, document1)));
 
@@ -234,7 +234,7 @@ public class AppSearchManagerTest {
         checkIsSuccess(mAppSearch.deleteByTypes(ImmutableList.of(AppSearchEmail.SCHEMA_TYPE)));
 
         // Make sure it's really gone
-        AppSearchBatchResult<String, AppSearchDocument> getResult =
+        AppSearchBatchResult<String, GenericDocument> getResult =
                 mAppSearch.getDocuments(ImmutableList.of("uri1", "uri2", "uri3")).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
@@ -244,21 +244,21 @@ public class AppSearchManagerTest {
         assertThat(getResult.getSuccesses().get("uri3")).isEqualTo(document1);
     }
 
-    private List<AppSearchDocument> doGet(String... uris) throws Exception {
-        Future<AppSearchBatchResult<String, AppSearchDocument>> future =
+    private List<GenericDocument> doGet(String... uris) throws Exception {
+        Future<AppSearchBatchResult<String, GenericDocument>> future =
                 mAppSearch.getDocuments(Arrays.asList(uris));
         checkIsSuccess(future);
-        AppSearchBatchResult<String, AppSearchDocument> result = future.get();
+        AppSearchBatchResult<String, GenericDocument> result = future.get();
         assertThat(result.getSuccesses()).hasSize(uris.length);
         assertThat(result.getFailures()).isEmpty();
-        List<AppSearchDocument> list = new ArrayList<>(uris.length);
+        List<GenericDocument> list = new ArrayList<>(uris.length);
         for (String uri : uris) {
             list.add(result.getSuccesses().get(uri));
         }
         return list;
     }
 
-    private List<AppSearchDocument> doQuery(String queryExpression, String... schemaTypes)
+    private List<GenericDocument> doQuery(String queryExpression, String... schemaTypes)
             throws Exception {
         AppSearchResult<SearchResults> result = mAppSearch.query(
                 queryExpression,
@@ -267,7 +267,7 @@ public class AppSearchManagerTest {
                         .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
                         .build()).get();
         SearchResults searchResults = result.getResultValue();
-        List<AppSearchDocument> documents = new ArrayList<>();
+        List<GenericDocument> documents = new ArrayList<>();
         while (searchResults.hasNext()) {
             documents.add(searchResults.next().getDocument());
         }
