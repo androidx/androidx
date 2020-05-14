@@ -139,15 +139,15 @@ class AsyncPagingDataDifferTest {
             listOf(
                 LoadEvent(
                     REFRESH,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 ),
                 LoadEvent(
                     PREPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 ),
-                LoadEvent(APPEND, NotLoading(endOfPaginationReached = false, fromMediator = false)),
-                LoadEvent(REFRESH, Loading(fromMediator = false)),
-                LoadEvent(REFRESH, NotLoading(endOfPaginationReached = false, fromMediator = false))
+                LoadEvent(APPEND, NotLoading(endOfPaginationReached = false)),
+                LoadEvent(REFRESH, Loading),
+                LoadEvent(REFRESH, NotLoading(endOfPaginationReached = false))
             ),
             loadEvents
         )
@@ -162,8 +162,8 @@ class AsyncPagingDataDifferTest {
         // empty next list.
         assertEvents(
             listOf(
-                LoadEvent(PREPEND, NotLoading(endOfPaginationReached = true, fromMediator = false)),
-                LoadEvent(APPEND, NotLoading(endOfPaginationReached = true, fromMediator = false))
+                LoadEvent(PREPEND, NotLoading(endOfPaginationReached = true)),
+                LoadEvent(APPEND, NotLoading(endOfPaginationReached = true))
             ),
             loadEvents
         )

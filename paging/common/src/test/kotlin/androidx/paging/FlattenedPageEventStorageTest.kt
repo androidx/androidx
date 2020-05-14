@@ -47,7 +47,7 @@ class FlattenedPageEventStorageTest {
                 ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
-                loadStates = emptyMap()
+                combinedLoadStates = localLoadStatesOf()
             )
         )
         assertThat(list.snapshot()).isEqualTo(
@@ -68,7 +68,7 @@ class FlattenedPageEventStorageTest {
                 ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
-                loadStates = emptyMap()
+                combinedLoadStates = localLoadStatesOf()
             )
         )
         list.add(
@@ -78,7 +78,7 @@ class FlattenedPageEventStorageTest {
                     TransformablePage(data = listOf("x2"))
                 ),
                 placeholdersBefore = 1,
-                loadStates = emptyMap()
+                combinedLoadStates = localLoadStatesOf()
             )
         )
         assertThat(list.snapshot()).isEqualTo(
@@ -99,7 +99,7 @@ class FlattenedPageEventStorageTest {
                 ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
-                loadStates = emptyMap()
+                combinedLoadStates = localLoadStatesOf()
             )
         )
         list.add(
@@ -110,7 +110,7 @@ class FlattenedPageEventStorageTest {
                     TransformablePage(data = listOf("x3"))
                 ),
                 placeholdersAfter = 2,
-                loadStates = emptyMap()
+                combinedLoadStates = localLoadStatesOf()
             )
         )
         assertThat(list.snapshot()).isEqualTo(
@@ -131,7 +131,7 @@ class FlattenedPageEventStorageTest {
                 ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
-                loadStates = emptyMap()
+                combinedLoadStates = localLoadStatesOf()
             )
         )
         list.add(
@@ -141,7 +141,7 @@ class FlattenedPageEventStorageTest {
                 ),
                 placeholdersBefore = 2,
                 placeholdersAfter = 4,
-                loadStates = emptyMap()
+                combinedLoadStates = localLoadStatesOf()
             )
         )
         assertThat(list.snapshot()).isEqualTo(
@@ -163,7 +163,7 @@ class FlattenedPageEventStorageTest {
                 ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
-                loadStates = emptyMap()
+                combinedLoadStates = localLoadStatesOf()
             )
         )
         assertThat(list.snapshot()).isEqualTo(
@@ -199,7 +199,7 @@ class FlattenedPageEventStorageTest {
                 ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
-                loadStates = emptyMap()
+                combinedLoadStates = localLoadStatesOf()
             )
         )
         assertThat(list.snapshot()).isEqualTo(
@@ -227,7 +227,7 @@ class FlattenedPageEventStorageTest {
 
     @Test
     fun stateInInsert() {
-        val error = LoadState.Error(RuntimeException("?"), fromMediator = false)
+        val error = LoadState.Error(RuntimeException("?"))
         list.add(
             Refresh(
                 pages = listOf(
@@ -236,10 +236,10 @@ class FlattenedPageEventStorageTest {
                 ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
-                loadStates = mapOf(
-                    REFRESH to NotLoading.Idle,
-                    PREPEND to Loading(fromMediator = false),
-                    APPEND to error
+                combinedLoadStates = localLoadStatesOf(
+                    refreshLocal = NotLoading.Idle,
+                    prependLocal = Loading,
+                    appendLocal = error
                 )
             )
         )
@@ -248,9 +248,11 @@ class FlattenedPageEventStorageTest {
                 items = listOf("a", "b", "c", "d", "e"),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
-                refreshState = NotLoading.Idle,
-                startState = Loading(fromMediator = false),
-                endState = error
+                combinedLoadStates = localLoadStatesOf(
+                    refreshLocal = NotLoading.Idle,
+                    prependLocal = Loading,
+                    appendLocal = error
+                )
             )
         )
     }
@@ -266,20 +268,14 @@ class FlattenedPageEventStorageTest {
                         items = snapshot.items + event.pages.flatMap { it.data },
                         placeholdersBefore = event.placeholdersBefore,
                         placeholdersAfter = event.placeholdersAfter,
-                        refreshState = event.loadStates[REFRESH] ?: NotLoading.Idle,
-                        startState = event.loadStates[PREPEND] ?: NotLoading.Idle,
-                        endState = event.loadStates[APPEND] ?: NotLoading.Idle
+                        combinedLoadStates = event.combinedLoadStates
                     )
                 }
                 is Drop -> {
                     throw IllegalStateException("shouldn't have any drops")
                 }
                 is PageEvent.LoadStateUpdate -> {
-                    when (event.loadType) {
-                        REFRESH -> snapshot.copy(refreshState = event.loadState)
-                        PREPEND -> snapshot.copy(startState = event.loadState)
-                        APPEND -> snapshot.copy(endState = event.loadState)
-                    }
+                    throw IllegalStateException("shouldn't have any state updates")
                 }
             }
         }
@@ -287,9 +283,7 @@ class FlattenedPageEventStorageTest {
 
     data class Snapshot<T>(
         val items: List<T> = emptyList(),
-        val refreshState: LoadState = NotLoading.Idle,
-        val startState: LoadState = NotLoading.Idle,
-        val endState: LoadState = NotLoading.Idle,
+        val combinedLoadStates: CombinedLoadStates = CombinedLoadStates.IDLE_SOURCE,
         val placeholdersBefore: Int = 0,
         val placeholdersAfter: Int = 0
     )

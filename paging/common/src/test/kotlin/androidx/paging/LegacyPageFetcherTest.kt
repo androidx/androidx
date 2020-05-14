@@ -159,7 +159,7 @@ class LegacyPageFetcherTest {
 
         assertTrue(consumer.takeResults().isEmpty())
         assertEquals(
-            listOf(StateChange(APPEND, Loading(fromMediator = false))),
+            listOf(StateChange(APPEND, Loading)),
             consumer.takeStateChanges()
         )
 
@@ -170,7 +170,7 @@ class LegacyPageFetcherTest {
             listOf(
                 StateChange(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             consumer.takeStateChanges()
@@ -186,7 +186,7 @@ class LegacyPageFetcherTest {
 
         assertTrue(consumer.takeResults().isEmpty())
         assertEquals(
-            listOf(StateChange(PREPEND, Loading(fromMediator = false))),
+            listOf(StateChange(PREPEND, Loading)),
             consumer.takeStateChanges()
         )
 
@@ -200,7 +200,7 @@ class LegacyPageFetcherTest {
             listOf(
                 StateChange(
                     PREPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             consumer.takeStateChanges()
@@ -225,15 +225,15 @@ class LegacyPageFetcherTest {
         )
         assertEquals(
             listOf(
-                StateChange(APPEND, Loading(fromMediator = false)),
+                StateChange(APPEND, Loading),
                 StateChange(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 ),
-                StateChange(APPEND, Loading(fromMediator = false)),
+                StateChange(APPEND, Loading),
                 StateChange(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             consumer.takeStateChanges()
@@ -258,14 +258,14 @@ class LegacyPageFetcherTest {
         )
         assertEquals(
             listOf(
-                StateChange(PREPEND, Loading(fromMediator = false)),
+                StateChange(PREPEND, Loading),
                 StateChange(
-                    PREPEND, NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    PREPEND, NotLoading(endOfPaginationReached = false)
                 ),
-                StateChange(PREPEND, Loading(fromMediator = false)),
+                StateChange(PREPEND, Loading),
                 StateChange(
                     PREPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             consumer.takeStateChanges()
@@ -286,7 +286,7 @@ class LegacyPageFetcherTest {
         )
         assertEquals(
             listOf(
-                StateChange(APPEND, NotLoading(endOfPaginationReached = true, fromMediator = false))
+                StateChange(APPEND, NotLoading(endOfPaginationReached = true))
             ),
             consumer.takeStateChanges()
         )
@@ -308,7 +308,7 @@ class LegacyPageFetcherTest {
             listOf(
                 StateChange(
                     PREPEND,
-                    NotLoading(endOfPaginationReached = true, fromMediator = false)
+                    NotLoading(endOfPaginationReached = true)
                 )
             ),
             consumer.takeStateChanges()

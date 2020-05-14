@@ -49,7 +49,7 @@ class CachedPageEventFlowTest {
             ),
             placeholdersBefore = 0,
             placeholdersAfter = 0,
-            loadStates = emptyMap()
+            combinedLoadStates = localLoadStatesOf()
         )
         val appendEvent = Append(
             listOf(
@@ -58,7 +58,7 @@ class CachedPageEventFlowTest {
                 )
             ),
             placeholdersAfter = 0,
-            loadStates = emptyMap()
+            combinedLoadStates = localLoadStatesOf()
         )
         val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
         val subject = CachedPageEventFlow(
@@ -88,7 +88,7 @@ class CachedPageEventFlowTest {
             ),
             placeholdersBefore = 0,
             placeholdersAfter = 0,
-            loadStates = emptyMap()
+            combinedLoadStates = localLoadStatesOf()
         )
         assertThat(collector2.items()).containsExactly(firstSnapshotRefreshEvent)
         val prependEvent = Prepend(
@@ -101,7 +101,7 @@ class CachedPageEventFlowTest {
                 )
             ),
             placeholdersBefore = 0,
-            loadStates = emptyMap()
+            combinedLoadStates = localLoadStatesOf()
         )
         upstream.send(prependEvent)
         assertThat(collector1.items()).isEqualTo(
@@ -130,7 +130,7 @@ class CachedPageEventFlowTest {
                 ),
                 placeholdersBefore = 0,
                 placeholdersAfter = 0,
-                loadStates = emptyMap()
+                combinedLoadStates = localLoadStatesOf()
             )
         )
         assertThat(collector1.isActive()).isTrue()

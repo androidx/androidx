@@ -8,6 +8,21 @@ package androidx.paging {
   public final class CancelableChannelFlowKt {
   }
 
+  public final class CombinedLoadStates {
+    ctor public CombinedLoadStates(androidx.paging.LoadStates source, androidx.paging.LoadStates? mediator);
+    method public androidx.paging.LoadStates component1();
+    method public androidx.paging.LoadStates? component2();
+    method public androidx.paging.CombinedLoadStates copy(androidx.paging.LoadStates source, androidx.paging.LoadStates? mediator);
+    method public androidx.paging.LoadState getAppend();
+    method public androidx.paging.LoadStates? getMediator();
+    method public androidx.paging.LoadState getPrepend();
+    method public androidx.paging.LoadState getRefresh();
+    method public androidx.paging.LoadStates getSource();
+    property public final androidx.paging.LoadState append;
+    property public final androidx.paging.LoadState prepend;
+    property public final androidx.paging.LoadState refresh;
+  }
+
   public abstract class DataSource<Key, Value> {
     method @AnyThread public void addInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback onInvalidatedCallback);
     method @AnyThread public final void addInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
@@ -77,20 +92,30 @@ package androidx.paging {
 
   public abstract sealed class LoadState {
     method public final boolean getEndOfPaginationReached();
-    method public final boolean isFromMediator();
   }
 
   public static final class LoadState.Error extends androidx.paging.LoadState {
-    ctor public LoadState.Error(Throwable error, boolean fromMediator);
+    ctor public LoadState.Error(Throwable error);
     method public Throwable getError();
   }
 
   public static final class LoadState.Loading extends androidx.paging.LoadState {
-    ctor public LoadState.Loading(boolean fromMediator);
+    field public static final androidx.paging.LoadState.Loading! INSTANCE;
   }
 
   public static final class LoadState.NotLoading extends androidx.paging.LoadState {
-    ctor public LoadState.NotLoading(boolean endOfPaginationReached, boolean fromMediator);
+    ctor public LoadState.NotLoading(boolean endOfPaginationReached);
+  }
+
+  public final class LoadStates {
+    ctor public LoadStates(androidx.paging.LoadState refresh, androidx.paging.LoadState prepend, androidx.paging.LoadState append);
+    method public androidx.paging.LoadState component1();
+    method public androidx.paging.LoadState component2();
+    method public androidx.paging.LoadState component3();
+    method public androidx.paging.LoadStates copy(androidx.paging.LoadState refresh, androidx.paging.LoadState prepend, androidx.paging.LoadState append);
+    method public androidx.paging.LoadState getAppend();
+    method public androidx.paging.LoadState getPrepend();
+    method public androidx.paging.LoadState getRefresh();
   }
 
   public enum LoadType {

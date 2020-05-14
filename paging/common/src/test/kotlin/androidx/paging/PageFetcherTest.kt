@@ -286,7 +286,7 @@ class PageFetcherTest {
     @Test
     fun jump() = testScope.runBlockingTest {
         pauseDispatcher {
-            var pagingSources = mutableListOf<PagingSource<Int, Int>>()
+            val pagingSources = mutableListOf<PagingSource<Int, Int>>()
             val pagingSourceFactory = { TestPagingSource().also { pagingSources.add(it) } }
             val config = PagingConfig(
                 pageSize = 1,
@@ -305,7 +305,7 @@ class PageFetcherTest {
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
-                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                LoadStateUpdate(REFRESH, false, Loading),
                 createRefresh(range = 50..51)
             )
             assertEvents(expected, fetcherState.pageEventLists[0])

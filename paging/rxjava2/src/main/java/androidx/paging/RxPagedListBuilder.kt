@@ -390,7 +390,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 pagingSource.registerInvalidatedCallback(callback)
 
                 withContext(notifyDispatcher) {
-                    currentData.setInitialLoadState(LoadType.REFRESH, Loading(fromMediator = false))
+                    currentData.setInitialLoadState(LoadType.REFRESH, Loading)
                 }
 
                 @Suppress("UNCHECKED_CAST")
@@ -400,7 +400,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                     is PagingSource.LoadResult.Error -> {
                         currentData.setInitialLoadState(
                             LoadType.REFRESH,
-                            LoadState.Error(initialResult.throwable, fromMediator = false)
+                            LoadState.Error(initialResult.throwable)
                         )
                     }
                     is PagingSource.LoadResult.Page -> {

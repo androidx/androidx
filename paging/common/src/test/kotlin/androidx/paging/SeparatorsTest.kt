@@ -19,7 +19,6 @@ package androidx.paging
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
@@ -99,11 +98,7 @@ class SeparatorsTest {
                     ),
                     placeholdersBefore = 0,
                     placeholdersAfter = 1,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Idle,
-                        APPEND to NotLoading.Idle
-                    )
+                    combinedLoadStates = localLoadStatesOf()
                 )
             ),
             flowOf(
@@ -114,11 +109,7 @@ class SeparatorsTest {
                     ).toTransformablePages(),
                     placeholdersBefore = 0,
                     placeholdersAfter = 1,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Idle,
-                        APPEND to NotLoading.Idle
-                    )
+                    combinedLoadStates = localLoadStatesOf()
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
@@ -132,11 +123,7 @@ class SeparatorsTest {
             ).toTransformablePages(),
             placeholdersBefore = 0,
             placeholdersAfter = 1,
-            loadStates = mapOf(
-                REFRESH to NotLoading.Idle,
-                PREPEND to NotLoading.Idle,
-                APPEND to NotLoading.Idle
-            )
+            combinedLoadStates = localLoadStatesOf()
         )
         assertEvents(
             listOf(
@@ -169,11 +156,7 @@ class SeparatorsTest {
                         )
                     ),
                     placeholdersBefore = 1,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Idle,
-                        APPEND to NotLoading.Idle
-                    )
+                    combinedLoadStates = localLoadStatesOf()
                 )
             ),
             flowOf(
@@ -184,11 +167,7 @@ class SeparatorsTest {
                         listOf("b2", "b3")
                     ).toTransformablePages(2),
                     placeholdersBefore = 1,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Idle,
-                        APPEND to NotLoading.Idle
-                    )
+                    combinedLoadStates = localLoadStatesOf()
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
@@ -202,11 +181,7 @@ class SeparatorsTest {
             ).toTransformablePages(),
             placeholdersBefore = 0,
             placeholdersAfter = 1,
-            loadStates = mapOf(
-                REFRESH to NotLoading.Idle,
-                PREPEND to NotLoading.Idle,
-                APPEND to NotLoading.Idle
-            )
+            combinedLoadStates = localLoadStatesOf()
         )
         assertEvents(
             listOf(
@@ -239,11 +214,7 @@ class SeparatorsTest {
                         )
                     ),
                     placeholdersAfter = 1,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Idle,
-                        APPEND to NotLoading.Idle
-                    )
+                    combinedLoadStates = localLoadStatesOf()
                 )
             ),
             flowOf(
@@ -254,11 +225,7 @@ class SeparatorsTest {
                         listOf("d2", "d3")
                     ).toTransformablePages(-1),
                     placeholdersAfter = 1,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Idle,
-                        APPEND to NotLoading.Idle
-                    )
+                    combinedLoadStates = localLoadStatesOf()
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
@@ -291,11 +258,7 @@ class SeparatorsTest {
                     ),
                     placeholdersBefore = 0,
                     placeholdersAfter = 1,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Idle,
-                        APPEND to NotLoading.Idle
-                    )
+                    combinedLoadStates = localLoadStatesOf()
                 ),
                 Drop<String>(APPEND, 2, 4)
             ),
@@ -307,11 +270,7 @@ class SeparatorsTest {
                     ).toTransformablePages(),
                     placeholdersBefore = 0,
                     placeholdersAfter = 1,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Idle,
-                        APPEND to NotLoading.Idle
-                    )
+                    combinedLoadStates = localLoadStatesOf()
                 ),
                 Drop<String>(APPEND, 1, 4)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
@@ -328,7 +287,7 @@ class SeparatorsTest {
         }.toTransformablePages(),
         placeholdersBefore = 0,
         placeholdersAfter = 1,
-        loadStates = mapOf(REFRESH to NotLoading.Idle, PREPEND to prepend, APPEND to append)
+        combinedLoadStates = localLoadStatesOf(prependLocal = prepend, appendLocal = append)
     )
 
     private fun prepend(
@@ -339,11 +298,7 @@ class SeparatorsTest {
             if (it != null) listOf(it) else emptyList()
         }.toTransformablePages(),
         placeholdersBefore = 0,
-        loadStates = mapOf(
-            REFRESH to NotLoading.Idle,
-            PREPEND to prepend,
-            APPEND to NotLoading.Idle
-        )
+        combinedLoadStates = localLoadStatesOf(prependLocal = prepend)
     )
 
     private fun append(
@@ -354,7 +309,7 @@ class SeparatorsTest {
             if (it != null) listOf(it) else emptyList()
         }.toTransformablePages(),
         placeholdersAfter = 0,
-        loadStates = mapOf(REFRESH to NotLoading.Idle, PREPEND to NotLoading.Idle, APPEND to append)
+        combinedLoadStates = localLoadStatesOf(appendLocal = append)
     )
 
     private fun drop(
@@ -576,11 +531,7 @@ class SeparatorsTest {
                     ),
                     placeholdersBefore = 0,
                     placeholdersAfter = 1,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Done,
-                        APPEND to NotLoading.Idle
-                    )
+                    combinedLoadStates = localLoadStatesOf(prependLocal = NotLoading.Done)
                 ),
                 drop(loadType = PREPEND, count = 3)
             ),
@@ -628,11 +579,7 @@ class SeparatorsTest {
                     ),
                     placeholdersBefore = 0,
                     placeholdersAfter = 1,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Idle,
-                        APPEND to NotLoading.Done
-                    )
+                    combinedLoadStates = localLoadStatesOf(appendLocal = NotLoading.Done)
                 ),
                 drop(loadType = APPEND, count = 3)
             ),
@@ -664,11 +611,7 @@ class SeparatorsTest {
                     ).toTransformablePages(),
                     placeholdersBefore = 0,
                     placeholdersAfter = 1,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Idle,
-                        APPEND to NotLoading.Idle
-                    )
+                    combinedLoadStates = localLoadStatesOf()
                 )
             ),
             flowOf(
@@ -677,11 +620,7 @@ class SeparatorsTest {
                         .toTransformablePages(),
                     placeholdersBefore = 0,
                     placeholdersAfter = 1,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Idle,
-                        APPEND to NotLoading.Idle
-                    )
+                    combinedLoadStates = localLoadStatesOf()
                 )
             ).insertEventSeparators<PrimaryType, Base> { before, after ->
                 return@insertEventSeparators (if (before != null && after != null) {
