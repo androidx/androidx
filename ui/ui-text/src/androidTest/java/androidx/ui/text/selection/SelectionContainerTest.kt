@@ -101,6 +101,7 @@ class SelectionContainerTest {
                         softWrap = true,
                         overflow = TextOverflow.Clip,
                         maxLines = Int.MAX_VALUE,
+                        inlineContent = mapOf(),
                         onTextLayout = {}
                     )
                 }
