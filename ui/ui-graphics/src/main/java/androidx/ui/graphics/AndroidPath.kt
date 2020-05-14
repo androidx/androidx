@@ -217,16 +217,16 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
     override val isEmpty: Boolean get() = internalPath.isEmpty
 
     private fun _rectIsValid(rect: Rect): Boolean {
-        check(Float.NaN != rect.left) {
+        check(!rect.left.isNaN()) {
             "Rect.left is NaN"
         }
-        check(Float.NaN != rect.top) {
+        check(!rect.top.isNaN()) {
             "Rect.top is NaN"
         }
-        check(Float.NaN != rect.right) {
+        check(!rect.right.isNaN()) {
             "Rect.right is NaN"
         }
-        check(Float.NaN != rect.bottom) {
+        check(!rect.bottom.isNaN()) {
             "Rect.bottom is NaN"
         }
         return true
