@@ -17,10 +17,14 @@
 package android.util
 
 object Log {
-    fun v(scope: String, msg: String) {
-        println("$scope: msg")
+    @JvmStatic
+    fun v(scope: String, message: String): Int {
+        println("v: $scope: $message")
+        return 0
     }
-    fun e(scope: String, msg: String) {
-        println("$scope: $msg")
+    @JvmStatic
+    fun e(scope: String, message: String): Int {
+        println("e: $scope: $message")
+        return 0
     }
 }
