@@ -120,12 +120,6 @@ interface Density {
     fun Int.toSp(): TextUnit = toFloat().toSp()
 
     /**
-     * Convert a [Size] to a [PxSize].
-     */
-    fun Size.toPx(): PxSize =
-        PxSize(width.toPx(), height.toPx())
-
-    /**
      * Convert a [Bounds] to a [Rect].
      */
     fun Bounds.toRect(): Rect {
