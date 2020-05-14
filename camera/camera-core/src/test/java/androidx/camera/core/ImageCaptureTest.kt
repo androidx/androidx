@@ -59,8 +59,9 @@ import java.util.concurrent.Executor
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = [ShadowCameraX::class])
 class ImageCaptureTest {
 
-    private var executor: Executor? = null
-    private var callbackHandler: Handler? = null
+    private lateinit var callbackHandler: Handler
+    private lateinit var callbackThread: HandlerThread
+    private lateinit var executor: Executor
     private var fakeImageReaderProxy: FakeImageReaderProxy? = null
     private var capturedImage: ImageProxy? = null
     private val onImageCapturedCallback = object : ImageCapture.OnImageCapturedCallback() {
@@ -89,10 +90,10 @@ class ImageCaptureTest {
         val context =
             ApplicationProvider.getApplicationContext<Context>()
         CameraX.initialize(context, cameraXConfig).get()
-        val callbackThread = HandlerThread("Callback")
+        callbackThread = HandlerThread("Callback")
         callbackThread.start()
         callbackHandler = Handler(callbackThread.looper)
-        executor = CameraXExecutors.newHandlerExecutor(callbackHandler!!)
+        executor = CameraXExecutors.newHandlerExecutor(callbackHandler)
     }
 
     @After
@@ -101,6 +102,7 @@ class ImageCaptureTest {
         InstrumentationRegistry.getInstrumentation().runOnMainSync { CameraX.unbindAll() }
         CameraX.shutdown().get()
         fakeImageReaderProxy = null
+        callbackThread.quitSafely()
     }
 
     @Test
@@ -118,7 +120,7 @@ class ImageCaptureTest {
         imageCapture.viewPortCropRect = largerThanBufferRect
 
         // Act
-        imageCapture.takePicture(executor!!, onImageCapturedCallback)
+        imageCapture.takePicture(executor, onImageCapturedCallback)
         // Send fake image.
         fakeImageReaderProxy?.triggerImageAvailable("tag", 0)
         flushHandler(callbackHandler)
@@ -142,7 +144,7 @@ class ImageCaptureTest {
         )
 
         // Act
-        imageCapture.takePicture(executor!!, onImageCapturedCallback)
+        imageCapture.takePicture(executor, onImageCapturedCallback)
         // Send fake image.
         fakeImageReaderProxy?.triggerImageAvailable("tag", 0)
         flushHandler(callbackHandler)
@@ -171,7 +173,7 @@ class ImageCaptureTest {
         val imageCapture = bindImageCapture()
 
         // Act
-        imageCapture.takePicture(executor!!, onImageCapturedCallback)
+        imageCapture.takePicture(executor, onImageCapturedCallback)
         // Send fake image.
         fakeImageReaderProxy?.triggerImageAvailable("tag", 0)
         flushHandler(callbackHandler)
