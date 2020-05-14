@@ -66,10 +66,11 @@ internal interface InputDispatcher {
     }
 
     /**
-     * Sends swipe gestures from `curve(0)` to `curve([duration])`, following the route defined
-     * by [curves]. Will force sampling of an event at all times defined in [keyTimes]. The number
-     * of events sampled between the key times is implementation dependent. This method blocks
-     * until all input events have been dispatched.
+     * Sends `[curves].size` simultaneous swipe gestures, each swipe going from `curves[i](0)` to
+     * `curves[i](duration)`, following the route defined by [curves]`[i]`. Will force sampling
+     * of an event at all times defined in [keyTimes]. The number of events sampled between the
+     * key times is implementation dependent. This method blocks until all input events have been
+     * dispatched.
      *
      * @param curves The functions that define the position of the gesture over time
      * @param duration The duration of the gestures
