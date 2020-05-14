@@ -75,8 +75,8 @@ public class AppSearchManager {
      *     <li>Removal of an existing type
      *     <li>Removal of a property from a type
      *     <li>Changing the data type ({@code boolean}, {@code long}, etc.) of an existing property
-     *     <li>For properties of {@code AppSearchDocument} type, changing the schema type of
-     *         {@code AppSearchDocument}s of that property
+     *     <li>For properties of {@code Document} type, changing the schema type of
+     *         {@code Document}s of that property
      *     <li>Changing the cardinality of a data type to be more restrictive (e.g. changing an
      *         {@link AppSearchSchema.PropertyConfig#CARDINALITY_OPTIONAL OPTIONAL} property into a
      *         {@link AppSearchSchema.PropertyConfig#CARDINALITY_REQUIRED REQUIRED} property).
@@ -140,15 +140,15 @@ public class AppSearchManager {
     }
 
     /**
-     * Index {@link AppSearchDocument}s into AppSearch.
+     * Index {@link GenericDocument}s into AppSearch.
      *
      * <p>You should not call this method directly; instead, use the
      * {@code AppSearch#putDocuments()} API provided by JetPack.
      *
-     * <p>Each {@link AppSearchDocument}'s {@code schemaType} field must be set to the name of a
+     * <p>Each {@link GenericDocument}'s {@code schemaType} field must be set to the name of a
      * schema type previously registered via the {@link #setSchema} method.
      *
-     * @param documents {@link AppSearchDocument}s that need to be indexed.
+     * @param documents {@link GenericDocument}s that need to be indexed.
      * @return A {@link Future}&lt;{@link AppSearchBatchResult}&lt;{@link String},
      *     {@code Void}&gt;&gt;. Where mapping the document URIs to {@link Void} if they were
      *     successfully indexed, or a {@link Throwable} describing the failure if they could not
@@ -156,14 +156,14 @@ public class AppSearchManager {
      */
     @NonNull
     public Future<AppSearchBatchResult<String, Void>> putDocuments(
-            @NonNull List<AppSearchDocument> documents) {
+            @NonNull List<GenericDocument> documents) {
         // TODO(b/146386470): Transmit these documents as a RemoteStream instead of sending them in
         // one big list.
         Callable<AppSearchBatchResult<String, Void>> callableTask = () -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < documents.size(); i++) {
-                AppSearchDocument document = documents.get(i);
+                GenericDocument document = documents.get(i);
                 try {
                     mAppSearchImpl.putDocument(document.getProto());
                     resultBuilder.setSuccess(document.getUri(), /*result=*/ null);
@@ -177,29 +177,29 @@ public class AppSearchManager {
     }
 
     /**
-     * Retrieves {@link AppSearchDocument}s by URI.
+     * Retrieves {@link GenericDocument}s by URI.
      *
      * <p>You should not call this method directly; instead, use the
      * {@code AppSearch#getDocuments()} API provided by JetPack.
      *
      * @param uris URIs of the documents to look up.
      * @return A {@link Future}&lt;{@link AppSearchBatchResult}&lt;{@link String},
-     *     {@link AppSearchDocument}&gt;&gt;.
+     *     {@link GenericDocument}&gt;&gt;.
      *     If the call fails to start, {@link Future} will be completed exceptionally.
      *     Otherwise, {@link Future} will be completed with an
-     *     {@link AppSearchBatchResult}&lt;{@link String}, {@link AppSearchDocument}&gt;
+     *     {@link AppSearchBatchResult}&lt;{@link String}, {@link GenericDocument}&gt;
      *     mapping the document URIs to
-     *     {@link AppSearchDocument} values if they were successfully retrieved, a {@code null}
+     *     {@link GenericDocument} values if they were successfully retrieved, a {@code null}
      *     failure if they were not found, or a {@link Throwable} failure describing the problem
      *     if an error occurred.
      */
     @NonNull
-    public Future<AppSearchBatchResult<String, AppSearchDocument>> getDocuments(
+    public Future<AppSearchBatchResult<String, GenericDocument>> getDocuments(
             @NonNull List<String> uris) {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
-        Callable<AppSearchBatchResult<String, AppSearchDocument>> callableTask = () -> {
-            AppSearchBatchResult.Builder<String, AppSearchDocument> resultBuilder =
+        Callable<AppSearchBatchResult<String, GenericDocument>> callableTask = () -> {
+            AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < uris.size(); i++) {
                 String uri = uris.get(i);
@@ -210,7 +210,7 @@ public class AppSearchManager {
                                 uri, AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null);
                     } else {
                         try {
-                            AppSearchDocument document = new AppSearchDocument(documentProto);
+                            GenericDocument document = new GenericDocument(documentProto);
                             resultBuilder.setSuccess(uri, document);
                         } catch (Throwable t) {
                             // These documents went through validation, so how could this fail? We
@@ -307,7 +307,7 @@ public class AppSearchManager {
     }
 
     /**
-     * Deletes {@link AppSearchDocument}s by URI.
+     * Deletes {@link GenericDocument}s by URI.
      *
      * <p>You should not call this method directly; instead, use the {@code AppSearch#delete()} API
      * provided by JetPack.
@@ -344,7 +344,7 @@ public class AppSearchManager {
     }
 
     /**
-     * Deletes {@link AppSearchDocument}s by schema type.
+     * Deletes {@link GenericDocument}s by schema type.
      *
      * <p>You should not call this method directly; instead, use the
      * {@code AppSearch#deleteByType()} API provided by JetPack.

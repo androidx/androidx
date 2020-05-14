@@ -73,7 +73,7 @@ public final class MatchInfo {
 
     private final String mPropertyPath;
     private final SnippetMatchProto mSnippetMatch;
-    private final AppSearchDocument mDocument;
+    private final GenericDocument mDocument;
     /**
      * List of content with same property path in a document when there are multiple matches in
      * repeated sections.
@@ -81,7 +81,7 @@ public final class MatchInfo {
     private final String[] mValues;
 
     public MatchInfo(@NonNull String propertyPath, @NonNull SnippetMatchProto snippetMatch,
-            @NonNull AppSearchDocument document) {
+            @NonNull GenericDocument document) {
         mPropertyPath = propertyPath;
         mSnippetMatch = snippetMatch;
         mDocument = document;

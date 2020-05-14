@@ -217,7 +217,7 @@ public final class SearchSpec {
 
         /**
          * Only the first {@code numMatchesPerProperty} matches for a every property of
-         * {@link AppSearchDocument} will contain snippet information.
+         * {@link GenericDocument} will contain snippet information.
          * <p>If set to 0, snippeting is disabled and {@link SearchResults.Result#getMatchInfo}
          * will return {@code null} for that result.
          */
