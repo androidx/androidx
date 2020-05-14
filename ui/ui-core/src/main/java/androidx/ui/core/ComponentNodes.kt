@@ -17,6 +17,8 @@ package androidx.ui.core
 
 import androidx.ui.core.focus.FocusModifierImpl
 import androidx.ui.core.focus.ModifiedFocusNode
+import androidx.ui.core.keyinput.KeyInputModifier
+import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.semantics.SemanticsModifier
@@ -646,6 +648,9 @@ class LayoutNode : ComponentNode(), Measurable {
                 if (mod is FocusModifier) {
                     require(mod is FocusModifierImpl)
                     wrapper = ModifiedFocusNode(wrapper, mod).also { mod.focusNode = it }
+                }
+                if (mod is KeyInputModifier) {
+                    wrapper = ModifiedKeyInputNode(wrapper, mod).also { mod.keyInputNode = it }
                 }
                 if (mod is PointerInputModifier) {
                     wrapper = PointerInputDelegatingWrapper(wrapper, mod)
