@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.ui.core.focus.ModifiedFocusNode
+import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -63,15 +64,20 @@ internal class InnerPlaceable(
             null
         } else {
             layoutNode.layoutChildren
-                    .fastFirstOrNull { it.parentData != null }?.parentData
+                .fastFirstOrNull { it.parentData != null }?.parentData
         }
 
-    override fun findFocusWrapperWrappingThisWrapper() =
-        wrappedBy?.findFocusWrapperWrappingThisWrapper()
+    override fun findPreviousFocusWrapper() = wrappedBy?.findPreviousFocusWrapper()
 
-    override fun findFocusWrapperWrappedByThisWrapper() = null
+    override fun findNextFocusWrapper() = null
 
-    override fun findLastFocusWrapper(): ModifiedFocusNode? = findFocusWrapperWrappingThisWrapper()
+    override fun findLastFocusWrapper(): ModifiedFocusNode? = findPreviousFocusWrapper()
+
+    override fun findPreviousKeyInputWrapper() = wrappedBy?.findPreviousKeyInputWrapper()
+
+    override fun findNextKeyInputWrapper() = null
+
+    override fun findLastKeyInputWrapper(): ModifiedKeyInputNode? = findPreviousKeyInputWrapper()
 
     override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.minIntrinsicWidth(

@@ -1737,6 +1737,10 @@ package androidx.ui.core.keyinput {
     property public final int ZoomOut;
   }
 
+  public final class KeyInputModifierKt {
+    method public static androidx.ui.core.Modifier keyInputFilter(androidx.ui.core.Modifier);
+  }
+
 }
 
 package androidx.ui.core.pointerinput {
