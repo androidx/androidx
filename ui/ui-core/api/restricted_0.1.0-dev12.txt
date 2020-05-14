@@ -308,6 +308,20 @@ package androidx.ui.core {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static String simpleIdentityToString(Object obj, String? name = null);
   }
 
+  @kotlin.PublishedApi internal final class DefaultIntrinsicMeasurable implements androidx.ui.core.Measurable {
+    ctor public DefaultIntrinsicMeasurable(androidx.ui.core.IntrinsicMeasurable measurable, androidx.ui.core.IntrinsicMinMax minMax, androidx.ui.core.IntrinsicWidthHeight widthHeight);
+    method public androidx.ui.core.IntrinsicMeasurable getMeasurable();
+    method public androidx.ui.core.IntrinsicMinMax getMinMax();
+    method public Object? getParentData();
+    method public androidx.ui.core.IntrinsicWidthHeight getWidthHeight();
+    method public int maxIntrinsicHeight-Ujlv2dA(int width, androidx.ui.core.LayoutDirection layoutDirection);
+    method public int maxIntrinsicWidth-Ujlv2dA(int height, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
+    method public int minIntrinsicHeight-Ujlv2dA(int width, androidx.ui.core.LayoutDirection layoutDirection);
+    method public int minIntrinsicWidth-Ujlv2dA(int height, androidx.ui.core.LayoutDirection layoutDirection);
+    property public Object? parentData;
+  }
+
   public enum Direction {
     enum_constant public static final androidx.ui.core.Direction DOWN;
     enum_constant public static final androidx.ui.core.Direction LEFT;
@@ -399,6 +413,38 @@ package androidx.ui.core {
     method public final int minIntrinsicHeight-e0m06WU(androidx.ui.core.IntrinsicMeasurable, int width);
     method public final int minIntrinsicWidth-e0m06WU(androidx.ui.core.IntrinsicMeasurable, int height);
     property public abstract androidx.ui.core.LayoutDirection layoutDirection;
+  }
+
+  @kotlin.PublishedApi internal enum IntrinsicMinMax {
+    enum_constant public static final androidx.ui.core.IntrinsicMinMax Max;
+    enum_constant public static final androidx.ui.core.IntrinsicMinMax Min;
+  }
+
+  @kotlin.PublishedApi internal enum IntrinsicWidthHeight {
+    enum_constant public static final androidx.ui.core.IntrinsicWidthHeight Height;
+    enum_constant public static final androidx.ui.core.IntrinsicWidthHeight Width;
+  }
+
+  @kotlin.PublishedApi internal final class IntrinsicsMeasureScope extends androidx.ui.core.MeasureScope implements androidx.ui.unit.Density {
+    ctor public IntrinsicsMeasureScope(androidx.ui.unit.Density density, androidx.ui.core.LayoutDirection layoutDirection);
+    method public float getDensity();
+    method public float getFontScale();
+    method public androidx.ui.core.LayoutDirection getLayoutDirection();
+    method public float toDp(float);
+    method public float toDp(int);
+    method public float toDp-NgWp0Z8(float);
+    method public float toDp-gshw56o(int);
+    method public float toDp-vVlMl6k(long);
+    method public int toIntPx-ipo6vVg(float);
+    method public int toIntPx-vVlMl6k(long);
+    method public float toPx-ipo6vVg(float);
+    method public float toPx-vVlMl6k(long);
+    method public androidx.ui.geometry.Rect toRect(androidx.ui.unit.Bounds);
+    method public long toSp(float);
+    method public long toSp(int);
+    method public long toSp-NgWp0Z8(float);
+    method public long toSp-gshw56o(int);
+    method public long toSp-ipo6vVg(float);
   }
 
   public interface LayoutCoordinates {
