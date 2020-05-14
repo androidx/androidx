@@ -121,7 +121,7 @@ public abstract class ActivityResultRegistry {
                     public void onStateChanged(
                             @NonNull LifecycleOwner lifecycleOwner,
                             @NonNull Lifecycle.Event event) {
-                        if (Lifecycle.Event.ON_CREATE.equals(event)) {
+                        if (Lifecycle.Event.ON_START.equals(event)) {
                             callback.onActivityResult(contract.parseResult(
                                     pendingResult.getResultCode(),
                                     pendingResult.getData()));
