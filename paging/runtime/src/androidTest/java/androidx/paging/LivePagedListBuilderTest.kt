@@ -133,6 +133,14 @@ class LivePagedListBuilderTest {
     }
 
     @Test
+    fun initialValueOnMainThread() {
+        ArchTaskExecutor.getInstance().setDelegate(null)
+        @Suppress("DEPRECATION")
+        LivePagedListBuilder(MockDataSourceFactory()::create, 2)
+            .build()
+    }
+
+    @Test
     fun executorBehavior() {
         // specify a background dispatcher via builder, and verify it gets used for all loads,
         // overriding default IO dispatcher
