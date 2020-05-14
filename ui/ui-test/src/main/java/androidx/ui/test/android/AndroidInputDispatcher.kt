@@ -23,6 +23,8 @@ import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
+import android.view.MotionEvent.ACTION_POINTER_DOWN
+import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import androidx.ui.test.GestureToken
 import androidx.ui.test.InputDispatcher
@@ -139,8 +141,8 @@ internal class AndroidInputDispatcher constructor(
         sendMotionEvent(token.downTime, token.eventTime, action, position)
     }
 
-    override fun sendSwipe(
-        curve: (Long) -> PxPosition,
+    override fun sendSwipes(
+        curves: List<(Long) -> PxPosition>,
         duration: Duration,
         keyTimes: List<Long>
     ) {
@@ -163,8 +165,14 @@ internal class AndroidInputDispatcher constructor(
         val downTime = generateDownTime(duration)
         val upTime = downTime + duration.inMilliseconds()
 
-        // Send down event
-        sendMotionEvent(downTime, downTime, ACTION_DOWN, curve(startTime))
+        val initialPositions = mutableListOf<PxPosition>()
+
+        // Send down events
+        for ((index, curve) in curves.withIndex()) {
+            val action = if (index == 0) ACTION_DOWN else ACTION_POINTER_DOWN
+            initialPositions.add(curve(startTime))
+            sendMotionEvent(downTime, downTime, action, index, initialPositions)
+        }
 
         // Send move events between each consecutive pair in [t0, ..keyTimes, tN]
         var currTime = startTime
@@ -176,29 +184,34 @@ internal class AndroidInputDispatcher constructor(
             }
             // send events between t and next keyTime
             val tNext = if (key < keyTimes.size) keyTimes[key] else endTime
-            sendPartialSwipe(downTime, curve, currTime, tNext)
+            sendPartialSwipes(downTime, curves, currTime, tNext)
             currTime = tNext
         }
 
-        // And end with up event
-        sendMotionEvent(downTime, upTime, ACTION_UP, curve(endTime))
+        // And end with up events
+        val finalPositions = curves.map { it(endTime) }.toMutableList()
+        for (index in curves.indices.reversed()) {
+            val action = if (index > 0) ACTION_POINTER_UP else ACTION_UP
+            sendMotionEvent(downTime, upTime, action, index, finalPositions)
+            finalPositions.removeAt(index)
+        }
     }
 
     /**
      * Sends move events between `f([t0])` and `f([tN])` during the time window `(downTime + t0,
-     * downTime + tN]`, using [f] to sample the coordinate of each event. The number of events
+     * downTime + tN]`, using [fs] to sample the coordinate of each event. The number of events
      * sent (#numEvents) is such that the time between each event is as close to [eventPeriod] as
      * possible, but at least 1. The first event is sent at time `downTime + (tN - t0) /
      * #numEvents`, the last event is sent at time tN.
      *
      * @param downTime The event time of the down event that started this gesture
-     * @param f The function that defines the coordinate of the gesture over time
+     * @param fs The functions that define the coordinates of the respective gestures over time
      * @param t0 The start time of this segment of the swipe, in milliseconds relative to downTime
      * @param tN The end time of this segment of the swipe, in milliseconds relative to downTime
      */
-    private fun sendPartialSwipe(
+    private fun sendPartialSwipes(
         downTime: Long,
-        f: (Long) -> PxPosition,
+        fs: List<(Long) -> PxPosition>,
         t0: Long,
         tN: Long
     ) {
@@ -210,8 +223,46 @@ internal class AndroidInputDispatcher constructor(
         while (step++ < steps) {
             val progress = step / steps.toFloat()
             val t = lerp(t0, tN, progress)
-            sendMotionEvent(downTime, downTime + t, ACTION_MOVE, f(t))
+            sendMotionEvent(downTime, downTime + t, ACTION_MOVE, 0, fs.map { it(t) })
         }
+    }
+
+    /**
+     * Sends an event with the given parameters. Method blocks if [dispatchInRealTime] is `true`.
+     */
+    private fun sendMotionEvent(
+        downTime: Long,
+        eventTime: Long,
+        action: Int,
+        actionIndex: Int,
+        coordinates: List<PxPosition>
+    ) {
+        sleepUntil(eventTime)
+        sendAndRecycleEvent(
+            MotionEvent.obtain(
+                downTime,
+                eventTime,
+                action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
+                coordinates.size,
+                Array(coordinates.size) {
+                    MotionEvent.PointerProperties().apply { id = it }
+                },
+                Array(coordinates.size) {
+                    MotionEvent.PointerCoords().apply {
+                        x = coordinates[it].x.value
+                        y = coordinates[it].y.value
+                    }
+                },
+                0,
+                0,
+                0f,
+                0f,
+                0,
+                0,
+                0,
+                0
+            )
+        )
     }
 
     /**
@@ -223,10 +274,7 @@ internal class AndroidInputDispatcher constructor(
         action: Int,
         position: PxPosition
     ) {
-        sleepUntil(eventTime)
-        sendAndRecycleEvent(
-            MotionEvent.obtain(downTime, eventTime, action, position.x.value, position.y.value, 0)
-        )
+        sendMotionEvent(downTime, eventTime, action, 0, listOf(position))
     }
 
     private fun sleepUntil(time: Long) {

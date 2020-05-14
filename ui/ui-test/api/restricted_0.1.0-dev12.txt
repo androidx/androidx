@@ -209,6 +209,7 @@ package androidx.ui.test {
     method public static void sendLongClick(androidx.ui.test.GestureScope);
     method public static void sendMoveBy(androidx.ui.test.PartialGestureScope, androidx.ui.test.GestureToken token, androidx.ui.unit.PxPosition delta);
     method public static void sendMoveTo(androidx.ui.test.PartialGestureScope, androidx.ui.test.GestureToken token, androidx.ui.unit.PxPosition position);
+    method public static void sendPinch(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start0, androidx.ui.unit.PxPosition end0, androidx.ui.unit.PxPosition start1, androidx.ui.unit.PxPosition end1, androidx.ui.unit.Duration duration = 400.milliseconds);
     method public static void sendSwipe(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition end, androidx.ui.unit.Duration duration = 200.milliseconds);
     method public static void sendSwipeDown(androidx.ui.test.GestureScope);
     method public static void sendSwipeLeft(androidx.ui.test.GestureScope);

@@ -206,6 +206,43 @@ fun GestureScope.sendSwipe(
 }
 
 /**
+ * Performs a pinch gesture on the associated component.
+ *
+ * For each pair of start and end [PxPosition]s, the motion events are linearly interpolated. The
+ * coordinates are in the component's local coordinate system where (0.px, 0.px) is the top left
+ * corner of the component. The default duration is 400 milliseconds.
+ *
+ * @param start0 The start position of the first gesture in the component's local coordinate system
+ * @param end0 The end position of the first gesture in the component's local coordinate system
+ * @param start1 The start position of the second gesture in the component's local coordinate system
+ * @param end1 The end position of the second gesture in the component's local coordinate system
+ * @param duration the duration of the gesture
+ */
+fun GestureScope.sendPinch(
+    start0: PxPosition,
+    end0: PxPosition,
+    start1: PxPosition,
+    end1: PxPosition,
+    duration: Duration = 400.milliseconds
+) {
+    val globalStart0 = localToGlobal(start0)
+    val globalEnd0 = localToGlobal(end0)
+    val globalStart1 = localToGlobal(start1)
+    val globalEnd1 = localToGlobal(end1)
+    val durationFloat = duration.inMilliseconds().toFloat()
+
+    semanticsNodeInteraction.sendInput { dispatcher ->
+        dispatcher.sendSwipes(
+            listOf<(Long) -> PxPosition>(
+                { androidx.ui.unit.lerp(globalStart0, globalEnd0, it / durationFloat) },
+                { androidx.ui.unit.lerp(globalStart1, globalEnd1, it / durationFloat) }
+            ),
+            duration
+        )
+    }
+}
+
+/**
  * Performs the swipe gesture on the associated component, such that the velocity when the
  * gesture is finished is roughly equal to [endVelocity]. The MotionEvents are linearly
  * interpolated between [start] and [end]. The coordinates are in the component's
