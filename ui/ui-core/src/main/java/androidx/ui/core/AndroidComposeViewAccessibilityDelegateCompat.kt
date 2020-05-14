@@ -183,8 +183,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (rangeInfo != null) {
             info.rangeInfo = AccessibilityNodeInfoCompat.RangeInfoCompat.obtain(
                 AccessibilityNodeInfoCompat.RangeInfoCompat.RANGE_TYPE_FLOAT,
-                rangeInfo.current,
-                rangeInfo.range.start, rangeInfo.range.endInclusive
+                rangeInfo.range.start, rangeInfo.range.endInclusive, rangeInfo.current
             )
         }
 
