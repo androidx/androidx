@@ -98,9 +98,9 @@ fun PointerInputRecorder.assertOnlyLastEventIsUp() {
 /**
  * Checks that the coordinates are progressing in a monotonous direction
  */
-fun List<DataPoint>.isMonotonousBetween(start: PxPosition, end: PxPosition) {
-    map { it.x.value }.isMonotonousBetween(start.x.value, end.x.value, 1e-3f)
-    map { it.y.value }.isMonotonousBetween(start.y.value, end.y.value, 1e-3f)
+fun List<DataPoint>.isMonotonicBetween(start: PxPosition, end: PxPosition) {
+    map { it.x.value }.isMonotonicBetween(start.x.value, end.x.value, 1e-3f)
+    map { it.y.value }.isMonotonicBetween(start.y.value, end.y.value, 1e-3f)
 }
 
 /**

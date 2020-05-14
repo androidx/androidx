@@ -26,12 +26,12 @@ import org.junit.runners.Parameterized
 private class TruthTest
 
 /**
- * Tests for `List<Float>.`[isMonotonousBetween]. See documentation of that method for expected
+ * Tests for `List<Float>.`[isMonotonicBetween]. See documentation of that method for expected
  * results.
  */
 @SmallTest
 @RunWith(Parameterized::class)
-class ListFloatIsMonotonousBetweenTest(private val config: TestConfig) {
+class ListFloatIsMonotonicBetweenTest(private val config: TestConfig) {
     data class TestConfig(
         val values: List<Float>,
         val a: Float,
@@ -69,8 +69,8 @@ class ListFloatIsMonotonousBetweenTest(private val config: TestConfig) {
                 TestConfig(listOf(1f, 2f, 3f), 1f, 1f, 0.01f, false),
                 // Is [1, 2, 3] between 1 and 3 with no tolerance? Yes
                 TestConfig(listOf(1f, 2f, 3f), 1f, 3f, 0f, true),
-                // Is [1, 2, 2, 3] strictly between 1 and 3 with no tolerance? No
-                TestConfig(listOf(1f, 2f, 2f, 3f), 1f, 3f, 0f, false),
+                // Is [1, 2, 2, 3] between 1 and 3 with no tolerance? Yes
+                TestConfig(listOf(1f, 2f, 2f, 3f), 1f, 3f, 0f, true),
                 // Is [1, 2, 3] between 3 and 1 with no tolerance? No
                 TestConfig(listOf(1f, 2f, 3f), 3f, 1f, 0f, false),
                 // Is [1, 2, 3] between 0 and 2 with no tolerance? No
@@ -79,17 +79,17 @@ class ListFloatIsMonotonousBetweenTest(private val config: TestConfig) {
                 TestConfig(listOf(1f, 2f, 3f), 1.01f, 4f, 0.01f, true),
                 // Is [3, 2, 1] between 3 and 1 with no tolerance? Yes
                 TestConfig(listOf(3f, 2f, 1f), 3f, 1f, 0f, true),
-                // Is [3, 3, 2, 1] strictly between 3 and 1 with no tolerance? No
-                TestConfig(listOf(3f, 3f, 2f, 1f), 3f, 1f, 0f, false)
+                // Is [3, 3, 2, 1] between 3 and 1 with no tolerance? No
+                TestConfig(listOf(3f, 3f, 2f, 1f), 3f, 1f, 0f, true)
             )
         }
     }
 
     @Test
-    fun testIsMonotonousBetween() {
+    fun testIsMonotonicBetween() {
         config.apply {
             expectAssertionError(expectError) {
-                values.isMonotonousBetween(a, b, tolerance)
+                values.isMonotonicBetween(a, b, tolerance)
             }
         }
     }
