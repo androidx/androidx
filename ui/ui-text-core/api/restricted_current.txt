@@ -546,7 +546,7 @@ package androidx.ui.text {
 
   public static final class TextDelegate.Companion {
     method public void paint(androidx.ui.graphics.Canvas canvas, androidx.ui.text.TextLayoutResult textLayoutResult);
-    method public void paintBackground-ZIA4ZIk(int start, int end, long color, androidx.ui.graphics.Canvas canvas, androidx.ui.text.TextLayoutResult textLayoutResult);
+    method public void paintBackground(int start, int end, androidx.ui.graphics.Paint paint, androidx.ui.graphics.Canvas canvas, androidx.ui.text.TextLayoutResult textLayoutResult);
   }
 
   public final class TextLayoutHelperKt {
