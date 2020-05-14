@@ -189,8 +189,8 @@ internal fun createStyledText(
     contextFontSize: Float,
     lineHeight: TextUnit,
     textIndent: TextIndent?,
-    spanStyles: List<AnnotatedString.Item<SpanStyle>>,
-    placeholders: List<AnnotatedString.Item<Placeholder>>,
+    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
     typefaceAdapter: TypefaceAdapter
 ): CharSequence {

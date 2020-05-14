@@ -60,8 +60,8 @@ internal class AndroidParagraph constructor(
     constructor(
         text: String,
         style: TextStyle,
-        spanStyles: List<AnnotatedString.Item<SpanStyle>>,
-        placeholders: List<AnnotatedString.Item<Placeholder>>,
+        spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+        placeholders: List<AnnotatedString.Range<Placeholder>>,
         maxLines: Int,
         ellipsis: Boolean,
         constraints: ParagraphConstraints,

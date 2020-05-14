@@ -79,7 +79,7 @@ class ParagraphBenchmark(
 
     private fun paragraph(
         text: String,
-        spanStyles: List<AnnotatedString.Item<SpanStyle>>,
+        spanStyles: List<AnnotatedString.Range<SpanStyle>>,
         constraints: ParagraphConstraints
     ): Paragraph {
         return Paragraph(
@@ -100,7 +100,7 @@ class ParagraphBenchmark(
 
     private fun paragraphIntrinsics(
         text: String,
-        spanStyles: List<AnnotatedString.Item<SpanStyle>>
+        spanStyles: List<AnnotatedString.Range<SpanStyle>>
     ): ParagraphIntrinsics {
         return ParagraphIntrinsics(
             text = text,

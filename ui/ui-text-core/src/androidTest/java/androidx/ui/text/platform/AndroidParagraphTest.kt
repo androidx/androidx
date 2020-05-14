@@ -109,7 +109,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -123,7 +123,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -139,8 +139,8 @@ class AndroidParagraphTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(spanStyle, 0, text.length),
-                AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
+                AnnotatedString.Range(spanStyle, 0, text.length),
+                AnnotatedString.Range(spanStyleOverwrite, 0, "abc".length)
             ),
             constraints = ParagraphConstraints(width = 100.0f)
         )
@@ -157,7 +157,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -172,7 +172,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -187,7 +187,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -202,7 +202,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -221,7 +221,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -240,7 +240,7 @@ class AndroidParagraphTest {
 
             val paragraph = simpleParagraph(
                 text = text,
-                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
@@ -258,7 +258,7 @@ class AndroidParagraphTest {
 
             val paragraph = simpleParagraph(
                 text = text,
-                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
@@ -279,8 +279,8 @@ class AndroidParagraphTest {
             val paragraph = simpleParagraph(
                 text = text,
                 spanStyles = listOf(
-                    AnnotatedString.Item(spanStyle, 0, text.length),
-                    AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
+                    AnnotatedString.Range(spanStyle, 0, text.length),
+                    AnnotatedString.Range(spanStyleOverwrite, 0, "abc".length)
                 ),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
@@ -300,7 +300,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -317,7 +317,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -334,7 +334,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -349,7 +349,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -366,8 +366,8 @@ class AndroidParagraphTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(spanStyle, 0, text.length),
-                AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
+                AnnotatedString.Range(spanStyle, 0, text.length),
+                AnnotatedString.Range(spanStyleOverwrite, 0, "abc".length)
             ),
             constraints = ParagraphConstraints(width = 100.0f)
         )
@@ -386,7 +386,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -405,7 +405,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -427,8 +427,8 @@ class AndroidParagraphTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(spanStyle, 0, text.length),
-                AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
+                AnnotatedString.Range(spanStyle, 0, text.length),
+                AnnotatedString.Range(spanStyleOverwrite, 0, "abc".length)
             ),
             constraints = ParagraphConstraints(width = 100.0f)
         )
@@ -456,7 +456,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -471,7 +471,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
@@ -487,8 +487,8 @@ class AndroidParagraphTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(spanStyle, 0, text.length),
-                AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
+                AnnotatedString.Range(spanStyle, 0, text.length),
+                AnnotatedString.Range(spanStyleOverwrite, 0, "abc".length)
             ),
             constraints = ParagraphConstraints(width = 100.0f)
         )
@@ -505,7 +505,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
@@ -519,7 +519,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
@@ -536,8 +536,8 @@ class AndroidParagraphTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(spanStyle, 0, text.length),
-                AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
+                AnnotatedString.Range(spanStyle, 0, text.length),
+                AnnotatedString.Range(spanStyleOverwrite, 0, "abc".length)
             ),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
@@ -554,7 +554,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
@@ -574,7 +574,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
@@ -592,7 +592,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
@@ -631,7 +631,7 @@ class AndroidParagraphTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(spanStyle, start = 0, end = text.length)
+                AnnotatedString.Range(spanStyle, start = 0, end = text.length)
             ),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
@@ -663,8 +663,8 @@ class AndroidParagraphTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(spanStyle, start = 0, end = text.length),
-                AnnotatedString.Item(spanStyleOverwrite, start = 0, end = "abc".length)
+                AnnotatedString.Range(spanStyle, start = 0, end = text.length),
+                AnnotatedString.Range(spanStyleOverwrite, start = 0, end = "abc".length)
             ),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
@@ -704,7 +704,7 @@ class AndroidParagraphTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(
+                AnnotatedString.Range(
                     spanStyle,
                     expectedStart,
                     expectedEnd
@@ -741,7 +741,7 @@ class AndroidParagraphTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(
+                AnnotatedString.Range(
                     spanStyle,
                     expectedStart,
                     expectedEnd
@@ -765,7 +765,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
@@ -1215,7 +1215,7 @@ class AndroidParagraphTest {
 
     private fun simpleParagraph(
         text: String = "",
-        spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
+        spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
         textIndent: TextIndent? = null,
         textAlign: TextAlign? = null,
         textDirectionAlgorithm: TextDirectionAlgorithm? = TextDirectionAlgorithm.ContentOrLtr,

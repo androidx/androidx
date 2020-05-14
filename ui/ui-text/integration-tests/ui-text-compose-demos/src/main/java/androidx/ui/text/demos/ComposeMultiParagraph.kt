@@ -89,17 +89,17 @@ fun TextDemoParagraphLineHeight() {
             text = text1 + text2 + text3,
             spanStyles = listOf(),
             paragraphStyles = listOf(
-                AnnotatedString.Item(
+                AnnotatedString.Range(
                     ParagraphStyle(lineHeight = 30.sp),
                     0,
                     text1.length
                 ),
-                AnnotatedString.Item(
+                AnnotatedString.Range(
                     ParagraphStyle(lineHeight = 40.sp),
                     text1.length,
                     text1.length + text2.length
                 ),
-                AnnotatedString.Item(
+                AnnotatedString.Range(
                     ParagraphStyle(lineHeight = 50.sp),
                     text1.length + text2.length,
                     text1.length + text2.length + text3.length
