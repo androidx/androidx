@@ -69,10 +69,13 @@ public final class InlineSuggestionUi {
 
     /**
      * Returns a builder to build the content for V1 inline suggestion UI.
+     *
+     * @param attributionIntent invoked when the UI is long-pressed.
+     * @see androidx.autofill.inline.Renderer#getAttributionIntent(Slice)
      */
     @NonNull
-    public static Content.Builder newContentBuilder() {
-        return new Content.Builder();
+    public static Content.Builder newContentBuilder(@NonNull PendingIntent attributionIntent) {
+        return new Content.Builder(attributionIntent);
     }
 
     /**
@@ -138,12 +141,12 @@ public final class InlineSuggestionUi {
         final ImageView endIconView =
                 suggestionView.findViewById(R.id.autofill_inline_suggestion_end_icon);
 
-        String title = content.getTitle();
+        CharSequence title = content.getTitle();
         if (title != null) {
             titleView.setText(title);
             titleView.setVisibility(View.VISIBLE);
         }
-        String subtitle = content.getSubtitle();
+        CharSequence subtitle = content.getSubtitle();
         if (subtitle != null) {
             subtitleView.setText(subtitle);
             subtitleView.setVisibility(View.VISIBLE);
@@ -176,13 +179,13 @@ public final class InlineSuggestionUi {
 
     /**
      * @hide
-     * @see androidx.autofill.inline.Renderer#getAttribution(Slice)
-     * @see Content#getAttribution()
+     * @see androidx.autofill.inline.Renderer#getAttributionIntent(Slice)
+     * @see Content#getAttributionIntent()
      */
     @RestrictTo(LIBRARY)
     @Nullable
-    public static PendingIntent getAttribution(@NonNull Content content) {
-        return content.getAttribution();
+    public static PendingIntent getAttributionIntent(@NonNull Content content) {
+        return content.getAttributionIntent();
     }
 
     private static Context getDefaultContextThemeWrapper(@NonNull Context context) {
@@ -448,7 +451,7 @@ public final class InlineSuggestionUi {
         static final String HINT_INLINE_SUBTITLE = "inline_subtitle";
         static final String HINT_INLINE_START_ICON = "inline_start_icon";
         static final String HINT_INLINE_END_ICON = "inline_end_icon";
-        static final String HINT_INLINE_ATTRIBUTION = "inline_attribution";
+        static final String HINT_INLINE_ATTRIBUTION_INTENT = "inline_attribution_intent";
         static final String HINT_INLINE_CONTENT_DESCRIPTION = "inline_content_description";
 
         @Nullable
@@ -456,11 +459,11 @@ public final class InlineSuggestionUi {
         @Nullable
         private Icon mEndIcon;
         @Nullable
-        private String mTitle;
+        private CharSequence mTitle;
         @Nullable
-        private String mSubtitle;
+        private CharSequence mSubtitle;
         @Nullable
-        private PendingIntent mAttribution;
+        private PendingIntent mAttributionIntent;
         @Nullable
         private CharSequence mContentDescription;
 
@@ -485,8 +488,8 @@ public final class InlineSuggestionUi {
                     case HINT_INLINE_END_ICON:
                         mEndIcon = sliceItem.getIcon();
                         break;
-                    case HINT_INLINE_ATTRIBUTION:
-                        mAttribution = sliceItem.getAction();
+                    case HINT_INLINE_ATTRIBUTION_INTENT:
+                        mAttributionIntent = sliceItem.getAction();
                         break;
                     case HINT_INLINE_CONTENT_DESCRIPTION:
                         mContentDescription = sliceItem.getText();
@@ -502,18 +505,18 @@ public final class InlineSuggestionUi {
         }
 
         /**
-         * @see Builder#setTitle(String)
+         * @see Builder#setTitle(CharSequence)
          */
         @Nullable
-        public String getTitle() {
+        public CharSequence getTitle() {
             return mTitle;
         }
 
         /**
-         * @see Builder#setSubtitle(String)
+         * @see Builder#setSubtitle(CharSequence)
          */
         @Nullable
-        public String getSubtitle() {
+        public CharSequence getSubtitle() {
             return mSubtitle;
         }
 
@@ -542,12 +545,12 @@ public final class InlineSuggestionUi {
         }
 
         /**
-         * @see Builder#setAttribution(PendingIntent)
+         * @see InlineSuggestionUi#newContentBuilder(PendingIntent)
          */
         @Nullable
         @Override
-        public PendingIntent getAttribution() {
-            return mAttribution;
+        public PendingIntent getAttributionIntent() {
+            return mAttributionIntent;
         }
 
         /**
@@ -590,8 +593,8 @@ public final class InlineSuggestionUi {
                     }
                 case FORMAT_ACTION:
                     if (sliceItem.getAction() != null && sliceItem.getHints().contains(
-                            HINT_INLINE_ATTRIBUTION)) {
-                        return HINT_INLINE_ATTRIBUTION;
+                            HINT_INLINE_ATTRIBUTION_INTENT)) {
+                        return HINT_INLINE_ATTRIBUTION_INTENT;
                     } else {
                         throw new IllegalStateException(
                                 "Unrecognized Action SliceItem in Inline Presentation");
@@ -605,33 +608,38 @@ public final class InlineSuggestionUi {
          * Builder for the {@link Content}.
          */
         public static final class Builder extends SlicedContent.Builder<Content> {
+            @NonNull
+            private final PendingIntent mAttributionIntent;
             @Nullable
             private Icon mStartIcon;
             @Nullable
             private Icon mEndIcon;
             @Nullable
-            private String mTitle;
+            private CharSequence mTitle;
             @Nullable
-            private String mSubtitle;
-            @Nullable
-            private PendingIntent mAttribution;
+            private CharSequence mSubtitle;
             @Nullable
             private CharSequence mContentDescription;
 
             /**
-             * Use {@link InlineSuggestionUi#newContentBuilder()} to instantiate this class.
+             * Use {@link InlineSuggestionUi#newContentBuilder(PendingIntent)} to instantiate
+             * this class.
+             *
+             * @param attributionIntent invoked when the UI is long-pressed.
+             * @see androidx.autofill.inline.Renderer#getAttributionIntent(Slice)
              */
-            Builder() {
+            Builder(@NonNull PendingIntent attributionIntent) {
                 super(UiVersions.INLINE_UI_VERSION_1);
+                mAttributionIntent = attributionIntent;
             }
 
             /**
              * Sets the title of the suggestion UI.
              *
-             * @param title String displayed as title of slice.
+             * @param title displayed as title of slice.
              */
             @NonNull
-            public Builder setTitle(@NonNull String title) {
+            public Builder setTitle(@NonNull CharSequence title) {
                 mTitle = title;
                 return this;
             }
@@ -639,10 +647,10 @@ public final class InlineSuggestionUi {
             /**
              * Sets the subtitle of the suggestion UI.
              *
-             * @param subtitle String displayed as subtitle of slice.
+             * @param subtitle displayed as subtitle of slice.
              */
             @NonNull
-            public Builder setSubtitle(@NonNull String subtitle) {
+            public Builder setSubtitle(@NonNull CharSequence subtitle) {
                 mSubtitle = subtitle;
                 return this;
             }
@@ -670,16 +678,6 @@ public final class InlineSuggestionUi {
             }
 
             /**
-             * @param attribution invoked when the UI is long-pressed.
-             * @see androidx.autofill.inline.Renderer#getAttribution(Slice)
-             */
-            @NonNull
-            public Builder setAttribution(@NonNull PendingIntent attribution) {
-                mAttribution = attribution;
-                return this;
-            }
-
-            /**
              * Sets the content description for the suggestion view.
              *
              * @param contentDescription the content description.
@@ -703,8 +701,8 @@ public final class InlineSuggestionUi {
                     throw new IllegalStateException(
                             "Cannot set the subtitle without setting the title.");
                 }
-                if (mAttribution == null) {
-                    throw new IllegalStateException("Attribution cannot be null.");
+                if (mAttributionIntent == null) {
+                    throw new IllegalStateException("Attribution intent cannot be null.");
                 }
                 if (mStartIcon != null) {
                     mSliceBuilder.addIcon(mStartIcon, null,
@@ -722,9 +720,11 @@ public final class InlineSuggestionUi {
                     mSliceBuilder.addIcon(mEndIcon, null,
                             Collections.singletonList(HINT_INLINE_END_ICON));
                 }
-                if (mAttribution != null) {
-                    mSliceBuilder.addAction(mAttribution, new Slice.Builder(mSliceBuilder).addHints(
-                            Collections.singletonList(HINT_INLINE_ATTRIBUTION)).build(), null);
+                if (mAttributionIntent != null) {
+                    mSliceBuilder.addAction(mAttributionIntent, new Slice.Builder(
+                                    mSliceBuilder).addHints(
+                            Collections.singletonList(HINT_INLINE_ATTRIBUTION_INTENT)).build(),
+                            null);
                 }
                 if (mContentDescription != null) {
                     mSliceBuilder.addText(mContentDescription, null,
