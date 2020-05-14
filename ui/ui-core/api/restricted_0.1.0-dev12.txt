@@ -1791,8 +1791,19 @@ package androidx.ui.core.keyinput {
     property public final int ZoomOut;
   }
 
+  public final class KeyEvent {
+    method public int getKey();
+    method public androidx.ui.core.keyinput.KeyEventType getType();
+  }
+
+  public enum KeyEventType {
+    enum_constant public static final androidx.ui.core.keyinput.KeyEventType KeyDown;
+    enum_constant public static final androidx.ui.core.keyinput.KeyEventType KeyUp;
+  }
+
   public final class KeyInputModifierKt {
-    method public static androidx.ui.core.Modifier keyInputFilter(androidx.ui.core.Modifier);
+    method public static androidx.ui.core.Modifier keyInputFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.keyinput.KeyEvent,java.lang.Boolean> onKeyEvent);
+    method public static androidx.ui.core.Modifier previewKeyInputFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.keyinput.KeyEvent,java.lang.Boolean> onPreviewKeyEvent);
   }
 
 }

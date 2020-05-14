@@ -20,14 +20,45 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 
 /**
- * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a Composable will
- * allow it to intercept hardware key events. In the future, this will have a parameter to allow
- * receiving and filtering events.
+ * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
+ * allow it to intercept hardware key events.
+ *
+ * @param onKeyEvent This callback is invoked when the user interacts with the hardware keyboard.
+ * While implementing this callback, return true to stop propagation of this event. If you return
+ * false, the key event will be sent to this [keyInputFilter]'s parent.
  */
-fun Modifier.keyInputFilter(): Modifier = composed {
-    KeyInputModifier()
+fun Modifier.keyInputFilter(onKeyEvent: (KeyEvent) -> Boolean): Modifier = composed {
+    KeyInputModifier(onKeyEvent = onKeyEvent, onPreviewKeyEvent = null)
 }
 
-internal class KeyInputModifier : Modifier.Element {
+/**
+ * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
+ * allow it to intercept hardware key events.
+ *
+ * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
+ * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
+ * Return true to stop propagation of this event. If you return false, the key event will be sent
+ * to this [previewKeyInputFilter]'s child. If none of the children consume the event, it will be
+ * sent back up to the root [keyInputFilter] using the onKeyEvent callback.
+ */
+fun Modifier.previewKeyInputFilter(onPreviewKeyEvent: (KeyEvent) -> Boolean): Modifier = composed {
+    KeyInputModifier(onKeyEvent = null, onPreviewKeyEvent = onPreviewKeyEvent)
+}
+
+internal class KeyInputModifier(
+    val onKeyEvent: ((KeyEvent) -> Boolean)?,
+    val onPreviewKeyEvent: ((KeyEvent) -> Boolean)?
+) : Modifier.Element {
     var keyInputNode: ModifiedKeyInputNode? = null
+
+    fun processKeyInput(keyEvent: KeyEvent): Boolean {
+        val activeKeyInputNode = keyInputNode?.findPreviousFocusWrapper()
+            ?.findActiveFocusNode()
+            ?.findLastKeyInputWrapper()
+            ?: error("KeyEvent can't be processed because this key input node is not active.")
+        return with(activeKeyInputNode) {
+            val consumed = propagatePreviewKeyEvent(keyEvent)
+            if (consumed) true else propagateKeyEvent(keyEvent)
+        }
+    }
 }

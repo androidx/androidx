@@ -274,4 +274,12 @@ internal class ModifiedFocusNode(
         }
         return focusableChildren
     }
+
+    internal fun findActiveFocusNode(): ModifiedFocusNode? {
+        return when (modifier.focusDetailedState) {
+            Active, Captured -> this
+            ActiveParent -> modifier.focusedChild?.findActiveFocusNode()
+            Inactive, Disabled -> null
+        }
+    }
 }

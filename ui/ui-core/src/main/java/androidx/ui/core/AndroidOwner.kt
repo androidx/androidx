@@ -24,6 +24,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Parcelable
 import android.util.SparseArray
+import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -66,6 +67,11 @@ import androidx.ui.core.texttoolbar.AndroidTextToolbar
 import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.core.focus.FocusDetailedState.Active
 import androidx.ui.core.focus.FocusDetailedState.Inactive
+import androidx.ui.core.keyinput.Key
+import androidx.ui.core.keyinput.KeyEvent
+import androidx.ui.core.keyinput.KeyEventType.KeyDown
+import androidx.ui.core.keyinput.KeyEventType.KeyUp
+import androidx.ui.core.keyinput.KeyInputModifier
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.CanvasHolder
 import androidx.ui.input.TextInputServiceAndroid
@@ -109,7 +115,15 @@ internal class AndroidComposeView constructor(
     override var density = Density(context)
         private set
 
-    private val focusModifier: FocusModifierImpl = FocusModifierImpl(Inactive)
+    private val semanticsModifier = SemanticsModifierCore(
+        id = SemanticsNode.generateNewId(),
+        applyToChildLayoutNode = false,
+        container = true,
+        mergeAllDescendants = false,
+        properties = null
+    )
+    private val focusModifier = FocusModifierImpl(Inactive)
+    private val keyInputModifier = KeyInputModifier(null, null)
 
     private val canvasHolder = CanvasHolder()
 
@@ -117,17 +131,7 @@ internal class AndroidComposeView constructor(
         it.measureBlocks = RootMeasureBlocks
         it.layoutDirection =
             context.applicationContext.resources.configuration.localeLayoutDirection
-        it.modifier = Modifier.drawLayer()
-            .plus(
-                SemanticsModifierCore(
-                    id = SemanticsNode.generateNewId(),
-                    applyToChildLayoutNode = false,
-                    container = true,
-                    mergeAllDescendants = false,
-                    properties = null
-                )
-            )
-            .plus(focusModifier)
+        it.modifier = Modifier.drawLayer() + semanticsModifier + focusModifier + keyInputModifier
     }
 
     private inner class SemanticsNodeCopy(
@@ -186,6 +190,16 @@ internal class AndroidComposeView constructor(
                 focusDetailedState = Inactive
             }
         }
+    }
+
+    override fun onKeyUp(keyCode: Int, event: AndroidKeyEvent): Boolean {
+        val keyEvent = KeyEvent(Key(event.keyCode), KeyUp)
+        return keyInputModifier.processKeyInput(keyEvent)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: AndroidKeyEvent): Boolean {
+        val keyEvent = KeyEvent(Key(event.keyCode), KeyDown)
+        return keyInputModifier.processKeyInput(keyEvent)
     }
 
     private val modelObserver = ModelObserver { command ->
@@ -789,7 +803,7 @@ interface AndroidOwner : Owner {
 }
 
 /**
- * Return the layout direction set by the [Locale].
+ * Return the layout direction set by the [Locale][java.util.Locale].
  *
  * A convenience getter that translates [Configuration.getLayoutDirection] result into
  * [LayoutDirection] instance.
