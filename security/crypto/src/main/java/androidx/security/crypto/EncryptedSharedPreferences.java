@@ -299,16 +299,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
 
         @Override
         public boolean commit() {
-            // Call "clear" first as per the documentation, remove all keys that haven't
-            // been modified in this editor.
-            if (mClearRequested.getAndSet(false)) {
-                for (String key : mEncryptedSharedPreferences.getAll().keySet()) {
-                    if (!mKeysChanged.contains(key)
-                            && !mEncryptedSharedPreferences.isReservedKey(key)) {
-                        mEditor.remove(mEncryptedSharedPreferences.encryptKey(key));
-                    }
-                }
-            }
+            clearKeysIfNeeded();
             try {
                 return mEditor.commit();
             } finally {
@@ -319,8 +310,22 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
 
         @Override
         public void apply() {
+            clearKeysIfNeeded();
             mEditor.apply();
             notifyListeners();
+        }
+
+        private void clearKeysIfNeeded() {
+            // Call "clear" first as per the documentation, remove all keys that haven't
+            // been modified in this editor.
+            if (mClearRequested.getAndSet(false)) {
+                for (String key : mEncryptedSharedPreferences.getAll().keySet()) {
+                    if (!mKeysChanged.contains(key)
+                            && !mEncryptedSharedPreferences.isReservedKey(key)) {
+                        mEditor.remove(mEncryptedSharedPreferences.encryptKey(key));
+                    }
+                }
+            }
         }
 
         private void putEncryptedObject(String key, byte[] value) {
