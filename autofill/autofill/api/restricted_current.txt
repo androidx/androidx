@@ -48,7 +48,7 @@ package androidx.autofill {
 package androidx.autofill.inline {
 
   @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class Renderer {
-    method public static android.app.PendingIntent? getAttribution(android.app.slice.Slice);
+    method public static android.app.PendingIntent? getAttributionIntent(android.app.slice.Slice);
     method public static android.os.Bundle getSupportedInlineUiVersionsAsBundle();
     method public static android.view.View? render(android.content.Context, android.app.slice.Slice, android.os.Bundle);
   }
@@ -70,7 +70,7 @@ package androidx.autofill.inline {
   }
 
   public static final class UiVersions.StylesBuilder {
-    method public void addStyle(androidx.autofill.inline.UiVersions.Style);
+    method public androidx.autofill.inline.UiVersions.StylesBuilder addStyle(androidx.autofill.inline.UiVersions.Style);
     method public android.os.Bundle build();
   }
 
@@ -123,28 +123,27 @@ package androidx.autofill.inline.common {
 package androidx.autofill.inline.v1 {
 
   @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class InlineSuggestionUi {
-    method public static androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder newContentBuilder();
+    method public static androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder newContentBuilder(android.app.PendingIntent);
     method public static androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder newStyleBuilder();
   }
 
   public static final class InlineSuggestionUi.Content implements androidx.autofill.inline.UiVersions.Content {
-    method public android.app.PendingIntent? getAttribution();
+    method public android.app.PendingIntent? getAttributionIntent();
     method public CharSequence? getContentDescription();
     method public android.graphics.drawable.Icon? getEndIcon();
     method public final android.app.slice.Slice getSlice();
     method public android.graphics.drawable.Icon? getStartIcon();
-    method public String? getSubtitle();
-    method public String? getTitle();
+    method public CharSequence? getSubtitle();
+    method public CharSequence? getTitle();
   }
 
   public static final class InlineSuggestionUi.Content.Builder {
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content build();
-    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setAttribution(android.app.PendingIntent);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setContentDescription(CharSequence);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setEndIcon(android.graphics.drawable.Icon);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setStartIcon(android.graphics.drawable.Icon);
-    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setSubtitle(String);
-    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setTitle(String);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setSubtitle(CharSequence);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setTitle(CharSequence);
   }
 
   public static final class InlineSuggestionUi.Style implements androidx.autofill.inline.UiVersions.Style {

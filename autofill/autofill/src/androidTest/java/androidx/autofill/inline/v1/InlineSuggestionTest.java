@@ -76,7 +76,7 @@ public class InlineSuggestionTest {
     private Instrumentation mInstrumentation;
     private Context mContext;
     private LinearLayout mLinearLayout;
-    private PendingIntent mAttribution;
+    private PendingIntent mAttributionIntent;
 
     @Before
     public void setup() {
@@ -84,7 +84,7 @@ public class InlineSuggestionTest {
         mContext = mInstrumentation.getContext();
         mLinearLayout = mActivityTestRule.getActivity().findViewById(
                 androidx.autofill.test.R.id.linear_layout);
-        mAttribution = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        mAttributionIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
     }
 
     /** Below are tests for the end to end style/content building and rendering */
@@ -93,8 +93,8 @@ public class InlineSuggestionTest {
     public void testRender_titleOnly_defaultStyle() {
         InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder().build();
         InlineSuggestionUi.Content content =
-                new InlineSuggestionUi.Content.Builder().setAttribution(
-                        mAttribution).setTitle(TITLE).setContentDescription(
+                InlineSuggestionUi.newContentBuilder(
+                        mAttributionIntent).setTitle(TITLE).setContentDescription(
                         "content blabla").build();
         View view = InlineSuggestionUi.render(mContext, content, style);
         addView(view);
@@ -113,9 +113,8 @@ public class InlineSuggestionTest {
         InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder().setTitleStyle(
                 new TextViewStyle.Builder().setTextColor(Color.GREEN)
                         .setTextSize(30).build()).build();
-        InlineSuggestionUi.Content content =
-                new InlineSuggestionUi.Content.Builder().setAttribution(
-                        mAttribution).setTitle(TITLE).build();
+        InlineSuggestionUi.Content content = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent).setTitle(TITLE).build();
         View view = InlineSuggestionUi.render(mContext, content, style);
         addView(view);
 
@@ -131,11 +130,10 @@ public class InlineSuggestionTest {
     @Test
     public void testRender_singleIcon_defaultStyle() {
         InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder().build();
-        InlineSuggestionUi.Content content =
-                new InlineSuggestionUi.Content.Builder().setAttribution(
-                        mAttribution).setStartIcon(
-                        Icon.createWithResource(mContext,
-                                androidx.autofill.test.R.drawable.ic_settings)).build();
+        InlineSuggestionUi.Content content = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent).setStartIcon(
+                Icon.createWithResource(mContext,
+                        androidx.autofill.test.R.drawable.ic_settings)).build();
         View view = InlineSuggestionUi.render(mContext, content, style);
         addView(view);
 
@@ -152,11 +150,10 @@ public class InlineSuggestionTest {
                         Icon.createWithResource(mContext, Color.TRANSPARENT)).setPadding(12,
                         13, 14, 15).build())
                 .build();
-        InlineSuggestionUi.Content content =
-                new InlineSuggestionUi.Content.Builder().setAttribution(
-                        mAttribution).setStartIcon(
-                        Icon.createWithResource(mContext,
-                                androidx.autofill.test.R.drawable.ic_settings)).build();
+        InlineSuggestionUi.Content content = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent).setStartIcon(
+                Icon.createWithResource(mContext,
+                        androidx.autofill.test.R.drawable.ic_settings)).build();
         View view = InlineSuggestionUi.render(mContext, content, style);
         addView(view);
 
@@ -170,11 +167,10 @@ public class InlineSuggestionTest {
                 new ViewStyle.Builder().setBackgroundColor(
                         Color.GREEN).setPadding(2, 3, 4, 5).build())
                 .build();
-        InlineSuggestionUi.Content content =
-                new InlineSuggestionUi.Content.Builder().setAttribution(
-                        mAttribution).setStartIcon(
-                        Icon.createWithResource(mContext,
-                                androidx.autofill.test.R.drawable.ic_settings)).build();
+        InlineSuggestionUi.Content content = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent).setStartIcon(
+                Icon.createWithResource(mContext,
+                        androidx.autofill.test.R.drawable.ic_settings)).build();
         View view = InlineSuggestionUi.render(mContext, content, style);
         addView(view);
 
@@ -193,16 +189,15 @@ public class InlineSuggestionTest {
                         ImageView.ScaleType.FIT_START).build())
                 .setEndIconStyle(new ImageViewStyle.Builder().setPadding(21, 22, 23, 24).build())
                 .build();
-        InlineSuggestionUi.Content content =
-                new InlineSuggestionUi.Content.Builder()
-                        .setAttribution(mAttribution)
-                        .setContentDescription("Content blabla")
-                        .setTitle(TITLE)
-                        .setSubtitle(SUB_TITLE)
-                        .setStartIcon(Icon.createWithResource(mContext,
-                                androidx.autofill.test.R.drawable.ic_settings))
-                        .setEndIcon(Icon.createWithResource(mContext,
-                                androidx.autofill.test.R.drawable.ic_settings)).build();
+        InlineSuggestionUi.Content content = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent)
+                .setContentDescription("Content blabla")
+                .setTitle(TITLE)
+                .setSubtitle(SUB_TITLE)
+                .setStartIcon(Icon.createWithResource(mContext,
+                        androidx.autofill.test.R.drawable.ic_settings))
+                .setEndIcon(Icon.createWithResource(mContext,
+                        androidx.autofill.test.R.drawable.ic_settings)).build();
         View view = InlineSuggestionUi.render(mContext, content, style);
         addView(view);
 
@@ -232,10 +227,10 @@ public class InlineSuggestionTest {
 
     @Test
     public void testContent_titleOnly() {
-        InlineSuggestionUi.Content originalContent = new InlineSuggestionUi.Content.Builder()
+        InlineSuggestionUi.Content originalContent = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent)
                 .setTitle("title")
                 .setContentDescription("content blabla")
-                .setAttribution(mAttribution)
                 .build();
         InlineSuggestionUi.Content transportedContent = new InlineSuggestionUi.Content(
                 originalContent.getSlice());
@@ -245,10 +240,10 @@ public class InlineSuggestionTest {
 
     @Test
     public void testContent_titleAndSubtitle() {
-        InlineSuggestionUi.Content originalContent = new InlineSuggestionUi.Content.Builder()
+        InlineSuggestionUi.Content originalContent = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent)
                 .setTitle("title")
                 .setSubtitle("subtitle")
-                .setAttribution(mAttribution)
                 .build();
 
         InlineSuggestionUi.Content transportedContent = new InlineSuggestionUi.Content(
@@ -260,9 +255,9 @@ public class InlineSuggestionTest {
     public void testContent_startIcon() {
         Icon icon = Icon.createWithResource(mContext,
                 androidx.autofill.test.R.drawable.ic_settings);
-        InlineSuggestionUi.Content originalContent = new InlineSuggestionUi.Content.Builder()
+        InlineSuggestionUi.Content originalContent = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent)
                 .setStartIcon(icon)
-                .setAttribution(mAttribution)
                 .build();
 
         InlineSuggestionUi.Content transportedContent = new InlineSuggestionUi.Content(
@@ -274,10 +269,10 @@ public class InlineSuggestionTest {
     public void testContent_startIconAndTitle() {
         Icon icon = Icon.createWithResource(mContext,
                 androidx.autofill.test.R.drawable.ic_settings);
-        InlineSuggestionUi.Content originalContent = new InlineSuggestionUi.Content.Builder()
+        InlineSuggestionUi.Content originalContent = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent)
                 .setStartIcon(icon)
                 .setTitle("title")
-                .setAttribution(mAttribution)
                 .build();
 
         InlineSuggestionUi.Content transportedContent = new InlineSuggestionUi.Content(
@@ -289,10 +284,10 @@ public class InlineSuggestionTest {
     public void testContent_titleAndEndIcon() {
         Icon icon = Icon.createWithResource(mContext,
                 androidx.autofill.test.R.drawable.ic_settings);
-        InlineSuggestionUi.Content originalContent = new InlineSuggestionUi.Content.Builder()
+        InlineSuggestionUi.Content originalContent = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent)
                 .setTitle("title")
                 .setEndIcon(icon)
-                .setAttribution(mAttribution)
                 .build();
 
         InlineSuggestionUi.Content transportedContent = new InlineSuggestionUi.Content(
@@ -301,23 +296,10 @@ public class InlineSuggestionTest {
     }
 
     @Test
-    public void testContent_missingAttribution_exception() {
-        try {
-            new InlineSuggestionUi.Content.Builder()
-                    .setTitle("title")
-                    .build();
-            fail(); // this line should not be executed
-        } catch (IllegalStateException e) {
-
-        }
-    }
-
-    @Test
     public void testContent_subtitleWithoutTitle_exception() {
         try {
-            new InlineSuggestionUi.Content.Builder()
+            InlineSuggestionUi.newContentBuilder(mAttributionIntent)
                     .setSubtitle("subtitle")
-                    .setAttribution(mAttribution)
                     .build();
             fail(); // this line should not be executed
         } catch (IllegalStateException e) {

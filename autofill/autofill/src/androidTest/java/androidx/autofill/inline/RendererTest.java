@@ -64,7 +64,7 @@ public class RendererTest {
     private Instrumentation mInstrumentation;
     private Context mContext;
     private LinearLayout mLinearLayout;
-    private PendingIntent mAttribution;
+    private PendingIntent mAttributionIntent;
 
     @Before
     public void setup() {
@@ -72,7 +72,7 @@ public class RendererTest {
         mContext = mInstrumentation.getContext();
         mLinearLayout = mActivityTestRule.getActivity().findViewById(
                 androidx.autofill.test.R.id.linear_layout);
-        mAttribution = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        mAttributionIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
     }
 
     @Test
@@ -120,8 +120,7 @@ public class RendererTest {
     private Slice getContent(Bundle styles) {
         List<String> versions = UiVersions.getVersions(styles);
         if (versions.contains(UiVersions.INLINE_UI_VERSION_1)) {
-            UiVersions.Content content = InlineSuggestionUi.newContentBuilder()
-                    .setAttribution(mAttribution)
+            UiVersions.Content content = InlineSuggestionUi.newContentBuilder(mAttributionIntent)
                     .setTitle("Hello world!").build();
             return content.getSlice();
         }

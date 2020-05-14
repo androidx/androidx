@@ -66,11 +66,11 @@ public abstract class SlicedContent implements UiVersions.Content {
 
     /**
      * @hide
-     * @see androidx.autofill.inline.Renderer#getAttribution(Slice)
+     * @see androidx.autofill.inline.Renderer#getAttributionIntent(Slice)
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
-    public abstract PendingIntent getAttribution();
+    public abstract PendingIntent getAttributionIntent();
 
     /**
      * Returns true if the wrapped slice is valid according to the slice version.
