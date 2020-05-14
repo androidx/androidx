@@ -49,7 +49,7 @@ import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.core.impl.UseCaseGroup;
+import androidx.camera.core.impl.UseCaseMediator;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -180,7 +180,8 @@ public final class CameraX {
 
     final CameraRepository mCameraRepository = new CameraRepository();
     private final Object mInitializeLock = new Object();
-    private final UseCaseGroupRepository mUseCaseGroupRepository = new UseCaseGroupRepository();
+    private final UseCaseMediatorRepository
+            mUseCaseMediatorRepository = new UseCaseMediatorRepository();
     private final Executor mCameraExecutor;
     private final Handler mSchedulerHandler;
     @Nullable
@@ -294,16 +295,17 @@ public final class CameraX {
         CameraX cameraX = checkInitialized();
         // TODO(b/153096869): override UseCase's target rotation.
 
-        UseCaseGroupLifecycleController useCaseGroupLifecycleController =
-                cameraX.getOrCreateUseCaseGroup(lifecycleOwner);
-        UseCaseGroup useCaseGroupToBind = useCaseGroupLifecycleController.getUseCaseGroup();
+        UseCaseMediatorLifecycleController useCaseMediatorLifecycleController =
+                cameraX.getOrCreateUseCaseMediator(lifecycleOwner);
+        UseCaseMediator useCaseMediatorToBind =
+                useCaseMediatorLifecycleController.getUseCaseMediator();
 
-        Collection<UseCaseGroupLifecycleController> controllers =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
+        Collection<UseCaseMediatorLifecycleController> controllers =
+                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
         for (UseCase useCase : useCases) {
-            for (UseCaseGroupLifecycleController controller : controllers) {
-                UseCaseGroup useCaseGroup = controller.getUseCaseGroup();
-                if (useCaseGroup.contains(useCase) && useCaseGroup != useCaseGroupToBind) {
+            for (UseCaseMediatorLifecycleController controller : controllers) {
+                UseCaseMediator useCaseMediator = controller.getUseCaseMediator();
+                if (useCaseMediator.contains(useCase) && useCaseMediator != useCaseMediatorToBind) {
                     throw new IllegalStateException(
                             String.format(
                                     "Use case %s already bound to a different lifecycle.",
@@ -335,7 +337,7 @@ public final class CameraX {
         List<UseCase> originalUseCases = new ArrayList<>();
 
         // Collect original use cases attached to the camera
-        for (UseCase useCase : useCaseGroupToBind.getUseCases()) {
+        for (UseCase useCase : useCaseMediatorToBind.getUseCases()) {
             CameraInternal attachedCamera = useCase.getCamera();
             if (attachedCamera != null) {
                 if (camera.equals(attachedCamera)) {
@@ -376,11 +378,11 @@ public final class CameraX {
             useCase.onAttach(camera);
             useCase.updateSuggestedResolution(suggestedResolutionsMap.get(useCase));
 
-            // Update the UseCaseGroup
-            useCaseGroupToBind.addUseCase(useCase);
+            // Update the UseCaseMediator
+            useCaseMediatorToBind.addUseCase(useCase);
         }
 
-        useCaseGroupLifecycleController.notifyState();
+        useCaseMediatorLifecycleController.notifyState();
 
         return camera;
     }
@@ -398,12 +400,12 @@ public final class CameraX {
     public static boolean isBound(@NonNull UseCase useCase) {
         CameraX cameraX = checkInitialized();
 
-        Collection<UseCaseGroupLifecycleController> controllers =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
+        Collection<UseCaseMediatorLifecycleController> controllers =
+                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
 
-        for (UseCaseGroupLifecycleController controller : controllers) {
-            UseCaseGroup useCaseGroup = controller.getUseCaseGroup();
-            if (useCaseGroup.contains(useCase)) {
+        for (UseCaseMediatorLifecycleController controller : controllers) {
+            UseCaseMediator useCaseMediator = controller.getUseCaseMediator();
+            if (useCaseMediator.contains(useCase)) {
                 return true;
             }
         }
@@ -431,14 +433,16 @@ public final class CameraX {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
 
-        Collection<UseCaseGroupLifecycleController> useCaseGroups =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
+        Collection<UseCaseMediatorLifecycleController> useCaseMediators =
+                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
 
         for (UseCase useCase : useCases) {
-            // Remove the UseCase from the group
+            // Remove the UseCase from the mediator.
             boolean wasUnbound = false;
-            for (UseCaseGroupLifecycleController useCaseGroupLifecycleController : useCaseGroups) {
-                if (useCaseGroupLifecycleController.getUseCaseGroup().removeUseCase(useCase)) {
+            for (UseCaseMediatorLifecycleController useCaseMediatorLifecycleController :
+                    useCaseMediators) {
+                if (useCaseMediatorLifecycleController.getUseCaseMediator().removeUseCase(
+                        useCase)) {
                     wasUnbound = true;
                 }
             }
@@ -464,13 +468,15 @@ public final class CameraX {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
 
-        Collection<UseCaseGroupLifecycleController> useCaseGroups =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
+        Collection<UseCaseMediatorLifecycleController> useCaseMediators =
+                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
 
         List<UseCase> useCases = new ArrayList<>();
-        for (UseCaseGroupLifecycleController useCaseGroupLifecycleController : useCaseGroups) {
-            UseCaseGroup useCaseGroup = useCaseGroupLifecycleController.getUseCaseGroup();
-            useCases.addAll(useCaseGroup.getUseCases());
+        for (UseCaseMediatorLifecycleController useCaseMediatorLifecycleController :
+                useCaseMediators) {
+            UseCaseMediator useCaseMediator =
+                    useCaseMediatorLifecycleController.getUseCaseMediator();
+            useCases.addAll(useCaseMediator.getUseCases());
         }
 
         unbind(useCases.toArray(new UseCase[0]));
@@ -743,12 +749,12 @@ public final class CameraX {
 
         Collection<UseCase> activeUseCases = null;
 
-        Collection<UseCaseGroupLifecycleController> controllers =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
+        Collection<UseCaseMediatorLifecycleController> controllers =
+                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
 
-        for (UseCaseGroupLifecycleController controller : controllers) {
-            if (controller.getUseCaseGroup().isActive()) {
-                activeUseCases = controller.getUseCaseGroup().getUseCases();
+        for (UseCaseMediatorLifecycleController controller : controllers) {
+            if (controller.getUseCaseMediator().isActive()) {
+                activeUseCases = controller.getUseCaseMediator().getUseCases();
                 break;
             }
         }
@@ -1235,9 +1241,10 @@ public final class CameraX {
         }
     }
 
-    private UseCaseGroupLifecycleController getOrCreateUseCaseGroup(LifecycleOwner lifecycleOwner) {
-        return mUseCaseGroupRepository.getOrCreateUseCaseGroup(
-                lifecycleOwner, useCaseGroup -> useCaseGroup.setListener(mCameraRepository));
+    private UseCaseMediatorLifecycleController getOrCreateUseCaseMediator(
+            LifecycleOwner lifecycleOwner) {
+        return mUseCaseMediatorRepository.getOrCreateUseCaseMediator(
+                lifecycleOwner, useCaseMediator -> useCaseMediator.setListener(mCameraRepository));
     }
 
     private CameraRepository getCameraRepository() {

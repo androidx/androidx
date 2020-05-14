@@ -36,10 +36,10 @@ import org.mockito.Mockito;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public final class UseCaseGroupTest {
-    private final UseCaseGroup.StateChangeCallback mMockCallback =
-            Mockito.mock(UseCaseGroup.StateChangeCallback.class);
-    private UseCaseGroup mUseCaseGroup;
+public final class UseCaseMediatorTest {
+    private final UseCaseMediator.StateChangeCallback mMockCallback =
+            Mockito.mock(UseCaseMediator.StateChangeCallback.class);
+    private UseCaseMediator mUseCaseMediator;
     private FakeUseCase mFakeUseCase;
     private FakeOtherUseCase mFakeOtherUseCase;
 
@@ -52,79 +52,79 @@ public final class UseCaseGroupTest {
                 new FakeOtherUseCaseConfig.Builder()
                         .setTargetName("fakeOtherUseCaseConfig")
                         .getUseCaseConfig();
-        mUseCaseGroup = new UseCaseGroup();
+        mUseCaseMediator = new UseCaseMediator();
         mFakeUseCase = new FakeUseCase(fakeUseCaseConfig);
         mFakeOtherUseCase = new FakeOtherUseCase(fakeOtherUseCaseConfig);
     }
 
     @Test
-    public void groupStartsEmpty() {
-        assertThat(mUseCaseGroup.getUseCases()).isEmpty();
+    public void mediatorStartsEmpty() {
+        assertThat(mUseCaseMediator.getUseCases()).isEmpty();
     }
 
     @Test
-    public void newUseCaseIsAdded_whenNoneExistsInGroup() {
-        assertThat(mUseCaseGroup.addUseCase(mFakeUseCase)).isTrue();
-        assertThat(mUseCaseGroup.getUseCases()).containsExactly(mFakeUseCase);
+    public void newUseCaseIsAdded_whenNoneExistsInMediator() {
+        assertThat(mUseCaseMediator.addUseCase(mFakeUseCase)).isTrue();
+        assertThat(mUseCaseMediator.getUseCases()).containsExactly(mFakeUseCase);
     }
 
     @Test
     public void multipleUseCases_canBeAdded() {
-        assertThat(mUseCaseGroup.addUseCase(mFakeUseCase)).isTrue();
-        assertThat(mUseCaseGroup.addUseCase(mFakeOtherUseCase)).isTrue();
+        assertThat(mUseCaseMediator.addUseCase(mFakeUseCase)).isTrue();
+        assertThat(mUseCaseMediator.addUseCase(mFakeOtherUseCase)).isTrue();
 
-        assertThat(mUseCaseGroup.getUseCases()).containsExactly(mFakeUseCase, mFakeOtherUseCase);
+        assertThat(mUseCaseMediator.getUseCases()).containsExactly(mFakeUseCase, mFakeOtherUseCase);
     }
 
     @Test
-    public void groupBecomesEmpty_afterGroupIsCleared() {
-        mUseCaseGroup.addUseCase(mFakeUseCase);
-        mUseCaseGroup.destroy();
+    public void mediatorBecomesEmpty_afterMediatorIsCleared() {
+        mUseCaseMediator.addUseCase(mFakeUseCase);
+        mUseCaseMediator.destroy();
 
-        assertThat(mUseCaseGroup.getUseCases()).isEmpty();
+        assertThat(mUseCaseMediator.getUseCases()).isEmpty();
     }
 
     @Test
-    public void useCaseIsCleared_afterGroupIsCleared() {
-        mUseCaseGroup.addUseCase(mFakeUseCase);
+    public void useCaseIsCleared_afterMediatorIsCleared() {
+        mUseCaseMediator.addUseCase(mFakeUseCase);
         assertThat(mFakeUseCase.isCleared()).isFalse();
 
-        mUseCaseGroup.destroy();
+        mUseCaseMediator.destroy();
 
         assertThat(mFakeUseCase.isCleared()).isTrue();
     }
 
     @Test
     public void useCaseRemoved_afterRemovedCalled() {
-        mUseCaseGroup.addUseCase(mFakeUseCase);
+        mUseCaseMediator.addUseCase(mFakeUseCase);
 
-        mUseCaseGroup.removeUseCase(mFakeUseCase);
+        mUseCaseMediator.removeUseCase(mFakeUseCase);
 
-        assertThat(mUseCaseGroup.getUseCases()).isEmpty();
+        assertThat(mUseCaseMediator.getUseCases()).isEmpty();
     }
 
     @Test
-    public void listenerOnGroupActive_ifUseCaseGroupStarted() {
-        mUseCaseGroup.setListener(mMockCallback);
-        mUseCaseGroup.start();
+    public void listenerOnMediatorActive_ifUseCaseMediatorStarted() {
+        mUseCaseMediator.setListener(mMockCallback);
+        mUseCaseMediator.start();
 
-        verify(mMockCallback, times(1)).onGroupActive(mUseCaseGroup);
+        verify(mMockCallback, times(1)).onActive(mUseCaseMediator);
     }
 
     @Test
-    public void listenerOnGroupInactive_ifUseCaseGroupStopped() {
-        mUseCaseGroup.setListener(mMockCallback);
-        mUseCaseGroup.stop();
+    public void listenerOnMediatorInactive_ifUseCaseMediatorStopped() {
+        mUseCaseMediator.setListener(mMockCallback);
+        mUseCaseMediator.stop();
 
-        verify(mMockCallback, times(1)).onGroupInactive(mUseCaseGroup);
+        verify(mMockCallback, times(1)).onInactive(mUseCaseMediator);
     }
 
     @Test
     public void setListener_replacesPreviousListener() {
-        mUseCaseGroup.setListener(mMockCallback);
-        mUseCaseGroup.setListener(null);
+        mUseCaseMediator.setListener(mMockCallback);
+        mUseCaseMediator.setListener(null);
 
-        mUseCaseGroup.start();
-        verify(mMockCallback, never()).onGroupActive(mUseCaseGroup);
+        mUseCaseMediator.start();
+        verify(mMockCallback, never()).onActive(mUseCaseMediator);
     }
 }

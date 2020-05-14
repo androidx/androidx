@@ -792,17 +792,6 @@
             line="527"
             column="54"/>
     </issue>
-    
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void setup(UseCaseGroup useCaseGroup);"
-        errorLine2="                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCaseGroupRepository.java"
-            line="212"
-            column="20"/>
-    </issue>
 
     <issue
         id="UnknownNullness"

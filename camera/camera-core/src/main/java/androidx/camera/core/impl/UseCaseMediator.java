@@ -34,16 +34,15 @@ import java.util.Set;
 /**
  * A collection of {@link UseCase}.
  *
- * <p>The group of {@link UseCase} instances have synchronized interactions with the {@link
+ * <p>The set of {@link UseCase} instances have synchronized interactions with the {@link
  * CameraInternal}.
- *
  */
 
-public final class UseCaseGroup {
-    private static final String TAG = "UseCaseGroup";
+public final class UseCaseMediator {
+    private static final String TAG = "UseCaseMediator";
 
     /**
-     * The lock for the single {@link StateChangeCallback} held by the group.
+     * The lock for the single {@link StateChangeCallback} held by the mediator.
      *
      * <p>This lock is always acquired prior to acquiring the mUseCasesLock so that there is no
      * lock-ordering deadlock.
@@ -66,7 +65,7 @@ public final class UseCaseGroup {
     public void start() {
         synchronized (mListenerLock) {
             if (mStateChangeCallback != null) {
-                mStateChangeCallback.onGroupActive(this);
+                mStateChangeCallback.onActive(this);
             }
             mIsActive = true;
         }
@@ -76,13 +75,13 @@ public final class UseCaseGroup {
     public void stop() {
         synchronized (mListenerLock) {
             if (mStateChangeCallback != null) {
-                mStateChangeCallback.onGroupInactive(this);
+                mStateChangeCallback.onInactive(this);
             }
             mIsActive = false;
         }
     }
 
-    /** Sets the Group StateChangeCallback listener */
+    /** Sets the StateChangeCallback listener */
     public void setListener(@NonNull StateChangeCallback stateChangeCallback) {
         synchronized (mListenerLock) {
             this.mStateChangeCallback = stateChangeCallback;
@@ -90,9 +89,10 @@ public final class UseCaseGroup {
     }
 
     /**
-     * Adds the {@link UseCase} to the group.
+     * Adds the {@link UseCase} to the mediator.
      *
-     * @return true if the use case is added, or false if the use case already exists in the group.
+     * @return true if the use case is added, or false if the use case already exists in the
+     * mediator.
      */
     public boolean addUseCase(@NonNull UseCase useCase) {
         synchronized (mUseCasesLock) {
@@ -100,7 +100,7 @@ public final class UseCaseGroup {
         }
     }
 
-    /** Returns true if the {@link UseCase} is contained in the group. */
+    /** Returns true if the {@link UseCase} is contained in the mediator. */
     public boolean contains(@NonNull UseCase useCase) {
         synchronized (mUseCasesLock) {
             return mUseCases.contains(useCase);
@@ -108,10 +108,10 @@ public final class UseCaseGroup {
     }
 
     /**
-     * Removes the {@link UseCase} from the group.
+     * Removes the {@link UseCase} from the mediator.
      *
      * @return Returns true if the use case is removed. Otherwise returns false (if the use case did
-     * not exist in the group).
+     * not exist in the mediator).
      */
     public boolean removeUseCase(@NonNull UseCase useCase) {
         synchronized (mUseCasesLock) {
@@ -120,7 +120,7 @@ public final class UseCaseGroup {
     }
 
     /**
-     * Called when lifecycle ends. Destroys all use cases in this group.
+     * Called when lifecycle ends. Destroys all use cases in this mediator.
      */
     public void destroy() {
         List<UseCase> useCasesToClear = new ArrayList<>();
@@ -136,7 +136,10 @@ public final class UseCaseGroup {
         }
     }
 
-    /** Returns the collection of all the use cases currently contained by the UseCaseGroup. */
+    /**
+     * Returns the collection of all the use cases currently contained by
+     * the{@link UseCaseMediator}.
+     */
     @NonNull
     public Collection<UseCase> getUseCases() {
         synchronized (mUseCasesLock) {
@@ -169,23 +172,26 @@ public final class UseCaseGroup {
         return mIsActive;
     }
 
-    /** Listener called when a {@link UseCaseGroup} transitions between active/inactive states. */
+    /**
+     * Listener called when a {@link UseCaseMediator} transitions between active/inactive states
+     * .
+     */
     public interface StateChangeCallback {
         /**
-         * Called when a {@link UseCaseGroup} becomes active.
+         * Called when a {@link UseCaseMediator} becomes active.
          *
-         * <p>When a UseCaseGroup is active then all the contained {@link UseCase} become
+         * <p>When a {@link UseCaseMediator} is active then all the contained {@link UseCase} become
          * online. This means that the {@link CameraInternal} should transition to a state as
          * close as possible to producing, but prior to actually producing data for the use case.
          */
-        void onGroupActive(@NonNull UseCaseGroup useCaseGroup);
+        void onActive(@NonNull UseCaseMediator useCaseMediator);
 
         /**
-         * Called when a {@link UseCaseGroup} becomes inactive.
+         * Called when a {@link UseCaseMediator} becomes inactive.
          *
-         * <p>When a UseCaseGroup is active then all the contained {@link UseCase} become
+         * <p>When a {@link UseCaseMediator} is active then all the contained {@link UseCase} become
          * offline.
          */
-        void onGroupInactive(@NonNull UseCaseGroup useCaseGroup);
+        void onInactive(@NonNull UseCaseMediator useCaseMediator);
     }
 }
