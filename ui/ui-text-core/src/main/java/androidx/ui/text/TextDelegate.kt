@@ -83,7 +83,7 @@ class TextDelegate(
     val overflow: TextOverflow = TextOverflow.Clip,
     val density: Density,
     val resourceLoader: Font.ResourceLoader,
-    val placeholders: List<AnnotatedString.Item<Placeholder>> = listOf()
+    val placeholders: List<AnnotatedString.Range<Placeholder>> = listOf()
 ) {
     @VisibleForTesting
     internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null

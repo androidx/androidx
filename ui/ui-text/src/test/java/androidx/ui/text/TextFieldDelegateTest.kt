@@ -410,7 +410,7 @@ class TextFieldDelegateTest {
         assertThat(result.transformedText.text).isEqualTo(input.transformedText.text)
         assertThat(result.transformedText.spanStyles.size).isEqualTo(2)
         assertThat(result.transformedText.spanStyles).contains(
-            AnnotatedString.Item(SpanStyle(textDecoration = TextDecoration.Underline), 3, 6)
+            AnnotatedString.Range(SpanStyle(textDecoration = TextDecoration.Underline), 3, 6)
         )
     }
 }

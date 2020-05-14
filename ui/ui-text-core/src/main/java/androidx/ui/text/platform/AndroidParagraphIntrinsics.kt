@@ -28,8 +28,8 @@ import androidx.ui.text.TextStyle
 internal class AndroidParagraphIntrinsics(
     val text: String,
     val style: TextStyle,
-    val spanStyles: List<AnnotatedString.Item<SpanStyle>>,
-    val placeholders: List<AnnotatedString.Item<Placeholder>>,
+    val spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    val placeholders: List<AnnotatedString.Range<Placeholder>>,
     val typefaceAdapter: TypefaceAdapter,
     val density: Density
 ) : ParagraphIntrinsics {
@@ -65,7 +65,7 @@ internal class AndroidParagraphIntrinsics(
             lineHeight = style.lineHeight,
             textIndent = style.textIndent,
             spanStyles = listOf(
-                AnnotatedString.Item(
+                AnnotatedString.Range(
                     notAppliedStyle,
                     0,
                     text.length

@@ -52,7 +52,7 @@ data class TextLayoutInput(
      * @see MultiParagraph
      * @see MultiParagraphIntrinsics
      */
-    val placeholders: List<AnnotatedString.Item<Placeholder>>,
+    val placeholders: List<AnnotatedString.Range<Placeholder>>,
 
     /**
      * The maxLines param used for computing this text layout.

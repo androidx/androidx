@@ -103,7 +103,7 @@ class RandomTextGenerator(
         text: String,
         styleCount: Int = text.split(alphabet.space).size,
         hasMetricAffectingStyle: Boolean = true
-    ): List<AnnotatedString.Item<SpanStyle>> {
+    ): List<AnnotatedString.Range<SpanStyle>> {
         val spanStyleList = getSpanStyleList(hasMetricAffectingStyle)
 
         val words = text.split(alphabet.space)
@@ -121,7 +121,7 @@ class RandomTextGenerator(
 
             val styleCountOnWord = stylePerWord + if (wordIndex < remains) 1 else 0
             List(styleCountOnWord) {
-                AnnotatedString.Item(
+                AnnotatedString.Range(
                     start = start,
                     end = end,
                     item = spanStyleList[styleIndex++ % spanStyleList.size]

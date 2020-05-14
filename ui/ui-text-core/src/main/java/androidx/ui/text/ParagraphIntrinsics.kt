@@ -45,8 +45,8 @@ interface ParagraphIntrinsics {
 /* actual */ fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
-    spanStyles: List<AnnotatedString.Item<SpanStyle>> = emptyList(),
-    placeholders: List<AnnotatedString.Item<Placeholder>> = emptyList(),
+    spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
+    placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     density: Density,
     resourceLoader: Font.ResourceLoader
 ): ParagraphIntrinsics {
