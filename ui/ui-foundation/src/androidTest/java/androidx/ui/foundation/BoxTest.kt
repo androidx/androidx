@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.ui.core.AbsoluteAlignment
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
@@ -44,6 +45,7 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import com.google.common.truth.Truth
 import org.junit.Rule
@@ -193,7 +195,7 @@ class BoxTest {
             SemanticsParent {
                 Box(
                     modifier = Modifier.preferredSize(size),
-                    gravity = Alignment(-0.5f, 0f)
+                    gravity = Alignment.TopCenter
                 ) {
                     Box(Modifier.size(childSize).onPositioned {
                         childPosition1 = it.globalPosition
@@ -211,22 +213,42 @@ class BoxTest {
             Truth.assertThat(childPosition1).isEqualTo(
                 PxPosition(
                     (size.toIntPx() - childSize.toIntPx()) / 2,
-                    (size.toIntPx() - childSize.toIntPx() * 3) / 4
+                    0.ipx
                 )
             )
             Truth.assertThat(childPosition2).isEqualTo(
                 PxPosition(
                     (size.toIntPx() - childSize.toIntPx()) / 2,
-                    (size.toIntPx() - childSize.toIntPx() * 3) / 4 + childSize.toIntPx()
+                    childSize.toIntPx()
                 )
             )
             Truth.assertThat(childPosition3).isEqualTo(
                 PxPosition(
                     (size.toIntPx() - childSize.toIntPx()) / 2,
-                    (size.toIntPx() - childSize.toIntPx() * 3) / 4 + childSize.toIntPx() * 2
+                    childSize.toIntPx() * 2
                 )
             )
         }
+    }
+
+    @Test
+    fun box_testLayout_absoluteAlignment() {
+        val size = 100.dp
+        val childSize = 20.dp
+        var childPosition: PxPosition? = null
+        composeTestRule.setContent {
+            SemanticsParent {
+                Box(
+                    modifier = Modifier.preferredSize(size).rtl,
+                    gravity = AbsoluteAlignment.TopLeft
+                ) {
+                    Box(Modifier.size(childSize).onPositioned {
+                        childPosition = it.globalPosition
+                    })
+                }
+            }
+        }
+        Truth.assertThat(childPosition).isEqualTo(PxPosition(0.ipx, 0.ipx))
     }
 
     @Test

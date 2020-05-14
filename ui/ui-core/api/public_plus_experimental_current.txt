@@ -89,14 +89,38 @@ package androidx.ui.autofill {
 
 package androidx.ui.core {
 
-  public final class Alignment {
-    ctor public Alignment(float verticalBias, float horizontalBias);
+  public final class AbsoluteAlignment implements androidx.ui.core.Alignment {
+    method public androidx.ui.unit.IntPxPosition align(androidx.ui.unit.IntPxSize size, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.core.AbsoluteAlignment copy(float verticalBias, float horizontalBias);
+    field public static final androidx.ui.core.AbsoluteAlignment.Companion! Companion;
+  }
+
+  public static final class AbsoluteAlignment.Companion {
+    method public androidx.ui.core.AbsoluteAlignment getBottomLeft();
+    method public androidx.ui.core.AbsoluteAlignment getBottomRight();
+    method public androidx.ui.core.AbsoluteAlignment getCenterLeft();
+    method public androidx.ui.core.AbsoluteAlignment getCenterRight();
+    method public androidx.ui.core.AbsoluteAlignment.Horizontal getLeft();
+    method public androidx.ui.core.AbsoluteAlignment.Horizontal getRight();
+    method public androidx.ui.core.AbsoluteAlignment getTopLeft();
+    method public androidx.ui.core.AbsoluteAlignment getTopRight();
+    property public final androidx.ui.core.AbsoluteAlignment BottomLeft;
+    property public final androidx.ui.core.AbsoluteAlignment BottomRight;
+    property public final androidx.ui.core.AbsoluteAlignment CenterLeft;
+    property public final androidx.ui.core.AbsoluteAlignment CenterRight;
+    property public final androidx.ui.core.AbsoluteAlignment.Horizontal Left;
+    property public final androidx.ui.core.AbsoluteAlignment.Horizontal Right;
+    property public final androidx.ui.core.AbsoluteAlignment TopLeft;
+    property public final androidx.ui.core.AbsoluteAlignment TopRight;
+  }
+
+  public static final class AbsoluteAlignment.Horizontal implements androidx.ui.core.Alignment.Horizontal {
+    method public int align-Ujlv2dA(int size, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.core.AbsoluteAlignment.Horizontal copy(float bias);
+  }
+
+  public interface Alignment {
     method public androidx.ui.unit.IntPxPosition align(androidx.ui.unit.IntPxSize size, androidx.ui.core.LayoutDirection layoutDirection = LayoutDirection.Ltr);
-    method public float component1();
-    method public float component2();
-    method public androidx.ui.core.Alignment copy(float verticalBias, float horizontalBias);
-    method public float getHorizontalBias();
-    method public float getVerticalBias();
     field public static final androidx.ui.core.Alignment.Companion! Companion;
   }
 
@@ -133,20 +157,12 @@ package androidx.ui.core {
     property public final androidx.ui.core.Alignment TopStart;
   }
 
-  public static final class Alignment.Horizontal {
-    ctor public Alignment.Horizontal(float bias);
+  public static interface Alignment.Horizontal {
     method public int align-Ujlv2dA(int size, androidx.ui.core.LayoutDirection layoutDirection = LayoutDirection.Ltr);
-    method public float component1();
-    method public androidx.ui.core.Alignment.Horizontal copy(float bias);
-    method public float getBias();
   }
 
-  public static final class Alignment.Vertical {
-    ctor public Alignment.Vertical(float bias);
+  public static interface Alignment.Vertical {
     method public int align-gshw56o(int size);
-    method public float component1();
-    method public androidx.ui.core.Alignment.Vertical copy(float bias);
-    method public float getBias();
   }
 
   public abstract sealed class AlignmentLine {
