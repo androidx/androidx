@@ -317,12 +317,6 @@ class DpTest {
     }
 
     @Test
-    fun sizeCenter() {
-        val size = Size(width = 10.dp, height = 20.dp)
-        assertEquals(Position(5.dp, 10.dp), size.center())
-    }
-
-    @Test
     fun positionDistance() {
         val position = Position(3.dp, 4.dp)
         assertEquals(5.dp, position.getDistance())
@@ -363,50 +357,5 @@ class DpTest {
     fun boundsHeight() {
         val bounds = Bounds(10.dp, 5.dp, 25.dp, 15.dp)
         assertEquals(10.dp, bounds.height)
-    }
-
-    @Test
-    fun sizeToBounds() {
-        val size = Size(10.dp, 25.dp)
-        assertEquals(Bounds(0.dp, 0.dp, 10.dp, 25.dp), size.toBounds())
-    }
-
-    @Test
-    fun boundsToSize() {
-        val bounds = Bounds(5.dp, 5.dp, 15.dp, 30.dp)
-        assertEquals(Size(10.dp, 25.dp), bounds.toSize())
-    }
-
-    @Test
-    fun sizeTimesInt() {
-        assertEquals(Size(10.dp, 10.dp), Size(2.5.dp, 2.5.dp) * 4)
-        assertEquals(Size(10.dp, 10.dp), 4 * Size(2.5.dp, 2.5.dp))
-    }
-
-    @Test
-    fun sizeDivInt() {
-        assertEquals(Size(10.dp, 10.dp), Size(40.dp, 40.dp) / 4)
-    }
-
-    @Test
-    fun sizeTimesFloat() {
-        assertEquals(Size(10.dp, 10.dp), Size(4.dp, 4.dp) * 2.5f)
-        assertEquals(Size(10.dp, 10.dp), 2.5f * Size(4.dp, 4.dp))
-    }
-
-    @Test
-    fun sizeDivFloat() {
-        assertEquals(Size(10.dp, 10.dp), Size(40.dp, 40.dp) / 4f)
-    }
-
-    @Test
-    fun sizeTimesDouble() {
-        assertEquals(Size(10.dp, 10.dp), Size(4.dp, 4.dp) * 2.5)
-        assertEquals(Size(10.dp, 10.dp), 2.5 * Size(4.dp, 4.dp))
-    }
-
-    @Test
-    fun sizeDivDouble() {
-        assertEquals(Size(10.dp, 10.dp), Size(40.dp, 40.dp) / 4.0)
     }
 }

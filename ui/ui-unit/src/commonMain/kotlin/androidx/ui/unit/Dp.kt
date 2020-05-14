@@ -420,91 +420,6 @@ inline class DpInverse(val value: Float) : Comparable<DpInverse> {
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 /**
- * A two dimensional size using [Dp] for units
- */
-@OptIn(ExperimentalUnsignedTypes::class)
-@Immutable
-inline class Size(@PublishedApi internal val value: Long) {
-    /**
-     * The horizontal aspect of the size in [Dp].
-     */
-    /*inline*/ val width: Dp
-        get() = unpackFloat1(value).dp
-
-    /**
-     * The vertical aspect of the size in [Dp].
-     */
-    /*inline*/ val height: Dp
-        get() = unpackFloat2(value).dp
-
-    /**
-     * Scales the Size by multiplying [width] and [height] by [other]
-     */
-    inline operator fun times(other: Int): Size =
-        Size(width = width * other, height = height * other)
-
-    /**
-     * Scales the Size by multiplying [width] and [height] by [other]
-     */
-    inline operator fun times(other: Float): Size =
-        Size(width = width * other, height = height * other)
-
-    /**
-     * Scales the Size by multiplying [width] and [height] by [other]
-     */
-    inline operator fun times(other: Double): Size = times(other.toFloat())
-
-    /**
-     * Scales the Size by dividing [width] and [height] by [other]
-     */
-    inline operator fun div(other: Int): Size =
-        Size(width = width / other, height = height / other)
-
-    /**
-
-     * Scales the Size by dividing [width] and [height] by [other]
-     */
-    inline operator fun div(other: Float): Size =
-        Size(width = width / other, height = height / other)
-
-    /**
-     * Scales the Size by dividing [width] and [height] by [other]
-     */
-    inline operator fun div(other: Double): Size = div(other.toFloat())
-
-    override fun toString(): String = "$width x $height"
-}
-
-/**
- * Constructs a [Size] from width and height [Dp] values.
- */
-@OptIn(ExperimentalUnsignedTypes::class)
-inline fun Size(width: Dp, height: Dp): Size = Size(packFloats(width.value, height.value))
-
-/**
- * Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this]
- */
-inline operator fun Int.times(size: Size) = size * this
-
-/**
- * Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this]
- */
-inline operator fun Float.times(size: Size) = size * this
-
-/**
- * Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this]
- */
-inline operator fun Double.times(size: Size) = size * this
-
-/**
- * Returns the [Position] of the center of the rect from the point of [0, 0]
- * with this [Size].
- */
-fun Size.center(): Position {
-    return Position(width / 2f, height / 2f)
-}
-
-/**
  * A two-dimensional position using [Dp] for units
  */
 @OptIn(ExperimentalUnsignedTypes::class)
@@ -584,17 +499,3 @@ inline val Bounds.width: Dp get() = right - left
  * A height of this Bounds in [Dp].
  */
 inline val Bounds.height: Dp get() = bottom - top
-
-/**
- * Convert a [Bounds] to a [Size].
- */
-inline fun Bounds.toSize(): Size {
-    return Size(width, height)
-}
-
-/**
- * Convert a [Size] to a [Bounds].
- */
-fun Size.toBounds(): Bounds {
-    return Bounds(0.dp, 0.dp, width, height)
-}
