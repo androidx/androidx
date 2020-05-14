@@ -149,12 +149,14 @@ public final class UiVersions {
          * @param style the style being added
          * @throws IllegalArgumentException if the style version is not supported by the library
          */
-        public void addStyle(@NonNull Style style) {
+        @NonNull
+        public StylesBuilder addStyle(@NonNull Style style) {
             if (!VersionUtils.isVersionSupported(style.getVersion())) {
                 throw new IllegalArgumentException(
                         "Unsupported style version: " + style.getVersion());
             }
             mStyles.add(style);
+            return this;
         }
 
         /**
