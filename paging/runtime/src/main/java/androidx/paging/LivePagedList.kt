@@ -39,7 +39,14 @@ internal class LivePagedList<Key : Any, Value : Any>(
     private val pagingSourceFactory: () -> PagingSource<Key, Value>,
     private val notifyDispatcher: CoroutineDispatcher,
     private val fetchDispatcher: CoroutineDispatcher
-) : LiveData<PagedList<Value>>() {
+) : LiveData<PagedList<Value>>(
+    InitialPagedList(
+        pagingSourceFactory(),
+        coroutineScope,
+        config,
+        initialKey
+    )
+) {
     private var currentData: PagedList<Value>
     private var currentJob: Job? = null
 
@@ -48,14 +55,8 @@ internal class LivePagedList<Key : Any, Value : Any>(
     private val refreshRetryCallback = Runnable { invalidate(true) }
 
     init {
-        currentData = InitialPagedList(
-            pagingSourceFactory(),
-            coroutineScope,
-            config,
-            initialKey
-        )
+        currentData = value!!
         currentData.setRetryCallback(refreshRetryCallback)
-        value = currentData
     }
 
     override fun onActive() {
