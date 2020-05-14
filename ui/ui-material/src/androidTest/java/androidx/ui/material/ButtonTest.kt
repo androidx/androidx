@@ -440,7 +440,7 @@ class ButtonTest {
             }
         }
 
-        assertThat(content).isEqualTo(emphasis!!.emphasize(onSurface))
+        assertThat(content).isEqualTo(emphasis!!.applyEmphasis(onSurface))
     }
 
     @Test
@@ -456,7 +456,7 @@ class ButtonTest {
             }
         }
 
-        assertThat(content).isEqualTo(emphasis!!.emphasize(onSurface))
+        assertThat(content).isEqualTo(emphasis!!.applyEmphasis(onSurface))
     }
 
     @Test
@@ -472,7 +472,7 @@ class ButtonTest {
             }
         }
 
-        assertThat(content).isEqualTo(emphasis!!.emphasize(onSurface))
+        assertThat(content).isEqualTo(emphasis!!.applyEmphasis(onSurface))
     }
 
     @Test

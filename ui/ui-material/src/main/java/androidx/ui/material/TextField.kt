@@ -395,8 +395,8 @@ private fun FilledTextFieldImpl(
                 }
 
                 val emphasisLevels = EmphasisAmbient.current
-                val emphasizedActiveColor = emphasisLevels.high.emphasize(activeColor)
-                val labelInactiveColor = emphasisLevels.medium.emphasize(inactiveColor)
+                val emphasizedActiveColor = emphasisLevels.high.applyEmphasis(activeColor)
+                val labelInactiveColor = emphasisLevels.medium.applyEmphasis(inactiveColor)
                 val indicatorInactiveColor = inactiveColor.copy(alpha = IndicatorInactiveAlpha)
 
                 TextFieldTransitionScope.transition(

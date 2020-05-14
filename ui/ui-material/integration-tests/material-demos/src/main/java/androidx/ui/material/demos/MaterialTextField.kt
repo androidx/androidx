@@ -150,7 +150,9 @@ private fun TextFieldWithMessage(
 ) {
     val typography = MaterialTheme.typography.caption
     val color = when (helperMessageOption) {
-        Option.Helper -> EmphasisAmbient.current.medium.emphasize(MaterialTheme.colors.onSurface)
+        Option.Helper -> {
+            EmphasisAmbient.current.medium.applyEmphasis(MaterialTheme.colors.onSurface)
+        }
         Option.Error -> MaterialTheme.colors.error
         else -> Color.Unset
     }

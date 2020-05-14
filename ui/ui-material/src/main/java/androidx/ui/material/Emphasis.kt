@@ -53,7 +53,7 @@ interface Emphasis {
     /**
      * Applies emphasis to the given [color].
      */
-    fun emphasize(color: Color): Color
+    fun applyEmphasis(color: Color): Color
 }
 
 /**
@@ -98,7 +98,7 @@ interface EmphasisLevels {
  */
 @Composable
 fun ProvideEmphasis(emphasis: Emphasis, content: @Composable () -> Unit) {
-    val emphasizedColor = emphasis.emphasize(contentColor())
+    val emphasizedColor = emphasis.applyEmphasis(contentColor())
     Providers(ContentColorAmbient provides emphasizedColor, children = content)
 }
 
@@ -122,7 +122,7 @@ private object DefaultEmphasisLevels : EmphasisLevels {
         @FloatRange(from = 0.0, to = 1.0) private val highContrastAlpha: Float,
         @FloatRange(from = 0.0, to = 1.0) private val reducedContrastAlpha: Float
     ) : Emphasis {
-        override fun emphasize(color: Color): Color {
+        override fun applyEmphasis(color: Color): Color {
             val alpha = if (lightTheme) {
                 if (color.luminance() > 0.5) highContrastAlpha else reducedContrastAlpha
             } else {

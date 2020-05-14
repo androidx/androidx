@@ -279,7 +279,7 @@ object Button {
     @Composable
     val defaultDisabledContentColor
         get(): Color = with(MaterialTheme.colors) {
-            EmphasisAmbient.current.disabled.emphasize(onSurface)
+            EmphasisAmbient.current.disabled.applyEmphasis(onSurface)
         }
 }
 

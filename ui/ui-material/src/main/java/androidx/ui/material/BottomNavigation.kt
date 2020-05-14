@@ -135,7 +135,7 @@ fun BottomNavigationItem(
     modifier: Modifier = Modifier,
     alwaysShowLabels: Boolean = true,
     activeColor: Color = contentColor(),
-    inactiveColor: Color = EmphasisAmbient.current.medium.emphasize(activeColor)
+    inactiveColor: Color = EmphasisAmbient.current.medium.applyEmphasis(activeColor)
 ) {
     val styledText = @Composable {
         val style = MaterialTheme.typography.caption.copy(textAlign = TextAlign.Center)
