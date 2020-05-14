@@ -348,17 +348,11 @@ internal class AndroidComposeView constructor(
         parentSize: PxSize
     ) {
         trace("AndroidOwner:callDraw") {
-            when (node) {
-                is LayoutNode -> {
-                    if (node.isPlaced) {
-                        require(!node.needsRemeasure) { "$node is not measured, draw requested" }
-                        require(!node.needsRelayout) { "$node is not laid out, draw requested" }
-                        node.draw(canvas)
-                    }
-                }
-                else -> node.visitChildren {
-                    callDraw(canvas, it, parentSize)
-                }
+            node as LayoutNode
+            if (node.isPlaced) {
+                require(!node.needsRemeasure) { "$node is not measured, draw requested" }
+                require(!node.needsRelayout) { "$node is not laid out, draw requested" }
+                node.draw(canvas)
             }
         }
     }

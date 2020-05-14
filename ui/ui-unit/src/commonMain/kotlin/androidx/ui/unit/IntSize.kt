@@ -26,6 +26,7 @@ import androidx.ui.util.unpackInt2
 /**
  * A two-dimensional size class used for measuring in [Int] pixels.
  */
+@Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
 inline class IntSize(@PublishedApi internal val value: Long) {
     /**
