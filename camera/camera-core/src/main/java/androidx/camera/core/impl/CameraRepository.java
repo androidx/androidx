@@ -38,7 +38,7 @@ import java.util.Set;
 /**
  * A collection of {@link CameraInternal} instances.
  */
-public final class CameraRepository implements UseCaseGroup.StateChangeCallback {
+public final class CameraRepository implements UseCaseMediator.StateChangeCallback {
     private static final String TAG = "CameraRepository";
 
     private final Object mCamerasLock = new Object();
@@ -178,14 +178,16 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
     }
 
     /**
-     * Attaches all the use cases in the {@link UseCaseGroup} and opens all the associated cameras.
+     * Attaches all the use cases in the {@link UseCaseMediator} and opens all the associated
+     * cameras.
      *
      * <p>This will start streaming data to the uses cases which are also online.
      */
     @Override
-    public void onGroupActive(@NonNull UseCaseGroup useCaseGroup) {
+    public void onActive(@NonNull UseCaseMediator useCaseMediator) {
         synchronized (mCamerasLock) {
-            Map<String, Set<UseCase>> cameraIdToUseCaseMap = useCaseGroup.getCameraIdToUseCaseMap();
+            Map<String, Set<UseCase>> cameraIdToUseCaseMap =
+                    useCaseMediator.getCameraIdToUseCaseMap();
             for (Map.Entry<String, Set<UseCase>> cameraUseCaseEntry :
                     cameraIdToUseCaseMap.entrySet()) {
                 CameraInternal cameraInternal = getCamera(cameraUseCaseEntry.getKey());
@@ -201,13 +203,15 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
     }
 
     /**
-     * Detaches all the use cases in the {@link UseCaseGroup} and closes the camera with no attached
+     * Detaches all the use cases in the {@link UseCaseMediator} and closes the camera with no
+     * attached
      * use cases.
      */
     @Override
-    public void onGroupInactive(@NonNull UseCaseGroup useCaseGroup) {
+    public void onInactive(@NonNull UseCaseMediator useCaseMediator) {
         synchronized (mCamerasLock) {
-            Map<String, Set<UseCase>> cameraIdToUseCaseMap = useCaseGroup.getCameraIdToUseCaseMap();
+            Map<String, Set<UseCase>> cameraIdToUseCaseMap =
+                    useCaseMediator.getCameraIdToUseCaseMap();
             for (Map.Entry<String, Set<UseCase>> cameraUseCaseEntry :
                     cameraIdToUseCaseMap.entrySet()) {
                 CameraInternal cameraInternal = getCamera(cameraUseCaseEntry.getKey());

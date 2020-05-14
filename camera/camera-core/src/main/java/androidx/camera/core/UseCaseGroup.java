@@ -27,21 +27,21 @@ import java.util.List;
 /**
  * Represents a collection of {@link UseCase}.
  *
- * When the {@link UseCaseAggregator} is bound to {@link Lifecycle}, it binds all the
+ * When the {@link UseCaseGroup} is bound to {@link Lifecycle}, it binds all the
  * {@link UseCase}s to the same {@link Lifecycle}. {@link UseCase}s inside of a
- * {@link UseCaseAggregator} usually share some common properties like the FOV defined by
+ * {@link UseCaseGroup} usually share some common properties like the FOV defined by
  * {@link ViewPort}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class UseCaseAggregator {
+public final class UseCaseGroup {
 
     private ViewPort mViewPort;
 
     private UseCase[] mUseCases;
 
-    UseCaseAggregator(@NonNull ViewPort viewPort, @NonNull UseCase[] useCases) {
+    UseCaseGroup(@NonNull ViewPort viewPort, @NonNull UseCase[] useCases) {
         mViewPort = viewPort;
         mUseCases = useCases;
     }
@@ -63,7 +63,7 @@ public final class UseCaseAggregator {
     }
 
     /**
-     * A builder for generating {@link UseCaseAggregator}.
+     * A builder for generating {@link UseCaseGroup}.
      *
      * @hide
      */
@@ -103,15 +103,15 @@ public final class UseCaseAggregator {
         }
 
         /**
-         * Builds a {@link UseCaseAggregator} from the current state.
+         * Builds a {@link UseCaseGroup} from the current state.
          *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
-        public UseCaseAggregator build() {
+        public UseCaseGroup build() {
             Preconditions.checkArgument(!mUseCases.isEmpty(), "UseCase must not be empty.");
-            return new UseCaseAggregator(mViewPort, mUseCases.toArray(new UseCase[0]));
+            return new UseCaseGroup(mViewPort, mUseCases.toArray(new UseCase[0]));
         }
     }
 
