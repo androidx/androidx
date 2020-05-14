@@ -31,7 +31,7 @@ import org.jetbrains.annotations.TestOnly
  *
  * @sample androidx.ui.core.samples.modelObserverExample
  *
- * When a `@Model` class change has been committed, the `onCommit` listener will be called
+ * When a state change has been committed, the `onCommit` listener will be called
  * with the `targetObject` as the argument. There are no order guarantees for
  * `onCommit` listener calls. Commit callbacks are made on the thread that model changes
  * are committed, so the [commitExecutor] allows the developer to control the thread on which the

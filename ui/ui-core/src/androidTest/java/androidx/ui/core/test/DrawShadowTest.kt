@@ -174,7 +174,7 @@ class DrawShadowTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun emitShadowLater() {
-        val model = ValueModel(false)
+        val model = mutableStateOf(false)
 
         rule.runOnUiThreadIR {
             activity.setContent {

@@ -17,9 +17,12 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.Stable
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
@@ -48,16 +51,18 @@ import androidx.ui.unit.dp
  * programmatically.
  * @param isDrawerGesturesEnabled whether or not drawer can be interacted with via gestures
  */
-@Model
+@Stable
 class ScaffoldState(
-    var drawerState: DrawerState = DrawerState.Closed,
-    var isDrawerGesturesEnabled: Boolean = true
+    drawerState: DrawerState = DrawerState.Closed,
+    isDrawerGesturesEnabled: Boolean = true
 ) {
 
+    var drawerState by mutableStateOf(drawerState)
+    var isDrawerGesturesEnabled by mutableStateOf(isDrawerGesturesEnabled)
     // TODO: add showSnackbar() method here
 
-    internal var fabConfiguration: FabConfiguration? = null
-    internal var bottomBarSize: IntPxSize? = null
+    internal var fabConfiguration: FabConfiguration? by mutableStateOf<FabConfiguration?>(null)
+    internal var bottomBarSize: IntPxSize? by mutableStateOf<IntPxSize?>(null)
 }
 
 object Scaffold {

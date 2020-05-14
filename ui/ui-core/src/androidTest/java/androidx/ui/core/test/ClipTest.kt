@@ -18,6 +18,7 @@ package androidx.ui.core.test
 
 import android.graphics.Bitmap
 import android.os.Build
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -276,7 +277,7 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromRectToRounded() {
-        val model = ValueModel<Shape>(rectShape)
+        val model = mutableStateOf<Shape>(rectShape)
 
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -311,7 +312,7 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromRectToPath() {
-        val model = ValueModel<Shape>(rectShape)
+        val model = mutableStateOf<Shape>(rectShape)
 
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -338,7 +339,7 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromPathToRect() {
-        val model = ValueModel<Shape>(triangleShape)
+        val model = mutableStateOf<Shape>(triangleShape)
 
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -365,7 +366,7 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchBetweenDifferentPaths() {
-        val model = ValueModel<Shape>(triangleShape)
+        val model = mutableStateOf<Shape>(triangleShape)
         // to be replaced with a DrawModifier wrapped into remember, so the recomposition
         // is not causing invalidation as the DrawModifier didn't change
         val drawCallback: DrawScope.() -> Unit = {
@@ -411,7 +412,7 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun emitClipLater() {
-        val model = ValueModel(false)
+        val model = mutableStateOf(false)
 
         rule.runOnUiThreadIR {
             activity.setContent {

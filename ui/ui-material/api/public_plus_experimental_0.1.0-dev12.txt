@@ -206,6 +206,8 @@ package androidx.ui.material {
     method public boolean isDrawerGesturesEnabled();
     method public void setDrawerGesturesEnabled(boolean p);
     method public void setDrawerState(androidx.ui.material.DrawerState p);
+    property public final androidx.ui.material.DrawerState drawerState;
+    property public final boolean isDrawerGesturesEnabled;
   }
 
   public final class Shapes {
