@@ -19,6 +19,11 @@ package android.os
 import javax.swing.SwingUtilities
 
 public class Handler() {
+    constructor(looper: Looper, callback: Handler.Callback) : this()
+
+    interface Callback {
+        fun handleMessage(msg: Message): Boolean
+    }
     val looper = Looper()
     fun post(runnable: Runnable): Boolean {
         SwingUtilities.invokeLater(runnable)
