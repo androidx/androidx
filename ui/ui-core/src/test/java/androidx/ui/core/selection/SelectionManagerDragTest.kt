@@ -83,7 +83,7 @@ class SelectionManagerDragTest {
 
     @Before
     fun setup() {
-        open(false) // we open a Frame so @Model reads are allowed
+        open(false) // we open a Frame so state reads are allowed
 
         selectionRegistrar.subscribe(selectable)
 

@@ -20,8 +20,9 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.compose.Model
+import androidx.compose.MutableState
 import androidx.compose.Recomposer
+import androidx.compose.mutableStateOf
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -39,17 +40,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-// TODO: Make this inner class once @Model gets fixed.
-@Model
-class CheckboxState(var value: ToggleableState = ToggleableState.Off) {
-    fun toggle() {
-        value =
-            if (value == ToggleableState.On) {
-                ToggleableState.Off
-            } else {
-                ToggleableState.On
-            }
-    }
+fun MutableState<ToggleableState>.toggle() {
+    value =
+        if (value == ToggleableState.On) {
+            ToggleableState.Off
+        } else {
+            ToggleableState.On
+        }
 }
 
 /**
@@ -85,8 +82,8 @@ class MultipleComposeRootsTest {
 
         activity.runOnUiThread(object : Runnable { // Workaround for lambda bug in IR
             override fun run() {
-                val state1 = CheckboxState(value = ToggleableState.Off)
-                val state2 = CheckboxState(value = ToggleableState.On)
+                val state1 = mutableStateOf(value = ToggleableState.Off)
+                val state2 = mutableStateOf(value = ToggleableState.On)
 
                 val linearLayout = LinearLayout(activity)
                     .apply { orientation = LinearLayout.VERTICAL }

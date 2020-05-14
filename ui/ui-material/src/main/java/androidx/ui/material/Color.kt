@@ -219,7 +219,7 @@ fun contentColorFor(color: Color) =
  * components that consume the specific color(s) that have been changed - so this default
  * implementation is intended to be memoized in the ambient, and then when a new immutable
  * [ColorPalette] is provided, we can simply diff and update any values that need to be changed.
- * Because the internal values are provided by an @Model delegate class, components consuming the
+ * Because the internal values are provided by an State delegate class, components consuming the
  * specific color will be recomposed, while everything else will remain the same. This allows for
  * large performance improvements when the theme is being changed, especially if it is being
  * animated.

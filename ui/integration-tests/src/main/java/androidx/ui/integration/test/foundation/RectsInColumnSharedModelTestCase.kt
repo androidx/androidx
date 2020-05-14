@@ -17,7 +17,7 @@
 package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.mutableStateOf
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.unit.dp
@@ -28,9 +28,6 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.preferredSize
-
-@Model
-private class RectanglesInColumnTestCaseColorModel(var color: Color)
 
 /**
  * Test case that puts the given amount of rectangles into a column layout and makes changes by
@@ -43,7 +40,7 @@ class RectsInColumnSharedModelTestCase(
     private val amountOfRectangles: Int
 ) : ComposeTestCase, ToggleableTestCase {
 
-    private val model = RectanglesInColumnTestCaseColorModel(Color.Black)
+    private val color = mutableStateOf(Color.Black)
 
     @Composable
     override fun emitContent() {
@@ -51,7 +48,7 @@ class RectsInColumnSharedModelTestCase(
             Column {
                 repeat(amountOfRectangles) { i ->
                     if (i == 0) {
-                        Box(Modifier.preferredSize(100.dp, 50.dp).drawBackground(model.color))
+                        Box(Modifier.preferredSize(100.dp, 50.dp).drawBackground(color.value))
                     } else {
                         Box(Modifier.preferredSize(100.dp, 50.dp).drawBackground(Color.Green))
                     }
@@ -61,10 +58,10 @@ class RectsInColumnSharedModelTestCase(
     }
 
     override fun toggleState() {
-        if (model.color == Color.Magenta) {
-            model.color = Color.Blue
+        if (color.value == Color.Magenta) {
+            color.value = Color.Blue
         } else {
-            model.color = Color.Magenta
+            color.value = Color.Magenta
         }
     }
 }

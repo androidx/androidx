@@ -251,7 +251,7 @@ private class TextFieldState(
     var inputSession = NO_SESSION
     /**
      * This should be a state as every time we update the value we need to redraw it.
-     * @Model observation during onDraw callback will make it work.
+     * state observation during onDraw callback will make it work.
      */
     var hasFocus by mutableStateOf(false)
     /** The last layout coordinates for the Text's layout, used by selection */

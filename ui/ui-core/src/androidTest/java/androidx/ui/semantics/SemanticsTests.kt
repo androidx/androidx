@@ -17,10 +17,10 @@
 package androidx.ui.semantics
 
 import androidx.compose.Composable
+import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
-import androidx.ui.core.test.ValueModel
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.SemanticsMatcher
 import androidx.ui.test.assertCountEquals
@@ -64,7 +64,7 @@ class SemanticsTests {
     @Test
     fun removingMergedSubtree_updatesSemantics() {
         val label = "foo"
-        val showSubtree = ValueModel(true)
+        val showSubtree = mutableStateOf(true)
         composeTestRule.setContent {
             Semantics(container = true, properties = {
                 testTag = TestTag
@@ -95,7 +95,7 @@ class SemanticsTests {
     fun addingNewMergedNode_updatesSemantics() {
         val label = "foo"
         val value = "bar"
-        val showNewNode = ValueModel(false)
+        val showNewNode = mutableStateOf(false)
         composeTestRule.setContent {
             Semantics(container = true, properties = {
                 testTag = TestTag
@@ -134,7 +134,7 @@ class SemanticsTests {
     @Test
     fun removingSubtreeWithoutSemanticsAsTopNode_updatesSemantics() {
         val label = "foo"
-        val showSubtree = ValueModel(true)
+        val showSubtree = mutableStateOf(true)
         composeTestRule.setContent {
             Semantics(container = true, properties = {
                 testTag = TestTag
@@ -165,7 +165,7 @@ class SemanticsTests {
     fun changingStackedSemanticsComponent_updatesSemantics() {
         val beforeLabel = "before"
         val afterLabel = "after"
-        val isAfter = ValueModel(false)
+        val isAfter = mutableStateOf(false)
         composeTestRule.setContent {
             Semantics(container = true, properties = {
                 testTag = TestTag
@@ -190,7 +190,7 @@ class SemanticsTests {
     fun changingStackedSemanticsComponent_notTopMost_updatesSemantics() {
         val beforeLabel = "before"
         val afterLabel = "after"
-        val isAfter = ValueModel(false)
+        val isAfter = mutableStateOf(false)
 
         composeTestRule.setContent {
             Semantics(container = true, properties = { testTag = "don't care" }) {
@@ -220,7 +220,7 @@ class SemanticsTests {
     fun changingSemantics_belowStackedLayoutNodes_updatesCorrectly() {
         val beforeLabel = "before"
         val afterLabel = "after"
-        val isAfter = ValueModel(false)
+        val isAfter = mutableStateOf(false)
 
         composeTestRule.setContent {
             SimpleTestLayout {
@@ -247,7 +247,7 @@ class SemanticsTests {
     fun changingSemantics_belowNodeMergedThroughBoundary_updatesCorrectly() {
         val beforeLabel = "before"
         val afterLabel = "after"
-        val isAfter = ValueModel(false)
+        val isAfter = mutableStateOf(false)
 
         composeTestRule.setContent {
             Semantics(properties = { testTag = TestTag }) {
@@ -316,7 +316,7 @@ class SemanticsTests {
 
         val beforeLabel = "before"
         val afterLabel = "after"
-        val isAfter = ValueModel(false)
+        val isAfter = mutableStateOf(false)
 
         composeTestRule.setContent {
             Semantics(container = true, properties = {
@@ -352,7 +352,7 @@ class SemanticsTests {
         val beforeAction = { println("this never gets called") }
         val afterAction = { println("neither does this") }
 
-        val isAfter = ValueModel(false)
+        val isAfter = mutableStateOf(false)
 
         composeTestRule.setContent {
             Semantics(container = true, properties = {

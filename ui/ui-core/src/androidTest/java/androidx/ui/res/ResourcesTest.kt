@@ -97,7 +97,7 @@ class ResourcesTest {
         runOnIdleCompose {
             pendingExecutor.runNow() // load the resource
             assertThat(uiThreadWork).isNotNull()
-            // update @Model object so that recompose is expected to be triggered.
+            // update state object so that recompose is expected to be triggered.
             uiThreadWork?.invoke()
         }
 
@@ -156,7 +156,7 @@ class ResourcesTest {
         runOnIdleCompose {
             pendingExecutor.runNow() // load the resource
             assertThat(uiThreadWork).isNotNull()
-            // update @Model object so that recompose is expected to be triggered.
+            // update state object so that recompose is expected to be triggered.
             uiThreadWork?.invoke()
         }
 

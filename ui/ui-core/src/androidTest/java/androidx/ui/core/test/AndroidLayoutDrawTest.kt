@@ -29,10 +29,13 @@ import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.compose.FrameManager
-import androidx.compose.Model
+import androidx.compose.Stable
+import androidx.compose.State
 import androidx.compose.emptyContent
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -212,13 +215,13 @@ class AndroidLayoutDrawTest {
         val white = Color(0xFFFFFFFF)
         val blue = Color(0xFF000080)
         val model = SquareModel(outerColor = blue, innerColor = white)
-        val offset = OffsetModel(10.ipx)
+        val offset = mutableStateOf(10.ipx)
         composeMovingSquaresWithRepaintBoundary(model, offset)
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
 
         positionLatch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR {
-            offset.offset = 20.ipx
+            offset.value = 20.ipx
         }
 
         assertTrue(positionLatch!!.await(1, TimeUnit.SECONDS))
@@ -233,7 +236,7 @@ class AndroidLayoutDrawTest {
         val white = Color(0xFFFFFFFF)
         val blue = Color(0xFF000080)
         val model = SquareModel(outerColor = blue, innerColor = white)
-        val offset = OffsetModel(10.ipx)
+        val offset = mutableStateOf(10.ipx)
         composeMovingSquares(model, offset)
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
 
@@ -247,7 +250,7 @@ class AndroidLayoutDrawTest {
                     drawLatch.countDown()
                 }
             })
-            offset.offset = 20.ipx
+            offset.value = 20.ipx
         }
 
         validateSquareColors(outerColor = blue, innerColor = white, offset = 10, size = 10)
@@ -576,7 +579,7 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testRelayoutOnNewChild() {
-        val drawChild = DoDraw()
+        val drawChild = mutableStateOf(false)
 
         val outerColor = Color(0xFF000080)
         val innerColor = Color(0xFFFFFFFF)
@@ -608,7 +611,7 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun moveRootLayoutRedrawsLeafRepaintBoundary() {
-        val offset = OffsetModel(0.ipx)
+        val offset = mutableStateOf(0.ipx)
         drawLatch = CountDownLatch(2)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
@@ -626,7 +629,7 @@ class AndroidLayoutDrawTest {
                 ) { measurables, constraints, _ ->
                     layout(width = 20.ipx, height = 20.ipx) {
                         measurables.first().measure(constraints)
-                            .place(offset.offset, offset.offset)
+                            .place(offset.value, offset.value)
                     }
                 }
             }
@@ -639,7 +642,7 @@ class AndroidLayoutDrawTest {
         }
 
         drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR { offset.offset = 10.ipx }
+        activityTestRule.runOnUiThreadIR { offset.value = 10.ipx }
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         activityTestRule.waitAndScreenShot().apply {
@@ -652,7 +655,7 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testRedrawOnRemovedChild() {
-        val drawChild = DoDraw(true)
+        val drawChild = mutableStateOf(true)
 
         val outerColor = Color(0xFF000080)
         val innerColor = Color(0xFFFFFFFF)
@@ -692,7 +695,7 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testRelayoutOnRemovedChild() {
-        val drawChild = DoDraw(true)
+        val drawChild = mutableStateOf(true)
 
         val outerColor = Color(0xFF000080)
         val innerColor = Color(0xFFFFFFFF)
@@ -1020,7 +1023,7 @@ class AndroidLayoutDrawTest {
     fun testAlignmentLines_recomposeCorrectly() {
         val TestLine = VerticalAlignmentLine(::min)
         var layoutLatch = CountDownLatch(1)
-        val model = OffsetModel(10.ipx)
+        val offset = mutableStateOf(10.ipx)
         var measure = 0
         var layout = 0
         var linePosition: IntPx? = null
@@ -1028,7 +1031,7 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 val child = @Composable {
                     Layout(children = {}) { _, _, _ ->
-                        layout(0.ipx, 0.ipx, mapOf(TestLine to model.offset)) {}
+                        layout(0.ipx, 0.ipx, mapOf(TestLine to offset.value)) {}
                     }
                 }
                 Layout(child) { measurables, constraints, _ ->
@@ -1049,7 +1052,7 @@ class AndroidLayoutDrawTest {
 
         layoutLatch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR {
-            model.offset = 20.ipx
+            offset.value = 20.ipx
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         assertEquals(2, measure)
@@ -1061,7 +1064,7 @@ class AndroidLayoutDrawTest {
     fun testAlignmentLines_recomposeCorrectly_whenQueriedInLayout() {
         val TestLine = VerticalAlignmentLine(::min)
         var layoutLatch = CountDownLatch(1)
-        val model = OffsetModel(10.ipx)
+        val offset = mutableStateOf(10.ipx)
         var measure = 0
         var layout = 0
         var linePosition: IntPx? = null
@@ -1072,7 +1075,7 @@ class AndroidLayoutDrawTest {
                         layout(
                             0.ipx,
                             0.ipx,
-                            mapOf(TestLine to model.offset)
+                            mapOf(TestLine to offset.value)
                         ) {}
                     }
                 }
@@ -1093,7 +1096,7 @@ class AndroidLayoutDrawTest {
         assertEquals(10.ipx, linePosition)
 
         layoutLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR { model.offset = 20.ipx }
+        activityTestRule.runOnUiThreadIR { offset.value = 20.ipx }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         assertEquals(2, measure)
         assertEquals(2, layout)
@@ -1104,7 +1107,7 @@ class AndroidLayoutDrawTest {
     fun testAlignmentLines_recomposeCorrectly_whenMeasuredAndQueriedInLayout() {
         val TestLine = VerticalAlignmentLine(::min)
         var layoutLatch = CountDownLatch(1)
-        val model = OffsetModel(10.ipx)
+        val offset = mutableStateOf(10.ipx)
         var measure = 0
         var layout = 0
         var linePosition: IntPx? = null
@@ -1112,7 +1115,7 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 val child = @Composable {
                     Layout(children = {}) { _, _, _ ->
-                        layout(0.ipx, 0.ipx, mapOf(TestLine to model.offset)) { }
+                        layout(0.ipx, 0.ipx, mapOf(TestLine to offset.value)) { }
                     }
                 }
                 Layout(child) { measurables, constraints, _ ->
@@ -1132,7 +1135,7 @@ class AndroidLayoutDrawTest {
         assertEquals(10.ipx, linePosition)
 
         layoutLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR { model.offset = 20.ipx }
+        activityTestRule.runOnUiThreadIR { offset.value = 20.ipx }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         assertEquals(1, measure)
         assertEquals(2, layout)
@@ -1142,7 +1145,7 @@ class AndroidLayoutDrawTest {
     @Test
     fun testAlignmentLines_onlyComputesAlignmentLinesWhenNeeded() {
         var layoutLatch = CountDownLatch(1)
-        val model = OffsetModel(10.ipx)
+        val offset = mutableStateOf(10.ipx)
         var alignmentLinesCalculations = 0
         val TestLine = VerticalAlignmentLine { _, _ ->
             ++alignmentLinesCalculations
@@ -1151,14 +1154,14 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val innerChild = @Composable {
-                    model.offset // Artificial remeasure.
+                    offset.value // Artificial remeasure.
                     Layout(children = {}) { _, _, _ ->
                         layout(0.ipx, 0.ipx, mapOf(TestLine to 10.ipx)) { }
                     }
                 }
                 val child = @Composable {
                     Layout({ innerChild(); innerChild() }) { measurables, constraints, _ ->
-                        model.offset // Artificial remeasure.
+                        offset.value // Artificial remeasure.
                         val placeable1 = measurables[0].measure(constraints)
                         val placeable2 = measurables[1].measure(constraints)
                         layout(0.ipx, 0.ipx) {
@@ -1169,7 +1172,7 @@ class AndroidLayoutDrawTest {
                 }
                 Layout(child) { measurables, constraints, _ ->
                     val placeable = measurables.first().measure(constraints)
-                    if (model.offset < 15.ipx) {
+                    if (offset.value < 15.ipx) {
                         placeable[TestLine]
                     }
                     layout(0.ipx, 0.ipx) {
@@ -1183,12 +1186,12 @@ class AndroidLayoutDrawTest {
         assertEquals(1, alignmentLinesCalculations)
 
         layoutLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR { model.offset = 20.ipx }
+        activityTestRule.runOnUiThreadIR { offset.value = 20.ipx }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         assertEquals(1, alignmentLinesCalculations)
 
         layoutLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR { model.offset = 10.ipx }
+        activityTestRule.runOnUiThreadIR { offset.value = 10.ipx }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         assertEquals(2, alignmentLinesCalculations)
     }
@@ -1233,7 +1236,7 @@ class AndroidLayoutDrawTest {
         var innerChildLayouts = 0
         var outerChildMeasures = 0
         var outerChildLayouts = 0
-        val model = OffsetModel(0.ipx)
+        val offset = mutableStateOf(0.ipx)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val child = @Composable {
@@ -1248,7 +1251,7 @@ class AndroidLayoutDrawTest {
                         val placeable = measurables[0].measure(constraints)
                         layout(0.ipx, 0.ipx) {
                             ++outerChildLayouts
-                            placeable.place(model.offset, 0.ipx)
+                            placeable.place(offset.value, 0.ipx)
                         }
                     }
                 }
@@ -1257,7 +1260,7 @@ class AndroidLayoutDrawTest {
                     val width = placeable.width.coerceAtLeast(10.ipx)
                     val height = placeable.height.coerceAtLeast(10.ipx)
                     layout(width, height) {
-                        assertEquals(model.offset + 10.ipx, placeable[TestLine])
+                        assertEquals(offset.value + 10.ipx, placeable[TestLine])
                         placeable.place(0.ipx, 0.ipx)
                         layoutLatch.countDown()
                     }
@@ -1272,7 +1275,7 @@ class AndroidLayoutDrawTest {
 
         layoutLatch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR {
-            model.offset = 10.ipx
+            offset.value = 10.ipx
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         assertEquals(1, innerChildMeasures)
@@ -1325,7 +1328,7 @@ class AndroidLayoutDrawTest {
         val TestLine = VerticalAlignmentLine(::min)
         var layoutLatch = CountDownLatch(1)
         var childLayouts = 0
-        val model = OffsetModel(10.ipx)
+        val offset = mutableStateOf(10.ipx)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val child = @Composable {
@@ -1335,20 +1338,20 @@ class AndroidLayoutDrawTest {
                             constraints.minHeight,
                             mapOf(TestLine to 10.ipx)
                         ) {
-                            model.offset // To ensure relayout.
+                            offset.value // To ensure relayout.
                             ++childLayouts
                         }
                     }
                 }
                 val inner = @Composable {
                     Layout({
-                        WrapForceRelayout(model) { child() }
+                        WrapForceRelayout(offset) { child() }
                     }) { measurables, constraints, _ ->
                         val placeable = measurables[0].measure(constraints)
                         layout(placeable.width, placeable.height) {
-                            if (model.offset > 15.ipx) assertEquals(10.ipx, placeable[TestLine])
+                            if (offset.value > 15.ipx) assertEquals(10.ipx, placeable[TestLine])
                             placeable.place(0.ipx, 0.ipx)
-                            if (model.offset > 5.ipx) assertEquals(10.ipx, placeable[TestLine])
+                            if (offset.value > 5.ipx) assertEquals(10.ipx, placeable[TestLine])
                         }
                     }
                 }
@@ -1357,7 +1360,7 @@ class AndroidLayoutDrawTest {
                     val width = placeable.width.coerceAtLeast(10.ipx)
                     val height = placeable.height.coerceAtLeast(10.ipx)
                     layout(width, height) {
-                        model.offset // To ensure relayout.
+                        offset.value // To ensure relayout.
                         placeable.place(0.ipx, 0.ipx)
                         layoutLatch.countDown()
                     }
@@ -1369,29 +1372,29 @@ class AndroidLayoutDrawTest {
         assertEquals(2, childLayouts)
 
         layoutLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR { model.offset = 12.ipx }
+        activityTestRule.runOnUiThreadIR { offset.value = 12.ipx }
         assertTrue(layoutLatch.await(5, TimeUnit.SECONDS))
         // Just one more layout as the alignment lines were speculatively calculated this time.
         assertEquals(3, childLayouts)
 
         layoutLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR { model.offset = 17.ipx }
+        activityTestRule.runOnUiThreadIR { offset.value = 17.ipx }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         // One layout as the alignment lines are queried before.
         assertEquals(4, childLayouts)
 
         layoutLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR { model.offset = 12.ipx }
+        activityTestRule.runOnUiThreadIR { offset.value = 12.ipx }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         // One layout as the alignment lines are still calculated speculatively.
         assertEquals(5, childLayouts)
 
         layoutLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR { model.offset = 1.ipx }
+        activityTestRule.runOnUiThreadIR { offset.value = 1.ipx }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         assertEquals(6, childLayouts)
         layoutLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR { model.offset = 10.ipx }
+        activityTestRule.runOnUiThreadIR { offset.value = 10.ipx }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         // Two layouts again, since alignment lines were not queried during last layout,
         // so we did not calculate them speculatively anymore.
@@ -1551,7 +1554,7 @@ class AndroidLayoutDrawTest {
 
     @Test
     fun testLayoutBeforeDraw_forRecomposingNodesNotAffectingRootSize() {
-        val model = OffsetModel(0.ipx)
+        val offset = mutableStateOf(0.ipx)
         var latch = CountDownLatch(1)
         var laidOut = false
         activityTestRule.runOnUiThreadIR {
@@ -1567,7 +1570,7 @@ class AndroidLayoutDrawTest {
                 }
                 val recomposingChild = @Composable { children: @Composable (IntPx) -> Unit ->
                     // This simulates a child that recomposes, for example due to a transition.
-                    children(model.offset)
+                    children(offset.value)
                 }
                 val assumeLayoutBeforeDraw = @Composable { _: IntPx ->
                     // This assumes a layout was done before the draw pass.
@@ -1594,7 +1597,7 @@ class AndroidLayoutDrawTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         latch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR {
-            model.offset = 10.ipx
+            offset.value = 10.ipx
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
@@ -2030,7 +2033,7 @@ class AndroidLayoutDrawTest {
     fun layoutModifier_redrawsCorrectlyWhenOnlyNonModifiedSizeChanges() {
         val blue = Color(0xFF000080)
         val green = Color(0xFF00FF00)
-        val model = OffsetModel(10.ipx)
+        val offset = mutableStateOf(10.ipx)
 
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
@@ -2038,7 +2041,7 @@ class AndroidLayoutDrawTest {
                     drawRect(green)
                 }) {
                     FixedSize(
-                        model.offset,
+                        offset.value,
                         modifier = AlignTopLeft.drawLayer()
                             .drawBehind {
                                 drawLatch.countDown()
@@ -2053,7 +2056,7 @@ class AndroidLayoutDrawTest {
 
         drawLatch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR {
-            model.offset = 20.ipx
+            offset.value = 20.ipx
         }
         validateSquareColors(
             outerColor = green,
@@ -2287,7 +2290,7 @@ class AndroidLayoutDrawTest {
 
     @Test
     fun doubleDraw() {
-        val model = OffsetModel(0.ipx)
+        val offset = mutableStateOf(0.ipx)
         var outerLatch = CountDownLatch(1)
         activityTestRule.runOnUiThread {
             activity.setContent {
@@ -2298,8 +2301,8 @@ class AndroidLayoutDrawTest {
                     FixedSize(10.ipx, Modifier.drawBehind {
                         drawLine(
                             Color.Blue,
-                            Offset(model.offset.value.toFloat(), 0f),
-                            Offset(0f, model.offset.value.toFloat()),
+                            Offset(offset.value.value.toFloat(), 0f),
+                            Offset(0f, offset.value.value.toFloat()),
                             stroke = Stroke(width = 0.0f) // 0.0f represents hairline stroke
                         )
                         drawLatch.countDown()
@@ -2313,7 +2316,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThread {
             drawLatch = CountDownLatch(1)
             outerLatch = CountDownLatch(1)
-            model.offset = 10.ipx
+            offset.value = 10.ipx
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         assertFalse(outerLatch.await(200, TimeUnit.MILLISECONDS))
@@ -2389,7 +2392,7 @@ class AndroidLayoutDrawTest {
         }
     }
 
-    private fun composeMovingSquaresWithRepaintBoundary(model: SquareModel, offset: OffsetModel) {
+    private fun composeMovingSquaresWithRepaintBoundary(model: SquareModel, offset: State<IntPx>) {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 Position(
@@ -2407,7 +2410,7 @@ class AndroidLayoutDrawTest {
         }
     }
 
-    private fun composeMovingSquares(model: SquareModel, offset: OffsetModel) {
+    private fun composeMovingSquares(model: SquareModel, offset: State<IntPx>) {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 Position(
@@ -2487,7 +2490,7 @@ class AndroidLayoutDrawTest {
     @Composable
     fun Position(
         size: IntPx,
-        offset: OffsetModel,
+        offset: State<IntPx>,
         modifier: Modifier = Modifier,
         children: @Composable () -> Unit
     ) {
@@ -2497,7 +2500,7 @@ class AndroidLayoutDrawTest {
             }
             layout(size, size) {
                 placeables.forEach { child ->
-                    child.place(offset.offset, offset.offset)
+                    child.place(offset.value, offset.value)
                 }
                 positionLatch?.countDown()
             }
@@ -2737,7 +2740,7 @@ fun Wrap(
 fun Scroller(
     modifier: Modifier = Modifier,
     onScrollPositionChanged: (position: IntPx, maxPosition: IntPx) -> Unit,
-    offset: OffsetModel,
+    offset: State<IntPx>,
     child: @Composable () -> Unit
 ) {
     val maxPosition = state { IntPx.Infinity }
@@ -2746,7 +2749,7 @@ fun Scroller(
         maxPosition = maxPosition.value,
         onMaxPositionChanged = {
             maxPosition.value = 0.ipx
-            onScrollPositionChanged(offset.offset, 0.ipx)
+            onScrollPositionChanged(offset.value, 0.ipx)
         },
         child = child
     )
@@ -2776,7 +2779,7 @@ private fun ScrollerLayout(
 
 @Composable
 fun WrapForceRelayout(
-    model: OffsetModel,
+    model: State<IntPx>,
     modifier: Modifier = Modifier,
     children: @Composable () -> Unit
 ) {
@@ -2785,7 +2788,7 @@ fun WrapForceRelayout(
         val width = placeables.maxBy { it.width.value }?.width ?: 0.ipx
         val height = placeables.maxBy { it.height.value }?.height ?: 0.ipx
         layout(width, height) {
-            model.offset
+            model.value
             placeables.forEach { it.place(0.ipx, 0.ipx) }
         }
     }
@@ -2903,18 +2906,16 @@ internal val AlignTopLeft = object : LayoutModifier {
     }
 }
 
-@Model
+@Stable
 class SquareModel(
-    var size: IntPx = 10.ipx,
-    var outerColor: Color = Color(0xFF000080),
-    var innerColor: Color = Color(0xFFFFFFFF)
-)
-
-@Model
-class OffsetModel(var offset: IntPx)
-
-@Model
-class DoDraw(var value: Boolean = false)
+    size: IntPx = 10.ipx,
+    outerColor: Color = Color(0xFF000080),
+    innerColor: Color = Color(0xFFFFFFFF)
+) {
+    var size: IntPx by mutableStateOf(size)
+    var outerColor: Color by mutableStateOf(outerColor)
+    var innerColor: Color by mutableStateOf(innerColor)
+}
 
 // We only need this because IR compiler doesn't like converting lambdas to Runnables
 fun ActivityTestRule<*>.runOnUiThreadIR(block: () -> Unit) {

@@ -24,6 +24,7 @@ import androidx.animation.AnimationVector4D
 import androidx.animation.Spring
 import androidx.animation.TwoWayConverter
 import androidx.compose.Composable
+import androidx.compose.Stable
 import androidx.compose.StructurallyEqual
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
@@ -101,6 +102,7 @@ fun animatedColor(
  *                      [AnimationVector] type
  * @param clock The animation clock that will be used to drive the animation
  */
+@Stable
 class AnimatedValueModel<T, V : AnimationVector>(
     initialValue: T,
     typeConverter: TwoWayConverter<T, V>,
@@ -117,6 +119,7 @@ class AnimatedValueModel<T, V : AnimationVector>(
  * @param initialValue The overridden value field that can only be mutated by animation
  * @param clock The animation clock that will be used to drive the animation
  */
+@Stable
 class AnimatedFloatModel(
     initialValue: Float,
     clock: AnimationClockObservable,
