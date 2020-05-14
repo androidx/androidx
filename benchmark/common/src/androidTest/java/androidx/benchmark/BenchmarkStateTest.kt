@@ -68,7 +68,7 @@ class BenchmarkStateTest {
             }
 
             state.pauseTiming()
-            runAndSpin(durationUs = 600) {
+            runAndSpin(durationUs = 700) {
                 allocate(80)
             }
             state.resumeTiming()
@@ -77,8 +77,8 @@ class BenchmarkStateTest {
         // come out are reasonable, not perfect - this isn't always run in stable perf environments
         val medianTime = state.getReport().getStats("timeNs").median
         assertTrue(
-            "median time (ns) $medianTime should be approximately 300us",
-            medianTime in us2ns(280)..us2ns(450)
+            "median time (ns) $medianTime should be roughly 300us",
+            medianTime in us2ns(280)..us2ns(900)
         )
         val medianAlloc = state.getReport().getStats("allocationCount").median
         assertTrue(
