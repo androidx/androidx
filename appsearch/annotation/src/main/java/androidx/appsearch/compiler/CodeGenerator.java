@@ -17,6 +17,7 @@
 package androidx.appsearch.compiler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -46,8 +47,8 @@ import javax.lang.model.util.Types;
  * between the data class and a {@link androidx.appsearch.app.GenericDocument}.
  */
 class CodeGenerator {
+    @VisibleForTesting static final String GEN_CLASS_PREFIX = "$$__AppSearch__";
     private static final String APPSEARCH_PKG = "androidx.appsearch.app";
-    private static final String GEN_CLASS_PREFIX = "$$__AppSearch__";
 
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mIntrospectionHelper;

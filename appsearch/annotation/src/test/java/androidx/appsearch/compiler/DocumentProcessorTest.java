@@ -16,6 +16,9 @@
 
 package androidx.appsearch.compiler;
 
+import com.google.common.io.CharStreams;
+import com.google.common.io.Files;
+import com.google.common.truth.Truth;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.CompilationSubject;
 import com.google.testing.compile.Compiler;
@@ -25,16 +28,24 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestName;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
 
 import javax.tools.JavaFileObject;
 
-// TODO(b/156296904): Add tests for the contents of the output java file
 public class DocumentProcessorTest {
+    private static final Logger LOG = Logger.getLogger(DocumentProcessor.class.getSimpleName());
+
     @Rule
     public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
+    @Rule
+    public TestName mTestName = new TestName();
 
     private File mGenFilesDir;
 
@@ -211,7 +222,7 @@ public class DocumentProcessorTest {
                 "Field cannot be written .* failed to find a suitable setter named \"setPrice\"");
         CompilationSubject.assertThat(compilation).hadWarningContaining(
                 "Cannot use this constructor to construct the class: This constructor doesn't have "
-                + "parameters for the following fields: [price]");
+                        + "parameters for the following fields: [price]");
     }
 
     @Test
@@ -320,7 +331,7 @@ public class DocumentProcessorTest {
     }
 
     @Test
-    public void testSuccess() {
+    public void testSuccess() throws Exception {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -336,6 +347,7 @@ public class DocumentProcessorTest {
                         + "  public boolean getDog() { return dog; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
     }
 
     private Compilation compile(String classBody) {
@@ -360,5 +372,50 @@ public class DocumentProcessorTest {
                 .withProcessors(new DocumentProcessor())
                 .withOptions(outputDirFlag)
                 .compile(jfo);
+    }
+
+    private void checkEqualsGolden() throws IOException {
+        // Get the expected file contents
+        String goldenResPath = "goldens/" + mTestName.getMethodName() + ".JAVA";
+        String expected = "";
+        try (InputStream is = getClass().getResourceAsStream(goldenResPath)) {
+            if (is == null) {
+                LOG.warning("Failed to find resource \"" + goldenResPath + "\"; treating as empty");
+            } else {
+                InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
+                expected = CharStreams.toString(reader);
+            }
+        }
+
+        // Get the actual file contents
+        File actualPackageDir = new File(mGenFilesDir, "com/example/appsearch");
+        File actualPath = new File(actualPackageDir, CodeGenerator.GEN_CLASS_PREFIX + "Gift.java");
+        Truth.assertWithMessage("Path " + actualPath + " is not a file")
+                .that(actualPath.isFile()).isTrue();
+        String actual = Files.asCharSource(actualPath, StandardCharsets.UTF_8).read();
+
+        // Compare!
+        if (expected.equals(actual)) {
+            return;
+        }
+
+        // Sadness. If we're running in an environment where source is available, rewrite the golden
+        // to match the actual content for ease of updating the goldens.
+        try {
+            // At runtime, our resources come from the build tree. However, our cwd is
+            // frameworks/support, so find the source tree from that.
+            File goldenSrcDir = new File("src/test/resources/androidx/appsearch/compiler");
+            if (!goldenSrcDir.isDirectory()) {
+                LOG.warning("Failed to update goldens: golden dir \""
+                        + goldenSrcDir.getAbsolutePath() + "\" does not exist or is not a folder");
+                return;
+            }
+            File goldenFile = new File(goldenSrcDir, goldenResPath);
+            Files.asCharSink(goldenFile, StandardCharsets.UTF_8).write(actual);
+            LOG.info("Successfully updated golden file \"" + goldenFile + "\"");
+        } finally {
+            // Now produce the real exception for the test runner.
+            Truth.assertThat(actual).isEqualTo(expected);
+        }
     }
 }
