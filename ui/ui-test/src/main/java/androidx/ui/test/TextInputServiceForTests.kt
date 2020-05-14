@@ -36,6 +36,7 @@ internal class TextInputServiceForTests(
 ) : TextInputService(platformTextInputService) {
 
     var onEditCommand: ((List<EditOperation>) -> Unit)? = null
+    var onImeActionPerformed: ((ImeAction) -> Unit)? = null
 
     override fun startInput(
         initModel: EditorValue,
@@ -45,6 +46,7 @@ internal class TextInputServiceForTests(
         onImeActionPerformed: (ImeAction) -> Unit
     ): InputSessionToken {
         this.onEditCommand = onEditCommand
+        this.onImeActionPerformed = onImeActionPerformed
         return super.startInput(
             initModel,
             keyboardType,
@@ -56,6 +58,7 @@ internal class TextInputServiceForTests(
 
     override fun stopInput(token: InputSessionToken) {
         this.onEditCommand = null
+        this.onImeActionPerformed = null
         super.stopInput(token)
     }
 }

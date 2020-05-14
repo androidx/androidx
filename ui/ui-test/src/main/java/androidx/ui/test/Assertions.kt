@@ -198,17 +198,23 @@ fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction 
  * Asserts that the provided [matcher] is satisfied for this node.
  *
  * @param matcher Matcher to verify.
+ * @param messagePrefixOnError Prefix to be put in front of an error that gets thrown in case this
+ * assert fails. This can be helpful in situations where this assert fails as part of a bigger
+ * operation that used this assert as a precondition check.
  *
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun SemanticsNodeInteraction.assert(
-    matcher: SemanticsMatcher
+    matcher: SemanticsMatcher,
+    messagePrefixOnError: (() -> String)? = null
 ): SemanticsNodeInteraction {
-    val errorMessageOnFail = "Failed to assert the following: (${matcher.description})"
+    var errorMessageOnFail = "Failed to assert the following: (${matcher.description})"
+    if (messagePrefixOnError != null) {
+        errorMessageOnFail = messagePrefixOnError() + "\n" + errorMessageOnFail
+    }
     val node = fetchSemanticsNode(errorMessageOnFail)
     if (!matcher.matches(node)) {
-        throw AssertionError(buildErrorMessageForMatcherFail(
-            selector, node, matcher))
+        throw AssertionError(buildGeneralErrorMessage(errorMessageOnFail, selector, node))
     }
     return this
 }

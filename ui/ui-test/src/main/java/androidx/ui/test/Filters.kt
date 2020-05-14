@@ -20,9 +20,11 @@ import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.getOrNull
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.FoundationSemanticsProperties
+import androidx.ui.input.ImeAction
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsProperties
+import androidx.ui.text.TextSemanticsProperties
 
 /**
  * Returns whether the component is enabled.
@@ -225,6 +227,25 @@ fun isNotHidden(): SemanticsMatcher =
  */
 fun isDialog(): SemanticsMatcher =
     SemanticsMatcher.keyIsDefined(FoundationSemanticsProperties.IsDialog)
+
+/**
+ * Returns whether the component defines the given IME action.
+ *
+ * @param actionType the action to match.
+ */
+fun hasImeAction(actionType: ImeAction) =
+    SemanticsMatcher.expectValue(TextSemanticsProperties.ImeAction, actionType)
+
+/**
+ * Return whether the component supports input methods.
+ *
+ * Supporting input methods means that the component provides a connection to IME (keyboard) and is
+ * able to accept input from it. This is however not enforced and relies on the components to
+ * properly add this to semantics when they provide input. Note that this is not related to
+ * gestures input but only to IME. This can be used to for instance filter out all text fields.
+ */
+fun hasInputMethodsSupport() =
+    SemanticsMatcher.expectValue(TextSemanticsProperties.SupportsInputMethods, true)
 
 /**
  * Returns whether the component's parent satisfies the given matcher.

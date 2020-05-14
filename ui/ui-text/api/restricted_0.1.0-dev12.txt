@@ -35,6 +35,21 @@ package androidx.ui.text {
   public final class TextFieldDelegateKt {
   }
 
+  public final class TextSemanticsProperties {
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.input.ImeAction> getImeAction();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getSupportsInputMethods();
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.input.ImeAction> ImeAction;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> SupportsInputMethods;
+    field public static final androidx.ui.text.TextSemanticsProperties! INSTANCE;
+  }
+
+  public final class TextSemanticsPropertiesKt {
+    method public static androidx.ui.input.ImeAction getImeAction(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static boolean getSupportsInputMethods(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static void setImeAction(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.input.ImeAction p);
+    method public static void setSupportsInputMethods(androidx.ui.semantics.SemanticsPropertyReceiver, boolean p);
+  }
+
 }
 
 package androidx.ui.text.selection {
