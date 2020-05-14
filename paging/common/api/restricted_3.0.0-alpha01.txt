@@ -267,6 +267,7 @@ package androidx.paging {
     ctor public PagingSource();
     method public final boolean getInvalid();
     method public boolean getJumpingSupported();
+    method public boolean getKeyReuseSupported();
     method @androidx.paging.ExperimentalPagingApi public Key? getRefreshKey(androidx.paging.PagingState<Key,Value> state);
     method public void invalidate();
     method public abstract suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
@@ -274,6 +275,7 @@ package androidx.paging {
     method public final void unregisterInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     property public final boolean invalid;
     property public boolean jumpingSupported;
+    property public boolean keyReuseSupported;
   }
 
   public abstract static sealed class PagingSource.LoadParams<Key> {
