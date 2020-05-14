@@ -111,6 +111,7 @@ class TextDelegateIntegrationTest {
             val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
             val expectedPaint = Paint()
             val defaultSelectionColor = Color(0x6633B5E5)
+            val selectionPaint = Paint().also { it.color = defaultSelectionColor }
             expectedPaint.color = defaultSelectionColor
 
             val firstLineLeft = layoutResult.multiParagraph.getLineLeft(0)
@@ -139,7 +140,7 @@ class TextDelegateIntegrationTest {
             TextDelegate.paintBackground(
                 start = 0,
                 end = text.length,
-                color = defaultSelectionColor,
+                paint = selectionPaint,
                 canvas = actualCanvas,
                 textLayoutResult = layoutResult
             )
@@ -172,6 +173,7 @@ class TextDelegateIntegrationTest {
             val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
             val expectedPaint = Paint()
             val defaultSelectionColor = Color(0x6633B5E5)
+            val selectionPaint = Paint().also { it.color = defaultSelectionColor }
             expectedPaint.color = defaultSelectionColor
             expectedCanvas.drawRect(
                 Rect(
@@ -190,7 +192,7 @@ class TextDelegateIntegrationTest {
             TextDelegate.paintBackground(
                 start = selectionStart,
                 end = selectionEnd,
-                color = defaultSelectionColor,
+                paint = selectionPaint,
                 canvas = actualCanvas,
                 textLayoutResult = layoutResult
             )
@@ -226,6 +228,7 @@ class TextDelegateIntegrationTest {
             val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
             val expectedPaint = Paint()
             val defaultSelectionColor = Color(0x6633B5E5)
+            val selectionPaint = Paint().also { it.color = defaultSelectionColor }
             expectedPaint.color = defaultSelectionColor
             // Select "llo".
             expectedCanvas.drawRect(
@@ -256,7 +259,7 @@ class TextDelegateIntegrationTest {
             TextDelegate.paintBackground(
                 start = selectionLTRStart,
                 end = textLTR.length + selectionRTLEnd,
-                color = defaultSelectionColor,
+                paint = selectionPaint,
                 canvas = actualCanvas,
                 textLayoutResult = layoutResult
             )
@@ -278,6 +281,7 @@ class TextDelegateIntegrationTest {
             val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
             val annotatedString = AnnotatedString(text, spanStyle)
             val selectionColor = Color(0x66AABB33)
+            val selectionPaint = Paint().also { it.color = selectionColor }
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 style = TextStyle.Default,
@@ -307,7 +311,7 @@ class TextDelegateIntegrationTest {
             TextDelegate.paintBackground(
                 start = selectionStart,
                 end = selectionEnd,
-                color = selectionColor,
+                paint = selectionPaint,
                 canvas = actualCanvas,
                 textLayoutResult = layoutResult
             )
