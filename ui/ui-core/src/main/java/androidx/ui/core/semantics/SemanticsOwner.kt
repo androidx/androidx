@@ -59,13 +59,22 @@ class SemanticsOwner(rootNode: ComponentNode) {
 }
 
 /**
- * Finds all [SemanticsNode]s in the tree owned by this [SemanticsOwner]
+ * Finds all [SemanticsNode]s in the tree owned by this [SemanticsOwner]. Return the results in a
+ * list.
  */
 fun SemanticsOwner.getAllSemanticsNodes(): List<SemanticsNode> {
-    val nodes = mutableListOf<SemanticsNode>()
+    return getAllSemanticsNodesToMap().values.toList()
+}
+
+/**
+ * Finds all [SemanticsNode]s in the tree owned by this [SemanticsOwner]. Return the results in a
+ * map.
+ */
+internal fun SemanticsOwner.getAllSemanticsNodesToMap(): Map<Int, SemanticsNode> {
+    val nodes = mutableMapOf<Int, SemanticsNode>()
 
     fun findAllSemanticNodesRecursive(currentNode: SemanticsNode) {
-        nodes.add(currentNode)
+        nodes[currentNode.id] = currentNode
         for (child in currentNode.children) {
             findAllSemanticNodesRecursive(child)
         }
