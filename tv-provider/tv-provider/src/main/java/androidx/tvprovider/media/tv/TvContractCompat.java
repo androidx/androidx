@@ -2314,6 +2314,22 @@ public final class TvContractCompat {
          */
         public static final String COLUMN_SYSTEM_CHANNEL_KEY = "system_channel_key";
 
+        /**
+         * The global content ID of this TV channel, as a URI.
+         *
+         * <p>A globally unique URI that identifies this TV channel, if applicable. Suitable URIs
+         * include
+         * <ul>
+         * <li>{@code globalServiceId} from ATSC A/331. ex {@code https://doi.org/10.5239/7E4E-B472}
+         * <li>Other broadcast ID provider. ex {@code http://example.com/tv_channel/1234}
+         * </ul>
+         *
+         * <p>Can be empty.
+         *
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_GLOBAL_CONTENT_ID = "global_content_id";
+
         private Channels() {}
 
         /**

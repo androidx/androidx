@@ -13,6 +13,7 @@ package androidx.tvprovider.media.tv {
     method public String! getDescription();
     method public String! getDisplayName();
     method public String! getDisplayNumber();
+    method public String? getGlobalContentId();
     method public long getId();
     method public String! getInputId();
     method public byte[]! getInternalProviderDataByteArray();
@@ -51,6 +52,7 @@ package androidx.tvprovider.media.tv {
     method public androidx.tvprovider.media.tv.Channel.Builder! setDescription(String!);
     method public androidx.tvprovider.media.tv.Channel.Builder! setDisplayName(String!);
     method public androidx.tvprovider.media.tv.Channel.Builder! setDisplayNumber(String!);
+    method public androidx.tvprovider.media.tv.Channel.Builder setGlobalContentId(String);
     method public androidx.tvprovider.media.tv.Channel.Builder! setInputId(String!);
     method public androidx.tvprovider.media.tv.Channel.Builder! setInternalProviderData(byte[]!);
     method public androidx.tvprovider.media.tv.Channel.Builder! setInternalProviderData(String!);
@@ -375,6 +377,7 @@ package androidx.tvprovider.media.tv {
     field public static final String COLUMN_DESCRIPTION = "description";
     field public static final String COLUMN_DISPLAY_NAME = "display_name";
     field public static final String COLUMN_DISPLAY_NUMBER = "display_number";
+    field public static final String COLUMN_GLOBAL_CONTENT_ID = "global_content_id";
     field public static final String COLUMN_INPUT_ID = "input_id";
     field public static final String COLUMN_INTERNAL_PROVIDER_DATA = "internal_provider_data";
     field public static final String COLUMN_INTERNAL_PROVIDER_FLAG1 = "internal_provider_flag1";
