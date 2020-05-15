@@ -66,14 +66,8 @@ public class BiometricFragmentTest {
     }
 
     @Test
-    public void testIsDeviceCredentialAllowed_ReturnsFalse_WhenBundleIsNull() {
-        mFragment.setBundle(null);
-        assertThat(mFragment.isDeviceCredentialAllowed()).isFalse();
-    }
-
-    @Test
     public void testOnBiometricSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
-        mFragment.setCallback(EXECUTOR, mAuthenticationCallback);
+        mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
 
         mFragment.mCallbackProvider.getBiometricCallback()
                 .onAuthenticationSucceeded(null /* result */);
@@ -84,7 +78,7 @@ public class BiometricFragmentTest {
 
     @Test
     public void testOnFingerprintSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
-        mFragment.setCallback(EXECUTOR, mAuthenticationCallback);
+        mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
 
         mFragment.mCallbackProvider.getFingerprintCallback()
                 .onAuthenticationSucceeded(null /* result */);
@@ -95,7 +89,7 @@ public class BiometricFragmentTest {
 
     @Test
     public void testOnFingerprintError_DoesShowErrorAndDismissDialog_WhenHardwareUnavailable() {
-        mFragment.setCallback(EXECUTOR, mAuthenticationCallback);
+        mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
 
         final int errMsgId = BiometricConstants.ERROR_HW_UNAVAILABLE;
         final String errString = "lorem ipsum";
