@@ -19,6 +19,7 @@ package androidx.ui.graphics.painter
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutDirection
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -29,8 +30,6 @@ import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.drawPainter
 import androidx.ui.graphics.toPixelMap
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -42,7 +41,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class PainterTest {
 
-    val size = PxSize(Px(100.0f), Px(100.0f))
+    val size = Size(100.0f, 100.0f)
 
     @Test
     fun testPainterDidDraw() {
@@ -50,7 +49,7 @@ class PainterTest {
 
             var didDraw: Boolean = false
 
-            override val intrinsicSize: PxSize
+            override val intrinsicSize: Size
                 get() = size
 
             override fun DrawScope.onDraw() {
@@ -64,7 +63,7 @@ class PainterTest {
         drawPainter(
             p,
             Canvas(ImageAsset(100, 100)),
-            PxSize(Px(100f), Px(100f))
+            Size(100f, 100f)
         )
         assertTrue(p.didDraw)
     }
@@ -75,7 +74,7 @@ class PainterTest {
 
             var color = Color.Black
 
-            override val intrinsicSize: PxSize
+            override val intrinsicSize: Size
                 get() = size
 
             override fun applyLayoutDirection(layoutDirection: LayoutDirection): Boolean {
@@ -93,7 +92,7 @@ class PainterTest {
         drawPainter(
             p,
             Canvas(image),
-            PxSize(Px(100f), Px(100f)),
+            Size(100f, 100f),
             layoutDirection = LayoutDirection.Rtl
         )
 
@@ -104,7 +103,7 @@ class PainterTest {
     fun testPainterAlpha() {
         val p = object : Painter() {
 
-            override val intrinsicSize: PxSize
+            override val intrinsicSize: Size
                 get() = size
 
             override fun DrawScope.onDraw() {
@@ -156,7 +155,7 @@ class PainterTest {
                 return true
             }
 
-            override val intrinsicSize: PxSize
+            override val intrinsicSize: Size
                 get() = size
 
             override fun DrawScope.onDraw() {
@@ -203,7 +202,7 @@ class PainterTest {
                 return true
             }
 
-            override val intrinsicSize: PxSize
+            override val intrinsicSize: Size
                 get() = size
 
             override fun DrawScope.onDraw() {

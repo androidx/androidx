@@ -255,11 +255,11 @@ package androidx.ui.geometry {
     method public long fromHeight(float height);
     method public long fromRadius(float radius);
     method public long fromWidth(float width);
-    method public long getInfinite();
+    method public long getUnspecifiedSize();
     method public long getZero();
     method public androidx.ui.geometry.Size? lerp-T-c3OIQ(long start, long stop, float fraction);
     method public long square(float dimension);
-    property public final long infinite;
+    property public final long UnspecifiedSize;
     property public final long zero;
   }
 

@@ -29,6 +29,7 @@ import androidx.ui.core.test.Padding
 import androidx.ui.core.test.background
 import androidx.ui.core.test.waitAndScreenShot
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
@@ -40,8 +41,6 @@ import androidx.ui.graphics.toArgb
 import androidx.ui.layout.ltr
 import androidx.ui.layout.rtl
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import org.junit.Assert
@@ -401,11 +400,8 @@ class PainterModifierTest {
 
         var color = Color.Red
 
-        override val intrinsicSize: PxSize
-            get() = PxSize(
-                Px(width),
-                Px(height)
-            )
+        override val intrinsicSize: Size
+            get() = Size(width, height)
 
         override fun applyLayoutDirection(layoutDirection: LayoutDirection): Boolean {
             color = if (layoutDirection == LayoutDirection.Rtl) Color.Blue else Color.Red

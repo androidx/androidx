@@ -47,7 +47,6 @@ import androidx.ui.text.samples.TextDecorationUnderlineSample
 import androidx.ui.text.samples.TextStyleSample
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.em
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 
 const val displayText = "Text Demo"
@@ -460,7 +459,7 @@ fun TextDemoShadowEffect() {
     val shadow = Shadow(
         Color(0xFFE0A0A0),
         Offset(5f, 5f),
-        blurRadius = 5.px
+        blurRadius = 5.0f
     )
     Text(
         style = TextStyle(fontSize = fontSize8),

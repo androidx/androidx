@@ -21,7 +21,6 @@ import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.unit.PxSize
 
 /**
  * TestDrawScope implementation with default values for density and layout direction
@@ -41,12 +40,11 @@ class TestDrawScope() : DrawScope() {
 fun drawPainter(
     painter: Painter,
     canvas: Canvas,
-    pxSize: PxSize,
+    size: Size,
     alpha: Float = DrawScope.DefaultAlpha,
     colorFilter: ColorFilter? = null,
     layoutDirection: LayoutDirection = LayoutDirection.Ltr
 ) {
-    val size = Size(pxSize.width.value, pxSize.height.value)
     TestDrawScope().apply { this.layoutDirection = layoutDirection }.draw(canvas, size) {
         with (painter) {
             draw(size, alpha = alpha, colorFilter = colorFilter)

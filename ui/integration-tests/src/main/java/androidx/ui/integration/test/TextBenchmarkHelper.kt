@@ -34,7 +34,6 @@ import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.unit.em
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import kotlin.math.ceil
 import kotlin.random.Random
@@ -48,7 +47,7 @@ class RandomTextGenerator(
         SpanStyle(color = Color.Blue),
         SpanStyle(background = Color.Cyan),
         SpanStyle(textDecoration = TextDecoration.Underline),
-        SpanStyle(shadow = Shadow(Color.Black, Offset(3f, 3f), 2.px))
+        SpanStyle(shadow = Shadow(Color.Black, Offset(3f, 3f), 2.0f))
     )
 
     private val metricAffectingTextStyles = arrayOf(

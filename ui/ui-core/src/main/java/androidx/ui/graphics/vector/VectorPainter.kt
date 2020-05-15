@@ -22,15 +22,12 @@ import androidx.compose.currentComposer
 import androidx.compose.onPreCommit
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxSize
-import kotlin.math.ceil
-import kotlin.math.roundToInt
 
 /**
  * Default identifier for the root group if a Vector graphic
@@ -108,10 +105,7 @@ class VectorPainter internal constructor(private val vector: VectorComponent) : 
     private var currentAlpha: Float = DefaultAlpha
     private var currentColorFilter: ColorFilter? = null
 
-    override val intrinsicSize: PxSize = PxSize(
-        IntPx(ceil(vector.defaultWidth).roundToInt()),
-        IntPx(ceil(vector.defaultHeight).roundToInt())
-    )
+    override val intrinsicSize: Size = Size(vector.defaultWidth, vector.defaultHeight)
 
     override fun DrawScope.onDraw() {
         drawCanvas { canvas, _ -> vector.draw(canvas, currentAlpha, currentColorFilter) }

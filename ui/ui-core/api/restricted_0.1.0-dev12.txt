@@ -2048,9 +2048,9 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorPainter extends androidx.ui.graphics.painter.Painter {
-    method public androidx.ui.unit.PxSize getIntrinsicSize();
+    method public long getIntrinsicSize();
     method protected void onDraw(androidx.ui.graphics.drawscope.DrawScope);
-    property public androidx.ui.unit.PxSize intrinsicSize;
+    property public long intrinsicSize;
   }
 
   public final class VectorPainterKt {

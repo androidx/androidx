@@ -36,7 +36,6 @@ import androidx.ui.graphics.drawscope.Fill
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
-import androidx.ui.unit.toRect
 
 /**
  * Draws [shape] with [paint] behind the content.
@@ -51,7 +50,7 @@ fun Modifier.drawBackground(
                 shape,
                 {
                     drawCanvas { canvas, size ->
-                        canvas.drawRect(size.toRect(), paint)
+                        canvas.drawRect(0.0f, 0.0f, size.width, size.height, paint)
                     }
                 },
                 { outline ->

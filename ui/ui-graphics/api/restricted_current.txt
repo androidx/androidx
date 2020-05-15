@@ -133,14 +133,14 @@ package androidx.ui.graphics {
   }
 
   public final class BrushKt {
-    method public static androidx.ui.graphics.Brush HorizontalGradient-G0qqrXo(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, float startX, float endX, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
-    method public static androidx.ui.graphics.LinearGradient HorizontalGradient-vcfwFIc(java.util.List<androidx.ui.graphics.Color> colors, float startX, float endX, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
-    method public static androidx.ui.graphics.LinearGradient LinearGradient-39rnqCc(java.util.List<androidx.ui.graphics.Color> colors, float startX, float startY, float endX, float endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
-    method public static androidx.ui.graphics.LinearGradient LinearGradient-gbNZAbE(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, float startX, float startY, float endX, float endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient HorizontalGradient(java.util.List<androidx.ui.graphics.Color> colors, float startX, float endX, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, float startX, float endX, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient LinearGradient(java.util.List<androidx.ui.graphics.Color> colors, float startX, float startY, float endX, float endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient LinearGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, float startX, float startY, float endX, float endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
     method public static androidx.ui.graphics.RadialGradient RadialGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, float centerX, float centerY, float radius, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
     method public static androidx.ui.graphics.RadialGradient RadialGradient(java.util.List<androidx.ui.graphics.Color> colors, float centerX, float centerY, float radius, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
-    method public static androidx.ui.graphics.LinearGradient VerticalGradient-G0qqrXo(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, float startY, float endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
-    method public static androidx.ui.graphics.LinearGradient VerticalGradient-vcfwFIc(java.util.List<androidx.ui.graphics.Color> colors, float startY, float endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient VerticalGradient(java.util.List<androidx.ui.graphics.Color> colors, float startY, float endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient VerticalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, float startY, float endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
   }
 
   public interface Canvas {
@@ -315,7 +315,7 @@ package androidx.ui.graphics {
   }
 
   public final class LinearGradient extends androidx.ui.graphics.ShaderBrush {
-    method public androidx.ui.graphics.LinearGradient copy-OCut9AY(java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? stops, float startX, float startY, float endX, float endY, androidx.ui.graphics.TileMode tileMode);
+    method public androidx.ui.graphics.LinearGradient copy(java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? stops, float startX, float startY, float endX, float endY, androidx.ui.graphics.TileMode tileMode);
   }
 
   public abstract sealed class Outline {
@@ -511,7 +511,7 @@ package androidx.ui.graphics {
     method public long component1();
     method public long component2();
     method public float component3();
-    method public androidx.ui.graphics.Shadow copy-1LPazZ4(long color, long offset, float blurRadius);
+    method public androidx.ui.graphics.Shadow copy-hgWLwZA(long color, long offset, float blurRadius);
     method public float getBlurRadius();
     method public long getColor();
     method public long getOffset();
@@ -819,7 +819,7 @@ package androidx.ui.graphics.drawscope {
   public final class DrawScopeKt {
     method public static inline androidx.ui.graphics.Canvas? clipPath(androidx.ui.graphics.drawscope.DrawScope, androidx.ui.graphics.Path path, androidx.ui.graphics.ClipOp clipOp = androidx.ui.graphics.ClipOp.intersect, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline androidx.ui.graphics.Canvas? clipRect(androidx.ui.graphics.drawscope.DrawScope, float left = 0.0f, float top = 0.0f, float right = size.width, float bottom = size.height, androidx.ui.graphics.ClipOp clipOp = androidx.ui.graphics.ClipOp.intersect, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
-    method public static inline kotlin.Unit? drawCanvas(androidx.ui.graphics.drawscope.DrawScope, kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> block);
+    method public static inline kotlin.Unit? drawCanvas(androidx.ui.graphics.drawscope.DrawScope, kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Canvas,? super androidx.ui.geometry.Size,kotlin.Unit> block);
     method public static inline androidx.ui.graphics.Canvas? inset(androidx.ui.graphics.drawscope.DrawScope, float left, float top, float right, float bottom, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline androidx.ui.graphics.Canvas? inset(androidx.ui.graphics.drawscope.DrawScope, float dx = 0.0f, float dy = 0.0f, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline androidx.ui.graphics.Canvas? rotate(androidx.ui.graphics.drawscope.DrawScope, float degrees, float pivotX = center.dx, float pivotY = center.dy, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
@@ -868,16 +868,16 @@ package androidx.ui.graphics.painter {
     method public long component1();
     method public androidx.ui.graphics.painter.ColorPainter copy-QEYXlZo(long color);
     method public long getColor();
-    method public androidx.ui.unit.PxSize getIntrinsicSize();
+    method public long getIntrinsicSize();
     method protected void onDraw(androidx.ui.graphics.drawscope.DrawScope);
-    property public androidx.ui.unit.PxSize intrinsicSize;
+    property public long intrinsicSize;
   }
 
   public final class ImagePainter extends androidx.ui.graphics.painter.Painter {
     method public androidx.ui.graphics.painter.ImagePainter copy-gqgapXI(androidx.ui.graphics.ImageAsset image, long srcOffset, long srcSize);
-    method public androidx.ui.unit.PxSize getIntrinsicSize();
+    method public long getIntrinsicSize();
     method protected void onDraw(androidx.ui.graphics.drawscope.DrawScope);
-    property public androidx.ui.unit.PxSize intrinsicSize;
+    property public long intrinsicSize;
   }
 
   public abstract class Painter {
@@ -886,9 +886,9 @@ package androidx.ui.graphics.painter {
     method protected boolean applyColorFilter(androidx.ui.graphics.ColorFilter? colorFilter);
     method protected boolean applyLayoutDirection(androidx.ui.core.LayoutDirection layoutDirection);
     method public final void draw-fjVI2_8(androidx.ui.graphics.drawscope.DrawScope, long size, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
-    method public abstract androidx.ui.unit.PxSize getIntrinsicSize();
+    method public abstract long getIntrinsicSize();
     method protected abstract void onDraw(androidx.ui.graphics.drawscope.DrawScope);
-    property public abstract androidx.ui.unit.PxSize intrinsicSize;
+    property public abstract long intrinsicSize;
   }
 
 }

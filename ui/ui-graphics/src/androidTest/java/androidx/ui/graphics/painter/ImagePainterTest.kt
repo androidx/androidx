@@ -29,8 +29,6 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.drawscope.drawPainter
 import androidx.ui.graphics.toPixelMap
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.fail
@@ -43,7 +41,7 @@ import org.junit.runners.JUnit4
 class ImagePainterTest {
 
     val white = Color.White
-    private val srcSize = PxSize(Px(100.0f), Px(100.0f))
+    private val srcSize = Size(100.0f, 100.0f)
 
     private fun createTestSrcImage(): ImageAsset {
         val src = ImageAsset(100, 100)
@@ -141,8 +139,8 @@ class ImagePainterTest {
         )
 
         val intrinsicSize = topLeftPainter.intrinsicSize
-        assertEquals(50.0f, intrinsicSize.width.value)
-        assertEquals(50.0f, intrinsicSize.height.value)
+        assertEquals(50.0f, intrinsicSize.width)
+        assertEquals(50.0f, intrinsicSize.height)
         drawPainter(topLeftPainter, Canvas(dst), intrinsicSize)
 
         val topLeftMap = dst.toPixelMap()
