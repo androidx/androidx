@@ -20,6 +20,7 @@ import android.os.Build
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.CanvasHolder
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.unit.IntPxPosition
@@ -46,6 +47,7 @@ internal class ViewLayer(
         if (!clipToOutline) null else outlineResolver.clipPath
     private var isInvalidated = false
     private var drawnWithZ = false
+    private val canvasHolder = CanvasHolder()
 
     /**
      * Local copy of the transform origin as DrawLayerModifier can be implemented
@@ -156,19 +158,20 @@ internal class ViewLayer(
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
-        val uiCanvas = Canvas(canvas)
-        val clipPath = manualClipPath
-        if (clipPath != null) {
-            uiCanvas.save()
-            uiCanvas.clipPath(clipPath)
+        canvasHolder.drawInto(canvas) {
+            val clipPath = manualClipPath
+            if (clipPath != null) {
+                save()
+                clipPath(clipPath)
+            }
+            ownerView.observeLayerModelReads(this@ViewLayer) {
+                drawBlock(this)
+            }
+            if (clipPath != null) {
+                restore()
+            }
+            isInvalidated = false
         }
-        ownerView.observeLayerModelReads(this) {
-            drawBlock(uiCanvas)
-        }
-        if (clipPath != null) {
-            uiCanvas.restore()
-        }
-        isInvalidated = false
     }
 
     override fun invalidate() {
