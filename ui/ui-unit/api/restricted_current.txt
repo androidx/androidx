@@ -346,6 +346,8 @@ package androidx.ui.unit {
     method public static inline int getIpx(int);
     method public static inline int getWidth(androidx.ui.unit.IntPxBounds);
     method public static inline boolean isFinite-gshw56o(int);
+    method @kotlin.PublishedApi internal static inline int keepInfinity-qx1LT1w(int, int other, int noInfinityValue);
+    method @kotlin.PublishedApi internal static inline int keepInfinity-rRMsBxU(int, int noInfinityValue);
     method public static androidx.ui.unit.IntPxPosition lerp(androidx.ui.unit.IntPxPosition start, androidx.ui.unit.IntPxPosition stop, float fraction);
     method public static int lerp-9BbVZj8(int start, int stop, float fraction);
     method public static inline int max-rRMsBxU(int a, int b);
@@ -362,6 +364,7 @@ package androidx.ui.unit {
   }
 
   public final class IntPxPosition {
+    ctor @kotlin.PublishedApi internal IntPxPosition(internal long value);
     method public androidx.ui.unit.IntPxPosition copy(long value);
     method public inline int getX();
     method public inline int getY();
@@ -379,6 +382,7 @@ package androidx.ui.unit {
   }
 
   public final class IntPxSize {
+    ctor @kotlin.PublishedApi internal IntPxSize(internal long value);
     method public androidx.ui.unit.IntPxSize copy(long value);
     method public inline operator androidx.ui.unit.IntPxSize div(int other);
     method public inline int getHeight();
@@ -542,6 +546,7 @@ package androidx.ui.unit {
   }
 
   public final class PxPosition {
+    ctor @kotlin.PublishedApi internal PxPosition(internal long value);
     method public androidx.ui.unit.PxPosition copy(long value);
     method public inline float getX();
     method public inline float getY();
@@ -561,6 +566,7 @@ package androidx.ui.unit {
   }
 
   public final class PxSize {
+    ctor @kotlin.PublishedApi internal PxSize(internal long value);
     method public androidx.ui.unit.PxSize copy(long value);
     method public inline operator androidx.ui.unit.PxSize div(int other);
     method public inline operator androidx.ui.unit.PxSize div(float other);
@@ -641,6 +647,9 @@ package androidx.ui.unit {
   }
 
   public final class TextUnitKt {
+    method @kotlin.PublishedApi internal static inline <T> T! checkArithmetic-2fUAro8(long a, long b, long c, kotlin.jvm.functions.Function0<? extends T> block);
+    method @kotlin.PublishedApi internal static inline <T> T! checkArithmetic-G_x5Bg4(long a, kotlin.jvm.functions.Function0<? extends T> block);
+    method @kotlin.PublishedApi internal static inline <T> T! checkArithmetic-JyO0NBI(long a, long b, kotlin.jvm.functions.Function0<? extends T> block);
     method public static inline long coerceAtLeast-gL_aCS0(long, long minimumValue);
     method public static inline long coerceAtMost-gL_aCS0(long, long maximumValue);
     method public static inline long coerceIn-Y2exRck(long, long minimumValue, long maximumValue);
@@ -653,6 +662,7 @@ package androidx.ui.unit {
     method public static long lerp-SpZbbpo(long a, long b, float t);
     method public static inline long max-gL_aCS0(long a, long b);
     method public static inline long min-gL_aCS0(long a, long b);
+    method @kotlin.PublishedApi internal static inline long pack(long unitType, float v);
     method public static inline operator long times-GncdoDw(double, long other);
     method public static inline operator long times-MVx5XBU(float, long other);
     method public static inline operator long times-UlzjdM0(int, long other);
