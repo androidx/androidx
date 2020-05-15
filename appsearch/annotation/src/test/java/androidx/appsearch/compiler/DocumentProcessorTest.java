@@ -331,7 +331,7 @@ public class DocumentProcessorTest {
     }
 
     @Test
-    public void testSuccess() throws Exception {
+    public void testSuccessSimple() throws Exception {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -345,6 +345,143 @@ public class DocumentProcessorTest {
                         + "  public void setCat(boolean cat) {}\n"
                         + "  @AppSearchDocument.Property private final boolean dog;\n"
                         + "  public boolean getDog() { return dog; }\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
+    }
+
+    @Test
+    public void testDifferentTypeName() throws Exception {
+        Compilation compilation = compile(
+                "@AppSearchDocument(name=\"DifferentType\")\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
+    }
+
+    @Test
+    public void testRepeatedFields() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @AppSearchDocument.Property List<String> listOfString;\n"
+                        + "  @AppSearchDocument.Property TreeSet<Integer> setOfInt;\n"
+                        + "  @AppSearchDocument.Property byte[][] repeatedByteArray;\n"
+                        + "  @AppSearchDocument.Property byte[] byteArray;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
+    }
+
+    @Test
+    public void testCardinality() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @AppSearchDocument.Property(required=true) List<String> repeatReq;\n"
+                        + "  @AppSearchDocument.Property(required=false) Set<String> repeatNoReq;\n"
+                        + "  @AppSearchDocument.Property(required=true) Float req;\n"
+                        + "  @AppSearchDocument.Property(required=false) Float noReq;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
+    }
+
+    @Test
+    public void testAllTypes() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @AppSearchDocument.Property String stringProp;\n"
+                        + "  @AppSearchDocument.Property Integer integerProp;\n"
+                        + "  @AppSearchDocument.Property Long longProp;\n"
+                        + "  @AppSearchDocument.Property Float floatProp;\n"
+                        + "  @AppSearchDocument.Property Double doubleProp;\n"
+                        + "  @AppSearchDocument.Property Boolean booleanProp;\n"
+                        + "  @AppSearchDocument.Property byte[] bytesProp;\n"
+                        + "  @AppSearchDocument.Property Gift documentProp;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
+    }
+
+    @Test
+    public void testTokenizerType() throws Exception {
+        // AppSearchSchema requires Android and is not available in this desktop test, so we cheat
+        // by using the integer constants directly.
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @AppSearchDocument.Property(tokenizerType=0) String tokNone;\n"
+                        + "  @AppSearchDocument.Property(tokenizerType=1) String tokPlain;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
+    }
+
+    @Test
+    public void testInvalidTokenizerType() {
+        // AppSearchSchema requires Android and is not available in this desktop test, so we cheat
+        // by using the integer constants directly.
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @AppSearchDocument.Property(tokenizerType=100) String str;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).hadErrorContaining("Unknown tokenizer type 100");
+    }
+
+    @Test
+    public void testIndexingType() throws Exception {
+        // AppSearchSchema requires Android and is not available in this desktop test, so we cheat
+        // by using the integer constants directly.
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @AppSearchDocument.Property(indexingType=0) String indexNone;\n"
+                        + "  @AppSearchDocument.Property(indexingType=1) String indexExact;\n"
+                        + "  @AppSearchDocument.Property(indexingType=2) String indexPrefix;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
+    }
+
+    @Test
+    public void testInvalidIndexingType() {
+        // AppSearchSchema requires Android and is not available in this desktop test, so we cheat
+        // by using the integer constants directly.
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @AppSearchDocument.Property(indexingType=100) String str;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).hadErrorContaining("Unknown indexing type 100");
+    }
+
+    @Test
+    public void testPropertyName() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @AppSearchDocument.Property(name=\"newName\") String oldName;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden();
