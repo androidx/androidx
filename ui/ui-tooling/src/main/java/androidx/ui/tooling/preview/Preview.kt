@@ -66,5 +66,5 @@ annotation class Preview(
     val showDecoration: Boolean = false,
     val showBackground: Boolean = false,
     val backgroundColor: Long = 0,
-    val uiMode: Int = 0
+    @UiMode val uiMode: Int = 0
 )
