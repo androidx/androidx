@@ -285,7 +285,7 @@ package androidx.mediarouter.media {
     method public void onRelease();
     method public void onSelect();
     method public void onSetVolume(int);
-    method public void onUnselect();
+    method @Deprecated public void onUnselect();
     method public void onUnselect(int);
     method public void onUpdateVolume(int);
   }

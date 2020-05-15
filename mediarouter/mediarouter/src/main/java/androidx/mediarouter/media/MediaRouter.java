@@ -2918,7 +2918,7 @@ public final class MediaRouter {
                         Map.Entry<String, RouteController> entry = iter.next();
                         if (!idSet.contains(entry.getKey())) {
                             RouteController controller = entry.getValue();
-                            controller.onUnselect();
+                            controller.onUnselect(UNSELECT_REASON_UNKNOWN);
                             controller.onRelease();
                             iter.remove();
                         }
@@ -3244,7 +3244,7 @@ public final class MediaRouter {
                 if (route == null) {
                     Log.w(TAG, "onDynamicGroupRouteControllerCreatedWithoutRequest: "
                             + "the selected route does not exist. uniqueRouteId=" + uniqueRouteId);
-                    controller.onUnselect();
+                    controller.onUnselect(UNSELECT_REASON_UNKNOWN);
                     controller.onRelease();
                     return;
                 }

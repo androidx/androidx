@@ -376,7 +376,7 @@ public abstract class MediaRouteProvider {
      * the {@link #onSelect} method of its route controller.  While selected,
      * the media router may call other methods of the route controller to
      * request that it perform certain actions to the route.  When a route is
-     * unselected, the media router invokes the {@link #onUnselect} method of its
+     * unselected, the media router invokes the {@link #onUnselect(int)} method of its
      * route controller.  When the media route no longer needs the route controller
      * it will invoke the {@link #onRelease} method to allow the route controller
      * to free its resources.
@@ -403,7 +403,10 @@ public abstract class MediaRouteProvider {
 
         /**
          * Unselects the route.
+         *
+         * @deprecated Use {@link #onUnselect(int)} instead.
          */
+        @Deprecated
         public void onUnselect() {
         }
 
