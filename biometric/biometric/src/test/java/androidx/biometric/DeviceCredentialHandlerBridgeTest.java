@@ -109,11 +109,11 @@ public class DeviceCredentialHandlerBridgeTest {
         final BiometricFragment fragment = BiometricFragment.newInstance();
         bridge.setBiometricFragment(fragment);
         assertThat(fragment.mClientExecutor).isNull();
-        assertThat(fragment.mClientAuthenticationCallback).isNull();
+        assertThat(fragment.mClientCallback).isNull();
 
         bridge.setCallback(EXECUTOR, AUTH_CALLBACK);
         assertThat(fragment.mClientExecutor).isEqualTo(EXECUTOR);
-        assertThat(fragment.mClientAuthenticationCallback).isEqualTo(AUTH_CALLBACK);
+        assertThat(fragment.mClientCallback).isEqualTo(AUTH_CALLBACK);
     }
 
     @Test

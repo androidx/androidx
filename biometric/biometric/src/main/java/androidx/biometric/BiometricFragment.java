@@ -21,15 +21,14 @@ import static androidx.biometric.BiometricConstants.ERROR_NEGATIVE_BUTTON;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -76,10 +75,10 @@ public class BiometricFragment extends Fragment {
     private Bundle mBundle;
 
     // Re-set by the application, through BiometricPromptCompat upon orientation changes.
-    @VisibleForTesting
-    Executor mClientExecutor;
-    @VisibleForTesting
-    BiometricPrompt.AuthenticationCallback mClientAuthenticationCallback;
+    private @Nullable FragmentActivity mClientActivity;
+    private @Nullable Fragment mClientFragment;
+    @VisibleForTesting @Nullable Executor mClientExecutor;
+    @VisibleForTesting @Nullable BiometricPrompt.AuthenticationCallback mClientCallback;
 
     // Set once and retained.
     private BiometricPrompt.CryptoObject mCryptoObject;
@@ -89,22 +88,26 @@ public class BiometricFragment extends Fragment {
     private int mCanceledFrom = USER_CANCELED_FROM_NONE;
     private boolean mStartRespectingCancel;
 
-    /**
-     * This flag is used to control the instant dismissal of the dialog fragment. In the case where
-     * the user is already locked out this dialog will not appear. In the case where the user is
-     * being locked out for the first time an error message will be displayed on the UI before
-     * dismissing.
-     */
+    // This flag is used to control the instant dismissal of the dialog fragment. In the case where
+    // the user is already locked out this dialog will not appear. In the case where the user is
+    // being locked out for the first time an error message will be displayed on the UI before
+    // dismissing.
     private boolean mDismissFingerprintDialogInstantly = true;
 
-    @Nullable
-    private android.hardware.biometrics.BiometricPrompt mBiometricPrompt;
-    @Nullable
-    private FingerprintDialogFragment mFingerprintDialog;
+    // In Q, we must ignore the first onPause if setDeviceCredentialAllowed is true, since
+    // the Q implementation launches ConfirmDeviceCredentialActivity which is an activity and
+    // puts the client app onPause.
+    private boolean mPausedOnce;
+
+    // Whether this fragment is being hosted in DeviceCredentialHandlerActivity.
+    private boolean mIsHandlingDeviceCredential;
+
+    private @Nullable android.hardware.biometrics.BiometricPrompt mBiometricPrompt;
+    private @Nullable FingerprintDialogFragment mFingerprintDialog;
 
     // Do not rely on the application's executor when calling into the framework's code.
     private final Handler mHandler = new Handler(Looper.getMainLooper());
-    private final Executor mExecutor = new Executor() {
+    private final Executor mPromptExecutor = new Executor() {
         @Override
         public void execute(@NonNull Runnable runnable) {
             mHandler.post(runnable);
@@ -186,12 +189,7 @@ public class BiometricFragment extends Fragment {
                         mFingerprintDialog.showHelp(
                                 getString(R.string.fingerprint_not_recognized));
                     }
-                    mClientExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mClientAuthenticationCallback.onAuthenticationFailed();
-                        }
-                    });
+                    sendFailureToClient();
                 }
             });
 
@@ -201,7 +199,7 @@ public class BiometricFragment extends Fragment {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     final CharSequence errorText = mNegativeButtonText;
-                    mClientAuthenticationCallback.onAuthenticationError(
+                    mClientCallback.onAuthenticationError(
                             ERROR_NEGATIVE_BUTTON, errorText != null ? errorText : "");
                     cancel(BiometricFragment.USER_CANCELED_FROM_NEGATIVE_BUTTON);
                 }
@@ -233,7 +231,7 @@ public class BiometricFragment extends Fragment {
                         }
 
                         DeviceCredentialLauncher.launchConfirmation(
-                                TAG, getActivity(), mBundle, onLaunch);
+                                TAG, getClientActivity(), mBundle, onLaunch);
                     }
                 }
             };
@@ -252,49 +250,138 @@ public class BiometricFragment extends Fragment {
     }
 
     @Override
-    @Nullable
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
-
-        if (!mShowing && mBundle != null) {
-            if (!shouldForceFingerprint() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                showBiometricPromptForAuthentication();
-            } else {
-                showFingerprintDialogForAuthentication();
-            }
-        }
-
-        mShowing = true;
-        return super.onCreateView(inflater, container, savedInstanceState);
+    public void onResume() {
+        super.onResume();
+        maybeInitHandlerBridge(false /* startIgnoringReset */);
     }
 
-    void setBundle(@Nullable Bundle bundle) {
-        mBundle = bundle;
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (isChangingConfigurations()) {
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q && isDeviceCredentialAllowed()) {
+            // Ignore the first onPause if isDeviceCredentialAllowed is true, since
+            // the Q implementation launches ConfirmDeviceCredentialActivity, which puts
+            // the client app onPause. Implementations prior to Q instead launch
+            // DeviceCredentialHandlerActivity, resulting in the same problem.
+            if (!mPausedOnce) {
+                mPausedOnce = true;
+            } else {
+                cancel(BiometricFragment.USER_CANCELED_FROM_NONE);
+            }
+        } else {
+            cancel(BiometricFragment.USER_CANCELED_FROM_NONE);
+        }
+
+        maybeHandleDeviceCredentialResult();
+        maybeResetHandlerBridge();
+    }
+
+    void setClientActivity(@Nullable FragmentActivity clientActivity) {
+        mClientActivity = clientActivity;
+    }
+
+    void setClientFragment(@Nullable Fragment clientFragment) {
+        mClientFragment = clientFragment;
     }
 
     /**
      * Sets the client's callback. This should be done whenever the lifecycle changes (orientation
      * changes).
      */
-    void setCallback(Executor executor,
-            BiometricPrompt.AuthenticationCallback authenticationCallback) {
+    void setClientCallback(Executor executor, BiometricPrompt.AuthenticationCallback callback) {
         mClientExecutor = executor;
-        mClientAuthenticationCallback = authenticationCallback;
+        mClientCallback = callback;
     }
 
-    /**
-     * Sets the crypto object to be associated with the authentication. Should be called before
-     * adding the fragment to guarantee that it's ready in onCreate().
-     */
-    void setCryptoObject(BiometricPrompt.CryptoObject crypto) {
+    void authenticate(
+            @NonNull BiometricPrompt.PromptInfo info,
+            @Nullable BiometricPrompt.CryptoObject crypto) {
+
+        mIsHandlingDeviceCredential = info.isHandlingDeviceCredentialResult();
+        final FragmentActivity activity = getClientActivity();
+        if (info.isDeviceCredentialAllowed() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            // Launch handler activity to support device credential on older versions.
+            if (!mIsHandlingDeviceCredential) {
+                launchDeviceCredentialHandler(info);
+                return;
+            }
+
+            // Fall back to device credential immediately if no biometrics are enrolled.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if (activity == null) {
+                    Log.e(TAG, "Failed to authenticate with device credential. Activity was null.");
+                    return;
+                }
+
+                final DeviceCredentialHandlerBridge bridge =
+                        DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+                if (bridge == null) {
+                    Log.e(TAG, "Failed to authenticate with device credential. Bridge was null.");
+                    return;
+                }
+
+                if (!bridge.isConfirmingDeviceCredential()) {
+                    final BiometricManager biometricManager = BiometricManager.from(activity);
+                    if (biometricManager.canAuthenticate() != BiometricManager.BIOMETRIC_SUCCESS) {
+                        DeviceCredentialLauncher.launchConfirmation(
+                                TAG, activity, info.getBundle(), null /* onLaunch */);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Don't launch prompt if state has already been saved (potential for state loss).
+        final FragmentManager fragmentManager = getClientFragmentManager();
+        if (fragmentManager == null || fragmentManager.isStateSaved()) {
+            Log.w(TAG, "Not launching prompt. authenticate() called after onSaveInstanceState()");
+            return;
+        }
+
+        mPausedOnce = false;
+        mBundle = info.getBundle();
         mCryptoObject = crypto;
+
+        final Fragment addedFragment = fragmentManager.findFragmentByTag(
+                BiometricPrompt.BIOMETRIC_FRAGMENT_TAG);
+        if (addedFragment == null) {
+            // If the fragment hasn't been added before, add it.
+            fragmentManager.beginTransaction().add(this, BiometricPrompt.BIOMETRIC_FRAGMENT_TAG)
+                    .commitAllowingStateLoss();
+        } else if (isDetached()) {
+            // If it's been added before, just re-attach it.
+            fragmentManager.beginTransaction().attach(this).commitAllowingStateLoss();
+        }
+
+        // For the case when onResume() is being called right after authenticate,
+        // we need to make sure that all fragment transactions have been committed.
+        fragmentManager.executePendingTransactions();
+
+        if (!mShowing) {
+            if (!shouldForceFingerprint() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                showBiometricPromptForAuthentication();
+            } else {
+                showFingerprintDialogForAuthentication();
+            }
+            mShowing = true;
+        }
     }
 
-    boolean isDeviceCredentialAllowed() {
-        return mBundle != null
-                && mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL, false);
+    void cancelAuthentication() {
+        // If we launched a device credential handler activity, clean up its fragment.
+        if (!mIsHandlingDeviceCredential) {
+            final DeviceCredentialHandlerBridge bridge =
+                    DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+            if (bridge != null && bridge.getBiometricFragment() != null) {
+                bridge.getBiometricFragment().cancel(BiometricFragment.USER_CANCELED_FROM_NONE);
+            }
+        }
+        cancel(BiometricFragment.USER_CANCELED_FROM_NONE);
     }
 
     void cancel(int canceledFrom) {
@@ -305,86 +392,11 @@ public class BiometricFragment extends Fragment {
         }
     }
 
-    /**
-     * @return The effective millisecond delay to wait before hiding the dialog, while respecting
-     * the result of {@link DeviceConfig#shouldHideFingerprintDialog(Context, String)}.
-     */
-    private int getHideDialogDelay() {
-        Context context = getContext();
-        return context != null && DeviceConfig.shouldHideFingerprintDialog(context, Build.MODEL)
-                ? 0
-                : HIDE_DIALOG_DELAY_MS;
-    }
-
-    /**
-     * Cancel the authentication.
-     */
-    private void cancelBiometricPrompt() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && isDeviceCredentialAllowed()) {
-            if (!mStartRespectingCancel) {
-                Log.w(TAG, "Ignoring fast cancel signal");
-                return;
-            }
-        }
-        mCancellationSignalProvider.cancel();
-        dismiss();
-    }
-
-    private void cancelFingerprintDialog(int canceledFrom) {
-        mCanceledFrom = canceledFrom;
-        if (canceledFrom == USER_CANCELED_FROM_USER) {
-            final int errorCode = BiometricPrompt.ERROR_USER_CANCELED;
-            sendErrorToClient(errorCode, Utils.getFingerprintErrorString(getContext(), errorCode));
-        }
-        mCancellationSignalProvider.cancel();
-        dismiss();
-    }
-
-    /**
-     * Remove the fragment so that resources can be freed.
-     */
-    void dismiss() {
-        if (mFingerprintDialog != null) {
-            mFingerprintDialog.dismissSafely();
-            mFingerprintDialog = null;
-        }
-
-        mShowing = false;
-        if (isAdded()) {
-            getParentFragmentManager().beginTransaction().detach(this).commitAllowingStateLoss();
-        }
-
-        if (!Utils.isConfirmingDeviceCredential()) {
-            Utils.maybeFinishHandler(getActivity());
-        }
-    }
-
-    private void sendSuccessAndDismiss(@NonNull final BiometricPrompt.AuthenticationResult result) {
-        mClientExecutor.execute(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        mClientAuthenticationCallback.onAuthenticationSucceeded(result);
-                    }
-                });
-        dismiss();
-    }
-
-    private void sendErrorAndDismiss(final int errorCode, @NonNull final CharSequence errorString) {
-        sendErrorToClient(errorCode, errorString);
-        if (!Utils.isConfirmingDeviceCredential()) {
-            dismiss();
-        }
-    }
-
-    private void sendErrorToClient(final int errorCode, @NonNull final CharSequence errorString) {
-        if (!Utils.isConfirmingDeviceCredential()) {
-            mClientExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mClientAuthenticationCallback.onAuthenticationError(errorCode, errorString);
-                }
-            });
+    void onNegativeButtonPressed(DialogInterface dialog, int which) {
+        if (isDeviceCredentialAllowed()) {
+            mDeviceCredentialButtonListener.onClick(dialog, which);
+        } else {
+            mNegativeButtonListener.onClick(dialog, which);
         }
     }
 
@@ -447,18 +459,18 @@ public class BiometricFragment extends Fragment {
         final android.hardware.biometrics.BiometricPrompt.AuthenticationCallback callback =
                 mCallbackProvider.getBiometricCallback();
         if (mCryptoObject == null) {
-            mBiometricPrompt.authenticate(cancellationSignal, mExecutor, callback);
+            mBiometricPrompt.authenticate(cancellationSignal, mPromptExecutor, callback);
         } else {
             android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCryptoObject =
                     Objects.requireNonNull(
                             CryptoObjectUtils.wrapForBiometricPrompt(mCryptoObject));
             mBiometricPrompt.authenticate(
-                    wrappedCryptoObject, cancellationSignal, mExecutor, callback);
+                    wrappedCryptoObject, cancellationSignal, mPromptExecutor, callback);
         }
     }
 
     @SuppressWarnings("deprecation")
-    void showFingerprintDialogForAuthentication() {
+    private void showFingerprintDialogForAuthentication() {
         final Context context = getContext();
         if (context == null) {
             return;
@@ -500,29 +512,93 @@ public class BiometricFragment extends Fragment {
         }
     }
 
-    void onNegativeButtonPressed(DialogInterface dialog, int which) {
-        final boolean allowDeviceCredential =
-                mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL);
-        if (allowDeviceCredential) {
-            mDeviceCredentialButtonListener.onClick(dialog, which);
-        } else {
-            mNegativeButtonListener.onClick(dialog, which);
+    /**
+     * Cancel the authentication.
+     */
+    private void cancelBiometricPrompt() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && isDeviceCredentialAllowed()) {
+            if (!mStartRespectingCancel) {
+                Log.w(TAG, "Ignoring fast cancel signal");
+                return;
+            }
+        }
+        mCancellationSignalProvider.cancel();
+        dismiss();
+    }
+
+    private void cancelFingerprintDialog(int canceledFrom) {
+        mCanceledFrom = canceledFrom;
+        if (canceledFrom == USER_CANCELED_FROM_USER) {
+            final int errorCode = BiometricPrompt.ERROR_USER_CANCELED;
+            sendErrorToClient(errorCode, Utils.getFingerprintErrorString(getContext(), errorCode));
+        }
+        mCancellationSignalProvider.cancel();
+        dismiss();
+    }
+
+    /**
+     * Remove the fragment so that resources can be freed.
+     */
+    private void dismiss() {
+        if (mFingerprintDialog != null) {
+            mFingerprintDialog.dismissSafely();
+            mFingerprintDialog = null;
+        }
+
+        mShowing = false;
+        if (isAdded()) {
+            getParentFragmentManager().beginTransaction().detach(this).commitAllowingStateLoss();
+        }
+
+        if (!Utils.isConfirmingDeviceCredential()) {
+            Utils.maybeFinishHandler(getClientActivity());
         }
     }
 
-    /**
-     * Force some devices to fall back to fingerprint in order to support strong (crypto) auth.
-     */
-    private boolean shouldForceFingerprint() {
-        final FragmentActivity activity = getActivity();
-        return DEBUG_FORCE_FINGERPRINT || (activity != null && mCryptoObject != null
-                && DeviceConfig.shouldUseFingerprintForCrypto(
-                        activity, Build.MANUFACTURER, Build.MODEL));
+    private void sendSuccessAndDismiss(@NonNull final BiometricPrompt.AuthenticationResult result) {
+        sendSuccessToClient(result);
+        dismiss();
+    }
+
+    private void sendSuccessToClient(@NonNull final BiometricPrompt.AuthenticationResult result) {
+        mClientExecutor.execute(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mClientCallback.onAuthenticationSucceeded(result);
+                    }
+                });
+    }
+
+    private void sendErrorAndDismiss(final int errorCode, @NonNull final CharSequence errorString) {
+        sendErrorToClient(errorCode, errorString);
+        if (!Utils.isConfirmingDeviceCredential()) {
+            dismiss();
+        }
+    }
+
+    private void sendErrorToClient(final int errorCode, @NonNull final CharSequence errorString) {
+        if (!Utils.isConfirmingDeviceCredential()) {
+            mClientExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mClientCallback.onAuthenticationError(errorCode, errorString);
+                }
+            });
+        }
+    }
+
+    private void sendFailureToClient() {
+        mClientExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mClientCallback.onAuthenticationFailed();
+            }
+        });
     }
 
     /**
-     * Check before starting authentication for basic conditions, notifies client and returns true
-     * if conditions are not met
+     * Check for possible error conditions prior to starting authentication.
      */
     @SuppressWarnings("deprecation")
     private static int checkForFingerprintPreAuthenticationErrors(
@@ -533,5 +609,163 @@ public class BiometricFragment extends Fragment {
             return BiometricPrompt.ERROR_NO_BIOMETRICS;
         }
         return 0;
+    }
+
+    /**
+     * Launches a copy of this prompt in a transparent {@link DeviceCredentialHandlerActivity}.
+     * This allows that activity to intercept and handle activity results from {@link
+     * android.app.KeyguardManager#createConfirmDeviceCredentialIntent(CharSequence, CharSequence)}.
+     */
+    private void launchDeviceCredentialHandler(BiometricPrompt.PromptInfo info) {
+        final FragmentActivity activity = getClientActivity();
+        if (activity == null || activity.isFinishing()) {
+            Log.w(TAG, "Failed to start handler activity. Parent activity was null or finishing.");
+            return;
+        }
+
+        maybeInitHandlerBridge(true /* startIgnoringReset */);
+
+        // Set the handling device credential flag so the new prompt knows not to launch another
+        // instance of the handler activity.
+        final Bundle infoBundle = info.getBundle();
+        infoBundle.putBoolean(BiometricPrompt.KEY_HANDLING_DEVICE_CREDENTIAL_RESULT, true);
+
+        final Intent intent = new Intent(activity, DeviceCredentialHandlerActivity.class);
+        intent.putExtra(DeviceCredentialHandlerActivity.EXTRA_PROMPT_INFO_BUNDLE, infoBundle);
+        activity.startActivity(intent);
+    }
+
+    /**
+     * Creates (if necessary) the singleton bridge used for communication between the client-hosted
+     * prompt and one hosted by {@link DeviceCredentialHandlerActivity}, and initializes all of the
+     * relevant data for the bridge.
+     *
+     * @param startIgnoringReset Whether the bridge should start ignoring calls to
+     *                           {@link DeviceCredentialHandlerBridge#reset()} once initialized.
+     */
+    private void maybeInitHandlerBridge(boolean startIgnoringReset) {
+        // Don't create bridge if DeviceCredentialHandlerActivity isn't needed.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return;
+        }
+
+        final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
+        if (mIsHandlingDeviceCredential) {
+            bridge.setBiometricFragment(this);
+        } else {
+            // If hosted by the client, register the current activity theme to the bridge.
+            final FragmentActivity activity = getClientActivity();
+            if (activity != null) {
+                try {
+                    bridge.setClientThemeResId(activity.getPackageManager().getActivityInfo(
+                            activity.getComponentName(), 0).getThemeResource());
+                } catch (PackageManager.NameNotFoundException e) {
+                    Log.e(TAG, "Failed to register client theme to bridge", e);
+                }
+            }
+        }
+        bridge.setCallback(mClientExecutor, mClientCallback);
+
+        if (startIgnoringReset) {
+            bridge.startIgnoringReset();
+        }
+    }
+
+    /**
+     * Checks the handler bridge to see if we've received a result from the confirm device
+     * credential Settings activity. If so, handles that result by calling the appropriate
+     * authentication callback.
+     */
+    private void maybeHandleDeviceCredentialResult() {
+        final DeviceCredentialHandlerBridge bridge =
+                DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+        if (bridge != null) {
+            switch (bridge.getDeviceCredentialResult()) {
+                case DeviceCredentialHandlerBridge.RESULT_SUCCESS:
+                    // Device credential auth succeeded. This is incompatible with crypto.
+                    sendSuccessToClient(
+                            new BiometricPrompt.AuthenticationResult(null /* crypto */));
+                    bridge.stopIgnoringReset();
+                    bridge.reset();
+                    dismiss();
+                    break;
+
+                case DeviceCredentialHandlerBridge.RESULT_ERROR:
+                    // Device credential auth failed. Assume this is due to the user canceling.
+                    sendErrorToClient(
+                            BiometricConstants.ERROR_USER_CANCELED,
+                            getString(R.string.generic_error_user_canceled));
+                    bridge.stopIgnoringReset();
+                    bridge.reset();
+                    dismiss();
+                    break;
+            }
+        }
+    }
+
+    /** Cleans up the device credential handler bridge (if it exists) to avoid leaking memory. */
+    private void maybeResetHandlerBridge() {
+        final DeviceCredentialHandlerBridge bridge =
+                DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+        if (bridge != null) {
+            bridge.reset();
+        }
+    }
+
+    /**
+     * Force some devices to fall back to fingerprint in order to support strong (crypto) auth.
+     */
+    private boolean shouldForceFingerprint() {
+        final FragmentActivity activity = getClientActivity();
+        return DEBUG_FORCE_FINGERPRINT || (activity != null && mCryptoObject != null
+                && DeviceConfig.shouldUseFingerprintForCrypto(
+                        activity, Build.MANUFACTURER, Build.MODEL));
+    }
+
+    private boolean isDeviceCredentialAllowed() {
+        return mBundle != null
+                && mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL, false);
+    }
+
+    /** Checks if the client is currently changing configurations (e.g., screen orientation). */
+    private boolean isChangingConfigurations() {
+        final FragmentActivity activity = getClientActivity();
+        return activity != null && activity.isChangingConfigurations();
+    }
+
+    /** Gets the client activity that is hosting the biometric prompt. */
+    private @Nullable FragmentActivity getClientActivity() {
+        if (mClientActivity != null) {
+            return mClientActivity;
+        } else if (mClientFragment != null) {
+            return mClientFragment.getActivity();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Gets the appropriate fragment manager for the client. This is either the support fragment
+     * manager for a client activity or the child fragment manager for a client fragment.
+     */
+    private @Nullable FragmentManager getClientFragmentManager() {
+        if (mClientActivity != null) {
+            return mClientActivity.getSupportFragmentManager();
+        } else if (mClientFragment != null) {
+            return mClientFragment.getChildFragmentManager();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return The effective millisecond delay to wait before hiding the dialog, while respecting
+     * the result of {@link DeviceConfig#shouldHideFingerprintDialog(Context, String)}.
+     */
+    private int getHideDialogDelay() {
+        Context context = getContext();
+        return context != null && DeviceConfig.shouldHideFingerprintDialog(context, Build.MODEL)
+                ? 0
+                : HIDE_DIALOG_DELAY_MS;
     }
 }

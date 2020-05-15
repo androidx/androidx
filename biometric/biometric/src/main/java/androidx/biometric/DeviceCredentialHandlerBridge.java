@@ -134,7 +134,7 @@ class DeviceCredentialHandlerBridge {
         mExecutor = executor;
         mAuthenticationCallback = authenticationCallback;
         if (mBiometricFragment != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            mBiometricFragment.setCallback(executor, authenticationCallback);
+            mBiometricFragment.setClientCallback(executor, authenticationCallback);
         }
     }
 
