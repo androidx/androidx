@@ -130,6 +130,7 @@ class WorkerGeneratorTest {
         import dagger.Module;
         import dagger.hilt.InstallIn;
         import dagger.hilt.android.components.ApplicationComponent;
+        import dagger.hilt.codegen.OriginatingElement;
         import dagger.multibindings.IntoMap;
         import dagger.multibindings.StringKey;
         import $GENERATED_TYPE;
@@ -137,6 +138,7 @@ class WorkerGeneratorTest {
         $GENERATED_ANNOTATION
         @Module
         @InstallIn(ApplicationComponent.class)
+        @OriginatingElement(topLevelClass = MyWorker.class)
         public interface MyWorker_HiltModule {
             @Binds
             @IntoMap
