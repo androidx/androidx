@@ -35,7 +35,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     /**
      * LayoutNodes that need measure or layout
      */
-    private val relayoutNodes = DepthSortedSet<LayoutNode>(Owner.enableExtraAssertions)
+    private val relayoutNodes = DepthSortedSet(Owner.enableExtraAssertions)
 
     /**
      * Flag to indicate that we're currently measuring.
@@ -121,8 +121,8 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
 
             // find root of layout request:
             var layout = layoutNode
-            while (layout.affectsParentSize && layout.parentLayoutNode != null) {
-                val parent = layout.parentLayoutNode!!
+            while (layout.affectsParentSize && layout.parent != null) {
+                val parent = layout.parent!!
                 if (parent.isMeasuring || parent.isLayingOut) {
                     if (!layout.needsRemeasure) {
                         layout.markRemeasureRequested()
@@ -148,7 +148,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             }
             layout.markRemeasureRequested()
 
-            requestRelayout(layout.parentLayoutNode ?: layout)
+            requestRelayout(layout.parent ?: layout)
         }
     }
 
@@ -178,7 +178,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             var layout: LayoutNode? = layoutNode
             while (layout != null && !layout.dirtyAlignmentLines) {
                 layout.dirtyAlignmentLines = true
-                layout = layout.parentLayoutNode
+                layout = layout.parent
             }
         } else {
             var layout = layoutNode
@@ -189,8 +189,9 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             ) {
                 layout.markRelayoutRequested()
                 layout.dirtyAlignmentLines = true
-                if (layout.parentLayoutNode == null) break
-                layout = layout.parentLayoutNode!!
+                val parent = layout.parent
+                if (parent == null) break
+                layout = parent
             }
             layout.dirtyAlignmentLines = true
             nodeToRelayout = layout

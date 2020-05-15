@@ -68,7 +68,7 @@ import kotlin.coroutines.CoroutineContext
  * @see setViewContent
  * @see Composition.dispose
  */
-// TODO: Remove this API when View/ComponentNode mixed trees work
+// TODO: Remove this API when View/LayoutNode mixed trees work
 fun ViewGroup.setViewContent(
     parent: CompositionReference? = null,
     composable: @Composable () -> Unit
@@ -91,7 +91,7 @@ fun ViewGroup.setViewContent(
  * @see setContent
  * @see Activity.setContentView
  */
-// TODO: Remove this API when View/ComponentNode mixed trees work
+// TODO: Remove this API when View/LayoutNode mixed trees work
 fun Activity.setViewContent(composable: @Composable () -> Unit): Composition {
     // TODO(lmr): add ambients here, or remove API entirely if we can
     // If there is already a FrameLayout in the root, we assume we want to compose
@@ -111,7 +111,7 @@ fun Activity.setViewContent(composable: @Composable () -> Unit): Composition {
 @MainThread
 fun subcomposeInto(
     context: Context,
-    container: ComponentNode,
+    container: LayoutNode,
     recomposer: Recomposer,
     parent: CompositionReference? = null,
     composable: @Composable () -> Unit
@@ -128,7 +128,7 @@ fun subcomposeInto(
 )
 @MainThread
 fun subcomposeInto(
-    container: ComponentNode,
+    container: LayoutNode,
     context: Context,
     parent: CompositionReference? = null,
     composable: @Composable () -> Unit

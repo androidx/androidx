@@ -29,7 +29,6 @@ import androidx.ui.savedinstancestate.UiSavedStateRegistry
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.PxSize
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -131,19 +130,18 @@ interface Owner {
     fun onRequestMeasure(layoutNode: LayoutNode)
 
     /**
-     * Called by [ComponentNode] when it is attached to the view system and now has an owner.
-     * This is used by [Owner] to update [ComponentNode.ownerData] and track which nodes are
-     * associated with it. It will only be called when [node] is not already attached to an
-     * owner.
+     * Called by [LayoutNode] when it is attached to the view system and now has an owner.
+     * This is used by [Owner] to track which nodes are associated with it. It will only be
+     * called when [node] is not already attached to an owner.
      */
-    fun onAttach(node: ComponentNode)
+    fun onAttach(node: LayoutNode)
 
     /**
-     * Called by [ComponentNode] when it is detached from the view system, such as during
-     * [ComponentNode.removeAt]. This will only be called for [node]s that are already
-     * [ComponentNode.attach]ed.
+     * Called by [LayoutNode] when it is detached from the view system, such as during
+     * [LayoutNode.removeAt]. This will only be called for [node]s that are already
+     * [LayoutNode.attach]ed.
      */
-    fun onDetach(node: ComponentNode)
+    fun onDetach(node: LayoutNode)
 
     /**
      * Returns the most global position of the owner that Compose can access (such as the device
@@ -175,11 +173,6 @@ interface Owner {
      * Observe model reads during measure of [node], executed in [block].
      */
     fun observeMeasureModelReads(node: LayoutNode, block: () -> Unit)
-
-    /**
-     * Causes the [node] to draw into [canvas].
-     */
-    fun callDraw(canvas: Canvas, node: ComponentNode, parentSize: PxSize)
 
     /**
      * Iterates through all LayoutNodes that have requested layout and measures and lays them out

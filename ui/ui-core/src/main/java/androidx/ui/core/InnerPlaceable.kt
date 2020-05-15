@@ -27,7 +27,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.toPxSize
 import androidx.ui.util.fastAny
 import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.fastForEach
@@ -50,7 +49,7 @@ internal class InnerPlaceable(
         layoutNode.layoutDirection = layoutDirection
         val measureResult = layoutNode.measureBlocks.measure(
             layoutNode.measureScope,
-            layoutNode.layoutChildren,
+            layoutNode.children,
             constraints,
             measureScope.layoutDirection
         )
@@ -63,7 +62,7 @@ internal class InnerPlaceable(
         get() = if (layoutNode.handlesParentData) {
             null
         } else {
-            layoutNode.layoutChildren
+            layoutNode.children
                 .fastFirstOrNull { it.parentData != null }?.parentData
         }
 
@@ -82,7 +81,7 @@ internal class InnerPlaceable(
     override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.minIntrinsicWidth(
             layoutNode.measureScope,
-            layoutNode.layoutChildren,
+            layoutNode.children,
             height,
             layoutDirection
         )
@@ -91,7 +90,7 @@ internal class InnerPlaceable(
     override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.minIntrinsicHeight(
             layoutNode.measureScope,
-            layoutNode.layoutChildren,
+            layoutNode.children,
             width,
             layoutDirection
         )
@@ -100,7 +99,7 @@ internal class InnerPlaceable(
     override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.maxIntrinsicWidth(
             layoutNode.measureScope,
-            layoutNode.layoutChildren,
+            layoutNode.children,
             height,
             layoutDirection
         )
@@ -109,7 +108,7 @@ internal class InnerPlaceable(
     override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.maxIntrinsicHeight(
             layoutNode.measureScope,
-            layoutNode.layoutChildren,
+            layoutNode.children,
             width,
             layoutDirection
         )
@@ -136,9 +135,12 @@ internal class InnerPlaceable(
     override fun draw(canvas: Canvas) {
         withPositionTranslation(canvas) {
             val owner = layoutNode.requireOwner()
-            val sizePx = measuredSize.toPxSize()
             layoutNode.zIndexSortedChildren.fastForEach { child ->
-                owner.callDraw(canvas, child, sizePx)
+                if (child.isPlaced) {
+                    require(!child.needsRemeasure) { "$child is not measured, draw requested" }
+                    require(!child.needsRelayout) { "$child is not laid out, draw requested" }
+                    child.draw(canvas)
+                }
             }
             if (owner.showLayoutBounds) {
                 drawBorder(canvas, innerBoundsPaint)
@@ -178,19 +180,11 @@ internal class InnerPlaceable(
         }
 
         private fun callHitTest(
-            node: ComponentNode,
+            node: LayoutNode,
             globalPoint: PxPosition,
             hitPointerInputFilters: MutableList<PointerInputFilter>
         ): Boolean {
-            if (node is LayoutNode) {
-                return node.hitTest(globalPoint, hitPointerInputFilters)
-            } else {
-                // Any because as soon as true is returned, we know we have found a hit path and we must
-                // not add PointerInputFilters on different paths so we should not even go looking.
-                return node.children.reversed().fastAny { child ->
-                    callHitTest(child, globalPoint, hitPointerInputFilters)
-                }
-            }
+            return node.hitTest(globalPoint, hitPointerInputFilters)
         }
     }
 }

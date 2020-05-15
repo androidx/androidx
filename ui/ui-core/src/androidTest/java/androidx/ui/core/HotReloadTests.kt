@@ -102,7 +102,7 @@ class HotReloadTests {
     }
 
     @Test
-    fun composeComponentNode() {
+    fun composeLayoutNode() {
         val activity = rule.activityTestRule.activity
         var value = "First value"
 
