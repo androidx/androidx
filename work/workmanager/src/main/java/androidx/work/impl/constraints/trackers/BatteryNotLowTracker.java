@@ -35,14 +35,9 @@ public class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boo
     private static final String TAG = Logger.tagWithPrefix("BatteryNotLowTracker");
 
     /**
-     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/BatteryService.java#111}
-     */
-    static final int BATTERY_PLUGGED_NONE = 0;
-
-    /**
      * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/res/res/values/config.xml#986}
      */
-    static final float BATTERY_LOW_PERCENTAGE = 0.15f;
+    static final float BATTERY_LOW_THRESHOLD = 0.15f;
 
     /**
      * Create an instance of {@link BatteryNotLowTracker}.
@@ -67,15 +62,16 @@ public class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boo
             Logger.get().error(TAG, "getInitialState - null intent received");
             return null;
         }
-        int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, BATTERY_PLUGGED_NONE);
+
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         float batteryPercentage = level / (float) scale;
 
-        return (plugged != BATTERY_PLUGGED_NONE
-                || status == BatteryManager.BATTERY_STATUS_UNKNOWN
-                || batteryPercentage > BATTERY_LOW_PERCENTAGE);
+        // BATTERY_STATUS_UNKNOWN typically refers to devices without a battery.
+        // So those kinds of devices must be allowed.
+        return (status == BatteryManager.BATTERY_STATUS_UNKNOWN
+                || batteryPercentage > BATTERY_LOW_THRESHOLD);
     }
 
     @Override
