@@ -16,9 +16,13 @@
 
 package androidx.ui.core.gesture
 
+import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.consumePositionChange
+import androidx.ui.core.gesture.scrollorientationlocking.InternalScrollOrientationLocker
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
+import androidx.ui.core.gesture.scrollorientationlocking.ShareScrollOrientationLockerEvent
 import androidx.ui.geometry.Offset
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
@@ -31,6 +35,11 @@ import androidx.ui.unit.Duration
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.reset
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +57,7 @@ class RawDragGestureFilterTest {
     private lateinit var filter: RawDragGestureFilter
     private lateinit var dragObserver: MockDragObserver
     private lateinit var log: MutableList<LogItem>
+    private lateinit var customEventDispatcher: CustomEventDispatcher
     private var dragStartBlocked = true
 
     @Before
@@ -57,6 +67,8 @@ class RawDragGestureFilterTest {
         filter = RawDragGestureFilter()
         filter.canStartDragging = { !dragStartBlocked }
         filter.dragObserver = dragObserver
+        customEventDispatcher = mock()
+        filter.onInit(customEventDispatcher)
     }
 
     // Verify the circumstances under which onStart/OnDrag should not be called.
@@ -371,11 +383,14 @@ class RawDragGestureFilterTest {
     ) {
         log.clear()
 
-        var change = down(0, 0.milliseconds)
+        var time = 0.milliseconds
+
+        var change = down(0, time)
         filter::onPointerInput.invokeOverAllPasses(change)
         dragStartBlocked = false
 
         repeat(11) {
+            time += 10.milliseconds
             change = change.moveBy(
                 10.milliseconds,
                 incrementPerMilliX,
@@ -384,7 +399,8 @@ class RawDragGestureFilterTest {
             filter::onPointerInput.invokeOverAllPasses(change)
         }
 
-        change = change.up(20.milliseconds)
+        time += 10.milliseconds
+        change = change.up(time)
         filter::onPointerInput.invokeOverAllPasses(change)
 
         val loggedStops = log.filter { it.methodName == "onStop" }
@@ -573,6 +589,440 @@ class RawDragGestureFilterTest {
         assertThat(log.first { it.methodName == "onStart" }.pxPosition)
             // average position
             .isEqualTo(Offset(3f, 4f))
+    }
+
+    @Test
+    fun onPointerInput_hasOrientationDownEvent_customEventDispatchedOnceDuringInitialDown() {
+
+        // Arrange
+
+        filter.orientation = Orientation.Vertical
+
+        val down = down(0)
+
+        // Act / Verify 1
+
+        filter::onPointerInput.invokeOverPasses(down, PointerEventPass.InitialDown)
+        argumentCaptor<ShareScrollOrientationLockerEvent>().run {
+            verify(customEventDispatcher).dispatchCustomEvent(capture())
+            assertThat(allValues).hasSize(1)
+            assertThat(allValues.first().scrollOrientationLocker).isNotNull()
+        }
+
+        reset(customEventDispatcher)
+
+        // Act / Verify 1
+        filter::onPointerInput.invokeOverPasses(
+            down,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
+            PointerEventPass.PostUp,
+            PointerEventPass.PostDown
+        )
+        verifyNoMoreInteractions(customEventDispatcher)
+    }
+
+    @Test
+    fun onPointerInput_hasOrientationDownUpDown_customEventDispatchedTwiceWithDifferentLocker() {
+        filter.orientation = Orientation.Vertical
+
+        val downA = down(0)
+        val upA = downA.up(1.milliseconds)
+        val downB = down(1, 2.milliseconds)
+
+        filter::onPointerInput.invokeOverAllPasses(downA)
+
+        val locker1 = argumentCaptor<ShareScrollOrientationLockerEvent>().run {
+            verify(customEventDispatcher).dispatchCustomEvent(capture())
+
+            assertThat(allValues).hasSize(1)
+            allValues.first().scrollOrientationLocker
+        }
+
+        filter::onPointerInput.invokeOverAllPasses(upA)
+        reset(customEventDispatcher)
+        filter::onPointerInput.invokeOverAllPasses(downB)
+
+        val locker2 = argumentCaptor<ShareScrollOrientationLockerEvent>().run {
+            verify(customEventDispatcher).dispatchCustomEvent(capture())
+
+            assertThat(allValues).hasSize(1)
+            allValues.first().scrollOrientationLocker
+        }
+
+        assertThat(locker1).isNotEqualTo(locker2)
+
+        verifyNoMoreInteractions(customEventDispatcher)
+    }
+
+    // The below tests verify correct behavior in relation to scroll orientation locking.
+
+    @Test
+    fun onPointerInput_filterHorizontalPointerLockedToVertical_noStart() {
+        onPointerInput_differentOrientations(
+            Orientation.Vertical,
+            Orientation.Horizontal
+        )
+    }
+
+    @Test
+    fun onPointerInput_filterVerticalPointerLockedToHorizontal_noStart() {
+        onPointerInput_differentOrientations(
+            Orientation.Horizontal,
+            Orientation.Vertical
+        )
+    }
+
+    @Test
+    fun onPointerInput_filterHorizontalPointerLockedToHorizontal_start() {
+        onPointerInput_differentOrientations(
+            Orientation.Horizontal,
+            Orientation.Horizontal
+        )
+    }
+
+    @Test
+    fun onPointerInput_filterVerticalPointerLockedToVertical_start() {
+        onPointerInput_differentOrientations(
+            Orientation.Vertical,
+            Orientation.Vertical
+        )
+    }
+
+    private fun onPointerInput_differentOrientations(
+        filterOrientation: Orientation,
+        lockedOrientation: Orientation
+    ) {
+
+        // Arrange
+
+        filter.orientation = filterOrientation
+        dragStartBlocked = false
+
+        val scrollOrientationLocker = InternalScrollOrientationLocker()
+
+        filter::onCustomEvent.invokeOverAllPasses(
+            ShareScrollOrientationLockerEvent(scrollOrientationLocker)
+        )
+
+        val down = down(0)
+        val move = down.moveBy(1.milliseconds, 3f, 5f)
+
+        filter::onPointerInput.invokeOverAllPasses(down)
+
+        scrollOrientationLocker.attemptToLockPointers(listOf(move), lockedOrientation)
+
+        // Act
+        filter::onPointerInput.invokeOverAllPasses(move)
+
+        // Assert
+        if (filterOrientation == lockedOrientation) {
+            assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
+            // onDrag get's called twice because it is called during PostUp and PostDown and nothing
+            // consumed the drag distance.
+            assertThat(log.filter { it.methodName == "onDrag" }).hasSize(2)
+        } else {
+            assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
+            assertThat(log.filter { it.methodName == "onDrag" }).isEmpty()
+        }
+    }
+
+    @Test
+    fun onPointerInput_filterIsHorizontalMovementIsHorizontal_locksHorizontal() {
+        onPointerInput_mayLockPointers(false, Orientation.Horizontal, 1f, 0f)
+    }
+
+    @Test
+    fun onPointerInput_filterIsVerticalMovementIsVertical_locksVertical() {
+        onPointerInput_mayLockPointers(false, Orientation.Vertical, 0f, 1f)
+    }
+
+    @Test
+    fun onPointerInput_filterIsHorizontalMovementIsBoth_locksHorizontal() {
+        onPointerInput_mayLockPointers(false, Orientation.Horizontal, -1f, -1f)
+    }
+
+    @Test
+    fun onPointerInput_filterIsVerticalMovementIsBoth_locksVertical() {
+        onPointerInput_mayLockPointers(false, Orientation.Vertical, -1f, -1f)
+    }
+
+    @Test
+    fun onPointerInput_filterIsHorizontalMovementIsHorizontalBlocked_locksHorizontal() {
+        onPointerInput_mayLockPointers(true, Orientation.Horizontal, 1f, 0f)
+    }
+
+    @Test
+    fun onPointerInput_filterIsVerticalMovementIsVerticalBlocked_locksVertical() {
+        onPointerInput_mayLockPointers(true, Orientation.Vertical, 0f, 1f)
+    }
+
+    @Test
+    fun onPointerInput_filterIsHorizontalMovementIsBothBlocked_locksHorizontal() {
+        onPointerInput_mayLockPointers(true, Orientation.Horizontal, -1f, -1f)
+    }
+
+    @Test
+    fun onPointerInput_filterIsVerticalMovementIsBothBlocked_locksVertical() {
+        onPointerInput_mayLockPointers(true, Orientation.Vertical, -1f, -1f)
+    }
+
+    @Test
+    fun onPointerInput_filterIsHorizontalMovementIsVertical_locksNone() {
+        onPointerInput_mayLockPointers(false, Orientation.Horizontal, 0f, -1f)
+    }
+
+    @Test
+    fun onPointerInput_filterIsVerticalMovementIsHorizontal_locksNone() {
+        onPointerInput_mayLockPointers(false, Orientation.Vertical, -1f, 0f)
+    }
+
+    private fun onPointerInput_mayLockPointers(
+        blocked: Boolean,
+        filterOrientation: Orientation,
+        dx: Float,
+        dy: Float
+    ) {
+
+        // Arrange
+
+        val otherOrientation =
+            when (filterOrientation) {
+                Orientation.Vertical -> Orientation.Horizontal
+                Orientation.Horizontal -> Orientation.Vertical
+            }
+
+        filter.orientation = filterOrientation
+
+        dragStartBlocked = blocked
+
+        val scrollOrientationLocker = InternalScrollOrientationLocker()
+
+        filter::onCustomEvent.invokeOverAllPasses(
+            ShareScrollOrientationLockerEvent(scrollOrientationLocker)
+        )
+
+        val down = down(0)
+        val move = down.moveBy(1.milliseconds, dx, dy)
+
+        filter::onPointerInput.invokeOverAllPasses(down)
+
+        // Act
+        filter::onPointerInput.invokeOverAllPasses(move)
+
+        // Assert
+        if (!blocked && (filterOrientation == Orientation.Horizontal && dx != 0f ||
+                    filterOrientation == Orientation.Vertical && dy != 0f)
+        ) {
+            assertThat(scrollOrientationLocker.getPointersFor(listOf(move), otherOrientation))
+                .hasSize(0)
+        } else {
+            assertThat(scrollOrientationLocker.getPointersFor(listOf(move), otherOrientation))
+                .hasSize(1)
+        }
+    }
+
+    @Test
+    fun onPointerInput_Hori3Pointers1LockedVert2Average0__onStartAndOnDragNotCalled() {
+
+        // Arrange
+
+        filter.orientation = Orientation.Horizontal
+
+        val scrollOrientationLocker = InternalScrollOrientationLocker()
+        filter::onCustomEvent.invokeOverAllPasses(
+            ShareScrollOrientationLockerEvent(scrollOrientationLocker)
+        )
+
+        val pointers = arrayOf(down(0), down(1), down(2))
+        filter::onPointerInput.invokeOverAllPasses(*pointers)
+
+        dragStartBlocked = false
+
+        // This pointer is going to be locked to vertical.
+        pointers[0] =
+            pointers[0].moveBy(
+                100.milliseconds,
+                100f,
+                0f
+            )
+        scrollOrientationLocker.attemptToLockPointers(listOf(pointers[0]), Orientation.Vertical)
+
+        // These pointers average to no movement.
+        pointers[1] =
+            pointers[1].moveBy(
+                100.milliseconds,
+                1f,
+                0f
+            )
+        pointers[2] =
+            pointers[2].moveBy(
+                100.milliseconds,
+                -1f,
+                0f
+            )
+
+        // Act
+        filter::onPointerInput.invokeOverAllPasses(*pointers)
+
+        // Assert
+        assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
+        assertThat(log.filter { it.methodName == "onDrag" }).isEmpty()
+    }
+
+    @Test
+    fun onPointerInput_2Pointers1LockedInWrongOrientationOtherGoesUpThenItGoesUp_isCorrect() {
+
+        // Arrange
+
+        // Basic set up
+        filter.orientation = Orientation.Horizontal
+        dragStartBlocked = false
+        val scrollOrientationLocker = InternalScrollOrientationLocker()
+        filter::onCustomEvent.invokeOverAllPasses(
+            ShareScrollOrientationLockerEvent(scrollOrientationLocker)
+        )
+
+        // One finger down
+        var time = 0.milliseconds
+        var pointer1 = down(0, time)
+        filter::onPointerInput.invokeOverAllPasses(pointer1)
+
+        // 2nd finger comes into play
+        time = 10.milliseconds
+        pointer1.moveTo(time)
+        var pointer2 = down(1, time)
+
+        // Lock the 2nd pointer to vertical
+        scrollOrientationLocker.attemptToLockPointers(listOf(pointer2), Orientation.Vertical)
+
+        // Dispatch 2nd finger down.
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+
+        // Both pointers move a bunch.
+        repeat(11) {
+            time = 10.milliseconds
+            pointer1 = pointer1.moveBy(
+                10.milliseconds,
+                1f,
+                0f
+            )
+            pointer2 = pointer2.moveBy(
+                10.milliseconds,
+                1f,
+                0f
+            )
+            filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        }
+
+        // Act 1
+
+        // Only Pointer 1 goes up
+        time = 10.milliseconds
+        pointer1 = pointer1.up(time)
+        pointer2 = pointer2.moveTo(time)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+
+        // Assert 1
+
+        // One pointer is still down, and even though it is locked in the other orientation, we
+        // still shouldn't stop yet.
+        assertThat(log.filter { it.methodName == "onStop" }).hasSize(0)
+
+        // Act 2
+
+        // 2nd is up
+        time = 10.milliseconds
+        pointer2 = pointer2.up(time)
+        filter::onPointerInput.invokeOverAllPasses(pointer2)
+
+        // This finger lifting should contribute no flinging since it was locked to a different
+        // orientation.
+        val loggedStops = log.filter { it.methodName == "onStop" }
+        assertThat(loggedStops).hasSize(1)
+        val velocity = loggedStops[0].pxPosition!!
+        assertThat(velocity.x).isEqualTo(0)
+        assertThat(velocity.y).isEqualTo(0)
+    }
+
+    @Test
+    fun onPointerInput_2Pointers1LockedInWrongOrientationItGoesUpThenOtherGoesUp_isCorrect() {
+
+        // Arrange
+
+        // Basic set up
+        filter.orientation = Orientation.Horizontal
+        dragStartBlocked = false
+        val scrollOrientationLocker = InternalScrollOrientationLocker()
+        filter::onCustomEvent.invokeOverAllPasses(
+            ShareScrollOrientationLockerEvent(scrollOrientationLocker)
+        )
+
+        var time = 0.milliseconds
+
+        // One finger down
+        var pointer1 = down(0, time)
+        filter::onPointerInput.invokeOverAllPasses(pointer1)
+
+        // 2nd finger comes into play
+        time += 10.milliseconds
+        pointer1.moveTo(time)
+        var pointer2 = down(1, time)
+
+        // Lock the 2nd pointer to vertical
+        scrollOrientationLocker.attemptToLockPointers(listOf(pointer2), Orientation.Vertical)
+
+        // Dispatch 2nd finger down.
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+
+        // Both pointers move a bunch.
+        repeat(11) {
+            time += 10.milliseconds
+            pointer1 = pointer1.moveBy(
+                10.milliseconds,
+                1f,
+                0f
+            )
+            pointer2 = pointer2.moveBy(
+                10.milliseconds,
+                1f,
+                0f
+            )
+            filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        }
+
+        // Act 1
+
+        // Only Pointer 2 goes up
+        time += 10.milliseconds
+        pointer1 = pointer1.moveBy(
+            10.milliseconds,
+            1f,
+            0f
+        )
+        pointer2 = pointer2.up(time)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+
+        // Assert 1
+
+        // One pointer is still down, and even though it is locked in the other orientation, we
+        // still shouldn't stop yet.
+        assertThat(log.filter { it.methodName == "onStop" }).hasSize(0)
+
+        // Act 2
+
+        // 2nd is up
+        time += 10.milliseconds
+        pointer1 = pointer1.up(time)
+        filter::onPointerInput.invokeOverAllPasses(pointer1)
+
+        // This finger lifting should contribute no flinging since it was locked to a different
+        // orientation.
+        val loggedStops = log.filter { it.methodName == "onStop" }
+        assertThat(loggedStops).hasSize(1)
+        val velocity = loggedStops[0].pxPosition!!
+        assertThat(velocity.x).isWithin(.01f).of(100f)
+        assertThat(velocity.y).isWithin(.01f).of(0f)
     }
 
     // Tests that verify when onCancel should not be called.

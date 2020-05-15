@@ -963,7 +963,10 @@ package androidx.ui.core.gesture {
   }
 
   public final class DragSlopExceededGestureFilterKt {
-    method public static androidx.ui.core.Modifier dragSlopExceededGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onDragSlopExceeded, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null);
+    method public static androidx.ui.core.Modifier dragSlopExceededGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onDragSlopExceeded, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, androidx.ui.core.gesture.scrollorientationlocking.Orientation? orientation = null);
+  }
+
+  @kotlin.RequiresOptIn(message="This pointer input API is experimental and is likely to change before becoming " + "stable.") public @interface ExperimentalPointerInput {
   }
 
   public final class GestureUtilsKt {
@@ -991,7 +994,7 @@ package androidx.ui.core.gesture {
   }
 
   public final class RawDragGestureFilterKt {
-    method public static androidx.ui.core.Modifier rawDragGestureFilter(androidx.ui.core.Modifier, androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartDragging = null);
+    method public static androidx.ui.core.Modifier rawDragGestureFilter(androidx.ui.core.Modifier, androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartDragging = null, androidx.ui.core.gesture.scrollorientationlocking.Orientation? orientation = null);
   }
 
   public final class RawPressStartGestureFilterKt {
@@ -1027,6 +1030,17 @@ package androidx.ui.core.gesture {
   public final class ScaleUtilKt {
   }
 
+  public interface ScrollCallback {
+    method public default void onCancel();
+    method public default float onScroll(float scrollDistance);
+    method public default void onStart(androidx.ui.geometry.Offset downPosition);
+    method public default void onStop(float velocity);
+  }
+
+  public final class ScrollGestureFilterKt {
+    method public static androidx.ui.core.Modifier scrollGestureFilter(androidx.ui.core.Modifier, androidx.ui.core.gesture.ScrollCallback scrollCallback, androidx.ui.core.gesture.scrollorientationlocking.Orientation orientation, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, boolean startDragImmediately = false);
+  }
+
   public final class TapGestureFilterKt {
     method public static androidx.ui.core.Modifier tapGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onTap);
   }
@@ -1055,6 +1069,27 @@ package androidx.ui.core.gesture.customevents {
 
   public final class LongPressFiredEvent implements androidx.ui.core.CustomEvent {
     field public static final androidx.ui.core.gesture.customevents.LongPressFiredEvent INSTANCE;
+  }
+
+}
+
+package androidx.ui.core.gesture.scrollorientationlocking {
+
+  public enum Orientation {
+    method public static androidx.ui.core.gesture.scrollorientationlocking.Orientation valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.gesture.scrollorientationlocking.Orientation[] values();
+    enum_constant public static final androidx.ui.core.gesture.scrollorientationlocking.Orientation Horizontal;
+    enum_constant public static final androidx.ui.core.gesture.scrollorientationlocking.Orientation Vertical;
+  }
+
+  @androidx.ui.core.gesture.ExperimentalPointerInput public final class ScrollOrientationLocker {
+    ctor public ScrollOrientationLocker(androidx.ui.core.CustomEventDispatcher customEventDispatcher);
+    method public void attemptToLockPointers(java.util.List<androidx.ui.core.PointerInputChange> changes, androidx.ui.core.gesture.scrollorientationlocking.Orientation orientation);
+    method public java.util.List<androidx.ui.core.PointerInputChange> getPointersFor(java.util.List<androidx.ui.core.PointerInputChange> changes, androidx.ui.core.gesture.scrollorientationlocking.Orientation orientation);
+    method public void onCancel();
+    method public void onCustomEvent(androidx.ui.core.CustomEvent customEvent, androidx.ui.core.PointerEventPass pass);
+    method public void onPointerInputSetup(java.util.List<androidx.ui.core.PointerInputChange> changes, androidx.ui.core.PointerEventPass pass);
+    method public void onPointerInputTearDown(java.util.List<androidx.ui.core.PointerInputChange> changes, androidx.ui.core.PointerEventPass pass);
   }
 
 }
