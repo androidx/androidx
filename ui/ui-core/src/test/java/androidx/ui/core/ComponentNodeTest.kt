@@ -1514,6 +1514,45 @@ class ComponentNodeTest {
     }
 
     @Test
+    fun hitTest_zIndexIsAccounted() {
+
+        val pointerInputFilter1: PointerInputFilter = spy()
+        val pointerInputFilter2: PointerInputFilter = spy()
+
+        val parent = LayoutNode(
+            0, 0, 2, 2
+        ).apply {
+            attach(mockOwner())
+        }
+        parent.insertAt(
+            0, LayoutNode(
+                0, 0, 2, 2,
+                PointerInputModifierImpl(
+                    pointerInputFilter1
+                ).zIndex(1f)
+            )
+        )
+        parent.insertAt(
+            1, LayoutNode(
+                0, 0, 2, 2,
+                PointerInputModifierImpl(
+                    pointerInputFilter2
+                )
+            )
+        )
+
+        val hit = mutableListOf<PointerInputFilter>()
+
+        // Act.
+
+        parent.hitTest(PxPosition(1.px, 1.px), hit)
+
+        // Assert.
+
+        assertThat(hit).isEqualTo(listOf(pointerInputFilter1))
+    }
+
+    @Test
     fun onRequestMeasureIsNotCalledOnDetachedNodes() {
         val root = LayoutNode()
 
