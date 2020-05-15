@@ -10,6 +10,39 @@ package androidx.ui.core {
 
 package androidx.ui.graphics {
 
+  @kotlin.PublishedApi internal final class AndroidCanvas implements androidx.ui.graphics.Canvas {
+    ctor public AndroidCanvas();
+    method public void clipPath(androidx.ui.graphics.Path path, androidx.ui.graphics.ClipOp clipOp);
+    method public void clipRect(float left, float top, float right, float bottom, androidx.ui.graphics.ClipOp clipOp);
+    method public void concat(androidx.ui.graphics.vectormath.Matrix4 matrix4);
+    method public void disableZ();
+    method public void drawArc(float left, float top, float right, float bottom, float startAngle, float sweepAngle, boolean useCenter, androidx.ui.graphics.Paint paint);
+    method public void drawCircle-NfwrgZA(long center, float radius, androidx.ui.graphics.Paint paint);
+    method public void drawImage--AHD2Ng(androidx.ui.graphics.ImageAsset image, long topLeftOffset, androidx.ui.graphics.Paint paint);
+    method public void drawImageRect-btuv3no(androidx.ui.graphics.ImageAsset image, long srcOffset, long srcSize, long dstOffset, long dstSize, androidx.ui.graphics.Paint paint);
+    method public void drawLine-d9kBv1M(long p1, long p2, androidx.ui.graphics.Paint paint);
+    method public void drawOval(float left, float top, float right, float bottom, androidx.ui.graphics.Paint paint);
+    method public void drawPath(androidx.ui.graphics.Path path, androidx.ui.graphics.Paint paint);
+    method public void drawPicture(androidx.ui.graphics.Picture picture);
+    method public void drawPoints(androidx.ui.graphics.PointMode pointMode, java.util.List<androidx.ui.geometry.Offset> points, androidx.ui.graphics.Paint paint);
+    method public void drawRawPoints(androidx.ui.graphics.PointMode pointMode, float[] points, androidx.ui.graphics.Paint paint);
+    method public void drawRect(float left, float top, float right, float bottom, androidx.ui.graphics.Paint paint);
+    method public void drawRoundRect(float left, float top, float right, float bottom, float radiusX, float radiusY, androidx.ui.graphics.Paint paint);
+    method public void drawVertices(androidx.ui.graphics.Vertices vertices, androidx.ui.graphics.BlendMode blendMode, androidx.ui.graphics.Paint paint);
+    method public void enableZ();
+    method public android.graphics.Canvas getNativeCanvas();
+    method public void restore();
+    method public void rotate(float degrees);
+    method public void save();
+    method public void saveLayer(androidx.ui.geometry.Rect bounds, androidx.ui.graphics.Paint paint);
+    method public void scale(float sx, float sy);
+    method public void skew(float sx, float sy);
+    method public android.graphics.Region.Op toRegionOp(androidx.ui.graphics.ClipOp);
+    method public void translate(float dx, float dy);
+    property public android.graphics.Canvas nativeCanvas;
+    field @kotlin.PublishedApi internal android.graphics.Canvas internalCanvas;
+  }
+
   public final class AndroidCanvasKt {
     method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.ImageAsset image);
     method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.PictureRecorder recorder, androidx.ui.geometry.Rect cullRect = Rect.largest);
@@ -149,6 +182,7 @@ package androidx.ui.graphics {
   public final class CanvasHolder {
     ctor public CanvasHolder();
     method public inline void drawInto(android.graphics.Canvas targetCanvas, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Canvas,kotlin.Unit> block);
+    field @kotlin.PublishedApi internal final androidx.ui.graphics.AndroidCanvas androidCanvas;
   }
 
   public final class CanvasKt {
