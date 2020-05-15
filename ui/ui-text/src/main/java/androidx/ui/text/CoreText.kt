@@ -35,7 +35,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.graphics.Paint
 import androidx.ui.text.font.Font
 import androidx.ui.text.selection.TextSelectionDelegate

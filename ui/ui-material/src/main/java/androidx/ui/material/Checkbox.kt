@@ -38,9 +38,9 @@ import androidx.ui.geometry.shrink
 import androidx.ui.graphics.ClipOp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.painter.DrawScope
-import androidx.ui.graphics.painter.Stroke
-import androidx.ui.graphics.painter.clipRect
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.Stroke
+import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.material.ripple.ripple

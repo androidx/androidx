@@ -15,7 +15,7 @@
  */
 package androidx.ui.core
 
-import androidx.ui.graphics.painter.DrawScope
+import androidx.ui.graphics.drawscope.DrawScope
 
 /**
  * Receiver scope for drawing content into a layout, where the content can

@@ -34,7 +34,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.compositeOver
-import androidx.ui.graphics.painter.DrawScope
+import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.ltr

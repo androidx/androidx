@@ -31,7 +31,7 @@ import androidx.ui.core.ContentScale
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.graphics.painter.DrawScope
+import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.layout.preferredSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.unit.PxSize

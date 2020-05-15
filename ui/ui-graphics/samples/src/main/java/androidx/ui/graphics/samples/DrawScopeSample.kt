@@ -22,10 +22,10 @@ import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.painter.DrawScope
-import androidx.ui.graphics.painter.inset
-import androidx.ui.graphics.painter.rotate
-import androidx.ui.graphics.painter.withTransform
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.inset
+import androidx.ui.graphics.drawscope.rotate
+import androidx.ui.graphics.drawscope.withTransform
 
 /**
  * Sample showing how to use CanvasScope to issue drawing commands into

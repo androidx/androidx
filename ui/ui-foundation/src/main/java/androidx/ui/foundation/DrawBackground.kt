@@ -30,10 +30,10 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.drawOutline
-import androidx.ui.graphics.painter.DrawScope
-import androidx.ui.graphics.painter.DrawStyle
-import androidx.ui.graphics.painter.Fill
-import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.DrawStyle
+import androidx.ui.graphics.drawscope.Fill
+import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.toRect

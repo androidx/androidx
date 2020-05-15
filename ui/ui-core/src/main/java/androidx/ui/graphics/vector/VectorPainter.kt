@@ -24,8 +24,8 @@ import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.graphics.painter.DrawScope
-import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px

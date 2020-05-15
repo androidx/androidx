@@ -38,7 +38,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
-import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorValue
 import androidx.ui.input.ImeAction

@@ -18,7 +18,7 @@ package androidx.ui.core
 
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.drawscope.drawCanvas
 
 internal class ModifiedDrawNode(
     wrapped: LayoutNodeWrapper,

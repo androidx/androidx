@@ -25,7 +25,7 @@ import androidx.ui.core.drawBehind
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
-import androidx.ui.graphics.painter.DrawScope
+import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp

@@ -35,8 +35,8 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.painter.DrawScope
-import androidx.ui.graphics.painter.Stroke
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.graphics.vectormath.degrees
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize

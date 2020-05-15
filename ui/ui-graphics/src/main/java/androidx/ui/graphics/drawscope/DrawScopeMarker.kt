@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics.painter
+package androidx.ui.graphics.drawscope
 
 /**
  * DSL marker used to distinguish between drawing operations and canvas transform operations
  */
 @DslMarker
-annotation class CanvasScopeMarker
+annotation class DrawScopeMarker

@@ -22,7 +22,7 @@ import androidx.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.graphics.painter.withTransform
+import androidx.ui.graphics.drawscope.withTransform
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
