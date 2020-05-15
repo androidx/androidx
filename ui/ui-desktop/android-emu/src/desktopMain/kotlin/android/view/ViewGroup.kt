@@ -90,7 +90,7 @@ abstract class ViewGroup(context: Context) : View(context), ViewParent {
         if (path != null) {
             clipPath(path, Region.Op.INTERSECT)
         } else if (radius != null && rect != null) {
-            skijaCanvas.clipRoundedRect(
+            skijaCanvas!!.clipRoundedRect(
                 RoundedRect.makeLTRB(
                     rect.left.toFloat(),
                     rect.top.toFloat(),
