@@ -57,7 +57,6 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageAnalysisConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
-import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -144,13 +143,11 @@ public final class ImageAnalysis extends UseCase {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ImageAnalysisAbstractAnalyzer mImageAnalysisAbstractAnalyzer;
+    private final Object mAnalysisLock = new Object();
     @GuardedBy("mAnalysisLock")
     private ImageAnalysis.Analyzer mSubscribedAnalyzer;
-
     @Nullable
     private DeferrableSurface mDeferrableSurface;
-
-    private final Object mAnalysisLock = new Object();
 
     /**
      * Creates a new image analysis use case from the given configuration.
@@ -183,17 +180,19 @@ public final class ImageAnalysis extends UseCase {
         int imageQueueDepth =
                 config.getBackpressureStrategy() == STRATEGY_BLOCK_PRODUCER
                         ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
-        ImageReaderProxy imageReaderProxy;
+        SafeCloseImageReaderProxy imageReaderProxy;
         if (config.getImageReaderProxyProvider() != null) {
-            imageReaderProxy = config.getImageReaderProxyProvider().newInstance(
-                    resolution.getWidth(), resolution.getHeight(), getImageFormat(),
-                    imageQueueDepth, 0);
+            imageReaderProxy = new SafeCloseImageReaderProxy(
+                    config.getImageReaderProxyProvider().newInstance(
+                            resolution.getWidth(), resolution.getHeight(), getImageFormat(),
+                            imageQueueDepth, 0));
         } else {
-            imageReaderProxy = ImageReaderProxys.createIsolatedReader(
-                    resolution.getWidth(),
-                    resolution.getHeight(),
-                    getImageFormat(),
-                    imageQueueDepth);
+            imageReaderProxy =
+                    new SafeCloseImageReaderProxy(ImageReaderProxys.createIsolatedReader(
+                            resolution.getWidth(),
+                            resolution.getHeight(),
+                            getImageFormat(),
+                            imageQueueDepth));
         }
 
         tryUpdateRelativeRotation();
@@ -208,28 +207,25 @@ public final class ImageAnalysis extends UseCase {
             mDeferrableSurface.close();
         }
         mDeferrableSurface = new ImmediateSurface(imageReaderProxy.getSurface());
-        mDeferrableSurface.getTerminationFuture().addListener(imageReaderProxy::close,
+        mDeferrableSurface.getTerminationFuture().addListener(imageReaderProxy::safeClose,
                 CameraXExecutors.mainThreadExecutor());
 
         sessionConfigBuilder.addSurface(mDeferrableSurface);
 
-        sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
-            @Override
-            public void onError(@NonNull SessionConfig sessionConfig,
-                    @NonNull SessionConfig.SessionError error) {
-                clearPipeline();
 
-                // Ensure the attached camera has not changed before resetting.
-                // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
-                //  to this use case so we don't need to do this check.
-                if (isCurrentCamera(cameraId)) {
-                    // Only reset the pipeline when the bound camera is the same.
-                    SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
-                            resolution);
-                    updateSessionConfig(sessionConfigBuilder.build());
+        sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
+            clearPipeline();
 
-                    notifyReset();
-                }
+            // Ensure the attached camera has not changed before resetting.
+            // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
+            //  to this use case so we don't need to do this check.
+            if (isCurrentCamera(cameraId)) {
+                // Only reset the pipeline when the bound camera is the same.
+                SessionConfig.Builder errorSessionConfigBuilder = createPipeline(cameraId, config,
+                        resolution);
+                updateSessionConfig(errorSessionConfigBuilder.build());
+
+                notifyReset();
             }
         });
 
@@ -264,6 +260,25 @@ public final class ImageAnalysis extends UseCase {
             }
             mSubscribedAnalyzer = null;
         }
+    }
+
+    /**
+     * Returns the rotation of the intended target for images.
+     *
+     * <p>
+     * The rotation can be set when constructing an {@link ImageAnalysis} instance using
+     * {@link ImageAnalysis.Builder#setTargetRotation(int)}, or dynamically by calling
+     * {@link ImageAnalysis#setTargetRotation(int)}. If not set, the target rotation defaults to
+     * the value of {@link Display#getRotation()} of the default display at the time the use case
+     * is created.
+     * </p>
+     *
+     * @return The rotation of the intended target for images.
+     * @see ImageAnalysis#setTargetRotation(int)
+     */
+    @RotationValue
+    public int getTargetRotation() {
+        return ((ImageAnalysisConfig) getUseCaseConfig()).getTargetRotation();
     }
 
     /**
@@ -327,25 +342,6 @@ public final class ImageAnalysis extends UseCase {
                 Log.w(TAG, "Unable to get camera id for the use case.");
             }
         }
-    }
-
-    /**
-     * Returns the rotation of the intended target for images.
-     *
-     * <p>
-     * The rotation can be set when constructing an {@link ImageAnalysis} instance using
-     * {@link ImageAnalysis.Builder#setTargetRotation(int)}, or dynamically by calling
-     * {@link ImageAnalysis#setTargetRotation(int)}. If not set, the target rotation defaults to
-     * the value of {@link Display#getRotation()} of the default display at the time the use case
-     * is created.
-     * </p>
-     *
-     * @return The rotation of the intended target for images.
-     * @see ImageAnalysis#setTargetRotation(int)
-     */
-    @RotationValue
-    public int getTargetRotation() {
-        return ((ImageAnalysisConfig) getUseCaseConfig()).getTargetRotation();
     }
 
     /**
