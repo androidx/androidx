@@ -44,8 +44,6 @@ import androidx.ui.unit.PxBounds
 import androidx.ui.unit.toPx
 import androidx.ui.unit.toRect
 import kotlin.reflect.KClass
-import kotlin.reflect.KParameter
-import kotlin.reflect.jvm.isAccessible
 
 const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 
@@ -259,28 +257,18 @@ internal class ComposeViewAdapter : FrameLayout {
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
 
-        val previewParameters: Array<Any?> = if (parameterProvider != null) {
-            val constructor = parameterProvider.constructors
-                .singleOrNull { it.parameters.all(KParameter::isOptional) }
-                ?.apply {
-                    isAccessible = true
-                }
-                ?: throw IllegalArgumentException("PreviewParameterProvider constructor can not " +
-                        "have parameters")
-            arrayOf(
-                constructor.callBy(emptyMap()).values.elementAt(parameterProviderIndex)
-            )
-        } else {
-            emptyArray()
-        }
-
         composition = setContent(Recomposer.current()) {
             WrapPreview {
                 val composer = currentComposer
                 // We need to delay the reflection instantiation of the class until we are in the
                 // composable to ensure all the right initialization has happened and the Composable
                 // class loads correctly.
-                invokeComposableViaReflection(className, methodName, composer, *previewParameters)
+                invokeComposableViaReflection(
+                    className,
+                    methodName,
+                    composer,
+                    *getPreviewProviderParameters(parameterProvider, parameterProviderIndex)
+                )
             }
         }
     }
@@ -301,20 +289,8 @@ internal class ComposeViewAdapter : FrameLayout {
             TOOLS_NS_URI,
             "parameterProviderIndex", 0
         )
-        val parameterProviderClassName = attrs.getAttributeValue(
-            TOOLS_NS_URI,
-            "parameterProviderClass"
-        )
-        val parameterProviderClass = if (parameterProviderClassName != null)
-            try {
-                @Suppress("UNCHECKED_CAST")
-                Class.forName(parameterProviderClassName).kotlin as? KClass<out
-                PreviewParameterProvider<*>>
-            } catch (e: ClassNotFoundException) {
-                Log.e(TAG, "Unable to find provider '$parameterProviderClassName'", e)
-                null
-            }
-        else null
+        val parameterProviderClass = attrs.getAttributeValue(TOOLS_NS_URI, "parameterProviderClass")
+            ?.asPreviewProviderClass()
 
         init(
             className = className,
