@@ -132,6 +132,9 @@ object RowScope {
      * Size the element's width proportional to its [weight] relative to other weighted sibling
      * elements in the [Row]. The parent will divide the horizontal space remaining after measuring
      * unweighted child elements and distribute it according to this weight.
+     * When [fill] is true, the element will be forced to occupy the whole width allocated to it.
+     * Otherwise, the element is allowed to be smaller - this will result in [Row] being smaller,
+     * as the unused allocated width will not be redistributed to other siblings.
      */
     fun Modifier.weight(
         @FloatRange(from = 0.0, fromInclusive = false) weight: Float,

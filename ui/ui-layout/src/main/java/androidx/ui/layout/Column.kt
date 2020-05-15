@@ -132,6 +132,9 @@ object ColumnScope {
      * Size the element's height proportional to its [weight] relative to other weighted sibling
      * elements in the [Column]. The parent will divide the vertical space remaining after measuring
      * unweighted child elements and distribute it according to this weight.
+     * When [fill] is true, the element will be forced to occupy the whole height allocated to it.
+     * Otherwise, the element is allowed to be smaller - this will result in [Column] being smaller,
+     * as the unused allocated height will not be redistributed to other siblings.
      *
      * @sample androidx.ui.layout.samples.SimpleColumn
      */
