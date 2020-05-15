@@ -17,7 +17,8 @@ package androidx.ui.material
 
 import androidx.compose.state
 import androidx.test.filters.MediumTest
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Strings
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.ToggleableState.Indeterminate
@@ -51,12 +52,8 @@ class CheckboxUiTest {
     fun checkBoxTest_defaultSemantics() {
         composeTestRule.setMaterialContent {
             Column {
-                TestTag(tag = "checkboxUnchecked") {
-                    Checkbox(false, {})
-                }
-                TestTag(tag = "checkboxChecked") {
-                    Checkbox(true, {})
-                }
+                Checkbox(false, {}, modifier = Modifier.testTag(tag = "checkboxUnchecked"))
+                Checkbox(true, {}, modifier = Modifier.testTag("checkboxChecked"))
             }
         }
 
@@ -75,9 +72,7 @@ class CheckboxUiTest {
     fun checkBoxTest_toggle() {
         composeTestRule.setMaterialContent {
             val (checked, onCheckedChange) = state { false }
-            TestTag(tag = defaultTag) {
-                Checkbox(checked, onCheckedChange)
-            }
+            Checkbox(checked, onCheckedChange, modifier = Modifier.testTag(defaultTag))
         }
 
         findByTag(defaultTag)
@@ -90,9 +85,7 @@ class CheckboxUiTest {
     fun checkBoxTest_toggle_twice() {
         composeTestRule.setMaterialContent {
             val (checked, onCheckedChange) = state { false }
-            TestTag(tag = defaultTag) {
-                Checkbox(checked, onCheckedChange)
-            }
+            Checkbox(checked, onCheckedChange, modifier = Modifier.testTag(defaultTag))
         }
 
         findByTag(defaultTag)
@@ -108,9 +101,7 @@ class CheckboxUiTest {
 
         composeTestRule.setMaterialContent {
             val (checked, _) = state { false }
-            TestTag(tag = defaultTag) {
-                Checkbox(checked, {}, enabled = false)
-            }
+            Checkbox(checked, {}, enabled = false, modifier = Modifier.testTag(defaultTag))
         }
 
         findByTag(defaultTag)
