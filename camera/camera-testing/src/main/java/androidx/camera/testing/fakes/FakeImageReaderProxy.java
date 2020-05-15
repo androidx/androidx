@@ -45,6 +45,8 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     private Surface mSurface;
     private Executor mExecutor;
 
+    private boolean mIsClosed = false;
+
     // Queue of all futures for ImageProxys which have not yet been closed.
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
             BlockingQueue<ListenableFuture<Void>> mImageProxyBlockingQueue;
@@ -115,7 +117,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     @Override
     public void close() {
-
+        mIsClosed = true;
     }
 
     @Override
@@ -157,6 +159,10 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     public void setImageFormat(int imageFormat) {
         mImageFormat = imageFormat;
+    }
+
+    public boolean isClosed() {
+        return mIsClosed;
     }
 
     /**
