@@ -31,6 +31,7 @@ internal object ClassNames {
     val INSTALL_IN = ClassName.get("dagger.hilt", "InstallIn")
     val INTO_MAP = ClassName.get("dagger.multibindings", "IntoMap")
     val MODULE = ClassName.get("dagger", "Module")
+    val ORIGINATING_ELEMENT = ClassName.get("dagger.hilt.codegen", "OriginatingElement")
     val PROVIDER = ClassName.get("javax.inject", "Provider")
     val VIEW_MODEL_ASSISTED_FACTORY =
         ClassName.get("androidx.hilt.lifecycle", "ViewModelAssistedFactory")
