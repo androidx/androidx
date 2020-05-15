@@ -30,7 +30,7 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.drawOutline
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.graphics.painter.DrawStyle
 import androidx.ui.graphics.painter.Fill
 import androidx.ui.graphics.painter.drawCanvas
@@ -72,10 +72,10 @@ fun Modifier.drawBackground(
 fun Modifier.drawBackground(
     color: Color,
     shape: Shape = RectangleShape,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = CanvasScope.DefaultAlpha,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = DrawScope.DefaultAlpha,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
-    blendMode: BlendMode = CanvasScope.DefaultBlendMode
+    blendMode: BlendMode = DrawScope.DefaultBlendMode
 ) = this + DrawBackground(
                 shape,
                 {
@@ -110,10 +110,10 @@ fun Modifier.drawBackground(
 fun Modifier.drawBackground(
     brush: Brush,
     shape: Shape = RectangleShape,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = CanvasScope.DefaultAlpha,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = DrawScope.DefaultAlpha,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
-    blendMode: BlendMode = CanvasScope.DefaultBlendMode
+    blendMode: BlendMode = DrawScope.DefaultBlendMode
 ) = this + DrawBackground(
                 shape,
                 { drawRect(

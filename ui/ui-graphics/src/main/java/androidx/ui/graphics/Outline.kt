@@ -21,7 +21,7 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.graphics.painter.DrawStyle
 import androidx.ui.graphics.painter.Fill
 
@@ -75,7 +75,7 @@ fun Path.addOutline(outline: Outline) = when (outline) {
 }
 
 /**
- * Draws the [Outline] on a [CanvasScope].
+ * Draws the [Outline] on a [DrawScope].
  *
  * @param outline the outline to draw.
  * @param color Color applied to the outline when it is drawn
@@ -85,13 +85,13 @@ fun Path.addOutline(outline: Outline) = when (outline) {
  * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
  * @param blendMode: Blending algorithm to be applied to the outline
  */
-fun CanvasScope.drawOutline(
+fun DrawScope.drawOutline(
     outline: Outline,
     color: Color,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = CanvasScope.DefaultAlpha,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = DrawScope.DefaultAlpha,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
-    blendMode: BlendMode = CanvasScope.DefaultBlendMode
+    blendMode: BlendMode = DrawScope.DefaultBlendMode
 ) = drawOutlineHelper(
         outline,
         { rect ->
@@ -115,7 +115,7 @@ fun CanvasScope.drawOutline(
     )
 
 /**
- * Draws the [Outline] on a [CanvasScope].
+ * Draws the [Outline] on a [DrawScope].
  *
  * @param outline the outline to draw.
  * @param brush Brush applied to the outline when it is drawn
@@ -125,13 +125,13 @@ fun CanvasScope.drawOutline(
  * @param colorFilter: ColorFilter to apply to the [Brush] when drawn into the destination
  * @param blendMode: Blending algorithm to be applied to the outline
  */
-fun CanvasScope.drawOutline(
+fun DrawScope.drawOutline(
     outline: Outline,
     brush: Brush,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = CanvasScope.DefaultAlpha,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = DrawScope.DefaultAlpha,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
-    blendMode: BlendMode = CanvasScope.DefaultBlendMode
+    blendMode: BlendMode = DrawScope.DefaultBlendMode
 ) = drawOutlineHelper(
         outline,
         { rect ->
@@ -178,11 +178,11 @@ private fun RRect.size(): Size = Size(width, height)
  * Helper method that allows for delegation of appropriate drawing call based on type of
  * underlying outline shape
  */
-private inline fun CanvasScope.drawOutlineHelper(
+private inline fun DrawScope.drawOutlineHelper(
     outline: Outline,
-    drawRectBlock: CanvasScope.(rect: Rect) -> Unit,
-    drawRoundedRectBlock: CanvasScope.(rrect: RRect) -> Unit,
-    drawPathBlock: CanvasScope.(path: Path) -> Unit
+    drawRectBlock: DrawScope.(rect: Rect) -> Unit,
+    drawRoundedRectBlock: DrawScope.(rrect: RRect) -> Unit,
+    drawPathBlock: DrawScope.(path: Path) -> Unit
 ) = when (outline) {
         is Outline.Rectangle -> drawRectBlock(outline.rect)
         is Outline.Rounded -> {

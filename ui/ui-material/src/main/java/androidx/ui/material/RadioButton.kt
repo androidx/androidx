@@ -31,7 +31,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.graphics.painter.Stroke
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
@@ -223,7 +223,7 @@ fun RadioButton(
     }
 }
 
-private fun CanvasScope.drawRadio(
+private fun DrawScope.drawRadio(
     color: Color,
     outerPx: Float,
     innerPx: Float,

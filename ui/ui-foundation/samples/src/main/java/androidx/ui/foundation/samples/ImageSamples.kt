@@ -31,7 +31,7 @@ import androidx.ui.core.ContentScale
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.layout.preferredSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.unit.PxSize
@@ -83,7 +83,7 @@ fun ImagePainterSample() {
             override val intrinsicSize: PxSize
                 get() = PxSize(100.px, 100.px)
 
-            override fun CanvasScope.onDraw() {
+            override fun DrawScope.onDraw() {
                 drawRect(color = Color.Cyan)
             }
         }

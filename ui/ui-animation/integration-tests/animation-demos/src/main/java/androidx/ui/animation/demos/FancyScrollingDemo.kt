@@ -32,7 +32,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
@@ -91,7 +91,7 @@ fun FancyScrollingDemo() {
     }
 }
 
-private fun CanvasScope.drawItems(
+private fun DrawScope.drawItems(
     scrollPosition: Float,
     width: Float,
     height: Float

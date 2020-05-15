@@ -23,7 +23,7 @@ import androidx.ui.foundation.Image
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.layout.padding
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
@@ -40,7 +40,7 @@ fun PainterModifierSample() {
                 Px(300.0f)
             )
 
-        override fun CanvasScope.onDraw() {
+        override fun DrawScope.onDraw() {
             drawCircle(
                 center = center,
                 radius = size.minDimension / 2.0f,

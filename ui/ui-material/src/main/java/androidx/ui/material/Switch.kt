@@ -27,7 +27,7 @@ import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.graphics.painter.Stroke
 import androidx.ui.layout.Stack
 import androidx.ui.layout.padding
@@ -120,7 +120,7 @@ private fun DrawSwitch(
     }
 }
 
-private fun CanvasScope.drawTrack(trackColor: Color, trackWidth: Float, stroke: Stroke) {
+private fun DrawScope.drawTrack(trackColor: Color, trackWidth: Float, stroke: Stroke) {
     val strokeRadius = stroke.width / 2
     drawLine(
         trackColor,
@@ -130,7 +130,7 @@ private fun CanvasScope.drawTrack(trackColor: Color, trackWidth: Float, stroke: 
     )
 }
 
-private fun CanvasScope.drawThumb(position: Float, thumbDiameter: Float, thumbColor: Color) {
+private fun DrawScope.drawThumb(position: Float, thumbDiameter: Float, thumbColor: Color) {
     val thumbRadius = thumbDiameter / 2
     val x = position + thumbRadius
     drawCircle(thumbColor, thumbRadius, Offset(x, center.dy))

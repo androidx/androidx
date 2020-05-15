@@ -17,11 +17,12 @@
 package androidx.ui.graphics.samples
 
 import androidx.annotation.Sampled
+import androidx.ui.core.LayoutDirection
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.graphics.painter.inset
 import androidx.ui.graphics.painter.rotate
 import androidx.ui.graphics.painter.withTransform
@@ -42,7 +43,7 @@ fun canvasScopeSample() {
     val targetCanvas = Canvas(imageAsset)
 
     // Create a CanvasScope from this canvas to issue drawing commands into
-    CanvasScope().draw(targetCanvas, pxSize) {
+    SampleDrawScope().draw(targetCanvas, pxSize) {
         drawRect(color = Color.Gray) // Draw grey background
         // Inset content by 10 pixels on the left/right sides and 12 by the
         // top/bottom
@@ -73,7 +74,7 @@ fun canvasScopeBatchedTransformSample() {
     // create a Canvas to draw contents into the ImageAsset
     val targetCanvas = Canvas(imageAsset)
 
-    CanvasScope().draw(targetCanvas, pxSize) { // CanvasScope
+    SampleDrawScope().draw(targetCanvas, pxSize) { // CanvasScope
         inset(20.0f) {
             // Use withTransform to batch multiple transformations for 1 or more drawing calls
             // that are to be drawn.
@@ -91,4 +92,13 @@ fun canvasScopeBatchedTransformSample() {
             drawRect(Color.Red, alpha = 0.25f)
         }
     }
+}
+
+// DrawScope instance used for the purposes of this sample
+// Consumers of the DrawScope API would normally access a DrawScope
+// instance through the compose framework itself
+private class SampleDrawScope() : DrawScope() {
+    override val layoutDirection: LayoutDirection = LayoutDirection.Ltr
+    override val density: Float = 1.0f
+    override val fontScale: Float = 1.0f
 }

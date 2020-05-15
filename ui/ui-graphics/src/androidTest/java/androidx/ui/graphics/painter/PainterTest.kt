@@ -17,6 +17,7 @@
 package androidx.ui.graphics.painter
 
 import androidx.test.filters.SmallTest
+import androidx.ui.core.LayoutDirection
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
@@ -50,7 +51,7 @@ class PainterTest {
             override val intrinsicSize: PxSize
                 get() = size
 
-            override fun CanvasScope.onDraw() {
+            override fun DrawScope.onDraw() {
                 didDraw = true
             }
         }
@@ -58,7 +59,11 @@ class PainterTest {
         assertEquals(size, p.intrinsicSize)
         assertFalse(p.didDraw)
 
-        p.draw(Canvas(ImageAsset(100, 100)), PxSize(Px(100.0f), Px(100.0f)))
+        drawPainter(
+            p,
+            Canvas(ImageAsset(100, 100)),
+            PxSize(Px(100f), Px(100f))
+        )
         assertTrue(p.didDraw)
     }
 
@@ -71,21 +76,23 @@ class PainterTest {
             override val intrinsicSize: PxSize
                 get() = size
 
-            override fun applyRtl(rtl: Boolean): Boolean {
-                color = if (rtl) Color.Red else Color.Cyan
+            override fun applyLayoutDirection(layoutDirection: LayoutDirection): Boolean {
+                color = if (layoutDirection == LayoutDirection.Rtl) Color.Red else Color.Cyan
                 return true
             }
 
-            override fun CanvasScope.onDraw() {
+            override fun DrawScope.onDraw() {
                 drawRect(color = color)
             }
         }
 
         val image = ImageAsset(100, 100)
-        p.draw(
+
+        drawPainter(
+            p,
             Canvas(image),
-            PxSize(Px(100.0f), Px(100.0f)),
-            rtl = true
+            PxSize(Px(100f), Px(100f)),
+            layoutDirection = LayoutDirection.Rtl
         )
 
         assertEquals(Color.Red, image.toPixelMap()[50, 50])
@@ -98,7 +105,7 @@ class PainterTest {
             override val intrinsicSize: PxSize
                 get() = size
 
-            override fun CanvasScope.onDraw() {
+            override fun DrawScope.onDraw() {
                 drawRect(color = Color.Red)
             }
         }
@@ -108,7 +115,13 @@ class PainterTest {
 
         val paint = Paint().apply { this.color = Color.White }
         canvas.drawRect(Rect.fromLTWH(0.0f, 0.0f, 100.0f, 100.0f), paint)
-        p.draw(canvas, size, alpha = 0.5f)
+
+        drawPainter(
+            p,
+            canvas,
+            size,
+            alpha = 0.5f
+        )
 
         val expected = Color(
             alpha = 0.5f,
@@ -144,7 +157,7 @@ class PainterTest {
             override val intrinsicSize: PxSize
                 get() = size
 
-            override fun CanvasScope.onDraw() {
+            override fun DrawScope.onDraw() {
                 drawRect(color = color)
             }
         }
@@ -155,7 +168,13 @@ class PainterTest {
 
         val paint = Paint().apply { this.color = Color.White }
         canvas.drawRect(Rect.fromLTWH(0.0f, 0.0f, 100.0f, 100.0f), paint)
-        p.draw(canvas, size, alpha = 0.5f)
+
+        drawPainter(
+            p,
+            canvas,
+            size,
+            alpha = 0.5f
+        )
 
         val expected = Color(
             alpha = 0.5f,
@@ -185,14 +204,19 @@ class PainterTest {
             override val intrinsicSize: PxSize
                 get() = size
 
-            override fun CanvasScope.onDraw() {
+            override fun DrawScope.onDraw() {
                 drawRect(color = Color.Black, colorFilter = colorFilter)
             }
         }
 
         val image = ImageAsset(100, 100)
 
-        p.draw(Canvas(image), size, colorFilter = ColorFilter(Color.Blue, BlendMode.srcIn))
+        drawPainter(
+            p,
+            Canvas(image),
+            size,
+            colorFilter = ColorFilter(Color.Blue, BlendMode.srcIn)
+        )
         assertEquals(Color.Blue, image.toPixelMap()[50, 50])
     }
 }

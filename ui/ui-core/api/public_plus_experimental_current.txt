@@ -248,7 +248,7 @@ package androidx.ui.core {
     method public androidx.ui.unit.PxPosition getPositionChange();
   }
 
-  public abstract class ContentDrawScope extends androidx.ui.core.DrawScope {
+  public abstract class ContentDrawScope extends androidx.ui.graphics.painter.DrawScope {
     ctor public ContentDrawScope();
     method public abstract void drawContent();
   }
@@ -346,16 +346,10 @@ package androidx.ui.core {
   }
 
   public final class DrawModifierKt {
-    method @Deprecated public static androidx.ui.core.DrawModifier draw(kotlin.jvm.functions.Function1<? super androidx.ui.core.DrawScope,kotlin.Unit> onDraw);
-    method public static androidx.ui.core.Modifier drawBehind(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.DrawScope,kotlin.Unit> onDraw);
+    method @Deprecated public static androidx.ui.core.DrawModifier draw(kotlin.jvm.functions.Function1<? super androidx.ui.graphics.painter.DrawScope,kotlin.Unit> onDraw);
+    method public static androidx.ui.core.Modifier drawBehind(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.painter.DrawScope,kotlin.Unit> onDraw);
     method public static androidx.ui.core.Modifier drawWithContent(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.ContentDrawScope,kotlin.Unit> onDraw);
     method @Deprecated public static androidx.ui.core.DrawModifier drawWithContent(kotlin.jvm.functions.Function1<? super androidx.ui.core.ContentDrawScope,kotlin.Unit> onDraw);
-  }
-
-  public abstract class DrawScope extends androidx.ui.graphics.painter.CanvasScope implements androidx.ui.unit.Density {
-    ctor public DrawScope();
-    method public abstract androidx.ui.core.LayoutDirection getLayoutDirection();
-    property public abstract androidx.ui.core.LayoutDirection layoutDirection;
   }
 
   public final class DrawShadowKt {
@@ -715,7 +709,7 @@ package androidx.ui.core {
 
   public final class PainterModifierKt {
     method @Deprecated public static androidx.ui.core.DrawModifier asModifier(androidx.ui.graphics.painter.Painter, boolean sizeToIntrinsics = true, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
-    method public static androidx.ui.core.Modifier paint(androidx.ui.core.Modifier, androidx.ui.graphics.painter.Painter painter, boolean sizeToIntrinsics = true, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
+    method public static androidx.ui.core.Modifier paint(androidx.ui.core.Modifier, androidx.ui.graphics.painter.Painter painter, boolean sizeToIntrinsics = true, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
   }
 
   public interface ParentDataModifier extends androidx.ui.core.Modifier.Element {
@@ -2031,7 +2025,7 @@ package androidx.ui.graphics.vector {
 
   public final class VectorPainter extends androidx.ui.graphics.painter.Painter {
     method public androidx.ui.unit.PxSize getIntrinsicSize();
-    method protected void onDraw(androidx.ui.graphics.painter.CanvasScope);
+    method protected void onDraw(androidx.ui.graphics.painter.DrawScope);
     property public androidx.ui.unit.PxSize intrinsicSize;
   }
 

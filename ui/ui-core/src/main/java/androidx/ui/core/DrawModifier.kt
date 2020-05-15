@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.painter.DrawScope
 
 /**
  * A [Modifier.Element] that draws into the space of the layout.

@@ -24,7 +24,6 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.Modifier
-import androidx.ui.core.DrawScope
 import androidx.ui.core.clip
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.drawBehind
@@ -40,6 +39,7 @@ import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.Shape
+import androidx.ui.graphics.painter.DrawScope
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
