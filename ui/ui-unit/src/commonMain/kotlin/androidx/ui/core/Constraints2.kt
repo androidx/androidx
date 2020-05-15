@@ -58,6 +58,7 @@ import kotlin.math.max
  * and width of 13 bits or height of 16 bits and width of 15 bits. Any constraints exceeding
  * this range will fail.
  */
+@Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
 inline class Constraints2(
     @PublishedApi internal val value: Long

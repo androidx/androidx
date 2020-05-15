@@ -232,7 +232,6 @@ package androidx.ui.core {
     method public static void add(androidx.ui.core.ComponentNode, androidx.ui.core.ComponentNode child);
     method public static androidx.ui.core.ComponentNode? findClosestParentNode(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,java.lang.Boolean> selector);
     method public static androidx.ui.core.LayoutNode? findLastLayoutChild(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,java.lang.Boolean> block);
-    method public static androidx.ui.core.DataNodeKey<java.lang.Object> getParentDataKey();
     method public static boolean hasNoLayoutDescendants(androidx.ui.core.ComponentNode);
     method public static boolean isAttached(androidx.ui.core.ComponentNode);
     method public static androidx.ui.core.Owner requireOwner(androidx.ui.core.ComponentNode);
@@ -290,18 +289,6 @@ package androidx.ui.core {
     method public void dispatchCustomEvent(androidx.ui.core.CustomEvent event);
     method public void releaseHitPaths(java.util.Set<androidx.ui.core.PointerId> pointerIds);
     method public void retainHitPaths(java.util.Set<androidx.ui.core.PointerId> pointerIds);
-  }
-
-  public final class DataNode<T> extends androidx.ui.core.ComponentNode {
-    ctor public DataNode(androidx.ui.core.DataNodeKey<T> key, T! value);
-    method public androidx.ui.core.DataNodeKey<T> getKey();
-    method public T! getValue();
-    method public void setValue(T? p);
-  }
-
-  public final class DataNodeKey<T> {
-    ctor public DataNodeKey(String name);
-    method public String getName();
   }
 
   public final class DebugUtilsKt {
