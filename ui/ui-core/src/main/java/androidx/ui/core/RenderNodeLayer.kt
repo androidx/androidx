@@ -20,6 +20,7 @@ import android.annotation.TargetApi
 import android.graphics.Matrix
 import android.graphics.RenderNode
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.CanvasHolder
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -43,6 +44,8 @@ internal class RenderNodeLayer(
     private var isDestroyed = false
     private var cacheMatrix: Matrix? = null
     private var drawnWithZ = false
+
+    private val canvasHolder = CanvasHolder()
 
     /**
      * Local copy of the transform origin as DrawLayerModifier can be implemented
@@ -143,20 +146,19 @@ internal class RenderNodeLayer(
     override fun updateDisplayList() {
         if (isDirty || !renderNode.hasDisplayList()) {
             isDirty = false
-            val renderNodeCanvas = renderNode.beginRecording()
-            val uiCanvas = Canvas(renderNodeCanvas)
-
-            val clipPath = outlineResolver.clipPath
-            val manuallyClip = renderNode.clipToOutline && clipPath != null
-            if (manuallyClip) {
-                uiCanvas.save()
-                uiCanvas.clipPath(clipPath!!)
-            }
-            ownerView.observeLayerModelReads(this) {
-                drawBlock(uiCanvas)
-            }
-            if (manuallyClip) {
-                uiCanvas.restore()
+            canvasHolder.drawInto(renderNode.beginRecording()) {
+                val clipPath = outlineResolver.clipPath
+                val manuallyClip = renderNode.clipToOutline && clipPath != null
+                if (manuallyClip) {
+                    save()
+                    clipPath(clipPath!!)
+                }
+                ownerView.observeLayerModelReads(this@RenderNodeLayer) {
+                    drawBlock(this)
+                }
+                if (manuallyClip) {
+                    restore()
+                }
             }
             renderNode.endRecording()
         }

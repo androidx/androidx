@@ -66,6 +66,7 @@ import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.core.focus.FocusDetailedState.Active
 import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.CanvasHolder
 import androidx.ui.input.TextInputServiceAndroid
 import androidx.ui.input.textInputServiceFactory
 import androidx.ui.savedinstancestate.UiSavedStateRegistry
@@ -108,6 +109,8 @@ internal class AndroidComposeView constructor(
         private set
 
     private val focusModifier: FocusModifierImpl = FocusModifierImpl(Inactive)
+
+    private val canvasHolder = CanvasHolder()
 
     override val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
@@ -489,11 +492,10 @@ internal class AndroidComposeView constructor(
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         measureAndLayout()
-        val uiCanvas = Canvas(canvas)
         // we don't have to observe here because the root has a layer modifier
         // that will observe all children. The AndroidComposeView has only the
         // root, so it doesn't have to invalidate itself based on model changes.
-        root.draw(uiCanvas)
+        canvasHolder.drawInto(canvas) { root.draw(this) }
 
         if (dirtyLayers.isNotEmpty()) {
             for (i in 0 until dirtyLayers.size) {

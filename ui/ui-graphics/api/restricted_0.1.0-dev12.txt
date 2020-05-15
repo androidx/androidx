@@ -146,6 +146,11 @@ package androidx.ui.graphics {
     property public abstract android.graphics.Canvas nativeCanvas;
   }
 
+  public final class CanvasHolder {
+    ctor public CanvasHolder();
+    method public inline void drawInto(android.graphics.Canvas targetCanvas, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Canvas,kotlin.Unit> block);
+  }
+
   public final class CanvasKt {
     method public static void rotate(androidx.ui.graphics.Canvas, float degrees, float pivotX, float pivotY);
     method public static void rotateRad(androidx.ui.graphics.Canvas, float radians, float pivotX = 0.0f, float pivotY = 0.0f);

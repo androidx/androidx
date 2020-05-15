@@ -28,7 +28,9 @@ import androidx.ui.graphics.vectormath.isIdentity
  * to the provided [ImageAsset]
  */
 /* actual */ fun Canvas(image: ImageAsset): Canvas =
-    AndroidCanvas(android.graphics.Canvas(image.asAndroidBitmap()))
+    AndroidCanvas().apply {
+        internalCanvas = android.graphics.Canvas(image.asAndroidBitmap())
+    }
 
 /**
  * Create a new Canvas instance that targets its drawing commands to the provided
@@ -38,18 +40,41 @@ import androidx.ui.graphics.vectormath.isIdentity
     recorder: PictureRecorder,
     cullRect: Rect = Rect.largest
 ): Canvas {
-    return AndroidCanvas(
-        recorder.frameworkPicture.beginRecording(
+    return AndroidCanvas().apply {
+        internalCanvas = recorder.frameworkPicture.beginRecording(
             cullRect.width.toInt(),
             cullRect.height.toInt()
         )
-    )
+    }
 }
 
 fun Canvas(c: android.graphics.Canvas): Canvas =
-    AndroidCanvas(c)
+    AndroidCanvas().apply { internalCanvas = c }
 
-private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canvas {
+/**
+ * Holder class that is used to issue scoped calls to a [Canvas] from the framework
+ * equivalent canvas without having to allocate an object on each draw call
+ */
+class CanvasHolder {
+    @PublishedApi internal val androidCanvas = AndroidCanvas()
+
+    inline fun drawInto(targetCanvas: android.graphics.Canvas, block: Canvas.() -> Unit) {
+        val previousCanvas = androidCanvas.internalCanvas
+        androidCanvas.internalCanvas = targetCanvas
+        androidCanvas.block()
+        androidCanvas.internalCanvas = previousCanvas
+    }
+}
+
+// Stub canvas instance used to keep the internal canvas parameter non-null during its
+// scoped usage and prevent unnecessary byte code null checks from being generated
+private val EmptyCanvas = android.graphics.Canvas()
+
+@PublishedApi internal class AndroidCanvas() : Canvas {
+
+    // Keep the internal canvas as a var prevent having to allocate an AndroidCanvas
+    // instance on each draw call
+    @PublishedApi internal var internalCanvas: android.graphics.Canvas = EmptyCanvas
 
     private val srcRect: android.graphics.Rect by lazy(LazyThreadSafetyMode.NONE) {
             android.graphics.Rect()
@@ -121,7 +146,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canva
     }
 
     /**
-     * @see Canvas.concat
+     * @throws IllegalStateException if an arbitrary transform is provided
      */
     override fun concat(matrix4: Matrix4) {
         if (!matrix4.isIdentity()) {
@@ -368,7 +393,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canva
     }
 
     /**
-     * @see Canvas.drawRawPoints
+     * @throws IllegalArgumentException if a non even number of points is provided
      */
     override fun drawRawPoints(pointMode: PointMode, points: FloatArray, paint: Paint) {
         if (points.size % 2 != 0) {
