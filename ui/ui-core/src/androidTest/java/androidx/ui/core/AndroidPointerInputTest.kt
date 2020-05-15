@@ -28,7 +28,6 @@ import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.setValue
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.pointerinput.PointerInputFilter
@@ -90,22 +89,24 @@ class AndroidPointerInputTest {
             }
         }
 
-        androidComposeView = container.getChildAt(0) as AndroidComposeView
+        rule.runOnUiThread {
+            androidComposeView = container.getChildAt(0) as AndroidComposeView
 
-        val motionEvent = MotionEvent(
-            0,
-            MotionEvent.ACTION_DOWN,
-            1,
-            0,
-            arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(0f, 0f))
-        )
+            val motionEvent = MotionEvent(
+                0,
+                MotionEvent.ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(0f, 0f))
+            )
 
-        // Act
-        val actual = androidComposeView.dispatchTouchEvent(motionEvent)
+            // Act
+            val actual = androidComposeView.dispatchTouchEvent(motionEvent)
 
-        // Assert
-        assertThat(actual).isFalse()
+            // Assert
+            assertThat(actual).isFalse()
+        }
     }
 
     @Test
@@ -123,29 +124,31 @@ class AndroidPointerInputTest {
             }
         }
 
-        androidComposeView = container.getChildAt(0) as AndroidComposeView
+        rule.runOnUiThread {
 
-        val locationInWindow = IntArray(2).also {
-            androidComposeView.getLocationInWindow(it)
+            androidComposeView = container.getChildAt(0) as AndroidComposeView
+
+            val locationInWindow = IntArray(2).also {
+                androidComposeView.getLocationInWindow(it)
+            }
+
+            val motionEvent = MotionEvent(
+                0,
+                MotionEvent.ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(locationInWindow[0].toFloat(), locationInWindow[1].toFloat()))
+            )
+
+            // Act
+            val actual = androidComposeView.dispatchTouchEvent(motionEvent)
+
+            // Assert
+            assertThat(actual).isTrue()
         }
-
-        val motionEvent = MotionEvent(
-            0,
-            MotionEvent.ACTION_DOWN,
-            1,
-            0,
-            arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(locationInWindow[0].toFloat(), locationInWindow[1].toFloat()))
-        )
-
-        // Act
-        val actual = androidComposeView.dispatchTouchEvent(motionEvent)
-
-        // Assert
-        assertThat(actual).isTrue()
     }
 
-    @FlakyTest(bugId = 156512138)
     @Test
     fun dispatchTouchEvent_movementNotConsumed_requestDisallowInterceptTouchEventNotCalled() {
         dispatchTouchEvent_movementConsumptionInCompose(
@@ -154,7 +157,6 @@ class AndroidPointerInputTest {
         )
     }
 
-    @FlakyTest(bugId = 156512138)
     @Test
     fun dispatchTouchEvent_movementConsumed_requestDisallowInterceptTouchEventCalled() {
         dispatchTouchEvent_movementConsumptionInCompose(
@@ -230,40 +232,43 @@ class AndroidPointerInputTest {
             }
         }
 
-        androidComposeView = container.getChildAt(0) as AndroidComposeView
-        val (x, y) = IntArray(2).let { array ->
-            androidComposeView.getLocationInWindow(array)
-            array.map { item -> item.toFloat() }
-        }
+        rule.runOnUiThread {
 
-        val down = MotionEvent(
-            0,
-            MotionEvent.ACTION_DOWN,
-            1,
-            0,
-            arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(x, y))
-        )
+            androidComposeView = container.getChildAt(0) as AndroidComposeView
+            val (x, y) = IntArray(2).let { array ->
+                androidComposeView.getLocationInWindow(array)
+                array.map { item -> item.toFloat() }
+            }
 
-        val move = MotionEvent(
-            0,
-            MotionEvent.ACTION_MOVE,
-            1,
-            0,
-            arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(x + 1, y))
-        )
+            val down = MotionEvent(
+                0,
+                MotionEvent.ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(x, y))
+            )
 
-        androidComposeView.dispatchTouchEvent(down)
+            val move = MotionEvent(
+                0,
+                MotionEvent.ACTION_MOVE,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(x + 1, y))
+            )
 
-        // Act
-        androidComposeView.dispatchTouchEvent(move)
+            androidComposeView.dispatchTouchEvent(down)
 
-        // Assert
-        if (callsRequestDisallowInterceptTouchEvent) {
-            verify(container).requestDisallowInterceptTouchEvent(true)
-        } else {
-            verify(container, never()).requestDisallowInterceptTouchEvent(any())
+            // Act
+            androidComposeView.dispatchTouchEvent(move)
+
+            // Assert
+            if (callsRequestDisallowInterceptTouchEvent) {
+                verify(container).requestDisallowInterceptTouchEvent(true)
+            } else {
+                verify(container, never()).requestDisallowInterceptTouchEvent(any())
+            }
         }
     }
 }
