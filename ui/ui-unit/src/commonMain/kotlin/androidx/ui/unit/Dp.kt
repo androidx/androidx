@@ -423,6 +423,7 @@ inline class DpInverse(val value: Float) : Comparable<DpInverse> {
  * A two-dimensional position using [Dp] for units
  */
 @OptIn(ExperimentalUnsignedTypes::class)
+@Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
 inline class Position(@PublishedApi internal val value: Long) {
     /**
