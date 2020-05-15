@@ -73,9 +73,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
-import androidx.ui.graphics.painter.Stroke
-import androidx.ui.graphics.painter.clipRect
-import androidx.ui.graphics.painter.translate
+import androidx.ui.graphics.drawscope.Stroke
+import androidx.ui.graphics.drawscope.clipRect
+import androidx.ui.graphics.drawscope.translate
 import androidx.ui.layout.ltr
 import androidx.ui.layout.offset
 import androidx.ui.layout.padding

@@ -31,8 +31,8 @@ import androidx.ui.foundation.Text
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.DrawScope
-import androidx.ui.graphics.painter.Stroke
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack

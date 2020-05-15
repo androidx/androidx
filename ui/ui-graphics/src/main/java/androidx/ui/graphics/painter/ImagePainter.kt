@@ -20,6 +20,7 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
+import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxSize
 

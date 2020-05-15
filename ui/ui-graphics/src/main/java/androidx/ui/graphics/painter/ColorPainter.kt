@@ -18,6 +18,7 @@ package androidx.ui.graphics.painter
 
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
+import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.PxSize.Companion.UnspecifiedSize
 

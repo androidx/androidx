@@ -35,8 +35,8 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.painter.DrawScope
-import androidx.ui.graphics.painter.clipRect
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.layout.Row
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize

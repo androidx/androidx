@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics.painter
+package androidx.ui.graphics.drawscope
 
 import androidx.ui.core.LayoutDirection
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.ColorFilter
+import androidx.ui.graphics.painter.Painter
 import androidx.ui.unit.PxSize
 
 /**

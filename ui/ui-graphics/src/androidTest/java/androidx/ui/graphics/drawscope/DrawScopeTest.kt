@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics.painter
+package androidx.ui.graphics.drawscope
 
 import androidx.test.filters.SmallTest
 import androidx.ui.geometry.Offset

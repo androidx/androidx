@@ -21,9 +21,9 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
-import androidx.ui.graphics.painter.DrawScope
-import androidx.ui.graphics.painter.DrawStyle
-import androidx.ui.graphics.painter.Fill
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.DrawStyle
+import androidx.ui.graphics.drawscope.Fill
 
 /**
  * Defines a simple shape, used for bounding graphical regions.

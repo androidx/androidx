@@ -20,10 +20,10 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.inset
-import androidx.ui.graphics.painter.rotate
-import androidx.ui.graphics.painter.scale
-import androidx.ui.graphics.painter.translate
+import androidx.ui.graphics.drawscope.inset
+import androidx.ui.graphics.drawscope.rotate
+import androidx.ui.graphics.drawscope.scale
+import androidx.ui.graphics.drawscope.translate
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize

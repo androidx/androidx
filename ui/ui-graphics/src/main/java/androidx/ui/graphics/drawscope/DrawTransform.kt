@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics.painter
+package androidx.ui.graphics.drawscope
 
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
@@ -54,7 +54,7 @@ inline fun CanvasTransform.rotateRad(
 /**
  * Defines transformations that can be applied to a drawing environment
  */
-@CanvasScopeMarker
+@DrawScopeMarker
 interface CanvasTransform {
 
     /**
