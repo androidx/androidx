@@ -144,8 +144,8 @@ class AsyncPagingDataDiffer<T : Any>(
     private val job = AtomicReference<Job?>(null)
 
     /**
-     * Present a [PagingData] until it is either invalidated or another call to [submitData] is
-     * made.
+     * Present a [PagingData] until it is invalidated by a call to [refresh] or
+     * [PagingSource.invalidate].
      *
      * [submitData] should be called on the same [CoroutineDispatcher] where updates will be
      * dispatched to UI, typically [Dispatchers.Main]. (this is done for you if you use
@@ -154,6 +154,13 @@ class AsyncPagingDataDiffer<T : Any>(
      * This method is typically used when collecting from a [Flow][kotlinx.coroutines.flow.Flow]
      * produced by [Pager]. For RxJava or LiveData support, use the non-suspending overload of
      * [submitData], which accepts a [Lifecycle].
+     *
+     * Note: This method suspends while it is actively presenting page loads from a [PagingData],
+     * until the [PagingData] is invalidated. Although cancellation will propagate to this call
+     * automatically, collecting from a [Pager.flow] with the intention of presenting the most
+     * up-to-date representation of your backing dataset should typically be done using
+     * [collectLatest][kotlinx.coroutines.flow.collectLatest].
+     *
      *
      * @see [Pager]
      */
