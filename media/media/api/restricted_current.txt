@@ -333,6 +333,7 @@ package android.support.v4.media.session {
     method public void setQueue(java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem!>!);
     method public void setQueueTitle(CharSequence!);
     method public void setRatingType(@android.support.v4.media.RatingCompat.Style int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setRegistrationCallback(android.support.v4.media.session.MediaSessionCompat.RegistrationCallback?, android.os.Handler);
     method public void setRepeatMode(@android.support.v4.media.session.PlaybackStateCompat.RepeatMode int);
     method public void setSessionActivity(android.app.PendingIntent!);
     method public void setShuffleMode(@android.support.v4.media.session.PlaybackStateCompat.ShuffleMode int);
@@ -398,6 +399,11 @@ package android.support.v4.media.session {
     method public void writeToParcel(android.os.Parcel!, int);
     field public static final android.os.Parcelable.Creator<android.support.v4.media.session.MediaSessionCompat.QueueItem!>! CREATOR;
     field public static final int UNKNOWN_ID = -1; // 0xffffffff
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static interface MediaSessionCompat.RegistrationCallback {
+    method public void onCallbackRegistered(int, int);
+    method public void onCallbackUnregistered(int, int);
   }
 
   public static final class MediaSessionCompat.Token implements android.os.Parcelable {
