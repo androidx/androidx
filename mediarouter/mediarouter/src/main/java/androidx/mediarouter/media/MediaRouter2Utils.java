@@ -60,7 +60,7 @@ class MediaRouter2Utils {
                 .setVolumeHandling(descriptor.getVolumeHandling())
                 .setVolume(descriptor.getVolume())
                 .setVolumeMax(descriptor.getVolumeMax())
-                .addFeatures(getFeaturesFromIntentFilters(descriptor.getControlFilters()))
+                .addFeatures(toFeatures(descriptor.getControlFilters()))
                 .setIconUri(descriptor.getIconUri())
                 .setExtras(descriptor.getExtras())
                 //TODO: set device type (for SystemUI to display proper icon?)
@@ -87,7 +87,7 @@ class MediaRouter2Utils {
         MediaRouteDescriptor.Builder builder = new MediaRouteDescriptor.Builder(
                 // TODO: We may need to use the original ID by using extras.
                 fwkMediaRoute2Info.getId(), fwkMediaRoute2Info.getName().toString())
-                .addControlFilters(getIntentFiltersFromFeatures(fwkMediaRoute2Info.getFeatures()))
+                .addControlFilters(toControlFilters(fwkMediaRoute2Info.getFeatures()))
                 .setConnectionState(fwkMediaRoute2Info.getConnectionState())
                 .setVolumeHandling(fwkMediaRoute2Info.getVolumeHandling())
                 .setVolumeMax(fwkMediaRoute2Info.getVolumeMax())
@@ -116,8 +116,8 @@ class MediaRouter2Utils {
         return builder.build();
     }
 
-    static Collection<String> getFeaturesFromIntentFilters(List<IntentFilter> controlFilters) {
-        Set<String> features = new HashSet<String>();
+    static Collection<String> toFeatures(List<IntentFilter> controlFilters) {
+        Set<String> features = new HashSet<>();
         for (IntentFilter filter : controlFilters) {
             int count = filter.countCategories();
             for (int i = 0; i < count; i++) {
@@ -128,7 +128,7 @@ class MediaRouter2Utils {
     }
 
     @NonNull
-    static List<IntentFilter> getIntentFiltersFromFeatures(@Nullable Collection<String> features) {
+    static List<IntentFilter> toControlFilters(@Nullable Collection<String> features) {
         if (features == null) {
             return new ArrayList<>();
         }

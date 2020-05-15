@@ -44,8 +44,6 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
     private List<MediaRoute2Info> mRoutes = new ArrayList<>();
 
-    private boolean mShouldRegisterCallbackFwk;
-
     MediaRoute2Provider(@NonNull Context context, @NonNull MediaRouter2 mediaRouter2Fwk) {
         super(context);
         mMediaRouter2Fwk = mediaRouter2Fwk;
@@ -56,7 +54,13 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
     @Override
     public void onDiscoveryRequestChanged(@Nullable MediaRouteDiscoveryRequest request) {
-        updateMr2FwkCallbacks();
+        // TODO: Also Handle TransferCallback here
+        if (MediaRouter.getGlobalCallbackCount() > 0) {
+            mMediaRouter2Fwk.registerRouteCallback(mHandlerExecutor, mMr2RouteCallbackFwk,
+                    MediaRouter2Utils.toDiscoveryPreference(request));
+        } else {
+            mMediaRouter2Fwk.unregisterRouteCallback(mMr2RouteCallbackFwk);
+        }
     }
 
     @Nullable
@@ -77,20 +81,6 @@ class MediaRoute2Provider extends MediaRouteProvider {
     public DynamicGroupRouteController onCreateDynamicGroupRouteController(
             @NonNull String initialMemberRouteId) {
         return new DynamicMediaRoute2Controller(initialMemberRouteId);
-    }
-
-    void setShouldRegisterCallbackFwk(boolean shouldRegisterCallbackFwk) {
-        mShouldRegisterCallbackFwk = shouldRegisterCallbackFwk;
-    }
-
-    // TODO: Also Handle TransferCallback here
-    private void updateMr2FwkCallbacks() {
-        if (mShouldRegisterCallbackFwk) {
-            mMediaRouter2Fwk.registerRouteCallback(mHandlerExecutor, mMr2RouteCallbackFwk,
-                    MediaRouter2Utils.toDiscoveryPreference(getDiscoveryRequest()));
-        } else {
-            mMediaRouter2Fwk.unregisterRouteCallback(mMr2RouteCallbackFwk);
-        }
     }
 
     protected void refreshRoutes() {
