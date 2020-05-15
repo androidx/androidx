@@ -37,7 +37,6 @@ import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.recordedDuration
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -46,8 +45,8 @@ import org.junit.runners.JUnit4
 import org.junit.runners.Parameterized
 
 private const val tag = "widget"
-private val width = 100.px
-private val height = 100.px
+private val width = 100.0f
+private val height = 100.0f
 private val expectedDuration = LongPressTimeout + 100.milliseconds
 
 /**
@@ -119,8 +118,8 @@ class SendLongClickWithArgumentsTest(private val config: TestConfig) {
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return mutableListOf<TestConfig>().apply {
-                for (x in listOf(1.px, width / 4)) {
-                    for (y in listOf(1.px, height / 4)) {
+                for (x in listOf(1.0f, width / 4)) {
+                    for (y in listOf(1.0f, height / 4)) {
                         add(TestConfig(PxPosition(x, y)))
                     }
                 }

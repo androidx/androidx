@@ -37,14 +37,12 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
-import androidx.ui.unit.round
 import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import kotlin.math.roundToInt
 
 /**
  * Captures the underlying component's surface into bitmap.
@@ -188,26 +186,26 @@ fun Bitmap.assertShape(
     shapeColor: Color,
     backgroundColor: Color,
     backgroundShape: Shape = RectangleShape,
-    sizeX: Px = width.toFloat().px,
-    sizeY: Px = height.toFloat().px,
-    shapeSizeX: Px = sizeX,
-    shapeSizeY: Px = sizeY,
-    centerX: Px = width.px / 2f,
-    centerY: Px = height.px / 2f,
-    shapeOverlapPixelCount: Px = 1.px
+    sizeX: Float = width.toFloat(),
+    sizeY: Float = height.toFloat(),
+    shapeSizeX: Float = sizeX,
+    shapeSizeY: Float = sizeY,
+    centerX: Float = width / 2f,
+    centerY: Float = height / 2f,
+    shapeOverlapPixelCount: Float = 1.0f
 ) {
-    val width = width.px
-    val height = height.px
+    val width = width
+    val height = height
     assertTrue(centerX + sizeX / 2 <= width)
-    assertTrue(centerX - sizeX / 2 >= 0.px)
+    assertTrue(centerX - sizeX / 2 >= 0.0f)
     assertTrue(centerY + sizeY / 2 <= height)
-    assertTrue(centerY - sizeY / 2 >= 0.px)
+    assertTrue(centerY - sizeY / 2 >= 0.0f)
     val outline = shape.createOutline(PxSize(shapeSizeX, shapeSizeY), density)
     val path = Path()
     path.addOutline(outline)
     val shapeOffset = Offset(
-        (centerX - shapeSizeX / 2f).value,
-        (centerY - shapeSizeY / 2f).value
+        (centerX - shapeSizeX / 2f),
+        (centerY - shapeSizeY / 2f)
     )
     val backgroundPath = Path()
     backgroundPath.addOutline(backgroundShape.createOutline(PxSize(sizeX, sizeY), density))
@@ -272,34 +270,34 @@ fun Bitmap.assertShape(
     backgroundColor: Color,
     shapeColor: Color,
     shape: Shape = RectangleShape,
-    shapeOverlapPixelCount: Px = 1.px
+    shapeOverlapPixelCount: Float = 1.0f
 ) {
-    val fullHorizontalPadding = with(density) { horizontalPadding.toPx() * 2 }
-    val fullVerticalPadding = with(density) { verticalPadding.toPx() * 2 }
+    val fullHorizontalPadding = with(density) { horizontalPadding.toPx().value * 2 }
+    val fullVerticalPadding = with(density) { verticalPadding.toPx().value * 2 }
     return assertShape(
         density = density,
         shape = shape,
         shapeColor = shapeColor,
         backgroundColor = backgroundColor,
         backgroundShape = RectangleShape,
-        shapeSizeX = width.toFloat().px - fullHorizontalPadding,
-        shapeSizeY = height.toFloat().px - fullVerticalPadding,
+        shapeSizeX = width.toFloat() - fullHorizontalPadding,
+        shapeSizeY = height.toFloat() - fullVerticalPadding,
         shapeOverlapPixelCount = shapeOverlapPixelCount
     )
 }
 
-private infix fun Px.until(until: Px): IntRange {
-    val from = this.round().value
-    val to = until.round().value
+private infix fun Float.until(until: Float): IntRange {
+    val from = this.roundToInt()
+    val to = until.roundToInt()
     if (from <= Int.MIN_VALUE) return IntRange.EMPTY
-    return from..(to - 1).toInt()
+    return from..(to - 1)
 }
 
-private fun pixelCloserToCenter(offset: Offset, shapeSizeX: Px, shapeSizeY: Px, delta: Px):
+private fun pixelCloserToCenter(offset: Offset, shapeSizeX: Float, shapeSizeY: Float, delta: Float):
         Offset {
-    val centerX = shapeSizeX.value / 2f
-    val centerY = shapeSizeY.value / 2f
-    val d = delta.value
+    val centerX = shapeSizeX / 2f
+    val centerY = shapeSizeY / 2f
+    val d = delta
     val x = when {
         offset.dx > centerX -> offset.dx - d
         offset.dx < centerX -> offset.dx + d
@@ -313,11 +311,15 @@ private fun pixelCloserToCenter(offset: Offset, shapeSizeX: Px, shapeSizeY: Px, 
     return Offset(x, y)
 }
 
-private fun pixelFartherFromCenter(offset: Offset, shapeSizeX: Px, shapeSizeY: Px, delta: Px):
-        Offset {
-    val centerX = shapeSizeX.value / 2f
-    val centerY = shapeSizeY.value / 2f
-    val d = delta.value
+private fun pixelFartherFromCenter(
+    offset: Offset,
+    shapeSizeX: Float,
+    shapeSizeY: Float,
+    delta: Float
+): Offset {
+    val centerX = shapeSizeX / 2f
+    val centerY = shapeSizeY / 2f
+    val d = delta
     val x = when {
         offset.dx > centerX -> offset.dx + d
         offset.dx < centerX -> offset.dx - d

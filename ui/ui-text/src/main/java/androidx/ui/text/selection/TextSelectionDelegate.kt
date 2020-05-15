@@ -24,11 +24,8 @@ import androidx.ui.geometry.Rect
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.toPx
-import androidx.ui.unit.toRect
 import kotlin.math.max
 
 internal class TextSelectionDelegate(
@@ -138,20 +135,20 @@ internal fun getTextSelectionInfo(
     val startPosition = selectionCoordinates.first
     val endPosition = selectionCoordinates.second
 
-    val bounds = PxBounds(
-        Px.Zero,
-        Px.Zero,
-        textLayoutResult.size.width.toPx(),
-        textLayoutResult.size.height.toPx()
+    val bounds = Rect(
+        0.0f,
+        0.0f,
+        textLayoutResult.size.width.toPx().value,
+        textLayoutResult.size.height.toPx().value
     )
 
     val lastOffset = textLayoutResult.layoutInput.text.text.length
 
     val containsWholeSelectionStart =
-        bounds.toRect().contains(Offset(startPosition.x.value, startPosition.y.value))
+        bounds.contains(Offset(startPosition.x.value, startPosition.y.value))
 
     val containsWholeSelectionEnd =
-        bounds.toRect().contains(Offset(endPosition.x.value, endPosition.y.value))
+        bounds.contains(Offset(endPosition.x.value, endPosition.y.value))
 
     val rawStartOffset =
         if (containsWholeSelectionStart)
@@ -217,7 +214,7 @@ private fun getRefinedSelectionInfo(
     containsWholeSelectionEnd: Boolean,
     startPosition: PxPosition,
     endPosition: PxPosition,
-    bounds: PxBounds,
+    bounds: Rect,
     textLayoutResult: TextLayoutResult,
     lastOffset: Int,
     selectable: Selectable,
@@ -374,7 +371,7 @@ private fun processCrossComposable(
     rawStartOffset: Int,
     rawEndOffset: Int,
     lastOffset: Int,
-    bounds: PxBounds,
+    bounds: Rect,
     containsWholeSelectionStart: Boolean,
     containsWholeSelectionEnd: Boolean
 ): Triple<Int, Int, Boolean> {

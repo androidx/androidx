@@ -75,7 +75,7 @@ class CardTest {
                 shape = shape,
                 shapeColor = cardColor,
                 backgroundColor = background,
-                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx() }
+                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx().value }
             )
     }
 }

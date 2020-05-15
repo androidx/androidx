@@ -310,7 +310,7 @@ class ButtonTest {
                 shape = shape,
                 shapeColor = primary,
                 backgroundColor = surface,
-                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx() }
+                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx().value }
             )
     }
 

@@ -495,6 +495,11 @@ data class PxSize @PublishedApi internal constructor(@PublishedApi internal val 
 }
 
 /**
+ * Constructs a [PxSize] from width and height Float values.
+ */
+inline fun PxSize(width: Float, height: Float): PxSize = PxSize(packFloats(width, height))
+
+/**
  * Constructs a [PxSize] from width and height [Px] values.
  */
 inline fun PxSize(width: Px, height: Px): PxSize = PxSize(packFloats(width.value, height.value))
@@ -579,6 +584,11 @@ data class PxPosition @PublishedApi internal constructor(@PublishedApi internal 
         val Origin = PxPosition(0.px, 0.px)
     }
 }
+
+/**
+ * Constructs a [PxPosition] from [x] and [y] position float values.
+ */
+inline fun PxPosition(x: Float, y: Float): PxPosition = PxPosition(packFloats(x, y))
 
 /**
  * Constructs a [PxPosition] from [x] and [y] position [Px] values.

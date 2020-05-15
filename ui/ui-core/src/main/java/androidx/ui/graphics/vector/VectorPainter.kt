@@ -28,7 +28,6 @@ import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -63,11 +62,11 @@ fun VectorPainter(
     children: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): VectorPainter {
     val density = DensityAmbient.current
-    val widthPx = with(density) { defaultWidth.toPx() }
-    val heightPx = with(density) { defaultHeight.toPx() }
+    val widthPx = with(density) { defaultWidth.toPx().value }
+    val heightPx = with(density) { defaultHeight.toPx().value }
 
-    val vpWidth = if (viewportWidth.isNaN()) widthPx.value else viewportWidth
-    val vpHeight = if (viewportHeight.isNaN()) heightPx.value else viewportHeight
+    val vpWidth = if (viewportWidth.isNaN()) widthPx else viewportWidth
+    val vpHeight = if (viewportHeight.isNaN()) heightPx else viewportHeight
 
     return VectorPainter(
         createVector(
@@ -110,8 +109,8 @@ class VectorPainter internal constructor(private val vector: VectorComponent) : 
     private var currentColorFilter: ColorFilter? = null
 
     override val intrinsicSize: PxSize = PxSize(
-        IntPx(ceil(vector.defaultWidth.value).roundToInt()),
-        IntPx(ceil(vector.defaultHeight.value).roundToInt())
+        IntPx(ceil(vector.defaultWidth).roundToInt()),
+        IntPx(ceil(vector.defaultHeight).roundToInt())
     )
 
     override fun DrawScope.onDraw() {
@@ -132,10 +131,10 @@ class VectorPainter internal constructor(private val vector: VectorComponent) : 
 @Composable
 private fun createVector(
     name: String,
-    defaultWidth: Px,
-    defaultHeight: Px,
-    viewportWidth: Float = defaultWidth.value,
-    viewportHeight: Float = defaultHeight.value,
+    defaultWidth: Float,
+    defaultHeight: Float,
+    viewportWidth: Float = defaultWidth,
+    viewportHeight: Float = defaultHeight,
     children: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): VectorComponent {
     val vector =

@@ -27,8 +27,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.layout.Stack
-import androidx.ui.unit.Px
-import androidx.ui.unit.ceil
+import androidx.ui.unit.ipx
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.spy
@@ -42,6 +41,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.ceil
 
 // TODO(shepshapard): Test that all events related to scaling are consumed.
 
@@ -52,7 +52,7 @@ class ScaleGestureFilterTest {
     val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var scaleObserver: ScaleObserver
     private lateinit var view: View
-    private var touchSlop: Px = Px(Float.NEGATIVE_INFINITY)
+    private var touchSlop: Float = Float.NEGATIVE_INFINITY
 
     private val LayoutDimensionFactor = 7
     private val TinyNum = .01f
@@ -68,13 +68,13 @@ class ScaleGestureFilterTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 Stack {
-                    touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
+                    touchSlop = with(DensityAmbient.current) { TouchSlop.toPx().value }
                     Layout(
                         modifier = Modifier.scaleGestureFilter(scaleObserver),
                         measureBlock = { _, _, _ ->
                             layout(
-                                (touchSlop * LayoutDimensionFactor).ceil(),
-                                (touchSlop * LayoutDimensionFactor).ceil()
+                                ceil(touchSlop * LayoutDimensionFactor).toInt().ipx,
+                                ceil(touchSlop * LayoutDimensionFactor).toInt().ipx
                             ) {
                                 setupLatch.countDown()
                             }
@@ -92,7 +92,7 @@ class ScaleGestureFilterTest {
     @Test
     fun ui_pointerMovementWithinTouchSlop_noCallbacksCalled() {
 
-        val touchSlop = touchSlop.value
+        val touchSlop = touchSlop
 
         val down1 = MotionEvent(
             0,
@@ -168,7 +168,7 @@ class ScaleGestureFilterTest {
     @Test
     fun ui_pointerMovementBeyondTouchSlop_correctCallbacksInOrder() {
 
-        val touchSlop = touchSlop.value
+        val touchSlop = touchSlop
 
         val down1 = MotionEvent(
             0,
@@ -249,7 +249,7 @@ class ScaleGestureFilterTest {
     @Test
     fun ui_downMoveBeyondSlopCancel_correctCallbacksInOrder() {
 
-        val touchSlop = touchSlop.value
+        val touchSlop = touchSlop
 
         val down1 = MotionEvent(
             0,
@@ -317,7 +317,7 @@ class ScaleGestureFilterTest {
     @Test
     fun ui_pointerMovementScalesUp_scaleValueCorrect() {
 
-        val touchSlop = touchSlop.value
+        val touchSlop = touchSlop
 
         val down1 = MotionEvent(
             0,
@@ -365,7 +365,7 @@ class ScaleGestureFilterTest {
     @Test
     fun ui_pointerMovementScalesDown_scaleValueCorrect() {
 
-        val touchSlop = touchSlop.value
+        val touchSlop = touchSlop
 
         val down1 = MotionEvent(
             0,
