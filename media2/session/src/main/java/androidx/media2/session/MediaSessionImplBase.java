@@ -1238,14 +1238,19 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             final SequencedFutureManager manager =
                     mSessionStub.getConnectedControllersManager()
                             .getSequencedFutureManager(controller);
-            if (manager == null) {
-                if (DEBUG) {
-                    Log.d(TAG, "Skipping dispatching task to disconnected controller"
-                            + ", controller=" + controller);
+            if (manager != null) {
+                seq = manager.obtainNextSequenceNumber();
+            } else {
+                if (!isConnected(controller)) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Skipping dispatching task to disconnected controller"
+                                + ", controller=" + controller);
+                    }
+                    return;
                 }
-                return;
+                // 0 is OK for legacy controllers, because sequence number is media2 specific.
+                seq = 0;
             }
-            seq = manager.obtainNextSequenceNumber();
             task.run(controller.getControllerCb(), seq);
         } catch (DeadObjectException e) {
             onDeadObjectException(controller, e);
@@ -1261,9 +1266,6 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     private ListenableFuture<SessionResult> dispatchRemoteControllerTask(
             @NonNull ControllerInfo controller, @NonNull RemoteControllerTask task) {
-        if (!isConnected(controller)) {
-            return SessionResult.createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
-        }
         try {
             final ListenableFuture<SessionResult> future;
             final int seq;
@@ -1274,12 +1276,12 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                 future = manager.createSequencedFuture(RESULT_WHEN_CLOSED);
                 seq = ((SequencedFuture<SessionResult>) future).getSequenceNumber();
             } else {
-                // Can be null in two cases. Use the 0 as sequence number in both cases because
-                //     Case 1) Controller is from the legacy stub
-                //             -> Sequence number isn't needed, so 0 is OK
-                //     Case 2) Controller is removed after the connection check above
-                //             -> Call will fail below or ignored by the controller, so 0 is OK.
+                if (!isConnected(controller)) {
+                    return SessionResult.createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
+                }
+                // 0 is OK for legacy controllers, because sequence number is media2 specific.
                 seq = 0;
+                // Tell that operation is successful, although we don't know the actual result.
                 future = SessionResult.createFutureWithResult(SessionResult.RESULT_SUCCESS);
             }
             task.run(controller.getControllerCb(), seq);
