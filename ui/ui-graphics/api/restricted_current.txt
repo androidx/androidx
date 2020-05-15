@@ -779,14 +779,11 @@ package androidx.ui.graphics.painter {
     method public final long getCenter();
     method public abstract androidx.ui.core.LayoutDirection getLayoutDirection();
     method public final long getSize();
-    method @kotlin.PublishedApi internal final void setSize-b2zCL34(long size);
     property public final long center;
     property public abstract androidx.ui.core.LayoutDirection layoutDirection;
     property public final long size;
     field public static final androidx.ui.graphics.painter.DrawScope.Companion! Companion;
     field public static final float DefaultAlpha = 1.0f;
-    field @kotlin.PublishedApi internal androidx.ui.graphics.Canvas? canvas;
-    field @kotlin.PublishedApi internal final androidx.ui.graphics.painter.CanvasTransform transform;
   }
 
   public static final class DrawScope.Companion {
