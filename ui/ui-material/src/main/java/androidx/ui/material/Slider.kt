@@ -32,10 +32,12 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Interaction
 import androidx.ui.foundation.InteractionState
+import androidx.ui.foundation.Strings
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
@@ -55,11 +57,16 @@ import androidx.ui.layout.preferredHeightIn
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidthIn
 import androidx.ui.material.ripple.RippleIndication
-import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.accessibilityValue
+import androidx.ui.semantics.accessibilityValueRange
+import androidx.ui.semantics.scrollBackward
+import androidx.ui.semantics.scrollForward
+import androidx.ui.semantics.setProgress
 import androidx.ui.unit.dp
 import androidx.ui.util.lerp
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 /**
  * Sliders allow users to make selections from a range of values.
@@ -107,66 +114,60 @@ fun Slider(
     }
     position.onValueChange = onValueChange
     position.scaledValue = value
-    Semantics(container = true, mergeAllDescendants = true) {
-        Box(modifier = modifier) {
-            WithConstraints {
-                val maxPx = constraints.maxWidth.value.toFloat()
-                val minPx = 0f
-                position.setBounds(minPx, maxPx)
+    WithConstraints(modifier.sliderSemantics(value, position, onValueChange, valueRange, steps)) {
+        val maxPx = constraints.maxWidth.value.toFloat()
+        val minPx = 0f
+        position.setBounds(minPx, maxPx)
 
-                val flingConfig = SliderFlingConfig(position, position.anchorsPx) { endValue ->
-                    position.holder.snapTo(endValue)
-                    onValueChangeEnd()
-                }
-                val gestureEndAction = { velocity: Float ->
-                    if (flingConfig != null) {
-                        position.holder.fling(flingConfig, velocity)
-                    } else {
-                        onValueChangeEnd()
-                    }
-                }
-
-                val interactionState = remember { InteractionState() }
-
-                val press = Modifier.pressIndicatorGestureFilter(
-                    onStart = { pos ->
-                        position.holder.snapTo(pos.x)
-                        interactionState.addInteraction(Interaction.Pressed, pos)
-                    },
-                    onStop = {
-                        gestureEndAction(0f)
-                        interactionState.removeInteraction(Interaction.Pressed)
-                    },
-                    onCancel = {
-                        interactionState.removeInteraction(Interaction.Pressed)
-                    }
-                )
-
-                val drag = Modifier.draggable(
-                    dragDirection = DragDirection.Horizontal,
-                    interactionState = interactionState,
-                    onDragDeltaConsumptionRequested = { delta ->
-                        position.holder.snapTo(position.holder.value + delta)
-                        // consume all so slider won't participate in nested scrolling
-                        delta
-                    },
-                    onDragStopped = gestureEndAction,
-                    startDragImmediately = position.holder.isRunning
-                )
-                val coerced = value.coerceIn(position.startValue, position.endValue)
-                val fraction = calcFraction(position.startValue, position.endValue, coerced)
-                Semantics(container = true, properties = { accessibilityValue = "$coerced" }) {
-                    SliderImpl(
-                        fraction,
-                        position.tickFractions,
-                        color,
-                        maxPx,
-                        interactionState,
-                        modifier = press.plus(drag)
-                    )
-                }
+        val flingConfig = SliderFlingConfig(position, position.anchorsPx) { endValue ->
+            position.holder.snapTo(endValue)
+            onValueChangeEnd()
+        }
+        val gestureEndAction = { velocity: Float ->
+            if (flingConfig != null) {
+                position.holder.fling(flingConfig, velocity)
+            } else {
+                onValueChangeEnd()
             }
         }
+
+        val interactionState = remember { InteractionState() }
+
+        val press = Modifier.pressIndicatorGestureFilter(
+            onStart = { pos ->
+                position.holder.snapTo(pos.x)
+                interactionState.addInteraction(Interaction.Pressed, pos)
+            },
+            onStop = {
+                gestureEndAction(0f)
+                interactionState.removeInteraction(Interaction.Pressed)
+            },
+            onCancel = {
+                interactionState.removeInteraction(Interaction.Pressed)
+            }
+        )
+
+        val drag = Modifier.draggable(
+            dragDirection = DragDirection.Horizontal,
+            interactionState = interactionState,
+            onDragDeltaConsumptionRequested = { delta ->
+                position.holder.snapTo(position.holder.value + delta)
+                // consume all so slider won't participate in nested scrolling
+                delta
+            },
+            onDragStopped = gestureEndAction,
+            startDragImmediately = position.holder.isRunning
+        )
+        val coerced = value.coerceIn(position.startValue, position.endValue)
+        val fraction = calcFraction(position.startValue, position.endValue, coerced)
+        SliderImpl(
+            fraction,
+            position.tickFractions,
+            color,
+            maxPx,
+            interactionState,
+            modifier = press.plus(drag)
+        )
     }
 }
 
@@ -293,6 +294,74 @@ private fun SliderFlingConfig(
         )
     }
 }
+
+private fun Modifier.sliderSemantics(
+    value: Float,
+    position: SliderPosition,
+    onValueChange: (Float) -> Unit,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    @IntRange(from = 0) steps: Int = 0
+): Modifier {
+    val coerced = value.coerceIn(position.startValue, position.endValue)
+    val fraction = calcFraction(position.startValue, position.endValue, coerced)
+    // We only display 0% or 100% when it is exactly 0% or 100%.
+    val percent = when (fraction) {
+        0f -> 0
+        1f -> 100
+        else -> (fraction * 100).roundToInt().coerceIn(1, 99)
+    }
+    return semantics {
+        accessibilityValue = Strings.TemplatePercent.format(percent)
+        accessibilityValueRange = AccessibilityRangeInfo(coerced, valueRange)
+        setProgress(action = { setSliderProgress(it, coerced, position, onValueChange, steps) })
+
+        // TODO(b/157692376) Remove accessibility scroll actions in Slider when
+        //  talkback is fixed
+        var increment = (position.endValue - position.startValue) / AccessibilityStepsCount
+        if (steps > 0) {
+            increment = (position.endValue - position.startValue) / (steps + 1)
+        }
+        if (coerced < position.endValue) {
+            @Suppress("DEPRECATION")
+            scrollForward(action = {
+                setSliderProgress(coerced + increment, coerced, position, onValueChange, steps)
+            })
+        }
+        if (coerced > position.startValue) {
+            @Suppress("DEPRECATION")
+            scrollBackward(action = {
+                setSliderProgress(coerced - increment, coerced, position, onValueChange, steps)
+            })
+        }
+    }
+}
+
+private fun setSliderProgress(
+    targetValue: Float,
+    currentValue: Float,
+    position: SliderPosition,
+    onValueChange: (Float) -> Unit,
+    @IntRange(from = 0) steps: Int = 0
+): Boolean {
+    var newValue = targetValue.coerceIn(position.startValue, position.endValue)
+    if (steps >= 0) {
+        val anchorsValue = position.tickFractions.map {
+            lerp(position.startValue, position.endValue, it)
+        }
+        val point = anchorsValue.minBy { abs(it - newValue) }
+        newValue = point ?: newValue
+    }
+    // This is to keep it consistent with AbsSeekbar.java: return false if no
+    // change from current.
+    if (newValue == currentValue) {
+        return false
+    }
+    onValueChange(newValue)
+    return true
+}
+
+// 20 is taken from AbsSeekbar.java.
+private const val AccessibilityStepsCount = 20
 
 /**
  * Internal state for [Slider] that represents the Slider value, its bounds and optional amount of

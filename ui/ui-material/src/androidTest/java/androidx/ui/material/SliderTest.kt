@@ -54,11 +54,11 @@ class SliderTest {
         runOnIdleCompose {
             state.value = 2f
         }
-        findByTag(tag).assertValueEquals("1.0")
+        findByTag(tag).assertValueEquals("100 percent")
         runOnIdleCompose {
             state.value = -123145f
         }
-        findByTag(tag).assertValueEquals("0.0")
+        findByTag(tag).assertValueEquals("0 percent")
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -79,14 +79,14 @@ class SliderTest {
             }
 
         findByTag(tag)
-            .assertValueEquals("0.0")
+            .assertValueEquals("0 percent")
 
         runOnUiThread {
             state.value = 0.5f
         }
 
         findByTag(tag)
-            .assertValueEquals("0.5")
+            .assertValueEquals("50 percent")
     }
 
     @Test
