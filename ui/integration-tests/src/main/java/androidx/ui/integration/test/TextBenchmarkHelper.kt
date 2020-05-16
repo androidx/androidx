@@ -16,7 +16,12 @@
 
 package androidx.ui.integration.test
 
+import android.annotation.TargetApi
+import android.graphics.Picture
+import android.graphics.RenderNode
+import android.os.Build
 import androidx.ui.geometry.Offset
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.text.AnnotatedString
@@ -225,5 +230,48 @@ fun cartesian(vararg arrays: Array<Any>): List<Array<Any>> {
         // add items from the current list
         // to each list that was accumulated
         acc.flatMap { accListItem -> list.map { accListItem + it } }
+    }
+}
+
+// We must separate the use of RenderNode so that it isn't referenced in any
+// way on platforms that don't have it. This extracts RenderNode use to a
+// potentially unloaded class, RenderNodeCapture.
+interface DrawCapture {
+    fun beginRecording(width: Int, height: Int): Canvas
+    fun endRecording()
+}
+
+fun DrawCapture(): DrawCapture {
+    val supportsRenderNode = Build.VERSION.SDK_INT >= 29
+    return if (supportsRenderNode) {
+        RenderNodeCapture()
+    } else {
+        PictureCapture()
+    }
+}
+
+@TargetApi(Build.VERSION_CODES.Q)
+private class RenderNodeCapture : DrawCapture {
+    private val renderNode = RenderNode("Test")
+
+    override fun beginRecording(width: Int, height: Int): Canvas {
+        renderNode.setPosition(0, 0, width, height)
+        return Canvas(renderNode.beginRecording())
+    }
+
+    override fun endRecording() {
+        renderNode.endRecording()
+    }
+}
+
+private class PictureCapture : DrawCapture {
+    private val picture = Picture()
+
+    override fun beginRecording(width: Int, height: Int): Canvas {
+        return Canvas(picture.beginRecording(width, height))
+    }
+
+    override fun endRecording() {
+        picture.endRecording()
     }
 }

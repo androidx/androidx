@@ -19,10 +19,13 @@ package androidx.ui.text
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
+import androidx.ui.benchmark.measureRepeatedRecordingCanvas
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
+import androidx.ui.graphics.Paint
 import androidx.ui.integration.test.RandomTextGenerator
 import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.ui.integration.test.cartesian
@@ -202,6 +205,38 @@ class TextDelegateBenchmark(
 
             benchmarkRule.measureRepeated {
                 TextDelegate.paint(canvas, layoutResult)
+            }
+        }
+    }
+
+    /**
+     * Measure the time taken by TextDelegate.paintBackground.
+     */
+    @Test
+    fun paintBackground() {
+        textBenchmarkTestRule.generator { textGenerator ->
+            val maxWidth = textDelegate(textGenerator).let {
+                it.layout(Constraints(), layoutDirection)
+                (it.maxIntrinsicWidth.value / 4f).toIntPx()
+            }
+            val textDelegate = textDelegate(textGenerator)
+            val layoutResult = textDelegate.layout(
+                Constraints(maxWidth = maxWidth),
+                layoutDirection
+            )
+            val paint = Paint().also { it.color = Color.Yellow }
+
+            benchmarkRule.measureRepeatedRecordingCanvas(
+                width = layoutResult.size.width.value,
+                height = layoutResult.size.height.value
+            ) { canvas ->
+                TextDelegate.paintBackground(
+                    start = 0,
+                    end = textLength / 2,
+                    paint = paint,
+                    canvas = canvas,
+                    textLayoutResult = layoutResult
+                )
             }
         }
     }
