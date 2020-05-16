@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package androidx.room.solver.query.result
 
 import androidx.room.ext.L
 
-class DataSourceFactoryQueryResultBinder(
+class PagingSourceQueryResultBinder(
     positionalDataSourceQueryResultBinder: PositionalDataSourceQueryResultBinder
 ) : PagingQueryResultBinder(positionalDataSourceQueryResultBinder) {
-    override fun returnStatementTemplate() = "return $L"
+    override fun returnStatementTemplate() = "return $L.asPagingSourceFactory().invoke()"
 }

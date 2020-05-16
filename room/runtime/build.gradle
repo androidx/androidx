@@ -37,7 +37,7 @@ dependencies {
     api(project(":sqlite:sqlite-framework"))
     api(project(":sqlite:sqlite"))
     implementation("androidx.arch.core:core-runtime:2.0.1")
-    compileOnly("androidx.paging:paging-common:2.0.0")
+    compileOnly(project(":paging:paging-common"))
     compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 
     testImplementation("androidx.arch.core:core-testing:2.0.1")
