@@ -81,7 +81,7 @@ private fun PressableContainer(
         currentColor.value = defaultColor
     }
 
-    val onTap = {
+    val onTap: (PxPosition) -> Unit = {
         currentColor.value = currentColor.value.next()
     }
 

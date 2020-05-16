@@ -147,7 +147,7 @@ private fun Pressable(
         showPressed.value = false
     }
 
-    val onTap = {
+    val onTap: (PxPosition) -> Unit = {
         color.value = color.value.next()
     }
 
