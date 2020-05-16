@@ -45,13 +45,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class BatteryNotLowTrackerTest {
 
-    private static final int PLUGGED_IN = BatteryManager.BATTERY_PLUGGED_AC;
-    private static final int NOT_PLUGGED_IN = BatteryNotLowTracker.BATTERY_PLUGGED_NONE;
-    private static final int KNOWN_STATUS = BatteryManager.BATTERY_STATUS_CHARGING;
+    private static final int STATUS_CHARGING = BatteryManager.BATTERY_STATUS_CHARGING;
     private static final int UNKNOWN_STATUS = BatteryManager.BATTERY_STATUS_UNKNOWN;
-    private static final float AT_LOW_PERCENTAGE = BatteryNotLowTracker.BATTERY_LOW_PERCENTAGE;
-    private static final float ABOVE_LOW_PERCENTAGE =
-            BatteryNotLowTracker.BATTERY_LOW_PERCENTAGE + 0.01f;
+    private static final float BELOW_THRESHOLD = BatteryNotLowTracker.BATTERY_LOW_THRESHOLD;
+    private static final float ABOVE_THRESHOLD = BELOW_THRESHOLD + 0.01f;
 
     private Context mMockContext;
     private BatteryNotLowTracker mTracker;
@@ -71,21 +68,19 @@ public class BatteryNotLowTrackerTest {
                 any(IntentFilter.class))).thenReturn(expectedIntent);
     }
 
-    private Intent createBatteryChangedIntent(int plugged, int status, float percent) {
+    private Intent createBatteryChangedIntent(int status, float percent) {
         int scale = 100;
         int level = (int) (scale * percent);
 
         Intent intent = new Intent(Intent.ACTION_BATTERY_CHANGED);
-        intent.putExtra(BatteryManager.EXTRA_PLUGGED, plugged);
         intent.putExtra(BatteryManager.EXTRA_STATUS, status);
         intent.putExtra(BatteryManager.EXTRA_LEVEL, level);
         intent.putExtra(BatteryManager.EXTRA_SCALE, scale);
         return intent;
     }
 
-    private void testGetInitialStateHelper(
-            int plugged, int status, float percentage, boolean expectedBatteryNotLow) {
-        mockContextReturns(createBatteryChangedIntent(plugged, status, percentage));
+    private void initialStateHelper(int status, float percentage, boolean expectedBatteryNotLow) {
+        mockContextReturns(createBatteryChangedIntent(status, percentage));
         assertThat(mTracker.getInitialState(), is(expectedBatteryNotLow));
     }
 
@@ -98,50 +93,26 @@ public class BatteryNotLowTrackerTest {
 
     @Test
     @SmallTest
-    public void testGetInitialState_notPlugged_knownStatus_atBatteryLowPercentage() {
-        testGetInitialStateHelper(NOT_PLUGGED_IN, KNOWN_STATUS, AT_LOW_PERCENTAGE, false);
+    public void testKnownStatus_belowThreshold() {
+        initialStateHelper(STATUS_CHARGING, BELOW_THRESHOLD, false);
     }
 
     @Test
     @SmallTest
-    public void testGetInitialState_plugged_knownStatus_aboveBatteryLowPercentage() {
-        testGetInitialStateHelper(PLUGGED_IN, KNOWN_STATUS, ABOVE_LOW_PERCENTAGE, true);
+    public void testKnownStatus_aboveThreshold() {
+        initialStateHelper(STATUS_CHARGING, ABOVE_THRESHOLD, true);
     }
 
     @Test
     @SmallTest
-    public void testGetInitialState_plugged_knownStatus_atBatteryLowPercentage() {
-        testGetInitialStateHelper(PLUGGED_IN, KNOWN_STATUS, AT_LOW_PERCENTAGE, true);
+    public void testUnknownStatus_belowThreshold() {
+        initialStateHelper(UNKNOWN_STATUS, BELOW_THRESHOLD, true);
     }
 
     @Test
     @SmallTest
-    public void testGetInitialState_plugged_unknownStatus_aboveBatteryLowPercentage() {
-        testGetInitialStateHelper(PLUGGED_IN, UNKNOWN_STATUS, ABOVE_LOW_PERCENTAGE, true);
-    }
-
-    @Test
-    @SmallTest
-    public void testGetInitialState_plugged_unknownStatus_atBatteryLowPercentage() {
-        testGetInitialStateHelper(PLUGGED_IN, UNKNOWN_STATUS, AT_LOW_PERCENTAGE, true);
-    }
-
-    @Test
-    @SmallTest
-    public void testGetInitialState_notPlugged_knownStatus_aboveBatteryLowPercentage() {
-        testGetInitialStateHelper(NOT_PLUGGED_IN, KNOWN_STATUS, ABOVE_LOW_PERCENTAGE, true);
-    }
-
-    @Test
-    @SmallTest
-    public void testGetInitialState_notPlugged_unknownStatus_aboveBatteryLowPercentage() {
-        testGetInitialStateHelper(NOT_PLUGGED_IN, UNKNOWN_STATUS, ABOVE_LOW_PERCENTAGE, true);
-    }
-
-    @Test
-    @SmallTest
-    public void testGetInitialState_notPlugged_unknownStatus_atBatteryLowPercentage() {
-        testGetInitialStateHelper(NOT_PLUGGED_IN, UNKNOWN_STATUS, AT_LOW_PERCENTAGE, true);
+    public void testUnknownStatus_aboveThreshold() {
+        initialStateHelper(UNKNOWN_STATUS, ABOVE_THRESHOLD, true);
     }
 
     @Test
@@ -157,7 +128,7 @@ public class BatteryNotLowTrackerTest {
     @SmallTest
     public void testOnBroadcastReceive_invalidIntentAction_doesNotNotifyListeners() {
         mockContextReturns(
-                createBatteryChangedIntent(PLUGGED_IN, KNOWN_STATUS, ABOVE_LOW_PERCENTAGE));
+                createBatteryChangedIntent(STATUS_CHARGING, ABOVE_THRESHOLD));
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(true);
 
@@ -169,7 +140,7 @@ public class BatteryNotLowTrackerTest {
     @SmallTest
     public void testOnBroadcastReceive_notifiesListeners() {
         mockContextReturns(
-                createBatteryChangedIntent(NOT_PLUGGED_IN, KNOWN_STATUS, AT_LOW_PERCENTAGE));
+                createBatteryChangedIntent(STATUS_CHARGING, BELOW_THRESHOLD));
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(false);
 
