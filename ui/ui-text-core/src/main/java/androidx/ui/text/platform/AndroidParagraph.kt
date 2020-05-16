@@ -161,8 +161,15 @@ internal class AndroidParagraph constructor(
                     return@map null
                 }
 
-                val left = getHorizontalPosition(start, true)
-                val right = getHorizontalPosition(end, true)
+                val direction = getBidiRunDirection(start)
+
+                val left = when (direction) {
+                    TextDirection.Ltr ->
+                        getHorizontalPosition(start, true)
+                    TextDirection.Rtl ->
+                        getHorizontalPosition(start, true) - span.widthPx
+                }
+                val right = left + span.widthPx
 
                 val top = with(layout) {
                     when (span.verticalAlign) {
