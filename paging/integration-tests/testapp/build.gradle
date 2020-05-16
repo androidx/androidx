@@ -36,7 +36,7 @@ dependencies {
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
-    kapt("androidx.room:room-compiler:2.2.5")
+    kapt(project(":room:room-compiler"))
 
     implementation(MULTIDEX)
     implementation(project(":recyclerview:recyclerview"))

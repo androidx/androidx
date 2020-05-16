@@ -18,6 +18,7 @@ package androidx.paging.integration.testapp.room;
 
 import androidx.lifecycle.LiveData;
 import androidx.paging.DataSource;
+import androidx.paging.PagingSource;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -56,6 +57,12 @@ public interface CustomerDao {
      */
     @Query("SELECT * FROM customer ORDER BY mLastName ASC")
     DataSource.Factory<Integer, Customer> loadPagedAgeOrder();
+
+    /**
+     * @return PagingSource of customers, ordered by last name.
+     */
+    @Query("SELECT * FROM customer ORDER BY mLastName ASC")
+    PagingSource<Integer, Customer> loadPagedAgeOrderPagingSource();
 
     /**
      * @return number of customers
