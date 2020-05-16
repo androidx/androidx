@@ -275,6 +275,13 @@ abstract class PagingSource<Key : Any, Value : Any> {
         get() = false
 
     /**
+     * `true` if this [PagingSource] expects to re-use keys to load distinct pages
+     * without a call to [invalidate], `false` otherwise.
+     */
+    open val keyReuseSupported: Boolean
+        get() = false
+
+    /**
      * Request a refresh key given the current [PagingState] of the associated [PagingData] used to
      * present loaded data from this [PagingSource].
      *

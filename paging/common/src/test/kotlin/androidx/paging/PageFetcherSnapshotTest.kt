@@ -1558,6 +1558,89 @@ class PageFetcherSnapshotTest {
             )
         }
     }
+
+    @Test
+    fun keyReuse_unsupported() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pager = PageFetcherSnapshot(
+                initialKey = 50,
+                pagingSource = object : PagingSource<Int, Int>() {
+                    override val keyReuseSupported: Boolean
+                        get() = false
+
+                    override suspend fun load(params: LoadParams<Int>) = when (params) {
+                        is LoadParams.Refresh -> Page(listOf(0), 0, 0)
+                        else -> Page<Int, Int>(listOf(), 0, 0)
+                    }
+                },
+                config = config,
+                retryFlow = retryCh.asFlow()
+            )
+
+            // Trigger collection on flow.
+            launch {
+                // Assert second prepend re-using key = 0 leads to IllegalStateException
+                assertFailsWith<IllegalStateException> {
+                    pager.pageEventFlow.collect { }
+                }
+            }
+
+            advanceUntilIdle()
+
+            // Trigger first prepend with key = 0
+            pager.addHint(ViewportHint(0, 0))
+            advanceUntilIdle()
+
+            // Trigger second prepend with key = 0
+            pager.addHint(ViewportHint(0, 0))
+            advanceUntilIdle()
+        }
+    }
+
+    @Test
+    fun keyReuse_supported() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pager = PageFetcherSnapshot(
+                initialKey = 50,
+                pagingSource = object : PagingSource<Int, Int>() {
+                    var loads = 0
+
+                    override val keyReuseSupported: Boolean
+                        get() = true
+
+                    override suspend fun load(params: LoadParams<Int>) = when (params) {
+                        is LoadParams.Refresh -> Page(listOf(0), 0, 0)
+                        else -> Page<Int, Int>(
+                            listOf(),
+                            if (loads < 3) 0 else null,
+                            if (loads < 3) 0 else null
+                        )
+                    }.also {
+                        loads++
+                    }
+                },
+                config = config,
+                retryFlow = retryCh.asFlow()
+            )
+
+            // Trigger collection on flow.
+            val job = launch {
+                pager.pageEventFlow.collect { }
+            }
+
+            advanceUntilIdle()
+
+            // Trigger first prepend with key = 0
+            pager.addHint(ViewportHint(0, 0))
+            advanceUntilIdle()
+
+            // Trigger second prepend with key = 0
+            pager.addHint(ViewportHint(0, 0))
+            advanceUntilIdle()
+
+            job.cancel()
+        }
+    }
 }
 
 @Suppress("SuspendFunctionOnCoroutineScope")

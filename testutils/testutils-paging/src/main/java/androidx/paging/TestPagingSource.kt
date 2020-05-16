@@ -41,6 +41,9 @@ class TestPagingSource(
         }
     }
 
+    override val keyReuseSupported: Boolean
+        get() = true
+
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
         val key = params.key ?: 0
 
