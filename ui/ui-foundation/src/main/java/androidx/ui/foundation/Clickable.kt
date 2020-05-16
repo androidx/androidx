@@ -18,7 +18,6 @@ package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.compose.onCommit
-import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.PassThroughLayout
@@ -80,7 +79,7 @@ fun Clickable(
                     onStop = { removeInteraction(Interaction.Pressed) },
                     onCancel = { removeInteraction(Interaction.Pressed) }
                 )
-            } ?: Modifier).tapGestureFilter(onClick)
+            } ?: Modifier).tapGestureFilter { onClick() }
         } else {
             Modifier
         }

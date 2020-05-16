@@ -111,7 +111,7 @@ fun TriStateToggleable(
         // TODO(b/150706555): This layout is temporary and should be removed once Semantics
         //  is implemented with modifiers.
         @Suppress("DEPRECATION")
-        PassThroughLayout(modifier.tapGestureFilter(onClick), children)
+        PassThroughLayout(modifier.tapGestureFilter { onClick() }, children)
     }
 }
 
