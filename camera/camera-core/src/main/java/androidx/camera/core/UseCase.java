@@ -33,7 +33,6 @@ import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
-import androidx.camera.core.impl.UseCaseConfig.Builder;
 import androidx.core.util.Preconditions;
 
 import java.util.Collections;
@@ -104,7 +103,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    protected Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
         return null;
     }
 
@@ -113,8 +112,8 @@ public abstract class UseCase {
      *
      * <p>This configuration will be combined with the default configuration that is contained in
      * the pre-populated builder supplied by {@link #getDefaultBuilder}, if it exists and the
-     * behavior of {@link #applyDefaults(UseCaseConfig, Builder)} is not overridden. Once this
-     * method returns, the combined use case configuration can be retrieved with
+     * behavior of {@link #applyDefaults(UseCaseConfig, UseCaseConfig.Builder)} is not overridden.
+     * Once this method returns, the combined use case configuration can be retrieved with
      * {@link #getUseCaseConfig()}.
      *
      * <p>This method alone will not make any changes to the {@link SessionConfig}, it is up to
@@ -127,7 +126,7 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig) {
         // Attempt to retrieve builder containing defaults for this use case's config
-        Builder<?, ?, ?> defaultBuilder =
+        UseCaseConfig.Builder<?, ?, ?> defaultBuilder =
                 getDefaultBuilder(getCamera() == null ? null : getCamera().getCameraInfo());
 
         // Combine with default configuration.
@@ -150,7 +149,7 @@ public abstract class UseCase {
     @NonNull
     protected UseCaseConfig<?> applyDefaults(
             @NonNull UseCaseConfig<?> userConfig,
-            @Nullable Builder<?, ?, ?> defaultConfigBuilder) {
+            @Nullable UseCaseConfig.Builder<?, ?, ?> defaultConfigBuilder) {
         if (defaultConfigBuilder == null) {
             // No default builder was retrieved, return config directly
             return userConfig;
@@ -176,10 +175,7 @@ public abstract class UseCase {
             defaultMutableConfig.insertOption(objectOpt, userConfig.retrieveOption(objectOpt));
         }
 
-        // Since builder is a UseCaseConfig.Builder, it should produce a UseCaseConfig
-        @SuppressWarnings("unchecked")
-        UseCaseConfig<?> defaultConfig = defaultConfigBuilder.getUseCaseConfig();
-        return defaultConfig;
+        return defaultConfigBuilder.getUseCaseConfig();
     }
 
     /**
