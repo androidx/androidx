@@ -23,6 +23,94 @@ BannedThrow: androidx.recyclerview.widget.SortedList#get(int):
     Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IndexOutOfBoundsException`)
 
 
+CallbackMethodName: androidx.recyclerview.widget.AsyncListUtil.DataCallback#fillData(T[], int, int):
+    Callback method names must follow the on<Something> style: fillData
+CallbackMethodName: androidx.recyclerview.widget.AsyncListUtil.DataCallback#getMaxCachedTiles():
+    Callback method names must follow the on<Something> style: getMaxCachedTiles
+CallbackMethodName: androidx.recyclerview.widget.AsyncListUtil.DataCallback#recycleData(T[], int):
+    Callback method names must follow the on<Something> style: recycleData
+CallbackMethodName: androidx.recyclerview.widget.AsyncListUtil.DataCallback#refreshData():
+    Callback method names must follow the on<Something> style: refreshData
+CallbackMethodName: androidx.recyclerview.widget.AsyncListUtil.ViewCallback#extendRangeInto(int[], int[], int):
+    Callback method names must follow the on<Something> style: extendRangeInto
+CallbackMethodName: androidx.recyclerview.widget.AsyncListUtil.ViewCallback#getItemRangeInto(int[]):
+    Callback method names must follow the on<Something> style: getItemRangeInto
+CallbackMethodName: androidx.recyclerview.widget.BatchingListUpdateCallback#dispatchLastEvent():
+    Callback method names must follow the on<Something> style: dispatchLastEvent
+CallbackMethodName: androidx.recyclerview.widget.DiffUtil.Callback#areContentsTheSame(int, int):
+    Callback method names must follow the on<Something> style: areContentsTheSame
+CallbackMethodName: androidx.recyclerview.widget.DiffUtil.Callback#areItemsTheSame(int, int):
+    Callback method names must follow the on<Something> style: areItemsTheSame
+CallbackMethodName: androidx.recyclerview.widget.DiffUtil.Callback#getChangePayload(int, int):
+    Callback method names must follow the on<Something> style: getChangePayload
+CallbackMethodName: androidx.recyclerview.widget.DiffUtil.Callback#getNewListSize():
+    Callback method names must follow the on<Something> style: getNewListSize
+CallbackMethodName: androidx.recyclerview.widget.DiffUtil.Callback#getOldListSize():
+    Callback method names must follow the on<Something> style: getOldListSize
+CallbackMethodName: androidx.recyclerview.widget.DiffUtil.ItemCallback#areContentsTheSame(T, T):
+    Callback method names must follow the on<Something> style: areContentsTheSame
+CallbackMethodName: androidx.recyclerview.widget.DiffUtil.ItemCallback#areItemsTheSame(T, T):
+    Callback method names must follow the on<Something> style: areItemsTheSame
+CallbackMethodName: androidx.recyclerview.widget.DiffUtil.ItemCallback#getChangePayload(T, T):
+    Callback method names must follow the on<Something> style: getChangePayload
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#canDropOver(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder):
+    Callback method names must follow the on<Something> style: canDropOver
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#chooseDropTarget(androidx.recyclerview.widget.RecyclerView.ViewHolder, java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder>, int, int):
+    Callback method names must follow the on<Something> style: chooseDropTarget
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#clearView(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder):
+    Callback method names must follow the on<Something> style: clearView
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#convertToAbsoluteDirection(int, int):
+    Callback method names must follow the on<Something> style: convertToAbsoluteDirection
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#getAnimationDuration(androidx.recyclerview.widget.RecyclerView, int, float, float):
+    Callback method names must follow the on<Something> style: getAnimationDuration
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#getBoundingBoxMargin():
+    Callback method names must follow the on<Something> style: getBoundingBoxMargin
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#getMoveThreshold(androidx.recyclerview.widget.RecyclerView.ViewHolder):
+    Callback method names must follow the on<Something> style: getMoveThreshold
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#getMovementFlags(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder):
+    Callback method names must follow the on<Something> style: getMovementFlags
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#getSwipeEscapeVelocity(float):
+    Callback method names must follow the on<Something> style: getSwipeEscapeVelocity
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#getSwipeThreshold(androidx.recyclerview.widget.RecyclerView.ViewHolder):
+    Callback method names must follow the on<Something> style: getSwipeThreshold
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#getSwipeVelocityThreshold(float):
+    Callback method names must follow the on<Something> style: getSwipeVelocityThreshold
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#interpolateOutOfBoundsScroll(androidx.recyclerview.widget.RecyclerView, int, int, int, long):
+    Callback method names must follow the on<Something> style: interpolateOutOfBoundsScroll
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#isItemViewSwipeEnabled():
+    Callback method names must follow the on<Something> style: isItemViewSwipeEnabled
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback#isLongPressDragEnabled():
+    Callback method names must follow the on<Something> style: isLongPressDragEnabled
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback#getDragDirs(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder):
+    Callback method names must follow the on<Something> style: getDragDirs
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback#getMovementFlags(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder):
+    Callback method names must follow the on<Something> style: getMovementFlags
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback#getSwipeDirs(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder):
+    Callback method names must follow the on<Something> style: getSwipeDirs
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback#setDefaultDragDirs(int):
+    Callback method names must follow the on<Something> style: setDefaultDragDirs
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback#setDefaultSwipeDirs(int):
+    Callback method names must follow the on<Something> style: setDefaultSwipeDirs
+CallbackMethodName: androidx.recyclerview.widget.SortedList.BatchedCallback#areContentsTheSame(T2, T2):
+    Callback method names must follow the on<Something> style: areContentsTheSame
+CallbackMethodName: androidx.recyclerview.widget.SortedList.BatchedCallback#areItemsTheSame(T2, T2):
+    Callback method names must follow the on<Something> style: areItemsTheSame
+CallbackMethodName: androidx.recyclerview.widget.SortedList.BatchedCallback#compare(T2, T2):
+    Callback method names must follow the on<Something> style: compare
+CallbackMethodName: androidx.recyclerview.widget.SortedList.BatchedCallback#dispatchLastEvent():
+    Callback method names must follow the on<Something> style: dispatchLastEvent
+CallbackMethodName: androidx.recyclerview.widget.SortedList.BatchedCallback#getChangePayload(T2, T2):
+    Callback method names must follow the on<Something> style: getChangePayload
+CallbackMethodName: androidx.recyclerview.widget.SortedList.Callback#areContentsTheSame(T2, T2):
+    Callback method names must follow the on<Something> style: areContentsTheSame
+CallbackMethodName: androidx.recyclerview.widget.SortedList.Callback#areItemsTheSame(T2, T2):
+    Callback method names must follow the on<Something> style: areItemsTheSame
+CallbackMethodName: androidx.recyclerview.widget.SortedList.Callback#compare(T2, T2):
+    Callback method names must follow the on<Something> style: compare
+CallbackMethodName: androidx.recyclerview.widget.SortedList.Callback#getChangePayload(T2, T2):
+    Callback method names must follow the on<Something> style: getChangePayload
+
+
 CallbackName: androidx.recyclerview.widget.RecyclerView.AdapterDataObserver:
     Class should be named AdapterDataCallback
 

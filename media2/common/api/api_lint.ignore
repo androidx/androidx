@@ -13,6 +13,12 @@ BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putText(String, Ch
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putText(String,CharSequence)
 
 
+CallbackMethodName: androidx.media2.common.DataSourceCallback#getSize():
+    Callback method names must follow the on<Something> style: getSize
+CallbackMethodName: androidx.media2.common.DataSourceCallback#readAt(long, byte[], int, int):
+    Callback method names must follow the on<Something> style: readAt
+
+
 ExecutorRegistration: androidx.media2.common.CallbackMediaItem.Builder#Builder(androidx.media2.common.DataSourceCallback):
     Registration methods should have overload that accepts delivery Executor: `Builder`
 

@@ -1,4 +1,18 @@
 // Baseline format: 1.0
+CallbackMethodName: androidx.customview.widget.ViewDragHelper.Callback#clampViewPositionHorizontal(android.view.View, int, int):
+    Callback method names must follow the on<Something> style: clampViewPositionHorizontal
+CallbackMethodName: androidx.customview.widget.ViewDragHelper.Callback#clampViewPositionVertical(android.view.View, int, int):
+    Callback method names must follow the on<Something> style: clampViewPositionVertical
+CallbackMethodName: androidx.customview.widget.ViewDragHelper.Callback#getOrderedChildIndex(int):
+    Callback method names must follow the on<Something> style: getOrderedChildIndex
+CallbackMethodName: androidx.customview.widget.ViewDragHelper.Callback#getViewHorizontalDragRange(android.view.View):
+    Callback method names must follow the on<Something> style: getViewHorizontalDragRange
+CallbackMethodName: androidx.customview.widget.ViewDragHelper.Callback#getViewVerticalDragRange(android.view.View):
+    Callback method names must follow the on<Something> style: getViewVerticalDragRange
+CallbackMethodName: androidx.customview.widget.ViewDragHelper.Callback#tryCaptureView(android.view.View, int):
+    Callback method names must follow the on<Something> style: tryCaptureView
+
+
 MissingNullability: androidx.customview.view.AbsSavedState#CREATOR:
     Missing nullability on field `CREATOR` in class `class androidx.customview.view.AbsSavedState`
 MissingNullability: androidx.customview.view.AbsSavedState#EMPTY_STATE:

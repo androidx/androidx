@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+CallbackMethodName: androidx.activity.OnBackPressedCallback#handleOnBackPressed():
+    Callback method names must follow the on<Something> style: handleOnBackPressed
+
+
 ExecutorRegistration: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback):
     Registration methods should have overload that accepts delivery Executor: `addCallback`
 ExecutorRegistration: androidx.activity.contextaware.ContextAware#addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener):

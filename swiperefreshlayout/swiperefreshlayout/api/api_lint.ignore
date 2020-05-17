@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+CallbackMethodName: androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnChildScrollUpCallback#canChildScrollUp(androidx.swiperefreshlayout.widget.SwipeRefreshLayout, android.view.View):
+    Callback method names must follow the on<Something> style: canChildScrollUp
+
+
 InternalField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mFrom:
     Internal field mFrom must not be exposed
 InternalField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mOriginalOffsetTop:
