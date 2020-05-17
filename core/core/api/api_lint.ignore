@@ -189,6 +189,24 @@ ExecutorRegistration: androidx.core.provider.FontsContractCompat#requestFont(and
     Registration methods should have overload that accepts delivery Executor: `requestFont`
 
 
+GetterOnBuilder: androidx.core.app.NotificationCompat.Action.Builder#getExtras():
+    Getter should be on the built object, not the builder: method androidx.core.app.NotificationCompat.Action.Builder.getExtras()
+GetterOnBuilder: androidx.core.app.NotificationCompat.Builder#getExtras():
+    Getter should be on the built object, not the builder: method androidx.core.app.NotificationCompat.Builder.getExtras()
+GetterOnBuilder: androidx.core.app.RemoteInput.Builder#getExtras():
+    Getter should be on the built object, not the builder: method androidx.core.app.RemoteInput.Builder.getExtras()
+GetterOnBuilder: androidx.core.app.ShareCompat.IntentBuilder#getIntent():
+    Getter should be on the built object, not the builder: method androidx.core.app.ShareCompat.IntentBuilder.getIntent()
+GetterOnBuilder: androidx.core.app.TaskStackBuilder#getIntentCount():
+    Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getIntentCount()
+GetterOnBuilder: androidx.core.app.TaskStackBuilder#getIntents():
+    Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getIntents()
+GetterOnBuilder: androidx.core.app.TaskStackBuilder#getPendingIntent(int, int):
+    Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getPendingIntent(int,int)
+GetterOnBuilder: androidx.core.app.TaskStackBuilder#getPendingIntent(int, int, android.os.Bundle):
+    Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getPendingIntent(int,int,android.os.Bundle)
+
+
 KotlinOperator: androidx.core.os.LocaleListCompat#get(int):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 
