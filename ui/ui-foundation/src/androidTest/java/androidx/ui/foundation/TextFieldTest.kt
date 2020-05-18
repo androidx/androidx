@@ -35,6 +35,7 @@ import androidx.ui.graphics.RectangleShape
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditorValue
+import androidx.ui.input.ImeAction
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxSize
@@ -42,12 +43,15 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.test.StateRestorationTester
+import androidx.ui.test.assert
 import androidx.ui.test.assertPixels
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
+import androidx.ui.test.hasImeAction
+import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
@@ -484,5 +488,37 @@ class TextFieldTest {
                     Color.White
                 }
             }
+    }
+
+    @Test
+    fun defaultSemantics() {
+        composeTestRule.setContent {
+            TestTag("textField") {
+                TextField(
+                    value = TextFieldValue(),
+                    onValueChange = {}
+                )
+            }
+        }
+
+        findByTag("textField")
+            .assert(hasInputMethodsSupport())
+            .assert(hasImeAction(ImeAction.Unspecified))
+    }
+
+    @Test
+    fun setImeAction_isReflectedInSemantics() {
+        composeTestRule.setContent {
+            TestTag("textField") {
+                TextField(
+                    value = TextFieldValue(),
+                    imeAction = ImeAction.Search,
+                    onValueChange = {}
+                )
+            }
+        }
+
+        findByTag("textField")
+            .assert(hasImeAction(ImeAction.Search))
     }
 }

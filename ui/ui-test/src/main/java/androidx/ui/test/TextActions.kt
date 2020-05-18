@@ -20,6 +20,8 @@ import androidx.ui.core.AndroidOwner
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.DeleteAllEditOp
 import androidx.ui.input.EditOperation
+import androidx.ui.input.ImeAction
+import androidx.ui.text.TextSemanticsProperties
 
 /**
  * Clears the text in this node in similar way to IME.
@@ -35,7 +37,7 @@ fun SemanticsNodeInteraction.doClearText(alreadyHasFocus: Boolean = false) {
     }
     // TODO: There should be some assertion on focus in the future.
 
-    sendTextInputCommand(DeleteAllEditOp())
+    sendTextInputCommand(listOf(DeleteAllEditOp()))
 }
 
 /**
@@ -44,28 +46,96 @@ fun SemanticsNodeInteraction.doClearText(alreadyHasFocus: Boolean = false) {
  * @param text Text to send.
  * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
  * clicked on.
- *
  */
 fun SemanticsNodeInteraction.doSendText(text: String, alreadyHasFocus: Boolean = false) {
     if (!alreadyHasFocus) {
         doClick()
     }
     // TODO: There should be some assertion on focus in the future.
-    // TODO: Calling this twice replaces the text instead of appending it. Why?
-    sendTextInputCommand(CommitTextEditOp(text, 1))
+
+    sendTextInputCommand(listOf(CommitTextEditOp(text, 1)))
 }
 
-internal fun SemanticsNodeInteraction.sendTextInputCommand(command: EditOperation) {
-    val owner = (fetchSemanticsNode().componentNode.owner as AndroidOwner)
+/**
+ * Replaces existing text with the given text in this node in similar way to IME.
+ *
+ * This does not reflect text selection. All the text gets cleared out and new inserted.
+ *
+ * @param text Text to send.
+ * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
+ * clicked on.
+ */
+fun SemanticsNodeInteraction.doReplaceText(text: String, alreadyHasFocus: Boolean = false) {
+    if (!alreadyHasFocus) {
+        doClick()
+    }
+
+    // TODO: There should be some assertion on focus in the future.
+
+    sendTextInputCommand(listOf(DeleteAllEditOp(), CommitTextEditOp(text, 1)))
+}
+
+/**
+ * Sends to this node the IME action associated with it in similar way to IME.
+ *
+ * The node needs to define its IME action in semantics.
+ *
+ * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
+ * clicked on.
+ *
+ * @throws AssertionError if the node does not support input or does not define IME action.
+ * @throws IllegalStateException if tne node did not establish input connection (e.g. is not
+ * focused)
+ */
+fun SemanticsNodeInteraction.doSendImeAction(alreadyHasFocus: Boolean = false) {
+    if (!alreadyHasFocus) {
+        doClick()
+    }
+
+    val errorOnFail = "Failed to send IME action."
+    val node = fetchSemanticsNode(errorOnFail)
+
+    assert(hasInputMethodsSupport()) { errorOnFail }
+
+    val actionSpecified = node.config.getOrElse(TextSemanticsProperties.ImeAction) {
+        ImeAction.Unspecified
+    }
+    if (actionSpecified == ImeAction.Unspecified) {
+        throw AssertionError(buildGeneralErrorMessage(
+            "Failed to send IME action as current node does not specify any.", selector, node))
+    }
+
+    val owner = node.componentNode.owner as AndroidOwner
 
     runOnUiThread {
-        val textInputService = owner.textInputService as TextInputServiceForTests?
-            ?: throw IllegalStateException ("Text input service wrapper not set up! Did you use " +
-                    "ComposeTestRule?")
+        val textInputService = owner.getTextInputServiceOrDie()
+
+        val onImeActionPerformed = textInputService.onImeActionPerformed
+            ?: throw IllegalStateException("No input session started. Missing a focus?")
+
+        onImeActionPerformed.invoke(actionSpecified)
+    }
+}
+
+internal fun SemanticsNodeInteraction.sendTextInputCommand(command: List<EditOperation>) {
+    val errorOnFail = "Failed to send text input."
+    val node = fetchSemanticsNode(errorOnFail)
+    val owner = node.componentNode.owner as AndroidOwner
+
+    assert(hasInputMethodsSupport()) { errorOnFail }
+
+    runOnUiThread {
+        val textInputService = owner.getTextInputServiceOrDie()
 
         val onEditCommand = textInputService.onEditCommand
             ?: throw IllegalStateException("No input session started. Missing a focus?")
 
-        onEditCommand.invoke(listOf(command))
+        onEditCommand(command)
     }
+}
+
+internal fun AndroidOwner.getTextInputServiceOrDie(): TextInputServiceForTests {
+    return this.textInputService as TextInputServiceForTests?
+        ?: throw IllegalStateException ("Text input service wrapper not set up! Did you use " +
+                "ComposeTestRule?")
 }

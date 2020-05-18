@@ -49,8 +49,7 @@ class ErrorMessagesTest {
         }
 
         expectErrorMessage("" +
-                "Failed to assert that node satisfies the following condition: " +
-                "(OnClick is defined)\n" +
+                "Failed to assert the following: (OnClick is defined)\n" +
                 "Semantics of the node:\n" +
                 "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
                 "- TestTag = 'MyButton'\n" +
