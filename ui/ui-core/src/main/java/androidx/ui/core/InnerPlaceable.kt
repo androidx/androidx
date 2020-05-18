@@ -153,7 +153,7 @@ internal class InnerPlaceable(
         if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
             // Any because as soon as true is returned, we know we have found a hit path and we must
             //  not add PointerInputFilters on different paths so we should not even go looking.
-            return layoutNode.children.reversed().fastAny { child ->
+            return layoutNode.zIndexSortedChildren.reversed().fastAny { child ->
                 callHitTest(child, pointerPositionRelativeToScreen, hitPointerInputFilters)
             }
         } else {
