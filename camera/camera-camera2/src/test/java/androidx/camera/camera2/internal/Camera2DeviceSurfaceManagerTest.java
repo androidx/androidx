@@ -572,8 +572,8 @@ public final class Camera2DeviceSurfaceManagerTest {
         @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
                 lensFacing);
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
-                new Camera2CameraInfoImpl(cameraId, characteristics, mock(ZoomControl.class),
-                        mock(TorchControl.class))));
+                new Camera2CameraInfoImpl(cameraId, characteristics,
+                        mock(Camera2CameraControl.class))));
     }
 
     private void initCameraX() {
