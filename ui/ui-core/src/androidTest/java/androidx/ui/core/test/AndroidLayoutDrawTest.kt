@@ -2360,6 +2360,103 @@ class AndroidLayoutDrawTest {
         }
     }
 
+    // When a layer moves, it should redraw properly
+    @Test
+    fun drawOnLayerMove() {
+        val offset = mutableStateOf(10.ipx)
+        var placeLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThread {
+            activity.setContent {
+                val yellowSquare = @Composable {
+                    FixedSize(
+                        10.ipx, Modifier.drawLayer().background(Color.Yellow).drawLatchModifier()
+                    ) {
+                    }
+                }
+                Layout(
+                    modifier = Modifier.background(Color.Red),
+                    children = yellowSquare
+                ) { measurables, _, _ ->
+                    val childConstraints = Constraints.fixed(10.ipx, 10.ipx)
+                    val p = measurables[0].measure(childConstraints)
+                    layout(30.ipx, 30.ipx) {
+                        p.place(offset.value, offset.value)
+                        placeLatch.countDown()
+                    }
+                }
+            }
+        }
+
+        validateSquareColors(outerColor = Color.Red, innerColor = Color.Yellow, size = 10)
+
+        placeLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThread {
+            offset.value = 5.ipx
+        }
+
+        // Wait for layout to complete
+        assertTrue(placeLatch.await(1, TimeUnit.SECONDS))
+
+        activityTestRule.runOnUiThread {
+        }
+
+        activityTestRule.waitAndScreenShot(forceInvalidate = false).apply {
+            // just test that it is red around the Yellow
+            assertRect(Color.Red, size = 20, centerX = 10, centerY = 10, holeSize = 10)
+            // now test that it is red in the lower-right
+            assertRect(Color.Red, size = 10, centerX = 25, centerY = 25)
+            assertRect(Color.Yellow, size = 10, centerX = 10, centerY = 10)
+        }
+    }
+
+    // When a layer property changes, it should redraw properly
+    @Test
+    fun drawOnLayerPropertyChange() {
+        val offset = mutableStateOf(0f)
+        var translationLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThread {
+            activity.setContent {
+                FixedSize(30.ipx, Modifier.background(Color.Red).drawLatchModifier()) {
+                    FixedSize(
+                        10.ipx,
+                        PaddingModifier(10.ipx).plus(
+                            object : DrawLayerModifier {
+                                override val translationX: Float
+                                    get() {
+                                        translationLatch.countDown()
+                                        return offset.value
+                                    }
+                                override val translationY: Float
+                                        get() = offset.value
+                            }
+                        ).background(Color.Yellow)
+                    ) {
+                    }
+                }
+            }
+        }
+
+        validateSquareColors(outerColor = Color.Red, innerColor = Color.Yellow, size = 10)
+
+        translationLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThread {
+            offset.value = -5f
+        }
+        // Wait for translation to complete
+        assertTrue(translationLatch.await(1, TimeUnit.SECONDS))
+
+        activityTestRule.runOnUiThread {
+        }
+
+        activityTestRule.waitAndScreenShot(forceInvalidate = false).apply {
+            // just test that it is red around the Yellow
+            assertRect(Color.Red, size = 20, centerX = 10, centerY = 10, holeSize = 10)
+            // now test that it is red in the lower-right
+            assertRect(Color.Red, size = 10, centerX = 25, centerY = 25)
+            assertRect(Color.Yellow, size = 10, centerX = 10, centerY = 10)
+        }
+    }
+
     private fun composeSquares(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
@@ -2950,19 +3047,23 @@ fun findAndroidComposeView(parent: ViewGroup): ViewGroup? {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun ActivityTestRule<*>.waitAndScreenShot(): Bitmap {
+fun ActivityTestRule<*>.waitAndScreenShot(forceInvalidate: Boolean = true): Bitmap {
     val view = findAndroidComposeView()
     val flushListener = DrawCounterListener(view)
     val offset = intArrayOf(0, 0)
     var handler: Handler? = null
     runOnUiThread {
         view.getLocationInWindow(offset)
-        view.viewTreeObserver.addOnPreDrawListener(flushListener)
-        view.invalidate()
+        if (forceInvalidate) {
+            view.viewTreeObserver.addOnPreDrawListener(flushListener)
+            view.invalidate()
+        }
         handler = Handler()
     }
 
-    assertTrue(flushListener.latch.await(1, TimeUnit.SECONDS))
+    if (forceInvalidate) {
+        assertTrue(flushListener.latch.await(1, TimeUnit.SECONDS))
+    }
     val width = view.width
     val height = view.height
 
