@@ -16,10 +16,20 @@
 
 package androidx.paging
 
+import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.PageEvent.Drop
+import androidx.paging.PageEvent.Insert
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -36,7 +46,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
 @RunWith(JUnit4::class)
 class PagingDataDifferTest {
     private val testScope = TestCoroutineScope()
@@ -152,12 +162,84 @@ class PagingDataDifferTest {
 
         job.cancel()
     }
+
+    @Test
+    fun listUpdateFlow() = testScope.runBlockingTest {
+        val differ = SimpleDiffer()
+        val pageEventFlow = flowOf<PageEvent<Int>>(
+            Insert.Refresh(listOf(), 0, 0, mapOf()),
+            Insert.Prepend(listOf(), 0, mapOf()),
+            Drop(PREPEND, 0, 0),
+            Insert.Refresh(listOf(TransformablePage(0, listOf(0))), 0, 0, mapOf())
+        )
+
+        val pagingData = PagingData(pageEventFlow, dummyReceiver)
+
+        // Start collection for ListUpdates before collecting from differ to prevent conflation
+        // from affecting the expected events.
+        val listUpdates = mutableListOf<Unit>()
+        val listUpdateJob = launch {
+            differ.dataRefreshFlow.collect { listUpdates.add(it) }
+        }
+
+        val job = launch {
+            differ.collectFrom(pagingData, dummyPresenterCallback)
+        }
+
+        advanceUntilIdle()
+        assertThat(listUpdates)
+            .isEqualTo(pageEventFlow.toListChangedEvents().toList())
+
+        listUpdateJob.cancel()
+        job.cancel()
+    }
+
+    @Test
+    fun listUpdateCallback() = testScope.runBlockingTest {
+        val differ = SimpleDiffer()
+        val pageEventFlow = flowOf<PageEvent<Int>>(
+            Insert.Refresh(listOf(), 0, 0, mapOf()),
+            Insert.Prepend(listOf(), 0, mapOf()),
+            Drop(PREPEND, 0, 0),
+            Insert.Refresh(listOf(TransformablePage(0, listOf(0))), 0, 0, mapOf())
+        )
+
+        val pagingData = PagingData(pageEventFlow, dummyReceiver)
+
+        // Start listening for ListUpdates before collecting from differ to prevent conflation
+        // from affecting the expected events.
+        val listUpdates = mutableListOf<Unit>()
+        differ.addDataRefreshListener {
+            listUpdates.add(Unit)
+        }
+
+        val job = launch {
+            differ.collectFrom(pagingData, dummyPresenterCallback)
+        }
+
+        advanceUntilIdle()
+        assertThat(listUpdates)
+            .isEqualTo(pageEventFlow.toListChangedEvents().toList())
+
+        job.cancel()
+    }
 }
 
-private fun infinitelySuspendingPagingData(receiver: UiReceiver = dummyReceiver) = PagingData<Int>(
-    flow { emit(suspendCancellableCoroutine { }) },
-    receiver
-)
+private fun <T : Any> Flow<PageEvent<T>>.toListChangedEvents() = mapNotNull { event ->
+    when (event) {
+        is Insert -> when (event.loadType) {
+            REFRESH -> Unit
+            else -> null
+        }
+        else -> null
+    }
+}
+
+private fun infinitelySuspendingPagingData(receiver: UiReceiver = dummyReceiver) =
+    PagingData(
+        flow { emit(suspendCancellableCoroutine<PageEvent<Int>> { }) },
+        receiver
+    )
 
 private class UiReceiverFake : UiReceiver {
     val hints = mutableListOf<ViewportHint>()
