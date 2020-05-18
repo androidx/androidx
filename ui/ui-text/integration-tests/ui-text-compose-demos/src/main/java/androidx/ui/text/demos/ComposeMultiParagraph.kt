@@ -23,6 +23,7 @@ import androidx.ui.layout.Column
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
+import androidx.ui.text.annotatedString
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextIndent
 import androidx.ui.text.withStyle
@@ -54,7 +55,7 @@ fun TextDemoParagraph() {
     val text1 = "paragraph1 paragraph1 paragraph1 paragraph1 paragraph1"
     val text2 = "paragraph2 paragraph2 paragraph2 paragraph2 paragraph2"
     Text(
-        text = AnnotatedString {
+        text = annotatedString {
             append(text1)
             withStyle(ParagraphStyle()) {
                 append(text2)
@@ -66,7 +67,7 @@ fun TextDemoParagraph() {
 
 @Composable
 fun TextDemoParagraphTextAlign() {
-    val annotatedString = AnnotatedString {
+    val annotatedString = annotatedString {
         TextAlign.values().forEach { textAlign ->
             val str = List(4) { "TextAlign.$textAlign" }.joinToString(" ")
             withStyle(ParagraphStyle(textAlign = textAlign)) {
@@ -116,7 +117,7 @@ fun TextDemoParagraphIndent() {
     val text2 = "TextIndent restLine TextIndent restLine TextIndent restLine"
 
     Text(
-        text = AnnotatedString {
+        text = annotatedString {
             withStyle(ParagraphStyle(textIndent = TextIndent(firstLine = 20.sp))) {
                 append(text1)
             }
@@ -133,7 +134,7 @@ fun TextDemoParagraphTextDirection() {
     val ltrText = "Hello World! Hello World! Hello World! Hello World! Hello World!"
     val rtlText = "مرحبا بالعالم مرحبا بالعالم مرحبا بالعالم مرحبا بالعالم مرحبا بالعالم"
     Text(
-        text = AnnotatedString {
+        text = annotatedString {
             withStyle(ParagraphStyle()) {
                 append(ltrText)
             }

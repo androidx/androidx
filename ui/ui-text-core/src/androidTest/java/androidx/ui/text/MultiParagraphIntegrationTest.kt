@@ -1452,7 +1452,7 @@ class MultiParagraphIntegrationTest {
      * Helper function which creates an AnnotatedString where each input string becomes a paragraph.
      */
     private fun createAnnotatedString(paragraphs: List<String>): AnnotatedString {
-        return AnnotatedString {
+        return annotatedString {
             for (paragraph in paragraphs) {
                 pushStyle(ParagraphStyle())
                 append(paragraph)

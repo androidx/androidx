@@ -491,7 +491,7 @@ class AnnotatedStringBuilderTest {
         val paragraphStyle1 = ParagraphStyle(textAlign = TextAlign.Right)
         val paragraphStyle2 = ParagraphStyle(textAlign = TextAlign.Right)
 
-        val buildResult = AnnotatedString {
+        val buildResult = annotatedString {
             withStyle(paragraphStyle1) {
                 withStyle(spanStyle1) {
                     append(text1)
