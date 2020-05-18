@@ -129,13 +129,13 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
      * Sets the use case to be in the state where the capture session will be configured to handle
      * capture requests from the use cases.
      */
-    void addOnlineUseCase(@NonNull Collection<UseCase> useCases);
+    void attachUseCases(@NonNull Collection<UseCase> useCases);
 
     /**
      * Removes the use case to be in the state where the capture session will be configured to
      * handle capture requests from the use cases.
      */
-    void removeOnlineUseCase(@NonNull Collection<UseCase> useCases);
+    void detachUseCases(@NonNull Collection<UseCase> useCases);
 
     /** Returns the global CameraControlInternal attached to this camera. */
     @NonNull

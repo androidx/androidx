@@ -232,7 +232,7 @@ public final class CameraUtil {
         for (UseCase useCase : useCases) {
             cameraInternal.onUseCaseInactive(useCase);
         }
-        cameraInternal.removeOnlineUseCase(Arrays.asList(useCases));
+        cameraInternal.detachUseCases(Arrays.asList(useCases));
     }
 
     /**

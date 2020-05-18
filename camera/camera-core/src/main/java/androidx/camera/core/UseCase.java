@@ -457,7 +457,7 @@ public abstract class UseCase {
 
         synchronized (mCameraLock) {
             if (mCamera != null) {
-                mCamera.removeOnlineUseCase(Collections.singleton(this));
+                mCamera.detachUseCases(Collections.singleton(this));
                 removeStateChangeCallback(mCamera);
                 mCamera = null;
             }
@@ -465,21 +465,21 @@ public abstract class UseCase {
     }
 
     /**
-     * Called when use case is online in camera. This method is called on main thread.
+     * Called when use case is attached to the camera. This method is called on main thread.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onStateOnline() {
+    public void onStateAttached() {
     }
 
     /**
-     * Called when use case is offline in camera. This method is called on main thread.
+     * Called when use case is detached from the camera. This method is called on main thread.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onStateOffline() {
+    public void onStateDetached() {
     }
 
     /**
