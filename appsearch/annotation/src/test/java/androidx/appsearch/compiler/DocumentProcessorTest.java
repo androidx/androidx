@@ -21,11 +21,28 @@ import com.google.testing.compile.CompilationSubject;
 import com.google.testing.compile.Compiler;
 import com.google.testing.compile.JavaFileObjects;
 
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
 
 import javax.tools.JavaFileObject;
 
+// TODO(b/156296904): Add tests for the contents of the output java file
 public class DocumentProcessorTest {
+    @Rule
+    public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
+
+    private File mGenFilesDir;
+
+    @Before
+    public void setUp() throws IOException {
+        mGenFilesDir = mTemporaryFolder.newFolder("genFilesDir");
+    }
+
     @Test
     public void testNonClass() {
         Compilation compilation = compile(
@@ -321,17 +338,27 @@ public class DocumentProcessorTest {
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
     }
 
-    private static Compilation compile(String classBody) {
+    private Compilation compile(String classBody) {
         return compile("Gift", classBody);
     }
 
-    private static Compilation compile(String classSimpleName, String classBody) {
+    private Compilation compile(String classSimpleName, String classBody) {
         String src = "package com.example.appsearch;\n"
                 + "import androidx.appsearch.annotation.AppSearchDocument;\n"
                 + classBody;
         JavaFileObject jfo = JavaFileObjects.forSourceString(
                 "com.example.appsearch." + classSimpleName,
                 src);
-        return Compiler.javac().withProcessors(new DocumentProcessor()).compile(jfo);
+        // Fully compiling this source code requires AppSearch to be on the classpath, but it only
+        // builds on Android. Instead, this test configures the annotation processor to write to a
+        // test-controlled path which is then diffed.
+        String outputDirFlag = String.format(
+                "-A%s=%s",
+                DocumentProcessor.OUTPUT_DIR_OPTION,
+                mGenFilesDir.getAbsolutePath());
+        return Compiler.javac()
+                .withProcessors(new DocumentProcessor())
+                .withOptions(outputDirFlag)
+                .compile(jfo);
     }
 }
