@@ -98,7 +98,7 @@ package androidx.ui.material {
   }
 
   public final class DividerKt {
-    method public static void Divider-5sN9_mQ(androidx.ui.core.Modifier modifier = Modifier, long color = MaterialTheme.colors.surface, float thickness = 1.dp, float startIndent = 0.dp);
+    method public static void Divider-5sN9_mQ(androidx.ui.core.Modifier modifier = Modifier, long color = MaterialTheme.colors.onSurface.copy(DividerAlpha), float thickness = 1.dp, float startIndent = 0.dp);
   }
 
   public final class DrawerKt {

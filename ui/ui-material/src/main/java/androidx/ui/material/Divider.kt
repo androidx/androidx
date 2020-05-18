@@ -37,7 +37,7 @@ import androidx.ui.unit.dp
 @Composable
 fun Divider(
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colors.surface,
+    color: Color = MaterialTheme.colors.onSurface.copy(alpha = DividerAlpha),
     thickness: Dp = 1.dp,
     startIndent: Dp = 0.dp
 ) {
@@ -48,3 +48,5 @@ fun Divider(
     }
     Box(modifier.plus(indentMod).fillMaxWidth().preferredHeight(thickness).drawBackground(color))
 }
+
+private const val DividerAlpha = 0.12f
