@@ -16,7 +16,6 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.findLastLayoutChild
 import androidx.ui.core.semantics.findClosestParentNode
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsActions
@@ -63,7 +62,7 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
 
     val globalPosition = node.globalPosition
 
-    val layoutNode = scrollableSemanticsNode.componentNode.findLastLayoutChild { true }
+    val layoutNode = scrollableSemanticsNode.componentNode.children.lastOrNull()
         ?: throw AssertionError(
             "No Layout Node found!"
         )

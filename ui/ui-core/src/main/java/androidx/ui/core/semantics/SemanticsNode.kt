@@ -16,7 +16,6 @@
 
 package androidx.ui.core.semantics
 
-import androidx.ui.core.ComponentNode
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.LayoutNodeWrapper
 import androidx.ui.core.boundsInRoot
@@ -28,6 +27,7 @@ import androidx.ui.semantics.SemanticsPropertyKey
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
+import androidx.ui.util.fastForEach
 
 /**
  * Signature for a function that is called for each [SemanticsNode].
@@ -245,7 +245,7 @@ class SemanticsNode internal constructor(
      * false.
      */
     private fun visitChildren(visitor: SemanticsNodeVisitor) {
-        children.forEach {
+        children.fastForEach {
             if (!visitor(it)) {
                 return
             }
@@ -260,7 +260,7 @@ class SemanticsNode internal constructor(
      * returned true, otherwise returns false.
      */
     internal fun visitDescendants(visitor: SemanticsNodeVisitor): Boolean {
-        children.forEach {
+        children.fastForEach {
             if (!visitor(it) || !it.visitDescendants(visitor))
                 return false
         }
@@ -307,7 +307,7 @@ class SemanticsNode internal constructor(
 /**
  * Returns the outermost semantics node on a LayoutNode.
  */
-internal val ComponentNode.outerSemantics: SemanticsWrapper?
+internal val LayoutNode.outerSemantics: SemanticsWrapper?
     get() {
         return (this as? LayoutNode)?.layoutNodeWrapper?.nearestSemantics
     }
@@ -328,9 +328,9 @@ internal val LayoutNodeWrapper.nearestSemantics: SemanticsWrapper?
 /**
  * Returns the highest in a consecutive chain of this + this's parents all meeting the predicate.
 */
-private fun ComponentNode.findHighestConsecutiveAncestor(
-    selector: (ComponentNode) -> Boolean
-): ComponentNode? {
+private fun LayoutNode.findHighestConsecutiveAncestor(
+    selector: (LayoutNode) -> Boolean
+): LayoutNode? {
     var prev = this
     var currentParent = parent
     while (currentParent != null && selector(currentParent)) {
@@ -360,14 +360,14 @@ fun SemanticsNode.findClosestParentNode(selector: (SemanticsNode) -> Boolean): S
 
 internal fun SemanticsNode.findChildById(id: Int): SemanticsNode? {
     if (this.id == id) return this
-    children.forEach {
+    children.fastForEach {
         val result = it.findChildById(id)
         if (result != null) return result
     }
     return null
 }
 
-private fun ComponentNode.findOneLayerOfSemanticsWrappers(): List<SemanticsWrapper> {
+private fun LayoutNode.findOneLayerOfSemanticsWrappers(): List<SemanticsWrapper> {
     val childSemanticsComponentNodes = mutableListOf<SemanticsWrapper>()
     for (child in children) {
         findOneLayerOfSemanticsWrappersRecursive(childSemanticsComponentNodes, child)
@@ -375,9 +375,9 @@ private fun ComponentNode.findOneLayerOfSemanticsWrappers(): List<SemanticsWrapp
     return childSemanticsComponentNodes
 }
 
-private fun ComponentNode.findOneLayerOfSemanticsWrappersRecursive(
+private fun LayoutNode.findOneLayerOfSemanticsWrappersRecursive(
     list: MutableList<SemanticsWrapper>,
-    node: ComponentNode
+    node: LayoutNode
 ) {
     if (node.outerSemantics != null) {
         list.add(node.outerSemantics!!)
@@ -390,8 +390,8 @@ private fun ComponentNode.findOneLayerOfSemanticsWrappersRecursive(
 }
 
 private fun LayoutNode.findLastConsecutiveSemanticsNode(): LayoutNode? {
-    visitChildren { child ->
-        if (child is LayoutNode && child.outerSemantics != null) {
+    children.fastForEach { child ->
+        if (child.outerSemantics != null) {
             if (child.outerSemantics?.semanticsModifier?.applyToChildLayoutNode == false)
                 return child
             return child.findLastConsecutiveSemanticsNode()
@@ -401,13 +401,12 @@ private fun LayoutNode.findLastConsecutiveSemanticsNode(): LayoutNode? {
     return this
 }
 
-private fun ComponentNode.findLayoutNodeAppliedTo(): LayoutNode? {
-    if (this is LayoutNode &&
-        (outerSemantics == null ||
+private fun LayoutNode.findLayoutNodeAppliedTo(): LayoutNode? {
+    if ((outerSemantics == null ||
             outerSemantics?.semanticsModifier?.applyToChildLayoutNode == false)) {
         return this
     }
-    visitChildren { child ->
+    children.fastForEach { child ->
             val layoutChild = child.findLayoutNodeAppliedTo()
             if (layoutChild != null) {
                 return layoutChild
@@ -417,7 +416,7 @@ private fun ComponentNode.findLayoutNodeAppliedTo(): LayoutNode? {
     return null
 }
 
-private fun ComponentNode.requireLayoutNodeAppliedTo(): LayoutNode {
+private fun LayoutNode.requireLayoutNodeAppliedTo(): LayoutNode {
     return findLayoutNodeAppliedTo()
         ?: throw IllegalStateException("This component has no layout children")
 }

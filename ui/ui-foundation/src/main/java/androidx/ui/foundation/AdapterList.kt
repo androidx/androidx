@@ -344,7 +344,7 @@ private class ListState<T> {
             }
 
             // Remove no-longer-needed items from the end of the list
-            val layoutChildrenInNode = rootNode.layoutChildren.size
+            val layoutChildrenInNode = rootNode.children.size
             if (layoutChildrenInNode > numDesiredChildren) {
                 val count = layoutChildrenInNode - numDesiredChildren
                 removeAndDisposeChildren(
@@ -357,7 +357,7 @@ private class ListState<T> {
 
             return measureScope.layout(width = width.ipx, height = height.ipx) {
                 var currentY = round(-firstItemScrollOffset)
-                rootNode.layoutChildren.forEach {
+                rootNode.children.forEach {
                     it.place(x = IntPx.Zero, y = currentY.px.round())
                     currentY += it.height.value
                 }
@@ -370,7 +370,7 @@ private class ListState<T> {
         count: Int
     ) {
         for (i in 1..count) {
-            val node = rootNode.layoutChildren[fromIndex.value]
+            val node = rootNode.children[fromIndex.value]
             rootNode.removeAt(
                 index = fromIndex.value,
                 // remove one at a time to avoid creating unnecessary data structures
@@ -391,7 +391,7 @@ private class ListState<T> {
     }
 
     private fun recomposeAllChildren() {
-        for (idx in rootNode.layoutChildren.indices) {
+        for (idx in rootNode.children.indices) {
             val dataIdx = LayoutIndex(idx).toDataIndex()
             // Make sure that we're only recomposing items that still exist in the data.
             // Excess layout children will be removed in the next measure/layout pass
@@ -410,7 +410,7 @@ private class ListState<T> {
 
     private fun getNodeForDataIndex(dataIndex: DataIndex): LayoutNode {
         val layoutIndex = dataIndex.toLayoutIndex()
-        val layoutChildren = rootNode.layoutChildren
+        val layoutChildren = rootNode.children
         val numLayoutChildren = layoutChildren.size
         check(layoutIndex.value <= numLayoutChildren) {
             "Index too high: $dataIndex, firstComposedItem: $firstComposedItem, " +
@@ -440,14 +440,14 @@ private class ListState<T> {
     private fun composeChildForDataIndex(dataIndex: DataIndex): LayoutNode {
         val layoutIndex = dataIndex.toLayoutIndex()
 
-        check(layoutIndex.value >= -1 && layoutIndex.value <= rootNode.layoutChildren.size) {
+        check(layoutIndex.value >= -1 && layoutIndex.value <= rootNode.children.size) {
             "composeChildForDataIndex called with invalid index, data index: $dataIndex," +
                     " layout index: $layoutIndex"
         }
 
         val node: LayoutNode
         val atStart = layoutIndex.value == -1
-        val atEnd = rootNode.layoutChildren.size == layoutIndex.value
+        val atEnd = rootNode.children.size == layoutIndex.value
         if (atEnd || atStart) {
             // This is a new node, either at the end or the start
             node = LayoutNode()
@@ -490,7 +490,7 @@ private class ListState<T> {
                 firstComposedItem--
             }
         } else {
-            node = rootNode.layoutChildren[layoutIndex.value]
+            node = rootNode.children[layoutIndex.value]
         }
         // TODO(b/150390669): Review use of @Untracked
         val composition = subcomposeInto(context!!, node, recomposer, compositionRef) @Untracked {

@@ -46,13 +46,13 @@ import org.mockito.Mockito.verify
 
 @SmallTest
 @RunWith(JUnit4::class)
-class ComponentNodeTest {
+class LayoutNodeTest {
     @get:Rule
     val thrown = ExpectedException.none()!!
 
     // Ensure that attach and detach work properly
     @Test
-    fun componentNodeAttachDetach() {
+    fun layoutNodeAttachDetach() {
         val node = LayoutNode()
         assertNull(node.owner)
 
@@ -73,23 +73,23 @@ class ComponentNodeTest {
     @Test
     fun layoutNodeChildrenOrder() {
         val (node, child1, child2) = createSimpleLayout()
-        assertEquals(2, node.count)
-        assertEquals(child1, node[0])
-        assertEquals(child2, node[1])
-        assertEquals(0, child1.count)
-        assertEquals(0, child2.count)
+        assertEquals(2, node.children.size)
+        assertEquals(child1, node.children[0])
+        assertEquals(child2, node.children[1])
+        assertEquals(0, child1.children.size)
+        assertEquals(0, child2.children.size)
 
         node.removeAt(index = 0, count = 1)
-        assertEquals(1, node.count)
-        assertEquals(child2, node[0])
+        assertEquals(1, node.children.size)
+        assertEquals(child2, node.children[0])
 
         node.insertAt(index = 0, instance = child1)
-        assertEquals(2, node.count)
-        assertEquals(child1, node[0])
-        assertEquals(child2, node[1])
+        assertEquals(2, node.children.size)
+        assertEquals(child1, node.children[0])
+        assertEquals(child2, node.children[1])
 
         node.removeAt(index = 0, count = 2)
-        assertEquals(0, node.count)
+        assertEquals(0, node.children.size)
 
         val child3 = LayoutNode()
         val child4 = LayoutNode()
@@ -99,25 +99,25 @@ class ComponentNodeTest {
         node.insertAt(2, child3)
         node.insertAt(3, child4)
 
-        assertEquals(4, node.count)
-        assertEquals(child1, node[0])
-        assertEquals(child2, node[1])
-        assertEquals(child3, node[2])
-        assertEquals(child4, node[3])
+        assertEquals(4, node.children.size)
+        assertEquals(child1, node.children[0])
+        assertEquals(child2, node.children[1])
+        assertEquals(child3, node.children[2])
+        assertEquals(child4, node.children[3])
 
         node.move(from = 3, count = 1, to = 0)
-        assertEquals(4, node.count)
-        assertEquals(child4, node[0])
-        assertEquals(child1, node[1])
-        assertEquals(child2, node[2])
-        assertEquals(child3, node[3])
+        assertEquals(4, node.children.size)
+        assertEquals(child4, node.children[0])
+        assertEquals(child1, node.children[1])
+        assertEquals(child2, node.children[2])
+        assertEquals(child3, node.children[3])
 
         node.move(from = 0, count = 2, to = 3)
-        assertEquals(4, node.count)
-        assertEquals(child2, node[0])
-        assertEquals(child3, node[1])
-        assertEquals(child4, node[2])
-        assertEquals(child1, node[3])
+        assertEquals(4, node.children.size)
+        assertEquals(child2, node.children[0])
+        assertEquals(child3, node.children[1])
+        assertEquals(child4, node.children[2])
+        assertEquals(child1, node.children[3])
     }
 
     // Ensure that attach of a LayoutNode connects all children
@@ -203,7 +203,7 @@ class ComponentNodeTest {
         val child = LayoutNode()
         node.insertAt(0, child)
         verify(owner, times(1)).onAttach(child)
-        assertEquals(1, node.count)
+        assertEquals(1, node.children.size)
         assertEquals(node, child.parent)
         assertEquals(owner, child.owner)
     }
@@ -211,9 +211,9 @@ class ComponentNodeTest {
     @Test
     fun childCount() {
         val node = LayoutNode()
-        assertEquals(0, node.count)
+        assertEquals(0, node.children.size)
         node.insertAt(0, LayoutNode())
-        assertEquals(1, node.count)
+        assertEquals(1, node.children.size)
     }
 
     @Test
@@ -221,15 +221,15 @@ class ComponentNodeTest {
         val node = LayoutNode()
         val child = LayoutNode()
         node.insertAt(0, child)
-        assertEquals(child, node[0])
+        assertEquals(child, node.children[0])
     }
 
     @Test
     fun noMove() {
         val (layout, child1, child2) = createSimpleLayout()
         layout.move(0, 0, 1)
-        assertEquals(child1, layout[0])
-        assertEquals(child2, layout[1])
+        assertEquals(child1, layout.children[0])
+        assertEquals(child2, layout.children[1])
     }
 
     @Test
@@ -241,7 +241,7 @@ class ComponentNodeTest {
         node.insertAt(0, child)
         node.removeAt(index = 0, count = 1)
         verify(owner, times(1)).onDetach(child)
-        assertEquals(0, node.count)
+        assertEquals(0, node.children.size)
         assertEquals(null, child.parent)
         assertNull(child.owner)
     }
@@ -269,32 +269,14 @@ class ComponentNodeTest {
         val childLayoutNode = LayoutNode()
         layoutNode.insertAt(0, childLayoutNode)
 
-        assertNull(layoutNode.parentLayoutNode)
-        assertEquals(layoutNode, childLayoutNode.parentLayoutNode)
-        val layoutNodeChildren = findLayoutNodeChildren(layoutNode)
+        assertNull(layoutNode.parent)
+        assertEquals(layoutNode, childLayoutNode.parent)
+        val layoutNodeChildren = layoutNode.children
         assertEquals(1, layoutNodeChildren.size)
         assertEquals(childLayoutNode, layoutNodeChildren[0])
 
         layoutNode.removeAt(index = 0, count = 1)
-        assertNull(childLayoutNode.parentLayoutNode)
-    }
-
-    // Test visitChildren() for nodes.
-    @Test
-    fun visitChildren() {
-        val (node1, node2, node3) = createSimpleLayout()
-        val node4 = LayoutNode()
-        node3.insertAt(0, node4)
-        val nodes = mutableListOf<ComponentNode>()
-        node1.visitChildren { nodes.add(it) }
-        assertEquals(2, nodes.size)
-        assertEquals(node2, nodes[0])
-        assertEquals(node3, nodes[1])
-        node2.visitChildren { nodes.add(it) }
-        assertEquals(2, nodes.size)
-        node3.visitChildren { nodes.add(it) }
-        assertEquals(3, nodes.size)
-        assertEquals(node4, nodes[2])
+        assertNull(childLayoutNode.parent)
     }
 
     @Test
@@ -302,8 +284,7 @@ class ComponentNodeTest {
         val (layout, child1, child2) = createSimpleLayout()
         val inserted = LayoutNode()
         layout.insertAt(0, inserted)
-        val children = mutableListOf<ComponentNode>()
-        layout.visitChildren { children.add(it) }
+        val children = layout.children
         assertEquals(3, children.size)
         assertEquals(inserted, children[0])
         assertEquals(child1, children[1])
@@ -319,8 +300,7 @@ class ComponentNodeTest {
         layout.insertAt(3, child4)
         layout.removeAt(index = 1, count = 2)
 
-        val children = mutableListOf<ComponentNode>()
-        layout.visitChildren { children.add(it) }
+        val children = layout.children
         assertEquals(2, children.size)
         assertEquals(child1, children[0])
         assertEquals(child4, children[1])
@@ -336,8 +316,7 @@ class ComponentNodeTest {
 
         layout.move(from = 2, to = 1, count = 2)
 
-        val children = mutableListOf<ComponentNode>()
-        layout.visitChildren { children.add(it) }
+        val children = layout.children
         assertEquals(4, children.size)
         assertEquals(child1, children[0])
         assertEquals(child3, children[1])
@@ -346,8 +325,6 @@ class ComponentNodeTest {
 
         layout.move(from = 1, to = 3, count = 2)
 
-        children.clear()
-        layout.visitChildren { children.add(it) }
         assertEquals(4, children.size)
         assertEquals(child1, children[0])
         assertEquals(child2, children[1])
@@ -596,7 +573,7 @@ class ComponentNodeTest {
         assertEquals(PxPosition(20.px, -2.px), actual)
     }
 
-    // ComponentNode shouldn't allow adding beyond the count
+    // LayoutNode shouldn't allow adding beyond the count
     @Test
     fun testAddBeyondCurrent() {
         val node = LayoutNode()
@@ -604,7 +581,7 @@ class ComponentNodeTest {
         node.insertAt(1, LayoutNode())
     }
 
-    // ComponentNode shouldn't allow adding below 0
+    // LayoutNode shouldn't allow adding below 0
     @Test
     fun testAddBelowZero() {
         val node = LayoutNode()
@@ -612,7 +589,7 @@ class ComponentNodeTest {
         node.insertAt(-1, LayoutNode())
     }
 
-    // ComponentNode should error when removing at index < 0
+    // LayoutNode should error when removing at index < 0
     @Test
     fun testRemoveNegativeIndex() {
         val node = LayoutNode()
@@ -621,7 +598,7 @@ class ComponentNodeTest {
         node.removeAt(-1, 1)
     }
 
-    // ComponentNode should error when removing at index > count
+    // LayoutNode should error when removing at index > count
     @Test
     fun testRemoveBeyondIndex() {
         val node = LayoutNode()
@@ -630,7 +607,7 @@ class ComponentNodeTest {
         node.removeAt(1, 1)
     }
 
-    // ComponentNode should error when removing at count < 0
+    // LayoutNode should error when removing at count < 0
     @Test
     fun testRemoveNegativeCount() {
         val node = LayoutNode()
@@ -639,7 +616,7 @@ class ComponentNodeTest {
         node.removeAt(0, -1)
     }
 
-    // ComponentNode should error when removing at count > entry count
+    // LayoutNode should error when removing at count > entry count
     @Test
     fun testRemoveWithIndexBeyondSize() {
         val node = LayoutNode()
@@ -648,7 +625,7 @@ class ComponentNodeTest {
         node.removeAt(0, 2)
     }
 
-    // ComponentNode should error when there aren't enough items
+    // LayoutNode should error when there aren't enough items
     @Test
     fun testRemoveWithIndexEqualToSize() {
         val node = LayoutNode()
@@ -656,14 +633,14 @@ class ComponentNodeTest {
         node.removeAt(0, 1)
     }
 
-    // ComponentNode should allow removing two items
+    // LayoutNode should allow removing two items
     @Test
     fun testRemoveTwoItems() {
         val node = LayoutNode()
         node.insertAt(0, LayoutNode())
         node.insertAt(0, LayoutNode())
         node.removeAt(0, 2)
-        assertEquals(0, node.count)
+        assertEquals(0, node.children.size)
     }
 
     // The layout coordinates of a LayoutNode should be attached when
@@ -1590,7 +1567,7 @@ class ComponentNodeTest {
         assertNull(root.innerLayoutNodeWrapper.findLayer())
     }
 
-    private fun createSimpleLayout(): Triple<LayoutNode, ComponentNode, ComponentNode> {
+    private fun createSimpleLayout(): Triple<LayoutNode, LayoutNode, LayoutNode> {
         val layoutNode = ZeroSizedLayoutNode()
         val child1 = ZeroSizedLayoutNode()
         val child2 = ZeroSizedLayoutNode()
@@ -1603,14 +1580,6 @@ class ComponentNodeTest {
         mock {
             on { calculatePosition() } doReturn position
         }
-
-    private fun findLayoutNodeChildren(node: ComponentNode): List<LayoutNode> {
-        val layoutNodes = mutableListOf<LayoutNode>()
-        node.visitLayoutChildren { child ->
-            layoutNodes += child
-        }
-        return layoutNodes
-    }
 
     private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier) =
         LayoutNode().apply {

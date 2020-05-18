@@ -76,7 +76,6 @@ import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.util.trace
@@ -239,8 +238,8 @@ internal class AndroidComposeView constructor(
         invalidate(layoutNode)
     }
 
-    private fun invalidate(node: ComponentNode) {
-        val layer = node.containingLayoutNode?.innerLayoutNodeWrapper?.findLayer()
+    private fun invalidate(node: LayoutNode) {
+        val layer = node.findLayer()
         if (layer == null) {
             invalidate()
         } else {
@@ -248,15 +247,11 @@ internal class AndroidComposeView constructor(
         }
     }
 
-    override fun onAttach(node: ComponentNode) {
+    override fun onAttach(node: LayoutNode) {
     }
 
-    override fun onDetach(node: ComponentNode) {
-        when (node) {
-            is LayoutNode -> {
-                measureAndLayoutDelegate.onNodeDetached(node)
-            }
-        }
+    override fun onDetach(node: LayoutNode) {
+        measureAndLayoutDelegate.onNodeDetached(node)
         modelObserver.clear(node)
     }
 
@@ -355,21 +350,6 @@ internal class AndroidComposeView constructor(
     }
 
     override fun onDraw(canvas: android.graphics.Canvas) {
-    }
-
-    override fun callDraw(
-        canvas: Canvas,
-        node: ComponentNode,
-        parentSize: PxSize
-    ) {
-        trace("AndroidOwner:callDraw") {
-            node as LayoutNode
-            if (node.isPlaced) {
-                require(!node.needsRemeasure) { "$node is not measured, draw requested" }
-                require(!node.needsRelayout) { "$node is not laid out, draw requested" }
-                node.draw(canvas)
-            }
-        }
     }
 
     override fun createLayer(

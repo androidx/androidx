@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import android.util.Log
+import androidx.ui.util.fastForEach
 
 /**
  * There are some contracts between the tree of LayoutNodes and the state of AndroidComposeView
@@ -26,7 +27,7 @@ import android.util.Log
 internal class LayoutTreeConsistencyChecker(
     private val root: LayoutNode,
     private val duringMeasureLayout: () -> Boolean,
-    private val relayoutNodes: DepthSortedSet<LayoutNode>,
+    private val relayoutNodes: DepthSortedSet,
     private val postponedMeasureRequests: List<LayoutNode>
 ) {
     fun assertConsistent() {
@@ -38,11 +39,11 @@ internal class LayoutTreeConsistencyChecker(
         }
     }
 
-    private fun isTreeConsistent(node: ComponentNode): Boolean {
-        if (node is LayoutNode && !node.consistentLayoutState()) {
+    private fun isTreeConsistent(node: LayoutNode): Boolean {
+        if (!node.consistentLayoutState()) {
             return false
         }
-        node.visitChildren {
+        node.children.fastForEach {
             if (!isTreeConsistent(it)) {
                 return@isTreeConsistent false
             }
@@ -54,7 +55,7 @@ internal class LayoutTreeConsistencyChecker(
         if (this === root && needsRemeasure) {
             return relayoutNodes.contains(this)
         }
-        val parent = parentLayoutNode
+        val parent = parent
         if (parent != null && isPlaced) {
             if (needsRelayout) {
                 if (needsRemeasure) {
@@ -93,20 +94,18 @@ internal class LayoutTreeConsistencyChecker(
         return true
     }
 
-    private fun nodeToString(node: ComponentNode): String {
+    private fun nodeToString(node: LayoutNode): String {
         return with(StringBuilder()) {
-            if (node is LayoutNode) {
-                append(node)
-                if (node.needsRemeasure) append("[needsRemeasure]")
-                if (node.needsRelayout) append("[needsRelayout]")
-                if (node.isMeasuring) append("[isMeasuring]")
-                if (duringMeasureLayout()) append("[#${node.measureIteration}]")
-                if (node.isLayingOut) append("[isLayingOut]")
-                if (!node.isPlaced) append("[!isPlaced]")
-                if (node.affectsParentSize) append("[affectsParentSize]")
-                if (!node.consistentLayoutState()) {
-                    append("[INCONSISTENT]")
-                }
+            append(node)
+            if (node.needsRemeasure) append("[needsRemeasure]")
+            if (node.needsRelayout) append("[needsRelayout]")
+            if (node.isMeasuring) append("[isMeasuring]")
+            if (duringMeasureLayout()) append("[#${node.measureIteration}]")
+            if (node.isLayingOut) append("[isLayingOut]")
+            if (!node.isPlaced) append("[!isPlaced]")
+            if (node.affectsParentSize) append("[affectsParentSize]")
+            if (!node.consistentLayoutState()) {
+                append("[INCONSISTENT]")
             }
             toString()
         }
@@ -114,7 +113,7 @@ internal class LayoutTreeConsistencyChecker(
 
     /** Prints the nodes tree into the logs. */
     private fun logTree() {
-        fun printSubTree(node: ComponentNode, depth: Int) {
+        fun printSubTree(node: LayoutNode, depth: Int) {
             var childrenDepth = depth
             val nodeRepresentation = nodeToString(node)
             if (nodeRepresentation.isNotEmpty()) {
@@ -126,7 +125,7 @@ internal class LayoutTreeConsistencyChecker(
                 Log.d("AndroidOwner", stringBuilder.toString())
                 childrenDepth += 1
             }
-            node.visitChildren { printSubTree(it, childrenDepth) }
+            node.children.fastForEach { printSubTree(it, childrenDepth) }
         }
         Log.d("AndroidOwner", "Tree state:")
         printSubTree(root, 0)

@@ -147,7 +147,7 @@ src/test/test.kt:12: Error: Creating an unnecessary lambda to emit a captured la
     }
 
     @Test
-    fun ignoresComponentNodes() {
+    fun ignoresLayoutNodes() {
         check("""
             package test
 

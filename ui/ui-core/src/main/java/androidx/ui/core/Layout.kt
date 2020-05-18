@@ -567,7 +567,7 @@ private class WithConstrainsState {
             }
 
             // Measure the obtained children and compute our size.
-            val layoutChildren = root.layoutChildren
+            val layoutChildren = root.children
             var maxWidth: IntPx = constraints.minWidth
             var maxHeight: IntPx = constraints.minHeight
             layoutChildren.fastForEach {
