@@ -107,12 +107,12 @@ package androidx.ui.foundation {
 
   public final class ScrollerKt {
     method public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
-    method public static androidx.ui.foundation.ScrollerPosition ScrollerPosition(float initial = 0f);
+    method public static androidx.ui.foundation.ScrollerPosition ScrollerPosition(float initial = 0f, boolean isReversed = false);
     method public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
   }
 
   public final class ScrollerPosition {
-    ctor public ScrollerPosition(androidx.ui.foundation.animation.FlingConfig flingConfig, float initial, androidx.animation.AnimationClockObservable animationClock);
+    ctor public ScrollerPosition(androidx.ui.foundation.animation.FlingConfig flingConfig, float initial, internal boolean isReversed, androidx.animation.AnimationClockObservable animationClock);
     method public float getMaxPosition();
     method public float getValue();
     method public boolean isAnimating();
@@ -127,7 +127,7 @@ package androidx.ui.foundation {
   }
 
   public static final class ScrollerPosition.Companion {
-    method public androidx.ui.savedinstancestate.Saver<androidx.ui.foundation.ScrollerPosition,?> Saver(androidx.ui.foundation.animation.FlingConfig flingConfig, androidx.animation.AnimationClockObservable animationClock);
+    method public androidx.ui.savedinstancestate.Saver<androidx.ui.foundation.ScrollerPosition,?> Saver(androidx.ui.foundation.animation.FlingConfig flingConfig, boolean isReversed, androidx.animation.AnimationClockObservable animationClock);
   }
 
   public final class Strings {
