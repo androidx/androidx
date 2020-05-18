@@ -22,7 +22,6 @@ import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.layout.preferredSize
-import androidx.ui.test.GestureToken
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doPartialGesture
@@ -83,11 +82,10 @@ class IndicationTest {
             }
         }
         assertThat(countDownLatch.count).isEqualTo(2)
-        var downToken: GestureToken? = null
         findByTag(testTag)
             .assertExists()
             .doPartialGesture {
-                downToken = sendDown(center)
+                sendDown(center)
             }
         runOnIdleCompose {
             assertThat(countDownLatch.count).isEqualTo(1)
@@ -95,7 +93,7 @@ class IndicationTest {
         findByTag(testTag)
             .assertExists()
             .doPartialGesture {
-                sendUp(downToken!!)
+                sendUp()
             }
         assertThat(countDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
@@ -139,14 +137,13 @@ class IndicationTest {
             }
         }
         assertThat(lastPosition).isNull()
-        var downToken1: GestureToken? = null
-        var downToken2: GestureToken? = null
         var position1: PxPosition? = null
         findByTag(testTag)
             .assertExists()
             .doPartialGesture {
                 position1 = PxPosition(center.x, center.y + 20.px)
-                downToken1 = sendDown(position1!!)
+                // pointer 1, when we have multitouch
+                sendDown(position1!!)
             }
         runOnIdleCompose {
             assertThat(lastPosition).isEqualTo(position1!!)
@@ -155,7 +152,8 @@ class IndicationTest {
             .assertExists()
             .doPartialGesture {
                 val position2 = PxPosition(center.x + 20.px, center.y)
-                downToken2 = sendDown(position2)
+                // pointer 2, when we have multitouch
+                sendDown(position2)
             }
         // should be still position1
         runOnIdleCompose {
@@ -164,7 +162,8 @@ class IndicationTest {
         findByTag(testTag)
             .assertExists()
             .doPartialGesture {
-                sendUp(downToken1!!)
+                // pointer 1, when we have multitouch
+                sendUp()
             }
         runOnIdleCompose {
             assertThat(lastPosition).isNull()
@@ -172,7 +171,8 @@ class IndicationTest {
         findByTag(testTag)
             .assertExists()
             .doPartialGesture {
-                sendUp(downToken2!!)
+                // pointer 2, when we have multitouch
+                sendUp()
             }
     }
 

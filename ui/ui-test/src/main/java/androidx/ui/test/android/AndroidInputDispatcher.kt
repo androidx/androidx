@@ -26,8 +26,9 @@ import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
-import androidx.ui.test.GestureToken
 import androidx.ui.test.InputDispatcher
+import androidx.ui.test.InputDispatcherState
+import androidx.ui.test.PartialGesture
 import androidx.ui.unit.Duration
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.inMilliseconds
@@ -67,6 +68,21 @@ internal class AndroidInputDispatcher constructor(
 
     private val handler = Handler(Looper.getMainLooper())
     private var nextDownTime = DownTimeNotSet
+    private var partialGesture: PartialGesture? = null
+
+    override fun saveInstanceState(): InputDispatcherState {
+        return InputDispatcherState(
+            nextDownTime,
+            partialGesture?.let { PartialGesture.SavedState(it) }
+        )
+    }
+
+    override fun restoreInstanceState(state: InputDispatcherState) {
+        if (state.partialGestureState != null) {
+            nextDownTime = state.nextDownTime
+            partialGesture = PartialGesture(state.partialGestureState)
+        }
+    }
 
     /**
      * Generates the downTime of the next gesture with the given [duration]. The gesture's
@@ -111,34 +127,49 @@ internal class AndroidInputDispatcher constructor(
         sendMotionEvent(downTime, downTime + eventPeriod, ACTION_UP, position)
     }
 
-    override fun sendDown(position: PxPosition): GestureToken {
+    override val currentPosition: PxPosition?
+        get() = partialGesture?.lastPosition
+
+    override fun sendDown(position: PxPosition) {
+        check(partialGesture == null) {
+            "Cannot send DOWN event, a gesture is already in progress"
+        }
         val downTime = generateDownTime(0.milliseconds)
         sendMotionEvent(downTime, downTime, ACTION_DOWN, position)
-        return GestureToken(downTime, position)
+        partialGesture = PartialGesture(downTime, position)
     }
 
-    override fun sendMove(token: GestureToken, position: PxPosition) {
-        sendNextMotionEvent(token, ACTION_MOVE, position)
-    }
-
-    override fun sendUp(token: GestureToken, position: PxPosition) {
-        sendNextMotionEvent(token, ACTION_UP, position)
-        token.finished = true
-    }
-
-    override fun sendCancel(token: GestureToken, position: PxPosition) {
-        sendNextMotionEvent(token, ACTION_CANCEL, position)
-        token.finished = true
-    }
-
-    private fun sendNextMotionEvent(token: GestureToken, action: Int, position: PxPosition) {
-        require(!token.finished) {
-            "Can't send an event to a gesture that already had an up or cancel event"
+    override fun sendMove(position: PxPosition) {
+        checkNotNull(partialGesture) {
+            "Cannot send MOVE event, no gesture is in progress"
+        }.let {
+            sendNextMotionEvent(it, ACTION_MOVE, position)
         }
+    }
+
+    override fun sendUp(position: PxPosition?) {
+        checkNotNull(partialGesture) {
+            "Cannot send UP event, no gesture is in progress"
+        }.let {
+            sendNextMotionEvent(it, ACTION_UP, position ?: it.lastPosition)
+        }
+        partialGesture = null
+    }
+
+    override fun sendCancel(position: PxPosition?) {
+        checkNotNull(partialGesture) {
+            "Cannot send CANCEL event, no gesture is in progress"
+        }.let {
+            sendNextMotionEvent(it, ACTION_CANCEL, position ?: it.lastPosition)
+        }
+        partialGesture = null
+    }
+
+    private fun sendNextMotionEvent(gesture: PartialGesture, action: Int, position: PxPosition) {
         moveNextDownTime(eventPeriod.milliseconds)
-        token.eventTime += eventPeriod
-        token.lastPosition = position
-        sendMotionEvent(token.downTime, token.eventTime, action, position)
+        gesture.lastEventTime += eventPeriod
+        gesture.lastPosition = position
+        sendMotionEvent(gesture.downTime, gesture.lastEventTime, action, position)
     }
 
     override fun sendSwipes(

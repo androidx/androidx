@@ -55,9 +55,9 @@ class DelayTest(private val config: TestConfig) {
         Click({ it.sendClick(anyPosition) }),
         Swipe({ it.sendSwipe(anyPosition, anyPosition, 100.milliseconds) }),
         Partial({
-            val token = it.sendDown(anyPosition)
-            it.sendMove(token, anyPosition)
-            it.sendUp(token, anyPosition)
+            it.sendDown(anyPosition)
+            it.sendMove(anyPosition)
+            it.sendUp(anyPosition)
         })
     }
 

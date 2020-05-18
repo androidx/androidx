@@ -21,6 +21,7 @@ import androidx.test.filters.SmallTest
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
+import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verify
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
@@ -31,6 +32,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.lang.IllegalStateException
 
 /**
  * Tests if the [AndroidInputDispatcher.sendDown] gesture works.
@@ -72,15 +74,32 @@ class SendDownTest(config: TestConfig) {
 
     @Test
     fun testSendDown() {
-        val token = subject.sendDown(position)
-        assertThat(token.eventTime).isEqualTo(token.downTime)
-        assertThat(token.lastPosition).isEqualTo(position)
-        assertThat(token.finished).isFalse()
+        subject.sendDown(position)
+        assertThat(subject.currentPosition).isEqualTo(position)
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
             assertThat(size).isEqualTo(1)
             first().verify(position, MotionEvent.ACTION_DOWN, 0)
+        }
+    }
+}
+
+@SmallTest
+class SendDownAfterDown {
+    @get:Rule
+    val inputDispatcherRule: TestRule = AndroidInputDispatcher.TestRule(
+        disableDispatchInRealTime = true
+    )
+
+    private val position = PxPosition.Origin
+    private val subject = AndroidInputDispatcher {}
+
+    @Test
+    fun testSendDown() {
+        subject.sendDown(position)
+        expectError<IllegalStateException> {
+            subject.sendDown(position)
         }
     }
 }
