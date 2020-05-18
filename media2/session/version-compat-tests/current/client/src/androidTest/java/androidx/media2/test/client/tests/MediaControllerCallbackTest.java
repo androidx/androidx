@@ -52,6 +52,7 @@ import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaSession;
+import androidx.media2.session.RemoteSessionPlayer;
 import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.session.SessionResult;
@@ -466,7 +467,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
      * This also tests {@link MediaController#getPlaybackInfo()}.
      */
     @Test
-    public void onPlaybackInfoChanged() throws Exception {
+    public void onPlaybackInfoChanged_isCalled_byPlayerChange() throws Exception {
         final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setContentType(CONTENT_TYPE_MUSIC)
                 .build();
@@ -510,7 +511,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void onPlaybackInfoChanged_byAudioAttributesChange() throws InterruptedException {
+    public void onPlaybackInfoChanged_isCalled_byAudioAttributesChange() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setContentType(AudioAttributesCompat.CONTENT_TYPE_MUSIC)
@@ -530,6 +531,41 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                 callback);
         mRemoteSession2.getMockPlayer().notifyAudioAttributesChanged(attrs);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void onPlaybackInfoChanged_isCalled_byVolumeChange() throws Exception {
+        if (!MediaTestUtils.isServiceToT()) {
+            // TODO(b/156594425): Remove this condition once the version of media2-session on which
+            //  the previous module depends supports to notify remote volume changes (b/155059866).
+            return;
+        }
+
+        Bundle config = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setVolumeControlType(RemoteSessionPlayer.VOLUME_CONTROL_ABSOLUTE)
+                .setMaxVolume(10)
+                .setCurrentVolume(1)
+                .build();
+        mRemoteSession2.updatePlayer(config);
+
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<PlaybackInfo> playbackInfoRef = new AtomicReference<>();
+        MediaController.ControllerCallback callback = new MediaController.ControllerCallback() {
+            @Override
+            public void onPlaybackInfoChanged(@NonNull MediaController controller,
+                    @NonNull PlaybackInfo info) {
+                playbackInfoRef.set(info);
+                latch.countDown();
+            }
+        };
+        MediaController controller = createController(mRemoteSession2.getToken(),
+                /* waitForConnect= */ true, /* connectionHints= */ null, callback);
+
+        int targetVolume = 3;
+        mRemoteSession2.getMockPlayer().notifyVolumeChanged(targetVolume);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(targetVolume, playbackInfoRef.get().getCurrentVolume());
+        assertEquals(targetVolume, controller.getPlaybackInfo().getCurrentVolume());
     }
 
     /**

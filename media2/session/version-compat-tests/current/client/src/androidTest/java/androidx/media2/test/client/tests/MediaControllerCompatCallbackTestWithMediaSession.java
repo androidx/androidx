@@ -37,6 +37,7 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaUtils;
+import androidx.media2.session.RemoteSessionPlayer;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.TestUtils;
@@ -521,6 +522,32 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
         assertTrue(controllerCallback.await(MediaSessionTestBase.TIMEOUT_MS));
         assertTrue(controllerCallback.mOnQueueTitleChangedCalled);
         assertEquals(playlistTitle, controllerCallback.mTitle);
+    }
+
+    @Test
+    public void onAudioInfoChanged_isCalled_byVolumeChange() throws Exception {
+        if (!MediaTestUtils.isServiceToT()) {
+            // media2-session 1.0.x didn't notify volume changes of RemoteSessionPlayer
+            // (b/155059866).
+            return;
+        }
+
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setVolumeControlType(RemoteSessionPlayer.VOLUME_CONTROL_ABSOLUTE)
+                .setMaxVolume(10)
+                .setCurrentVolume(1)
+                .build();
+        mSession.updatePlayer(playerConfig);
+
+        MediaControllerCallback controllerCallback = new MediaControllerCallback();
+        controllerCallback.reset(1);
+        mControllerCompat.registerCallback(controllerCallback, sHandler);
+
+        int targetVolume = 3;
+        mSession.getMockPlayer().notifyVolumeChanged(targetVolume);
+        assertTrue(controllerCallback.await(TIMEOUT_MS));
+        assertTrue(controllerCallback.mOnAudioInfoChangedCalled);
+        assertEquals(targetVolume, controllerCallback.mPlaybackInfo.getCurrentVolume());
     }
 
     private class MediaControllerCallback extends MediaControllerCompat.Callback {

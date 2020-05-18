@@ -482,6 +482,10 @@ public class RemoteMediaSession {
                 Log.e(TAG, "Failed to call notifySubtitleData");
             }
         }
+
+        public void notifyVolumeChanged(int volume) throws RemoteException {
+            mBinder.notifyVolumeChanged(mSessionId, volume);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////

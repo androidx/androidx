@@ -71,4 +71,5 @@ interface IRemoteMediaSession {
     void notifyTrackInfoChanged(String sessionId, in List<ParcelImpl> trackInfos);
     void notifyTrackSelected(String sessionId, in ParcelImpl trackInfo);
     void notifyTrackDeselected(String sessionId, in ParcelImpl trackInfo);
+    void notifyVolumeChanged(String sessionId, int volume);
 }

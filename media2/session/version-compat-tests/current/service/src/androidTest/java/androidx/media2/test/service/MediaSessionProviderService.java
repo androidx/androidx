@@ -584,5 +584,13 @@ public class MediaSessionProviderService extends Service {
             SubtitleData dataObj = MediaParcelUtils.fromParcelable(data);
             player.notifySubtitleData(itemObj, trackObj, dataObj);
         }
+
+        @Override
+        public void notifyVolumeChanged(String sessionId, int volume) {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockRemotePlayer player = (MockRemotePlayer) session.getPlayer();
+            player.mCurrentVolume = volume;
+            player.notifyVolumeChanged();
+        }
     }
 }
