@@ -18,7 +18,6 @@ package androidx.sqlite.inspection;
 
 import static android.database.DatabaseUtils.getSqlStatementType;
 
-import static androidx.sqlite.inspection.DatabaseExtensions.tryAcquireReference;
 import static androidx.sqlite.inspection.SqliteInspectionExecutors.directExecutor;
 
 import android.annotation.SuppressLint;
@@ -26,6 +25,7 @@ import android.app.Application;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteClosable;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
@@ -229,6 +229,7 @@ final class SqliteInspector extends Inspector {
                 .build().toByteArray()
         );
 
+        registerReleaseReferenceHooks();
         registerDatabaseOpenedHooks();
 
         EntryExitMatchingHookRegistry hookRegistry = new EntryExitMatchingHookRegistry(
@@ -239,12 +240,9 @@ final class SqliteInspector extends Inspector {
 
         // Check for database instances in memory
         for (SQLiteDatabase instance : mEnvironment.findInstances(SQLiteDatabase.class)) {
-            if (tryAcquireReference(instance)) {
-                try {
-                    onDatabaseOpened(instance);
-                } finally {
-                    instance.releaseReference();
-                }
+            /** the race condition here will be handled by mDatabaseRegistry */
+            if (instance.isOpen()) {
+                onDatabaseOpened(instance);
             } else {
                 onDatabaseClosed(instance);
             }
@@ -301,6 +299,21 @@ final class SqliteInspector extends Inspector {
                         }
                     });
         }
+    }
+
+    private void registerReleaseReferenceHooks() {
+        mEnvironment.registerEntryHook(
+                SQLiteClosable.class,
+                "releaseReference()V",
+                new InspectorEnvironment.EntryHook() {
+                    @Override
+                    public void onEntry(@Nullable Object thisObject,
+                            @NonNull List<Object> args) {
+                        if (thisObject instanceof SQLiteDatabase) {
+                            mDatabaseRegistry.notifyReleaseReference((SQLiteDatabase) thisObject);
+                        }
+                    }
+                });
     }
 
     private void registerInvalidationHooks(EntryExitMatchingHookRegistry hookRegistry) {
@@ -447,19 +460,15 @@ final class SqliteInspector extends Inspector {
     }
 
     private void handleGetSchema(GetSchemaCommand command, CommandCallback callback) {
-        SQLiteDatabase database = acquireReference(command.getDatabaseId(), callback);
-        if (database == null) return;
+        SQLiteDatabase reference = acquireReference(command.getDatabaseId(), callback);
+        if (reference == null) return;
 
-        try {
-            callback.reply(querySchema(database).toByteArray());
-        } finally {
-            database.releaseReference();
-        }
+        callback.reply(querySchema(reference).toByteArray());
     }
 
     private void handleQuery(final QueryCommand command, final CommandCallback callback) {
-        final SQLiteDatabase database = acquireReference(command.getDatabaseId(), callback);
-        if (database == null) return;
+        final SQLiteDatabase reference = acquireReference(command.getDatabaseId(), callback);
+        if (reference == null) return;
 
         final CancellationSignal cancellationSignal = new CancellationSignal();
         final Future<?> future = SqliteInspectionExecutors.submit(mIOExecutor, new Runnable() {
@@ -468,7 +477,8 @@ final class SqliteInspector extends Inspector {
                 String[] params = parseQueryParameterValues(command);
                 Cursor cursor = null;
                 try {
-                    cursor = rawQuery(database, command.getQuery(), params, cancellationSignal);
+                    cursor = rawQuery(reference, command.getQuery(), params,
+                            cancellationSignal);
                     List<String> columnNames = Arrays.asList(cursor.getColumnNames());
                     callback.reply(Response.newBuilder()
                             .setQuery(QueryResponse.newBuilder()
@@ -485,7 +495,6 @@ final class SqliteInspector extends Inspector {
                     if (cursor != null) {
                         cursor.close();
                     }
-                    database.releaseReference();
                 }
 
             }

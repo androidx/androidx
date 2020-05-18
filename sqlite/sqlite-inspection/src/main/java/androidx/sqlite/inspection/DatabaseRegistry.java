@@ -18,7 +18,6 @@ package androidx.sqlite.inspection;
 
 import static androidx.sqlite.inspection.DatabaseExtensions.isInMemoryDatabase;
 import static androidx.sqlite.inspection.DatabaseExtensions.pathForDatabase;
-import static androidx.sqlite.inspection.DatabaseExtensions.tryAcquireReference;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.util.ArraySet;
@@ -28,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,7 +50,7 @@ import java.util.Set;
  * <li>Detected a database that is now closed, and previously was reported as open.
  * </ul></p>
  */
-@SuppressWarnings("DanglingJavadoc")
+@SuppressWarnings({"DanglingJavadoc", "SyntheticAccessor"})
 class DatabaseRegistry {
     private static final int NOT_TRACKED = -1;
 
@@ -79,7 +79,7 @@ class DatabaseRegistry {
 
     // Database connection id -> extra database reference used to facilitate the
     // keep-database-connection-open functionality.
-    @GuardedBy("mLock") private final Map<Integer, SQLiteDatabase> mKeepOpenReferencesToggle =
+    @GuardedBy("mLock") private final Map<Integer, KeepOpenReference> mKeepOpenReferences =
             new HashMap<>();
 
     // Database path -> database connection id - allowing to report a consistent id for all
@@ -104,6 +104,27 @@ class DatabaseRegistry {
      */
     void notifyDatabaseOpened(@NonNull SQLiteDatabase database) {
         handleDatabaseSignal(database);
+    }
+
+    void notifyReleaseReference(SQLiteDatabase database) {
+        synchronized (mLock) {
+            /** Prevent all other methods from releasing a reference if a
+             *  {@link KeepOpenReference} is present */
+            for (KeepOpenReference reference : mKeepOpenReferences.values()) {
+                if (reference.mDatabase == database) {
+                    /** The below will always succeed as {@link mKeepOpenReferences} only
+                     * contains active references:
+                     * - we only insert active references into {@link mKeepOpenReferences}
+                     * - {@link KeepOpenReference#releaseAllReferences} is the only place where we
+                     * allow references to be released
+                     * - {@link KeepOpenReference#releaseAllReferences} is private an can only be
+                     * called from this class; and before it is called, it must be removed from
+                     * from {@link mKeepOpenReferences}
+                     */
+                    reference.acquireReference();
+                }
+            }
+        }
     }
 
     /**
@@ -134,10 +155,14 @@ class DatabaseRegistry {
                 }
             } else { // keepOpen -> allowClose
                 mKeepDatabasesOpen = false;
-                for (SQLiteDatabase database : mKeepOpenReferencesToggle.values()) {
-                    database.releaseReference();
+
+                Iterator<Map.Entry<Integer, KeepOpenReference>> iterator =
+                        mKeepOpenReferences.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    KeepOpenReference reference = iterator.next().getValue();
+                    iterator.remove(); // first remove so it doesn't get in its own way
+                    reference.releaseAllReferences(); // then release its references
                 }
-                mKeepOpenReferencesToggle.clear();
             }
         }
     }
@@ -165,6 +190,8 @@ class DatabaseRegistry {
         synchronized (mLock) {
             int id = getIdForDatabase(database);
 
+            // TODO: revisit the text below since now we're synchronized on the same lock (mLock)
+            //  as releaseReference() calls -- which most likely allows for simplifying invariants
             // Guaranteed up to date:
             // - either called in a secure context (e.g. before the newly created connection is
             // returned from the creation; or with an already acquiredReference on it),
@@ -231,6 +258,24 @@ class DatabaseRegistry {
     }
 
     @GuardedBy("mLock")
+    private SQLiteDatabase acquireReferenceImpl(int databaseId) {
+        KeepOpenReference keepOpenReference = mKeepOpenReferences.get(databaseId);
+        if (keepOpenReference != null) {
+            return keepOpenReference.mDatabase;
+        }
+
+        final Set<SQLiteDatabase> references = mDatabases.get(databaseId);
+        if (references != null) {
+            for (SQLiteDatabase reference : references) {
+                if (reference.isOpen()) {
+                    return reference;
+                }
+            }
+        }
+        return null;
+    }
+
+    @GuardedBy("mLock")
     private void registerReference(int id, @NonNull SQLiteDatabase database) {
         Set<SQLiteDatabase> references = mDatabases.get(id);
         if (references == null) {
@@ -255,31 +300,17 @@ class DatabaseRegistry {
         references.remove(database);
     }
 
-    @Nullable
-    @GuardedBy("mLock")
-    private SQLiteDatabase acquireReferenceImpl(int databaseId) {
-        final Set<SQLiteDatabase> references = mDatabases.get(databaseId);
-        if (references != null) {
-            for (SQLiteDatabase reference : references) {
-                if (tryAcquireReference(reference)) {
-                    return reference;
-                }
-            }
-        }
-        return null;
-    }
-
     @GuardedBy("mLock")
     private void secureKeepOpenReference(int id) {
-        if (!mKeepDatabasesOpen || mKeepOpenReferencesToggle.containsKey(id)) {
+        if (!mKeepDatabasesOpen || mKeepOpenReferences.containsKey(id)) {
             // Keep-open is disabled or we already have a keep-open-reference for that id.
             return;
         }
 
         // Try secure a keep-open reference
-        SQLiteDatabase database = acquireReferenceImpl(id);
-        if (database != null) {
-            mKeepOpenReferencesToggle.put(id, database);
+        SQLiteDatabase reference = acquireReferenceImpl(id);
+        if (reference != null) {
+            mKeepOpenReferences.put(id, new KeepOpenReference(reference));
         }
     }
 
@@ -313,5 +344,37 @@ class DatabaseRegistry {
 
     interface Callback {
         void onPostEvent(int databaseId, String path);
+    }
+
+    private static final class KeepOpenReference {
+        private final SQLiteDatabase mDatabase;
+
+        private final Object mLock = new Object();
+        @GuardedBy("mLock") private int mAcquiredReferenceCount = 0;
+
+        private KeepOpenReference(SQLiteDatabase database) {
+            mDatabase = database;
+        }
+
+        private void acquireReference() {
+            synchronized (mLock) {
+                if (DatabaseExtensions.tryAcquireReference(mDatabase)) {
+                    mAcquiredReferenceCount++;
+                }
+            }
+        }
+
+        /**
+         * This should only be called after removing the object from
+         * {@link DatabaseRegistry#mKeepOpenReferences}. Otherwise, the object will get in its
+         * own way or releasing its references.
+         **/
+        private void releaseAllReferences() {
+            synchronized (mLock) {
+                for (; mAcquiredReferenceCount > 0; mAcquiredReferenceCount--) {
+                    mDatabase.releaseReference();
+                }
+            }
+        }
     }
 }
