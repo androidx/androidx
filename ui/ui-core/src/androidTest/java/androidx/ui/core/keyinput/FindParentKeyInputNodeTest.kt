@@ -45,11 +45,11 @@ class FindParentKeyInputNodeTest {
         lateinit var modifier4: KeyInputModifier
         lateinit var modifier5: KeyInputModifier
         composeTestRule.setContent {
-            modifier1 = KeyInputModifier()
-            modifier2 = KeyInputModifier()
-            modifier3 = KeyInputModifier()
-            modifier4 = KeyInputModifier()
-            modifier5 = KeyInputModifier()
+            modifier1 = KeyInputModifier(null, null)
+            modifier2 = KeyInputModifier(null, null)
+            modifier3 = KeyInputModifier(null, null)
+            modifier4 = KeyInputModifier(null, null)
+            modifier5 = KeyInputModifier(null, null)
             Box(modifier = modifier1 + modifier2 + modifier3 + modifier4 + modifier5) {}
         }
 
@@ -72,9 +72,9 @@ class FindParentKeyInputNodeTest {
         lateinit var modifier2: KeyInputModifier
         lateinit var modifier3: KeyInputModifier
         composeTestRule.setContent {
-            modifier1 = KeyInputModifier()
-            modifier2 = KeyInputModifier()
-            modifier3 = KeyInputModifier()
+            modifier1 = KeyInputModifier(null, null)
+            modifier2 = KeyInputModifier(null, null)
+            modifier3 = KeyInputModifier(null, null)
             Box(modifier = modifier1 + modifier2 + Modifier.drawBackground(Color.Red) + modifier3)
         }
 
@@ -99,9 +99,9 @@ class FindParentKeyInputNodeTest {
         lateinit var parentKeyInputModifier2: KeyInputModifier
         lateinit var keyInputModifier: KeyInputModifier
         composeTestRule.setContent {
-            parentKeyInputModifier1 = KeyInputModifier()
-            parentKeyInputModifier2 = KeyInputModifier()
-            keyInputModifier = KeyInputModifier()
+            parentKeyInputModifier1 = KeyInputModifier(null, null)
+            parentKeyInputModifier2 = KeyInputModifier(null, null)
+            keyInputModifier = KeyInputModifier(null, null)
             Box(modifier = parentKeyInputModifier1 + parentKeyInputModifier2) {
                 Box(modifier = keyInputModifier)
             }
@@ -130,9 +130,9 @@ class FindParentKeyInputNodeTest {
         lateinit var parentKeyInputModifier: KeyInputModifier
         lateinit var keyInputModifier: KeyInputModifier
         composeTestRule.setContent {
-            grandparentKeyInputModifier = KeyInputModifier()
-            parentKeyInputModifier = KeyInputModifier()
-            keyInputModifier = KeyInputModifier()
+            grandparentKeyInputModifier = KeyInputModifier(null, null)
+            parentKeyInputModifier = KeyInputModifier(null, null)
+            keyInputModifier = KeyInputModifier(null, null)
             Box(modifier = grandparentKeyInputModifier) {
                 Box(modifier = parentKeyInputModifier) {
                     Box(modifier = keyInputModifier)
@@ -162,8 +162,8 @@ class FindParentKeyInputNodeTest {
         lateinit var grandparentKeyInputModifier: KeyInputModifier
         lateinit var keyInputModifier: KeyInputModifier
         composeTestRule.setContent {
-            grandparentKeyInputModifier = KeyInputModifier()
-            keyInputModifier = KeyInputModifier()
+            grandparentKeyInputModifier = KeyInputModifier(null, null)
+            keyInputModifier = KeyInputModifier(null, null)
             Box(modifier = grandparentKeyInputModifier) {
                 Box {
                     Box(modifier = keyInputModifier)
