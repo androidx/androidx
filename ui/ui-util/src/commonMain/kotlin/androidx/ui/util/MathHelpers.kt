@@ -17,6 +17,7 @@ package androidx.ui.util
 
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
+import kotlin.math.PI
 
 /**
  * Linearly interpolate between [start] and [stop] with [fraction] fraction between them.
@@ -43,3 +44,5 @@ expect fun Float.toStringAsFixed(digits: Int): String
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
 fun Int.toHexString() = "0x${toUInt().toString(16).padStart(8, '0')}"
+
+fun Double.toRadians(): Double = this / 180 * PI
