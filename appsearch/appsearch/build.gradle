@@ -28,10 +28,24 @@ configurations {
     jarjarConf
 }
 
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    buildTypes.all {
+        minifyEnabled true
+        proguardFiles getDefaultProguardFile(
+                'proguard-android-optimize.txt'),
+                'proguard-rules.pro'
+    }
+}
+
 dependencies {
     // Treat icing-java as a local jar and package it inside the aar.
     jarjarConf project(path: ':icing:java', configuration: 'jarjarConf')
     implementation files(configurations.jarjarConf)
+    compileOnly project(path: ':icing:java', configuration: 'jarjarConf')
 
     api('androidx.annotation:annotation:1.1.0')
 
