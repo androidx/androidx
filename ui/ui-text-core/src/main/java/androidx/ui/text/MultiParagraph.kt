@@ -24,6 +24,7 @@ import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxPosition
+import androidx.ui.util.fastForEach
 import kotlin.math.max
 
 /**
@@ -229,7 +230,7 @@ class MultiParagraph(
     /** Paint the paragraphs to canvas. */
     fun paint(canvas: Canvas) {
         canvas.save()
-        paragraphInfoList.forEach {
+        paragraphInfoList.fastForEach {
             it.paragraph.paint(canvas)
             canvas.translate(0f, it.paragraph.height)
         }
@@ -251,7 +252,7 @@ class MultiParagraph(
         paragraphInfoList.drop(paragraphIndex)
             .takeWhile { it.startIndex < end }
             .filterNot { it.startIndex == it.endIndex }
-            .forEach {
+            .fastForEach {
                 with(it) {
                     path.addPath(
                         path = paragraph.getPathForRange(

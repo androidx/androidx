@@ -29,6 +29,7 @@ import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.ResourceFont
+import androidx.ui.util.fastForEach
 
 /**
  * An implementation of [AndroidTypeface] for [FontListFontFamily]
@@ -56,7 +57,7 @@ internal class AndroidFontListTypeface(
         }
         val typefaces = mutableMapOf<Font, Typeface>()
 
-        targetFonts.forEach {
+        targetFonts.fastForEach {
             try {
                 typefaces[it] = AndroidTypefaceCache.getOrCreate(context, it)
             } catch (e: Exception) {

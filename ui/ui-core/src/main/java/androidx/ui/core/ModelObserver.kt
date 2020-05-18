@@ -22,6 +22,7 @@ import androidx.compose.frames.FrameCommitObserver
 import androidx.compose.frames.FrameReadObserver
 import androidx.compose.frames.observeAllReads
 import androidx.compose.frames.registerCommitObserver
+import androidx.ui.util.fastForEach
 import androidx.ui.util.synchronized
 import org.jetbrains.annotations.TestOnly
 
@@ -172,7 +173,7 @@ class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
      */
     fun clear(target: Any) {
         synchronized(commitMaps) {
-            commitMaps.forEach { commitMap ->
+            commitMaps.fastForEach { commitMap ->
                 commitMap.map.removeValue(target)
             }
         }

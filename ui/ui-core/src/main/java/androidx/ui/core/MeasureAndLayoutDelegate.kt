@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.ui.unit.IntPx
+import androidx.ui.util.fastForEach
 import androidx.ui.util.trace
 
 /**
@@ -243,7 +244,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                     }
                     // execute postponed `onRequestMeasure`
                     if (postponedMeasureRequests.isNotEmpty()) {
-                        postponedMeasureRequests.forEach {
+                        postponedMeasureRequests.fastForEach {
                             // if it was detached or already measured by the parent then skip it
                             if (it.isAttached() && it.needsRemeasure) {
                                 it.needsRemeasure = false

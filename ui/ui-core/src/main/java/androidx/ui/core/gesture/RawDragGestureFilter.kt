@@ -35,6 +35,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import androidx.ui.util.fastAny
+import androidx.ui.util.fastForEach
 
 interface DragObserver {
 
@@ -170,7 +171,7 @@ internal class RawDragGestureFilter : PointerInputFilter() {
 
                     var velocityTracker: VelocityTracker? = null
 
-                    changesToReturn.forEach {
+                    changesToReturn.fastForEach {
                         // This pointer is up (consumed or not), so we should stop tracking
                         // information about it.  Get a reference for the velocity tracker in case
                         // this is the last pointer and thus we are going to fling.
@@ -207,7 +208,7 @@ internal class RawDragGestureFilter : PointerInputFilter() {
 
                 // For each new pointer that has been added, start tracking information about it.
                 if (changesToReturn.fastAny { it.changedToDownIgnoreConsumed() }) {
-                    changesToReturn.forEach {
+                    changesToReturn.fastForEach {
                         // If a pointer has changed to down, we should start tracking information
                         // about it.
                         if (it.changedToDownIgnoreConsumed()) {
@@ -235,7 +236,7 @@ internal class RawDragGestureFilter : PointerInputFilter() {
                     it.current.down && !it.changedToDownIgnoreConsumed()
                 }
 
-                movedChanges.forEach {
+                movedChanges.fastForEach {
                     // TODO(shepshapard): handle the case that the pointerTrackingData is null,
                     // either with an exception or a logged error, or something else.
                     val velocityTracker = velocityTrackers[it.id]
@@ -264,7 +265,7 @@ internal class RawDragGestureFilter : PointerInputFilter() {
                     var totalDx = 0f
                     var totalDy = 0f
 
-                    movedChanges.forEach {
+                    movedChanges.fastForEach {
                         totalDx += it.positionChange().x.value
                         totalDy += it.positionChange().y.value
                     }

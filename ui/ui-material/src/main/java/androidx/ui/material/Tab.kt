@@ -68,6 +68,8 @@ import androidx.ui.unit.max
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
 import androidx.ui.util.fastFirstOrNull
+import androidx.ui.util.fastForEach
+import androidx.ui.util.fastForEachIndexed
 
 /**
  * A TabRow contains a row of [Tab]s, and displays an indicator underneath the currently
@@ -159,7 +161,7 @@ fun <T> TabRow(
             // TODO: force scrollable for tabs that will be too small if they take up equal space?
             if (scrollable) {
                 val tabs = @Composable {
-                    items.forEachIndexed { index, item ->
+                    items.fastForEachIndexed { index, item ->
                         tab(index, item)
                     }
                 }
@@ -168,7 +170,7 @@ fun <T> TabRow(
                 // TODO: b/150138067 remove modifier here and use the global LayoutWeight
                 // modifier when it exists
                 val tabs = @Composable { modifier: Modifier ->
-                    items.forEachIndexed { index, item ->
+                    items.fastForEachIndexed { index, item ->
                         Box(modifier, gravity = ContentGravity.Center) {
                             tab(index, item)
                         }
@@ -280,7 +282,7 @@ private fun ScrollableTabRow(
             // Position the children.
             layout(layoutWidth, layoutHeight) {
                 // Place the tabs
-                tabPlaceables.forEach { (placeable, left) ->
+                tabPlaceables.fastForEach { (placeable, left) ->
                     placeable.place(left, IntPx.Zero)
                 }
 

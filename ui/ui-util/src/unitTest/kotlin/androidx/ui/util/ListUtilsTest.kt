@@ -54,6 +54,40 @@ class ListUtilsTest {
     }
 
     @Test
+    fun regularIterationIndexed() {
+        val list = listOf(1, 5, 10)
+        val otherList = mutableListOf<Int>()
+        val otherIndices = mutableListOf<Int>()
+        list.fastForEachIndexed { index, item ->
+            otherList.add(item)
+            otherIndices.add(index)
+        }
+        // The correct iteration order, all items in there
+        assertEquals(list, otherList)
+        assertEquals(listOf(0, 1, 2), otherIndices)
+    }
+
+    @Test
+    fun shortIterationIndexed() {
+        val list = listOf(1, 5, 10)
+        val otherList = mutableListOf<Int>()
+        val otherIndices = mutableListOf<Int>()
+        list.fastForEachIndexed { index, item ->
+            if (item == 5) {
+                return@fastForEachIndexed
+            }
+            otherList.add(item)
+            otherIndices.add(index)
+        }
+        // Should have only one item in it
+        assertEquals(2, otherList.size)
+        assertEquals(2, otherIndices.size)
+        assertEquals(1, otherList[0])
+        assertEquals(10, otherList[1])
+        assertEquals(listOf(0, 2), otherIndices)
+    }
+
+    @Test
     fun anyEmpty() {
         val list = listOf<Int>()
         assertFalse(list.fastAny { it > 0 })

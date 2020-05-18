@@ -25,6 +25,7 @@ import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.text.TextSemanticsProperties
+import androidx.ui.util.fastAny
 
 /**
  * Returns whether the component is enabled.
@@ -335,7 +336,7 @@ fun hasAnyDescendantThat(matcher: SemanticsMatcher): SemanticsMatcher {
             return true
         }
 
-        return node.children.any { checkIfSubtreeMatches(matcher, it) }
+        return node.children.fastAny { checkIfSubtreeMatches(matcher, it) }
     }
 
     return SemanticsMatcher("hasAnyDescendantThat(${matcher.description})") {

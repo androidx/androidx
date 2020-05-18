@@ -28,6 +28,17 @@ inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
 }
 
 /**
+ * Iterates through a [List] using the index and calls [action] for each item.
+ * This does not allocate an iterator like [Iterable.forEachIndexed].
+ */
+inline fun <T> List<T>.fastForEachIndexed(action: (Int, T) -> Unit) {
+    for (index in indices) {
+        val item = get(index)
+        action(index, item)
+    }
+}
+
+/**
  * Returns `true` if at least one element matches the given [predicate].
  */
 inline fun <T> List<T>.fastAny(predicate: (T) -> Boolean): Boolean {

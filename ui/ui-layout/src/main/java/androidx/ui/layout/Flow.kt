@@ -27,6 +27,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
+import androidx.ui.util.fastForEachIndexed
 
 /**
  * A composable that places its children in a horizontal flow. Unlike [Row], if the
@@ -226,7 +227,7 @@ private fun Flow(
         }
 
         layout(layoutWidth, layoutHeight) {
-            sequences.forEachIndexed { i, placeables ->
+            sequences.fastForEachIndexed { i, placeables ->
                 val childrenMainAxisSizes = placeables.mapIndexed { j, placeable ->
                     placeable.mainAxisSize() +
                         if (j < placeables.lastIndex) mainAxisSpacing.toIntPx() else IntPx.Zero
@@ -243,7 +244,7 @@ private fun Flow(
                     childrenMainAxisSizes,
                     layoutDirection
                 )
-                placeables.forEachIndexed { j, placeable ->
+                placeables.fastForEachIndexed { j, placeable ->
                     val crossAxis = when (crossAxisAlignment) {
                         FlowCrossAxisAlignment.Start -> IntPx.Zero
                         FlowCrossAxisAlignment.End ->
