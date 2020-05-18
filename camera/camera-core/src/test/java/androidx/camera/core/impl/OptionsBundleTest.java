@@ -16,6 +16,10 @@
 
 package androidx.camera.core.impl;
 
+import static androidx.camera.core.impl.Config.OptionPriority.ALWAYS_OVERRIDE;
+import static androidx.camera.core.impl.Config.OptionPriority.OPTIONAL;
+import static androidx.camera.core.impl.Config.OptionPriority.REQUIRED;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
@@ -70,7 +74,13 @@ public class OptionsBundleTest {
     @Before
     public void setUp() {
         MutableOptionsBundle mutOpts = MutableOptionsBundle.create();
-        mutOpts.insertOption(OPTION_1, VALUE_1);
+        // insert multiple values with priroties to ensure it is still working for regular
+        // operations.
+        mutOpts.insertOption(OPTION_1, REQUIRED, VALUE_2);
+        mutOpts.insertOption(OPTION_1, ALWAYS_OVERRIDE, VALUE_1);
+        mutOpts.insertOption(OPTION_1, OPTIONAL, VALUE_1_A);
+
+
         mutOpts.insertOption(OPTION_1_A, VALUE_1_A);
         mutOpts.insertOption(OPTION_2, VALUE_2);
         mutOpts.insertOption(OPTION_INTEGER_LIST, VALUE_INTEGER_LIST);
@@ -128,6 +138,15 @@ public class OptionsBundleTest {
         assertThat(copyBundle.containsOption(OPTION_1)).isTrue();
         assertThat(copyBundle.containsOption(OPTION_1_A)).isTrue();
         assertThat(copyBundle.containsOption(OPTION_2)).isTrue();
+
+        assertThat(copyBundle.getPriorities(OPTION_1))
+                .containsExactly(REQUIRED, ALWAYS_OVERRIDE, OPTIONAL);
+        assertThat(copyBundle.retrieveOptionWithPriority(OPTION_1, REQUIRED))
+                .isEqualTo(VALUE_2);
+        assertThat(copyBundle.retrieveOptionWithPriority(OPTION_1, ALWAYS_OVERRIDE))
+                .isEqualTo(VALUE_1);
+        assertThat(copyBundle.retrieveOptionWithPriority(OPTION_1, OPTIONAL))
+                .isEqualTo(VALUE_1_A);
     }
 
     @Test
@@ -196,4 +215,60 @@ public class OptionsBundleTest {
         // Should throw IllegalArgumentException
         mAllOpts.retrieveOption(OPTION_MISSING);
     }
+
+    @Test
+    public void canRetrieveOptionWithPriority() {
+        MutableOptionsBundle mutOpts = MutableOptionsBundle.create();
+        mutOpts.insertOption(OPTION_1, REQUIRED, VALUE_2);
+        mutOpts.insertOption(OPTION_1, ALWAYS_OVERRIDE, VALUE_1);
+        mutOpts.insertOption(OPTION_1, OPTIONAL, VALUE_1_A);
+
+        OptionsBundle config = OptionsBundle.from(mutOpts);
+        assertThat(config.retrieveOptionWithPriority(OPTION_1, REQUIRED)).isEqualTo(VALUE_2);
+        assertThat(config.retrieveOptionWithPriority(OPTION_1, ALWAYS_OVERRIDE)).isEqualTo(VALUE_1);
+        assertThat(config.retrieveOptionWithPriority(OPTION_1, OPTIONAL)).isEqualTo(VALUE_1_A);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void retrieveOptionWithPriority_noSuchPriority_willThrow() {
+        MutableOptionsBundle mutOpts = MutableOptionsBundle.create();
+        mutOpts.insertOption(OPTION_1, ALWAYS_OVERRIDE, VALUE_1);
+        mutOpts.insertOption(OPTION_1, OPTIONAL, VALUE_1_A);
+
+        OptionsBundle config = OptionsBundle.from(mutOpts);
+        config.retrieveOptionWithPriority(OPTION_1, REQUIRED);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void retrieveOptionWithPriority_noSuchOption_willThrow() {
+        MutableOptionsBundle mutOpts = MutableOptionsBundle.create();
+        mutOpts.insertOption(OPTION_1, VALUE_1);
+
+        OptionsBundle config = OptionsBundle.from(mutOpts);
+        config.retrieveOptionWithPriority(OPTION_2, OPTIONAL);
+    }
+
+    @Test
+    public void canGetPriorites() {
+        assertThat(mAllOpts.getPriorities(OPTION_1))
+                .containsExactly(ALWAYS_OVERRIDE, OPTIONAL, REQUIRED);
+    }
+
+    @Test
+    public void canGetPriorites_empty() {
+        Option<Object> newOption = Option.create("option.new", Object.class);
+        assertThat(mAllOpts.getPriorities(newOption)).isEmpty();
+    }
+
+    @Test
+    public void canGetOptionPriority() {
+        assertThat(mAllOpts.getOptionPriority(OPTION_1)).isEqualTo(ALWAYS_OVERRIDE);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getOptionPriority_willThrow() {
+        Option<Object> newOption = Option.create("option.new", Object.class);
+        mAllOpts.getOptionPriority(newOption);
+    }
+
 }
