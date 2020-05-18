@@ -169,7 +169,10 @@ class CodeGenerator {
             }
             propertyType = genericTypes.get(0);
             repeated = true;
-        } else if (property.asType().getKind() == TypeKind.ARRAY) {
+        } else if (property.asType().getKind() == TypeKind.ARRAY
+                // Byte arrays have a native representation in Icing, so they are not considered a
+                // "repeated" type
+                && !typeUtil.isSameType(property.asType(), mByteArrayType)) {
             propertyType = ((ArrayType) property.asType()).getComponentType();
             repeated = true;
 
