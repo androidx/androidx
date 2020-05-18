@@ -18,13 +18,16 @@ package androidx.camera.camera2.pipe
 
 import android.util.Size
 
+@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+inline class StreamId(val value: Int)
+
 /**
  * Standard stream properties that should be specified for all configured streams.
  */
 interface StreamProperties {
     val size: Size
-    val format: Int
-    val camera: String
+    val format: StreamFormat
+    val camera: CameraId
     val type: StreamType
 }
 
@@ -36,7 +39,7 @@ interface StreamProperties {
  */
 data class Stream(
     val config: StreamConfig,
-    val id: Int
+    val id: StreamId
 ) : StreamProperties by config
 
 /**
@@ -44,8 +47,8 @@ data class Stream(
  */
 data class StreamConfig(
     override val size: Size,
-    override val format: Int,
-    override val camera: String,
+    override val format: StreamFormat,
+    override val camera: CameraId,
     override val type: StreamType
 ) : StreamProperties
 

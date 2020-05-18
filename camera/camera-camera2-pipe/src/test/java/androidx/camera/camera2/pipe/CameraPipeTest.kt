@@ -23,13 +23,10 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.internal.DoNotInstrument
 
 @SmallTest
-@RunWith(RobolectricTestRunner::class)
-@DoNotInstrument
+@RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraPipeTest {
 
@@ -47,7 +44,8 @@ class CameraPipeTest {
         val context = ApplicationProvider.getApplicationContext() as Context
         val cameraPipe = CameraPipe(CameraPipe.Config(context))
         val cameraGraph = cameraPipe.create(
-            CameraGraph.Config("0", listOf()))
+            CameraGraph.Config(CameraId("0"), listOf())
+        )
         assertThat(cameraGraph).isNotNull()
     }
 }
