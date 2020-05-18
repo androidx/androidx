@@ -45,7 +45,6 @@ class SendUpTest(config: TestConfig) {
     )
 
     companion object {
-        private const val eventPeriod = 10L
         private val downPosition = PxPosition(5.px, 5.px)
 
         @JvmStatic
@@ -59,10 +58,11 @@ class SendUpTest(config: TestConfig) {
         }
     }
 
+    private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
+    private val eventPeriod get() = dispatcherRule.eventPeriod
+
     @get:Rule
-    val inputDispatcherRule: TestRule = AndroidInputDispatcher.TestRule(
-        disableDispatchInRealTime = true
-    )
+    val inputDispatcherRule: TestRule = dispatcherRule
 
     private val position = PxPosition(config.x.px, config.y.px)
 

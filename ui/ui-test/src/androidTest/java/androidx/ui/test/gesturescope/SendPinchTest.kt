@@ -20,6 +20,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
@@ -42,15 +43,13 @@ import kotlin.math.max
 
 private const val TAG = "PINCH"
 
-// TODO(b/146551983): Access from AndroidInputDispatcher
-private val eventPeriod = 10.milliseconds.inMilliseconds()
-
 @MediumTest
 @RunWith(JUnit4::class)
 class SendPinchTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
+    private val eventPeriod = AndroidInputDispatcher.TestRule().eventPeriod
     private val recorder = PointerInputRecorder()
 
     @Test
