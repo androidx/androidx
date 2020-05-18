@@ -30,12 +30,12 @@ import androidx.annotation.Nullable;
 
 import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.DeterministicAead;
+import com.google.crypto.tink.KeyTemplate;
 import com.google.crypto.tink.KeysetHandle;
-import com.google.crypto.tink.aead.AeadKeyTemplates;
+import com.google.crypto.tink.aead.AesGcmKeyManager;
 import com.google.crypto.tink.config.TinkConfig;
-import com.google.crypto.tink.daead.DeterministicAeadKeyTemplates;
+import com.google.crypto.tink.daead.AesSivKeyManager;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
-import com.google.crypto.tink.proto.KeyTemplate;
 import com.google.crypto.tink.subtle.Base64;
 
 import java.io.IOException;
@@ -141,9 +141,9 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
          *
          * For more information please see the Tink documentation:
          *
-         * <a href="https://google.github.io/tink/javadoc/tink/1.3.0/com/google/crypto/tink/daead/DeterministicAeadKeyTemplates.html">DeterministicAeadKeyTemplates</a>.AES256_SIV
+         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0-rc2/com/google/crypto/tink/daead/AesSivKeyManager.html">AesSivKeyManager</a>.aes256SivTemplate()
          */
-        AES256_SIV(DeterministicAeadKeyTemplates.AES256_SIV);
+        AES256_SIV(AesSivKeyManager.aes256SivTemplate());
 
         private final KeyTemplate mDeterministicAeadKeyTemplate;
 
@@ -165,9 +165,9 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
          *
          * For more information please see the Tink documentation:
          *
-         * <a href="https://google.github.io/tink/javadoc/tink/1.3.0/com/google/crypto/tink/aead/AeadKeyTemplates.html">AeadKeyTemplates</a>.AES256_GCM
+         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0-rc2/com/google/crypto/tink/aead/AesGcmKeyManager.html">AesGcmKeyManager</a>.aes256GcmTemplate()
          */
-        AES256_GCM(AeadKeyTemplates.AES256_GCM);
+        AES256_GCM(AesGcmKeyManager.aes256GcmTemplate());
 
         private final KeyTemplate mAeadKeyTemplate;
 
