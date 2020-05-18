@@ -229,29 +229,7 @@ final class SqliteInspector extends Inspector {
                 .build().toByteArray()
         );
 
-        for (String method : Arrays.asList(sOpenDatabaseCommandSignature,
-                sCreateInMemoryDatabaseCommandSignature)) {
-            mEnvironment.registerExitHook(
-                    SQLiteDatabase.class,
-                    method,
-                    new InspectorEnvironment.ExitHook<SQLiteDatabase>() {
-                        @SuppressLint("SyntheticAccessor")
-                        @Override
-                        public SQLiteDatabase onExit(SQLiteDatabase database) {
-                            try {
-                                onDatabaseOpened(database);
-                            } catch (Exception exception) {
-                                getConnection().sendEvent(createErrorOccurredEvent(
-                                        "Unhandled Exception while processing an onDatabaseAdded "
-                                                + "event: "
-                                                + exception.getMessage(),
-                                        stackTraceFromException(exception), null)
-                                        .toByteArray());
-                            }
-                            return database;
-                        }
-                    });
-        }
+        registerDatabaseOpenedHooks();
 
         EntryExitMatchingHookRegistry hookRegistry = new EntryExitMatchingHookRegistry(
                 mEnvironment);
@@ -297,6 +275,32 @@ final class SqliteInspector extends Inspector {
                         }
                     }
                 });
+    }
+
+    private void registerDatabaseOpenedHooks() {
+        for (String method : Arrays.asList(sOpenDatabaseCommandSignature,
+                sCreateInMemoryDatabaseCommandSignature)) {
+            mEnvironment.registerExitHook(
+                    SQLiteDatabase.class,
+                    method,
+                    new InspectorEnvironment.ExitHook<SQLiteDatabase>() {
+                        @SuppressLint("SyntheticAccessor")
+                        @Override
+                        public SQLiteDatabase onExit(SQLiteDatabase database) {
+                            try {
+                                onDatabaseOpened(database);
+                            } catch (Exception exception) {
+                                getConnection().sendEvent(createErrorOccurredEvent(
+                                        "Unhandled Exception while processing an onDatabaseAdded "
+                                                + "event: "
+                                                + exception.getMessage(),
+                                        stackTraceFromException(exception), null)
+                                        .toByteArray());
+                            }
+                            return database;
+                        }
+                    });
+        }
     }
 
     private void registerInvalidationHooks(EntryExitMatchingHookRegistry hookRegistry) {
