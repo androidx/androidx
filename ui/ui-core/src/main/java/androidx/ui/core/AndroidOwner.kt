@@ -57,6 +57,7 @@ import androidx.ui.core.pointerinput.MotionEventAdapter
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.ProcessResult
 import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.core.semantics.SemanticsModifierCore
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.semantics.getAllSemanticsNodesToMap
 import androidx.ui.core.semantics.getOrNull
@@ -116,7 +117,17 @@ internal class AndroidComposeView constructor(
         it.measureBlocks = RootMeasureBlocks
         it.layoutDirection =
             context.applicationContext.resources.configuration.localeLayoutDirection
-        it.modifier = Modifier.drawLayer() + focusModifier
+        it.modifier = Modifier.drawLayer()
+            .plus(
+                SemanticsModifierCore(
+                    id = SemanticsNode.generateNewId(),
+                    applyToChildLayoutNode = false,
+                    container = true,
+                    mergeAllDescendants = false,
+                    properties = null
+                )
+            )
+            .plus(focusModifier)
     }
 
     private inner class SemanticsNodeCopy(
@@ -131,6 +142,7 @@ internal class AndroidComposeView constructor(
             }
         }
     }
+
     override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
     private var semanticsNodes: MutableMap<Int, SemanticsNodeCopy> = mutableMapOf()
     private var semanticsRoot = SemanticsNodeCopy(semanticsOwner.rootSemanticsNode)
@@ -381,7 +393,8 @@ internal class AndroidComposeView constructor(
 
     override fun onSemanticsChange() {
         if ((context.getSystemService(Context.ACCESSIBILITY_SERVICE)
-                    as AccessibilityManager).isEnabled && !checkingForSemanticsChanges) {
+                    as AccessibilityManager).isEnabled && !checkingForSemanticsChanges
+        ) {
             checkingForSemanticsChanges = true
             Handler(Looper.getMainLooper()).post {
                 checkForSemanticsChanges()

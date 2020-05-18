@@ -16,7 +16,7 @@
 
 package androidx.ui.core.semantics
 
-import androidx.ui.core.ComponentNode
+import androidx.ui.core.LayoutNode
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsPropertyKey
 
@@ -26,16 +26,15 @@ import androidx.ui.semantics.SemanticsPropertyKey
  * Owns [SemanticsNode] objects and notifies listeners of changes to the
  * semantics tree
  */
-class SemanticsOwner(rootNode: ComponentNode) {
+class SemanticsOwner(val rootNode: LayoutNode) {
     /**
      * The root node of the semantics tree.  Does not contain any unmerged data.
      * May contain merged data.
      */
-    val rootSemanticsNode: SemanticsNode = SemanticsNode.root(
-        this,
-        SemanticsConfiguration().also { it.isSemanticBoundary = true },
-        rootNode
-    )
+    val rootSemanticsNode: SemanticsNode
+        get() {
+            return rootNode.outerSemantics!!.semanticsNode()
+        }
 
     private fun <T : Function<Boolean>> getSemanticsActionHandlerForId(
         id: Int,

@@ -25,7 +25,7 @@ import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.testTag
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -422,15 +422,13 @@ class ScrollerTest {
         val itemCount = mutableStateOf(100)
         composeTestRule.setContent {
             Stack {
-                TestTag(scrollerTag) {
-                    VerticalScroller(
-                        scrollerPosition = scrollerPosition,
-                        modifier = Modifier.preferredSize(100.dp)
-                    ) {
-                        Column {
-                            for (i in 0..itemCount.value) {
-                                Text(i.toString())
-                            }
+                VerticalScroller(
+                    scrollerPosition = scrollerPosition,
+                    modifier = Modifier.preferredSize(100.dp).testTag(scrollerTag)
+                ) {
+                    Column {
+                        for (i in 0..itemCount.value) {
+                            Text(i.toString())
                         }
                     }
                 }
@@ -630,18 +628,18 @@ class ScrollerTest {
         with(composeTestRule.density) {
             composeTestRule.setContent {
                 Stack {
-                    TestTag(scrollerTag) {
-                        VerticalScroller(
-                            scrollerPosition = scrollerPosition,
-                            modifier = Modifier.preferredSize(width.toDp(), height.toDp())
-                        ) {
-                            Column {
-                                colors.forEach { color ->
-                                    Box(
-                                        Modifier.preferredSize(width.toDp(), rowHeight.toDp()),
-                                        backgroundColor = color
-                                    )
-                                }
+                    VerticalScroller(
+                        scrollerPosition = scrollerPosition,
+                        modifier = Modifier
+                            .preferredSize(width.toDp(), height.toDp())
+                            .testTag(scrollerTag)
+                    ) {
+                        Column {
+                            colors.forEach { color ->
+                                Box(
+                                    Modifier.preferredSize(width.toDp(), rowHeight.toDp()),
+                                    backgroundColor = color
+                                )
                             }
                         }
                     }
@@ -663,18 +661,18 @@ class ScrollerTest {
         with(composeTestRule.density) {
             composeTestRule.setContent {
                 Stack {
-                    TestTag(scrollerTag) {
-                        HorizontalScroller(
-                            scrollerPosition = scrollerPosition,
-                            modifier = Modifier.preferredSize(width.toDp(), height.toDp())
-                        ) {
-                            Row {
-                                colors.forEach { color ->
-                                    Box(
-                                        Modifier.preferredSize(columnWidth.toDp(), height.toDp()),
-                                        backgroundColor = color
-                                    )
-                                }
+                    HorizontalScroller(
+                        scrollerPosition = scrollerPosition,
+                        modifier = Modifier
+                            .preferredSize(width.toDp(), height.toDp())
+                            .testTag(scrollerTag)
+                    ) {
+                        Row {
+                            colors.forEach { color ->
+                                Box(
+                                    Modifier.preferredSize(columnWidth.toDp(), height.toDp()),
+                                    backgroundColor = color
+                                )
                             }
                         }
                     }
@@ -733,19 +731,23 @@ class ScrollerTest {
             }
             Stack {
                 Box(Modifier.preferredSize(width, height), backgroundColor = Color.White) {
-                    TestTag(scrollerTag) {
-                        Semantics(container = true) {
-                            if (isVertical) {
-                                VerticalScroller(scrollerPosition) {
-                                    Column {
-                                        content()
-                                    }
+                    Semantics(container = true) {
+                        if (isVertical) {
+                            VerticalScroller(
+                                scrollerPosition,
+                                modifier = Modifier.testTag(scrollerTag)
+                            ) {
+                                Column {
+                                    content()
                                 }
-                            } else {
-                                HorizontalScroller(scrollerPosition) {
-                                    Row {
-                                        content()
-                                    }
+                            }
+                        } else {
+                            HorizontalScroller(
+                                scrollerPosition,
+                                modifier = Modifier.testTag(scrollerTag)
+                            ) {
+                                Row {
+                                    content()
                                 }
                             }
                         }
