@@ -38,9 +38,7 @@ typealias ColorStop = Pair<Float, Color>
  *
  * ```
  *  LinearGradient(
- *      0.0f to Color.Red,
- *      0.3f to Color.Green,
- *      1.0f to Color.Blue,
+ *      listOf(Color.Red, Color.Green, Color.Blue),
  *      startX = Px.Zero,
  *      startY = Px(50.0f),
  *      endY = Px.Zero,
@@ -131,9 +129,7 @@ fun RadialGradient(
  * Creates a radial gradient with the given colors evenly dispersed within the gradient
  * ```
  * RadialGradient(
- *      Color.Red,
- *      Color.Green,
- *      Color.Blue,
+ *      listOf(Color.Red, Color.Green, Color.Blue),
  *      centerX = side1 / 2.0f,
  *      centerY = side2 / 2.0f,
  *      radius = side1 / 2.0f,
@@ -150,13 +146,11 @@ fun RadialGradient(
 ) = RadialGradient(colors, null, centerX, centerY, radius, tileMode)
 
 /**
- * Creates a vertical gradient with the given colors at the provided offset defined in the [ColorStop]
+ * Creates a vertical gradient with the given colors evenly dispersed within the gradient
  * Ex:
  * ```
  *  VerticalGradient(
- *      Color.Red,
- *      Color.Green,
- *      Color.Blue,
+ *      listOf(Color.Red, Color.Green, Color.Blue),
  *      startY = Px.Zero,
  *      endY = Px(100.0f)
  * )
@@ -179,13 +173,13 @@ fun VerticalGradient(
     )
 
 /**
- * Creates a vertical gradient with the given colors evenly dispersed within the gradient
+ * Creates a vertical gradient with the given colors at the provided offset defined in the [ColorStop]
  * Ex:
  * ```
  *  VerticalGradient(
- *      Color.Red,
- *      Color.Green,
- *      Color.Blue,
+ *      0.0f to Color.Red,
+ *      0.3f to Color.Green,
+ *      1.0f to Color.Blue,
  *      startY = Px.Zero,
  *      endY = Px(100.0f)
  * )
@@ -212,9 +206,7 @@ fun VerticalGradient(
  * Ex:
  * ```
  *  HorizontalGradient(
- *      Color.Red,
- *      Color.Green,
- *      Color.Blue,
+ *      listOf(Color.Red, Color.Green, Color.Blue),
  *      startX = Px(10.0f),
  *      endX = Px(20.0f)
  * )
