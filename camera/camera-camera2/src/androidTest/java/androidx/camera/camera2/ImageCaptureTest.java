@@ -354,7 +354,7 @@ public final class ImageCaptureTest {
                 });
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
         ImageCapture.OutputFileOptions outputFileOptions =
                 new ImageCapture.OutputFileOptions.Builder(

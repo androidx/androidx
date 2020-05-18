@@ -1557,7 +1557,7 @@ public final class ImageCapture extends UseCase {
              *
              * ContentValues contentValues = new ContentValues();
              * contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "NEW_IMAGE");
-             * contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+             * contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
              *
              * ImageCapture.OutputFileOptions options = new ImageCapture.OutputFileOptions.Builder(
              *         getContentResolver(),
