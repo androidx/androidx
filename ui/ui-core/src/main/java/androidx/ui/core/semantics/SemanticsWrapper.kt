@@ -18,6 +18,7 @@ package androidx.ui.core.semantics
 
 import androidx.ui.core.DelegatingLayoutNodeWrapper
 import androidx.ui.core.LayoutNodeWrapper
+import androidx.ui.util.fastForEach
 
 internal class SemanticsWrapper(
     wrapped: LayoutNodeWrapper,
@@ -69,7 +70,7 @@ internal class SemanticsWrapper(
     // Note that this assumes each LayoutNode only has one semantics modifier for now.
     private fun findOneImmediateChild(): SemanticsWrapper? {
         var immediateChild: SemanticsWrapper? = null
-        layoutNode.visitChildren { child ->
+        layoutNode.children.fastForEach { child ->
             if (child.outerSemantics != null) {
                 immediateChild = child.outerSemantics
             }

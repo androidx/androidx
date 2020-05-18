@@ -31,9 +31,10 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.round
 import androidx.ui.util.fastForEach
+import kotlin.math.sign
 
 /**
- * Enable to log changes to the ComponentNode tree.  This logging is quite chatty.
+ * Enable to log changes to the LayoutNode tree.  This logging is quite chatty.
  */
 private const val DebugChanges = false
 
@@ -43,15 +44,19 @@ private const val DebugChanges = false
  * Specific components are backed by a tree of nodes: Draw, Layout, GestureDetector.
  * All other components are not represented in the backing hierarchy.
  */
-sealed class ComponentNode {
-
-    internal val children = mutableListOf<ComponentNode>()
+class LayoutNode : Measurable {
+    private val _children = mutableListOf<LayoutNode>()
 
     /**
-     * The parent node in the ComponentNode hierarchy. This is `null` when the `ComponentNode`
+     * The children of this LayoutNode, controlled by [insertAt], [move], and [removeAt].
+     */
+    val children: List<LayoutNode> get() = _children
+
+    /**
+     * The parent node in the LayoutNode hierarchy. This is `null` when the `LayoutNode`
      * is attached (has an [owner]) and is the root of the tree or has not had [add] called for it.
      */
-    var parent: ComponentNode? = null
+    var parent: LayoutNode? = null
         private set
 
     /**
@@ -61,59 +66,15 @@ sealed class ComponentNode {
         private set
 
     /**
-     * The tree depth of the ComponentNode. This is valid only when [isAttached] is true.
+     * The tree depth of the LayoutNode. This is valid only when [owner] is not `null`.
      */
     var depth: Int = 0
 
     /**
-     * An opaque value set by the [Owner]. It is `null` when [isAttached] is false, but
-     * may also be `null` when [isAttached] is true, depending on the needs of the Owner.
-     */
-    var ownerData: Any? = null
-
-    /**
-     * Returns the number of children in this ComponentNode.
-     */
-    val count: Int
-        get() = children.size
-
-    /**
-     * This is the LayoutNode ancestor that contains this LayoutNode. This will be `null` for the
-     * root [LayoutNode].
-     */
-    open val parentLayoutNode: LayoutNode?
-        get() = containingLayoutNode
-
-    /**
-     * Method to find the layout node. LayoutNode returns itself, but
-     * all other ComponentNodes return the parent's `containingLayoutNode`.
-     */
-    internal open val containingLayoutNode: LayoutNode?
-        get() = parent?.containingLayoutNode
-
-    /**
-     * Execute [block] on all children of this ComponentNode.
-     */
-    inline fun visitChildren(block: (ComponentNode) -> Unit) {
-        for (i in 0 until count) {
-            block(this[i])
-        }
-    }
-
-    /**
-     * Execute [block] on all children of this ComponentNode in reverse order.
-     */
-    inline fun visitChildrenReverse(block: (ComponentNode) -> Unit) {
-        for (i in count - 1 downTo 0) {
-            block(this[i])
-        }
-    }
-
-    /**
-     * Inserts a child [ComponentNode] at a particular index. If this ComponentNode [isAttached]
+     * Inserts a child [LayoutNode] at a particular index. If this LayoutNode [owner] is not `null`
      * then [instance] will become [attach]ed also. [instance] must have a `null` [parent].
      */
-    fun insertAt(index: Int, instance: ComponentNode) {
+    fun insertAt(index: Int, instance: LayoutNode) {
         ErrorMessages.ComponentNodeHasParent.validateState(instance.parent == null)
         ErrorMessages.OwnerAlreadyAttached.validateState(instance.owner == null)
 
@@ -122,18 +83,9 @@ sealed class ComponentNode {
         }
 
         instance.parent = this
-        children.add(index, instance)
+        _children.add(index, instance)
 
-        val containingLayout = containingLayoutNode
-        if (containingLayout != null) {
-            if (instance is LayoutNode) {
-                instance.layoutNodeWrapper.wrappedBy = containingLayout.innerLayoutNodeWrapper
-            } else {
-                visitLayoutChildren {
-                    it.layoutNodeWrapper.wrappedBy = containingLayout.innerLayoutNodeWrapper
-                }
-            }
-        }
+        instance.layoutNodeWrapper.wrappedBy = innerLayoutNodeWrapper
 
         val owner = this.owner
         if (owner != null) {
@@ -148,7 +100,7 @@ sealed class ComponentNode {
         ErrorMessages.CountOutOfRange.validateArg(count >= 0, count)
         val attached = owner != null
         for (i in index + count - 1 downTo index) {
-            val child = children.removeAt(i)
+            val child = _children.removeAt(i)
             if (DebugChanges) {
                 println("$child removed from $this at index $i")
             }
@@ -164,7 +116,7 @@ sealed class ComponentNode {
      * Moves [count] elements starting at index [from] to index [to]. The [to] index is related to
      * the position before the change, so, for example, to move an element at position 1 to after
      * the element at position 2, [from] should be `1` and [to] should be `3`. If the elements
-     * were ComponentNodes A B C D E, calling `move(1, 3, 1)` would result in the ComponentNodes
+     * were LayoutNodes A B C D E, calling `move(1, 3, 1)` would result in the LayoutNodes
      * being reordered to A C B D E.
      */
     fun move(from: Int, to: Int, count: Int) {
@@ -176,32 +128,23 @@ sealed class ComponentNode {
             // if "from" is after "to," the from index moves because we're inserting before it
             val fromIndex = if (from > to) from + i else from
             val toIndex = if (from > to) to + i else to + count - 2
-            val child = children.removeAt(fromIndex)
+            val child = _children.removeAt(fromIndex)
 
             if (DebugChanges) {
                 println("$child moved in $this from index $fromIndex to $toIndex")
             }
 
-            children.add(toIndex, child)
+            _children.add(toIndex, child)
         }
 
-        containingLayoutNode?.let {
-            it.layoutChildrenDirty = true
-            it.requestRemeasure()
-        }
+        requestRemeasure()
     }
 
     /**
-     * Returns the child ComponentNode at the given index. An exception will be thrown if there
-     * is no child at the given index.
-     */
-    operator fun get(index: Int): ComponentNode = children[index]
-
-    /**
-     * Set the [Owner] of this ComponentNode. This ComponentNode must not already be attached.
+     * Set the [Owner] of this LayoutNode. This LayoutNode must not already be attached.
      * [owner] must match its [parent].[owner].
      */
-    open fun attach(owner: Owner) {
+    fun attach(owner: Owner) {
         ErrorMessages.OwnerAlreadyAttached.validateState(this.owner == null)
         val parent = parent
         ErrorMessages.ParentOwnerMustMatchChild.validateState(
@@ -211,50 +154,64 @@ sealed class ComponentNode {
         this.owner = owner
         this.depth = (parent?.depth ?: -1) + 1
         owner.onAttach(this)
-        visitChildren { child ->
+        _children.fastForEach { child ->
             child.attach(owner)
         }
+
+        requestRemeasure()
+        layoutNodeWrapper.attach()
+        onAttach?.invoke(owner)
     }
 
     /**
-     * Remove the ComponentNode from the [Owner]. The [owner] must not be `null` before this call
+     * Remove the LayoutNode from the [Owner]. The [owner] must not be `null` before this call
      * and its [parent]'s [owner] must be `null` before calling this. This will also [detach] all
      * children. After executing, the [owner] will be `null`.
      */
-    open fun detach() {
+    fun detach() {
         val owner = owner ?: ErrorMessages.OwnerAlreadyDetached.state()
+        val parentLayoutNode = parent
+        if (parentLayoutNode != null) {
+            parentLayoutNode.onInvalidate()
+            parentLayoutNode.requestRemeasure()
+        }
+        alignmentLinesQueryOwner = null
+        onDetach?.invoke(owner)
+        layoutNodeWrapper.detach()
+
         if (outerSemantics != null) {
             owner.onSemanticsChange()
         }
         owner.onDetach(this)
         this.owner = null
         depth = 0
-        visitChildren { child ->
+        _children.fastForEach { child ->
             child.detach()
         }
     }
 
-    private val _zIndexSortedChildren = mutableListOf<ComponentNode>()
+    private val _zIndexSortedChildren = mutableListOf<LayoutNode>()
 
     /**
      * Returns the children list sorted by their [LayoutNode.zIndex].
      * Note that the object is reused so you shouldn't save it for later.
      */
     @PublishedApi
-    internal val zIndexSortedChildren: List<ComponentNode>
+    internal val zIndexSortedChildren: List<LayoutNode>
         get() {
             _zIndexSortedChildren.clear()
-            _zIndexSortedChildren.addAll(children)
+            _zIndexSortedChildren.addAll(_children)
             _zIndexSortedChildren.sortWith(ZIndexComparator)
             return _zIndexSortedChildren
         }
 
     override fun toString(): String {
-        return "${simpleIdentityToString(this)} children: ${children.size}"
+        return "${simpleIdentityToString(this)} children: ${_children.size} " +
+                "measureBlocks: $measureBlocks"
     }
 
     /**
-     * Call this method from the debugger to see a dump of the ComponentNode tree structure
+     * Call this method from the debugger to see a dump of the LayoutNode tree structure
      */
     private fun debugTreeToString(depth: Int = 0): String {
         val tree = StringBuilder()
@@ -265,7 +222,7 @@ sealed class ComponentNode {
         tree.append(toString())
         tree.append('\n')
 
-        for (child in children) {
+        for (child in _children) {
             tree.append(child.debugTreeToString(depth + 1))
         }
 
@@ -275,30 +232,7 @@ sealed class ComponentNode {
         }
         return tree.toString()
     }
-}
 
-/**
- * Comparator allowing to sort nodes by zIndex
- */
-private val ZIndexComparator = Comparator<ComponentNode> { node1, node2 ->
-    val depth1 = if (node1 is LayoutNode) node1.zIndex else 0f
-    val depth2 = if (node2 is LayoutNode) node2.zIndex else 0f
-    if (depth1 > depth2) 1 else if (depth1 < depth2) -1 else 0
-}
-
-/**
- * Returns true if this [ComponentNode] currently has an [ComponentNode.owner].  Semantically,
- * this means that the ComponentNode is currently a part of a component tree.
- */
-fun ComponentNode.isAttached() = owner != null
-
-/**
- * Backing node for Layout component.
- *
- * Measuring a [LayoutNode] as a [Measurable] will measure the node's content as adjusted by
- * [modifier].
- */
-class LayoutNode : ComponentNode(), Measurable {
     interface MeasureBlocks {
         /**
          * The function used to measure the child. It must call [MeasureScope.layout] before
@@ -530,12 +464,6 @@ class LayoutNode : ComponentNode(), Measurable {
      */
     internal var alignmentLinesQueryOwner: LayoutNode? = null
 
-    override val parentLayoutNode: LayoutNode?
-        get() = super.containingLayoutNode
-
-    override val containingLayoutNode: LayoutNode?
-        get() = this
-
     /**
      * A local version of [Owner.measureIteration] to ensure that [MeasureBlocks.measure]
      * is not called multiple times within a measure pass.
@@ -545,31 +473,6 @@ class LayoutNode : ComponentNode(), Measurable {
 
     @Deprecated("Temporary API to support ConstraintLayout prototyping.")
     var canMultiMeasure: Boolean = false
-
-    /**
-     * Identifies when [layoutChildren] needs to be recalculated or if it can use
-     * the cached value.
-     */
-    internal var layoutChildrenDirty = true
-
-    /**
-     * The cached value of [layoutChildren]
-     */
-    private val _layoutChildren = mutableListOf<LayoutNode>()
-
-    /**
-     * All first level [LayoutNode] descendants. All LayoutNodes in the List
-     * will have this as [parentLayoutNode].
-     */
-    val layoutChildren: List<LayoutNode>
-        get() {
-            if (layoutChildrenDirty) {
-                _layoutChildren.clear()
-                addLayoutChildren(this, _layoutChildren)
-                layoutChildrenDirty = false
-            }
-            return _layoutChildren
-        }
 
     override val parentData: Any?
         get() = layoutNodeWrapper.parentData
@@ -591,7 +494,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 // While some temporary components for adding semantics have to add
                 // PassThroughLayout it breaks zIndex calculation via adding extra layout layer.
                 // To workaround it we use the zIndex of the first child of PassThroughLayout
-                layoutChildren.firstOrNull()?.zIndex ?: 0f
+                children.firstOrNull()?.zIndex ?: 0f
             } else {
                 outerZIndexModifier?.zIndex ?: 0f
             }
@@ -616,7 +519,7 @@ class LayoutNode : ComponentNode(), Measurable {
      * This is added for performance so that LayoutNodeWrapper.findLayer() can be faster.
      */
     internal fun findLayer(): OwnedLayer? {
-        return innerLayerWrapper?.layer ?: parentLayoutNode?.findLayer()
+        return innerLayerWrapper?.layer ?: parent?.findLayer()
     }
 
     /**
@@ -686,7 +589,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 wrapper
             }
-            layoutNodeWrapper.wrappedBy = parentLayoutNode?.innerLayoutNodeWrapper
+            layoutNodeWrapper.wrappedBy = parent?.innerLayoutNodeWrapper
             // Optimize the case where the layout itself is not modified. A common reason for
             // this is if no wrapping actually occurs above because no LayoutModifiers are
             // present in the modifier chain.
@@ -715,32 +618,10 @@ class LayoutNode : ComponentNode(), Measurable {
     val coordinates: LayoutCoordinates
         get() = innerLayoutNodeWrapper
 
-    override fun attach(owner: Owner) {
-        super.attach(owner)
-        requestRemeasure()
-        parentLayoutNode?.layoutChildrenDirty = true
-        layoutNodeWrapper.attach()
-        onAttach?.invoke(owner)
-    }
-
     /**
      * Callback to be executed whenever the [LayoutNode] is attached to a new [Owner].
      */
     var onAttach: ((Owner) -> Unit)? = null
-
-    override fun detach() {
-        val owner = owner!!
-        val parentLayoutNode = parentLayoutNode
-        if (parentLayoutNode != null) {
-            parentLayoutNode.onInvalidate()
-            parentLayoutNode.layoutChildrenDirty = true
-            parentLayoutNode.requestRemeasure()
-        }
-        alignmentLinesQueryOwner = null
-        onDetach?.invoke(owner)
-        layoutNodeWrapper.detach()
-        super.detach()
-    }
 
     /**
      * Callback to be executed whenever the [LayoutNode] is detached from an [Owner].
@@ -760,15 +641,15 @@ class LayoutNode : ComponentNode(), Measurable {
     override fun measure(constraints: Constraints, layoutDirection: LayoutDirection): Placeable {
         val owner = requireOwner()
         val iteration = owner.measureIteration
+        val parent = parent
         @Suppress("Deprecation")
         canMultiMeasure = canMultiMeasure ||
-                (parentLayoutNode != null && parentLayoutNode!!.canMultiMeasure)
+                (parent != null && parent.canMultiMeasure)
         @Suppress("Deprecation")
         check(measureIteration != iteration || canMultiMeasure) {
             "measure() may not be called multiple times on the same Measurable"
         }
         measureIteration = iteration
-        val parent = parentLayoutNode
         // The more idiomatic, `if (parentLayoutNode?.isMeasuring == true)` causes boxing
         affectsParentSize = parent != null && parent.isMeasuring == true
         if (this.constraints == constraints &&
@@ -873,7 +754,7 @@ class LayoutNode : ComponentNode(), Measurable {
             isLayingOut = true
             val owner = requireOwner()
             owner.observeLayoutModelReads(this) {
-                layoutChildren.forEach { child ->
+                children.fastForEach { child ->
                     child.isPlaced = false
                     if (alignmentLinesRequired && child.dirtyAlignmentLines) {
                         child.needsRelayout = true
@@ -883,18 +764,18 @@ class LayoutNode : ComponentNode(), Measurable {
                     }
                     child.alignmentLinesQueriedSinceLastLayout = false
                 }
-                positionedDuringMeasurePass = parentLayoutNode?.isMeasuring ?: false ||
-                        parentLayoutNode?.positionedDuringMeasurePass ?: false
+                positionedDuringMeasurePass = parent?.isMeasuring ?: false ||
+                        parent?.positionedDuringMeasurePass ?: false
                 innerLayoutNodeWrapper.measureResult.placeChildren(layoutDirection)
-                layoutChildren.forEach { child ->
+                children.fastForEach { child ->
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
                 }
             }
 
             if (alignmentLinesRequired && dirtyAlignmentLines) {
                 alignmentLines.clear()
-                layoutChildren.forEach { child ->
-                    if (!child.isPlaced) return@forEach
+                children.fastForEach { child ->
+                    if (!child.isPlaced) return@fastForEach
                     child.alignmentLines.keys.forEach { childLine ->
                         val linePositionInContainer = child.getAlignmentLine(childLine)!!
                         // If the line was already provided by a previous child, merge the values.
@@ -967,11 +848,11 @@ class LayoutNode : ComponentNode(), Measurable {
         // a) when the Layout is positioned - `onPositioned`
         // b) when the child of the Layout is positioned - `onChildPositioned`
         onPositionedCallbacks.fastForEach { it.onPositioned(coordinates) }
-        parentLayoutNode?.onChildPositionedCallbacks?.fastForEach {
+        parent?.onChildPositionedCallbacks?.fastForEach {
             it.onChildPositioned(coordinates)
         }
         // iterate through the subtree
-        layoutChildren.fastForEach { it.dispatchOnPositionedCallbacks() }
+        children.fastForEach { it.dispatchOnPositionedCallbacks() }
     }
 
     /**
@@ -996,10 +877,6 @@ class LayoutNode : ComponentNode(), Measurable {
         return infoList
     }
 
-    override fun toString(): String {
-        return "${super.toString()} measureBlocks: $measureBlocks"
-    }
-
     internal companion object {
         private val ErrorMeasureBlocks = object : NoIntrinsicsMeasureBlocks(
             error = "Undefined intrinsics block and it is required"
@@ -1011,18 +888,22 @@ class LayoutNode : ComponentNode(), Measurable {
                 layoutDirection: LayoutDirection
             ) = error("Undefined measure and it is required")
         }
-
-        private fun addLayoutChildren(node: ComponentNode, list: MutableList<LayoutNode>) {
-            node.visitChildren { child ->
-                if (child is LayoutNode) {
-                    list += child
-                } else {
-                    addLayoutChildren(child, list)
-                }
-            }
-        }
     }
 }
+
+/**
+ * Comparator allowing to sort nodes by zIndex
+ */
+private val ZIndexComparator = Comparator<LayoutNode> { node1, node2 ->
+    sign(node1.zIndex - node2.zIndex).toInt()
+}
+
+/**
+ * Returns true if this [LayoutNode] currently has an [LayoutNode.owner].  Semantically,
+ * this means that the LayoutNode is currently a part of a component tree.
+ */
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun LayoutNode.isAttached() = owner != null
 
 /**
  * Used by tooling to examine the modifiers on a [LayoutNode].
@@ -1034,58 +915,24 @@ class ModifierInfo(
 )
 
 /**
- * Returns [ComponentNode.owner] or throws if it is null.
+ * Returns [LayoutNode.owner] or throws if it is null.
  */
-fun ComponentNode.requireOwner(): Owner = owner ?: ErrorMessages.NodeShouldBeAttached.state()
+internal fun LayoutNode.requireOwner(): Owner = owner ?: ErrorMessages.NodeShouldBeAttached.state()
 
 /**
- * Inserts a child [ComponentNode] at a last index. If this ComponentNode [isAttached]
- * then [child] will become [isAttached]ed also. [child] must have a `null` [ComponentNode.parent].
+ * Inserts a child [LayoutNode] at a last index. If this LayoutNode [isAttached]
+ * then [child] will become [isAttached]ed also. [child] must have a `null` [LayoutNode.parent].
  */
-fun ComponentNode.add(child: ComponentNode) {
-    insertAt(count, child)
+internal fun LayoutNode.add(child: LayoutNode) {
+    insertAt(children.size, child)
 }
 
 /**
- * Executes [block] on first level of [LayoutNode] descendants of this ComponentNode.
- */
-fun ComponentNode.visitLayoutChildren(block: (LayoutNode) -> Unit) {
-    visitChildren { child ->
-        if (child is LayoutNode) {
-            block(child)
-        } else {
-            child.visitLayoutChildren(block)
-        }
-    }
-}
-
-/**
- * Executes [block] on first level of [LayoutNode] descendants of this ComponentNode
- * and returns the last `LayoutNode` to return `true` from [block].
- */
-fun ComponentNode.findLastLayoutChild(block: (LayoutNode) -> Boolean): LayoutNode? {
-    for (i in count - 1 downTo 0) {
-        val child = this[i]
-        if (child is LayoutNode) {
-            if (block(child)) {
-                return child
-            }
-        } else {
-            val layoutNode = child.findLastLayoutChild(block)
-            if (layoutNode != null) {
-                return layoutNode
-            }
-        }
-    }
-    return null
-}
-
-/**
- * Executes [selector] on every parent of this [ComponentNode] and returns the closest
- * [ComponentNode] to return `true` from [selector] or null if [selector] returns false
+ * Executes [selector] on every parent of this [LayoutNode] and returns the closest
+ * [LayoutNode] to return `true` from [selector] or null if [selector] returns false
  * for all ancestors.
  */
-fun ComponentNode.findClosestParentNode(selector: (ComponentNode) -> Boolean): ComponentNode? {
+fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean): LayoutNode? {
     var currentParent = parent
     while (currentParent != null) {
         if (selector(currentParent)) {
@@ -1097,8 +944,3 @@ fun ComponentNode.findClosestParentNode(selector: (ComponentNode) -> Boolean): C
 
     return null
 }
-
-/**
- * Returns `true` if this ComponentNode has no descendant [LayoutNode]s.
- */
-fun ComponentNode.hasNoLayoutDescendants() = findLastLayoutChild { true } == null

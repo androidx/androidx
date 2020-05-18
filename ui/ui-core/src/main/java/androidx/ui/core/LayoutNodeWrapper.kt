@@ -330,13 +330,13 @@ internal abstract class LayoutNodeWrapper(
             return focusParent
         }
 
-        var parentLayoutNode = layoutNode.parentLayoutNode
+        var parentLayoutNode = layoutNode.parent
         while (parentLayoutNode != null) {
             focusParent = parentLayoutNode.layoutNodeWrapper.findLastFocusWrapper()
             if (focusParent != null) {
                 return focusParent
             }
-            parentLayoutNode = parentLayoutNode.parentLayoutNode
+            parentLayoutNode = parentLayoutNode.parent
         }
         return null
     }
@@ -353,13 +353,13 @@ internal abstract class LayoutNodeWrapper(
             return keyInputParent
         }
 
-        var parentLayoutNode = layoutNode.parentLayoutNode
+        var parentLayoutNode = layoutNode.parent
         while (parentLayoutNode != null) {
             keyInputParent = parentLayoutNode.layoutNodeWrapper.findLastKeyInputWrapper()
             if (keyInputParent != null) {
                 return keyInputParent
             }
-            parentLayoutNode = parentLayoutNode.parentLayoutNode
+            parentLayoutNode = parentLayoutNode.parent
         }
         return null
     }

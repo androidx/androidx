@@ -26,7 +26,7 @@ import androidx.compose.ComposerUpdater
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
-import androidx.ui.core.ComponentNode
+import androidx.ui.core.LayoutNode
 import androidx.ui.viewinterop.AndroidViewHolder
 
 // TODO: evaluate if this class is necessary or not
@@ -65,7 +65,7 @@ internal class UiApplyAdapter : ApplyAdapter<Any> {
     override fun Any.removeAt(index: Int, count: Int) {
         when (this) {
             is ViewGroup -> removeViews(index, count)
-            is ComponentNode -> removeAt(index, count)
+            is LayoutNode -> removeAt(index, count)
             else -> invalidNode(this)
         }
     }
@@ -91,7 +91,7 @@ internal class UiApplyAdapter : ApplyAdapter<Any> {
                     }
                 }
             }
-            is ComponentNode -> {
+            is LayoutNode -> {
                 move(from, to, count)
             }
             else -> invalidNode(this)
@@ -117,7 +117,7 @@ internal class UiApplyAdapter : ApplyAdapter<Any> {
                                 parent.addView(instance, index)
                                 adapter?.didInsert(instance, parent)
                             }
-//                            is ComponentNode -> {
+//                            is LayoutNode -> {
 //                                val adaptedView = adapters?.adapt(parent, instance) as? View
 //                                    ?: error(
 //                                        "Could not convert ${
@@ -130,7 +130,7 @@ internal class UiApplyAdapter : ApplyAdapter<Any> {
 //                            }
                             else -> invalidNode(instance)
                         }
-                    is ComponentNode ->
+                    is LayoutNode ->
                         when (instance) {
                             is View -> {
                                 // Wrap the instance in an AndroidViewHolder, unless the instance
@@ -144,9 +144,9 @@ internal class UiApplyAdapter : ApplyAdapter<Any> {
                                         }
                                     }
 
-                                parent.insertAt(index, androidViewHolder.toComponentNode())
+                                parent.insertAt(index, androidViewHolder.toLayoutNode())
                             }
-                            is ComponentNode -> parent.insertAt(index, instance)
+                            is LayoutNode -> parent.insertAt(index, instance)
                             else -> invalidNode(instance)
                         }
                     else -> invalidNode(parent)
@@ -206,8 +206,10 @@ class UiComposer(
         endNode()
     }
 
-    @Suppress("UNCHECKED_CAST")
-    inline fun <T : ComponentNode> emit(
+    // There is a compilation error if I change T -> LayoutNode, so I
+    // just suppressed the warning
+    @Suppress("UNCHECKED_CAST", "FINAL_UPPER_BOUND")
+    inline fun <T : LayoutNode> emit(
         key: Any,
         /*crossinline*/
         ctor: () -> T,
@@ -220,8 +222,10 @@ class UiComposer(
         endNode()
     }
 
-    @Suppress("UNCHECKED_CAST")
-    inline fun <T : ComponentNode> emit(
+    // There is a compilation error if I change T -> LayoutNode, so I
+    // just suppressed the warning
+    @Suppress("UNCHECKED_CAST", "FINAL_UPPER_BOUND")
+    inline fun <T : LayoutNode> emit(
         key: Any,
         /*crossinline*/
         ctor: () -> T,

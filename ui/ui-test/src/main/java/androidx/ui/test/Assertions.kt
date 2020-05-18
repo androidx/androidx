@@ -18,7 +18,6 @@ package androidx.ui.test
 
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.ui.core.AndroidOwner
-import androidx.ui.core.ComponentNode
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsNode
@@ -295,16 +294,16 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
     val errorMessageOnFail = "Failed to perform isDisplayed check."
     val node = fetchSemanticsNode(errorMessageOnFail)
 
-    fun isNotPlaced(node: ComponentNode): Boolean {
-        return node is LayoutNode && !node.isPlaced
+    fun isNotPlaced(node: LayoutNode): Boolean {
+        return !node.isPlaced
     }
 
-    val componentNode = node.componentNode
-    if (isNotPlaced(componentNode) || componentNode.findClosestParentNode(::isNotPlaced) != null) {
+    val layoutNode = node.componentNode
+    if (isNotPlaced(layoutNode) || layoutNode.findClosestParentNode(::isNotPlaced) != null) {
         return false
     }
 
-    (componentNode.owner as? AndroidOwner)?.let {
+    (layoutNode.owner as? AndroidOwner)?.let {
         if (!ViewMatchers.isDisplayed().matches(it.view)) {
             return false
         }

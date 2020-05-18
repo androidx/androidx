@@ -25,7 +25,6 @@ import androidx.compose.keySourceInfoOf
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.ModifierInfo
 import androidx.ui.core.globalPosition
-import androidx.ui.core.isAttached
 import androidx.ui.unit.IntPxBounds
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
@@ -152,7 +151,7 @@ private fun SlotReader.getGroup(): Group {
 }
 
 private fun boundsOfLayoutNode(node: LayoutNode): IntPxBounds {
-    if (!node.isAttached()) {
+    if (node.owner == null) {
         return IntPxBounds(
             left = 0.ipx,
             top = 0.ipx,

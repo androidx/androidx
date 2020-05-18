@@ -269,7 +269,7 @@ internal class ModifiedFocusNode(
 
         // Go through all your children and find the first focusable node from each child.
         val focusableChildren = mutableListOf<ModifiedFocusNode>()
-        for (node in layoutNode.layoutChildren) {
+        for (node in layoutNode.children) {
             focusableChildren.addAll(node.focusableChildren())
         }
         return focusableChildren

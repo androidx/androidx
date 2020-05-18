@@ -19,15 +19,15 @@ package androidx.ui.core
 import java.util.TreeSet
 
 /**
- * The set of [ComponentNode]s which orders items by their [ComponentNode.depth] and
+ * The set of [LayoutNode]s which orders items by their [LayoutNode.depth] and
  * allows modifications(additions and removals) while we iterate through it via [popEach].
- * While [ComponentNode] is added to the set it should always be:
- * 1) attached [ComponentNode.isAttached] == true
- * 2) maintaining the same [ComponentNode.depth]
+ * While [LayoutNode] is added to the set it should always be:
+ * 1) attached [LayoutNode.isAttached] == true
+ * 2) maintaining the same [LayoutNode.depth]
  * as any of this modifications can break the comparator's contract which can cause
  * to not find the item in the tree set, which we previously added.
  */
-internal class DepthSortedSet<T : ComponentNode>(
+internal class DepthSortedSet(
     private val extraAssertions: Boolean = true
 ) {
     // stores the depth used when the node was added into the set so we can assert it wasn't
@@ -35,10 +35,10 @@ internal class DepthSortedSet<T : ComponentNode>(
     // used in comparator for building the tree in TreeSet.
     // Created and used only when extraAssertions == true
     private val mapOfOriginalDepth by lazy(LazyThreadSafetyMode.NONE) {
-        mutableMapOf<T, Int>()
+        mutableMapOf<LayoutNode, Int>()
     }
-    private val DepthComparator: Comparator<T> = object : Comparator<T> {
-        override fun compare(l1: T, l2: T): Int {
+    private val DepthComparator: Comparator<LayoutNode> = object : Comparator<LayoutNode> {
+        override fun compare(l1: LayoutNode, l2: LayoutNode): Int {
             val depthDiff = l1.depth.compareTo(l2.depth)
             if (depthDiff != 0) {
                 return depthDiff
@@ -46,9 +46,9 @@ internal class DepthSortedSet<T : ComponentNode>(
             return System.identityHashCode(l1).compareTo(System.identityHashCode(l2))
         }
     }
-    private val set = TreeSet<T>(DepthComparator)
+    private val set = TreeSet<LayoutNode>(DepthComparator)
 
-    fun contains(node: T): Boolean {
+    fun contains(node: LayoutNode): Boolean {
         val contains = set.contains(node)
         if (extraAssertions) {
             check(contains == mapOfOriginalDepth.containsKey(node))
@@ -56,7 +56,7 @@ internal class DepthSortedSet<T : ComponentNode>(
         return contains
     }
 
-    fun add(node: T) {
+    fun add(node: LayoutNode) {
         check(node.isAttached())
         if (extraAssertions) {
             val usedDepth = mapOfOriginalDepth[node]
@@ -69,7 +69,7 @@ internal class DepthSortedSet<T : ComponentNode>(
         set.add(node)
     }
 
-    fun remove(node: T) {
+    fun remove(node: LayoutNode) {
         check(node.isAttached())
         val contains = set.remove(node)
         if (extraAssertions) {
@@ -82,13 +82,13 @@ internal class DepthSortedSet<T : ComponentNode>(
         }
     }
 
-    fun pop(): T {
+    fun pop(): LayoutNode {
         val node = set.first()
         remove(node)
         return node
     }
 
-    inline fun popEach(crossinline block: (T) -> Unit) {
+    inline fun popEach(crossinline block: (LayoutNode) -> Unit) {
         while (isNotEmpty()) {
             val node = pop()
             block(node)

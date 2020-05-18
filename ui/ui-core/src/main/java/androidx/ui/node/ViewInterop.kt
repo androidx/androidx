@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RestrictTo
 import androidx.ui.core.AndroidOwner
-import androidx.ui.core.ComponentNode
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutNode
@@ -90,10 +89,10 @@ private fun obtainMeasureSpec(
 }
 
 /**
- * Builds a [ComponentNode] tree representation for an Android [View].
+ * Builds a [LayoutNode] tree representation for an Android [View].
  * The component nodes will proxy the Compose core calls to the [View].
  */
-internal fun AndroidViewHolder.toComponentNode(): ComponentNode {
+internal fun AndroidViewHolder.toLayoutNode(): LayoutNode {
     // TODO(soboleva): add layout direction here?
     // TODO(popam): forward pointer input, accessibility, focus
     // Prepare layout node that proxies measure and layout passes to the View.

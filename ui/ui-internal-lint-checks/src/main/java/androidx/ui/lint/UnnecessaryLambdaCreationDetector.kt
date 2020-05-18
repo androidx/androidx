@@ -71,7 +71,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
      *    that matches `() -> Unit` - this both avoids non-lambda invocations but also makes sure
      *    that we don't warn for lambdas that have parameters, such as @Composable (Int) -> Unit
      *    - this cannot be inlined.)
-     * 5. The outer function call that contains this lambda is not a call to a `ComponentNode`
+     * 5. The outer function call that contains this lambda is not a call to a `LayoutNode`
      *    (because these are technically constructor invocations that we just intercept calls to
      *    there is no way to avoid using a trailing lambda for this)
      * 6. The lambda is not being passed as a parameter, for example `Foo { lambda -> lambda() }`
@@ -127,7 +127,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             // they aren't actually a function call and so they cannot be inlined. Unfortunately
             // since this is done in a compiler plugin, when running lint we don't have a way to
             // understand this better, so we just check to see if the name looks like it is a node.
-            if (parentExpression.isComponentNodeInvocation) return
+            if (parentExpression.isLayoutNodeInvocation) return
 
             // Find the index of the corresponding parameter in the source declaration, that
             // matches this lambda expression's invocation
@@ -159,7 +159,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        private val KotlinUFunctionCallExpression.isComponentNodeInvocation
+        private val KotlinUFunctionCallExpression.isLayoutNodeInvocation
             get() = (sourcePsi as? KtCallExpression)?.referenceExpression()?.text
                 ?.endsWith("Node") == true
 
