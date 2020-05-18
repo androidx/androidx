@@ -491,7 +491,6 @@ class MediaSessionStub extends IMediaSession.Stub {
                         if (sessionCompat != null) {
                             sessionCompat.getController().setVolumeTo(value, flags);
                         }
-                        // TODO: Handle remote player case
                         return SessionResult.RESULT_SUCCESS;
                     }
                 });
@@ -511,7 +510,6 @@ class MediaSessionStub extends IMediaSession.Stub {
                         if (sessionCompat != null) {
                             sessionCompat.getController().adjustVolume(direction, flags);
                         }
-                        // TODO: Handle remote player case
                         return SessionResult.RESULT_SUCCESS;
                     }
                 });

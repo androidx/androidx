@@ -586,5 +586,10 @@ public class MediaSessionProviderService extends Service {
             SubtitleData dataObj = MediaParcelUtils.fromParcelable(data);
             player.notifySubtitleData(itemObj, trackObj, dataObj);
         }
+
+        @Override
+        public void notifyVolumeChanged(String sessionId, int volume) {
+            throw new UnsupportedOperationException("not implemented");
+        }
     }
 }
