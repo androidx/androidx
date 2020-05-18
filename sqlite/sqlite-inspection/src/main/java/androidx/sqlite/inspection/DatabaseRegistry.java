@@ -78,7 +78,7 @@ class DatabaseRegistry {
 
     // Database connection id -> extra database reference used to facilitate the
     // keep-database-connection-open functionality.
-    @GuardedBy("mLock") private final Map<Integer, SQLiteDatabase> mKeepOpenReferences =
+    @GuardedBy("mLock") private final Map<Integer, SQLiteDatabase> mKeepOpenReferencesToggle =
             new HashMap<>();
 
     // Database path -> database connection id - allowing to report a consistent id for all
@@ -133,10 +133,10 @@ class DatabaseRegistry {
                 }
             } else { // keepOpen -> allowClose
                 mKeepDatabasesOpen = false;
-                for (SQLiteDatabase database : mKeepOpenReferences.values()) {
+                for (SQLiteDatabase database : mKeepOpenReferencesToggle.values()) {
                     database.releaseReference();
                 }
-                mKeepOpenReferences.clear();
+                mKeepOpenReferencesToggle.clear();
             }
         }
     }
@@ -270,7 +270,7 @@ class DatabaseRegistry {
 
     @GuardedBy("mLock")
     private void secureKeepOpenReference(int id) {
-        if (!mKeepDatabasesOpen || mKeepOpenReferences.containsKey(id)) {
+        if (!mKeepDatabasesOpen || mKeepOpenReferencesToggle.containsKey(id)) {
             // Keep-open is disabled or we already have a keep-open-reference for that id.
             return;
         }
@@ -278,7 +278,7 @@ class DatabaseRegistry {
         // Try secure a keep-open reference
         SQLiteDatabase database = acquireReferenceImpl(id);
         if (database != null) {
-            mKeepOpenReferences.put(id, database);
+            mKeepOpenReferencesToggle.put(id, database);
         }
     }
 
