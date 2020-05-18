@@ -50,7 +50,8 @@ import androidx.ui.unit.PxPosition
  * clickable
  * @param onClickLabel semantic / accessibility label for the [onClick] action
  * @param interactionState [InteractionState] that will be updated when this Clickable is
- * pressed, using [Interaction.Pressed].
+ * pressed, using [Interaction.Pressed]. Only initial (first) press will be recorded and added to
+ * [InteractionState]
  */
 @Composable
 fun Clickable(
@@ -70,12 +71,10 @@ fun Clickable(
             }
         }
     ) {
-        // TODO(b/150706555): This layout is temporary and should be removed once Semantics
-        //  is implemented with modifiers.
         val tap = if (enabled) {
             (interactionState?.run {
                 Modifier.noConsumptionIndicatorGestureFilter(
-                    onStart = { addInteraction(Interaction.Pressed) },
+                    onStart = { position -> addInteraction(Interaction.Pressed, position) },
                     onStop = { removeInteraction(Interaction.Pressed) },
                     onCancel = { removeInteraction(Interaction.Pressed) }
                 )
@@ -88,6 +87,8 @@ fun Clickable(
                 interactionState?.removeInteraction(Interaction.Pressed)
             }
         }
+        // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+        //  is implemented with modifiers.
         @Suppress("DEPRECATION")
         PassThroughLayout(modifier + tap, children)
     }

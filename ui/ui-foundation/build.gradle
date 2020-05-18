@@ -42,6 +42,7 @@ dependencies {
     api project(":ui:ui-saved-instance-state")
     implementation project(':ui:ui-text-core')
     implementation project(':ui:ui-text')
+    implementation project(':ui:ui-util')
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)

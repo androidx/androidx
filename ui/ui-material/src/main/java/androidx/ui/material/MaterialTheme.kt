@@ -18,7 +18,9 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.Providers
+import androidx.ui.foundation.IndicationAmbient
 import androidx.ui.foundation.ProvideTextStyle
+import androidx.ui.material.ripple.RippleIndication
 
 /**
  * A MaterialTheme defines the styling principles from the Material design specification.
@@ -54,6 +56,7 @@ fun MaterialTheme(
 ) {
     ProvideColorPalette(colors) {
         Providers(
+            IndicationAmbient provides RippleIndication(),
             TypographyAmbient provides typography,
             ShapesAmbient provides shapes
         ) {

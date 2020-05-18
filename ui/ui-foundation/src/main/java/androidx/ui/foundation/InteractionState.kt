@@ -21,12 +21,15 @@ import androidx.compose.State
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
+import androidx.ui.unit.PxPosition
 
 /**
  * InteractionState represents a [Set] of [Interaction]s present on a given component. This
  * allows you to build higher level components comprised of lower level interactions such as
  * [Clickable] and [androidx.ui.foundation.gestures.draggable], and react to [Interaction]
- * changes driven by these components in one place.
+ * changes driven by these components in one place. For [Interaction]s with an associated
+ * position, such as [Interaction.Pressed], you can retrieve this position by using
+ * [interactionPositionFor].
  *
  * Creating an [InteractionState] and passing it to these lower level interactions will cause a
  * recomposition when there are changes to the state of [Interaction], such as when a [Clickable]
@@ -36,27 +39,44 @@ import androidx.compose.setValue
  */
 @Stable
 class InteractionState : State<Set<Interaction>> {
-    override var value: Set<Interaction> by mutableStateOf(emptySet())
-        private set
+
+    private var map: Map<Interaction, PxPosition?> by mutableStateOf(emptyMap())
+
+    override val value: Set<Interaction>
+        get() = map.keys
 
     /**
      * Adds the provided [interaction] to this InteractionState.
      * Since InteractionState represents a [Set], duplicate [interaction]s will not be added, and
      * hence will not cause a recomposition.
+     *
+     * @param interaction interaction to add
+     * @param position position at which the interaction occurred, if relevant. For example, for
+     * [Interaction.Pressed], this will be the position of the pointer input that triggered the
+     * pressed state.
      */
-    fun addInteraction(interaction: Interaction) {
-        if (interaction !in this) value = value + interaction
+    fun addInteraction(interaction: Interaction, position: PxPosition? = null) {
+        if (interaction !in this) map = map + (interaction to position)
     }
 
     /**
      * Removes the provided [interaction], if it is present, from this InteractionState.
      */
     fun removeInteraction(interaction: Interaction) {
-        if (interaction in this) value = value - interaction
+        if (interaction in this) map = map - interaction
     }
+
+    /**
+     * Returns the position for a particular [Interaction], if there is a position associated
+     * with the interaction.
+     *
+     * @return position associated with the interaction, or `null` if the interaction is not
+     * present in this state, or there is no associated position with the given interaction.
+     */
+    fun interactionPositionFor(interaction: Interaction): PxPosition? = map[interaction]
 
     /**
      * @return whether the provided [interaction] exists inside this InteractionState.
      */
-    operator fun contains(interaction: Interaction): Boolean = value.contains(interaction)
+    operator fun contains(interaction: Interaction): Boolean = map.contains(interaction)
 }

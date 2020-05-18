@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,26 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.state
+import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.indication
+import androidx.ui.layout.padding
+import androidx.ui.unit.dp
 
-@Sampled
 @Composable
-fun ClickableSample() {
-    val count = state { 0 }
-    Clickable(onClick = { count.value += 1 }) {
-        // content that you want to make clickable
-        Text(text = count.toString())
+@Sampled
+fun IndicationSample() {
+    val interactionState = remember { InteractionState() }
+    Clickable(
+        onClick = { /** do something */ },
+        // clickable will update interaction state
+        interactionState = interactionState,
+        // Modifier.indication will consume interaction state and show visual indication
+        modifier = Modifier.indication(interactionState)
+    ) {
+        Text("Clickable text", Modifier.padding(16.dp))
     }
 }
