@@ -27,15 +27,24 @@ import androidx.annotation.Nullable;
 public interface MutableConfig extends Config {
 
     /**
-     * Inserts a Option/Value pair into the configuration.
-     *
-     * <p>If the option already exists in this configuration, it will be replaced.
+     * Inserts a Option/Value pair into the configuration
      *
      * @param opt      The option to be added or modified
      * @param value    The value to insert for this option.
      * @param <ValueT> The type of the value being inserted.
      */
     <ValueT> void insertOption(@NonNull Option<ValueT> opt, @Nullable ValueT value);
+
+    /**
+     * Inserts a Option/Value pair into the configuration by the rules of {@link OptionPriority}.
+     *
+     * @param opt      The option to be added or modified
+     * @param value    The value to insert for this option.
+     * @param <ValueT> The type of the value being inserted.
+     * @throws {@link IllegalArgumentException} if there is a conflict that cannot be resolved.
+     */
+    <ValueT> void insertOption(@NonNull Option<ValueT> opt, @NonNull OptionPriority priority,
+            @Nullable ValueT value);
 
     /**
      * Removes an option from the configuration if it exists.

@@ -16,11 +16,14 @@
 
 package androidx.camera.core.impl;
 
+import android.util.ArrayMap;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
@@ -32,18 +35,17 @@ import java.util.TreeMap;
  * queried based on exact {@link Config.Option} objects or based on Option ids.
  */
 public class OptionsBundle implements Config {
-
+    protected static final Comparator<Option<?>> ID_COMPARE =
+            (o1, o2) -> {
+                return o1.getId().compareTo(o2.getId());
+            };
     private static final OptionsBundle EMPTY_BUNDLE =
-            new OptionsBundle(new TreeMap<>(new Comparator<Option<?>>() {
-                @Override
-                public int compare(Option<?> o1, Option<?> o2) {
-                    return o1.getId().compareTo(o2.getId());
-                }
-            }));
-    // TODO: Make these options parcelable
-    protected final TreeMap<Option<?>, Object> mOptions;
+            new OptionsBundle(new TreeMap<>(ID_COMPARE));
 
-    OptionsBundle(TreeMap<Option<?>, Object> options) {
+    // TODO: Make these options parcelable
+    protected final TreeMap<Option<?>, Map<OptionPriority, Object>> mOptions;
+
+    OptionsBundle(TreeMap<Option<?>, Map<OptionPriority, Object>> options) {
         mOptions = options;
     }
 
@@ -62,15 +64,15 @@ public class OptionsBundle implements Config {
             return (OptionsBundle) otherConfig;
         }
 
-        TreeMap<Option<?>, Object> persistentOptions =
-                new TreeMap<>(new Comparator<Option<?>>() {
-                    @Override
-                    public int compare(Option<?> o1, Option<?> o2) {
-                        return o1.getId().compareTo(o2.getId());
-                    }
-                });
+        TreeMap<Option<?>, Map<OptionPriority, Object>> persistentOptions =
+                new TreeMap<>(ID_COMPARE);
         for (Option<?> opt : otherConfig.listOptions()) {
-            persistentOptions.put(opt, otherConfig.retrieveOption(opt));
+            Set<OptionPriority> priorities = otherConfig.getPriorities(opt);
+            Map<OptionPriority, Object> valuesMap = new ArrayMap<>();
+            for (OptionPriority priority : priorities) {
+                valuesMap.put(priority, otherConfig.retrieveOptionWithPriority(opt, priority));
+            }
+            persistentOptions.put(opt, valuesMap);
         }
 
         return new OptionsBundle(persistentOptions);
@@ -102,13 +104,14 @@ public class OptionsBundle implements Config {
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id) {
-        if (!mOptions.containsKey(id)) {
+        Map<OptionPriority, Object> values = mOptions.get(id);
+        if (values == null) {
             throw new IllegalArgumentException("Option does not exist: " + id);
         }
+        OptionPriority highestPrirotiy = Collections.min(values.keySet());
 
         @SuppressWarnings("unchecked")
-        ValueT value = (ValueT) mOptions.get(id);
-
+        ValueT value = (ValueT) values.get(highestPrirotiy);
         return value;
     }
 
@@ -117,13 +120,46 @@ public class OptionsBundle implements Config {
     @SuppressWarnings("unchecked")
     public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id,
             @Nullable ValueT valueIfMissing) {
-        return mOptions.containsKey(id) ? (ValueT) mOptions.get(id) : valueIfMissing;
+        try {
+            return retrieveOption(id);
+        } catch (IllegalArgumentException e) {
+            return valueIfMissing;
+        }
+    }
+
+    @Override
+    @Nullable
+    public <ValueT> ValueT retrieveOptionWithPriority(@NonNull Option<ValueT> id,
+            @NonNull OptionPriority priority) {
+        Map<OptionPriority, Object> values = mOptions.get(id);
+        if (values == null) {
+            throw new IllegalArgumentException("Option does not exist: " + id);
+        }
+        if (!values.containsKey(priority)) {
+            throw new IllegalArgumentException("Option does not exist: " + id + " with priority="
+                    + priority);
+        }
+        @SuppressWarnings("unchecked")
+        ValueT value = (ValueT) values.get(priority);
+        return value;
+    }
+
+    @Override
+    @NonNull
+    public OptionPriority getOptionPriority(@NonNull Option<?> opt) {
+        Map<OptionPriority, Object> values = mOptions.get(opt);
+        if (values == null) {
+            throw new IllegalArgumentException("Option does not exist: " + opt);
+        }
+        OptionPriority highestPrirotiy = Collections.min(values.keySet());
+        return highestPrirotiy;
     }
 
     @Override
     public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
         Option<Void> query = Option.create(idStem, Void.class);
-        for (Entry<Option<?>, Object> entry : mOptions.tailMap(query).entrySet()) {
+        for (Entry<Option<?>, Map<OptionPriority, Object>> entry :
+                mOptions.tailMap(query).entrySet()) {
             if (!entry.getKey().getId().startsWith(idStem)) {
                 // We've reached the end of the range that contains our search stem.
                 break;
@@ -135,5 +171,16 @@ public class OptionsBundle implements Config {
                 break;
             }
         }
+    }
+
+    @NonNull
+    @Override
+    public Set<OptionPriority> getPriorities(@NonNull Option<?> opt) {
+        Map<OptionPriority, Object> values = mOptions.get(opt);
+        if (values == null) {
+            return Collections.emptySet();
+        }
+
+        return Collections.unmodifiableSet(values.keySet());
     }
 }

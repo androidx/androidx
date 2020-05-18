@@ -65,4 +65,23 @@ public interface ReadableConfig extends Config {
     default Set<Option<?>> listOptions() {
         return getConfig().listOptions();
     }
+
+    @Override
+    @Nullable
+    default <ValueT> ValueT retrieveOptionWithPriority(@NonNull Option<ValueT> id,
+            @NonNull OptionPriority priority) {
+        return getConfig().retrieveOptionWithPriority(id, priority);
+    }
+
+    @Override
+    @NonNull
+    default OptionPriority getOptionPriority(@NonNull Option<?> opt) {
+        return getConfig().getOptionPriority(opt);
+    }
+
+    @NonNull
+    @Override
+    default Set<OptionPriority> getPriorities(@NonNull Option<?> option) {
+        return getConfig().getPriorities(option);
+    }
 }
