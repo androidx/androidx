@@ -17,6 +17,7 @@
 package androidx.ui.layout.test
 
 import android.os.Build
+import androidx.compose.state
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutCoordinates
@@ -24,17 +25,22 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
+import androidx.ui.foundation.Box
 import androidx.ui.layout.Stack
 import androidx.ui.layout.offset
+import androidx.ui.layout.offsetPx
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.rtl
+import androidx.ui.layout.size
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
+import androidx.ui.unit.px
 import androidx.ui.unit.round
+import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -86,6 +92,7 @@ class LayoutOffsetTest : LayoutTest() {
     @Test
     fun positionIsModified_rtl() = with(density) {
         val containerWidth = 30.dp
+        val boxSize = 1.ipx
         val offsetX = 10.dp
         val offsetY = 20.dp
         var positionX = 0.ipx
@@ -103,14 +110,80 @@ class LayoutOffsetTest : LayoutTest() {
                             positionY = coordinates.globalPosition.y.round()
                         }
                 ) {
+                    // TODO(popam): this box should not be needed after b/154758475 is fixed.
+                    Box(Modifier.size(boxSize.toDp()))
                 }
             }
         }
 
         findByTag("stack").assertExists()
         runOnIdleCompose {
-            assertEquals(containerWidth.toIntPx() - offsetX.toIntPx(), positionX)
+            assertEquals(containerWidth.toIntPx() - offsetX.toIntPx() - boxSize, positionX)
             assertEquals(offsetY.toIntPx(), positionY)
+        }
+    }
+
+    @Test
+    fun positionIsModified_px() = with(density) {
+        val offsetX = 10.px
+        val offsetY = 20.px
+        var positionX = 0.px
+        var positionY = 0.px
+        composeTestRule.setContent {
+            TestTag("stack") {
+                Stack(
+                    Modifier.wrapContentSize(Alignment.TopStart)
+                        .offsetPx(state { offsetX }, state { offsetY })
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            positionX = coordinates.globalPosition.x
+                            positionY = coordinates.globalPosition.y
+                        }
+                ) {
+                }
+            }
+        }
+
+        findByTag("stack").assertExists()
+        runOnIdleCompose {
+            Assert.assertEquals(offsetX, positionX)
+            Assert.assertEquals(offsetY, positionY)
+        }
+    }
+
+    @Test
+    fun positionIsModified_px_rtl() = with(density) {
+        val containerWidth = 30.dp
+        val boxSize = 1.ipx
+        val offsetX = 10.px
+        val offsetY = 20.px
+        var positionX = 0.px
+        var positionY = 0.px
+        composeTestRule.setContent {
+            TestTag("stack") {
+                Stack(
+                    Modifier.rtl
+                        .wrapContentSize(Alignment.TopEnd)
+                        .preferredWidth(containerWidth)
+                        .wrapContentSize(Alignment.TopStart)
+                        .offsetPx(state { offsetX }, state { offsetY })
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            positionX = coordinates.globalPosition.x
+                            positionY = coordinates.globalPosition.y
+                        }
+                ) {
+                    // TODO(popam): this box should not be needed after b/154758475 is fixed.
+                    Box(Modifier.size(boxSize.toDp()))
+                }
+            }
+        }
+
+        findByTag("stack").assertExists()
+        runOnIdleCompose {
+            Assert.assertEquals(
+                containerWidth.toIntPx() - offsetX.round() - boxSize,
+                positionX.round()
+            )
+            Assert.assertEquals(offsetY, positionY)
         }
     }
 }
