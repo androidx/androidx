@@ -703,7 +703,7 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @UiThread
     @Override
-    public void onStateOffline() {
+    public void onStateDetached() {
         abortImageCaptureRequests();
     }
 

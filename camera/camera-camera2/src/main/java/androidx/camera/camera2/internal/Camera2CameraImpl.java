@@ -85,11 +85,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A camera which is controlled by the change of state in use cases.
  *
  * <p>The camera needs to be in an open state in order for use cases to control the camera. Whenever
- * there is a non-zero number of use cases in the online state the camera will either have a capture
- * session open or be in the process of opening up one. If the number of uses cases in the online
- * state changes then the capture session will be reconfigured.
+ * there is a non-zero number of use cases in the attached state the camera will either have a
+ * capture session open or be in the process of opening up one. If the number of uses cases in
+ * the attached state changes then the capture session will be reconfigured.
  *
- * <p>Capture requests will be issued only for use cases which are in both the online and active
+ * <p>Capture requests will be issued only for use cases which are in both the attached and active
  * state.
  */
 final class Camera2CameraImpl implements CameraInternal {
@@ -542,7 +542,7 @@ final class Camera2CameraImpl implements CameraInternal {
     /**
      * Sets the use case in a state to issue capture requests.
      *
-     * <p>The use case must also be online in order for it to issue capture requests.
+     * <p>The use case must also be attached in order for it to issue capture requests.
      */
     @Override
     public void onUseCaseActive(@NonNull UseCase useCase) {
@@ -606,7 +606,7 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     /**
-     * Returns whether the provided {@link UseCase} is considered online.
+     * Returns whether the provided {@link UseCase} is considered attached.
      *
      * <p>This method should only be used by tests. This will post to the Camera's thread and
      * block until completion.
@@ -614,20 +614,20 @@ final class Camera2CameraImpl implements CameraInternal {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
-    boolean isUseCaseOnline(@NonNull UseCase useCase) {
+    boolean isUseCaseAttached(@NonNull UseCase useCase) {
         try {
             return CallbackToFutureAdapter.<Boolean>getFuture(completer -> {
                 try {
                     mExecutor.execute(
-                            () -> completer.set(mUseCaseAttachState.isUseCaseOnline(useCase)));
+                            () -> completer.set(mUseCaseAttachState.isUseCaseAttached(useCase)));
                 } catch (RejectedExecutionException e) {
                     completer.setException(new RuntimeException("Unable to check if use case is "
-                            + "online. Camera executor shut down."));
+                            + "attached. Camera executor shut down."));
                 }
-                return "isUseCaseOnline";
+                return "isUseCaseAttached";
             }).get();
         } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException("Unable to check if use case is online.", e);
+            throw new RuntimeException("Unable to check if use case is attached.", e);
         }
     }
 
@@ -636,40 +636,40 @@ final class Camera2CameraImpl implements CameraInternal {
      * capture requests from the use case.
      */
     @Override
-    public void addOnlineUseCase(@NonNull Collection<UseCase> useCases) {
+    public void attachUseCases(@NonNull Collection<UseCase> useCases) {
         if (!useCases.isEmpty()) {
             mCameraControlInternal.setActive(true);
-            mExecutor.execute(() -> tryAddOnlineUseCases(useCases));
+            mExecutor.execute(() -> tryAttachUseCases(useCases));
         }
     }
 
-    // Attempts to make use cases online if they are not already online.
+    // Attempts to make use attach if they are not already attached.
     @ExecutedBy("mExecutor")
-    private void tryAddOnlineUseCases(@NonNull Collection<UseCase> toAdd) {
-        // Figure out which use cases are not already online and add them.
-        List<UseCase> useCasesChangedToOnline = new ArrayList<>();
+    private void tryAttachUseCases(@NonNull Collection<UseCase> toAdd) {
+        // Figure out which use cases are not already attached and add them.
+        List<UseCase> useCasesToAttach = new ArrayList<>();
         for (UseCase useCase : toAdd) {
-            if (!mUseCaseAttachState.isUseCaseOnline(useCase)) {
+            if (!mUseCaseAttachState.isUseCaseAttached(useCase)) {
                 // TODO(b/150208070): Race condition where onUseCaseActive can be called, even
                 //  after a UseCase has been unbound. The try-catch is to retain existing behavior
                 //  where an unbound UseCase is silently ignored.
                 try {
-                    mUseCaseAttachState.setUseCaseOnline(useCase);
+                    mUseCaseAttachState.setUseCaseAttached(useCase);
 
-                    useCasesChangedToOnline.add(useCase);
+                    useCasesToAttach.add(useCase);
                 } catch (NullPointerException e) {
-                    debugLog("Failed to set already detached use case online");
+                    debugLog("Failed to attach a detached use case");
                 }
             }
         }
 
-        if (useCasesChangedToOnline.isEmpty()) {
+        if (useCasesToAttach.isEmpty()) {
             return;
         }
 
-        debugLog("Use cases [" + TextUtils.join(", ", useCasesChangedToOnline) + "] now ONLINE");
+        debugLog("Use cases [" + TextUtils.join(", ", useCasesToAttach) + "] now ATTACHED");
 
-        notifyStateOnlineToUseCases(useCasesChangedToOnline);
+        notifyStateAttachedToUseCases(useCasesToAttach);
 
         // Check if need to add or remove MeetingRepeatingUseCase.
         addOrRemoveMeteringRepeatingUseCase();
@@ -683,21 +683,21 @@ final class Camera2CameraImpl implements CameraInternal {
             openInternal();
         }
 
-        updateCameraControlPreviewAspectRatio(useCasesChangedToOnline);
+        updateCameraControlPreviewAspectRatio(useCasesToAttach);
     }
 
-    private void notifyStateOnlineToUseCases(List<UseCase> useCases) {
+    private void notifyStateAttachedToUseCases(List<UseCase> useCases) {
         CameraXExecutors.mainThreadExecutor().execute(() -> {
             for (UseCase useCase : useCases) {
-                useCase.onStateOnline();
+                useCase.onStateAttached();
             }
         });
     }
 
-    private void notifyStateOfflineToUseCases(List<UseCase> useCases) {
+    private void notifyStateDetachedToUseCases(List<UseCase> useCases) {
         CameraXExecutors.mainThreadExecutor().execute(() -> {
             for (UseCase useCase : useCases) {
-                useCase.onStateOffline();
+                useCase.onStateDetached();
             }
         });
     }
@@ -730,41 +730,41 @@ final class Camera2CameraImpl implements CameraInternal {
      * handle capture requests from the use case.
      */
     @Override
-    public void removeOnlineUseCase(@NonNull Collection<UseCase> useCases) {
+    public void detachUseCases(@NonNull Collection<UseCase> useCases) {
         if (!useCases.isEmpty()) {
-            mExecutor.execute(() -> tryRemoveOnlineUseCases(useCases));
+            mExecutor.execute(() -> tryDetachUseCases(useCases));
         }
     }
 
-    // Attempts to make use cases offline if they are online.
+    // Attempts to make detach UseCases if they are attached.
     @ExecutedBy("mExecutor")
-    private void tryRemoveOnlineUseCases(@NonNull Collection<UseCase> toRemove) {
-        List<UseCase> useCasesChangedToOffline = new ArrayList<>();
+    private void tryDetachUseCases(@NonNull Collection<UseCase> toRemove) {
+        List<UseCase> useCasesToDetach = new ArrayList<>();
         for (UseCase useCase : toRemove) {
-            if (mUseCaseAttachState.isUseCaseOnline(useCase)) {
-                mUseCaseAttachState.setUseCaseOffline(useCase);
-                useCasesChangedToOffline.add(useCase);
+            if (mUseCaseAttachState.isUseCaseAttached(useCase)) {
+                mUseCaseAttachState.setUseCaseDetached(useCase);
+                useCasesToDetach.add(useCase);
             }
         }
 
-        if (useCasesChangedToOffline.isEmpty()) {
+        if (useCasesToDetach.isEmpty()) {
             return;
         }
 
-        debugLog("Use cases [" + TextUtils.join(", ", useCasesChangedToOffline)
-                + "] now OFFLINE for camera");
-        clearCameraControlPreviewAspectRatio(useCasesChangedToOffline);
+        debugLog("Use cases [" + TextUtils.join(", ", useCasesToDetach)
+                + "] now DETACHED for camera");
+        clearCameraControlPreviewAspectRatio(useCasesToDetach);
 
-        notifyStateOfflineToUseCases(useCasesChangedToOffline);
+        notifyStateDetachedToUseCases(useCasesToDetach);
 
         // Check if need to add or remove MeetingRepeatingUseCase.
         addOrRemoveMeteringRepeatingUseCase();
 
-        boolean allUseCasesOffline = mUseCaseAttachState.getOnlineUseCases().isEmpty();
-        if (allUseCasesOffline) {
+        boolean allUseCasesDetached = mUseCaseAttachState.getAttachedUseCases().isEmpty();
+        if (allUseCasesDetached) {
             mCameraControlInternal.setActive(false);
             resetCaptureSession(/*abortInFlightCaptures=*/false);
-            // If all offline, manual nullify session config to avoid
+            // If all detached, manual nullify session config to avoid
             // memory leak. See: https://issuetracker.google.com/issues/141188637
             mCaptureSession = mCaptureSessionBuilder.build();
             closeInternal();
@@ -780,7 +780,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
     // Check if it need the repeating surface for ImageCapture only use case.
     private void addOrRemoveMeteringRepeatingUseCase() {
-        ValidatingBuilder validatingBuilder = mUseCaseAttachState.getOnlineBuilder();
+        ValidatingBuilder validatingBuilder = mUseCaseAttachState.getAttachedBuilder();
         SessionConfig sessionConfig = validatingBuilder.build();
         CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
         int sizeRepeatingSurfaces = captureConfig.getSurfaces().size();
@@ -794,16 +794,16 @@ final class Camera2CameraImpl implements CameraInternal {
                 }
                 addMeteringRepeating();
             } else {
-                // There is mMeteringRepeating and online, check to remove it or not.
+                // There is mMeteringRepeating and attached, check to remove it or not.
                 if (sizeSessionSurfaces == 1 && sizeRepeatingSurfaces == 1) {
-                    // The only online use case is MeteringRepeating, directly remove it.
+                    // The only attached use case is MeteringRepeating, directly remove it.
                     removeMeteringRepeating();
                 } else if (sizeRepeatingSurfaces >= 2) {
                     // There are other repeating UseCases, remove the MeteringRepeating.
                     removeMeteringRepeating();
                 } else {
                     // Other normal cases, do nothing.
-                    Log.d(TAG, "mMeteringRepeating is online, "
+                    Log.d(TAG, "mMeteringRepeating is ATTACHED, "
                             + "SessionConfig Surfaces: " + sizeSessionSurfaces + ", "
                             + "CaptureConfig Surfaces: " + sizeRepeatingSurfaces);
                 }
@@ -813,8 +813,8 @@ final class Camera2CameraImpl implements CameraInternal {
 
     private  void removeMeteringRepeating() {
         if (mMeteringRepeating != null) {
-            mUseCaseAttachState.setUseCaseOffline(mMeteringRepeating);
-            notifyStateOfflineToUseCases(Arrays.asList(mMeteringRepeating));
+            mUseCaseAttachState.setUseCaseDetached(mMeteringRepeating);
+            notifyStateDetachedToUseCases(Arrays.asList(mMeteringRepeating));
             mMeteringRepeating.clear();
             mMeteringRepeating = null;
         }
@@ -822,8 +822,8 @@ final class Camera2CameraImpl implements CameraInternal {
 
     private  void addMeteringRepeating() {
         if (mMeteringRepeating != null) {
-            mUseCaseAttachState.setUseCaseOnline(mMeteringRepeating);
-            notifyStateOnlineToUseCases(Arrays.asList(mMeteringRepeating));
+            mUseCaseAttachState.setUseCaseAttached(mMeteringRepeating);
+            notifyStateAttachedToUseCases(Arrays.asList(mMeteringRepeating));
         }
     }
 
@@ -867,7 +867,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mExecutor")
     void updateCaptureSessionConfig() {
-        ValidatingBuilder validatingBuilder = mUseCaseAttachState.getActiveAndOnlineBuilder();
+        ValidatingBuilder validatingBuilder = mUseCaseAttachState.getActiveAndAttachedBuilder();
 
         if (validatingBuilder.isValid()) {
             // Apply CameraControlInternal's SessionConfig to let CameraControlInternal be able
@@ -889,7 +889,7 @@ final class Camera2CameraImpl implements CameraInternal {
     void openCaptureSession() {
         Preconditions.checkState(mState == InternalState.OPENED);
 
-        ValidatingBuilder validatingBuilder = mUseCaseAttachState.getOnlineBuilder();
+        ValidatingBuilder validatingBuilder = mUseCaseAttachState.getAttachedBuilder();
         if (!validatingBuilder.isValid()) {
             debugLog("Unable to create capture session due to conflicting configurations");
             return;
@@ -997,7 +997,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @Nullable
     @ExecutedBy("mExecutor")
     UseCase findUseCaseForSurface(@NonNull DeferrableSurface surface) {
-        for (UseCase useCase : mUseCaseAttachState.getOnlineUseCases()) {
+        for (UseCase useCase : mUseCaseAttachState.getAttachedUseCases()) {
             SessionConfig sessionConfig = Preconditions.checkNotNull(useCase.getSessionConfig());
             if (sessionConfig.getSurfaces().contains(surface)) {
                 return useCase;
@@ -1047,7 +1047,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
     @ExecutedBy("mExecutor")
     private CameraDevice.StateCallback createDeviceStateCallback() {
-        SessionConfig config = mUseCaseAttachState.getOnlineBuilder().build();
+        SessionConfig config = mUseCaseAttachState.getAttachedBuilder().build();
 
         List<CameraDevice.StateCallback> configuredStateCallbacks =
                 config.getDeviceStateCallbacks();
@@ -1071,7 +1071,7 @@ final class Camera2CameraImpl implements CameraInternal {
             return false;
         }
 
-        Collection<UseCase> activeUseCases = mUseCaseAttachState.getActiveAndOnlineUseCases();
+        Collection<UseCase> activeUseCases = mUseCaseAttachState.getActiveAndAttachedUseCases();
 
         for (UseCase useCase : activeUseCases) {
             SessionConfig sessionConfig = Preconditions.checkNotNull(useCase.getSessionConfig());

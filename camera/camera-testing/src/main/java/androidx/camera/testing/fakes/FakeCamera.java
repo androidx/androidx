@@ -228,14 +228,14 @@ public class FakeCamera implements CameraInternal {
      * capture requests from the use case.
      */
     @Override
-    public void addOnlineUseCase(@NonNull final Collection<UseCase> useCases) {
+    public void attachUseCases(@NonNull final Collection<UseCase> useCases) {
         if (useCases.isEmpty()) {
             return;
         }
 
-        Log.d(TAG, "Use cases " + useCases + " ONLINE for camera " + mCameraId);
+        Log.d(TAG, "Use cases " + useCases + " ATTACHED for camera " + mCameraId);
         for (UseCase useCase : useCases) {
-            mUseCaseAttachState.setUseCaseOnline(useCase);
+            mUseCaseAttachState.setUseCaseAttached(useCase);
         }
 
         open();
@@ -248,17 +248,17 @@ public class FakeCamera implements CameraInternal {
      * handle capture requests from the use case.
      */
     @Override
-    public void removeOnlineUseCase(@NonNull final Collection<UseCase> useCases) {
+    public void detachUseCases(@NonNull final Collection<UseCase> useCases) {
         if (useCases.isEmpty()) {
             return;
         }
 
-        Log.d(TAG, "Use cases " + useCases + " OFFLINE for camera " + mCameraId);
+        Log.d(TAG, "Use cases " + useCases + " DETACHED for camera " + mCameraId);
         for (UseCase useCase : useCases) {
-            mUseCaseAttachState.setUseCaseOffline(useCase);
+            mUseCaseAttachState.setUseCaseDetached(useCase);
         }
 
-        if (mUseCaseAttachState.getOnlineUseCases().isEmpty()) {
+        if (mUseCaseAttachState.getAttachedUseCases().isEmpty()) {
             close();
             return;
         }
@@ -289,7 +289,7 @@ public class FakeCamera implements CameraInternal {
 
     private void openCaptureSession() {
         SessionConfig.ValidatingBuilder validatingBuilder;
-        validatingBuilder = mUseCaseAttachState.getOnlineBuilder();
+        validatingBuilder = mUseCaseAttachState.getAttachedBuilder();
         if (!validatingBuilder.isValid()) {
             Log.d(TAG, "Unable to create capture session due to conflicting configurations");
             return;
@@ -307,7 +307,7 @@ public class FakeCamera implements CameraInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void updateCaptureSessionConfig() {
         SessionConfig.ValidatingBuilder validatingBuilder;
-        validatingBuilder = mUseCaseAttachState.getActiveAndOnlineBuilder();
+        validatingBuilder = mUseCaseAttachState.getActiveAndAttachedBuilder();
 
         if (validatingBuilder.isValid()) {
             // Apply CameraControlInternal's SessionConfig to let CameraControlInternal be able

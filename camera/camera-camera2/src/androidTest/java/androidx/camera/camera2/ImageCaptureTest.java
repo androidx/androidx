@@ -779,7 +779,7 @@ public final class ImageCaptureTest {
         imageCapture.takePicture(mMainExecutor, callback);
         imageCapture.takePicture(mMainExecutor, callback);
 
-        mInstrumentation.runOnMainSync(imageCapture::onStateOffline);
+        mInstrumentation.runOnMainSync(imageCapture::onStateDetached);
 
         assertThat(callback.getNumOnCaptureSuccess() + callback.getNumOnError()).isEqualTo(3);
 
