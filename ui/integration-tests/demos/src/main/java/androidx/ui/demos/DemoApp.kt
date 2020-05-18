@@ -33,11 +33,14 @@ import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.material.IconButton
 import androidx.ui.material.ListItem
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Scaffold
+import androidx.ui.material.Surface
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.ArrowBack
@@ -90,14 +93,16 @@ private fun DemoContent(
     onNavigate: (Demo) -> Unit
 ) {
     Crossfade(isFiltering to currentDemo) { (filtering, demo) ->
-        if (filtering) {
-            DemoFilter(
-                launchableDemos = AllDemosCategory.allLaunchableDemos(),
-                filterText = filterText,
-                onNavigate = onNavigate
-            )
-        } else {
-            DisplayDemo(demo, onNavigate)
+        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
+            if (filtering) {
+                DemoFilter(
+                    launchableDemos = AllDemosCategory.allLaunchableDemos(),
+                    filterText = filterText,
+                    onNavigate = onNavigate
+                )
+            } else {
+                DisplayDemo(demo, onNavigate)
+            }
         }
     }
 }
