@@ -22,7 +22,10 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.TextFieldValue
+import androidx.ui.input.ImeAction
+import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectError
+import androidx.ui.test.util.expectErrorMessageStartsWith
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -33,15 +36,23 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TextActionsTest {
 
+    private val fieldTag = "Field"
+
     @get:Rule
     val composeTestRule = createComposeRule()
 
     @Composable
-    fun TextFieldUi(textCallback: (String) -> Unit = {}) {
+    fun TextFieldUi(
+        imeAction: ImeAction = ImeAction.Unspecified,
+        onImeActionPerformed: (ImeAction) -> Unit = {},
+        textCallback: (String) -> Unit = {}
+    ) {
         val state = state { TextFieldValue("") }
-        TestTag("Field") {
+        TestTag(fieldTag) {
             TextField(
                 value = state.value,
+                imeAction = imeAction,
+                onImeActionPerformed = onImeActionPerformed,
                 onValueChange = {
                     state.value = it
                     textCallback(it.text)
@@ -59,14 +70,14 @@ class TextActionsTest {
             }
         }
 
-        findByTag("Field")
+        findByTag(fieldTag)
             .doSendText("Hello!")
 
         runOnIdleCompose {
             assertThat(lastSeenText).isEqualTo("Hello!")
         }
 
-        findByTag("Field")
+        findByTag(fieldTag)
             .doClearText(alreadyHasFocus = true)
 
         runOnIdleCompose {
@@ -83,19 +94,19 @@ class TextActionsTest {
             }
         }
 
-        findByTag("Field")
+        findByTag(fieldTag)
             .doSendText("Hello ")
 
-        findByTag("Field")
-            .doSendText("world!")
+        findByTag(fieldTag)
+            .doSendText("world!", alreadyHasFocus = true)
 
         runOnIdleCompose {
             assertThat(lastSeenText).isEqualTo("Hello world!")
         }
     }
 
-    // @Test - fails to append.
-    fun sendTextTwice_shouldAppend2() {
+    // @Test - not always appends, seems to be flaky
+    fun sendTextTwice_shouldAppend_ver2() {
         var lastSeenText = ""
         composeTestRule.setContent {
             TextFieldUi {
@@ -103,11 +114,14 @@ class TextActionsTest {
             }
         }
 
-        findByTag("Field")
+        findByTag(fieldTag)
             .doSendText("Hello")
 
-        findByTag("Field")
-            .doSendText(" world!")
+        // This helps. So there must be some timing issue.
+        // Thread.sleep(3000)
+
+        findByTag(fieldTag)
+            .doSendText(" world!", alreadyHasFocus = true)
 
         runOnIdleCompose {
             assertThat(lastSeenText).isEqualTo("Hello world!")
@@ -121,8 +135,83 @@ class TextActionsTest {
         }
 
         expectError<IllegalStateException> {
-            findByTag("Field")
+            findByTag(fieldTag)
                 .doSendText("Hello!", alreadyHasFocus = true)
+        }
+    }
+
+    @Test
+    fun replaceText() {
+        var lastSeenText = ""
+        composeTestRule.setContent {
+            TextFieldUi {
+                lastSeenText = it
+            }
+        }
+
+        findByTag(fieldTag)
+            .doSendText("Hello")
+
+        runOnIdleCompose {
+            assertThat(lastSeenText).isEqualTo("Hello")
+        }
+
+        findByTag(fieldTag)
+            .doReplaceText("world", alreadyHasFocus = true)
+
+        runOnIdleCompose {
+            assertThat(lastSeenText).isEqualTo("world")
+        }
+    }
+
+    @Test
+    fun sendImeAction_search() {
+        var actionPerformed: ImeAction = ImeAction.Unspecified
+        composeTestRule.setContent {
+            TextFieldUi(imeAction = ImeAction.Search,
+                onImeActionPerformed = { actionPerformed = it })
+        }
+        assertThat(actionPerformed).isEqualTo(ImeAction.Unspecified)
+
+        findByTag(fieldTag)
+            .doSendImeAction()
+
+        runOnIdleCompose {
+            assertThat(actionPerformed).isEqualTo(ImeAction.Search)
+        }
+    }
+
+    @Test
+    fun sendImeAction_actionNotDefined_shouldFail() {
+        var actionPerformed: ImeAction = ImeAction.Unspecified
+        composeTestRule.setContent {
+            TextFieldUi(imeAction = ImeAction.Unspecified,
+                onImeActionPerformed = { actionPerformed = it })
+        }
+        assertThat(actionPerformed).isEqualTo(ImeAction.Unspecified)
+
+        expectErrorMessageStartsWith("" +
+                "Failed to send IME action as current node does not specify any.\n" +
+                "Semantics of the node:"
+        ) {
+            findByTag(fieldTag)
+                .doSendImeAction()
+        }
+    }
+
+    @Test
+    fun sendImeAction_inputNotSupported_shouldFail() {
+        composeTestRule.setContent {
+            BoundaryNode(testTag = "node")
+        }
+
+        expectErrorMessageStartsWith("" +
+                "Failed to send IME action.\n" +
+                "Failed to assert the following: (SupportsInputMethods = 'true')\n" +
+                "Semantics of the node:"
+        ) {
+            findByTag("node")
+                .doSendImeAction()
         }
     }
 }

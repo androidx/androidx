@@ -187,7 +187,8 @@ fun CoreTextField(
                         state.hasFocus
                     )
                 }
-            }
+            },
+            imeAction = imeAction
         ) {
             Layout(
                 emptyContent(),
@@ -271,6 +272,7 @@ private fun TextInputEventObserver(
     onFocus: () -> Unit,
     onBlur: (hasNextClient: Boolean) -> Unit,
     focusModifier: FocusModifier,
+    imeAction: ImeAction,
     children: @Composable () -> Unit
 ) {
     val prevState = state { FocusState.NotFocused }
@@ -302,6 +304,8 @@ private fun TextInputEventObserver(
         container = true,
         mergeAllDescendants = true,
         properties = {
+            this.imeAction = imeAction
+            this.supportsInputMethods = true
             onClick(action = { doFocusIn(); return@onClick true })
         }
     ) {

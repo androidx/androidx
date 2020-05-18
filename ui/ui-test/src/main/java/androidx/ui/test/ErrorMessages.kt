@@ -110,21 +110,6 @@ internal fun buildErrorMessageForNodeMissingInTree(
     return sb.toString()
 }
 
-/**
- * Builds error message for case where matcher fails on a given semantics node.
- *
- * To see some examples, check out "ErrorMessagesTest".
- */
-internal fun buildErrorMessageForMatcherFail(
-    selector: SemanticsSelector,
-    node: SemanticsNode,
-    assertionMatcher: SemanticsMatcher
-): String {
-    return buildGeneralErrorMessage(
-        "Failed to assert that node satisfies the following condition: " +
-                "(${assertionMatcher.description})", selector, node)
-}
-
 internal fun buildErrorMessageForAssertAnyFail(
     selector: SemanticsSelector,
     nodes: List<SemanticsNode>,

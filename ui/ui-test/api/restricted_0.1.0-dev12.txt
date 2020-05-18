@@ -23,7 +23,7 @@ package androidx.ui.test {
   }
 
   public final class AssertionsKt {
-    method public static androidx.ui.test.SemanticsNodeInteraction assert(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.test.SemanticsMatcher matcher);
+    method public static androidx.ui.test.SemanticsNodeInteraction assert(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.test.SemanticsMatcher matcher, kotlin.jvm.functions.Function0<java.lang.String>? messagePrefixOnError = null);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection assertAll(androidx.ui.test.SemanticsNodeInteractionCollection, androidx.ui.test.SemanticsMatcher matcher);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection assertAny(androidx.ui.test.SemanticsNodeInteractionCollection, androidx.ui.test.SemanticsMatcher matcher);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection assertCountEquals(androidx.ui.test.SemanticsNodeInteractionCollection, int expectedSize);
@@ -158,6 +158,8 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsMatcher hasAnyDescendantThat(androidx.ui.test.SemanticsMatcher matcher);
     method public static androidx.ui.test.SemanticsMatcher hasAnySiblingThat(androidx.ui.test.SemanticsMatcher matcher);
     method public static androidx.ui.test.SemanticsMatcher hasClickAction();
+    method public static androidx.ui.test.SemanticsMatcher hasImeAction(androidx.ui.input.ImeAction actionType);
+    method public static androidx.ui.test.SemanticsMatcher hasInputMethodsSupport();
     method public static androidx.ui.test.SemanticsMatcher hasNoClickAction();
     method public static androidx.ui.test.SemanticsMatcher hasNoScrollAction();
     method public static androidx.ui.test.SemanticsMatcher hasParentThat(androidx.ui.test.SemanticsMatcher matcher);
@@ -323,6 +325,8 @@ package androidx.ui.test {
 
   public final class TextActionsKt {
     method public static void doClearText(androidx.ui.test.SemanticsNodeInteraction, boolean alreadyHasFocus = false);
+    method public static void doReplaceText(androidx.ui.test.SemanticsNodeInteraction, String text, boolean alreadyHasFocus = false);
+    method public static void doSendImeAction(androidx.ui.test.SemanticsNodeInteraction, boolean alreadyHasFocus = false);
     method public static void doSendText(androidx.ui.test.SemanticsNodeInteraction, String text, boolean alreadyHasFocus = false);
   }
 
