@@ -20,9 +20,15 @@ import androidx.annotation.RestrictTo
 import androidx.paging.LoadType.REFRESH
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
 /** @suppress */
@@ -33,6 +39,7 @@ abstract class PagingDataDiffer<T : Any>(
     private val collecting = AtomicBoolean(false)
     private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var receiver: UiReceiver? = null
+    private val dataRefreshedListeners: MutableList<() -> Unit> = CopyOnWriteArrayList()
 
     @Volatile
     private var lastAccessedIndex: Int = 0
@@ -72,6 +79,9 @@ abstract class PagingDataDiffer<T : Any>(
                             )
                             presenter = newPresenter
 
+                            // Dispatch ListUpdate as soon as we are done diffing.
+                            dataRefreshedListeners.forEach { listener -> listener() }
+
                             // Transform the last loadAround index from the old list to the new list
                             // by passing it through the DiffResult, and pass it forward as a
                             // ViewportHint within the new list to the next generation of Pager.
@@ -87,6 +97,8 @@ abstract class PagingDataDiffer<T : Any>(
                             if (postEvents()) {
                                 yield()
                             }
+
+                            // Send event to presenter to be shown to the UI.
                             presenter.processEvent(event, callback)
                         }
                     }
@@ -136,4 +148,44 @@ abstract class PagingDataDiffer<T : Any>(
 
     val size: Int
         get() = presenter.size
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _dataRefreshCh = ConflatedBroadcastChannel<Unit>()
+
+    /**
+     * A [Flow] of [Unit] that is emitted when new [PagingData] generations are submitted and
+     * displayed.
+     */
+    @ExperimentalPagingApi
+    @OptIn(FlowPreview::class)
+    val dataRefreshFlow: Flow<Unit> = _dataRefreshCh.asFlow()
+
+    init {
+        @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
+        addDataRefreshListener { _dataRefreshCh.offer(Unit) }
+    }
+
+    /**
+     * Add a listener to observe new [PagingData] generations.
+     *
+     * @param listener called whenever a new [PagingData] is submitted and displayed.
+     *
+     * @see removeDataRefreshListener
+     */
+    @ExperimentalPagingApi
+    fun addDataRefreshListener(listener: () -> Unit) {
+        dataRefreshedListeners.add(listener)
+    }
+
+    /**
+     * Remove a previously registered listener for new [PagingData] generations.
+     *
+     * @param listener Previously registered listener.
+     *
+     * @see addDataRefreshListener
+     */
+    @ExperimentalPagingApi
+    fun removeDataRefreshListener(listener: () -> Unit) {
+        dataRefreshedListeners.remove(listener)
+    }
 }
