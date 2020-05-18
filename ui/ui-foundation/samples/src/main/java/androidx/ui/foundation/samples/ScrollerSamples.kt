@@ -19,25 +19,24 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.MutableState
+import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.HorizontalScroller
+import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.indication
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.text.TextStyle
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 
@@ -184,23 +183,13 @@ private fun SquareButton(text: String, color: Color = Color.LightGray, onClick: 
 }
 
 @Composable
-private fun Text(text: String, textStyle: TextStyle) {
-
-    val pressedColor = Color.LightGray
-    val releasedColor = Color.Transparent
-
-    val color = state { releasedColor }
-
-    val onPress: (PxPosition) -> Unit = { _ ->
-        color.value = pressedColor
+private fun Text(text: String, style: TextStyle) {
+    val interactionState = remember { InteractionState() }
+    Clickable(
+        onClick = {},
+        interactionState = interactionState,
+        modifier = Modifier.indication(interactionState)
+    ) {
+        Text(text, style = style)
     }
-
-    val onRelease: () -> Unit = {
-        color.value = releasedColor
-    }
-
-    val gestureModifier = Modifier
-        .pressIndicatorGestureFilter(onStart = onPress, onStop = onRelease, onCancel = onRelease)
-
-    Text(text, gestureModifier.drawBackground(color.value, RectangleShape), style = textStyle)
 }

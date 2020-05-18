@@ -19,19 +19,21 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.indication
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.preferredSizeIn
-import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
@@ -95,10 +97,12 @@ fun Button(
             elevation = if (enabled) elevation else disabledElevation,
             modifier = modifier
         ) {
+            val interactionState = remember { InteractionState() }
             Clickable(
                 onClick = onClick,
+                interactionState = interactionState,
                 enabled = enabled,
-                modifier = Modifier.ripple(enabled = enabled)
+                modifier = Modifier.indication(interactionState)
             ) {
                 Box(
                     ButtonConstraints,

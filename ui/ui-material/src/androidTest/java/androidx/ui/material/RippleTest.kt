@@ -54,8 +54,8 @@ import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
@@ -263,7 +263,7 @@ class RippleTest {
 
         val factory = object : RippleEffectFactory {
             override fun create(
-                size: IntPxSize,
+                size: PxSize,
                 startPosition: PxPosition,
                 density: Density,
                 radius: Dp?,
@@ -498,7 +498,7 @@ class RippleTest {
     ): RippleEffectFactory =
         object : RippleEffectFactory {
             override fun create(
-                size: IntPxSize,
+                size: PxSize,
                 startPosition: PxPosition,
                 density: Density,
                 radius: Dp?,
@@ -508,7 +508,6 @@ class RippleTest {
             ): RippleEffect {
                 onEffectCreated()
                 return object : RippleEffect {
-
                     override fun DrawScope.draw(color: Color) {
                         if (clipped) {
                             clipRect {
