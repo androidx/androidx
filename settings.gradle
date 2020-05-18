@@ -99,6 +99,7 @@ if (startParameter.projectProperties.containsKey('useMaxDepVersions')) {
 }
 includeProject(":camera:camera-camera2", "camera/camera-camera2")
 includeProject(":camera:camera-camera2-pipe", "camera/camera-camera2-pipe")
+includeProject(":camera:camera-camera2-pipe-integration", "camera/camera-camera2-pipe-integration")
 includeProject(":camera:camera-core", "camera/camera-core")
 includeProject(":camera:camera-extensions", "camera/camera-extensions")
 includeProject(":camera:camera-extensions-stub", "camera/camera-extensions-stub")
