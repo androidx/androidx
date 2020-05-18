@@ -24,7 +24,7 @@ interface CameraGraph {
     fun stop()
 
     data class Config(
-        val camera: String,
+        val camera: CameraId,
         val streams: List<StreamConfig>
     )
 }

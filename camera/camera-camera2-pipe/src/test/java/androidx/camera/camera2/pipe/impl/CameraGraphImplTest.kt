@@ -19,23 +19,24 @@ package androidx.camera.camera2.pipe.impl
 import android.content.Context
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraPipeRobolectricTestRunner
 import androidx.test.core.app.ApplicationProvider
+import androidx.camera.camera2.pipe.CameraId
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @SmallTest
-@RunWith(RobolectricTestRunner::class)
+@RunWith(CameraPipeRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraGraphImplTest {
     @Test
     fun createCameraGraphImpl() {
-        val config = CameraGraph.Config("0", listOf())
+        val config = CameraGraph.Config(CameraId("0"), listOf())
         val context = ApplicationProvider.getApplicationContext() as Context
 
         val impl = CameraGraphImpl(context, config)

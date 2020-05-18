@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
+@file:Suppress("NOTHING_TO_INLINE")
 
-ext {
-    CAMERA_PIPE_DEPS = [
-        API : [
-                "androidx.annotation:annotation:1.0.0",
-                KOTLIN_STDLIB,
-                KOTLIN_COROUTINES_ANDROID,
-        ],
-        IMPLEMENTATION : [
-                project(":camera:camera-core"),
-                DAGGER
-        ]
-    ]
+package androidx.camera.camera2.pipe
+
+@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+inline class CameraId(val value: String) {
+    companion object {
+        inline fun fromCamera2Id(value: String): CameraId = CameraId(value)
+        inline fun fromCamera1Id(value: Int): CameraId = CameraId("$value")
+    }
+
+    /**
+     * Attempt to parse an camera1 id from a camera2 id.
+     *
+     * @return The parsed Camera1 id, or null if the value cannot be parsed as a Camera1 id.
+     */
+    inline fun toCamera1Id(): Int? = value.toIntOrNull()
 }
