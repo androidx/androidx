@@ -50,6 +50,7 @@ import java.util.Set;
  * <li>Detected a database that is now closed, and previously was reported as open.
  * </ul></p>
  */
+@SuppressWarnings("DanglingJavadoc")
 class DatabaseRegistry {
     private static final int NOT_TRACKED = -1;
 
