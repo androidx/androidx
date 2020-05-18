@@ -34,7 +34,6 @@ import android.view.accessibility.AccessibilityManager
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
-import androidx.annotation.RestrictTo
 import androidx.core.os.HandlerCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
@@ -86,7 +85,6 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.util.fastForEach
 import androidx.ui.util.trace
-import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.Method
 
 /***
@@ -96,7 +94,7 @@ import java.lang.reflect.Method
  * @param lifecycleOwner Current [LifecycleOwner]. When it is not provided we will try to get the
  * owner using [ViewTreeLifecycleOwner] when we will be attached.
  */
-fun createOwner(
+fun AndroidOwner(
     context: Context,
     lifecycleOwner: LifecycleOwner? = null
 ): AndroidOwner = AndroidComposeView(context, lifecycleOwner).also {
@@ -744,42 +742,6 @@ internal class AndroidComposeView constructor(
                 layoutDirection: LayoutDirection
             ) = error("Undefined intrinsics block and it is required")
         }
-    }
-}
-
-/**
- * Interface to be implemented by [Owner]s able to handle Android View specific functionality.
- */
-interface AndroidOwner : Owner {
-
-    /**
-     * The view backing this Owner.
-     */
-    val view: View
-
-    /**
-     * Called to inform the owner that a new Android [View] was [attached][Owner.onAttach]
-     * to the hierarchy.
-     */
-    fun addAndroidView(view: View, layoutNode: LayoutNode)
-
-    /**
-     * Called to inform the owner that an Android [View] was [detached][Owner.onDetach]
-     * from the hierarchy.
-     */
-    fun removeAndroidView(view: View)
-
-    /** @suppress */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    companion object {
-        /**
-         * Called after an [AndroidOwner] is created. Used by AndroidComposeTestRule to keep
-         * track of all attached [AndroidComposeView]s. Not to be set or used by any other
-         * component.
-         */
-        var onAndroidOwnerCreatedCallback: ((AndroidOwner) -> Unit)? = null
-            @TestOnly
-            set
     }
 }
 
