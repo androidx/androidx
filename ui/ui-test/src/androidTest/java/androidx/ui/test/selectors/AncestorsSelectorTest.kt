@@ -24,6 +24,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.first
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.parent
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
 import org.junit.Test
@@ -51,7 +52,7 @@ class AncestorsSelectorTest {
 
         findByTag("NodeD")
             .ancestors()
-            .assertCountEquals(3)
+            .assertCountEquals(4)
             .apply {
                 get(0).assert(hasTestTag("NodeC"))
                 get(1).assert(hasTestTag("NodeB"))
@@ -75,7 +76,7 @@ class AncestorsSelectorTest {
             .ancestors()
             .first()
             .ancestors()
-            .assertCountEquals(2)
+            .assertCountEquals(3)
             .apply {
                 get(0).assert(hasTestTag("NodeB"))
                 get(1).assert(hasTestTag("NodeA"))
@@ -89,6 +90,7 @@ class AncestorsSelectorTest {
         }
 
         findByTag("Node")
+            .parent()
             .ancestors()
             .assertCountEquals(0)
     }
