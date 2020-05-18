@@ -483,7 +483,7 @@ fun Tab(
     onSelected: () -> Unit,
     modifier: Modifier = Modifier,
     activeColor: Color = contentColor(),
-    inactiveColor: Color = EmphasisAmbient.current.medium.emphasize(activeColor)
+    inactiveColor: Color = EmphasisAmbient.current.medium.applyEmphasis(activeColor)
 ) {
     val styledText = @Composable {
         val style = MaterialTheme.typography.button.copy(textAlign = TextAlign.Center)

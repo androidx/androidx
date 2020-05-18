@@ -115,7 +115,7 @@ fun TextFieldWithHelperMessage() {
         val textColor = if (invalidInput) {
             MaterialTheme.colors.error
         } else {
-            EmphasisAmbient.current.medium.emphasize(MaterialTheme.colors.onSurface)
+            EmphasisAmbient.current.medium.applyEmphasis(MaterialTheme.colors.onSurface)
         }
         Text(
             text = if (invalidInput) "Requires '@' and at least 5 symbols" else "Helper message",
