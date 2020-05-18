@@ -22,6 +22,7 @@ import androidx.ui.core.focus.FocusDetailedState.ActiveParent
 import androidx.ui.core.focus.FocusDetailedState.Captured
 import androidx.ui.core.focus.FocusDetailedState.Disabled
 import androidx.ui.core.focus.FocusDetailedState.Inactive
+import androidx.ui.util.fastForEach
 
 internal class ModifiedFocusNode(
     wrapped: LayoutNodeWrapper,
@@ -269,7 +270,7 @@ internal class ModifiedFocusNode(
 
         // Go through all your children and find the first focusable node from each child.
         val focusableChildren = mutableListOf<ModifiedFocusNode>()
-        for (node in layoutNode.children) {
+        layoutNode.children.fastForEach { node ->
             focusableChildren.addAll(node.focusableChildren())
         }
         return focusableChildren

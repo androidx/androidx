@@ -33,6 +33,7 @@ dependencies {
 
     api project(':ui:ui-graphics')
     api project(":compose:compose-runtime")
+    implementation project(":ui:ui-util")
     implementation (KOTLIN_STDLIB)
 }
 

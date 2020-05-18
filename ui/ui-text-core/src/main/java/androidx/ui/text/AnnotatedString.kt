@@ -18,6 +18,7 @@ package androidx.ui.text
 
 import androidx.ui.text.AnnotatedString.Builder
 import androidx.ui.text.AnnotatedString.Range
+import androidx.ui.util.fastForEach
 import java.util.SortedSet
 import kotlin.math.max
 import kotlin.math.min
@@ -52,7 +53,7 @@ data class AnnotatedString internal constructor(
 
     init {
         var lastStyleEnd = -1
-        for (paragraphStyle in paragraphStyles) {
+        paragraphStyles.fastForEach { paragraphStyle ->
             require(paragraphStyle.start >= lastStyleEnd) { "ParagraphStyle should not overlap" }
             require(paragraphStyle.end <= text.length) {
                 "ParagraphStyle range [${paragraphStyle.start}, ${paragraphStyle.end})" +
@@ -354,7 +355,7 @@ internal fun AnnotatedString.normalizedParagraphStyles(
 
     var lastOffset = 0
     val result = mutableListOf<ParagraphStyleRange>()
-    for ((style, start, end) in paragraphStyles) {
+    paragraphStyles.fastForEach { (style, start, end) ->
         if (start != lastOffset) {
             result.add(Range(defaultParagraphStyle, lastOffset, start))
         }

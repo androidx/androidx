@@ -192,7 +192,7 @@ class SemanticsNode internal constructor(
         }
         val semanticsChildren =
             searchRoot?.findOneLayerOfSemanticsWrappers() ?: emptyList()
-        for (semanticsChild in semanticsChildren) {
+        semanticsChildren.fastForEach { semanticsChild ->
             unmergedChildren.add(semanticsChild.semanticsNode())
         }
 
@@ -221,7 +221,7 @@ class SemanticsNode internal constructor(
         val mergedChildren = childrenFromParent ?: mutableListOf()
 
         // The merged children are the set of indirect children that are semantic boundaries
-        for (child in unmergedChildren()) {
+        unmergedChildren().fastForEach { child ->
             if (child.isSemanticBoundary) {
                 // Add the child, don't recurse - we don't want to cross the semantic boundary
                 mergedChildren += child
@@ -369,7 +369,7 @@ internal fun SemanticsNode.findChildById(id: Int): SemanticsNode? {
 
 private fun LayoutNode.findOneLayerOfSemanticsWrappers(): List<SemanticsWrapper> {
     val childSemanticsComponentNodes = mutableListOf<SemanticsWrapper>()
-    for (child in children) {
+    children.fastForEach { child ->
         findOneLayerOfSemanticsWrappersRecursive(childSemanticsComponentNodes, child)
     }
     return childSemanticsComponentNodes
@@ -383,7 +383,7 @@ private fun LayoutNode.findOneLayerOfSemanticsWrappersRecursive(
         list.add(node.outerSemantics!!)
         // Stop, we're done
     } else {
-        for (child in node.children) {
+        node.children.fastForEach { child ->
             findOneLayerOfSemanticsWrappersRecursive(list, child)
         }
     }
