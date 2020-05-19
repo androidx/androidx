@@ -2,24 +2,23 @@ package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.PropertyConfig;
 import java.lang.String;
 
 class $$__AppSearch__Gift {
   public static final String SCHEMA_TYPE = "Gift";
 
   public static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
-    .addProperty(new PropertyConfig.Builder("tokNone")
-      .setDataType(PropertyConfig.DATA_TYPE_STRING)
-      .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_NONE)
-      .setIndexingType(PropertyConfig.INDEXING_TYPE_NONE)
+    .addProperty(new AppSearchSchema.PropertyConfig.Builder("tokNone")
+      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
+      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
       .build())
-    .addProperty(new PropertyConfig.Builder("tokPlain")
-      .setDataType(PropertyConfig.DATA_TYPE_STRING)
-      .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(PropertyConfig.INDEXING_TYPE_NONE)
+    .addProperty(new AppSearchSchema.PropertyConfig.Builder("tokPlain")
+      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
       .build())
     .build();
 

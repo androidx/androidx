@@ -178,7 +178,7 @@ class CodeGenerator {
         // Start the builder for that property
         CodeBlock.Builder codeBlock = CodeBlock.builder()
                 .add("new $T($S)",
-                        getAppSearchClass("PropertyConfig", "Builder"),
+                        getAppSearchClass("AppSearchSchema", "PropertyConfig", "Builder"),
                         propertyName)
                 .indent();
 
@@ -211,30 +211,30 @@ class CodeGenerator {
         ClassName propertyTypeEnum;
         if (typeUtil.isSameType(propertyType, mStringType)) {
             propertyTypeEnum =
-                    getAppSearchClass("PropertyConfig", "DATA_TYPE_STRING");
+                    getAppSearchClass("AppSearchSchema", "PropertyConfig", "DATA_TYPE_STRING");
         } else if (typeUtil.isSameType(propertyType, mIntegerBoxType)
                 || typeUtil.isSameType(propertyType, mIntPrimitiveType)
                 || typeUtil.isSameType(propertyType, mLongBoxType)
                 || typeUtil.isSameType(propertyType, mLongPrimitiveType)) {
             propertyTypeEnum =
-                    getAppSearchClass("PropertyConfig", "DATA_TYPE_INT64");
+                    getAppSearchClass("AppSearchSchema", "PropertyConfig", "DATA_TYPE_INT64");
         } else if (typeUtil.isSameType(propertyType, mFloatBoxType)
                 || typeUtil.isSameType(propertyType, mFloatPrimitiveType)
                 || typeUtil.isSameType(propertyType, mDoubleBoxType)
                 || typeUtil.isSameType(propertyType, mDoublePrimitiveType)) {
             propertyTypeEnum =
-                    getAppSearchClass("PropertyConfig", "DATA_TYPE_DOUBLE");
+                    getAppSearchClass("AppSearchSchema", "PropertyConfig", "DATA_TYPE_DOUBLE");
         } else if (typeUtil.isSameType(propertyType, mBooleanBoxType)
                 || typeUtil.isSameType(propertyType, mBooleanPrimitiveType)) {
             propertyTypeEnum =
-                    getAppSearchClass("PropertyConfig", "DATA_TYPE_BOOLEAN");
+                    getAppSearchClass("AppSearchSchema", "PropertyConfig", "DATA_TYPE_BOOLEAN");
         } else if (typeUtil.isSameType(propertyType, mByteArrayType)
                 || typeUtil.isSameType(propertyType, mByteArrayBoxType)) {
             propertyTypeEnum =
-                    getAppSearchClass("PropertyConfig", "DATA_TYPE_BYTES");
+                    getAppSearchClass("AppSearchSchema", "PropertyConfig", "DATA_TYPE_BYTES");
         } else {
             propertyTypeEnum =
-                    getAppSearchClass("PropertyConfig", "DATA_TYPE_DOCUMENT");
+                    getAppSearchClass("AppSearchSchema", "PropertyConfig", "DATA_TYPE_DOCUMENT");
         }
         codeBlock.add("\n.setDataType($T)", propertyTypeEnum);
 
@@ -242,13 +242,13 @@ class CodeGenerator {
         ClassName cardinalityEnum;
         if (repeated) {
             cardinalityEnum =
-                    getAppSearchClass("PropertyConfig", "CARDINALITY_REPEATED");
+                    getAppSearchClass("AppSearchSchema", "PropertyConfig", "CARDINALITY_REPEATED");
         } else if (Boolean.parseBoolean(params.get("required").toString())) {
             cardinalityEnum =
-                    getAppSearchClass("PropertyConfig", "CARDINALITY_REQUIRED");
+                    getAppSearchClass("AppSearchSchema", "PropertyConfig", "CARDINALITY_REQUIRED");
         } else {
             cardinalityEnum =
-                    getAppSearchClass("PropertyConfig", "CARDINALITY_OPTIONAL");
+                    getAppSearchClass("AppSearchSchema", "PropertyConfig", "CARDINALITY_OPTIONAL");
         }
         codeBlock.add("\n.setCardinality($T)", cardinalityEnum);
 
@@ -257,10 +257,10 @@ class CodeGenerator {
         ClassName tokenizerEnum;
         if (tokenizerType == 0) {  // TOKENIZER_TYPE_NONE
             tokenizerEnum =
-                    getAppSearchClass("PropertyConfig", "TOKENIZER_TYPE_NONE");
+                    getAppSearchClass("AppSearchSchema", "PropertyConfig", "TOKENIZER_TYPE_NONE");
         } else if (tokenizerType == 1) {  // TOKENIZER_TYPE_PLAIN
             tokenizerEnum =
-                    getAppSearchClass("PropertyConfig", "TOKENIZER_TYPE_PLAIN");
+                    getAppSearchClass("AppSearchSchema", "PropertyConfig", "TOKENIZER_TYPE_PLAIN");
         } else {
             throw new ProcessingException("Unknown tokenizer type " + tokenizerType, property);
         }
@@ -271,13 +271,13 @@ class CodeGenerator {
         ClassName indexingEnum;
         if (indexingType == 0) {  // INDEXING_TYPE_NONE
             indexingEnum =
-                    getAppSearchClass("PropertyConfig", "INDEXING_TYPE_NONE");
+                    getAppSearchClass("AppSearchSchema", "PropertyConfig", "INDEXING_TYPE_NONE");
         } else if (indexingType == 1) {  // INDEXING_TYPE_EXACT_TERMS
             indexingEnum = getAppSearchClass(
-                    "PropertyConfig", "INDEXING_TYPE_EXACT_TERMS");
+                    "AppSearchSchema", "PropertyConfig", "INDEXING_TYPE_EXACT_TERMS");
         } else if (indexingType == 2) {  // INDEXING_TYPE_PREFIXES
             indexingEnum = getAppSearchClass(
-                    "PropertyConfig", "INDEXING_TYPE_PREFIXES");
+                    "AppSearchSchema", "PropertyConfig", "INDEXING_TYPE_PREFIXES");
         } else {
             throw new ProcessingException("Unknown indexing type " + indexingType, property);
         }
