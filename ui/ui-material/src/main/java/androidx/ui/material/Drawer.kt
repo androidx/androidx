@@ -26,15 +26,18 @@ import androidx.ui.core.WithConstraints
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.gestures.DragDirection
+import androidx.ui.graphics.Shape
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.internal.StateDraggable
+import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px
 import androidx.ui.unit.dp
@@ -72,6 +75,9 @@ enum class DrawerState {
  * @param onStateChange lambda to be invoked when the drawer requests to change its state,
  * e.g. when the drawer is being swiped to the new state or when the scrim is clicked
  * @param gesturesEnabled whether or not drawer can be interacted by gestures
+ * @param drawerShape shape of the drawer sheet
+ * @param drawerElevation drawer sheet elevation. This controls the size of the shadow below the
+ * drawer sheet
  * @param drawerContent composable that represents content inside the drawer
  * @param bodyContent content of the rest of the UI
  *
@@ -82,10 +88,12 @@ fun ModalDrawerLayout(
     drawerState: DrawerState,
     onStateChange: (DrawerState) -> Unit,
     gesturesEnabled: Boolean = true,
+    drawerShape: Shape = MaterialTheme.shapes.large,
+    drawerElevation: Dp = DrawerConstants.DefaultElevation,
     drawerContent: @Composable () -> Unit,
     bodyContent: @Composable () -> Unit
 ) {
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().semantics(container = true)) {
         WithConstraints {
             // TODO : think about Infinite max bounds case
             if (!constraints.hasBoundedWidth) {
@@ -113,7 +121,7 @@ fun ModalDrawerLayout(
                     Scrim(drawerState, onStateChange, fraction = {
                         calculateFraction(minValue, maxValue, model.value)
                     })
-                    DrawerContent(model, dpConstraints, drawerContent)
+                    DrawerContent(model, dpConstraints, drawerShape, drawerElevation, drawerContent)
                 }
             }
         }
@@ -138,6 +146,9 @@ fun ModalDrawerLayout(
  * @param onStateChange lambda to be invoked when the drawer requests to change its state,
  * e.g. when the drawer is being swiped to the new state or when the scrim is clicked
  * @param gesturesEnabled whether or not drawer can be interacted by gestures
+ * @param drawerShape shape of the drawer sheet
+ * @param drawerElevation drawer sheet elevation. This controls the size of the shadow below the
+ * drawer sheet
  * @param drawerContent composable that represents content inside the drawer
  * @param bodyContent content of the rest of the UI
  *
@@ -148,10 +159,12 @@ fun BottomDrawerLayout(
     drawerState: DrawerState,
     onStateChange: (DrawerState) -> Unit,
     gesturesEnabled: Boolean = true,
+    drawerShape: Shape = MaterialTheme.shapes.large,
+    drawerElevation: Dp = DrawerConstants.DefaultElevation,
     drawerContent: @Composable () -> Unit,
     bodyContent: @Composable () -> Unit
 ) {
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().semantics(container = true)) {
         WithConstraints {
             // TODO : think about Infinite max bounds case
             if (!constraints.hasBoundedHeight) {
@@ -196,17 +209,32 @@ fun BottomDrawerLayout(
                         // as we scroll "from height to 0" , need to reverse fraction
                         1 - calculateFraction(openedValue, maxValue, model.value)
                     })
-                    BottomDrawerContent(model, dpConstraints, drawerContent)
+                    BottomDrawerContent(
+                        model, dpConstraints, drawerShape, drawerElevation, drawerContent
+                    )
                 }
             }
         }
     }
 }
 
+/**
+ * Object to hold default values for [ModalDrawerLayout] and [BottomDrawerLayout]
+ */
+object DrawerConstants {
+
+    /**
+     * Default Elevation for drawer sheet as specified in material specs
+     */
+    val DefaultElevation = 16.dp
+}
+
 @Composable
 private fun DrawerContent(
     xOffset: AnimatedFloat,
     constraints: DpConstraints,
+    shape: Shape,
+    elevation: Dp,
     content: @Composable () -> Unit
 ) {
     WithOffset(xOffset = xOffset) {
@@ -220,7 +248,7 @@ private fun DrawerContent(
             paddingEnd = VerticalDrawerPadding
         ) {
             // remove Container when we will support multiply children
-            Surface {
+            Surface(shape = shape, elevation = elevation) {
                 Box(Modifier.fillMaxSize(), children = content)
             }
         }
@@ -231,6 +259,8 @@ private fun DrawerContent(
 private fun BottomDrawerContent(
     yOffset: AnimatedFloat,
     constraints: DpConstraints,
+    shape: Shape,
+    elevation: Dp,
     content: @Composable () -> Unit
 ) {
     WithOffset(yOffset = yOffset) {
@@ -243,7 +273,7 @@ private fun BottomDrawerContent(
             )
         ) {
             // remove Container when we will support multiply children
-            Surface {
+            Surface(shape = shape, elevation = elevation) {
                 Box(Modifier.fillMaxSize(), children = content)
             }
         }

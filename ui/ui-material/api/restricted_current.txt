@@ -102,9 +102,15 @@ package androidx.ui.material {
     method public static void Divider-5sN9_mQ(androidx.ui.core.Modifier modifier = Modifier, long color = MaterialTheme.colors.onSurface.copy(DividerAlpha), float thickness = 1.dp, float startIndent = 0.dp);
   }
 
+  public final class DrawerConstants {
+    method public float getDefaultElevation();
+    property public final float DefaultElevation;
+    field public static final androidx.ui.material.DrawerConstants! INSTANCE;
+  }
+
   public final class DrawerKt {
-    method public static void BottomDrawerLayout(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
-    method public static void ModalDrawerLayout(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
+    method public static void BottomDrawerLayout-s-rmCOo(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, androidx.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
+    method public static void ModalDrawerLayout-s-rmCOo(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, androidx.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
   }
 
   public enum DrawerState {
