@@ -150,6 +150,15 @@ public class ShortcutInfoCompatTest {
     }
 
     @Test
+    public void testBuilder_setIsConversation() {
+        final ShortcutInfoCompat compat = mBuilder.setIsConversation().build();
+        final LocusIdCompat locusId = compat.getLocusId();
+        assertNotNull(locusId);
+        assertEquals(TEST_SHORTCUT_ID, locusId.getId());
+        assertTrue(compat.mIsLongLived);
+    }
+
+    @Test
     public void testBuilder_copyConstructor() {
         String longLabel = "Test long label";
         ComponentName activity = new ComponentName("Package name", "Class name");
