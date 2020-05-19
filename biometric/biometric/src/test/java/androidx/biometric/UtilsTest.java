@@ -18,47 +18,17 @@ package androidx.biometric;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import androidx.test.filters.SmallTest;
 
-import androidx.fragment.app.FragmentActivity;
-import androidx.test.filters.LargeTest;
-
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@LargeTest
+@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class UtilsTest {
-    @Mock
-    DeviceCredentialHandlerActivity mHandlerActivity;
-    @Mock
-    FragmentActivity mFragmentActivity;
-
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
-
-    @After
-    public void tearDown() {
-        // Ensure the bridge is fully reset after running each test.
-        final DeviceCredentialHandlerBridge bridge =
-                DeviceCredentialHandlerBridge.getInstanceIfNotNull();
-        if (bridge != null) {
-            bridge.stopIgnoringReset();
-            bridge.reset();
-        }
-    }
-
     @Test
     public void testIsUnknownError_ReturnsFalse_ForKnownErrors() {
         assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_HW_UNAVAILABLE)).isFalse();
@@ -80,47 +50,5 @@ public class UtilsTest {
     public void testIsUnknownError_ReturnsTrue_ForUnknownErrors() {
         assertThat(Utils.isUnknownError(-1)).isTrue();
         assertThat(Utils.isUnknownError(1337)).isTrue();
-    }
-
-    @Test
-    public void testMaybeFinishHandler_FinishesActivity_WhenHandlerActivityNotFinishing() {
-        when(mHandlerActivity.isFinishing()).thenReturn(false);
-        Utils.maybeFinishHandler(mHandlerActivity);
-        verify(mHandlerActivity).finish();
-    }
-
-    @Test
-    public void testMaybeFinishHandler_DoesNotFinishActivity_WhenHandlerActivityIsFinishing() {
-        when(mHandlerActivity.isFinishing()).thenReturn(true);
-        Utils.maybeFinishHandler(mHandlerActivity);
-        verify(mHandlerActivity, never()).finish();
-    }
-
-    @Test
-    public void testMaybeFinishHandler_DoesNotFinishActivity_WhenGivenNonHandlerActivity() {
-        when(mFragmentActivity.isFinishing()).thenReturn(false);
-        Utils.maybeFinishHandler(mFragmentActivity);
-        verify(mFragmentActivity, never()).finish();
-    }
-
-    @Test
-    public void testIsConfirmingDeviceCredential_ReturnsFalse_WhenBridgeIsNull() {
-        assertThat(Utils.isConfirmingDeviceCredential()).isFalse();
-    }
-
-    @Test
-    public void testIsConfirmingDeviceCredential_ReturnsFalse_WhenBridgeValueIsFalse() {
-        DeviceCredentialHandlerBridge bridge =
-                DeviceCredentialHandlerBridge.getInstance();
-        bridge.setConfirmingDeviceCredential(false);
-        assertThat(Utils.isConfirmingDeviceCredential()).isFalse();
-    }
-
-    @Test
-    public void testIsConfirmingDeviceCredential_ReturnsTrue_WhenBridgeValueIsTrue() {
-        DeviceCredentialHandlerBridge bridge =
-                DeviceCredentialHandlerBridge.getInstance();
-        bridge.setConfirmingDeviceCredential(true);
-        assertThat(Utils.isConfirmingDeviceCredential()).isTrue();
     }
 }
