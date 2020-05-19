@@ -199,12 +199,14 @@ package androidx.animation {
   }
 
   public final class FloatPropKey implements androidx.animation.PropKey<java.lang.Float,androidx.animation.AnimationVector1D> {
+    ctor public FloatPropKey(String label);
     ctor public FloatPropKey();
     method public androidx.animation.TwoWayConverter<java.lang.Float,androidx.animation.AnimationVector1D> getTypeConverter();
     property public androidx.animation.TwoWayConverter<java.lang.Float,androidx.animation.AnimationVector1D> typeConverter;
   }
 
   public final class IntPropKey implements androidx.animation.PropKey<java.lang.Integer,androidx.animation.AnimationVector1D> {
+    ctor public IntPropKey(String label);
     ctor public IntPropKey();
     method public androidx.animation.TwoWayConverter<java.lang.Integer,androidx.animation.AnimationVector1D> getTypeConverter();
     property public androidx.animation.TwoWayConverter<java.lang.Integer,androidx.animation.AnimationVector1D> typeConverter;
@@ -251,7 +253,9 @@ package androidx.animation {
   }
 
   public interface PropKey<T, V extends androidx.animation.AnimationVector> {
+    method public default String getLabel();
     method public androidx.animation.TwoWayConverter<T,V> getTypeConverter();
+    property public default String label;
     property public abstract androidx.animation.TwoWayConverter<T,V> typeConverter;
   }
 
@@ -270,6 +274,14 @@ package androidx.animation {
     method public void setIterations(Integer? value);
     property public final androidx.animation.DurationBasedAnimationBuilder<T>? animation;
     property public final Integer? iterations;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SeekableAnimation<T> {
+    ctor public SeekableAnimation(androidx.animation.TransitionDefinition<T> def, T! fromState, T! toState);
+    method public java.util.Map<androidx.animation.PropKey<java.lang.Object,androidx.animation.AnimationVector>,java.lang.Object> getAnimValuesAt(long playTime);
+    method public androidx.animation.TransitionDefinition<T> getDef();
+    method public long getDuration();
+    property public final long duration;
   }
 
   public final class SnapBuilder<T> extends androidx.animation.AnimationBuilder<T> {
@@ -305,8 +317,13 @@ package androidx.animation {
     method public float getTarget();
   }
 
+  public final class ToolingGlueKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <T> androidx.animation.SeekableAnimation<T> createSeekableAnimation(androidx.animation.TransitionAnimation<T>, T? fromState, T? toState);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <T> java.util.Set<T> getStates(androidx.animation.TransitionDefinition<T>);
+  }
+
   public final class TransitionAnimation<T> implements androidx.animation.TransitionState {
-    ctor public TransitionAnimation(androidx.animation.TransitionDefinition<T> def, androidx.animation.AnimationClockObservable clock, T? initState);
+    ctor public TransitionAnimation(internal androidx.animation.TransitionDefinition<T> def, androidx.animation.AnimationClockObservable clock, T? initState);
     method public operator <T, V extends androidx.animation.AnimationVector> T! get(androidx.animation.PropKey<T,V> propKey);
     method public kotlin.jvm.functions.Function1<T,kotlin.Unit>? getOnStateChangeFinished();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnUpdate();
@@ -317,6 +334,9 @@ package androidx.animation {
     property public final boolean isRunning;
     property public final kotlin.jvm.functions.Function1<T,kotlin.Unit>? onStateChangeFinished;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onUpdate;
+  }
+
+  public final class TransitionAnimationKt {
   }
 
   public final class TransitionDefinition<T> {

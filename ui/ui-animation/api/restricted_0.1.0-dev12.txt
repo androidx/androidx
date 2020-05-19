@@ -22,8 +22,9 @@ package androidx.ui.animation {
   }
 
   public final class ColorPropKey implements androidx.animation.PropKey<androidx.ui.graphics.Color,androidx.animation.AnimationVector4D> {
-    ctor public ColorPropKey(androidx.ui.graphics.colorspace.ColorSpace colorSpace);
+    ctor public ColorPropKey(androidx.ui.graphics.colorspace.ColorSpace colorSpace, String label);
     ctor public ColorPropKey();
+    method public String getLabel();
     method public androidx.animation.TwoWayConverter<androidx.ui.graphics.Color,androidx.animation.AnimationVector4D> getTypeConverter();
     property public androidx.animation.TwoWayConverter<androidx.ui.graphics.Color,androidx.animation.AnimationVector4D> typeConverter;
   }
@@ -46,7 +47,9 @@ package androidx.ui.animation {
   }
 
   public final class DpPropKey implements androidx.animation.PropKey<androidx.ui.unit.Dp,androidx.animation.AnimationVector1D> {
+    ctor public DpPropKey(String label);
     ctor public DpPropKey();
+    method public String getLabel();
     method public androidx.animation.TwoWayConverter<androidx.ui.unit.Dp,androidx.animation.AnimationVector1D> getTypeConverter();
     property public androidx.animation.TwoWayConverter<androidx.ui.unit.Dp,androidx.animation.AnimationVector1D> typeConverter;
   }
@@ -60,19 +63,25 @@ package androidx.ui.animation {
   }
 
   public final class PxPositionPropKey implements androidx.animation.PropKey<androidx.ui.unit.PxPosition,androidx.animation.AnimationVector2D> {
+    ctor public PxPositionPropKey(String label);
     ctor public PxPositionPropKey();
+    method public String getLabel();
     method public androidx.animation.TwoWayConverter<androidx.ui.unit.PxPosition,androidx.animation.AnimationVector2D> getTypeConverter();
     property public androidx.animation.TwoWayConverter<androidx.ui.unit.PxPosition,androidx.animation.AnimationVector2D> typeConverter;
   }
 
   public final class PxPropKey implements androidx.animation.PropKey<androidx.ui.unit.Px,androidx.animation.AnimationVector1D> {
+    ctor public PxPropKey(String label);
     ctor public PxPropKey();
+    method public String getLabel();
     method public androidx.animation.TwoWayConverter<androidx.ui.unit.Px,androidx.animation.AnimationVector1D> getTypeConverter();
     property public androidx.animation.TwoWayConverter<androidx.ui.unit.Px,androidx.animation.AnimationVector1D> typeConverter;
   }
 
   public final class RectPropKey implements androidx.animation.PropKey<androidx.ui.geometry.Rect,androidx.animation.AnimationVector4D> {
+    ctor public RectPropKey(String label);
     ctor public RectPropKey();
+    method public String getLabel();
     method public androidx.animation.TwoWayConverter<androidx.ui.geometry.Rect,androidx.animation.AnimationVector4D> getTypeConverter();
     property public androidx.animation.TwoWayConverter<androidx.ui.geometry.Rect,androidx.animation.AnimationVector4D> typeConverter;
   }
