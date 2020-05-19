@@ -27,7 +27,6 @@ import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
@@ -154,27 +153,25 @@ class DrawerTest {
         val drawerState = mutableStateOf(DrawerState.Closed)
         composeTestRule.setMaterialContent {
             TestTag("Drawer") {
-                Semantics(container = true) {
-                    ModalDrawerLayout(drawerState.value, { drawerState.value = it },
-                        drawerContent = {
-                            Box(
-                                Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
-                                    val pos = info.localToGlobal(PxPosition.Origin)
-                                    if (pos.x == 0.px) {
-                                        // If fully opened, mark the openedLatch if present
-                                        openedLatch?.countDown()
-                                    } else if (-pos.x.round() == contentWidth) {
-                                        // If fully closed, mark the closedLatch if present
-                                        closedLatch?.countDown()
-                                    }
+                ModalDrawerLayout(drawerState.value, { drawerState.value = it },
+                    drawerContent = {
+                        Box(
+                            Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
+                                val pos = info.localToGlobal(PxPosition.Origin)
+                                if (pos.x == 0.px) {
+                                    // If fully opened, mark the openedLatch if present
+                                    openedLatch?.countDown()
+                                } else if (-pos.x.round() == contentWidth) {
+                                    // If fully closed, mark the closedLatch if present
+                                    closedLatch?.countDown()
                                 }
-                            )
-                        },
-                        bodyContent = {
-                            Box(Modifier.fillMaxSize()
-                                .onPositioned { contentWidth = it.size.width })
-                        })
-                }
+                            }
+                        )
+                    },
+                    bodyContent = {
+                        Box(Modifier.fillMaxSize()
+                            .onPositioned { contentWidth = it.size.width })
+                    })
             }
         }
         // Drawer should start in closed state
@@ -205,19 +202,17 @@ class DrawerTest {
         composeTestRule.setMaterialContent {
             // emulate click on the screen
             TestTag("Drawer") {
-                Semantics(container = true) {
-                    ModalDrawerLayout(drawerState.value, { drawerState.value = it },
-                        drawerContent = {
-                            Clickable(onClick = { drawerClicks += 1 }) {
-                                Box(Modifier.fillMaxSize(), children = emptyContent())
-                            }
-                        },
-                        bodyContent = {
-                            Clickable(onClick = { bodyClicks += 1 }) {
-                                Box(Modifier.fillMaxSize(), children = emptyContent())
-                            }
-                        })
-                }
+                ModalDrawerLayout(drawerState.value, { drawerState.value = it },
+                    drawerContent = {
+                        Clickable(onClick = { drawerClicks += 1 }) {
+                            Box(Modifier.fillMaxSize(), children = emptyContent())
+                        }
+                    },
+                    bodyContent = {
+                        Clickable(onClick = { bodyClicks += 1 }) {
+                            Box(Modifier.fillMaxSize(), children = emptyContent())
+                        }
+                    })
             }
         }
 
@@ -255,28 +250,26 @@ class DrawerTest {
         val drawerState = mutableStateOf(DrawerState.Closed)
         composeTestRule.setMaterialContent {
             TestTag("Drawer") {
-                Semantics(container = true) {
-                    BottomDrawerLayout(drawerState.value, { drawerState.value = it },
-                        drawerContent = {
-                            Box(Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
-                                val pos = info.localToGlobal(PxPosition.Origin)
-                                if (pos.y.round() == openedHeight) {
-                                    // If fully opened, mark the openedLatch if present
-                                    openedLatch?.countDown()
-                                } else if (pos.y.round() == contentHeight) {
-                                    // If fully closed, mark the closedLatch if present
-                                    closedLatch?.countDown()
-                                }
-                            })
-                        },
-                        bodyContent = {
-                            Box(Modifier.fillMaxSize().onPositioned {
-                                contentHeight = it.size.height
-                                openedHeight = it.size.height * BottomDrawerOpenFraction
-                            })
-                        }
-                    )
-                }
+                BottomDrawerLayout(drawerState.value, { drawerState.value = it },
+                    drawerContent = {
+                        Box(Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
+                            val pos = info.localToGlobal(PxPosition.Origin)
+                            if (pos.y.round() == openedHeight) {
+                                // If fully opened, mark the openedLatch if present
+                                openedLatch?.countDown()
+                            } else if (pos.y.round() == contentHeight) {
+                                // If fully closed, mark the closedLatch if present
+                                closedLatch?.countDown()
+                            }
+                        })
+                    },
+                    bodyContent = {
+                        Box(Modifier.fillMaxSize().onPositioned {
+                            contentHeight = it.size.height
+                            openedHeight = it.size.height * BottomDrawerOpenFraction
+                        })
+                    }
+                )
             }
         }
         // Drawer should start in closed state
@@ -307,19 +300,17 @@ class DrawerTest {
         composeTestRule.setMaterialContent {
             // emulate click on the screen
             TestTag("Drawer") {
-                Semantics(container = true) {
-                    BottomDrawerLayout(drawerState.value, { drawerState.value = it },
-                        drawerContent = {
-                            Clickable(onClick = { drawerClicks += 1 }) {
-                                Box(Modifier.fillMaxSize(), children = emptyContent())
-                            }
-                        },
-                        bodyContent = {
-                            Clickable(onClick = { bodyClicks += 1 }) {
-                                Box(Modifier.fillMaxSize(), children = emptyContent())
-                            }
-                        })
-                }
+                BottomDrawerLayout(drawerState.value, { drawerState.value = it },
+                    drawerContent = {
+                        Clickable(onClick = { drawerClicks += 1 }) {
+                            Box(Modifier.fillMaxSize(), children = emptyContent())
+                        }
+                    },
+                    bodyContent = {
+                        Clickable(onClick = { bodyClicks += 1 }) {
+                            Box(Modifier.fillMaxSize(), children = emptyContent())
+                        }
+                    })
             }
         }
 
