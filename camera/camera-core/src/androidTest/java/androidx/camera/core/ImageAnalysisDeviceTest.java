@@ -41,7 +41,8 @@ import java.util.concurrent.ExecutionException;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class ImageAnalysisTest {
+public class ImageAnalysisDeviceTest {
+
     private final CameraInternal mMockCameraInternal = mock(CameraInternal.class);
     private final ImageAnalysis.Analyzer mMockAnalyzer = mock(ImageAnalysis.Analyzer.class);
 

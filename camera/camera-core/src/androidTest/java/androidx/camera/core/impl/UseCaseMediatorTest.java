@@ -18,8 +18,8 @@ package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -42,8 +42,6 @@ import java.util.Collections;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class UseCaseMediatorTest {
-    private final UseCaseMediator.StateChangeCallback mMockCallback =
-            mock(UseCaseMediator.StateChangeCallback.class);
     private UseCaseMediator mUseCaseMediator;
     private FakeUseCase mFakeUseCase;
     private FakeOtherUseCase mFakeOtherUseCase;
@@ -61,7 +59,7 @@ public final class UseCaseMediatorTest {
                         .getUseCaseConfig();
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(new FakeCamera(),
                 new FakeCameraDeviceSurfaceManager());
-        mUseCaseMediator = new UseCaseMediator();
+        mUseCaseMediator = new UseCaseMediator(mCameraUseCaseAdapter);
         mFakeUseCase = new FakeUseCase(fakeUseCaseConfig);
         mFakeOtherUseCase = new FakeOtherUseCase(fakeOtherUseCaseConfig);
     }
@@ -97,7 +95,7 @@ public final class UseCaseMediatorTest {
     }
 
     @Test
-    public void useCaseIsCleared_afterMediatorIsCleared()
+    public void useCaseIsDetached_afterMediatorIsCleared()
             throws CameraUseCaseAdapter.CameraException {
         mUseCaseMediator.addUseCase(mFakeUseCase);
         mCameraUseCaseAdapter.attachUseCases(Collections.singleton(mFakeUseCase));
@@ -106,7 +104,8 @@ public final class UseCaseMediatorTest {
 
         mUseCaseMediator.destroy();
 
-        assertThat(mFakeUseCase.isCleared()).isTrue();
+        // Assert - when the lifecycle is destroyed it should detach the UseCase from the Camera
+        assertThat(mFakeUseCase.getCamera()).isNull();
     }
 
     @Test
@@ -119,27 +118,20 @@ public final class UseCaseMediatorTest {
     }
 
     @Test
-    public void listenerOnMediatorActive_ifUseCaseMediatorStarted() {
-        mUseCaseMediator.setListener(mMockCallback);
-        mUseCaseMediator.start();
-
-        verify(mMockCallback, times(1)).onActive(mUseCaseMediator);
+    public void cameraInternalAttached_ifUseCaseMediatorStarted() {
+        CameraUseCaseAdapter cameraUseCaseAdaptor = new CameraUseCaseAdapter(mMockCamera,
+                new FakeCameraDeviceSurfaceManager());
+        UseCaseMediator useCaseMediator = new UseCaseMediator(cameraUseCaseAdaptor);
+        useCaseMediator.start();
+        verify(mMockCamera, times(1)).attachUseCases(any());
     }
 
     @Test
-    public void listenerOnMediatorInactive_ifUseCaseMediatorStopped() {
-        mUseCaseMediator.setListener(mMockCallback);
-        mUseCaseMediator.stop();
-
-        verify(mMockCallback, times(1)).onInactive(mUseCaseMediator);
-    }
-
-    @Test
-    public void setListener_replacesPreviousListener() {
-        mUseCaseMediator.setListener(mMockCallback);
-        mUseCaseMediator.setListener(null);
-
-        mUseCaseMediator.start();
-        verify(mMockCallback, never()).onActive(mUseCaseMediator);
+    public void cameraInternalDetached_ifUseCaseMediatorStopped() {
+        CameraUseCaseAdapter cameraUseCaseAdaptor = new CameraUseCaseAdapter(mMockCamera,
+                new FakeCameraDeviceSurfaceManager());
+        UseCaseMediator useCaseMediator = new UseCaseMediator(cameraUseCaseAdaptor);
+        useCaseMediator.stop();
+        verify(mMockCamera, times(1)).detachUseCases(any());
     }
 }

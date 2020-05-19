@@ -120,49 +120,83 @@ public final class ImageAnalysisTest {
     }
 
     @Test
-    public void canSupportGuaranteedSize()
+    public void canSupportGuaranteedSizeFront()
             throws InterruptedException, CameraInfoUnavailableException {
         // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
         // Using for-loop to check both front and back device cameras can support the guaranteed
         // 640x480 size.
-        for (int i = 0; i <= 1; i++) {
-            final int lensFacing = i;
-            if (!CameraUtil.hasCameraWithLensFacing(lensFacing)) {
-                continue;
-            }
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
 
-            // Checks camera device sensor degrees to set correct target rotation value to make sure
-            // the exactly matching result size 640x480 can be selected if the device supports it.
-            Integer sensorOrientation = CameraUtil.getSensorOrientation(
-                    CameraSelector.LENS_FACING_BACK);
-            boolean isRotateNeeded = (sensorOrientation % 180) != 0;
-            ImageAnalysis useCase = new ImageAnalysis.Builder().setTargetResolution(
-                    GUARANTEED_RESOLUTION).setTargetRotation(
-                    isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
-            mInstrumentation.runOnMainSync(() -> {
-                CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
-                        lensFacing).build();
-                CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase);
-                mLifecycleOwner.startAndResume();
-                useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
-            });
+        // Checks camera device sensor degrees to set correct target rotation value to make sure
+        // the exactly matching result size 640x480 can be selected if the device supports it.
+        Integer sensorOrientation = CameraUtil.getSensorOrientation(
+                CameraSelector.LENS_FACING_FRONT);
+        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
+        ImageAnalysis useCase = new ImageAnalysis.Builder().setTargetResolution(
+                GUARANTEED_RESOLUTION).setTargetRotation(
+                isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
+        mInstrumentation.runOnMainSync(() -> {
+            CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
+                    CameraSelector.LENS_FACING_FRONT).build();
+            CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase);
+            mLifecycleOwner.startAndResume();
+            useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
+        });
+        assertThat(mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
 
-            assertThat(mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
-
-            synchronized (mAnalysisResultLock) {
-                // Check the analyzed image exactly matches 640x480 size. This test can also check
-                // whether the guaranteed resolution 640x480 is really supported for YUV_420_888
-                // format on the devices when running the test.
-                assertThat(GUARANTEED_RESOLUTION).isEqualTo(
-                        mAnalysisResults.iterator().next().mResolution);
-            }
-
-            // Reset the environment to run test for the other lens facing camera device.
-            mInstrumentation.runOnMainSync(() -> {
-                CameraX.unbindAll();
-                mLifecycleOwner.pauseAndStop();
-            });
+        synchronized (mAnalysisResultLock) {
+            // Check the analyzed image exactly matches 640x480 size. This test can also check
+            // whether the guaranteed resolution 640x480 is really supported for YUV_420_888
+            // format on the devices when running the test.
+            assertThat(GUARANTEED_RESOLUTION).isEqualTo(
+                    mAnalysisResults.iterator().next().mResolution);
         }
+
+        // Reset the environment to run test for the other lens facing camera device.
+        mInstrumentation.runOnMainSync(() -> {
+            CameraX.unbindAll();
+            mLifecycleOwner.pauseAndStop();
+        });
+    }
+
+    @Test
+    public void canSupportGuaranteedSizeBack()
+            throws InterruptedException, CameraInfoUnavailableException {
+        // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
+        // Using for-loop to check both front and back device cameras can support the guaranteed
+        // 640x480 size.
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
+        // Checks camera device sensor degrees to set correct target rotation value to make sure
+        // the exactly matching result size 640x480 can be selected if the device supports it.
+        Integer sensorOrientation = CameraUtil.getSensorOrientation(
+                CameraSelector.LENS_FACING_BACK);
+        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
+        ImageAnalysis useCase = new ImageAnalysis.Builder().setTargetResolution(
+                GUARANTEED_RESOLUTION).setTargetRotation(
+                isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
+        mInstrumentation.runOnMainSync(() -> {
+            CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
+                    CameraSelector.LENS_FACING_BACK).build();
+            CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase);
+            mLifecycleOwner.startAndResume();
+            useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
+        });
+        assertThat(mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
+
+        synchronized (mAnalysisResultLock) {
+            // Check the analyzed image exactly matches 640x480 size. This test can also check
+            // whether the guaranteed resolution 640x480 is really supported for YUV_420_888
+            // format on the devices when running the test.
+            assertThat(GUARANTEED_RESOLUTION).isEqualTo(
+                    mAnalysisResults.iterator().next().mResolution);
+        }
+
+        // Reset the environment to run test for the other lens facing camera device.
+        mInstrumentation.runOnMainSync(() -> {
+            CameraX.unbindAll();
+            mLifecycleOwner.pauseAndStop();
+        });
     }
 
     @Test

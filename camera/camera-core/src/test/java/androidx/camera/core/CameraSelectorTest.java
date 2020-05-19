@@ -19,24 +19,16 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
 
-import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.impl.CameraControlInternal;
-import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
-import androidx.camera.testing.fakes.FakeUseCaseConfig;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,16 +54,6 @@ public class CameraSelectorTest {
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
-                ignored -> new FakeCameraDeviceSurfaceManager();
-        UseCaseConfigFactory.Provider configFactoryProvider = ignored -> {
-            ExtendableUseCaseConfigFactory defaultConfigFactory =
-                    new ExtendableUseCaseConfigFactory();
-            defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
-                    cameraInfo -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
-            return defaultConfigFactory;
-        };
         FakeCameraFactory cameraFactory = new FakeCameraFactory();
         mRearCamera = new FakeCamera(mock(CameraControlInternal.class),
                 new FakeCameraInfoInternal(REAR_ROTATION_DEGREE,
@@ -83,17 +65,6 @@ public class CameraSelectorTest {
                         CameraSelector.LENS_FACING_FRONT));
         cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, FRONT_ID, () -> mFrontCamera);
         mCameras.add(mFrontCamera);
-        CameraXConfig.Builder appConfigBuilder =
-                new CameraXConfig.Builder()
-                        .setCameraFactoryProvider((ignored1, ignored2) -> cameraFactory)
-                        .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
-                        .setUseCaseConfigFactoryProvider(configFactoryProvider);
-        CameraX.initialize(context, appConfigBuilder.build()).get();
-    }
-
-    @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.shutdown().get();
     }
 
     @Test

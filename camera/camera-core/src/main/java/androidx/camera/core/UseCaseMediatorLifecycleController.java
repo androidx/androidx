@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
 import androidx.camera.core.impl.UseCaseMediator;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.lifecycle.LifecycleObserver;
@@ -32,18 +33,20 @@ final class UseCaseMediatorLifecycleController implements LifecycleObserver {
     private final UseCaseMediator mUseCaseMediator;
 
     /** The lifecycle that controls the {@link UseCaseMediator}. */
-    private final Lifecycle mLifecycle;
+    private final LifecycleOwner mLifecycleOwner;
 
     /** Creates a new {@link UseCaseMediator} which gets controlled by lifecycle transitions. */
-    UseCaseMediatorLifecycleController(Lifecycle lifecycle) {
-        this(lifecycle, new UseCaseMediator());
+    UseCaseMediatorLifecycleController(LifecycleOwner lifecycleOwner,
+            CameraUseCaseAdapter cameraUseCaseAdaptor) {
+        this(lifecycleOwner, new UseCaseMediator(cameraUseCaseAdaptor));
     }
 
     /** Wraps an existing {@link UseCaseMediator} so it is controlled by lifecycle transitions. */
-    UseCaseMediatorLifecycleController(Lifecycle lifecycle, UseCaseMediator useCaseMediator) {
-        this.mUseCaseMediator = useCaseMediator;
-        this.mLifecycle = lifecycle;
-        lifecycle.addObserver(this);
+    UseCaseMediatorLifecycleController(LifecycleOwner lifecycleOwner,
+            UseCaseMediator useCaseMediator) {
+        mUseCaseMediator = useCaseMediator;
+        mLifecycleOwner = lifecycleOwner;
+        lifecycleOwner.getLifecycle().addObserver(this);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -68,8 +71,7 @@ final class UseCaseMediatorLifecycleController implements LifecycleObserver {
     }
 
     /**
-     * Starts the underlying {@link UseCaseMediator} so that its {@link
-     * UseCaseMediator.StateChangeCallback} can be notified.
+     * Starts the underlying {@link UseCaseMediator}.
      *
      * <p>This is required when the contained {@link Lifecycle} is in a STARTED state, since the
      * default state for a {@link UseCaseMediator} is inactive. The explicit call forces a check on
@@ -77,7 +79,7 @@ final class UseCaseMediatorLifecycleController implements LifecycleObserver {
      */
     void notifyState() {
         synchronized (mUseCaseMediatorLock) {
-            if (mLifecycle.getCurrentState().isAtLeast(State.STARTED)) {
+            if (mLifecycleOwner.getLifecycle().getCurrentState().isAtLeast(State.STARTED)) {
                 mUseCaseMediator.start();
             }
             for (UseCase useCase : mUseCaseMediator.getUseCases()) {
@@ -92,6 +94,10 @@ final class UseCaseMediatorLifecycleController implements LifecycleObserver {
         }
     }
 
+    LifecycleOwner getLifecycleOwner() {
+        return mLifecycleOwner;
+    }
+
     /**
      * Stops observing lifecycle changes.
      *
@@ -102,6 +108,6 @@ final class UseCaseMediatorLifecycleController implements LifecycleObserver {
      * <p>Calls subsequent to the first time will do nothing.
      */
     void release() {
-        mLifecycle.removeObserver(this);
+        mLifecycleOwner.getLifecycle().removeObserver(this);
     }
 }

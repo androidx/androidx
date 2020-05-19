@@ -32,6 +32,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -157,7 +158,8 @@ public final class CameraUseCaseAdapter {
             // Do all attaching related work
             for (UseCase useCase : newUseCases) {
                 useCase.onAttach(mCameraInternal);
-                useCase.updateSuggestedResolution(suggestedResolutionsMap.get(useCase));
+                useCase.updateSuggestedResolution(
+                        Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
             }
 
             mAttachedUseCases.addAll(newUseCases);

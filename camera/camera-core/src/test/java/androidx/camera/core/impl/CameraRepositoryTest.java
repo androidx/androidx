@@ -23,6 +23,7 @@ import android.os.Build;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.InitializationException;
 import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.test.filters.SmallTest;
@@ -64,7 +65,7 @@ public final class CameraRepositoryTest {
                 () -> new FakeCamera(null,
                         new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_FRONT)));
 
-        mCameraRepository.init(fakeCameraFactory);
+        mCameraRepository.init(fakeCameraFactory, new FakeCameraDeviceSurfaceManager());
     }
 
     @Test
@@ -77,7 +78,8 @@ public final class CameraRepositoryTest {
     @Test
     public void cameraCanBeObtainedWithValidId() {
         for (String cameraId : mCameraRepository.getCameraIds()) {
-            CameraInternal cameraInternal = mCameraRepository.getCamera(cameraId);
+            CameraInternal cameraInternal = mCameraRepository.getCameraUseCaseAdaptor(
+                    cameraId).getCameraInternal();
 
             assertThat(cameraInternal).isNotNull();
         }
@@ -86,7 +88,7 @@ public final class CameraRepositoryTest {
     @Test(expected = IllegalArgumentException.class)
     public void cameraCannotBeObtainedWithInvalidId() {
         // Should throw IllegalArgumentException
-        mCameraRepository.getCamera("no_such_id");
+        mCameraRepository.getCameraUseCaseAdaptor("no_such_id");
     }
 
     @Test
@@ -104,14 +106,15 @@ public final class CameraRepositoryTest {
         Set<String> cameraIds = mCameraRepository.getCameraIds();
         String validId = cameraIds.iterator().next();
         mCameraRepository.deinit();
-        mCameraRepository.getCamera(validId);
+        mCameraRepository.getCameraUseCaseAdaptor(validId);
     }
 
     @Test
     public void camerasAreReleasedByDeinit() throws ExecutionException, InterruptedException {
         List<CameraInternal> cameraInternals = new ArrayList<>();
         for (String cameraId : mCameraRepository.getCameraIds()) {
-            cameraInternals.add(mCameraRepository.getCamera(cameraId));
+            cameraInternals.add(
+                    mCameraRepository.getCameraUseCaseAdaptor(cameraId).getCameraInternal());
         }
 
         ListenableFuture<Void> deinitFuture = mCameraRepository.deinit();

@@ -225,50 +225,84 @@ public final class PreviewTest {
     }
 
     @Test
-    public void canSupportGuaranteedSize()
+    public void canSupportGuaranteedSizeFront()
             throws InterruptedException, CameraInfoUnavailableException {
         // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
         // Using for-loop to check both front and back device cameras can support the guaranteed
         // 640x480 size.
-        for (int i = 0; i <= 1; i++) {
-            final int lensFacing = i;
-            if (!CameraUtil.hasCameraWithLensFacing(lensFacing)) {
-                continue;
-            }
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
 
-            // Checks camera device sensor degrees to set correct target rotation value to make sure
-            // the exactly matching result size 640x480 can be selected if the device supports it.
-            Integer sensorOrientation = CameraUtil.getSensorOrientation(
-                    CameraSelector.LENS_FACING_BACK);
-            boolean isRotateNeeded = (sensorOrientation % 180) != 0;
-            Preview preview = new Preview.Builder().setTargetResolution(
-                    GUARANTEED_RESOLUTION).setTargetRotation(
-                    isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
+        // Checks camera device sensor degrees to set correct target rotation value to make sure
+        // the exactly matching result size 640x480 can be selected if the device supports it.
+        Integer sensorOrientation = CameraUtil.getSensorOrientation(
+                CameraSelector.LENS_FACING_FRONT);
+        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
+        Preview preview = new Preview.Builder().setTargetResolution(
+                GUARANTEED_RESOLUTION).setTargetRotation(
+                isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
 
-            mInstrumentation.runOnMainSync(() -> {
-                preview.setSurfaceProvider(getSurfaceProvider(null));
-                CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
-                        lensFacing).build();
-                CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, preview);
-                mLifecycleOwner.startAndResume();
-            });
+        mInstrumentation.runOnMainSync(() -> {
+            preview.setSurfaceProvider(getSurfaceProvider(null));
+            CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
+                    CameraSelector.LENS_FACING_FRONT).build();
+            CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, preview);
+            mLifecycleOwner.startAndResume();
+        });
 
-            // Assert.
-            assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+        // Assert.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
 
-            // Check whether 640x480 is selected for the preview use case. This test can also check
-            // whether the guaranteed resolution 640x480 is really supported for SurfaceTexture
-            // format on the devices when running the test.
-            assertEquals(GUARANTEED_RESOLUTION, mPreviewResolution);
+        // Check whether 640x480 is selected for the preview use case. This test can also check
+        // whether the guaranteed resolution 640x480 is really supported for SurfaceTexture
+        // format on the devices when running the test.
+        assertEquals(GUARANTEED_RESOLUTION, mPreviewResolution);
 
-            // Reset the environment to run test for the other lens facing camera device.
-            mInstrumentation.runOnMainSync(() -> {
-                CameraX.unbindAll();
-                mLifecycleOwner.pauseAndStop();
-            });
-        }
+        // Reset the environment to run test for the other lens facing camera device.
+        mInstrumentation.runOnMainSync(() -> {
+            CameraX.unbindAll();
+            mLifecycleOwner.pauseAndStop();
+        });
     }
 
+    @Test
+    public void canSupportGuaranteedSizeBack()
+            throws InterruptedException, CameraInfoUnavailableException {
+        // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
+        // Using for-loop to check both front and back device cameras can support the guaranteed
+        // 640x480 size.
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
+        // Checks camera device sensor degrees to set correct target rotation value to make sure
+        // the exactly matching result size 640x480 can be selected if the device supports it.
+        Integer sensorOrientation = CameraUtil.getSensorOrientation(
+                CameraSelector.LENS_FACING_BACK);
+        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
+        Preview preview = new Preview.Builder().setTargetResolution(
+                GUARANTEED_RESOLUTION).setTargetRotation(
+                isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
+
+        mInstrumentation.runOnMainSync(() -> {
+            preview.setSurfaceProvider(getSurfaceProvider(null));
+            CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
+                    CameraSelector.LENS_FACING_BACK).build();
+            CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, preview);
+            mLifecycleOwner.startAndResume();
+        });
+
+        // Assert.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+
+        // Check whether 640x480 is selected for the preview use case. This test can also check
+        // whether the guaranteed resolution 640x480 is really supported for SurfaceTexture
+        // format on the devices when running the test.
+        assertEquals(GUARANTEED_RESOLUTION, mPreviewResolution);
+
+        // Reset the environment to run test for the other lens facing camera device.
+        mInstrumentation.runOnMainSync(() -> {
+            CameraX.unbindAll();
+            mLifecycleOwner.pauseAndStop();
+        });
+    }
 
     @Test
     public void setMultipleNonNullSurfaceProviders_getsFrame() throws InterruptedException {

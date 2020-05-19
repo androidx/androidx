@@ -26,8 +26,10 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.util.Size;
 
+import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraControl;
@@ -51,7 +53,7 @@ import java.util.concurrent.ExecutionException;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class ImageCaptureTest {
-    private FakeCamera mFakeCamera;
+    private CameraUseCaseAdapter mCameraUseCaseAdapter;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     @Before
@@ -62,7 +64,8 @@ public class ImageCaptureTest {
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.initialize(context, cameraXConfig).get();
 
-        mFakeCamera = new FakeCamera();
+        mCameraUseCaseAdapter = new CameraUseCaseAdapter(new FakeCamera(),
+                mock(CameraDeviceSurfaceManager.class));
     }
 
     @After
@@ -79,7 +82,7 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mFakeCamera.getCameraControlInternal());
+                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControlInternal());
 
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the cancel after the capture request has been successfully submitted
@@ -105,7 +108,7 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mFakeCamera.getCameraControlInternal());
+                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControlInternal());
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the failure after the capture request has been successfully submitted
             fakeCameraControl.notifyAllRequestsOnCaptureFailed();
@@ -130,7 +133,7 @@ public class ImageCaptureTest {
         ImageCapture imageCapture = createImageCapture();
         mInstrumentation.runOnMainSync(() -> bind(imageCapture));
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mFakeCamera.getCameraControlInternal());
+                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControlInternal());
 
         FakeCameraControl.OnNewCaptureRequestListener mockCaptureRequestListener =
                 mock(FakeCameraControl.OnNewCaptureRequestListener.class);
@@ -173,7 +176,7 @@ public class ImageCaptureTest {
     // TODO(b/147698557) Should be removed when the binding of UseCase to Camera is simplified.
     private void bind(UseCase useCase) {
         // Sets bound camera to use case.
-        useCase.onAttach(mFakeCamera);
+        useCase.onAttach(mCameraUseCaseAdapter.getCameraInternal());
         useCase.updateSuggestedResolution(new Size(640, 480));
     }
 }

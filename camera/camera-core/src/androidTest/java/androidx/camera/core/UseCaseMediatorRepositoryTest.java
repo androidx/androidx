@@ -60,7 +60,7 @@ public final class UseCaseMediatorRepositoryTest {
     @Test
     public void newUseCaseMediatorIsCreated_whenNoMediatorExistsForLifecycleInRepository() {
         UseCaseMediatorLifecycleController mediator = mRepository.getOrCreateUseCaseMediator(
-                mLifecycle);
+                mLifecycle, mCameraUseCaseAdapter);
 
         assertThat(mUseCasesMap).containsExactly(mLifecycle, mediator);
     }
@@ -68,9 +68,9 @@ public final class UseCaseMediatorRepositoryTest {
     @Test
     public void existingUseCaseMediatorIsReturned_whenMediatorExistsForLifecycleInRepository() {
         UseCaseMediatorLifecycleController firstMediator = mRepository.getOrCreateUseCaseMediator(
-                mLifecycle);
+                mLifecycle, mCameraUseCaseAdapter);
         UseCaseMediatorLifecycleController secondMediator = mRepository.getOrCreateUseCaseMediator(
-                mLifecycle);
+                mLifecycle, mCameraUseCaseAdapter);
 
         assertThat(firstMediator).isSameInstanceAs(secondMediator);
         assertThat(mUseCasesMap).containsExactly(mLifecycle, firstMediator);
@@ -79,10 +79,10 @@ public final class UseCaseMediatorRepositoryTest {
     @Test
     public void differentUseCaseMediatorsAreCreated_forDifferentLifecycles() {
         UseCaseMediatorLifecycleController firstMediator = mRepository.getOrCreateUseCaseMediator(
-                mLifecycle);
+                mLifecycle, mCameraUseCaseAdapter);
         FakeLifecycleOwner secondLifecycle = new FakeLifecycleOwner();
         UseCaseMediatorLifecycleController secondMediator =
-                mRepository.getOrCreateUseCaseMediator(secondLifecycle);
+                mRepository.getOrCreateUseCaseMediator(secondLifecycle, mCameraUseCaseAdapter);
 
         assertThat(mUseCasesMap)
                 .containsExactly(mLifecycle, firstMediator, secondLifecycle, secondMediator);
@@ -90,7 +90,7 @@ public final class UseCaseMediatorRepositoryTest {
 
     @Test
     public void useCaseMediatorObservesLifecycle() {
-        mRepository.getOrCreateUseCaseMediator(mLifecycle);
+        mRepository.getOrCreateUseCaseMediator(mLifecycle, mCameraUseCaseAdapter);
 
         // One observer is the use case mediator. The other observer removes the use case from the
         // repository when the lifecycle is destroyed.
@@ -99,7 +99,7 @@ public final class UseCaseMediatorRepositoryTest {
 
     @Test
     public void useCaseMediatorIsRemovedFromRepository_whenLifecycleIsDestroyed() {
-        mRepository.getOrCreateUseCaseMediator(mLifecycle);
+        mRepository.getOrCreateUseCaseMediator(mLifecycle, mCameraUseCaseAdapter);
         mLifecycle.destroy();
 
         assertThat(mUseCasesMap).isEmpty();
@@ -109,8 +109,9 @@ public final class UseCaseMediatorRepositoryTest {
     public void useCaseIsCleared_whenLifecycleIsDestroyed()
             throws CameraUseCaseAdapter.CameraException {
         UseCaseMediatorLifecycleController mediator = mRepository.getOrCreateUseCaseMediator(
-                mLifecycle);
+                mLifecycle, mCameraUseCaseAdapter);
         FakeUseCase useCase = new FakeUseCase();
+        mCameraUseCaseAdapter.attachUseCases(Collections.singleton(useCase));
         mediator.getUseCaseMediator().addUseCase(useCase);
 
         mCameraUseCaseAdapter.attachUseCases(Collections.singleton(useCase));
@@ -127,14 +128,14 @@ public final class UseCaseMediatorRepositoryTest {
         mLifecycle.destroy();
 
         // Should throw IllegalArgumentException
-        mRepository.getOrCreateUseCaseMediator(mLifecycle);
+        mRepository.getOrCreateUseCaseMediator(mLifecycle, mCameraUseCaseAdapter);
     }
 
     @Test
     public void useCaseMediatorIsStopped_whenNewLifecycleIsStarted() {
         // Starts first lifecycle and check UseCaseMediator active state is true.
         UseCaseMediatorLifecycleController firstController = mRepository.getOrCreateUseCaseMediator(
-                mLifecycle);
+                mLifecycle, mCameraUseCaseAdapter);
         mLifecycle.start();
         assertThat(firstController.getUseCaseMediator().isActive()).isTrue();
 
@@ -142,7 +143,7 @@ public final class UseCaseMediatorRepositoryTest {
         FakeLifecycleOwner secondLifecycle = new FakeLifecycleOwner();
         UseCaseMediatorLifecycleController secondController =
                 mRepository.getOrCreateUseCaseMediator(
-                        secondLifecycle);
+                        secondLifecycle, mCameraUseCaseAdapter);
         secondLifecycle.start();
         assertThat(secondController.getUseCaseMediator().isActive()).isTrue();
         assertThat(firstController.getUseCaseMediator().isActive()).isFalse();
@@ -152,7 +153,7 @@ public final class UseCaseMediatorRepositoryTest {
     public void useCaseMediatorOf2ndActiveLifecycleIsStarted_when1stActiveLifecycleIsStopped() {
         // Starts first lifecycle and check UseCaseMediator active state is true.
         UseCaseMediatorLifecycleController firstController = mRepository.getOrCreateUseCaseMediator(
-                mLifecycle);
+                mLifecycle, mCameraUseCaseAdapter);
         mLifecycle.start();
         assertThat(firstController.getUseCaseMediator().isActive()).isTrue();
 
@@ -160,7 +161,7 @@ public final class UseCaseMediatorRepositoryTest {
         FakeLifecycleOwner secondLifecycle = new FakeLifecycleOwner();
         UseCaseMediatorLifecycleController secondController =
                 mRepository.getOrCreateUseCaseMediator(
-                        secondLifecycle);
+                        secondLifecycle, mCameraUseCaseAdapter);
         secondLifecycle.start();
         assertThat(secondController.getUseCaseMediator().isActive()).isTrue();
         assertThat(firstController.getUseCaseMediator().isActive()).isFalse();

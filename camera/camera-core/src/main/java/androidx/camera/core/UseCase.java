@@ -127,7 +127,7 @@ public abstract class UseCase {
     protected final void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig) {
         // Attempt to retrieve builder containing defaults for this use case's config
         UseCaseConfig.Builder<?, ?, ?> defaultBuilder =
-                getDefaultBuilder(getCamera() == null ? null : getCamera().getCameraInfo());
+                getDefaultBuilder(getCamera() == null ? null : getCamera().getCameraInfoInternal());
 
         // Combine with default configuration.
         mUseCaseConfig = applyDefaults(useCaseConfig, defaultBuilder);
@@ -428,6 +428,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void onAttach(@NonNull CameraInternal camera) {
+
         synchronized (mCameraLock) {
             mCamera = camera;
             addStateChangeCallback(camera);

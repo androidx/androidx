@@ -18,8 +18,10 @@ package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.UseCaseMediator;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.lifecycle.LifecycleObserver;
@@ -61,32 +63,33 @@ final class UseCaseMediatorRepository {
      *
      * @param lifecycleOwner to associate with the mediator
      */
-    UseCaseMediatorLifecycleController getOrCreateUseCaseMediator(LifecycleOwner lifecycleOwner) {
-        return getOrCreateUseCaseMediator(lifecycleOwner, useCaseMediator -> {
-        });
-    }
-
-    /**
-     * Gets an existing {@link UseCaseMediatorLifecycleController} associated with the given {@link
-     * LifecycleOwner}, or creates a new {@link UseCaseMediatorLifecycleController} if a mediator
-     * does not already exist.
-     *
-     * <p>The {@link UseCaseMediatorLifecycleController} is set to be an observer of the {@link
-     * LifecycleOwner}.
-     *
-     * @param lifecycleOwner to associate with the mediator
-     * @param mediatorSetup  additional setup to do on the mediator if a new instance is created
-     */
+    @NonNull
     UseCaseMediatorLifecycleController getOrCreateUseCaseMediator(
-            LifecycleOwner lifecycleOwner, UseCaseMediatorSetup mediatorSetup) {
+            LifecycleOwner lifecycleOwner, CameraUseCaseAdapter cameraUseCaseAdaptor) {
         UseCaseMediatorLifecycleController useCaseMediatorLifecycleController;
         synchronized (mUseCasesLock) {
             useCaseMediatorLifecycleController = mLifecycleToUseCaseMediatorControllerMap.get(
                     lifecycleOwner);
             if (useCaseMediatorLifecycleController == null) {
-                useCaseMediatorLifecycleController = createUseCaseMediator(lifecycleOwner);
-                mediatorSetup.setup(useCaseMediatorLifecycleController.getUseCaseMediator());
+                useCaseMediatorLifecycleController = createUseCaseMediator(lifecycleOwner,
+                        cameraUseCaseAdaptor);
+            } else {
+                UseCaseMediator mediator = useCaseMediatorLifecycleController.getUseCaseMediator();
+                if (mediator.getCameraUseCaseAdaptor() != cameraUseCaseAdaptor) {
+                    throw new IllegalArgumentException("UseCaseMediatorLifecycleController "
+                            + "already associated with a different CameraUseCaseAdaptor");
+                }
             }
+        }
+        return useCaseMediatorLifecycleController;
+    }
+
+    @Nullable
+    UseCaseMediatorLifecycleController getUseCaseMediator(LifecycleOwner lifecycleOwner) {
+        UseCaseMediatorLifecycleController useCaseMediatorLifecycleController;
+        synchronized (mUseCasesLock) {
+            useCaseMediatorLifecycleController = mLifecycleToUseCaseMediatorControllerMap.get(
+                    lifecycleOwner);
         }
         return useCaseMediatorLifecycleController;
     }
@@ -105,7 +108,7 @@ final class UseCaseMediatorRepository {
      *                                  {@link androidx.lifecycle.Lifecycle.State.DESTROYED}.
      */
     private UseCaseMediatorLifecycleController createUseCaseMediator(
-            LifecycleOwner lifecycleOwner) {
+            LifecycleOwner lifecycleOwner, CameraUseCaseAdapter cameraUseCaseAdaptor) {
         if (lifecycleOwner.getLifecycle().getCurrentState() == State.DESTROYED) {
             throw new IllegalArgumentException(
                     "Trying to create use case mediator with destroyed lifecycle.");
@@ -115,7 +118,7 @@ final class UseCaseMediatorRepository {
         // UseCaseMediators can be stopped before the latest active one is started.
         lifecycleOwner.getLifecycle().addObserver(createLifecycleObserver());
         UseCaseMediatorLifecycleController useCaseMediatorLifecycleController =
-                new UseCaseMediatorLifecycleController(lifecycleOwner.getLifecycle());
+                new UseCaseMediatorLifecycleController(lifecycleOwner, cameraUseCaseAdaptor);
         synchronized (mUseCasesLock) {
             mLifecycleToUseCaseMediatorControllerMap.put(lifecycleOwner,
                     useCaseMediatorLifecycleController);
@@ -197,18 +200,19 @@ final class UseCaseMediatorRepository {
         }
     }
 
+    void releaseUseCaseMediator(
+            UseCaseMediatorLifecycleController useCaseMediatorLifecycleController) {
+        synchronized (mUseCasesLock) {
+            mLifecycleToUseCaseMediatorControllerMap.remove(
+                    useCaseMediatorLifecycleController.getLifecycleOwner());
+            useCaseMediatorLifecycleController.release();
+        }
+    }
+
     @VisibleForTesting
     Map<LifecycleOwner, UseCaseMediatorLifecycleController> getUseCasesMap() {
         synchronized (mUseCasesLock) {
             return mLifecycleToUseCaseMediatorControllerMap;
         }
-    }
-
-    /**
-     * The interface for doing additional setup work on a newly created {@link UseCaseMediator}
-     * instance.
-     */
-    public interface UseCaseMediatorSetup {
-        void setup(@NonNull UseCaseMediator useCaseMediator);
     }
 }

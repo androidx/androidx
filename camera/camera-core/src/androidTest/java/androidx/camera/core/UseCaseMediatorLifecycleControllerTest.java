@@ -18,10 +18,14 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import androidx.camera.core.impl.UseCaseMediator;
+import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -29,19 +33,20 @@ import androidx.test.filters.SmallTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class UseCaseMediatorLifecycleControllerTest {
-    private final UseCaseMediator.StateChangeCallback mMockCallback =
-            Mockito.mock(UseCaseMediator.StateChangeCallback.class);
     private UseCaseMediatorLifecycleController mUseCaseMediatorLifecycleController;
     private FakeLifecycleOwner mLifecycleOwner;
+    private CameraUseCaseAdapter mCameraUseCaseAdapter;
+    private CameraInternal mMockCamera = mock(CameraInternal.class);
 
     @Before
     public void setUp() {
         mLifecycleOwner = new FakeLifecycleOwner();
+        mCameraUseCaseAdapter = new CameraUseCaseAdapter(mMockCamera,
+                new FakeCameraDeviceSurfaceManager());
     }
 
     @Test
@@ -49,8 +54,7 @@ public class UseCaseMediatorLifecycleControllerTest {
         assertThat(mLifecycleOwner.getObserverCount()).isEqualTo(0);
 
         mUseCaseMediatorLifecycleController =
-                new UseCaseMediatorLifecycleController(
-                        mLifecycleOwner.getLifecycle(), new UseCaseMediator());
+                new UseCaseMediatorLifecycleController(mLifecycleOwner, mCameraUseCaseAdapter);
 
         assertThat(mLifecycleOwner.getObserverCount()).isEqualTo(1);
     }
@@ -58,8 +62,7 @@ public class UseCaseMediatorLifecycleControllerTest {
     @Test
     public void mediatorCanStopObservingALifeCycle() {
         mUseCaseMediatorLifecycleController =
-                new UseCaseMediatorLifecycleController(
-                        mLifecycleOwner.getLifecycle(), new UseCaseMediator());
+                new UseCaseMediatorLifecycleController(mLifecycleOwner, mCameraUseCaseAdapter);
         assertThat(mLifecycleOwner.getObserverCount()).isEqualTo(1);
 
         mUseCaseMediatorLifecycleController.release();
@@ -70,37 +73,30 @@ public class UseCaseMediatorLifecycleControllerTest {
     @Test
     public void mediatorCanBeReleasedMultipleTimes() {
         mUseCaseMediatorLifecycleController =
-                new UseCaseMediatorLifecycleController(
-                        mLifecycleOwner.getLifecycle(), new UseCaseMediator());
+                new UseCaseMediatorLifecycleController(mLifecycleOwner, mCameraUseCaseAdapter);
 
         mUseCaseMediatorLifecycleController.release();
         mUseCaseMediatorLifecycleController.release();
     }
 
     @Test
-    public void lifecycleStart_triggersOnActive() {
+    public void lifecycleStart_triggersAttach() {
         mUseCaseMediatorLifecycleController =
-                new UseCaseMediatorLifecycleController(
-                        mLifecycleOwner.getLifecycle(), new UseCaseMediator());
-        mUseCaseMediatorLifecycleController.getUseCaseMediator().setListener(mMockCallback);
+                new UseCaseMediatorLifecycleController(mLifecycleOwner, mCameraUseCaseAdapter);
 
         mLifecycleOwner.start();
 
-        verify(mMockCallback, times(1))
-                .onActive(mUseCaseMediatorLifecycleController.getUseCaseMediator());
+        verify(mMockCamera, times(1)).attachUseCases(any());
     }
 
     @Test
-    public void lifecycleStop_triggersOnInactive() {
+    public void lifecycleStop_triggersDetach() {
         mUseCaseMediatorLifecycleController =
-                new UseCaseMediatorLifecycleController(
-                        mLifecycleOwner.getLifecycle(), new UseCaseMediator());
-        mUseCaseMediatorLifecycleController.getUseCaseMediator().setListener(mMockCallback);
+                new UseCaseMediatorLifecycleController(mLifecycleOwner, mCameraUseCaseAdapter);
         mLifecycleOwner.start();
 
         mLifecycleOwner.stop();
 
-        verify(mMockCallback, times(1))
-                .onInactive(mUseCaseMediatorLifecycleController.getUseCaseMediator());
+        verify(mMockCamera, times(1)).detachUseCases(any());
     }
 }
