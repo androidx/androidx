@@ -29,9 +29,9 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
-import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
+import androidx.ui.text.annotatedString
 import androidx.ui.text.withStyle
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
@@ -119,7 +119,7 @@ private fun AddTextElement() {
     Row {
         Column(Modifier.weight(1f)) {
             Text(
-                text = AnnotatedString {
+                text = annotatedString {
                     append("To begin, follow the")
                     withStyle(link) {
                         append(" Jetpack Compose setup instructions ")
@@ -140,7 +140,7 @@ private fun AddTextElement() {
         backgroundColor = rectColor
     )
     Text(
-        text = AnnotatedString {
+        text = annotatedString {
             withStyle(commonStyle.toSpanStyle()) {
                 append(
                     "The setContent block defines the activity's layout. Instead of " +
@@ -168,7 +168,7 @@ private fun MultiParagraph() {
         style = commonStyle.merge(header2)
     )
     Text(
-        text = AnnotatedString {
+        text = annotatedString {
             withStyle(commonStyle.toSpanStyle()) {
                 withStyle(commonStyle.toParagraphStyle()) {
                     append(

@@ -25,17 +25,17 @@ import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.text.AnnotatedString
 import androidx.ui.text.InlineTextContent
 import androidx.ui.text.Placeholder
 import androidx.ui.text.PlaceholderVerticalAlign
+import androidx.ui.text.annotatedString
 import androidx.ui.text.appendInlineContent
 import androidx.ui.unit.em
 
 @Sampled
 @Composable
 fun InlineTextContentSample() {
-    val text = AnnotatedString {
+    val text = annotatedString {
         append("Hello")
         appendInlineContent("inlineContent", "[myBox]")
     }

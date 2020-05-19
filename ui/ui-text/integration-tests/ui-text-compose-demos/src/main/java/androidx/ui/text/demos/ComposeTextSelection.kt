@@ -28,10 +28,10 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxWidth
-import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
+import androidx.ui.text.annotatedString
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 
@@ -64,7 +64,7 @@ fun TextDemoSelection() {
                 fontWeight = FontWeight.W200,
                 fontStyle = FontStyle.Italic
             ),
-            text = AnnotatedString {
+            text = annotatedString {
                 append(text = "$displayText   ")
                 append(text = "$displayTextArabic   ")
                 append(text = "$displayTextChinese   ")
