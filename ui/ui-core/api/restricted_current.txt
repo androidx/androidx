@@ -172,6 +172,11 @@ package androidx.ui.core {
     method public static int merge-CBRbNzc(androidx.ui.core.AlignmentLine, int position1, int position2);
   }
 
+  public final class AndroidComposeViewKt {
+    method public static androidx.ui.core.AndroidOwner createOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null);
+    method public static androidx.ui.core.LayoutDirection getLocaleLayoutDirection(android.content.res.Configuration);
+  }
+
   public interface AndroidOwner extends androidx.ui.core.Owner {
     method public void addAndroidView(android.view.View view, androidx.ui.core.LayoutNode layoutNode);
     method public android.view.View getView();
@@ -183,11 +188,6 @@ package androidx.ui.core {
     method public kotlin.jvm.functions.Function1<androidx.ui.core.AndroidOwner,kotlin.Unit>? getOnAndroidOwnerCreatedCallback();
     method public void setOnAndroidOwnerCreatedCallback(kotlin.jvm.functions.Function1<? super androidx.ui.core.AndroidOwner,kotlin.Unit>? p);
     property public final kotlin.jvm.functions.Function1<androidx.ui.core.AndroidOwner,kotlin.Unit>? onAndroidOwnerCreatedCallback;
-  }
-
-  public final class AndroidOwnerKt {
-    method public static androidx.ui.core.AndroidOwner createOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null);
-    method public static androidx.ui.core.LayoutDirection getLocaleLayoutDirection(android.content.res.Configuration);
   }
 
   public final class ClipKt {

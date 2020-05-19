@@ -172,16 +172,16 @@ package androidx.ui.core {
     method public static int merge-CBRbNzc(androidx.ui.core.AlignmentLine, int position1, int position2);
   }
 
+  public final class AndroidComposeViewKt {
+    method public static androidx.ui.core.AndroidOwner createOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null);
+    method public static androidx.ui.core.LayoutDirection getLocaleLayoutDirection(android.content.res.Configuration);
+  }
+
   public interface AndroidOwner extends androidx.ui.core.Owner {
     method public void addAndroidView(android.view.View view, androidx.ui.core.LayoutNode layoutNode);
     method public android.view.View getView();
     method public void removeAndroidView(android.view.View view);
     property public abstract android.view.View view;
-  }
-
-  public final class AndroidOwnerKt {
-    method public static androidx.ui.core.AndroidOwner createOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null);
-    method public static androidx.ui.core.LayoutDirection getLocaleLayoutDirection(android.content.res.Configuration);
   }
 
   public final class ClipKt {
