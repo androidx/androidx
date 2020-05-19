@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 import static androidx.build.dependencies.DependenciesKt.*
@@ -68,6 +69,7 @@ androidx {
     name = "Jetpack Camera Camera Pipe Integration Library"
     publish = Publish.NONE
     mavenGroup = LibraryGroups.CAMERA
+    mavenVersion = LibraryVersions.CAMERA_PIPE
     inceptionYear = "2020"
     description = "A CameraPipe implementation of CameraX, a library providing a consistent and " +
             "reliable camera foundation that enables great camera driven experiences across all " +
