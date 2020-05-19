@@ -18,13 +18,17 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Text
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.offset
+import androidx.ui.layout.offsetPx
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.dp
+import androidx.ui.unit.px
 
 @Sampled
 @Composable
@@ -35,5 +39,18 @@ fun LayoutOffsetModifier() {
         Modifier.fillMaxSize()
             .wrapContentSize(Alignment.Center)
             .offset(10.dp, 20.dp)
+    )
+}
+
+@Sampled
+@Composable
+fun LayoutOffsetPxModifier() {
+    // This text will be offset in steps of 10.dp from the top left of the available space.
+    val offset = state { 0.px }
+    Text(
+        "Layout offset modifier sample",
+        Modifier
+            .tapGestureFilter { offset.value += 10.px }
+            .offsetPx(offset, offset)
     )
 }
