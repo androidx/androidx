@@ -19,6 +19,7 @@ import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
+import androidx.ui.core.Modifier
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
@@ -65,11 +66,12 @@ class DialogUiTest {
                 Dialog(onCloseRequest = {
                     showDialog.value = false
                 }) {
-                    Clickable(onClick = {
-                        text.value = textAfterClick
-                    }) {
-                        Text(text = text.value)
-                    }
+                    Text(
+                        text = text.value,
+                        modifier = Modifier.clickable {
+                            text.value = textAfterClick
+                        }
+                    )
                 }
             }
         }

@@ -26,7 +26,7 @@ import androidx.ui.animation.RectPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.clickable
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
@@ -44,26 +44,24 @@ fun MultiDimensionalAnimationDemo() {
             AnimState.PutAway -> AnimState.Collapsed
         }
     }
-    Clickable(onClick) {
-        val width = state(areEquivalent = StructurallyEqual) { 0f }
-        val height = state(areEquivalent = StructurallyEqual) { 0f }
-        Transition(
-            definition = remember(width.value, height.value) {
-                createTransDef(width.value, height.value)
-            },
-            toState = currentState.value
-        ) { state ->
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                width.value = size.width
-                height.value = size.height
+    val width = state(areEquivalent = StructurallyEqual) { 0f }
+    val height = state(areEquivalent = StructurallyEqual) { 0f }
+    Transition(
+        definition = remember(width.value, height.value) {
+            createTransDef(width.value, height.value)
+        },
+        toState = currentState.value
+    ) { state ->
+        Canvas(modifier = Modifier.fillMaxSize().clickable(onClick = onClick, indication = null)) {
+            width.value = size.width
+            height.value = size.height
 
-                val bounds = state[bounds]
-                drawRect(
-                    state[background],
-                    topLeft = Offset(bounds.left, bounds.top),
-                    size = Size(bounds.width, bounds.height)
-                )
-            }
+            val bounds = state[bounds]
+            drawRect(
+                state[background],
+                topLeft = Offset(bounds.left, bounds.top),
+                size = Size(bounds.width, bounds.height)
+            )
         }
     }
 }

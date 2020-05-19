@@ -19,10 +19,11 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.clickable
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.layout.preferredSize
+import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.material.ripple.ripple
 import androidx.ui.unit.dp
 
@@ -51,13 +52,16 @@ fun IconButton(
     modifier: Modifier = Modifier,
     icon: @Composable () -> Unit
 ) {
-    Clickable(onClick, Modifier.ripple(bounded = false, radius = RippleRadius)) {
-        Box(
-            modifier = modifier + IconButtonSizeModifier,
-            gravity = ContentGravity.Center,
-            children = icon
-        )
-    }
+    Box(
+        modifier = modifier
+            .clickable(
+                onClick = onClick,
+                indication = RippleIndication(bounded = false, radius = RippleRadius)
+            )
+            .plus(IconButtonSizeModifier),
+        gravity = ContentGravity.Center,
+        children = icon
+    )
 }
 
 /**

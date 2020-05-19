@@ -19,14 +19,11 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.indication
+import androidx.ui.foundation.clickable
 import androidx.ui.foundation.shape.corner.CornerSize
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
@@ -79,22 +76,14 @@ fun FloatingActionButton(
             contentColor = contentColor,
             elevation = elevation
         ) {
-            val interactionState = remember { InteractionState() }
-            Clickable(
-                onClick,
-                interactionState = interactionState,
-                modifier = Modifier.indication(interactionState)
-            ) {
-                ProvideTextStyle(MaterialTheme.typography.button) {
-                    Box(
-                        modifier = Modifier.defaultMinSizeConstraints(
-                            minWidth = FabSize,
-                            minHeight = FabSize
-                        ),
-                        gravity = ContentGravity.Center,
-                        children = icon
-                    )
-                }
+            ProvideTextStyle(MaterialTheme.typography.button) {
+                Box(
+                    modifier = Modifier
+                        .defaultMinSizeConstraints(minWidth = FabSize, minHeight = FabSize)
+                        .clickable(onClick = onClick),
+                    gravity = ContentGravity.Center,
+                    children = icon
+                )
             }
         }
     }

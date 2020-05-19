@@ -84,14 +84,13 @@ interface IndicationInstance {
  *
  * @param interactionState state for indication to indicate against. This state is updates by
  * modifier such as [Clickable].
- * @param indication indication to be drawn. If `null`, default from the [IndicationAmbient] will
- * be generated and used.
+ * @param indication indication to be drawn. If `null`, there will be no indication shown
  */
 fun Modifier.indication(
     interactionState: InteractionState,
     indication: Indication? = null
 ) = composed {
-    val resolvedIndication = indication ?: IndicationAmbient.current
+    val resolvedIndication = indication ?: NoIndication
     remember(interactionState, resolvedIndication) {
         IndicationModifier(interactionState, resolvedIndication.createInstance())
     }
@@ -103,6 +102,16 @@ fun Modifier.indication(
  * By default there will be [DefaultDebugIndication] created.
  */
 val IndicationAmbient = staticAmbientOf<Indication> { DefaultDebugIndication }
+
+private object NoIndication : Indication {
+    private object NoIndicationInstance : IndicationInstance {
+        override fun ContentDrawScope.drawIndication(interactionState: InteractionState) {
+            drawContent()
+        }
+    }
+
+    override fun createInstance(): IndicationInstance = NoIndicationInstance
+}
 
 /**
  * Simple default [Indication] that show visual effect when tap occurs.

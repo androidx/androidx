@@ -28,8 +28,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.clickable
 import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
@@ -451,10 +451,9 @@ class RippleTest {
         color: Color = Color.Unset,
         enabled: Boolean = true
     ) {
-        Clickable(
-            onClick = {},
-            modifier = Modifier.ripple(bounded = false, color = color, enabled = enabled)
-        ) {
+        Box(Modifier
+            .ripple(bounded = false, color = color, enabled = enabled)
+            .clickable(indication = null) {}) {
             Box(Modifier.preferredSize(size))
         }
     }

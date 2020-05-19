@@ -26,13 +26,13 @@ import androidx.ui.unit.PxPosition
 /**
  * InteractionState represents a [Set] of [Interaction]s present on a given component. This
  * allows you to build higher level components comprised of lower level interactions such as
- * [Clickable] and [androidx.ui.foundation.gestures.draggable], and react to [Interaction]
+ * [clickable] and [androidx.ui.foundation.gestures.draggable], and react to [Interaction]
  * changes driven by these components in one place. For [Interaction]s with an associated
  * position, such as [Interaction.Pressed], you can retrieve this position by using
  * [interactionPositionFor].
  *
  * Creating an [InteractionState] and passing it to these lower level interactions will cause a
- * recomposition when there are changes to the state of [Interaction], such as when a [Clickable]
+ * recomposition when there are changes to the state of [Interaction], such as when a [clickable]
  * becomes [Interaction.Pressed].
  *
  * @sample androidx.ui.foundation.samples.InteractionStateSample

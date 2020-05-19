@@ -172,7 +172,7 @@ private class RippleIndicationInstance internal constructor(
                 }
             }
         effects.add(effect)
-        currentPressPosition = position
+        currentPressPosition = pressPosition
         currentEffect = effect
     }
 
