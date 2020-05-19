@@ -320,4 +320,18 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
             }
         }
     }
+
+    @Test
+    fun translucentColor_emphasisNotApplied() {
+        composeTestRule.setContent {
+            MaterialTheme(colors) {
+                val contentColor = Color(0.5f, 0.5f, 0.5f, 0.5f)
+                Surface(contentColor = contentColor) {
+                    ProvideEmphasis(EmphasisAmbient.current.high) {
+                        assertThat(contentColor()).isEqualTo(contentColor)
+                    }
+                }
+            }
+        }
+    }
 }

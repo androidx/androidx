@@ -32,13 +32,16 @@ import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.currentTextStyle
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
+import androidx.ui.graphics.compositeOver
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.Column
+import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.assertShape
@@ -55,6 +58,7 @@ import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
+import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
 import com.google.common.truth.Truth.assertThat
@@ -67,6 +71,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -660,6 +666,58 @@ class FilledTextFieldTest {
                 shape = RectangleShape,
                 // avoid elevation artifacts
                 shapeOverlapPixelCount = with(testRule.density) { 3.dp.toPx().value }
+            )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun test_alphaNotSet_toBackgroundColorAndTransparentColors() {
+        val latch = CountDownLatch(1)
+
+        testRule.setMaterialContent {
+            TestTag("textField") {
+                Stack(Modifier.drawBackground(Color.White)) {
+                    FilledTextField(
+                        value = "",
+                        onValueChange = {},
+                        label = {},
+                        shape = RectangleShape,
+                        backgroundColor = Color.Blue,
+                        activeColor = Color.Transparent,
+                        inactiveColor = Color.Transparent,
+                        onFocusChange = { focused ->
+                            if (focused) latch.countDown()
+                        }
+                    )
+                }
+            }
+        }
+
+        val expectedColor = Color.Blue.copy(alpha = 0.12f).compositeOver(Color.White)
+
+        findByTag("textField")
+            .captureToBitmap()
+            .assertShape(
+                density = testRule.density,
+                backgroundColor = Color.White,
+                shapeColor = expectedColor,
+                shape = RectangleShape,
+                // avoid elevation artifacts
+                shapeOverlapPixelCount = with(testRule.density) { 3.dp.toPx() }
+            )
+
+        findByTag("textField").doClick()
+        assert(latch.await(1, TimeUnit.SECONDS))
+
+        findByTag("textField")
+            .captureToBitmap()
+            .assertShape(
+                density = testRule.density,
+                backgroundColor = Color.White,
+                shapeColor = expectedColor,
+                shape = RectangleShape,
+                // avoid elevation artifacts
+                shapeOverlapPixelCount = 3.px
             )
     }
 

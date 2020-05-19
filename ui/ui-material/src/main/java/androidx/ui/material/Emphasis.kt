@@ -123,6 +123,7 @@ private object DefaultEmphasisLevels : EmphasisLevels {
         @FloatRange(from = 0.0, to = 1.0) private val reducedContrastAlpha: Float
     ) : Emphasis {
         override fun applyEmphasis(color: Color): Color {
+            if (color.alpha != 1f) return color
             val alpha = if (lightTheme) {
                 if (color.luminance() > 0.5) highContrastAlpha else reducedContrastAlpha
             } else {
