@@ -32,6 +32,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowScope
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredSize
@@ -54,12 +55,10 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
         MaterialTheme {
             Surface {
                 VerticalScroller {
-                    Column {
-                        repeat(5) { index ->
-                            // key is needed because of b/154920561
-                            key(index) {
-                                SquareRow(index == 0)
-                            }
+                    repeat(5) { index ->
+                        // key is needed because of b/154920561
+                        key(index) {
+                            SquareRow(index == 0)
                         }
                     }
                 }
@@ -74,43 +73,43 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     @Composable
     fun SquareRow(useScrollerPosition: Boolean) {
         val playStoreColor = Color(red = 0x00, green = 0x00, blue = 0x80)
-        val content = @Composable {
-            Row(Modifier.fillMaxWidth()) {
-                repeat(6) {
-                    with(DensityAmbient.current) {
-                        Column(Modifier.fillMaxHeight()) {
-                            val color = remember {
-                                val red = Random.nextInt(256)
-                                val green = Random.nextInt(256)
-                                val blue = Random.nextInt(256)
-                                Color(red = red, green = green, blue = blue)
-                            }
-                            Box(Modifier.preferredSize(350.px.toDp()).drawBackground(color))
+        val content: @Composable RowScope.() -> Unit = {
+            repeat(6) {
+                with(DensityAmbient.current) {
+                    Column(Modifier.fillMaxHeight()) {
+                        val color = remember {
+                            val red = Random.nextInt(256)
+                            val green = Random.nextInt(256)
+                            val blue = Random.nextInt(256)
+                            Color(red = red, green = green, blue = blue)
+                        }
+                        Box(Modifier.preferredSize(350.px.toDp()).drawBackground(color))
+                        Text(
+                            text = "Some title",
+                            color = Color.Black,
+                            fontSize = 60.px.toSp()
+                        )
+                        Row(Modifier.fillMaxWidth()) {
                             Text(
-                                text = "Some title",
-                                color = Color.Black,
-                                fontSize = 60.px.toSp()
+                                "3.5 ★",
+                                fontSize = 40.px.toSp(),
+                                modifier = Modifier.gravity(Alignment.CenterVertically)
                             )
-                            Row(Modifier.fillMaxWidth()) {
-                                Text(
-                                    "3.5 ★",
-                                    fontSize = 40.px.toSp(),
-                                    modifier = Modifier.gravity(Alignment.CenterVertically)
-                                )
-                                Box(Modifier
+                            Box(
+                                Modifier
                                     .gravity(Alignment.CenterVertically)
                                     .preferredSize(40.px.toDp())
-                                    .drawBackground(playStoreColor))
-                            }
+                                    .drawBackground(playStoreColor)
+                            )
                         }
                     }
                 }
             }
         }
         if (useScrollerPosition) {
-            HorizontalScroller(scrollerPosition = scrollerPosition, child = content)
+            HorizontalScroller(scrollerPosition = scrollerPosition, children = content)
         } else {
-            HorizontalScroller(child = content)
+            HorizontalScroller(children = content)
         }
     }
 }

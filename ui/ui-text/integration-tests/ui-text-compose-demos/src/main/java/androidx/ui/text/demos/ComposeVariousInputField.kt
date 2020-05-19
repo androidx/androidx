@@ -36,7 +36,6 @@ import androidx.ui.input.OffsetMap
 import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
-import androidx.ui.layout.Column
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
 import androidx.ui.foundation.TextFieldValue
@@ -182,75 +181,73 @@ private val emailFilter = object : VisualTransformation {
 @Composable
 fun VariousInputFieldDemo() {
     VerticalScroller {
-        Column {
-            TagLine(tag = "Capitalization")
-            VariousEditLine(
-                keyboardType = KeyboardType.Ascii,
-                onValueChange = { old, new ->
-                    if (new.any { !it.isLetterOrDigit() }) old else new
-                },
-                visualTransformation = CapitalizeTransformation()
+        TagLine(tag = "Capitalization")
+        VariousEditLine(
+            keyboardType = KeyboardType.Ascii,
+            onValueChange = { old, new ->
+                if (new.any { !it.isLetterOrDigit() }) old else new
+            },
+            visualTransformation = CapitalizeTransformation()
+        )
+
+        TagLine(tag = "Capitalization (Turkish)")
+        VariousEditLine(
+            keyboardType = KeyboardType.Ascii,
+            onValueChange = { old, new ->
+                if (new.any { !it.isLetterOrDigit() }) old else new
+            },
+            visualTransformation = CapitalizeTransformation(LocaleList("tr"))
+        )
+
+        TagLine(tag = "Password")
+        VariousEditLine(
+            keyboardType = KeyboardType.Password,
+            onValueChange = { old, new ->
+                if (new.any { !it.isLetterOrDigit() }) old else new
+            },
+            visualTransformation = PasswordVisualTransformation()
+        )
+
+        TagLine(tag = "Phone Number")
+        VariousEditLine(
+            keyboardType = KeyboardType.Number,
+            onValueChange = { old, new ->
+                if (new.length > 10 || new.any { !it.isDigit() }) old else new
+            },
+            visualTransformation = phoneNumberFilter
+        )
+
+        TagLine(tag = "Credit Card")
+        VariousEditLine(
+            keyboardType = KeyboardType.Number,
+            onValueChange = { old, new ->
+                if (new.length > 16 || new.any { !it.isDigit() }) old else new
+            },
+            visualTransformation = creditCardFilter
+        )
+
+        TagLine(tag = "Email Suggestion")
+        VariousEditLine(
+            keyboardType = KeyboardType.Email,
+            visualTransformation = emailFilter
+        )
+
+        TagLine(tag = "Editfield with Hint Text")
+        HintEditText {
+            Text(
+                text = "Hint Text",
+                color = Color(0xFF888888),
+                style = TextStyle(fontSize = fontSize8)
             )
+        }
 
-            TagLine(tag = "Capitalization (Turkish)")
-            VariousEditLine(
-                keyboardType = KeyboardType.Ascii,
-                onValueChange = { old, new ->
-                    if (new.any { !it.isLetterOrDigit() }) old else new
-                },
-                visualTransformation = CapitalizeTransformation(LocaleList("tr"))
-            )
-
-            TagLine(tag = "Password")
-            VariousEditLine(
-                keyboardType = KeyboardType.Password,
-                onValueChange = { old, new ->
-                    if (new.any { !it.isLetterOrDigit() }) old else new
-                },
-                visualTransformation = PasswordVisualTransformation()
-            )
-
-            TagLine(tag = "Phone Number")
-            VariousEditLine(
-                keyboardType = KeyboardType.Number,
-                onValueChange = { old, new ->
-                    if (new.length > 10 || new.any { !it.isDigit() }) old else new
-                },
-                visualTransformation = phoneNumberFilter
-            )
-
-            TagLine(tag = "Credit Card")
-            VariousEditLine(
-                keyboardType = KeyboardType.Number,
-                onValueChange = { old, new ->
-                    if (new.length > 16 || new.any { !it.isDigit() }) old else new
-                },
-                visualTransformation = creditCardFilter
-            )
-
-            TagLine(tag = "Email Suggestion")
-            VariousEditLine(
-                keyboardType = KeyboardType.Email,
-                visualTransformation = emailFilter
-            )
-
-            TagLine(tag = "Editfield with Hint Text")
-            HintEditText {
-                Text(
-                    text = "Hint Text",
-                    color = Color(0xFF888888),
-                    style = TextStyle(fontSize = fontSize8)
-                )
-            }
-
-            TagLine(tag = "Custom Cursor TextField")
-            CustomCursorTextField {
-                // Force 4.ipx with red color cursor
-                Layout(
-                    children = emptyContent(),
-                    modifier = Modifier.drawBackground(Color.Red)
-                ) { _, constraints, _ -> layout(4.ipx, constraints.maxHeight) {} }
-            }
+        TagLine(tag = "Custom Cursor TextField")
+        CustomCursorTextField {
+            // Force 4.ipx with red color cursor
+            Layout(
+                children = emptyContent(),
+                modifier = Modifier.drawBackground(Color.Red)
+            ) { _, constraints, _ -> layout(4.ipx, constraints.maxHeight) {} }
         }
     }
 }
@@ -338,10 +335,11 @@ private fun CustomCursorTextField(cursor: @Composable () -> Unit) {
                 val cursorRect = layoutResult.value?.getCursorRect(state.value.selection.start)
                     ?: Rect(
                         0f, 0f,
-                        cursorPlacable.width.value.toFloat(), cursorPlacable.height.value.toFloat())
+                        cursorPlacable.width.value.toFloat(), cursorPlacable.height.value.toFloat()
+                    )
                 // Place the custom cursor aligned with center of the original cursor.
                 val cursorX = (cursorRect.left + cursorRect.right) / 2 -
-                            (cursorPlacable.width.value / 2)
+                        (cursorPlacable.width.value / 2)
                 cursorPlacable.place(cursorX.px, cursorRect.top.px)
             }
         }

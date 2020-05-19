@@ -38,7 +38,6 @@ import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxHeight
@@ -96,9 +95,7 @@ class IsDisplayedTest {
     fun componentInScrollable_isDisplayed() {
         composeTestRule.setContent {
             VerticalScroller(modifier = Modifier.size(100.dp)) {
-                Column {
-                    repeat(10) { Item(it, height = 30.dp) }
-                }
+                repeat(10) { Item(it, height = 30.dp) }
             }
         }
 
@@ -110,9 +107,7 @@ class IsDisplayedTest {
     fun componentInScrollable_isNotDisplayed() {
         composeTestRule.setContent {
             VerticalScroller(modifier = Modifier.size(100.dp)) {
-                Column {
-                    repeat(10) { Item(it, height = 30.dp) }
-                }
+                repeat(10) { Item(it, height = 30.dp) }
             }
         }
 

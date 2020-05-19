@@ -19,13 +19,11 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.compose.key
 import androidx.compose.state
-import androidx.ui.core.Modifier
+
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxHeight
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.SoftwareKeyboardController
@@ -55,26 +53,24 @@ private val IME_ACTIONS = listOf(
 @Composable
 fun InputFieldDemo() {
     VerticalScroller {
-        Column(Modifier.fillMaxHeight()) {
-            TagLine(tag = "simple editing")
-            EditLine()
-            TagLine(tag = "simple editing2")
-            EditLine()
+        TagLine(tag = "simple editing")
+        EditLine()
+        TagLine(tag = "simple editing2")
+        EditLine()
 
-            for ((type, name) in KEYBOARD_TYPES) {
-                key(name) {
-                    // key is needed because of b/154920561
-                    TagLine(tag = "Keyboard Type: $name")
-                    EditLine(keyboardType = type)
-                }
+        for ((type, name) in KEYBOARD_TYPES) {
+            key(name) {
+                // key is needed because of b/154920561
+                TagLine(tag = "Keyboard Type: $name")
+                EditLine(keyboardType = type)
             }
+        }
 
-            for ((action, name) in IME_ACTIONS) {
-                key(name) {
-                    // key is needed because of b/154920561
-                    TagLine(tag = "Ime Action: $name")
-                    EditLine(imeAction = action)
-                }
+        for ((action, name) in IME_ACTIONS) {
+            key(name) {
+                // key is needed because of b/154920561
+                TagLine(tag = "Ime Action: $name")
+                EditLine(imeAction = action)
             }
         }
     }
