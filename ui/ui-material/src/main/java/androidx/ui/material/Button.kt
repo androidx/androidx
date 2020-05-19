@@ -19,16 +19,13 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.indication
+import androidx.ui.foundation.clickable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
@@ -97,26 +94,19 @@ fun Button(
             elevation = if (enabled) elevation else disabledElevation,
             modifier = modifier
         ) {
-            val interactionState = remember { InteractionState() }
-            Clickable(
-                onClick = onClick,
-                interactionState = interactionState,
-                enabled = enabled,
-                modifier = Modifier.indication(interactionState)
+            Box(
+                ButtonConstraints
+                    .clickable(onClick = onClick, enabled = enabled),
+                paddingStart = padding.start,
+                paddingTop = padding.top,
+                paddingEnd = padding.end,
+                paddingBottom = padding.bottom,
+                gravity = ContentGravity.Center
             ) {
-                Box(
-                    ButtonConstraints,
-                    paddingStart = padding.start,
-                    paddingTop = padding.top,
-                    paddingEnd = padding.end,
-                    paddingBottom = padding.bottom,
-                    gravity = ContentGravity.Center
-                ) {
-                    ProvideTextStyle(
-                        value = MaterialTheme.typography.button,
-                        children = text
-                    )
-                }
+                ProvideTextStyle(
+                    value = MaterialTheme.typography.button,
+                    children = text
+                )
             }
         }
     }

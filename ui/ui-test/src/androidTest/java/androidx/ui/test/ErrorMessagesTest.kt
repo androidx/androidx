@@ -19,10 +19,11 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.clickable
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
@@ -334,7 +335,7 @@ class ErrorMessagesTest {
         // merge all descendants, or we'll get multiple nodes
         Semantics(container = true, mergeAllDescendants = true) {
             Surface {
-                Clickable(onClick = onClick ?: {}, enabled = onClick != null) {
+                Box(Modifier.clickable(onClick = onClick ?: {}, enabled = onClick != null)) {
                     Box(children = children)
                 }
             }

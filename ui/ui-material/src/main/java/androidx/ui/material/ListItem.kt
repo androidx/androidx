@@ -18,23 +18,23 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.text.FirstBaseline
-import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.clickable
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Row
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeightIn
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidthIn
-import androidx.ui.material.ripple.ripple
+import androidx.ui.material.ripple.RippleIndication
+import androidx.ui.text.FirstBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Dp
@@ -172,12 +172,10 @@ fun ListItem(
     }
 
     if (onClick != null) {
-        val rippleColor = MaterialTheme.colors.onSurface.copy(alpha = RippleOpacity)
-        Clickable(
-            onClick = onClick,
-            modifier = Modifier.ripple(color = rippleColor),
-            children = item
+        val indication = RippleIndication(
+            color = MaterialTheme.colors.onSurface.copy(alpha = RippleOpacity)
         )
+        Box(Modifier.clickable(onClick = onClick, indication = indication), children = item)
     } else {
         item()
     }

@@ -29,7 +29,7 @@ import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.clickable
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.DpConstraints
@@ -290,16 +290,14 @@ private fun Scrim(
     fraction: () -> Float
 ) {
     // TODO: use enabled = false here when it will be available
-    val scrimContent = @Composable {
-        val color = MaterialTheme.colors.onSurface
-        Canvas(Modifier.fillMaxSize()) {
-            drawRect(color, alpha = fraction() * ScrimDefaultOpacity)
-        }
-    }
-    if (state == DrawerState.Opened) {
-        Clickable(onClick = { onStateChange(DrawerState.Closed) }, children = scrimContent)
-    } else {
-        scrimContent()
+    val enabled = state == DrawerState.Opened
+    val color = MaterialTheme.colors.onSurface
+    Canvas(
+        Modifier
+            .fillMaxSize()
+            .clickable(enabled = enabled, indication = null) { onStateChange(DrawerState.Closed) }
+    ) {
+        drawRect(color, alpha = fraction() * ScrimDefaultOpacity)
     }
 }
 

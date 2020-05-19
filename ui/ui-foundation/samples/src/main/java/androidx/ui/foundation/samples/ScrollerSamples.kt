@@ -19,18 +19,15 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.MutableState
-import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.HorizontalScroller
-import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.foundation.indication
+import androidx.ui.foundation.clickable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
@@ -171,25 +168,16 @@ private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<B
 
 @Composable
 private fun SquareButton(text: String, color: Color = Color.LightGray, onClick: () -> Unit) {
-    Clickable(onClick = onClick) {
-        Box(
-            Modifier.padding(5.dp).preferredSize(120.dp, 60.dp),
-            backgroundColor = color,
-            gravity = ContentGravity.Center
-        ) {
-            Text(text, fontSize = 20.sp)
-        }
+    Box(
+        Modifier.padding(5.dp).preferredSize(120.dp, 60.dp).clickable(onClick = onClick),
+        backgroundColor = color,
+        gravity = ContentGravity.Center
+    ) {
+        Text(text, fontSize = 20.sp)
     }
 }
 
 @Composable
 private fun Text(text: String, style: TextStyle) {
-    val interactionState = remember { InteractionState() }
-    Clickable(
-        onClick = {},
-        interactionState = interactionState,
-        modifier = Modifier.indication(interactionState)
-    ) {
-        Text(text, style = style)
-    }
+    Text(text, style = style, modifier = Modifier.clickable { })
 }

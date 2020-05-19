@@ -25,7 +25,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.clickable
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
@@ -204,14 +204,16 @@ class DrawerTest {
             TestTag("Drawer") {
                 ModalDrawerLayout(drawerState.value, { drawerState.value = it },
                     drawerContent = {
-                        Clickable(onClick = { drawerClicks += 1 }) {
-                            Box(Modifier.fillMaxSize(), children = emptyContent())
-                        }
+                        Box(
+                            Modifier.fillMaxSize().clickable { drawerClicks += 1 },
+                            children = emptyContent()
+                        )
                     },
                     bodyContent = {
-                        Clickable(onClick = { bodyClicks += 1 }) {
-                            Box(Modifier.fillMaxSize(), children = emptyContent())
-                        }
+                        Box(
+                            Modifier.fillMaxSize().clickable { bodyClicks += 1 },
+                            children = emptyContent()
+                        )
                     })
             }
         }
@@ -302,14 +304,16 @@ class DrawerTest {
             TestTag("Drawer") {
                 BottomDrawerLayout(drawerState.value, { drawerState.value = it },
                     drawerContent = {
-                        Clickable(onClick = { drawerClicks += 1 }) {
-                            Box(Modifier.fillMaxSize(), children = emptyContent())
-                        }
+                        Box(
+                            Modifier.fillMaxSize().clickable { drawerClicks += 1 },
+                            children = emptyContent()
+                        )
                     },
                     bodyContent = {
-                        Clickable(onClick = { bodyClicks += 1 }) {
-                            Box(Modifier.fillMaxSize(), children = emptyContent())
-                        }
+                        Box(
+                            Modifier.fillMaxSize().clickable { bodyClicks += 1 },
+                            children = emptyContent()
+                        )
                     })
             }
         }

@@ -71,7 +71,6 @@ class IndicationTest {
 
     @Test
     fun indication_click_receivesStateUpdates() {
-        val state = InteractionState()
         // indicaiton should be called 3 times: 0 indication, press, and after click 0 again
         val countDownLatch = CountDownLatch(3)
         val indication = makeIndication {
@@ -80,13 +79,7 @@ class IndicationTest {
         }
         composeTestRule.setContent {
             TestTag(testTag) {
-                Clickable(
-                    onClick = {},
-                    interactionState = state,
-                    modifier = Modifier.indication(state, indication)
-                ) {
-                    Box(Modifier.preferredSize(100.dp))
-                }
+                Box(Modifier.preferredSize(100.dp).clickable(indication = indication) {})
             }
         }
         assertThat(countDownLatch.count).isEqualTo(2)
@@ -118,15 +111,9 @@ class IndicationTest {
         )
         composeTestRule.setContent {
             TestTag(testTag) {
-                val indicaiton =
+                val switchableIndication =
                     if (switchState.value) Modifier.indication(state, indication) else Modifier
-                Clickable(
-                    onClick = {},
-                    interactionState = state,
-                    modifier = indicaiton
-                ) {
-                    Box(Modifier.preferredSize(100.dp))
-                }
+                Box(Modifier.preferredSize(100.dp).plus(switchableIndication))
             }
         }
         assertThat(countDownLatch.count).isEqualTo(1)
@@ -141,7 +128,6 @@ class IndicationTest {
     @Test
     @Ignore("b/155466122: multitouch is not supported yet")
     fun indication_multiplyPress_firstWins() {
-        val state = InteractionState()
         var lastPosition: PxPosition? = null
         val indication = makeIndication {
             it.value // value read
@@ -149,13 +135,7 @@ class IndicationTest {
         }
         composeTestRule.setContent {
             TestTag(testTag) {
-                Clickable(
-                    onClick = {},
-                    interactionState = state,
-                    modifier = Modifier.indication(state, indication)
-                ) {
-                    Box(Modifier.preferredSize(100.dp))
-                }
+                Box(Modifier.preferredSize(100.dp).clickable(indication = indication) { })
             }
         }
         assertThat(lastPosition).isNull()
