@@ -36,11 +36,11 @@ import androidx.ui.unit.IntPx
  * proportionally to their weight based on the remaining available space.
  *
  * When none of its children have weights, a [Column] will be as small as possible to fit its
- * children one on top of the other. In order to change the size of the [Column], use the
- * [LayoutHeight] modifiers; e.g. to make it fill the available height [LayoutWidth.Fill] can be
- * used. If at least one child of a [Column] has a [weight][ColumnScope.weight],
- * the [Column] will fill the available space, so there is no need for [LayoutWidth.Fill]. However,
- * if [Column]'s size should be limited, the [LayoutHeight] or [LayoutHeight.Max] layout
+ * children one on top of the other. In order to change the height of the [Column], use the
+ * [Modifier.height] modifiers; e.g. to make it fill the available height [Modifier.fillMaxHeight]
+ * can be used. If at least one child of a [Column] has a [weight][ColumnScope.weight],
+ * the [Column] will fill the available height, so there is no need for [Modifier.fillMaxHeight].
+ * However, if [Column]'s size should be limited, the [Modifier.height] or [Modifier.size] layout
  * modifiers should be applied.
  *
  * When the size of the [Column] is larger than the sum of its children sizes, a
@@ -75,16 +75,6 @@ fun Column(
     )
 }
 
-@Deprecated(
-    "ColumnAlign is deprecated. Please use Alignment instead.",
-    ReplaceWith("Alignment", "androidx.ui.core.Alignment")
-)
-enum class ColumnAlign {
-    Start,
-    Center,
-    End
-}
-
 /**
  * Scope for the children of [Column].
  */
@@ -97,17 +87,6 @@ object ColumnScope {
      * @sample androidx.ui.layout.samples.SimpleGravityInColumn
      */
     fun Modifier.gravity(align: Alignment.Horizontal) = this + GravityModifier(align)
-
-    @Deprecated(
-        "gravity(ColumnAlign) is deprecated. Please use gravity instead.",
-        ReplaceWith("gravity(align)")
-    )
-    @Suppress("Deprecation")
-    fun Modifier.gravity(align: ColumnAlign) = this + when (align) {
-        ColumnAlign.Start -> GravityModifier(Alignment.Start)
-        ColumnAlign.Center -> GravityModifier(Alignment.CenterHorizontally)
-        ColumnAlign.End -> GravityModifier(Alignment.End)
-    }
 
     /**
      * Position the element horizontally such that its [alignmentLine] aligns with sibling elements
