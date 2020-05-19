@@ -50,7 +50,6 @@ import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.LayoutTag
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -2323,14 +2322,13 @@ class AndroidLayoutDrawTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun passThroughLayout_passesThroughParentData() {
         val latch = CountDownLatch(1)
         activityTestRule.runOnUiThread {
             activity.setContent {
                 Layout({
                     PassThroughLayout {
-                        FixedSize(50.ipx, LayoutTag("1"))
+                        FixedSize(50.ipx, Modifier.tag("1"))
                     }
                 }) { measurables, constraints, _ ->
                     assertEquals("1", measurables[0].tag)

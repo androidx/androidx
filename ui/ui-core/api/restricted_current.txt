@@ -546,13 +546,6 @@ package androidx.ui.core {
     method public static androidx.ui.core.LayoutNode? findClosestParentNode(androidx.ui.core.LayoutNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,java.lang.Boolean> selector);
   }
 
-  public final class LayoutTag implements androidx.ui.core.LayoutTagParentData androidx.ui.core.ParentDataModifier {
-    ctor @Deprecated public LayoutTag(Object tag);
-    method public Object component1();
-    method public androidx.ui.core.LayoutTag copy(Object tag);
-    method public Object getTag();
-  }
-
   public final class LayoutTagKt {
     method public static Object? getTag(androidx.ui.core.Measurable);
     method public static androidx.ui.core.Modifier tag(androidx.ui.core.Modifier, Object tag);

@@ -19,7 +19,8 @@ package androidx.ui.core
 import androidx.ui.unit.Density
 
 /**
- * A [Modifier.Element] that changes the way a UI component is measured and laid out.
+ * A [Modifier.Element] that provides additional data to the parent layout which is available
+ * during the measurement.
  */
 interface ParentDataModifier : Modifier.Element {
     /**
