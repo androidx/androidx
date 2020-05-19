@@ -43,6 +43,7 @@
      <public type="attr" name="actionModeShareDrawable"/>
      <public type="attr" name="actionModeSplitBackground"/>
      <public type="attr" name="actionModeStyle"/>
+     <public type="attr" name="actionModeTheme"/>
      <public type="attr" name="actionModeWebSearchDrawable"/>
      <public type="attr" name="actionOverflowButtonStyle"/>
      <public type="attr" name="actionOverflowMenuStyle"/>
