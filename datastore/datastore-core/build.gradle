@@ -27,6 +27,7 @@ plugins {
 dependencies {
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_CORE)
+    api("androidx.annotation:annotation:1.1.0")
 
     testImplementation(JUNIT)
     testImplementation(KOTLIN_COROUTINES_TEST)

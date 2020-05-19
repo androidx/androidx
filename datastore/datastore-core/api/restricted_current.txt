@@ -29,7 +29,7 @@ package androidx.datastore {
   }
 
   public static final class DataStore.Serializer.CorruptionException extends java.io.IOException {
-    ctor public DataStore.Serializer.CorruptionException(String message, Throwable cause);
+    ctor public DataStore.Serializer.CorruptionException(String message, Throwable? cause);
   }
 
   public final class SingleProcessDataStore<T> implements androidx.datastore.DataStore<T> {
