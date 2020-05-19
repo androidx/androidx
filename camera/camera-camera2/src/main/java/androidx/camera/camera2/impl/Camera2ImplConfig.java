@@ -239,6 +239,20 @@ public final class Camera2ImplConfig implements ReadableConfig {
             return this;
         }
 
+        /**
+         * Inserts new capture request option with specific {@link CaptureRequest.Key} setting and
+         * {@link OptionPriority}.
+         */
+        @NonNull
+        public <ValueT> Camera2ImplConfig.Builder setCaptureRequestOptionWithPriority(
+                @NonNull CaptureRequest.Key<ValueT> key, @NonNull ValueT value,
+                @NonNull OptionPriority priority) {
+            Option<Object> opt =
+                    Camera2ImplConfig.createCaptureRequestOption(key);
+            mMutableOptionsBundle.insertOption(opt, priority, value);
+            return this;
+        }
+
         /** Inserts options from other {@link Config} object. */
         @NonNull
         public Camera2ImplConfig.Builder insertAllOptions(@NonNull Config config) {

@@ -172,7 +172,8 @@ public abstract class UseCase {
             @SuppressWarnings("unchecked") // Options/values are being copied directly
                     Option<Object> objectOpt = (Option<Object>) opt;
 
-            defaultMutableConfig.insertOption(objectOpt, userConfig.retrieveOption(objectOpt));
+            defaultMutableConfig.insertOption(objectOpt,
+                    userConfig.getOptionPriority(opt), userConfig.retrieveOption(objectOpt));
         }
 
         return defaultConfigBuilder.getUseCaseConfig();
