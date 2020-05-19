@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.pipe.impl
+package androidx.camera.camera2.pipe
 
-import android.content.Context
-import androidx.camera.camera2.pipe.CameraGraph
-import javax.inject.Inject
-
-@CameraGraphScope
-class CameraGraphImpl @Inject constructor(
-    private val context: Context,
-    private val config: CameraGraph.Config
-) : CameraGraph {
-    override fun start() {
-        Log.debug { "Starting Camera Graph!" }
-        TODO("Not Implemented")
-    }
-
-    override fun stop() {
-        TODO("Not Implemented")
-    }
+/**
+ * This interface indicates that an object or interface wraps a specific Android object or type and
+ * provides a way to retrieve the underlying object directly. Accessing the underlying objects can
+ * be useful for compatibility and testing, but it is extremely risky if the lifetime of the object
+ * is managed by Camera Pipe and the wrapped object is closed, released, or altered.
+ */
+interface UnsafeWrapper<T> {
+    fun unwrap(): T?
 }
