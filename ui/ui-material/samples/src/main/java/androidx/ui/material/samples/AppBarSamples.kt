@@ -21,12 +21,9 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.layout.Spacer
 import androidx.ui.material.BottomAppBar
-import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.IconButton
-import androidx.ui.material.Scaffold
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
@@ -69,34 +66,5 @@ fun SimpleBottomAppBar() {
         IconButton(onClick = { /* doSomething() */ }) {
             Icon(Icons.Filled.Favorite)
         }
-    }
-}
-
-@Sampled
-@Composable
-fun SimpleBottomAppBarCutoutWithScaffold() {
-    val fabShape = CircleShape
-
-    Scaffold(
-        bottomAppBar = { fabConfiguration ->
-            BottomAppBar(fabConfiguration = fabConfiguration, cutoutShape = fabShape) {
-                IconButton(onClick = { /* doSomething() */ }) {
-                    Icon(Icons.Filled.Favorite)
-                }
-                IconButton(onClick = { /* doSomething() */ }) {
-                    Icon(Icons.Filled.Favorite)
-                }
-            }
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text("Click me!") },
-                shape = fabShape,
-                onClick = { /* doSomething() */ }
-            )
-        },
-        floatingActionButtonPosition = Scaffold.FabPosition.EndDocked
-    ) {
-        Text("Your app goes here")
     }
 }

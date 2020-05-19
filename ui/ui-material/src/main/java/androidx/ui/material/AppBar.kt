@@ -16,9 +16,7 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.Immutable
 import androidx.ui.core.DensityAmbient
-import androidx.ui.text.LastBaseline
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
@@ -41,19 +39,19 @@ import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.relativePaddingFrom
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredWidth
-import androidx.ui.material.BottomAppBar.FabConfiguration
+import androidx.ui.layout.relativePaddingFrom
 import androidx.ui.semantics.Semantics
+import androidx.ui.text.LastBaseline
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.dp
+import androidx.ui.unit.height
 import androidx.ui.unit.sp
-import androidx.ui.unit.toPxSize
+import androidx.ui.unit.width
 import kotlin.math.sqrt
 
 /**
@@ -153,56 +151,6 @@ fun TopAppBar(
     )
 }
 
-object BottomAppBar {
-    /**
-     * Configuration for a [FloatingActionButton] in a [BottomAppBar].
-     *
-     * This is state that is usually passed down to BottomAppBar by [Scaffold] or by another
-     * scaffold-like component that is aware of [FloatingActionButton] existence and its size and
-     * position.
-     *
-     * When cutoutShape is provided in BottomAppBar, a cutout / notch will be 'carved' into the
-     * BottomAppBar based on FabConfiguration provided, with some extra space on all sides.
-     *
-     * If you use BottomAppBar with [Scaffold], a typical cutout for
-     * FAB may look like:
-     *
-     * @sample androidx.ui.material.samples.SimpleBottomAppBarCutoutWithScaffold
-     *
-     * @param fabSize the size of the FAB that will be shown on top of BottomAppBar
-     * @param fabTopLeftPosition the top left coordinate of the [FloatingActionButton] on the
-     * screen for BottomAppBar to carve a right cutout if desired
-     * @param fabDockedPosition the docked position of the [FloatingActionButton] in the
-     * [BottomAppBar]
-     */
-    @Immutable
-    data class FabConfiguration(
-        internal val fabSize: IntPxSize,
-        internal val fabTopLeftPosition: PxPosition,
-        internal val fabDockedPosition: FabDockedPosition
-    )
-
-    /**
-     * The possible positions for a [FloatingActionButton] docked to a [BottomAppBar].
-     *
-     * The layout of icons within the [BottomAppBar] will depend on the chosen position of the
-     * [FloatingActionButton].
-     */
-    enum class FabDockedPosition {
-        /**
-         * Positioned in the center of the [BottomAppBar]. A minimum of one and a maximum of two
-         * additional actions can be placed on the right side of the bar, and navigation icon will
-         * be placed on the left side.
-         */
-        Center,
-        /**
-         * Positioned at the end of the [BottomAppBar]. A maximum of four additional
-         * actions will be shown on the left side of the bar and there should be no navigation icon.
-         */
-        End
-    }
-}
-
 /**
  * A BottomAppBar displays actions relating to the current screen and is placed at the bottom of
  * the screen. It can also optionally display a [FloatingActionButton], which is either overlaid
@@ -218,13 +166,10 @@ object BottomAppBar {
  * @param contentColor The preferred content color provided by this BottomAppBar to its children.
  * Defaults to either the matching `onFoo` color for [backgroundColor], or if [backgroundColor] is
  * not a color from the theme, this will keep the same value set above this BottomAppBar.
- * @param fabConfiguration The [FabConfiguration] that controls where the [FloatingActionButton]
- * is placed inside the BottomAppBar. This is used both to determine the cutout position for
- * BottomAppBar (if cutoutShape is non-null) and to choose proper layout for BottomAppBar. If
- * null, BottomAppBar will show no cutout and no-FAB layout of icons.
  * @param cutoutShape the shape of the cutout that will be added to the BottomAppBar - this
- * should typically be the same shape used inside the [FloatingActionButton]. This shape will be
- * drawn with an offset around all sides. If null, where will be no cutout.
+ * should typically be the same shape used inside the [FloatingActionButton], when [BottomAppBar]
+ * and [FloatingActionButton] are being used together in [Scaffold]. This shape will be drawn with
+ * an offset around all sides. If null, where will be no cutout.
  * @param content the content of this BottomAppBar. The default layout here is a [Row],
  * so content inside will be placed horizontally.
  */
@@ -233,19 +178,15 @@ fun BottomAppBar(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
-    fabConfiguration: FabConfiguration? = null,
     cutoutShape: Shape? = null,
     content: @Composable RowScope.() -> Unit
 ) {
-    val shape = if (cutoutShape == null || fabConfiguration == null) {
-        RectangleShape
+    val scaffoldGeometry = ScaffoldGeometryAmbient.current
+    val fabBounds = scaffoldGeometry.fabBounds
+    val shape = if (cutoutShape != null && scaffoldGeometry.isFabDocked && fabBounds != null) {
+        BottomAppBarCutoutShape(cutoutShape, fabBounds)
     } else {
-        val pxSize = fabConfiguration.fabSize.toPxSize()
-        BottomAppBarCutoutShape(
-            cutoutShape,
-            fabConfiguration.fabTopLeftPosition,
-            Size(pxSize.width.value, pxSize.height.value)
-        )
+        RectangleShape
     }
     AppBar(backgroundColor, contentColor, BottomAppBarElevation, shape, modifier) {
         // TODO: b/150609566 clarify emphasis for children
@@ -265,8 +206,7 @@ fun BottomAppBar(
  */
 private data class BottomAppBarCutoutShape(
     val cutoutShape: Shape,
-    val fabPosition: PxPosition,
-    val fabSize: Size
+    val fabBounds: PxBounds
 ) : Shape {
 
     override fun createOutline(size: Size, density: Density): Outline {
@@ -290,11 +230,11 @@ private data class BottomAppBarCutoutShape(
         val cutoutOffset = with(density) { BottomAppBarCutoutOffset.toPx() }
 
         val cutoutSize = Size(
-            width = fabSize.width + (cutoutOffset * 2),
-            height = fabSize.height + (cutoutOffset * 2)
+            width = fabBounds.width.value + (cutoutOffset * 2),
+            height = fabBounds.height.value + (cutoutOffset * 2)
         )
 
-        val cutoutStartX = fabPosition.x.value - cutoutOffset
+        val cutoutStartX = fabBounds.left.value - cutoutOffset
         val cutoutEndX = cutoutStartX + cutoutSize.width
 
         val cutoutRadius = cutoutSize.height / 2f

@@ -17,38 +17,46 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.Stable
+import androidx.compose.StructurallyEqual
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.compose.setValue
+import androidx.compose.staticAmbientOf
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
+import androidx.ui.core.boundsInParent
 import androidx.ui.core.onPositioned
 import androidx.ui.core.zIndex
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.Shape
 import androidx.ui.layout.Column
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
-import androidx.ui.material.BottomAppBar.FabConfiguration
-import androidx.ui.material.BottomAppBar.FabDockedPosition
 import androidx.ui.material.Scaffold.FabPosition
+import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxBounds
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
+import androidx.ui.unit.height
+import androidx.ui.unit.toSize
 
 /**
  * State for [Scaffold] composable component.
  *
- * Contains basic screen state, e.g. Drawer configuration.
+ * Contains basic screen state, e.g. Drawer configuration, as well as sizes of components after
+ * layout has happened
  *
- * @param drawerState the state of the Drawer in [Scaffold]. Change it to open/close Drawer
- * programmatically.
+ * @param drawerState initial state of the Drawer in [Scaffold].
  * @param isDrawerGesturesEnabled whether or not drawer can be interacted with via gestures
  */
 @Stable
@@ -57,13 +65,52 @@ class ScaffoldState(
     isDrawerGesturesEnabled: Boolean = true
 ) {
 
+    /**
+     * drawer state position. Change this value to programmatically open or close drawer sheet
+     * in Scaffold (if set).
+     */
     var drawerState by mutableStateOf(drawerState)
+
+    /**
+     * Whether or not drawer sheet in scaffold (if set) can be interacted by gestures.
+     */
     var isDrawerGesturesEnabled by mutableStateOf(isDrawerGesturesEnabled)
     // TODO: add showSnackbar() method here
 
-    internal var fabConfiguration: FabConfiguration? by mutableStateOf<FabConfiguration?>(null)
-    internal var bottomBarSize: IntPxSize? by mutableStateOf<IntPxSize?>(null)
+    /**
+     * Get current size of the topBar in [Scaffold], if known. `null` if this unknown or topBar
+     * parameter in scaffold is not set
+     */
+    val topBarSize: PxSize?
+        get() = scaffoldGeometry.topBarBounds?.toSize()
+
+    /**
+     * Get current size of the bottomBar in [Scaffold], if known. `null` if this unknown or
+     * bottomBar parameter in scaffold is not set
+     */
+    val bottomBarSize: PxSize?
+        get() = scaffoldGeometry.bottomBarBounds?.toSize()
+
+    /**
+     * Get current size of the floatingActionButton in [Scaffold], if known. `null` if this unknown
+     * or floatingActionButton parameter in scaffold is not set
+     */
+    val floatingActionButtonSize: PxSize?
+        get() = scaffoldGeometry.fabBounds?.toSize()
+
+    internal val scaffoldGeometry = ScaffoldGeometry()
 }
+
+@Stable
+internal class ScaffoldGeometry {
+    var topBarBounds by mutableStateOf<PxBounds?>(null, StructurallyEqual)
+    var bottomBarBounds by mutableStateOf<PxBounds?>(null, StructurallyEqual)
+    var fabBounds by mutableStateOf<PxBounds?>(null, StructurallyEqual)
+
+    var isFabDocked by mutableStateOf(false)
+}
+
+internal val ScaffoldGeometryAmbient = staticAmbientOf { ScaffoldGeometry() }
 
 object Scaffold {
     /**
@@ -79,17 +126,7 @@ object Scaffold {
          * Position FAB at the bottom of the screen at the end, above the [BottomAppBar] (if it
          * exists)
          */
-        End,
-        /**
-         * Position FAB on the center of the screen, overlap with [BottomAppBar] (which should
-         * exist if this position is used, otherwise an exception will be thrown)
-         */
-        CenterDocked,
-        /**
-         * Position FAB on the end of the screen, overlap with [BottomAppBar] (which should
-         * exist if this position is used, otherwise an exception will be thrown)
-         */
-        EndDocked
+        End
     }
 }
 
@@ -110,36 +147,46 @@ object Scaffold {
  * @sample androidx.ui.material.samples.ScaffoldWithBottomBarAndCutout
  *
  * @param scaffoldState state of this scaffold widget. It contains the state of the screen, e.g.
- * variables to provide manual control over the drawer behavior
- * @param topAppBar top app bar of the screen. Consider using [TopAppBar].
- * @param bottomAppBar bottom bar of the screen. Consider using [BottomAppBar]. The slot
- * Parameter [FabConfiguration] is necessary to be passed as a parameter to [BottomAppBar] in
- * order to ensure proper [FloatingActionButton] + [BottomAppBar] behavior.
+ * variables to provide manual control over the drawer behavior, sizes of components, etc
+ * @param topBar top app bar of the screen. Consider using [TopAppBar].
+ * @param bottomBar bottom bar of the screen. Consider using [BottomAppBar].
  * @param floatingActionButton Main action button of your screen. Consider using
  * [FloatingActionButton] for this slot.
  * @param floatingActionButtonPosition position of the FAB on the screen. See [FabPosition] for
  * possible options available.
+ * @param isFloatingActionButtonDocked whether [floatingActionButton] should overlap with
+ * [bottomBar] for half a height, if [bottomBar] exists. Ignored if there's no [bottomBar] or no
+ * [floatingActionButton].
  * @param drawerContent content of the Drawer sheet that can be pulled from the left side (right
  * for RTL).
- * @param bodyContent content of your screen. The lambda receives a Modifier that should be
- * applied to the content root to get the desired behavior. If you're using VerticalScroller,
- * apply this modifier to the child of the scroller, and not on the scroller itself.
+ * @param drawerShape shape of the drawer sheet (if set)
+ * @param drawerElevation drawer sheet elevation. This controls the size of the shadow
+ * below the drawer sheet (if set)
+ * @param bodyContent content of your screen. The lambda receives an [InnerPadding] that should be
+ * applied to the content root via [Modifier.padding] to properly offset top and bottom bars. If
+ * you're using VerticalScroller, apply this modifier to the child of the scroller, and not on
+ * the scroller itself.
  */
 @Composable
 fun Scaffold(
     scaffoldState: ScaffoldState = remember { ScaffoldState() },
-    topAppBar: @Composable (() -> Unit)? = null,
-    bottomAppBar: @Composable ((FabConfiguration?) -> Unit)? = null,
+    topBar: @Composable (() -> Unit)? = null,
+    bottomBar: @Composable (() -> Unit)? = null,
     floatingActionButton: @Composable (() -> Unit)? = null,
     floatingActionButtonPosition: FabPosition = FabPosition.End,
+    isFloatingActionButtonDocked: Boolean = false,
     drawerContent: @Composable (() -> Unit)? = null,
-    bodyContent: @Composable (Modifier) -> Unit
+    drawerShape: Shape = MaterialTheme.shapes.large,
+    drawerElevation: Dp = DrawerConstants.DefaultElevation,
+    backgroundColor: Color = MaterialTheme.colors.background,
+    bodyContent: @Composable (InnerPadding) -> Unit
 ) {
+    scaffoldState.scaffoldGeometry.isFabDocked = isFloatingActionButtonDocked
     val child = @Composable {
-        Surface(color = MaterialTheme.colors.background) {
+        Surface(color = backgroundColor) {
             Column(Modifier.fillMaxSize()) {
-                if (topAppBar != null) {
-                    ScaffoldSlot(Modifier.zIndex(TopAppBarZIndex), topAppBar)
+                if (topBar != null) {
+                    TopBarContainer(Modifier.zIndex(TopAppBarZIndex), scaffoldState, topBar)
                 }
                 Stack(Modifier.weight(1f, fill = true)) {
                     ScaffoldContent(Modifier.fillMaxSize(), scaffoldState, bodyContent)
@@ -147,8 +194,9 @@ fun Scaffold(
                         Modifier.gravity(Alignment.BottomCenter),
                         scaffoldState = scaffoldState,
                         fabPos = floatingActionButtonPosition,
+                        isFabDocked = isFloatingActionButtonDocked,
                         fab = floatingActionButton,
-                        bottomBar = bottomAppBar
+                        bottomBar = bottomBar
                     )
                 }
             }
@@ -161,6 +209,8 @@ fun Scaffold(
             onStateChange = { scaffoldState.drawerState = it },
             gesturesEnabled = scaffoldState.isDrawerGesturesEnabled,
             drawerContent = { ScaffoldSlot(content = drawerContent) },
+            drawerShape = drawerShape,
+            drawerElevation = drawerElevation,
             bodyContent = child
         )
     } else {
@@ -179,14 +229,21 @@ private fun ScaffoldBottom(
     modifier: Modifier,
     scaffoldState: ScaffoldState,
     fabPos: FabPosition,
+    isFabDocked: Boolean,
     fab: @Composable (() -> Unit)? = null,
-    bottomBar: @Composable ((FabConfiguration?) -> Unit)? = null
+    bottomBar: @Composable (() -> Unit)? = null
 ) {
-    if (fabPos != FabPosition.CenterDocked && fabPos != FabPosition.EndDocked) {
+    if (isFabDocked && bottomBar != null && fab != null) {
+        DockedBottomBar(
+            modifier = modifier,
+            fabPosition = fabPos,
+            fab = { FabContainer(Modifier, scaffoldState, fab) },
+            bottomBar = { BottomBarContainer(scaffoldState, bottomBar) }
+        )
+    } else {
         Column(modifier.fillMaxWidth()) {
             if (fab != null) {
                 FabContainer(
-                    fabPos,
                     Modifier.gravity(fabPos.toColumnAlign())
                         .padding(start = FabSpacing, end = FabSpacing, bottom = FabSpacing),
                     scaffoldState,
@@ -197,18 +254,6 @@ private fun ScaffoldBottom(
                 BottomBarContainer(scaffoldState, bottomBar)
             }
         }
-    } else if (bottomBar != null && fab != null) {
-        DockedBottomBar(
-            modifier = modifier,
-            fabPosition = fabPos,
-            fab = { FabContainer(fabPos, Modifier, scaffoldState, fab) },
-            bottomBar = { BottomBarContainer(scaffoldState, bottomBar) }
-        )
-    } else {
-        throw IllegalArgumentException(
-            "To use ${FabPosition.CenterDocked} or ${FabPosition.EndDocked} " +
-                    "you need both bottomBar and FAB"
-        )
     }
 }
 
@@ -239,7 +284,7 @@ private fun DockedBottomBar(
         val layoutHeight = appBarPlaceable.height + (fabPlaceable.height / 2)
 
         val appBarVerticalOffset = layoutHeight - appBarPlaceable.height
-        val fabPosX = if (fabPosition == FabPosition.EndDocked) {
+        val fabPosX = if (fabPosition == FabPosition.End) {
             layoutWidth - fabPlaceable.width - DockedFabEndSpacing.toIntPx()
         } else {
             (layoutWidth - fabPlaceable.width) / 2
@@ -256,60 +301,63 @@ private fun DockedBottomBar(
 private fun ScaffoldContent(
     modifier: Modifier,
     scaffoldState: ScaffoldState,
-    content: @Composable (Modifier) -> Unit
+    content: @Composable (InnerPadding) -> Unit
 ) {
     ScaffoldSlot(modifier) {
-        val bottomSpace = with(DensityAmbient.current) {
-            scaffoldState.bottomBarSize?.height?.toDp() ?: 0.dp
+        val innerPadding = with(DensityAmbient.current) {
+            val bottom = scaffoldState.scaffoldGeometry.bottomBarBounds?.height?.toDp() ?: 0.dp
+            InnerPadding(bottom = bottom)
         }
-        content(Modifier.padding(bottom = bottomSpace))
+        content(innerPadding)
     }
 }
 
 @Composable
 private fun BottomBarContainer(
     scaffoldState: ScaffoldState,
-    bottomBar: @Composable ((FabConfiguration?) -> Unit)
+    bottomBar: @Composable () -> Unit
 ) {
-    onDispose(callback = { scaffoldState.bottomBarSize = null })
-    ScaffoldSlot(
-        modifier = Modifier.onPositioned {
-            if (scaffoldState.bottomBarSize != it.size) scaffoldState.bottomBarSize = it.size
-        },
-        content = {
-            bottomBar(scaffoldState.fabConfiguration)
+    BoundsAwareScaffoldSlot(
+        Modifier,
+        { scaffoldState.scaffoldGeometry.bottomBarBounds = it },
+        slotContent = {
+            Providers(ScaffoldGeometryAmbient provides scaffoldState.scaffoldGeometry) {
+                bottomBar()
+            }
         }
     )
 }
 
 @Composable
 private fun FabContainer(
-    fabPos: FabPosition,
     modifier: Modifier,
     scaffoldState: ScaffoldState,
     fab: @Composable () -> Unit
 ) {
-    onDispose { scaffoldState.fabConfiguration = null }
+    BoundsAwareScaffoldSlot(modifier, { scaffoldState.scaffoldGeometry.fabBounds = it }, fab)
+}
+
+@Composable
+private fun TopBarContainer(
+    modifier: Modifier,
+    scaffoldState: ScaffoldState,
+    topBar: @Composable () -> Unit
+) {
+    BoundsAwareScaffoldSlot(modifier, { scaffoldState.scaffoldGeometry.topBarBounds = it }, topBar)
+}
+
+@Composable
+private fun BoundsAwareScaffoldSlot(
+    modifier: Modifier,
+    onBoundsKnown: (PxBounds?) -> Unit,
+    slotContent: @Composable () -> Unit
+) {
+    onDispose {
+        onBoundsKnown(null)
+    }
     ScaffoldSlot(
-        modifier = modifier.onPositioned { coords ->
-            // TODO(mount): This should probably use bounding box rather than position/size
-            val position = coords.parentCoordinates?.childToLocal(coords, PxPosition.Origin)
-                ?: PxPosition.Origin
-            val config =
-                when (fabPos) {
-                    FabPosition.CenterDocked -> {
-                        FabConfiguration(coords.size, position, FabDockedPosition.Center)
-                    }
-                    FabPosition.EndDocked -> {
-                        FabConfiguration(coords.size, position, FabDockedPosition.End)
-                    }
-                    else -> {
-                        null
-                    }
-                }
-            if (scaffoldState.fabConfiguration != config) scaffoldState.fabConfiguration = config
-        },
-        content = fab
+        modifier = modifier.onPositioned { coords -> onBoundsKnown(coords.boundsInParent) },
+        content = slotContent
     )
 }
 
