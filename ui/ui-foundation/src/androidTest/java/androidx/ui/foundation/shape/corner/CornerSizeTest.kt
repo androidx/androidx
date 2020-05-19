@@ -35,46 +35,35 @@ class CornerSizeTest {
 
     @Test
     fun pxCorners() {
-        val corner = CornerSize(24.px)
-        assertThat(corner.toPx(size, density)).isEqualTo(24.px)
+        val corner = CornerSize(24.0f)
+        assertThat(corner.toPx(size, density)).isEqualTo(24.0f)
     }
 
     @Test
     fun dpCorners() {
         val corner = CornerSize(5.dp)
-        assertThat(corner.toPx(size, density)).isEqualTo(12.5.px)
+        assertThat(corner.toPx(size, density)).isEqualTo(12.5f)
     }
 
     @Test
     fun intPercentCorners() {
         val corner = CornerSize(15)
-        assertThat(corner.toPx(size, density)).isEqualTo(22.5.px)
-    }
-
-    @Test
-    fun floatPercentCorners() {
-        val corner = CornerSize(21.6f)
-        assertThat(corner.toPx(PxSize(1000.px, 120.px), density)).isEqualTo(25.92.px)
+        assertThat(corner.toPx(size, density)).isEqualTo(22.5f)
     }
 
     @Test
     fun zeroCorners() {
         val corner = ZeroCornerSize
-        assertThat(corner.toPx(size, density)).isEqualTo(0.px)
+        assertThat(corner.toPx(size, density)).isEqualTo(0.0f)
     }
 
     @Test
     fun pxCornersAreEquals() {
-        assertThat(CornerSize(24.px)).isEqualTo(CornerSize(24.px))
+        assertThat(CornerSize(24.0f)).isEqualTo(CornerSize(24.0f))
     }
 
     @Test
     fun dpCornersAreEquals() {
         assertThat(CornerSize(8.dp)).isEqualTo(CornerSize(8.dp))
-    }
-
-    @Test
-    fun percentCornersAreEquals() {
-        assertThat(CornerSize(20f)).isEqualTo(CornerSize(20))
     }
 }

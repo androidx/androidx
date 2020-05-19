@@ -29,22 +29,20 @@ import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.ui.animation.PxPositionPropKey
-import androidx.ui.animation.PxPropKey
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.center
 import androidx.ui.unit.dp
 import androidx.ui.unit.getDistance
 import androidx.ui.unit.inMilliseconds
-import androidx.ui.unit.max
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.toOffset
+import kotlin.math.max
 
 /**
  * Used to specify this type of [RippleEffect] for [ripple].
@@ -111,7 +109,7 @@ private class DefaultRippleEffect(
         val surfaceSize = size
         val startRadius = getRippleStartRadius(surfaceSize)
         val targetRadius = with(density) {
-            radius?.toPx() ?: getRippleEndRadius(clipped, surfaceSize)
+            radius?.toPx()?.value ?: getRippleEndRadius(clipped, surfaceSize)
         }
 
         val center = size.center()
@@ -151,7 +149,7 @@ private class DefaultRippleEffect(
         }
 
         val centerOffset = animation[RippleTransition.Center].toOffset()
-        val radius = animation[RippleTransition.Radius].value
+        val radius = animation[RippleTransition.Radius]
 
         val modulatedColor = color.copy(alpha = color.alpha * alpha)
         if (clipped) {
@@ -183,12 +181,12 @@ private object RippleTransition {
     private val FadeOutDuration = 150.milliseconds
 
     val Alpha = FloatPropKey()
-    val Radius = PxPropKey()
+    val Radius = FloatPropKey()
     val Center = PxPositionPropKey()
 
     fun definition(
-        startRadius: Px,
-        endRadius: Px,
+        startRadius: Float,
+        endRadius: Float,
         startCenter: PxPosition,
         endCenter: PxPosition
     ) = transitionDefinition {
@@ -241,17 +239,17 @@ private object RippleTransition {
  * surface it belongs to.
  */
 internal fun getRippleStartRadius(size: PxSize) =
-    max(size.width, size.height) * 0.3f
+    max(size.width.value, size.height.value) * 0.3f
 
 /**
  * According to specs the ending radius
  * - expands to 10dp beyond the border of the surface it belongs to for bounded ripples
  * - fits within the border of the surface it belongs to for unbounded ripples
  */
-internal fun Density.getRippleEndRadius(bounded: Boolean, size: PxSize): Px {
-    val radiusCoveringBounds = PxPosition(size.width, size.height).getDistance() / 2f
+internal fun Density.getRippleEndRadius(bounded: Boolean, size: PxSize): Float {
+    val radiusCoveringBounds = (PxPosition(size.width, size.height).getDistance() / 2f).value
     return if (bounded) {
-        radiusCoveringBounds + BoundedRippleExtraRadius.toPx()
+        radiusCoveringBounds + BoundedRippleExtraRadius.toPx().value
     } else {
         radiusCoveringBounds
     }

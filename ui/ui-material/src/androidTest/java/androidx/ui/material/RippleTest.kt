@@ -57,7 +57,6 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -106,8 +105,8 @@ class RippleTest {
                 density = composeTestRule.density,
                 backgroundColor = Color.Blue,
                 shape = RectangleShape,
-                shapeSizeX = 10.dp.toPx(),
-                shapeSizeY = 10.dp.toPx(),
+                shapeSizeX = 10.dp.toPx().value,
+                shapeSizeY = 10.dp.toPx().value,
                 shapeColor = Color.Red
             )
         }
@@ -144,8 +143,8 @@ class RippleTest {
                 density = composeTestRule.density,
                 backgroundColor = Color.Blue,
                 shape = RectangleShape,
-                shapeSizeX = 20.dp.toPx(),
-                shapeSizeY = 20.dp.toPx(),
+                shapeSizeX = 20.dp.toPx().value,
+                shapeSizeY = 20.dp.toPx().value,
                 shapeColor = Color.Red
             )
         }
@@ -175,8 +174,8 @@ class RippleTest {
             density = composeTestRule.density,
             backgroundColor = Color.Red,
             shape = RectangleShape,
-            shapeSizeX = 0.px,
-            shapeSizeY = 0.px,
+            shapeSizeX = 0.0f,
+            shapeSizeY = 0.0f,
             shapeColor = Color.Red
         )
     }
@@ -210,8 +209,8 @@ class RippleTest {
                 density = composeTestRule.density,
                 backgroundColor = Color.Blue,
                 shape = RectangleShape,
-                shapeSizeX = 10.dp.toPx(),
-                shapeSizeY = 10.dp.toPx(),
+                shapeSizeX = 10.0.dp.toPx().value,
+                shapeSizeY = 10.0.dp.toPx().value,
                 shapeColor = Color.Red
             )
         }

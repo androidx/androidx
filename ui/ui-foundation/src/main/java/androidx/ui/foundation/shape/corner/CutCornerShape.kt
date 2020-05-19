@@ -23,7 +23,6 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import androidx.ui.unit.toRect
 
 /**
@@ -44,23 +43,23 @@ class CutCornerShape(
 
     override fun createOutline(
         size: PxSize,
-        topLeft: Px,
-        topRight: Px,
-        bottomRight: Px,
-        bottomLeft: Px
-    ) = if (topLeft + topRight + bottomLeft + bottomRight == 0.px) {
+        topLeft: Float,
+        topRight: Float,
+        bottomRight: Float,
+        bottomLeft: Float
+    ) = if (topLeft + topRight + bottomLeft + bottomRight == 0.0f) {
         Outline.Rectangle(size.toRect())
     } else Outline.Generic(Path().apply {
-        var cornerSize = topLeft.value
+        var cornerSize = topLeft
         moveTo(0f, cornerSize)
         lineTo(cornerSize, 0f)
-        cornerSize = topRight.value
+        cornerSize = topRight
         lineTo(size.width.value - cornerSize, 0f)
         lineTo(size.width.value, cornerSize)
-        cornerSize = bottomRight.value
+        cornerSize = bottomRight
         lineTo(size.width.value, size.height.value - cornerSize)
         lineTo(size.width.value - cornerSize, size.height.value)
-        cornerSize = bottomLeft.value
+        cornerSize = bottomLeft
         lineTo(cornerSize, size.height.value)
         lineTo(0f, size.height.value - cornerSize)
         close()
@@ -100,7 +99,7 @@ class CutCornerShape(
  * Creates [CutCornerShape] with the same size applied for all four corners.
  * @param size Size in [Px] to apply.
  */
-/*inline*/ fun CutCornerShape(size: Px) = CutCornerShape(CornerSize(size))
+/*inline*/ fun CutCornerShape(size: Float) = CutCornerShape(CornerSize(size))
 
 /**
  * Creates [CutCornerShape] with the same size applied for all four corners.
@@ -124,13 +123,13 @@ class CutCornerShape(
 )
 
 /**
- * Creates [CutCornerShape] with sizes defined in [Px].
+ * Creates [CutCornerShape] with sizes defined in float.
  */
 /*inline*/ fun CutCornerShape(
-    topLeft: Px = 0.px,
-    topRight: Px = 0.px,
-    bottomRight: Px = 0.px,
-    bottomLeft: Px = 0.px
+    topLeft: Float = 0.0f,
+    topRight: Float = 0.0f,
+    bottomRight: Float = 0.0f,
+    bottomLeft: Float = 0.0f
 ) = CutCornerShape(
     CornerSize(topLeft),
     CornerSize(topRight),

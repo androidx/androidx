@@ -46,7 +46,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -287,8 +286,8 @@ class BoxTest {
                 shape = RectangleShape,
                 shapeColor = Color.Blue,
                 backgroundColor = Color.Red,
-                shapeSizeX = size.toPx() - padding.toPx() - padding.toPx(),
-                shapeSizeY = size.toPx() - padding.toPx() - padding.toPx()
+                shapeSizeX = (size.toPx() - padding.toPx() - padding.toPx()).value,
+                shapeSizeY = (size.toPx() - padding.toPx() - padding.toPx()).value
             )
         }
     }
@@ -315,9 +314,9 @@ class BoxTest {
                 shape = CircleShape,
                 shapeColor = Color.Blue,
                 backgroundColor = Color.Red,
-                shapeSizeX = size.toPx() - padding.toPx() - padding.toPx(),
-                shapeSizeY = size.toPx() - padding.toPx() - padding.toPx(),
-                shapeOverlapPixelCount = 2.px
+                shapeSizeX = (size.toPx() - padding.toPx() - padding.toPx()).value,
+                shapeSizeY = (size.toPx() - padding.toPx() - padding.toPx()).value,
+                shapeOverlapPixelCount = 2.0f
             )
         }
     }
@@ -342,9 +341,9 @@ class BoxTest {
                 shape = RectangleShape,
                 shapeColor = Color.Blue,
                 backgroundColor = Color.Red,
-                shapeSizeX = size.toPx() - borderSize.toPx() * 2,
-                shapeSizeY = size.toPx() - borderSize.toPx() * 2,
-                shapeOverlapPixelCount = 2.px
+                shapeSizeX = (size.toPx() - borderSize.toPx() * 2).value,
+                shapeSizeY = (size.toPx() - borderSize.toPx() * 2).value,
+                shapeOverlapPixelCount = 2.0f
             )
         }
     }
@@ -375,7 +374,7 @@ class BoxTest {
                 shape = CircleShape,
                 shapeColor = Color.Blue,
                 backgroundColor = Color.Red,
-                shapeOverlapPixelCount = 2.px
+                shapeOverlapPixelCount = 2.0f
             )
         }
     }

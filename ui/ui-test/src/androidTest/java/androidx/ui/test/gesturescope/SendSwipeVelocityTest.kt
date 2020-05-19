@@ -40,7 +40,6 @@ import androidx.ui.unit.Duration
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.getDistance
 import androidx.ui.unit.inMilliseconds
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -95,10 +94,10 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
 
         private const val tag = "widget"
 
-        private val boxSize = 500.px
-        private val boxStart = 1.px
+        private val boxSize = 500.0f
+        private val boxStart = 1.0f
         private val boxMiddle = boxSize / 2
-        private val boxEnd = boxSize - 1.px
+        private val boxEnd = boxSize - 1.0f
     }
 
     private val start get() = config.direction.from
