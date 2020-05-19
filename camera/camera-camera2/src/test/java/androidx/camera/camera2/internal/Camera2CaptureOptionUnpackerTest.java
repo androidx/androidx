@@ -31,19 +31,21 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Config.Option;
+import androidx.camera.core.impl.Config.OptionPriority;
+import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class Camera2CaptureOptionUnpackerTest {
 
     private Camera2CaptureOptionUnpacker mUnpacker;
@@ -83,9 +85,14 @@ public final class Camera2CaptureOptionUnpackerTest {
                         CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
                 .setCaptureRequestOption(
                         CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH);
+        ImageCaptureConfig useCaseConfig = imageCaptureConfigBuilder.getUseCaseConfig();
+        OptionPriority priorityAfMode = getCaptureRequestOptionPriority(useCaseConfig,
+                CaptureRequest.CONTROL_AF_MODE);
+        OptionPriority priorityFlashMode = getCaptureRequestOptionPriority(useCaseConfig,
+                CaptureRequest.FLASH_MODE);
 
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
-        mUnpacker.unpack(imageCaptureConfigBuilder.getUseCaseConfig(), captureBuilder);
+        mUnpacker.unpack(useCaseConfig, captureBuilder);
         CaptureConfig captureConfig = captureBuilder.build();
 
         Camera2ImplConfig config = new Camera2ImplConfig(captureConfig.getImplementationOptions());
@@ -96,5 +103,18 @@ public final class Camera2CaptureOptionUnpackerTest {
         assertThat(config.getCaptureRequestOption(
                 CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF))
                 .isEqualTo(CaptureRequest.FLASH_MODE_TORCH);
+
+        // Make sures the priority of Camera2Interop is preserved after unpacking.
+        assertThat(getCaptureRequestOptionPriority(config, CaptureRequest.CONTROL_AF_MODE))
+                .isEqualTo(priorityAfMode);
+        assertThat(getCaptureRequestOptionPriority(config, CaptureRequest.CONTROL_AF_MODE))
+                .isEqualTo(priorityFlashMode);
+    }
+
+    private OptionPriority getCaptureRequestOptionPriority(
+            androidx.camera.core.impl.Config config,
+            CaptureRequest.Key<?> key) {
+        Option<?> option = Camera2ImplConfig.createCaptureRequestOption(key);
+        return config.getOptionPriority(option);
     }
 }
