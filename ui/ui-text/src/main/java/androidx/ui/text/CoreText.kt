@@ -48,6 +48,7 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
 import androidx.ui.unit.px
+import androidx.ui.util.fastForEach
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
@@ -231,7 +232,7 @@ fun CoreText(
                 LastBaseline to layoutResult.lastBaseline.roundToInt().ipx
             )
         ) {
-            for (placeable in placeables) {
+            placeables.fastForEach { placeable ->
                 placeable.first.place(placeable.second)
             }
         }

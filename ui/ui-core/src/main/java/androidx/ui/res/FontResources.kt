@@ -28,6 +28,7 @@ import androidx.ui.text.font.LoadedFontFamily
 import androidx.ui.text.font.ResourceFont
 import androidx.ui.text.font.SystemFontFamily
 import androidx.ui.text.typefaceFromFontFamily
+import androidx.ui.util.fastForEach
 
 private val cacheLock = Object()
 
@@ -165,7 +166,7 @@ fun loadFontResource(
 internal fun FontListFontFamily.cacheKey(context: Context): String {
     val concatenatedResourcePaths = StringBuilder()
     val value = TypedValue()
-    for (font in fonts) {
+    fonts.fastForEach { font ->
         when (font) {
             is ResourceFont -> {
                 context.resources.getValue(font.resId, value, true)

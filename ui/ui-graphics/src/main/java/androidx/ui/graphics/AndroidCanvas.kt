@@ -22,6 +22,7 @@ import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.vectormath.Matrix4
 import androidx.ui.graphics.vectormath.isIdentity
+import androidx.ui.util.fastForEach
 
 /**
  * Create a new Canvas instance that targets its drawing commands
@@ -355,7 +356,7 @@ private val EmptyCanvas = android.graphics.Canvas()
     }
 
     private fun drawPoints(points: List<Offset>, paint: Paint) {
-        for (point in points) {
+        points.fastForEach { point ->
             internalCanvas.drawPoint(
                 point.dx,
                 point.dy,

@@ -30,6 +30,7 @@ import androidx.ui.graphics.Path
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.withSave
+import androidx.ui.util.fastForEach
 import kotlin.math.ceil
 
 const val DefaultGroupName = ""
@@ -375,7 +376,7 @@ data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
     override var invalidateListener: (() -> Unit)? = null
         set(value) {
             field = value
-            for (child in children) {
+            children.fastForEach { child ->
                 child.invalidateListener = value
             }
         }
@@ -546,7 +547,7 @@ data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
                 canvas.nativeCanvas.concat(matrix)
             }
 
-            for (node in children) {
+            children.fastForEach { node ->
                 node.draw(canvas)
             }
         }
@@ -557,7 +558,7 @@ data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
 
     override fun toString(): String {
         val sb = StringBuilder().append("VGroup: ").append(name)
-        for (node in children) {
+        children.fastForEach { node ->
             sb.append("\t").append(node.toString()).append("\n")
         }
         return sb.toString()

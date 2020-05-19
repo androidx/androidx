@@ -32,6 +32,7 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.util.fastFirstOrNull
+import androidx.ui.util.fastForEach
 import androidx.ui.viewinterop.AndroidViewHolder
 
 /**
@@ -165,15 +166,15 @@ internal class MergedViewAdapter : ViewAdapter {
     }
 
     override fun willInsert(view: View, parent: ViewGroup) {
-        for (adapter in adapters) adapter.willInsert(view, parent)
+        adapters.fastForEach { it.willInsert(view, parent) }
     }
 
     override fun didInsert(view: View, parent: ViewGroup) {
-        for (adapter in adapters) adapter.didInsert(view, parent)
+        adapters.fastForEach { it.didInsert(view, parent) }
     }
 
     override fun didUpdate(view: View, parent: ViewGroup) {
-        for (adapter in adapters) adapter.didUpdate(view, parent)
+        adapters.fastForEach { it.didUpdate(view, parent) }
     }
 }
 

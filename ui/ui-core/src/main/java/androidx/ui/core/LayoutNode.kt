@@ -222,7 +222,7 @@ class LayoutNode : Measurable {
         tree.append(toString())
         tree.append('\n')
 
-        for (child in _children) {
+        children.fastForEach { child ->
             tree.append(child.debugTreeToString(depth + 1))
         }
 

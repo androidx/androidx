@@ -32,6 +32,7 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
+import androidx.ui.util.fastForEach
 
 /**
  * A convenience composable that combines common layout and draw logic.
@@ -136,7 +137,7 @@ private fun Alignment.toColumnArrangement() = object : Arrangement.Vertical {
         var y = align(IntPxSize(0.ipx, totalSize - usedSize), layoutDirection).y
 
         val positions = mutableListOf<IntPx>()
-        for (childSize in size) {
+        size.fastForEach { childSize ->
             positions += y
             y += childSize
         }
