@@ -41,7 +41,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -53,6 +52,7 @@ import androidx.collection.ArraySet;
 import androidx.core.R;
 import androidx.core.app.NotificationCompat.MessagingStyle.Message;
 import androidx.core.content.LocusIdCompat;
+import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -122,6 +122,31 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         } else {
             assertEquals(null, NotificationCompat.getShortcutId(n));
         }
+    }
+
+    @Test
+    public void testShortcutInfo() {
+        final String shortcutId = "my-shortcut";
+        final String locusId = "locus-id";
+        final String title = "title";
+        final ShortcutInfoCompat shortcutInfo =
+                new ShortcutInfoCompat.Builder(mContext, shortcutId)
+                        .setIntent(new Intent())
+                        .setLocusId(new LocusIdCompat(locusId))
+                        .setShortLabel(title)
+                        .build();
+        final Notification n =
+                new NotificationCompat.Builder(mContext).setShortcutInfo(shortcutInfo).build();
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(shortcutId, NotificationCompat.getShortcutId(n));
+        } else {
+            assertEquals(null, NotificationCompat.getShortcutId(n));
+        }
+        if (Build.VERSION.SDK_INT >= 29) {
+            assertNotNull(n.getLocusId());
+            assertEquals(locusId, n.getLocusId().getId());
+        }
+        assertEquals(title, NotificationCompat.getContentTitle(n));
     }
 
     @Test
