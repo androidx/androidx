@@ -58,7 +58,6 @@ import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
 import com.google.common.truth.Truth.assertThat
@@ -703,7 +702,7 @@ class FilledTextFieldTest {
                 shapeColor = expectedColor,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                shapeOverlapPixelCount = with(testRule.density) { 3.dp.toPx() }
+                shapeOverlapPixelCount = with(testRule.density) { 1.dp.toPx().value }
             )
 
         findByTag("textField").doClick()
@@ -717,7 +716,7 @@ class FilledTextFieldTest {
                 shapeColor = expectedColor,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                shapeOverlapPixelCount = 3.px
+                shapeOverlapPixelCount = with(testRule.density) { 1.dp.toPx().value }
             )
     }
 
