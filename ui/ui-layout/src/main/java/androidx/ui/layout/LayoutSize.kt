@@ -41,7 +41,8 @@ import androidx.ui.unit.min
  * Declare the preferred width of the content to be exactly [width]dp. The incoming measurement
  * [Constraints] may override this value, forcing the content to be either smaller or larger.
  *
- * See [preferredHeight] or [preferredSize] to set other preferred dimensions.
+ * For a modifier that sets the width of the content regardless of the incoming constraints see
+ * [Modifier.width]. See [preferredHeight] or [preferredSize] to set other preferred dimensions.
  * See [preferredWidthIn], [preferredHeightIn] or [preferredSizeIn] to set a preferred size range.
  *
  * Example usage:
@@ -53,7 +54,8 @@ fun Modifier.preferredWidth(width: Dp) = preferredSizeIn(minWidth = width, maxWi
  * Declare the preferred height of the content to be exactly [height]dp. The incoming measurement
  * [Constraints] may override this value, forcing the content to be either smaller or larger.
  *
- * See [preferredWidth] or [preferredSize] to set other preferred dimensions.
+ * For a modifier that sets the height of the content regardless of the incoming constraints see
+ * [Modifier.height]. See [preferredWidth] or [preferredSize] to set other preferred dimensions.
  * See [preferredWidthIn], [preferredHeightIn] or [preferredSizeIn] to set a preferred size range.
  *
  * Example usage:
@@ -65,7 +67,8 @@ fun Modifier.preferredHeight(height: Dp) = preferredSizeIn(minHeight = height, m
  * Declare the preferred size of the content to be exactly [size]dp square. The incoming measurement
  * [Constraints] may override this value, forcing the content to be either smaller or larger.
  *
- * See [preferredWidth] or [preferredHeight] to set width or height alone.
+ * For a modifier that sets the size of the content regardless of the incoming constraints, see
+ * [Modifier.size]. See [preferredWidth] or [preferredHeight] to set width or height alone.
  * See [preferredWidthIn], [preferredHeightIn] or [preferredSizeIn] to set a preferred size range.
  *
  * Example usage:
@@ -78,7 +81,8 @@ fun Modifier.preferredSize(size: Dp) = preferredSizeIn(size, size, size, size)
  * measurement [Constraints] may override this value, forcing the content to be either smaller or
  * larger.
  *
- * See [preferredWidth] or [preferredHeight] to set width or height alone.
+ * For a modifier that sets the size of the content regardless of the incoming constraints, see
+ * [Modifier.size]. See [preferredWidth] or [preferredHeight] to set width or height alone.
  * See [preferredWidthIn], [preferredHeightIn] or [preferredSizeIn] to set a preferred size range.
  *
  * Example usage:
