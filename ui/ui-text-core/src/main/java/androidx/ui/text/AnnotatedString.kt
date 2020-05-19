@@ -707,7 +707,22 @@ fun AnnotatedString(
  *
  * @param builder lambda to modify [AnnotatedString.Builder]
  */
+@Deprecated(
+    message = "Renamed to annotatedString.",
+    replaceWith = ReplaceWith("annotatedString")
+)
 inline fun AnnotatedString(builder: (Builder).() -> Unit): AnnotatedString =
+    Builder().apply(builder).toAnnotatedString()
+
+/**
+ * Build a new AnnotatedString by populating newly created [AnnotatedString.Builder] provided
+ * by [builder].
+ *
+ * @sample androidx.ui.text.samples.AnnotatedStringBuilderLambdaSample
+ *
+ * @param builder lambda to modify [AnnotatedString.Builder]
+ */
+inline fun annotatedString(builder: (Builder).() -> Unit): AnnotatedString =
     Builder().apply(builder).toAnnotatedString()
 
 /**

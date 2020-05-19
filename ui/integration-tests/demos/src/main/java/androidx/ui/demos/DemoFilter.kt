@@ -39,8 +39,8 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Close
-import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
+import androidx.ui.text.annotatedString
 import androidx.ui.text.withStyle
 import androidx.ui.unit.dp
 
@@ -127,7 +127,7 @@ private fun FilteredDemoListItem(
     onNavigate: (Demo) -> Unit
 ) {
     val primary = MaterialTheme.colors.primary
-    val annotatedString = AnnotatedString {
+    val annotatedString = annotatedString {
         val title = demo.title
         var currentIndex = 0
         val pattern = filterText.toRegex(option = RegexOption.IGNORE_CASE)

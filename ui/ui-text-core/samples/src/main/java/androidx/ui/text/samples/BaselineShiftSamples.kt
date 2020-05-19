@@ -19,8 +19,8 @@ package androidx.ui.text.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.foundation.Text
-import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
+import androidx.ui.text.annotatedString
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.withStyle
 import androidx.ui.unit.sp
@@ -30,7 +30,7 @@ import androidx.ui.unit.sp
 fun BaselineShiftSample() {
     Text(
         fontSize = 20.sp,
-        text = AnnotatedString {
+        text = annotatedString {
             append(text = "Hello")
             withStyle(SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 16.sp)) {
                 append("superscript")
@@ -45,7 +45,7 @@ fun BaselineShiftSample() {
 @Sampled
 @Composable
 fun BaselineShiftAnnotatedStringSample() {
-    val annotatedString = AnnotatedString {
+    val annotatedString = annotatedString {
         append("Text ")
         withStyle(SpanStyle(baselineShift = BaselineShift.Superscript)) {
             append("Demo")

@@ -21,6 +21,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.SpanStyle
+import androidx.ui.text.annotatedString
 import androidx.ui.text.withStyle
 import androidx.ui.unit.sp
 
@@ -104,7 +105,7 @@ fun AnnotatedStringBuilderWithStyleSample() {
 @Sampled
 fun AnnotatedStringBuilderLambdaSample() {
     // create an AnnotatedString using the lambda builder
-    AnnotatedString {
+    annotatedString {
         // append "Hello" with red text color
         withStyle(SpanStyle(color = Color.Red)) {
             append("Hello")
