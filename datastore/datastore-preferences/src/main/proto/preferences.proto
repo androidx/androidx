@@ -1,0 +1,26 @@
+// Proto for use by PreferencesSerializer
+syntax = "proto2";
+
+package androidx.testing;
+
+option java_package = "androidx.datastore.preferences";
+option java_outer_classname = "PreferencesProto";
+
+message PreferenceMap {
+    map<string, Value> preferences = 1;
+}
+
+message Value {
+  oneof value {
+    bool boolean = 1;
+    float float = 2;
+    int32 integer = 3;
+    int64 long = 4;
+    string string = 5;
+    StringSet string_set = 6;
+  }
+}
+
+message StringSet {
+    repeated string strings = 1;
+}

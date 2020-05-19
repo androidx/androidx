@@ -92,7 +92,7 @@ interface DataStore<T> {
          * to data format corruption. This exception should not be thrown when the IOException is
          * due to a transient IO issue or permissions issue.
          */
-        class CorruptionException(message: String, cause: Throwable) :
+        class CorruptionException(message: String, cause: Throwable? = null) :
             IOException(message, cause)
     }
 

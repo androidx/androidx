@@ -25,7 +25,7 @@ package androidx.datastore.preferences
  * .dataFlow.
  */
 class Preferences internal constructor(
-    private val preferences: Map<String, Any?> = mapOf()
+    private val preferences: Map<String, Any> = mapOf()
 ) {
 
     /* Checks whether the Preferences contains a preference. */
@@ -123,7 +123,7 @@ class Preferences internal constructor(
      *
      * @return Returns a map containing representing all the preferences in Preferences.
      */
-    fun getAll(): Map<String, Any?> {
+    fun getAll(): Map<String, Any> {
         return preferences.mapValues {
             val value = it.value
             if (value is Set<*>) {
@@ -178,7 +178,7 @@ class Preferences internal constructor(
      *  DataStore.updateData()
      */
     class Builder internal constructor(
-        private val preferencesMap: MutableMap<String, Any?> = mutableMapOf()
+        private val preferencesMap: MutableMap<String, Any> = mutableMapOf()
     ) {
         constructor() : this(mutableMapOf()) {}
 
