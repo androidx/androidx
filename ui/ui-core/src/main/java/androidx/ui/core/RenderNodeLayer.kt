@@ -89,6 +89,8 @@ internal class RenderNodeLayer(
         val isClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate()
+        } else {
+            triggerRepaint()
         }
         if (!drawnWithZ && renderNode.elevation > 0f) {
             invalidateParentLayer()
@@ -113,8 +115,15 @@ internal class RenderNodeLayer(
     }
 
     override fun move(position: IntPxPosition) {
-        renderNode.offsetLeftAndRight(position.x.value - renderNode.left)
-        renderNode.offsetTopAndBottom(position.y.value - renderNode.top)
+        val oldLeft = renderNode.left
+        val oldTop = renderNode.top
+        val newLeft = position.x.value
+        val newTop = position.y.value
+        if (oldLeft != newLeft || oldTop != newTop) {
+            renderNode.offsetLeftAndRight(newLeft - oldLeft)
+            renderNode.offsetTopAndBottom(newTop - oldTop)
+            triggerRepaint()
+        }
     }
 
     override fun invalidate() {
@@ -123,6 +132,15 @@ internal class RenderNodeLayer(
             ownerView.dirtyLayers += this
             isDirty = true
         }
+    }
+
+    /**
+     * This only triggers the system so that it knows that some kind of painting
+     * must happen without actually causing the layer to be invalidated and have
+     * to re-record its drawing.
+     */
+    private fun triggerRepaint() {
+        ownerView.parent?.onDescendantInvalidated(ownerView, ownerView)
     }
 
     override fun drawLayer(canvas: Canvas) {
