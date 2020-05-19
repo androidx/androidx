@@ -229,6 +229,7 @@ data class AnnotatedString internal constructor(
          * @param start the inclusive starting offset of the range
          * @param end the exclusive end offset of the range
          * @see getStringAnnotations
+         * @sample androidx.ui.text.samples.AnnotatedStringAddStringAnnotationSample
          */
         fun addStringAnnotation(scope: String, annotation: String, start: Int, end: Int) {
             annotations.add(MutableRange(annotation, start, end, scope))
