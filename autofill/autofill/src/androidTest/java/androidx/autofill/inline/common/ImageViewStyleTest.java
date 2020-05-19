@@ -17,6 +17,7 @@
 package androidx.autofill.inline.common;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.widget.ImageView;
@@ -58,6 +59,9 @@ public class ImageViewStyleTest {
                 .setPadding(1, 2, 3, 4)
                 .setLayoutMargin(5, 6, 7, 8)
                 .setBackgroundColor(Color.YELLOW)
+                .setMaxWidth(55)
+                .setMaxHeight(66)
+                .setTintList(ColorStateList.valueOf(Color.BLUE))
                 .build();
         ImageView imageView = new ImageView(mContext);
         imageView.setImageIcon(Icon.createWithResource(mContext,
@@ -65,6 +69,9 @@ public class ImageViewStyleTest {
         style.applyStyleOnImageViewIfValid(imageView);
 
         Assert.assertEquals(ImageView.ScaleType.FIT_START, imageView.getScaleType());
+        Assert.assertEquals(55, imageView.getMaxWidth());
+        Assert.assertEquals(66, imageView.getMaxHeight());
+        Assert.assertEquals(ColorStateList.valueOf(Color.BLUE), imageView.getImageTintList());
 
         TestUtils.verifyPadding(imageView, 1, 2, 3, 4);
         TestUtils.verifyLayoutMargin(imageView, 5, 6, 7, 8);

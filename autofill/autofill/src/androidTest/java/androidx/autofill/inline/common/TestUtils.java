@@ -71,6 +71,12 @@ public final class TestUtils {
         Assert.assertEquals(pixelSize, textView.getTextSize(), 0.001);
     }
 
+    public static void verifyTextSizeDp(Context context, TextView textView, float dpSize) {
+        float pixelSize = TypedValue.applyDimension(COMPLEX_UNIT_DIP, dpSize,
+                context.getResources().getDisplayMetrics());
+        Assert.assertEquals(pixelSize, textView.getTextSize(), 0.001);
+    }
+
     /**
      * Copied from {@link TypedValue#complexToDimensionPixelSize(int, DisplayMetrics)}.
      */

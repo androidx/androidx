@@ -19,6 +19,7 @@ package androidx.autofill.inline.common;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.util.TypedValue;
 import android.widget.TextView;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -74,5 +75,28 @@ public class TextViewStyleTest {
         TestUtils.verifyPadding(textView, 1, 2, 3, 4);
         TestUtils.verifyLayoutMargin(textView, 5, 6, 7, 8);
         TestUtils.verifyBackgroundColor(textView, Color.YELLOW);
+    }
+
+    @Test
+    public void testStyleWithTextSizeInDp() {
+        TextViewStyle.Builder builder = new TextViewStyle.Builder();
+        TextViewStyle style = builder.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 23).build();
+        TextView textView = new TextView(mContext);
+        textView.setText("Hello");
+        style.applyStyleOnTextViewIfValid(textView);
+
+        TestUtils.verifyTextSizeDp(mContext, textView, 23);
+    }
+
+    @Test
+    public void testStyleWithBothTextSizes_lastOneWins() {
+        TextViewStyle.Builder builder = new TextViewStyle.Builder();
+        TextViewStyle style = builder.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 23).setTextSize(
+                12).build();
+        TextView textView = new TextView(mContext);
+        textView.setText("Hello");
+        style.applyStyleOnTextViewIfValid(textView);
+
+        TestUtils.verifyTextSize(mContext, textView, 12);
     }
 }

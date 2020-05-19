@@ -16,6 +16,7 @@
 
 package androidx.autofill.inline.common;
 
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
@@ -66,7 +67,10 @@ public class ViewStyle extends BundledStyle {
         if (mBundle.containsKey(KEY_BACKGROUND)) {
             Icon background = mBundle.getParcelable(KEY_BACKGROUND);
             if (background != null) {
-                view.setBackground(background.loadDrawable(view.getContext()));
+                final Drawable drawable = background.loadDrawable(view.getContext());
+                if (drawable != null) {
+                    view.setBackground(drawable);
+                }
             }
         }
         if (mBundle.containsKey(KEY_BACKGROUND_COLOR)) {

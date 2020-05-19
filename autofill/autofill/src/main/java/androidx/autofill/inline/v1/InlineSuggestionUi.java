@@ -127,7 +127,7 @@ public final class InlineSuggestionUi {
     @RestrictTo(LIBRARY)
     @NonNull
     public static View render(@NonNull Context context, @NonNull Content content,
-            @Nullable Style style) {
+            @NonNull Style style) {
         context = getDefaultContextThemeWrapper(context);
         final LayoutInflater inflater = LayoutInflater.from(context);
         final ViewGroup suggestionView =
@@ -142,32 +142,32 @@ public final class InlineSuggestionUi {
         final ImageView endIconView =
                 suggestionView.findViewById(R.id.autofill_inline_suggestion_end_icon);
 
-        CharSequence title = content.getTitle();
+        final CharSequence title = content.getTitle();
         if (title != null) {
             titleView.setText(title);
             titleView.setVisibility(View.VISIBLE);
         }
-        CharSequence subtitle = content.getSubtitle();
+        final CharSequence subtitle = content.getSubtitle();
         if (subtitle != null) {
             subtitleView.setText(subtitle);
             subtitleView.setVisibility(View.VISIBLE);
         }
-        Icon startIcon = content.getStartIcon();
+        final Icon startIcon = content.getStartIcon();
         if (startIcon != null) {
             startIconView.setImageIcon(startIcon);
             startIconView.setVisibility(View.VISIBLE);
         }
-        Icon endIcon = content.getEndIcon();
+        final Icon endIcon = content.getEndIcon();
         if (endIcon != null) {
             endIconView.setImageIcon(endIcon);
             endIconView.setVisibility(View.VISIBLE);
         }
-        CharSequence contentDescription = content.getContentDescription();
+        final CharSequence contentDescription = content.getContentDescription();
         if (!TextUtils.isEmpty(contentDescription)) {
             suggestionView.setContentDescription(contentDescription);
         }
 
-        if (style != null && style.isValid()) {
+        if (style.isValid()) {
             if (content.isSingleIconOnly()) {
                 style.applyStyle(suggestionView, startIconView);
             } else {
@@ -204,11 +204,12 @@ public final class InlineSuggestionUi {
     public static final class Style extends BundledStyle implements UiVersions.Style {
         private static final String KEY_STYLE_V1 = "style_v1";
         private static final String KEY_CHIP_STYLE = "chip_style";
-        private static final String KEY_SINGLE_ICON_CHIP_STYLE = "single_icon_chip_style";
         private static final String KEY_TITLE_STYLE = "title_style";
         private static final String KEY_SUBTITLE_STYLE = "subtitle_style";
         private static final String KEY_START_ICON_STYLE = "start_icon_style";
         private static final String KEY_END_ICON_STYLE = "end_icon_style";
+        private static final String KEY_SINGLE_ICON_CHIP_STYLE = "single_icon_chip_style";
+        private static final String KEY_SINGLE_ICON_CHIP_ICON_STYLE = "single_icon_chip_icon_style";
 
         /**
          * Use {@link InlineSuggestionUi#fromBundle(Bundle)} or {@link Builder#build()} to
@@ -232,15 +233,19 @@ public final class InlineSuggestionUi {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public void applyStyle(@NonNull View singleIconChipView, @NonNull ImageView startIconView) {
+        public void applyStyle(@NonNull View singleIconChipView,
+                @NonNull ImageView singleIconView) {
             if (!isValid()) {
                 return;
             }
-            // start icon
-            if (startIconView.getVisibility() != View.GONE) {
-                ImageViewStyle startIconViewStyle = getStartIconStyle();
-                if (startIconViewStyle != null) {
-                    startIconViewStyle.applyStyleOnImageViewIfValid(startIconView);
+            // single icon
+            if (singleIconView.getVisibility() != View.GONE) {
+                ImageViewStyle singleIconViewStyle = getSingleIconChipIconStyle();
+                if (singleIconViewStyle == null) {
+                    singleIconViewStyle = getStartIconStyle();
+                }
+                if (singleIconViewStyle != null) {
+                    singleIconViewStyle.applyStyleOnImageViewIfValid(singleIconView);
                 }
             }
             // entire chip
@@ -319,15 +324,6 @@ public final class InlineSuggestionUi {
         }
 
         /**
-         * @see Builder#setSingleIconChipStyle(ViewStyle)
-         */
-        @Nullable
-        public ViewStyle getSingleIconChipStyle() {
-            Bundle styleBundle = mBundle.getBundle(KEY_SINGLE_ICON_CHIP_STYLE);
-            return styleBundle == null ? null : new ViewStyle(styleBundle);
-        }
-
-        /**
          * @see Builder#setTitleStyle(TextViewStyle)
          */
         @Nullable
@@ -364,6 +360,24 @@ public final class InlineSuggestionUi {
         }
 
         /**
+         * @see Builder#setSingleIconChipStyle(ViewStyle)
+         */
+        @Nullable
+        public ViewStyle getSingleIconChipStyle() {
+            Bundle styleBundle = mBundle.getBundle(KEY_SINGLE_ICON_CHIP_STYLE);
+            return styleBundle == null ? null : new ViewStyle(styleBundle);
+        }
+
+        /**
+         * @see Builder#setSingleIconChipIconStyle(ImageViewStyle)
+         */
+        @Nullable
+        public ImageViewStyle getSingleIconChipIconStyle() {
+            Bundle styleBundle = mBundle.getBundle(KEY_SINGLE_ICON_CHIP_ICON_STYLE);
+            return styleBundle == null ? null : new ImageViewStyle(styleBundle);
+        }
+
+        /**
          * Builder for the {@link Style}.
          */
         public static final class Builder extends BundledStyle.Builder<Style> {
@@ -377,21 +391,14 @@ public final class InlineSuggestionUi {
 
             /**
              * Sets the chip style.
+             *
+             * <p>See {@link #setSingleIconChipStyle(ViewStyle)} for more information about setting
+             * a special chip style for the case where the entire chip is a single icon.
              */
             @NonNull
             public Builder setChipStyle(@NonNull ViewStyle chipStyle) {
                 chipStyle.assertIsValid();
                 mBundle.putBundle(KEY_CHIP_STYLE, chipStyle.getBundle());
-                return this;
-            }
-
-            /**
-             * Sets the chip style for the case where there is a single icon and no text.
-             */
-            @NonNull
-            public Builder setSingleIconChipStyle(@NonNull ViewStyle iconOnlyChipStyle) {
-                iconOnlyChipStyle.assertIsValid();
-                mBundle.putBundle(KEY_SINGLE_ICON_CHIP_STYLE, iconOnlyChipStyle.getBundle());
                 return this;
             }
 
@@ -417,6 +424,10 @@ public final class InlineSuggestionUi {
 
             /**
              * Sets the start icon style.
+             *
+             * <p>See {@link #setSingleIconChipIconStyle(ImageViewStyle)} for more information
+             * about setting a special icon style for the case where the entire chip is a single
+             * icon.
              */
             @NonNull
             public Builder setStartIconStyle(@NonNull ImageViewStyle startIconStyle) {
@@ -432,6 +443,30 @@ public final class InlineSuggestionUi {
             public Builder setEndIconStyle(@NonNull ImageViewStyle endIconStyle) {
                 endIconStyle.assertIsValid();
                 mBundle.putBundle(KEY_END_ICON_STYLE, endIconStyle.getBundle());
+                return this;
+            }
+
+            /**
+             * Sets the chip style for the case where there is a single icon and no text. If not
+             * provided, will fallback to use the chip style provided by {@link #setChipStyle
+             * (ViewStyle)}.
+             */
+            @NonNull
+            public Builder setSingleIconChipStyle(@NonNull ViewStyle chipStyle) {
+                chipStyle.assertIsValid();
+                mBundle.putBundle(KEY_SINGLE_ICON_CHIP_STYLE, chipStyle.getBundle());
+                return this;
+            }
+
+            /**
+             * Sets the icon style for the case where there is a single icon and no text in the
+             * chip. If not provided, will fallback to use the icon style provided by
+             * {@link #setStartIconStyle(ImageViewStyle)}
+             */
+            @NonNull
+            public Builder setSingleIconChipIconStyle(@NonNull ImageViewStyle iconStyle) {
+                iconStyle.assertIsValid();
+                mBundle.putBundle(KEY_SINGLE_ICON_CHIP_ICON_STYLE, iconStyle.getBundle());
                 return this;
             }
 
