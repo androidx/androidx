@@ -1,6 +1,7 @@
 package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.PropertyConfig;
 import java.lang.String;
 
@@ -27,4 +28,13 @@ class $$__AppSearch__Gift {
       .setIndexingType(PropertyConfig.INDEXING_TYPE_NONE)
       .build())
     .build();
+
+  public GenericDocument toGenericDocument(Gift dataClass) {
+    GenericDocument.Builder<?> builder =
+        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
+    builder.setProperty("price", dataClass.price);
+    builder.setProperty("cat", dataClass.cat);
+    builder.setProperty("dog", dataClass.getDog());
+    return builder.build();
+  }
 }
