@@ -1,12 +1,6 @@
 // Signature format: 3.0
 package androidx.paging {
 
-  public final class CachedInConverter<T> implements io.reactivex.FlowableConverter<androidx.paging.PagingData<T>,io.reactivex.Flowable<androidx.paging.PagingData<T>>> io.reactivex.ObservableConverter<androidx.paging.PagingData<T>,io.reactivex.Observable<androidx.paging.PagingData<T>>> {
-    ctor public CachedInConverter(kotlinx.coroutines.CoroutineScope scope);
-    method public io.reactivex.Flowable<androidx.paging.PagingData<T>> apply(io.reactivex.Flowable<androidx.paging.PagingData<T>> pagingDataFlowable);
-    method public io.reactivex.Observable<androidx.paging.PagingData<T>> apply(io.reactivex.Observable<androidx.paging.PagingData<T>> pagingDataObservable);
-  }
-
   public final class PagingRx {
     method public static <T> io.reactivex.Observable<androidx.paging.PagingData<T>> cachedIn(io.reactivex.Observable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
     method public static <T> io.reactivex.Flowable<androidx.paging.PagingData<T>> cachedIn(io.reactivex.Flowable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);

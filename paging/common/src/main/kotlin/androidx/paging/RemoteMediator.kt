@@ -19,8 +19,8 @@ package androidx.paging
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 
 /**
- * Defines a set of callbacks, which may be optionally registered when constructing a stream of
- * [PagingData], that allow for control of the following events:
+ * Defines a set of callbacks, which may be optionally registered when constructing a [Pager], that
+ * allow for control of the following events:
  *  * Stream initialization
  *  * [LoadType.REFRESH] signal driven from UI
  *  * [PagingSource] returns a [PagingSource.LoadResult] which signals a boundary condition, i.e.,

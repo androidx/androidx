@@ -63,6 +63,12 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
  * Then a new [PagingSource] / [PagingData] pair would be created to represent data from the new
  * state of the database query.
  *
+ * ### Presenting Data to UI
+ *
+ * To present data loaded by a [PagingSource] to a `RecyclerView`, create an instance of [Pager],
+ * which provides a stream of [PagingData] that you may collect from and submit to a
+ * [PagingDataAdapter][androidx.paging.PagingDataAdapter].
+ *
  * @param Key Type for unique identifier for items loaded from [PagingSource]. E.g., [Int] to
  * represent an item's position in a [PagingSource] that is keyed by item position. Note that this
  * is distinct from e.g. Room's `<Value>` type loaded by the [PagingSource].
@@ -71,6 +77,8 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
  * `RecyclerView`.
  *
  * @sample androidx.paging.samples.pagingSourceSample
+ *
+ * @see Pager
  */
 abstract class PagingSource<Key : Any, Value : Any> {
 
