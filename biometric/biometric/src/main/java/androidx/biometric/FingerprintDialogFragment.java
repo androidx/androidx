@@ -202,7 +202,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         if (isAdded()) {
             dismissAllowingStateLoss();
         } else {
-            Log.e(TAG, "Failed to dismiss fingerprint dialog fragment. Fragment manager was null.");
+            Log.w(TAG, "Failed to dismiss fingerprint dialog fragment.");
         }
     }
 

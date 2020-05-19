@@ -20,8 +20,6 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
 
 class Utils {
     // Private constructor to prevent instantiation.
@@ -53,27 +51,6 @@ class Utils {
             default:
                 return true;
         }
-    }
-
-    /**
-     * Finishes a given activity if and only if it's a {@link DeviceCredentialHandlerActivity}.
-     *
-     * @param activity The activity to finish.
-     */
-    static void maybeFinishHandler(@Nullable FragmentActivity activity) {
-        if (activity instanceof DeviceCredentialHandlerActivity && !activity.isFinishing()) {
-            activity.finish();
-        }
-    }
-
-    /**
-     * Determines if we are in the process of having the user confirm their PIN/pattern/password.
-     *
-     * @return true if the user is confirming their device credential, or false otherwise.
-     */
-    static boolean isConfirmingDeviceCredential() {
-        DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstanceIfNotNull();
-        return bridge != null && bridge.isConfirmingDeviceCredential();
     }
 
     /**

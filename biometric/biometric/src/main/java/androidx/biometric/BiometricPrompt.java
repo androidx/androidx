@@ -26,7 +26,6 @@ import android.util.Log;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -55,7 +54,6 @@ import javax.crypto.Mac;
  * {@link BiometricPrompt#authenticate(PromptInfo, CryptoObject)} does not need to be invoked after
  * the new activity/fragment is created, since we are keeping/continuing the same session.
  */
-@SuppressLint("SyntheticAccessor")
 public class BiometricPrompt implements BiometricConstants {
     private static final String TAG = "BiometricPromptCompat";
 
@@ -67,7 +65,6 @@ public class BiometricPrompt implements BiometricConstants {
     static final String KEY_NEGATIVE_TEXT = "negative_text";
     static final String KEY_REQUIRE_CONFIRMATION = "require_confirmation";
     static final String KEY_ALLOW_DEVICE_CREDENTIAL = "allow_device_credential";
-    static final String KEY_HANDLING_DEVICE_CREDENTIAL_RESULT = "handling_device_credential_result";
 
     @Retention(SOURCE)
     @IntDef({ERROR_HW_UNAVAILABLE,
@@ -303,18 +300,6 @@ public class BiometricPrompt implements BiometricConstants {
             }
 
             /**
-             * A flag that is set to true when launching the prompt within the transparent
-             * {@link DeviceCredentialHandlerActivity}. This lets us handle the result of {@link
-             * android.app.KeyguardManager#createConfirmDeviceCredentialIntent(CharSequence,
-             * CharSequence)} in order to allow device credentials for <= P.
-             */
-            @NonNull
-            Builder setHandlingDeviceCredentialResult(boolean isHandling) {
-                mBundle.putBoolean(KEY_HANDLING_DEVICE_CREDENTIAL_RESULT, isHandling);
-                return this;
-            }
-
-            /**
              * Creates a {@link BiometricPrompt}.
              *
              * @return a {@link BiometricPrompt}
@@ -325,8 +310,6 @@ public class BiometricPrompt implements BiometricConstants {
                 final CharSequence title = mBundle.getCharSequence(KEY_TITLE);
                 final CharSequence negative = mBundle.getCharSequence(KEY_NEGATIVE_TEXT);
                 boolean allowDeviceCredential = mBundle.getBoolean(KEY_ALLOW_DEVICE_CREDENTIAL);
-                boolean handlingDeviceCredentialResult =
-                        mBundle.getBoolean(KEY_HANDLING_DEVICE_CREDENTIAL_RESULT);
 
                 if (TextUtils.isEmpty(title)) {
                     throw new IllegalArgumentException("Title must be set and non-empty");
@@ -337,10 +320,6 @@ public class BiometricPrompt implements BiometricConstants {
                 if (!TextUtils.isEmpty(negative) && allowDeviceCredential) {
                     throw new IllegalArgumentException("Can't have both negative button behavior"
                             + " and device credential enabled");
-                }
-                if (handlingDeviceCredentialResult && !allowDeviceCredential) {
-                    throw new IllegalArgumentException("Can't be handling device credential result"
-                            + " without device credential enabled");
                 }
                 return new PromptInfo(mBundle);
             }
@@ -401,16 +380,6 @@ public class BiometricPrompt implements BiometricConstants {
         public boolean isDeviceCredentialAllowed() {
             return mBundle.getBoolean(KEY_ALLOW_DEVICE_CREDENTIAL);
         }
-
-        /**
-         * @return See {@link Builder#setHandlingDeviceCredentialResult(boolean)}.
-         *
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        boolean isHandlingDeviceCredentialResult() {
-            return mBundle.getBoolean(KEY_HANDLING_DEVICE_CREDENTIAL_RESULT);
-        }
     }
 
     // Fragment attached to the client activity that coordinates logic for the prompt.
@@ -425,7 +394,6 @@ public class BiometricPrompt implements BiometricConstants {
      * the {@link BiometricPrompt} can be used to update the {@link Executor} and
      * {@link AuthenticationCallback}. This should be used to update the
      * {@link AuthenticationCallback} after configuration changes.
-     * such as {@link FragmentActivity#onCreate(Bundle)}.
      *
      * @param fragmentActivity A reference to the client's activity.
      * @param executor         An executor to handle callback events.
@@ -462,7 +430,6 @@ public class BiometricPrompt implements BiometricConstants {
      * the {@link BiometricPrompt} can be used to update the {@link Executor} and
      * {@link AuthenticationCallback}. This should be used to update the
      * {@link AuthenticationCallback} after configuration changes.
-     * such as {@link Fragment#onCreate(Bundle)}.
      *
      * @param fragment A reference to the client's fragment.
      * @param executor An executor to handle callback events.
@@ -547,7 +514,7 @@ public class BiometricPrompt implements BiometricConstants {
         if (mBiometricFragment == null) {
             Log.e(TAG, "Unable to cancel authentication; BiometricFragment was null");
         } else {
-            mBiometricFragment.cancelAuthentication();
+            mBiometricFragment.cancel(BiometricFragment.USER_CANCELED_FROM_NONE);
         }
     }
 
