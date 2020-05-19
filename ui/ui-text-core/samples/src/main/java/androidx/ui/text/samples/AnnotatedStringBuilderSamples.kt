@@ -117,3 +117,17 @@ fun AnnotatedStringBuilderLambdaSample() {
         }
     }
 }
+
+@Sampled
+fun AnnotatedStringAddStringAnnotationSample() {
+    with(AnnotatedString.Builder()) {
+        append("link: Jetpack Compose")
+        // attach a string annotation that stores a URL to the text "Jetpack Compose".
+        addStringAnnotation(
+            scope = "URL",
+            annotation = "https://developer.android.com/jetpack/compose",
+            start = 6,
+            end = 21
+        )
+    }
+}
