@@ -103,6 +103,10 @@ SetterReturnsThis: androidx.navigation.PopUpToBuilder#setInclusive(boolean):
     Methods must return the builder object (return type androidx.navigation.PopUpToBuilder instead of void): method androidx.navigation.PopUpToBuilder.setInclusive(boolean)
 
 
+StaticFinalBuilder: androidx.navigation.NavDestinationBuilder:
+    Builder must be final: androidx.navigation.NavDestinationBuilder
+
+
 TopLevelBuilder: androidx.navigation.AnimBuilder:
     Builder should be defined as inner class: androidx.navigation.AnimBuilder
 TopLevelBuilder: androidx.navigation.NavActionBuilder:

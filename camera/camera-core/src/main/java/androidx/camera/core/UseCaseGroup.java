@@ -63,7 +63,7 @@ public final class UseCaseGroup {
      * A builder for generating {@link UseCaseGroup}.
      */
     @ExperimentalUseCaseGroup
-    public static class Builder {
+    public static final class Builder {
 
         private ViewPort mViewPort;
 

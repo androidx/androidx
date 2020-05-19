@@ -647,3 +647,7 @@ ParcelNotFinal: android.support.v4.media.MediaBrowserCompat.MediaItem:
     Parcelable classes must be final: android.support.v4.media.MediaBrowserCompat.MediaItem is not final
 ParcelNotFinal: android.support.v4.media.session.ParcelableVolumeInfo:
     Parcelable classes must be final: android.support.v4.media.session.ParcelableVolumeInfo is not final
+
+
+StaticFinalBuilder: androidx.media.AudioAttributesCompat.Builder:
+    Builder must be final: androidx.media.AudioAttributesCompat.Builder

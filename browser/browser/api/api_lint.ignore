@@ -107,6 +107,10 @@ PublicTypedef: androidx.browser.customtabs.CustomTabsService.Result:
     Don't expose @IntDef: Result must be hidden.
 
 
+StaticFinalBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder:
+    Builder must be final: androidx.browser.trusted.TrustedWebActivityIntentBuilder
+
+
 StreamFiles: androidx.browser.customtabs.TrustedWebUtils#transferSplashImage(android.content.Context, java.io.File, String, String, androidx.browser.customtabs.CustomTabsSession):
     Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.browser.customtabs.TrustedWebUtils.transferSplashImage(android.content.Context,java.io.File,String,String,androidx.browser.customtabs.CustomTabsSession)
 

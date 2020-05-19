@@ -919,6 +919,10 @@ ParcelNotFinal: androidx.appcompat.widget.Toolbar.SavedState:
     Parcelable classes must be final: androidx.appcompat.widget.Toolbar.SavedState is not final
 
 
+StaticFinalBuilder: androidx.appcompat.app.AlertDialog.Builder:
+    Builder must be final: androidx.appcompat.app.AlertDialog.Builder
+
+
 VisiblySynchronized: androidx.appcompat.widget.AppCompatRatingBar#onMeasure(int, int):
     Internal locks must not be exposed: method androidx.appcompat.widget.AppCompatRatingBar.onMeasure(int,int)
 VisiblySynchronized: androidx.appcompat.widget.AppCompatSeekBar#onDraw(android.graphics.Canvas):

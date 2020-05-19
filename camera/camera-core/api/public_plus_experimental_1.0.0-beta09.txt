@@ -343,7 +343,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ViewPort getViewPort();
   }
 
-  @androidx.camera.core.ExperimentalUseCaseGroup public static class UseCaseGroup.Builder {
+  @androidx.camera.core.ExperimentalUseCaseGroup public static final class UseCaseGroup.Builder {
     ctor public UseCaseGroup.Builder();
     method public androidx.camera.core.UseCaseGroup.Builder addUseCase(androidx.camera.core.UseCase);
     method public androidx.camera.core.UseCaseGroup build();
@@ -360,7 +360,7 @@ package androidx.camera.core {
     field public static final int FIT = 3; // 0x3
   }
 
-  @androidx.camera.core.ExperimentalUseCaseGroup public static class ViewPort.Builder {
+  @androidx.camera.core.ExperimentalUseCaseGroup public static final class ViewPort.Builder {
     ctor public ViewPort.Builder(android.util.Rational, int);
     method public androidx.camera.core.ViewPort build();
   }

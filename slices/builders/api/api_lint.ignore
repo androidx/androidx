@@ -105,6 +105,24 @@ MissingNullability: androidx.slice.builders.SliceAction#createToggle(androidx.re
     Missing nullability on method `createToggle` return
 
 
+StaticFinalBuilder: androidx.slice.builders.GridRowBuilder:
+    Builder must be final: androidx.slice.builders.GridRowBuilder
+StaticFinalBuilder: androidx.slice.builders.GridRowBuilder.CellBuilder:
+    Builder must be final: androidx.slice.builders.GridRowBuilder.CellBuilder
+StaticFinalBuilder: androidx.slice.builders.ListBuilder.HeaderBuilder:
+    Builder must be final: androidx.slice.builders.ListBuilder.HeaderBuilder
+StaticFinalBuilder: androidx.slice.builders.ListBuilder.InputRangeBuilder:
+    Builder must be final: androidx.slice.builders.ListBuilder.InputRangeBuilder
+StaticFinalBuilder: androidx.slice.builders.ListBuilder.RangeBuilder:
+    Builder must be final: androidx.slice.builders.ListBuilder.RangeBuilder
+StaticFinalBuilder: androidx.slice.builders.ListBuilder.RowBuilder:
+    Builder must be final: androidx.slice.builders.ListBuilder.RowBuilder
+StaticFinalBuilder: androidx.slice.builders.SelectionBuilder:
+    Builder must be final: androidx.slice.builders.SelectionBuilder
+StaticFinalBuilder: androidx.slice.builders.TemplateSliceBuilder:
+    Builder must be final: androidx.slice.builders.TemplateSliceBuilder
+
+
 TopLevelBuilder: androidx.slice.builders.GridRowBuilder:
     Builder should be defined as inner class: androidx.slice.builders.GridRowBuilder
 TopLevelBuilder: androidx.slice.builders.SelectionBuilder:
