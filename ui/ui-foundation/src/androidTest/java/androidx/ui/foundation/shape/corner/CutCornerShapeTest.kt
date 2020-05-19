@@ -41,7 +41,7 @@ class CutCornerShapeTest {
 
     @Test
     fun cutCornersUniformCorners() {
-        val cut = CutCornerShape(10.px)
+        val cut = CutCornerShape(10.0f)
 
         val outline = cut.toOutline() as Outline.Generic
         assertPathsEquals(outline.path, Path().apply {
@@ -63,7 +63,7 @@ class CutCornerShapeTest {
         val size2 = 22f
         val size3 = 32f
         val size4 = 42f
-        val cut = CutCornerShape(size1.px, size2.px, size3.px, size4.px)
+        val cut = CutCornerShape(size1, size2, size3, size4)
 
         val outline = cut.toOutline() as Outline.Generic
         assertPathsEquals(outline.path, Path().apply {
@@ -81,7 +81,7 @@ class CutCornerShapeTest {
 
     @Test
     fun createsRectangleOutlineForZeroSizedCorners() {
-        val rounded = CutCornerShape(0.px, 0.px, 0.px, 0.px)
+        val rounded = CutCornerShape(0.0f, 0.0f, 0.0f, 0.0f)
 
         assertThat(rounded.toOutline())
             .isEqualTo(Outline.Rectangle(size.toRect()))
@@ -89,25 +89,25 @@ class CutCornerShapeTest {
 
     @Test
     fun cutCornerShapesAreEquals() {
-        assertThat(CutCornerShape(10.px))
-            .isEqualTo(CutCornerShape(10.px))
+        assertThat(CutCornerShape(10.0f))
+            .isEqualTo(CutCornerShape(10.0f))
     }
 
     @Test
     fun cutCornerUpdateAllCornerSize() {
-        assertThat(CutCornerShape(10.px).copy(CornerSize(5.px)))
-            .isEqualTo(CutCornerShape(5.px))
+        assertThat(CutCornerShape(10.0f).copy(CornerSize(5.0f)))
+            .isEqualTo(CutCornerShape(5.0f))
     }
 
     @Test
     fun cutCornerUpdateTwoCornerSizes() {
-        assertThat(CutCornerShape(10.px).copy(
+        assertThat(CutCornerShape(10.0f).copy(
             topRight = CornerSize(3.dp),
             bottomLeft = CornerSize(50)
         )).isEqualTo(CutCornerShape(
-            topLeft = CornerSize(10.px),
+            topLeft = CornerSize(10.0f),
             topRight = CornerSize(3.dp),
-            bottomRight = CornerSize(10.px),
+            bottomRight = CornerSize(10.0f),
             bottomLeft = CornerSize(50)
         ))
     }

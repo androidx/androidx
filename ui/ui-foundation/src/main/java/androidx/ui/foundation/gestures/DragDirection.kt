@@ -17,7 +17,6 @@
 package androidx.ui.foundation.gestures
 
 import androidx.ui.core.Direction
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 
 /**
@@ -27,21 +26,21 @@ import androidx.ui.unit.PxPosition
 sealed class DragDirection {
 
     // TODO: remove internals for children when b/137357249 is ready
-    internal abstract val xProjection: (Px) -> Float
-    internal abstract val yProjection: (Px) -> Float
+    internal abstract val xProjection: (Float) -> Float
+    internal abstract val yProjection: (Float) -> Float
     internal abstract val isDraggableInDirection: (
         direction: Direction,
         currentValue: Float
     ) -> Boolean
 
-    internal open fun project(pos: PxPosition) = xProjection(pos.x) + yProjection(pos.y)
+    internal open fun project(pos: PxPosition) = xProjection(pos.x.value) + yProjection(pos.y.value)
 
     /**
      * Horizontal direction of dragging in [draggable] or [scrollable].
      */
     object Horizontal : DragDirection() {
-        internal override val xProjection: (Px) -> Float = { it.value }
-        internal override val yProjection: (Px) -> Float = { 0f }
+        internal override val xProjection: (Float) -> Float = { it }
+        internal override val yProjection: (Float) -> Float = { 0f }
         internal override val isDraggableInDirection:
                     (direction: Direction, currentValue: Float) -> Boolean =
             { direction, _ ->
@@ -57,8 +56,8 @@ sealed class DragDirection {
      * Vertical direction of dragging in [draggable] or [scrollable].
      */
     object Vertical : DragDirection() {
-        internal override val xProjection: (Px) -> Float = { 0f }
-        internal override val yProjection: (Px) -> Float = { it.value }
+        internal override val xProjection: (Float) -> Float = { 0f }
+        internal override val yProjection: (Float) -> Float = { it }
         internal override val isDraggableInDirection: (
             direction: Direction,
             currentValue: Float

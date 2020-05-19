@@ -25,9 +25,7 @@ import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 
 /**
  * The data class which holds the set of parameters of the text layout computation.
@@ -115,12 +113,12 @@ data class TextLayoutResult internal constructor(
     /**
      * The distance from the top to the alphabetic baseline of the first line.
      */
-    val firstBaseline: Px = multiParagraph.firstBaseline.px
+    val firstBaseline: Float = multiParagraph.firstBaseline
 
     /**
      * The distance from the top to the alphabetic baseline of the last line.
      */
-    val lastBaseline: Px = multiParagraph.lastBaseline.px
+    val lastBaseline: Float = multiParagraph.lastBaseline
 
     /**
      * Returns true if the text is too tall and couldn't fit with given height.
@@ -171,7 +169,7 @@ data class TextLayoutResult internal constructor(
      * @param lineIndex the line number
      * @return the line top y coordinate
      */
-    fun getLineTop(lineIndex: Int): Px = multiParagraph.getLineTop(lineIndex).px
+    fun getLineTop(lineIndex: Int): Float = multiParagraph.getLineTop(lineIndex)
 
     /**
      * Returns the bottom y coordinate of the given line.
@@ -179,7 +177,7 @@ data class TextLayoutResult internal constructor(
      * @param lineIndex the line number
      * @return the line bottom y coordinate
      */
-    fun getLineBottom(lineIndex: Int): Px = multiParagraph.getLineBottom(lineIndex).px
+    fun getLineBottom(lineIndex: Int): Float = multiParagraph.getLineBottom(lineIndex)
 
     /**
      * Returns the line number on which the specified text offset appears.
@@ -210,8 +208,8 @@ data class TextLayoutResult internal constructor(
      * @return the relative distance from the text starting edge.
      * @see MultiParagraph.getHorizontalPosition
      */
-    fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Px =
-        multiParagraph.getHorizontalPosition(offset, usePrimaryDirection).px
+    fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float =
+        multiParagraph.getHorizontalPosition(offset, usePrimaryDirection)
 
     /**
      * Get the text direction of the paragraph containing the given offset.

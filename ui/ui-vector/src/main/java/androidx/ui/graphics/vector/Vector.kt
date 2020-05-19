@@ -30,7 +30,6 @@ import androidx.ui.graphics.Path
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.withSave
-import androidx.ui.unit.Px
 import kotlin.math.ceil
 
 const val DefaultGroupName = ""
@@ -93,16 +92,16 @@ sealed class VNode {
 class VectorComponent(
     var viewportWidth: Float,
     var viewportHeight: Float,
-    var defaultWidth: Px,
-    var defaultHeight: Px,
+    var defaultWidth: Float,
+    var defaultHeight: Float,
     val name: String = ""
 ) : VNode() {
 
     val root = GroupComponent(this@VectorComponent.name).apply {
         pivotX = 0.0f
         pivotY = 0.0f
-        scaleX = defaultWidth.value / viewportWidth
-        scaleY = defaultHeight.value / viewportHeight
+        scaleX = defaultWidth / viewportWidth
+        scaleY = defaultHeight / viewportHeight
         invalidateListener = {
             isDirty = true
         }
@@ -126,8 +125,8 @@ class VectorComponent(
         var targetImage = cachedImage
         if (targetImage == null) {
             targetImage = ImageAsset(
-                ceil(defaultWidth.value).toInt(),
-                ceil(defaultHeight.value).toInt()
+                ceil(defaultWidth).toInt(),
+                ceil(defaultHeight).toInt()
             )
             cachedImage = targetImage
         }

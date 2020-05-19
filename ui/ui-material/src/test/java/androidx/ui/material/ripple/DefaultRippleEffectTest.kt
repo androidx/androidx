@@ -31,7 +31,7 @@ class DefaultRippleEffectTest {
     @Test
     fun testStartRadius() {
         val size = PxSize(10.px, 30.px)
-        val expectedRadius = 9.px // 30% of 30
+        val expectedRadius = 9.0f // 30% of 30
 
         // Top-level functions are not resolved properly in IR modules
         val result = getRippleStartRadius(size)
@@ -49,7 +49,7 @@ class DefaultRippleEffectTest {
             halfDistance(width, height) + 10.dp.toPx().value
         }
         val result = with(density) { getRippleEndRadius(true, size) }
-        assertThat(result).isEqualTo(expectedRadius.px)
+        assertThat(result).isEqualTo(expectedRadius)
     }
 
     @Test
@@ -59,7 +59,7 @@ class DefaultRippleEffectTest {
         val size = PxSize(width.px, height.px)
         val expectedRadius = halfDistance(width, height)
         val result = with(Density(1f)) { getRippleEndRadius(false, size) }
-        assertThat(result).isEqualTo(expectedRadius.px)
+        assertThat(result).isEqualTo(expectedRadius)
     }
 
     private fun halfDistance(width: Float, height: Float) =

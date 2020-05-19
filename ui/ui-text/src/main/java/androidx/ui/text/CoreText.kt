@@ -48,8 +48,8 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
 import androidx.ui.unit.px
-import androidx.ui.unit.round
 import kotlin.math.floor
+import kotlin.math.roundToInt
 
 /** The default selection color if none is specified. */
 internal val DefaultSelectionColor = Color(0x6633B5E5)
@@ -227,8 +227,8 @@ fun CoreText(
             // round.
             // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/jni/android/graphics/Paint.cpp;l=635?q=Paint.cpp
             mapOf(
-                FirstBaseline to layoutResult.firstBaseline.round(),
-                LastBaseline to layoutResult.lastBaseline.round()
+                FirstBaseline to layoutResult.firstBaseline.roundToInt().ipx,
+                LastBaseline to layoutResult.lastBaseline.roundToInt().ipx
             )
         ) {
             for (placeable in placeables) {

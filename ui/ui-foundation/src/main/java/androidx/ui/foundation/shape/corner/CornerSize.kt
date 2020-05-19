@@ -20,24 +20,22 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.minDimension
-import androidx.ui.unit.px
 
 /**
- * Defines size of a corner in [Px]. For example for rounded shape it can be a corner radius.
+ * Defines size of a corner in pixels. For example for rounded shape it can be a corner radius.
  */
 interface CornerSize {
     /**
-     * Converts the [CornerSize] to [Px].
+     * Converts the [CornerSize] to pixels.
      *
      * @param shapeSize the size of the shape
      * @param density the current density of the screen.
      *
-     * @return resolved size of the corner in [Px]
+     * @return resolved size of the corner in pixels
      */
-    fun toPx(shapeSize: PxSize, density: Density): Px
+    fun toPx(shapeSize: PxSize, density: Density): Float
 }
 
 /**
@@ -48,16 +46,16 @@ fun CornerSize(size: Dp): CornerSize = DpCornerSize(size)
 
 private data class DpCornerSize(private val size: Dp) : CornerSize {
     override fun toPx(shapeSize: PxSize, density: Density) =
-        with(density) { size.toPx() }
+        with(density) { size.toPx().value }
 }
 
 /**
  * Creates [CornerSize] with provided size.
- * @param size the corner size defined in [Px].
+ * @param size the corner size defined in pixels.
  */
-fun CornerSize(size: Px): CornerSize = PxCornerSize(size)
+fun CornerSize(size: Float): CornerSize = PxCornerSize(size)
 
-private data class PxCornerSize(private val size: Px) : CornerSize {
+private data class PxCornerSize(private val size: Float) : CornerSize {
     override fun toPx(shapeSize: PxSize, density: Density) = size
 }
 
@@ -66,18 +64,17 @@ private data class PxCornerSize(private val size: Px) : CornerSize {
  * @param percent the corner size defined in percents of the shape's smaller side.
  * Can't be negative or larger then 50 percents.
  */
-fun /*inline*/ CornerSize(@IntRange(from = 0, to = 50) percent: Int) =
-    CornerSize(percent.toFloat())
+fun CornerSize(@IntRange(from = 0, to = 50) percent: Int): CornerSize =
+    PercentCornerSize(percent.toFloat())
 
 /**
  * Creates [CornerSize] with provided size.
  * @param percent the corner size defined in float percents of the shape's smaller side.
  * Can't be negative or larger then 50 percents.
  */
-fun CornerSize(@FloatRange(from = 0.0, to = 50.0) percent: Float): CornerSize =
-    PercentCornerSize(percent)
-
-private data class PercentCornerSize(private val percent: Float) : CornerSize {
+private data class PercentCornerSize(
+    @FloatRange(from = 0.0, to = 50.0) private val percent: Float
+) : CornerSize {
     init {
         if (percent < 0 || percent > 50) {
             throw IllegalArgumentException("The percent should be in the range of [0, 50]")
@@ -85,12 +82,12 @@ private data class PercentCornerSize(private val percent: Float) : CornerSize {
     }
 
     override fun toPx(shapeSize: PxSize, density: Density) =
-        shapeSize.minDimension * (percent / 100f)
+        shapeSize.minDimension.value * (percent / 100f)
 }
 
 /**
  * [CornerSize] always equals to zero.
  */
 val ZeroCornerSize: CornerSize = object : CornerSize {
-    override fun toPx(shapeSize: PxSize, density: Density) = 0.px
+    override fun toPx(shapeSize: PxSize, density: Density) = 0.0f
 }

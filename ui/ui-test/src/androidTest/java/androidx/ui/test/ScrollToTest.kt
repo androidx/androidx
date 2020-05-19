@@ -26,9 +26,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
-import androidx.ui.unit.Px
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.Rule
@@ -74,9 +72,9 @@ class ScrollToTest {
 
     @Test
     fun checkSemanticsAction_scrollTo_coordAreCorrect() {
-        var currentScrollPositionY = 0.px
-        var currentScrollPositionX = 0.px
-        var elementHeight = 0.px
+        var currentScrollPositionY = 0.0f
+        var currentScrollPositionX = 0.0f
+        var elementHeight = 0.0f
         val tag = "myTag"
 
         val drawRect = @Composable { color: Color ->
@@ -84,7 +82,7 @@ class ScrollToTest {
                 Canvas(Modifier.preferredSize(100.dp)) {
                     drawRect(color)
 
-                    elementHeight = Px(size.height)
+                    elementHeight = size.height
                 }
             }
         }
@@ -94,8 +92,8 @@ class ScrollToTest {
             // doesn't try to include the padding
             Semantics(container = true, properties = {
                 ScrollTo(action = { x, y ->
-                    currentScrollPositionY = y
-                    currentScrollPositionX = x
+                    currentScrollPositionY = y.value
+                    currentScrollPositionX = x.value
                     return@ScrollTo true
                 })
             }) {
@@ -114,8 +112,8 @@ class ScrollToTest {
         }
 
         runOnIdleCompose {
-            Truth.assertThat(currentScrollPositionY).isEqualTo(0.px)
-            Truth.assertThat(currentScrollPositionX).isEqualTo(0.px)
+            Truth.assertThat(currentScrollPositionY).isEqualTo(0.0f)
+            Truth.assertThat(currentScrollPositionX).isEqualTo(0.0f)
         }
 
         findByTag(tag)
@@ -124,7 +122,7 @@ class ScrollToTest {
         runOnIdleCompose {
             val expected = elementHeight * 2
             Truth.assertThat(currentScrollPositionY).isEqualTo(expected)
-            Truth.assertThat(currentScrollPositionX).isEqualTo(0.px)
+            Truth.assertThat(currentScrollPositionX).isEqualTo(0.0f)
         }
     }
 }

@@ -659,7 +659,7 @@ class FilledTextFieldTest {
                 shapeColor = Color.White,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                shapeOverlapPixelCount = with(testRule.density) { 3.dp.toPx() }
+                shapeOverlapPixelCount = with(testRule.density) { 3.dp.toPx().value }
             )
     }
 

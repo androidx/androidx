@@ -509,7 +509,9 @@ package androidx.ui.unit {
 
   public final class PxKt {
     method public static inline androidx.ui.unit.PxBounds PxBounds(androidx.ui.unit.PxPosition topLeft, androidx.ui.unit.PxSize size);
+    method public static inline androidx.ui.unit.PxPosition PxPosition(float x, float y);
     method public static inline androidx.ui.unit.PxPosition PxPosition-qHcltEY(float x, float y);
+    method public static inline androidx.ui.unit.PxSize PxSize(float width, float height);
     method public static inline androidx.ui.unit.PxSize PxSize-qHcltEY(float width, float height);
     method public static inline float abs-NgWp0Z8(float x);
     method public static androidx.ui.unit.PxPosition center(androidx.ui.unit.PxSize);

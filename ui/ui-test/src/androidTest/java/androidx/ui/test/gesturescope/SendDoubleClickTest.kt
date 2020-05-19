@@ -30,7 +30,6 @@ import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -38,8 +37,8 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-private val width = 200.px
-private val height = 200.px
+private val width = 200.0f
+private val height = 200.0f
 private val expectedDelay = 145.milliseconds
 private const val tag = "widget"
 
@@ -110,8 +109,8 @@ class SendDoubleClickWithArgumentsTest(private val config: TestConfig) {
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return mutableListOf<TestConfig>().apply {
-                for (x in listOf(1.px, 33.px, 99.px)) {
-                    for (y in listOf(1.px, 33.px, 99.px)) {
+                for (x in listOf(1.0f, 33.0f, 99.0f)) {
+                    for (y in listOf(1.0f, 33.0f, 99.0f)) {
                         add(TestConfig(PxPosition(x, y)))
                     }
                 }

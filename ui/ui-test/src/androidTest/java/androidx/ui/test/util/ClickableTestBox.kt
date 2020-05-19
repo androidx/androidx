@@ -27,11 +27,9 @@ import androidx.ui.semantics.testTag
 import androidx.ui.test.util.ClickableTestBox.defaultColor
 import androidx.ui.test.util.ClickableTestBox.defaultSize
 import androidx.ui.test.util.ClickableTestBox.defaultTag
-import androidx.ui.unit.Px
-import androidx.ui.unit.px
 
 object ClickableTestBox {
-    val defaultSize = 100.px
+    val defaultSize = 100.0f
     val defaultColor = Color.Yellow
     const val defaultTag = "ClickableTestBox"
 }
@@ -39,8 +37,8 @@ object ClickableTestBox {
 @Composable
 fun ClickableTestBox(
     modifier: Modifier = Modifier,
-    width: Px = defaultSize,
-    height: Px = defaultSize,
+    width: Float = defaultSize,
+    height: Float = defaultSize,
     color: Color = defaultColor,
     tag: String = defaultTag
 ) {

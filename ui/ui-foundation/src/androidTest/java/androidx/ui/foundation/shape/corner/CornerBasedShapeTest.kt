@@ -20,10 +20,8 @@ import androidx.test.filters.SmallTest
 import androidx.ui.geometry.RRect
 import androidx.ui.graphics.Outline
 import androidx.ui.unit.Density
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import androidx.ui.unit.toRect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -37,23 +35,23 @@ class CornerBasedShapeTest {
     @Test
     fun createOutlineCalledWithCorrectParams() {
         val density = Density(2f, 1f)
-        val passedSize = PxSize(100.px, 50.px)
+        val passedSize = PxSize(100.0f, 50.0f)
         var assertionExecuted = false
         val assertSizes = { size: PxSize,
-                            topLeft: Px,
-                            topRight: Px,
-                            bottomRight: Px,
-                            bottomLeft: Px ->
+                            topLeft: Float,
+                            topRight: Float,
+                            bottomRight: Float,
+                            bottomLeft: Float ->
             assertThat(size).isEqualTo(passedSize)
-            assertThat(topLeft).isEqualTo(4.px)
-            assertThat(topRight).isEqualTo(3.px)
-            assertThat(bottomRight).isEqualTo(6.px)
-            assertThat(bottomLeft).isEqualTo(25.px)
+            assertThat(topLeft).isEqualTo(4.0f)
+            assertThat(topRight).isEqualTo(3.0f)
+            assertThat(bottomRight).isEqualTo(6.0f)
+            assertThat(bottomLeft).isEqualTo(25.0f)
             assertionExecuted = true
         }
         val impl = Impl(
-            topLeft = CornerSize(4.px),
-            topRight = CornerSize(3.px),
+            topLeft = CornerSize(4.0f),
+            topRight = CornerSize(3.0f),
             bottomRight = CornerSize(3.dp),
             bottomLeft = CornerSize(50),
             onOutlineRequested = assertSizes
@@ -68,27 +66,27 @@ class CornerBasedShapeTest {
     @Test
     fun cornersSizesAreNotLargerThenMinDimension() {
         val density = Density(2f, 1f)
-        val sizeWithLargerWidth = PxSize(6.px, 4.px)
-        val sizeWithLargerHeight = PxSize(4.px, 6.px)
+        val sizeWithLargerWidth = PxSize(6.0f, 4.0f)
+        val sizeWithLargerHeight = PxSize(4.0f, 6.0f)
 
         val sizesList = mutableListOf<PxSize>()
         val assertSizes = { size: PxSize,
-                            topLeft: Px,
-                            topRight: Px,
-                            bottomRight: Px,
-                            bottomLeft: Px ->
+                            topLeft: Float,
+                            topRight: Float,
+                            bottomRight: Float,
+                            bottomLeft: Float ->
             sizesList.add(size)
-            assertThat(topLeft).isEqualTo(2.px)
-            assertThat(topRight).isEqualTo(2.px)
-            assertThat(bottomRight).isEqualTo(1.px)
-            assertThat(bottomLeft).isEqualTo(2.px)
+            assertThat(topLeft).isEqualTo(2.0f)
+            assertThat(topRight).isEqualTo(2.0f)
+            assertThat(bottomRight).isEqualTo(1.0f)
+            assertThat(bottomLeft).isEqualTo(2.0f)
         }
 
         val impl = Impl(
-            topLeft = CornerSize(10.px),
+            topLeft = CornerSize(10.0f),
             topRight = CornerSize(6.dp),
-            bottomRight = CornerSize(1.px),
-            bottomLeft = CornerSize(2.px),
+            bottomRight = CornerSize(1.0f),
+            bottomLeft = CornerSize(2.0f),
             onOutlineRequested = assertSizes
         )
 
@@ -103,14 +101,14 @@ class CornerBasedShapeTest {
         @Suppress("ReplaceCallWithBinaryOperator")
         assertThat(
             Impl2(
-                topLeft = CornerSize(4.px),
-                topRight = CornerSize(3.px),
+                topLeft = CornerSize(4.0f),
+                topRight = CornerSize(3.0f),
                 bottomRight = CornerSize(3.dp),
                 bottomLeft = CornerSize(50)
             ).equals(
                 Impl2(
-                    topLeft = CornerSize(4.px),
-                    topRight = CornerSize(3.px),
+                    topLeft = CornerSize(4.0f),
+                    topRight = CornerSize(3.0f),
                     bottomRight = CornerSize(3.dp),
                     bottomLeft = CornerSize(50)
                 )
@@ -123,14 +121,14 @@ class CornerBasedShapeTest {
         @Suppress("ReplaceCallWithBinaryOperator")
         assertThat(
             Impl(
-                topLeft = CornerSize(4.px),
-                topRight = CornerSize(3.px),
+                topLeft = CornerSize(4.0f),
+                topRight = CornerSize(3.0f),
                 bottomRight = CornerSize(3.dp),
                 bottomLeft = CornerSize(50)
             ).equals(
                 Impl2(
-                    topLeft = CornerSize(4.px),
-                    topRight = CornerSize(3.px),
+                    topLeft = CornerSize(4.0f),
+                    topRight = CornerSize(3.0f),
                     bottomRight = CornerSize(3.dp),
                     bottomLeft = CornerSize(50)
                 )
@@ -141,8 +139,8 @@ class CornerBasedShapeTest {
     @Test
     fun copyingUsesCorrectDefaults() {
         val impl = Impl(
-            topLeft = CornerSize(4.px),
-            topRight = CornerSize(3.px),
+            topLeft = CornerSize(4.0f),
+            topRight = CornerSize(3.0f),
             bottomRight = CornerSize(3.dp),
             bottomLeft = CornerSize(50)
         )
@@ -156,15 +154,15 @@ private class Impl(
     topRight: CornerSize,
     bottomRight: CornerSize,
     bottomLeft: CornerSize,
-    private val onOutlineRequested: ((PxSize, Px, Px, Px, Px) -> Unit)? = null
+    private val onOutlineRequested: ((PxSize, Float, Float, Float, Float) -> Unit)? = null
 ) : CornerBasedShape(topLeft, topRight, bottomRight, bottomLeft) {
 
     override fun createOutline(
         size: PxSize,
-        topLeft: Px,
-        topRight: Px,
-        bottomRight: Px,
-        bottomLeft: Px
+        topLeft: Float,
+        topRight: Float,
+        bottomRight: Float,
+        bottomLeft: Float
     ): Outline {
         onOutlineRequested?.invoke(size, topLeft, topRight, bottomRight, bottomLeft)
         return Outline.Rectangle(size.toRect())
@@ -187,10 +185,10 @@ private class Impl2(
 
     override fun createOutline(
         size: PxSize,
-        topLeft: Px,
-        topRight: Px,
-        bottomRight: Px,
-        bottomLeft: Px
+        topLeft: Float,
+        topRight: Float,
+        bottomRight: Float,
+        bottomLeft: Float
     ): Outline {
         return Outline.Rounded(RRect(size.toRect()))
     }
