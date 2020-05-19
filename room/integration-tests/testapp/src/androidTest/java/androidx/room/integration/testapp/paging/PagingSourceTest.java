@@ -33,11 +33,13 @@ public class PagingSourceTest extends TestDatabaseTest {
 
     @Test
     public void returnsNewInstance() {
-        PagingSource<Integer, User> pagingSource = mUserDao.loadPagedByAgePagingSource(3);
+        PagingSource<Integer, User> pagingSource = mPagingSourceOnlyUserDao
+                .loadPagedByAgePagingSource(3);
         pagingSource.invalidate();
         assertThat(pagingSource.getInvalid()).isTrue();
 
-        PagingSource<Integer, User> newPagingSource = mUserDao.loadPagedByAgePagingSource(3);
+        PagingSource<Integer, User> newPagingSource = mPagingSourceOnlyUserDao
+                .loadPagedByAgePagingSource(3);
         assertThat(newPagingSource.getInvalid()).isFalse();
 
         assertThat(pagingSource).isNotEqualTo(newPagingSource);

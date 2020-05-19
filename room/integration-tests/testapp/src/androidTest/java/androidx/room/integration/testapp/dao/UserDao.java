@@ -20,7 +20,6 @@ import android.database.Cursor;
 
 import androidx.lifecycle.LiveData;
 import androidx.paging.DataSource;
-import androidx.paging.PagingSource;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -245,9 +244,6 @@ public abstract class UserDao {
             }
         });
     }
-
-    @Query("SELECT * FROM user where mAge > :age")
-    public abstract PagingSource<Integer, User> loadPagedByAgePagingSource(int age);
 
     @Query("SELECT * FROM user where mAge > :age")
     public abstract DataSource.Factory<Integer, User> loadPagedByAge(int age);
