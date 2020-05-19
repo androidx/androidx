@@ -36,25 +36,14 @@ public final class UseCaseOccupancy {
     /**
      * Check to see if CameraX supports running the set of use cases.
      *
-     * @param originalUseCases  the currently existing use cases
-     * @param newUseCases       the use cases to be added
      * @return true if the set of use cases is supported, otherwise false
      */
     public static boolean checkUseCaseLimitNotExceeded(
-            @NonNull List<UseCase> originalUseCases,
-            @NonNull List<UseCase> newUseCases) {
+            @NonNull List<UseCase> useCases) {
         int imageCaptureCount = 0;
         int videoCaptureCount = 0;
 
-        for (UseCase useCase : originalUseCases) {
-            if (useCase instanceof ImageCapture) {
-                imageCaptureCount++;
-            } else if (useCase instanceof VideoCapture) {
-                videoCaptureCount++;
-            }
-        }
-
-        for (UseCase useCase : newUseCases) {
+        for (UseCase useCase : useCases) {
             if (useCase instanceof ImageCapture) {
                 imageCaptureCount++;
             } else if (useCase instanceof VideoCapture) {

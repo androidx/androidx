@@ -75,7 +75,7 @@ public class MeteringRepeating extends UseCase {
 
     @NonNull
     @Override
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
+    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
         return new MeteringRepeatingConfig.Builder()
                 .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());
     }

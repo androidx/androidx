@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.lifecycle.LifecycleOwner;
@@ -104,6 +105,7 @@ public final class UseCaseMediatorRepositoryTest {
                 mLifecycle);
         FakeUseCase useCase = new FakeUseCase();
         mediator.getUseCaseMediator().addUseCase(useCase);
+        useCase.onAttach(new FakeCamera());
 
         assertThat(useCase.isCleared()).isFalse();
 

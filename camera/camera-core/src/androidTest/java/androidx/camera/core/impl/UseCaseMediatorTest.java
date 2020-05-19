@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 
 import androidx.camera.core.FakeOtherUseCase;
 import androidx.camera.core.FakeOtherUseCaseConfig;
+import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -79,6 +80,8 @@ public final class UseCaseMediatorTest {
     @Test
     public void mediatorBecomesEmpty_afterMediatorIsCleared() {
         mUseCaseMediator.addUseCase(mFakeUseCase);
+        mFakeUseCase.onAttach(new FakeCamera());
+
         mUseCaseMediator.destroy();
 
         assertThat(mUseCaseMediator.getUseCases()).isEmpty();
@@ -87,6 +90,7 @@ public final class UseCaseMediatorTest {
     @Test
     public void useCaseIsCleared_afterMediatorIsCleared() {
         mUseCaseMediator.addUseCase(mFakeUseCase);
+        mFakeUseCase.onAttach(new FakeCamera());
         assertThat(mFakeUseCase.isCleared()).isFalse();
 
         mUseCaseMediator.destroy();
