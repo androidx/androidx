@@ -84,6 +84,7 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
+import androidx.ui.util.fastForEach
 import androidx.ui.util.trace
 import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.Method
@@ -140,7 +141,7 @@ internal class AndroidComposeView constructor(
         val children: MutableSet<Int> = mutableSetOf()
 
         init {
-            for (child in semanticsNode.children) {
+            semanticsNode.children.fastForEach { child ->
                 children.add(child.id)
             }
         }
@@ -453,7 +454,7 @@ internal class AndroidComposeView constructor(
         var newChildren: MutableSet<Int> = mutableSetOf()
 
         // If any child is added, clear the subtree rooted at this node and return.
-        for (child in newNode.children) {
+        newNode.children.fastForEach { child ->
             if (!oldNode.children.contains(child.id)) {
                 accessibilityDelegate.sendEventForVirtualView(
                     semanticsNodeIdToAccessibilityVirtualNodeId(newNode.id),
@@ -479,7 +480,7 @@ internal class AndroidComposeView constructor(
             }
         }
 
-        for (child in newNode.children) {
+        newNode.children.fastForEach { child ->
             sendSemanticsStructureChangeEvents(child, semanticsNodes[child.id]!!)
         }
     }

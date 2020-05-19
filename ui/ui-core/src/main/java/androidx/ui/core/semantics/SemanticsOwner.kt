@@ -19,6 +19,7 @@ package androidx.ui.core.semantics
 import androidx.ui.core.LayoutNode
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsPropertyKey
+import androidx.ui.util.fastForEach
 
 // TODO(b/142821673): Clean up and integrate this (probably with AndroidComposeView)
 
@@ -74,7 +75,7 @@ internal fun SemanticsOwner.getAllSemanticsNodesToMap(): Map<Int, SemanticsNode>
 
     fun findAllSemanticNodesRecursive(currentNode: SemanticsNode) {
         nodes[currentNode.id] = currentNode
-        for (child in currentNode.children) {
+        currentNode.children.fastForEach { child ->
             findAllSemanticNodesRecursive(child)
         }
     }

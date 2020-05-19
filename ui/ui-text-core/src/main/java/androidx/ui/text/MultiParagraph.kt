@@ -168,7 +168,9 @@ class MultiParagraph(
 
         // create sub paragraphs and layouts
         val paragraphInfoList = mutableListOf<ParagraphInfo>()
-        for ((index, paragraphInfo) in intrinsics.infoList.withIndex()) {
+        val infoList = intrinsics.infoList
+        for (index in infoList.indices) {
+            val paragraphInfo = infoList[index]
             val paragraph = Paragraph(
                 paragraphInfo.intrinsics,
                 maxLines - currentLineCount,
