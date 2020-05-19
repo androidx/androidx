@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe
 
 import android.os.Build
 import android.util.Size
+import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

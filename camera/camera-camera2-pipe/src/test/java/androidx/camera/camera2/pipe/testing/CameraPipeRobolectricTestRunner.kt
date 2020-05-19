@@ -14,15 +14,36 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.pipe
+package androidx.camera.camera2.pipe.testing
 
 import android.os.Build
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.junit.runners.model.FrameworkMethod
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.internal.bytecode.InstrumentationConfiguration
+
+/**
+ * A [RobolectricTestRunner] for [androidx.camera.camera2.pipe] unit tests.
+ *
+ * It has instrumentation turned off for the [androidx.camera.camera2.pipe] package.
+ *
+ * Robolectric tries to instrument Kotlin classes, and it throws errors when it encounters
+ * companion objects, constructors with default values for parameters, and data classes with
+ * inline classes. We don't need shadowing of our classes because we want to use the actual
+ * objects in our tests.
+ */
+class CameraPipeRobolectricTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
+    override fun createClassLoaderConfig(method: FrameworkMethod?): InstrumentationConfiguration {
+        val builder = InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
+        builder.doNotInstrumentPackage("androidx.camera.camera2.pipe")
+        return builder.build()
+    }
+}
 
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 inline class TestValue(val value: String)
@@ -37,12 +58,14 @@ data class TestData(
 class DataWithInlineClassJUnitTest {
     @Test
     fun inlineClassesAreEqualInJUnit() {
-        assertThat(TestValue("42")).isEqualTo(TestValue("42"))
+        Truth.assertThat(TestValue("42")).isEqualTo(
+            TestValue("42")
+        )
     }
 
     @Test
     fun dataWithInlineClassesAreEqualInJUnit() {
-        assertThat(
+        Truth.assertThat(
             TestData(
                 value1 = TestValue("Test value #1"),
                 value2 = "Test value #2"
@@ -62,12 +85,14 @@ class DataWithInlineClassJUnitTest {
 class DataWithInlineClassRobolectricTest {
     @Test
     fun inlineClassesAreEqualInRobolectric() {
-        assertThat(TestValue("42")).isEqualTo(TestValue("42"))
+        Truth.assertThat(TestValue("42")).isEqualTo(
+            TestValue("42")
+        )
     }
 
     @Test
     fun dataWithInlineClassesAreEqualInRobolectric() {
-        assertThat(
+        Truth.assertThat(
             TestData(
                 value1 = TestValue("Test value #1"),
                 value2 = "Test value #2"
