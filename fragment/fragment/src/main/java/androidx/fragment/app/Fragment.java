@@ -94,6 +94,7 @@ import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -3220,6 +3221,29 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mAnimationInfo.mNextTransition = nextTransition;
     }
 
+    @NonNull
+    ArrayList<String> getSharedElementSourceNames() {
+        if (mAnimationInfo == null || mAnimationInfo.mSharedElementSourceNames == null) {
+            return new ArrayList<>();
+        }
+        return mAnimationInfo.mSharedElementSourceNames;
+    }
+
+    @NonNull
+    ArrayList<String> getSharedElementTargetNames() {
+        if (mAnimationInfo == null || mAnimationInfo.mSharedElementTargetNames == null) {
+            return new ArrayList<>();
+        }
+        return mAnimationInfo.mSharedElementTargetNames;
+    }
+
+    void setSharedElementNames(@Nullable ArrayList<String> sharedElementSourceNames,
+            @Nullable ArrayList<String> sharedElementTargetNames) {
+        ensureAnimationInfo();
+        mAnimationInfo.mSharedElementSourceNames = sharedElementSourceNames;
+        mAnimationInfo.mSharedElementTargetNames = sharedElementTargetNames;
+    }
+
     SharedElementCallback getEnterTransitionCallback() {
         if (mAnimationInfo == null) {
             return null;
@@ -3390,6 +3414,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
         // If app has requested a specific transition, this is the one to use.
         int mNextTransition;
+
+        // If app has requested a specific set of shared element objects, this is the one to use.
+        ArrayList<String> mSharedElementSourceNames;
+        ArrayList<String> mSharedElementTargetNames;
 
         Object mEnterTransition = null;
         Object mReturnTransition = USE_DEFAULT_TRANSITION;
