@@ -279,8 +279,8 @@ fun GestureScope.sendSwipeWithVelocity(
     require(endVelocity >= 0f) {
         "Velocity cannot be $endVelocity, it must be positive"
     }
-    // TODO(146551983): require that duration >= 2.5 * eventPeriod
-    // TODO(146551983): check that eventPeriod < 40 milliseconds
+    // TODO(b/146551983): require that duration >= 2.5 * eventPeriod
+    // TODO(b/146551983): check that eventPeriod < 40 milliseconds
     require(duration >= 25.milliseconds) {
         "Duration must be at least 25ms because velocity requires at least 3 input events"
     }

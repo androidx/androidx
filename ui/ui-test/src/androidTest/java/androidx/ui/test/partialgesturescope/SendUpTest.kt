@@ -39,16 +39,16 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-private const val tag = "widget"
-
 @MediumTest
 @RunWith(Parameterized::class)
 class SendUpTest(private val config: TestConfig) {
     data class TestConfig(val upPosition: PxPosition?) {
-        val downPosition: PxPosition = PxPosition(1.px, 1.px)
+        val downPosition = PxPosition(1.px, 1.px)
     }
 
     companion object {
+        private const val tag = "widget"
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
@@ -70,13 +70,12 @@ class SendUpTest(private val config: TestConfig) {
     @get:Rule
     val inputDispatcherRule: TestRule = dispatcherRule
 
-    private lateinit var recorder: PointerInputRecorder
+    private val recorder = PointerInputRecorder()
     private val expectedEndPosition = config.upPosition ?: config.downPosition
 
     @Test
     fun testSendUp() {
         // Given some content
-        recorder = PointerInputRecorder()
         composeTestRule.setContent {
             ClickableTestBox(recorder, tag = tag)
         }
@@ -88,7 +87,7 @@ class SendUpTest(private val config: TestConfig) {
 
         runOnIdleCompose {
             recorder.run {
-                // Then we have recorded 1 down event and 1 move event
+                // Then we have recorded 1 down event and 1 up event
                 assertTimestampsAreIncreasing()
                 assertThat(events).hasSize(2)
                 assertThat(events[1].down).isFalse()

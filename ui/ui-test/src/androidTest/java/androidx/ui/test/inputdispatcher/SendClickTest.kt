@@ -55,12 +55,12 @@ class SendClickTest(config: TestConfig) {
         }
     }
 
-    @get:Rule
-    val inputDispatcherRule: TestRule = AndroidInputDispatcher.TestRule(
-        disableDispatchInRealTime = true
-    )
+    private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
+    private val eventPeriod get() = dispatcherRule.eventPeriod
 
-    private val eventPeriod = 10L
+    @get:Rule
+    val inputDispatcherRule: TestRule = dispatcherRule
+
     private val position = PxPosition(config.x.px, config.y.px)
 
     private val recorder = MotionEventRecorder()
