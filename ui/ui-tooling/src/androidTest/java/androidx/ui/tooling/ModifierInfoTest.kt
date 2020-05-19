@@ -63,15 +63,16 @@ class ModifierInfoTest : ToolingTest() {
 
         activityTestRule.runOnUiThread {
             val tree = slotTableRecord.store.first().asTree()
-            val modifierInfo = tree.firstOrNull {
+            val firstGroup = tree.firstOrNull {
                 it.position?.contains("ModifierInfoTest.kt") == true && it.box.right.value > 0
             }!!
-                .all()
-                .map {
-                    it.modifierInfo
-                }
-                .filter { it.isNotEmpty() }
-                .sortedBy { it.size }
+            val modifierInfoItems = firstGroup.all()
+                .filter { it.modifierInfo.isNotEmpty() }
+                .sortedBy { it.modifierInfo.size }
+
+            val modifierInfo = modifierInfoItems.map {
+                it.modifierInfo
+            }
 
             assertEquals(2, modifierInfo.size)
 
