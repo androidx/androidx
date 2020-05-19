@@ -21,19 +21,21 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Direction
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.touchSlopExceededGestureFilter
+import androidx.ui.core.gesture.dragSlopExceededGestureFilter
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
+import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.dp
 
 /**
- * Simple demo that shows off TouchSlopExceededGestureDetector.
+ * Simple demo that demonstrates the functionality of [dragSlopExceededGestureFilter].
  */
 @Composable
-fun TouchSlopExceededGestureDetectorDemo() {
+fun DragSlopExceededGestureFilterDemo() {
 
     val verticalColor = Color(0xfff44336)
     val horizontalColor = Color(0xff2196f3)
@@ -76,11 +78,24 @@ fun TouchSlopExceededGestureDetectorDemo() {
             horizontalColor
         }
 
-    Box(
-        Modifier.fillMaxSize()
-            .wrapContentSize(Alignment.Center)
-            .touchSlopExceededGestureFilter(onTouchSlopExceeded, canDrag)
-            .preferredSize(96.dp),
-        backgroundColor = color
-    )
+    Column {
+        Text(
+            "Demonstrates functionality of Modifier.dragSlopExceededGestureFilter, which calls " +
+                    "its callback when touch slop has been exceeded by the average distance" +
+                    " change of all pointers.  This also demonstrates controlling which" +
+                    " directions can be dragged to exceed touch slop."
+        )
+        Text(
+            "When red, a drag on the box will turn the box blue only when you drag up or down on" +
+                    " the screen.  When blue, a drag on the box will turn the box red when you" +
+                    " drag to the right or left."
+        )
+        Box(
+            Modifier.fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+                .dragSlopExceededGestureFilter(onTouchSlopExceeded, canDrag)
+                .preferredSize(96.dp),
+            backgroundColor = color
+        )
+    }
 }

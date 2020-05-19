@@ -46,29 +46,29 @@ import org.junit.runners.JUnit4
 private const val TestTouchSlop = 10
 
 @RunWith(JUnit4::class)
-class TouchSlopExceededGestureFilterTest {
+class DragSlopExceededGestureFilterTest {
 
-    private val onTouchSlopExceeded: () -> Unit = { onTouchSlopExceededCallCount++ }
+    private val onDragSlopExceeded: () -> Unit = { onDragSlopExceededCallCount++ }
     private val canDrag: (Direction) -> Boolean = { direction ->
         canDragDirections.add(direction)
         canDragReturn
     }
-    private var onTouchSlopExceededCallCount: Int = 0
+    private var onDragSlopExceededCallCount: Int = 0
     private var canDragReturn = false
     private var canDragDirections: MutableList<Direction> = mutableListOf()
-    private lateinit var filter: TouchSlopExceededGestureFilter
+    private lateinit var filter: DragSlopExceededGestureFilter
 
     private val TinyNum = .01f
 
     @Before
     fun setup() {
-        onTouchSlopExceededCallCount = 0
+        onDragSlopExceededCallCount = 0
         canDragReturn = true
         canDragDirections.clear()
         filter =
-            TouchSlopExceededGestureFilter(TestTouchSlop.px)
+            DragSlopExceededGestureFilter(TestTouchSlop.px)
         filter.canDrag = canDrag
-        filter.onTouchSlopExceeded = onTouchSlopExceeded
+        filter.onDragSlopExceeded = onDragSlopExceeded
     }
 
     // Verify the circumstances under which canDrag should not be called.
@@ -269,7 +269,7 @@ class TouchSlopExceededGestureFilterTest {
         )
         filter::onPointerInput.invokeOverAllPasses(move)
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(0)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(0)
     }
 
     @Test
@@ -286,7 +286,7 @@ class TouchSlopExceededGestureFilterTest {
         )
         filter::onPointerInput.invokeOverAllPasses(move)
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(0)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(0)
     }
 
     @Test
@@ -300,7 +300,7 @@ class TouchSlopExceededGestureFilterTest {
 
         // Assert
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(0)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(0)
     }
 
     @Test
@@ -327,7 +327,7 @@ class TouchSlopExceededGestureFilterTest {
 
         // Assert
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(1)
     }
 
     // TODO(b/129701831): This test assumes that if a pointer moves by slop in both x and y, we are
@@ -379,7 +379,7 @@ class TouchSlopExceededGestureFilterTest {
         change = change.moveTo(90.milliseconds, -slop, -slop)
         filter::onPointerInput.invokeOverAllPasses(change)
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(0)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(0)
     }
 
     // Verify the circumstances under which onTouchSlopExceeded should be called.
@@ -397,7 +397,7 @@ class TouchSlopExceededGestureFilterTest {
         )
         filter::onPointerInput.invokeOverAllPasses(move)
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(1)
     }
 
     @Test
@@ -418,7 +418,7 @@ class TouchSlopExceededGestureFilterTest {
         )
         filter::onPointerInput.invokeOverAllPasses(move2)
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(1)
     }
 
     @Test
@@ -437,7 +437,7 @@ class TouchSlopExceededGestureFilterTest {
         event = event.moveBy(Duration(milliseconds = 10), 0f, beyondSlop)
         filter::onPointerInput.invokeOverAllPasses(event)
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(1)
     }
 
     @Test
@@ -449,7 +449,7 @@ class TouchSlopExceededGestureFilterTest {
         val move = down.moveBy(Duration(milliseconds = 100), beyondSlop, 0f)
         filter::onPointerInput.invokeOverAllPasses(move)
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(1)
     }
 
     @Test
@@ -465,7 +465,7 @@ class TouchSlopExceededGestureFilterTest {
             beyondSlop
         )
         // Sanity check that onTouchSlopExceeded has not been called.
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(0)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(0)
 
         canDragReturn = true
         filter::onPointerInput.invokeOverAllPasses(change)
@@ -476,11 +476,11 @@ class TouchSlopExceededGestureFilterTest {
         )
         filter::onPointerInput.invokeOverAllPasses(change)
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(1)
     }
 
     @Test
-    fun onPointerInputChanges_2PointsMoveInOpposite_onTouchSlopExceededCallOnce() {
+    fun onPointerInputChanges_2PointsMoveInOpposite_onTouchSlopExceededNotCalled() {
 
         // Arrange
 
@@ -506,11 +506,11 @@ class TouchSlopExceededGestureFilterTest {
 
         // Assert
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(0)
     }
 
     @Test
-    fun onPointerInputChanges_3PointsMoveAverage0_onTouchSlopExceededCallOnce() {
+    fun onPointerInputChanges_3PointsMoveAverage0_onDragSlopExceededNotCalled() {
 
         // Arrange
 
@@ -544,44 +544,113 @@ class TouchSlopExceededGestureFilterTest {
 
         // Assert
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(0)
     }
 
     @Test
-    fun onPointerInputChanges_5Points1MoveBeyondSlop_onTouchSlopExceededCallOnce() {
+    fun onPointerInputChanges_2Points1MoveJustBeyondSlop_onDragSlopExceededNotCalled() {
 
         // Arrange
 
         val beyondSlop = TestTouchSlop + TinyNum
 
-        val pointers = arrayOf(down(0), down(1), down(2), down(3), down(4))
-        filter::onPointerInput.invokeOverAllPasses(*pointers)
+        var pointer1 = down(0)
+        var pointer2 = down(1)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
 
         // These movements average to no movement.
-        for (i in 0..3) {
-            pointers[i] = pointers[i].moveBy(
+
+        pointer1 =
+            pointer1.moveBy(
                 Duration(milliseconds = 100),
                 0f,
                 0f
             )
-        }
-        pointers[4] =
-            pointers[4].moveBy(
+        pointer2 =
+            pointer2.moveBy(
                 Duration(milliseconds = 100),
                 beyondSlop * -1,
                 0f
             )
-        filter::onPointerInput.invokeOverAllPasses(*pointers)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Assert
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(0)
     }
 
     @Test
-    fun onPointerInputChanges_1PointMovesBeyondSlopAndThenManyTimes_onTouchSlopExceededCallOnce() {
+    fun onPointerInputChanges_2Points1MoveJustUnderTwiceSlop_onDragSlopExceededNotCalled() {
+
+        // Arrange
+
+        val beyondSlop = TestTouchSlop + TinyNum
+
+        var pointer1 = down(0)
+        var pointer2 = down(1)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+
+        // Act
+
+        // These movements average to no movement.
+
+        pointer1 =
+            pointer1.moveBy(
+                Duration(milliseconds = 100),
+                0f,
+                0f
+            )
+        pointer2 =
+            pointer2.moveBy(
+                Duration(milliseconds = 100),
+                beyondSlop * 2 - 1,
+                0f
+            )
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+
+        // Assert
+
+        assertThat(onDragSlopExceededCallCount).isEqualTo(0)
+    }
+
+    @Test
+    fun onPointerInputChanges_2Points1MoveToTwiceSlop_onDragSlopExceededNotCalled() {
+
+        // Arrange
+
+        val beyondSlop = TestTouchSlop + TinyNum
+
+        var pointer1 = down(0)
+        var pointer2 = down(1)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+
+        // Act
+
+        // These movements average to no movement.
+
+        pointer1 =
+            pointer1.moveBy(
+                Duration(milliseconds = 100),
+                0f,
+                0f
+            )
+        pointer2 =
+            pointer2.moveBy(
+                Duration(milliseconds = 100),
+                beyondSlop * 2,
+                0f
+            )
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+
+        // Assert
+
+        assertThat(onDragSlopExceededCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun onPointerInputChanges_1PointMovesBeyondSlopAndThenManyTimes_onDragSlopExceededCallOnce() {
 
         // Arrange
 
@@ -599,11 +668,11 @@ class TouchSlopExceededGestureFilterTest {
 
         // Assert
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(1)
     }
 
     @Test
-    fun onPointerInputChanges_1ModifiedToMoveBeyondSlopBeforePostUp_onTouchSlopExceededCallOnce() {
+    fun onPointerInputChanges_1ModifiedToMoveBeyondSlopBeforePostUp_onDragSlopExceededCallOnce() {
         val beyondSlop = TestTouchSlop + TinyNum
 
         val down = down(0)
@@ -622,11 +691,11 @@ class TouchSlopExceededGestureFilterTest {
 
         // Assert
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(1)
     }
 
     @Test
-    fun onPointerInputChanges_1ModedToMoveBeyondSlopBeforePostDown_onTouchSlopExceededCallOnce() {
+    fun onPointerInputChanges_1ModedToMoveBeyondSlopBeforePostDown_onDragSlopExceededCallOnce() {
         val beyondSlop = TestTouchSlop + TinyNum
 
         val down = down(0)
@@ -651,11 +720,11 @@ class TouchSlopExceededGestureFilterTest {
 
         // Assert
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(1)
     }
 
     @Test
-    fun onPointerInputChanges_moveUnderToPostUpThenModOverToPostDown_onTouchSlopExceededCallOnce() {
+    fun onPointerInputChanges_moveUnderToPostUpThenModOverToPostDown_onDragSlopExceededCallOnce() {
         val halfSlop = TestTouchSlop / 2
         val restOfSlopAndBeyond = TestTouchSlop - halfSlop + TinyNum
 
@@ -681,11 +750,11 @@ class TouchSlopExceededGestureFilterTest {
 
         // Assert
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(1)
     }
 
     @Test
-    fun onPointerInputChanges_moveBeyondSlopAllPassesUpToPostUp_onTouchSlopExceededCallOnce() {
+    fun onPointerInputChanges_moveBeyondSlopAllPassesUpToPostUp_onDragSlopExceededCallOnce() {
         val beyondSlop = TestTouchSlop + TinyNum
 
         val down = down(0)
@@ -704,7 +773,7 @@ class TouchSlopExceededGestureFilterTest {
 
         // Assert
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(1)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(1)
     }
 
     // Verification that TouchSlopExceededGestureDetector does not consume any changes.
@@ -796,7 +865,7 @@ class TouchSlopExceededGestureFilterTest {
     // Verification that TouchSlopExceededGestureDetector resets after up correctly.
 
     @Test
-    fun onPointerInputChanges_MoveBeyondUpDownMoveBeyond_onTouchSlopExceededCalledTwice() {
+    fun onPointerInputChanges_MoveBeyondUpDownMoveBeyond_onDragSlopExceededCalledTwice() {
         val beyondSlop = TestTouchSlop + TinyNum
 
         repeat(2) {
@@ -810,13 +879,13 @@ class TouchSlopExceededGestureFilterTest {
             filter::onPointerInput.invokeOverAllPasses(up)
         }
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(2)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(2)
     }
 
     // Verification that cancellation behavior is correct.
 
     @Test
-    fun onCancel_underSlopCancelUnderSlop_onTouchSlopExceededNotCalled() {
+    fun onCancel_underSlopCancelUnderSlop_onDragSlopExceededNotCalled() {
         val underSlop = TestTouchSlop - TinyNum
 
         // Arrange
@@ -847,7 +916,7 @@ class TouchSlopExceededGestureFilterTest {
 
         // Assert
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(0)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(0)
     }
 
     @Test
@@ -882,6 +951,6 @@ class TouchSlopExceededGestureFilterTest {
 
         // Assert
 
-        assertThat(onTouchSlopExceededCallCount).isEqualTo(2)
+        assertThat(onDragSlopExceededCallCount).isEqualTo(2)
     }
 }

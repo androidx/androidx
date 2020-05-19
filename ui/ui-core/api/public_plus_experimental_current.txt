@@ -966,6 +966,10 @@ package androidx.ui.core.gesture {
     method public default void onStop(androidx.ui.unit.PxPosition velocity);
   }
 
+  public final class DragSlopExceededGestureFilterKt {
+    method public static androidx.ui.core.Modifier dragSlopExceededGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onDragSlopExceeded, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null);
+  }
+
   public final class GestureUtilsKt {
     method public static boolean anyPointersInBounds(java.util.List<androidx.ui.core.PointerInputChange>, androidx.ui.unit.IntPxSize bounds);
   }
@@ -1029,10 +1033,6 @@ package androidx.ui.core.gesture {
 
   public final class TapGestureFilterKt {
     method public static androidx.ui.core.Modifier tapGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onTap);
-  }
-
-  public final class TouchSlopExceededGestureFilterKt {
-    method public static androidx.ui.core.Modifier touchSlopExceededGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onTouchSlopExceeded, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null);
   }
 
 }

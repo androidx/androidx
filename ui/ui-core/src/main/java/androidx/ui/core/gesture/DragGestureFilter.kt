@@ -67,7 +67,7 @@ fun Modifier.dragGestureFilter(
     //  DragObserver.onStart but if the pointer doesn't move and releases, (or if cancel is called)
     //  The appropriate callbacks to DragObserver will not be called.
     rawDragGestureFilter(glue.rawDragObserver, glue::enabledOrStarted)
-        .touchSlopExceededGestureFilter(glue::enableDrag, canDrag)
+        .dragSlopExceededGestureFilter(glue::enableDrag, canDrag)
         .rawPressStartGestureFilter(
             glue::startDrag,
             startDragImmediately,
