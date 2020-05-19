@@ -21,6 +21,7 @@ buildscript {
 }
 
 import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import androidx.build.Publish
 import org.anarres.gradle.plugin.jarjar.JarjarTask
 
@@ -89,6 +90,7 @@ androidx {
     name = "Jetpack Camera Pipe"
     publish = Publish.NONE
     mavenGroup = LibraryGroups.CAMERA
+    mavenVersion = LibraryVersions.CAMERA_PIPE
     inceptionYear = "2020"
     description = "A set of opinionated camera interfaces and implementations on top of Camera2 " +
             "that will form a flexible shim layer to power Frameserver and CameraX."
