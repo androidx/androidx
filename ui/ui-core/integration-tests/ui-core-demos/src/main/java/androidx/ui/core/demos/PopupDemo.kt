@@ -23,7 +23,7 @@ import androidx.ui.core.DropDownAlignment
 import androidx.ui.core.DropdownPopup
 import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
-import androidx.ui.core.PopupProperties
+import androidx.ui.foundation.TextField
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
@@ -348,13 +348,11 @@ private fun ColumnScope.PopupWithEditText() {
             if (showPopup.value) {
                 Popup(
                     alignment = Alignment.Center,
-                    popupProperties = PopupProperties(
-                        isFocusable = true,
-                        onDismissRequest = {
-                            showEmail.value = "You entered: " + email.value
-                            showPopup.value = false
-                        }
-                    )
+                    isFocusable = true,
+                    onDismissRequest = {
+                        showEmail.value = "You entered: " + email.value
+                        showPopup.value = false
+                    }
                 ) {
                     EditLine(
                         modifier = Modifier.preferredWidth(editLineSize),
