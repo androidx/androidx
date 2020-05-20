@@ -54,7 +54,11 @@ private fun generateLoremIpsum(words: Int): String {
  *
  * @param words Number of words from "Lorem Ipsum" to use.
  */
-class LoremIpsum(private val words: Int = 500) : PreviewParameterProvider<String> {
+class LoremIpsum(private val words: Int) : PreviewParameterProvider<String> {
+    // Unfortunately using default parameters seem to fail to be instantiated via reflection.
+    // We can workaround it by creating the default constructor manually.
+    constructor() : this(500)
+
     override val values: Sequence<String>
         get() = sequenceOf(generateLoremIpsum(words))
 }
