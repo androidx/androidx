@@ -32,7 +32,7 @@ import androidx.ui.unit.dp
 @Composable
 fun DeclarativeGraphicsDemo() {
     /**
-     * Demo that shows how to leverage CanvasScope to draw 4 rectangular quadrants
+     * Demo that shows how to leverage DrawScope to draw 4 rectangular quadrants
      * inset by a given dimension with a diamond drawn within each of the quadrants
      */
     Canvas(modifier =

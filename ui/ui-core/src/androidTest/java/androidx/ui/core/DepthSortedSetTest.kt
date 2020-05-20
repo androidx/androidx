@@ -17,12 +17,12 @@
 package androidx.ui.core
 
 import androidx.test.filters.SmallTest
+import com.nhaarman.mockitokotlin2.spy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -30,7 +30,7 @@ class DepthSortedSetTest {
 
     @Test
     fun sortedByDepth() {
-        val owner = Mockito.mock(Owner::class.java)
+        val owner: DepthTestOwner = spy()
         val root = LayoutNode()
         root.attach(owner)
         val child1 = LayoutNode()
@@ -55,7 +55,7 @@ class DepthSortedSetTest {
 
     @Test
     fun sortedByDepthWithItemsOfTheSameDepth() {
-        val owner = Mockito.mock(Owner::class.java)
+        val owner: DepthTestOwner = spy()
         val root = LayoutNode()
         root.attach(owner)
         val child1 = LayoutNode()
@@ -85,7 +85,7 @@ class DepthSortedSetTest {
 
     @Test
     fun modifyingSetWhileWeIterate() {
-        val owner = Mockito.mock(Owner::class.java)
+        val owner: DepthTestOwner = spy()
         val root = LayoutNode()
         root.attach(owner)
         val child1 = LayoutNode()
@@ -130,7 +130,7 @@ class DepthSortedSetTest {
 
     @Test(expected = IllegalStateException::class)
     fun modifyingDepthAfterAddingThrows() {
-        val owner = Mockito.mock(Owner::class.java)
+        val owner: DepthTestOwner = spy()
         val root = LayoutNode()
         root.attach(owner)
         val child1 = LayoutNode()
@@ -149,5 +149,10 @@ class DepthSortedSetTest {
         assertTrue(set.isNotEmpty())
         // throws because we changed the depth
         set.pop()
+    }
+
+    abstract class DepthTestOwner : Owner {
+        override val root: LayoutNode
+            get() = LayoutNode()
     }
 }
