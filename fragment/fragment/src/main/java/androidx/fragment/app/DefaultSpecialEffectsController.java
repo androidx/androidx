@@ -19,6 +19,7 @@ package androidx.fragment.app;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -27,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.core.os.CancellationSignal;
+import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
 
@@ -262,6 +264,9 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
 
         // Now find the shared element transition if it exists
         Object sharedElementTransition = null;
+        View firstOutEpicenterView = null;
+        boolean hasLastInEpicenter = false;
+        final Rect lastInEpicenterRect = new Rect();
         ArrayList<View> sharedElementFirstOutViews = new ArrayList<>();
         ArrayList<View> sharedElementLastInViews = new ArrayList<>();
         for (final TransitionInfo transitionInfo : transitionInfos) {
@@ -292,6 +297,14 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         captureTransitioningViews(sharedElementFirstOutViews,
                                 sharedElementView);
                     }
+
+                    // Compute the epicenter of the firstOut transition
+                    if (!exitingNames.isEmpty()) {
+                        String epicenterViewName = exitingNames.get(0);
+                        firstOutEpicenterView = firstOutViews.get(epicenterViewName);
+                        transitionImpl.setEpicenter(sharedElementTransition,
+                                firstOutEpicenterView);
+                    }
                 }
                 if (lastIn != null) {
                     // Capture all of the Views from the lastIn fragment that are
@@ -306,6 +319,26 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     for (View sharedElementView : lastInViews.values()) {
                         captureTransitioningViews(sharedElementLastInViews,
                                 sharedElementView);
+                    }
+
+                    // Compute the epicenter of the firstOut transition
+                    if (!enteringNames.isEmpty()) {
+                        String epicenterViewName = enteringNames.get(0);
+                        final View lastInEpicenterView = lastInViews.get(epicenterViewName);
+                        if (lastInEpicenterView != null) {
+                            hasLastInEpicenter = true;
+                            // We can't set the epicenter here directly since the View might
+                            // not have been laid out as of yet, so instead we set a Rect as
+                            // the epicenter and compute the bounds one frame later
+                            final FragmentTransitionImpl impl = transitionImpl;
+                            OneShotPreDrawListener.add(getContainer(), new Runnable() {
+                                @Override
+                                public void run() {
+                                    impl.getBoundsOnScreen(lastInEpicenterView,
+                                            lastInEpicenterRect);
+                                }
+                            });
+                        }
                     }
                 }
                 // Now set the transition's targets
@@ -352,6 +385,11 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 transitionImpl.addTargets(transition, transitioningViews);
                 if (transitionInfo.getOperation().getType().equals(Operation.Type.ADD)) {
                     enteringViews.addAll(transitioningViews);
+                    if (hasLastInEpicenter) {
+                        transitionImpl.setEpicenter(transition, lastInEpicenterRect);
+                    }
+                } else {
+                    transitionImpl.setEpicenter(transition, firstOutEpicenterView);
                 }
                 // Now determine how this transition should be merged together
                 if (transitionInfo.isOverlapAllowed()) {
