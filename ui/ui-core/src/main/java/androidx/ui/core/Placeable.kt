@@ -21,6 +21,7 @@ import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.coerceIn
+import androidx.ui.unit.ipx
 import androidx.ui.unit.round
 
 /**
@@ -36,10 +37,8 @@ abstract class Placeable {
      * not respect its incoming constraints, so the width will be coerced inside the min and
      * max width.
      */
-    val width: IntPx get() = measuredSize.width.coerceIn(
-        measurementConstraints.minWidth,
-        measurementConstraints.maxWidth
-    )
+    var width: IntPx = 0.ipx
+        private set
 
     /**
      * The height, in pixels, of the measured layout, as seen by the parent. This is usually the
@@ -47,10 +46,8 @@ abstract class Placeable {
      * not respect its incoming constraints, so the height will be coerced inside the min and
      * max height.
      */
-    val height: IntPx get() = measuredSize.height.coerceIn(
-        measurementConstraints.minHeight,
-        measurementConstraints.maxHeight
-    )
+    var height: IntPx = 0.ipx
+        private set
 
     /**
      * Returns the position of an [alignment line][AlignmentLine],
@@ -61,7 +58,18 @@ abstract class Placeable {
     /**
      * The measured size of this Placeable. This might not respect [measurementConstraints].
      */
-    protected abstract val measuredSize: IntPxSize
+    protected var measuredSize: IntPxSize = IntPxSize(0.ipx, 0.ipx)
+        set(value) {
+            field = value
+            width = value.width.coerceIn(
+                measurementConstraints.minWidth,
+                measurementConstraints.maxWidth
+            )
+            height = value.height.coerceIn(
+                measurementConstraints.minHeight,
+                measurementConstraints.maxHeight
+            )
+        }
 
     internal val measuredWidth get() = measuredSize.width
 
@@ -75,7 +83,7 @@ abstract class Placeable {
     /**
      * The constraints used for the measurement made to obtain this [Placeable].
      */
-    protected abstract val measurementConstraints: Constraints
+    protected var measurementConstraints: Constraints = Constraints()
 
     /**
      * The offset to be added to an apparent position assigned to this [Placeable] to make it real.

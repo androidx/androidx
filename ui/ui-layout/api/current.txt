@@ -404,7 +404,7 @@ package androidx.ui.layout {
     method public androidx.ui.layout.ConstrainedLayoutReference createRefFor(Object tag);
   }
 
-  @androidx.compose.Immutable public final class CrossAxisAlignment {
+  @androidx.compose.Immutable public abstract sealed class CrossAxisAlignment {
     field public static final androidx.ui.layout.CrossAxisAlignment.Companion! Companion;
   }
 

@@ -69,7 +69,7 @@ fun Row(
         orientation = LayoutOrientation.Horizontal,
         modifier = modifier,
         arrangement = horizontalArrangement,
-        crossAxisAlignment = verticalGravity,
+        crossAxisAlignment = CrossAxisAlignment.vertical(verticalGravity),
         crossAxisSize = SizeMode.Wrap,
         children = { RowScope.children() }
     )
@@ -88,7 +88,7 @@ object RowScope {
      * @sample androidx.ui.layout.samples.SimpleGravityInRow
      */
     @Stable
-    fun Modifier.gravity(align: Alignment.Vertical) = this + GravityModifier(align)
+    fun Modifier.gravity(align: Alignment.Vertical) = this + VerticalGravityModifier(align)
 
     /**
      * Position the element vertically such that its [alignmentLine] aligns with sibling elements
