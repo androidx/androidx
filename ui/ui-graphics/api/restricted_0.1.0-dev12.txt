@@ -129,7 +129,7 @@ package androidx.ui.graphics {
   }
 
   public abstract sealed class Brush {
-    method public abstract void applyTo(androidx.ui.graphics.Paint p);
+    method public abstract void applyTo(androidx.ui.graphics.Paint p, float alpha);
   }
 
   public final class BrushKt {
@@ -497,7 +497,7 @@ package androidx.ui.graphics {
   }
 
   public class ShaderBrush extends androidx.ui.graphics.Brush {
-    method public final void applyTo(androidx.ui.graphics.Paint p);
+    method public final void applyTo(androidx.ui.graphics.Paint p, float alpha);
     method public final android.graphics.Shader getShader();
   }
 
@@ -532,7 +532,7 @@ package androidx.ui.graphics {
   }
 
   public final class SolidColor extends androidx.ui.graphics.Brush {
-    method public void applyTo(androidx.ui.graphics.Paint p);
+    method public void applyTo(androidx.ui.graphics.Paint p, float alpha);
     method public long component1();
     method public androidx.ui.graphics.SolidColor copy-QEYXlZo(long value);
     method public long getValue();

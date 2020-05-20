@@ -973,8 +973,11 @@ abstract class DrawScope : Density {
         colorFilter: ColorFilter?,
         blendMode: BlendMode
     ): Paint = selectPaint(style).apply {
-        brush?.applyTo(this)
-        if (this.alpha != alpha) this.alpha = alpha
+        if (brush != null) {
+            brush.applyTo(this, alpha)
+        } else if (this.alpha != alpha) {
+            this.alpha = alpha
+        }
         if (this.colorFilter != colorFilter) this.colorFilter = colorFilter
         if (this.blendMode != blendMode) this.blendMode = blendMode
     }
@@ -1004,12 +1007,7 @@ abstract class DrawScope : Density {
      */
     private fun Color.modulate(alpha: Float): Color =
         if (alpha != 1.0f) {
-            Color(
-                alpha = this.alpha * alpha,
-                red = this.red,
-                green = this.green,
-                blue = this.blue
-            )
+            copy(alpha = this.alpha * alpha)
         } else {
             this
         }
