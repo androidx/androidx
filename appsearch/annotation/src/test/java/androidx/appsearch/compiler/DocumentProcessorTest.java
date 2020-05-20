@@ -394,7 +394,8 @@ public class DocumentProcessorTest {
     }
 
     @Test
-    public void testAllTypes() throws Exception {
+    public void testAllSingleTypes() throws Exception {
+        // TODO(b/156296904): Uncomment Gift in this test when it's supported
         Compilation compilation = compile(
                 "import java.util.*;\n"
                         + "@AppSearchDocument\n"
@@ -407,7 +408,7 @@ public class DocumentProcessorTest {
                         + "  @AppSearchDocument.Property Double doubleProp;\n"
                         + "  @AppSearchDocument.Property Boolean booleanProp;\n"
                         + "  @AppSearchDocument.Property byte[] bytesProp;\n"
-                        + "  @AppSearchDocument.Property Gift documentProp;\n"
+                        //+ "  @AppSearchDocument.Property Gift documentProp;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden();
@@ -487,6 +488,126 @@ public class DocumentProcessorTest {
         checkEqualsGolden();
     }
 
+    @Test
+    public void testToGenericDocument_AllSupportedTypes() throws Exception {
+        // TODO(b/156296904): Uncomment Gift and GenericDocument when it's supported
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @Uri String uri;\n"
+                        + "\n"
+                        + "  // Collections\n"
+                        + "  @Property Set<Long> collectLong;\n"         // 1a
+                        + "  @Property Set<Integer> collectInteger;\n"   // 1a
+                        + "  @Property Set<Double> collectDouble;\n"     // 1a
+                        + "  @Property Set<Float> collectFloat;\n"       // 1a
+                        + "  @Property Set<Boolean> collectBoolean;\n"   // 1a
+                        + "  @Property Set<byte[]> collectByteArr;\n"    // 1a
+                        + "  @Property Set<String> collectString;\n"     // 1b
+                        //+ "  @Property Set<GenericDocument> collectGenDoc;\n" // 1b
+                        //+ "  @Property Set<Gift> collectGift;\n"         // 1c
+                        + "\n"
+                        + "  // Arrays\n"
+                        + "  @Property Long[] arrBoxLong;\n"         // 2a
+                        + "  @Property long[] arrUnboxLong;\n"       // 2b
+                        + "  @Property Integer[] arrBoxInteger;\n"   // 2a
+                        + "  @Property int[] arrUnboxInt;\n"         // 2a
+                        + "  @Property Double[] arrBoxDouble;\n"     // 2a
+                        + "  @Property double[] arrUnboxDouble;\n"   // 2b
+                        + "  @Property Float[] arrBoxFloat;\n"       // 2a
+                        + "  @Property float[] arrUnboxFloat;\n"     // 2a
+                        + "  @Property Boolean[] arrBoxBoolean;\n"   // 2a
+                        + "  @Property boolean[] arrUnboxBoolean;\n" // 2b
+                        + "  @Property byte[][] arrUnboxByteArr;\n"  // 2b
+                        + "  @Property Byte[] boxByteArr;\n"         // 2a
+                        + "  @Property String[] arrString;\n"        // 2b
+                        //+ "  @Property GenericDocument[] arrGenDoc;\n" // 2b
+                        //+ "  @Property Gift[] arrGift;\n"            // 2c
+                        + "\n"
+                        + "  // Single values\n"
+                        + "  @Property String string;\n"        // 3a
+                        + "  @Property Long boxLong;\n"         // 3a
+                        + "  @Property long unboxLong;\n"       // 3b
+                        + "  @Property Integer boxInteger;\n"   // 3a
+                        + "  @Property int unboxInt;\n"         // 3b
+                        + "  @Property Double boxDouble;\n"     // 3a
+                        + "  @Property double unboxDouble;\n"   // 3b
+                        + "  @Property Float boxFloat;\n"       // 3a
+                        + "  @Property float unboxFloat;\n"     // 3b
+                        + "  @Property Boolean boxBoolean;\n"   // 3a
+                        + "  @Property boolean unboxBoolean;\n" // 3b
+                        + "  @Property byte[] unboxByteArr;\n"  // 3a
+                        //+ "  @Property GenericDocument genDocument;\n" // 3a
+                        //+ "  @Property Gift gift;\n"            // 3c
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
+    }
+
+    @Test
+    public void testToGenericDocument_InvalidTypes() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @Uri String uri;\n"
+                        + "  @Property Set<Byte[]> collectBoxByteArr;\n" // 1x
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).hadErrorContaining(
+                "Unhandled property type java.util.Set<java.lang.Byte[]>");
+
+        compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @Uri String uri;\n"
+                        + "  @Property Set<Byte> collectByte;\n" // 1x
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).hadErrorContaining(
+                "Unhandled property type java.util.Set<java.lang.Byte>");
+
+        compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @Uri String uri;\n"
+                        + "  @Property Set<Object> collectObject;\n" // 1x
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).hadErrorContaining(
+                "Unhandled property type java.util.Set<java.lang.Object>");
+
+        compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @Uri String uri;\n"
+                        + "  @Property Byte[][] arrBoxByteArr;\n" // 2x
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).hadErrorContaining(
+                "Unhandled property type java.lang.Byte[][]");
+
+        compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @Uri String uri;\n"
+                        + "  @Property Object[] arrObject;\n" // 2x
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).hadErrorContaining(
+                "Unhandled property type java.lang.Object[]");
+
+        compilation = compile(
+                "import java.util.*;\n"
+                        + "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @Uri String uri;\n"
+                        + "  @Property Object object;\n" // 3x
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).hadErrorContaining(
+                "Unhandled property type java.lang.Object");
+    }
+
     private Compilation compile(String classBody) {
         return compile("Gift", classBody);
     }
@@ -494,6 +615,7 @@ public class DocumentProcessorTest {
     private Compilation compile(String classSimpleName, String classBody) {
         String src = "package com.example.appsearch;\n"
                 + "import androidx.appsearch.annotation.AppSearchDocument;\n"
+                + "import androidx.appsearch.annotation.AppSearchDocument.*;\n"
                 + classBody;
         JavaFileObject jfo = JavaFileObjects.forSourceString(
                 "com.example.appsearch." + classSimpleName,

@@ -16,9 +16,11 @@
 package androidx.appsearch.compiler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -42,18 +44,21 @@ import javax.lang.model.element.VariableElement;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class AppSearchDocumentModel {
 
+    /** Enumeration of fields that must be handled specially (i.e. are not properties) */
+    enum SpecialField { URI, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE }
     /** Determines how the annotation processor has decided to read the value of a field. */
-    private enum ReadKind { FIELD, GETTER }
+    enum ReadKind { FIELD, GETTER }
     /** Determines how the annotation processor has decided to write the value of a field. */
-    private enum WriteKind { FIELD, SETTER, CONSTRUCTOR }
+    enum WriteKind { FIELD, SETTER, CONSTRUCTOR }
 
     private final IntrospectionHelper mIntrospectionHelper;
     private final TypeElement mClass;
     private final AnnotationMirror mAppSearchDocumentAnnotation;
     private final Set<ExecutableElement> mConstructors = new LinkedHashSet<>();
     private final Set<ExecutableElement> mMethods = new LinkedHashSet<>();
+    private final Map<String, VariableElement> mAllAppSearchFields = new LinkedHashMap<>();
     private final Map<String, VariableElement> mPropertyFields = new LinkedHashMap<>();
-    private final Map<String, VariableElement> mAppSearchFields = new LinkedHashMap<>();
+    private final Map<SpecialField, String> mSpecialFieldNames = new EnumMap<>(SpecialField.class);
     private final Map<VariableElement, ReadKind> mReadKinds = new HashMap<>();
     private final Map<VariableElement, WriteKind> mWriteKinds = new HashMap<>();
     private final Map<VariableElement, ProcessingException> mWriteWhyConstructor = new HashMap<>();
@@ -92,10 +97,12 @@ class AppSearchDocumentModel {
         mReadKinds.size();
     }
 
+    @NonNull
     public TypeElement getClassElement() {
         return mClass;
     }
 
+    @NonNull
     public String getSchemaName() {
         Map<String, Object> params =
                 mIntrospectionHelper.getAnnotationParams(mAppSearchDocumentAnnotation);
@@ -106,8 +113,20 @@ class AppSearchDocumentModel {
         return name;
     }
 
-    public Collection<VariableElement> getPropertyFields() {
-        return mPropertyFields.values();
+    @NonNull
+    public Map<String, VariableElement> getPropertyFields() {
+        return Collections.unmodifiableMap(mPropertyFields);
+    }
+
+    @Nullable
+    public String getSpecialFieldName(SpecialField field) {
+        return mSpecialFieldNames.get(field);
+    }
+
+    @Nullable
+    public ReadKind getFieldReadKind(String fieldName) {
+        VariableElement element = mAllAppSearchFields.get(fieldName);
+        return mReadKinds.get(element);
     }
 
     private void scanFields() throws ProcessingException {
@@ -118,6 +137,7 @@ class AppSearchDocumentModel {
         for (Element childElement : mClass.getEnclosedElements()) {
             if (!childElement.getKind().isField()) continue;
             VariableElement child = (VariableElement) childElement;
+            String fieldName = child.getSimpleName().toString();
             for (AnnotationMirror annotation : child.getAnnotationMirrors()) {
                 String annotationFq = annotation.getAnnotationType().toString();
                 boolean isAppSearchField = true;
@@ -127,6 +147,7 @@ class AppSearchDocumentModel {
                                 "Class contains multiple fields annotated @Uri", child);
                     }
                     uriField = child;
+                    mSpecialFieldNames.put(SpecialField.URI, fieldName);
 
                 } else if (
                         IntrospectionHelper.CREATION_TIMESTAMP_MILLIS_CLASS.equals(annotationFq)) {
@@ -136,6 +157,7 @@ class AppSearchDocumentModel {
                                 child);
                     }
                     creationTimestampField = child;
+                    mSpecialFieldNames.put(SpecialField.CREATION_TIMESTAMP_MILLIS, fieldName);
 
                 } else if (IntrospectionHelper.TTL_MILLIS_CLASS.equals(annotationFq)) {
                     if (ttlField != null) {
@@ -143,6 +165,7 @@ class AppSearchDocumentModel {
                                 "Class contains multiple fields annotated @TtlMillis", child);
                     }
                     ttlField = child;
+                    mSpecialFieldNames.put(SpecialField.TTL_MILLIS, fieldName);
 
                 } else if (IntrospectionHelper.SCORE_CLASS.equals(annotationFq)) {
                     if (scoreField != null) {
@@ -150,16 +173,17 @@ class AppSearchDocumentModel {
                                 "Class contains multiple fields annotated @Score", child);
                     }
                     scoreField = child;
+                    mSpecialFieldNames.put(SpecialField.SCORE, fieldName);
 
                 } else if (IntrospectionHelper.PROPERTY_CLASS.equals(annotationFq)) {
-                    mPropertyFields.put(child.getSimpleName().toString(), child);
+                    mPropertyFields.put(fieldName, child);
 
                 } else {
                     isAppSearchField = false;
                 }
 
                 if (isAppSearchField) {
-                    mAppSearchFields.put(child.getSimpleName().toString(), child);
+                    mAllAppSearchFields.put(fieldName, child);
                 }
             }
         }
@@ -171,7 +195,7 @@ class AppSearchDocumentModel {
                             + "@Uri", mClass);
         }
 
-        for (VariableElement appSearchField : mAppSearchFields.values()) {
+        for (VariableElement appSearchField : mAllAppSearchFields.values()) {
             chooseAccessKinds(appSearchField);
         }
     }
@@ -188,19 +212,11 @@ class AppSearchDocumentModel {
      */
     private void chooseAccessKinds(@NonNull VariableElement field)
             throws ProcessingException {
-        CharSequence fieldName = field.getSimpleName();
-        char fieldNameFirst = fieldName.charAt(0);
-        StringBuilder methodNameBuilder = new StringBuilder();
-        methodNameBuilder.append(Character.toUpperCase(fieldNameFirst));
-        if (fieldName.length() > 1) {
-            methodNameBuilder.append(fieldName.subSequence(1, fieldName.length()));
-        }
-        String getterName = "get" + methodNameBuilder;
-        String setterName = "set" + methodNameBuilder;
-
         // Choose get access
+        String fieldName = field.getSimpleName().toString();
         Set<Modifier> modifiers = field.getModifiers();
         if (modifiers.contains(Modifier.PRIVATE)) {
+            String getterName = getAccessorName(fieldName, /*get=*/ true);
             findGetter(field, getterName);
             mReadKinds.put(field, ReadKind.GETTER);
         } else {
@@ -213,6 +229,7 @@ class AppSearchDocumentModel {
             // Try to find a setter. If we can't find one, mark the WriteKind as CONSTRUCTOR. We
             // don't know if this is true yet, the constructors will be inspected in a subsequent
             // pass.
+            String setterName = getAccessorName(fieldName, /*get=*/ false);
             try {
                 findSetter(field, setterName);
                 mWriteKinds.put(field, WriteKind.SETTER);
@@ -310,7 +327,7 @@ class AppSearchDocumentModel {
             Set<String> remainingFields = new HashSet<>(constructorWrittenFields.keySet());
             for (VariableElement parameter : constructor.getParameters()) {
                 String name = parameter.getSimpleName().toString();
-                if (!mAppSearchFields.containsKey(name)) {
+                if (!mAllAppSearchFields.containsKey(name)) {
                     whyNotConstructor.put(
                             constructor,
                             "Parameter \"" + name + "\" is not an AppSearch parameter; don't know "
@@ -355,6 +372,20 @@ class AppSearchDocumentModel {
         }
 
         throw e;
+    }
+
+    public String getAccessorName(String fieldName, boolean get) {
+        char fieldNameFirst = fieldName.charAt(0);
+        StringBuilder methodNameBuilder = new StringBuilder();
+        methodNameBuilder.append(Character.toUpperCase(fieldNameFirst));
+        if (fieldName.length() > 1) {
+            methodNameBuilder.append(fieldName.subSequence(1, fieldName.length()));
+        }
+        if (get) {
+            return "get" + methodNameBuilder;
+        } else {
+            return "set" + methodNameBuilder;
+        }
     }
 
     /**
