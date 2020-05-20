@@ -24,8 +24,6 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.graphics.withSaveLayer
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 
 /**
  * Abstraction for something that can be drawn. In addition to providing the ability to draw
@@ -150,13 +148,13 @@ abstract class Painter {
     /**
      * Return the intrinsic size of the [Painter].
      * If the there is no intrinsic size (i.e. filling bounds with an arbitrary color) return
-     * [PxSize.UnspecifiedSize].
-     * If there is no intrinsic size in a single dimension, return [PxSize] with [Px.Infinity] in
-     * the desired dimension.
+     * [Size.UnspecifiedSize].
+     * If there is no intrinsic size in a single dimension, return [Size] with
+     * [Float.POSITIVE_INFINITY] in the desired dimension.
      * If a [Painter] does not have an intrinsic size, it will always draw within the full
      * bounds of the destination
      */
-    abstract val intrinsicSize: PxSize
+    abstract val intrinsicSize: Size
 
     /**
      * Implementation of drawing logic for instances of [Painter]. This is invoked

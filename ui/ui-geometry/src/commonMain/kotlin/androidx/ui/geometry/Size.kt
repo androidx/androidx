@@ -108,7 +108,7 @@ inline class Size(@PublishedApi internal val value: Long) {
          *  * [isInfinite], which checks whether either dimension is infinite.
          *  * [isFinite], which checks whether both dimensions are finite.
          */
-        val infinite = Size(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+        val UnspecifiedSize = Size(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
 
         /**
          * Linearly interpolate between two sizes

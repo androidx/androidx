@@ -34,9 +34,7 @@ import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.layout.preferredSize
 import androidx.ui.res.loadVectorResource
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 
 @Sampled
 @Composable
@@ -80,8 +78,8 @@ fun ImagePainterSample() {
     val customPainter = remember {
         object : Painter() {
 
-            override val intrinsicSize: PxSize
-                get() = PxSize(100.px, 100.px)
+            override val intrinsicSize: Size
+                get() = Size(100.0f, 100.0f)
 
             override fun DrawScope.onDraw() {
                 drawRect(color = Color.Cyan)

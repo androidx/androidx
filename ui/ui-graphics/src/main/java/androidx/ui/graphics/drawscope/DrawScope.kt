@@ -36,8 +36,6 @@ import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.vectormath.degrees
 import androidx.ui.unit.Density
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 
 /**
  * Simultaneously translate the [DrawScope] coordinate space by [left] and [top] as well as modify
@@ -207,9 +205,9 @@ inline fun DrawScope.clipPath(
  *
  * @param block Lambda callback to issue drawing commands on the provided [Canvas] and given size
  */
-inline fun DrawScope.drawCanvas(block: (Canvas, PxSize) -> Unit) =
+inline fun DrawScope.drawCanvas(block: (Canvas, Size) -> Unit) =
     canvas?.let {
-        block(it, PxSize(Px(size.width), Px(size.height)))
+        block(it, size)
     }
 
 /**
