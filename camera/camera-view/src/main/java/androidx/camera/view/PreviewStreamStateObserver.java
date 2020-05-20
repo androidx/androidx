@@ -16,6 +16,8 @@
 
 package androidx.camera.view;
 
+import android.util.Log;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -53,6 +55,9 @@ import java.util.List;
  * thread.
  */
 final class PreviewStreamStateObserver implements Observable.Observer<CameraInternal.State> {
+
+    private static final String TAG = "StreamStateObserver";
+
     private final CameraInfoInternal mCameraInfoInternal;
     private final MutableLiveData<PreviewView.StreamState> mPreviewStreamStateLiveData;
     @GuardedBy("this")
@@ -149,7 +154,7 @@ final class PreviewStreamStateObserver implements Observable.Observer<CameraInte
         }, CameraXExecutors.directExecutor());
     }
 
-    private void updatePreviewStreamState(PreviewView.StreamState streamState) {
+    void updatePreviewStreamState(PreviewView.StreamState streamState) {
         // Prevent from notifying same states.
         synchronized (this) {
             if (mPreviewStreamState.equals(streamState)) {
@@ -158,6 +163,7 @@ final class PreviewStreamStateObserver implements Observable.Observer<CameraInte
             mPreviewStreamState = streamState;
         }
 
+        Log.d(TAG, "Update Preview stream state to " + streamState);
         mPreviewStreamStateLiveData.postValue(streamState);
     }
 
