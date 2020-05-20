@@ -24,7 +24,6 @@ import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
-import androidx.ui.layout.Column
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp
@@ -34,14 +33,12 @@ fun TextFieldFocusTransition() {
     val focusModifiers = List(6) { FocusModifier() }
 
     VerticalScroller {
-        Column {
-            TextFieldWithFocusId(focusModifiers[0], focusModifiers[1])
-            TextFieldWithFocusId(focusModifiers[1], focusModifiers[2])
-            TextFieldWithFocusId(focusModifiers[2], focusModifiers[3])
-            TextFieldWithFocusId(focusModifiers[3], focusModifiers[4])
-            TextFieldWithFocusId(focusModifiers[4], focusModifiers[5])
-            TextFieldWithFocusId(focusModifiers[5], focusModifiers[0])
-        }
+        TextFieldWithFocusId(focusModifiers[0], focusModifiers[1])
+        TextFieldWithFocusId(focusModifiers[1], focusModifiers[2])
+        TextFieldWithFocusId(focusModifiers[2], focusModifiers[3])
+        TextFieldWithFocusId(focusModifiers[3], focusModifiers[4])
+        TextFieldWithFocusId(focusModifiers[4], focusModifiers[5])
+        TextFieldWithFocusId(focusModifiers[5], focusModifiers[0])
     }
 }
 

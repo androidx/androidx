@@ -124,9 +124,9 @@ package androidx.ui.foundation {
   }
 
   public final class ScrollerKt {
-    method public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+    method public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
     method public static androidx.ui.foundation.ScrollerPosition ScrollerPosition(float initial = 0f, boolean isReversed = false);
-    method public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+    method public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
   }
 
   public final class ScrollerPosition {

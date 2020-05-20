@@ -29,7 +29,6 @@ import androidx.ui.foundation.TextField
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.compositeOver
-import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.wrapContentSize
@@ -53,15 +52,13 @@ fun DemoFilter(launchableDemos: List<Demo>, filterText: String, onNavigate: (Dem
         .filter { it.title.contains(filterText, ignoreCase = true) }
         .sortedBy { it.title }
     VerticalScroller {
-        Column {
-            filteredDemos.forEach { demo ->
-                FilteredDemoListItem(demo,
-                    filterText = filterText,
-                    onNavigate = {
-                        onNavigate(it)
-                    }
-                )
-            }
+        filteredDemos.forEach { demo ->
+            FilteredDemoListItem(demo,
+                filterText = filterText,
+                onNavigate = {
+                    onNavigate(it)
+                }
+            )
         }
     }
 }
