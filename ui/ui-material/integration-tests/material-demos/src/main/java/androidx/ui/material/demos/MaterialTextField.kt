@@ -26,7 +26,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.currentTextStyle
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -57,7 +56,6 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 
-// TODO(b/154799748): remove explicit currentTextStyle() when upstream bug is fixed
 @Composable
 fun TextFieldsDemo() {
     val space = with(DensityAmbient.current) { 5.dp.toIntPx() }
@@ -97,7 +95,7 @@ fun FilledTextFieldDemo() {
                 onValueChange = { text = it },
                 label = {
                     val label = "Label" + if (selectedOption == Option.Error) "*" else ""
-                    Text(text = label, style = currentTextStyle())
+                    Text(text = label)
                 },
                 leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
                 trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
