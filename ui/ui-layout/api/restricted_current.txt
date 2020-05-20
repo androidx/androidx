@@ -366,6 +366,7 @@ package androidx.ui.layout {
 
   public final class LayoutPaddingKt {
     method public static androidx.ui.core.Modifier absolutePadding-AwkAAmk(androidx.ui.core.Modifier, float left = 0.dp, float top = 0.dp, float right = 0.dp, float bottom = 0.dp);
+    method public static androidx.ui.core.Modifier padding(androidx.ui.core.Modifier, androidx.ui.layout.InnerPadding padding);
     method public static androidx.ui.core.Modifier padding-AwkAAmk(androidx.ui.core.Modifier, float start = 0.dp, float top = 0.dp, float end = 0.dp, float bottom = 0.dp);
     method public static androidx.ui.core.Modifier padding-H3qe284(androidx.ui.core.Modifier, float all);
     method public static androidx.ui.core.Modifier padding-qJOR85M(androidx.ui.core.Modifier, float horizontal = 0.dp, float vertical = 0.dp);

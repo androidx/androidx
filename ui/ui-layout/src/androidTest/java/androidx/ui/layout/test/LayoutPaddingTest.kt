@@ -28,6 +28,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
 import androidx.ui.layout.Column
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.absolutePadding
@@ -123,6 +124,21 @@ class LayoutPaddingTest : LayoutTest() {
     fun paddingAllAppliedToChild() = with(density) {
         val padding = 10.dp
         testPaddingIsAppliedImplementation(padding) { child: @Composable () -> Unit ->
+            TestBox(modifier = Modifier.padding(padding), body = child)
+        }
+    }
+
+    /**
+     * Tests the top-level [padding] modifier factory with a single [androidx.ui.layout
+     * .InnerPadding] argument, checking that padding is applied to a child when plenty of space
+     * is available for both content and padding.
+     */
+    @Test
+    fun paddingInnerPaddingAppliedToChild() = with(density) {
+        val padding = InnerPadding(start = 1.dp, top = 3.dp, end = 6.dp, bottom = 10.dp)
+        testPaddingWithDifferentInsetsImplementation(
+            padding.start, padding.top, padding.end, padding.bottom
+        ) { child: @Composable () -> Unit ->
             TestBox(modifier = Modifier.padding(padding), body = child)
         }
     }
