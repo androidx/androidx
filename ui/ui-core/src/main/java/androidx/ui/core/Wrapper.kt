@@ -282,7 +282,7 @@ private class WrappedComposition(
 @SuppressLint("UnnecessaryLambdaCreation")
 @Composable
 private fun WrapWithAmbients(
-    owner: Owner,
+    owner: AndroidOwner,
     context: Context,
     coroutineContext: CoroutineContext,
     content: @Composable () -> Unit
