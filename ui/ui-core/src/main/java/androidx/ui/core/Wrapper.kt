@@ -153,7 +153,7 @@ fun ComponentActivity.setContent(
     val composeView: AndroidOwner = window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0) as? AndroidOwner
-        ?: createOwner(this, this).also {
+        ?: AndroidOwner(this, this).also {
             setContentView(it.view, DefaultLayoutParams)
         }
     return doSetContent(this, composeView, recomposer, content)
@@ -188,7 +188,7 @@ fun ViewGroup.setContent(
         } else {
             removeAllViews(); null
         }
-            ?: createOwner(context).also { addView(it.view, DefaultLayoutParams) }
+            ?: AndroidOwner(context).also { addView(it.view, DefaultLayoutParams) }
     return doSetContent(context, composeView, recomposer, content)
 }
 
