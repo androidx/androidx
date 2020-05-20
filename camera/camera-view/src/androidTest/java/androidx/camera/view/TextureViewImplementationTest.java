@@ -29,10 +29,11 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.DeferrableSurface;
-import androidx.camera.testing.fakes.FakeCameraInfoInternal;
+import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.view.preview.transform.PreviewTransform;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -43,6 +44,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -82,14 +84,14 @@ public class TextureViewImplementationTest {
     @Test(expected = TimeoutException.class)
     public void doNotProvideSurface_ifSurfaceTextureNotAvailableYet() throws Exception {
         SurfaceRequest surfaceRequest = getSurfaceRequest();
-        mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+        mImplementation.onSurfaceRequested(surfaceRequest, null);
         surfaceRequest.getDeferrableSurface().getSurface().get(2, TimeUnit.SECONDS);
     }
 
     @Test
     public void provideSurface_ifSurfaceTextureAvailable() throws Exception {
         SurfaceRequest surfaceRequest = getSurfaceRequest();
-        mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+        mImplementation.onSurfaceRequested(surfaceRequest, null);
         final ListenableFuture<Surface> surfaceListenableFuture =
                 surfaceRequest.getDeferrableSurface().getSurface();
 
@@ -106,7 +108,7 @@ public class TextureViewImplementationTest {
     public void doNotDestroySurface_whenSurfaceTextureBeingDestroyed_andCameraUsingSurface()
             throws Exception {
         SurfaceRequest surfaceRequest = getSurfaceRequest();
-        mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+        mImplementation.onSurfaceRequested(surfaceRequest, null);
         final ListenableFuture<Surface> surfaceListenableFuture =
                 surfaceRequest.getDeferrableSurface().getSurface();
 
@@ -125,7 +127,7 @@ public class TextureViewImplementationTest {
     public void destroySurface_whenSurfaceTextureBeingDestroyed_andCameraNotUsingSurface()
             throws Exception {
         SurfaceRequest surfaceRequest = getSurfaceRequest();
-        mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+        mImplementation.onSurfaceRequested(surfaceRequest, null);
         DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
         final ListenableFuture<Surface> surfaceListenableFuture = deferrableSurface.getSurface();
 
@@ -145,10 +147,53 @@ public class TextureViewImplementationTest {
 
     @Test
     @LargeTest
+    public void onSurfaceNotInUseListener_IsCalledWhenCameraNotUsingSurface()
+            throws Exception {
+        SurfaceRequest surfaceRequest = getSurfaceRequest();
+        CountDownLatch latchForSurfaceNotInUse = new CountDownLatch(1);
+        PreviewViewImplementation.OnSurfaceNotInUseListener onSurfaceNotInUseListener =
+                () -> latchForSurfaceNotInUse.countDown();
+
+        mImplementation.onSurfaceRequested(surfaceRequest, onSurfaceNotInUseListener);
+        DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
+        final ListenableFuture<Surface> surfaceListenableFuture = deferrableSurface.getSurface();
+
+        final TextureView.SurfaceTextureListener surfaceTextureListener =
+                mImplementation.mTextureView.getSurfaceTextureListener();
+        surfaceTextureListener.onSurfaceTextureAvailable(mSurfaceTexture, ANY_WIDTH, ANY_HEIGHT);
+
+        surfaceListenableFuture.get();
+        deferrableSurface.close();
+
+        assertThat(latchForSurfaceNotInUse.await(500, TimeUnit.MILLISECONDS)).isTrue();
+    }
+
+    @Test
+    @MediumTest
+    public void onSurfaceNotInUseListener_IsCalledWhenSurfaceRequestIsCancelled()
+            throws Exception {
+        SurfaceRequest surfaceRequest = getSurfaceRequest();
+        CountDownLatch latchForSurfaceNotInUse = new CountDownLatch(1);
+        PreviewViewImplementation.OnSurfaceNotInUseListener onSurfaceNotInUseListener =
+                () -> latchForSurfaceNotInUse.countDown();
+
+        mImplementation.onSurfaceRequested(surfaceRequest, onSurfaceNotInUseListener);
+        DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
+        final ListenableFuture<Surface> surfaceListenableFuture = deferrableSurface.getSurface();
+
+        // onSurfaceTextureAvailable is not called, so the surface will not be provided.
+        // closing the surface will only trigger the SurfaceRequest RequestCancellationListener.
+        deferrableSurface.close();
+
+        assertThat(latchForSurfaceNotInUse.await(500, TimeUnit.MILLISECONDS)).isTrue();
+    }
+
+    @Test
+    @LargeTest
     public void releaseSurfaceTexture_afterSurfaceTextureDestroyed_andCameraNoLongerUsingSurface()
             throws Exception {
         SurfaceRequest surfaceRequest = getSurfaceRequest();
-        mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+        mImplementation.onSurfaceRequested(surfaceRequest, null);
         DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
         final ListenableFuture<Surface> surfaceListenableFuture = deferrableSurface.getSurface();
 
@@ -175,7 +220,7 @@ public class TextureViewImplementationTest {
     public void nullSurfaceCompleterAndSurfaceReleaseFuture_whenSurfaceProviderCancelled()
             throws Exception {
         SurfaceRequest surfaceRequest = getSurfaceRequest();
-        mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+        mImplementation.onSurfaceRequested(surfaceRequest, null);
         // Cancel the request from the camera side
         surfaceRequest.getDeferrableSurface().getSurface().cancel(true);
 
@@ -190,7 +235,7 @@ public class TextureViewImplementationTest {
     @LargeTest
     public void releaseSurface_whenSurfaceTextureDestroyed_andCameraSurfaceRequestIsCancelled()
             throws Exception {
-        mImplementation.getSurfaceProvider().onSurfaceRequested(getSurfaceRequest());
+        mImplementation.onSurfaceRequested(getSurfaceRequest(), null);
         // Cancel the request from the client side
         mSurfaceRequest.willNotProvideSurface();
 
@@ -214,7 +259,7 @@ public class TextureViewImplementationTest {
     public void resetSurfaceTextureOnDetachAndAttachWindow() throws Exception {
 
         SurfaceRequest surfaceRequest = getSurfaceRequest();
-        mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+        mImplementation.onSurfaceRequested(surfaceRequest, null);
         DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
         final ListenableFuture<Surface> surfaceListenableFuture = deferrableSurface.getSurface();
 
@@ -239,7 +284,7 @@ public class TextureViewImplementationTest {
     @LargeTest
     public void releaseDetachedSurfaceTexture_whenDeferrableSurfaceClose() throws Exception {
         final SurfaceRequest surfaceRequest = getSurfaceRequest();
-        mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+        mImplementation.onSurfaceRequested(surfaceRequest, null);
         final DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
         final ListenableFuture<Surface> surfaceListenableFuture = deferrableSurface.getSurface();
 
@@ -266,12 +311,12 @@ public class TextureViewImplementationTest {
 
     @Test
     public void keepOnlyLatestTextureView_whenGetSurfaceProviderCalledMultipleTimes() {
-        mImplementation.getSurfaceProvider().onSurfaceRequested(getSurfaceRequest());
+        mImplementation.onSurfaceRequested(getSurfaceRequest(), null);
 
         assertThat(mParent.getChildAt(0)).isInstanceOf(TextureView.class);
         final TextureView textureView1 = (TextureView) mParent.getChildAt(0);
 
-        mImplementation.getSurfaceProvider().onSurfaceRequested(getSurfaceRequest());
+        mImplementation.onSurfaceRequested(getSurfaceRequest(), null);
 
         assertThat(mParent.getChildAt(0)).isInstanceOf(TextureView.class);
         final TextureView textureView2 = (TextureView) mParent.getChildAt(0);
@@ -280,10 +325,23 @@ public class TextureViewImplementationTest {
         assertThat(mParent.getChildCount()).isEqualTo(1);
     }
 
+    @Test
+    public void waitForNextFrame_futureCompletesWhenFrameArrives() throws Exception {
+        mImplementation.onSurfaceRequested(getSurfaceRequest(), null);
+        final TextureView.SurfaceTextureListener surfaceTextureListener =
+                mImplementation.mTextureView.getSurfaceTextureListener();
+
+        ListenableFuture<Void> futureNextFrame = mImplementation.waitForNextFrame();
+        surfaceTextureListener.onSurfaceTextureAvailable(mSurfaceTexture, ANY_WIDTH, ANY_HEIGHT);
+        surfaceTextureListener.onSurfaceTextureUpdated(mSurfaceTexture);
+
+        futureNextFrame.get(300, TimeUnit.MILLISECONDS);
+    }
+
     @NonNull
     private SurfaceRequest getSurfaceRequest() {
         if (mSurfaceRequest == null) {
-            mSurfaceRequest = new SurfaceRequest(ANY_SIZE, new FakeCameraInfoInternal());
+            mSurfaceRequest = new SurfaceRequest(ANY_SIZE, new FakeCamera());
         }
 
         return mSurfaceRequest;
