@@ -32,6 +32,7 @@ import androidx.ui.layout.preferredHeight
 import androidx.ui.material.Button
 import androidx.ui.material.CircularProgressIndicator
 import androidx.ui.material.ExtendedFloatingActionButton
+import androidx.ui.material.FilledTextField
 import androidx.ui.material.Scaffold
 import androidx.ui.material.Slider
 import androidx.ui.material.TopAppBar
@@ -91,6 +92,16 @@ fun App() {
                 CircularProgressIndicator()
                 Slider(value = amount.value.toFloat() / 100f,
                     onValueChange = { amount.value = (it * 100).toInt() })
+                FilledTextField(
+                    value = "",
+                    onValueChange = { amount.value = it.toIntOrNull() ?: 42 },
+                    label = { Text(text = "Input1") }
+                )
+                FilledTextField(
+                    value = amount.value.toString(),
+                    onValueChange = { },
+                    label = { Text(text = "Input2") }
+                )
             }
         }
     )

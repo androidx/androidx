@@ -23,6 +23,8 @@ import android.graphics.Rect
 import android.os.Handler
 import android.util.LayoutDirection
 
+import javax.swing.SwingUtilities
+
 open class View(val context: Context) {
     companion object {
         @JvmField
@@ -61,6 +63,14 @@ open class View(val context: Context) {
     var accessibilityDelegate: AccessibilityDelegate? = null
 
     fun requestLayout() {}
+
+    fun requestFocus(): Boolean {
+        return true
+    }
+
+    fun requestRectangleOnScreen(rectangle: Rect): Boolean {
+        return false
+    }
 
     open fun invalidate() {}
 
@@ -148,4 +158,11 @@ open class View(val context: Context) {
     }
 
     val handler = Handler()
+
+    open fun post(runnable: Runnable): Boolean {
+        SwingUtilities.invokeLater {
+            runnable.run()
+        }
+        return true
+    }
 }

@@ -20,11 +20,14 @@ import org.jetbrains.skija.Canvas
 import org.jetbrains.skija.Rect
 import org.jetbrains.skija.RoundedRect
 
-public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas) {
+public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas?) {
+
+    constructor() : this(null)
+
     var skijaFont = org.jetbrains.skija.Font(Typeface.DEFAULT.skijaTypeface, 30f)
 
     fun translate(x: Float, y: Float) {
-        skijaCanvas.translate(x, y)
+        skijaCanvas!!.translate(x, y)
     }
 
     fun drawLine(
@@ -34,7 +37,7 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas) {
         stopY: Float,
         paint: Paint
     ) {
-        skijaCanvas.drawLine(
+        skijaCanvas!!.drawLine(
             startX,
             startY,
             stopX,
@@ -45,7 +48,7 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas) {
 
     fun drawRect(rect: android.graphics.RectF, paint: android.graphics.Paint) {
         val skijaRect = Rect.makeLTRB(rect.left, rect.top, rect.right, rect.bottom)
-        skijaCanvas.drawRect(skijaRect, paint.skijaPaint)
+        skijaCanvas!!.drawRect(skijaRect, paint.skijaPaint)
     }
 
     fun drawRect(
@@ -56,7 +59,7 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas) {
         paint: android.graphics.Paint
     ) {
         val skijaRect = Rect.makeLTRB(left, top, right, bottom)
-        skijaCanvas.drawRect(skijaRect, paint.skijaPaint)
+        skijaCanvas!!.drawRect(skijaRect, paint.skijaPaint)
     }
 
     fun drawArc(
@@ -69,7 +72,7 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas) {
         useCenter: Boolean,
         paint: Paint
     ) {
-        skijaCanvas.drawArc(
+        skijaCanvas!!.drawArc(
             left,
             top,
             right,
@@ -92,7 +95,7 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas) {
         val typeface = paint.getTypeface() ?: Typeface.DEFAULT
         val skijaFont = org.jetbrains.skija.Font(typeface.skijaTypeface, paint.textSize)
         val buffer = skijaFont.hbFont.shape(text.toString(), org.jetbrains.skija.FontFeature.EMPTY)
-        skijaCanvas.drawTextBuffer(buffer, x, y, skijaFont.skFont, paint.skijaPaint)
+        skijaCanvas!!.drawTextBuffer(buffer, x, y, skijaFont.skFont, paint.skijaPaint)
     }
 
     fun drawText(
@@ -114,7 +117,11 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas) {
         paint: android.graphics.Paint
     ) {
         val skijaRoundedRect = RoundedRect.makeLTRB(left, top, right, bottom, rx, ry)
-        skijaCanvas.drawRoundedRect(skijaRoundedRect, paint.skijaPaint)
+        skijaCanvas!!.drawRoundedRect(skijaRoundedRect, paint.skijaPaint)
+    }
+
+    fun drawPath(path: Path, paint: Paint) {
+        skijaCanvas!!.drawPath(path.skijaPath, paint.skijaPaint)
     }
 
     fun drawCircle(
@@ -123,29 +130,29 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas) {
         radius: Float,
         paint: Paint
     ) {
-        skijaCanvas.drawCircle(cx, cy, radius, paint.skijaPaint)
+        skijaCanvas!!.drawCircle(cx, cy, radius, paint.skijaPaint)
     }
 
     fun clipRect(left: Float, top: Float, right: Float, bottom: Float, op: Region.Op): Boolean {
         val skijaRect = Rect.makeLTRB(left, top, right, bottom)
-        skijaCanvas.clipRect(skijaRect, op.skija)
+        skijaCanvas!!.clipRect(skijaRect, op.skija)
         return true
     }
 
     fun clipPath(path: Path, op: Region.Op): Boolean {
-        skijaCanvas.clipPath(path.skijaPath, op.skija)
+        skijaCanvas!!.clipPath(path.skijaPath, op.skija)
         return true
     }
 
     fun scale(sx: Float, sy: Float) {
-        skijaCanvas.scale(sx, sy)
+        skijaCanvas!!.scale(sx, sy)
     }
 
     fun save(): Int {
-        return skijaCanvas.save()
+        return skijaCanvas!!.save()
     }
 
     fun restore() {
-        skijaCanvas.restore()
+        skijaCanvas!!.restore()
     }
 }

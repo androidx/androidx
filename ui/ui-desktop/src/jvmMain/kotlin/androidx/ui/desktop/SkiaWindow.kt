@@ -28,6 +28,8 @@ import org.jetbrains.skija.Context
 import org.jetbrains.skija.JNI
 import org.jetbrains.skija.Surface
 import java.nio.IntBuffer
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
@@ -61,6 +63,10 @@ interface SkiaRenderer {
     fun onMousePressed(x: Int, y: Int, modifiers: Int)
     fun onMouseReleased(x: Int, y: Int, modifiers: Int)
     fun onMouseDragged(x: Int, y: Int, modifiers: Int)
+
+    fun onKeyTyped(char: Char)
+    fun onKeyPressed(code: Int, char: Char)
+    fun onKeyReleased(code: Int, char: Char)
 }
 
 class SkiaWindow(
@@ -103,6 +109,18 @@ class SkiaWindow(
         glCanvas.addMouseMotionListener(object : MouseMotionAdapter() {
             override fun mouseDragged(event: MouseEvent) {
                 renderer!!.onMouseDragged(event.x, event.y, event.getModifiersEx())
+            }
+        })
+
+        glCanvas.addKeyListener(object : KeyAdapter() {
+            override fun keyPressed(event: KeyEvent) {
+                renderer!!.onKeyPressed(event.keyCode, event.keyChar)
+            }
+            override fun keyReleased(event: KeyEvent) {
+                renderer!!.onKeyReleased(event.keyCode, event.keyChar)
+            }
+            override fun keyTyped(event: KeyEvent) {
+                renderer!!.onKeyTyped(event.keyChar)
             }
         })
 

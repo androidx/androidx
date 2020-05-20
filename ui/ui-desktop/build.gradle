@@ -307,6 +307,7 @@ tasks.withType(KotlinCompile).configureEach {
 
 task run(type: JavaExec) {
     main = 'androidx.ui.desktop.example.MainKt'
+    jvmArgs += '-Dkotlinx.coroutines.fast.service.loader=false'
     def compilation = kotlin.jvm().compilations["main"]
     classpath = compilation.output.allOutputs + compilation.runtimeDependencyFiles +
             fileTree(composeClassDir)
