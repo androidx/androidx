@@ -37,12 +37,17 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
+import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.view.preview.transform.PreviewTransform;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Custom View that displays the camera feed for CameraX's Preview use case.
@@ -66,6 +71,14 @@ public class PreviewView extends FrameLayout {
 
     @NonNull
     private PreviewTransform mPreviewTransform = new PreviewTransform();
+
+    @NonNull
+    private MutableLiveData<StreamState> mPreviewStreamStateLiveData =
+            new MutableLiveData<>(StreamState.IDLE);
+
+    @Nullable
+    private AtomicReference<PreviewStreamStateObserver> mActiveStreamStateObserver =
+            new AtomicReference<>();
 
     private final OnLayoutChangeListener mOnLayoutChangeListener = new OnLayoutChangeListener() {
         @Override
@@ -183,14 +196,33 @@ public class PreviewView extends FrameLayout {
         removeAllViews();
 
         return surfaceRequest -> {
-            CameraInfo cameraInfo = surfaceRequest.getCameraInfo();
+            CameraInternal camera = (CameraInternal) surfaceRequest.getCamera();
             final ImplementationMode actualImplementationMode =
-                    computeImplementationMode(cameraInfo, mPreferredImplementationMode);
-            mPreviewTransform.setSensorDimensionFlipNeeded(isSensorDimensionFlipNeeded(cameraInfo));
+                    computeImplementationMode(camera.getCameraInfo(), mPreferredImplementationMode);
+            mPreviewTransform.setSensorDimensionFlipNeeded(
+                    isSensorDimensionFlipNeeded(camera.getCameraInfo()));
             mImplementation = computeImplementation(actualImplementationMode);
             mImplementation.init(this, mPreviewTransform);
 
-            mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+            PreviewStreamStateObserver streamStateObserver =
+                    new PreviewStreamStateObserver((CameraInfoInternal) camera.getCameraInfo(),
+                            mPreviewStreamStateLiveData, mImplementation);
+            mActiveStreamStateObserver.set(streamStateObserver);
+
+            camera.getCameraState().addObserver(
+                    ContextCompat.getMainExecutor(getContext()), streamStateObserver);
+
+            mImplementation.onSurfaceRequested(surfaceRequest, ()-> {
+                // We've no longer needed this observer, if there is no new StreamStateObserver
+                // (another SurfaceRequest), reset the streamState to IDLE.
+                // This is needed for the case when unbinding preview while other use cases are
+                // still bound.
+                if (mActiveStreamStateObserver.compareAndSet(streamStateObserver, null)) {
+                    mPreviewStreamStateLiveData.postValue(StreamState.IDLE);
+                }
+                streamStateObserver.clear();
+                camera.getCameraState().removeObserver(streamStateObserver);
+            });
         };
     }
 
@@ -284,6 +316,27 @@ public class PreviewView extends FrameLayout {
         return new PreviewViewMeteringPointFactory(getDisplay(), cameraSelector,
                 mImplementation.getResolution(), mPreviewTransform.getScaleType(), getWidth(),
                 getHeight());
+    }
+
+    /**
+     * Gets the {@link LiveData} of current preview {@link StreamState}.
+     *
+     * <p>There are two states, {@link StreamState#IDLE} and {@link StreamState#STREAMING}.
+     * {@link StreamState#IDLE} represents the preview is currently not visible and streaming is
+     * stopped. {@link StreamState#STREAMING} means the preview is streaming.
+     *
+     * <p>When it's in STREAMING state, it guarantees preview is visible only when
+     * implementationMode is TEXTURE_VIEW. When in SURFACE_VIEW implementationMode, it is
+     * possible that preview becomes visible slightly after state changes to STREAMING. For apps
+     * relying on the preview visible signal to be working correctly, please set TEXTURE_VIEW
+     * mode by {@link #setPreferredImplementationMode}.
+     *
+     * @return A {@link LiveData} containing the {@link StreamState}. Apps can either get current
+     * value by {@link LiveData#getValue()} or register a observer by {@link LiveData#observe} .
+     */
+    @NonNull
+    public LiveData<StreamState> getPreviewStreamState() {
+        return mPreviewStreamStateLiveData;
     }
 
     @NonNull
@@ -445,5 +498,23 @@ public class PreviewView extends FrameLayout {
             }
             throw new IllegalArgumentException("Unknown scale type id " + id);
         }
+    }
+
+    /**
+     * Definitions for current preview stream state.
+     */
+    public enum StreamState {
+        /** Preview is not visible yet. */
+        IDLE,
+        /**
+         * Preview is streaming.
+         *
+         * It guarantees preview is visible only when implementationMode is TEXTURE_VIEW. When in
+         * SURFACE_VIEW implementationMode, it is possible that preview becomes visible slightly
+         * after state changes to STREAMING. For apps relying on the preview visible signal to
+         * be working correctly, please set TEXTURE_VIEW mode by
+         * {@link #setPreferredImplementationMode}.
+         */
+        STREAMING
     }
 }

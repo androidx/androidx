@@ -19,6 +19,7 @@ package androidx.camera.view;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
@@ -30,6 +31,8 @@ import android.view.WindowManager;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.testing.fakes.FakeCamera;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
@@ -58,7 +61,9 @@ public class PreviewViewTest {
     private SurfaceRequest mSurfaceRequest;
 
     private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
-        return new SurfaceRequest(new Size(640, 480), cameraInfo);
+        FakeCamera fakeCamera = spy(new FakeCamera());
+        when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
+        return new SurfaceRequest(new Size(640, 480), fakeCamera);
     }
 
     @After
@@ -71,14 +76,20 @@ public class PreviewViewTest {
         }
     }
 
+    private CameraInfoInternal createCameraInfo(String implementationType) {
+        final CameraInfoInternal cameraInfo = mock(CameraInfoInternal.class);
+        when(cameraInfo.getImplementationType()).thenReturn(implementationType);
+        return cameraInfo;
+    }
+
+
     @Config(maxSdk = 25) // The remote display simulation can only work from sdk 21 to 25.
     @Test
     public void forceUseTextureViewMode_whenNonLegacyDevice_andInRemoteDisplayMode() {
         final PreviewView previewView = new PreviewView(mContext);
 
         // Provides mock CameraInfo to make the device return non-legacy type.
-        final CameraInfo cameraInfo = mock(CameraInfo.class);
-        when(cameraInfo.getImplementationType()).thenReturn(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
         // Simulates the remote display mode by adding an additional display and returns the
         // second display's id when PreviewView is querying the default display's id.
@@ -101,8 +112,7 @@ public class PreviewViewTest {
         final PreviewView previewView = new PreviewView(mContext);
 
         // Provides mock CameraInfo to make the device return legacy type.
-        final CameraInfo cameraInfo = mock(CameraInfo.class);
-        when(cameraInfo.getImplementationType()).thenReturn(
+        final CameraInfo cameraInfo = createCameraInfo(
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
 
         // Simulates the remote display mode by adding an additional display and returns the
