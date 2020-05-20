@@ -45,7 +45,6 @@ import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.Density
 import androidx.ui.unit.em
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -625,7 +624,7 @@ class AndroidParagraphTest {
         val text = "abcde"
         val color = Color(0xFF00FF00)
         val offset = Offset(1f, 2f)
-        val radius = 3.px
+        val radius = 3.0f
         val spanStyle = SpanStyle(shadow = Shadow(color, offset, radius))
 
         val paragraph = simpleParagraph(
@@ -641,7 +640,7 @@ class AndroidParagraphTest {
                 return@hasSpan it.color == color.toArgb() &&
                         it.offsetX == offset.dx &&
                         it.offsetY == offset.dy &&
-                        it.radius == radius.value
+                        it.radius == radius
             }
     }
 
@@ -650,12 +649,12 @@ class AndroidParagraphTest {
         val text = "abcde"
         val color = Color(0xFF00FF00)
         val offset = Offset(1f, 2f)
-        val radius = 3.px
+        val radius = 3.0f
         val spanStyle = SpanStyle(shadow = Shadow(color, offset, radius))
 
         val colorOverwrite = Color(0xFF0000FF)
         val offsetOverwrite = Offset(3f, 2f)
-        val radiusOverwrite = 1.px
+        val radiusOverwrite = 1.0f
         val spanStyleOverwrite = SpanStyle(
             shadow = Shadow(colorOverwrite, offsetOverwrite, radiusOverwrite)
         )
@@ -674,14 +673,14 @@ class AndroidParagraphTest {
                 return@hasSpan it.color == color.toArgb() &&
                         it.offsetX == offset.dx &&
                         it.offsetY == offset.dy &&
-                        it.radius == radius.value
+                        it.radius == radius
             }
         assertThat(paragraph.charSequence)
             .hasSpanOnTop(ShadowSpan::class, start = 0, end = "abc".length) {
                 return@hasSpanOnTop it.color == colorOverwrite.toArgb() &&
                         it.offsetX == offsetOverwrite.dx &&
                         it.offsetY == offsetOverwrite.dy &&
-                        it.radius == radiusOverwrite.value
+                        it.radius == radiusOverwrite
             }
     }
 

@@ -22,8 +22,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Image
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
-import androidx.ui.graphics.RadialGradient
 import androidx.ui.core.ContentScale
+import androidx.ui.graphics.RadialGradient
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.TileMode
 import androidx.ui.graphics.VerticalGradient
@@ -39,7 +39,6 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.unit.Dp
-import androidx.ui.unit.Px
 import androidx.ui.unit.dp
 
 @Composable
@@ -97,8 +96,8 @@ private fun vectorShape(width: Dp, height: Dp): Painter =
                         Color.Red,
                         Color.Blue
                     ),
-                    startX = Px.Zero,
-                    endX = Px(viewportWidth / 2 + 100)
+                    startX = 0.0f,
+                    endX = viewportWidth / 2 + 100.0f
                 ),
                 pathData = pathData
             )
@@ -122,8 +121,8 @@ private fun VectorScope.BackgroundPath(vectorWidth: Float, vectorHeight: Float) 
             0.0f to Color.Cyan,
             0.3f to Color.Green,
             1.0f to Color.Magenta,
-            startY = Px.Zero,
-            endY = Px(vectorHeight)
+            startY = 0.0f,
+            endY = vectorHeight
         ),
         pathData = background
     )

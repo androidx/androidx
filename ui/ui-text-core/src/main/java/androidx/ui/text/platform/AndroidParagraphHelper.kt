@@ -137,7 +137,7 @@ internal fun TextPaint.applySpanStyle(
 
     style.shadow?.let {
         setShadowLayer(
-            it.blurRadius.value,
+            it.blurRadius,
             it.offset.dx,
             it.offset.dy,
             it.color.toArgb()
@@ -419,7 +419,7 @@ internal fun createStyledText(
         }
         style.shadow?.let {
             spannableString.setSpanWithPriority(
-                ShadowSpan(it.color.toArgb(), it.offset.dx, it.offset.dy, it.blurRadius.value),
+                ShadowSpan(it.color.toArgb(), it.offset.dx, it.offset.dy, it.blurRadius),
                 start,
                 end,
                 SPAN_PRIORITY_NORMAL

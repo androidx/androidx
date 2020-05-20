@@ -21,12 +21,11 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.drawBackground
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.layout.padding
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 
 @Sampled
@@ -34,11 +33,8 @@ import androidx.ui.unit.dp
 fun PainterModifierSample() {
     class CustomPainter : Painter() {
 
-        override val intrinsicSize: PxSize
-            get() = PxSize(
-                Px(300.0f),
-                Px(300.0f)
-            )
+        override val intrinsicSize: Size
+            get() = Size(300.0f, 300.0f)
 
         override fun DrawScope.onDraw() {
             drawCircle(

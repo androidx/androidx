@@ -3306,7 +3306,7 @@ class ParagraphIntegrationTest {
                 shadow = Shadow(
                     Color(0xFF00FF00),
                     Offset(1f, 2f),
-                    3.px
+                    3.0f
                 )
             )
 
