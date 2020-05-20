@@ -79,6 +79,7 @@ fun RadioGroup(content: @Composable RadioGroupScope.() -> Unit) {
  * or `null` if nothing is selected
  * @param onSelectedChange callback to be invoked when RadioButton is clicked,
  * therefore the selection of this item is requested
+ * @param modifier Modifier to be applied to the radio group layout
  * @param radioColor color for RadioButtons when selected.
  * @param textStyle parameters for text customization
  */
@@ -87,11 +88,12 @@ fun RadioGroup(
     options: List<String>,
     selectedOption: String?,
     onSelectedChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
     radioColor: Color = MaterialTheme.colors.secondary,
     textStyle: TextStyle? = null
 ) {
     RadioGroup {
-        Column {
+        Column(modifier) {
             options.forEach { text ->
                 RadioGroupTextItem(
                     selected = (text == selectedOption),
@@ -124,15 +126,17 @@ class RadioGroupScope internal constructor() {
      * @param selected whether or not this item is selected
      * @param onSelect callback to be invoked when your item is being clicked,
      * therefore the selection of this item is requested. Not invoked if item is already selected
+     * @param modifier Modifier to be applied to this item
      */
     @Composable
     fun RadioGroupItem(
         selected: Boolean,
         onSelect: () -> Unit,
+        modifier: Modifier = Modifier,
         content: @Composable () -> Unit
     ) {
         Semantics(container = true, mergeAllDescendants = true) {
-            Box {
+            Box(modifier) {
                 MutuallyExclusiveSetItem(
                     selected = selected,
                     onClick = { if (!selected) onSelect() }, children = content,
@@ -150,6 +154,7 @@ class RadioGroupScope internal constructor() {
      * @param onSelect callback to be invoked when your item is being clicked, therefore the
      * selection of this item is requested. Not invoked if item is already selected
      * @param text to put as a label description of this item
+     * @param modifier Modifier to be applied to this item
      * @param radioColor color for RadioButtons when selected
      * @param textStyle parameters for text customization
      */
@@ -158,10 +163,11 @@ class RadioGroupScope internal constructor() {
         selected: Boolean,
         onSelect: () -> Unit,
         text: String,
+        modifier: Modifier = Modifier,
         radioColor: Color = MaterialTheme.colors.secondary,
         textStyle: TextStyle? = null
     ) {
-        RadioGroupItem(selected = selected, onSelect = onSelect) {
+        RadioGroupItem(selected = selected, onSelect = onSelect, modifier = modifier) {
             // TODO: remove this Box when Ripple becomes a modifier.
             Box {
                 Row(Modifier.fillMaxWidth().padding(DefaultRadioItemPadding)) {
@@ -189,15 +195,17 @@ class RadioGroupScope internal constructor() {
  * @param selected boolean state for this button: either it is selected or not
  * @param onSelect callback to be invoked when RadioButton is being clicked,
  * therefore the selection of this item is requested. Not invoked if item is already selected
+ * @param modifier Modifier to be applied to radio button
  * @param color color of the RadioButton
  */
 @Composable
 fun RadioButton(
     selected: Boolean,
     onSelect: (() -> Unit)?,
+    modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.secondary
 ) {
-    Stack {
+    Stack(modifier) {
         MutuallyExclusiveSetItem(
             selected = selected, onClick = { if (!selected) onSelect?.invoke() },
             modifier = Modifier.ripple(bounded = false)
@@ -243,8 +251,10 @@ private fun DrawScope.drawRadio(
         val circleRadius = outerPx - radioStroke.width - gapWidth
         val innerCircleStrokeWidth = circleRadius - innerPx
 
-        drawCircle(color, circleRadius - innerCircleStrokeWidth / 2, center,
-            style = Stroke(innerCircleStrokeWidth))
+        drawCircle(
+            color, circleRadius - innerCircleStrokeWidth / 2, center,
+            style = Stroke(innerCircleStrokeWidth)
+        )
     }
 }
 
