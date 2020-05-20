@@ -762,19 +762,14 @@ package androidx.ui.core {
   }
 
   public final class PopupKt {
-    method public static void DropdownPopup(androidx.ui.core.DropDownAlignment dropDownAlignment = androidx.ui.core.DropDownAlignment.Start, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopStart, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.core.PopupProperties popupProperties = androidx.ui.core.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void DropdownPopup(androidx.ui.core.DropDownAlignment dropDownAlignment = androidx.ui.core.DropDownAlignment.Start, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopStart, androidx.ui.unit.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Popup(androidx.ui.core.PopupPositionProvider popupPositionProvider, boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static boolean isPopupLayout(android.view.View view, String? testTag = null);
   }
 
-  public final class PopupProperties {
-    ctor public PopupProperties(boolean isFocusable, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest);
-    ctor public PopupProperties();
-    method public boolean component1();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? component2();
-    method public androidx.ui.core.PopupProperties copy(boolean isFocusable, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest);
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnDismissRequest();
-    method public boolean isFocusable();
+  public interface PopupPositionProvider {
+    method public androidx.ui.unit.IntPxPosition calculatePosition(androidx.ui.unit.IntPxPosition parentLayoutPosition, androidx.ui.unit.IntPxSize parentLayoutSize, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize popupSize);
   }
 
   public final class Ref<T> {
@@ -2205,12 +2200,14 @@ package androidx.ui.semantics {
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getAccessibilityValue();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getEnabled();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getHidden();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsPopup();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getTestTag();
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityLabel;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> AccessibilityRangeInfo;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityValue;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Enabled;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Hidden;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsPopup;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> TestTag;
     field public static final androidx.ui.semantics.SemanticsProperties! INSTANCE;
   }
@@ -2224,6 +2221,7 @@ package androidx.ui.semantics {
     method public static boolean getEnabled(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static boolean getHidden(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>> getOnClick(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static boolean getPopup(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,java.lang.Boolean>> getScrollTo(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static String getTestTag(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static void onClick(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function0<java.lang.Boolean> action);
@@ -2234,6 +2232,7 @@ package androidx.ui.semantics {
     method public static void setEnabled(androidx.ui.semantics.SemanticsPropertyReceiver, boolean p);
     method public static void setHidden(androidx.ui.semantics.SemanticsPropertyReceiver, boolean p);
     method public static void setOnClick(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>> p);
+    method public static void setPopup(androidx.ui.semantics.SemanticsPropertyReceiver, boolean p);
     method public static void setScrollTo(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,java.lang.Boolean>> p);
     method public static void setTestTag(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
   }

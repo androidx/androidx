@@ -390,6 +390,12 @@ package androidx.ui.unit {
     method public inline operator androidx.ui.unit.IntPxSize times(int other);
     property public final inline int height;
     property public final inline int width;
+    field public static final androidx.ui.unit.IntPxSize.Companion! Companion;
+  }
+
+  public static final class IntPxSize.Companion {
+    method public androidx.ui.unit.IntPxSize getZero();
+    property public final androidx.ui.unit.IntPxSize Zero;
   }
 
   public final inline class IntSize {
