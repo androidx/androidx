@@ -22,8 +22,27 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.annotatedString
+import androidx.ui.text.font.FontStyle
+import androidx.ui.text.style.TextAlign
+import androidx.ui.text.style.TextIndent
 import androidx.ui.text.withStyle
 import androidx.ui.unit.sp
+
+@Sampled
+fun AnnotatedStringConstructorSample() {
+    AnnotatedString(
+        text = "Hello World",
+        // make "Hello" italic.
+        spanStyles = listOf(
+            AnnotatedString.Range(SpanStyle(fontStyle = FontStyle.Italic), 0, 5)
+        ),
+        // create two paragraphs with different alignment and indent settings.
+        paragraphStyles = listOf(
+            AnnotatedString.Range(ParagraphStyle(textAlign = TextAlign.Center), 0, 6),
+            AnnotatedString.Range(ParagraphStyle(textIndent = TextIndent(5.sp)), 6, 11)
+        )
+    )
+}
 
 @Sampled
 fun AnnotatedStringBuilderSample() {

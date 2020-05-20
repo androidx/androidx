@@ -45,6 +45,26 @@ data class AnnotatedString internal constructor(
     val paragraphStyles: List<ParagraphStyleRange> = listOf(),
     internal val annotations: List<Range<String>> = listOf()
 ) {
+    /**
+     * The basic data structure of text with multiple styles. To construct an [AnnotatedString]
+     * you can use [Builder].
+     *
+     * @param text the text to be displayed.
+     * @param spanStyles a list of [Range]s that specifies [SpanStyle]s on certain portion of the
+     * text. These styles will be applied in the order of the list. And the [SpanStyle]s applied
+     * later can override the former styles. Notice that [SpanStyle] attributes which are null or
+     * [androidx.ui.unit.TextUnit.Inherit] won't change the current ones.
+     * @param paragraphStyles a list of [Range]s that specifies [ParagraphStyle]s on certain
+     * portion of the text. Each [ParagraphStyle] with a [Range] defines a paragraph of text.
+     * It's required that [Range]s of paragraphs don't overlap with each other. If there are gaps
+     * between specified paragraph [Range]s, a default paragraph will be created in between.
+     *
+     * @throws IllegalArgumentException if [paragraphStyles] contains any two overlapping [Range]s.
+     * @sample androidx.ui.text.samples.AnnotatedStringConstructorSample
+     *
+     * @see SpanStyle
+     * @see ParagraphStyle
+     */
     constructor(
         text: String,
         spanStyles: List<SpanStyleRange> = listOf(),
