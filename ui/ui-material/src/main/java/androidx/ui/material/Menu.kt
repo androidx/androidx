@@ -173,7 +173,10 @@ fun DropdownMenuItem(
         val typography = MaterialTheme.typography
         val emphasisLevels = EmphasisAmbient.current
         ProvideTextStyle(typography.subtitle1) {
-            ProvideEmphasis(emphasisLevels.high, content)
+            ProvideEmphasis(
+                if (enabled) emphasisLevels.high else emphasisLevels.disabled,
+                content
+            )
         }
     }
 }
