@@ -35,7 +35,8 @@ import androidx.ui.unit.max
  * A composable that positions its children relative to its edges.
  * The component is useful for drawing children that overlap. The children will always be
  * drawn in the order they are specified in the body of the [Stack].
- * Use [LayoutGravity] options to define how to position a target component inside the [Stack] box.
+ * Use [StackScope.gravity] modifier to define the position of the target element inside the
+ * [Stack] box.
  *
  * Example usage:
  *
@@ -105,20 +106,16 @@ class StackScope {
     /**
      * Size the element to match the size of the [Stack] after all other content elements have
      * been measured.
+     *
+     * The element using this modifier does not take part in defining the size of the [Stack].
+     * Instead, it matches the size of the [Stack] after all other children (not using
+     * matchParentSize() modifier) have been measured to obtain the [Stack]'s size.
+     * In contrast, a general-purpose [Modifier.fillMaxSize] modifier, which makes an element
+     * occupy all available space, will take part in defining the size of the [Stack]. Consequently,
+     * using it for an element inside a [Stack] will make the [Stack] itself always fill the
+     * available space.
      */
     fun Modifier.matchParentSize() = this + StretchGravityModifier
-
-    /**
-     * Size the element to match the size of the [Stack] after all other content elements have
-     * been measured.
-     *
-     * @deprecated renamed to [matchParentSize].
-     */
-    @Deprecated(
-        "Renamed to matchParentSize for descriptive clarity",
-        replaceWith = ReplaceWith("this.matchParentSize()")
-    )
-    fun Modifier.matchParent() = this + StretchGravityModifier
 
     internal companion object {
         val StretchGravityModifier: ParentDataModifier =

@@ -22,7 +22,6 @@ import androidx.ui.unit.Density
 /**
  * Tag the element with [tag] to identify the element within its parent.
  */
-@Suppress("DEPRECATION")
 fun Modifier.tag(tag: Any) = this + LayoutTag(tag)
 
 /**
@@ -34,16 +33,8 @@ fun Modifier.tag(tag: Any) = this + LayoutTag(tag)
  * @sample androidx.ui.core.samples.LayoutTagChildrenUsage
  */
 @Immutable
-data class LayoutTag
-@Deprecated(
-    "Use Modifier.tag",
-    replaceWith = ReplaceWith(
-        "Modifier.tag(tag)",
-        "androidx.ui.core.Modifier",
-        "androidx.ui.core.tag"
-    )
-)
-constructor(override val tag: Any) : ParentDataModifier, LayoutTagParentData {
+private data class LayoutTag(override val tag: Any) : ParentDataModifier,
+LayoutTagParentData {
     override fun Density.modifyParentData(parentData: Any?): Any? {
         return this@LayoutTag
     }
