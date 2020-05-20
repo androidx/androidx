@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.internal.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,6 +29,7 @@ import android.util.Size;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.ImageProxy;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,7 +38,7 @@ import java.nio.ByteBuffer;
 /**
  * Utility class for image related operations.
  */
-final class ImageUtil {
+public final class ImageUtil {
     private static final String TAG = "ImageUtil";
 
     private ImageUtil() {
@@ -46,7 +47,8 @@ final class ImageUtil {
     /**
      * Rotates aspect ratio based on rotation degrees.
      */
-    static Rational getRotatedAspectRatio(
+    @NonNull
+    public static Rational getRotatedAspectRatio(
             @IntRange(from = 0, to = 359) int rotationDegrees,
             @NonNull Rational aspectRatio) {
         if (rotationDegrees == 90 || rotationDegrees == 270) {
@@ -272,7 +274,7 @@ final class ImageUtil {
 
     /** Exception for error during transcoding image. */
     public static final class CodecFailedException extends Exception {
-        enum FailureType {
+        public enum FailureType {
             ENCODE_FAILED,
             DECODE_FAILED,
             UNKNOWN

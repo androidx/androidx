@@ -102,6 +102,7 @@ import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
 import androidx.camera.core.internal.TargetConfig;
+import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
