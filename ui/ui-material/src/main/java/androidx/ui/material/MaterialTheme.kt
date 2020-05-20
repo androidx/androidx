@@ -18,6 +18,8 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.Providers
+import androidx.compose.remember
+import androidx.ui.foundation.Indication
 import androidx.ui.foundation.IndicationAmbient
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.material.ripple.RippleIndication
@@ -55,8 +57,9 @@ fun MaterialTheme(
     content: @Composable () -> Unit
 ) {
     ProvideColorPalette(colors) {
+        val indicationFactory: @Composable () -> Indication = remember { { RippleIndication() } }
         Providers(
-            IndicationAmbient provides RippleIndication(),
+            IndicationAmbient provides indicationFactory,
             TypographyAmbient provides typography,
             ShapesAmbient provides shapes
         ) {

@@ -32,7 +32,7 @@ package androidx.ui.foundation {
     method @Deprecated public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, String? onClickLabel = null, androidx.ui.foundation.InteractionState? interactionState = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.core.Modifier clickable(androidx.ui.core.Modifier, boolean enabled = true, String? onClickLabel = null, androidx.ui.foundation.InteractionState interactionState = remember({ 
     return <init>()
-}), androidx.ui.foundation.Indication? indication = IndicationAmbient.current, kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onDoubleClick = null, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+}), androidx.ui.foundation.Indication? indication = IndicationAmbient.invoke(), kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onDoubleClick = null, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
   }
 
   public final class ClickableTextKt {
@@ -98,7 +98,7 @@ package androidx.ui.foundation {
   }
 
   public final class IndicationKt {
-    method public static androidx.compose.ProvidableAmbient<androidx.ui.foundation.Indication> getIndicationAmbient();
+    method public static androidx.compose.ProvidableAmbient<kotlin.jvm.functions.Function0<androidx.ui.foundation.Indication>> getIndicationAmbient();
     method public static androidx.ui.core.Modifier indication(androidx.ui.core.Modifier, androidx.ui.foundation.InteractionState interactionState, androidx.ui.foundation.Indication? indication = null);
   }
 
