@@ -24,7 +24,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextFieldValue
-import androidx.ui.foundation.currentTextStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.PasswordVisualTransformation
@@ -40,7 +39,6 @@ import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextRange
 import androidx.ui.unit.dp
 
-// TODO(b/154799748): remove explicit currentTextStyle() when upstream bug is fixed
 @Sampled
 @Composable
 fun SimpleFilledTextFieldSample() {
@@ -49,7 +47,7 @@ fun SimpleFilledTextFieldSample() {
     FilledTextField(
         value = text,
         onValueChange = { text = it },
-        label = { Text("Label", style = currentTextStyle()) }
+        label = { Text("Label") }
     )
 }
 
@@ -61,7 +59,7 @@ fun FilledTextFieldWithIcons() {
     FilledTextField(
         value = text,
         onValueChange = { text = it },
-        label = { Text("Label", style = currentTextStyle()) },
+        label = { Text("Label") },
         leadingIcon = { Icon(Icons.Filled.Favorite) },
         trailingIcon = { Icon(Icons.Filled.Info) }
     )
@@ -75,8 +73,8 @@ fun FilledTextFieldWithPlaceholder() {
     FilledTextField(
         value = text,
         onValueChange = { text = it },
-        label = { Text("Email", style = currentTextStyle()) },
-        placeholder = { Text("example@gmail.com", style = currentTextStyle()) }
+        label = { Text("Email") },
+        placeholder = { Text("example@gmail.com") }
     )
 }
 
@@ -91,7 +89,7 @@ fun FilledTextFieldWithErrorState() {
         onValueChange = { text = it },
         label = {
             val label = if (isValid) "Email" else "Email*"
-            Text(label, style = currentTextStyle())
+            Text(label)
         },
         isErrorValue = !isValid
     )
@@ -109,7 +107,7 @@ fun TextFieldWithHelperMessage() {
             onValueChange = { text = it },
             label = {
                 val label = if (invalidInput) "Email*" else "Email"
-                Text(label, style = currentTextStyle())
+                Text(label)
             },
             isErrorValue = invalidInput
         )
@@ -133,7 +131,7 @@ fun PasswordFilledTextField() {
     FilledTextField(
         value = password,
         onValueChange = { password = it },
-        label = { Text("Enter password", style = currentTextStyle()) },
+        label = { Text("Enter password") },
         visualTransformation = PasswordVisualTransformation(),
         keyboardType = KeyboardType.Password
     )
@@ -161,7 +159,7 @@ fun TextFieldWithHideKeyboardOnImeAction() {
     FilledTextField(
         value = text,
         onValueChange = { text = it },
-        label = { Text("Label", style = currentTextStyle()) },
+        label = { Text("Label") },
         imeAction = ImeAction.Done,
         onImeActionPerformed = { action, softwareController ->
             if (action == ImeAction.Done) {
