@@ -489,6 +489,7 @@ public class ShortcutInfoCompat {
     public static class Builder {
 
         private final ShortcutInfoCompat mInfo;
+        private boolean mIsConversation;
 
         public Builder(@NonNull Context context, @NonNull String id) {
             mInfo = new ShortcutInfoCompat();
@@ -668,6 +669,22 @@ public class ShortcutInfoCompat {
         }
 
         /**
+         * Sets the corresponding fields indicating this shortcut is aimed for conversation.
+         *
+         * <p>
+         * If the shortcut is not associated with a {@link LocusIdCompat}, a {@link LocusIdCompat}
+         * based on {@link ShortcutInfoCompat#getId()} will be added upon {@link #build()}
+         * <p>
+         * Additionally, the shortcut will be long-lived.
+         * @see #setLongLived(boolean)
+         */
+        @NonNull
+        public Builder setIsConversation() {
+            mIsConversation = true;
+            return this;
+        }
+
+        /**
          * Sets the target activity. A shortcut will be shown along with this activity's icon
          * on the launcher.
          *
@@ -790,6 +807,12 @@ public class ShortcutInfoCompat {
             }
             if (mInfo.mIntents == null || mInfo.mIntents.length == 0) {
                 throw new IllegalArgumentException("Shortcut must have an intent");
+            }
+            if (mIsConversation) {
+                if (mInfo.mLocusId == null) {
+                    mInfo.mLocusId = new LocusIdCompat(mInfo.mId);
+                }
+                mInfo.mIsLongLived = true;
             }
             return mInfo;
         }
