@@ -19,12 +19,17 @@ package androidx.ui.graphics
 import androidx.ui.geometry.Offset
 
 sealed class Brush {
-    abstract fun applyTo(p: Paint)
+    abstract fun applyTo(p: Paint, alpha: Float)
 }
 
 data class SolidColor(val value: Color) : Brush() {
-    override fun applyTo(p: Paint) {
-        if (p.color != value) p.color = value
+    override fun applyTo(p: Paint, alpha: Float) {
+        p.alpha = DefaultAlpha
+        p.color = if (alpha != DefaultAlpha) {
+            value.copy(alpha = value.alpha * alpha)
+        } else {
+            value
+        }
         if (p.shader != null) p.shader = null
     }
 }
@@ -300,8 +305,9 @@ data class RadialGradient internal constructor(
  * Brush implementation that wraps and applies a the provided shader to a [Paint]
  */
 open class ShaderBrush(val shader: Shader) : Brush() {
-    final override fun applyTo(p: Paint) {
+    final override fun applyTo(p: Paint, alpha: Float) {
         if (p.color != Color.Black) p.color = Color.Black
         if (p.shader != shader) p.shader = shader
+        if (p.alpha != alpha) p.alpha = alpha
     }
 }
