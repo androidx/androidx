@@ -173,7 +173,7 @@ package androidx.ui.core {
   }
 
   public final class AndroidComposeViewKt {
-    method public static androidx.ui.core.AndroidOwner createOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null);
+    method public static androidx.ui.core.AndroidOwner AndroidOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null);
     method public static androidx.ui.core.LayoutDirection getLocaleLayoutDirection(android.content.res.Configuration);
   }
 
