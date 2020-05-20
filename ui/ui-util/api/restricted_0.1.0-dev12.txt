@@ -32,6 +32,7 @@ package androidx.ui.util {
     method public static inline <T> boolean fastAny(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public static inline <T> T? fastFirstOrNull(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public static inline <T> void fastForEach(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action);
+    method public static inline <T> void fastForEachIndexed(java.util.List<? extends T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> action);
   }
 
   public final class MathHelpersKt {

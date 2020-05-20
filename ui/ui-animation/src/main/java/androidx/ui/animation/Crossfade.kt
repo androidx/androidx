@@ -28,6 +28,7 @@ import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawOpacity
 import androidx.ui.layout.Stack
+import androidx.ui.util.fastForEach
 
 /**
  * [Crossfade] allows to switch between two layouts with a crossfade animation.
@@ -74,7 +75,7 @@ fun <T> Crossfade(
     }
     Stack {
         state.invalidate = invalidate
-        state.items.forEach { (item, opacity) ->
+        state.items.fastForEach { (item, opacity) ->
             key(item) {
                 opacity {
                     children(item)

@@ -263,13 +263,13 @@ internal fun InlineChildren(
     text: AnnotatedString,
     inlineContents: List<InlineContentRange>
 ) {
-    inlineContents.forEach { (content, start, end) ->
+    inlineContents.fastForEach { (content, start, end) ->
         Layout(
             children = { content(text.subSequence(start, end).text) }
         ) { children, constrains, _ ->
             val placeables = children.map { it.measure(constrains) }
             layout(width = constrains.maxWidth, height = constrains.maxHeight) {
-                placeables.forEach { it.place(0.px, 0.px) }
+                placeables.fastForEach { it.place(0.px, 0.px) }
             }
         }
     }
@@ -356,7 +356,7 @@ internal fun resolveInlineContent(
 
     val placeholders = mutableListOf<AnnotatedString.Range<Placeholder>>()
     val inlineComposables = mutableListOf<AnnotatedString.Range<@Composable() (String) ->Unit>>()
-    inlineContentAnnotations.forEach { annotation ->
+    inlineContentAnnotations.fastForEach { annotation ->
         inlineContent[annotation.item]?. let { inlineTextContent ->
             placeholders.add(
                 AnnotatedString.Range(

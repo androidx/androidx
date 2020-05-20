@@ -701,12 +701,12 @@ internal class AndroidComposeView constructor(
                         }
                         var maxWidth = IntPx.Zero
                         var maxHeight = IntPx.Zero
-                        placeables.forEach { placeable ->
+                        placeables.fastForEach { placeable ->
                             maxWidth = max(placeable.width, maxWidth)
                             maxHeight = max(placeable.height, maxHeight)
                         }
                         measureScope.layout(maxWidth, maxHeight) {
-                            placeables.forEach { placeable ->
+                            placeables.fastForEach { placeable ->
                                 placeable.place(IntPx.Zero, IntPx.Zero)
                             }
                         }
