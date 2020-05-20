@@ -26,6 +26,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.preferredSize
@@ -234,5 +235,35 @@ class MenuTest {
         assertThat(rtlPosition.y).isEqualTo(
             anchorPositionRtl.y - popupSize.height + inset - offsetY.ipx
         )
+    }
+
+    @Test
+    fun dropdownMenuItem_emphasis() {
+        var onSurface = Color.Unset
+        var enabledContentColor = Color.Unset
+        var disabledContentColor = Color.Unset
+        lateinit var enabledEmphasis: Emphasis
+        lateinit var disabledEmphasis: Emphasis
+
+        composeTestRule.setContent {
+            onSurface = MaterialTheme.colors.onSurface
+            enabledEmphasis = EmphasisAmbient.current.high
+            disabledEmphasis = EmphasisAmbient.current.disabled
+            DropdownMenu(
+                toggle = { Box(Modifier.size(20.dp)) },
+                onDismissRequest = {},
+                expanded = true
+            ) {
+                DropdownMenuItem(onClick = {}) {
+                    enabledContentColor = contentColor()
+                }
+                DropdownMenuItem(enabled = false, onClick = {}) {
+                    disabledContentColor = contentColor()
+                }
+            }
+        }
+
+        assertThat(enabledContentColor).isEqualTo(enabledEmphasis.applyEmphasis(onSurface))
+        assertThat(disabledContentColor).isEqualTo(disabledEmphasis.applyEmphasis(onSurface))
     }
 }
