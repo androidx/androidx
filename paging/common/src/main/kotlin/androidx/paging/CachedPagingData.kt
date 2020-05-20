@@ -56,7 +56,7 @@ private class MulticastedPagingData<T : Any>(
 
 /**
  * Caches the [PagingData] such that any downstream collection from this flow will share the same
- * paging data.
+ * [PagingData].
  *
  * The flow is kept active as long as the given [scope] is active. To avoid leaks, make sure to
  * use a [scope] that is already managed (like a ViewModel scope) or manually cancel it when you

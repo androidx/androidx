@@ -20,9 +20,7 @@ package androidx.paging
 
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.FlowableConverter
 import io.reactivex.Observable
-import io.reactivex.ObservableConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.conflate
@@ -31,13 +29,8 @@ import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.rx2.asObservable
 
 /**
- * Construct the primary RxJava Paging reactive stream: `Observable<PagingData<T>>`.
- *
- * Creates a stream of [PagingData] objects, each of which represents a single generation of
- * paginated data. These objects can be transformed to alter data as it loads, and presented in a
- * `RecyclerView`.
- *
- * @see Pager
+ * An [Observable] of [PagingData], which mirrors the stream provided by [Pager.flow], but exposes
+ * it as an [Observable].
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData<Value>>
@@ -46,13 +39,8 @@ val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData
         .asObservable()
 
 /**
- * Construct the primary RxJava Paging reactive stream: `Flowable<PagingData<T>>`.
- *
- * Creates a stream of [PagingData] objects, each of which represents a single generation of
- * paginated data. These objects can be transformed to alter data as it loads, and presented in a
- * `RecyclerView`.
- *
- * @see Pager
+ * A [Flowable] of [PagingData], which mirrors the stream provided by [Pager.flow], but exposes
+ * it as a [Flowable].
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 val <Key : Any, Value : Any> Pager<Key, Value>.flowable: Flowable<PagingData<Value>>
@@ -61,47 +49,12 @@ val <Key : Any, Value : Any> Pager<Key, Value>.flowable: Flowable<PagingData<Val
         .asFlowable()
 
 /**
- * This converter caches a stream of [PagingData] within a [CoroutineScope].
- *
- * [CachedInConverter] is a custom converter which implements both [FlowableConverter] and
- * [ObservableConverter] for use with the `as` operator.
- *
- * This class is intended for Java users. Kotlin users can instead use the [cachedIn] extension for
- * simplicity.
+ * Operator which caches an [Observable] of [PagingData] within a [CoroutineScope].
  *
  * @param scope The [CoroutineScope] where the page cache will be kept alive. Typically this
- * would be a managed scope such as ViewModelScope, which automatically cancels after the
- * [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
+ * would be a managed scope such as `ViewModel.viewModelScope`, which automatically cancels after
+ * the [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
  * manually cancelled to avoid memory leaks.
- *
- * @see cachedIn
- */
-@OptIn(ExperimentalCoroutinesApi::class)
-class CachedInConverter<T : Any>(
-    private val scope: CoroutineScope
-) : FlowableConverter<PagingData<T>, Flowable<PagingData<T>>>,
-    ObservableConverter<PagingData<T>, Observable<PagingData<T>>> {
-    override fun apply(pagingDataFlowable: Flowable<PagingData<T>>): Flowable<PagingData<T>> {
-        return pagingDataFlowable.cachedIn(scope)
-    }
-
-    override fun apply(pagingDataObservable: Observable<PagingData<T>>): Observable<PagingData<T>> {
-        return pagingDataObservable.cachedIn(scope)
-    }
-}
-
-/**
- * Converts an [Observable]<[PagingData]> to be cached within a [CoroutineScope] using
- * [CachedInConverter].
- *
- * This extension is intended for Kotlin callers. Java callers should use [CachedInConverter].
- *
- * @param scope The [CoroutineScope] where the page cache will be kept alive. Typically this
- * would be a managed scope such as ViewModelScope, which automatically cancels after the
- * [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
- * manually cancelled to avoid memory leaks.
- *
- * @see CachedInConverter
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 fun <T : Any> Observable<PagingData<T>>.cachedIn(scope: CoroutineScope): Observable<PagingData<T>> {
@@ -112,17 +65,12 @@ fun <T : Any> Observable<PagingData<T>>.cachedIn(scope: CoroutineScope): Observa
 }
 
 /**
- * Converts a [Flowable]<[PagingData]> to be cached within a [CoroutineScope] using
- * [CachedInConverter].
- *
- * This extension is intended for Kotlin callers. Java callers should use [CachedInConverter].
+ * Operator which caches a [Flowable] of [PagingData] within a [CoroutineScope].
  *
  * @param scope The [CoroutineScope] where the page cache will be kept alive. Typically this
- * would be a managed scope such as ViewModelScope, which automatically cancels after the
- * [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
+ * would be a managed scope such as `ViewModel.viewModelScope`, which automatically cancels after
+ * the [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
  * manually cancelled to avoid memory leaks.
- *
- * @see CachedInConverter
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 fun <T : Any> Flowable<PagingData<T>>.cachedIn(scope: CoroutineScope): Flowable<PagingData<T>> {
