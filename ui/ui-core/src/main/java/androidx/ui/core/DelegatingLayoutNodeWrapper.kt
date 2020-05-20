@@ -54,13 +54,8 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
     override fun hitTest(
         pointerPositionRelativeToScreen: Offset,
         hitPointerInputFilters: MutableList<PointerInputFilter>
-    ): Boolean {
-        if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
-            return wrapped.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
-        } else {
-            // Anything out of bounds of ourselves can't be hit.
-            return false
-        }
+    ) {
+        wrapped.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
     }
 
     override fun get(line: AlignmentLine): IntPx? = wrapped[line]

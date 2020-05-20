@@ -32,16 +32,16 @@ internal class PointerInputDelegatingWrapper(
     override fun hitTest(
         pointerPositionRelativeToScreen: Offset,
         hitPointerInputFilters: MutableList<PointerInputFilter>
-    ): Boolean {
+    ) {
         if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
-            // If we were hit, add the pointerInputFilter and keep looking to see if anything
-            // further down the tree is also hit and return true.
+            // If the pointer is in bounds, we hit the pointer input filter, so add it!
             hitPointerInputFilters.add(modifier.pointerInputFilter)
-            super.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
-            return true
-        } else {
-            // Anything out of bounds of ourselves can't be hit.
-            return false
         }
+
+        // Also, keep looking to see if we also might hit any children.
+        super.hitTest(
+            pointerPositionRelativeToScreen,
+            hitPointerInputFilters
+        )
     }
 }

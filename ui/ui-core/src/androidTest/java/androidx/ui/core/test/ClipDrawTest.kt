@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
-class ClipTest {
+class ClipDrawTest {
 
     @Suppress("DEPRECATION")
     @get:Rule

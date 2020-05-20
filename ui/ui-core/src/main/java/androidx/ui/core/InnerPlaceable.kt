@@ -153,16 +153,13 @@ internal class InnerPlaceable(
     override fun hitTest(
         pointerPositionRelativeToScreen: Offset,
         hitPointerInputFilters: MutableList<PointerInputFilter>
-    ): Boolean {
-        if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
-            // Any because as soon as true is returned, we know we have found a hit path and we must
-            //  not add PointerInputFilters on different paths so we should not even go looking.
-            return layoutNode.zIndexSortedChildren.reversed().fastAny { child ->
-                callHitTest(child, pointerPositionRelativeToScreen, hitPointerInputFilters)
-            }
-        } else {
-            // Anything out of bounds of ourselves can't be hit.
-            return false
+    ) {
+        // Any because as soon as true is returned, we know we have found a hit path and we must
+        // not add PointerInputFilters on different paths so we should not even go looking.
+        val originalSize = hitPointerInputFilters.size
+        layoutNode.zIndexSortedChildren.reversed().fastAny { child ->
+            callHitTest(child, pointerPositionRelativeToScreen, hitPointerInputFilters)
+            hitPointerInputFilters.size > originalSize
         }
     }
 
@@ -185,8 +182,8 @@ internal class InnerPlaceable(
             node: LayoutNode,
             globalPoint: Offset,
             hitPointerInputFilters: MutableList<PointerInputFilter>
-        ): Boolean {
-            return node.hitTest(globalPoint, hitPointerInputFilters)
+        ) {
+            node.hitTest(globalPoint, hitPointerInputFilters)
         }
     }
 }

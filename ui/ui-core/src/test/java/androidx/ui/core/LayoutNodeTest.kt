@@ -1115,11 +1115,11 @@ class LayoutNodeTest {
      *   .........   .........
      *
      * 4 LayoutNodes with PointerInputModifiers that are clipped by their parent LayoutNode. 4
-     * pointers are just inside the parent LayoutNode and inside the child LayoutNodes. 8
-     * pointers touch just outside the parent LayoutNode but inside the child LayoutNodes.
+     * touches touch just inside the parent LayoutNode and inside the child LayoutNodes. 8
+     * touches touch just outside the parent LayoutNode but inside the child LayoutNodes.
      *
-     * Because LayoutNodes clip the bounds where children LayoutNodes can be hit, all 8 should miss,
-     * but the other 4 touches are inside both, so hit.
+     * Because layout node bounds are not used to clip pointer input hit testing, all pointers
+     * should hit.
      */
     @Test
     fun hitTest_4DownInClippedAreaOfLnsWithPims_resultIsCorrect() {
@@ -1164,48 +1164,61 @@ class LayoutNodeTest {
             attach(mockOwner())
         }
 
-        val offsetThatHits1 = Offset(1f, 1f)
-        val offsetThatHits2 = Offset(3f, 1f)
-        val offsetThatHits3 = Offset(1f, 3f)
-        val offsetThatHits4 = Offset(3f, 3f)
-
-        val offsetsThatMiss =
+        val offsetsThatHit1 =
             listOf(
-                Offset(1f, 0f),
-                Offset(3f, 0f),
                 Offset(0f, 1f),
-                Offset(4f, 1f),
-                Offset(0f, 3f),
-                Offset(4f, 3f),
-                Offset(1f, 4f),
-                Offset(3f, 4f)
+                Offset(1f, 0f),
+                Offset(1f, 1f)
             )
 
-        val hit1 = mutableListOf<PointerInputFilter>()
-        val hit2 = mutableListOf<PointerInputFilter>()
-        val hit3 = mutableListOf<PointerInputFilter>()
-        val hit4 = mutableListOf<PointerInputFilter>()
+        val offsetsThatHit2 =
+            listOf(
+                Offset(3f, 0f),
+                Offset(3f, 1f),
+                Offset(4f, 1f)
+            )
 
-        val miss = mutableListOf<PointerInputFilter>()
+        val offsetsThatHit3 =
+            listOf(
+                Offset(0f, 3f),
+                Offset(1f, 3f),
+                Offset(1f, 4f)
+            )
 
-        // Act.
+        val offsetsThatHit4 =
+            listOf(
+                Offset(3f, 3f),
+                Offset(3f, 4f),
+                Offset(4f, 3f)
+            )
 
-        parentLayoutNode.hitTest(offsetThatHits1, hit1)
-        parentLayoutNode.hitTest(offsetThatHits2, hit2)
-        parentLayoutNode.hitTest(offsetThatHits3, hit3)
-        parentLayoutNode.hitTest(offsetThatHits4, hit4)
+        val hit = mutableListOf<PointerInputFilter>()
 
-        offsetsThatMiss.forEach {
-            parentLayoutNode.hitTest(it, miss)
+        // Act and Assert
+
+        offsetsThatHit1.forEach {
+            hit.clear()
+            parentLayoutNode.hitTest(it, hit)
+            assertThat(hit).isEqualTo(listOf(pointerInputFilter1))
         }
 
-        // Assert.
+        offsetsThatHit2.forEach {
+            hit.clear()
+            parentLayoutNode.hitTest(it, hit)
+            assertThat(hit).isEqualTo(listOf(pointerInputFilter2))
+        }
 
-        assertThat(hit1).isEqualTo(listOf(pointerInputFilter1))
-        assertThat(hit2).isEqualTo(listOf(pointerInputFilter2))
-        assertThat(hit3).isEqualTo(listOf(pointerInputFilter3))
-        assertThat(hit4).isEqualTo(listOf(pointerInputFilter4))
-        assertThat(miss).isEmpty()
+        offsetsThatHit3.forEach {
+            hit.clear()
+            parentLayoutNode.hitTest(it, hit)
+            assertThat(hit).isEqualTo(listOf(pointerInputFilter3))
+        }
+
+        offsetsThatHit4.forEach {
+            hit.clear()
+            parentLayoutNode.hitTest(it, hit)
+            assertThat(hit).isEqualTo(listOf(pointerInputFilter4))
+        }
     }
 
     /**
