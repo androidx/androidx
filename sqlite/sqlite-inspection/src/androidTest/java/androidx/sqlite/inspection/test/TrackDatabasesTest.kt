@@ -34,6 +34,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
+import java.io.File
 
 private const val OPEN_DATABASE_COMMAND_SIGNATURE: String = "openDatabase" +
         "(" +
@@ -317,6 +318,35 @@ class TrackDatabasesTest {
 
         closeDatabase(db1b, hooks)
         receiveClosedEvent(id1, db1a.absolutePath)
+        assertNoQueuedEvents()
+    }
+
+    @Test
+    fun test_findInstances_disk_filters_helper_files() = runBlocking {
+        val db = Database("db1").createInstance(temporaryFolder, false)
+
+        val application = object : Application() {
+            override fun databaseList(): Array<String> =
+                temporaryFolder.root.list() as Array<String>
+
+            override fun getDatabasePath(name: String) =
+                File(temporaryFolder.root, name)
+        }
+
+        // trigger some query to establish connection
+        val cursor = db.rawQuery("select * from sqlite_master", emptyArray())
+        cursor.count
+        cursor.close()
+
+        testEnvironment.registerApplication(application)
+        testEnvironment.registerAlreadyOpenDatabases(listOf(db))
+        val hooks = startTracking()
+
+        val id = receiveOpenedEventId(db)
+        assertNoQueuedEvents()
+
+        closeDatabase(db, hooks)
+        receiveClosedEvent(id, db.absolutePath)
         assertNoQueuedEvents()
     }
 

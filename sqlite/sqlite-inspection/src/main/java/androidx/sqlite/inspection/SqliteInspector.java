@@ -276,7 +276,7 @@ final class SqliteInspector extends Inspector {
         for (Application instance : mEnvironment.findInstances(Application.class)) {
             for (String name : instance.databaseList()) {
                 File path = instance.getDatabasePath(name);
-                if (path.exists() && !path.getPath().endsWith("-journal")) {
+                if (path.exists() && !isHelperSqliteFile(path)) {
                     mDatabaseRegistry.notifyOnDiskDatabase(path.getAbsolutePath());
                 }
             }
@@ -734,5 +734,10 @@ final class SqliteInspector extends Inspector {
         StringWriter writer = new StringWriter();
         exception.printStackTrace(new PrintWriter(writer));
         return writer.toString();
+    }
+
+    private static boolean isHelperSqliteFile(File file) {
+        String path = file.getPath();
+        return path.endsWith("-journal") || path.endsWith("-shm") || path.endsWith("-wal");
     }
 }
