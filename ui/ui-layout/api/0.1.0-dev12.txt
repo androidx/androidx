@@ -447,7 +447,6 @@ package androidx.ui.layout {
   @androidx.ui.layout.LayoutScopeMarker public final class StackScope {
     ctor public StackScope();
     method public androidx.ui.core.Modifier gravity(androidx.ui.core.Modifier, androidx.ui.core.Alignment align);
-    method @Deprecated public androidx.ui.core.Modifier matchParent(androidx.ui.core.Modifier);
     method public androidx.ui.core.Modifier matchParentSize(androidx.ui.core.Modifier);
   }
 
