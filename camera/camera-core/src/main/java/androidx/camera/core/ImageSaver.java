@@ -25,8 +25,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.ImageUtil.CodecFailedException;
 import androidx.camera.core.impl.utils.Exif;
+import androidx.camera.core.internal.utils.ImageUtil;
+import androidx.camera.core.internal.utils.ImageUtil.CodecFailedException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
