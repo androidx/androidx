@@ -39,6 +39,7 @@ import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.util.fastAny
 
 /**
  * Combines [tapGestureFilter] and [Semantics] for the clickable
@@ -217,7 +218,7 @@ private class NoConsumptionIndicatorGestureFilter(
         if (
             pass == PointerEventPass.PostDown &&
             state == State.Started &&
-            changes.any { it.anyPositionChangeConsumed() }
+            changes.fastAny { it.anyPositionChangeConsumed() }
         ) {
             // On the final pass, if we have started and any of the changes had consumed
             // position changes, we cancel.

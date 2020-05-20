@@ -36,6 +36,7 @@ import androidx.ui.semantics.CustomAccessibilityAction
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsActions.Companion.CustomActions
 import androidx.ui.semantics.SemanticsProperties
+import androidx.ui.util.fastForEach
 
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
     AccessibilityDelegateCompat() {
@@ -480,7 +481,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     // TODO(b/151729467): compose accessibility getVirtualViewAt needs to be more efficient
     private fun findVirtualViewAt(x: Float, y: Float, node: SemanticsNode): Int {
-        node.children.forEach {
+        node.children.fastForEach {
             var id = findVirtualViewAt(x, y, it)
             if (id != InvalidId) {
                 return id

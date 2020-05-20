@@ -36,6 +36,7 @@ dependencies {
     api "androidx.annotation:annotation:1.1.0"
 
     api project(":compose:compose-runtime")
+    implementation project(":ui:ui-util")
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)

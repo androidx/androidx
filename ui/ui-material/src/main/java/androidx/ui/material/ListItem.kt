@@ -43,6 +43,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
+import androidx.ui.util.fastForEachIndexed
 
 /**
  * Material Design implementation of [list items](https://material.io/components/lists).
@@ -415,7 +416,7 @@ private fun BaselinesOffsetColumn(
         }
         val y = Array(placeables.size) { 0.ipx }
         var containerHeight = 0.ipx
-        placeables.forEachIndexed { index, placeable ->
+        placeables.fastForEachIndexed { index, placeable ->
             val toPreviousBaseline = if (index > 0) {
                 placeables[index - 1].height - placeables[index - 1][LastBaseline]!!
             } else 0.ipx
@@ -428,7 +429,7 @@ private fun BaselinesOffsetColumn(
         }
 
         layout(containerWidth, containerHeight) {
-            placeables.forEachIndexed { index, placeable ->
+            placeables.fastForEachIndexed { index, placeable ->
                 placeable.place(0.ipx, y[index])
             }
         }

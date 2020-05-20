@@ -28,6 +28,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.milliseconds
+import androidx.ui.util.fastAny
 import androidx.ui.viewinterop.AndroidViewHolder
 
 internal fun Modifier.pointerInteropModifier(view: AndroidViewHolder): Modifier {
@@ -125,7 +126,7 @@ internal class PointerInteropFilter(
                 // we can still intercept, we dispatch to Android after we have a chance to
                 // intercept due to movement.
                 val dispatchDuringInitialTunnel = disallowIntercept ||
-                        changes.any {
+                        changes.fastAny {
                             it.changedToDownIgnoreConsumed() || it.changedToUpIgnoreConsumed()
                         }
 
@@ -185,7 +186,7 @@ internal class PointerInteropFilter(
                 @Suppress("NAME_SHADOWING")
                 var changes = changes
 
-                if (changes.any { it.anyChangeConsumed() }) {
+                if (changes.fastAny { it.anyChangeConsumed() }) {
                     // We should no longer dispatch to the Android View.
                     if (state === DispatchToViewState.Dispatching) {
                         // If we were dipatching, send ACTION_CANCEL.

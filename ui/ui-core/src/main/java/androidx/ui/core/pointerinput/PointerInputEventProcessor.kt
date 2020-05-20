@@ -25,6 +25,8 @@ import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.unit.Uptime
+import androidx.ui.util.fastAny
+import androidx.ui.util.fastForEach
 
 /**
  * The core element that receives [PointerInputEvent]s and process them in Compose UI.
@@ -51,7 +53,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             pointerInputChangeEventProducer.produce(pointerEvent)
 
         // Add new hit paths to the tracker due to down events.
-        pointerInputChangeEvent.changes.filter { it.changedToDownIgnoreConsumed() }.forEach {
+        pointerInputChangeEvent.changes.filter { it.changedToDownIgnoreConsumed() }.fastForEach {
             val hitResult: MutableList<PointerInputFilter> = mutableListOf()
             root.hitTest(
                 it.current.position!!,
@@ -71,14 +73,14 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             hitPathTracker.dispatchChanges(pointerInputChangeEvent.changes)
 
         // Remove hit paths from the tracker due to up events.
-        pointerInputChangeEvent.changes.filter { it.changedToUpIgnoreConsumed() }.forEach {
+        pointerInputChangeEvent.changes.filter { it.changedToUpIgnoreConsumed() }.fastForEach {
             hitPathTracker.removeHitPath(it.id)
         }
 
         // TODO(shepshapard): Don't allocate on every call.
         return ProcessResult(
             dispatchedToSomething,
-            resultingChanges.any { it.anyPositionChangeConsumed() })
+            resultingChanges.fastAny { it.anyPositionChangeConsumed() })
     }
 
     /**
@@ -107,7 +109,7 @@ private class PointerInputChangeEventProducer {
     internal fun produce(pointerEvent: PointerInputEvent):
             PointerInputChangeEvent {
         val changes: MutableList<PointerInputChange> = mutableListOf()
-        pointerEvent.pointers.forEach {
+        pointerEvent.pointers.fastForEach {
             changes.add(
                 PointerInputChange(
                     it.id,

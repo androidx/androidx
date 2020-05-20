@@ -16,6 +16,8 @@
 
 package androidx.ui.core.input
 
+import androidx.ui.util.fastForEach
+
 /**
  * An object for focusable object.
  *
@@ -93,7 +95,7 @@ internal class FocusManagerImpl : FocusManager {
         // during calling callbacks.
         val observers = observerMap[fromNode].orEmpty() + observerMap[toNode].orEmpty()
 
-        observers.forEach { it(fromNode, toNode) }
+        observers.fastForEach { it(fromNode, toNode) }
     }
 
     override fun registerObserver(node: FocusNode, observer: FocusTransitionObserver) {
