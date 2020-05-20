@@ -120,10 +120,9 @@ public final class PeriodicWorkRequest extends WorkRequest {
 
         /**
          * Creates a {@link PeriodicWorkRequest} to run periodically once within the
-         * <strong>flex period</strong> of every interval period. See diagram below.  Note that flex
-         * intervals are ignored for certain OS versions (in particular, API 23).  The flex period
-         * begins at {@code repeatInterval - flexInterval} to the end of the interval.  The repeat
-         * interval must be greater than or equal to
+         * <strong>flex period</strong> of every interval period. See diagram below.  The flex
+         * period begins at {@code repeatInterval - flexInterval} to the end of the interval.
+         * The repeat interval must be greater than or equal to
          * {@link PeriodicWorkRequest#MIN_PERIODIC_INTERVAL_MILLIS} and the flex interval must
          * be greater than or equal to {@link PeriodicWorkRequest#MIN_PERIODIC_FLEX_MILLIS}.
          *
@@ -155,10 +154,9 @@ public final class PeriodicWorkRequest extends WorkRequest {
 
         /**
          * Creates a {@link PeriodicWorkRequest} to run periodically once within the
-         * <strong>flex period</strong> of every interval period. See diagram below. Note that flex
-         * intervals are ignored for certain OS versions (in particular, API 23).  The flex period
-         * begins at {@code repeatInterval - flexInterval} to the end of the interval.  The repeat
-         * interval must be greater than or equal to
+         * <strong>flex period</strong> of every interval period. See diagram below.  The flex
+         * period begins at {@code repeatInterval - flexInterval} to the end of the interval.
+         * The repeat interval must be greater than or equal to
          * {@link PeriodicWorkRequest#MIN_PERIODIC_INTERVAL_MILLIS} and the flex interval must
          * be greater than or equal to {@link PeriodicWorkRequest#MIN_PERIODIC_FLEX_MILLIS}.
          *
