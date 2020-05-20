@@ -67,26 +67,6 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
         return props.containsKey(key)
     }
 
-    // SEMANTIC BOUNDARY BEHAVIOR
-
-    /**
-     * Whether the owner of this configuration wants to own its
-     * own [SemanticsNode].
-     *
-     * When set to true semantic information associated with the
-     * owner of this configuration or any of its descendants will not leak into
-     * parents. The [SemanticsNode] generated out of this configuration will
-     * act as a boundary.
-     *
-     * This has to be true if [isMergingSemanticsOfDescendants] is also true.
-     */
-    var isSemanticBoundary: Boolean = false
-        set(value) {
-            // TODO: b/150777826 - fix and re-enable assertion
-            // check(!isMergingSemanticsOfDescendants || value)
-            field = value
-        }
-
     /**
      * Whether the semantic information provided by the owning component and
      * all of its descendants should be treated as one logical entity.
@@ -94,20 +74,9 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
      * If set to true, the descendants of the owning component's
      * [SemanticsNode] will merge their semantic information into the
      * [SemanticsNode] representing the owning component.
-     *
-     * Setting this to true requires that [isSemanticBoundary] is also true.
      */
     var isMergingSemanticsOfDescendants: Boolean = false
-        set(value) {
-            if (value) {
-                check(isSemanticBoundary) {
-                    "Attempting to set isMergingSemanticsOfDescendants to true on a configuration" +
-                            " that is not a semantic boundary"
-                }
-            }
 
-            field = value
-        }
     /**
      * Whether this configuration is empty.
      *
@@ -115,7 +84,7 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
      * wants to contribute to the semantics tree.
      */
     val isEmpty: Boolean
-        get() = props.isEmpty() && !isSemanticBoundary && !isMergingSemanticsOfDescendants
+        get() = props.isEmpty() && !isMergingSemanticsOfDescendants
 
     // CONFIGURATION COMBINATION LOGIC
 
@@ -131,10 +100,6 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
      * @param ignoreAlreadySet if true, ignore properties that are already set instead of merging
      */
     internal fun absorb(other: SemanticsConfiguration, ignoreAlreadySet: Boolean = false) {
-        // TODO(ryanmentley): should we support forcing these to false?
-        if (other.isSemanticBoundary) {
-            isSemanticBoundary = true
-        }
         if (other.isMergingSemanticsOfDescendants) {
             isMergingSemanticsOfDescendants = true
         }
@@ -156,7 +121,6 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
     /** Returns an exact copy of this configuration. */
     fun copy(): SemanticsConfiguration {
         val copy = SemanticsConfiguration()
-        copy.isSemanticBoundary = isSemanticBoundary
         copy.isMergingSemanticsOfDescendants = isMergingSemanticsOfDescendants
         copy.props.putAll(props)
         return copy
@@ -168,7 +132,6 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
 
         other as SemanticsConfiguration
 
-        if (isSemanticBoundary != other.isSemanticBoundary) return false
         if (isMergingSemanticsOfDescendants != other.isMergingSemanticsOfDescendants) return false
         if (props != other.props) return false
 
@@ -177,7 +140,6 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
 
     override fun hashCode(): Int {
         var result = props.hashCode()
-        result = 31 * result + isSemanticBoundary.hashCode()
         result = 31 * result + isMergingSemanticsOfDescendants.hashCode()
         return result
     }
@@ -187,10 +149,6 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
         val propsString = StringBuilder()
         var nextSeparator = ""
 
-        if (isSemanticBoundary) {
-            propsString.append("boundary=true")
-            nextSeparator = CommaSeparator
-        }
         if (isMergingSemanticsOfDescendants) {
             propsString.append(nextSeparator)
             propsString.append("mergeDescendants=true")

@@ -22,12 +22,12 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.compose.clearRoots
 import androidx.compose.Composable
-import androidx.compose.emptyContent
 import androidx.compose.onCommit
 import androidx.compose.simulateHotReload
 import androidx.test.filters.MediumTest
+import androidx.ui.core.semantics.semantics
+import androidx.ui.foundation.Box
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertLabelEquals
@@ -107,8 +107,7 @@ class HotReloadTests {
         var value = "First value"
 
         @Composable fun semanticsNode(text: String, id: Int) {
-            TestTag(tag = "text$id") {
-                Semantics(properties = { accessibilityLabel = text }, children = emptyContent())
+            Box(Modifier.testTag("text$id").semantics { accessibilityLabel = text }) {
             }
         }
 

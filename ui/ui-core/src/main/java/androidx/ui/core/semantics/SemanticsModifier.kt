@@ -48,18 +48,11 @@ interface SemanticsModifier : Modifier.Element {
 internal class SemanticsModifierCore(
     override val id: Int,
     override val applyToChildLayoutNode: Boolean,
-    container: Boolean,
     mergeAllDescendants: Boolean,
     properties: (SemanticsPropertyReceiver.() -> Unit)?
 ) : SemanticsModifier {
     override val semanticsConfiguration: SemanticsConfiguration =
         SemanticsConfiguration().also {
-            require(!mergeAllDescendants || container) {
-                "Attempting to set mergeAllDescendants to true on a configuration" +
-                        " that is not a semantic boundary (container must be true)"
-            }
-
-            it.isSemanticBoundary = container
             it.isMergingSemanticsOfDescendants = mergeAllDescendants
 
             properties?.invoke(it)
@@ -73,21 +66,16 @@ internal class SemanticsModifierCore(
  * node below it in the tree, not the composable the modifier is applied to.  This is for use by
  * legacy non-modifier-style semantics and is planned to be removed (with the behavior 'false'
  * made universal).
- * @param container If 'container' is true, this component will introduce a new node in the
- * semantics tree. Otherwise, the semantics will be merged with the semantics of any ancestors
- * (the root of the tree is a container).
  * @param mergeAllDescendants Whether the semantic information provided by the owning component and
- * all of its descendants should be treated as one logical entity. Setting this to true requires
- * that [container] is also true.
+ * all of its descendants should be treated as one logical entity.
  * @param properties properties to add to the semantics. [SemanticsPropertyReceiver] will be
  * provided in the scope to allow access for common properties and its values.
  */
 fun Modifier.semantics(
     applyToChildLayoutNode: Boolean = false,
-    container: Boolean = false,
     mergeAllDescendants: Boolean = false,
     properties: (SemanticsPropertyReceiver.() -> Unit)? = null
 ): Modifier = composed {
     val id = remember { SemanticsNode.generateNewId() }
-    SemanticsModifierCore(id, applyToChildLayoutNode, container, mergeAllDescendants, properties)
+    SemanticsModifierCore(id, applyToChildLayoutNode, mergeAllDescendants, properties)
 }

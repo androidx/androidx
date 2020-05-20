@@ -374,7 +374,7 @@ class ScaffoldTest {
         composeTestRule.setContent {
             Stack(Modifier
                 .size(10.dp, 20.dp)
-                .semantics(container = true, mergeAllDescendants = true)
+                .semantics(mergeAllDescendants = true)
                 .testTag("Scaffold")
             ) {
                 Scaffold(

@@ -178,6 +178,7 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsMatcher isOff();
     method public static androidx.ui.test.SemanticsMatcher isOn();
     method public static androidx.ui.test.SemanticsMatcher isPopup();
+    method public static androidx.ui.test.SemanticsMatcher isRoot();
     method public static androidx.ui.test.SemanticsMatcher isSelectable();
     method public static androidx.ui.test.SemanticsMatcher isSelected();
     method public static androidx.ui.test.SemanticsMatcher isToggleable();
@@ -192,6 +193,7 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction findBySubstring(String text, boolean ignoreCase = false);
     method public static androidx.ui.test.SemanticsNodeInteraction findByTag(String testTag);
     method public static androidx.ui.test.SemanticsNodeInteraction findByText(String text, boolean ignoreCase = false);
+    method public static androidx.ui.test.SemanticsNodeInteraction findRoot();
   }
 
   public final class GestureScope extends androidx.ui.test.BaseGestureScope {

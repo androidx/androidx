@@ -57,7 +57,7 @@ class CardTest {
                     cardColor = MaterialTheme.colors.surface
                     Providers(ShapesAmbient provides Shapes(medium = shape)) {
                         Card(modifier = Modifier
-                            .semantics(container = true, mergeAllDescendants = true)
+                            .semantics(mergeAllDescendants = true)
                             .testTag("card"),
                             elevation = 0.dp
                         ) {

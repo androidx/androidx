@@ -66,7 +66,7 @@ class SemanticsTests {
         val label = "foo"
         val showSubtree = mutableStateOf(true)
         composeTestRule.setContent {
-            Semantics(container = true, properties = {
+            Semantics(container = true, mergeAllDescendants = true, properties = {
                 testTag = TestTag
             }) {
                 SimpleTestLayout {
@@ -97,7 +97,7 @@ class SemanticsTests {
         val value = "bar"
         val showNewNode = mutableStateOf(false)
         composeTestRule.setContent {
-            Semantics(container = true, properties = {
+            Semantics(container = true, mergeAllDescendants = true, properties = {
                 testTag = TestTag
             }) {
                 SimpleTestLayout {
@@ -291,22 +291,6 @@ class SemanticsTests {
 
         findByTag(TestTag).assertDoesNotHaveProperty(SemanticsProperties.AccessibilityLabel)
         findByText(label) // assert exists
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun mergeAllDescendants_withoutBoundary_throws() {
-        composeTestRule.setContent {
-            // This is more complicated than required, but makes sure we get the case
-            // where it's merged down into a node that does have a boundary, as it's still
-            // not allowed even in this case
-            Semantics(mergeAllDescendants = true) {
-                SimpleTestLayout {
-                    Semantics(container = true) {
-                        SimpleTestLayout { }
-                    }
-                }
-            }
-        }
     }
 
     @Test

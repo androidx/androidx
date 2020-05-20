@@ -22,7 +22,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
@@ -147,7 +146,7 @@ class DrawBackgroundTest {
 
     @Composable
     private fun SemanticParent(children: @Composable Density.() -> Unit) {
-        Stack(Modifier.semantics(container = true).testTag(contentTag)) {
+        Stack(Modifier.testTag(contentTag)) {
             DensityAmbient.current.children()
         }
     }

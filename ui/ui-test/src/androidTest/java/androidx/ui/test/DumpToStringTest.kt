@@ -60,8 +60,7 @@ class DumpToStringTest {
 
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
                 "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'Hello'\n" +
-                "- Boundary = 'true'")
+                "- AccessibilityLabel = 'Hello'")
     }
 
     @Test
@@ -75,13 +74,11 @@ class DumpToStringTest {
 
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
                 "1) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- Boundary = 'true'\n" +
+                "\n" +
                 "2) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
                 "- AccessibilityLabel = 'Hello'\n" +
-                "- Boundary = 'true'\n" +
                 "3) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'World'\n" +
-                "- Boundary = 'true'")
+                "- AccessibilityLabel = 'World'")
     }
 
     @Composable

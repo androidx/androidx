@@ -130,7 +130,6 @@ fun Modifier.clickable(
     onClick: () -> Unit
 ) = composed {
     val semanticModifier = Modifier.semantics(
-        container = true,
         properties = {
             this.enabled = enabled
             if (enabled) {

@@ -56,7 +56,6 @@ class ErrorMessagesTest {
                 "- TestTag = 'MyButton'\n" +
                 "- Enabled = 'false'\n" +
                 "- AccessibilityLabel = 'Toggle'\n" +
-                "- Boundary = 'true'\n" +
                 "- MergeDescendants = 'true'\n" +
                 "Selector used: (TestTag = 'MyButton')"
         ) {
@@ -233,7 +232,6 @@ class ErrorMessagesTest {
                 "The node is no longer in the tree, last known semantics:\n" +
                 "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
                 "- AccessibilityLabel = 'Hello'\n" +
-                "- Boundary = 'true'\n" +
                 "Original selector: AccessibilityLabel = 'Hello' (ignoreCase: false)"
         ) {
             node.doClick()
@@ -258,7 +256,6 @@ class ErrorMessagesTest {
                 "The node is no longer in the tree, last known semantics:\n" +
                 "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
                 "- AccessibilityLabel = 'Hello'\n" +
-                "- Boundary = 'true'\n" +
                 "Original selector: AccessibilityLabel = 'Hello' (ignoreCase: false)") {
             node.assertExists()
         }
@@ -282,7 +279,6 @@ class ErrorMessagesTest {
                 "The node is no longer in the tree, last known semantics:\n" +
                 "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
                 "- AccessibilityLabel = 'Hello'\n" +
-                "- Boundary = 'true'\n" +
                 "Original selector: AccessibilityLabel = 'Hello' (ignoreCase: false)"
         ) {
             node.assertHasClickAction()

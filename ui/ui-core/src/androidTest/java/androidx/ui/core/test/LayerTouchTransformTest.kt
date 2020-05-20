@@ -25,11 +25,12 @@ import androidx.test.filters.SdkSuppress
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.TransformOrigin
 import androidx.ui.core.drawBehind
 import androidx.ui.core.drawLayer
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
+import androidx.ui.core.testTag
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.fillMaxSize
@@ -92,7 +93,7 @@ class LayerTouchTransformTest {
 
             val offsetX = (270.0f / DensityAmbient.current.density).dp
             val offsetY = (120.0f / DensityAmbient.current.density).dp
-            TestTag(testTag) {
+            Box(Modifier.testTag(testTag)) {
                 SimpleLayout(
                     modifier = Modifier.fillMaxSize().offset(offsetX, offsetY)
                 ) {

@@ -22,7 +22,6 @@ import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
@@ -310,7 +309,6 @@ class DraggableTest {
             Stack {
                 Box(gravity = ContentGravity.Center,
                     modifier = Modifier
-                        .semantics(container = true)
                         .testTag(draggableBoxTag)
                         .preferredSize(300.dp)
                         .draggable(
@@ -387,7 +385,6 @@ class DraggableTest {
             Stack {
                 if (emitDraggableBox) {
                     Box(modifier = Modifier
-                        .semantics(container = true)
                         .testTag(draggableBoxTag)
                         .preferredSize(100.dp)
                         .draggable(
@@ -427,7 +424,6 @@ class DraggableTest {
             Stack {
                 val draggable = draggableFactory()
                 Box(modifier = Modifier
-                    .semantics(container = true)
                     .testTag(draggableBoxTag)
                     .preferredSize(100.dp) + draggable
                 )

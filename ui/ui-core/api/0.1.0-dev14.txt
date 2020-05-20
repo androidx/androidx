@@ -1814,14 +1814,11 @@ package androidx.ui.core.semantics {
     method public <T> T? getOrElseNullable(androidx.ui.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method public boolean isEmpty();
     method public boolean isMergingSemanticsOfDescendants();
-    method public boolean isSemanticBoundary();
     method public java.util.Iterator<java.util.Map.Entry<androidx.ui.semantics.SemanticsPropertyKey<?>,java.lang.Object>> iterator();
     method public <T> void set(androidx.ui.semantics.SemanticsPropertyKey<T> key, T? value);
-    method public void setMergingSemanticsOfDescendants(boolean value);
-    method public void setSemanticBoundary(boolean value);
+    method public void setMergingSemanticsOfDescendants(boolean p);
     property public final boolean isEmpty;
     property public final boolean isMergingSemanticsOfDescendants;
-    property public final boolean isSemanticBoundary;
   }
 
   public final class SemanticsConfigurationKt {
@@ -1849,7 +1846,7 @@ package androidx.ui.core.semantics {
   }
 
   public final class SemanticsModifierKt {
-    method public static androidx.ui.core.Modifier semantics(androidx.ui.core.Modifier, boolean applyToChildLayoutNode = false, boolean container = false, boolean mergeAllDescendants = false, kotlin.jvm.functions.Function1<? super androidx.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? properties = null);
+    method public static androidx.ui.core.Modifier semantics(androidx.ui.core.Modifier, boolean applyToChildLayoutNode = false, boolean mergeAllDescendants = false, kotlin.jvm.functions.Function1<? super androidx.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? properties = null);
   }
 
   public final class SemanticsNode {
@@ -1865,7 +1862,6 @@ package androidx.ui.core.semantics {
     method public androidx.ui.unit.IntPxSize getSize();
     method public androidx.ui.core.semantics.SemanticsConfiguration getUnmergedConfig();
     method public boolean isRoot();
-    method public boolean isSemanticBoundary();
     method public void setComponentNode(androidx.ui.core.LayoutNode p);
     property public final androidx.ui.unit.PxBounds boundsInRoot;
     property public final java.util.List<androidx.ui.core.semantics.SemanticsNode> children;
@@ -1874,7 +1870,6 @@ package androidx.ui.core.semantics {
     property public final androidx.ui.unit.PxPosition globalPosition;
     property public final boolean hasChildren;
     property public final boolean isRoot;
-    property public final boolean isSemanticBoundary;
     property public final androidx.ui.core.semantics.SemanticsNode? parent;
     property public final androidx.ui.unit.IntPxSize size;
     field public static final androidx.ui.core.semantics.SemanticsNode.Companion! Companion;

@@ -26,7 +26,6 @@ import androidx.ui.core.WithConstraints
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
-import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.clickable
@@ -93,7 +92,7 @@ fun ModalDrawerLayout(
     drawerContent: @Composable () -> Unit,
     bodyContent: @Composable () -> Unit
 ) {
-    Box(Modifier.fillMaxSize().semantics(container = true)) {
+    Box(Modifier.fillMaxSize()) {
         WithConstraints {
             // TODO : think about Infinite max bounds case
             if (!constraints.hasBoundedWidth) {
@@ -164,7 +163,7 @@ fun BottomDrawerLayout(
     drawerContent: @Composable () -> Unit,
     bodyContent: @Composable () -> Unit
 ) {
-    Box(Modifier.fillMaxSize().semantics(container = true)) {
+    Box(Modifier.fillMaxSize()) {
         WithConstraints {
             // TODO : think about Infinite max bounds case
             if (!constraints.hasBoundedHeight) {

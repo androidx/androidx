@@ -116,7 +116,6 @@ internal class AndroidComposeView constructor(
     private val semanticsModifier = SemanticsModifierCore(
         id = SemanticsNode.generateNewId(),
         applyToChildLayoutNode = false,
-        container = true,
         mergeAllDescendants = false,
         properties = null
     )

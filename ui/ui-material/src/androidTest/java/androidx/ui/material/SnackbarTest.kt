@@ -339,7 +339,7 @@ class SnackbarTest {
                     .compositeOver(background)
                 Providers(ShapesAmbient provides Shapes(medium = shape)) {
                     Snackbar(modifier = Modifier
-                        .semantics(container = true, mergeAllDescendants = true)
+                        .semantics(mergeAllDescendants = true)
                         .testTag("snackbar"),
                         text = { Text("") }
                     )

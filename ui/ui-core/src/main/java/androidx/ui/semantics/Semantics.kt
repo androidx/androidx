@@ -23,11 +23,9 @@ import androidx.ui.core.semantics.semantics
 @Composable
 fun Semantics(
     /**
-     * If 'container' is true, this component will introduce a new
-     * node in the semantics tree. Otherwise, the semantics will be
-     * merged with the semantics of any ancestors (the root of the tree is a container).
+     * Legacy parameter, no longer has any effect.
      */
-    container: Boolean = false,
+    @Suppress("UNUSED_PARAMETER") container: Boolean = false,
     /**
      * Whether the semantic information provided by the owning component and
      * all of its descendants should be treated as one logical entity.
@@ -35,8 +33,6 @@ fun Semantics(
      * If set to true, the descendants of the owning component's
      * [SemanticsNode] will merge their semantic information into the
      * [SemanticsNode] representing the owning component.
-     *
-     * Setting this to true requires that [container] is also true.
      */
     mergeAllDescendants: Boolean = false,
     properties: (SemanticsPropertyReceiver.() -> Unit)? = null,
@@ -46,7 +42,6 @@ fun Semantics(
     PassThroughLayout(
         Modifier.semantics(
             applyToChildLayoutNode = true,
-            container = container,
             mergeAllDescendants = mergeAllDescendants,
             properties = properties),
         children)

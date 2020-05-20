@@ -114,10 +114,6 @@ class SemanticsNode internal constructor(
             return componentNode.requireLayoutNodeAppliedTo()
         }
 
-    // MERGING
-    val isSemanticBoundary: Boolean
-        get() = unmergedConfig.isSemanticBoundary
-
     /**
      * The merged configuration of this node
      */
@@ -140,12 +136,7 @@ class SemanticsNode internal constructor(
 
         val mergedConfig: SemanticsConfiguration
         if (mergedConfigFromParent == null || parentNode == null) {
-            check(isSemanticBoundary) {
-                "Attempting to build a merged configuration " +
-                        "starting from a node that is not a semantic boundary"
-            }
-
-            // We are a semantic boundary - start by copying our configuration so that we can add
+            // Start by copying our configuration so that we can add
             // our children's configuration to it
             mergedConfig = unmergedConfig.copy()
         } else {
@@ -155,17 +146,14 @@ class SemanticsNode internal constructor(
             mergedConfig.absorb(unmergedConfig, ignoreAlreadySet = mergeAllChildren)
         }
 
-        // Collect semantic information from children.
+        if (!mergeAllChildren) {
+            return mergedConfig
+        }
+
+        // If we're merging children, then collect semantic information here.
         // Order is significant here because we will attempt to merge duplicate keys.
         // This affects, for instance, the label text.
         for (child in unmergedChildren()) {
-            if (child.isSemanticBoundary && !mergeAllChildren) {
-                // Don't merge anything that crosses a semantic boundary. They will create
-                // their own SemanticsNodes, so we ignore them here.
-                // This doesn't apply if we've been explicitly told to merge all children.
-                continue
-            }
-
             // Recursively walk down the tree and collect child data
             child.buildMergedConfig(
                 parentNode = this,
@@ -204,35 +192,13 @@ class SemanticsNode internal constructor(
     //               optimize this when the merging algorithm is improved.
     val children: List<SemanticsNode>
         get() {
-            check(isSemanticBoundary) {
-                "Requested merged children from a node that is not a semantic boundary"
+            if (mergeAllDescendantsIntoThisNode) {
+                // All of our descendants will be merged, so we have no children after merging
+                return emptyList()
             }
 
-            return buildMergedChildren()
+            return unmergedChildren()
         }
-
-    private fun buildMergedChildren(childrenFromParent: MutableList<SemanticsNode>? = null):
-            List<SemanticsNode> {
-        if (mergeAllDescendantsIntoThisNode) {
-            // All of our descendants will be merged, so we have no children after merging
-            return emptyList()
-        }
-
-        val mergedChildren = childrenFromParent ?: mutableListOf()
-
-        // The merged children are the set of indirect children that are semantic boundaries
-        unmergedChildren().fastForEach { child ->
-            if (child.isSemanticBoundary) {
-                // Add the child, don't recurse - we don't want to cross the semantic boundary
-                mergedChildren += child
-            } else {
-                // Search recursively, depth-first (so that the child order matches)
-                child.buildMergedChildren(mergedChildren)
-            }
-        }
-
-        return mergedChildren
-    }
 
     /** Whether this node has a non-zero number of children. */
     val hasChildren
@@ -348,7 +314,7 @@ private fun LayoutNode.findHighestConsecutiveAncestor(
 fun SemanticsNode.findClosestParentNode(selector: (SemanticsNode) -> Boolean): SemanticsNode? {
     var currentParent = parent
     while (currentParent != null) {
-        if (currentParent.isSemanticBoundary && selector(currentParent)) {
+        if (selector(currentParent)) {
             return currentParent
         } else {
             currentParent = currentParent.parent

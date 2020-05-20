@@ -26,7 +26,6 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
-import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
@@ -402,7 +401,6 @@ class BoxTest {
     @Composable
     private fun SemanticsParent(children: @Composable Density.() -> Unit) {
         Stack(Modifier
-            .semantics(container = true)
             .testTag(contentTag)
             .wrapContentSize(Alignment.TopStart)
         ) {

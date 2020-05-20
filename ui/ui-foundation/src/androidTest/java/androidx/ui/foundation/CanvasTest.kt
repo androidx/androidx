@@ -24,7 +24,6 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
-import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
@@ -38,6 +37,7 @@ import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.findRoot
 import androidx.ui.test.findByTag
 import androidx.ui.test.setContentAndCollectSizes
 import androidx.ui.unit.Density
@@ -76,23 +76,22 @@ class CanvasTest {
             val minHeight = (boxHeight / density).dp
             Box(modifier = Modifier.preferredSize(containerSize)
                 .drawBackground(Color.White)
-                .wrapContentSize(Alignment.Center)
-            ) {
-                Canvas(modifier = Modifier.testTag(contentTag).preferredSize(minWidth, minHeight)) {
-                    drawLine(
-                        p1 = Offset.zero,
-                        p2 = Offset(size.width, size.height),
-                        color = Color.Red,
-                        stroke = Stroke(width = strokeWidth)
-                    )
-                }
+                .wrapContentSize(Alignment.Center)) {
+                    Canvas(modifier = Modifier.preferredSize(minWidth, minHeight)) {
+                        drawLine(
+                            p1 = Offset.zero,
+                            p2 = Offset(size.width, size.height),
+                            color = Color.Red,
+                            stroke = Stroke(width = strokeWidth)
+                        )
+                    }
             }
         }
 
         val paintBoxColor = Color.Red.toArgb()
         val containerBgColor = Color.White.toArgb()
         val strokeOffset = (strokeWidth / 2).toInt() + 3
-        findByTag(contentTag).captureToBitmap().apply {
+        findRoot().captureToBitmap().apply {
             val imageStartX = width / 2 - boxWidth / 2
             val imageStartY = height / 2 - boxHeight / 2
 
@@ -222,7 +221,7 @@ class CanvasTest {
 
     @Composable
     fun SemanticParent(children: @Composable Density.() -> Unit) {
-        Stack(Modifier.semantics(container = true).testTag(contentTag)) {
+        Stack(Modifier.testTag(contentTag)) {
             Box {
                 DensityAmbient.current.children()
             }
