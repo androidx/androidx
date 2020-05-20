@@ -54,20 +54,27 @@ internal class DesktopPlatformInput : PlatformTextInputService {
 
     override fun hideSoftwareKeyboard() {}
 
-    override fun onStateUpdated(model: EditorValue) {}
+    override fun onStateUpdated(model: EditorValue) {
+    }
 
     override fun notifyFocusedRect(rect: Rect) {}
 
     fun onKeyPressed(keyCode: Int, char: Char) {
         onEditCommand?.let {
             when (keyCode) {
-                KeyEvent.VK_LEFT -> it.invoke(listOf(MoveCursorEditOp(-1)))
-                KeyEvent.VK_RIGHT -> it.invoke(listOf(MoveCursorEditOp(1)))
-                KeyEvent.VK_BACK_SPACE -> it.invoke(listOf(BackspaceKeyEditOp()))
+                KeyEvent.VK_LEFT -> {
+                    it.invoke(listOf(MoveCursorEditOp(-1)))
+                }
+                KeyEvent.VK_RIGHT -> {
+                    it.invoke(listOf(MoveCursorEditOp(1)))
+                }
+                KeyEvent.VK_BACK_SPACE -> {
+                    it.invoke(listOf(BackspaceKeyEditOp()))
+                }
                 KeyEvent.VK_ENTER -> {
-                    if (imeAction == ImeAction.Unspecified)
-                        it.invoke(listOf(CommitTextEditOp(char.toString(), 1)))
-                    else
+                    if (imeAction == ImeAction.Unspecified) {
+                        it.invoke(listOf(CommitTextEditOp("", 1)))
+                    } else
                         onImeActionPerformed?.invoke(imeAction!!)
                 }
                 else -> Unit
@@ -78,10 +85,19 @@ internal class DesktopPlatformInput : PlatformTextInputService {
     fun onKeyReleased(keyCode: Int, char: Char) {
     }
 
+    private fun Char.isPrintable(): Boolean {
+        val block = Character.UnicodeBlock.of(this)
+        return (!Character.isISOControl(this)) &&
+                this != KeyEvent.CHAR_UNDEFINED &&
+                block != null &&
+                block != Character.UnicodeBlock.SPECIALS
+    }
+
     fun onKeyTyped(char: Char) {
         onEditCommand?.let {
-            if (char != KeyEvent.CHAR_UNDEFINED)
+            if (char.isPrintable()) {
                 it.invoke(listOf(CommitTextEditOp(char.toString(), 1)))
+            }
         }
     }
 }
