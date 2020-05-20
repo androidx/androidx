@@ -22,6 +22,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.annotatedString
+import androidx.ui.text.withStyle
 import androidx.ui.unit.sp
 
 @Sampled
@@ -30,12 +31,12 @@ fun SpanStyleSample() {
     Text(
         fontSize = 16.sp,
         text = annotatedString {
-            pushStyle(style = SpanStyle(color = Color.Red))
-            append("Hello")
-            pop()
-            pushStyle(SpanStyle(color = Color.Blue))
-            append(" World")
-            pop()
+            withStyle(style = SpanStyle(color = Color.Red)) {
+                append("Hello")
+            }
+            withStyle(SpanStyle(color = Color.Blue)) {
+                append(" World")
+            }
         }
     )
 }
