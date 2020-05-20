@@ -39,14 +39,12 @@ import androidx.ui.text.withStyle
 @Composable
 fun TextSelectionDemo() {
     VerticalScroller {
-        Column {
-            TagLine(tag = "selection")
-            TextDemoSelection()
-            TagLine(tag = "selection with string input")
-            TextDemoSelectionWithStringInput()
-            TagLine(tag = "selection in 2D Array Vertical")
-            TextDemoSelection2DArrayVertical()
-        }
+        TagLine(tag = "selection")
+        TextDemoSelection()
+        TagLine(tag = "selection with string input")
+        TextDemoSelectionWithStringInput()
+        TagLine(tag = "selection in 2D Array Vertical")
+        TextDemoSelection2DArrayVertical()
     }
 }
 

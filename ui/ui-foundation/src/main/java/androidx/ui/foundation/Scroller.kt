@@ -35,7 +35,11 @@ import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.foundation.gestures.scrollable
+import androidx.ui.layout.Column
+import androidx.ui.layout.ColumnScope
 import androidx.ui.layout.Constraints
+import androidx.ui.layout.Row
+import androidx.ui.layout.RowScope
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.semantics.ScrollTo
@@ -221,9 +225,14 @@ fun VerticalScroller(
     scrollerPosition: ScrollerPosition = ScrollerPosition(),
     modifier: Modifier = Modifier,
     isScrollable: Boolean = true,
-    child: @Composable () -> Unit
+    children: @Composable ColumnScope.() -> Unit
 ) {
-    Scroller(scrollerPosition, modifier, true, isScrollable, child)
+    Scroller(scrollerPosition, modifier, true, isScrollable) {
+        Column(
+            modifier = Modifier.clipToBounds(),
+            children = children
+        )
+    }
 }
 
 /**
@@ -251,9 +260,14 @@ fun HorizontalScroller(
     scrollerPosition: ScrollerPosition = ScrollerPosition(),
     modifier: Modifier = Modifier,
     isScrollable: Boolean = true,
-    child: @Composable () -> Unit
+    children: @Composable RowScope.() -> Unit
 ) {
-    Scroller(scrollerPosition, modifier, false, isScrollable, child)
+    Scroller(scrollerPosition, modifier, false, isScrollable) {
+        Row(
+            modifier = Modifier.clipToBounds(),
+            children = children
+        )
+    }
 }
 
 @Composable
@@ -301,12 +315,7 @@ private fun ScrollerLayout(
 ) {
     Layout(
         modifier = modifier.clipToBounds(),
-        children = {
-            Box(
-                modifier = Modifier.clipToBounds(),
-                children = child
-            )
-        },
+        children = child,
         measureBlock = { measurables, constraints, _ ->
             val childConstraints = constraints.copy(
                 maxHeight = if (isVertical) IntPx.Infinity else constraints.maxHeight,

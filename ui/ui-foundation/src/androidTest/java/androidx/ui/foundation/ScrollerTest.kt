@@ -28,8 +28,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
@@ -426,10 +424,8 @@ class ScrollerTest {
                     scrollerPosition = scrollerPosition,
                     modifier = Modifier.preferredSize(100.dp).testTag(scrollerTag)
                 ) {
-                    Column {
-                        for (i in 0..itemCount.value) {
-                            Text(i.toString())
-                        }
+                    for (i in 0..itemCount.value) {
+                        Text(i.toString())
                     }
                 }
             }
@@ -530,10 +526,8 @@ class ScrollerTest {
         restorationTester.setContent {
             scrollerPosition = ScrollerPosition()
             VerticalScroller(scrollerPosition!!) {
-                Column {
-                    repeat(50) {
-                        Box(Modifier.preferredHeight(100.dp))
-                    }
+                repeat(50) {
+                    Box(Modifier.preferredHeight(100.dp))
                 }
             }
         }
@@ -634,13 +628,11 @@ class ScrollerTest {
                             .preferredSize(width.toDp(), height.toDp())
                             .testTag(scrollerTag)
                     ) {
-                        Column {
-                            colors.forEach { color ->
-                                Box(
-                                    Modifier.preferredSize(width.toDp(), rowHeight.toDp()),
-                                    backgroundColor = color
-                                )
-                            }
+                        colors.forEach { color ->
+                            Box(
+                                Modifier.preferredSize(width.toDp(), rowHeight.toDp()),
+                                backgroundColor = color
+                            )
                         }
                     }
                 }
@@ -667,13 +659,11 @@ class ScrollerTest {
                             .preferredSize(width.toDp(), height.toDp())
                             .testTag(scrollerTag)
                     ) {
-                        Row {
-                            colors.forEach { color ->
-                                Box(
-                                    Modifier.preferredSize(columnWidth.toDp(), height.toDp()),
-                                    backgroundColor = color
-                                )
-                            }
+                        colors.forEach { color ->
+                            Box(
+                                Modifier.preferredSize(columnWidth.toDp(), height.toDp()),
+                                backgroundColor = color
+                            )
                         }
                     }
                 }
@@ -737,18 +727,14 @@ class ScrollerTest {
                                 scrollerPosition,
                                 modifier = Modifier.testTag(scrollerTag)
                             ) {
-                                Column {
-                                    content()
-                                }
+                                content()
                             }
                         } else {
                             HorizontalScroller(
                                 scrollerPosition,
                                 modifier = Modifier.testTag(scrollerTag)
                             ) {
-                                Row {
-                                    content()
-                                }
+                                content()
                             }
                         }
                     }

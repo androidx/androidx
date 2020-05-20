@@ -21,7 +21,6 @@ import androidx.compose.state
 import androidx.ui.foundation.ClickableText
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.layout.Column
 import androidx.ui.text.AnnotatedString
 
 @Composable
@@ -33,13 +32,11 @@ fun InteractiveTextDemo() {
 fun TextOnClick() {
     val clickedOffset = state { -1 }
     VerticalScroller {
-        Column {
-            Text("Clicked Offset: ${clickedOffset.value}")
-            ClickableText(
-                text = AnnotatedString("Click Me")
-            ) { offset ->
-                clickedOffset.value = offset
-            }
+        Text("Clicked Offset: ${clickedOffset.value}")
+        ClickableText(
+            text = AnnotatedString("Click Me")
+        ) { offset ->
+            clickedOffset.value = offset
         }
     }
 }

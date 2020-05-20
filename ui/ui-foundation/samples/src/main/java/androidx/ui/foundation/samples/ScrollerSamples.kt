@@ -84,10 +84,8 @@ fun VerticalScrollerSample() {
     val style = TextStyle(fontSize = 30.sp)
     // Scroller will be clipped to this padding
     VerticalScroller {
-        Column(Modifier.padding(20.dp)) {
-            phrases.forEach { phrase ->
-                Text(phrase, style)
-            }
+        phrases.forEach { phrase ->
+            Text(phrase, style)
         }
     }
 }
@@ -115,10 +113,8 @@ fun ControlledHorizontalScrollerSample() {
             scrollerPosition = position,
             isScrollable = scrollable.value
         ) {
-            Row {
-                repeat(1000) { index ->
-                    Square(index)
-                }
+            repeat(1000) { index ->
+                Square(index)
             }
         }
         // Controls that will call `smoothScrollTo`, `scrollTo` or toggle `scrollable` state
