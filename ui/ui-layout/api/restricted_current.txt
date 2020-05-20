@@ -57,12 +57,6 @@ package androidx.ui.layout {
   public static interface Arrangement.Vertical extends androidx.ui.layout.Arrangement {
   }
 
-  @Deprecated public enum ColumnAlign {
-    enum_constant @Deprecated public static final androidx.ui.layout.ColumnAlign Center;
-    enum_constant @Deprecated public static final androidx.ui.layout.ColumnAlign End;
-    enum_constant @Deprecated public static final androidx.ui.layout.ColumnAlign Start;
-  }
-
   public final class ColumnKt {
     method public static void Column(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.layout.Arrangement.Vertical verticalArrangement = Arrangement.Top, androidx.ui.core.Alignment.Horizontal horizontalGravity = Alignment.Start, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
   }
@@ -71,7 +65,6 @@ package androidx.ui.layout {
     method public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, androidx.ui.core.VerticalAlignmentLine alignmentLine);
     method public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.Measured,androidx.ui.unit.IntPx> alignmentLineBlock);
     method public androidx.ui.core.Modifier gravity(androidx.ui.core.Modifier, androidx.ui.core.Alignment.Horizontal align);
-    method @Deprecated public androidx.ui.core.Modifier gravity(androidx.ui.core.Modifier, androidx.ui.layout.ColumnAlign align);
     method public androidx.ui.core.Modifier weight(androidx.ui.core.Modifier, @FloatRange(from=0.0, fromInclusive=false) float weight, boolean fill = true);
     field public static final androidx.ui.layout.ColumnScope! INSTANCE;
   }
@@ -409,12 +402,6 @@ package androidx.ui.layout {
     enum_constant public static final androidx.ui.layout.MainAxisAlignment Start;
   }
 
-  @Deprecated public enum RowAlign {
-    enum_constant @Deprecated public static final androidx.ui.layout.RowAlign Bottom;
-    enum_constant @Deprecated public static final androidx.ui.layout.RowAlign Center;
-    enum_constant @Deprecated public static final androidx.ui.layout.RowAlign Top;
-  }
-
   public final class RowColumnImplKt {
   }
 
@@ -426,7 +413,6 @@ package androidx.ui.layout {
     method public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, androidx.ui.core.HorizontalAlignmentLine alignmentLine);
     method public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.Measured,androidx.ui.unit.IntPx> alignmentLineBlock);
     method public androidx.ui.core.Modifier gravity(androidx.ui.core.Modifier, androidx.ui.core.Alignment.Vertical align);
-    method @Deprecated public androidx.ui.core.Modifier gravity(androidx.ui.core.Modifier, androidx.ui.layout.RowAlign align);
     method public androidx.ui.core.Modifier weight(androidx.ui.core.Modifier, @FloatRange(from=0.0, fromInclusive=false) float weight, boolean fill = true);
     field public static final androidx.ui.layout.RowScope! INSTANCE;
   }
