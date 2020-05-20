@@ -51,7 +51,7 @@ class CrossfadeTest {
                 Text(if (it) First else Second)
             }
         }
-        composeTestRule.clockTestRule.advanceClock(DefaultDuration.toLong())
+        composeTestRule.clockTestRule.advanceClock(DefaultDuration)
 
         findByText(First).assertExists()
     }
@@ -70,7 +70,7 @@ class CrossfadeTest {
                 }
             }
         }
-        composeTestRule.clockTestRule.advanceClock(DefaultDuration.toLong())
+        composeTestRule.clockTestRule.advanceClock(DefaultDuration)
 
         runOnIdleCompose {
             showFirst = false
@@ -78,7 +78,7 @@ class CrossfadeTest {
 
         waitForIdle()
 
-        composeTestRule.clockTestRule.advanceClock(DefaultDuration.toLong())
+        composeTestRule.clockTestRule.advanceClock(DefaultDuration)
 
         runOnIdleCompose {
             assertTrue(disposed)

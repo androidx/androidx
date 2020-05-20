@@ -29,7 +29,7 @@ class ToolingGlueTest {
     @Test
     fun testSeekableAnimation() {
         val animation = SeekableAnimation(def, "start", "end")
-        val defaultAnim = SpringAnimation()
+        val defaultAnim = FloatSpringSpec()
         assertEquals(max(defaultAnim.getDurationMillis(0f, 100f, 0f), 500L),
             animation.duration)
 

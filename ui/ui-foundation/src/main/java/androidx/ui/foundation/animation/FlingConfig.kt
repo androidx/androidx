@@ -19,7 +19,7 @@ package androidx.ui.foundation.animation
 import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationBuilder
 import androidx.animation.AnimationEndReason
-import androidx.animation.DecayAnimation
+import androidx.animation.FloatDecayAnimationSpec
 import androidx.animation.ExponentialDecay
 import androidx.animation.OnAnimationEnd
 import androidx.animation.PhysicsBuilder
@@ -52,7 +52,7 @@ import kotlin.math.abs
  */
 @Immutable
 data class FlingConfig(
-    val decayAnimation: DecayAnimation,
+    val decayAnimation: FloatDecayAnimationSpec,
     val onAnimationEnd: OnAnimationEnd? = null,
     val adjustTarget: (Float) -> TargetAnimation? = { null }
 )
@@ -75,7 +75,7 @@ fun FlingConfig(
     // but the reference to the returned FlingConfig will not change across calls.
     val density = DensityAmbient.current
     val calculator = remember(density.density) { AndroidFlingCalculator(density) }
-    val decayAnimation = remember { AndroidFlingDecayAnimation(calculator) }
+    val decayAnimation = remember { AndroidFlingDecaySpec(calculator) }
         .also { it.flingCalculator = calculator }
     return remember {
         FlingConfig(
@@ -120,7 +120,7 @@ fun AnchorsFlingConfig(
     anchors: List<Float>,
     animationBuilder: AnimationBuilder<Float> = PhysicsBuilder(),
     onAnimationEnd: OnAnimationEnd? = null,
-    decayAnimation: DecayAnimation = ExponentialDecay()
+    decayAnimation: FloatDecayAnimationSpec = ExponentialDecay()
 ): FlingConfig {
     val adjustTarget: (Float) -> TargetAnimation? = { target ->
         val point = anchors.minBy { abs(it - target) }

@@ -28,7 +28,7 @@ import kotlin.math.max
  * result of the animation rather than an input.
  */
 // TODO: Figure out a better story for non-floats
-interface DecayAnimation {
+interface FloatDecayAnimationSpec {
     /**
      * This is the absolute value of a velocity threshold, below which the animation is considered
      * finished.
@@ -48,6 +48,12 @@ interface DecayAnimation {
         startVelocity: Float
     ): Float
 
+    /**
+     * Returns the duration of the decay animation, in milliseconds.
+     *
+     * @param start start value of the animation
+     * @param startVelocity start velocity of the animation
+     */
     fun getDurationMillis(
         start: Float,
         startVelocity: Float
@@ -101,7 +107,7 @@ class ExponentialDecay(
         to = 3.4e38, // POSITIVE_INFINITY,
         fromInclusive = false
     ) absVelocityThreshold: Float = 0.1f
-) : DecayAnimation {
+) : FloatDecayAnimationSpec {
 
     override val absVelocityThreshold: Float = max(0.0000001f, abs(absVelocityThreshold))
     private val friction: Float = ExponentialDecayFriction * max(0.0001f, frictionMultiplier)
@@ -143,9 +149,16 @@ class ExponentialDecay(
     }
 }
 
-internal fun DecayAnimation.createWrapper(
+/**
+ * Creates a [Animation] (with a fixed start value and start velocity) that decays over time
+ * based on the given [FloatDecayAnimationSpec].
+ *
+ * @param startValue the starting value of the fixed animation.
+ * @param startVelocity the starting velocity of the fixed animation.
+ */
+fun FloatDecayAnimationSpec.createAnimation(
     startValue: Float,
     startVelocity: Float = 0f
-): AnimationWrapper<Float, AnimationVector1D> {
-    return DecayAnimationWrapper(startValue, startVelocity, this)
+): Animation<Float, AnimationVector1D> {
+    return DecayAnimation(this, startValue, startVelocity)
 }

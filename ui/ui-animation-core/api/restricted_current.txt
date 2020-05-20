@@ -23,16 +23,27 @@ package androidx.animation {
     method public static androidx.animation.AnimatedFloat AnimatedFloat(float initVal, androidx.animation.AnimationClockObservable clock, float visibilityThreshold = 0.01f);
     method public static <T, V extends androidx.animation.AnimationVector> androidx.animation.AnimatedValue<T,V> AnimatedValue(T? initVal, androidx.animation.TwoWayConverter<T,V> typeConverter, androidx.animation.AnimationClockObservable clock, V visibilityThreshold = typeConverter.invoke(initVal).newInstanceOfValue(Spring.DefaultDisplacementThreshold));
     method public static <V extends androidx.animation.AnimationVector> androidx.animation.AnimatedValue<V,V> AnimatedVector(V initVal, androidx.animation.AnimationClockObservable clock, V visibilityThreshold = initVal.newInstanceOfValue(Spring.DefaultDisplacementThreshold));
-    method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.animation.DecayAnimation decay = androidx.animation.ExponentialDecay(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onEnd = null);
-    method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.animation.DecayAnimation decay = androidx.animation.ExponentialDecay(), kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onEnd = null);
+    method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.animation.FloatDecayAnimationSpec decay = androidx.animation.ExponentialDecay(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onEnd = null);
+    method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.animation.FloatDecayAnimationSpec decay = androidx.animation.ExponentialDecay(), kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onEnd = null);
+  }
+
+  public interface Animation<T, V extends androidx.animation.AnimationVector> {
+    method public androidx.animation.TwoWayConverter<T,V> getConverter();
+    method public long getDurationMillis();
+    method public T! getValue(long playTime);
+    method public V getVelocityVector(long playTime);
+    method public default boolean isFinished(long playTime);
+    property public abstract androidx.animation.TwoWayConverter<T,V> converter;
+    property public abstract long durationMillis;
   }
 
   public abstract class AnimationBuilder<T> {
     ctor public AnimationBuilder();
+    method public abstract <V extends androidx.animation.AnimationVector> androidx.animation.AnimationSpec<V> build(androidx.animation.TwoWayConverter<T,V> converter);
   }
 
   public final class AnimationBuilderKt {
-    field public static final int DefaultDuration = 300; // 0x12c
+    field public static final long DefaultDuration = 300L; // 0x12cL
     field public static final int Infinite = 2147483647; // 0x7fffffff
   }
 
@@ -52,6 +63,22 @@ package androidx.animation {
     enum_constant public static final androidx.animation.AnimationEndReason BoundReached;
     enum_constant public static final androidx.animation.AnimationEndReason Interrupted;
     enum_constant public static final androidx.animation.AnimationEndReason TargetReached;
+  }
+
+  public final class AnimationKt {
+    method public static <V extends androidx.animation.AnimationVector> androidx.animation.TargetBasedAnimation<V,V> createAnimation(androidx.animation.AnimationSpec<V>, V startValue, V endValue, V startVelocity);
+    method public static <T, V extends androidx.animation.AnimationVector> androidx.animation.TargetBasedAnimation<T,V> createAnimation(androidx.animation.AnimationSpec<V>, T? startValue, T? endValue, V startVelocityVector, androidx.animation.TwoWayConverter<T,V> converter);
+    method public static <T, V extends androidx.animation.AnimationVector> T! getVelocity(androidx.animation.Animation<T,V>, long playTime);
+  }
+
+  public interface AnimationSpec<V extends androidx.animation.AnimationVector> {
+    method public long getDurationMillis(V start, V end, V startVelocity);
+    method public default V getEndVelocity(V start, V end, V startVelocity);
+    method public V getValue(long playTime, V start, V end, V startVelocity);
+    method public V getVelocity(long playTime, V start, V end, V startVelocity);
+  }
+
+  public final class AnimationSpecKt {
   }
 
   public abstract sealed class AnimationVector {
@@ -153,16 +180,14 @@ package androidx.animation {
     method public Float! invoke(float fraction);
   }
 
-  public interface DecayAnimation {
-    method public float getAbsVelocityThreshold();
-    method public long getDurationMillis(float start, float startVelocity);
-    method public float getTarget(float start, float startVelocity);
-    method public float getValue(long playTime, float start, float startVelocity);
-    method public float getVelocity(long playTime, float start, float startVelocity);
-    property public abstract float absVelocityThreshold;
-  }
-
-  public final class DecayAnimationKt {
+  public final class DecayAnimation implements androidx.animation.Animation<java.lang.Float,androidx.animation.AnimationVector1D> {
+    ctor public DecayAnimation(androidx.animation.FloatDecayAnimationSpec anim, float startValue, float startVelocity);
+    method public androidx.animation.TwoWayConverter<java.lang.Float,androidx.animation.AnimationVector1D> getConverter();
+    method public long getDurationMillis();
+    method public Float! getValue(long playTime);
+    method public androidx.animation.AnimationVector1D getVelocityVector(long playTime);
+    property public androidx.animation.TwoWayConverter<java.lang.Float,androidx.animation.AnimationVector1D> converter;
+    property public long durationMillis;
   }
 
   public final class DefaultAnimationClock extends androidx.animation.BaseAnimationClock {
@@ -172,13 +197,21 @@ package androidx.animation {
 
   public abstract class DurationBasedAnimationBuilder<T> extends androidx.animation.AnimationBuilder<T> {
     ctor public DurationBasedAnimationBuilder();
-    method public abstract <V extends androidx.animation.AnimationVector> androidx.animation.DurationBasedAnimation<V> build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V> converter);
+    method public abstract <V extends androidx.animation.AnimationVector> androidx.animation.DurationBasedAnimationSpec<V> build(androidx.animation.TwoWayConverter<T,V> converter);
     method public final int getDelay();
     method public final int getDuration();
     method public final void setDelay(int value);
     method public final void setDuration(int value);
     property public final int delay;
     property public final int duration;
+  }
+
+  public interface DurationBasedAnimationSpec<V extends androidx.animation.AnimationVector> extends androidx.animation.AnimationSpec<V> {
+    method public long getDelay();
+    method public long getDuration();
+    method public default long getDurationMillis(V start, V end, V startVelocity);
+    property public abstract long delay;
+    property public abstract long duration;
   }
 
   public final class EasingKt {
@@ -188,7 +221,7 @@ package androidx.animation {
     method public static androidx.animation.CubicBezierEasing getLinearOutSlowInEasing();
   }
 
-  public final class ExponentialDecay implements androidx.animation.DecayAnimation {
+  public final class ExponentialDecay implements androidx.animation.FloatDecayAnimationSpec {
     ctor public ExponentialDecay(@FloatRange(from=null, to=null, fromInclusive=null) float frictionMultiplier, @FloatRange(from=null, to=null, fromInclusive=null) float absVelocityThreshold);
     ctor public ExponentialDecay();
     method public float getAbsVelocityThreshold();
@@ -199,11 +232,53 @@ package androidx.animation {
     property public float absVelocityThreshold;
   }
 
+  public interface FloatAnimationSpec {
+    method public long getDurationMillis(float start, float end, float startVelocity);
+    method public default float getEndVelocity(float start, float end, float startVelocity);
+    method public float getValue(long playTime, float start, float end, float startVelocity);
+    method public float getVelocity(long playTime, float start, float end, float startVelocity);
+  }
+
+  public final class FloatAnimationSpecKt {
+    method public static <V extends androidx.animation.AnimationVector> androidx.animation.AnimationSpec<V> vectorize(androidx.animation.FloatAnimationSpec);
+  }
+
+  public interface FloatDecayAnimationSpec {
+    method public float getAbsVelocityThreshold();
+    method public long getDurationMillis(float start, float startVelocity);
+    method public float getTarget(float start, float startVelocity);
+    method public float getValue(long playTime, float start, float startVelocity);
+    method public float getVelocity(long playTime, float start, float startVelocity);
+    property public abstract float absVelocityThreshold;
+  }
+
+  public final class FloatDecayAnimationSpecKt {
+    method public static androidx.animation.Animation<java.lang.Float,androidx.animation.AnimationVector1D> createAnimation(androidx.animation.FloatDecayAnimationSpec, float startValue, float startVelocity = 0f);
+  }
+
   public final class FloatPropKey implements androidx.animation.PropKey<java.lang.Float,androidx.animation.AnimationVector1D> {
     ctor public FloatPropKey(String label);
     ctor public FloatPropKey();
     method public androidx.animation.TwoWayConverter<java.lang.Float,androidx.animation.AnimationVector1D> getTypeConverter();
     property public androidx.animation.TwoWayConverter<java.lang.Float,androidx.animation.AnimationVector1D> typeConverter;
+  }
+
+  public final class FloatSpringSpec implements androidx.animation.FloatAnimationSpec {
+    ctor public FloatSpringSpec(float dampingRatio, float stiffness, float displacementThreshold);
+    ctor public FloatSpringSpec();
+    method public long getDurationMillis(float start, float end, float startVelocity);
+    method public float getValue(long playTime, float start, float end, float startVelocity);
+    method public float getVelocity(long playTime, float start, float end, float startVelocity);
+  }
+
+  public final class FloatTweenSpec implements androidx.animation.FloatAnimationSpec {
+    ctor public FloatTweenSpec(long duration, long delay, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> easing);
+    ctor public FloatTweenSpec();
+    method public long getDelay();
+    method public long getDuration();
+    method public long getDurationMillis(float start, float end, float startVelocity);
+    method public float getValue(long playTime, float start, float end, float startVelocity);
+    method public float getVelocity(long playTime, float start, float end, float startVelocity);
   }
 
   public final class IntPropKey implements androidx.animation.PropKey<java.lang.Integer,androidx.animation.AnimationVector1D> {
@@ -226,11 +301,19 @@ package androidx.animation {
   public final class KeyframesBuilder<T> extends androidx.animation.DurationBasedAnimationBuilder<T> {
     ctor public KeyframesBuilder();
     method public infix androidx.animation.KeyframesBuilder<T>.KeyframeEntity<T> at(T?, int timeStamp);
-    method public <V extends androidx.animation.AnimationVector> androidx.animation.DurationBasedAnimation<V> build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V> converter);
+    method public <V extends androidx.animation.AnimationVector> androidx.animation.DurationBasedAnimationSpec<V> build(androidx.animation.TwoWayConverter<T,V> converter);
     method public infix void with(androidx.animation.KeyframesBuilder<T>.KeyframeEntity<T>, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> easing);
   }
 
   public final class KeyframesBuilder.KeyframeEntity<T> {
+  }
+
+  public final class KeyframesSpec<V extends androidx.animation.AnimationVector> implements androidx.animation.DurationBasedAnimationSpec<V> {
+    ctor public KeyframesSpec(java.util.Map<java.lang.Long,? extends kotlin.Pair<? extends V,? extends kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float>>> keyframes, long duration, long delay);
+    method public long getDelay();
+    method public long getDuration();
+    method public V getValue(long playTime, V start, V end, V startVelocity);
+    method public V getVelocity(long playTime, V start, V end, V startVelocity);
   }
 
   public final class ManualAnimationClock extends androidx.animation.BaseAnimationClock {
@@ -247,9 +330,9 @@ package androidx.animation {
   }
 
   public final class PhysicsBuilder<T> extends androidx.animation.AnimationBuilder<T> {
-    ctor public PhysicsBuilder(float dampingRatio, float stiffness, T! displacementThreshold);
-    ctor public PhysicsBuilder(float dampingRatio, float stiffness, float displacementThreshold);
-    method public <V extends androidx.animation.AnimationVector> androidx.animation.Animation<V> build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V> converter);
+    ctor public PhysicsBuilder(float dampingRatio, float stiffness, T? displacementThreshold);
+    ctor public PhysicsBuilder();
+    method public <V extends androidx.animation.AnimationVector> androidx.animation.SpringSpec<V> build(androidx.animation.TwoWayConverter<T,V> converter);
     method public float getDampingRatio();
     method public float getStiffness();
     method public void setDampingRatio(float p);
@@ -271,13 +354,20 @@ package androidx.animation {
 
   public final class RepeatableBuilder<T> extends androidx.animation.AnimationBuilder<T> {
     ctor public RepeatableBuilder();
-    method public <V extends androidx.animation.AnimationVector> androidx.animation.Animation<V> build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V> converter);
+    method public <V extends androidx.animation.AnimationVector> androidx.animation.AnimationSpec<V> build(androidx.animation.TwoWayConverter<T,V> converter);
     method public androidx.animation.DurationBasedAnimationBuilder<T>? getAnimation();
     method public Integer? getIterations();
     method public void setAnimation(androidx.animation.DurationBasedAnimationBuilder<T>? p);
     method public void setIterations(Integer? value);
     property public final androidx.animation.DurationBasedAnimationBuilder<T>? animation;
     property public final Integer? iterations;
+  }
+
+  public final class RepeatableSpec<V extends androidx.animation.AnimationVector> implements androidx.animation.AnimationSpec<V> {
+    ctor public RepeatableSpec(long iterationCount, androidx.animation.DurationBasedAnimationSpec<V> animation);
+    method public long getDurationMillis(V start, V end, V startVelocity);
+    method public V getValue(long playTime, V start, V end, V startVelocity);
+    method public V getVelocity(long playTime, V start, V end, V startVelocity);
   }
 
   @androidx.animation.InternalAnimationApi public final class SeekableAnimation<T> {
@@ -290,7 +380,20 @@ package androidx.animation {
 
   public final class SnapBuilder<T> extends androidx.animation.AnimationBuilder<T> {
     ctor public SnapBuilder();
-    method public <V extends androidx.animation.AnimationVector> androidx.animation.Animation<V> build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V> converter);
+    method public <V extends androidx.animation.AnimationVector> androidx.animation.SnapSpec<V> build(androidx.animation.TwoWayConverter<T,V> converter);
+    method public int getDelay();
+    method public void setDelay(int p);
+    property public final int delay;
+  }
+
+  public final class SnapSpec<V extends androidx.animation.AnimationVector> implements androidx.animation.DurationBasedAnimationSpec<V> {
+    ctor public SnapSpec(long delay);
+    ctor public SnapSpec();
+    method public long getDelay();
+    method public long getDuration();
+    method public V getValue(long playTime, V start, V end, V startVelocity);
+    method public V getVelocity(long playTime, V start, V end, V startVelocity);
+    property public long duration;
   }
 
   public final class Spring {
@@ -315,6 +418,12 @@ package androidx.animation {
   public final class SpringSimulationKt {
   }
 
+  public final class SpringSpec<V extends androidx.animation.AnimationVector> implements androidx.animation.AnimationSpec<V> {
+    ctor public SpringSpec(float dampingRatio, float stiffness, V? visibilityThreshold);
+    method public float getDampingRatio();
+    method public float getStiffness();
+  }
+
   public final class TargetAnimation {
     ctor public TargetAnimation(float target, androidx.animation.AnimationBuilder<java.lang.Float> animation);
     method public float component1();
@@ -322,6 +431,17 @@ package androidx.animation {
     method public androidx.animation.TargetAnimation copy(float target, androidx.animation.AnimationBuilder<java.lang.Float> animation);
     method public androidx.animation.AnimationBuilder<java.lang.Float> getAnimation();
     method public float getTarget();
+  }
+
+  public final class TargetBasedAnimation<T, V extends androidx.animation.AnimationVector> implements androidx.animation.Animation<T,V> {
+    ctor public TargetBasedAnimation(androidx.animation.AnimationSpec<V> animationSpec, T! startValue, T! endValue, V startVelocityVector, androidx.animation.TwoWayConverter<T,V> converter);
+    ctor public TargetBasedAnimation(androidx.animation.AnimationSpec<V> animationSpec, T! startValue, T! endValue, T! startVelocity, androidx.animation.TwoWayConverter<T,V> converter);
+    method public androidx.animation.TwoWayConverter<T,V> getConverter();
+    method public long getDurationMillis();
+    method public T! getEndValue();
+    method public T! getValue(long playTime);
+    method public V getVelocityVector(long playTime);
+    property public long durationMillis;
   }
 
   public final class ToolingGlueKt {
@@ -388,10 +508,20 @@ package androidx.animation {
 
   public final class TweenBuilder<T> extends androidx.animation.DurationBasedAnimationBuilder<T> {
     ctor public TweenBuilder();
-    method public <V extends androidx.animation.AnimationVector> androidx.animation.DurationBasedAnimation<V> build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V> converter);
+    method public <V extends androidx.animation.AnimationVector> androidx.animation.TweenSpec<V> build(androidx.animation.TwoWayConverter<T,V> converter);
     method public kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> getEasing();
     method public void setEasing(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> p);
     property public final kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> easing;
+  }
+
+  public final class TweenSpec<V extends androidx.animation.AnimationVector> implements androidx.animation.DurationBasedAnimationSpec<V> {
+    ctor public TweenSpec(long duration, long delay, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> easing);
+    ctor public TweenSpec();
+    method public long getDelay();
+    method public long getDuration();
+    method public kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> getEasing();
+    method public V getValue(long playTime, V start, V end, V startVelocity);
+    method public V getVelocity(long playTime, V start, V end, V startVelocity);
   }
 
   public interface TwoWayConverter<T, V extends androidx.animation.AnimationVector> {
@@ -399,10 +529,6 @@ package androidx.animation {
     method public kotlin.jvm.functions.Function1<T,V> getConvertToVector();
     property public abstract kotlin.jvm.functions.Function1<V,T> convertFromVector;
     property public abstract kotlin.jvm.functions.Function1<T,V> convertToVector;
-  }
-
-  public final class VectorAnimationKt {
-    field public static final boolean DEBUG = false;
   }
 
 }

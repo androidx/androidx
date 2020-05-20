@@ -27,7 +27,7 @@ import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
  * [TransitionAnimation] reads the property values out of the start and end state,  as well as the
  * animations defined for each state pair for each property, and run these animations until all
  * properties have reached their pre-defined values in the new state. When no animation is specified
- * for a property, a default [SpringAnimation] animation will be used.
+ * for a property, a default [FloatSpringSpec] animation will be used.
  *
  * [TransitionAnimation] may be interrupted while the animation is on-going by a request to go
  * to another state. [TransitionAnimation] ensures that all the animating properties preserve their
@@ -65,7 +65,7 @@ class TransitionAnimation<T>(
     // re-used as they are stateless.
     private var currentAnimWrappers: MutableMap<
             PropKey<Any, AnimationVector>,
-            AnimationWrapper<Any, AnimationVector>
+            Animation<Any, AnimationVector>
             > = mutableMapOf()
     private var startVelocityMap: MutableMap<PropKey<Any, AnimationVector>, Any> = mutableMapOf()
 
@@ -114,7 +114,7 @@ class TransitionAnimation<T>(
         // TODO: Support different interruption types
         // For now assume continuing with the same value,  and for floats the same velocity
         for ((prop, _) in newState.props) {
-            val currentVelocity = currentAnimWrappers[prop]?.getVelocity(playTime)
+            val currentVelocity = currentAnimWrappers[prop]?.getVelocityVector(playTime)
             currentAnimWrappers[prop] = prop.createAnimationWrapper(
                 transitionSpec.getAnimationForProp(prop), currentState[prop], currentVelocity,
                 newState[prop]
@@ -231,13 +231,13 @@ class TransitionAnimation<T>(
 }
 
 internal fun <T, V : AnimationVector> PropKey<T, V>.createAnimationWrapper(
-    anim: Animation<V>,
+    anim: AnimationSpec<V>,
     start: T,
     startVelocity: V?,
     end: T
-): AnimationWrapper<T, V> {
+): Animation<T, V> {
     val velocity: V = startVelocity ?: typeConverter.convertToVector(start).newInstance()
-    return TargetBasedAnimationWrapper(start, velocity, end, anim, typeConverter)
+    return TargetBasedAnimation(anim, start, end, velocity, typeConverter)
 }
 
 /**
