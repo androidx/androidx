@@ -25,6 +25,9 @@ class CameraGraphImpl @Inject constructor(
     private val context: Context,
     private val config: CameraGraph.Config
 ) : CameraGraph {
+    // Only one session can be active at a time.
+    private val sessionLock = TokenLockImpl(1)
+
     override fun start() {
         Log.debug { "Starting Camera Graph!" }
         TODO("Not Implemented")
@@ -32,5 +35,15 @@ class CameraGraphImpl @Inject constructor(
 
     override fun stop() {
         TODO("Not Implemented")
+    }
+
+    override suspend fun acquireSession(): CameraGraph.Session {
+        val token = sessionLock.acquire(1)
+        return CameraGraphSessionImpl(token)
+    }
+
+    override fun acquireSessionOrNull(): CameraGraph.Session? {
+        val token = sessionLock.acquireOrNull(1) ?: return null
+        return CameraGraphSessionImpl(token)
     }
 }
