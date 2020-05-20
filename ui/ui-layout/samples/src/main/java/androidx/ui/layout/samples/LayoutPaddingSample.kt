@@ -22,6 +22,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Stack
 import androidx.ui.layout.absolutePadding
 import androidx.ui.layout.padding
@@ -56,6 +57,15 @@ fun SymmetricPaddingModifier() {
 fun PaddingAllModifier() {
     Stack(Modifier.drawBackground(Color.Gray)) {
         Box(Modifier.padding(all = 20.dp).preferredSize(50.dp), backgroundColor = Color.Blue)
+    }
+}
+
+@Sampled
+@Composable
+fun PaddingInnerPaddingModifier() {
+    val innerPadding = InnerPadding(top = 10.dp, start = 15.dp)
+    Stack(Modifier.drawBackground(Color.Gray)) {
+        Box(Modifier.padding(innerPadding).preferredSize(50.dp), backgroundColor = Color.Blue)
     }
 }
 
