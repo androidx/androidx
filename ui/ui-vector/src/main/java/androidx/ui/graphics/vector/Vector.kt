@@ -177,7 +177,7 @@ data class PathComponent(val name: String) : VNode() {
             if (field != value) {
                 field = value
                 updateFillPaint {
-                    field?.applyTo(this)
+                    field?.applyTo(this, fillAlpha)
                 }
                 invalidate()
             }
@@ -230,7 +230,7 @@ data class PathComponent(val name: String) : VNode() {
             if (field != value) {
                 field = value
                 updateStrokePaint {
-                    field?.applyTo(this)
+                    field?.applyTo(this, strokeAlpha)
                 }
                 invalidate()
             }
@@ -289,12 +289,11 @@ data class PathComponent(val name: String) : VNode() {
     private fun createStrokePaint(): Paint = Paint().apply {
         isAntiAlias = true
         style = PaintingStyle.stroke
-        alpha = strokeAlpha
         strokeWidth = strokeLineWidth
         strokeCap = strokeLineCap
         strokeJoin = strokeLineJoin
         strokeMiterLimit = strokeLineMiter
-        stroke?.applyTo(this)
+        stroke?.applyTo(this, strokeAlpha)
     }
 
     private fun updateFillPaint(fillPaintUpdater: Paint.() -> Unit) {
@@ -307,9 +306,8 @@ data class PathComponent(val name: String) : VNode() {
 
     private fun createFillPaint(): Paint = Paint().apply {
         isAntiAlias = true
-        alpha = fillAlpha
         style = PaintingStyle.fill
-        fill?.applyTo(this)
+        fill?.applyTo(this, fillAlpha)
     }
 
     private fun updatePath() {

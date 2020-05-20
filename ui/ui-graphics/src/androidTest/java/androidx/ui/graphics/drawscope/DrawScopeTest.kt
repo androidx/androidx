@@ -145,6 +145,77 @@ class DrawScopeTest {
     }
 
     @Test
+    fun testDrawRectColorIntrinsicAlpha() {
+        val img = createTestDstImage()
+        TestDrawScope().draw(Canvas(img), dstSize) {
+            // Verify that the overload that consumes a color parameter
+            // fills the canvas with red color
+            drawRect(color =
+                Color.Red.copy(
+                    alpha = 0.5f,
+                    red = Color.Red.red,
+                    green = Color.Red.green,
+                    blue = Color.Red.blue
+                ))
+        }
+
+        val expected = Color(
+            alpha = 0.5f,
+            red = Color.Red.red,
+            green = Color.Red.green,
+            blue = Color.Red.blue
+        ).compositeOver(Color.White)
+
+        val pixelMap = img.toPixelMap()
+        for (i in 0 until pixelMap.width) {
+            for (j in 0 until pixelMap.height) {
+                val result = pixelMap[i, j]
+                assertEquals(expected.red, result.red, 0.01f)
+                assertEquals(expected.green, result.green, 0.01f)
+                assertEquals(expected.blue, result.blue, 0.01f)
+                assertEquals(expected.alpha, result.alpha, 0.01f)
+            }
+        }
+    }
+
+    @Test
+    fun testDrawRectBrushColorIntrinsicAlpha() {
+        val img = createTestDstImage()
+        TestDrawScope().draw(Canvas(img), dstSize) {
+            // Verify that the overload that consumes a brush parameter
+            // fills the canvas with red color
+            drawRect(brush =
+                SolidColor(
+                    Color.Red.copy(
+                        alpha = 0.5f,
+                        red = Color.Red.red,
+                        green = Color.Red.green,
+                        blue = Color.Red.blue
+                    )
+                )
+            )
+        }
+
+        val expected = Color(
+            alpha = 0.5f,
+            red = Color.Red.red,
+            green = Color.Red.green,
+            blue = Color.Red.blue
+        ).compositeOver(Color.White)
+
+        val pixelMap = img.toPixelMap()
+        for (i in 0 until pixelMap.width) {
+            for (j in 0 until pixelMap.height) {
+                val result = pixelMap[i, j]
+                assertEquals(expected.red, result.red, 0.01f)
+                assertEquals(expected.green, result.green, 0.01f)
+                assertEquals(expected.blue, result.blue, 0.01f)
+                assertEquals(expected.alpha, result.alpha, 0.01f)
+            }
+        }
+    }
+
+    @Test
     fun testDrawTranslatedRect() {
         val img = createTestDstImage()
         val insetLeft = 10.0f
