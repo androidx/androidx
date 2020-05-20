@@ -34,6 +34,7 @@ import androidx.ui.text.TextStyle
 import androidx.ui.text.annotatedString
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.withStyle
 
 @Composable
 fun TextSelectionDemo() {
@@ -69,26 +70,26 @@ fun TextDemoSelection() {
                 append(text = "$displayTextArabic   ")
                 append(text = "$displayTextChinese   ")
 
-                pushStyle(
+                withStyle(
                     SpanStyle(
                         color = Color(0xFF0000FF),
                         fontSize = fontSize10,
                         fontWeight = FontWeight.W800,
                         fontStyle = FontStyle.Normal
                     )
-                )
-                append(displayTextHindi)
-                pop()
+                ) {
+                    append(displayTextHindi)
+                }
 
                 append(text = "$arabicSentence")
 
-                pushStyle(SpanStyle(localeList = LocaleList("zh-CN")))
-                append("\n先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。")
-                pop()
+                withStyle(SpanStyle(localeList = LocaleList("zh-CN"))) {
+                    append("\n先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。")
+                }
 
-                pushStyle(SpanStyle(localeList = LocaleList("ja-JP")))
-                append("\nまず、現在天下が魏・呉・蜀に分れており、そのうち蜀は疲弊していることを指摘する。")
-                pop()
+                withStyle(SpanStyle(localeList = LocaleList("ja-JP"))) {
+                    append("\nまず、現在天下が魏・呉・蜀に分れており、そのうち蜀は疲弊していることを指摘する。")
+                }
             }
         )
     }
