@@ -23,8 +23,11 @@ import android.view.View
 import androidx.animation.rootAnimationClockFactory
 import androidx.animation.ManualAnimationClock
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.Recomposer
 import androidx.ui.core.setContent
+import androidx.ui.core.TextInputServiceAmbient
+import androidx.ui.input.TextInputService
 
 import javax.swing.SwingUtilities
 
@@ -39,13 +42,18 @@ fun SkiaWindow.setContent(content: @Composable () -> Unit) {
                 clocks.add(it)
             }
         }
+
         val context = object : Context() {}
         val viewGroup = object : ViewGroup(context) {}
-        viewGroup.setContent(Recomposer.current(), content)
+        val platformInputService = DesktopPlatformInput()
+        viewGroup.setContent(Recomposer.current(), @Composable {
+            Providers(TextInputServiceAmbient provides TextInputService(
+                platformInputService), children = content)
+        })
         val view = viewGroup.getChildAt(0)
         view.onAttachedToWindow()
 
-        this.renderer = Renderer(view, clocks, fps)
+        this.renderer = Renderer(view, clocks, fps, platformInputService)
         this.setFps(fps)
     }
 }
@@ -53,7 +61,8 @@ fun SkiaWindow.setContent(content: @Composable () -> Unit) {
 private class Renderer(
     val view: View,
     val clocks: List<ManualAnimationClock>,
-    val fps: Int
+    val fps: Int,
+    val platformInputService: DesktopPlatformInput
 ) : SkiaRenderer {
     var androidCanvas: android.graphics.Canvas? = null
 
@@ -102,5 +111,17 @@ private class Renderer(
 
     private fun modifiers(awtModifiers: Int): Int {
         return 0
+    }
+
+    override fun onKeyPressed(code: Int, char: Char) {
+        platformInputService.onKeyPressed(code, char)
+    }
+
+    override fun onKeyReleased(code: Int, char: Char) {
+        platformInputService.onKeyReleased(code, char)
+    }
+
+    override fun onKeyTyped(char: Char) {
+        platformInputService.onKeyTyped(char)
     }
 }

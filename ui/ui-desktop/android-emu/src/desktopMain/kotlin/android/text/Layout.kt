@@ -99,12 +99,19 @@ open class Layout(
         return 0
     }
 
+    open fun getLineBottom(line: Int): Int {
+        return 0
+    }
     open fun getLineDescent(line: Int): Int {
         return 0
     }
 
     open fun getLineStart(line: Int): Int {
         return 0
+    }
+
+    open fun getLineEnd(line: Int): Int {
+        return mText.length
     }
 
     open fun getParagraphDirection(line: Int): Int {
@@ -117,6 +124,10 @@ open class Layout(
 
     open fun getLineMax(line: Int): Float {
         return 0f
+    }
+
+    open fun getLineForOffset(offset: Int): Int {
+        return 0
     }
 
     open fun getLineWidth(line: Int): Float {
@@ -145,6 +156,10 @@ open class Layout(
 
     open fun getEllipsizedWidth(): Int {
         return 0
+    }
+
+    open fun getPrimaryHorizontal(offset: Int): Float {
+        return 0f
     }
 
     open fun draw(c: Canvas) {

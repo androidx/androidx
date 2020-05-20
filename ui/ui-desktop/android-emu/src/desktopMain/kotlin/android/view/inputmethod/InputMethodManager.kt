@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package android.graphics
+package android.view.inputmethod
 
-class RectF(
-    var left: Float,
-    var top: Float,
-    var right: Float,
-    var bottom: Float
-) {
-    constructor() : this(0f, 0f, 0f, 0f)
+import android.view.View
 
-    fun set(left: Float, top: Float, right: Float, bottom: Float) {
-        this.left = left
-        this.top = top
-        this.right = right
-        this.bottom = bottom
+class InputMethodManager {
+    fun restartInput(view: View) {
+        println("InputMethodManager.restartInput")
+    }
+
+    fun showSoftInput (view: View, flags: Int): Boolean {
+        println("InputMethodManager.showSoftInput")
+        return true
     }
 }
