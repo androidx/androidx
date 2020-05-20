@@ -23,9 +23,12 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.semantics.SemanticsModifier
 import androidx.ui.core.semantics.SemanticsWrapper
-import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.semantics.outerSemantics
+import androidx.ui.core.focus.FocusModifier
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
@@ -37,6 +40,10 @@ import kotlin.math.sign
  * Enable to log changes to the LayoutNode tree.  This logging is quite chatty.
  */
 private const val DebugChanges = false
+
+// Top level DrawScope instance shared across the LayoutNode hierarchy to re-use internal
+// drawing objects
+internal val sharedDrawScope = LayoutNodeDrawScope()
 
 /**
  * The base type for all nodes from the tree generated from a component hierarchy.
@@ -379,6 +386,8 @@ class LayoutNode : Measurable {
      * The alignment lines provided by this layout at the last measurement
      */
     internal val providedAlignmentLines: MutableMap<AlignmentLine, IntPx> = hashMapOf()
+
+    internal val mDrawScope: LayoutNodeDrawScope = sharedDrawScope
 
     /**
      * Whether or not this has been placed in the hierarchy.
@@ -943,4 +952,45 @@ fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean): LayoutN
     }
 
     return null
+}
+
+/**
+ * [ContentDrawScope] implementation that extracts density and layout direction information
+ * from the given LayoutNodeWrapper
+ */
+internal class LayoutNodeDrawScope : ContentDrawScope() {
+
+    // NOTE, currently a single ComponentDrawScope is shared across composables
+    // which done to allocate a single set of Paint objects and re-use them across
+    // draw calls for all composables.
+    // As a result there could be thread safety concerns here for multi-threaded drawing
+    // scenarios, generally a single ComponentDrawScope should be shared for a particular thread
+    private var wrapped: LayoutNodeWrapper? = null
+
+    override fun drawContent() {
+        drawCanvas { canvas, _ ->
+            wrapped?.draw(canvas)
+        }
+    }
+
+    internal fun draw(
+        canvas: Canvas,
+        size: Size,
+        layoutNodeWrapper: LayoutNodeWrapper,
+        block: DrawScope.() -> Unit
+    ) {
+        val previousWrapper = wrapped
+        wrapped = layoutNodeWrapper
+        draw(canvas, size, block)
+        wrapped = previousWrapper
+    }
+
+    override val density: Float
+        get() = wrapped!!.measureScope.density
+
+    override val fontScale: Float
+        get() = wrapped!!.measureScope.fontScale
+
+    override val layoutDirection: LayoutDirection
+        get() = wrapped!!.measureScope.layoutDirection
 }

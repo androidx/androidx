@@ -56,7 +56,7 @@ class LayoutNodeTest {
         val node = LayoutNode()
         assertNull(node.owner)
 
-        val owner = mock(Owner::class.java)
+        val owner = mockOwner()
         node.attach(owner)
         assertEquals(owner, node.owner)
         assertTrue(node.isAttached())
@@ -125,7 +125,7 @@ class LayoutNodeTest {
     fun layoutNodeAttach() {
         val (node, child1, child2) = createSimpleLayout()
 
-        val owner = mock(Owner::class.java)
+        val owner = mockOwner()
         node.attach(owner)
         assertEquals(owner, node.owner)
         assertEquals(owner, child1.owner)
@@ -140,7 +140,7 @@ class LayoutNodeTest {
     @Test
     fun layoutNodeDetach() {
         val (node, child1, child2) = createSimpleLayout()
-        val owner = mock(Owner::class.java)
+        val owner = mockOwner()
         node.attach(owner)
         reset(owner)
         node.detach()
@@ -160,7 +160,7 @@ class LayoutNodeTest {
     @Test
     fun layoutNodeDropDetaches() {
         val (node, child1, child2) = createSimpleLayout()
-        val owner = mock(Owner::class.java)
+        val owner = mockOwner()
         node.attach(owner)
 
         node.removeAt(0, 1)
@@ -177,26 +177,25 @@ class LayoutNodeTest {
     @Test
     fun layoutNodeAdoptAttaches() {
         val (node, child1, child2) = createSimpleLayout()
-        val owner = mock(Owner::class.java)
+        val owner = mockOwner()
         node.attach(owner)
 
         node.removeAt(0, 1)
-        reset(owner)
 
         node.insertAt(1, child1)
         assertEquals(owner, node.owner)
         assertEquals(owner, child1.owner)
         assertEquals(owner, child2.owner)
 
-        verify(owner, times(0)).onAttach(node)
-        verify(owner, times(1)).onAttach(child1)
-        verify(owner, times(0)).onAttach(child2)
+        verify(owner, times(1)).onAttach(node)
+        verify(owner, times(2)).onAttach(child1)
+        verify(owner, times(1)).onAttach(child2)
     }
 
     @Test
     fun childAdd() {
         val node = LayoutNode()
-        val owner = mock(Owner::class.java)
+        val owner = mockOwner()
         node.attach(owner)
         verify(owner, times(1)).onAttach(node)
 
@@ -235,7 +234,7 @@ class LayoutNodeTest {
     @Test
     fun childRemove() {
         val node = LayoutNode()
-        val owner = mock(Owner::class.java)
+        val owner = mockOwner()
         node.attach(owner)
         val child = LayoutNode()
         node.insertAt(0, child)
@@ -253,7 +252,7 @@ class LayoutNodeTest {
         val (child, grand1, grand2) = createSimpleLayout()
         root.insertAt(0, child)
 
-        val owner = mock(Owner::class.java)
+        val owner = mockOwner()
         root.attach(owner)
 
         assertEquals(0, root.depth)
@@ -1538,7 +1537,7 @@ class LayoutNodeTest {
         val node2 = LayoutNode()
         node1.add(node2)
 
-        val owner = mock(Owner::class.java)
+        val owner = mockOwner()
         root.attach(owner)
         reset(owner)
 
@@ -1576,9 +1575,13 @@ class LayoutNodeTest {
         return Triple(layoutNode, child1, child2)
     }
 
-    private fun mockOwner(position: IntPxPosition = IntPxPosition.Origin): Owner =
+    private fun mockOwner(
+        position: IntPxPosition = IntPxPosition.Origin,
+        targetRoot: LayoutNode = LayoutNode()
+    ): Owner =
         mock {
             on { calculatePosition() } doReturn position
+            on { root } doReturn targetRoot
         }
 
     private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier) =
