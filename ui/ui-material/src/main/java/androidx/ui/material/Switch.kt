@@ -45,6 +45,7 @@ import androidx.ui.unit.dp
  * @param checked whether or not this components is checked
  * @param onCheckedChange callback to be invoked when Switch is being clicked,
  * therefore the change of checked state is requested.
+ * @param modifier Modifier to be applied to the switch layout
  * @param enabled whether or not components is enabled and can be clicked to request state change
  * @param color active color for Switch
  */
@@ -52,11 +53,12 @@ import androidx.ui.unit.dp
 fun Switch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     color: Color = MaterialTheme.colors.secondaryVariant
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
-        Stack {
+        Stack(modifier) {
             Toggleable(
                 value = checked,
                 onValueChange = onCheckedChange,
