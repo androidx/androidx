@@ -19,7 +19,6 @@ package androidx.ui.core
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.coerceIn
 import androidx.ui.unit.round
@@ -148,17 +147,6 @@ abstract class Placeable {
         fun Placeable.place(x: IntPx, y: IntPx) = placeAutoMirrored(IntPxPosition(x, y))
 
         /**
-         * Place a [Placeable] at [x], [y] in its parent's coordinate system.
-         * If the layout direction is right-to-left, the given position will be horizontally
-         * mirrored so that the position of the [Placeable] implicitly reacts to RTL layout
-         * direction contexts.
-         * If this method is used outside the [MeasureScope.layout] positioning block, the
-         * automatic position mirroring will not happen and the [Placeable] will be placed at the
-         * given position, similar to the [placeAbsolute] method.
-         */
-        fun Placeable.place(x: Px, y: Px) = placeAutoMirrored(IntPxPosition(x.round(), y.round()))
-
-        /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
          * Unlike [place], the given [position] will not implicitly react in RTL layout direction
          * contexts.
@@ -171,14 +159,6 @@ abstract class Placeable {
          * contexts.
          */
         fun Placeable.placeAbsolute(x: IntPx, y: IntPx) = placeAbsolute(IntPxPosition(x, y))
-
-        /**
-         * Place a [Placeable] at [x], [y] in its parent's coordinate system.
-         * Unlike [place], the given position will not implicitly react in RTL layout direction
-         * contexts.
-         */
-        fun Placeable.placeAbsolute(x: Px, y: Px) =
-            placeAbsolute(IntPxPosition(x.round(), y.round()))
 
         /**
          * Place a [Placeable] at [position] in its parent's coordinate system.

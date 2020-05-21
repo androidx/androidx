@@ -37,7 +37,6 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
 import androidx.ui.unit.Dp
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -51,6 +50,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -58,10 +58,10 @@ class OnPositionedTest : LayoutTest() {
 
     @Test
     fun simplePadding() = with(density) {
-        val paddingLeftPx = 100.px
-        val paddingTopPx = 120.px
-        var realLeft: Px? = null
-        var realTop: Px? = null
+        val paddingLeftPx = 100.0f
+        val paddingTopPx = 120.0f
+        var realLeft: Float? = null
+        var realTop: Float? = null
 
         val positionedLatch = CountDownLatch(1)
         show {
@@ -69,8 +69,8 @@ class OnPositionedTest : LayoutTest() {
                 Modifier.fillMaxSize()
                     .padding(start = paddingLeftPx.toDp(), top = paddingTopPx.toDp())
                     .onPositioned {
-                        realLeft = it.positionInParent.x
-                        realTop = it.positionInParent.y
+                        realLeft = it.positionInParent.x.value
+                        realTop = it.positionInParent.y.value
                         positionedLatch.countDown()
                     }
             ) {
@@ -86,14 +86,14 @@ class OnPositionedTest : LayoutTest() {
     fun simplePaddingWithChildPositioned() = with(density) {
         val paddingLeftPx = 100.px
         val paddingTopPx = 120.px
-        var realLeft: Px? = null
-        var realTop: Px? = null
+        var realLeft: Float? = null
+        var realTop: Float? = null
 
         val positionedLatch = CountDownLatch(1)
         show {
             Container(Modifier.onChildPositioned {
-                realLeft = it.positionInParent.x
-                realTop = it.positionInParent.y
+                realLeft = it.positionInParent.x.value
+                realTop = it.positionInParent.y.value
                 positionedLatch.countDown()
             }) {
                 Container(
@@ -108,8 +108,8 @@ class OnPositionedTest : LayoutTest() {
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        assertThat(realLeft).isEqualTo(paddingLeftPx)
-        assertThat(realTop).isEqualTo(paddingTopPx)
+        assertThat(realLeft?.px).isEqualTo(paddingLeftPx)
+        assertThat(realTop?.px).isEqualTo(paddingTopPx)
     }
 
     @Test
@@ -156,7 +156,7 @@ class OnPositionedTest : LayoutTest() {
 
     @Test
     fun childPositionedForTwoContainers() = with(density) {
-        val size = 100.px
+        val size = 100.0f
         val sizeDp = size.toDp()
         var firstCoordinates: LayoutCoordinates? = null
         var secondCoordinates: LayoutCoordinates? = null
@@ -177,8 +177,8 @@ class OnPositionedTest : LayoutTest() {
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        assertThat(0.px).isEqualTo(firstCoordinates!!.positionInParent.x)
-        assertThat(size).isEqualTo(secondCoordinates!!.positionInParent.x)
+        assertThat(0.0f).isEqualTo(firstCoordinates!!.positionInParent.x.value)
+        assertThat(size).isEqualTo(secondCoordinates!!.positionInParent.x.value)
     }
 
     @Test
@@ -237,14 +237,14 @@ class OnPositionedTest : LayoutTest() {
     @Test
     fun testRepositionTriggersCallback() {
         val left = mutableStateOf(30.dp)
-        var realLeft: Px? = null
+        var realLeft: Float? = null
 
         var positionedLatch = CountDownLatch(1)
         show {
             Stack {
                 Container(
                     Modifier.onPositioned {
-                        realLeft = it.positionInParent.x
+                        realLeft = it.positionInParent.x.value
                         positionedLatch.countDown()
                     }
                         .fillMaxSize()
@@ -260,7 +260,7 @@ class OnPositionedTest : LayoutTest() {
 
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         with(density) {
-            assertThat(realLeft).isEqualTo(40.dp.toPx().px)
+            assertThat(realLeft).isEqualTo(40.dp.toPx())
         }
     }
 
@@ -325,7 +325,9 @@ class OnPositionedTest : LayoutTest() {
         // simple copy of Padding which doesn't recompose when the size changes
         Layout(children) { measurables, constraints, _ ->
             layout(constraints.maxWidth, constraints.maxHeight) {
-                measurables.first().measure(constraints).place(sizeModel.value.toPx().px, 0.px)
+                measurables.first().measure(constraints).place(
+                    sizeModel.value.toPx().roundToInt().ipx,
+                    0.ipx)
             }
         }
     }

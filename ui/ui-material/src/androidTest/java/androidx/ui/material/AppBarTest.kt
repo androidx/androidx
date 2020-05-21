@@ -35,7 +35,6 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByText
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Density
-import androidx.ui.unit.Px
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -83,7 +82,7 @@ class AppBarTest {
         var navigationIconCoords: LayoutCoordinates? = null
         var titleCoords: LayoutCoordinates? = null
         // Position of the baseline relative to the top of the text
-        var titleLastBaselineRelativePosition: Px? = null
+        var titleLastBaselineRelativePosition: Float? = null
         var actionCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
             Box(Modifier.onChildPositioned { appBarCoords = it }) {
@@ -95,7 +94,7 @@ class AppBarTest {
                         Text("title", Modifier.onPositioned { coords: LayoutCoordinates ->
                             titleCoords = coords
                             titleLastBaselineRelativePosition =
-                                coords[LastBaseline]!!.toPx()
+                                coords[LastBaseline]!!.toPx().value
                         })
                     },
                     actions = {
@@ -129,15 +128,16 @@ class AppBarTest {
 
             // Absolute position of the baseline
             val titleLastBaselinePositionY = titleLastBaselineRelativePosition!! +
-                    titleCoords!!.globalPosition.y
+                    titleCoords!!.globalPosition.y.value
             // Baseline should be 20.sp from the bottom of the app bar
-            val titleExpectedLastBaselinePositionY = appBarBottomEdgeY.px - 20.sp.toIntPx()
-                .toPx()
+            val titleExpectedLastBaselinePositionY = (appBarBottomEdgeY.px - 20.sp.toIntPx()
+                .toPx()).value
             assertThat(titleLastBaselinePositionY).isEqualTo(titleExpectedLastBaselinePositionY)
 
             // Action should be placed at the end
-            val actionPositionX = actionCoords!!.globalPosition.x
-            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
+            val actionPositionX = actionCoords!!.globalPosition.x.value
+            val actionExpectedPositionX =
+                expectedActionPosition(appBarCoords!!.size.width.toPx().value)
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
 
             // Action should be 4.dp from the bottom
@@ -176,8 +176,9 @@ class AppBarTest {
             assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
 
             // Action should still be placed at the end
-            val actionPositionX = actionCoords!!.globalPosition.x
-            val actionExpectedPositionX = expectedActionPosition(appBarCoords!!.size.width.toPx())
+            val actionPositionX = actionCoords!!.globalPosition.x.value
+            val actionExpectedPositionX =
+                expectedActionPosition(appBarCoords!!.size.width.toPx().value)
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
         }
     }
@@ -251,9 +252,9 @@ class AppBarTest {
         }
     }
 
-    private fun Density.expectedActionPosition(appBarWidth: Px): Px {
-        return appBarWidth - AppBarStartAndEndPadding.toIntPx().toPx() -
-                FakeIconSize.toIntPx().toPx()
+    private fun Density.expectedActionPosition(appBarWidth: Float): Float {
+        return appBarWidth - AppBarStartAndEndPadding.toIntPx().value -
+                FakeIconSize.toIntPx().value
     }
 
     private val AppBarStartAndEndPadding = 4.dp

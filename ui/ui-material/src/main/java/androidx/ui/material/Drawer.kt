@@ -38,10 +38,10 @@ import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.internal.StateDraggable
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.Px
 import androidx.ui.unit.dp
 import androidx.ui.unit.min
 import androidx.ui.unit.px
+import androidx.ui.unit.round
 import androidx.ui.util.lerp
 
 /**
@@ -80,7 +80,7 @@ enum class DrawerState {
  * @param drawerContent composable that represents content inside the drawer
  * @param bodyContent content of the rest of the UI
  *
- * @throws IllegalStateException when parent has [Px.Infinity] width
+ * @throws IllegalStateException when parent has [Float.POSITIVE_INFINITY] width
  */
 @Composable
 fun ModalDrawerLayout(
@@ -151,7 +151,7 @@ fun ModalDrawerLayout(
  * @param drawerContent composable that represents content inside the drawer
  * @param bodyContent content of the rest of the UI
  *
- * @throws IllegalStateException when parent has [Px.Infinity] height
+ * @throws IllegalStateException when parent has [Float.POSITIVE_INFINITY] height
  */
 @Composable
 fun BottomDrawerLayout(
@@ -327,7 +327,7 @@ private fun WithOffset(
         layout(width, height) {
             val offX = xOffset?.value?.px ?: 0.px
             val offY = yOffset?.value?.px ?: 0.px
-            placeable?.place(offX, offY)
+            placeable?.place(offX.round(), offY.round())
         }
     }
 }

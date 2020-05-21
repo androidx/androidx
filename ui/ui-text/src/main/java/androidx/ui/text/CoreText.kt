@@ -269,7 +269,7 @@ internal fun InlineChildren(
         ) { children, constrains, _ ->
             val placeables = children.map { it.measure(constrains) }
             layout(width = constrains.maxWidth, height = constrains.maxHeight) {
-                placeables.fastForEach { it.place(0.px, 0.px) }
+                placeables.fastForEach { it.place(0.ipx, 0.ipx) }
             }
         }
     }
