@@ -209,7 +209,7 @@ public class ImageSaverTest {
 
     private ImageSaver getDefaultImageSaver(@NonNull ImageProxy image) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
         return getDefaultImageSaver(image,
                 new ImageCapture.OutputFileOptions.Builder(mContentResolver,
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -272,7 +272,7 @@ public class ImageSaverTest {
     public void saveToUriWithEmptyCollection_onErrorCalled() throws InterruptedException {
         // Arrange.
         ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
         contentValues.put(MediaStore.MediaColumns.DATA, INVALID_DATA_PATH);
         ImageSaver imageSaver = getDefaultImageSaver(mMockYuvImage,
                 new ImageCapture.OutputFileOptions.Builder(mContentResolver,

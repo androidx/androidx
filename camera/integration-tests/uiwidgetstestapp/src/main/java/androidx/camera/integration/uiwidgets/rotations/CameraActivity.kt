@@ -208,7 +208,7 @@ open class CameraActivity : AppCompatActivity() {
     private fun ImageCapture.setMediaStoreCallback() {
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, "${System.currentTimeMillis()}")
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
         }
         val outputFileOptions = ImageCapture.OutputFileOptions
             .Builder(contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
