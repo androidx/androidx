@@ -218,7 +218,7 @@ public class PreviewView extends FrameLayout {
                 // This is needed for the case when unbinding preview while other use cases are
                 // still bound.
                 if (mActiveStreamStateObserver.compareAndSet(streamStateObserver, null)) {
-                    mPreviewStreamStateLiveData.postValue(StreamState.IDLE);
+                    streamStateObserver.updatePreviewStreamState(StreamState.IDLE);
                 }
                 streamStateObserver.clear();
                 camera.getCameraState().removeObserver(streamStateObserver);
