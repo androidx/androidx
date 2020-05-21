@@ -1147,10 +1147,12 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                     mPlayer.getState() == MediaPlayer2.PLAYER_STATE_PLAYING);
 
             long playedMediaDurationMs = mPlayer.getCurrentPosition();
-            int diff = Math.abs((int) (playedMediaDurationMs / playbackRate) - playTime);
+            long expectedPosition = (long) (playTime * playbackRate);
+            int diff = (int) Math.abs(playedMediaDurationMs - expectedPosition);
             if (diff > toleranceMs) {
                 fail("Media player had error in playback rate " + playbackRate
-                        + ", play time is " + playTime + " vs expected " + playedMediaDurationMs);
+                        + ". expected position after playing " + playTime
+                        + " was " + expectedPosition + ", but actually " + playedMediaDurationMs);
             }
             mPlayer.pause();
 
