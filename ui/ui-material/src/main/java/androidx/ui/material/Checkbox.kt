@@ -188,6 +188,7 @@ private fun DrawScope.drawBox(
                 Offset(outer.left, outer.top),
                 Size(outer.width, outer.height),
                 radius,
+                radius,
                 style = stroke
             )
         }
