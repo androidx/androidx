@@ -25,7 +25,6 @@ import androidx.animation.TweenBuilder
 import androidx.annotation.IntRange
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.compose.state
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
@@ -35,10 +34,13 @@ import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Interaction
+import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
+import androidx.ui.foundation.indication
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
@@ -52,7 +54,7 @@ import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeightIn
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidthIn
-import androidx.ui.material.ripple.ripple
+import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.unit.dp
@@ -123,36 +125,43 @@ fun Slider(
                         onValueChangeEnd()
                     }
                 }
-                val pressed = state { false }
+
+                val interactionState = remember { InteractionState() }
+
                 val press = Modifier.pressIndicatorGestureFilter(
                     onStart = { pos ->
                         position.holder.snapTo(pos.x)
-                        pressed.value = true
+                        interactionState.addInteraction(Interaction.Pressed, pos)
                     },
                     onStop = {
-                        pressed.value = false
                         gestureEndAction(0f)
-                    })
+                        interactionState.removeInteraction(Interaction.Pressed)
+                    },
+                    onCancel = {
+                        interactionState.removeInteraction(Interaction.Pressed)
+                    }
+                )
 
                 val drag = Modifier.draggable(
                     dragDirection = DragDirection.Horizontal,
+                    interactionState = interactionState,
                     onDragDeltaConsumptionRequested = { delta ->
                         position.holder.snapTo(position.holder.value + delta)
                         // consume all so slider won't participate in nested scrolling
                         delta
                     },
-                    onDragStarted = { pressed.value = true },
-                    onDragStopped = { velocity ->
-                        pressed.value = false
-                        gestureEndAction(velocity)
-                    },
+                    onDragStopped = gestureEndAction,
                     startDragImmediately = position.holder.isRunning
                 )
                 val coerced = value.coerceIn(position.startValue, position.endValue)
                 val fraction = calcFraction(position.startValue, position.endValue, coerced)
                 Semantics(container = true, properties = { accessibilityValue = "$coerced" }) {
                     SliderImpl(
-                        fraction, position.tickFractions, color, maxPx, pressed.value,
+                        fraction,
+                        position.tickFractions,
+                        color,
+                        maxPx,
+                        interactionState,
                         modifier = press.plus(drag)
                     )
                 }
@@ -167,7 +176,7 @@ private fun SliderImpl(
     tickFractions: List<Float>,
     color: Color,
     width: Float,
-    pressed: Boolean,
+    interactionState: InteractionState,
     modifier: Modifier
 ) {
     val widthDp = with(DensityAmbient.current) {
@@ -187,11 +196,24 @@ private fun SliderImpl(
         val trackStroke = Stroke(trackStrokeWidth, cap = StrokeCap.round)
         Track(center.fillMaxSize(), color, positionFraction, tickFractions, thumbPx, trackStroke)
         Box(center.padding(start = offset)) {
+            val elevation = if (
+                Interaction.Pressed in interactionState || Interaction.Dragged in interactionState
+            ) {
+                ThumbPressedElevation
+            } else {
+                ThumbDefaultElevation
+            }
             Surface(
                 shape = CircleShape,
                 color = color,
-                elevation = if (pressed) 6.dp else 1.dp,
-                modifier = Modifier.ripple(bounded = false)
+                elevation = elevation,
+                modifier = Modifier.indication(
+                    interactionState = interactionState,
+                    indication = RippleIndication(
+                        radius = ThumbRippleRadius,
+                        bounded = false
+                    )
+                )
             ) {
                 Spacer(Modifier.preferredSize(thumbSize, thumbSize))
             }
@@ -354,6 +376,9 @@ private class CallbackBasedAnimatedFloat(
 }
 
 private val ThumbRadius = 10.dp
+private val ThumbRippleRadius = 24.dp
+private val ThumbDefaultElevation = 1.dp
+private val ThumbPressedElevation = 6.dp
 private val TrackHeight = 4.dp
 private val SliderHeight = 48.dp
 private val SliderMinWidth = 144.dp // TODO: clarify min width

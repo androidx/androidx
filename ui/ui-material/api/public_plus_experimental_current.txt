@@ -324,25 +324,10 @@ package androidx.ui.material.internal {
 
 package androidx.ui.material.ripple {
 
-  public final class DefaultRippleEffectFactory implements androidx.ui.material.ripple.RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create-muzrHoo(androidx.ui.unit.PxSize size, androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.Density density, androidx.ui.unit.Dp? radius, boolean clipped, androidx.animation.AnimationClockObservable clock, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
-    field public static final androidx.ui.material.ripple.DefaultRippleEffectFactory! INSTANCE;
+  public final class RippleAnimationKt {
   }
 
-  public final class DefaultRippleEffectKt {
-  }
-
-  public interface RippleEffect {
-    method public default void dispose();
-    method public void draw-z8Px3OI(androidx.ui.graphics.drawscope.DrawScope, long color);
-    method public void finish(boolean canceled);
-  }
-
-  public interface RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create-muzrHoo(androidx.ui.unit.PxSize size, androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.Density density, androidx.ui.unit.Dp? radius, boolean clipped, androidx.animation.AnimationClockObservable clock, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
-  }
-
-  public final class RippleIndication implements androidx.ui.foundation.Indication {
+  @androidx.compose.Stable public final class RippleIndication implements androidx.ui.foundation.Indication {
     method public androidx.ui.foundation.IndicationInstance createInstance();
   }
 
@@ -351,18 +336,16 @@ package androidx.ui.material.ripple {
   }
 
   public final class RippleKt {
-    method public static androidx.ui.core.Modifier ripple-Eb40wiw(androidx.ui.core.Modifier, boolean bounded = true, androidx.ui.unit.Dp? radius = null, long color = Color.Unset, boolean enabled = true, androidx.animation.AnimationClockObservable? clock = null);
+    method @Deprecated public static androidx.ui.core.Modifier ripple-Eb40wiw(androidx.ui.core.Modifier, boolean bounded = true, androidx.ui.unit.Dp? radius = null, long color = Color.Unset, boolean enabled = true, androidx.animation.AnimationClockObservable? clock = null);
   }
 
-  public final class RippleTheme {
-    ctor public RippleTheme(androidx.ui.material.ripple.RippleEffectFactory factory, kotlin.jvm.functions.Function0<androidx.ui.graphics.Color> defaultColor, kotlin.jvm.functions.Function0<java.lang.Float> opacity);
-    method public androidx.ui.material.ripple.RippleEffectFactory component1();
-    method public kotlin.jvm.functions.Function0<androidx.ui.graphics.Color> component2();
-    method public kotlin.jvm.functions.Function0<java.lang.Float> component3();
-    method public androidx.ui.material.ripple.RippleTheme copy(androidx.ui.material.ripple.RippleEffectFactory factory, kotlin.jvm.functions.Function0<androidx.ui.graphics.Color> defaultColor, kotlin.jvm.functions.Function0<java.lang.Float> opacity);
-    method public kotlin.jvm.functions.Function0<androidx.ui.graphics.Color> getDefaultColor();
-    method public androidx.ui.material.ripple.RippleEffectFactory getFactory();
-    method public kotlin.jvm.functions.Function0<java.lang.Float> getOpacity();
+  public interface RippleOpacity {
+    method public float opacityForInteraction(androidx.ui.foundation.Interaction interaction);
+  }
+
+  public interface RippleTheme {
+    method @androidx.compose.Composable public long defaultColor();
+    method @androidx.compose.Composable public androidx.ui.material.ripple.RippleOpacity rippleOpacity();
   }
 
   public final class RippleThemeKt {

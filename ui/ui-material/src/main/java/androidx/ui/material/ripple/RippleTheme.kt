@@ -18,44 +18,138 @@ package androidx.ui.material.ripple
 
 import androidx.compose.Composable
 import androidx.compose.staticAmbientOf
+import androidx.ui.foundation.Interaction
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.luminance
 import androidx.ui.material.MaterialTheme
 
 /**
- * Defines the appearance and the behavior for [ripple]s.
+ * Defines the appearance and the behavior for [RippleIndication]s.
  *
- * You can define new theme and apply it via [RippleThemeAmbient].
+ * You can define a new theme and apply it via [RippleThemeAmbient].
  */
-data class RippleTheme(
+interface RippleTheme {
     /**
-     * Defines the current [RippleEffect] implementation.
+     * @return the default [RippleIndication] color at the call site's position in the hierarchy.
+     * This color will be used when a color is not explicitly set in the [RippleIndication] itself.
      */
-    val factory: RippleEffectFactory,
+    @Composable
+    fun defaultColor(): Color
+
     /**
-     * The effect that will be used to calculate the [ripple] color when it is not explicitly
-     * set in a [ripple].
+     * @return the [RippleOpacity] used to calculate the opacity for the ripple depending on the
+     * [Interaction] for a given component. This will be set as the alpha channel for
+     * [defaultColor] or the color explicitly provided to the [RippleIndication].
      */
-    val defaultColor: @Composable () -> Color,
+    @Composable
+    fun rippleOpacity(): RippleOpacity
+}
+
+// TODO: can be a fun interface when we rebase to use Kotlin 1.4
+/**
+ * RippleOpacity defines the opacity of the ripple / state layer for a given [Interaction].
+ */
+interface RippleOpacity {
     /**
-     * The effect that will be used to calculate the opacity applied to the [ripple] color.
-     * For example, it can be different in dark and light modes.
+     * @return the opacity of the ripple for the given [interaction]. Return `0f` if this
+     * particular interaction should not show a corresponding ripple / state layer.
      */
-    val opacity: @Composable () -> Float
-)
+    fun opacityForInteraction(interaction: Interaction): Float
+}
 
 /**
  * Ambient used for providing [RippleTheme] down the tree.
  */
-val RippleThemeAmbient = staticAmbientOf { DefaultRippleTheme }
+val RippleThemeAmbient = staticAmbientOf<RippleTheme> { DefaultRippleTheme }
 
-private val DefaultRippleTheme = RippleTheme(
-    factory = DefaultRippleEffectFactory,
-    defaultColor = { contentColor() },
-    opacity = {
-        if (MaterialTheme.colors.isLight) LightRippleOpacity else DarkRippleOpacity
+private object DefaultRippleTheme : RippleTheme {
+    @Composable
+    override fun defaultColor(): Color {
+        val contentColor = contentColor()
+        val lightTheme = MaterialTheme.colors.isLight
+        val contentLuminance = contentColor.luminance()
+        // If we are on a colored surface (typically indicated by low luminance content), the
+        // ripple color should be white.
+        return if (!lightTheme && contentLuminance < 0.5) {
+            Color.White
+            // Otherwise use contentColor
+        } else {
+            contentColor
+        }
     }
+
+    @Composable
+    override fun rippleOpacity(): RippleOpacity {
+        val lightTheme = MaterialTheme.colors.isLight
+        val contentLuminance = contentColor().luminance()
+        return when {
+            lightTheme -> {
+                if (contentLuminance > 0.5) {
+                    LightThemeHighContrastRippleOpacity
+                } else {
+                    LightThemeReducedContrastRippleOpacity
+                }
+            }
+            else -> {
+                DarkThemeRippleOpacity
+            }
+        }
+    }
+}
+
+@Suppress("unused")
+private sealed class DefaultRippleOpacity(
+    val pressed: Float,
+    val focused: Float,
+    val dragged: Float,
+    val hovered: Float
+) : RippleOpacity {
+    override fun opacityForInteraction(interaction: Interaction): Float = when (interaction) {
+        Interaction.Pressed -> pressed
+        Interaction.Dragged -> dragged
+        else -> 0f
+    }
+}
+
+/**
+ * Opacity values for high luminance content in a light theme.
+ *
+ * This content will typically be placed on colored surfaces, so it is important that the
+ * contrast here is higher to meet accessibility standards, and increase legibility.
+ *
+ * These levels are typically used for text / iconography in primary colored tabs /
+ * bottom navigation / etc.
+ */
+private object LightThemeHighContrastRippleOpacity : DefaultRippleOpacity(
+    pressed = 0.24f,
+    focused = 0.24f,
+    dragged = 0.16f,
+    hovered = 0.08f
 )
 
-private const val LightRippleOpacity = 0.12f
-private const val DarkRippleOpacity = 0.24f
+/**
+ * Alpha levels for low luminance content in a light theme.
+ *
+ * This content will typically be placed on grayscale surfaces, so the contrast here can be lower
+ * without sacrificing accessibility and legibility.
+ *
+ * These levels are typically used for body text on the main surface (white in light theme, grey
+ * in dark theme) and text / iconography in surface colored tabs / bottom navigation / etc.
+ */
+private object LightThemeReducedContrastRippleOpacity : DefaultRippleOpacity(
+    pressed = 0.12f,
+    focused = 0.12f,
+    dragged = 0.08f,
+    hovered = 0.04f
+)
+
+/**
+ * Alpha levels for all content in a dark theme.
+ */
+private object DarkThemeRippleOpacity : DefaultRippleOpacity(
+    pressed = 0.10f,
+    focused = 0.12f,
+    dragged = 0.08f,
+    hovered = 0.04f
+)
