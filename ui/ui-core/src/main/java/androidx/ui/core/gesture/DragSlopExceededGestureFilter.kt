@@ -28,7 +28,6 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.positionChange
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 
 /**
@@ -55,7 +54,7 @@ fun Modifier.dragSlopExceededGestureFilter(
 }
 
 internal class DragSlopExceededGestureFilter(
-    private val touchSlop: Px
+    private val touchSlop: Float
 ) : PointerInputFilter() {
     private var dxForPass = 0f
     private var dyForPass = 0f
@@ -100,8 +99,8 @@ internal class DragSlopExceededGestureFilter(
             val canDragX = directionX != null && canDrag?.invoke(directionX) ?: true
             val canDragY = directionY != null && canDrag?.invoke(directionY) ?: true
 
-            val passedSlopX = canDragX && Math.abs(dxUnderSlop) > touchSlop.value
-            val passedSlopY = canDragY && Math.abs(dyUnderSlop) > touchSlop.value
+            val passedSlopX = canDragX && Math.abs(dxUnderSlop) > touchSlop
+            val passedSlopY = canDragY && Math.abs(dyUnderSlop) > touchSlop
 
             if (passedSlopX || passedSlopY) {
                 passedSlop = true

@@ -17,8 +17,7 @@
 package androidx.ui.core
 
 import androidx.test.filters.SmallTest
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxSize
+import androidx.ui.geometry.Size
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,8 +30,8 @@ class ContentScaleTest {
     @Test
     fun testScaleNone() {
         val scale = ContentScale.None.scale(
-            srcSize = PxSize(IntPx(100), IntPx(100)),
-            dstSize = PxSize(IntPx(200), IntPx(200))
+            srcSize = Size(100.0f, 100.0f),
+            dstSize = Size(200.0f, 200.0f)
         )
         assertEquals(1.0f, scale)
     }
@@ -40,8 +39,8 @@ class ContentScaleTest {
     @Test
     fun testContentScaleFit() {
         val scale = ContentScale.Fit.scale(
-            srcSize = PxSize(IntPx(200), IntPx(100)),
-            dstSize = PxSize(IntPx(100), IntPx(200))
+            srcSize = Size(200.0f, 100.0f),
+            dstSize = Size(100.0f, 200.0f)
         )
         assertEquals(.5f, scale)
     }
@@ -49,8 +48,8 @@ class ContentScaleTest {
     @Test
     fun testContentScaleFillWidth() {
         val scale = ContentScale.FillWidth.scale(
-            srcSize = PxSize(IntPx(400), IntPx(100)),
-            dstSize = PxSize(IntPx(100), IntPx(200))
+            srcSize = Size(400.0f, 100.0f),
+            dstSize = Size(100.0f, 200.0f)
         )
         assertEquals(0.25f, scale)
     }
@@ -58,8 +57,8 @@ class ContentScaleTest {
     @Test
     fun testScaleFillHeight() {
         val scale = ContentScale.FillHeight.scale(
-            srcSize = PxSize(IntPx(400), IntPx(100)),
-            dstSize = PxSize(IntPx(100), IntPx(200))
+            srcSize = Size(400.0f, 100.0f),
+            dstSize = Size(100.0f, 200.0f)
         )
         assertEquals(2.0f, scale)
     }
@@ -67,8 +66,8 @@ class ContentScaleTest {
     @Test
     fun testContentScaleCrop() {
         val scale = ContentScale.Crop.scale(
-            srcSize = PxSize(IntPx(400), IntPx(100)),
-            dstSize = PxSize(IntPx(100), IntPx(200))
+            srcSize = Size(400.0f, 100.0f),
+            dstSize = Size(100.0f, 200.0f)
         )
         assertEquals(2.0f, scale)
     }
@@ -76,8 +75,8 @@ class ContentScaleTest {
     @Test
     fun testContentScaleInside() {
         val scale = ContentScale.Inside.scale(
-            srcSize = PxSize(IntPx(400), IntPx(100)),
-            dstSize = PxSize(IntPx(100), IntPx(200))
+            srcSize = Size(400.0f, 100.0f),
+            dstSize = Size(100.0f, 200.0f)
         )
         assertEquals(0.25f, scale)
     }
@@ -86,8 +85,8 @@ class ContentScaleTest {
     fun testContentScaleInsideLargeDst() {
         // If the src is smaller than the destination, ensure no scaling is done
         val scale = ContentScale.Inside.scale(
-            srcSize = PxSize(IntPx(400), IntPx(100)),
-            dstSize = PxSize(IntPx(900), IntPx(200))
+            srcSize = Size(400.0f, 100.0f),
+            dstSize = Size(900.0f, 200.0f)
         )
         assertEquals(1.0f, scale)
     }
@@ -95,8 +94,8 @@ class ContentScaleTest {
     @Test
     fun testContentFitInsideLargeDst() {
         val scale = ContentScale.Fit.scale(
-            srcSize = PxSize(IntPx(400), IntPx(100)),
-            dstSize = PxSize(IntPx(900), IntPx(200))
+            srcSize = Size(400.0f, 100.0f),
+            dstSize = Size(900.0f, 200.0f)
         )
         assertEquals(2.0f, scale)
     }
@@ -104,8 +103,8 @@ class ContentScaleTest {
     @Test
     fun testContentScaleCropWidth() {
         val scale = ContentScale.Crop.scale(
-            srcSize = PxSize(IntPx(100), IntPx(400)),
-            dstSize = PxSize(IntPx(200), IntPx(200))
+            srcSize = Size(100.0f, 400.0f),
+            dstSize = Size(200.0f, 200.0f)
         )
         assertEquals(2.00f, scale)
     }
@@ -113,8 +112,8 @@ class ContentScaleTest {
     @Test
     fun testContentScaleCropHeight() {
         val scale = ContentScale.Crop.scale(
-            srcSize = PxSize(IntPx(300), IntPx(100)),
-            dstSize = PxSize(IntPx(200), IntPx(200))
+            srcSize = Size(300.0f, 100.0f),
+            dstSize = Size(200.0f, 200.0f)
         )
         assertEquals(2.00f, scale)
     }

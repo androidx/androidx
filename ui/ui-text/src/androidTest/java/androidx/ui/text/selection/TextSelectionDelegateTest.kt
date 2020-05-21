@@ -191,7 +191,7 @@ class TextSelectionDelegateTest {
             composeTestRule.setContent {
                 val text = "hello world\n"
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -245,7 +245,7 @@ class TextSelectionDelegateTest {
             composeTestRule.setContent {
                 val text = "hello world\n"
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -299,7 +299,7 @@ class TextSelectionDelegateTest {
             composeTestRule.setContent {
                 val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -353,7 +353,7 @@ class TextSelectionDelegateTest {
             composeTestRule.setContent {
                 val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -409,7 +409,7 @@ class TextSelectionDelegateTest {
                 val textRtl = "\u05D0\u05D1\u05D2"
                 val text = textLtr + textRtl
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -465,7 +465,7 @@ class TextSelectionDelegateTest {
                 val textRtl = "\u05D0\u05D1\u05D2"
                 val text = textLtr + textRtl
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -519,7 +519,7 @@ class TextSelectionDelegateTest {
             composeTestRule.setContent {
                 val text = "hello world\n"
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -573,7 +573,7 @@ class TextSelectionDelegateTest {
             composeTestRule.setContent {
                 val text = "hello world\n"
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -627,7 +627,7 @@ class TextSelectionDelegateTest {
             composeTestRule.setContent {
                 val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -681,7 +681,7 @@ class TextSelectionDelegateTest {
             composeTestRule.setContent {
                 val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -737,7 +737,7 @@ class TextSelectionDelegateTest {
                 val textRtl = "\u05D0\u05D1\u05D2"
                 val text = textLtr + textRtl
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -793,7 +793,7 @@ class TextSelectionDelegateTest {
                 val textRtl = "\u05D0\u05D1\u05D2"
                 val text = textLtr + textRtl
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -897,7 +897,7 @@ class TextSelectionDelegateTest {
             composeTestRule.setContent {
                 val text = "hello\nworld\n"
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -934,7 +934,7 @@ class TextSelectionDelegateTest {
             composeTestRule.setContent {
                 val text = "hello\nworld\n"
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -969,7 +969,7 @@ class TextSelectionDelegateTest {
             composeTestRule.setContent {
                 val text = "hello\nworld"
                 val fontSize = 20.sp
-                val fontSizeInPx = fontSize.toPx().value
+                val fontSizeInPx = fontSize.toPx()
 
                 val layoutResult = simpleTextLayout(
                     text = text,
@@ -1002,7 +1002,7 @@ class TextSelectionDelegateTest {
     fun getTextSelectionInfo_long_press_select_word_ltr() {
         val text = "hello world\n"
         val fontSize = 20.sp
-        val fontSizeInPx = with(defaultDensity) { fontSize.toPx().value }
+        val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
 
         val textLayoutResult = simpleTextLayout(
             text = text,
@@ -1041,7 +1041,7 @@ class TextSelectionDelegateTest {
     fun getTextSelectionInfo_long_press_select_word_rtl() {
         val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
         val fontSize = 20.sp
-        val fontSizeInPx = with(defaultDensity) { fontSize.toPx().value }
+        val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
 
         val textLayoutResult = simpleTextLayout(
             text = text,
@@ -1080,7 +1080,7 @@ class TextSelectionDelegateTest {
     fun getTextSelectionInfo_long_press_drag_handle_not_cross_select_word() {
         val text = "hello world"
         val fontSize = 20.sp
-        val fontSizeInPx = with(defaultDensity) { fontSize.toPx().value }
+        val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
 
         val textLayoutResult = simpleTextLayout(
             text = text,
@@ -1123,7 +1123,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val textLayoutResult = simpleTextLayout(
                 text = text,
@@ -1167,7 +1167,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val textLayoutResult = simpleTextLayout(
                 text = text,
@@ -1211,7 +1211,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val textLayoutResult = simpleTextLayout(
                 text = text,
@@ -1263,7 +1263,7 @@ class TextSelectionDelegateTest {
             val textRtl = "\u05D0\u05D1\u05D2\u05D3\u05D4"
             val text = textLtr + textRtl
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val textLayoutResult = simpleTextLayout(
                 text = text,
@@ -1313,7 +1313,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1354,7 +1354,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1404,7 +1404,7 @@ class TextSelectionDelegateTest {
             val textRtl = "\u05D0\u05D1\u05D2\u05D3\u05D4"
             val text = textLtr + textRtl
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1452,7 +1452,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1508,7 +1508,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1570,7 +1570,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1627,7 +1627,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1684,7 +1684,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1731,7 +1731,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1778,7 +1778,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1827,7 +1827,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1874,7 +1874,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1931,7 +1931,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -1978,7 +1978,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -2025,7 +2025,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -2074,7 +2074,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -2123,7 +2123,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -2163,7 +2163,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -2204,7 +2204,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,
@@ -2246,7 +2246,7 @@ class TextSelectionDelegateTest {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val textLayoutResult = simpleTextLayout(
                 text = text,
                 fontSize = fontSize,

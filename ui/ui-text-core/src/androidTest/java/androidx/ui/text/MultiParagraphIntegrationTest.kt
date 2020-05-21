@@ -81,7 +81,7 @@ class MultiParagraphIntegrationTest {
         with(defaultDensity) {
             val fontSize = 50.sp
             // Each line has the space only for 1 character
-            val width = fontSize.toPx().value
+            val width = fontSize.toPx()
             // The text should be rendered with 3 lines:
             //     a
             //     b
@@ -140,7 +140,7 @@ class MultiParagraphIntegrationTest {
         with(defaultDensity) {
             val text = createAnnotatedString("ab", "c", "de")
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize
@@ -238,7 +238,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString(List(3) { "a".repeat(lineLength) })
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
@@ -289,7 +289,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString(List(paragraphCount) { "a".repeat(lineLength) })
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize
@@ -509,7 +509,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString(List(paragraphCount) { "a".repeat(lineLength) })
 
             val fontSize = 10.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = 2 * fontSizeInPx
             val paragraph = simpleMultiParagraph(
                 text = text,
@@ -602,7 +602,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString("aa", "\u05D0\u05D0")
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val width = simpleMultiParagraphIntrinsics(text, fontSize).maxIntrinsicWidth * 2
 
@@ -639,7 +639,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString("aa", "\u05D0\u05D0")
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val width = simpleMultiParagraphIntrinsics(text, fontSize).maxIntrinsicWidth * 2
 
@@ -676,7 +676,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString("a", "a", "a")
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val paragraph = simpleMultiParagraph(
                 text = text,
@@ -713,7 +713,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString("a", "a", "a")
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val paragraph = simpleMultiParagraph(
                 text = text,
@@ -750,7 +750,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString("a", "a", "a")
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val paragraph = simpleMultiParagraph(
                 text = text,
@@ -844,7 +844,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString(textLtr, textRtl)
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             // Width should be sufficient to make each paragraph one line.
             val width = 2 * simpleMultiParagraphIntrinsics(text, fontSize).maxIntrinsicWidth
@@ -900,7 +900,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString(textLtr, textRtl)
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             // Justify only works for soft wrapped lines, so width is made insufficient.
             val width = simpleMultiParagraphIntrinsics(text, fontSize).maxIntrinsicWidth - 1f
@@ -977,7 +977,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString(textLtr, textRtl, textNeutral)
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val width = simpleMultiParagraphIntrinsics(text, fontSize).maxIntrinsicWidth
 
@@ -1008,7 +1008,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString(textLtr, textRtl, textNeutral)
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val width = simpleMultiParagraphIntrinsics(text, fontSize).maxIntrinsicWidth
 
@@ -1040,7 +1040,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString(textLtr, textRtl, textNeutral)
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val width = simpleMultiParagraphIntrinsics(text, fontSize).maxIntrinsicWidth
 
@@ -1072,7 +1072,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString(textLtr, textRtl, textNeutral)
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val width = simpleMultiParagraphIntrinsics(text, fontSize).maxIntrinsicWidth
 
@@ -1104,7 +1104,7 @@ class MultiParagraphIntegrationTest {
             val text = createAnnotatedString(textLtr, textRtl, textNeutral)
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val width = simpleMultiParagraphIntrinsics(text, fontSize).maxIntrinsicWidth
 
@@ -1136,7 +1136,7 @@ class MultiParagraphIntegrationTest {
             val fontSize = 50.sp
 
             val lineHeight = 80.sp
-            val lineHeightInPx = lineHeight.toPx().value
+            val lineHeightInPx = lineHeight.toPx()
 
             val paragraph = simpleMultiParagraph(
                 text = text,
@@ -1156,10 +1156,10 @@ class MultiParagraphIntegrationTest {
         with(defaultDensity) {
             val text = createAnnotatedString("aaa", "\u05D0\u05D0\u05D0")
             val indent = 20.sp
-            val indentInPx = indent.toPx().value
+            val indentInPx = indent.toPx()
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             // Width is the space needed by 2 characters
             val width = 2 * fontSizeInPx
@@ -1186,10 +1186,10 @@ class MultiParagraphIntegrationTest {
         with(defaultDensity) {
             val text = createAnnotatedString("aaa", "\u05D0\u05D0\u05D0")
             val indent = 20.sp
-            val indentInPx = indent.toPx().value
+            val indentInPx = indent.toPx()
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             // Width is the space needed by 2 characters
             val width = 2 * fontSizeInPx

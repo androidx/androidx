@@ -30,16 +30,16 @@ import androidx.ui.core.drawLayer
 import androidx.ui.core.drawShadow
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.geometry.Size
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.luminance
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -62,7 +62,7 @@ class DrawShadowTest {
 
     // TODO move RectangleShape to ui-framework b/137222372
     private val rectShape = object : Shape {
-        override fun createOutline(size: PxSize, density: Density): Outline =
+        override fun createOutline(size: Size, density: Density): Outline =
             Outline.Rectangle(size.toRect())
     }
 

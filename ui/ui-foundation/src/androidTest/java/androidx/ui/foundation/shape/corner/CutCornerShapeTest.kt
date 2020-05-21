@@ -17,15 +17,14 @@
 package androidx.ui.foundation.shape.corner
 
 import androidx.test.filters.SmallTest
+import androidx.ui.geometry.Size
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.Shape
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
-import androidx.ui.unit.toRect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test
@@ -37,7 +36,7 @@ import org.junit.runners.JUnit4
 class CutCornerShapeTest {
 
     private val density = Density(2f)
-    private val size = PxSize(100.px, 150.px)
+    private val size = Size(100.0f, 150.0f)
 
     @Test
     fun cutCornersUniformCorners() {

@@ -54,7 +54,7 @@ class ParagraphIntrinsicIntegrationTest {
             )
 
             assertThat(paragraphIntrinsics.maxIntrinsicWidth)
-                .isEqualTo(text.length * fontSize.toPx().value)
+                .isEqualTo(text.length * fontSize.toPx())
         }
     }
 
@@ -69,7 +69,7 @@ class ParagraphIntrinsicIntegrationTest {
                 fontSize = fontSize)
 
             assertThat(paragraphIntrinsics.maxIntrinsicWidth)
-                .isEqualTo(text.length * fontSize.toPx().value)
+                .isEqualTo(text.length * fontSize.toPx())
         }
     }
 
@@ -84,7 +84,7 @@ class ParagraphIntrinsicIntegrationTest {
             )
 
             assertThat(paragraphIntrinsics.maxIntrinsicWidth)
-                .isEqualTo(text.indexOf('\n') * fontSize.toPx().value)
+                .isEqualTo(text.indexOf('\n') * fontSize.toPx())
         }
     }
 
@@ -108,7 +108,7 @@ class ParagraphIntrinsicIntegrationTest {
 
             // since "bb " is double font size, the whole width should be the text size, and the
             // additional width resulting from the "bb " length.
-            val expectedWidth = (text.length + "bb ".length) * fontSize.toPx().value
+            val expectedWidth = (text.length + "bb ".length) * fontSize.toPx()
             assertThat(paragraph.maxIntrinsicWidth).isEqualTo(expectedWidth)
         }
     }
@@ -132,7 +132,7 @@ class ParagraphIntrinsicIntegrationTest {
             )
 
             assertThat(paragraphIntrinsics.minIntrinsicWidth)
-                .isEqualTo(text.length * fontSize.toPx().value)
+                .isEqualTo(text.length * fontSize.toPx())
         }
     }
 
@@ -148,7 +148,7 @@ class ParagraphIntrinsicIntegrationTest {
             )
 
             assertThat(paragraphIntrinsics.minIntrinsicWidth)
-                .isEqualTo(text.length * fontSize.toPx().value)
+                .isEqualTo(text.length * fontSize.toPx())
         }
     }
 
@@ -167,7 +167,7 @@ class ParagraphIntrinsicIntegrationTest {
             )
 
             // +1 is for the white space
-            val expectedWidth = (maxWordLength + 1) * fontSize.toPx().value
+            val expectedWidth = (maxWordLength + 1) * fontSize.toPx()
             assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
         }
     }
@@ -190,7 +190,7 @@ class ParagraphIntrinsicIntegrationTest {
                 )
             )
 
-            val expectedWidth = "bb ".length * styledFontSize.toPx().value
+            val expectedWidth = "bb ".length * styledFontSize.toPx()
             assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
         }
     }

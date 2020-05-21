@@ -19,12 +19,12 @@ package androidx.ui.core
 import android.annotation.TargetApi
 import android.graphics.Matrix
 import android.graphics.RenderNode
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.CanvasHolder
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.toPxSize
 
 /**
  * RenderNode implementation of OwnedLayer.
@@ -108,7 +108,7 @@ internal class RenderNodeLayer(
             renderNode.left + width,
             renderNode.top + height
         )) {
-            outlineResolver.update(size.toPxSize())
+            outlineResolver.update(Size(width.toFloat(), height.toFloat()))
             renderNode.setOutline(outlineResolver.outline)
             invalidate()
         }

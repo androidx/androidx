@@ -167,7 +167,7 @@ class FloatingActionButtonTest {
                 shape = realShape,
                 shapeColor = fabColor,
                 backgroundColor = surface,
-                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx().value }
+                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx() }
             )
     }
 
@@ -199,7 +199,7 @@ class FloatingActionButtonTest {
                 shape = realShape,
                 shapeColor = fabColor,
                 backgroundColor = surface,
-                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx().value }
+                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx() }
             )
     }
 

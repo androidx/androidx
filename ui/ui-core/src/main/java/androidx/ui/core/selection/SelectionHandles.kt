@@ -68,25 +68,25 @@ private class SelectionHandleCache {
                     addRect(
                         Rect(
                             top = 0f,
-                            bottom = 0.5f * HANDLE_HEIGHT.toPx().value,
+                            bottom = 0.5f * HANDLE_HEIGHT.toPx(),
                             left = if (left) {
-                                0.5f * HANDLE_WIDTH.toPx().value
+                                0.5f * HANDLE_WIDTH.toPx()
                             } else {
                                 0f
                             },
                             right = if (left) {
-                                HANDLE_WIDTH.toPx().value
+                                HANDLE_WIDTH.toPx()
                             } else {
-                                0.5f * HANDLE_WIDTH.toPx().value
+                                0.5f * HANDLE_WIDTH.toPx()
                             }
                         )
                     )
                     addOval(
                         Rect(
                             top = 0f,
-                            bottom = HANDLE_HEIGHT.toPx().value,
+                            bottom = HANDLE_HEIGHT.toPx(),
                             left = 0f,
-                            right = HANDLE_WIDTH.toPx().value
+                            right = HANDLE_WIDTH.toPx()
                         )
                     )
                 }

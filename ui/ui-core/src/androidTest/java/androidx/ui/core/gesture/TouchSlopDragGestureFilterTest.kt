@@ -252,7 +252,7 @@ class TouchSlopDragGestureFilterTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 Stack {
-                    touchSlop = with(DensityAmbient.current) { TouchSlop.toPx().value }
+                    touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
                     Layout(
                         modifier = Modifier.dragGestureFilter(
                             dragObserver,

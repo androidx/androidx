@@ -218,7 +218,7 @@ package androidx.ui.core {
   }
 
   public interface ContentScale {
-    method public float scale(androidx.ui.unit.PxSize srcSize, androidx.ui.unit.PxSize dstSize);
+    method public float scale-8JNMT64(long srcSize, long dstSize);
     field public static final androidx.ui.core.ContentScale.Companion! Companion;
   }
 
@@ -238,7 +238,6 @@ package androidx.ui.core {
   }
 
   public final class ContentScaleKt {
-    method public static float scale-iWWM28M(androidx.ui.core.ContentScale, long srcSize, long dstSize);
   }
 
   public interface CustomEvent {
@@ -317,7 +316,7 @@ package androidx.ui.core {
     method public float component1();
     method public androidx.ui.core.FixedScale copy(float value);
     method public float getValue();
-    method public float scale(androidx.ui.unit.PxSize srcSize, androidx.ui.unit.PxSize dstSize);
+    method public float scale-8JNMT64(long srcSize, long dstSize);
   }
 
   public final class HorizontalAlignmentLine extends androidx.ui.core.AlignmentLine {
@@ -964,6 +963,10 @@ package androidx.ui.core.gesture {
     method public default void onStop(androidx.ui.unit.PxPosition velocity);
   }
 
+  public final class DragSlopExceededGestureFilterKt {
+    method public static androidx.ui.core.Modifier dragSlopExceededGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onDragSlopExceeded, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null);
+  }
+
   public final class GestureUtilsKt {
     method public static boolean anyPointersInBounds(java.util.List<androidx.ui.core.PointerInputChange>, androidx.ui.unit.IntPxSize bounds);
   }
@@ -1027,10 +1030,6 @@ package androidx.ui.core.gesture {
 
   public final class TapGestureFilterKt {
     method public static androidx.ui.core.Modifier tapGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onTap);
-  }
-
-  public final class TouchSlopExceededGestureFilterKt {
-    method public static androidx.ui.core.Modifier touchSlopExceededGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onTouchSlopExceeded, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null);
   }
 
 }

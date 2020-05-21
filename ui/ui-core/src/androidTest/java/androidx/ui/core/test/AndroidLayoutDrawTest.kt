@@ -81,7 +81,6 @@ import androidx.ui.layout.rtl
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
@@ -2212,12 +2211,12 @@ class AndroidLayoutDrawTest {
     @Test
     fun layerModifier_noClip() {
         val triangleShape = object : Shape {
-            override fun createOutline(size: PxSize, density: Density): Outline =
+            override fun createOutline(size: Size, density: Density): Outline =
                 Outline.Generic(
                     Path().apply {
-                        moveTo(size.width.value / 2f, 0f)
-                        lineTo(size.width.value, size.height.value)
-                        lineTo(0f, size.height.value)
+                        moveTo(size.width / 2f, 0f)
+                        lineTo(size.width, size.height)
+                        lineTo(0f, size.height)
                         close()
                     }
                 )

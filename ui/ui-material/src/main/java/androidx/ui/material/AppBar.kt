@@ -26,6 +26,7 @@ import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
@@ -50,7 +51,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPxSize
@@ -240,10 +240,11 @@ fun BottomAppBar(
     val shape = if (cutoutShape == null || fabConfiguration == null) {
         RectangleShape
     } else {
+        val pxSize = fabConfiguration.fabSize.toPxSize()
         BottomAppBarCutoutShape(
             cutoutShape,
             fabConfiguration.fabTopLeftPosition,
-            fabConfiguration.fabSize.toPxSize()
+            Size(pxSize.width.value, pxSize.height.value)
         )
     }
     AppBar(backgroundColor, contentColor, BottomAppBarElevation, shape, modifier) {
@@ -265,12 +266,12 @@ fun BottomAppBar(
 private data class BottomAppBarCutoutShape(
     val cutoutShape: Shape,
     val fabPosition: PxPosition,
-    val fabSize: PxSize
+    val fabSize: Size
 ) : Shape {
 
-    override fun createOutline(size: PxSize, density: Density): Outline {
+    override fun createOutline(size: Size, density: Density): Outline {
         val boundingRectangle = Path().apply {
-            addRect(Rect.fromLTRB(0f, 0f, size.width.value, size.height.value))
+            addRect(Rect.fromLTRB(0f, 0f, size.width, size.height))
         }
         val path = Path().apply {
             addCutoutShape(density)
@@ -288,15 +289,15 @@ private data class BottomAppBarCutoutShape(
         // The gap on all sides between the FAB and the cutout
         val cutoutOffset = with(density) { BottomAppBarCutoutOffset.toPx() }
 
-        val cutoutSize = PxSize(
+        val cutoutSize = Size(
             width = fabSize.width + (cutoutOffset * 2),
             height = fabSize.height + (cutoutOffset * 2)
         )
 
-        val cutoutStartX = fabPosition.x.value - cutoutOffset.value
-        val cutoutEndX = cutoutStartX + cutoutSize.width.value
+        val cutoutStartX = fabPosition.x.value - cutoutOffset
+        val cutoutEndX = cutoutStartX + cutoutSize.width
 
-        val cutoutRadius = cutoutSize.height.value / 2f
+        val cutoutRadius = cutoutSize.height / 2f
         // Shift the cutout up by half its height, so only the bottom half of the cutout is actually
         // cut into the app bar
         val cutoutStartY = -cutoutRadius
@@ -306,7 +307,7 @@ private data class BottomAppBarCutoutShape(
 
         // TODO: consider exposing the custom cutout shape instead of just replacing circle shapes?
         if (cutoutShape == CircleShape) {
-            val edgeRadius = with(density) { BottomAppBarRoundedEdgeRadius.toPx().value }
+            val edgeRadius = with(density) { BottomAppBarRoundedEdgeRadius.toPx() }
             // TODO: possibly support providing a custom vertical offset?
             addRoundedEdges(cutoutStartX, cutoutEndX, cutoutRadius, edgeRadius, 0f)
         }

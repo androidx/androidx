@@ -66,7 +66,7 @@ class DragSlopExceededGestureFilterTest {
         canDragReturn = true
         canDragDirections.clear()
         filter =
-            DragSlopExceededGestureFilter(TestTouchSlop.px)
+            DragSlopExceededGestureFilter(TestTouchSlop.toFloat())
         filter.canDrag = canDrag
         filter.onDragSlopExceeded = onDragSlopExceeded
     }

@@ -44,7 +44,7 @@ fun DraggableSample() {
     val max = 300.dp
     val min = 0.dp
     val (minPx, maxPx) = with(DensityAmbient.current) {
-        min.toPx().value to max.toPx().value
+        min.toPx() to max.toPx()
     }
     // this is the  state we will update while dragging
     var position by state { 0f }
@@ -79,7 +79,7 @@ fun AnchoredDraggableSample() {
     val max = 300.dp
     val min = 0.dp
     val (minPx, maxPx) = with(DensityAmbient.current) {
-        min.toPx().value to max.toPx().value
+        min.toPx() to max.toPx()
     }
     // define anchors (final position) and fling behavior to go to these anchors after drag
     val anchors = listOf(minPx, maxPx, maxPx / 2)

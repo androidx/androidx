@@ -147,7 +147,7 @@ class TabTest {
             val tabRowWidth = tabRowCoords.size.width
             val tabRowHeight = tabRowCoords.size.height
 
-            val indicatorPositionX = indicatorCoords.localToGlobal(PxPosition.Origin).x
+            val indicatorPositionX = indicatorCoords.localToGlobal(PxPosition.Origin).x.value
             val expectedPositionX = 0.dp.toPx()
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 

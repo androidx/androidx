@@ -41,10 +41,6 @@ import androidx.ui.graphics.drawscope.Fill
 import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.minDimension
-import androidx.ui.unit.px
 
 /**
  * Returns a [Modifier] that adds border with appearance specified with a [border] and a [shape]
@@ -173,7 +169,7 @@ class DrawBorder internal constructor(
         val density = this
         with(cache) {
             drawContent()
-            modifierSize = PxSize(Px(size.width), Px(size.height))
+            modifierSize = size
             val outline = modifierSizeOutline(density)
             val borderSize =
                 if (borderWidth == Dp.Hairline) 1f else borderWidth.value * density.density
@@ -262,7 +258,7 @@ internal class DrawBorderCache {
             }
         }
 
-    var modifierSize: PxSize? = null
+    var modifierSize: Size? = null
         set(value) {
             if (value != field) {
                 field = value
@@ -285,14 +281,14 @@ internal class DrawBorderCache {
             diffPath.reset()
             outerPath.reset()
             innerPath.reset()
-            if (borderPixelSize * 2 >= size.minDimension.value) {
+            if (borderPixelSize * 2 >= size.minDimension) {
                 diffPath.addOutline(modifierSizeOutline(density))
             } else {
                 outerPath.addOutline(lastShape!!.createOutline(size, density))
                 val sizeMinusBorder =
-                    PxSize(
-                        size.width - borderPixelSize.px * 2,
-                        size.height - borderPixelSize.px * 2
+                    Size(
+                        size.width - borderPixelSize * 2,
+                        size.height - borderPixelSize * 2
                     )
                 innerPath.addOutline(lastShape!!.createOutline(sizeMinusBorder, density))
                 innerPath.shift(Offset(borderPixelSize, borderPixelSize))

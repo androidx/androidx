@@ -132,11 +132,11 @@ private fun DrawCheckbox(value: ToggleableState, activeColor: Color, modifier: M
     }
     Transition(definition = definition, toState = value) { state ->
         Canvas(modifier.preferredSize(CheckboxSize)) {
-            val strokeWidthPx = StrokeWidth.toPx().value
+            val strokeWidthPx = StrokeWidth.toPx()
             drawBox(
                 color = state[BoxColorProp],
                 innerRadiusFraction = state[InnerRadiusFractionProp],
-                radius = RadiusSize.toPx().value,
+                radius = RadiusSize.toPx(),
                 strokeWidth = strokeWidthPx
             )
             drawCheck(

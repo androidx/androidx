@@ -79,7 +79,7 @@ private fun SwitchImpl(
     modifier: Modifier
 ) {
     val minBound = 0f
-    val maxBound = with(DensityAmbient.current) { ThumbPathLength.toPx().value }
+    val maxBound = with(DensityAmbient.current) { ThumbPathLength.toPx() }
     StateDraggable(
         state = checked,
         onStateChange = onCheckedChange ?: {},
@@ -114,11 +114,11 @@ private fun DrawSwitch(
 
     val trackStroke: Stroke
     with(DensityAmbient.current) {
-        trackStroke = Stroke(width = TrackStrokeWidth.toPx().value, cap = StrokeCap.round)
+        trackStroke = Stroke(width = TrackStrokeWidth.toPx(), cap = StrokeCap.round)
     }
     Canvas(modifier.preferredSize(SwitchWidth, SwitchHeight)) {
-        drawTrack(trackColor, TrackWidth.toPx().value, trackStroke)
-        drawThumb(thumbValue.value, ThumbDiameter.toPx().value, thumbColor)
+        drawTrack(trackColor, TrackWidth.toPx(), trackStroke)
+        drawThumb(thumbValue.value, ThumbDiameter.toPx(), thumbColor)
     }
 }
 
