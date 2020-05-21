@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION", "UNUSED_PARAMETER")
+
 package androidx.ui.core
 
 import androidx.annotation.RestrictTo
@@ -21,16 +23,13 @@ import androidx.compose.ObserverMap
 import androidx.compose.frames.FrameCommitObserver
 import androidx.compose.frames.FrameReadObserver
 import androidx.compose.frames.observeAllReads
-import androidx.compose.frames.registerCommitObserver
 import androidx.ui.util.fastForEach
 import androidx.ui.util.synchronized
 import org.jetbrains.annotations.TestOnly
 
 /**
  * Allows for easy model read observation. To begin observe a change, you must pass a
- * non-lambda `onCommit` listener to the [observeReads] method:
- *
- * @sample androidx.ui.core.samples.modelObserverExample
+ * non-lambda `onCommit` listener to the [observeReads] method.
  *
  * When a state change has been committed, the `onCommit` listener will be called
  * with the `targetObject` as the argument. There are no order guarantees for
@@ -43,6 +42,12 @@ import org.jetbrains.annotations.TestOnly
  *
  * @param commitExecutor The executor on which all `onCommit` calls will be made.
  */
+@Deprecated("Frames have been replaced by snapshots",
+    ReplaceWith(
+        "SnapshotStateObserver",
+        "androidx.compose.snapshots"
+    )
+)
 class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
     private val commitObserver: FrameCommitObserver = { committed, _ ->
         var hasValues = false
@@ -182,17 +187,7 @@ class ModelObserver(private val commitExecutor: (command: () -> Unit) -> Unit) {
     /**
      * Starts or stops watching for model commits based on [enabled].
      */
-    fun enableModelUpdatesObserving(enabled: Boolean) {
-        require(enabled == (commitUnsubscribe == null)) {
-            "Called twice with the same enabled value: $enabled"
-        }
-        if (enabled) {
-            commitUnsubscribe = registerCommitObserver(commitObserver)
-        } else {
-            commitUnsubscribe?.invoke()
-            commitUnsubscribe = null
-        }
-    }
+    fun enableModelUpdatesObserving(enabled: Boolean): Unit = error("deprecated")
 
     /**
      * Calls the `onCommit` callback for the given targets.

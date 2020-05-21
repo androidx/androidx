@@ -16,9 +16,10 @@
 
 package androidx.ui.core.test
 
-import androidx.compose.FrameManager
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.MutableState
 import androidx.compose.mutableStateOf
+import androidx.compose.snapshots.Snapshot
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
@@ -358,7 +359,8 @@ class ModelReadsTest {
                     if (model.value == 1) {
                         // this will trigger remeasure request for this node we currently measure
                         model.value = 2
-                        FrameManager.nextFrame()
+                        @OptIn(ExperimentalComposeApi::class)
+                        Snapshot.sendApplyNotifications()
                     }
                     latch.countDown()
                     layout(100, 100) {}
@@ -395,7 +397,8 @@ class ModelReadsTest {
                             if (!modelAlreadyChanged) {
                                 // this will trigger remeasure request for this node we layout
                                 remeasureModel.value = 1
-                                FrameManager.nextFrame()
+                                @OptIn(ExperimentalComposeApi::class)
+                                Snapshot.sendApplyNotifications()
                                 // the remeasure will also include another relayout and we don't
                                 // want to loop and request remeasure again
                                 modelAlreadyChanged = true
@@ -417,8 +420,8 @@ class ModelReadsTest {
             relayoutModel.value = 1
         }
 
-        assertTrue(remeasureLatch.await(1, TimeUnit.HOURS))
-        assertTrue(relayoutLatch.await(1, TimeUnit.HOURS))
+        assertTrue(remeasureLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(relayoutLatch.await(1, TimeUnit.SECONDS))
         assertEquals(1, valueReadDuringMeasure)
     }
 
@@ -434,7 +437,8 @@ class ModelReadsTest {
                     if (remeasureModel.value != 0) {
                         // this will trigger relayout request for this node we currently measure
                         relayoutModel.value = 1
-                        FrameManager.nextFrame()
+                        @OptIn(ExperimentalComposeApi::class)
+                        Snapshot.sendApplyNotifications()
                     }
                     remeasureLatch.countDown()
                     layout(100, 100) {
@@ -470,7 +474,8 @@ class ModelReadsTest {
                         if (model.value == 1) {
                             // this will trigger relayout request for this node we currently layout
                             model.value = 2
-                            FrameManager.nextFrame()
+                            @OptIn(ExperimentalComposeApi::class)
+                            Snapshot.sendApplyNotifications()
                         }
                         latch.countDown()
                     }

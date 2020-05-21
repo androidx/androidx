@@ -18,10 +18,10 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.StructurallyEqual
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.drawLayer
@@ -45,7 +45,7 @@ fun ZoomableSample() {
         Modifier.preferredSize(700.dp).clipToBounds(),
         backgroundColor = Color.LightGray
     ) {
-        var scale by state(StructurallyEqual) { 1f }
+        var scale by state(structuralEqualityPolicy()) { 1f }
         val zoomableState = ZoomableState { scale *= it }
 
         Box(

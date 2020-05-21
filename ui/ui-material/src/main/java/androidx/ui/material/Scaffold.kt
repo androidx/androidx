@@ -19,13 +19,13 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.Stable
-import androidx.compose.StructurallyEqual
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.staticAmbientOf
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
@@ -102,9 +102,9 @@ class ScaffoldState(
 
 @Stable
 internal class ScaffoldGeometry {
-    var topBarBounds by mutableStateOf<PxBounds?>(null, StructurallyEqual)
-    var bottomBarBounds by mutableStateOf<PxBounds?>(null, StructurallyEqual)
-    var fabBounds by mutableStateOf<PxBounds?>(null, StructurallyEqual)
+    var topBarBounds by mutableStateOf<PxBounds?>(null, structuralEqualityPolicy())
+    var bottomBarBounds by mutableStateOf<PxBounds?>(null, structuralEqualityPolicy())
+    var fabBounds by mutableStateOf<PxBounds?>(null, structuralEqualityPolicy())
 
     var isFabDocked by mutableStateOf(false)
 }

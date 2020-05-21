@@ -22,13 +22,14 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.Composable
-import androidx.compose.FrameManager
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
 import androidx.compose.emptyContent
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.setValue
+import androidx.compose.snapshots.Snapshot
 import androidx.test.filters.SmallTest
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
@@ -199,7 +200,8 @@ class AndroidPointerInputTest {
             // we update size from 10 to 20 pixels
             size.value = 20
             // this call will synchronously mark the LayoutNode as needs remeasure
-            FrameManager.nextFrame()
+            @OptIn(ExperimentalComposeApi::class)
+            Snapshot.sendApplyNotifications()
 
             val ownerPosition = androidComposeView.calculatePosition()
             val motionEvent = MotionEvent(

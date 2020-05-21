@@ -17,9 +17,10 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Providers
-import androidx.compose.StructurallyEqual
 import androidx.compose.ambientOf
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
 import androidx.ui.graphics.Color
@@ -223,7 +224,9 @@ fun Text(
     )
 }
 
-private val TextStyleAmbient = ambientOf(StructurallyEqual) { TextStyle() }
+private val TextStyleAmbient = ambientOf(
+    @OptIn(ExperimentalComposeApi::class) structuralEqualityPolicy()
+) { TextStyle() }
 
 /**
  * This component is used to set the current value of the Text style ambient. The given style will

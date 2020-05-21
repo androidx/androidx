@@ -17,10 +17,10 @@
 package androidx.ui.core.selection
 
 import androidx.compose.State
-import androidx.compose.StructurallyEqual
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
+import androidx.compose.structuralEqualityPolicy
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.gesture.DragObserver
@@ -109,7 +109,10 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * It is a [State] so reading it during the composition will cause recomposition every time
      * the position has been changed.
      */
-    var startHandlePosition by mutableStateOf<Offset?>(null, areEquivalent = StructurallyEqual)
+    var startHandlePosition by mutableStateOf<Offset?>(
+        null,
+        policy = structuralEqualityPolicy()
+    )
         private set
 
     /**
@@ -118,7 +121,10 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * It is a [State] so reading it during the composition will cause recomposition every time
      * the position has been changed.
      */
-    var endHandlePosition by mutableStateOf<Offset?>(null, areEquivalent = StructurallyEqual)
+    var endHandlePosition by mutableStateOf<Offset?>(
+        null,
+        policy = structuralEqualityPolicy()
+    )
         private set
 
     init {
