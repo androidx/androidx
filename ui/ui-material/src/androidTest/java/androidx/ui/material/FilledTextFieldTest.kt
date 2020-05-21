@@ -86,7 +86,9 @@ class FilledTextFieldTest {
     private val IconColorAlpha = 0.54f
 
     @get:Rule
-    val testRule = createComposeRule()
+    val testRule = createComposeRule().also {
+        it.clockTestRule.pauseClock()
+    }
 
     @Test
     fun testTextFieldMinimumHeight() {

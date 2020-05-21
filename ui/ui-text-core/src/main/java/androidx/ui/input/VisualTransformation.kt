@@ -127,7 +127,7 @@ interface VisualTransformation {
  *
  * @param mask The mask character used instead of original text.
  */
-class PasswordVisualTransformation(val mask: Char = '\u2022') : VisualTransformation {
+data class PasswordVisualTransformation(val mask: Char = '\u2022') : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         return TransformedText(
             AnnotatedString(Character.toString(mask).repeat(text.text.length)),

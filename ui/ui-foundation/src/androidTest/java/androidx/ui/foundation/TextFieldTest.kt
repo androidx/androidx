@@ -16,6 +16,7 @@
 
 package androidx.ui.foundation
 
+import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
 import androidx.compose.MutableState
@@ -54,9 +55,12 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.hasImeAction
 import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.waitForIdle
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
@@ -81,7 +85,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class TextFieldTest {
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createComposeRule().also {
+        it.clockTestRule.pauseClock()
+    }
 
     private val DefaultTextFieldWidth = 280.dp
 
@@ -440,7 +446,6 @@ class TextFieldTest {
     fun textFieldFocused_cursorRendered() = with(composeTestRule.density) {
         val width = 10.dp
         val height = 20.dp
-        val halfCursorWidth = 2.dp.toIntPx() / 2f
         val latch = CountDownLatch(1)
         composeTestRule.setContent {
             TextField(
@@ -457,25 +462,59 @@ class TextFieldTest {
         find(hasInputMethodsSupport()).doClick()
         assert(latch.await(1, TimeUnit.SECONDS))
 
+        waitForIdle()
+
+        composeTestRule.clockTestRule.advanceClock(100)
+        with(composeTestRule.density) {
+            find(hasInputMethodsSupport())
+                .captureToBitmap()
+                .assertCursor(2.dp, this)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun cursorBlinkingAnimation() = with(composeTestRule.density) {
+        val width = 10.dp
+        val height = 20.dp
+        val latch = CountDownLatch(1)
+        composeTestRule.setContent {
+            TextField(
+                value = TextFieldValue(),
+                onValueChange = {},
+                textStyle = TextStyle(color = Color.White, background = Color.White),
+                modifier = Modifier.preferredSize(width, height).drawBackground(Color.White),
+                cursorColor = Color.Red,
+                onFocusChange = { focused ->
+                    if (focused) latch.countDown()
+                }
+            )
+        }
+
+        find(hasInputMethodsSupport()).doClick()
+        assert(latch.await(1, TimeUnit.SECONDS))
+
+        waitForIdle()
+
+        // cursor visible first 500 ms
+        composeTestRule.clockTestRule.advanceClock(100)
+        with(composeTestRule.density) {
+            find(hasInputMethodsSupport())
+                .captureToBitmap()
+                .assertCursor(2.dp, this)
+        }
+
+        // cursor invisible during next 500 ms
+        composeTestRule.clockTestRule.advanceClock(700)
         find(hasInputMethodsSupport())
             .captureToBitmap()
-            .assertPixels(
-                IntPxSize(width.toIntPx(), height.toIntPx())
-            ) { position ->
-                if (position.x >= halfCursorWidth - 1.ipx && position.x < halfCursorWidth + 1.ipx) {
-                    // skip some pixels around cursor
-                    null
-                } else if (position.y < 5.ipx || position.y > height.toIntPx() - 5.ipx) {
-                    // skip some pixels vertically
-                    null
-                } else if (position.x in 0.ipx..halfCursorWidth) {
-                    // cursor
-                    Color.Red
-                } else {
-                    // text field background
-                    Color.White
-                }
-            }
+            .assertShape(
+                density = composeTestRule.density,
+                shape = RectangleShape,
+                shapeColor = Color.White,
+                backgroundColor = Color.White,
+                shapeOverlapPixelCount = 0.0f
+            )
     }
 
     @Test
@@ -505,5 +544,28 @@ class TextFieldTest {
 
         find(hasInputMethodsSupport())
             .assert(hasImeAction(ImeAction.Search))
+    }
+
+    private fun Bitmap.assertCursor(cursorWidth: Dp, density: Density) {
+        val halfCursorWidth = with(density) { cursorWidth.toIntPx() } / 2f
+        val width = width.ipx
+        val height = height.ipx
+        this.assertPixels(
+            IntPxSize(width, height)
+        ) { position ->
+            if (position.x >= halfCursorWidth - 1.ipx && position.x < halfCursorWidth + 1.ipx) {
+                // skip some pixels around cursor
+                null
+            } else if (position.y < 5.ipx || position.y > height - 5.ipx) {
+                // skip some pixels vertically
+                null
+            } else if (position.x in 0.ipx..halfCursorWidth) {
+                // cursor
+                Color.Red
+            } else {
+                // text field background
+                Color.White
+            }
+        }
     }
 }

@@ -39,7 +39,9 @@ class TextActionsTest {
     private val fieldTag = "Field"
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createComposeRule().also {
+        it.clockTestRule.pauseClock()
+    }
 
     @Composable
     fun TextFieldUi(

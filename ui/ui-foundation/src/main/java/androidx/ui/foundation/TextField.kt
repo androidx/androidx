@@ -16,16 +16,25 @@
 
 package androidx.ui.foundation
 
+import androidx.animation.AnimatedValue
+import androidx.animation.Infinite
+import androidx.animation.KeyframesBuilder
+import androidx.animation.RepeatableBuilder
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.Stable
+import androidx.compose.State
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
+import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
+import androidx.ui.animation.animatedColor
+import androidx.ui.core.ContentDrawScope
+import androidx.ui.core.DrawModifier
 import androidx.ui.core.Modifier
-import androidx.ui.core.drawBehind
+import androidx.ui.core.composed
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
@@ -35,7 +44,6 @@ import androidx.ui.graphics.useOrElse
 import androidx.ui.input.EditorValue
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
-import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.defaultMinSizeConstraints
 import androidx.ui.savedinstancestate.Saver
@@ -166,19 +174,35 @@ fun TextField(
     val color = textColor.useOrElse { textStyle.color.useOrElse { contentColor() } }
     val mergedStyle = textStyle.merge(TextStyle(color = color))
 
-    val transformedText: TransformedText = remember(fullModel.value, visualTransformation) {
-        val transformed = visualTransformation.filter(AnnotatedString(fullModel.value.text))
-        fullModel.value.composition?.let {
-            TextFieldDelegate.applyCompositionDecoration(it, transformed)
-        } ?: transformed
-    }
+    // cursor with blinking animation
     val cursorState: CursorState = remember { CursorState() }
+    val cursorNeeded = cursorState.focused && fullModel.value.selection.collapsed
+    val animColor = animatedColor(cursorColor)
+    onCommit(cursorColor, cursorState.focused, fullModel.value) {
+        if (cursorNeeded) {
+            animColor.animateTo(Color.Transparent, anim = RepeatableBuilder<Color>().apply {
+                iterations = Infinite
+                animation = KeyframesBuilder<Color>().apply {
+                    duration = 1000
+                    cursorColor at 0
+                    cursorColor at 499
+                    Color.Transparent at 500
+                }
+            })
+        } else {
+            animColor.snapTo(Color.Transparent)
+        }
+
+        onDispose {
+            animColor.stop()
+        }
+    }
 
     CoreTextField(
         value = fullModel.value,
         modifier = modifier
             .defaultMinSizeConstraints(minWidth = DefaultTextFieldWidth)
-            .drawCursor(cursorColor, cursorState, fullModel.value, transformedText),
+            .cursorModifier(animColor, cursorState, fullModel, visualTransformation),
         onValueChange = {
             val prevState = fullModel.value
             fullModel.value = it
@@ -213,21 +237,40 @@ private class CursorState {
     var layoutResult by mutableStateOf<TextLayoutResult?>(null)
 }
 
-private val CursorThickness = 2.dp
-
-private fun Modifier.drawCursor(
-    cursorColor: Color,
+private fun Modifier.cursorModifier(
+    color: AnimatedValue<Color, *>,
     cursorState: CursorState,
-    editorValue: EditorValue,
-    transformedText: TransformedText
-): Modifier =
-    drawBehind {
-        if (cursorState.focused && editorValue.selection.collapsed) {
+    editorValue: State<EditorValue>,
+    visualTransformation: VisualTransformation
+): Modifier {
+    return if (cursorState.focused && editorValue.value.selection.collapsed) {
+        composed {
+            remember(cursorState, editorValue, visualTransformation) {
+                CursorModifier(color, cursorState, editorValue, visualTransformation)
+            }
+        }
+    } else {
+        this
+    }
+}
+
+private data class CursorModifier(
+    val color: AnimatedValue<Color, *>,
+    val cursorState: CursorState,
+    val editorValue: State<EditorValue>,
+    val visualTransformation: VisualTransformation
+) : DrawModifier {
+    override fun ContentDrawScope.draw() {
+        if (color.value.alpha != 0f) {
+            val transformed = visualTransformation.filter(AnnotatedString(editorValue.value.text))
+            val transformedText = editorValue.value.composition?.let {
+                TextFieldDelegate.applyCompositionDecoration(it, transformed)
+            } ?: transformed
             val cursorWidth = CursorThickness.value * density
             val cursorHeight = cursorState.layoutResult?.size?.height?.value?.toFloat() ?: 0f
 
             val cursorRect = cursorState.layoutResult?.getCursorRect(
-                transformedText.offsetMap.originalToTransformed(editorValue.selection.min)
+                transformedText.offsetMap.originalToTransformed(editorValue.value.selection.min)
             ) ?: Rect(
                 0f, 0f,
                 cursorWidth, cursorHeight
@@ -235,12 +278,16 @@ private fun Modifier.drawCursor(
             val cursorX = (cursorRect.left + cursorRect.right) / 2
 
             drawLine(
-                cursorColor,
+                color.value,
                 Offset(cursorX, cursorRect.top),
                 Offset(cursorX, cursorRect.bottom),
-                stroke = Stroke(cursorWidth)
+                Stroke(cursorWidth)
             )
         }
-    }
 
+        drawContent()
+    }
+}
+
+private val CursorThickness = 2.dp
 private val DefaultTextFieldWidth = 280.dp
