@@ -29,7 +29,7 @@ import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.painter.Stroke
+import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
@@ -43,7 +43,6 @@ import androidx.ui.test.setContentAndCollectSizes
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.Assert.assertTrue
@@ -216,9 +215,9 @@ class CanvasTest {
             backgroundColor = Color.Red,
             shapeColor = Color.Blue,
             shape = CircleShape,
-            shapeSizeX = 20.px,
-            shapeSizeY = 20.px,
-            shapeOverlapPixelCount = 2.px
+            shapeSizeX = 20.0f,
+            shapeSizeY = 20.0f,
+            shapeOverlapPixelCount = 2.0f
         )
     }
 

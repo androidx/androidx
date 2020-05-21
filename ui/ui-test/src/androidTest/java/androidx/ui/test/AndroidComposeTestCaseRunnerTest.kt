@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.compose.Model
+import androidx.compose.mutableStateOf
 import androidx.compose.onPreCommit
 import androidx.compose.state
 import androidx.test.filters.SmallTest
@@ -26,11 +26,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
-@Model
-private class TestModel {
-    var i = 0
-}
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -43,10 +38,10 @@ class AndroidComposeTestCaseRunnerTest {
 
     @Test
     fun foreverRecomposing_viaModel_shouldFail() {
-        val model = TestModel()
+        val count = mutableStateOf(0)
         composeTestRule.forGivenContent {
-            Text("Hello ${model.i}")
-            model.i++
+            Text("Hello ${count.value}")
+            count.value++
         }.performTestWithEventsControl {
             assertFailsWith<AssertionError>(
                 "Changes are still pending after '10' frames.") {
@@ -132,11 +127,11 @@ class AndroidComposeTestCaseRunnerTest {
 
     @Test
     fun recomposeTwice2() {
-        val model = TestModel()
+        val count = mutableStateOf(0)
         composeTestRule.forGivenContent {
-            Text("Hello ${model.i}")
-            if (model.i < 2) {
-                model.i++
+            Text("Hello ${count.value}")
+            if (count.value < 2) {
+                count.value++
             }
         }.performTestWithEventsControl {
             doFramesAssertAllHadChangesExceptLastOne(2)

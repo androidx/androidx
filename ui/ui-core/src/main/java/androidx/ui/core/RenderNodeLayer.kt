@@ -20,6 +20,8 @@ import android.annotation.TargetApi
 import android.graphics.Matrix
 import android.graphics.RenderNode
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.CanvasHolder
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.toPxSize
@@ -42,6 +44,8 @@ internal class RenderNodeLayer(
     private var isDestroyed = false
     private var cacheMatrix: Matrix? = null
     private var drawnWithZ = false
+
+    private val canvasHolder = CanvasHolder()
 
     /**
      * Local copy of the transform origin as DrawLayerModifier can be implemented
@@ -71,14 +75,22 @@ internal class RenderNodeLayer(
         renderNode.rotationY = drawLayerModifier.rotationY
         renderNode.pivotX = transformOrigin.pivotFractionX * renderNode.width
         renderNode.pivotY = transformOrigin.pivotFractionY * renderNode.height
-        renderNode.clipToOutline =
-            drawLayerModifier.clipToOutline && drawLayerModifier.outlineShape != null
-        renderNode.clipToBounds = drawLayerModifier.clipToBounds
-        val shapeChanged = outlineResolver.update(drawLayerModifier.outlineShape, renderNode.alpha)
+        val shape = drawLayerModifier.shape
+        val clip = drawLayerModifier.clip
+        renderNode.clipToOutline = clip && shape !== RectangleShape
+        renderNode.clipToBounds = clip && shape === RectangleShape
+        val shapeChanged = outlineResolver.update(
+            shape,
+            renderNode.alpha,
+            renderNode.clipToOutline,
+            renderNode.elevation
+        )
         renderNode.setOutline(outlineResolver.outline)
         val isClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate()
+        } else {
+            triggerRepaint()
         }
         if (!drawnWithZ && renderNode.elevation > 0f) {
             invalidateParentLayer()
@@ -103,8 +115,15 @@ internal class RenderNodeLayer(
     }
 
     override fun move(position: IntPxPosition) {
-        renderNode.offsetLeftAndRight(position.x.value - renderNode.left)
-        renderNode.offsetTopAndBottom(position.y.value - renderNode.top)
+        val oldLeft = renderNode.left
+        val oldTop = renderNode.top
+        val newLeft = position.x.value
+        val newTop = position.y.value
+        if (oldLeft != newLeft || oldTop != newTop) {
+            renderNode.offsetLeftAndRight(newLeft - oldLeft)
+            renderNode.offsetTopAndBottom(newTop - oldTop)
+            triggerRepaint()
+        }
     }
 
     override fun invalidate() {
@@ -113,6 +132,15 @@ internal class RenderNodeLayer(
             ownerView.dirtyLayers += this
             isDirty = true
         }
+    }
+
+    /**
+     * This only triggers the system so that it knows that some kind of painting
+     * must happen without actually causing the layer to be invalidated and have
+     * to re-record its drawing.
+     */
+    private fun triggerRepaint() {
+        ownerView.parent?.onDescendantInvalidated(ownerView, ownerView)
     }
 
     override fun drawLayer(canvas: Canvas) {
@@ -136,20 +164,19 @@ internal class RenderNodeLayer(
     override fun updateDisplayList() {
         if (isDirty || !renderNode.hasDisplayList()) {
             isDirty = false
-            val renderNodeCanvas = renderNode.beginRecording()
-            val uiCanvas = Canvas(renderNodeCanvas)
-
-            val clipPath = outlineResolver.clipPath
-            val manuallyClip = renderNode.clipToOutline && clipPath != null
-            if (manuallyClip) {
-                uiCanvas.save()
-                uiCanvas.clipPath(clipPath!!)
-            }
-            ownerView.observeLayerModelReads(this) {
-                drawBlock(uiCanvas)
-            }
-            if (manuallyClip) {
-                uiCanvas.restore()
+            canvasHolder.drawInto(renderNode.beginRecording()) {
+                val clipPath = outlineResolver.clipPath
+                val manuallyClip = renderNode.clipToOutline && clipPath != null
+                if (manuallyClip) {
+                    save()
+                    clipPath(clipPath!!)
+                }
+                ownerView.observeLayerModelReads(this@RenderNodeLayer) {
+                    drawBlock(this)
+                }
+                if (manuallyClip) {
+                    restore()
+                }
             }
             renderNode.endRecording()
         }

@@ -37,7 +37,8 @@ dependencies {
     implementation(AUTO_VALUE_ANNOTATIONS)
 
     annotationProcessor(AUTO_VALUE)
-    
+
+    testImplementation(KOTLIN_STDLIB)
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
@@ -55,9 +56,7 @@ dependencies {
     androidTestImplementation(TRUTH)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation project(":camera:camera-testing"), {
-        exclude group: "androidx.camera", module: "camera-core"
-    }
+    androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))

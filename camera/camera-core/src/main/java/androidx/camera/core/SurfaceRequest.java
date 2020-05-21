@@ -55,7 +55,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class SurfaceRequest {
 
     private final Size mResolution;
-    private final CameraInfo mCameraInfo;
+    private final Camera mCamera;
+    private final Rect mViewPortRect;
 
     // For the camera to retrieve the surface from the user
     @SuppressWarnings("WeakerAccess") /*synthetic accessor */
@@ -70,18 +71,34 @@ public final class SurfaceRequest {
     // cancellation listeners.
     private final CallbackToFutureAdapter.Completer<Void> mRequestCancellationCompleter;
 
-    private DeferrableSurface mInternalDeferrableSurface;
-
     /**
-     * Creates a new surface request with the given resolution and cameraInfo.
+     * Creates a new surface request with the given resolution.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public SurfaceRequest(@NonNull Size resolution, @NonNull CameraInfo cameraInfo) {
+    public SurfaceRequest(@NonNull Size resolution, @NonNull Camera camera) {
+        this(resolution, camera, null);
+    }
+
+    private DeferrableSurface mInternalDeferrableSurface;
+
+    /**
+     * Creates a new surface request with the given resolution and {@link Camera}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public SurfaceRequest(
+            @NonNull Size resolution,
+            @NonNull Camera camera,
+            @Nullable Rect viewPortRect) {
         super();
         mResolution = resolution;
-        mCameraInfo = cameraInfo;
+        mCamera = camera;
+        // Use full surface rect if viewPortRect is null.
+        mViewPortRect = viewPortRect != null ? viewPortRect : new Rect(0, 0, resolution.getWidth(),
+                resolution.getHeight());
 
         // To ensure concurrency and ordering, operations are chained. Completion can only be
         // triggered externally by the top-level completer (mSurfaceCompleter). The other future
@@ -224,14 +241,14 @@ public final class SurfaceRequest {
     }
 
     /**
-     * Returns the {@link CameraInfo} of the camera which is requesting a {@link Surface}.
+     * Returns the {@link Camera} which is requesting a {@link Surface}.
      *
      * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public CameraInfo getCameraInfo() {
-        return mCameraInfo;
+    public Camera getCamera() {
+        return mCamera;
     }
 
 
@@ -248,8 +265,8 @@ public final class SurfaceRequest {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public Rect getCropRect() {
-        throw new UnsupportedOperationException("Not implemented.");
+    public Rect getViewPortRect() {
+        return mViewPortRect;
     }
 
     /**

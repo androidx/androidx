@@ -16,12 +16,19 @@
 
 package androidx.ui.test.android
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.view.PixelCopy
+import android.view.ViewTreeObserver
 import android.view.Window
 import androidx.annotation.RequiresApi
+import androidx.ui.core.AndroidOwner
+import androidx.ui.core.Owner
 import androidx.ui.geometry.Rect
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -29,21 +36,77 @@ import kotlin.math.roundToInt
 
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun captureRegionToBitmap(
-    globalRect: Rect,
+    captureRect: Rect,
+    owner: Owner
+): Bitmap {
+
+    fun Context.getActivity(): Activity? {
+        return when (this) {
+            is Activity -> this
+            is ContextWrapper -> this.baseContext.getActivity()
+            else -> null
+        }
+    }
+
+    // TODO(pavlis): Make sure that the Activity actually hosts the view. As in case of popup
+    //  it wouldn't. This will require us rewriting the structure how we collect the nodes.
+
+    // TODO(pavlis): Add support for popups. So if we find composable hosted in popup we can
+    //  grab its reference to its window (need to add a hook to popup).
+
+    val window = (owner as AndroidOwner).view.context.getActivity()!!.window
+    val handler = Handler(Looper.getMainLooper())
+    return captureRegionToBitmap(captureRect, handler, window)
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun captureRegionToBitmap(
+    captureRect: Rect,
     handler: Handler,
     window: Window
 ): Bitmap {
+    // first we wait for the drawing to happen
+    val drawLatch = CountDownLatch(1)
+    val decorView = window.decorView
+    handler.post {
+        if (Build.VERSION.SDK_INT >= 29) {
+            decorView.viewTreeObserver.registerFrameCommitCallback {
+                drawLatch.countDown()
+            }
+        } else {
+            decorView.viewTreeObserver.addOnDrawListener(object : ViewTreeObserver.OnDrawListener {
+                var handled = false
+                override fun onDraw() {
+                    if (!handled) {
+                        handled = true
+                        handler.post {
+                            drawLatch.countDown()
+                            decorView.viewTreeObserver.removeOnDrawListener(this)
+                        }
+                    }
+                }
+            })
+        }
+        decorView.invalidate()
+    }
+    if (!drawLatch.await(1, TimeUnit.SECONDS)) {
+        throw AssertionError("Failed waiting for DecorView redraw!")
+    }
+
+    // and then request the pixel copy of the drawn buffer
     val destBitmap = Bitmap.createBitmap(
-        globalRect.width.roundToInt(),
-        globalRect.height.roundToInt(),
-        Bitmap.Config.ARGB_8888)
+        captureRect.width.roundToInt(),
+        captureRect.height.roundToInt(),
+        Bitmap.Config.ARGB_8888
+    )
 
     // TODO: This could go to some Android specific extensions.
     val srcRect = android.graphics.Rect(
-        globalRect.left.roundToInt(),
-        globalRect.top.roundToInt(),
-        globalRect.right.roundToInt(),
-        globalRect.bottom.roundToInt())
+        captureRect.left.roundToInt(),
+        captureRect.top.roundToInt(),
+        captureRect.right.roundToInt(),
+        captureRect.bottom.roundToInt()
+    )
 
     val latch = CountDownLatch(1)
     var copyResult = 0

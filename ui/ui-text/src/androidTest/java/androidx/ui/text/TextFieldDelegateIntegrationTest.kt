@@ -73,7 +73,7 @@ class TextFieldDelegateIntegrationTest {
         TextDelegate.paintBackground(
             0,
             1,
-            selectionColor,
+            Paint().also { it.color = selectionColor },
             expectedCanvas,
             layoutResult
         )

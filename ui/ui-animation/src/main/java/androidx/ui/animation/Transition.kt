@@ -24,9 +24,12 @@ import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
 import androidx.animation.createAnimation
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.Stable
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
 import androidx.compose.onPreCommit
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.ui.core.AnimationClockAmbient
 
 /**
@@ -72,7 +75,7 @@ fun <T> Transition(
     clock: AnimationClockObservable = AnimationClockAmbient.current,
     initState: T = toState,
     onStateChangeFinished: ((T) -> Unit)? = null,
-    children: @Composable() (state: TransitionState) -> Unit
+    children: @Composable (state: TransitionState) -> Unit
 ) {
     if (transitionsEnabled) {
         val disposableClock = clock.asDisposableClock()
@@ -101,14 +104,14 @@ fun <T> Transition(
 var transitionsEnabled = true
 
 // TODO(Doris): Use Clock idea instead of TransitionModel with pulse
-@Model
+@Stable
 private class TransitionModel<T>(
     transitionDef: TransitionDefinition<T>,
     initState: T,
     clock: AnimationClockObservable
 ) : TransitionState {
 
-    private var animationPulse = 0L
+    private var animationPulse by mutableStateOf(0L)
     internal val anim: TransitionAnimation<T> =
         transitionDef.createAnimation(clock, initState).apply {
             onUpdate = {
@@ -117,7 +120,7 @@ private class TransitionModel<T>(
         }
 
     override fun <T, V : AnimationVector> get(propKey: PropKey<T, V>): T {
-        // we need to access the animationPulse so Compose will record this @Model values usage.
+        // we need to access the animationPulse so Compose will record this state values usage.
         @Suppress("UNUSED_VARIABLE")
         val pulse = animationPulse
         return anim[propKey]

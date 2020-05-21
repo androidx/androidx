@@ -19,11 +19,23 @@ package androidx.paging
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Entry point to construct the primary Paging reactive stream: `Flow<PagingData<T>>`.
+ * Primary entry point into Paging; constructor for a reactive stream of [PagingData].
  *
- * Creates a stream of [PagingData] objects, each of which represents a single generation of
- * paginated data. These objects can be transformed to alter data as it loads, and presented in a
- * `RecyclerView`.
+ * Each [PagingData] represents a snapshot of the backing paginated data. Updates to the backing
+ * dataset should be represented by a new instance of [PagingData].
+ *
+ * [PagingSource.invalidate] and calls to [AsyncPagingDataDiffer.refresh] or
+ * [PagingDataAdapter.refresh] will notify [Pager] that the backing dataset has been updated and a
+ * new [PagingData] / [PagingSource] pair will be generated to represent an updated snapshot.
+ *
+ * [PagingData] can be transformed to alter data as it loads, and presented in a `RecyclerView` via
+ * `AsyncPagingDataDiffer` or `PagingDataAdapter`.
+ *
+ * LiveData support is available as an extension property provided by the
+ * `androidx.paging:paging-runtime` artifact.
+ *
+ * RxJava support is available as extension properties provided by the
+ * `androidx.paging:paging-rxjava2` artifact.
  */
 class Pager<Key : Any, Value : Any>
 @JvmOverloads constructor(
@@ -33,6 +45,11 @@ class Pager<Key : Any, Value : Any>
     remoteMediator: RemoteMediator<Key, Value>? = null,
     pagingSourceFactory: () -> PagingSource<Key, Value>
 ) {
+    /**
+     * A cold [Flow] of [PagingData], which emits new instances of [PagingData] once they become
+     * invalidated by [PagingSource.invalidate] or calls to [AsyncPagingDataDiffer.refresh] or
+     * [PagingDataAdapter.refresh].
+     */
     val flow: Flow<PagingData<Value>> = PageFetcher(
         pagingSourceFactory,
         initialKey,

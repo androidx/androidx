@@ -115,7 +115,7 @@ import java.util.Map;
  * attribute of the <code>&lt;provider&gt;</code> element.
  * <h3 id="SpecifyFiles">Specifying Available Files</h3>
  * A FileProvider can only generate a content URI for files in directories that you specify
- * beforehand. To specify a directory, specify the its storage area and path in XML, using child
+ * beforehand. To specify a directory, specify its storage area and path in XML, using child
  * elements of the <code>&lt;paths&gt;</code> element.
  * For example, the following <code>paths</code> element tells FileProvider that you intend to
  * request content URIs for the <code>images/</code> subdirectory of your private file area.

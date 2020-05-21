@@ -1,8 +1,4 @@
 // Baseline format: 1.0
-CallbackMethodName: androidx.customview.widget.ViewDragHelper.Callback:
-    Callback method names must follow the on<Something> style: getOrderedChildIndex
-
-
 MissingNullability: androidx.customview.view.AbsSavedState#CREATOR:
     Missing nullability on field `CREATOR` in class `class androidx.customview.view.AbsSavedState`
 MissingNullability: androidx.customview.view.AbsSavedState#EMPTY_STATE:

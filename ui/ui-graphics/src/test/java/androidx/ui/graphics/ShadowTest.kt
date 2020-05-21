@@ -20,8 +20,7 @@ import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.lerp
-import androidx.ui.unit.lerp
-import androidx.ui.unit.px
+import androidx.ui.util.lerp
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -34,7 +33,7 @@ class ShadowTest {
     fun `default value`() {
         val shadow = Shadow()
         assertThat(shadow.color, equalTo(Color(0xFF000000)))
-        assertThat(shadow.blurRadius, equalTo(0.px))
+        assertThat(shadow.blurRadius, equalTo(0.0f))
         assertThat(shadow.offset, equalTo(Offset.zero))
     }
 
@@ -42,7 +41,7 @@ class ShadowTest {
     fun `constructor`() {
         val color = Color(0xFF00FF00)
         val offset = Offset(2f, 3f)
-        val blurRadius = 1.px
+        val blurRadius = 1.0f
 
         val shadow = Shadow(color, offset, blurRadius)
         assertThat(shadow.color, equalTo(color))
@@ -56,8 +55,8 @@ class ShadowTest {
         val colorB = Color(0xFF0000FF)
         val offsetA = Offset(5f, 10f)
         val offsetB = Offset(0f, 5f)
-        val radiusA = 0.px
-        val radiusB = 3.px
+        val radiusA = 0.0f
+        val radiusB = 3.0f
         val shadowA = Shadow(colorA, offsetA, radiusA)
         val shadowB = Shadow(colorB, offsetB, radiusB)
         val t = 0.4f

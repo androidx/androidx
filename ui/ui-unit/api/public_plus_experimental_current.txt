@@ -76,6 +76,10 @@ package androidx.ui.core {
 
 package androidx.ui.unit {
 
+  public final class AndroidDensityKt {
+    method public static androidx.ui.unit.Density Density(android.content.Context context);
+  }
+
   public final class Bounds {
     method public float component1();
     method public float component2();
@@ -99,7 +103,6 @@ package androidx.ui.unit {
     method public default int toIntPx-ipo6vVg(float);
     method public default int toIntPx-vVlMl6k(long);
     method public default float toPx-ipo6vVg(float);
-    method public default androidx.ui.unit.PxSize toPx-kAYDl8w(long);
     method public default float toPx-vVlMl6k(long);
     method public default androidx.ui.geometry.Rect toRect(androidx.ui.unit.Bounds);
     method public default long toSp(float);
@@ -112,7 +115,6 @@ package androidx.ui.unit {
   }
 
   public final class DensityKt {
-    method public static androidx.ui.unit.Density Density(android.content.Context context);
     method public static androidx.ui.unit.Density Density(float density, float fontScale = 1f);
   }
 
@@ -189,8 +191,6 @@ package androidx.ui.unit {
 
   public final class DpKt {
     method public static inline long Position-98Cn76g(float x, float y);
-    method public static inline long Size-98Cn76g(float width, float height);
-    method public static long center-kAYDl8w(long);
     method public static inline float coerceAtLeast-98Cn76g(float, float minimumValue);
     method public static inline float coerceAtMost-98Cn76g(float, float maximumValue);
     method public static inline float coerceIn-x40Cv7w(float, float minimumValue, float maximumValue);
@@ -208,14 +208,9 @@ package androidx.ui.unit {
     method public static long lerp-d5NHFfI(long start, long stop, float fraction);
     method public static inline float max-98Cn76g(float a, float b);
     method public static inline float min-98Cn76g(float a, float b);
-    method public static inline operator long times--D0i1nw(float, long size);
-    method public static inline operator long times-DdskrAE(int, long size);
     method public static inline operator float times-H0Zl2lQ(float, float other);
     method public static inline operator float times-Y_YOLaE(double, float other);
     method public static inline operator float times-hZ6b2Ic(int, float other);
-    method public static inline operator long times-l9Tz9ww(double, long size);
-    method public static androidx.ui.unit.Bounds toBounds-kAYDl8w(long);
-    method public static inline long toSize(androidx.ui.unit.Bounds);
   }
 
   public final inline class DpSquared implements java.lang.Comparable<androidx.ui.unit.DpSquared> {
@@ -391,6 +386,12 @@ package androidx.ui.unit {
     method public inline operator androidx.ui.unit.IntPxSize times(int other);
     property public final inline int height;
     property public final inline int width;
+    field public static final androidx.ui.unit.IntPxSize.Companion! Companion;
+  }
+
+  public static final class IntPxSize.Companion {
+    method public androidx.ui.unit.IntPxSize getZero();
+    property public final androidx.ui.unit.IntPxSize Zero;
   }
 
   public final inline class IntSize {
@@ -510,7 +511,9 @@ package androidx.ui.unit {
 
   public final class PxKt {
     method public static inline androidx.ui.unit.PxBounds PxBounds(androidx.ui.unit.PxPosition topLeft, androidx.ui.unit.PxSize size);
+    method public static inline androidx.ui.unit.PxPosition PxPosition(float x, float y);
     method public static inline androidx.ui.unit.PxPosition PxPosition-qHcltEY(float x, float y);
+    method public static inline androidx.ui.unit.PxSize PxSize(float width, float height);
     method public static inline androidx.ui.unit.PxSize PxSize-qHcltEY(float width, float height);
     method public static inline float abs-NgWp0Z8(float x);
     method public static androidx.ui.unit.PxPosition center(androidx.ui.unit.PxSize);
@@ -605,23 +608,6 @@ package androidx.ui.unit {
     method public static inline operator float times-NgWp0Z8(float $this, float other);
     method public static inline operator float times-impl(float $this, float other);
     method public static String toString-impl(float $this);
-  }
-
-  public final inline class Size {
-    ctor public Size();
-    method public static long constructor-impl(internal long value);
-    method public static inline operator long div-impl(long $this, int other);
-    method public static inline operator long div-impl(long $this, float other);
-    method public static inline operator long div-impl(long $this, double other);
-    method public static inline boolean equals-impl(long p, Object? p1);
-    method public static boolean equals-impl0(long p1, long p2);
-    method public static float getHeight-impl(long $this);
-    method public static float getWidth-impl(long $this);
-    method public static inline int hashCode-impl(long p);
-    method public static inline operator long times-impl(long $this, int other);
-    method public static inline operator long times-impl(long $this, float other);
-    method public static inline operator long times-impl(long $this, double other);
-    method public static String toString-impl(long $this);
   }
 
   public final inline class TextUnit {

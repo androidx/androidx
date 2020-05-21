@@ -23,9 +23,8 @@ import androidx.ui.graphics.Path
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
+import androidx.ui.util.fastForEach
 import kotlin.math.max
 
 /**
@@ -66,7 +65,7 @@ class MultiParagraph(
     constructor(
         annotatedString: AnnotatedString,
         style: TextStyle,
-        placeholders: List<AnnotatedString.Item<Placeholder>> = listOf(),
+        placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
         maxLines: Int = Int.MAX_VALUE,
         ellipsis: Boolean = false,
         constraints: ParagraphConstraints,
@@ -170,7 +169,9 @@ class MultiParagraph(
 
         // create sub paragraphs and layouts
         val paragraphInfoList = mutableListOf<ParagraphInfo>()
-        for ((index, paragraphInfo) in intrinsics.infoList.withIndex()) {
+        val infoList = intrinsics.infoList
+        for (index in infoList.indices) {
+            val paragraphInfo = infoList[index]
             val paragraph = Paragraph(
                 paragraphInfo.intrinsics,
                 maxLines - currentLineCount,
@@ -193,8 +194,8 @@ class MultiParagraph(
                     endIndex = paragraphInfo.endIndex,
                     startLineIndex = startLineIndex,
                     endLineIndex = endLineIndex,
-                    top = paragraphTop.px,
-                    bottom = paragraphBottom.px
+                    top = paragraphTop,
+                    bottom = paragraphBottom
                 )
             )
 
@@ -229,7 +230,7 @@ class MultiParagraph(
     /** Paint the paragraphs to canvas. */
     fun paint(canvas: Canvas) {
         canvas.save()
-        paragraphInfoList.forEach {
+        paragraphInfoList.fastForEach {
             it.paragraph.paint(canvas)
             canvas.translate(0f, it.paragraph.height)
         }
@@ -251,7 +252,7 @@ class MultiParagraph(
         paragraphInfoList.drop(paragraphIndex)
             .takeWhile { it.startIndex < end }
             .filterNot { it.startIndex == it.endIndex }
-            .forEach {
+            .fastForEach {
                 with(it) {
                     path.addPath(
                         path = paragraph.getPathForRange(
@@ -269,7 +270,7 @@ class MultiParagraph(
         val paragraphIndex = when {
             position.y.value <= 0f -> 0
             position.y.value >= height -> paragraphInfoList.lastIndex
-            else -> findParagraphByY(paragraphInfoList, position.y)
+            else -> findParagraphByY(paragraphInfoList, position.y.value)
         }
         return with(paragraphInfoList[paragraphIndex]) {
             if (length == 0) {
@@ -592,7 +593,7 @@ internal fun findParagraphByIndex(paragraphInfoList: List<ParagraphInfo>, index:
  *  of [0, [MultiParagraph.height]].
  * @return The index of the target [ParagraphInfo] in [paragraphInfoList].
  */
-internal fun findParagraphByY(paragraphInfoList: List<ParagraphInfo>, y: Px): Int {
+internal fun findParagraphByY(paragraphInfoList: List<ParagraphInfo>, y: Float): Int {
     return paragraphInfoList.binarySearch { paragraphInfo ->
         when {
             paragraphInfo.top > y -> 1
@@ -643,8 +644,8 @@ internal data class ParagraphInfo(
     val endIndex: Int,
     var startLineIndex: Int = -1,
     var endLineIndex: Int = -1,
-    var top: Px = (-1).px,
-    var bottom: Px = (-1).px
+    var top: Float = -1.0f,
+    var bottom: Float = -1.0f
 ) {
 
     /**
@@ -689,7 +690,7 @@ internal data class ParagraphInfo(
      * parent [MultiParagraph].
      */
     fun Float.toGlobalYPosition(): Float {
-        return this + top.value
+        return this + top
     }
 
     /**
@@ -697,7 +698,7 @@ internal data class ParagraphInfo(
      * relative to the [paragraph].
      */
     fun PxPosition.toLocal(): PxPosition {
-        return PxPosition(x = x, y = y - top)
+        return PxPosition(x = x.value, y = y.value - top)
     }
 
     /**
@@ -705,7 +706,7 @@ internal data class ParagraphInfo(
      * [MultiParagraph].
      */
     fun Rect.toGlobal(): Rect {
-        return shift(Offset(dx = 0f, dy = this@ParagraphInfo.top.value))
+        return shift(Offset(dx = 0f, dy = this@ParagraphInfo.top))
     }
 
     /**
@@ -715,7 +716,7 @@ internal data class ParagraphInfo(
      * Notice that this function changes the input value.
      */
     fun Path.toGlobal(): Path {
-        shift(Offset(dx = 0f, dy = top.value))
+        shift(Offset(dx = 0f, dy = top))
         return this
     }
 

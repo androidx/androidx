@@ -224,8 +224,8 @@ public class BiometricFragment extends Fragment {
     void cleanup() {
         mShowing = false;
         FragmentActivity activity = getActivity();
-        if (getFragmentManager() != null) {
-            getFragmentManager().beginTransaction().detach(this).commitAllowingStateLoss();
+        if (isAdded()) {
+            getParentFragmentManager().beginTransaction().detach(this).commitAllowingStateLoss();
         }
         Utils.maybeFinishHandler(activity);
     }

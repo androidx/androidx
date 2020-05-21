@@ -297,7 +297,11 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
         super.dispatchRemoteControllerTaskWithoutReturn(task);
         MediaLibraryServiceLegacyStub legacyStub = getLegacyBrowserService();
         if (legacyStub != null) {
-            dispatchRemoteControllerTaskWithoutReturn(legacyStub.getControllersForAll(), task);
+            try {
+                task.run(legacyStub.getBrowserLegacyCbForBroadcast(), /* seq= */ 0);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Exception in using media1 API", e);
+            }
         }
     }
 

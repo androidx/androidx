@@ -39,33 +39,36 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
+import androidx.ui.core.Ref
 import androidx.ui.core.drawBehind
 import androidx.ui.core.offset
 import androidx.ui.core.tag
-import androidx.ui.focus.FocusModifier
+import androidx.ui.core.focus.FocusModifier
+import androidx.ui.core.focus.FocusState
+import androidx.ui.core.focus.focusState
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.TextFieldValue
+import androidx.ui.foundation.clickable
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.shape.corner.ZeroCornerSize
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Shape
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.VisualTransformation
-import androidx.ui.graphics.painter.Stroke
+import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
-import androidx.ui.material.ripple.ripple
+import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.LastBaseline
+import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.lerp
@@ -104,6 +107,10 @@ import androidx.ui.unit.max
  *
  * @sample androidx.ui.material.samples.PasswordFilledTextField
  *
+ * Hiding a software keyboard on IME action performed:
+ *
+ * @sample androidx.ui.material.samples.TextFieldWithHideKeyboardOnImeAction
+ *
  * If apart from input text change you also want to observe the cursor location or selection range,
  * use a FilledTextField overload with the [TextFieldValue] parameter instead.
  *
@@ -134,17 +141,23 @@ import androidx.ui.unit.max
  * with the specified [ImeAction]
  * @param onImeActionPerformed is triggered when the input service performs an [ImeAction].
  * Note that the emitted IME action may be different from what you specified through the
- * [imeAction] field
+ * [imeAction] field. The callback also exposes a [SoftwareKeyboardController] instance as a
+ * parameter that can be used to request to hide the software keyboard
  * @param visualTransformation transforms the visual representation of the input [value].
  * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
  * text field. By default no visual transformation is applied
- * @param onFocusChange the callback triggered when the text field gets or loses the focus
- * @param activeColor the color of the label and bottom indicator when the text field is in focus
+ * @param onFocusChange a callback to be invoked when the text field gets or loses the focus
+ * @param onTextInputStarted a callback to be invoked when the connection with the platform's text
+ * input service (e.g. software keyboard on Android) has been established. Called with the
+ * [SoftwareKeyboardController] instance that can be used to request to show or hide the software
+ * keyboard
+ * @param activeColor the color of the label, bottom indicator and the cursor when the text field is
+ * in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
  * focus, and the color of label and bottom indicator when the text field is not in focus
- * @param errorColor the alternative color of the label, bottom indicator and trailing icon used
- * when [isErrorValue] is set to true
- * @param backgroundColor the background color of the text field's container. To a color provided
+ * @param errorColor the alternative color of the label, bottom indicator, cursor and trailing icon
+ * used when [isErrorValue] is set to true
+ * @param backgroundColor the background color of the text field's container. To the color provided
  * here there will be applied a transparency alpha defined by Material Design specifications
  * @param shape the shape of the text field's container
  */
@@ -152,18 +165,19 @@ import androidx.ui.unit.max
 fun FilledTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: @Composable() () -> Unit,
+    label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = currentTextStyle(),
-    placeholder: @Composable() (() -> Unit)? = null,
-    leadingIcon: @Composable() (() -> Unit)? = null,
-    trailingIcon: @Composable() (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     isErrorValue: Boolean = false,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
-    onImeActionPerformed: (ImeAction) -> Unit = {},
+    onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit = { _, _ -> },
     onFocusChange: (Boolean) -> Unit = {},
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
     errorColor: Color = MaterialTheme.colors.error,
@@ -200,6 +214,7 @@ fun FilledTextField(
         imeAction = imeAction,
         onImeActionPerformed = onImeActionPerformed,
         onFocusChange = onFocusChange,
+        onTextInputStarted = onTextInputStarted,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
         errorColor = errorColor,
@@ -246,17 +261,23 @@ fun FilledTextField(
  * with the specified [ImeAction]
  * @param onImeActionPerformed is triggered when the input service performs an [ImeAction].
  * Note that the emitted IME action may be different from what you specified through the
- * [imeAction] field
+ * [imeAction] field. The callback also exposes a [SoftwareKeyboardController] instance as a
+ * parameter that can be used to request to hide the software keyboard
  * @param visualTransformation transforms the visual representation of the input [value].
  * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
  * text field. By default no visual transformation is applied
- * @param onFocusChange the callback triggered when the text field gets or loses the focus
- * @param activeColor the color of the label and bottom indicator when the text field is in focus
+ * @param onFocusChange a callback to be invoked when the text field gets or loses the focus
+ * @param onTextInputStarted a callback to be invoked when the connection with the platform's text
+ * input service (e.g. software keyboard on Android) has been established. Called with the
+ * [SoftwareKeyboardController] instance that can be used to request to show or hide the software
+ * keyboard
+ * @param activeColor the color of the label, bottom indicator and the cursor when the text field is
+ * in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
  * focus, and the color of label and bottom indicator when the text field is not in focus
- * @param errorColor the alternative color of the label, bottom indicator and trailing icon used
- * when [isErrorValue] is set to true
- * @param backgroundColor the background color of the text field's container. To a color provided
+ * @param errorColor the alternative color of the label, bottom indicator, cursor and trailing icon
+ * used when [isErrorValue] is set to true
+ * @param backgroundColor the background color of the text field's container. To the color provided
  * here there will be applied a transparency alpha defined by Material Design specifications
  * @param shape the shape of the text field's container
  */
@@ -264,18 +285,19 @@ fun FilledTextField(
 fun FilledTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    label: @Composable() () -> Unit,
+    label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = currentTextStyle(),
-    placeholder: @Composable() (() -> Unit)? = null,
-    leadingIcon: @Composable() (() -> Unit)? = null,
-    trailingIcon: @Composable() (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     isErrorValue: Boolean = false,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
-    onImeActionPerformed: (ImeAction) -> Unit = {},
+    onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit = { _, _ -> },
     onFocusChange: (Boolean) -> Unit = {},
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
     errorColor: Color = MaterialTheme.colors.error,
@@ -298,6 +320,7 @@ fun FilledTextField(
         imeAction = imeAction,
         onImeActionPerformed = onImeActionPerformed,
         onFocusChange = onFocusChange,
+        onTextInputStarted = onTextInputStarted,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
         errorColor = errorColor,
@@ -315,16 +338,17 @@ private fun FilledTextFieldImpl(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier,
     textStyle: TextStyle,
-    label: @Composable() () -> Unit,
-    placeholder: @Composable() (() -> Unit)?,
-    leading: @Composable() (() -> Unit)?,
-    trailing: @Composable() (() -> Unit)?,
+    label: @Composable () -> Unit,
+    placeholder: @Composable (() -> Unit)?,
+    leading: @Composable (() -> Unit)?,
+    trailing: @Composable (() -> Unit)?,
     isErrorValue: Boolean,
     visualTransformation: VisualTransformation,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
-    onImeActionPerformed: (ImeAction) -> Unit,
+    onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit,
     onFocusChange: (Boolean) -> Unit,
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit,
     activeColor: Color,
     inactiveColor: Color,
     errorColor: Color,
@@ -332,17 +356,17 @@ private fun FilledTextFieldImpl(
     shape: Shape
 ) {
     val focusModifier = FocusModifier()
-    var shouldFocus by state { false }
-    var focused by state { false }
-    val inputState = stateFor(value.text, focused) {
+    val keyboardController: Ref<SoftwareKeyboardController> = remember { Ref() }
+
+    val inputState = stateFor(value.text, focusModifier.focusState) {
         when {
-            focused -> InputPhase.Focused
+            focusModifier.focusState == FocusState.Focused -> InputPhase.Focused
             value.text.isEmpty() -> InputPhase.UnfocusedEmpty
             else -> InputPhase.UnfocusedNotEmpty
         }
     }
 
-    val decoratedPlaceholder: @Composable() (() -> Unit)? =
+    val decoratedPlaceholder: @Composable (() -> Unit)? =
         if (placeholder != null && inputState.value == InputPhase.Focused && value.text.isEmpty()) {
             {
                 Decoration(
@@ -365,15 +389,18 @@ private fun FilledTextFieldImpl(
                 modifier = tagModifier + focusModifier,
                 textStyle = textStyle,
                 onValueChange = onValueChange,
-                onFocusChange = {
-                    focused = it
-                    onFocusChange(it)
-                },
-                cursorColor = if (isErrorValue) errorColor else MaterialTheme.colors.primary,
+                onFocusChange = onFocusChange,
+                cursorColor = if (isErrorValue) errorColor else activeColor,
                 visualTransformation = visualTransformation,
                 keyboardType = keyboardType,
                 imeAction = imeAction,
-                onImeActionPerformed = onImeActionPerformed
+                onImeActionPerformed = {
+                    onImeActionPerformed(it, keyboardController.value)
+                },
+                onTextInputStarted = {
+                    keyboardController.value = it
+                    onTextInputStarted(it)
+                }
             )
         }
     }
@@ -387,84 +414,90 @@ private fun FilledTextFieldImpl(
         Surface(
             modifier = textFieldModifier,
             shape = shape,
-            color = backgroundColor.copy(alpha = ContainerAlpha)
+            color = backgroundColor.applyAlpha(alpha = ContainerAlpha)
         ) {
-            Clickable(onClick = { shouldFocus = true }, modifier = Modifier.ripple(false)) {
-                if (shouldFocus) {
-                    focusModifier.requestFocus()
-                    shouldFocus = false
+            val emphasisLevels = EmphasisAmbient.current
+            val emphasizedActiveColor = emphasisLevels.high.applyEmphasis(activeColor)
+            val labelInactiveColor = emphasisLevels.medium.applyEmphasis(inactiveColor)
+            val indicatorInactiveColor =
+                inactiveColor.applyAlpha(alpha = IndicatorInactiveAlpha)
+
+            TextFieldTransitionScope.transition(
+                inputState = inputState.value,
+                activeColor = emphasizedActiveColor,
+                labelInactiveColor = labelInactiveColor,
+                indicatorInactiveColor = indicatorInactiveColor
+            ) { labelProgress, animatedLabelColor, indicatorWidth, indicatorColor ->
+                // TODO(soboleva): figure out how this will play with the textStyle provided in label slot
+                val labelAnimatedStyle = lerp(
+                    MaterialTheme.typography.subtitle1,
+                    MaterialTheme.typography.caption,
+                    labelProgress
+                )
+
+                val leadingColor = inactiveColor.applyAlpha(alpha = TrailingLeadingAlpha)
+                val trailingColor = if (isErrorValue) errorColor else leadingColor
+
+                // text field with label and placeholder
+                val labelColor = if (isErrorValue) errorColor else animatedLabelColor
+                val decoratedLabel = @Composable {
+                    Decoration(
+                        contentColor = labelColor,
+                        typography = labelAnimatedStyle,
+                        children = label
+                    )
                 }
 
-                val emphasisLevels = EmphasisAmbient.current
-                val emphasizedActiveColor = emphasisLevels.high.emphasize(activeColor)
-                val labelInactiveColor = emphasisLevels.medium.emphasize(inactiveColor)
-                val indicatorInactiveColor = inactiveColor.copy(alpha = IndicatorInactiveAlpha)
-
-                TextFieldTransitionScope.transition(
-                    inputState = inputState.value,
-                    activeColor = emphasizedActiveColor,
-                    labelInactiveColor = labelInactiveColor,
-                    indicatorInactiveColor = indicatorInactiveColor
-                ) { labelProgress, animatedLabelColor, indicatorWidth, indicatorColor ->
-                    // TODO(soboleva): figure out how this will play with the textStyle provided in label slot
-                    val labelAnimatedStyle = lerp(
-                        MaterialTheme.typography.subtitle1,
-                        MaterialTheme.typography.caption,
-                        labelProgress
-                    )
-
-                    val leadingColor = inactiveColor.copy(alpha = TrailingLeadingAlpha)
-                    val trailingColor = if (isErrorValue) errorColor else leadingColor
-
-                    // text field with label and placeholder
-                    val labelColor = if (isErrorValue) errorColor else animatedLabelColor
-                    val decoratedLabel = @Composable {
-                        Decoration(
-                            contentColor = labelColor,
-                            typography = labelAnimatedStyle,
-                            children = label
-                        )
-                    }
-
-                    // places leading icon, text field with label, trailing icon
-                    IconsTextFieldLayout(
-                        modifier = Modifier.drawIndicatorLine(
+                // places leading icon, text field with label, trailing icon
+                IconsTextFieldLayout(
+                    modifier = Modifier
+                        .clickable(indication = RippleIndication(bounded = false)) {
+                            focusModifier.requestFocus()
+                            keyboardController.value?.showSoftwareKeyboard()
+                        }
+                        .drawIndicatorLine(
                             lineWidth = indicatorWidth,
                             color = if (isErrorValue) errorColor else indicatorColor
                         ),
-                        textField = {
-                            TextFieldLayout(
-                                animationProgress = labelProgress,
-                                modifier = Modifier
-                                    .padding(
-                                        start = HorizontalTextFieldPadding,
-                                        end = HorizontalTextFieldPadding
-                                    ),
-                                placeholder = decoratedPlaceholder,
-                                label = decoratedLabel,
-                                textField = decoratedTextField
-                            )
-                        },
-                        leading = leading,
-                        trailing = trailing,
-                        leadingColor = leadingColor,
-                        trailingColor = trailingColor
-                    )
-                }
+                    textField = {
+                        TextFieldLayout(
+                            animationProgress = labelProgress,
+                            modifier = Modifier
+                                .padding(
+                                    start = HorizontalTextFieldPadding,
+                                    end = HorizontalTextFieldPadding
+                                ),
+                            placeholder = decoratedPlaceholder,
+                            label = decoratedLabel,
+                            textField = decoratedTextField
+                        )
+                    },
+                    leading = leading,
+                    trailing = trailing,
+                    leadingColor = leadingColor,
+                    trailingColor = trailingColor
+                )
             }
         }
     }
 }
 
 /**
- * Sets content color, typography and emphasis for [children] composable
+ * Set alpha if the color is not translucent
+ */
+private fun Color.applyAlpha(alpha: Float): Color {
+    return if (this.alpha != 1f) this else this.copy(alpha = alpha)
+}
+
+/**
+ * Set content color, typography and emphasis for [children] composable
  */
 @Composable
 private fun Decoration(
     contentColor: Color,
     typography: TextStyle? = null,
     emphasis: Emphasis? = null,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     val colorAndEmphasis = @Composable {
         Providers(ContentColorAmbient provides contentColor) {
@@ -481,9 +514,9 @@ private fun Decoration(
 private fun TextFieldLayout(
     animationProgress: Float,
     modifier: Modifier,
-    placeholder: @Composable() (() -> Unit)?,
-    label: @Composable() () -> Unit,
-    textField: @Composable() (Modifier) -> Unit
+    placeholder: @Composable (() -> Unit)?,
+    label: @Composable () -> Unit,
+    textField: @Composable (Modifier) -> Unit
 ) {
     Layout(
         children = {
@@ -558,9 +591,9 @@ private fun TextFieldLayout(
 @Composable
 private fun IconsTextFieldLayout(
     modifier: Modifier = Modifier,
-    textField: @Composable() () -> Unit,
-    leading: @Composable() (() -> Unit)?,
-    trailing: @Composable() (() -> Unit)?,
+    textField: @Composable () -> Unit,
+    leading: @Composable (() -> Unit)?,
+    trailing: @Composable (() -> Unit)?,
     leadingColor: Color,
     trailingColor: Color
 ) {
@@ -646,7 +679,6 @@ private val Placeable.nonZero: Boolean get() = this.width != 0.ipx || this.heigh
 /**
  * A draw modifier that draws a bottom indicator line
  */
-@Composable
 private fun Modifier.drawIndicatorLine(lineWidth: Dp, color: Color): Modifier {
     return drawBehind {
         val strokeWidth = lineWidth.value * density
@@ -719,7 +751,7 @@ private object TextFieldTransitionScope {
         activeColor: Color,
         labelInactiveColor: Color,
         indicatorInactiveColor: Color,
-        children: @Composable() (
+        children: @Composable (
             labelProgress: Float,
             labelColor: Color,
             indicatorWidth: Dp,

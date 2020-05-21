@@ -1,4 +1,20 @@
 // Baseline format: 1.0
+BuilderSetStyle: androidx.navigation.NavActionBuilder#navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavActionBuilder.navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit>)
+BuilderSetStyle: androidx.navigation.NavDestinationBuilder#action(int, kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDestinationBuilder.action(int,kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit>)
+BuilderSetStyle: androidx.navigation.NavDestinationBuilder#argument(String, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDestinationBuilder.argument(String,kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit>)
+BuilderSetStyle: androidx.navigation.NavDestinationBuilder#deepLink(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDestinationBuilder.deepLink(String)
+BuilderSetStyle: androidx.navigation.NavDestinationBuilder#deepLink(kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDestinationBuilder.deepLink(kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>)
+BuilderSetStyle: androidx.navigation.NavOptionsBuilder#anim(kotlin.jvm.functions.Function1<? super androidx.navigation.AnimBuilder,kotlin.Unit>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavOptionsBuilder.anim(kotlin.jvm.functions.Function1<? super androidx.navigation.AnimBuilder,kotlin.Unit>)
+BuilderSetStyle: androidx.navigation.NavOptionsBuilder#popUpTo(int, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavOptionsBuilder.popUpTo(int,kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit>)
+
+
 DocumentExceptions: androidx.navigation.NavArgumentBuilder#getType():
     Method NavArgumentBuilder.getType appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.navigation.NavGraphBuilder#build():

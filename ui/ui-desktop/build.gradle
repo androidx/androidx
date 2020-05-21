@@ -17,7 +17,9 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
+import androidx.build.SupportConfigKt
 import java.nio.file.Files
+import java.nio.file.FileSystems
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -35,6 +37,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -51,8 +54,6 @@ repositories {
     // To allow using local Skija build.
     mavenLocal()
 }
-
-
 
 configurations {
     ui_components
@@ -103,6 +104,7 @@ kotlin {
         }
 
         jvmMain {
+            resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
         }
 
         jvmMain.dependencies {
@@ -118,6 +120,7 @@ kotlin {
 
             api fileTree(project.rootDir.absolutePath + "/ui-desktop/compose-libs")
 
+            implementation(KOTLIN_COROUTINES_SWING)
             implementation files("$androidxDir/core-common-2.1.0.jar")
             implementation "androidx.lifecycle:lifecycle-common:2.3.0-alpha01"
             implementation "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01"
@@ -139,13 +142,11 @@ def uiComponents = [
         "ui-animation-core",
         "ui-core",
         "ui-foundation",
-        "ui-framework",
         "ui-geometry",
         "ui-graphics",
         "ui-layout",
         "ui-livedata",
         "ui-material",
-        "ui-platform",
         "ui-saved-instance-state",
         "ui-test",
         "ui-text",
@@ -177,7 +178,7 @@ def copyToJar(File source, File jar) {
     ZipInputStream stream = new ZipInputStream(bis)
     ZipEntry entry = null
     while ((entry = stream.getNextEntry()) != null) {
-        if(!entry.name.equals("classes.jar")) continue;
+        if (!entry.name.equals("classes.jar")) continue;
         FileOutputStream fos = new FileOutputStream(jar)
         BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.size())
         int len = 0
@@ -194,21 +195,43 @@ def copyToJar(File source, File jar) {
 
 
 // Find in dependencies first (BFS) task's output ending with `name`.
-String findInDeps(Task root, String name) {
+String findInDeps(Task root, Closure<Boolean> matcher) {
     // Do BFS by deps.
     def queue = new java.util.ArrayDeque<Task>()
+    def seen = new java.util.HashSet<Task>()
     queue.addLast(root)
     while (queue.size() > 0) {
         def task = queue.pop()
-        def classes = task.outputs.files.files.find { it.name.endsWith(name) }
+        seen.add(task)
+        def classes = task.outputs.files.files.find { matcher(it.absolutePath) }
         if (classes != null) {
             return classes.absolutePath
         }
         task.taskDependencies.getDependencies(task).each {
-            queue.addLast(it)
+            if (!seen.contains(it))
+                queue.addLast(it)
         }
     }
     return null
+}
+
+java.nio.file.FileSystem getFS(URI uri) {
+    try {
+        def result = FileSystems.getFileSystem(uri)
+        return result
+    } catch (java.nio.file.FileSystemNotFoundException e) {
+        def env = new HashMap<String, String>()
+        return FileSystems.newFileSystem(uri, env)
+    }
+}
+
+void addToJar(String jarName, String entryName, String entryContentPath) {
+    def jarPath = Paths.get(jarName)
+    def uri = URI.create("jar:" + jarPath.toUri());
+    def fs = getFS(uri)
+    def pathInZipFile = fs.getPath("/" + entryName)
+    Files.copy(Paths.get(entryContentPath), pathInZipFile, StandardCopyOption.REPLACE_EXISTING)
+    fs.close()
 }
 
 task extractJars {
@@ -218,16 +241,30 @@ task extractJars {
         uiComponents.each { component ->
             def depProject = project(":ui:" + component)
             def task = depProject.tasks.named("assemble").get()
-            def srcJar = findInDeps(task, "classes.jar")
+            def srcJar = findInDeps(task, { absolutePath ->
+                absolutePath.endsWith("classes.jar") && absolutePath.contains(component)
+            })
             if (srcJar == null) {
                 throw new Error("cannot find classes.jar in "+ task)
             } else {
                 def destJar = composeClassDir + component + ".jar"
                 Files.copy(Paths.get(srcJar), Paths.get(destJar), StandardCopyOption.REPLACE_EXISTING)
+                // TODO: restore missing kotlin_module and remove this code.
+                def missingModuleDir = findInDeps(task, { absolutePath ->
+                    absolutePath.indexOf("kotlin-classes/release") != -1
+                })
+                if (missingModuleDir == null)
+                    throw new Error("cannot find build dir")
+                def shortName = "META-INF/" + component + "_release.kotlin_module"
+                def missingModule = missingModuleDir + "/" + shortName
+                addToJar(destJar, shortName, missingModule)
             }
         }
-        def frameworkProject = project(":ui:ui-framework")
-        def srcJar = findInDeps(frameworkProject.tasks.named("assemble").get(), "compose-compiler.jar")
+        def frameworkProject = project(":compose:compose-compiler")
+        def srcJar = findInDeps(frameworkProject.tasks.named("assemble").get(), {
+            absolutePath ->
+            Pattern.matches(".*/compose-compiler.*.jar", absolutePath)
+        })
         if (srcJar == null)
             throw new Error("cannot find compose-compiler.jar")
         Files.copy(Paths.get(srcJar),
@@ -258,6 +295,7 @@ tasks.withType(KotlinCompile).configureEach {
     dependsOn("extractJars")
     kotlinOptions {
         useIR = true
+        jvmTarget = "1.8"
         freeCompilerArgs += [
                 // TODO: hack, apply compose plugin better.
                 "-Xplugin=${project.rootDir.absolutePath}/ui-desktop/compose-libs/compose-compiler.jar",
@@ -269,6 +307,7 @@ tasks.withType(KotlinCompile).configureEach {
 
 task run(type: JavaExec) {
     main = 'androidx.ui.desktop.example.MainKt'
+    jvmArgs += '-Dkotlinx.coroutines.fast.service.loader=false'
     def compilation = kotlin.jvm().compilations["main"]
     classpath = compilation.output.allOutputs + compilation.runtimeDependencyFiles +
             fileTree(composeClassDir)

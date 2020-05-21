@@ -21,6 +21,7 @@ import androidx.compose.emptyContent
 import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.paint
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
@@ -29,7 +30,6 @@ import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorPainter
 import androidx.ui.layout.preferredSize
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 
 /**
@@ -96,7 +96,7 @@ fun Icon(
 }
 
 private fun Modifier.defaultSizeFor(painter: Painter) =
-    this + if (painter.intrinsicSize == PxSize.UnspecifiedSize) {
+    this + if (painter.intrinsicSize == Size.UnspecifiedSize) {
         DefaultIconSizeModifier
     } else {
         Modifier

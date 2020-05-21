@@ -22,10 +22,8 @@ import androidx.ui.geometry.Radius
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Shape
 import androidx.ui.unit.Dp
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import androidx.ui.unit.toRect
 
 /**
@@ -45,11 +43,11 @@ class RoundedCornerShape(
 
     override fun createOutline(
         size: PxSize,
-        topLeft: Px,
-        topRight: Px,
-        bottomRight: Px,
-        bottomLeft: Px
-    ) = if (topLeft + topRight + bottomLeft + bottomRight == 0.px) {
+        topLeft: Float,
+        topRight: Float,
+        bottomRight: Float,
+        bottomLeft: Float
+    ) = if (topLeft + topRight + bottomLeft + bottomRight == 0.0f) {
         Outline.Rectangle(size.toRect())
     } else {
         Outline.Rounded(
@@ -80,7 +78,7 @@ class RoundedCornerShape(
                 "$bottomRight, bottomLeft = $bottomLeft)"
     }
 
-    private /*inline*/ fun Px.toRadius() = Radius.circular(this.value)
+    private /*inline*/ fun Float.toRadius() = Radius.circular(this)
 }
 
 /**
@@ -103,15 +101,16 @@ val CircleShape = RoundedCornerShape(50)
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
- * @param size Size in [Px] to apply.
+ * @param size Size in pixels to apply.
  */
-/*inline*/ fun RoundedCornerShape(size: Px) = RoundedCornerShape(CornerSize(size))
+/*inline*/ fun RoundedCornerShape(size: Float) = RoundedCornerShape(CornerSize(size))
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
  * @param percent Size in percents to apply.
  */
-/*inline*/ fun RoundedCornerShape(percent: Int) = RoundedCornerShape(CornerSize(percent))
+/*inline*/ fun RoundedCornerShape(percent: Int) =
+    RoundedCornerShape(CornerSize(percent))
 
 /**
  * Creates [RoundedCornerShape] with sizes defined in [Dp].
@@ -129,13 +128,13 @@ val CircleShape = RoundedCornerShape(50)
 )
 
 /**
- * Creates [RoundedCornerShape] with sizes defined in [Px].
+ * Creates [RoundedCornerShape] with sizes defined in pixels.
  */
 /*inline*/ fun RoundedCornerShape(
-    topLeft: Px = 0.px,
-    topRight: Px = 0.px,
-    bottomRight: Px = 0.px,
-    bottomLeft: Px = 0.px
+    topLeft: Float = 0.0f,
+    topRight: Float = 0.0f,
+    bottomRight: Float = 0.0f,
+    bottomLeft: Float = 0.0f
 ) = RoundedCornerShape(
     CornerSize(topLeft),
     CornerSize(topRight),

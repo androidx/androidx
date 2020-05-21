@@ -21,23 +21,19 @@ import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.clickable
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.text.TextStyle
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 
@@ -88,10 +84,8 @@ fun VerticalScrollerSample() {
     val style = TextStyle(fontSize = 30.sp)
     // Scroller will be clipped to this padding
     VerticalScroller {
-        Column(Modifier.padding(20.dp)) {
-            phrases.forEach { phrase ->
-                Text(phrase, style)
-            }
+        phrases.forEach { phrase ->
+            Text(phrase, style)
         }
     }
 }
@@ -119,10 +113,8 @@ fun ControlledHorizontalScrollerSample() {
             scrollerPosition = position,
             isScrollable = scrollable.value
         ) {
-            Row {
-                repeat(1000) { index ->
-                    Square(index)
-                }
+            repeat(1000) { index ->
+                Square(index)
             }
         }
         // Controls that will call `smoothScrollTo`, `scrollTo` or toggle `scrollable` state
@@ -172,35 +164,16 @@ private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<B
 
 @Composable
 private fun SquareButton(text: String, color: Color = Color.LightGray, onClick: () -> Unit) {
-    Clickable(onClick = onClick) {
-        Box(
-            Modifier.padding(5.dp).preferredSize(120.dp, 60.dp),
-            backgroundColor = color,
-            gravity = ContentGravity.Center
-        ) {
-            Text(text, fontSize = 20.sp)
-        }
+    Box(
+        Modifier.padding(5.dp).preferredSize(120.dp, 60.dp).clickable(onClick = onClick),
+        backgroundColor = color,
+        gravity = ContentGravity.Center
+    ) {
+        Text(text, fontSize = 20.sp)
     }
 }
 
 @Composable
-private fun Text(text: String, textStyle: TextStyle) {
-
-    val pressedColor = Color.LightGray
-    val releasedColor = Color.Transparent
-
-    val color = state { releasedColor }
-
-    val onPress: (PxPosition) -> Unit = { _ ->
-        color.value = pressedColor
-    }
-
-    val onRelease: () -> Unit = {
-        color.value = releasedColor
-    }
-
-    val gestureModifier = Modifier
-        .pressIndicatorGestureFilter(onStart = onPress, onStop = onRelease, onCancel = onRelease)
-
-    Text(text, gestureModifier.drawBackground(color.value, RectangleShape), style = textStyle)
+private fun Text(text: String, style: TextStyle) {
+    Text(text, style = style, modifier = Modifier.clickable { })
 }

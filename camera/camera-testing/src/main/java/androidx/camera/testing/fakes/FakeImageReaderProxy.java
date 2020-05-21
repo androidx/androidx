@@ -45,6 +45,8 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     private Surface mSurface;
     private Executor mExecutor;
 
+    private boolean mIsClosed = false;
+
     // Queue of all futures for ImageProxys which have not yet been closed.
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
             BlockingQueue<ListenableFuture<Void>> mImageProxyBlockingQueue;
@@ -64,6 +66,21 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         mMaxImages = maxImages;
         mImageProxyBlockingQueue = new LinkedBlockingQueue<>(maxImages);
         mImageProxyAcquisitionQueue = new LinkedBlockingQueue<>(maxImages);
+    }
+
+    /**
+     * Create a new {@link FakeImageReaderProxy} instance.
+     *
+     * @param maxImages The maximum number of images that can be acquired at once
+     */
+    @NonNull
+    public static FakeImageReaderProxy newInstance(int width, int height, int format,
+            int maxImages, long usage) {
+        FakeImageReaderProxy fakeImageReaderProxy = new FakeImageReaderProxy(maxImages);
+        fakeImageReaderProxy.mWidth = width;
+        fakeImageReaderProxy.mHeight = height;
+        fakeImageReaderProxy.setImageFormat(format);
+        return fakeImageReaderProxy;
     }
 
     @Override
@@ -100,7 +117,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     @Override
     public void close() {
-
+        mIsClosed = true;
     }
 
     @Override
@@ -142,6 +159,10 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     public void setImageFormat(int imageFormat) {
         mImageFormat = imageFormat;
+    }
+
+    public boolean isClosed() {
+        return mIsClosed;
     }
 
     /**

@@ -188,7 +188,7 @@ public final class Preview extends UseCase {
         }
 
         final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution,
-                getBoundCamera().getCameraInfo());
+                getCamera(), getViewPortCropRect());
         setUpSurfaceProviderWrap(surfaceRequest);
 
         if (captureProcessor != null) {
@@ -240,10 +240,10 @@ public final class Preview extends UseCase {
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
 
-                // Ensure the bound camera has not changed before resetting.
-                // TODO(b/143915543): Ensure this never gets called by a camera that is not bound
+                // Ensure the attached camera has not changed before resetting.
+                // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
                 //  to this use case so we don't need to do this check.
-                if (isCurrentlyBoundCamera(cameraId)) {
+                if (isCurrentCamera(cameraId)) {
                     // Only reset the pipeline when the bound camera is the same.
                     SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
                             resolution);
@@ -336,7 +336,7 @@ public final class Preview extends UseCase {
             mSurfaceProviderCompleter.set(new Pair<>(mSurfaceProvider, mSurfaceProviderExecutor));
             mSurfaceProviderCompleter = null;
         } else if (mLatestResolution != null) {
-            updateConfigAndOutput(getBoundCameraId(), (PreviewConfig) getUseCaseConfig(),
+            updateConfigAndOutput(getCameraId(), (PreviewConfig) getUseCaseConfig(),
                     mLatestResolution);
         }
     }
@@ -417,14 +417,14 @@ public final class Preview extends UseCase {
         PreviewConfig previewConfig = (PreviewConfig) super.applyDefaults(userConfig,
                 defaultConfigBuilder);
 
-        CameraInternal boundCamera = getBoundCamera();
+        CameraInternal attachedCamera = getCamera();
         // Checks the device constraints and get the corrected aspect ratio.
-        if (boundCamera != null && CameraX.getSurfaceManager().requiresCorrectedAspectRatio(
-                boundCamera.getCameraInfoInternal().getCameraId())) {
+        if (attachedCamera != null && CameraX.getSurfaceManager().requiresCorrectedAspectRatio(
+                attachedCamera.getCameraInfoInternal().getCameraId())) {
             ImageOutputConfig imageConfig = previewConfig;
             Rational resultRatio =
                     CameraX.getSurfaceManager().getCorrectedAspectRatio(
-                            boundCamera.getCameraInfoInternal().getCameraId(),
+                            attachedCamera.getCameraInfoInternal().getCameraId(),
                             imageConfig.getTargetRotation(Surface.ROTATION_0));
             if (resultRatio != null) {
                 Builder configBuilder = Builder.fromConfig(previewConfig);
@@ -482,7 +482,7 @@ public final class Preview extends UseCase {
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
         mLatestResolution = suggestedResolution;
 
-        updateConfigAndOutput(getBoundCameraId(), (PreviewConfig) getUseCaseConfig(),
+        updateConfigAndOutput(getCameraId(), (PreviewConfig) getUseCaseConfig(),
                 mLatestResolution);
 
         return mLatestResolution;

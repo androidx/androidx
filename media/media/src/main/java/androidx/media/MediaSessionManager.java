@@ -17,6 +17,7 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.os.Build;
@@ -128,14 +129,14 @@ public final class MediaSessionManager {
          * Represents an unknown pid of an application.
          * @hide
          */
-        @RestrictTo(LIBRARY)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public static final int UNKNOWN_PID = -1;
 
         /**
          * Represents an unknown uid of an application.
          * @hide
          */
-        @RestrictTo(LIBRARY)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public static final int UNKNOWN_UID = -1;
 
         RemoteUserInfoImpl mImpl;

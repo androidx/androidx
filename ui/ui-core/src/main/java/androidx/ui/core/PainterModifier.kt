@@ -22,8 +22,7 @@ import androidx.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.graphics.painter.drawCanvas
-import androidx.ui.graphics.painter.withTransform
+import androidx.ui.graphics.drawscope.withTransform
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
@@ -58,7 +57,7 @@ import kotlin.math.ceil
  *
  * @param rtl: Flag to indicate contents of the [Painter] should render for right to left languages
  *
- * @sample androidx.ui.framework.samples.PainterModifierSample
+ * @sample androidx.ui.core.samples.PainterModifierSample
  */
 @Deprecated(
     "Use Modifier.paint",
@@ -68,6 +67,7 @@ import kotlin.math.ceil
         "androidx.ui.core.paint"
     )
 )
+@Suppress("UNUSED_PARAMETER")
 @Composable
 fun Painter.asModifier(
     sizeToIntrinsics: Boolean = true,
@@ -79,8 +79,8 @@ fun Painter.asModifier(
 ): DrawModifier {
     // TODO potentially create thread-safe PainterModifier pool to allow for re-use
     //  of PainterModifier instances and avoid gc overhead
-    return remember(this, sizeToIntrinsics, alignment, contentScale, alpha, colorFilter, rtl) {
-        PainterModifier(this, sizeToIntrinsics, alignment, contentScale, alpha, colorFilter, rtl)
+    return remember(this, sizeToIntrinsics, alignment, contentScale, alpha, colorFilter) {
+        PainterModifier(this, sizeToIntrinsics, alignment, contentScale, alpha, colorFilter)
     }
 }
 
@@ -92,7 +92,6 @@ fun Painter.asModifier(
  * @param contentScale strategy for scaling [painter] if its size does not match the content size
  * @param alpha opacity of [painter]
  * @param colorFilter optional [ColorFilter] to apply to [painter]
- * @param rtl layout direction to report to [painter] when drawing
  */
 fun Modifier.paint(
     painter: Painter,
@@ -100,16 +99,14 @@ fun Modifier.paint(
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Inside,
     alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null,
-    rtl: Boolean = false
+    colorFilter: ColorFilter? = null
 ) = this + PainterModifier(
     painter = painter,
     sizeToIntrinsics = sizeToIntrinsics,
     alignment = alignment,
     contentScale = contentScale,
     alpha = alpha,
-    colorFilter = colorFilter,
-    rtl = rtl
+    colorFilter = colorFilter
 )
 
 /**
@@ -122,8 +119,7 @@ private data class PainterModifier(
     val alignment: Alignment = Alignment.Center,
     val contentScale: ContentScale = ContentScale.Inside,
     val alpha: Float = DefaultAlpha,
-    val colorFilter: ColorFilter? = null,
-    val rtl: Boolean = false
+    val colorFilter: ColorFilter? = null
 ) : LayoutModifier, DrawModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -144,7 +140,7 @@ private data class PainterModifier(
         val constraints = Constraints(maxHeight = height)
         val layoutWidth = measurable.minIntrinsicWidth(modifyConstraints(constraints).maxHeight)
         val painterIntrinsicWidth =
-            painter.intrinsicSize.width.takeUnless {
+            Px(painter.intrinsicSize.width).takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity
             }?.ceil() ?: layoutWidth
         return max(painterIntrinsicWidth, layoutWidth)
@@ -158,7 +154,7 @@ private data class PainterModifier(
         val constraints = Constraints(maxHeight = height)
         val layoutWidth = measurable.maxIntrinsicWidth(modifyConstraints(constraints).maxHeight)
         val painterIntrinsicWidth =
-            painter.intrinsicSize.width.takeUnless {
+            Px(painter.intrinsicSize.width).takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity
             }?.ceil() ?: layoutWidth
         return max(painterIntrinsicWidth, layoutWidth)
@@ -172,7 +168,7 @@ private data class PainterModifier(
         val constraints = Constraints(maxWidth = width)
         val layoutHeight = measurable.minIntrinsicHeight(modifyConstraints(constraints).maxWidth)
         val painterIntrinsicHeight =
-            painter.intrinsicSize.height.takeUnless {
+            Px(painter.intrinsicSize.height).takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity
             }?.ceil() ?: layoutHeight
         return max(painterIntrinsicHeight, layoutHeight)
@@ -186,7 +182,7 @@ private data class PainterModifier(
         val constraints = Constraints(maxWidth = width)
         val layoutHeight = measurable.maxIntrinsicHeight(modifyConstraints(constraints).maxWidth)
         val painterIntrinsicHeight =
-            painter.intrinsicSize.height.takeUnless {
+            Px(painter.intrinsicSize.height).takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity
             }?.ceil() ?: layoutHeight
         return max(painterIntrinsicHeight, layoutHeight)
@@ -195,11 +191,11 @@ private data class PainterModifier(
     private fun modifyConstraints(constraints: Constraints): Constraints {
         val intrinsicSize = painter.intrinsicSize
         val intrinsicWidth =
-            intrinsicSize.width.takeUnless {
+            Px(intrinsicSize.width).takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity
             }?.ceil() ?: constraints.minWidth
         val intrinsicHeight =
-            intrinsicSize.height.takeUnless {
+            Px(intrinsicSize.height).takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity
             }?.ceil() ?: constraints.minHeight
 
@@ -215,14 +211,14 @@ private data class PainterModifier(
 
     override fun ContentDrawScope.draw() {
         val intrinsicSize = painter.intrinsicSize
-        val srcWidth = if (intrinsicSize.width.value != Float.POSITIVE_INFINITY) {
-            intrinsicSize.width.value
+        val srcWidth = if (intrinsicSize.width != Float.POSITIVE_INFINITY) {
+            intrinsicSize.width
         } else {
             size.width
         }
 
-        val srcHeight = if (intrinsicSize.height.value != Float.POSITIVE_INFINITY) {
-            intrinsicSize.height.value
+        val srcHeight = if (intrinsicSize.height != Float.POSITIVE_INFINITY) {
+            intrinsicSize.height
         } else {
             size.height
         }
@@ -244,14 +240,8 @@ private data class PainterModifier(
             translate(dx, dy)
             scale(scale, scale, 0.0f, 0.0f)
         }) {
-            drawCanvas { canvas, _ ->
-                painter.draw(
-                    canvas = canvas,
-                    size = PxSize(Px(srcSize.width), Px(srcSize.height)),
-                    alpha = alpha,
-                    colorFilter = colorFilter,
-                    rtl = rtl
-                )
+            with(painter) {
+                draw(size = srcSize, alpha = alpha, colorFilter = colorFilter)
             }
         }
     }

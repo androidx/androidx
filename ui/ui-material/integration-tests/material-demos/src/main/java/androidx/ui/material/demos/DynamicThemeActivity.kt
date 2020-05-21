@@ -20,7 +20,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.animation.FastOutSlowInEasing
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.MutableState
+import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
@@ -53,12 +54,12 @@ import kotlin.math.round
  * as the user scrolls. This has the effect of going from a 'light' theme to a 'dark' theme.
  */
 class DynamicThemeActivity : ComponentActivity() {
-    private val scrollFraction = ScrollFraction()
+    private val scrollFraction = mutableStateOf(0f)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val palette = interpolateTheme(scrollFraction.fraction)
+            val palette = interpolateTheme(scrollFraction.value)
             val darkenedPrimary = palette.darkenedPrimary
             window.statusBarColor = darkenedPrimary
             window.navigationBarColor = darkenedPrimary
@@ -79,8 +80,7 @@ class DynamicThemeActivity : ComponentActivity() {
         }
 }
 
-@Model
-private class ScrollFraction(var fraction: Float = 0f)
+private typealias ScrollFraction = MutableState<Float>
 
 @Composable
 private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalette) {
@@ -88,7 +88,7 @@ private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalett
         val scrollerPosition = ScrollerPosition()
         val fraction =
             round((scrollerPosition.value / scrollerPosition.maxPosition) * 100) / 100
-        remember(fraction) { scrollFraction.fraction = fraction }
+        remember(fraction) { scrollFraction.value = fraction }
         Scaffold(
             topAppBar = { TopAppBar({ Text("Scroll down!") }) },
             bottomAppBar = { BottomAppBar(fabConfiguration = it, cutoutShape = CircleShape) {} },
@@ -109,7 +109,7 @@ private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalett
 
 @Composable
 private fun Fab(scrollFraction: ScrollFraction) {
-    val fabText = emojiForScrollFraction(scrollFraction.fraction)
+    val fabText = emojiForScrollFraction(scrollFraction.value)
     ExtendedFloatingActionButton(
         text = { Text(fabText, style = MaterialTheme.typography.h5) },
         onClick = {}

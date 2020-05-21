@@ -51,6 +51,7 @@ import androidx.media2.session.MediaController.ControllerCallbackRunnable;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
+import androidx.media2.session.SessionResult;
 import androidx.media2.session.SessionToken;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
@@ -199,9 +200,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
         AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(stream).build();
-        Bundle playerConfig = RemoteMediaSession.createMockPlayerConnectorConfig(
-                0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
-                0f /* speed */, attrs);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setAudioAttributes(attrs)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
@@ -260,9 +261,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
         AudioAttributesCompat oldAttrs = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(oldStream).build();
-        Bundle playerConfig = RemoteMediaSession.createMockPlayerConnectorConfig(
-                0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
-                0f /* speed */, oldAttrs);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setAudioAttributes(oldAttrs)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
 
         AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
@@ -306,9 +307,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
         AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(stream).build();
-        Bundle playerConfig = RemoteMediaSession.createMockPlayerConnectorConfig(
-                0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
-                0f /* speed */, attrs);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setAudioAttributes(attrs)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
@@ -380,10 +381,15 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final long timeDiff = 102;
         final MediaItem currentMediaItem = MediaTestUtils.createFileMediaItemWithMetadata();
 
-        Bundle config = RemoteMediaSession.createMockPlayerConnectorConfig(
-                state, bufferingState, position, bufferedPosition, speed, null /* audioAttrs */,
-                null /* playlist */, currentMediaItem, null /* metadata */);
-        mRemoteSession.updatePlayer(config);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setPlayerState(state)
+                .setBufferingState(bufferingState)
+                .setCurrentPosition(position)
+                .setBufferedPosition(bufferedPosition)
+                .setPlaybackSpeed(speed)
+                .setCurrentMediaItem(currentMediaItem)
+                .build();
+        mRemoteSession.updatePlayer(playerConfig);
 
         MediaController controller = createController(mRemoteSession.getToken());
         controller.setTimeDiff(timeDiff);
@@ -401,9 +407,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 .setContentType(CONTENT_TYPE_MUSIC)
                 .build();
 
-        Bundle playerConfig = RemoteMediaSession.createMockPlayerConnectorConfig(
-                0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
-                0f /* speed */, attrs);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setAudioAttributes(attrs)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
 
         final MediaController controller = createController(mRemoteSession.getToken());
@@ -426,8 +432,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
     @Test
     public void getVideoSize() throws InterruptedException {
         VideoSize testSize = new VideoSize(100, 42);
-        Bundle playerConfig = RemoteMediaSession.createMockPlayerConnectorConfigForVideoSize(
-                testSize);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setVideoSize(testSize)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
         MediaController controller = createController(mRemoteSession.getToken());
         assertEquals(testSize, controller.getVideoSize());
@@ -436,8 +443,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
     @Test
     public void getTracks() throws Exception {
         final List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
-        Bundle playerConfig =
-                RemoteMediaSession.createMockPlayerConnectorConfigForTrackInfo(testTracks);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setTrackInfo(testTracks)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
 
         MediaController controller = createController(mRemoteSession.getToken());
@@ -456,8 +464,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final List<TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
         final TrackInfo testTrack = testTracks.get(2);
         int testTrackType = testTrack.getTrackType();
-        Bundle playerConfig =
-                RemoteMediaSession.createMockPlayerConnectorConfigForTrackInfo(testTracks);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setTrackInfo(testTracks)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
         MediaController controller = createController(mRemoteSession.getToken(), true, null,
                 new MediaController.ControllerCallback() {
@@ -610,6 +619,22 @@ public class MediaControllerTest extends MediaSessionTestBase {
         }
 
         assertTrue("All futures should be completed", latch.await(10, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void play_returnsSessionResultWithMediaItem() throws Exception {
+        if (!MediaTestUtils.isServiceToT()) {
+            // SessionResult had a null item until media2-session 1.0.x (b/154885520).
+            return;
+        }
+
+        RemoteMediaSession session = mRemoteSession;
+        session.getMockPlayer().createAndSetDummyPlaylist(/* size= */ 1);
+        session.getMockPlayer().setCurrentMediaItem(/* index= */ 0);
+
+        MediaController controller = createController(session.getToken());
+        SessionResult result = controller.play().get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        assertNotNull(result.getMediaItem());
     }
 
     RemoteMediaSession createRemoteMediaSession(String id, Bundle tokenExtras) {

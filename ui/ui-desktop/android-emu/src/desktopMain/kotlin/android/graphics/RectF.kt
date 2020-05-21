@@ -17,10 +17,17 @@
 package android.graphics
 
 class RectF(
-    val left: Float,
-    val top: Float,
-    val right: Float,
-    val bottom: Float
+    var left: Float,
+    var top: Float,
+    var right: Float,
+    var bottom: Float
 ) {
     constructor() : this(0f, 0f, 0f, 0f)
+
+    fun set(left: Float, top: Float, right: Float, bottom: Float) {
+        this.left = left
+        this.top = top
+        this.right = right
+        this.bottom = bottom
+    }
 }

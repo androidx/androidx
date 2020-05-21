@@ -29,7 +29,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -57,7 +58,7 @@ public class WebViewWebMessageListenerTest {
             + "        myObject.postMessage('hello');"
             + "    </script>"
             + "</body></html>";
-    private static final List<String> MATCH_EXAMPLE_COM = Arrays.asList(BASE_URI);
+    private static final Set<String> MATCH_EXAMPLE_COM = new HashSet(Arrays.asList(BASE_URI));
 
     private WebViewOnUiThread mWebViewOnUiThread;
     private TestWebMessageListener mListener = new TestWebMessageListener();

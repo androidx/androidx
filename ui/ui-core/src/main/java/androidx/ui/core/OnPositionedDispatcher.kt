@@ -18,14 +18,12 @@ package androidx.ui.core
 
 /**
  * Tracks the nodes being positioned and dispatches OnPositioned callbacks when we finished
- * the measure/layout pass (or later if it is currently disabled via [disableDispatching]).
+ * the measure/layout pass.
  */
 internal class OnPositionedDispatcher {
 
     private var topDepth = Int.MAX_VALUE
     private var topNode: LayoutNode? = null
-
-    var dispatchingEnabled = true
 
     fun onNodePositioned(node: LayoutNode) {
         if (node.depth < topDepth) {
@@ -34,15 +32,9 @@ internal class OnPositionedDispatcher {
         }
     }
 
-    inline fun disableDispatching(block: () -> Unit) {
-        dispatchingEnabled = false
-        block()
-        dispatchingEnabled = true
-    }
-
     fun dispatch() {
-        if (dispatchingEnabled) {
-            topNode?.dispatchOnPositionedCallbacks()
+        topNode?.also {
+            it.dispatchOnPositionedCallbacks()
             topNode = null
             topDepth = Int.MAX_VALUE
         }

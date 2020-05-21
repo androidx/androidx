@@ -16,7 +16,12 @@
 
 package androidx.ui.integration.test
 
+import android.annotation.TargetApi
+import android.graphics.Picture
+import android.graphics.RenderNode
+import android.os.Build
 import androidx.ui.geometry.Offset
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.text.AnnotatedString
@@ -29,7 +34,6 @@ import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.unit.em
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import kotlin.math.ceil
 import kotlin.random.Random
@@ -43,7 +47,7 @@ class RandomTextGenerator(
         SpanStyle(color = Color.Blue),
         SpanStyle(background = Color.Cyan),
         SpanStyle(textDecoration = TextDecoration.Underline),
-        SpanStyle(shadow = Shadow(Color.Black, Offset(3f, 3f), 2.px))
+        SpanStyle(shadow = Shadow(Color.Black, Offset(3f, 3f), 2.0f))
     )
 
     private val metricAffectingTextStyles = arrayOf(
@@ -103,7 +107,7 @@ class RandomTextGenerator(
         text: String,
         styleCount: Int = text.split(alphabet.space).size,
         hasMetricAffectingStyle: Boolean = true
-    ): List<AnnotatedString.Item<SpanStyle>> {
+    ): List<AnnotatedString.Range<SpanStyle>> {
         val spanStyleList = getSpanStyleList(hasMetricAffectingStyle)
 
         val words = text.split(alphabet.space)
@@ -121,7 +125,7 @@ class RandomTextGenerator(
 
             val styleCountOnWord = stylePerWord + if (wordIndex < remains) 1 else 0
             List(styleCountOnWord) {
-                AnnotatedString.Item(
+                AnnotatedString.Range(
                     start = start,
                     end = end,
                     item = spanStyleList[styleIndex++ % spanStyleList.size]
@@ -225,5 +229,48 @@ fun cartesian(vararg arrays: Array<Any>): List<Array<Any>> {
         // add items from the current list
         // to each list that was accumulated
         acc.flatMap { accListItem -> list.map { accListItem + it } }
+    }
+}
+
+// We must separate the use of RenderNode so that it isn't referenced in any
+// way on platforms that don't have it. This extracts RenderNode use to a
+// potentially unloaded class, RenderNodeCapture.
+interface DrawCapture {
+    fun beginRecording(width: Int, height: Int): Canvas
+    fun endRecording()
+}
+
+fun DrawCapture(): DrawCapture {
+    val supportsRenderNode = Build.VERSION.SDK_INT >= 29
+    return if (supportsRenderNode) {
+        RenderNodeCapture()
+    } else {
+        PictureCapture()
+    }
+}
+
+@TargetApi(Build.VERSION_CODES.Q)
+private class RenderNodeCapture : DrawCapture {
+    private val renderNode = RenderNode("Test")
+
+    override fun beginRecording(width: Int, height: Int): Canvas {
+        renderNode.setPosition(0, 0, width, height)
+        return Canvas(renderNode.beginRecording())
+    }
+
+    override fun endRecording() {
+        renderNode.endRecording()
+    }
+}
+
+private class PictureCapture : DrawCapture {
+    private val picture = Picture()
+
+    override fun beginRecording(width: Int, height: Int): Canvas {
+        return Canvas(picture.beginRecording(width, height))
+    }
+
+    override fun endRecording() {
+        picture.endRecording()
     }
 }

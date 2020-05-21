@@ -18,20 +18,23 @@ package androidx.ui.demos
 
 import android.content.SharedPreferences
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.Stable
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.ui.foundation.isSystemInDarkTheme
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.darkColorPalette
 import androidx.ui.material.lightColorPalette
 
 /**
- * Wrapper [Model] class that contains a light and dark [ColorPalette], to allow saving and
+ * Wrapper class that contains a light and dark [ColorPalette], to allow saving and
  * restoring the entire light / dark theme to and from [SharedPreferences].
  */
-@Model
+@Stable
 class DemoColorPalette {
-    var lightColors: ColorPalette = lightColorPalette()
-    var darkColors: ColorPalette = darkColorPalette()
+    var lightColors: ColorPalette by mutableStateOf(lightColorPalette())
+    var darkColors: ColorPalette by mutableStateOf(darkColorPalette())
 
     @Composable
     val colors

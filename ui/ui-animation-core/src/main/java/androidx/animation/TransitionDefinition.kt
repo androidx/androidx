@@ -16,6 +16,7 @@
 
 package androidx.animation
 
+import androidx.ui.util.fastFirstOrNull
 import kotlin.experimental.ExperimentalTypeInference
 
 /**
@@ -269,10 +270,10 @@ class TransitionDefinition<T> {
         }
 
     internal fun getSpec(fromState: T, toState: T): TransitionSpec<T> {
-        return transitionSpecs.firstOrNull { it.defines(fromState, toState) }
-            ?: transitionSpecs.firstOrNull { it.defines(fromState, null) }
-            ?: transitionSpecs.firstOrNull { it.defines(null, toState) }
-            ?: transitionSpecs.firstOrNull { it.defines(null, null) }
+        return transitionSpecs.fastFirstOrNull { it.defines(fromState, toState) }
+            ?: transitionSpecs.fastFirstOrNull { it.defines(fromState, null) }
+            ?: transitionSpecs.fastFirstOrNull { it.defines(null, toState) }
+            ?: transitionSpecs.fastFirstOrNull { it.defines(null, null) }
             ?: defaultTransitionSpec
     }
 

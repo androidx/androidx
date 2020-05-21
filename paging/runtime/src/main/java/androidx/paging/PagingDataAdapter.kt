@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.lifecycle.Lifecycle
+import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.MergeAdapter
@@ -32,14 +33,13 @@ import kotlinx.coroutines.flow.Flow
  * This class is a convenience wrapper around [AsyncPagingDataDiffer] that implements common default
  * behavior for item counting, and listening to update events.
  *
- * To present a [Flow]<[PagingData]>, you would connect generally use
- * [collectLatest][kotlinx.coroutines.flow.collectLatest], and
- * call [presentData] on the latest generation of [PagingData].
+ * To present a [Pager], use [collectLatest][kotlinx.coroutines.flow.collectLatest] to observe
+ * [Pager.flow] and call [submitData] whenever a new [PagingData] is emitted.
  *
- * If you are using RxJava or LiveData as your reactive stream API, you would typically connect
- * those to [submitData].
+ * If using RxJava and LiveData extensions on [Pager], use the non-suspending overload of
+ * [submitData], which accepts a [Lifecycle].
  *
- * PagingDataAdapter listens to internal PagingData loading events as
+ * [PagingDataAdapter] listens to internal [PagingData] loading events as
  * [pages][PagingSource.LoadResult.Page] are loaded, and uses [DiffUtil] on a background thread to
  * compute fine grained updates as updated content in the form of new PagingData objects are
  * received.
@@ -71,30 +71,44 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     }
 
     /**
-     * Present the new [PagingData], and suspend as long as it is not invalidated.
+     * Present a [PagingData] until it is invalidated by a call to [refresh] or
+     * [PagingSource.invalidate].
      *
-     * This method should be called on the same [CoroutineDispatcher] where updates will be
-     * dispatched to UI, typically [Dispatchers.Main].
+     * [submitData] should be called on the same [CoroutineDispatcher] where updates will be
+     * dispatched to UI, typically [Dispatchers.Main] (this is done for you if you use
+     * `lifecycleScope.launch {}`).
      *
-     * This method is typically used when observing a [Flow]. For a RxJava or LiveData stream,
-     * see [submitData]
+     * This method is typically used when collecting from a [Flow] produced by [Pager]. For RxJava
+     * or LiveData support, use the non-suspending overload of [submitData], which accepts a
+     * [Lifecycle].
      *
-     * @sample androidx.paging.samples.presentDataSample
-     * @see [submitData]
+     * Note: This method suspends while it is actively presenting page loads from a [PagingData],
+     * until the [PagingData] is invalidated. Although cancellation will propagate to this call
+     * automatically, collecting from a [Pager.flow] with the intention of presenting the most
+     * up-to-date representation of your backing dataset should typically be done using
+     * [collectLatest][kotlinx.coroutines.flow.collectLatest].
+     *
+     * @sample androidx.paging.samples.submitDataFlowSample
+     *
+     * @see [Pager]
      */
-    suspend fun presentData(pagingData: PagingData<T>) {
-        differ.presentData(pagingData)
+    suspend fun submitData(pagingData: PagingData<T>) {
+        differ.submitData(pagingData)
     }
 
     /**
-     * Present the new PagingData until the next call to submitData.
+     * Present a [PagingData] until it is either invalidated or another call to [submitData] is
+     * made.
      *
-     * This method is typically used when observing a RxJava or LiveData stream. For [Flow], see
-     * [presentData]
+     * This method is typically used when observing a RxJava or LiveData stream produced by [Pager].
+     * For [Flow] support, use the suspending overload of [submitData], which automates cancellation
+     * via [CoroutineScope][kotlinx.coroutines.CoroutineScope] instead of relying of [Lifecycle].
      *
      * @sample androidx.paging.samples.submitDataLiveDataSample
      * @sample androidx.paging.samples.submitDataRxSample
-     * @see [presentData]
+     *
+     * @see submitData
+     * @see [Pager]
      */
     fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
         differ.submitData(lifecycle, pagingData)
@@ -112,6 +126,22 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         differ.retry()
     }
 
+    /**
+     * Refresh the data presented by this [PagingDataAdapter].
+     *
+     * [refresh] triggers the creation of a new [PagingData] with a new instance of [PagingSource]
+     * to represent an updated snapshot of the backing dataset. If a [RemoteMediator] is set,
+     * calling [refresh] will also trigger a call to [RemoteMediator.load] with [LoadType] [REFRESH]
+     * to allow [RemoteMediator] to check for updates to the dataset backing [PagingSource].
+     *
+     * Note: This API is intended for UI-driven refresh signals, such as swipe-to-refresh.
+     * Invalidation due repository-layer signals, such as DB-updates, should instead use
+     * [PagingSource.invalidate].
+     *
+     * @see PagingSource.invalidate
+     *
+     * @sample androidx.paging.samples.refreshSample
+     */
     fun refresh() {
         differ.refresh()
     }
@@ -203,5 +233,36 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
             }
         }
         return MergeAdapter(header, this, footer)
+    }
+
+    /**
+     * A [Flow] of [Unit] that is emitted when new [PagingData] generations are submitted and
+     * displayed.
+     */
+    @ExperimentalPagingApi
+    val dataRefreshFlow: Flow<Unit> = differ.dataRefreshFlow
+
+    /**
+     * Add a listener to observe new [PagingData] generations.
+     *
+     * @param listener called whenever a new [PagingData] is submitted and displayed.
+     *
+     * @see removeDataRefreshListener
+     */
+    @ExperimentalPagingApi
+    fun addDataRefreshListener(listener: () -> Unit) {
+        differ.addDataRefreshListener(listener)
+    }
+
+    /**
+     * Remove a previously registered listener for new [PagingData] generations.
+     *
+     * @param listener Previously registered listener.
+     *
+     * @see addDataRefreshListener
+     */
+    @ExperimentalPagingApi
+    fun removeDataRefreshListener(listener: () -> Unit) {
+        differ.removeDataRefreshListener(listener)
     }
 }

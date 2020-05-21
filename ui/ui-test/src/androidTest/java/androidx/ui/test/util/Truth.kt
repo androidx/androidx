@@ -39,18 +39,18 @@ fun PxPosition.isAlmostEqualTo(position: PxPosition, tolerance: Float = 1e-3f) {
 }
 
 /**
- * Checks that the values are progressing in a strictly monotonous direction between [a] and [b].
+ * Checks that the values are progressing in a monotonic direction between [a] and [b].
  * If [a] and [b] are equal, all values in the list should be that value too. The edges [a] and
  * [b] allow a [tolerance] for floating point imprecision, which is by default `0.001`.
  */
-fun List<Float>.isMonotonousBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {
+fun List<Float>.isMonotonicBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {
     val expectedSign = sign(b - a)
     if (expectedSign == 0f) {
         forEach { assertThat(it).isAlmostEqualTo(a, tolerance) }
     } else {
         forEach { assertThat(it).isAlmostBetween(a, b, tolerance) }
         zipWithNext { curr, next -> sign(next - curr) }.forEach {
-            assertThat(it).isEqualTo(expectedSign)
+            if (it != 0f) assertThat(it).isEqualTo(expectedSign)
         }
     }
 }

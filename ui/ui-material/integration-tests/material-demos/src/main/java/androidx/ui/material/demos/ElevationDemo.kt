@@ -20,10 +20,10 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.clickable
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -33,7 +33,6 @@ import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.material.Card
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.ripple.ripple
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -62,10 +61,14 @@ private fun ElevatedCard(elevation: Dp) {
         border = if (elevation == 0.dp) Border(1.dp, Color.Gray) else null,
         elevation = elevation
     ) {
-        Clickable(onClick = {}, modifier = Modifier.ripple()) {
-            Box(Modifier.fillMaxWidth().preferredHeight(150.dp), gravity = ContentGravity.Center) {
-                Text("$elevation", style = MaterialTheme.typography.h4)
-            }
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .preferredHeight(150.dp)
+                .clickable(onClick = {}),
+            gravity = ContentGravity.Center
+        ) {
+            Text("$elevation", style = MaterialTheme.typography.h4)
         }
     }
 }

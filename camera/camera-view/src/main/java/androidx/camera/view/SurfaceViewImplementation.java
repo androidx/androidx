@@ -27,10 +27,12 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * The SurfaceView implementation for {@link PreviewView}.
@@ -47,11 +49,20 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     @SuppressWarnings("WeakerAccess")
     final SurfaceRequestCallback mSurfaceRequestCallback = new SurfaceRequestCallback();
 
-    private Preview.SurfaceProvider mSurfaceProvider = (surfaceRequest) -> {
+    @Nullable
+    private OnSurfaceNotInUseListener mOnSurfaceNotInUseListener;
+
+    @Override
+    void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest,
+            @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener) {
         mResolution = surfaceRequest.getResolution();
+        mOnSurfaceNotInUseListener = onSurfaceNotInUseListener;
         initializePreview();
+        surfaceRequest.addRequestCancellationListener(
+                ContextCompat.getMainExecutor(mSurfaceView.getContext()),
+                this::notifySurfaceNotInUse);
         mSurfaceView.post(() -> mSurfaceRequestCallback.setSurfaceRequest(surfaceRequest));
-    };
+    }
 
     @Override
     void initializePreview() {
@@ -82,15 +93,13 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         // Do nothing currently.
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @NonNull
-    @Override
-    public Preview.SurfaceProvider getSurfaceProvider() {
-        return mSurfaceProvider;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    void notifySurfaceNotInUse() {
+        if (mOnSurfaceNotInUseListener != null) {
+            mOnSurfaceNotInUseListener.onSurfaceNotInUse();
+            mOnSurfaceNotInUseListener = null;
+        }
     }
-
     /**
      * The {@link SurfaceHolder.Callback} on mSurfaceView.
      *
@@ -148,7 +157,10 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
                 Log.d(TAG, "Surface set on Preview.");
                 mSurfaceRequest.provideSurface(surface,
                         ContextCompat.getMainExecutor(mSurfaceView.getContext()),
-                        (result) -> Log.d(TAG, "Safe to release surface."));
+                        (result) -> {
+                            Log.d(TAG, "Safe to release surface.");
+                            notifySurfaceNotInUse();
+                        });
                 mWasSurfaceProvided = true;
                 onSurfaceProvided();
                 return true;
@@ -202,5 +214,11 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             mCurrentSurfaceSize = null;
             mTargetSize = null;
         }
+    }
+
+    @Override
+    @NonNull
+    ListenableFuture<Void> waitForNextFrame() {
+        return Futures.immediateFuture(null);
     }
 }

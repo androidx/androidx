@@ -16,9 +16,8 @@
 
 package androidx.ui.material.ripple
 
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.unit.IntPxSize
+import androidx.ui.graphics.drawscope.DrawScope
 
 /**
  * [RippleEffect]s are drawn as part of [ripple] as a visual indicator for a pressed state.
@@ -30,11 +29,9 @@ interface RippleEffect {
     /**
      * Override this method to draw the ripple.
      *
-     * @param canvas The [Canvas] to draw on.
-     * @param size The size of the target layout.
      * @param color The [Color] for this [RippleEffect].
      */
-    fun draw(canvas: Canvas, size: IntPxSize, color: Color)
+    fun DrawScope.draw(color: Color)
 
     /**
      * Called when the user input that triggered this effect was confirmed or canceled.

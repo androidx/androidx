@@ -192,7 +192,7 @@ private interface PreferredIntrinsicSizeModifier : LayoutModifier {
 @Deprecated("This component is deprecated. " +
         "Please use the preferredWidth(IntrinsicSize.Min) modifier instead.")
 @Composable
-fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
+fun MinIntrinsicWidth(children: @Composable () -> Unit) {
     Layout(
         children,
         minIntrinsicWidthMeasureBlock = { measurables, h, _ ->
@@ -226,7 +226,7 @@ fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
 @Deprecated("This component is deprecated. " +
         "Please use the preferredHeight(IntrinsicSize.Min) modifier instead.")
 @Composable
-fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
+fun MinIntrinsicHeight(children: @Composable () -> Unit) {
     Layout(
         children,
         minIntrinsicWidthMeasureBlock = { measurables, h, _ ->
@@ -260,7 +260,7 @@ fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
 @Deprecated("This component is deprecated. " +
         "Please use the preferredWidth(IntrinsicSize.Max) modifier instead.")
 @Composable
-fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
+fun MaxIntrinsicWidth(children: @Composable () -> Unit) {
     Layout(
         children,
         minIntrinsicWidthMeasureBlock = { measurables, h, _ ->
@@ -294,7 +294,7 @@ fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
 @Deprecated("This component is deprecated. " +
         "Please use the preferredHeight(IntrinsicSize.Max) modifier instead.")
 @Composable
-fun MaxIntrinsicHeight(children: @Composable() () -> Unit) {
+fun MaxIntrinsicHeight(children: @Composable () -> Unit) {
     Layout(
         children,
         minIntrinsicWidthMeasureBlock = { measurables, h, _ ->

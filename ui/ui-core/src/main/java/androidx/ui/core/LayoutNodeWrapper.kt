@@ -20,6 +20,7 @@ package androidx.ui.core
 
 import android.graphics.RectF
 import androidx.ui.core.focus.ModifiedFocusNode
+import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
@@ -62,7 +63,8 @@ internal abstract class LayoutNodeWrapper(
         get() = _measureResult ?: error(UnmeasuredError)
         internal set(value) {
             if (invalidateLayerOnBoundsChange &&
-                (value.width != _measureResult?.width || value.height != _measureResult?.height)) {
+                (value.width != _measureResult?.width || value.height != _measureResult?.height)
+            ) {
                 findLayer()?.invalidate()
             }
             _measureResult = value
@@ -290,19 +292,25 @@ internal abstract class LayoutNodeWrapper(
     /**
      * Returns the layer that this wrapper will draw into.
      */
-    open fun findLayer(): OwnedLayer? = wrappedBy?.findLayer()
+    open fun findLayer(): OwnedLayer? {
+        return if (layoutNode.innerLayerWrapper != null) {
+            wrappedBy?.findLayer()
+        } else {
+            layoutNode.findLayer()
+        }
+    }
 
     /**
      * Returns the first [ModifiedFocusNode] in the wrapper list that wraps this
      * [LayoutNodeWrapper].
      */
-    abstract fun findFocusWrapperWrappingThisWrapper(): ModifiedFocusNode?
+    abstract fun findPreviousFocusWrapper(): ModifiedFocusNode?
 
     /**
      * Returns the next [ModifiedFocusNode] in the wrapper list that is wrapped by this
      * [LayoutNodeWrapper].
      */
-    abstract fun findFocusWrapperWrappedByThisWrapper(): ModifiedFocusNode?
+    abstract fun findNextFocusWrapper(): ModifiedFocusNode?
 
     /**
      * Returns the last [ModifiedFocusNode] found following this [LayoutNodeWrapper]. It searches
@@ -317,21 +325,62 @@ internal abstract class LayoutNodeWrapper(
         // TODO(b/152066829): We shouldn't need to search through the parentLayoutNode, as the
         // wrappedBy property should automatically point to the last layoutWrapper of the parent.
         // Find out why this doesn't work.
-        var focusParent = wrappedBy?.findFocusWrapperWrappingThisWrapper()
+        var focusParent = wrappedBy?.findPreviousFocusWrapper()
         if (focusParent != null) {
             return focusParent
         }
 
-        var parentLayoutNode = layoutNode.parentLayoutNode
+        var parentLayoutNode = layoutNode.parent
         while (parentLayoutNode != null) {
             focusParent = parentLayoutNode.layoutNodeWrapper.findLastFocusWrapper()
             if (focusParent != null) {
                 return focusParent
             }
-            parentLayoutNode = parentLayoutNode.parentLayoutNode
+            parentLayoutNode = parentLayoutNode.parent
         }
         return null
     }
+
+    /**
+     *  Find the first ancestor that is a [ModifiedKeyInputNode].
+     */
+    internal fun findParentKeyInputNode(): ModifiedKeyInputNode? {
+        // TODO(b/152066829): We shouldn't need to search through the parentLayoutNode, as the
+        // wrappedBy property should automatically point to the last layoutWrapper of the parent.
+        // Find out why this doesn't work.
+        var keyInputParent = wrappedBy?.findPreviousKeyInputWrapper()
+        if (keyInputParent != null) {
+            return keyInputParent
+        }
+
+        var parentLayoutNode = layoutNode.parent
+        while (parentLayoutNode != null) {
+            keyInputParent = parentLayoutNode.layoutNodeWrapper.findLastKeyInputWrapper()
+            if (keyInputParent != null) {
+                return keyInputParent
+            }
+            parentLayoutNode = parentLayoutNode.parent
+        }
+        return null
+    }
+
+    /**
+     * Returns the first [ModifiedKeyInputNode] in the wrapper list that wraps this
+     * [LayoutNodeWrapper].
+     */
+    abstract fun findPreviousKeyInputWrapper(): ModifiedKeyInputNode?
+
+    /**
+     * Returns the next [ModifiedKeyInputNode] in the wrapper list that is wrapped by this
+     * [LayoutNodeWrapper].
+     */
+    abstract fun findNextKeyInputWrapper(): ModifiedKeyInputNode?
+
+    /**
+     * Returns the last [ModifiedFocusNode] found following this [LayoutNodeWrapper]. It searches
+     * the wrapper list associated with this [LayoutNodeWrapper]
+     */
+    abstract fun findLastKeyInputWrapper(): ModifiedKeyInputNode?
 
     internal companion object {
         const val ExpectAttachedLayoutCoordinates = "LayoutCoordinate operations are only valid " +

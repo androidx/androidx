@@ -16,7 +16,6 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.findLastLayoutChild
 import androidx.ui.core.semantics.findClosestParentNode
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsActions
@@ -63,7 +62,7 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
 
     val globalPosition = node.globalPosition
 
-    val layoutNode = scrollableSemanticsNode.componentNode.findLastLayoutChild { true }
+    val layoutNode = scrollableSemanticsNode.componentNode.children.lastOrNull()
         ?: throw AssertionError(
             "No Layout Node found!"
         )
@@ -94,8 +93,14 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
 fun SemanticsNodeInteraction.doGesture(
     block: GestureScope.() -> Unit
 ): SemanticsNodeInteraction {
-    val scope = GestureScope(this)
-    scope.block()
+    val node = fetchSemanticsNode("Failed to perform a gesture.")
+    with(GestureScope(node)) {
+        try {
+            block()
+        } finally {
+            dispose()
+        }
+    }
     return this
 }
 
@@ -123,8 +128,14 @@ fun SemanticsNodeInteraction.doGesture(
 fun SemanticsNodeInteraction.doPartialGesture(
     block: PartialGestureScope.() -> Unit
 ): SemanticsNodeInteraction {
-    val scope = PartialGestureScope(this)
-    scope.block()
+    val node = fetchSemanticsNode("Failed to perform a partial gesture.")
+    with(PartialGestureScope(node)) {
+        try {
+            block()
+        } finally {
+            dispose()
+        }
+    }
     return this
 }
 
@@ -143,7 +154,7 @@ fun SemanticsNodeInteraction.doPartialGesture(
  *
  * @throws AssertionError If the semantics action is not defined on this node.
  */
-fun <T : Function<Unit>> SemanticsNodeInteraction.callSemanticsAction(
+fun <T : Function<Boolean>> SemanticsNodeInteraction.callSemanticsAction(
     key: SemanticsPropertyKey<AccessibilityAction<T>>,
     invocation: (T) -> Unit
 ) {
@@ -175,7 +186,7 @@ fun <T : Function<Unit>> SemanticsNodeInteraction.callSemanticsAction(
  * @throws AssertionError If the semantics action is not defined on this node.
  */
 fun SemanticsNodeInteraction.callSemanticsAction(
-    key: SemanticsPropertyKey<AccessibilityAction<() -> Unit>>
+    key: SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
 ) {
     callSemanticsAction(key) { it.invoke() }
 }

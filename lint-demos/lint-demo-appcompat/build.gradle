@@ -15,6 +15,7 @@ dependencies {
 android {
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
+        minSdkVersion=14
     }
     lintOptions {
         disable "WrongThread"

@@ -23,6 +23,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.view.PreviewView;
 import androidx.camera.view.preview.transform.transformation.Transformation;
 
@@ -45,6 +46,10 @@ public final class PreviewTransform {
     @NonNull
     private PreviewView.ScaleType mScaleType = DEFAULT_SCALE_TYPE;
 
+    private boolean mSensorDimensionFlipNeeded = true;
+
+    private int mDeviceRotation = RotationTransform.ROTATION_AUTOMATIC;
+
     /** Returns the {@link PreviewView.ScaleType} currently applied to the preview. */
     @NonNull
     public PreviewView.ScaleType getScaleType() {
@@ -56,12 +61,37 @@ public final class PreviewTransform {
         mScaleType = scaleType;
     }
 
+    /** Returns whether the device sensor x and y dimensions need to be flipped. */
+    public boolean isSensorDimensionFlipNeeded() {
+        return mSensorDimensionFlipNeeded;
+    }
+
+    /**
+     * Sets whether the target device sensor dimensions need to be flipped when calculating the
+     * transform.
+     */
+    public void setSensorDimensionFlipNeeded(boolean sensorDimensionFlipNeeded) {
+        mSensorDimensionFlipNeeded = sensorDimensionFlipNeeded;
+    }
+
+    /** Returns current device rotation value. */
+    public int getDeviceRotation() {
+        return mDeviceRotation;
+    }
+
+    /**
+     * Sets the device rotation value that will affect the transform calculations.
+     */
+    public void setDeviceRotation(@ImageOutputConfig.RotationValue int deviceRotation) {
+        mDeviceRotation = deviceRotation;
+    }
+
     /** Applies the current {@link PreviewView.ScaleType} on the passed in preview. */
     public void applyCurrentScaleType(@NonNull final View container, @NonNull final View view,
             @NonNull final Size bufferSize) {
         resetPreview(view);
         correctPreview(container, view, bufferSize);
-        applyScaleTypeInternal(container, view, mScaleType);
+        applyScaleTypeInternal(container, view, mScaleType, mDeviceRotation);
     }
 
     private void resetPreview(@NonNull View view) {
@@ -73,16 +103,17 @@ public final class PreviewTransform {
     private void correctPreview(@NonNull final View container, @NonNull final View view,
             @NonNull final Size bufferSize) {
         final Transformation correct = PreviewCorrector.getCorrectionTransformation(container, view,
-                bufferSize);
+                bufferSize, mSensorDimensionFlipNeeded, mDeviceRotation);
         applyTransformation(view, correct);
     }
 
     /** Applies the specified {@link PreviewView.ScaleType} on top of the corrected preview. */
     private void applyScaleTypeInternal(@NonNull final View container,
-            @NonNull final View view, @NonNull final PreviewView.ScaleType scaleType) {
+            @NonNull final View view, @NonNull final PreviewView.ScaleType scaleType,
+            final int deviceRotation) {
         final Transformation current = getTransformation(view);
         final Transformation transformation = ScaleTypeTransform.getTransformation(container, view,
-                scaleType);
+                scaleType, deviceRotation);
         applyTransformation(view, current.add(transformation));
     }
 

@@ -15,21 +15,7 @@
  */
 package androidx.ui.core
 
-import androidx.ui.graphics.painter.CanvasScope
-import androidx.ui.unit.Density
-
-/**
- * Receiver scope for drawing content into a layout.
- * @see Modifier.drawBehind
- * @see androidx.ui.foundation.Canvas
- */
-abstract class DrawScope() : CanvasScope(), Density {
-
-    /**
-     * The layout direction of the layout being drawn in.
-     */
-    abstract val layoutDirection: LayoutDirection
-}
+import androidx.ui.graphics.drawscope.DrawScope
 
 /**
  * Receiver scope for drawing content into a layout, where the content can

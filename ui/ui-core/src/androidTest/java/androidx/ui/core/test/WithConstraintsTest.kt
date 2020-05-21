@@ -199,13 +199,13 @@ class WithConstraintsTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun requestLayoutDuringLayout() {
-        val offset = OffsetModel(0.ipx)
+        val offset = mutableStateOf(0.ipx)
         rule.runOnUiThreadIR {
             activity.setContent {
                 Scroller(
                     modifier = countdownLatchBackgroundModifier(Color.Yellow),
                     onScrollPositionChanged = { position, _ ->
-                        offset.offset = position
+                        offset.value = position
                     },
                     offset = offset
                 ) {
@@ -223,7 +223,7 @@ class WithConstraintsTest {
 
     @Test
     fun subcomposionInsideWithConstraintsDoesntAffectModelReadsObserving() {
-        val model = ValueModel(0)
+        val model = mutableStateOf(0)
         var latch = CountDownLatch(1)
 
         rule.runOnUiThreadIR {
@@ -261,7 +261,7 @@ class WithConstraintsTest {
 
     @Test
     fun withConstraintCallbackIsNotExecutedWithInnerRecompositions() {
-        val model = ValueModel(0)
+        val model = mutableStateOf(0)
         var latch = CountDownLatch(1)
         var recompositionsCount1 = 0
         var recompositionsCount2 = 0
@@ -289,7 +289,7 @@ class WithConstraintsTest {
 
     @Test
     fun updateConstraintsRecomposingWithConstraints() {
-        val model = ValueModel(50.ipx)
+        val model = mutableStateOf(50.ipx)
         var latch = CountDownLatch(1)
         var actualConstraints: Constraints? = null
 
@@ -345,7 +345,7 @@ class WithConstraintsTest {
 
     @Test
     fun withConstsraintsBehavesAsWrap() {
-        val size = ValueModel(50.ipx)
+        val size = mutableStateOf(50.ipx)
         var withConstLatch = CountDownLatch(1)
         var childLatch = CountDownLatch(1)
         var withConstSize: IntPxSize? = null
@@ -398,7 +398,7 @@ class WithConstraintsTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun withConstraintsIsNotSwallowingInnerRemeasureRequest() {
-        val model = ValueModel(100.ipx)
+        val model = mutableStateOf(100.ipx)
 
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -468,7 +468,7 @@ class WithConstraintsTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun removeLayoutNodeFromWithConstraintsDuringOnMeasure() {
-        val model = ValueModel(100.ipx)
+        val model = mutableStateOf(100.ipx)
         drawLatch = CountDownLatch(2)
 
         rule.runOnUiThreadIR {
@@ -841,7 +841,7 @@ fun Container(
     width: IntPx,
     height: IntPx,
     modifier: Modifier = Modifier,
-    children: @Composable() () ->
+    children: @Composable () ->
     Unit
 ) {
     Layout(
@@ -868,7 +868,7 @@ fun Container(
 fun ContainerChildrenAffectsParentSize(
     width: IntPx,
     height: IntPx,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     Layout(children = children, measureBlock = remember<MeasureBlock>(width, height) {
         { measurables, _, _ ->
@@ -884,7 +884,7 @@ fun ContainerChildrenAffectsParentSize(
 }
 
 @Composable
-private fun ChangingConstraintsLayout(size: ValueModel<IntPx>, children: @Composable() () -> Unit) {
+private fun ChangingConstraintsLayout(size: State<IntPx>, children: @Composable () -> Unit) {
     Layout(children) { measurables, _, _ ->
         layout(100.ipx, 100.ipx) {
             val constraints = Constraints.fixed(size.value, size.value)
@@ -896,7 +896,7 @@ private fun ChangingConstraintsLayout(size: ValueModel<IntPx>, children: @Compos
 @Composable
 private fun ChangingLayoutDirectionLayout(
     direction: State<LayoutDirection>,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     Layout(children) { measurables, _, _ ->
         layout(100.ipx, 100.ipx) {

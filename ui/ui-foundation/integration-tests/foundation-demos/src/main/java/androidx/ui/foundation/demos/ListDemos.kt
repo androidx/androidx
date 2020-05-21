@@ -25,18 +25,15 @@ import androidx.ui.core.Modifier
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.foundation.AdapterList
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentColorAmbient
-import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.clickable
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.padding
-import androidx.ui.text.TextStyle
-import androidx.ui.text.font.FontWeight
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 
@@ -82,28 +79,18 @@ private fun ListAddRemoveItemsDemo() {
 }
 
 @Composable
-fun Button(modifier: Modifier, onClick: () -> Unit, children: @Composable() () -> Unit) {
-    Clickable(onClick = onClick) {
-        Box(
-            modifier = modifier,
-            shape = RoundedCornerShape(4.dp),
-            backgroundColor = Color(0xFF6200EE),
-            paddingStart = 16.dp,
-            paddingEnd = 16.dp,
-            paddingTop = 8.dp,
-            paddingBottom = 8.dp
-        ) {
-            ProvideTextStyle(
-                TextStyle(
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    letterSpacing = 1.25.sp
-                )
-            ) {
-                Providers(ContentColorAmbient provides Color.White) {
-                    children()
-                }
-            }
+fun Button(modifier: Modifier, onClick: () -> Unit, children: @Composable () -> Unit) {
+    Box(
+        modifier = modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(4.dp),
+        backgroundColor = Color(0xFF6200EE),
+        paddingStart = 16.dp,
+        paddingEnd = 16.dp,
+        paddingTop = 8.dp,
+        paddingBottom = 8.dp
+    ) {
+        Providers(ContentColorAmbient provides Color.White) {
+            children()
         }
     }
 }

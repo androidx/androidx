@@ -16,20 +16,19 @@
 
 package androidx.datastore
 
+import androidx.datastore.handlers.NoOpCorruptionHandler
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -42,8 +41,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
 import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -178,11 +175,24 @@ class SingleProcessDataStoreTest {
     @Test
     fun testWriteToNonExistentDir() = runBlockingTest {
         val fileInNonExistentDir = File(tmp.newFolder(), "/this/does/not/exist/foo.pb")
-        val newStore = newDataStore(fileInNonExistentDir)
+        var newStore = newDataStore(fileInNonExistentDir)
 
         newStore.updateData { 1 }
 
         assertThat(newStore.dataFlow.first()).isEqualTo(1)
+
+        newStore = newDataStore(fileInNonExistentDir)
+        assertThat(newStore.dataFlow.first()).isEqualTo(1)
+    }
+
+    @Test
+    fun testWriteToDirFails() = runBlockingTest {
+        val directoryFile = File(tmp.newFolder(), "/this/is/a/directory")
+        directoryFile.mkdirs()
+        assertThat(directoryFile.isDirectory)
+
+        val newStore = newDataStore(directoryFile)
+        assertThrows<IOException> { newStore.dataFlow.first() }
     }
 
     @Test
@@ -506,40 +516,104 @@ class SingleProcessDataStoreTest {
         blockedCollection.await()
     }
 
+    @Test
+    fun testHandlerNotCalledGoodData() = runBlockingTest {
+        store.updateData { 1 } // Pre-seed the data so the file exists.
+
+        val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
+        store = newDataStore(corruptionHandler = testingHandler, file = testFile)
+
+        store.updateData { 2 }
+        store.dataFlow.first()
+
+        assertThat(testingHandler.numCalls).isEqualTo(0)
+    }
+
+    @Test
+    fun handlerNotCalledNonCorruption() = runBlockingTest {
+        store.updateData { 1 } // Pre-seed the data so the file exists.
+
+        val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
+        serializer.failingRead = true
+        store = newDataStore(corruptionHandler = testingHandler, file = testFile)
+
+        assertThrows<IOException> { store.updateData { 2 } }
+        assertThrows<IOException> { store.dataFlow.first() }
+
+        assertThat(testingHandler.numCalls).isEqualTo(0)
+    }
+
+    @Test
+    fun testHandlerCalledCorruptDataRead() = runBlockingTest {
+        store.updateData { 1 } // Pre-seed the data so the file exists.
+
+        val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
+        serializer.failReadWithCorruptionException = true
+        store = newDataStore(corruptionHandler = testingHandler, file = testFile)
+
+        assertThrows<IOException> { store.dataFlow.first() }.hasMessageThat().contains(
+            "Handler thrown exception."
+        )
+
+        assertThat(testingHandler.numCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun testHandlerCalledCorruptDataWrite() = runBlockingTest {
+        store.updateData { 1 } // Pre-seed the data so the file exists.
+
+        val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
+        serializer.failReadWithCorruptionException = true
+        store = newDataStore(corruptionHandler = testingHandler, file = testFile)
+
+        assertThrows<IOException> { store.updateData { 1 } }.hasMessageThat().contains(
+            "Handler thrown exception."
+        )
+
+        assertThat(testingHandler.numCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun testHandlerReplaceData() = runBlockingTest {
+        store.updateData { 1 } // Pre-seed the data so the file exists.
+
+        val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler(replaceWith = 10)
+        serializer.failReadWithCorruptionException = true
+        store = newDataStore(corruptionHandler = testingHandler, file = testFile)
+
+        assertThat(store.dataFlow.first()).isEqualTo(10)
+    }
+
+    private class TestingCorruptionHandler(
+        private val replaceWith: Byte? = null
+    ) : CorruptionHandler<Byte> {
+
+        @Volatile
+        var numCalls = 0
+
+        override suspend fun handleCorruption(ex: DataStore.Serializer.CorruptionException): Byte {
+            numCalls++
+
+            replaceWith?.let {
+                return it
+            }
+
+            throw IOException("Handler thrown exception.")
+        }
+    }
+
     private fun newDataStore(
         file: File = tmp.newFile(),
         scope: CoroutineScope = dataStoreScope,
-        initTasksList: List<suspend (api: DataStore.InitializerApi<Byte>) -> Unit> = listOf()
+        initTasksList: List<suspend (api: DataStore.InitializerApi<Byte>) -> Unit> = listOf(),
+        corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>()
     ): DataStore<Byte> {
         return SingleProcessDataStore(
             { file },
             serializer = serializer,
             scope = scope,
-            initTasksList = initTasksList
+            initTasksList = initTasksList,
+            corruptionHandler = corruptionHandler
         )
-    }
-
-    private class TestingSerializer(
-        override val defaultValue: Byte = 0,
-        @Volatile var failingRead: Boolean = false,
-        @Volatile var failingWrite: Boolean = false
-    ) : DataStore.Serializer<Byte> {
-        override fun readFrom(input: InputStream): Byte {
-            if (failingRead) {
-                throw IOException("I was asked to fail on reads")
-            }
-            val read = input.read()
-            if (read == -1) {
-                return defaultValue
-            }
-            return read.toByte()
-        }
-
-        override fun writeTo(t: Byte, output: OutputStream) {
-            if (failingWrite) {
-                throw IOException("I was asked to fail on writes")
-            }
-            output.write(t.toInt())
-        }
     }
 }

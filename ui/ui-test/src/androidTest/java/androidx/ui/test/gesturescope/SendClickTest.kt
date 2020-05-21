@@ -39,7 +39,6 @@ import androidx.ui.test.sendClick
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.RecordingFilter
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +49,7 @@ private const val tag = "widget"
 private const val numberOfSquares = 5
 private const val first = 0
 private const val last = numberOfSquares - 1
-private val squareSize = 10.px
+private val squareSize = 10.0f
 private val center = PxPosition(squareSize / 2, squareSize / 2)
 private val colors = listOf(Color.Red, Color.Yellow, Color.Blue, Color.Green, Color.Cyan)
 
@@ -88,7 +87,7 @@ class ActivityWithActionBar : ComponentActivity() {
         setContentView(root)
     }
 
-    fun setContent(composable: @Composable() () -> Unit) {
+    fun setContent(composable: @Composable () -> Unit) {
         composeHolder.setContent(Recomposer.current(), composable)
     }
 }
@@ -175,8 +174,8 @@ class SendClickWithArgumentsTest(private val config: TestConfig) {
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return mutableListOf<TestConfig>().apply {
-                for (x in listOf(0.px, squareSize - 1.px)) {
-                    for (y in listOf(0.px, squareSize - 1.px)) {
+                for (x in listOf(0.0f, squareSize - 1.0f)) {
+                    for (y in listOf(0.0f, squareSize - 1.0f)) {
                         add(TestConfig(PxPosition(x, y), ComponentActivity::class.java))
                         add(TestConfig(PxPosition(x, y), ActivityWithActionBar::class.java))
                     }

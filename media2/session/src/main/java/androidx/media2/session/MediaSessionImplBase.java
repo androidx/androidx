@@ -123,7 +123,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     private final String mSessionId;
     private final SessionToken mSessionToken;
     private final AudioManager mAudioManager;
-    private final SessionPlayer.PlayerCallback mPlayerCallback;
+    private final SessionPlayerCallback mPlayerCallback;
     private final MediaSession mInstance;
     private final PendingIntent mSessionActivity;
     private final PendingIntent mMediaButtonIntent;
@@ -131,10 +131,17 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            MediaController.PlaybackInfo mPlaybackInfo;
+    MediaController.PlaybackInfo mPlaybackInfo;
 
     @GuardedBy("mLock")
-    private SessionPlayer mPlayer;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable
+    VolumeProviderCompat mVolumeProviderCompat;
+
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    SessionPlayer mPlayer;
+
     @GuardedBy("mLock")
     private MediaBrowserServiceCompat mBrowserServiceLegacyStub;
 
@@ -247,12 +254,16 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         final SessionPlayer oldPlayer;
         final MediaController.PlaybackInfo info = createPlaybackInfo(player, null);
 
+        VolumeProviderCompat volumeProviderCompat = player instanceof RemoteSessionPlayer
+                ? createVolumeProviderCompat((RemoteSessionPlayer) player) : null;
+
         synchronized (mLock) {
             isPlaybackInfoChanged = !info.equals(mPlaybackInfo);
 
             oldPlayer = mPlayer;
             mPlayer = player;
             mPlaybackInfo = info;
+            mVolumeProviderCompat = volumeProviderCompat;
 
             if (oldPlayer != mPlayer) {
                 if (oldPlayer != null) {
@@ -285,26 +296,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         }
 
         if (player instanceof RemoteSessionPlayer) {
-            final RemoteSessionPlayer remotePlayer = (RemoteSessionPlayer) player;
-            VolumeProviderCompat volumeProvider =
-                    new VolumeProviderCompat(remotePlayer.getVolumeControlType(),
-                            remotePlayer.getMaxVolume(),
-                            remotePlayer.getVolume()) {
-                        // TODO(b/138091975) Do not ignore the returned Future.
-                        @SuppressWarnings("FutureReturnValueIgnored")
-                        @Override
-                        public void onSetVolumeTo(int volume) {
-                            remotePlayer.setVolume(volume);
-                        }
-
-                        // TODO(b/138091975) Do not ignore the returned Future.
-                        @SuppressWarnings("FutureReturnValueIgnored")
-                        @Override
-                        public void onAdjustVolume(int direction) {
-                            remotePlayer.adjustVolume(direction);
-                        }
-                    };
-            mSessionCompat.setPlaybackToRemote(volumeProvider);
+            mSessionCompat.setPlaybackToRemote(volumeProviderCompat);
         } else {
             int stream = getLegacyStreamType(player.getAudioAttributes());
             mSessionCompat.setPlaybackToLocal(stream);
@@ -433,9 +425,6 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     public boolean isConnected(@NonNull ControllerInfo controller) {
         if (controller == null) {
             return false;
-        }
-        if (controller.equals(mSessionLegacyStub.getControllersForAll())) {
-            return true;
         }
         return mSessionStub.getConnectedControllersManager().isConnected(controller)
                 || mSessionLegacyStub.getConnectedControllersManager().isConnected(controller);
@@ -1223,19 +1212,19 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     void dispatchRemoteControllerTaskWithoutReturn(@NonNull RemoteControllerTask task) {
         List<ControllerInfo> controllers =
                 mSessionStub.getConnectedControllersManager().getConnectedControllers();
-        controllers.add(mSessionLegacyStub.getControllersForAll());
         for (int i = 0; i < controllers.size(); i++) {
             ControllerInfo controller = controllers.get(i);
             dispatchRemoteControllerTaskWithoutReturn(controller, task);
+        }
+        try {
+            task.run(mSessionLegacyStub.getControllerLegacyCbForBroadcast(), /* seq= */ 0);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Exception in using media1 API", e);
         }
     }
 
     void dispatchRemoteControllerTaskWithoutReturn(@NonNull ControllerInfo controller,
             @NonNull RemoteControllerTask task) {
-        if (!isConnected(controller)) {
-            // Do not send command to an unconnected controller.
-            return;
-        }
         try {
             final int seq;
             final SequencedFutureManager manager =
@@ -1244,11 +1233,14 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             if (manager != null) {
                 seq = manager.obtainNextSequenceNumber();
             } else {
-                // Can be null in two cases. Use the 0 as sequence number in both cases because
-                //     Case 1) Controller is from the legacy stub
-                //             -> Sequence number isn't needed, so 0 is OK
-                //     Case 2) Controller is removed after the connection check above
-                //             -> Call will fail below or ignored by the controller, so 0 is OK.
+                if (!isConnected(controller)) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Skipping dispatching task to disconnected controller"
+                                + ", controller=" + controller);
+                    }
+                    return;
+                }
+                // 0 is OK for legacy controllers, because sequence number is media2 specific.
                 seq = 0;
             }
             task.run(controller.getControllerCb(), seq);
@@ -1266,9 +1258,6 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     private ListenableFuture<SessionResult> dispatchRemoteControllerTask(
             @NonNull ControllerInfo controller, @NonNull RemoteControllerTask task) {
-        if (!isConnected(controller)) {
-            return SessionResult.createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
-        }
         try {
             final ListenableFuture<SessionResult> future;
             final int seq;
@@ -1279,12 +1268,12 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                 future = manager.createSequencedFuture(RESULT_WHEN_CLOSED);
                 seq = ((SequencedFuture<SessionResult>) future).getSequenceNumber();
             } else {
-                // Can be null in two cases. Use the 0 as sequence number in both cases because
-                //     Case 1) Controller is from the legacy stub
-                //             -> Sequence number isn't needed, so 0 is OK
-                //     Case 2) Controller is removed after the connection check above
-                //             -> Call will fail below or ignored by the controller, so 0 is OK.
+                if (!isConnected(controller)) {
+                    return SessionResult.createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
+                }
+                // 0 is OK for legacy controllers, because sequence number is media2 specific.
                 seq = 0;
+                // Tell that operation is successful, although we don't know the actual result.
                 future = SessionResult.createFutureWithResult(SessionResult.RESULT_SUCCESS);
             }
             task.run(controller.getControllerCb(), seq);
@@ -1328,6 +1317,26 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         return new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name);
     }
 
+    private static VolumeProviderCompat createVolumeProviderCompat(
+            @NonNull RemoteSessionPlayer player) {
+        return new VolumeProviderCompat(player.getVolumeControlType(), player.getMaxVolume(),
+                player.getVolume()) {
+            // TODO(b/138091975) Do not ignore the returned Future.
+            @SuppressWarnings("FutureReturnValueIgnored")
+            @Override
+            public void onSetVolumeTo(int volume) {
+                player.setVolume(volume);
+            }
+
+            // TODO(b/138091975) Do not ignore the returned Future.
+            @SuppressWarnings("FutureReturnValueIgnored")
+            @Override
+            public void onAdjustVolume(int direction) {
+                player.adjustVolume(direction);
+            }
+        };
+    }
+
     ///////////////////////////////////////////////////
     // Inner classes
     ///////////////////////////////////////////////////
@@ -1341,7 +1350,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         void run(ControllerCb controller, int seq) throws RemoteException;
     }
 
-    private static class SessionPlayerCallback extends SessionPlayer.PlayerCallback implements
+    private static class SessionPlayerCallback extends RemoteSessionPlayer.Callback implements
             MediaItem.OnMetadataChangedListener {
         private final WeakReference<MediaSessionImplBase> mSession;
         private MediaItem mMediaItem;
@@ -1620,6 +1629,32 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             if (!notifyingPended) {
                 // Forcefully notify, if updateCurrentMediaItemMetadataWithDuration wouldn't.
                 notifyCurrentMediaItemChanged(currentMediaItem);
+            }
+        }
+
+        @Override
+        public void onVolumeChanged(@NonNull RemoteSessionPlayer player, int volume) {
+            MediaSessionImplBase session = getSession();
+            if (session == null) {
+                return;
+            }
+            MediaController.PlaybackInfo newInfo =
+                    session.createPlaybackInfo(player, /* audioAttributes= */ null);
+            MediaController.PlaybackInfo oldInfo;
+            VolumeProviderCompat volumeProviderCompat;
+            synchronized (session.mLock) {
+                if (session.mPlayer != player) {
+                    return;
+                }
+                oldInfo = session.mPlaybackInfo;
+                session.mPlaybackInfo = newInfo;
+                volumeProviderCompat = session.mVolumeProviderCompat;
+            }
+            if (!ObjectsCompat.equals(newInfo, oldInfo)) {
+                session.notifyPlaybackInfoChangedNotLocked(newInfo);
+            }
+            if (volumeProviderCompat != null) {
+                volumeProviderCompat.setCurrentVolume(volume);
             }
         }
 

@@ -39,7 +39,7 @@ interface Interaction {
     /**
      * An interaction corresponding to a pressed state on a component.
      *
-     * See [Clickable]
+     * See [clickable]
      */
     object Pressed : Interaction
 

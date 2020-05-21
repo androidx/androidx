@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +41,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.graphics.useOrElse
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -133,7 +132,7 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
             }
         }
         val effect = factory.create(
-            size,
+            size.toPxSize(),
             position,
             density,
             radius,
@@ -153,8 +152,10 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
 
     override fun ContentDrawScope.draw() {
         drawContent()
-        drawCanvas { canvas, _ ->
-            effects.fastForEach { it.draw(canvas, this@RippleModifier.size, color) }
+        effects.fastForEach {
+            with(it) {
+                draw(color)
+            }
         }
     }
 

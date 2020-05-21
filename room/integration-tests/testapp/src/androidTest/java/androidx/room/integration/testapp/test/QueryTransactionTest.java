@@ -221,7 +221,7 @@ public class QueryTransactionTest {
         drain();
         assertThat(pagedList.getValue().size(), is(4));
         // note: we don't use assertTransactionCount here, since last item loaded separately
-        assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 6 : 5));
+        assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 7 : 5));
     }
 
     @Test
@@ -235,6 +235,7 @@ public class QueryTransactionTest {
         assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 1 : 0));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void dataSourceInitial() {
         mDao.insert(new Entity1(2, "bar"));
@@ -246,11 +247,11 @@ public class QueryTransactionTest {
                 new PositionalDataSource.LoadInitialParams(0, 30, 10, true),
                 new PositionalDataSource.LoadInitialCallback<Entity1>() {
                     @Override
-                    public void onResult(@NonNull List<Entity1> data, int position,
+                    public void onResult(@NonNull List<? extends Entity1> data, int position,
                             int totalCount) {}
 
                     @Override
-                    public void onResult(@NonNull List<Entity1> data, int position) {}
+                    public void onResult(@NonNull List<? extends Entity1> data, int position) {}
                 });
         // always use a transaction, since we're loading count + initial data
         assertThat(sStartedTransactionCount.get(), is(1));

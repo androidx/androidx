@@ -18,14 +18,18 @@ package androidx.ui.core.gesture
 
 import androidx.compose.remember
 import androidx.ui.core.CoroutineContextAmbient
+import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.gesture.customevents.DelayUpEvent
+import androidx.ui.core.gesture.customevents.DelayUpMessage
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
@@ -63,6 +67,7 @@ fun Modifier.doubleTapGestureFilter(
 internal class DoubleTapGestureFilter(
     val coroutineContext: CoroutineContext
 ) : PointerInputFilter() {
+
     lateinit var onDoubleTap: (PxPosition) -> Unit
 
     private enum class State {
@@ -72,6 +77,11 @@ internal class DoubleTapGestureFilter(
     var doubleTapTimeout = DoubleTapTimeout
     private var state = State.Idle
     private var job: Job? = null
+    private lateinit var delayUpDispatcher: DelayUpDispatcher
+
+    override fun onInit(customEventDispatcher: CustomEventDispatcher) {
+        delayUpDispatcher = DelayUpDispatcher(customEventDispatcher)
+    }
 
     override fun onPointerInput(
         changes: List<PointerInputChange>,
@@ -79,43 +89,103 @@ internal class DoubleTapGestureFilter(
         bounds: IntPxSize
     ): List<PointerInputChange> {
 
-        var changesToReturn = changes
-
         if (pass == PointerEventPass.PostUp) {
-            if (state == State.Idle && changesToReturn.all { it.changedToDown() }) {
+            if (state == State.Idle && changes.all { it.changedToDown() }) {
                 state = State.Down
-            } else if (state == State.Down && changesToReturn.all { it.changedToUp() }) {
+                return changes
+            }
+
+            if (state == State.Down && changes.all { it.changedToUp() }) {
                 state = State.Up
+                delayUpDispatcher.delayUp(changes)
                 job = delay(doubleTapTimeout, coroutineContext) {
                     state = State.Idle
+                    delayUpDispatcher.allowUp()
                 }
-            } else if (state == State.Up && changesToReturn.all { it.changedToDown() }) {
-                job?.cancel()
+                return changes
+            }
+
+            if (state == State.Up && changes.all { it.changedToDown() }) {
                 state = State.SecondDown
-            } else if (state == State.SecondDown && changesToReturn.all { it.changedToUp() }) {
-                changesToReturn = changesToReturn.map { it.consumeDownChange() }
+                job?.cancel()
+                delayUpDispatcher.disallowUp()
+                return changes
+            }
+
+            if (state == State.SecondDown && changes.all { it.changedToUp() }) {
                 state = State.Idle
                 onDoubleTap.invoke(changes[0].previous.position!!)
-            } else if ((state == State.Down || state == State.SecondDown) &&
-                !changesToReturn.anyPointersInBounds(bounds)
-            ) {
-                // If we are in one of the down states, and none of pointers are in our bounds,
-                // then we should cancel and wait till we can be Idle again.
-                state = State.Idle
+                return changes.map { it.consumeDownChange() }
             }
         }
 
-        if (pass == PointerEventPass.PostDown &&
-            changesToReturn.fastAny { it.anyPositionChangeConsumed() }
-        ) {
-            state = State.Idle
+        if (pass == PointerEventPass.PostDown) {
+
+            val noPointersAreInBoundsAndNotUpState =
+                (state != State.Up && !changes.anyPointersInBounds(bounds))
+
+            val anyPositionChangeConsumed = changes.fastAny { it.anyPositionChangeConsumed() }
+
+            if (noPointersAreInBoundsAndNotUpState || anyPositionChangeConsumed) {
+                // A pointers movement was consumed or all of our pointers are out of bounds, so
+                // reset to idle.
+                fullReset()
+            }
         }
 
-        return changesToReturn
+        return changes
     }
 
     override fun onCancel() {
+        fullReset()
+    }
+
+    private fun fullReset() {
+        delayUpDispatcher.disallowUp()
         job?.cancel()
         state = State.Idle
+    }
+
+    private class DelayUpDispatcher(val customEventDispatcher: CustomEventDispatcher) {
+
+        // Non-writeable because we send this to customEventDispatcher and we don't want to ever
+        // accidentally mutate what we have sent.
+        private var blockedUpEvents: Set<PointerId>? = null
+
+        fun delayUp(changes: List<PointerInputChange>) {
+            blockedUpEvents =
+                changes
+                    .mapTo(mutableSetOf()) { it.id }
+                    .also {
+                        customEventDispatcher.retainHitPaths(it)
+                        customEventDispatcher.dispatchCustomEvent(
+                            DelayUpEvent(DelayUpMessage.DelayUp, it)
+                        )
+                    }
+        }
+
+        fun disallowUp() {
+            unBlockUpEvents(true)
+        }
+
+        fun allowUp() {
+            unBlockUpEvents(false)
+        }
+
+        private fun unBlockUpEvents(upIsConsumed: Boolean) {
+            blockedUpEvents?.let {
+                val message =
+                    if (upIsConsumed) {
+                        DelayUpMessage.DelayedUpConsumed
+                    } else {
+                        DelayUpMessage.DelayedUpNotConsumed
+                    }
+                customEventDispatcher.dispatchCustomEvent(
+                    DelayUpEvent(message, it)
+                )
+                customEventDispatcher.releaseHitPaths(it)
+            }
+            blockedUpEvents = null
+        }
     }
 }

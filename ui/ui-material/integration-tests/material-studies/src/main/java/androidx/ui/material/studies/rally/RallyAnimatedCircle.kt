@@ -28,7 +28,7 @@ import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.Stroke
+import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.unit.dp
 
 private const val DividerLengthInDegrees = 1.8f

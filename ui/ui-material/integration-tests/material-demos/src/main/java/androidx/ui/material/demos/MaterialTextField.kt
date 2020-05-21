@@ -26,7 +26,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.currentTextStyle
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -51,12 +50,12 @@ import androidx.ui.material.samples.FilledTextFieldWithIcons
 import androidx.ui.material.samples.FilledTextFieldWithPlaceholder
 import androidx.ui.material.samples.PasswordFilledTextField
 import androidx.ui.material.samples.TextFieldWithHelperMessage
+import androidx.ui.material.samples.TextFieldWithHideKeyboardOnImeAction
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 
-// TODO(b/154799748): remove explicit currentTextStyle() when upstream bug is fixed
 @Composable
 fun TextFieldsDemo() {
     val space = with(DensityAmbient.current) { 5.dp.toIntPx() }
@@ -74,6 +73,8 @@ fun TextFieldsDemo() {
         FilledTextFieldWithErrorState()
         Text("Text field with helper/error message")
         TextFieldWithHelperMessage()
+        Text("Hide keyboard on IME action")
+        TextFieldWithHideKeyboardOnImeAction()
         Text("TextFieldValue overload")
         FilledTextFieldSample()
     }
@@ -88,13 +89,13 @@ fun FilledTextFieldDemo() {
         val characterCounterChecked by savedInstanceState { false }
         var selectedOption by savedInstanceState { Option.None }
 
-        val textField = @Composable() {
+        val textField = @Composable {
             FilledTextField(
                 value = text,
                 onValueChange = { text = it },
                 label = {
                     val label = "Label" + if (selectedOption == Option.Error) "*" else ""
-                    Text(text = label, style = currentTextStyle())
+                    Text(text = label)
                 },
                 leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
                 trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
@@ -145,12 +146,14 @@ fun FilledTextFieldDemo() {
  */
 @Composable
 private fun TextFieldWithMessage(
-    textField: @Composable() () -> Unit,
+    textField: @Composable () -> Unit,
     helperMessageOption: Option
 ) {
     val typography = MaterialTheme.typography.caption
     val color = when (helperMessageOption) {
-        Option.Helper -> EmphasisAmbient.current.medium.emphasize(MaterialTheme.colors.onSurface)
+        Option.Helper -> {
+            EmphasisAmbient.current.medium.applyEmphasis(MaterialTheme.colors.onSurface)
+        }
         Option.Error -> MaterialTheme.colors.error
         else -> Color.Unset
     }

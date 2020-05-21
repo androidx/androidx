@@ -22,6 +22,7 @@ import static androidx.sqlite.inspection.DatabaseExtensions.tryAcquireReference;
 import static androidx.sqlite.inspection.SqliteInspectionExecutors.directExecutor;
 
 import android.annotation.SuppressLint;
+import android.app.Application;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.database.DatabaseUtils;
@@ -64,6 +65,7 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.TrackDatabasesResponse
 
 import com.google.protobuf.ByteString;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -179,7 +181,7 @@ final class SqliteInspector extends Inspector {
                 new DatabaseRegistry.Callback() {
                     @Override
                     public void onPostEvent(int databaseId, String path) {
-                        dispatchDatabaseClosedEvent(databaseId);
+                        dispatchDatabaseClosedEvent(databaseId, path);
                     }
                 });
     }
@@ -257,14 +259,25 @@ final class SqliteInspector extends Inspector {
         registerInvalidationHooks(hookRegistry);
         registerDatabaseClosedHooks(hookRegistry);
 
-        List<SQLiteDatabase> instances = mEnvironment.findInstances(SQLiteDatabase.class);
-        for (SQLiteDatabase instance : instances) {
-            // TODO: notify of found closed databases
+        // Check for database instances in memory
+        for (SQLiteDatabase instance : mEnvironment.findInstances(SQLiteDatabase.class)) {
             if (tryAcquireReference(instance)) {
                 try {
                     onDatabaseOpened(instance);
                 } finally {
                     instance.releaseReference();
+                }
+            } else {
+                onDatabaseClosed(instance);
+            }
+        }
+
+        // Check for database instances on disk
+        for (Application instance : mEnvironment.findInstances(Application.class)) {
+            for (String name : instance.databaseList()) {
+                File path = instance.getDatabasePath(name);
+                if (path.exists() && !path.getPath().endsWith("-journal")) {
+                    mDatabaseRegistry.notifyOnDiskDatabase(path.getAbsolutePath());
                 }
             }
         }
@@ -280,8 +293,7 @@ final class SqliteInspector extends Inspector {
                     public void onExit(EntryExitMatchingHookRegistry.Frame exitFrame) {
                         final Object thisObject = exitFrame.mThisObject;
                         if (thisObject instanceof SQLiteDatabase) {
-                            mDatabaseRegistry.notifyAllDatabaseReferencesReleased(
-                                    (SQLiteDatabase) thisObject);
+                            onDatabaseClosed((SQLiteDatabase) thisObject);
                         }
                     }
                 });
@@ -414,17 +426,13 @@ final class SqliteInspector extends Inspector {
 
     private void dispatchDatabaseOpenedEvent(int databaseId, String path) {
         getConnection().sendEvent(Event.newBuilder().setDatabaseOpened(
-                DatabaseOpenedEvent
-                        .newBuilder()
-                        .setDatabaseId(databaseId)
-                        .setName(path)
-                        .setPath(path)
+                DatabaseOpenedEvent.newBuilder().setDatabaseId(databaseId).setPath(path)
         ).build().toByteArray());
     }
 
-    private void dispatchDatabaseClosedEvent(int databaseId) {
+    private void dispatchDatabaseClosedEvent(int databaseId, String path) {
         getConnection().sendEvent(Event.newBuilder().setDatabaseClosed(
-                DatabaseClosedEvent.newBuilder().setDatabaseId(databaseId)
+                DatabaseClosedEvent.newBuilder().setDatabaseId(databaseId).setPath(path)
         ).build().toByteArray());
     }
 
@@ -669,6 +677,11 @@ final class SqliteInspector extends Inspector {
     void onDatabaseOpened(SQLiteDatabase database) {
         mRoomInvalidationRegistry.invalidateCache();
         mDatabaseRegistry.notifyDatabaseOpened(database);
+    }
+
+    @SuppressWarnings("WeakerAccess") // avoiding a synthetic accessor
+    void onDatabaseClosed(SQLiteDatabase database) {
+        mDatabaseRegistry.notifyAllDatabaseReferencesReleased(database);
     }
 
     private Event createErrorOccurredEvent(@Nullable String message, @Nullable String stackTrace,

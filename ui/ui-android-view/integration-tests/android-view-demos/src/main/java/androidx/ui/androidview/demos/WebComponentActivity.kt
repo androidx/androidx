@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* ktlint-disable no-unused-imports */
+@file:Suppress("UnusedImport")
+
 package androidx.ui.androidview.demos
 
 import android.graphics.Bitmap
@@ -35,15 +39,18 @@ import androidx.ui.androidview.adapters.setLayoutWidth
 import androidx.ui.androidview.adapters.setOnClick
 import androidx.ui.androidview.adapters.setOnTextChanged
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.Stable
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.androidview.WebComponent
 import androidx.ui.androidview.WebContext
 import androidx.ui.core.setViewContent
 
-@Model
+@Stable
 class WebParams {
-    var url: String = "https://www.google.com"
+    var url: String by mutableStateOf("https://www.google.com")
 }
 
 open class WebComponentActivity : ComponentActivity() {

@@ -62,6 +62,7 @@ import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
+import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
@@ -90,7 +91,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -836,5 +839,108 @@ public final class Camera2CameraControlTest {
         }
 
         fail();
+    }
+
+
+    @Test
+    @LargeTest
+    public void addSessionCameraCaptureCallback_canAddWithoutUpdateSessionConfig()
+            throws Exception {
+        Camera2CameraControl camera2CameraControl = createCamera2CameraControlWithPhysicalCamera();
+        camera2CameraControl.updateSessionConfig();
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        TestCameraCaptureCallback callback1 = new TestCameraCaptureCallback();
+        TestCameraCaptureCallback callback2 = new TestCameraCaptureCallback();
+        camera2CameraControl.addSessionCameraCaptureCallback(CameraXExecutors.directExecutor(),
+                callback1);
+        camera2CameraControl.addSessionCameraCaptureCallback(CameraXExecutors.directExecutor(),
+                callback2);
+
+        callback1.assertCallbackIsCalled(5000);
+        callback2.assertCallbackIsCalled(5000);
+    }
+
+    @Test
+    @LargeTest
+    public void removeSessionCameraCaptureCallback() throws Exception {
+        Camera2CameraControl camera2CameraControl = createCamera2CameraControlWithPhysicalCamera();
+
+        camera2CameraControl.updateSessionConfig();
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        TestCameraCaptureCallback callback1 = new TestCameraCaptureCallback();
+
+        camera2CameraControl.addSessionCameraCaptureCallback(CameraXExecutors.directExecutor(),
+                callback1);
+        callback1.assertCallbackIsCalled(5000);
+
+        camera2CameraControl.removeSessionCameraCaptureCallback(callback1);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        callback1.assertCallbackIsNotCalled(200);
+    }
+
+    @Test
+    @LargeTest
+    public void sessionCameraCaptureCallback_invokedOnSpecifiedExecutor()
+            throws Exception {
+        Camera2CameraControl camera2CameraControl = createCamera2CameraControlWithPhysicalCamera();
+        camera2CameraControl.updateSessionConfig();
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        TestCameraCaptureCallback callback = new TestCameraCaptureCallback();
+        TestExecutor executor = new TestExecutor();
+
+        camera2CameraControl.addSessionCameraCaptureCallback(executor, callback);
+
+        callback.assertCallbackIsCalled(5000);
+        executor.assertExecutorIsCalled(5000);
+    }
+
+    private static class TestCameraCaptureCallback extends CameraCaptureCallback {
+        private CountDownLatch mLatchForOnCaptureCompleted;
+        @Override
+        public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
+            synchronized (this) {
+                if (mLatchForOnCaptureCompleted != null) {
+                    mLatchForOnCaptureCompleted.countDown();
+                }
+            }
+        }
+
+        public void assertCallbackIsCalled(long timeoutInMs) throws InterruptedException {
+            CountDownLatch latch;
+            synchronized (this) {
+                mLatchForOnCaptureCompleted = new CountDownLatch(1);
+                latch = mLatchForOnCaptureCompleted;
+            }
+
+            assertThat(latch.await(timeoutInMs, TimeUnit.MILLISECONDS))
+                    .isTrue();
+        }
+
+        public void assertCallbackIsNotCalled(long timeoutInMs) throws InterruptedException {
+            CountDownLatch latch;
+            synchronized (this) {
+                mLatchForOnCaptureCompleted = new CountDownLatch(1);
+                latch = mLatchForOnCaptureCompleted;
+            }
+            assertThat(latch.await(timeoutInMs, TimeUnit.MILLISECONDS))
+                    .isFalse();
+        }
+    };
+
+    private static class TestExecutor implements Executor {
+        private CountDownLatch mLatch = new CountDownLatch(1);
+        @Override
+        public void execute(@NonNull Runnable command) {
+            command.run();
+            mLatch.countDown();
+        }
+
+        public void assertExecutorIsCalled(long timeoutInMS) throws InterruptedException {
+            assertThat(mLatch.await(timeoutInMS, TimeUnit.MILLISECONDS)).isTrue();
+        }
     }
 }

@@ -21,6 +21,7 @@
         <activity android:name="androidx.navigation.fragment.test.NavigationActivity"/>
         <activity
             android:name="androidx.navigation.fragment.test.NavigationActivityWithFragmentTag"/>
+        <activity android:name="androidx.navigation.fragment.test.NavigationActivityMultiNavHost"/>
         <activity android:name="androidx.navigation.fragment.XmlNavigationActivity" />
         <activity android:name="androidx.navigation.fragment.DynamicNavigationActivity" />
         <activity android:name="androidx.navigation.fragment.EmbeddedXmlActivity" />

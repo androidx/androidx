@@ -2606,6 +2606,10 @@ class PointerInputEventProcessorTest {
 
 abstract class TestOwner : Owner {
     var position = IntPxPosition.Origin
+
+    override val root: LayoutNode
+        get() = LayoutNode()
+
     override fun calculatePosition() = position
 }
 

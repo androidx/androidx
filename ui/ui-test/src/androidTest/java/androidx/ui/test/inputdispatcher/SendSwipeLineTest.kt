@@ -21,7 +21,7 @@ import androidx.test.filters.SmallTest
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
-import androidx.ui.test.util.isMonotonousBetween
+import androidx.ui.test.util.isMonotonicBetween
 import androidx.ui.test.util.moveEvents
 import androidx.ui.test.util.splitsDurationEquallyInto
 import androidx.ui.test.util.verify
@@ -96,7 +96,7 @@ class SendSwipeLineTest(private val config: TestConfig) {
             last().verify(end, MotionEvent.ACTION_UP, durationMs)
 
             // Check coordinates and timestamps of move events
-            moveEvents.isMonotonousBetween(start, end)
+            moveEvents.isMonotonicBetween(start, end)
             moveEvents.splitsDurationEquallyInto(0L, durationMs, eventPeriod)
         }
     }

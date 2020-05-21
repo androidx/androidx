@@ -60,8 +60,8 @@ internal class AndroidParagraph constructor(
     constructor(
         text: String,
         style: TextStyle,
-        spanStyles: List<AnnotatedString.Item<SpanStyle>>,
-        placeholders: List<AnnotatedString.Item<Placeholder>>,
+        spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+        placeholders: List<AnnotatedString.Range<Placeholder>>,
         maxLines: Int,
         ellipsis: Boolean,
         constraints: ParagraphConstraints,
@@ -161,8 +161,15 @@ internal class AndroidParagraph constructor(
                     return@map null
                 }
 
-                val left = getHorizontalPosition(start, true)
-                val right = getHorizontalPosition(end, true)
+                val direction = getBidiRunDirection(start)
+
+                val left = when (direction) {
+                    TextDirection.Ltr ->
+                        getHorizontalPosition(start, true)
+                    TextDirection.Rtl ->
+                        getHorizontalPosition(start, true) - span.widthPx
+                }
+                val right = left + span.widthPx
 
                 val top = with(layout) {
                     when (span.verticalAlign) {

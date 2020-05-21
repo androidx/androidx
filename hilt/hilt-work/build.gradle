@@ -36,9 +36,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(project(":hilt:hilt-common"))
     api("androidx.work:work-runtime:2.3.4")
-    implementation(DAGGER)
-    annotationProcessor(DAGGER_COMPILER)
-    implementation(HILT_ANDROID)
+    api(HILT_ANDROID)
     annotationProcessor(HILT_ANDROID_COMPILER)
 }
 
@@ -46,10 +44,10 @@ android.libraryVariants.all { variant ->
     def name = variant.name
     def suffix = name.capitalize()
 
-    // Create jar<variant> task for testImplementation in hilt--compiler.
-    project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn variant.javaCompileProvider.get()
-        from variant.javaCompileProvider.get().destinationDir
+    // Create jar<variant> task for testImplementation in hilt-compiler.
+    project.tasks.register("jar${suffix}", Jar).configure {
+        dependsOn variant.javaCompileProvider
+        from variant.javaCompileProvider.map { task -> task.destinationDir}
         destinationDir new File(project.buildDir, "libJar")
     }
 }

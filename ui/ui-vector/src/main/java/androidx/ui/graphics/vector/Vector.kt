@@ -30,7 +30,7 @@ import androidx.ui.graphics.Path
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.withSave
-import androidx.ui.unit.Px
+import androidx.ui.util.fastForEach
 import kotlin.math.ceil
 
 const val DefaultGroupName = ""
@@ -93,16 +93,16 @@ sealed class VNode {
 class VectorComponent(
     var viewportWidth: Float,
     var viewportHeight: Float,
-    var defaultWidth: Px,
-    var defaultHeight: Px,
+    var defaultWidth: Float,
+    var defaultHeight: Float,
     val name: String = ""
 ) : VNode() {
 
     val root = GroupComponent(this@VectorComponent.name).apply {
         pivotX = 0.0f
         pivotY = 0.0f
-        scaleX = defaultWidth.value / viewportWidth
-        scaleY = defaultHeight.value / viewportHeight
+        scaleX = defaultWidth / viewportWidth
+        scaleY = defaultHeight / viewportHeight
         invalidateListener = {
             isDirty = true
         }
@@ -126,8 +126,8 @@ class VectorComponent(
         var targetImage = cachedImage
         if (targetImage == null) {
             targetImage = ImageAsset(
-                ceil(defaultWidth.value).toInt(),
-                ceil(defaultHeight.value).toInt()
+                ceil(defaultWidth).toInt(),
+                ceil(defaultHeight).toInt()
             )
             cachedImage = targetImage
         }
@@ -177,7 +177,7 @@ data class PathComponent(val name: String) : VNode() {
             if (field != value) {
                 field = value
                 updateFillPaint {
-                    field?.applyTo(this)
+                    field?.applyTo(this, fillAlpha)
                 }
                 invalidate()
             }
@@ -230,7 +230,7 @@ data class PathComponent(val name: String) : VNode() {
             if (field != value) {
                 field = value
                 updateStrokePaint {
-                    field?.applyTo(this)
+                    field?.applyTo(this, strokeAlpha)
                 }
                 invalidate()
             }
@@ -289,12 +289,11 @@ data class PathComponent(val name: String) : VNode() {
     private fun createStrokePaint(): Paint = Paint().apply {
         isAntiAlias = true
         style = PaintingStyle.stroke
-        alpha = strokeAlpha
         strokeWidth = strokeLineWidth
         strokeCap = strokeLineCap
         strokeJoin = strokeLineJoin
         strokeMiterLimit = strokeLineMiter
-        stroke?.applyTo(this)
+        stroke?.applyTo(this, strokeAlpha)
     }
 
     private fun updateFillPaint(fillPaintUpdater: Paint.() -> Unit) {
@@ -307,9 +306,8 @@ data class PathComponent(val name: String) : VNode() {
 
     private fun createFillPaint(): Paint = Paint().apply {
         isAntiAlias = true
-        alpha = fillAlpha
         style = PaintingStyle.fill
-        fill?.applyTo(this)
+        fill?.applyTo(this, fillAlpha)
     }
 
     private fun updatePath() {
@@ -376,7 +374,7 @@ data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
     override var invalidateListener: (() -> Unit)? = null
         set(value) {
             field = value
-            for (child in children) {
+            children.fastForEach { child ->
                 child.invalidateListener = value
             }
         }
@@ -547,7 +545,7 @@ data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
                 canvas.nativeCanvas.concat(matrix)
             }
 
-            for (node in children) {
+            children.fastForEach { node ->
                 node.draw(canvas)
             }
         }
@@ -558,7 +556,7 @@ data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
 
     override fun toString(): String {
         val sb = StringBuilder().append("VGroup: ").append(name)
-        for (node in children) {
+        children.fastForEach { node ->
             sb.append("\t").append(node.toString()).append("\n")
         }
         return sb.toString()

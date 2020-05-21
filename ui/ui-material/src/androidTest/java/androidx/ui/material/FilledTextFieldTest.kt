@@ -16,9 +16,11 @@
 
 package androidx.ui.material
 
+import android.os.Build
 import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.TestTag
@@ -30,13 +32,16 @@ import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.currentTextStyle
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
+import androidx.ui.graphics.compositeOver
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.Column
+import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.assertShape
@@ -44,10 +49,12 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.doGesture
+import androidx.ui.test.doSendImeAction
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendClick
 import androidx.ui.text.FirstBaseline
+import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
@@ -65,6 +72,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -634,6 +643,7 @@ class FilledTextFieldTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testVisualTransformationPropagated() {
         testRule.setMaterialContent {
             TestTag("textField") {
@@ -656,8 +666,113 @@ class FilledTextFieldTest {
                 shapeColor = Color.White,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                shapeOverlapPixelCount = with(testRule.density) { 3.dp.toPx() }
+                shapeOverlapPixelCount = with(testRule.density) { 3.dp.toPx().value }
             )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun test_alphaNotSet_toBackgroundColorAndTransparentColors() {
+        val latch = CountDownLatch(1)
+
+        testRule.setMaterialContent {
+            TestTag("textField") {
+                Stack(Modifier.drawBackground(Color.White)) {
+                    FilledTextField(
+                        value = "",
+                        onValueChange = {},
+                        label = {},
+                        shape = RectangleShape,
+                        backgroundColor = Color.Blue,
+                        activeColor = Color.Transparent,
+                        inactiveColor = Color.Transparent,
+                        onFocusChange = { focused ->
+                            if (focused) latch.countDown()
+                        }
+                    )
+                }
+            }
+        }
+
+        val expectedColor = Color.Blue.copy(alpha = 0.12f).compositeOver(Color.White)
+
+        findByTag("textField")
+            .captureToBitmap()
+            .assertShape(
+                density = testRule.density,
+                backgroundColor = Color.White,
+                shapeColor = expectedColor,
+                shape = RectangleShape,
+                // avoid elevation artifacts
+                shapeOverlapPixelCount = with(testRule.density) { 1.dp.toPx().value }
+            )
+
+        findByTag("textField").doClick()
+        assert(latch.await(1, TimeUnit.SECONDS))
+
+        findByTag("textField")
+            .captureToBitmap()
+            .assertShape(
+                density = testRule.density,
+                backgroundColor = Color.White,
+                shapeColor = expectedColor,
+                shape = RectangleShape,
+                // avoid elevation artifacts
+                shapeOverlapPixelCount = with(testRule.density) { 1.dp.toPx().value }
+            )
+    }
+
+    @Test
+    fun testOnTextInputStartedCallback() {
+        var controller: SoftwareKeyboardController? = null
+
+        testRule.setMaterialContent {
+            TestTag("textField") {
+                FilledTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {},
+                    onTextInputStarted = {
+                        controller = it
+                    }
+                )
+            }
+        }
+        assertThat(controller).isNull()
+
+        findByTag("textField")
+            .doClick()
+
+        runOnIdleCompose {
+            assertThat(controller).isNotNull()
+        }
+    }
+
+    @Test
+    fun testImeActionCallback_withSoftwareKeyboardController() {
+        var controller: SoftwareKeyboardController? = null
+
+        testRule.setMaterialContent {
+            TestTag("textField") {
+                FilledTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {},
+                    imeAction = ImeAction.Go,
+                    onImeActionPerformed = { _, softwareKeyboardController ->
+                        controller = softwareKeyboardController
+                    }
+                )
+            }
+        }
+        assertThat(controller).isNull()
+
+        findByTag("textField")
+            .doSendImeAction()
+
+        runOnIdleCompose {
+            assertThat(controller).isNotNull()
+        }
     }
 
     private fun clickAndAdvanceClock(tag: String, time: Long) {

@@ -44,7 +44,7 @@ class RectsInColumnBenchmark(private val numberOfRectangles: Int) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<Any> = arrayOf(1, 10)
+        fun initParameters(): Array<Any> = arrayOf(10, 100)
     }
 
     @get:Rule

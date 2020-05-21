@@ -17,11 +17,11 @@
 package androidx.ui.core.focus
 
 import androidx.test.filters.SmallTest
-import androidx.ui.focus.FocusDetailedState.Active
-import androidx.ui.focus.FocusDetailedState.ActiveParent
-import androidx.ui.focus.FocusDetailedState.Captured
-import androidx.ui.focus.FocusDetailedState.Disabled
-import androidx.ui.focus.FocusDetailedState.Inactive
+import androidx.ui.core.focus.FocusDetailedState.Active
+import androidx.ui.core.focus.FocusDetailedState.ActiveParent
+import androidx.ui.core.focus.FocusDetailedState.Captured
+import androidx.ui.core.focus.FocusDetailedState.Disabled
+import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnUiThread
@@ -41,8 +41,8 @@ class FreeFocusTest {
     fun active_freeFocus_retainFocusAsActive() {
         runOnUiThread {
             // Arrange.
-            val focusModifier = createFocusModifier(Active).also {
-                composeTestRule.setContent { Box(modifier = it) }
+            val focusModifier = FocusModifierImpl(Active).also {
+                composeTestRule.setFocusableContent { Box(modifier = it) }
             }
 
             // Act.
@@ -58,8 +58,8 @@ class FreeFocusTest {
     fun activeParent_freeFocus_retainFocusAsActiveParent() {
         runOnUiThread {
             // Arrange.
-            val focusModifier = createFocusModifier(ActiveParent).also {
-                composeTestRule.setContent { Box(modifier = it) }
+            val focusModifier = FocusModifierImpl(ActiveParent).also {
+                composeTestRule.setFocusableContent { Box(modifier = it) }
             }
 
             // Act.
@@ -75,8 +75,8 @@ class FreeFocusTest {
     fun captured_freeFocus_changesStateToActive() {
         runOnUiThread {
             // Arrange.
-            val focusModifier = createFocusModifier(Captured).also {
-                composeTestRule.setContent { Box(modifier = it) }
+            val focusModifier = FocusModifierImpl(Captured).also {
+                composeTestRule.setFocusableContent { Box(modifier = it) }
             }
 
             // Act.
@@ -92,8 +92,8 @@ class FreeFocusTest {
     fun disabled_freeFocus_retainFocusAsDisabled() {
         runOnUiThread {
             // Arrange.
-            val focusModifier = createFocusModifier(Disabled).also {
-                composeTestRule.setContent { Box(modifier = it) }
+            val focusModifier = FocusModifierImpl(Disabled).also {
+                composeTestRule.setFocusableContent { Box(modifier = it) }
             }
 
             // Act.
@@ -109,8 +109,8 @@ class FreeFocusTest {
     fun inactive_freeFocus_retainFocusAsInactive() {
         runOnUiThread {
             // Arrange.
-            val focusModifier = createFocusModifier(Inactive).also {
-                composeTestRule.setContent { Box(modifier = it) }
+            val focusModifier = FocusModifierImpl(Inactive).also {
+                composeTestRule.setFocusableContent { Box(modifier = it) }
             }
 
             // Act.

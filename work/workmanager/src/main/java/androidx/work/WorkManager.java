@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 
@@ -142,7 +143,9 @@ import java.util.concurrent.TimeUnit;
  * In case it is desirable to rename a class, implement a custom WorkerFactory that instantiates the
  * right ListenableWorker for the old class name.
  * */
-
+// Suppressing Metalava checks for added abstract methods in WorkManager.
+// WorkManager cannot be extended, because the constructor is marked @Restricted
+@SuppressLint("AddedAbstractMethod")
 public abstract class WorkManager {
 
     /**

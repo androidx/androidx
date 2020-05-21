@@ -20,11 +20,15 @@ import androidx.compose.Applier
 import androidx.compose.ApplyAdapter
 import androidx.compose.Composable
 import androidx.compose.Composer
+import androidx.compose.CompositionFrameClock
+import androidx.compose.InternalComposeApi
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.currentComposer
 import androidx.compose.invalidate
 import androidx.compose.remember
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
@@ -180,7 +184,7 @@ class ComposedModifierTest {
 }
 
 private fun compose(
-    block: @Composable() () -> Unit
+    block: @Composable () -> Unit
 ): Composer<Unit> = UnitComposer().apply {
     compose(block)
     applyChanges()
@@ -198,10 +202,17 @@ private object UnitApplierAdapter : ApplyAdapter<Unit> {
     override fun Unit.end(instance: Unit, parent: Unit) {}
 }
 
+@OptIn(InternalComposeApi::class)
 private object NoOpSchedulingRecomposer : Recomposer() {
     override fun hasPendingChanges(): Boolean = false
     override fun recomposeSync() {}
     override fun scheduleChangesDispatch() {}
+    override val compositionFrameClock = object : CompositionFrameClock {
+        override suspend fun <R> awaitFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R {
+            error("awaitFrameNanos not supported for this test")
+        }
+    }
+    override val effectCoroutineScope = CoroutineScope(SupervisorJob())
 }
 
 private class UnitComposer : Composer<Unit>(
@@ -209,11 +220,11 @@ private class UnitComposer : Composer<Unit>(
     Applier(Unit, UnitApplierAdapter),
     NoOpSchedulingRecomposer
 ) {
-    fun compose(composable: @Composable() () -> Unit) {
+    fun compose(composable: @Composable () -> Unit) {
         composeRoot {
             @Suppress("UNCHECKED_CAST")
-            val fn = composable as (Composer<*>) -> Unit
-            fn(this@UnitComposer)
+            val fn = composable as (Composer<*>, Int, Int) -> Unit
+            fn(this@UnitComposer, 0, 0)
         }
     }
 }

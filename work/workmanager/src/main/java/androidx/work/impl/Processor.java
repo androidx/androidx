@@ -114,7 +114,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
         synchronized (mLock) {
             // Work may get triggered multiple times if they have passing constraints
             // and new work with those constraints are added.
-            if (mEnqueuedWorkMap.containsKey(id)) {
+            if (isEnqueued(id)) {
                 Logger.get().debug(
                         TAG,
                         String.format("Work %s is already enqueued for processing", id));

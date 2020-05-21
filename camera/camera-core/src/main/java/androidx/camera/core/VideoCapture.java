@@ -71,7 +71,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @hide In the earlier stage, the VideoCapture is deprioritized.
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-@SuppressWarnings("ClassCanBeStatic") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
 public class VideoCapture extends UseCase {
 
     /**
@@ -239,7 +238,7 @@ public class VideoCapture extends UseCase {
             throw new IllegalStateException("Unable to create MediaCodec due to: " + e.getCause());
         }
 
-        setupEncoder(getBoundCameraId(), suggestedResolution);
+        setupEncoder(getCameraId(), suggestedResolution);
         return suggestedResolution;
     }
 
@@ -295,8 +294,8 @@ public class VideoCapture extends UseCase {
             return;
         }
 
-        CameraInternal boundCamera = getBoundCamera();
-        String cameraId = getBoundCameraId();
+        CameraInternal attachedCamera = getCamera();
+        String cameraId = getCameraId();
         Size resolution = getAttachedSurfaceResolution();
         try {
             // video encoder start
@@ -313,7 +312,7 @@ public class VideoCapture extends UseCase {
             return;
         }
 
-        CameraInfoInternal cameraInfoInternal = boundCamera.getCameraInfoInternal();
+        CameraInfoInternal cameraInfoInternal = attachedCamera.getCameraInfoInternal();
         int relativeRotation = cameraInfoInternal.getSensorRotationDegrees(
                 ((ImageOutputConfig) getUseCaseConfig()).getTargetRotation(Surface.ROTATION_0));
 
@@ -491,10 +490,10 @@ public class VideoCapture extends UseCase {
             @Override
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
-                // Ensure the bound camera has not changed before calling setupEncoder.
-                // TODO(b/143915543): Ensure this never gets called by a camera that is not bound
+                // Ensure the attached camera has not changed before calling setupEncoder.
+                // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
                 //  to this use case so we don't need to do this check.
-                if (isCurrentlyBoundCamera(cameraId)) {
+                if (isCurrentCamera(cameraId)) {
                     // Only reset the pipeline when the bound camera is the same.
                     setupEncoder(cameraId, resolution);
                 }
@@ -948,7 +947,7 @@ public class VideoCapture extends UseCase {
         public Location location;
     }
 
-    private final class VideoSavedListenerWrapper implements OnVideoSavedCallback {
+    private static final class VideoSavedListenerWrapper implements OnVideoSavedCallback {
 
         @NonNull
         Executor mExecutor;

@@ -139,6 +139,7 @@ public class IconCompat extends CustomVersionedParcelable {
     private static final String EXTRA_INT2 = "int2";
     private static final String EXTRA_TINT_LIST = "tint_list";
     private static final String EXTRA_TINT_MODE = "tint_mode";
+    private static final String EXTRA_STRING1 = "string1";
 
     /**
      * @hide
@@ -158,6 +159,7 @@ public class IconCompat extends CustomVersionedParcelable {
     // TYPE_DATA: DataBytes
     @NonParcelField
     Object          mObj1;
+
     /**
      * @hide
      */
@@ -206,6 +208,13 @@ public class IconCompat extends CustomVersionedParcelable {
     public String mTintModeStr = null;
 
     /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @ParcelField(value = 8, defaultValue = "null")
+    public String mString1;
+
+    /**
      * Create an Icon pointing to a drawable resource.
      * @param context The context for the application whose resources should be used to resolve the
      *                given resource ID.
@@ -239,8 +248,9 @@ public class IconCompat extends CustomVersionedParcelable {
                 throw new IllegalArgumentException("Icon resource cannot be found");
             }
         } else {
-            rep.mObj1 = pkg;
+            rep.mObj1 = "";
         }
+        rep.mString1 = pkg;
         return rep;
     }
 
@@ -397,7 +407,9 @@ public class IconCompat extends CustomVersionedParcelable {
         if (mType != TYPE_RESOURCE) {
             throw new IllegalStateException("called getResPackage() on " + this);
         }
-        return ((String) mObj1).split(":", -1)[0];
+        // The name of the getResPackage() API is a bit confusing. It actually returns
+        // the app package name rather than the package name in the resource table.
+        return mString1;
     }
 
     /**
@@ -573,20 +585,21 @@ public class IconCompat extends CustomVersionedParcelable {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void checkResource(@NonNull Context context) {
-        if (mType == TYPE_RESOURCE) {
-            String resPackage = (String) mObj1;
-            if (!resPackage.contains(":")) {
+        if (mType == TYPE_RESOURCE && mObj1 != null) {
+            String fullResName = (String) mObj1;
+            if (!fullResName.contains(":")) {
                 return;
             }
             // Do some splitting to parse out each of the components.
-            String resName = resPackage.split(":", -1)[1];
+            String resName = fullResName.split(":", -1)[1];
             String resType = resName.split("/", -1)[0];
             resName = resName.split("/", -1)[1];
-            resPackage = resPackage.split(":", -1)[0];
-            Resources res = getResources(context, resPackage);
+            String resPackage = fullResName.split(":", -1)[0];
+            String appPackage = getResPackage();
+            Resources res = getResources(context, appPackage);
             int id = res.getIdentifier(resName, resType, resPackage);
             if (mInt1 != id) {
-                Log.i(TAG, "Id has changed for " + resPackage + "/" + resName);
+                Log.i(TAG, "Id has changed for " + appPackage + " " + fullResName);
                 mInt1 = id;
             }
         }
@@ -775,6 +788,7 @@ public class IconCompat extends CustomVersionedParcelable {
      * Adds this Icon to a Bundle that can be read back with the same parameters
      * to {@link #createFromBundle(Bundle)}.
      */
+    @NonNull
     public Bundle toBundle() {
         Bundle bundle = new Bundle();
         switch (mType) {
@@ -800,6 +814,7 @@ public class IconCompat extends CustomVersionedParcelable {
         bundle.putInt(EXTRA_TYPE, mType);
         bundle.putInt(EXTRA_INT1, mInt1);
         bundle.putInt(EXTRA_INT2, mInt2);
+        bundle.putString(EXTRA_STRING1, mString1);
         if (mTintList != null) {
             bundle.putParcelable(EXTRA_TINT_LIST, mTintList);
         }
@@ -826,7 +841,7 @@ public class IconCompat extends CustomVersionedParcelable {
                 break;
             case TYPE_RESOURCE:
                 sb.append(" pkg=")
-                        .append(getResPackage())
+                        .append(mString1)
                         .append(" id=")
                         .append(String.format("0x%08x", getResId()));
                 break;
@@ -916,6 +931,15 @@ public class IconCompat extends CustomVersionedParcelable {
             case TYPE_URI_ADAPTIVE_BITMAP:
             case TYPE_RESOURCE:
                 mObj1 = new String(mData, Charset.forName("UTF-16"));
+                // Slice, which may contain a IconCompat object, supports serialization to file.
+                // In the old format, we don't store the app package name separately. To keep
+                // the backward-compatibility, we have no choice but read the package name from the
+                // full resource name string.
+                if (mType == TYPE_RESOURCE) {
+                    if (mString1 == null) {
+                        mString1 = ((String) mObj1).split(":", -1)[0];
+                    }
+                }
                 break;
             case TYPE_DATA:
                 mObj1 = mData;
@@ -943,6 +967,7 @@ public class IconCompat extends CustomVersionedParcelable {
         IconCompat icon = new IconCompat(type);
         icon.mInt1 = bundle.getInt(EXTRA_INT1);
         icon.mInt2 = bundle.getInt(EXTRA_INT2);
+        icon.mString1 = bundle.getString(EXTRA_STRING1);
         if (bundle.containsKey(EXTRA_TINT_LIST)) {
             icon.mTintList = bundle.getParcelable(EXTRA_TINT_LIST);
         }

@@ -47,7 +47,22 @@ public class ScaleTransformTest {
         final View container = setUpContainer(300, 400);
         final View view = setUpView(200, 400, 1F, 1F, Surface.ROTATION_0);
 
-        final ScaleTransformation scale = ScaleTransform.fill(container, view);
+        final ScaleTransformation scale = ScaleTransform.fill(container, view,
+                RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtLeast(container.getWidth());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtLeast(container.getHeight());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getWidth()
+                || getScaledHeight(view) * scale.getScaleY() == container.getHeight()).isTrue();
+    }
+
+    @Test
+    public void fill_viewNotScaled_rotation90_deviceRotation0() {
+        final View container = setUpContainer(300, 400);
+        final View view = setUpView(200, 400, 1F, 1F, Surface.ROTATION_90);
+
+        final ScaleTransformation scale = ScaleTransform.fill(container, view, Surface.ROTATION_0);
 
         assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
         assertThat(getScaledWidth(view) * scale.getScaleX()).isAtLeast(container.getWidth());
@@ -61,7 +76,23 @@ public class ScaleTransformTest {
         final View container = setUpContainer(300, 400);
         final View view = setUpView(200, 400, 1F, 1F, Surface.ROTATION_90);
 
-        final ScaleTransformation scale = ScaleTransform.fill(container, view);
+        final ScaleTransformation scale = ScaleTransform.fill(container, view,
+                RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtLeast(container.getHeight());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtLeast(container.getWidth());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getHeight()
+                || getScaledHeight(view) * scale.getScaleY() == container.getWidth()).isTrue();
+    }
+
+    @Test
+    public void fill_viewNotScaled_rotation0_deviceRotation90() {
+        final View container = setUpContainer(300, 400);
+        final View view = setUpView(200, 400, 1F, 1F, Surface.ROTATION_0);
+
+        final ScaleTransformation scale = ScaleTransform.fill(container, view,
+                Surface.ROTATION_90);
 
         assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
         assertThat(getScaledWidth(view) * scale.getScaleX()).isAtLeast(container.getHeight());
@@ -75,7 +106,22 @@ public class ScaleTransformTest {
         final View container = setUpContainer(300, 400);
         final View view = setUpView(200, 400, 2F, 1.5F, Surface.ROTATION_0);
 
-        final ScaleTransformation scale = ScaleTransform.fill(container, view);
+        final ScaleTransformation scale = ScaleTransform.fill(container, view,
+                RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtLeast(container.getWidth());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtLeast(container.getHeight());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getWidth()
+                || getScaledHeight(view) * scale.getScaleY() == container.getHeight()).isTrue();
+    }
+
+    @Test
+    public void fill_viewScaled_rotation90_deviceRotation0() {
+        final View container = setUpContainer(300, 400);
+        final View view = setUpView(200, 400, 2F, 1.5F, Surface.ROTATION_90);
+
+        final ScaleTransformation scale = ScaleTransform.fill(container, view, Surface.ROTATION_0);
 
         assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
         assertThat(getScaledWidth(view) * scale.getScaleX()).isAtLeast(container.getWidth());
@@ -89,7 +135,22 @@ public class ScaleTransformTest {
         final View container = setUpContainer(300, 400);
         final View view = setUpView(200, 400, 2F, 1.5F, Surface.ROTATION_90);
 
-        final ScaleTransformation scale = ScaleTransform.fill(container, view);
+        final ScaleTransformation scale = ScaleTransform.fill(container, view,
+                RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtLeast(container.getHeight());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtLeast(container.getWidth());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getHeight()
+                || getScaledHeight(view) * scale.getScaleY() == container.getWidth()).isTrue();
+    }
+
+    @Test
+    public void fill_viewScaled_rotation0_deviceRotation90() {
+        final View container = setUpContainer(300, 400);
+        final View view = setUpView(200, 400, 2F, 1.5F, Surface.ROTATION_0);
+
+        final ScaleTransformation scale = ScaleTransform.fill(container, view, Surface.ROTATION_90);
 
         assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
         assertThat(getScaledWidth(view) * scale.getScaleX()).isAtLeast(container.getHeight());
@@ -103,7 +164,22 @@ public class ScaleTransformTest {
         final View container = setUpContainer(200, 500);
         final View view = setUpView(500, 1000, 1F, 1F, Surface.ROTATION_0);
 
-        final ScaleTransformation scale = ScaleTransform.fit(container, view);
+        final ScaleTransformation scale = ScaleTransform.fit(container, view,
+                RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtMost(container.getWidth());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtMost(container.getHeight());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getWidth()
+                || getScaledHeight(view) * scale.getScaleY() == container.getHeight()).isTrue();
+    }
+
+    @Test
+    public void fit_viewNotScaled_rotation90_deviceRotation0() {
+        final View container = setUpContainer(200, 500);
+        final View view = setUpView(500, 1000, 1F, 1F, Surface.ROTATION_90);
+
+        final ScaleTransformation scale = ScaleTransform.fit(container, view, Surface.ROTATION_0);
 
         assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
         assertThat(getScaledWidth(view) * scale.getScaleX()).isAtMost(container.getWidth());
@@ -117,7 +193,22 @@ public class ScaleTransformTest {
         final View container = setUpContainer(200, 500);
         final View view = setUpView(500, 1000, 1F, 1F, Surface.ROTATION_90);
 
-        final ScaleTransformation scale = ScaleTransform.fit(container, view);
+        final ScaleTransformation scale = ScaleTransform.fit(container, view,
+                RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtMost(container.getHeight());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtMost(container.getWidth());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getHeight()
+                || getScaledHeight(view) * scale.getScaleY() == container.getWidth()).isTrue();
+    }
+
+    @Test
+    public void fit_viewNotScaled_rotation0_deviceRotation90() {
+        final View container = setUpContainer(200, 500);
+        final View view = setUpView(500, 1000, 1F, 1F, Surface.ROTATION_0);
+
+        final ScaleTransformation scale = ScaleTransform.fit(container, view, Surface.ROTATION_90);
 
         assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
         assertThat(getScaledWidth(view) * scale.getScaleX()).isAtMost(container.getHeight());
@@ -131,7 +222,22 @@ public class ScaleTransformTest {
         final View container = setUpContainer(200, 500);
         final View view = setUpView(500, 1000, 0.5F, 2F, Surface.ROTATION_0);
 
-        final ScaleTransformation scale = ScaleTransform.fit(container, view);
+        final ScaleTransformation scale = ScaleTransform.fit(container, view,
+                RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtMost(container.getWidth());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtMost(container.getHeight());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getWidth()
+                || getScaledHeight(view) * scale.getScaleY() == container.getHeight()).isTrue();
+    }
+
+    @Test
+    public void fit_viewScaled_rotation90_deviceRotation0() {
+        final View container = setUpContainer(200, 500);
+        final View view = setUpView(500, 1000, 0.5F, 2F, Surface.ROTATION_90);
+
+        final ScaleTransformation scale = ScaleTransform.fit(container, view, Surface.ROTATION_0);
 
         assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
         assertThat(getScaledWidth(view) * scale.getScaleX()).isAtMost(container.getWidth());
@@ -145,7 +251,22 @@ public class ScaleTransformTest {
         final View container = setUpContainer(200, 500);
         final View view = setUpView(500, 1000, 0.5F, 2F, Surface.ROTATION_90);
 
-        final ScaleTransformation scale = ScaleTransform.fit(container, view);
+        final ScaleTransformation scale = ScaleTransform.fit(container, view,
+                RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
+        assertThat(getScaledWidth(view) * scale.getScaleX()).isAtMost(container.getHeight());
+        assertThat(getScaledHeight(view) * scale.getScaleY()).isAtMost(container.getWidth());
+        assertThat(getScaledWidth(view) * scale.getScaleX() == container.getHeight()
+                || getScaledHeight(view) * scale.getScaleY() == container.getWidth()).isTrue();
+    }
+
+    @Test
+    public void fit_viewScaled_rotation0_deviceRotation90() {
+        final View container = setUpContainer(200, 500);
+        final View view = setUpView(500, 1000, 0.5F, 2F, Surface.ROTATION_0);
+
+        final ScaleTransformation scale = ScaleTransform.fit(container, view, Surface.ROTATION_90);
 
         assertThat(scale.getScaleX()).isEqualTo(scale.getScaleY());
         assertThat(getScaledWidth(view) * scale.getScaleX()).isAtMost(container.getHeight());

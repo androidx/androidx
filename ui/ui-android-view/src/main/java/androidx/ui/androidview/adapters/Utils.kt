@@ -18,7 +18,6 @@ package androidx.ui.androidview.adapters
 
 import android.util.DisplayMetrics
 import android.view.View
-import android.view.ViewGroup
 
 internal val View.metrics: DisplayMetrics get() = resources.displayMetrics
 

@@ -21,6 +21,23 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.lerp
 
+/**
+ * Interface for dispatching full and partial gestures.
+ *
+ * Full gestures:
+ * * [sendClick]
+ * * [sendSwipe]
+ * * [sendSwipes]
+ *
+ * Partial gestures:
+ * * [sendDown]
+ * * [sendMove]
+ * * [sendUp]
+ * * [sendCancel]
+ *
+ * Chaining methods:
+ * * [delay]
+ */
 internal interface InputDispatcher {
     /**
      * Sends a click event at [position]. There will be 10ms in between the down and the up
@@ -47,10 +64,10 @@ internal interface InputDispatcher {
     }
 
     /**
-     * Sends a swipe gesture from `curve(0)` to `curve([duration])`, following the route defined
-     * by [curve]. Will force sampling of an event at all times defined in [keyTimes]. The number
-     * of events sampled between the key times is implementation dependent. This method blocks
-     * until all input events have been dispatched.
+     * Sends a swipe gesture from [curve]&#40;0) to [curve]&#40;[duration]), following the route
+     * defined by [curve]. Will force sampling of an event at all times defined in [keyTimes].
+     * The number of events sampled between the key times is implementation dependent. This
+     * method blocks until all input events have been dispatched.
      *
      * @param curve The function that defines the position of the gesture over time
      * @param duration The duration of the gesture
@@ -61,12 +78,33 @@ internal interface InputDispatcher {
         curve: (Long) -> PxPosition,
         duration: Duration,
         keyTimes: List<Long> = emptyList()
+    ) {
+        sendSwipes(listOf(curve), duration, keyTimes)
+    }
+
+    /**
+     * Sends [curves].size simultaneous swipe gestures, each swipe going from
+     * [curves]&#91;i&#93;(0) to [curves]&#91;i&#93;([duration]), following the route defined by
+     * [curves]&#91;i&#93;. Will force sampling of an event at all times defined in [keyTimes].
+     * The number of events sampled between the key times is implementation dependent. This
+     * method blocks until all input events have been dispatched.
+     *
+     * @param curves The functions that define the position of the gesture over time
+     * @param duration The duration of the gestures
+     * @param keyTimes An optional list of timestamps in milliseconds at which a move event must
+     * be sampled
+     */
+    fun sendSwipes(
+        curves: List<(Long) -> PxPosition>,
+        duration: Duration,
+        keyTimes: List<Long> = emptyList()
     )
 
     /**
      * Blocks for the given [duration] in order to delay the next gesture. Guarantees that the
      * first event time of the next gesture will be exactly [duration] later then if that gesture
-     * would be injected without this delay.
+     * would be injected without this delay, provided that the next gesture is started using the
+     * same [InputDispatcher] instance as the one used to end the last gesture.
      *
      * Note: this does not affect the time of the next event for the _current_ partial gesture,
      * using [sendMove], [sendUp] and [sendCancel], but it will affect the time of the _next_
@@ -81,12 +119,16 @@ internal interface InputDispatcher {
      * touch events to continue this gesture. This method blocks until the input event has been
      * dispatched.
      *
-     * A full gesture starts with a down event at some position (this method) that indicates a
-     * finger has started touching the screen, followed by zero or more [move][sendMove] events
+     * A full gesture starts with a down event at some position (with this method) that indicates
+     * a finger has started touching the screen, followed by zero or more [move][sendMove] events
      * that indicate the finger has moved around along those positions, and is finished by an
      * [up][sendUp] or a [cancel][sendCancel] event that indicate the finger was lifted up from
-     * the screen. As long as the gesture is incomplete, keep in mind that an imaginary finger is
-     * actively touching the screen.
+     * the screen.
+     *
+     * Partial gestures don't have to be defined all in the same [doPartialGesture] block, but
+     * keep in mind that while the gesture is not complete, all code you execute in between
+     * blocks that progress the gesture, will be executed while an imaginary finger is actively
+     * touching the screen.
      *
      * In the context of testing, it is not necessary to complete a gesture with an up or cancel
      * event, if the test ends before it expects the finger to be lifted from the screen.

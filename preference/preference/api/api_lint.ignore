@@ -19,12 +19,6 @@ ArrayReturn: androidx.preference.MultiSelectListPreference#setEntryValues(CharSe
     Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
 
 
-CallbackMethodName: androidx.preference.PreferenceManager.PreferenceComparisonCallback:
-    Callback method names must follow the on<Something> style: arePreferenceItemsTheSame
-CallbackMethodName: androidx.preference.PreferenceManager.SimplePreferenceComparisonCallback:
-    Callback method names must follow the on<Something> style: arePreferenceItemsTheSame
-
-
 InternalField: androidx.preference.TwoStatePreference#mChecked:
     Internal field mChecked must not be exposed
 

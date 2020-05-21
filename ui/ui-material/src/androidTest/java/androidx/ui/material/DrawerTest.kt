@@ -17,17 +17,16 @@
 package androidx.ui.material
 
 import android.os.SystemClock.sleep
-import androidx.compose.Model
 import androidx.compose.emptyContent
+import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.clickable
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
@@ -52,9 +51,6 @@ import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
-
-@Model
-data class DrawerStateHolder(var state: DrawerState)
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -154,30 +150,28 @@ class DrawerTest {
         var contentWidth: IntPx? = null
         var openedLatch: CountDownLatch? = null
         var closedLatch: CountDownLatch? = CountDownLatch(1)
-        val drawerState = DrawerStateHolder(DrawerState.Closed)
+        val drawerState = mutableStateOf(DrawerState.Closed)
         composeTestRule.setMaterialContent {
             TestTag("Drawer") {
-                Semantics(container = true) {
-                    ModalDrawerLayout(drawerState.state, { drawerState.state = it },
-                        drawerContent = {
-                            Box(
-                                Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
-                                    val pos = info.localToGlobal(PxPosition.Origin)
-                                    if (pos.x == 0.px) {
-                                        // If fully opened, mark the openedLatch if present
-                                        openedLatch?.countDown()
-                                    } else if (-pos.x.round() == contentWidth) {
-                                        // If fully closed, mark the closedLatch if present
-                                        closedLatch?.countDown()
-                                    }
+                ModalDrawerLayout(drawerState.value, { drawerState.value = it },
+                    drawerContent = {
+                        Box(
+                            Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
+                                val pos = info.localToGlobal(PxPosition.Origin)
+                                if (pos.x == 0.px) {
+                                    // If fully opened, mark the openedLatch if present
+                                    openedLatch?.countDown()
+                                } else if (-pos.x.round() == contentWidth) {
+                                    // If fully closed, mark the closedLatch if present
+                                    closedLatch?.countDown()
                                 }
-                            )
-                        },
-                        bodyContent = {
-                            Box(Modifier.fillMaxSize()
-                                .onPositioned { contentWidth = it.size.width })
-                        })
-                }
+                            }
+                        )
+                    },
+                    bodyContent = {
+                        Box(Modifier.fillMaxSize()
+                            .onPositioned { contentWidth = it.size.width })
+                    })
             }
         }
         // Drawer should start in closed state
@@ -186,7 +180,7 @@ class DrawerTest {
         // When the drawer state is set to Opened
         openedLatch = CountDownLatch(1)
         runOnIdleCompose {
-            drawerState.state = DrawerState.Opened
+            drawerState.value = DrawerState.Opened
         }
         // Then the drawer should be opened
         assertThat(openedLatch.await(5, TimeUnit.SECONDS)).isTrue()
@@ -194,7 +188,7 @@ class DrawerTest {
         // When the drawer state is set to Closed
         closedLatch = CountDownLatch(1)
         runOnIdleCompose {
-            drawerState.state = DrawerState.Closed
+            drawerState.value = DrawerState.Closed
         }
         // Then the drawer should be closed
         assertThat(closedLatch.await(5, TimeUnit.SECONDS)).isTrue()
@@ -204,23 +198,23 @@ class DrawerTest {
     fun modalDrawer_bodyContent_clickable() {
         var drawerClicks = 0
         var bodyClicks = 0
-        val drawerState = DrawerStateHolder(DrawerState.Closed)
+        val drawerState = mutableStateOf(DrawerState.Closed)
         composeTestRule.setMaterialContent {
             // emulate click on the screen
             TestTag("Drawer") {
-                Semantics(container = true) {
-                    ModalDrawerLayout(drawerState.state, { drawerState.state = it },
-                        drawerContent = {
-                            Clickable(onClick = { drawerClicks += 1 }) {
-                                Box(Modifier.fillMaxSize(), children = emptyContent())
-                            }
-                        },
-                        bodyContent = {
-                            Clickable(onClick = { bodyClicks += 1 }) {
-                                Box(Modifier.fillMaxSize(), children = emptyContent())
-                            }
-                        })
-                }
+                ModalDrawerLayout(drawerState.value, { drawerState.value = it },
+                    drawerContent = {
+                        Box(
+                            Modifier.fillMaxSize().clickable { drawerClicks += 1 },
+                            children = emptyContent()
+                        )
+                    },
+                    bodyContent = {
+                        Box(
+                            Modifier.fillMaxSize().clickable { bodyClicks += 1 },
+                            children = emptyContent()
+                        )
+                    })
             }
         }
 
@@ -231,7 +225,7 @@ class DrawerTest {
             assertThat(drawerClicks).isEqualTo(0)
             assertThat(bodyClicks).isEqualTo(1)
 
-            drawerState.state = DrawerState.Opened
+            drawerState.value = DrawerState.Opened
         }
         sleep(100) // TODO(147586311): remove this sleep when opening the drawer triggers a wait
 
@@ -255,31 +249,29 @@ class DrawerTest {
         var openedHeight: IntPx? = null
         var openedLatch: CountDownLatch? = null
         var closedLatch: CountDownLatch? = CountDownLatch(1)
-        val drawerState = DrawerStateHolder(DrawerState.Closed)
+        val drawerState = mutableStateOf(DrawerState.Closed)
         composeTestRule.setMaterialContent {
             TestTag("Drawer") {
-                Semantics(container = true) {
-                    BottomDrawerLayout(drawerState.state, { drawerState.state = it },
-                        drawerContent = {
-                            Box(Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
-                                val pos = info.localToGlobal(PxPosition.Origin)
-                                if (pos.y.round() == openedHeight) {
-                                    // If fully opened, mark the openedLatch if present
-                                    openedLatch?.countDown()
-                                } else if (pos.y.round() == contentHeight) {
-                                    // If fully closed, mark the closedLatch if present
-                                    closedLatch?.countDown()
-                                }
-                            })
-                        },
-                        bodyContent = {
-                            Box(Modifier.fillMaxSize().onPositioned {
-                                contentHeight = it.size.height
-                                openedHeight = it.size.height * BottomDrawerOpenFraction
-                            })
-                        }
-                    )
-                }
+                BottomDrawerLayout(drawerState.value, { drawerState.value = it },
+                    drawerContent = {
+                        Box(Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
+                            val pos = info.localToGlobal(PxPosition.Origin)
+                            if (pos.y.round() == openedHeight) {
+                                // If fully opened, mark the openedLatch if present
+                                openedLatch?.countDown()
+                            } else if (pos.y.round() == contentHeight) {
+                                // If fully closed, mark the closedLatch if present
+                                closedLatch?.countDown()
+                            }
+                        })
+                    },
+                    bodyContent = {
+                        Box(Modifier.fillMaxSize().onPositioned {
+                            contentHeight = it.size.height
+                            openedHeight = it.size.height * BottomDrawerOpenFraction
+                        })
+                    }
+                )
             }
         }
         // Drawer should start in closed state
@@ -288,7 +280,7 @@ class DrawerTest {
         // When the drawer state is set to Opened
         openedLatch = CountDownLatch(1)
         runOnIdleCompose {
-            drawerState.state = DrawerState.Opened
+            drawerState.value = DrawerState.Opened
         }
         // Then the drawer should be opened
         assertThat(openedLatch.await(5, TimeUnit.SECONDS)).isTrue()
@@ -296,7 +288,7 @@ class DrawerTest {
         // When the drawer state is set to Closed
         closedLatch = CountDownLatch(1)
         runOnIdleCompose {
-            drawerState.state = DrawerState.Closed
+            drawerState.value = DrawerState.Closed
         }
         // Then the drawer should be closed
         assertThat(closedLatch.await(5, TimeUnit.SECONDS)).isTrue()
@@ -306,23 +298,23 @@ class DrawerTest {
     fun bottomDrawer_bodyContent_clickable() {
         var drawerClicks = 0
         var bodyClicks = 0
-        val drawerState = DrawerStateHolder(DrawerState.Closed)
+        val drawerState = mutableStateOf(DrawerState.Closed)
         composeTestRule.setMaterialContent {
             // emulate click on the screen
             TestTag("Drawer") {
-                Semantics(container = true) {
-                    BottomDrawerLayout(drawerState.state, { drawerState.state = it },
-                        drawerContent = {
-                            Clickable(onClick = { drawerClicks += 1 }) {
-                                Box(Modifier.fillMaxSize(), children = emptyContent())
-                            }
-                        },
-                        bodyContent = {
-                            Clickable(onClick = { bodyClicks += 1 }) {
-                                Box(Modifier.fillMaxSize(), children = emptyContent())
-                            }
-                        })
-                }
+                BottomDrawerLayout(drawerState.value, { drawerState.value = it },
+                    drawerContent = {
+                        Box(
+                            Modifier.fillMaxSize().clickable { drawerClicks += 1 },
+                            children = emptyContent()
+                        )
+                    },
+                    bodyContent = {
+                        Box(
+                            Modifier.fillMaxSize().clickable { bodyClicks += 1 },
+                            children = emptyContent()
+                        )
+                    })
             }
         }
 
@@ -335,7 +327,7 @@ class DrawerTest {
         }
 
         runOnUiThread {
-            drawerState.state = DrawerState.Opened
+            drawerState.value = DrawerState.Opened
         }
         sleep(100) // TODO(147586311): remove this sleep when opening the drawer triggers a wait
 

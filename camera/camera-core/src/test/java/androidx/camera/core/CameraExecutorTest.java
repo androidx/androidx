@@ -107,11 +107,10 @@ public class CameraExecutorTest {
     }
 
     private static class BlockedRunnable implements Runnable {
-        private final Object mLock = new Object();
         private final Runnable mDelegate;
-        @GuardedBy("mLock")
+        @GuardedBy("this")
         private Thread mThread;
-        @GuardedBy("mLock")
+        @GuardedBy("this")
         private boolean mUnblock;
 
         BlockedRunnable(Runnable runnable) {
@@ -122,7 +121,7 @@ public class CameraExecutorTest {
         public void run() {
             mDelegate.run();
 
-            synchronized (mLock) {
+            synchronized (this) {
                 if (mUnblock) {
                     return;
                 }
@@ -135,7 +134,7 @@ public class CameraExecutorTest {
         }
 
         public void unblock() {
-            synchronized (mLock) {
+            synchronized (this) {
                 mUnblock = true;
 
                 if (mThread != null) {

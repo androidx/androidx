@@ -17,9 +17,7 @@
 package androidx.ui.test.android
 
 import android.view.View
-import android.view.ViewTreeObserver
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.ui.core.AndroidOwner
 import java.util.Collections
 import java.util.WeakHashMap
@@ -30,14 +28,12 @@ import java.util.WeakHashMap
  */
 internal object AndroidOwnerRegistry {
     private val owners = Collections.newSetFromMap(WeakHashMap<AndroidOwner, Boolean>())
-    private val notYetDrawn = Collections.newSetFromMap(WeakHashMap<AndroidOwner, Boolean>())
-    private var onDrawnCallback: (() -> Unit)? = null
     private val registryListeners = mutableSetOf<OnRegistrationChangedListener>()
 
     /**
      * Returns if the registry is setup to receive registrations from [AndroidOwner]s
      */
-    val isSetup: Boolean
+    val isSetUp: Boolean
         get() = AndroidOwner.onAndroidOwnerCreatedCallback == ::onAndroidOwnerCreated
 
     /**
@@ -101,30 +97,10 @@ internal object AndroidOwnerRegistry {
     }
 
     /**
-     * Returns if all registered owners have finished at least one draw call.
-     */
-    fun haveAllDrawn(): Boolean {
-        return notYetDrawn.all {
-            val lifecycleOwner = ViewTreeLifecycleOwner.get(it.view) ?: return false
-            lifecycleOwner.lifecycle.currentState != Lifecycle.State.RESUMED
-        }
-    }
-
-    /**
-     * Adds a [callback] to be called when all registered [AndroidOwner]s have drawn at least
-     * once. The callback will be removed after it is called.
-     */
-    fun setOnDrawnCallback(callback: (() -> Unit)?) {
-        onDrawnCallback = callback
-    }
-
-    /**
      * Registers the [owner] in this registry. Must be called from [View.onAttachedToWindow].
      */
     internal fun registerOwner(owner: AndroidOwner) {
         owners.add(owner)
-        notYetDrawn.add(owner)
-        owner.view.viewTreeObserver.addOnDrawListener(FirstDrawListener(owner))
         dispatchOnRegistrationChanged(owner, true)
     }
 
@@ -133,27 +109,7 @@ internal object AndroidOwnerRegistry {
      */
     internal fun unregisterOwner(owner: AndroidOwner) {
         owners.remove(owner)
-        notYetDrawn.remove(owner)
-        dispatchOnDrawn()
         dispatchOnRegistrationChanged(owner, false)
-    }
-
-    /**
-     * Should be called when a registered owner has drawn for the first time. Can be called after
-     * subsequent draws as well, but that is not required.
-     */
-    // TODO(b/155742511): Move all onDrawn functionality to another class, so the registry
-    //  remains purely about tracking AndroidOwners.
-    private fun notifyOwnerDrawn(owner: AndroidOwner) {
-        notYetDrawn.remove(owner)
-        dispatchOnDrawn()
-    }
-
-    private fun dispatchOnDrawn() {
-        if (haveAllDrawn()) {
-            onDrawnCallback?.invoke()
-            onDrawnCallback = null
-        }
     }
 
     /**
@@ -162,25 +118,6 @@ internal object AndroidOwnerRegistry {
      */
     interface OnRegistrationChangedListener {
         fun onRegistrationChanged(owner: AndroidOwner, registered: Boolean)
-    }
-
-    private class FirstDrawListener(private val owner: AndroidOwner) :
-        ViewTreeObserver.OnDrawListener {
-        private var invoked = false
-
-        override fun onDraw() {
-            if (!invoked) {
-                invoked = true
-                owner.view.post {
-                    // the view was drawn
-                    notifyOwnerDrawn(owner)
-                    val viewTreeObserver = owner.view.viewTreeObserver
-                    if (viewTreeObserver.isAlive) {
-                        viewTreeObserver.removeOnDrawListener(this)
-                    }
-                }
-            }
-        }
     }
 
     private class OwnerAttachedListener(

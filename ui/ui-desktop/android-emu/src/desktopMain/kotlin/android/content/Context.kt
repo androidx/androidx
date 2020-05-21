@@ -17,20 +17,24 @@ package android.content
 
 import android.content.res.Resources
 import android.view.accessibility.AccessibilityManager
+import android.view.inputmethod.InputMethodManager
 
 public abstract class Context() {
     companion object {
         const val ACCESSIBILITY_SERVICE = "accessibility"
         const val CLIPBOARD_SERVICE = "clipboard"
+        const val INPUT_METHOD_SERVICE = "input_method"
     }
 
     private val accessibilityManager = AccessibilityManager()
     private val clipboardManager = ClipboardManager()
+    private val inputMethodManager = InputMethodManager()
 
     open fun getSystemService(service: String): Any? {
         return when (service) {
             Context.ACCESSIBILITY_SERVICE -> accessibilityManager
             Context.CLIPBOARD_SERVICE -> clipboardManager
+            Context.INPUT_METHOD_SERVICE -> inputMethodManager
             else -> null
         }
     }

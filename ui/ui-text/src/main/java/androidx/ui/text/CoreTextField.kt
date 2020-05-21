@@ -35,10 +35,10 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.onPositioned
-import androidx.ui.focus.FocusModifier
-import androidx.ui.focus.FocusState
-import androidx.ui.focus.focusState
-import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.core.focus.FocusModifier
+import androidx.ui.core.focus.FocusState
+import androidx.ui.core.focus.focusState
+import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorValue
 import androidx.ui.input.ImeAction
@@ -48,7 +48,8 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.onClick
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.round
+import androidx.ui.unit.ipx
+import kotlin.math.roundToInt
 
 /**
  * The common TextField implementation.
@@ -72,7 +73,7 @@ fun CoreTextField(
     // incrementing generation counter when we callback to the developer and reset the state with
     // the latest state.
     val generation = state { 0 }
-    val Wrapper: @Composable() (Int, @Composable() () -> Unit) -> Unit = { _, child -> child() }
+    val Wrapper: @Composable (Int, @Composable () -> Unit) -> Unit = { _, child -> child() }
     val onValueChangeWrapper: (EditorValue) -> Unit = { onValueChange(it); generation.value++ }
 
     Wrapper(generation.value) {
@@ -103,7 +104,8 @@ fun CoreTextField(
             text = visualText,
             style = textStyle,
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            placeholders = emptyList()
         )
 
         // TODO: Stop lookup FocusModifier from modifier chain. (b/155434146)
@@ -186,7 +188,8 @@ fun CoreTextField(
                         state.hasFocus
                     )
                 }
-            }
+            },
+            imeAction = imeAction
         ) {
             Layout(
                 emptyContent(),
@@ -234,8 +237,8 @@ fun CoreTextField(
                         width,
                         height,
                         mapOf(
-                            FirstBaseline to result.firstBaseline.round(),
-                            LastBaseline to result.lastBaseline.round()
+                            FirstBaseline to result.firstBaseline.roundToInt().ipx,
+                            LastBaseline to result.lastBaseline.roundToInt().ipx
                         )
                     ) {}
                 }
@@ -251,7 +254,7 @@ private class TextFieldState(
     var inputSession = NO_SESSION
     /**
      * This should be a state as every time we update the value we need to redraw it.
-     * @Model observation during onDraw callback will make it work.
+     * state observation during onDraw callback will make it work.
      */
     var hasFocus by mutableStateOf(false)
     /** The last layout coordinates for the Text's layout, used by selection */
@@ -270,16 +273,19 @@ private fun TextInputEventObserver(
     onFocus: () -> Unit,
     onBlur: (hasNextClient: Boolean) -> Unit,
     focusModifier: FocusModifier,
-    children: @Composable() () -> Unit
+    imeAction: ImeAction,
+    children: @Composable () -> Unit
 ) {
     val prevState = state { FocusState.NotFocused }
     if (focusModifier.focusState == FocusState.Focused &&
-        prevState.value == FocusState.NotFocused) {
+        prevState.value == FocusState.NotFocused
+    ) {
         onFocus()
     }
 
     if (focusModifier.focusState == FocusState.NotFocused &&
-        prevState.value == FocusState.Focused) {
+        prevState.value == FocusState.Focused
+    ) {
         onBlur(false) // TODO: Need to know if there is next focus element
     }
 
@@ -299,7 +305,9 @@ private fun TextInputEventObserver(
         container = true,
         mergeAllDescendants = true,
         properties = {
-            onClick(action = doFocusIn)
+            this.imeAction = imeAction
+            this.supportsInputMethods = true
+            onClick(action = { doFocusIn(); return@onClick true })
         }
     ) {
         val drag = Modifier.dragPositionGestureFilter(

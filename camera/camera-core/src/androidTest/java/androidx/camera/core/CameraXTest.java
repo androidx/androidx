@@ -16,8 +16,6 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.core.CameraX.getScaledRect;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.Assert.assertFalse;
@@ -43,6 +41,7 @@ import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.ViewPorts;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -209,7 +208,7 @@ public final class CameraXTest {
             }
         };
 
-        Map<UseCase, Rect> useCaseCropRects = CameraX.calculateViewPortRects(
+        Map<UseCase, Rect> useCaseCropRects = ViewPorts.calculateViewPortRects(
                 new Rect(0, 0, sensorSize.getWidth(), sensorSize.getHeight()),
                 aspectRatio,
                 rotationDegree,
@@ -228,42 +227,48 @@ public final class CameraXTest {
     @Test
     public void viewPortRectFillCenter() {
         Rect expectedRect = new Rect();
-        getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_CENTER).round(expectedRect);
+        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_CENTER).round(
+                expectedRect);
         assertThat(expectedRect).isEqualTo(new Rect(15, 10, 45, 40));
     }
 
     @Test
     public void getScaledRectFillStart() {
         Rect expectedRect = new Rect();
-        getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_START).round(expectedRect);
+        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_START).round(
+                expectedRect);
         assertThat(expectedRect).isEqualTo(new Rect(10, 10, 40, 40));
     }
 
     @Test
     public void getScaledRectFillEnd() {
         Rect expectedRect = new Rect();
-        getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_END).round(expectedRect);
+        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_END).round(
+                expectedRect);
         assertThat(expectedRect).isEqualTo(new Rect(20, 10, 50, 40));
     }
 
     @Test
     public void getScaledRectFitCenter() {
         Rect expectedRect = new Rect();
-        getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_CENTER).round(expectedRect);
+        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_CENTER).round(
+                expectedRect);
         assertThat(expectedRect).isEqualTo(new Rect(10, 5, 50, 45));
     }
 
     @Test
     public void getScaledRectFitStart() {
         Rect expectedRect = new Rect();
-        getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_START).round(expectedRect);
+        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_START).round(
+                expectedRect);
         assertThat(expectedRect).isEqualTo(new Rect(10, 10, 50, 50));
     }
 
     @Test
     public void getScaledRectFitEnd() {
         Rect expectedRect = new Rect();
-        getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_END).round(expectedRect);
+        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_END).round(
+                expectedRect);
         assertThat(expectedRect).isEqualTo(new Rect(10, 0, 50, 40));
     }
 
@@ -405,10 +410,10 @@ public final class CameraXTest {
 
     @Test
     @UiThreadTest
-    public void bind_createsNewUseCaseGroup() {
+    public void bind_createsNewUseCaseMediator() {
         initCameraX();
         CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, new FakeUseCase());
-        // One observer is the use case group. The other observer removes the use case upon the
+        // One observer is the use case mediator. The other observer removes the use case upon the
         // lifecycle's destruction.
         assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
     }
@@ -440,7 +445,7 @@ public final class CameraXTest {
 
     @Test
     @UiThreadTest
-    public void bind_createsDifferentUseCaseGroups_forDifferentLifecycles() {
+    public void bind_createsDifferentUseCaseMediators_forDifferentLifecycles() {
         initCameraX();
         CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR,
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build());
@@ -449,7 +454,7 @@ public final class CameraXTest {
         CameraX.bindToLifecycle(anotherLifecycle, CAMERA_SELECTOR,
                 new FakeUseCaseConfig.Builder().setTargetName("config1").build());
 
-        // One observer is the use case group. The other observer removes the use case upon the
+        // One observer is the use case mediator. The other observer removes the use case upon the
         // lifecycle's destruction.
         assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
         assertThat(anotherLifecycle.getObserverCount()).isEqualTo(2);
@@ -547,7 +552,7 @@ public final class CameraXTest {
         Camera camera = CameraX.bindToLifecycle(mLifecycle, CameraSelector.DEFAULT_BACK_CAMERA,
                 fakeUseCase);
 
-        assertThat(fakeUseCase.getBoundCamera()).isEqualTo(camera);
+        assertThat(fakeUseCase.getCamera()).isEqualTo(camera);
     }
 
     @Test

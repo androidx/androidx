@@ -46,8 +46,9 @@ class ModifierInfoTest : ToolingTest() {
 
     @Test
     fun testBounds() {
+        val slotTableRecord = SlotTableRecord.create()
         show {
-            Inspectable {
+            Inspectable(slotTableRecord) {
                 with(DensityAmbient.current) {
                     val px10 = 10.px.toDp()
                     val px5 = 5.px.toDp()
@@ -61,12 +62,17 @@ class ModifierInfoTest : ToolingTest() {
         }
 
         activityTestRule.runOnUiThread {
-            val modifierInfo = tables.findGroupForFile("ModifierInfoTest")!!.all()
-                .map {
-                    it.modifierInfo
-                }
-                .filter { it.isNotEmpty() }
-                .sortedBy { it.size }
+            val tree = slotTableRecord.store.first().asTree()
+            val firstGroup = tree.firstOrNull {
+                it.position?.contains("ModifierInfoTest.kt") == true && it.box.right.value > 0
+            }!!
+            val modifierInfoItems = firstGroup.all()
+                .filter { it.modifierInfo.isNotEmpty() }
+                .sortedBy { it.modifierInfo.size }
+
+            val modifierInfo = modifierInfoItems.map {
+                it.modifierInfo
+            }
 
             assertEquals(2, modifierInfo.size)
 

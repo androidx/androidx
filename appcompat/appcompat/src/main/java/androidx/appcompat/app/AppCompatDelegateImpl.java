@@ -2518,10 +2518,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // attachBaseContext() + createConfigurationContext() code path.
             // Else, we need to use updateConfiguration() before we're 'created' (below)
             if (DEBUG) {
-                Log.d(TAG, "updateForNightMode. Recreating Activity: " + mHost);
+                Log.d(TAG, "updateForNightMode attempting to recreate Activity: " + mHost);
             }
             ActivityCompat.recreate((Activity) mHost);
             handled = true;
+        } else if (DEBUG) {
+            Log.d(TAG, "updateForNightMode not recreating Activity: " + mHost);
         }
 
         if (!handled && currentNightMode != newNightMode) {

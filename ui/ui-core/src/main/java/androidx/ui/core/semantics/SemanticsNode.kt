@@ -16,8 +16,8 @@
 
 package androidx.ui.core.semantics
 
-import androidx.ui.core.ComponentNode
 import androidx.ui.core.LayoutNode
+import androidx.ui.core.LayoutNodeWrapper
 import androidx.ui.core.boundsInRoot
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.globalBounds
@@ -27,6 +27,7 @@ import androidx.ui.semantics.SemanticsPropertyKey
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
+import androidx.ui.util.fastForEach
 
 /**
  * Signature for a function that is called for each [SemanticsNode].
@@ -50,7 +51,7 @@ class SemanticsNode internal constructor(
     val id: Int,
     val unmergedConfig: SemanticsConfiguration,
     // TODO(b/144404665): Testing currently mandates this be public - should it be?
-    var componentNode: ComponentNode
+    var componentNode: LayoutNode
 ) {
     private var dirty: Boolean = false
 
@@ -64,16 +65,6 @@ class SemanticsNode internal constructor(
         fun generateNewId(): Int {
             lastIdentifier += 1
             return lastIdentifier
-        }
-
-        internal fun root(
-            owner: SemanticsOwner,
-            config: SemanticsConfiguration,
-            componentNode: ComponentNode
-        ): SemanticsNode {
-            val node = SemanticsNode(generateNewId(), config, componentNode)
-            node.owner = owner
-            return node
         }
 
         /**
@@ -91,7 +82,7 @@ class SemanticsNode internal constructor(
      * Each semantic node has a unique identifier that is assigned when the node
      * is created.
      */
-    internal constructor(unmergedConfig: SemanticsConfiguration, componentNode: ComponentNode) :
+    internal constructor(unmergedConfig: SemanticsConfiguration, componentNode: LayoutNode) :
             this(generateNewId(), unmergedConfig, componentNode)
 
     // GEOMETRY
@@ -99,27 +90,28 @@ class SemanticsNode internal constructor(
     /** The size of the bounding box for this node */
     val size: IntPxSize
         get() {
-            val layoutNode = componentNode.requireFirstNonSemanticsNodeInTree()
             return layoutNode.coordinates.size
         }
 
     /** The bounding box for this node relative to the root of this Compose hierarchy */
     val boundsInRoot: PxBounds
         get() {
-            val layoutNode = componentNode.requireFirstNonSemanticsNodeInTree()
             return layoutNode.coordinates.boundsInRoot
         }
 
     val globalBounds: PxBounds
         get() {
-            val layoutNode = componentNode.requireFirstNonSemanticsNodeInTree()
             return layoutNode.coordinates.globalBounds
         }
 
     val globalPosition: PxPosition
         get() {
-            val layoutNode = componentNode.requireFirstNonSemanticsNodeInTree()
             return layoutNode.coordinates.globalPosition
+        }
+
+    private val layoutNode: LayoutNode
+        get() {
+            return componentNode.requireLayoutNodeAppliedTo()
         }
 
     // MERGING
@@ -194,10 +186,13 @@ class SemanticsNode internal constructor(
     private fun unmergedChildren(): List<SemanticsNode> {
         val unmergedChildren: MutableList<SemanticsNode> = mutableListOf()
 
-        val firstNonSemanticsNode = componentNode.findFirstNonSemanticsNodeInTree()
+        var searchRoot: LayoutNode? = componentNode
+        if (searchRoot?.outerSemantics?.semanticsModifier?.applyToChildLayoutNode == true) {
+            searchRoot = componentNode.findLastConsecutiveSemanticsNode()
+        }
         val semanticsChildren =
-            firstNonSemanticsNode?.findOneLayerOfSemanticsWrappers() ?: emptyList()
-        for (semanticsChild in semanticsChildren) {
+            searchRoot?.findOneLayerOfSemanticsWrappers() ?: emptyList()
+        semanticsChildren.fastForEach { semanticsChild ->
             unmergedChildren.add(semanticsChild.semanticsNode())
         }
 
@@ -226,7 +221,7 @@ class SemanticsNode internal constructor(
         val mergedChildren = childrenFromParent ?: mutableListOf()
 
         // The merged children are the set of indirect children that are semantic boundaries
-        for (child in unmergedChildren()) {
+        unmergedChildren().fastForEach { child ->
             if (child.isSemanticBoundary) {
                 // Add the child, don't recurse - we don't want to cross the semantic boundary
                 mergedChildren += child
@@ -250,7 +245,7 @@ class SemanticsNode internal constructor(
      * false.
      */
     private fun visitChildren(visitor: SemanticsNodeVisitor) {
-        children.forEach {
+        children.fastForEach {
             if (!visitor(it)) {
                 return
             }
@@ -265,7 +260,7 @@ class SemanticsNode internal constructor(
      * returned true, otherwise returns false.
      */
     internal fun visitDescendants(visitor: SemanticsNodeVisitor): Boolean {
-        children.forEach {
+        children.fastForEach {
             if (!visitor(it) || !it.visitDescendants(visitor))
                 return false
         }
@@ -273,11 +268,10 @@ class SemanticsNode internal constructor(
     }
 
     /**
-     * The owner for this node (null if unattached).
-     *
-     * This is only non-null on the root node of the semantics tree.
+     * Whether this SemanticNode is the root of a tree or not
      */
-    internal var owner: SemanticsOwner? = null
+    val isRoot: Boolean
+        get() = parent == null
 
     /** The parent of this node in the tree. */
     // TODO(b/145947383): this needs to be the *merged* parent
@@ -296,13 +290,15 @@ class SemanticsNode internal constructor(
             // (This complexity is temporary -- semantics collapsing will be
             // replaced by modifier chains soon.)
 
-            val node = componentNode
+            var node = componentNode
                 .findClosestParentNode { it.outerSemantics != null }
-                ?.findHighestConsecutiveAncestor { it.outerSemantics != null }
+                ?.findHighestConsecutiveAncestor {
+                    it.outerSemantics?.semanticsModifier?.applyToChildLayoutNode == true }
+
             return node?.outerSemantics?.semanticsNode()
         }
 
-    internal fun <T : Function<Unit>> canPerformAction(
+    internal fun <T : Function<Boolean>> canPerformAction(
         action: SemanticsPropertyKey<AccessibilityAction<T>>
     ) =
         this.config.contains(action)
@@ -311,9 +307,17 @@ class SemanticsNode internal constructor(
 /**
  * Returns the outermost semantics node on a LayoutNode.
  */
-internal val ComponentNode.outerSemantics: SemanticsWrapper?
+internal val LayoutNode.outerSemantics: SemanticsWrapper?
     get() {
-        var wrapper = (this as? LayoutNode)?.layoutNodeWrapper
+        return (this as? LayoutNode)?.layoutNodeWrapper?.nearestSemantics
+    }
+
+/**
+ * Returns the nearest semantics wrapper starting from a LayoutNodeWrapper.
+ */
+internal val LayoutNodeWrapper.nearestSemantics: SemanticsWrapper?
+    get() {
+        var wrapper: LayoutNodeWrapper? = this
         while (wrapper != null) {
             if (wrapper is SemanticsWrapper) return wrapper
             wrapper = wrapper.wrapped
@@ -324,11 +328,9 @@ internal val ComponentNode.outerSemantics: SemanticsWrapper?
 /**
  * Returns the highest in a consecutive chain of this + this's parents all meeting the predicate.
 */
-private fun ComponentNode.findHighestConsecutiveAncestor(
-    selector: (ComponentNode) -> Boolean
-): ComponentNode? {
-    if (!selector(this)) return null
-
+private fun LayoutNode.findHighestConsecutiveAncestor(
+    selector: (LayoutNode) -> Boolean
+): LayoutNode? {
     var prev = this
     var currentParent = parent
     while (currentParent != null && selector(currentParent)) {
@@ -344,7 +346,6 @@ private fun ComponentNode.findHighestConsecutiveAncestor(
  * for all ancestors.
  */
 fun SemanticsNode.findClosestParentNode(selector: (SemanticsNode) -> Boolean): SemanticsNode? {
-    // TODO(b/143866294): move this to the testing side after the hierarchy isn't flattened anymore
     var currentParent = parent
     while (currentParent != null) {
         if (currentParent.isSemanticBoundary && selector(currentParent)) {
@@ -359,54 +360,63 @@ fun SemanticsNode.findClosestParentNode(selector: (SemanticsNode) -> Boolean): S
 
 internal fun SemanticsNode.findChildById(id: Int): SemanticsNode? {
     if (this.id == id) return this
-    children.forEach {
+    children.fastForEach {
         val result = it.findChildById(id)
         if (result != null) return result
     }
     return null
 }
 
-private fun ComponentNode.findOneLayerOfSemanticsWrappers(): List<SemanticsWrapper> {
+private fun LayoutNode.findOneLayerOfSemanticsWrappers(): List<SemanticsWrapper> {
     val childSemanticsComponentNodes = mutableListOf<SemanticsWrapper>()
-    for (child in children) {
+    children.fastForEach { child ->
         findOneLayerOfSemanticsWrappersRecursive(childSemanticsComponentNodes, child)
     }
     return childSemanticsComponentNodes
 }
 
-private fun ComponentNode.findOneLayerOfSemanticsWrappersRecursive(
+private fun LayoutNode.findOneLayerOfSemanticsWrappersRecursive(
     list: MutableList<SemanticsWrapper>,
-    node: ComponentNode
+    node: LayoutNode
 ) {
     if (node.outerSemantics != null) {
         list.add(node.outerSemantics!!)
         // Stop, we're done
     } else {
-        for (child in node.children) {
+        node.children.fastForEach { child ->
             findOneLayerOfSemanticsWrappersRecursive(list, child)
         }
     }
 }
 
-private fun ComponentNode.findFirstNonSemanticsNodeInTree(): LayoutNode? {
-    if (this is LayoutNode && outerSemantics == null) {
+private fun LayoutNode.findLastConsecutiveSemanticsNode(): LayoutNode? {
+    children.fastForEach { child ->
+        if (child.outerSemantics != null) {
+            if (child.outerSemantics?.semanticsModifier?.applyToChildLayoutNode == false)
+                return child
+            return child.findLastConsecutiveSemanticsNode()
+        } // else, keep looking through the other children
+    }
+
+    return this
+}
+
+private fun LayoutNode.findLayoutNodeAppliedTo(): LayoutNode? {
+    if ((outerSemantics == null ||
+            outerSemantics?.semanticsModifier?.applyToChildLayoutNode == false)) {
         return this
     }
-    visitChildren { child ->
-        if (child is LayoutNode && outerSemantics == null) {
-            return child
-        } else {
-            val layoutChild = child.findFirstNonSemanticsNodeInTree()
+    children.fastForEach { child ->
+            val layoutChild = child.findLayoutNodeAppliedTo()
             if (layoutChild != null) {
                 return layoutChild
-            } // else, keep looking through the other children
-        }
+            }
     }
 
     return null
 }
 
-private fun ComponentNode.requireFirstNonSemanticsNodeInTree(): LayoutNode {
-    return findFirstNonSemanticsNodeInTree()
+private fun LayoutNode.requireLayoutNodeAppliedTo(): LayoutNode {
+    return findLayoutNodeAppliedTo()
         ?: throw IllegalStateException("This component has no layout children")
 }

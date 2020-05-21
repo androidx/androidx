@@ -17,6 +17,7 @@
 package androidx.ui.core.test
 
 import androidx.compose.FrameManager
+import androidx.compose.MutableState
 import androidx.compose.mutableStateOf
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -57,19 +58,19 @@ class ModelReadsTest {
 
     @Test
     fun useTheSameModelInDrawAndPosition() {
-        val model = OffsetModel(5.ipx)
+        val offset = mutableStateOf(5.ipx)
         var drawLatch = CountDownLatch(1)
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContent {
                 Layout({}, modifier = Modifier.drawBehind {
                     // read from the model
-                    model.offset
+                    offset.value
                     drawLatch.countDown()
                 }) { _, _, _ ->
                     layout(10.ipx, 10.ipx) {
                         // read from the model
-                        model.offset
+                        offset.value
                         positionLatch.countDown()
                     }
                 }
@@ -81,7 +82,7 @@ class ModelReadsTest {
         drawLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            model.offset = 7.ipx
+            offset.value = 7.ipx
         }
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -90,7 +91,7 @@ class ModelReadsTest {
         drawLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            model.offset = 10.ipx
+            offset.value = 10.ipx
         }
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -99,20 +100,20 @@ class ModelReadsTest {
 
     @Test
     fun useDifferentModelsInDrawAndPosition() {
-        val drawModel = OffsetModel(5.ipx)
-        val positionModel = OffsetModel(5.ipx)
+        val drawModel = mutableStateOf(5.ipx)
+        val positionModel = mutableStateOf(5.ipx)
         var drawLatch = CountDownLatch(1)
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContent {
                 Layout({}, modifier = Modifier.drawBehind {
                     // read from the model
-                    drawModel.offset
+                    drawModel.value
                     drawLatch.countDown()
                 }) { _, _, _ ->
                     layout(10.ipx, 10.ipx) {
                         // read from the model
-                        positionModel.offset
+                        positionModel.value
                         positionLatch.countDown()
                     }
                 }
@@ -124,7 +125,7 @@ class ModelReadsTest {
         drawLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            drawModel.offset = 7.ipx
+            drawModel.value = 7.ipx
         }
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -133,28 +134,28 @@ class ModelReadsTest {
         drawLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            positionModel.offset = 10.ipx
+            positionModel.value = 10.ipx
         }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        assertFalse(drawLatch.await(200, TimeUnit.MILLISECONDS))
     }
 
     @Test
     fun useTheSameModelInMeasureAndPosition() {
-        val model = OffsetModel(5.ipx)
+        val offset = mutableStateOf(5.ipx)
         var measureLatch = CountDownLatch(1)
         var drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContent {
                 Layout({}, modifier = Modifier.drawBehind {
                     // read from the model
-                    model.offset
+                    offset.value
                     drawLatch.countDown()
                 }) { _, _, _ ->
                     measureLatch.countDown()
                     // read from the model
-                    layout(model.offset, 10.ipx) {}
+                    layout(offset.value, 10.ipx) {}
                 }
             }
         }
@@ -164,7 +165,7 @@ class ModelReadsTest {
         measureLatch = CountDownLatch(1)
         drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            model.offset = 10.ipx
+            offset.value = 10.ipx
         }
 
         assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
@@ -173,7 +174,7 @@ class ModelReadsTest {
         measureLatch = CountDownLatch(1)
         drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            model.offset = 15.ipx
+            offset.value = 15.ipx
         }
 
         assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
@@ -182,8 +183,8 @@ class ModelReadsTest {
 
     @Test
     fun useDifferentModelsInMeasureAndPosition() {
-        val measureModel = OffsetModel(5.ipx)
-        val positionModel = OffsetModel(5.ipx)
+        val measureModel = mutableStateOf(5.ipx)
+        val positionModel = mutableStateOf(5.ipx)
         var measureLatch = CountDownLatch(1)
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
@@ -191,9 +192,9 @@ class ModelReadsTest {
                 Layout({}) { _, _, _ ->
                     measureLatch.countDown()
                     // read from the model
-                    layout(measureModel.offset, 10.ipx) {
+                    layout(measureModel.value, 10.ipx) {
                         // read from the model
-                        positionModel.offset
+                        positionModel.value
                         positionLatch.countDown()
                     }
                 }
@@ -205,7 +206,7 @@ class ModelReadsTest {
         measureLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            measureModel.offset = 10.ipx
+            measureModel.value = 10.ipx
         }
 
         assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
@@ -215,7 +216,7 @@ class ModelReadsTest {
         measureLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            positionModel.offset = 15.ipx
+            positionModel.value = 15.ipx
         }
 
         assertFalse(measureLatch.await(200, TimeUnit.MILLISECONDS))
@@ -224,8 +225,8 @@ class ModelReadsTest {
 
     @Test
     fun drawReactsOnCorrectModelsChanges() {
-        val enabled = ValueModel(true)
-        val model = ValueModel(0)
+        val enabled = mutableStateOf(true)
+        val model = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
                 AtLeastSize(10.ipx, modifier = Modifier.drawBehind {
@@ -243,8 +244,8 @@ class ModelReadsTest {
 
     @Test
     fun measureReactsOnCorrectModelsChanges() {
-        val enabled = ValueModel(true)
-        val model = ValueModel(0)
+        val enabled = mutableStateOf(true)
+        val model = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
                 Layout({}) { _, _, _ ->
@@ -264,8 +265,8 @@ class ModelReadsTest {
 
     @Test
     fun layoutReactsOnCorrectModelsChanges() {
-        val enabled = ValueModel(true)
-        val model = ValueModel(0)
+        val enabled = mutableStateOf(true)
+        val model = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
                 Layout({}) { _, _, _ ->
@@ -286,8 +287,8 @@ class ModelReadsTest {
 
     @Test
     fun drawStopsReactingOnModelsAfterDetaching() {
-        val enabled = ValueModel(true)
-        val model = ValueModel(0)
+        val enabled = mutableStateOf(true)
+        val model = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
                 val modifier = if (enabled.value) {
@@ -307,8 +308,8 @@ class ModelReadsTest {
 
     @Test
     fun measureStopsReactingOnModelsAfterDetaching() {
-        val enabled = ValueModel(true)
-        val model = ValueModel(0)
+        val enabled = mutableStateOf(true)
+        val model = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
                 if (enabled.value) {
@@ -328,8 +329,8 @@ class ModelReadsTest {
 
     @Test
     fun layoutStopsReactingOnModelsAfterDetaching() {
-        val enabled = ValueModel(true)
-        val model = ValueModel(0)
+        val enabled = mutableStateOf(true)
+        val model = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
                 if (enabled.value) {
@@ -490,8 +491,8 @@ class ModelReadsTest {
     }
 
     fun assertCountDownOnlyWhileEnabled(
-        enableModel: ValueModel<Boolean>,
-        valueModel: ValueModel<Int>,
+        enableModel: MutableState<Boolean>,
+        valueModel: MutableState<Int>,
         triggeredByEnableSwitch: Boolean = true
     ) {
         latch = CountDownLatch(1)

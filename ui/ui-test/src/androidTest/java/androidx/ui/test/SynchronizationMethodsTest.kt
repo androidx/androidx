@@ -17,6 +17,7 @@
 package androidx.ui.test
 
 import androidx.test.filters.MediumTest
+import androidx.ui.test.android.AndroidOwnerRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,7 +36,6 @@ class SynchronizationMethodsTest {
     @Test
     fun runOnUiThread_void() {
         var called = false
-
         runOnUiThread { called = true }
         assertThat(called).isTrue()
     }
@@ -48,21 +48,35 @@ class SynchronizationMethodsTest {
 
     @Test
     fun runOnIdleCompose() {
-        val result = runOnIdleCompose { "Hello" }
-        assertThat(result).isEqualTo("Hello")
+        withAndroidOwnerRegistry {
+            val result = runOnIdleCompose { "Hello" }
+            assertThat(result).isEqualTo("Hello")
+        }
     }
 
     @Test
     fun runOnIdleCompose_void() {
-        var called = false
-
-        runOnIdleCompose { called = true }
-        assertThat(called).isTrue()
+        withAndroidOwnerRegistry {
+            var called = false
+            runOnIdleCompose { called = true }
+            assertThat(called).isTrue()
+        }
     }
 
     @Test
     fun runOnIdleCompose_nullable() {
-        val result: String? = runOnIdleCompose { null }
-        assertThat(result).isEqualTo(null)
+        withAndroidOwnerRegistry {
+            val result: String? = runOnIdleCompose { null }
+            assertThat(result).isEqualTo(null)
+        }
+    }
+
+    private fun withAndroidOwnerRegistry(block: () -> Unit) {
+        AndroidOwnerRegistry.setupRegistry()
+        try {
+            block()
+        } finally {
+            AndroidOwnerRegistry.tearDownRegistry()
+        }
     }
 }

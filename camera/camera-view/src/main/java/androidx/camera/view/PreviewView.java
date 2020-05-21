@@ -18,11 +18,16 @@ package androidx.camera.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.Display;
+import android.view.Surface;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
@@ -32,11 +37,17 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
+import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.view.preview.transform.PreviewTransform;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Custom View that displays the camera feed for CameraX's Preview use case.
@@ -47,6 +58,8 @@ import java.util.concurrent.Executor;
  */
 public class PreviewView extends FrameLayout {
 
+    @ColorRes
+    static final int DEFAULT_BACKGROUND_COLOR = android.R.color.black;
     private static final ImplementationMode DEFAULT_IMPL_MODE = ImplementationMode.SURFACE_VIEW;
 
     @NonNull
@@ -58,6 +71,14 @@ public class PreviewView extends FrameLayout {
 
     @NonNull
     private PreviewTransform mPreviewTransform = new PreviewTransform();
+
+    @NonNull
+    private MutableLiveData<StreamState> mPreviewStreamStateLiveData =
+            new MutableLiveData<>(StreamState.IDLE);
+
+    @Nullable
+    private AtomicReference<PreviewStreamStateObserver> mActiveStreamStateObserver =
+            new AtomicReference<>();
 
     private final OnLayoutChangeListener mOnLayoutChangeListener = new OnLayoutChangeListener() {
         @Override
@@ -99,6 +120,12 @@ public class PreviewView extends FrameLayout {
         } finally {
             attributes.recycle();
         }
+
+        // Set background only if it wasn't already set. A default background prevents the content
+        // behind the PreviewView from being visible before the preview starts streaming.
+        if (getBackground() == null) {
+            setBackgroundColor(ContextCompat.getColor(getContext(), DEFAULT_BACKGROUND_COLOR));
+        }
     }
 
     @Override
@@ -123,7 +150,8 @@ public class PreviewView extends FrameLayout {
      * Specifies the preferred {@link ImplementationMode} to use for preview.
      * <p>
      * When the preferred {@link ImplementationMode} is {@link ImplementationMode#SURFACE_VIEW}
-     * but the device doesn't support this mode (e.g. devices with a supported camera hardware level
+     * but the device doesn't support this mode (e.g. devices with API level not newer than
+     * Android 7.0 or a supported camera hardware level
      * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}),
      * the actual implementation mode will be {@link ImplementationMode#TEXTURE_VIEW}.
      *
@@ -168,13 +196,33 @@ public class PreviewView extends FrameLayout {
         removeAllViews();
 
         return surfaceRequest -> {
-            CameraInfo cameraInfo = surfaceRequest.getCameraInfo();
+            CameraInternal camera = (CameraInternal) surfaceRequest.getCamera();
             final ImplementationMode actualImplementationMode =
-                    computeImplementationMode(cameraInfo, mPreferredImplementationMode);
+                    computeImplementationMode(camera.getCameraInfo(), mPreferredImplementationMode);
+            mPreviewTransform.setSensorDimensionFlipNeeded(
+                    isSensorDimensionFlipNeeded(camera.getCameraInfo()));
             mImplementation = computeImplementation(actualImplementationMode);
             mImplementation.init(this, mPreviewTransform);
 
-            mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+            PreviewStreamStateObserver streamStateObserver =
+                    new PreviewStreamStateObserver((CameraInfoInternal) camera.getCameraInfo(),
+                            mPreviewStreamStateLiveData, mImplementation);
+            mActiveStreamStateObserver.set(streamStateObserver);
+
+            camera.getCameraState().addObserver(
+                    ContextCompat.getMainExecutor(getContext()), streamStateObserver);
+
+            mImplementation.onSurfaceRequested(surfaceRequest, ()-> {
+                // We've no longer needed this observer, if there is no new StreamStateObserver
+                // (another SurfaceRequest), reset the streamState to IDLE.
+                // This is needed for the case when unbinding preview while other use cases are
+                // still bound.
+                if (mActiveStreamStateObserver.compareAndSet(streamStateObserver, null)) {
+                    mPreviewStreamStateLiveData.postValue(StreamState.IDLE);
+                }
+                streamStateObserver.clear();
+                camera.getCameraState().removeObserver(streamStateObserver);
+            });
         };
     }
 
@@ -187,6 +235,54 @@ public class PreviewView extends FrameLayout {
      */
     public void setScaleType(@NonNull final ScaleType scaleType) {
         mPreviewTransform.setScaleType(scaleType);
+        if (mImplementation != null) {
+            mImplementation.redrawPreview();
+        }
+    }
+
+    /**
+     * Returns the device rotation value currently applied to the preview.
+     *
+     * @return The device rotation value currently applied to the preview.
+     */
+    public int getDeviceRotationForRemoteDisplayMode() {
+        return mPreviewTransform.getDeviceRotation();
+    }
+
+    /**
+     * Provides the device rotation value to the preview in remote display mode.
+     *
+     * <p>The device rotation value will only take effect when detecting current view is
+     * on a remote display. If current view is on the device builtin display, {@link PreviewView}
+     * will directly use view's rotation value to do the transformation related calculations.
+     *
+     * <p>The preview transform calculations have strong dependence on the device rotation value.
+     * When a application is running in remote display, the rotation value obtained from current
+     * view will cause incorrect transform calculation results. To make the preview output result
+     * correct in remote display mode, the developers need to provide the device rotation value
+     * obtained from {@link android.view.OrientationEventListener}.
+     *
+     * <p>The mapping between the device rotation value and the orientation value obtained from
+     * {@link android.view.OrientationEventListener} are listed as the following.
+     * <p>{@link android.view.OrientationEventListener#ORIENTATION_UNKNOWN}: orientation == -1
+     * <p>{@link Surface#ROTATION_0}: orientation >= 315 || orientation < 45
+     * <p>{@link Surface#ROTATION_90}: orientation >= 225 && orientation < 315
+     * <p>{@link Surface#ROTATION_180}: orientation >= 135 && orientation < 225
+     * <p>{@link Surface#ROTATION_270}: orientation >= 45 && orientation < 135
+     *
+     * @param deviceRotation The device rotation value, expressed as one of
+     *                       {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     *                       {@link Surface#ROTATION_180}, or
+     *                       {@link Surface#ROTATION_270}.
+     */
+    public void setDeviceRotationForRemoteDisplayMode(final int deviceRotation) {
+        // This only take effect when it is remote display mode.
+        if (deviceRotation == mPreviewTransform.getDeviceRotation()
+                || !isRemoteDisplayMode()) {
+            return;
+        }
+
+        mPreviewTransform.setDeviceRotation(deviceRotation);
         if (mImplementation != null) {
             mImplementation.redrawPreview();
         }
@@ -222,12 +318,35 @@ public class PreviewView extends FrameLayout {
                 getHeight());
     }
 
+    /**
+     * Gets the {@link LiveData} of current preview {@link StreamState}.
+     *
+     * <p>There are two states, {@link StreamState#IDLE} and {@link StreamState#STREAMING}.
+     * {@link StreamState#IDLE} represents the preview is currently not visible and streaming is
+     * stopped. {@link StreamState#STREAMING} means the preview is streaming.
+     *
+     * <p>When it's in STREAMING state, it guarantees preview is visible only when
+     * implementationMode is TEXTURE_VIEW. When in SURFACE_VIEW implementationMode, it is
+     * possible that preview becomes visible slightly after state changes to STREAMING. For apps
+     * relying on the preview visible signal to be working correctly, please set TEXTURE_VIEW
+     * mode by {@link #setPreferredImplementationMode}.
+     *
+     * @return A {@link LiveData} containing the {@link StreamState}. Apps can either get current
+     * value by {@link LiveData#getValue()} or register a observer by {@link LiveData#observe} .
+     */
     @NonNull
-    private ImplementationMode computeImplementationMode(@Nullable CameraInfo cameraInfo,
+    public LiveData<StreamState> getPreviewStreamState() {
+        return mPreviewStreamStateLiveData;
+    }
+
+    @NonNull
+    private ImplementationMode computeImplementationMode(@NonNull CameraInfo cameraInfo,
             @NonNull final ImplementationMode preferredMode) {
-        return cameraInfo == null || cameraInfo.getImplementationType().equals(
-                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY) ? ImplementationMode.TEXTURE_VIEW
-                : preferredMode;
+        // Force to use TEXTURE_VIEW when the device is running android 7.0 and below, legacy
+        // level or it is running in remote display mode.
+        return Build.VERSION.SDK_INT <= 24 || cameraInfo.getImplementationType().equals(
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY) || isRemoteDisplayMode()
+                ? ImplementationMode.TEXTURE_VIEW : preferredMode;
     }
 
     @NonNull
@@ -244,15 +363,58 @@ public class PreviewView extends FrameLayout {
         }
     }
 
+    private boolean isSensorDimensionFlipNeeded(@NonNull CameraInfo cameraInfo) {
+        int sensorDegrees;
+
+        // Retrieve sensor rotation degrees when there is camera info.
+        sensorDegrees = cameraInfo.getSensorRotationDegrees();
+
+        // When the sensor degrees value is 90 or 270, the width/height of the surface resolution
+        // need to be swapped to do the scale related calculations.
+        return sensorDegrees % 180 == 90;
+    }
+
+    private boolean isRemoteDisplayMode() {
+        DisplayManager displayManager =
+                (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
+
+        Display display = ((WindowManager) getContext().getSystemService(
+                Context.WINDOW_SERVICE)).getDefaultDisplay();
+
+        if (displayManager.getDisplays().length <= 1) {
+            // When there is not more than one display on the device, it won't be remote display
+            // mode.
+            return false;
+        } else if (display != null && display.getDisplayId() != Display.DEFAULT_DISPLAY) {
+            // When there is more than one display on the device and the display that the
+            // application is running on is not the default built-in display id (0), it is remote
+            // display mode.
+            return true;
+        }
+
+        return false;
+    }
+
     /**
-     * The implementation mode of a {@link PreviewView}
-     *
-     * <p>Specifies how the Preview surface will be implemented internally: Using a
-     * {@link android.view.SurfaceView} or a {@link android.view.TextureView} (which is the default)
-     * </p>
+     * The implementation mode of a {@link PreviewView}.
+     * <p>
+     * {@link PreviewView} manages the preview {@link Surface} by either using a
+     * {@link android.view.SurfaceView} or a {@link android.view.TextureView}. A
+     * {@link android.view.SurfaceView} is generally better than a
+     * {@link android.view.TextureView} when it comes to certain key metrics, including power and
+     * latency, which is why {@link PreviewView} tries to use a {@link android.view.SurfaceView} by
+     * default, but will fall back to use a {@link android.view.TextureView} when it's explicitly
+     * set by calling {@link #setPreferredImplementationMode(ImplementationMode)} with
+     * {@link ImplementationMode#TEXTURE_VIEW}, or when the device does not support using a
+     * {@link android.view.SurfaceView} well (for example on LEGACY devices and devices running
+     * on API 24 or less).
      */
     public enum ImplementationMode {
-        /** Use a {@link android.view.SurfaceView} for the preview */
+        /**
+         * Use a {@link android.view.SurfaceView} for the preview. If the device doesn't support
+         * it well, {@link PreviewView} will fall back to use a {@link android.view.TextureView}
+         * instead.
+         */
         SURFACE_VIEW,
 
         /** Use a {@link android.view.TextureView} for the preview */
@@ -336,5 +498,23 @@ public class PreviewView extends FrameLayout {
             }
             throw new IllegalArgumentException("Unknown scale type id " + id);
         }
+    }
+
+    /**
+     * Definitions for current preview stream state.
+     */
+    public enum StreamState {
+        /** Preview is not visible yet. */
+        IDLE,
+        /**
+         * Preview is streaming.
+         *
+         * It guarantees preview is visible only when implementationMode is TEXTURE_VIEW. When in
+         * SURFACE_VIEW implementationMode, it is possible that preview becomes visible slightly
+         * after state changes to STREAMING. For apps relying on the preview visible signal to
+         * be working correctly, please set TEXTURE_VIEW mode by
+         * {@link #setPreferredImplementationMode}.
+         */
+        STREAMING
     }
 }

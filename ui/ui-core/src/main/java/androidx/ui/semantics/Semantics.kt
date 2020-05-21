@@ -18,7 +18,7 @@ package androidx.ui.semantics
 import androidx.compose.Composable
 import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semanticsCore
+import androidx.ui.core.semantics.semantics
 
 @Composable
 fun Semantics(
@@ -40,10 +40,14 @@ fun Semantics(
      */
     mergeAllDescendants: Boolean = false,
     properties: (SemanticsPropertyReceiver.() -> Unit)? = null,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     @Suppress("DEPRECATION")
     PassThroughLayout(
-        Modifier.semanticsCore(container, mergeAllDescendants, properties),
+        Modifier.semantics(
+            applyToChildLayoutNode = true,
+            container = container,
+            mergeAllDescendants = mergeAllDescendants,
+            properties = properties),
         children)
 }

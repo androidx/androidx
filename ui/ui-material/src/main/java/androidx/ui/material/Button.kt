@@ -22,16 +22,15 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.clickable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.preferredSizeIn
-import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
@@ -82,7 +81,7 @@ fun Button(
     contentColor: Color = contentColorFor(backgroundColor),
     disabledContentColor: Color = Button.defaultDisabledContentColor,
     padding: InnerPadding = Button.DefaultInnerPadding,
-    text: @Composable() () -> Unit
+    text: @Composable () -> Unit
 ) {
     // Since we're adding layouts in between the clickable layer and the content, we need to
     // merge all descendants, or we'll get multiple nodes
@@ -95,24 +94,19 @@ fun Button(
             elevation = if (enabled) elevation else disabledElevation,
             modifier = modifier
         ) {
-            Clickable(
-                onClick = onClick,
-                enabled = enabled,
-                modifier = Modifier.ripple(enabled = enabled)
+            Box(
+                ButtonConstraints
+                    .clickable(onClick = onClick, enabled = enabled),
+                paddingStart = padding.start,
+                paddingTop = padding.top,
+                paddingEnd = padding.end,
+                paddingBottom = padding.bottom,
+                gravity = ContentGravity.Center
             ) {
-                Box(
-                    ButtonConstraints,
-                    paddingStart = padding.start,
-                    paddingTop = padding.top,
-                    paddingEnd = padding.end,
-                    paddingBottom = padding.bottom,
-                    gravity = ContentGravity.Center
-                ) {
-                    ProvideTextStyle(
-                        value = MaterialTheme.typography.button,
-                        children = text
-                    )
-                }
+                ProvideTextStyle(
+                    value = MaterialTheme.typography.button,
+                    children = text
+                )
             }
         }
     }
@@ -165,7 +159,7 @@ inline fun OutlinedButton(
     contentColor: Color = contentColorFor(backgroundColor),
     disabledContentColor: Color = Button.defaultDisabledContentColor,
     padding: InnerPadding = Button.DefaultInnerPadding,
-    noinline text: @Composable() () -> Unit
+    noinline text: @Composable () -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
@@ -224,7 +218,7 @@ inline fun TextButton(
     contentColor: Color = MaterialTheme.colors.primary,
     disabledContentColor: Color = Button.defaultDisabledContentColor,
     padding: InnerPadding = TextButton.DefaultInnerPadding,
-    noinline text: @Composable() () -> Unit
+    noinline text: @Composable () -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
@@ -279,7 +273,7 @@ object Button {
     @Composable
     val defaultDisabledContentColor
         get(): Color = with(MaterialTheme.colors) {
-            EmphasisAmbient.current.disabled.emphasize(onSurface)
+            EmphasisAmbient.current.disabled.applyEmphasis(onSurface)
         }
 }
 

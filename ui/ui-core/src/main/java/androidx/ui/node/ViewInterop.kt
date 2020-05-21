@@ -16,13 +16,10 @@
 
 package androidx.ui.node
 
-import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
 import androidx.ui.core.AndroidOwner
-import androidx.ui.core.ComponentNode
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutNode
@@ -30,10 +27,12 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
-import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
+import androidx.ui.util.fastFirstOrNull
+import androidx.ui.util.fastForEach
 import androidx.ui.viewinterop.AndroidViewHolder
 
 /**
@@ -91,10 +90,10 @@ private fun obtainMeasureSpec(
 }
 
 /**
- * Builds a [ComponentNode] tree representation for an Android [View].
+ * Builds a [LayoutNode] tree representation for an Android [View].
  * The component nodes will proxy the Compose core calls to the [View].
  */
-internal fun AndroidViewHolder.toComponentNode(): ComponentNode {
+internal fun AndroidViewHolder.toLayoutNode(): LayoutNode {
     // TODO(soboleva): add layout direction here?
     // TODO(popam): forward pointer input, accessibility, focus
     // Prepare layout node that proxies measure and layout passes to the View.
@@ -159,7 +158,7 @@ internal class MergedViewAdapter : ViewAdapter {
 
     inline fun <T : ViewAdapter> get(id: Int, factory: () -> T): T {
         @Suppress("UNCHECKED_CAST")
-        val existing = adapters.firstOrNull { it.id == id } as? T
+        val existing = adapters.fastFirstOrNull { it.id == id } as? T
         if (existing != null) return existing
         val next = factory()
         adapters.add(next)
@@ -167,15 +166,15 @@ internal class MergedViewAdapter : ViewAdapter {
     }
 
     override fun willInsert(view: View, parent: ViewGroup) {
-        for (adapter in adapters) adapter.willInsert(view, parent)
+        adapters.fastForEach { it.willInsert(view, parent) }
     }
 
     override fun didInsert(view: View, parent: ViewGroup) {
-        for (adapter in adapters) adapter.didInsert(view, parent)
+        adapters.fastForEach { it.didInsert(view, parent) }
     }
 
     override fun didUpdate(view: View, parent: ViewGroup) {
-        for (adapter in adapters) adapter.didUpdate(view, parent)
+        adapters.fastForEach { it.didUpdate(view, parent) }
     }
 }
 

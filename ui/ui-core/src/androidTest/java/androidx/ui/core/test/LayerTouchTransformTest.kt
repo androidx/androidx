@@ -142,7 +142,7 @@ class LayerTouchTransformTest {
 }
 
 @Composable
-fun SimpleLayout(modifier: Modifier, children: @Composable() () -> Unit = emptyContent()) {
+fun SimpleLayout(modifier: Modifier, children: @Composable () -> Unit = emptyContent()) {
     Layout(
         children,
         modifier

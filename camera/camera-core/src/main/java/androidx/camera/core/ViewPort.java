@@ -37,6 +37,18 @@ import java.lang.annotation.RetentionPolicy;
 public final class ViewPort {
 
     /**
+     * LayoutDirection that defines the start and end of the {@link ScaleType}.
+     *
+     * @hide
+     * @see android.util.LayoutDirection
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef({android.util.LayoutDirection.LTR, android.util.LayoutDirection.RTL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface LayoutDirection {
+    }
+
+    /**
      * Scale types used to calculate the crop rect for a {@link UseCase}.
      *
      * @hide
@@ -222,6 +234,21 @@ public final class ViewPort {
         public Builder setAspectRatio(@NonNull Rational aspectRatio) {
             mAspectRatio = aspectRatio;
             return this;
+        }
+
+        /**
+         * Sets the layout direction of the {@link ViewPort}.
+         *
+         * <p> The {@link LayoutDirection} decides the start and the end of the crop rect if
+         * the {@link ScaleType} is one of the following types: {@link #FILL_END},
+         * {@link #FILL_START},{@link #FIT_START} or {@link #FIT_END}.
+         *
+         * @hide
+         */
+        @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder setLayoutDirection(@LayoutDirection int layoutDirection) {
+            throw new UnsupportedOperationException("LayoutDirection is not implemented");
         }
 
         /**

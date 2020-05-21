@@ -34,11 +34,11 @@ import androidx.ui.unit.IntPx
  * proportionally to their weight based on the remaining available space.
  *
  * When none of its children have weights, a [Row] will be as small as possible to fit its
- * children one next to the other. In order to change the size of the [Row], use the
- * [LayoutWidth] modifiers; e.g. to make it fill the available width [LayoutWidth.Fill] can be used.
- * If at least one child of a [Row] has a [weight][RowScope.weight], the [Row] will
- * fill the available space, so there is no need for [LayoutWidth.Fill]. However, if [Row]'s
- * size should be limited, the [LayoutWidth] or [LayoutWidth.Max] layout modifiers should be
+ * children one next to the other. In order to change the width of the [Row], use the
+ * [Modifier.width] modifiers; e.g. to make it fill the available width [Modifier.fillMaxWidth]
+ * can be used. If at least one child of a [Row] has a [weight][RowScope.weight], the [Row] will
+ * fill the available width, so there is no need for [Modifier.fillMaxWidth]. However, if [Row]'s
+ * size should be limited, the [Modifier.width] or [Modifier.size] layout modifiers should be
  * applied.
  *
  * When the size of the [Row] is larger than the sum of its children sizes, a
@@ -61,7 +61,7 @@ fun Row(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalGravity: Alignment.Vertical = Alignment.Top,
-    children: @Composable() RowScope.() -> Unit
+    children: @Composable RowScope.() -> Unit
 ) {
     RowColumnImpl(
         orientation = LayoutOrientation.Horizontal,
@@ -71,16 +71,6 @@ fun Row(
         crossAxisSize = SizeMode.Wrap,
         children = { RowScope.children() }
     )
-}
-
-@Deprecated(
-    "RowAlign is deprecated. Please use Alignment instead.",
-    ReplaceWith("Alignment", "androidx.ui.core.Alignment")
-)
-enum class RowAlign {
-    Top,
-    Center,
-    Bottom
 }
 
 /**
@@ -95,17 +85,6 @@ object RowScope {
      * @sample androidx.ui.layout.samples.SimpleGravityInRow
      */
     fun Modifier.gravity(align: Alignment.Vertical) = this + GravityModifier(align)
-
-    @Deprecated(
-        "gravity(RowAlign) is deprecated. Please use gravity instead.",
-        ReplaceWith("gravity(align)")
-    )
-    @Suppress("Deprecation")
-    fun Modifier.gravity(align: RowAlign) = this + when (align) {
-        RowAlign.Top -> GravityModifier(Alignment.Top)
-        RowAlign.Center -> GravityModifier(Alignment.CenterVertically)
-        RowAlign.Bottom -> GravityModifier(Alignment.Bottom)
-    }
 
     /**
      * Position the element vertically such that its [alignmentLine] aligns with sibling elements
@@ -132,6 +111,9 @@ object RowScope {
      * Size the element's width proportional to its [weight] relative to other weighted sibling
      * elements in the [Row]. The parent will divide the horizontal space remaining after measuring
      * unweighted child elements and distribute it according to this weight.
+     * When [fill] is true, the element will be forced to occupy the whole width allocated to it.
+     * Otherwise, the element is allowed to be smaller - this will result in [Row] being smaller,
+     * as the unused allocated width will not be redistributed to other siblings.
      */
     fun Modifier.weight(
         @FloatRange(from = 0.0, fromInclusive = false) weight: Float,

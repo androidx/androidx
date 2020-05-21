@@ -42,6 +42,7 @@ dependencies {
     implementation project(":ui:ui-util")
     api project(":ui:ui-core")
     api project(":ui:ui-layout")
+    api project(":ui:ui-geometry")
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)

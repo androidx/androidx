@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
@@ -220,10 +221,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         // Skip this generationId of loads if there is no more to load in this
                         // direction. In the case of the terminal page getting dropped, a new
                         // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates[PREPEND] == LoadState.NotLoading.Done) {
+                        if (state.loadStates[PREPEND] == NotLoading.Done) {
                             return@transformLatest
                         } else if (state.failedHintsByLoadType[PREPEND] == null) {
-                            state.loadStates[PREPEND] = LoadState.NotLoading.Idle
+                            state.loadStates[PREPEND] = NotLoading.Idle
                         }
                     }
 
@@ -251,10 +252,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         // Skip this generationId of loads if there is no more to load in this
                         // direction. In the case of the terminal page getting dropped, a new
                         // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates[APPEND] == LoadState.NotLoading.Done) {
+                        if (state.loadStates[APPEND] == NotLoading.Done) {
                             return@transformLatest
                         } else if (state.failedHintsByLoadType[APPEND] == null) {
-                            state.loadStates[APPEND] = LoadState.NotLoading.Idle
+                            state.loadStates[APPEND] = NotLoading.Idle
                         }
                     }
 
@@ -292,33 +293,20 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             is Page<Key, Value> -> {
                 val insertApplied = stateLock.withLock { state.insert(0, REFRESH, result) }
 
-                // If remoteMediator is set, we allow its result to dictate LoadState, otherwise
-                // we simply rely on the load result.
-                if (remoteMediatorAccessor == null) {
-                    stateLock.withLock {
-                        // Update loadStates which are sent along with this load's Insert PageEvent.
-                        state.loadStates[REFRESH] = LoadState.NotLoading.Idle
-                        if (result.prevKey == null) {
-                            state.loadStates[PREPEND] = LoadState.NotLoading.Done
-                        }
-                        if (result.nextKey == null) {
-                            state.loadStates[APPEND] = LoadState.NotLoading.Done
-                        }
+                // Update loadStates which are sent along with this load's Insert PageEvent.
+                stateLock.withLock {
+                    state.loadStates[REFRESH] = NotLoading.Idle
+                    if (result.prevKey == null) {
+                        state.loadStates[PREPEND] = NotLoading.instance(
+                            endOfPaginationReached = remoteMediatorAccessor == null,
+                            fromMediator = false
+                        )
                     }
-                } else {
-                    stateLock.withLock {
-                        state.loadStates[REFRESH] = LoadState.NotLoading.Idle
-                    }
-                    if (result.prevKey == null || result.nextKey == null) {
-                        val pagingState = stateLock.withLock { state.currentPagingState(lastHint) }
-
-                        if (result.prevKey == null) {
-                            remoteMediatorAccessor.doBoundaryCall(scope, PREPEND, pagingState)
-                        }
-
-                        if (result.nextKey == null) {
-                            remoteMediatorAccessor.doBoundaryCall(scope, APPEND, pagingState)
-                        }
+                    if (result.nextKey == null) {
+                        state.loadStates[APPEND] = NotLoading.instance(
+                            endOfPaginationReached = remoteMediatorAccessor == null,
+                            fromMediator = false
+                        )
                     }
                 }
 
@@ -329,6 +317,21 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     stateLock.withLock {
                         with(state) {
                             pageEventCh.send(result.toPageEvent(REFRESH, config.enablePlaceholders))
+                        }
+                    }
+                }
+
+                // Launch any RemoteMediator boundary calls after applying initial insert.
+                if (remoteMediatorAccessor != null) {
+                    if (result.prevKey == null || result.nextKey == null) {
+                        val pagingState = stateLock.withLock { state.currentPagingState(lastHint) }
+
+                        if (result.prevKey == null) {
+                            remoteMediatorAccessor.doBoundaryCall(scope, PREPEND, pagingState)
+                        }
+
+                        if (result.nextKey == null) {
+                            remoteMediatorAccessor.doBoundaryCall(scope, APPEND, pagingState)
                         }
                     }
                 }
@@ -370,6 +373,27 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         // this load loop terminates due to fulfilling prefetchDistance.
         var endOfPaginationReached = false
         loop@ while (loadKey != null) {
+            // Check for common error case where the same key is re-used to load
+            // new pages, often resulting in infinite loops.
+            stateLock.withLock {
+                val previousKey = when (loadType) {
+                    PREPEND -> state.pages.first().prevKey
+                    APPEND -> state.pages.last().nextKey
+                    else -> throw IllegalArgumentException(
+                        "Use doInitialLoad for LoadType == REFRESH"
+                    )
+                }
+
+                check(
+                    pagingSource.keyReuseSupported || loadKey != previousKey
+                ) {
+                    """A load key, $loadKey, was re-used to load two distinct pages with the same
+                    | loadType, $loadType. Re-using load keys in PagingSource is often an error, and
+                    | must be explicitly enabled by overriding PagingSource.keyReuseSupported.
+                    """.trimMargin()
+                }
+            }
+
             val params = loadParams(loadType, loadKey)
             val result: LoadResult<Key, Value> = pagingSource.load(params)
             when (result) {
@@ -433,9 +457,9 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     // load hint, and only if we didn't error out.
                     if (loadKey == null && state.failedHintsByLoadType[loadType] == null) {
                         state.loadStates[loadType] = if (endOfPaginationReached) {
-                            LoadState.NotLoading.Done
+                            NotLoading.Done
                         } else {
-                            LoadState.NotLoading.Idle
+                            NotLoading.Idle
                         }
                     }
                 }
@@ -480,12 +504,33 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             is RemoteMediator.MediatorResult.Success -> {
                 if (loadType != REFRESH) {
                     stateLock.withLock {
-                        this@PageFetcherSnapshot.state.loadStates[loadType] =
-                            if (boundaryResult.endOfPaginationReached) {
-                                LoadState.NotLoading.Done
-                            } else {
-                                LoadState.NotLoading.Idle
+                        this@PageFetcherSnapshot.state.loadStates[loadType] = NotLoading.instance(
+                            endOfPaginationReached = boundaryResult.endOfPaginationReached,
+                            fromMediator = true
+                        )
+
+                        val page = Page<Key, Value>(listOf(), null, null)
+                        var loadId = when (loadType) {
+                            REFRESH -> 0
+                            PREPEND -> state.prependLoadId
+                            APPEND -> state.appendLoadId
+                        }
+
+                        // Keep trying to insert with latest loadId until we succeed.
+                        while (!state.insert(loadId, loadType, page)) {
+                            loadId = when (loadType) {
+                                REFRESH -> 0
+                                PREPEND -> state.prependLoadId
+                                APPEND -> state.appendLoadId
                             }
+                        }
+
+                        // Push an empty insert event to update LoadState.
+                        val pageEvent = with(state) {
+                            page.toPageEvent(loadType, config.enablePlaceholders)
+                        }
+
+                        pageEventCh.send(pageEvent)
                     }
                 }
             }

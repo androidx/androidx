@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+BuilderSetStyle: androidx.navigation.NavDeepLinkBuilder#createPendingIntent():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDeepLinkBuilder.createPendingIntent()
+BuilderSetStyle: androidx.navigation.NavDeepLinkBuilder#createTaskStackBuilder():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDeepLinkBuilder.createTaskStackBuilder()
+
+
 MissingBuildMethod: androidx.navigation.NavDeepLinkBuilder:
     androidx.navigation.NavDeepLinkBuilder does not declare a `build()` method, but builder classes are expected to
 

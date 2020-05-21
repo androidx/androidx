@@ -68,8 +68,8 @@ class DrawBackgroundTest {
             density = composeTestRule.density,
             backgroundColor = Color.Magenta,
             shape = RectangleShape,
-            shapeSizeX = 20.px,
-            shapeSizeY = 20.px,
+            shapeSizeX = 20.0f,
+            shapeSizeY = 20.0f,
             shapeColor = Color.White
         )
     }
@@ -94,8 +94,8 @@ class DrawBackgroundTest {
             density = composeTestRule.density,
             backgroundColor = Color.Magenta,
             shape = RectangleShape,
-            shapeSizeX = 20.px,
-            shapeSizeY = 20.px,
+            shapeSizeX = 20.0f,
+            shapeSizeY = 20.0f,
             shapeColor = Color.White
         )
     }
@@ -117,7 +117,7 @@ class DrawBackgroundTest {
             backgroundColor = Color.Magenta,
             shape = CircleShape,
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.px
+            shapeOverlapPixelCount = 2.0f
         )
     }
 
@@ -141,7 +141,7 @@ class DrawBackgroundTest {
             backgroundColor = Color.Magenta,
             shape = CircleShape,
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.px
+            shapeOverlapPixelCount = 2.0f
         )
     }
 

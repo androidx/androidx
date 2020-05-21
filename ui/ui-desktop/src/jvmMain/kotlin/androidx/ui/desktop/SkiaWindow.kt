@@ -28,6 +28,11 @@ import org.jetbrains.skija.Context
 import org.jetbrains.skija.JNI
 import org.jetbrains.skija.Surface
 import java.nio.IntBuffer
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import java.awt.event.MouseMotionAdapter
 import javax.swing.JFrame
 
 private class SkijaState {
@@ -35,6 +40,8 @@ private class SkijaState {
     var renderTarget: BackendRenderTarget? = null
     var surface: Surface? = null
     var canvas: Canvas? = null
+    var textureId: Int = 0
+    val intBuf1 = IntBuffer.allocate(1)
 
     fun clear() {
         if (surface != null) {
@@ -49,8 +56,17 @@ private class SkijaState {
 interface SkiaRenderer {
     fun onInit()
     fun onRender(canvas: Canvas, width: Int, height: Int)
-    fun onReshape(width: Int, height: Int)
+    fun onReshape(canvas: Canvas, width: Int, height: Int)
     fun onDispose()
+
+    fun onMouseClicked(x: Int, y: Int, modifiers: Int)
+    fun onMousePressed(x: Int, y: Int, modifiers: Int)
+    fun onMouseReleased(x: Int, y: Int, modifiers: Int)
+    fun onMouseDragged(x: Int, y: Int, modifiers: Int)
+
+    fun onKeyTyped(char: Char)
+    fun onKeyPressed(code: Int, char: Char)
+    fun onKeyReleased(code: Int, char: Char)
 }
 
 class SkiaWindow(
@@ -68,13 +84,45 @@ class SkiaWindow(
     var animator: FPSAnimator? = null
 
     var renderer: SkiaRenderer? = null
+    val VSYNC = false
 
     init {
         val profile = GLProfile.get(GLProfile.GL3)
         val capabilities = GLCapabilities(profile)
+        // We cannot rely on double buffering.
+        capabilities.doubleBuffered = false
         glCanvas = GLCanvas(capabilities)
         val skijaState = SkijaState()
-        glCanvas.autoSwapBufferMode = true
+
+        glCanvas.addMouseListener(object : MouseAdapter() {
+            override fun mouseClicked(event: MouseEvent) {
+                renderer!!.onMouseClicked(event.x, event.y, event.getModifiersEx())
+            }
+            override fun mousePressed(event: MouseEvent) {
+                renderer!!.onMousePressed(event.x, event.y, event.getModifiersEx())
+            }
+            override fun mouseReleased(event: MouseEvent) {
+                renderer!!.onMouseReleased(event.x, event.y, event.getModifiersEx())
+            }
+        })
+
+        glCanvas.addMouseMotionListener(object : MouseMotionAdapter() {
+            override fun mouseDragged(event: MouseEvent) {
+                renderer!!.onMouseDragged(event.x, event.y, event.getModifiersEx())
+            }
+        })
+
+        glCanvas.addKeyListener(object : KeyAdapter() {
+            override fun keyPressed(event: KeyEvent) {
+                renderer!!.onKeyPressed(event.keyCode, event.keyChar)
+            }
+            override fun keyReleased(event: KeyEvent) {
+                renderer!!.onKeyReleased(event.keyCode, event.keyChar)
+            }
+            override fun keyTyped(event: KeyEvent) {
+                renderer!!.onKeyTyped(event.keyChar)
+            }
+        })
 
         glCanvas.addGLEventListener(object : GLEventListener {
             override fun reshape(
@@ -84,12 +132,13 @@ class SkiaWindow(
                 width: Int,
                 height: Int
             ) {
-                initSkija(glCanvas, skijaState)
-                renderer!!.onReshape(width, height)
+                initSkija(glCanvas, skijaState, false)
+                renderer!!.onReshape(skijaState.canvas!!, width, height)
             }
 
             override fun init(drawable: GLAutoDrawable?) {
-                initSkija(glCanvas, skijaState)
+                skijaState.context = Context.makeGL()
+                initSkija(glCanvas, skijaState, false)
                 renderer!!.onInit()
             }
 
@@ -99,11 +148,16 @@ class SkiaWindow(
 
             override fun display(drawable: GLAutoDrawable?) {
                 skijaState.apply {
-                    canvas!!.clear(0xFFFFFFFF)
+                    val gl = drawable!!.gl!!
+                    drawable.swapBuffers()
+                    gl.glBindTexture(GL.GL_TEXTURE_2D, textureId)
                     renderer!!.onRender(
                         canvas!!, glCanvas.width, glCanvas.height
                     )
                     context!!.flush()
+                    gl.glGetIntegerv(GL.GL_TEXTURE_BINDING_2D, intBuf1)
+                    textureId = intBuf1[0]
+                    if (VSYNC) gl.glFinish()
                 }
             }
         })
@@ -128,11 +182,12 @@ class SkiaWindow(
         }
     }
 
-    private fun initSkija(glCanvas: GLCanvas, skijaState: SkijaState) {
+    private fun initSkija(glCanvas: GLCanvas, skijaState: SkijaState, reinitTexture: Boolean) {
         with(skijaState) {
             val width = glCanvas.width
             val height = glCanvas.height
             val dpi = glCanvas.width.toFloat() / width
+            if (VSYNC) glCanvas.gl.setSwapInterval(1)
             skijaState.clear()
             val intBuf1 = IntBuffer.allocate(1)
             glCanvas.gl.glGetIntegerv(GL.GL_DRAW_FRAMEBUFFER_BINDING, intBuf1)
@@ -145,7 +200,6 @@ class SkiaWindow(
                 fbId.toLong(),
                 BackendRenderTarget.FramebufferFormat.GR_GL_RGBA8.toLong()
             )
-            context = Context.makeGL()
             surface = Surface.makeFromBackendRenderTarget(
                 context,
                 renderTarget,
@@ -154,6 +208,10 @@ class SkiaWindow(
             )
             canvas = surface!!.canvas
             canvas!!.scale(dpi, dpi)
+            if (reinitTexture) {
+                glCanvas.gl.glGetIntegerv(GL.GL_TEXTURE_BINDING_2D, intBuf1)
+                skijaState.textureId = intBuf1[0]
+            }
         }
     }
 }

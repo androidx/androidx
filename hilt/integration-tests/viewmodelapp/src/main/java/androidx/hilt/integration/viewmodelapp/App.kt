@@ -17,9 +17,7 @@
 package androidx.hilt.integration.viewmodelapp
 
 import android.app.Application
-import dagger.hilt.GenerateComponents
-import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.HiltAndroidApp
 
-@AndroidEntryPoint
-@GenerateComponents
+@HiltAndroidApp
 class App : Application()

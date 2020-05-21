@@ -24,14 +24,12 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.impl.Config.Option;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -162,7 +160,7 @@ public final class SessionConfig {
          * Called when an error has occurred.
          *
          * @param sessionConfig The {@link SessionConfig} that generated the error.
-         * @param error The error that was generated.
+         * @param error         The error that was generated.
          */
         void onError(@NonNull SessionConfig sessionConfig, @NonNull SessionError error);
     }
@@ -470,34 +468,10 @@ public final class SessionConfig {
                 mValid = false;
             }
 
-            // Check options
-            Config newOptions = captureConfig.getImplementationOptions();
-            Config oldOptions = mCaptureConfigBuilder.getImplementationOptions();
-            MutableOptionsBundle addedOptions = MutableOptionsBundle.create();
-            for (Option<?> option : newOptions.listOptions()) {
-                @SuppressWarnings("unchecked")
-                Option<Object> typeErasedOption = (Option<Object>) option;
-                Object newValue = newOptions.retrieveOption(typeErasedOption, null);
-                if (!(newValue instanceof MultiValueSet)
-                        && oldOptions.containsOption(typeErasedOption)) {
-                    Object oldValue = oldOptions.retrieveOption(typeErasedOption, null);
-                    if (!Objects.equals(newValue, oldValue)) {
-                        String errorMessage =
-                                "Invalid configuration due to conflicting option: "
-                                        + typeErasedOption.getId()
-                                        + " : "
-                                        + newValue
-                                        + " != "
-                                        + oldValue;
-                        Log.d(TAG, errorMessage);
-                        mValid = false;
-                    }
-                } else {
-                    addedOptions.insertOption(typeErasedOption,
-                            newOptions.retrieveOption(typeErasedOption));
-                }
-            }
-            mCaptureConfigBuilder.addImplementationOptions(addedOptions);
+            // The conflicting of options is handled in addImplementationOptions where it could
+            // throw an IllegalArgumentException if the conflict cannot be resolved.
+            mCaptureConfigBuilder.addImplementationOptions(
+                    captureConfig.getImplementationOptions());
         }
 
         /** Check if the set of SessionConfig that have been combined are valid */

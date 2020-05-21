@@ -314,54 +314,6 @@ public class RemoteMediaController {
         }
     }
 
-    public void playFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
-        try {
-            mBinder.playFromMediaId(mControllerId, mediaId, extras);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call playFromMediaId()");
-        }
-    }
-
-    public void playFromSearch(@NonNull String query, @Nullable Bundle extras) {
-        try {
-            mBinder.playFromSearch(mControllerId, query, extras);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call playFromSearch()");
-        }
-    }
-
-    public void playFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
-        try {
-            mBinder.playFromUri(mControllerId, uri, extras);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call playFromUri()");
-        }
-    }
-
-    public void prepareFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
-        try {
-            mBinder.prepareFromMediaId(mControllerId, mediaId, extras);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call prepareFromMediaId()");
-        }
-    }
-
-    public void prepareFromSearch(@NonNull String query, @Nullable Bundle extras) {
-        try {
-            mBinder.prepareFromSearch(mControllerId, query, extras);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call prepareFromSearch()");
-        }
-    }
-
-    public void prepareFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
-        try {
-            mBinder.prepareFromUri(mControllerId, uri, extras);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call prepareFromUri()");
-        }
-    }
-
     public void setRating(@NonNull String mediaId, @NonNull Rating rating) {
         try {
             mBinder.setRating(mControllerId, mediaId, MediaParcelUtils.toParcelable(rating));

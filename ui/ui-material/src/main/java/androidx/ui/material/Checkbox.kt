@@ -23,7 +23,6 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
@@ -39,9 +38,9 @@ import androidx.ui.geometry.shrink
 import androidx.ui.graphics.ClipOp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.painter.CanvasScope
-import androidx.ui.graphics.painter.Stroke
-import androidx.ui.graphics.painter.clipRect
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.Stroke
+import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.material.ripple.ripple
@@ -132,17 +131,12 @@ private fun DrawCheckbox(value: ToggleableState, activeColor: Color, modifier: M
         generateTransitionDefinition(activeColor, unselectedColor)
     }
     Transition(definition = definition, toState = value) { state ->
-        val strokeWidthPx: Float
-        val radiusPx: Float
-        with(DensityAmbient.current) {
-            strokeWidthPx = StrokeWidth.toPx().value
-            radiusPx = RadiusSize.toPx().value
-        }
         Canvas(modifier.preferredSize(CheckboxSize)) {
+            val strokeWidthPx = StrokeWidth.toPx().value
             drawBox(
                 color = state[BoxColorProp],
                 innerRadiusFraction = state[InnerRadiusFractionProp],
-                radius = radiusPx,
+                radius = RadiusSize.toPx().value,
                 strokeWidth = strokeWidthPx
             )
             drawCheck(
@@ -154,7 +148,7 @@ private fun DrawCheckbox(value: ToggleableState, activeColor: Color, modifier: M
     }
 }
 
-private fun CanvasScope.drawBox(
+private fun DrawScope.drawBox(
     color: Color,
     innerRadiusFraction: Float,
     radius: Float,
@@ -220,7 +214,7 @@ private fun CanvasScope.drawBox(
     }
 }
 
-private fun CanvasScope.drawCheck(
+private fun DrawScope.drawCheck(
     checkFraction: Float,
     crossCenterGravitation: Float,
     strokeWidthPx: Float

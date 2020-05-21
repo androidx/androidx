@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.view.DragEvent;
 import android.view.View;
 
@@ -41,6 +42,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.DragAndDropPermissionsCompat;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -492,6 +494,13 @@ public class ActivityCompat extends ContextCompat {
                 && sDelegate.requestPermissions(activity, permissions, requestCode)) {
             // Delegate has handled the permission request.
             return;
+        }
+
+        for (String permission : permissions) {
+            if (TextUtils.isEmpty(permission)) {
+                throw new IllegalArgumentException("Permission request for permissions "
+                        + Arrays.toString(permissions) + " must not contain null or empty values");
+            }
         }
 
         if (Build.VERSION.SDK_INT >= 23) {

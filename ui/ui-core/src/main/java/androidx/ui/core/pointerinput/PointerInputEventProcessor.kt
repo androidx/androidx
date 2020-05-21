@@ -18,7 +18,6 @@ package androidx.ui.core.pointerinput
 
 import androidx.ui.core.ConsumedData
 import androidx.ui.core.LayoutNode
-import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
@@ -26,6 +25,8 @@ import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.unit.Uptime
+import androidx.ui.util.fastAny
+import androidx.ui.util.fastForEach
 
 /**
  * The core element that receives [PointerInputEvent]s and process them in Compose UI.
@@ -52,7 +53,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             pointerInputChangeEventProducer.produce(pointerEvent)
 
         // Add new hit paths to the tracker due to down events.
-        pointerInputChangeEvent.changes.filter { it.changedToDownIgnoreConsumed() }.forEach {
+        pointerInputChangeEvent.changes.filter { it.changedToDownIgnoreConsumed() }.fastForEach {
             val hitResult: MutableList<PointerInputFilter> = mutableListOf()
             root.hitTest(
                 it.current.position!!,
@@ -67,24 +68,19 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         // for those that are.
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val eventDispatchedToPointerInputFilter = !hitPathTracker.isEmpty()
-
-        // Dispatch the PointerInputChanges to the hit PointerInputFilters.
-        var changes = pointerInputChangeEvent.changes
-        hitPathTracker.apply {
-            changes = dispatchChanges(changes, PointerEventPass.InitialDown, PointerEventPass.PreUp)
-            changes = dispatchChanges(changes, PointerEventPass.PreDown, PointerEventPass.PostUp)
-            changes = dispatchChanges(changes, PointerEventPass.PostDown)
-        }
+        // Dispatch to PointerInputFilters
+        val (resultingChanges, dispatchedToSomething) =
+            hitPathTracker.dispatchChanges(pointerInputChangeEvent.changes)
 
         // Remove hit paths from the tracker due to up events.
-        pointerInputChangeEvent.changes.filter { it.changedToUpIgnoreConsumed() }.forEach {
+        pointerInputChangeEvent.changes.filter { it.changedToUpIgnoreConsumed() }.fastForEach {
             hitPathTracker.removeHitPath(it.id)
         }
 
+        // TODO(shepshapard): Don't allocate on every call.
         return ProcessResult(
-            eventDispatchedToPointerInputFilter,
-            changes.any { it.anyPositionChangeConsumed() })
+            dispatchedToSomething,
+            resultingChanges.fastAny { it.anyPositionChangeConsumed() })
     }
 
     /**
@@ -113,7 +109,7 @@ private class PointerInputChangeEventProducer {
     internal fun produce(pointerEvent: PointerInputEvent):
             PointerInputChangeEvent {
         val changes: MutableList<PointerInputChange> = mutableListOf()
-        pointerEvent.pointers.forEach {
+        pointerEvent.pointers.fastForEach {
             changes.add(
                 PointerInputChange(
                     it.id,

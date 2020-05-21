@@ -491,7 +491,6 @@ class MediaSessionStub extends IMediaSession.Stub {
                         if (sessionCompat != null) {
                             sessionCompat.getController().setVolumeTo(value, flags);
                         }
-                        // TODO: Handle remote player case
                         return SessionResult.RESULT_SUCCESS;
                     }
                 });
@@ -511,7 +510,6 @@ class MediaSessionStub extends IMediaSession.Stub {
                         if (sessionCompat != null) {
                             sessionCompat.getController().adjustVolume(direction, flags);
                         }
-                        // TODO: Handle remote player case
                         return SessionResult.RESULT_SUCCESS;
                     }
                 });
@@ -656,130 +654,6 @@ class MediaSessionStub extends IMediaSession.Stub {
                 return result;
             }
         });
-    }
-
-    @Override
-    public void prepareFromUri(final IMediaController caller, int seq, final Uri uri,
-            final Bundle extras) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        if (uri == null) {
-                            Log.w(TAG, "prepareFromUri(): Ignoring null uri from " + controller);
-                            return RESULT_ERROR_BAD_VALUE;
-                        }
-                        return mSessionImpl.getCallback().onPrepareFromUri(
-                                mSessionImpl.getInstance(), controller, uri, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void prepareFromSearch(final IMediaController caller, int seq, final String query,
-            final Bundle extras) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        if (TextUtils.isEmpty(query)) {
-                            Log.w(TAG, "prepareFromSearch(): Ignoring empty query from "
-                                    + controller);
-                            return RESULT_ERROR_BAD_VALUE;
-                        }
-                        return mSessionImpl.getCallback().onPrepareFromSearch(
-                                mSessionImpl.getInstance(), controller, query, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void prepareFromMediaId(final IMediaController caller, int seq, final String mediaId,
-            final Bundle extras) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq,
-                SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        if (TextUtils.isEmpty(mediaId)) {
-                            Log.w(TAG, "prepareFromMediaId(): Ignoring empty mediaId from "
-                                    + controller);
-                            return RESULT_ERROR_BAD_VALUE;
-                        }
-                        return mSessionImpl.getCallback().onPrepareFromMediaId(
-                                mSessionImpl.getInstance(), controller, mediaId, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void playFromUri(final IMediaController caller, int seq, final Uri uri,
-            final Bundle extras) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_URI,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        if (uri == null) {
-                            Log.w(TAG, "playFromUri(): Ignoring null uri from " + controller);
-                            return RESULT_ERROR_BAD_VALUE;
-                        }
-                        return mSessionImpl.getCallback().onPlayFromUri(
-                                mSessionImpl.getInstance(), controller, uri, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void playFromSearch(final IMediaController caller, int seq, final String query,
-            final Bundle extras) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        if (TextUtils.isEmpty(query)) {
-                            Log.w(TAG, "playFromSearch(): Ignoring empty query from " + controller);
-                            return RESULT_ERROR_BAD_VALUE;
-                        }
-                        return mSessionImpl.getCallback().onPlayFromSearch(
-                                mSessionImpl.getInstance(), controller, query, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void playFromMediaId(final IMediaController caller, int seq, final String mediaId,
-            final Bundle extras) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        if (TextUtils.isEmpty(mediaId)) {
-                            Log.w(TAG, "playFromMediaId(): Ignoring empty mediaId from "
-                                    + controller);
-                            return RESULT_ERROR_BAD_VALUE;
-                        }
-                        return mSessionImpl.getCallback().onPlayFromMediaId(
-                                mSessionImpl.getInstance(), controller, mediaId, extras);
-                    }
-                });
     }
 
     @Override

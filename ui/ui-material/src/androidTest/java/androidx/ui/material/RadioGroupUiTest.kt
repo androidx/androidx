@@ -17,7 +17,7 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Strings
@@ -35,9 +35,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
-@Model
-internal class RadioGroupSelectedState<T>(var selected: T)
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -63,7 +60,7 @@ class RadioGroupUiTest {
     private val options = listOf(itemOne, itemTwo, itemThree)
 
     @Composable
-    fun VerticalRadioGroupforTests(children: @Composable() RadioGroupScope.() -> Unit) {
+    fun VerticalRadioGroupforTests(children: @Composable RadioGroupScope.() -> Unit) {
         RadioGroup {
             Column {
                 children(p1 = this@RadioGroup)
@@ -73,7 +70,7 @@ class RadioGroupUiTest {
 
     @Test
     fun radioGroupTest_defaultSemantics() {
-        val select = RadioGroupSelectedState(itemOne)
+        val selected = mutableStateOf(itemOne)
 
         composeTestRule.setMaterialContent {
             VerticalRadioGroupforTests {
@@ -81,8 +78,8 @@ class RadioGroupUiTest {
                     TestTag(tag = item) {
                         RadioGroupTextItem(
                             text = item,
-                            selected = (select.selected == item),
-                            onSelect = { select.selected = item })
+                            selected = (selected.value == item),
+                            onSelect = { selected.value = item })
                     }
                 }
             }
@@ -95,7 +92,7 @@ class RadioGroupUiTest {
 
     @Test
     fun radioGroupTest_ensureUnselectable() {
-        val select = RadioGroupSelectedState(itemOne)
+        val selected = mutableStateOf(itemOne)
 
         composeTestRule.setMaterialContent {
             VerticalRadioGroupforTests {
@@ -103,8 +100,8 @@ class RadioGroupUiTest {
                     TestTag(tag = item) {
                         RadioGroupTextItem(
                             text = item,
-                            selected = (select.selected == item),
-                            onSelect = { select.selected = item })
+                            selected = (selected.value == item),
+                            onSelect = { selected.value = item })
                     }
                 }
             }
@@ -124,15 +121,15 @@ class RadioGroupUiTest {
 
     @Test
     fun radioGroupTest_clickSelect() {
-        val select = RadioGroupSelectedState(itemOne)
+        val selected = mutableStateOf(itemOne)
         composeTestRule.setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
                     TestTag(tag = item) {
                         RadioGroupTextItem(
                             text = item,
-                            selected = (select.selected == item),
-                            onSelect = { select.selected = item })
+                            selected = (selected.value == item),
+                            onSelect = { selected.value = item })
                     }
                 }
             }
@@ -151,7 +148,7 @@ class RadioGroupUiTest {
 
     @Test
     fun radioGroupTest_clickSelectTwoDifferentItems() {
-        val select = RadioGroupSelectedState(itemOne)
+        val selected = mutableStateOf(itemOne)
 
         composeTestRule.setMaterialContent {
             VerticalRadioGroupforTests {
@@ -159,8 +156,8 @@ class RadioGroupUiTest {
                     TestTag(tag = item) {
                         RadioGroupTextItem(
                             text = item,
-                            selected = (select.selected == item),
-                            onSelect = { select.selected = item })
+                            selected = (selected.value == item),
+                            onSelect = { selected.value = item })
                     }
                 }
             }

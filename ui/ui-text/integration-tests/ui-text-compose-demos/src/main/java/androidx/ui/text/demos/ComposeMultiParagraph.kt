@@ -19,10 +19,10 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.layout.Column
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
+import androidx.ui.text.annotatedString
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextIndent
 import androidx.ui.text.withStyle
@@ -34,18 +34,16 @@ val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas f
 @Composable
 fun MultiParagraphDemo() {
     VerticalScroller {
-        Column {
-            TagLine(tag = "multiple paragraphs basic")
-            TextDemoParagraph()
-            TagLine(tag = "multiple paragraphs TextAlign")
-            TextDemoParagraphTextAlign()
-            TagLine(tag = "multiple paragraphs line height")
-            TextDemoParagraphLineHeight()
-            TagLine(tag = "multiple paragraphs TextIndent")
-            TextDemoParagraphIndent()
-            TagLine(tag = "multiple paragraphs TextDirection")
-            TextDemoParagraphTextDirection()
-        }
+        TagLine(tag = "multiple paragraphs basic")
+        TextDemoParagraph()
+        TagLine(tag = "multiple paragraphs TextAlign")
+        TextDemoParagraphTextAlign()
+        TagLine(tag = "multiple paragraphs line height")
+        TextDemoParagraphLineHeight()
+        TagLine(tag = "multiple paragraphs TextIndent")
+        TextDemoParagraphIndent()
+        TagLine(tag = "multiple paragraphs TextDirection")
+        TextDemoParagraphTextDirection()
     }
 }
 
@@ -54,7 +52,7 @@ fun TextDemoParagraph() {
     val text1 = "paragraph1 paragraph1 paragraph1 paragraph1 paragraph1"
     val text2 = "paragraph2 paragraph2 paragraph2 paragraph2 paragraph2"
     Text(
-        text = AnnotatedString {
+        text = annotatedString {
             append(text1)
             withStyle(ParagraphStyle()) {
                 append(text2)
@@ -66,7 +64,7 @@ fun TextDemoParagraph() {
 
 @Composable
 fun TextDemoParagraphTextAlign() {
-    val annotatedString = AnnotatedString {
+    val annotatedString = annotatedString {
         TextAlign.values().forEach { textAlign ->
             val str = List(4) { "TextAlign.$textAlign" }.joinToString(" ")
             withStyle(ParagraphStyle(textAlign = textAlign)) {
@@ -89,17 +87,17 @@ fun TextDemoParagraphLineHeight() {
             text = text1 + text2 + text3,
             spanStyles = listOf(),
             paragraphStyles = listOf(
-                AnnotatedString.Item(
+                AnnotatedString.Range(
                     ParagraphStyle(lineHeight = 30.sp),
                     0,
                     text1.length
                 ),
-                AnnotatedString.Item(
+                AnnotatedString.Range(
                     ParagraphStyle(lineHeight = 40.sp),
                     text1.length,
                     text1.length + text2.length
                 ),
-                AnnotatedString.Item(
+                AnnotatedString.Range(
                     ParagraphStyle(lineHeight = 50.sp),
                     text1.length + text2.length,
                     text1.length + text2.length + text3.length
@@ -116,7 +114,7 @@ fun TextDemoParagraphIndent() {
     val text2 = "TextIndent restLine TextIndent restLine TextIndent restLine"
 
     Text(
-        text = AnnotatedString {
+        text = annotatedString {
             withStyle(ParagraphStyle(textIndent = TextIndent(firstLine = 20.sp))) {
                 append(text1)
             }
@@ -133,7 +131,7 @@ fun TextDemoParagraphTextDirection() {
     val ltrText = "Hello World! Hello World! Hello World! Hello World! Hello World!"
     val rtlText = "مرحبا بالعالم مرحبا بالعالم مرحبا بالعالم مرحبا بالعالم مرحبا بالعالم"
     Text(
-        text = AnnotatedString {
+        text = annotatedString {
             withStyle(ParagraphStyle()) {
                 append(ltrText)
             }

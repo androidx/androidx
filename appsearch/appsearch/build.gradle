@@ -28,10 +28,24 @@ configurations {
     jarjarConf
 }
 
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    buildTypes.all {
+        minifyEnabled true
+        proguardFiles getDefaultProguardFile(
+                'proguard-android-optimize.txt'),
+                'proguard-rules.pro'
+    }
+}
+
 dependencies {
     // Treat icing-java as a local jar and package it inside the aar.
     jarjarConf project(path: ':icing:java', configuration: 'jarjarConf')
     implementation files(configurations.jarjarConf)
+    compileOnly project(path: ':icing:java', configuration: 'jarjarConf')
 
     api('androidx.annotation:annotation:1.1.0')
 
@@ -39,12 +53,24 @@ dependencies {
     implementation('androidx.concurrent:concurrent-futures:1.0.0')
     implementation('androidx.core:core:1.2.0')
 
+    androidTestAnnotationProcessor project(':appsearch:appsearch-annotation')
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
     //TODO(b/149787478) upgrade and link to Dependencies.kt
     androidTestImplementation("junit:junit:4.13")
+}
+
+// Create a jar for use by appsearch-annotation:test
+android.libraryVariants.all { variant ->
+    def name = variant.name
+    def suffix = name.capitalize()
+    project.tasks.create(name: "jar${suffix}", type: Jar) {
+        dependsOn variant.javaCompileProvider.get()
+        from variant.javaCompileProvider.get().destinationDir
+        destinationDir new File(project.buildDir, "libJar")
+    }
 }
 
 androidx {

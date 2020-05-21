@@ -119,6 +119,15 @@ public class FragmentActivity extends ComponentActivity implements
     // HOOKS INTO ACTIVITY
     // ------------------------------------------------------------------------
 
+    @SuppressWarnings("deprecation")
+    @Override
+    @CallSuper
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        mFragments.noteStateNotSaved();
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
     /**
      * Reverses the Activity Scene entry Transition and triggers the calling Activity
      * to reverse its exit Transition. When the exit Transition completes,
@@ -560,6 +569,15 @@ public class FragmentActivity extends ComponentActivity implements
     @Override
     @Deprecated
     public final void validateRequestPermissionsRequestCode(int requestCode) { }
+
+    @SuppressWarnings("deprecation")
+    @CallSuper
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
+        mFragments.noteStateNotSaved();
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
 
     /**
      * Called by Fragment.startActivityForResult() to implement its behavior.

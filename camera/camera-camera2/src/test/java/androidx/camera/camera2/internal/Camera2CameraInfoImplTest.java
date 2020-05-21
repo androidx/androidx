@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
@@ -32,6 +33,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
+import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.lifecycle.MutableLiveData;
@@ -41,12 +43,15 @@ import androidx.test.filters.SmallTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
+
+import java.util.concurrent.Executor;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
@@ -75,6 +80,7 @@ public class Camera2CameraInfoImplTest {
     private CameraCharacteristics mCameraCharacteristics1;
     private ZoomControl mMockZoomControl;
     private TorchControl mMockTorchControl;
+    private Camera2CameraControl mMockCameraControl;
 
     @Before
     public void setUp() throws CameraAccessException {
@@ -89,21 +95,23 @@ public class Camera2CameraInfoImplTest {
 
         mMockZoomControl = mock(ZoomControl.class);
         mMockTorchControl = mock(TorchControl.class);
+        mMockCameraControl = mock(Camera2CameraControl.class);
+
+        when(mMockCameraControl.getZoomControl()).thenReturn(mMockZoomControl);
+        when(mMockCameraControl.getTorchControl()).thenReturn(mMockTorchControl);
     }
 
     @Test
     public void canCreateCameraInfo() {
         CameraInfoInternal cameraInfoInternal =
-                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
-                        mMockTorchControl);
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockCameraControl);
         assertThat(cameraInfoInternal).isNotNull();
     }
 
     @Test
     public void cameraInfo_canReturnSensorOrientation() {
         CameraInfoInternal cameraInfoInternal =
-                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
-                        mMockTorchControl);
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockCameraControl);
         assertThat(cameraInfoInternal.getSensorRotationDegrees()).isEqualTo(
                 CAMERA0_SENSOR_ORIENTATION);
     }
@@ -111,8 +119,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfo_canCalculateCorrectRelativeRotation_forBackCamera() {
         CameraInfoInternal cameraInfoInternal =
-                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0,
-                        mMockZoomControl, mMockTorchControl);
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockCameraControl);
 
         // Note: these numbers depend on the camera being a back-facing camera.
         assertThat(cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_0))
@@ -128,8 +135,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfo_canCalculateCorrectRelativeRotation_forFrontCamera() {
         CameraInfoInternal cameraInfoInternal =
-                new Camera2CameraInfoImpl(CAMERA1_ID, mCameraCharacteristics1, mMockZoomControl,
-                        mMockTorchControl);
+                new Camera2CameraInfoImpl(CAMERA1_ID, mCameraCharacteristics1, mMockCameraControl);
 
         // Note: these numbers depend on the camera being a front-facing camera.
         assertThat(cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_0))
@@ -145,32 +151,28 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfo_canReturnLensFacing() {
         CameraInfoInternal cameraInfoInternal =
-                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
-                        mMockTorchControl);
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockCameraControl);
         assertThat(cameraInfoInternal.getLensFacing()).isEqualTo(CAMERA0_LENS_FACING_ENUM);
     }
 
     @Test
     public void cameraInfo_canReturnHasFlashUnit_forBackCamera() {
         CameraInfoInternal cameraInfoInternal =
-                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
-                        mMockTorchControl);
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockCameraControl);
         assertThat(cameraInfoInternal.hasFlashUnit()).isEqualTo(CAMERA0_FLASH_INFO_BOOLEAN);
     }
 
     @Test
     public void cameraInfo_canReturnHasFlashUnit_forFrontCamera() {
         CameraInfoInternal cameraInfoInternal =
-                new Camera2CameraInfoImpl(CAMERA1_ID, mCameraCharacteristics1, mMockZoomControl,
-                        mMockTorchControl);
+                new Camera2CameraInfoImpl(CAMERA1_ID, mCameraCharacteristics1, mMockCameraControl);
         assertThat(cameraInfoInternal.hasFlashUnit()).isEqualTo(CAMERA1_FLASH_INFO_BOOLEAN);
     }
 
     @Test
     public void cameraInfo_canReturnTorchState() {
         CameraInfoInternal cameraInfoInternal =
-                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
-                        mMockTorchControl);
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockCameraControl);
         when(mMockTorchControl.getTorchState()).thenReturn(new MutableLiveData<>(TorchState.OFF));
         assertThat(cameraInfoInternal.getTorchState().getValue()).isEqualTo(TorchState.OFF);
     }
@@ -180,8 +182,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfo_getZoom_valueIsCorrect() {
         CameraInfoInternal cameraInfo =
-                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockZoomControl,
-                        mMockTorchControl);
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraCharacteristics0, mMockCameraControl);
         ZoomState zoomState = ImmutableZoomState.create(3.0f, 8.0f, 1.0f, 0.2f);
         when(mMockZoomControl.getZoomState()).thenReturn(new MutableLiveData<>(zoomState));
         assertThat(mMockZoomControl.getZoomState().getValue()).isEqualTo(zoomState);
@@ -190,7 +191,7 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfo_getImplementationType_legacy() {
         final CameraInfoInternal cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID,
-                mCameraCharacteristics0, mMockZoomControl, mMockTorchControl);
+                mCameraCharacteristics0, mMockCameraControl);
         assertThat(cameraInfo.getImplementationType()).isEqualTo(
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
     }
@@ -198,9 +199,43 @@ public class Camera2CameraInfoImplTest {
     @Test
     public void cameraInfo_getImplementationType_noneLegacy() {
         final CameraInfoInternal cameraInfo = new Camera2CameraInfoImpl(CAMERA1_ID,
-                mCameraCharacteristics1, mMockZoomControl, mMockTorchControl);
+                mCameraCharacteristics1, mMockCameraControl);
         assertThat(cameraInfo.getImplementationType()).isEqualTo(
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+    }
+
+    @Test
+    public void addSessionCameraCaptureCallback_isCalledToCameraControl() {
+        final CameraInfoInternal cameraInfo = new Camera2CameraInfoImpl(CAMERA1_ID,
+                mCameraCharacteristics1, mMockCameraControl);
+
+        Executor executor = mock(Executor.class);
+        CameraCaptureCallback callback = mock(CameraCaptureCallback.class);
+        cameraInfo.addSessionCaptureCallback(executor, callback);
+
+        ArgumentCaptor<Executor> executorCaptor = ArgumentCaptor.forClass(Executor.class);
+        ArgumentCaptor<CameraCaptureCallback> callbackCaptor =
+                ArgumentCaptor.forClass(CameraCaptureCallback.class);
+
+        verify(mMockCameraControl).addSessionCameraCaptureCallback(executorCaptor.capture(),
+                callbackCaptor.capture());
+        assertThat(executorCaptor.getValue()).isSameInstanceAs(executor);
+        assertThat(callbackCaptor.getValue()).isSameInstanceAs(callback);
+    }
+
+    @Test
+    public void removeSessionCameraCaptureCallback_isCalledToCameraControl() {
+        final CameraInfoInternal cameraInfo = new Camera2CameraInfoImpl(CAMERA1_ID,
+                mCameraCharacteristics1, mMockCameraControl);
+
+        CameraCaptureCallback callback = mock(CameraCaptureCallback.class);
+        cameraInfo.removeSessionCaptureCallback(callback);
+
+        ArgumentCaptor<CameraCaptureCallback> callbackCaptor =
+                ArgumentCaptor.forClass(CameraCaptureCallback.class);
+
+        verify(mMockCameraControl).removeSessionCameraCaptureCallback(callbackCaptor.capture());
+        assertThat(callbackCaptor.getValue()).isSameInstanceAs(callback);
     }
 
     private void initCameras() {

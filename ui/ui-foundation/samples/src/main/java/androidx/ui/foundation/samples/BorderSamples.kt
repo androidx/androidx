@@ -29,7 +29,6 @@ import androidx.ui.graphics.HorizontalGradient
 import androidx.ui.graphics.TileMode
 import androidx.ui.layout.padding
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 
 @Composable
 @Sampled
@@ -45,8 +44,8 @@ fun BorderSample() {
 fun BorderSampleWithBrush() {
     val gradientBrush = HorizontalGradient(
         colors = listOf(Color.Red, Color.Blue, Color.Green),
-        startX = 0.px,
-        endX = 500.px,
+        startX = 0.0f,
+        endX = 500.0f,
         tileMode = TileMode.Repeated
     )
     Text(

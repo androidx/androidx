@@ -22,6 +22,7 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.tooling.preview.ComposeViewAdapter
 import androidx.ui.tooling.preview.ViewInfo
 import androidx.ui.tooling.test.R
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -71,6 +72,26 @@ class ComposeViewAdapterTest {
             assertTrue(viewInfos.map { it.methodName }.all {
                 it.startsWith("androidx.ui.tooling.")
             })
+        }
+    }
+
+    @Test
+    fun lineNumberMapping() {
+        val viewInfos = assertRendersCorrectly(
+            "androidx.ui.tooling.LineNumberPreviewKt",
+            "LineNumberPreview"
+        ).flatMap { it.allChildren() + it }
+            .filter { it.fileName == "LineNumberPreview.kt" }
+            .toList()
+
+        activityTestRule.runOnUiThread {
+            // Verify all calls, generate the correct line number information
+            assertArrayEquals(arrayOf(36, 37, 38, 40, 43, 44, 45),
+                viewInfos
+                    .map { it.lineNumber }
+                    .sorted()
+                    .distinct()
+                    .toTypedArray())
         }
     }
 

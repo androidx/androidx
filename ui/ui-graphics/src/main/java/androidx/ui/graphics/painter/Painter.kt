@@ -15,15 +15,15 @@
  */
 package androidx.ui.graphics.painter
 
+import androidx.ui.core.LayoutDirection
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.Paint
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.graphics.withSaveLayer
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 
 /**
  * Abstraction for something that can be drawn. In addition to providing the ability to draw
@@ -69,8 +69,6 @@ abstract class Painter {
      * Currently configured ColorFilter
      */
     private var colorFilter: ColorFilter? = null
-
-    private val canvasScope = CanvasScope()
 
     /**
      * Optional [ColorFilter] used to modify the source pixels when drawn to the destination
@@ -130,39 +128,39 @@ abstract class Painter {
         }
     }
 
-    private var rtl: Boolean = false
+    private var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     /**
      * Flag indicating that the contents of the [Painter] should be drawn with
      * to support locales with right-to-left languages.
      * Implementations of [Painter] that support right to left contents should implement
-     * the [applyRtl] method
+     * the [applyLayoutDirection] method
      */
-    private fun configureRtl(rtl: Boolean) {
-        if (this.rtl != rtl) {
-            applyRtl(rtl)
-            this.rtl = rtl
+    private fun configureLayoutDirection(rtl: LayoutDirection) {
+        if (this.layoutDirection != rtl) {
+            applyLayoutDirection(rtl)
+            this.layoutDirection = rtl
         }
     }
 
-    private val drawLambda: CanvasScope.() -> Unit = { onDraw() }
+    private val drawLambda: DrawScope.() -> Unit = { onDraw() }
 
     /**
      * Return the intrinsic size of the [Painter].
      * If the there is no intrinsic size (i.e. filling bounds with an arbitrary color) return
-     * [PxSize.UnspecifiedSize].
-     * If there is no intrinsic size in a single dimension, return [PxSize] with [Px.Infinity] in
-     * the desired dimension.
+     * [Size.UnspecifiedSize].
+     * If there is no intrinsic size in a single dimension, return [Size] with
+     * [Float.POSITIVE_INFINITY] in the desired dimension.
      * If a [Painter] does not have an intrinsic size, it will always draw within the full
      * bounds of the destination
      */
-    abstract val intrinsicSize: PxSize
+    abstract val intrinsicSize: Size
 
     /**
      * Implementation of drawing logic for instances of [Painter]. This is invoked
      * internally within [draw] after the positioning and configuring the [Painter]
      */
-    protected abstract fun CanvasScope.onDraw()
+    protected abstract fun DrawScope.onDraw()
 
     /**
      * Apply the provided alpha value returning true if it was applied successfully,
@@ -177,33 +175,33 @@ abstract class Painter {
     protected open fun applyColorFilter(colorFilter: ColorFilter?): Boolean = false
 
     /**
-     * Apply the appropriate internal configuration to positioning content for locales with
-     * right-to-left languages
+     * Apply the appropriate internal configuration to positioning content with the
+     * given [LayoutDirection]
      */
-    protected open fun applyRtl(rtl: Boolean): Boolean = false
+    protected open fun applyLayoutDirection(layoutDirection: LayoutDirection): Boolean = false
 
-    fun draw(
-        canvas: Canvas,
-        size: PxSize,
+    fun DrawScope.draw(
+        size: Size,
         alpha: Float = DefaultAlpha,
-        colorFilter: ColorFilter? = null,
-        rtl: Boolean = false
+        colorFilter: ColorFilter? = null
     ) {
         configureAlpha(alpha)
         configureColorFilter(colorFilter)
-        configureRtl(rtl)
+        configureLayoutDirection(layoutDirection)
 
-        val scopeSize = Size(size.width.value, size.height.value)
-        if (alpha > 0.0f) {
-            if (useLayer) {
-                val layerRect =
-                    Rect.fromLTWH(0.0f, 0.0f, size.width.value, size.height.value)
-                // TODO (b/154550724) njawad replace with RenderNode/Layer API usage
-                canvas.withSaveLayer(layerRect, obtainPaint()) {
-                    canvasScope.draw(canvas, scopeSize, drawLambda)
+        // b/156512437 to expose saveLayer on DrawScope
+        drawCanvas { canvas, _ ->
+            if (alpha > 0.0f) {
+                if (useLayer) {
+                    val layerRect =
+                        Rect.fromLTWH(0.0f, 0.0f, size.width, size.height)
+                    // TODO (b/154550724) njawad replace with RenderNode/Layer API usage
+                    canvas.withSaveLayer(layerRect, obtainPaint()) {
+                        draw(canvas, size, drawLambda)
+                    }
+                } else {
+                    draw(canvas, size, drawLambda)
                 }
-            } else {
-                canvasScope.draw(canvas, scopeSize, drawLambda)
             }
         }
     }

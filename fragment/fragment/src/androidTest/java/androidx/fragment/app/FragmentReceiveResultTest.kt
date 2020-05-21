@@ -22,6 +22,7 @@ import android.content.IntentSender
 import androidx.fragment.app.test.FragmentResultActivity
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -56,7 +57,10 @@ class FragmentReceiveResultTest {
 
     @Suppress("DEPRECATION")
     @Test
+    @UiThreadTest
     fun testNoFragmentOnActivityResult() {
+        activity.supportFragmentManager.saveAllState()
+
         // 0xffff is the request code for the startActivityResult launcher in FragmentManager
         activity.onActivityResult(0xffff, Activity.RESULT_OK, Intent())
     }

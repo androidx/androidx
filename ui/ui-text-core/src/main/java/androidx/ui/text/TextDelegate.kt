@@ -22,7 +22,6 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.constrain
 import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.text.TextDelegate.Companion.paint
 import androidx.ui.text.font.Font
@@ -83,7 +82,7 @@ class TextDelegate(
     val overflow: TextOverflow = TextOverflow.Clip,
     val density: Density,
     val resourceLoader: Font.ResourceLoader,
-    val placeholders: List<AnnotatedString.Item<Placeholder>> = listOf()
+    val placeholders: List<AnnotatedString.Range<Placeholder>> = listOf()
 ) {
     @VisibleForTesting
     internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
@@ -241,19 +240,19 @@ class TextDelegate(
          *
          * @param start inclusive start character offset of the drawing range.
          * @param end exclusive end character offset of the drawing range.
-         * @param color a color to be used for drawing background.
+         * @param paint used to draw background.
          * @param canvas the target canvas.
          */
         fun paintBackground(
             start: Int,
             end: Int,
-            color: Color,
+            paint: Paint,
             canvas: Canvas,
             textLayoutResult: TextLayoutResult
         ) {
             if (start == end) return
             val selectionPath = textLayoutResult.multiParagraph.getPathForRange(start, end)
-            canvas.drawPath(selectionPath, Paint().apply { this.color = color })
+            canvas.drawPath(selectionPath, paint)
         }
     }
 }

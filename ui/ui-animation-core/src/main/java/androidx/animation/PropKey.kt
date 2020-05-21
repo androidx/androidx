@@ -74,6 +74,12 @@ interface PropKey<T, V : AnimationVector> {
      * subclass of [AnimationVector]).
      */
     val typeConverter: TwoWayConverter<T, V>
+
+    /**
+     * A label for distinguishing different prop keys in Tools (i.e. Android Studio).
+     */
+    val label: String
+        get() = "PropKey"
 }
 
 internal fun lerp(start: Float, stop: Float, fraction: Float) =
@@ -84,15 +90,21 @@ internal fun lerp(start: Int, stop: Int, fraction: Float) =
 
 /**
  * Built-in property key for [Float] properties.
+ *
+ * @param label Label for distinguishing different prop keys in Android Studio.
  */
-class FloatPropKey : PropKey<Float, AnimationVector1D> {
+class FloatPropKey(
+    override val label: String = "FloatPropKey"
+) : PropKey<Float, AnimationVector1D> {
     override val typeConverter = FloatToVectorConverter
 }
 
 /**
  * Built-in property key for [Int] properties.
+ *
+ * @param label Label for distinguishing different prop keys in Android Studio.
  */
-class IntPropKey : PropKey<Int, AnimationVector1D> {
+class IntPropKey(override val label: String = "IntPropKey") : PropKey<Int, AnimationVector1D> {
     override val typeConverter = IntToVectorConverter
 }
 

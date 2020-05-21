@@ -18,14 +18,14 @@ package androidx.camera.core.internal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.impl.Config.Option;
+import androidx.camera.core.impl.ReadableConfig;
 
 import java.util.concurrent.Executor;
 
 /**
  * Configuration containing options pertaining to threads used by the configured object.
  */
-public interface ThreadConfig {
+public interface ThreadConfig extends ReadableConfig {
 
     // Option Declarations:
     // *********************************************************************************************
@@ -46,7 +46,9 @@ public interface ThreadConfig {
      * configuration.
      */
     @Nullable
-    Executor getBackgroundExecutor(@Nullable Executor valueIfMissing);
+    default Executor getBackgroundExecutor(@Nullable Executor valueIfMissing) {
+        return retrieveOption(OPTION_BACKGROUND_EXECUTOR, valueIfMissing);
+    }
 
 
     /**
@@ -56,7 +58,9 @@ public interface ThreadConfig {
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    Executor getBackgroundExecutor();
+    default Executor getBackgroundExecutor() {
+        return retrieveOption(OPTION_BACKGROUND_EXECUTOR);
+    }
 
     /**
      * Builder for a {@link ThreadConfig}.

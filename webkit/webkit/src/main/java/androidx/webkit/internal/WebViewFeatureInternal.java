@@ -355,6 +355,14 @@ public enum WebViewFeatureInternal {
      */
     WEB_MESSAGE_LISTENER(WebViewFeature.WEB_MESSAGE_LISTENER, Features.WEB_MESSAGE_LISTENER),
 
+    /**
+     * This feature covers
+     * {@link
+     * androidx.webkit.WebViewCompat#addDocumentStartJavascript(android.webkit.WebView, String,
+     * List)}
+     */
+    DOCUMENT_START_SCRIPT(WebViewFeature.DOCUMENT_START_SCRIPT, Features.DOCUMENT_START_SCRIPT),
+
     ;  // This semicolon ends the enum. Add new features with a trailing comma above this line.
 
     private static final int NOT_SUPPORTED_BY_FRAMEWORK = -1;

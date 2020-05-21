@@ -27,7 +27,6 @@ import androidx.ui.graphics.HorizontalGradient
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.padding
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 
 @Composable
 @Sampled
@@ -43,8 +42,8 @@ fun DrawBackgroundColor() {
 fun DrawBackgroundShapedBrush() {
     val gradientBrush = HorizontalGradient(
         colors = listOf(Color.Red, Color.Blue, Color.Green),
-        startX = 0.px,
-        endX = 500.px
+        startX = 0.0f,
+        endX = 500.0f
     )
     Text(
         "Text with gradient back",

@@ -20,10 +20,9 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
 
+import android.Manifest;
 import android.content.ContentValues;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
@@ -102,6 +101,12 @@ public class CameraXActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
     private static final String TAG = "CameraXActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
+    private static final String[] REQUIRED_PERMISSIONS =
+            new String[]{
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            };
     // Possible values for this intent key: "backward" or "forward".
     private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
     static final CameraSelector BACK_SELECTOR =
@@ -1008,12 +1013,12 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     private void makePermissionRequest() {
-        ActivityCompat.requestPermissions(this, getRequiredPermissions(), PERMISSIONS_REQUEST_CODE);
+        ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE);
     }
 
     /** Returns true if all the necessary permissions have been granted already. */
     private boolean allPermissionsGranted() {
-        for (String permission : getRequiredPermissions()) {
+        for (String permission : REQUIRED_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(this, permission)
                     != PackageManager.PERMISSION_GRANTED) {
                 return false;
@@ -1027,25 +1032,6 @@ public class CameraXActivity extends AppCompatActivity
                 Environment.DIRECTORY_PICTURES);
         if (!pictureFolder.exists()) {
             pictureFolder.mkdir();
-        }
-    }
-
-    /** Tries to acquire all the necessary permissions through a dialog. */
-    private String[] getRequiredPermissions() {
-        PackageInfo info;
-        try {
-            info =
-                    getPackageManager()
-                            .getPackageInfo(getPackageName(), PackageManager.GET_PERMISSIONS);
-        } catch (NameNotFoundException exception) {
-            Log.e(TAG, "Failed to obtain all required permissions.", exception);
-            return new String[0];
-        }
-        String[] permissions = info.requestedPermissions;
-        if (permissions != null && permissions.length > 0) {
-            return permissions;
-        } else {
-            return new String[0];
         }
     }
 

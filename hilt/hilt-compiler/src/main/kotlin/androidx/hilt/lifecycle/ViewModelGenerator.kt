@@ -89,6 +89,15 @@ internal class ViewModelGenerator(
                 AnnotationSpec.builder(ClassNames.INSTALL_IN)
                     .addMember("value", "$T.class", ClassNames.ACTIVITY_RETAINED_COMPONENT)
                     .build())
+            .addAnnotation(
+                AnnotationSpec.builder(ClassNames.ORIGINATING_ELEMENT)
+                    .addMember(
+                        "topLevelClass",
+                        "$T.class",
+                        injectedViewModel.className.topLevelClassName()
+                    )
+                    .build()
+            )
             .addModifiers(Modifier.PUBLIC)
             .addMethod(
                 MethodSpec.methodBuilder("bind")

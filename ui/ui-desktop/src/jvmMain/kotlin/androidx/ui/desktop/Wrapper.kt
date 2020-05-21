@@ -16,42 +16,54 @@
 package androidx.ui.desktop
 
 import android.content.Context
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.View
 
 import androidx.animation.rootAnimationClockFactory
 import androidx.animation.ManualAnimationClock
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.Recomposer
-import androidx.ui.core.Modifier
-import androidx.ui.core.Owner
 import androidx.ui.core.setContent
-import androidx.ui.layout.padding
-import androidx.ui.unit.dp
+import androidx.ui.core.TextInputServiceAmbient
+import androidx.ui.input.TextInputService
 
 import javax.swing.SwingUtilities
 
 import org.jetbrains.skija.Canvas
 
-fun SkiaWindow.setContent(content: @Composable() () -> Unit) {
+fun SkiaWindow.setContent(content: @Composable () -> Unit) {
     SwingUtilities.invokeLater {
-        println("start composing!")
+        val fps = 60
+        val clocks = mutableListOf<ManualAnimationClock>()
+        rootAnimationClockFactory = {
+            ManualAnimationClock(0L).also {
+                clocks.add(it)
+            }
+        }
 
-        rootAnimationClockFactory = { ManualAnimationClock(0L) }
         val context = object : Context() {}
         val viewGroup = object : ViewGroup(context) {}
-        viewGroup.setContent(Recomposer.current(), content)
+        val platformInputService = DesktopPlatformInput()
+        viewGroup.setContent(Recomposer.current(), @Composable {
+            Providers(TextInputServiceAmbient provides TextInputService(
+                platformInputService), children = content)
+        })
         val view = viewGroup.getChildAt(0)
-        // we need this to override the root drawLayer() - RenderNode are not ported yet
-        (view as Owner).root.modifier = Modifier.padding(0.dp)
         view.onAttachedToWindow()
 
-        this.renderer = Renderer(view)
-        this.setFps(60)
+        this.renderer = Renderer(view, clocks, fps, platformInputService)
+        this.setFps(fps)
     }
 }
 
-private class Renderer(val view: View) : SkiaRenderer {
+private class Renderer(
+    val view: View,
+    val clocks: List<ManualAnimationClock>,
+    val fps: Int,
+    val platformInputService: DesktopPlatformInput
+) : SkiaRenderer {
     var androidCanvas: android.graphics.Canvas? = null
 
     override fun onInit() {
@@ -60,15 +72,56 @@ private class Renderer(val view: View) : SkiaRenderer {
     override fun onDispose() {
     }
 
-    override fun onReshape(width: Int, height: Int) {
-        androidCanvas = null
-    }
-
-    override fun onRender(canvas: Canvas, width: Int, height: Int) {
+    fun draw(canvas: Canvas, width: Int, height: Int) {
         if (androidCanvas == null) {
             androidCanvas = android.graphics.Canvas(canvas)
         }
         view.onMeasure(width, height)
+        view.onLayout(true, 0, 0, width, height)
         view.dispatchDraw(androidCanvas!!)
+    }
+
+    override fun onReshape(canvas: Canvas, width: Int, height: Int) {
+        androidCanvas = null
+        draw(canvas, width, height)
+    }
+
+    override fun onRender(canvas: Canvas, width: Int, height: Int) {
+        clocks.forEach {
+            it.clockTimeMillis += 1000 / fps
+        }
+        draw(canvas, width, height)
+    }
+
+    override fun onMouseClicked(x: Int, y: Int, modifiers: Int) {}
+
+    override fun onMousePressed(x: Int, y: Int, awtModifiers: Int) {
+        view.dispatchTouchEvent(
+            MotionEvent(x, y, MotionEvent.ACTION_DOWN or modifiers(awtModifiers)))
+    }
+
+    override fun onMouseReleased(x: Int, y: Int, awtModifiers: Int) {
+        view.dispatchTouchEvent(MotionEvent(x, y, MotionEvent.ACTION_UP or modifiers(awtModifiers)))
+    }
+
+    override fun onMouseDragged(x: Int, y: Int, awtModifiers: Int) {
+        view.dispatchTouchEvent(MotionEvent(x, y,
+            MotionEvent.ACTION_MOVE or modifiers(awtModifiers)))
+    }
+
+    private fun modifiers(awtModifiers: Int): Int {
+        return 0
+    }
+
+    override fun onKeyPressed(code: Int, char: Char) {
+        platformInputService.onKeyPressed(code, char)
+    }
+
+    override fun onKeyReleased(code: Int, char: Char) {
+        platformInputService.onKeyReleased(code, char)
+    }
+
+    override fun onKeyTyped(char: Char) {
+        platformInputService.onKeyTyped(char)
     }
 }

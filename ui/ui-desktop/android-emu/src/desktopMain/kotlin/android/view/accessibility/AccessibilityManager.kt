@@ -16,4 +16,6 @@
 
 package android.view.accessibility
 
-class AccessibilityManager()
+class AccessibilityManager() {
+    fun isEnabled(): Boolean = false
+}
