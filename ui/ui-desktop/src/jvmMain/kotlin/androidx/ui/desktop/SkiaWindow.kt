@@ -149,7 +149,8 @@ class SkiaWindow(
             override fun display(drawable: GLAutoDrawable?) {
                 skijaState.apply {
                     val gl = drawable!!.gl!!
-                    drawable.swapBuffers()
+                    // drawable.swapBuffers()
+                    canvas!!.clear(0xFFFFFFFFL)
                     gl.glBindTexture(GL.GL_TEXTURE_2D, textureId)
                     renderer!!.onRender(
                         canvas!!, glCanvas.width, glCanvas.height
@@ -186,15 +187,16 @@ class SkiaWindow(
         with(skijaState) {
             val width = glCanvas.width
             val height = glCanvas.height
-            val dpi = glCanvas.width.toFloat() / width
+            val dpiX = glCanvas.nativeSurface.surfaceWidth.toFloat() / width
+            val dpiY = glCanvas.nativeSurface.surfaceHeight.toFloat() / height
             if (VSYNC) glCanvas.gl.setSwapInterval(1)
             skijaState.clear()
             val intBuf1 = IntBuffer.allocate(1)
             glCanvas.gl.glGetIntegerv(GL.GL_DRAW_FRAMEBUFFER_BINDING, intBuf1)
             val fbId = intBuf1[0]
             renderTarget = BackendRenderTarget.newGL(
-                (width * dpi).toInt(),
-                (height * dpi).toInt(),
+                (width * dpiX).toInt(),
+                (height * dpiY).toInt(),
                 0,
                 8,
                 fbId.toLong(),
@@ -207,7 +209,7 @@ class SkiaWindow(
                 Surface.ColorType.RGBA_8888
             )
             canvas = surface!!.canvas
-            canvas!!.scale(dpi, dpi)
+            canvas!!.scale(dpiX, dpiY)
             if (reinitTexture) {
                 glCanvas.gl.glGetIntegerv(GL.GL_TEXTURE_BINDING_2D, intBuf1)
                 skijaState.textureId = intBuf1[0]
