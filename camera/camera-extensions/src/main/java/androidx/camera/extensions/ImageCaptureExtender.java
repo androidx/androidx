@@ -246,7 +246,12 @@ public abstract class ImageCaptureExtender {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        checkPreviewEnabled(mEffectMode, CameraX.getActiveUseCases());
+                        try {
+                            checkPreviewEnabled(mEffectMode, CameraX.getActiveUseCases());
+                        } catch (IllegalStateException e) {
+                            Log.e(TAG, "CameraX has been shutdown. Don't need to check for "
+                                    + "active use cases.");
+                        }
                     }
                 });
                 CaptureStageImpl captureStageImpl = mImpl.onPresetSession();

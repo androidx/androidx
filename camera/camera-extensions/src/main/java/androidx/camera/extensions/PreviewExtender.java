@@ -268,7 +268,12 @@ public abstract class PreviewExtender {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            checkImageCaptureEnabled(mEffectMode, CameraX.getActiveUseCases());
+                            try {
+                                checkImageCaptureEnabled(mEffectMode, CameraX.getActiveUseCases());
+                            } catch (IllegalStateException e) {
+                                Log.e(TAG, "CameraX has been shutdown. Don't need to check for "
+                                        + "active use cases.");
+                            }
                         }
                     });
                 }
