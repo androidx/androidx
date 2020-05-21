@@ -540,7 +540,7 @@ public class CameraXActivity extends AppCompatActivity
                         mStartCaptureTime = SystemClock.elapsedRealtime();
                         createDefaultPictureFolderIfNotExist();
                         ContentValues contentValues = new ContentValues();
-                        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+                        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
                         ImageCapture.OutputFileOptions outputFileOptions =
                                 new ImageCapture.OutputFileOptions.Builder(
                                         getContentResolver(),
