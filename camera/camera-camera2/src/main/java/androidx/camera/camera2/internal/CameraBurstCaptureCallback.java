@@ -35,6 +35,9 @@ import java.util.Map;
 
 /**
  * A callback object for tracking the progress of a capture request submitted to the camera device.
+ *
+ * <p>Note this class is not thread-safe and its methods should only be invoked from the single
+ * thread.
  */
 class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCallback {
 
@@ -110,6 +113,9 @@ class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCallback {
                 ? callbacks : Collections.<CameraCaptureSession.CaptureCallback>emptyList();
     }
 
+    /**
+     * This method is not thread-safe and should be invoked on the same thread only.
+     */
     void addCamera2Callbacks(CaptureRequest captureRequest,
             List<CameraCaptureSession.CaptureCallback> captureCallbacks) {
         List<CameraCaptureSession.CaptureCallback> existingCallbacks =
