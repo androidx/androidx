@@ -943,8 +943,6 @@ MissingNullability: androidx.core.graphics.drawable.IconCompat#setTintMode(andro
     Missing nullability on method `setTintMode` return
 MissingNullability: androidx.core.graphics.drawable.IconCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
     Missing nullability on parameter `mode` in method `setTintMode`
-MissingNullability: androidx.core.graphics.drawable.IconCompat#toBundle():
-    Missing nullability on method `toBundle` return
 MissingNullability: androidx.core.graphics.drawable.RoundedBitmapDrawable#getColorFilter():
     Missing nullability on method `getColorFilter` return
 MissingNullability: androidx.core.graphics.drawable.RoundedBitmapDrawable#onBoundsChange(android.graphics.Rect) parameter #0:
