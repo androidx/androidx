@@ -192,7 +192,8 @@ public class FakeCamera implements CameraInternal {
     public void onUseCaseActive(@NonNull UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " ACTIVE for camera " + mCameraId);
 
-        mUseCaseAttachState.setUseCaseActive(useCase);
+        mUseCaseAttachState.setUseCaseActive(useCase.getName() + useCase.hashCode(),
+                useCase.getSessionConfig());
         updateCaptureSessionConfig();
     }
 
@@ -201,7 +202,7 @@ public class FakeCamera implements CameraInternal {
     public void onUseCaseInactive(@NonNull UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " INACTIVE for camera " + mCameraId);
 
-        mUseCaseAttachState.setUseCaseInactive(useCase);
+        mUseCaseAttachState.setUseCaseInactive(useCase.getName() + useCase.hashCode());
         updateCaptureSessionConfig();
     }
 
@@ -210,7 +211,8 @@ public class FakeCamera implements CameraInternal {
     public void onUseCaseUpdated(@NonNull UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " UPDATED for camera " + mCameraId);
 
-        mUseCaseAttachState.updateUseCase(useCase);
+        mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
+                useCase.getSessionConfig());
         updateCaptureSessionConfig();
     }
 
@@ -218,7 +220,8 @@ public class FakeCamera implements CameraInternal {
     public void onUseCaseReset(@NonNull UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " RESET for camera " + mCameraId);
 
-        mUseCaseAttachState.updateUseCase(useCase);
+        mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
+                useCase.getSessionConfig());
         updateCaptureSessionConfig();
         openCaptureSession();
     }
@@ -235,7 +238,8 @@ public class FakeCamera implements CameraInternal {
 
         Log.d(TAG, "Use cases " + useCases + " ATTACHED for camera " + mCameraId);
         for (UseCase useCase : useCases) {
-            mUseCaseAttachState.setUseCaseAttached(useCase);
+            mUseCaseAttachState.setUseCaseAttached(useCase.getName() + useCase.hashCode(),
+                    useCase.getSessionConfig());
         }
 
         open();
@@ -255,10 +259,10 @@ public class FakeCamera implements CameraInternal {
 
         Log.d(TAG, "Use cases " + useCases + " DETACHED for camera " + mCameraId);
         for (UseCase useCase : useCases) {
-            mUseCaseAttachState.setUseCaseDetached(useCase);
+            mUseCaseAttachState.setUseCaseDetached(useCase.getName() + useCase.hashCode());
         }
 
-        if (mUseCaseAttachState.getAttachedUseCases().isEmpty()) {
+        if (mUseCaseAttachState.getAttachedSessionConfigs().isEmpty()) {
             close();
             return;
         }

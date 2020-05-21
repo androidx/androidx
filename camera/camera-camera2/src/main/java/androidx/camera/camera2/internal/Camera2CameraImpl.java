@@ -65,7 +65,6 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -164,7 +163,7 @@ final class Camera2CameraImpl implements CameraInternal {
     final Set<CaptureSession> mConfiguringForClose = new HashSet<>();
 
     // The metering repeating use case for ImageCapture only case.
-    private MeteringRepeating mMeteringRepeating;
+    private MeteringRepeatingSession mMeteringRepeatingSession;
 
     /**
      * Constructor for a camera.
@@ -556,8 +555,10 @@ final class Camera2CameraImpl implements CameraInternal {
             //  UseCase has been unbound. The try-catch is to retain existing behavior where an
             //  unbound UseCase is silently ignored.
             try {
-                mUseCaseAttachState.setUseCaseActive(useCase);
-                mUseCaseAttachState.updateUseCase(useCase);
+                mUseCaseAttachState.setUseCaseActive(useCase.getName() + useCase.hashCode(),
+                        useCase.getSessionConfig());
+                mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
+                        useCase.getSessionConfig());
                 updateCaptureSessionConfig();
             } catch (NullPointerException e) {
                 debugLog("Failed to set already detached use case active");
@@ -572,7 +573,7 @@ final class Camera2CameraImpl implements CameraInternal {
         Preconditions.checkNotNull(useCase);
         mExecutor.execute(() -> {
             debugLog("Use case " + useCase + " INACTIVE");
-            mUseCaseAttachState.setUseCaseInactive(useCase);
+            mUseCaseAttachState.setUseCaseInactive(useCase.getName() + useCase.hashCode());
             updateCaptureSessionConfig();
         });
     }
@@ -583,7 +584,8 @@ final class Camera2CameraImpl implements CameraInternal {
         Preconditions.checkNotNull(useCase);
         mExecutor.execute(() -> {
             debugLog("Use case " + useCase + " UPDATED");
-            mUseCaseAttachState.updateUseCase(useCase);
+            mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
+                    useCase.getSessionConfig());
             updateCaptureSessionConfig();
         });
     }
@@ -593,7 +595,8 @@ final class Camera2CameraImpl implements CameraInternal {
         Preconditions.checkNotNull(useCase);
         mExecutor.execute(() -> {
             debugLog("Use case " + useCase + " RESET");
-            mUseCaseAttachState.updateUseCase(useCase);
+            mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
+                    useCase.getSessionConfig());
 
             resetCaptureSession(/*abortInFlightCaptures=*/false);
             updateCaptureSessionConfig();
@@ -621,7 +624,9 @@ final class Camera2CameraImpl implements CameraInternal {
             return CallbackToFutureAdapter.<Boolean>getFuture(completer -> {
                 try {
                     mExecutor.execute(
-                            () -> completer.set(mUseCaseAttachState.isUseCaseAttached(useCase)));
+                            () -> completer.set(
+                                    mUseCaseAttachState.isUseCaseAttached(
+                                            useCase.getName() + useCase.hashCode())));
                 } catch (RejectedExecutionException e) {
                     completer.setException(new RuntimeException("Unable to check if use case is "
                             + "attached. Camera executor shut down."));
@@ -651,12 +656,13 @@ final class Camera2CameraImpl implements CameraInternal {
         // Figure out which use cases are not already attached and add them.
         List<UseCase> useCasesToAttach = new ArrayList<>();
         for (UseCase useCase : toAdd) {
-            if (!mUseCaseAttachState.isUseCaseAttached(useCase)) {
+            if (!mUseCaseAttachState.isUseCaseAttached(useCase.getName() + useCase.hashCode())) {
                 // TODO(b/150208070): Race condition where onUseCaseActive can be called, even
                 //  after a UseCase has been unbound. The try-catch is to retain existing behavior
                 //  where an unbound UseCase is silently ignored.
                 try {
-                    mUseCaseAttachState.setUseCaseAttached(useCase);
+                    mUseCaseAttachState.setUseCaseAttached(useCase.getName() + useCase.hashCode(),
+                            useCase.getSessionConfig());
 
                     useCasesToAttach.add(useCase);
                 } catch (NullPointerException e) {
@@ -743,8 +749,8 @@ final class Camera2CameraImpl implements CameraInternal {
     private void tryDetachUseCases(@NonNull Collection<UseCase> toRemove) {
         List<UseCase> useCasesToDetach = new ArrayList<>();
         for (UseCase useCase : toRemove) {
-            if (mUseCaseAttachState.isUseCaseAttached(useCase)) {
-                mUseCaseAttachState.setUseCaseDetached(useCase);
+            if (mUseCaseAttachState.isUseCaseAttached(useCase.getName() + useCase.hashCode())) {
+                mUseCaseAttachState.setUseCaseDetached(useCase.getName() + useCase.hashCode());
                 useCasesToDetach.add(useCase);
             }
         }
@@ -762,7 +768,7 @@ final class Camera2CameraImpl implements CameraInternal {
         // Check if need to add or remove MeetingRepeatingUseCase.
         addOrRemoveMeteringRepeatingUseCase();
 
-        boolean allUseCasesDetached = mUseCaseAttachState.getAttachedUseCases().isEmpty();
+        boolean allUseCasesDetached = mUseCaseAttachState.getAttachedSessionConfigs().isEmpty();
         if (allUseCasesDetached) {
             mCameraControlInternal.setActive(false);
             resetCaptureSession(/*abortInFlightCaptures=*/false);
@@ -791,8 +797,8 @@ final class Camera2CameraImpl implements CameraInternal {
         if (!sessionConfig.getSurfaces().isEmpty()) {
             if (captureConfig.getSurfaces().isEmpty()) {
                 // Create the MeteringRepeating UseCase
-                if (mMeteringRepeating == null) {
-                    mMeteringRepeating = new MeteringRepeating(this);
+                if (mMeteringRepeatingSession == null) {
+                    mMeteringRepeatingSession = new MeteringRepeatingSession();
                 }
                 addMeteringRepeating();
             } else {
@@ -813,19 +819,25 @@ final class Camera2CameraImpl implements CameraInternal {
         }
     }
 
-    private  void removeMeteringRepeating() {
-        if (mMeteringRepeating != null) {
-            mUseCaseAttachState.setUseCaseDetached(mMeteringRepeating);
-            notifyStateDetachedToUseCases(Arrays.asList(mMeteringRepeating));
-            mMeteringRepeating.clear();
-            mMeteringRepeating = null;
+    private void removeMeteringRepeating() {
+        if (mMeteringRepeatingSession != null) {
+            mUseCaseAttachState.setUseCaseDetached(
+                    mMeteringRepeatingSession.getName() + mMeteringRepeatingSession.hashCode());
+            mUseCaseAttachState.setUseCaseInactive(
+                    mMeteringRepeatingSession.getName() + mMeteringRepeatingSession.hashCode());
+            mMeteringRepeatingSession.clear();
+            mMeteringRepeatingSession = null;
         }
     }
 
-    private  void addMeteringRepeating() {
-        if (mMeteringRepeating != null) {
-            mUseCaseAttachState.setUseCaseAttached(mMeteringRepeating);
-            notifyStateAttachedToUseCases(Arrays.asList(mMeteringRepeating));
+    private void addMeteringRepeating() {
+        if (mMeteringRepeatingSession != null) {
+            mUseCaseAttachState.setUseCaseAttached(
+                    mMeteringRepeatingSession.getName() + mMeteringRepeatingSession.hashCode(),
+                    mMeteringRepeatingSession.getSessionConfig());
+            mUseCaseAttachState.setUseCaseActive(
+                    mMeteringRepeatingSession.getName() + mMeteringRepeatingSession.hashCode(),
+                    mMeteringRepeatingSession.getSessionConfig());
         }
     }
 
@@ -955,12 +967,12 @@ final class Camera2CameraImpl implements CameraInternal {
                 } else if (t instanceof CancellationException) {
                     debugLog("Unable to configure camera cancelled");
                 } else if (t instanceof DeferrableSurface.SurfaceClosedException) {
-                    UseCase useCase =
-                            findUseCaseForSurface(
+                    SessionConfig sessionConfig =
+                            findSessionConfigForSurface(
                                     ((DeferrableSurface.SurfaceClosedException) t)
                                             .getDeferrableSurface());
-                    if (useCase != null) {
-                        postSurfaceClosedError(useCase);
+                    if (sessionConfig != null) {
+                        postSurfaceClosedError(sessionConfig);
                     }
                 } else if (t instanceof TimeoutException) {
                     // TODO: Consider to handle the timeout error.
@@ -1006,11 +1018,10 @@ final class Camera2CameraImpl implements CameraInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
     @ExecutedBy("mExecutor")
-    UseCase findUseCaseForSurface(@NonNull DeferrableSurface surface) {
-        for (UseCase useCase : mUseCaseAttachState.getAttachedUseCases()) {
-            SessionConfig sessionConfig = Preconditions.checkNotNull(useCase.getSessionConfig());
+    SessionConfig findSessionConfigForSurface(@NonNull DeferrableSurface surface) {
+        for (SessionConfig sessionConfig : mUseCaseAttachState.getAttachedSessionConfigs()) {
             if (sessionConfig.getSurfaces().contains(surface)) {
-                return useCase;
+                return sessionConfig;
             }
         }
 
@@ -1018,15 +1029,14 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void postSurfaceClosedError(@NonNull UseCase useCase) {
+    void postSurfaceClosedError(@NonNull SessionConfig sessionConfig) {
         Executor executor = CameraXExecutors.mainThreadExecutor();
-        SessionConfig sessionConfigError = Preconditions.checkNotNull(useCase.getSessionConfig());
         List<SessionConfig.ErrorListener> errorListeners =
-                sessionConfigError.getErrorListeners();
+                sessionConfig.getErrorListeners();
         if (!errorListeners.isEmpty()) {
             SessionConfig.ErrorListener errorListener = errorListeners.get(0);
             debugLog("Posting surface closed", new Throwable());
-            executor.execute(() -> errorListener.onError(sessionConfigError,
+            executor.execute(() -> errorListener.onError(sessionConfig,
                     SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET));
         }
     }
@@ -1081,10 +1091,8 @@ final class Camera2CameraImpl implements CameraInternal {
             return false;
         }
 
-        Collection<UseCase> activeUseCases = mUseCaseAttachState.getActiveAndAttachedUseCases();
-
-        for (UseCase useCase : activeUseCases) {
-            SessionConfig sessionConfig = Preconditions.checkNotNull(useCase.getSessionConfig());
+        for (SessionConfig sessionConfig :
+                mUseCaseAttachState.getActiveAndAttachedSessionConfigs()) {
             // Query the repeating surfaces attached to this use case, then add them to the builder.
             List<DeferrableSurface> surfaces =
                     sessionConfig.getRepeatingCaptureConfig().getSurfaces();
