@@ -41,7 +41,10 @@ fun SQLiteDatabase.insertValues(table: Table, vararg values: String) {
     ) { it })
 }
 
-fun Database.createInstance(temporaryFolder: TemporaryFolder): SQLiteDatabase {
+fun Database.createInstance(
+    temporaryFolder: TemporaryFolder,
+    writeAheadLoggingEnabled: Boolean? = null
+): SQLiteDatabase {
     val path = if (name == null) null else
         File(temporaryFolder.root, name)
             .also { it.createNewFile() } // can handle an existing file
@@ -52,6 +55,8 @@ fun Database.createInstance(temporaryFolder: TemporaryFolder): SQLiteDatabase {
         override fun onCreate(db: SQLiteDatabase?) = Unit
         override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) = Unit
     }
+
+    writeAheadLoggingEnabled?.let { openHelper.setWriteAheadLoggingEnabled(it) }
     val db = openHelper.readableDatabase
     tables.forEach { t -> db.addTable(t) }
     return db
