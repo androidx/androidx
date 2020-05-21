@@ -451,7 +451,7 @@ public final class InlineSuggestionUi {
         static final String HINT_INLINE_SUBTITLE = "inline_subtitle";
         static final String HINT_INLINE_START_ICON = "inline_start_icon";
         static final String HINT_INLINE_END_ICON = "inline_end_icon";
-        static final String HINT_INLINE_ATTRIBUTION_INTENT = "inline_attribution_intent";
+        static final String HINT_INLINE_ATTRIBUTION_INTENT = "inline_attribution";
         static final String HINT_INLINE_CONTENT_DESCRIPTION = "inline_content_description";
 
         @Nullable
