@@ -16,6 +16,31 @@
 
 package androidx.fragment.testapp
 
+import android.content.Intent
+import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.testapp.doubleTransitionBug.DoubleTransitionBugActivity
 
-class TransitionTestsFragment : Fragment(R.layout.transition_fragment)
+class TransitionTestsFragment : Fragment(R.layout.transition_fragment) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        addButton("Double Transition Bug", DoubleTransitionBugActivity::class.java)
+    }
+}
+
+fun <T : FragmentActivity> Fragment.addButton(text: String, clazz: Class<T>) {
+    (requireView() as LinearLayout).addView(Button(context).apply {
+        this.text = text
+
+        setOnClickListener {
+            startActivity(Intent(activity, clazz))
+        }
+        layoutParams = LinearLayout.LayoutParams(-1, 0).apply {
+            weight = 1f
+        }
+    })
+}
