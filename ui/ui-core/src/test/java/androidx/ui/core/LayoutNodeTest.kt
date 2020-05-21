@@ -18,12 +18,13 @@ package androidx.ui.core
 import androidx.test.filters.SmallTest
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.core.pointerinput.resize
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
+import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
@@ -37,7 +38,6 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -664,14 +664,14 @@ class LayoutNodeTest {
         val drawModifier = Modifier.drawBehind { }
 
         layoutNode.modifier = drawModifier
-        val oldLayoutNodeWrapper = layoutNode.layoutNodeWrapper
+        val oldLayoutNodeWrapper = layoutNode.outerLayoutNodeWrapper
         assertFalse(oldLayoutNodeWrapper.isAttached)
 
         layoutNode.attach(mockOwner())
         assertTrue(oldLayoutNodeWrapper.isAttached)
 
         layoutNode.modifier = Modifier.drawBehind { }
-        val newLayoutNodeWrapper = layoutNode.layoutNodeWrapper
+        val newLayoutNodeWrapper = layoutNode.outerLayoutNodeWrapper
         assertTrue(newLayoutNodeWrapper.isAttached)
         assertFalse(oldLayoutNodeWrapper.isAttached)
     }
@@ -691,7 +691,7 @@ class LayoutNodeTest {
         )
         assertEquals(
             layoutNode2.innerLayoutNodeWrapper,
-            layoutNode.layoutNodeWrapper.parentCoordinates
+            layoutNode.outerLayoutNodeWrapper.parentCoordinates
         )
     }
 
@@ -1573,30 +1573,47 @@ class LayoutNodeTest {
         return Triple(layoutNode, child1, child2)
     }
 
-    private fun mockOwner(
-        position: IntPxPosition = IntPxPosition.Origin,
-        targetRoot: LayoutNode = LayoutNode()
-    ): Owner =
-        mock {
-            on { calculatePosition() } doReturn position
-            on { root } doReturn targetRoot
-        }
-
-    private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier) =
-        LayoutNode().apply {
-            this.modifier = modifier
-            layoutDirection = LayoutDirection.Ltr
-            resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
-            var wrapper: LayoutNodeWrapper? = layoutNodeWrapper
-            while (wrapper != null) {
-                wrapper.measureResult = innerLayoutNodeWrapper.measureResult
-                wrapper = (wrapper as? LayoutNodeWrapper)?.wrapped
-            }
-            place(x.ipx, y.ipx)
-        }
-
     private fun ZeroSizedLayoutNode() = LayoutNode(0, 0, 0, 0)
 
     private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
         PointerInputModifier
 }
+
+internal fun mockOwner(
+    position: IntPxPosition = IntPxPosition.Origin,
+    targetRoot: LayoutNode = LayoutNode()
+): Owner =
+    @Suppress("UNCHECKED_CAST")
+    mock {
+        on { calculatePosition() } doReturn position
+        on { root } doReturn targetRoot
+        on { observeMeasureModelReads(any(), any()) } doAnswer {
+            (it.arguments[1] as () -> Unit).invoke()
+        }
+        on { observeLayoutModelReads(any(), any()) } doAnswer {
+            (it.arguments[1] as () -> Unit).invoke()
+        }
+    }
+
+internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier) =
+    LayoutNode().apply {
+        this.modifier = modifier
+        measureBlocks = object : LayoutNode.NoIntrinsicsMeasureBlocks("not supported") {
+            override fun measure(
+                measureScope: MeasureScope,
+                measurables: List<Measurable>,
+                constraints: Constraints,
+                layoutDirection: LayoutDirection
+            ): MeasureScope.MeasureResult =
+                measureScope.layout(x2.ipx - x.ipx, y2.ipx - y.ipx) {}
+        }
+        attach(mockOwner())
+        remeasure(Constraints(), layoutDirection)
+        var wrapper: LayoutNodeWrapper? = outerLayoutNodeWrapper
+        while (wrapper != null) {
+            wrapper.measureResult = innerLayoutNodeWrapper.measureResult
+            wrapper = (wrapper as? LayoutNodeWrapper)?.wrapped
+        }
+        place(x.ipx, y.ipx)
+        detach()
+    }

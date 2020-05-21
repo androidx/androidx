@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import android.util.Log
+import androidx.ui.core.LayoutNode.LayoutState
 import androidx.ui.util.fastForEach
 
 /**
@@ -26,7 +27,6 @@ import androidx.ui.util.fastForEach
  */
 internal class LayoutTreeConsistencyChecker(
     private val root: LayoutNode,
-    private val duringMeasureLayout: () -> Boolean,
     private val relayoutNodes: DepthSortedSet,
     private val postponedMeasureRequests: List<LayoutNode>
 ) {
@@ -52,43 +52,18 @@ internal class LayoutTreeConsistencyChecker(
     }
 
     private fun LayoutNode.consistentLayoutState(): Boolean {
-        if (this === root && needsRemeasure) {
-            return relayoutNodes.contains(this)
-        }
-        val parent = parent
-        if (parent != null && isPlaced) {
-            if (needsRelayout) {
-                if (needsRemeasure) {
-                    // needsRelayout and needRemeasure both true are not expected
-                    return false
-                }
-                if (parent.needsRelayout || parent.needsRemeasure || parent.isMeasuring) {
-                    // relayout for the node will be done during the parent relayout which
-                    // is already scheduled or will happen after the parent's measuring
-                    return true
-                }
-                // relayout is scheduled
-                return relayoutNodes.contains(this)
+        if (isPlaced) {
+            if (layoutState == LayoutState.NeedsRemeasure &&
+                postponedMeasureRequests.contains(this)
+            ) {
+                // this node is waiting to be measured by parent or if this will not happen
+                // `onRequestMeasure` will be called for all items in `postponedMeasureRequests`
+                return true
             }
-            if (needsRemeasure) {
-                if (postponedMeasureRequests.contains(this)) {
-                    // this node is waiting to be measured by parent or if this will not happen
-                    // `onRequestMeasure` will be called for all items in `postponedMeasureRequests`
-                    return true
-                }
-                if (parent.isMeasuring || parent.isLayingOut) {
-                    return parent.measureIteration != measureIteration
-                } else {
-                    if (affectsParentSize) {
-                        // node and parent both not yet laid out -> parent remeasure
-                        // should be scheduled
-                        return parent.needsRemeasure
-                    } else {
-                        // node is not affecting parent size and parent relayout(or
-                        // remeasure, as it includes relayout) is scheduled
-                        return parent.needsRelayout || parent.needsRemeasure
-                    }
-                }
+            if (layoutState == LayoutState.NeedsRemeasure ||
+                layoutState == LayoutState.NeedsRelayout) {
+                // remeasure or relayout is scheduled
+                return relayoutNodes.contains(this)
             }
         }
         return true
@@ -97,13 +72,9 @@ internal class LayoutTreeConsistencyChecker(
     private fun nodeToString(node: LayoutNode): String {
         return with(StringBuilder()) {
             append(node)
-            if (node.needsRemeasure) append("[needsRemeasure]")
-            if (node.needsRelayout) append("[needsRelayout]")
-            if (node.isMeasuring) append("[isMeasuring]")
-            if (duringMeasureLayout()) append("[#${node.measureIteration}]")
-            if (node.isLayingOut) append("[isLayingOut]")
+            append("[${node.layoutState}]")
             if (!node.isPlaced) append("[!isPlaced]")
-            if (node.affectsParentSize) append("[affectsParentSize]")
+            append("[measuredByParent=${node.measuredByParent}]")
             if (!node.consistentLayoutState()) {
                 append("[INCONSISTENT]")
             }

@@ -76,7 +76,7 @@ internal abstract class LayoutNodeWrapper(
     override val parentCoordinates: LayoutCoordinates?
         get() {
             check(isAttached) { ExpectAttachedLayoutCoordinates }
-            return layoutNode.layoutNodeWrapper.wrappedBy
+            return layoutNode.outerLayoutNodeWrapper.wrappedBy
         }
 
     // True when the wrapper is running its own placing block to obtain the position of the
@@ -327,7 +327,7 @@ internal abstract class LayoutNodeWrapper(
 
         var parentLayoutNode = layoutNode.parent
         while (parentLayoutNode != null) {
-            focusParent = parentLayoutNode.layoutNodeWrapper.findLastFocusWrapper()
+            focusParent = parentLayoutNode.outerLayoutNodeWrapper.findLastFocusWrapper()
             if (focusParent != null) {
                 return focusParent
             }
@@ -350,7 +350,7 @@ internal abstract class LayoutNodeWrapper(
 
         var parentLayoutNode = layoutNode.parent
         while (parentLayoutNode != null) {
-            keyInputParent = parentLayoutNode.layoutNodeWrapper.findLastKeyInputWrapper()
+            keyInputParent = parentLayoutNode.outerLayoutNodeWrapper.findLastKeyInputWrapper()
             if (keyInputParent != null) {
                 return keyInputParent
             }

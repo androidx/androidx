@@ -275,7 +275,7 @@ class SemanticsNode internal constructor(
  */
 internal val LayoutNode.outerSemantics: SemanticsWrapper?
     get() {
-        return (this as? LayoutNode)?.layoutNodeWrapper?.nearestSemantics
+        return (this as? LayoutNode)?.outerLayoutNodeWrapper?.nearestSemantics
     }
 
 /**
