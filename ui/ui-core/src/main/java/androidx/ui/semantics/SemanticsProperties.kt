@@ -16,6 +16,8 @@
 
 package androidx.ui.semantics
 
+import androidx.ui.text.AnnotatedString
+import androidx.ui.text.annotatedString
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -25,7 +27,7 @@ import kotlin.reflect.KProperty
 object SemanticsProperties {
     /**
      * Developer-set content description of the semantics node. If this is not set, accessibility
-     * services will present the text of this node as content part.
+     * services will present the [Text] of this node as content part.
      *
      * @see SemanticsPropertyReceiver.accessibilityLabel
      */
@@ -77,9 +79,6 @@ object SemanticsProperties {
      */
     val IsPopup = SemanticsPropertyKey<Boolean>("IsPopup")
 
-    // TODO(b/151228491): TextDirection needs to be in core for platform use
-    // val TextDirection = SemanticsPropertyKey<TextDirection>("TextDirection")
-
     // TODO(b/138172781): Move to FoundationSemanticsProperties
     /**
      * Test tag attached to this semantics node.
@@ -87,6 +86,30 @@ object SemanticsProperties {
      * @see SemanticsPropertyReceiver.testTag
      */
     val TestTag = SemanticsPropertyKey<String>("TestTag")
+
+    /**
+     * Text of the semantics node. It must be the actual text displayed by this component instead
+     * of developer-set content description.
+     *
+     * @see SemanticsPropertyReceiver.text
+     */
+    val Text = object : SemanticsPropertyKey<AnnotatedString>("Text") {
+        override fun merge(
+            existingValue: AnnotatedString,
+            newValue: AnnotatedString
+        ): AnnotatedString {
+            // TODO(b/138173613): Needs TextDirection, probably needs to pass both nodes
+            //  to retrieve it
+            return annotatedString {
+                append(existingValue)
+                append("\n")
+                append(newValue)
+            }
+        }
+    }
+
+    // TODO(b/151228491): TextDirection needs to be in core for platform use
+    // val TextDirection = SemanticsPropertyKey<TextDirection>("TextDirection")
 }
 
 /**
@@ -297,6 +320,13 @@ var SemanticsPropertyReceiver.popup by SemanticsProperties.IsPopup
  * @see SemanticsPropertyReceiver.testTag
  */
 var SemanticsPropertyReceiver.testTag by SemanticsProperties.TestTag
+
+/**
+ * Text of the semantics node. It must be real text instead of developer-set content description.
+ *
+ * @see SemanticsProperties.Text
+ */
+var SemanticsPropertyReceiver.text by SemanticsProperties.Text
 
 // var SemanticsPropertyReceiver.textDirection by SemanticsProperties.TextDirection
 

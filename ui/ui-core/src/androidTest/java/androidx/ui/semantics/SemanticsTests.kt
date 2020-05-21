@@ -32,8 +32,9 @@ import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findAllByText
 import androidx.ui.test.findByTag
-import androidx.ui.test.findByText
 import androidx.ui.test.assert
+import androidx.ui.test.findAllByLabel
+import androidx.ui.test.findByLabel
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.IntPx
@@ -127,13 +128,13 @@ class SemanticsTests {
             }
         }
 
-        findAllByText(label).assertCountEquals(1)
+        findAllByLabel(label).assertCountEquals(1)
 
         runOnIdleCompose {
             showSubtree.value = false
         }
 
-        findAllByText(label).assertCountEquals(0)
+        findAllByLabel(label).assertCountEquals(0)
     }
 
     @Test
@@ -231,7 +232,7 @@ class SemanticsTests {
         }
 
         findByTag(TestTag).assertDoesNotHaveProperty(SemanticsProperties.AccessibilityLabel)
-        findByText(label) // assert exists
+        findByLabel(label) // assert exists
     }
 
     @Test
