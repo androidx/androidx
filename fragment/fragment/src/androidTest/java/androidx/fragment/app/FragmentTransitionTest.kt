@@ -79,7 +79,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         // enter transition
         val fragment = setupInitialFragment()
         val blue = activityRule.findBlue()
-        val green = activityRule.findBlue()
+        val green = activityRule.findGreen()
 
         // exit transition
         fragmentManager.beginTransaction()
