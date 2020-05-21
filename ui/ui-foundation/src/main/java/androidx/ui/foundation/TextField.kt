@@ -17,6 +17,8 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
+import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
@@ -57,8 +59,11 @@ import androidx.ui.unit.dp
  * @param selection the selection range. If the selection is collapsed, it represents cursor
  * location. Do not specify outside of the text buffer.
  */
+@Immutable
 data class TextFieldValue(
+    @Stable
     val text: String = "",
+    @Stable
     val selection: TextRange = TextRange(0, 0)
 ) {
     companion object {

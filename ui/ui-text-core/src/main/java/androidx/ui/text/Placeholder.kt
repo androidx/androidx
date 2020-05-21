@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.compose.Immutable
 import androidx.ui.unit.TextUnit
 
 /**
@@ -31,6 +32,7 @@ import androidx.ui.unit.TextUnit
  * Check [PlaceholderVerticalAlign] for more information.
  * @throws IllegalArgumentException if [TextUnit.Inherit] is passed to [width] or [height].
  */
+@Immutable
 data class Placeholder(
     val width: TextUnit,
     val height: TextUnit,

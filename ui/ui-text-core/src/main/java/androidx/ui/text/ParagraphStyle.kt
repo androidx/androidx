@@ -17,6 +17,7 @@
 package androidx.ui.text
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
@@ -66,6 +67,7 @@ data class ParagraphStyle constructor(
      *
      * If the given paragraph style is null, returns this paragraph style.
      */
+    @Stable
     fun merge(other: ParagraphStyle? = null): ParagraphStyle {
         if (other == null) return this
 
@@ -84,6 +86,7 @@ data class ParagraphStyle constructor(
     /**
      * Plus operator overload that applies a [merge].
      */
+    @Stable
     operator fun plus(other: ParagraphStyle): ParagraphStyle = this.merge(other)
 }
 
@@ -100,6 +103,7 @@ data class ParagraphStyle constructor(
  * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
+@Stable
 fun lerp(start: ParagraphStyle, stop: ParagraphStyle, fraction: Float): ParagraphStyle {
     return ParagraphStyle(
         textAlign = lerpDiscrete(start.textAlign, stop.textAlign, fraction),

@@ -16,6 +16,8 @@
 
 package androidx.ui.core
 
+import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
@@ -45,6 +47,7 @@ import androidx.ui.unit.px
  * @param previous The [PointerInputData] that represents the previous state of this pointer.
  * @param consumed Which aspects of this change have been consumed.
  */
+@Immutable
 data class PointerInputChange(
     val id: PointerId,
     val current: PointerInputData,
@@ -68,9 +71,13 @@ inline class PointerId(val value: Long)
  * the owning [PointerInputChange] is being dispatched to.
  * @param down True if the at [uptime] the pointer was contacting the screen.
  */
+@Immutable
 data class PointerInputData(
+    @Stable
     val uptime: Uptime? = null,
+    @Stable
     val position: PxPosition? = null,
+    @Stable
     val down: Boolean = false
 )
 
@@ -80,6 +87,7 @@ data class PointerInputData(
  * @param positionChange The amount of change to the position that has been consumed.
  * @param downChange True if a change to down or up has been consumed.
  */
+@Immutable
 data class ConsumedData(
     val positionChange: PxPosition = PxPosition.Origin,
     val downChange: Boolean = false

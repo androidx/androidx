@@ -17,6 +17,7 @@
 package androidx.ui.text.style
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.util.lerp
 
 /**
@@ -34,16 +35,19 @@ inline class BaselineShift(val multiplier: Float) {
         /**
          * Default baseline shift for superscript.
          */
+        @Stable
         val Superscript = BaselineShift(0.5f)
 
         /**
          * Default baseline shift for subscript
          */
+        @Stable
         val Subscript = BaselineShift(-0.5f)
 
         /**
          * Constant for no baseline shift.
          */
+        @Stable
         val None = BaselineShift(0.0f)
     }
 }
@@ -51,6 +55,7 @@ inline class BaselineShift(val multiplier: Float) {
 /**
  * Linearly interpolate two [BaselineShift]s.
  */
+@Stable
 fun lerp(start: BaselineShift, stop: BaselineShift, fraction: Float): BaselineShift {
     return BaselineShift(
         lerp(

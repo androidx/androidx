@@ -17,11 +17,13 @@
 package androidx.ui.core
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.unit.Density
 
 /**
  * Tag the element with [tag] to identify the element within its parent.
  */
+@Stable
 fun Modifier.tag(tag: Any) = this + LayoutTag(tag)
 
 /**

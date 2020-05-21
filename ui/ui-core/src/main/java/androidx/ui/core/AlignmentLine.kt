@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import androidx.compose.Immutable
 import androidx.ui.unit.IntPx
 
 /**
@@ -46,6 +47,7 @@ import androidx.ui.unit.IntPx
  * @param merger Defines the position of an alignment line inherited from more than one child.
  * @param horizontal Whether the alignment line is horizontal or vertical.
  */
+@Immutable
 sealed class AlignmentLine(
     internal val merger: (IntPx, IntPx) -> IntPx
 )

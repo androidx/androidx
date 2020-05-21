@@ -22,6 +22,7 @@ import androidx.ui.util.annotation.FloatRange
 import androidx.ui.util.annotation.IntRange
 import androidx.ui.util.annotation.Size
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.graphics.colorspace.ColorModel
 import androidx.ui.graphics.colorspace.ColorSpace
 import androidx.ui.graphics.colorspace.ColorSpaces
@@ -121,6 +122,7 @@ inline class Color(val value: ULong) {
      *
      * @return A non-null instance of [ColorSpace]
      */
+    @Stable
     val colorSpace: ColorSpace
         get() = ColorSpaces.getColorSpace((value and 0x3fUL).toInt())
 
@@ -161,6 +163,7 @@ inline class Color(val value: ULong) {
      * @see blue
      * @see green
      */
+    @Stable
     val red: Float
         get() {
             return if ((value and 0x3fUL) == 0UL) {
@@ -183,6 +186,7 @@ inline class Color(val value: ULong) {
      * @see red
      * @see blue
      */
+    @Stable
     val green: Float
         get() {
             return if ((value and 0x3fUL) == 0UL) {
@@ -205,6 +209,7 @@ inline class Color(val value: ULong) {
      * @see red
      * @see green
      */
+    @Stable
     val blue: Float
         get() {
             return if ((value and 0x3fUL) == 0UL) {
@@ -222,6 +227,7 @@ inline class Color(val value: ULong) {
      * @see green
      * @see blue
      */
+    @Stable
     val alpha: Float
         get() {
             return if ((value and 0x3fUL) == 0UL) {
@@ -231,20 +237,26 @@ inline class Color(val value: ULong) {
             }
         }
 
+    @Stable
     operator fun component1(): Float = red
 
+    @Stable
     operator fun component2(): Float = green
 
+    @Stable
     operator fun component3(): Float = blue
 
+    @Stable
     operator fun component4(): Float = alpha
 
+    @Stable
     operator fun component5(): ColorSpace = colorSpace
 
     /**
      * Copies the existing color, changing only the provided values. The [ColorSpace][colorSpace]
      * of the returned [Color] is the same as this [colorSpace].
      */
+    @Stable
     fun copy(
         alpha: Float = this.alpha,
         red: Float = this.red,
@@ -276,17 +288,29 @@ inline class Color(val value: ULong) {
     }
 
     companion object {
+        @Stable
         val Black = Color(0xFF000000)
+        @Stable
         val DarkGray = Color(0xFF444444)
+        @Stable
         val Gray = Color(0xFF888888)
+        @Stable
         val LightGray = Color(0xFFCCCCCC)
+        @Stable
         val White = Color(0xFFFFFFFF)
+        @Stable
         val Red = Color(0xFFFF0000)
+        @Stable
         val Green = Color(0xFF00FF00)
+        @Stable
         val Blue = Color(0xFF0000FF)
+        @Stable
         val Yellow = Color(0xFFFFFF00)
+        @Stable
         val Cyan = Color(0xFF00FFFF)
+        @Stable
         val Magenta = Color(0xFFFF00FF)
+        @Stable
         val Transparent = Color(0x00000000)
         /**
          * Because Color is an inline class, this represents an unset value
@@ -295,6 +319,7 @@ inline class Color(val value: ULong) {
          * [isUnset] to check for the unset value or [isSet] for any color that isn't
          * [Unset].
          */
+        @Stable
         val Unset = Color(0f, 0f, 0f, 0f, ColorSpaces.Unset)
     }
 }
@@ -305,6 +330,7 @@ inline class Color(val value: ULong) {
  * the default [alpha] is `1.0` (opaque). [colorSpace] must have a [ColorSpace.componentCount] of
  * 3.
  */
+@Stable
 fun Color(
     red: Float,
     green: Float,
@@ -359,6 +385,7 @@ fun Color(
  * @param color The ARGB color int to create a <code>Color</code> from.
  * @return A non-null instance of {@link Color}
  */
+@Stable
 fun Color(@ColorInt color: Int): Color {
     return Color(value = color.toULong() shl 32)
 }
@@ -375,6 +402,7 @@ fun Color(@ColorInt color: Int): Color {
  * from
  * @return A non-null instance of {@link Color}
  */
+@Stable
 fun Color(color: Long): Color {
     return Color(value = (color.toULong() and 0xffffffffUL) shl 32)
 }
@@ -386,6 +414,7 @@ fun Color(color: Long): Color {
  *
  * @return A non-null instance of {@link Color}
  */
+@Stable
 fun Color(
     @IntRange(from = 0, to = 0xFF) red: Int,
     @IntRange(from = 0, to = 0xFF) green: Int,
@@ -404,6 +433,7 @@ fun Color(
  * between the two. The [ColorSpace] of the result is always the [ColorSpace][Color.colorSpace]
  * of [stop].
  */
+@Stable
 fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: Float): Color {
     val linearColorSpace = ColorSpaces.LinearExtendedSrgb
     val startColor = start.convert(linearColorSpace)
@@ -440,6 +470,7 @@ fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: 
  * @return the [Color] representing [this] composited on top of [background], converted to the
  * color space of [background].
  */
+@Stable
 fun Color.compositeOver(background: Color): Color {
     val fg = this.convert(background.colorSpace)
 
@@ -489,6 +520,7 @@ private fun Color.getComponents(): FloatArray = floatArrayOf(red, green, blue, a
  * @throws IllegalArgumentException If the this color's color space
  * does not use the [RGB][ColorModel.Rgb] color model
  */
+@Stable
 fun Color.luminance(): Float {
     val colorSpace = colorSpace
     require(colorSpace.model === ColorModel.Rgb) {
@@ -515,6 +547,7 @@ private fun saturate(v: Float): Float {
  *
  * @return An ARGB color in the sRGB color space
  */
+@Stable
 @ColorInt
 fun Color.toArgb(): Int {
     val colorSpace = colorSpace
@@ -535,11 +568,13 @@ fun Color.toArgb(): Int {
 /**
  * `false` when this is [Color.Unset].
  */
+@Stable
 inline val Color.isSet: Boolean get() = value != Color.Unset.value
 
 /**
  * `true` when this is [Color.Unset].
  */
+@Stable
 inline val Color.isUnset: Boolean get() = value == Color.Unset.value
 
 /**

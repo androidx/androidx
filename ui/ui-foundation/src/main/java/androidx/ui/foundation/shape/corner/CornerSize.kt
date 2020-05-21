@@ -19,12 +19,15 @@ package androidx.ui.foundation.shape.corner
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.ui.geometry.Size
+import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 
 /**
  * Defines size of a corner in pixels. For example for rounded shape it can be a corner radius.
  */
+@Immutable
 interface CornerSize {
     /**
      * Converts the [CornerSize] to pixels.
@@ -41,6 +44,7 @@ interface CornerSize {
  * Creates [CornerSize] with provided size.
  * @param size the corner size defined in [Dp].
  */
+@Stable
 fun CornerSize(size: Dp): CornerSize = DpCornerSize(size)
 
 private data class DpCornerSize(private val size: Dp) : CornerSize {
@@ -52,6 +56,7 @@ private data class DpCornerSize(private val size: Dp) : CornerSize {
  * Creates [CornerSize] with provided size.
  * @param size the corner size defined in pixels.
  */
+@Stable
 fun CornerSize(size: Float): CornerSize = PxCornerSize(size)
 
 private data class PxCornerSize(private val size: Float) : CornerSize {
@@ -63,6 +68,7 @@ private data class PxCornerSize(private val size: Float) : CornerSize {
  * @param percent the corner size defined in percents of the shape's smaller side.
  * Can't be negative or larger then 50 percents.
  */
+@Stable
 fun CornerSize(@IntRange(from = 0, to = 50) percent: Int): CornerSize =
     PercentCornerSize(percent.toFloat())
 
@@ -87,6 +93,7 @@ private data class PercentCornerSize(
 /**
  * [CornerSize] always equals to zero.
  */
+@Stable
 val ZeroCornerSize: CornerSize = object : CornerSize {
     override fun toPx(shapeSize: Size, density: Density) = 0.0f
 }

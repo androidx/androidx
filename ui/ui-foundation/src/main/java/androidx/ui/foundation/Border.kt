@@ -17,6 +17,7 @@
 package androidx.ui.foundation
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
@@ -37,4 +38,5 @@ data class Border(val size: Dp, val brush: Brush)
  * @param size size of the border in [Dp]. Use [Dp.Hairline] for one-pixel border.
  * @param color color to paint the border with
  */
+@Stable
 fun Border(size: Dp, color: Color) = Border(size, SolidColor(color))

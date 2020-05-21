@@ -16,6 +16,8 @@
 
 package androidx.ui.geometry
 
+import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.util.lerp
 import androidx.ui.util.toStringAsFixed
 import kotlin.math.absoluteValue
@@ -34,19 +36,25 @@ import kotlin.math.min
  * Rect myRect = const Offset(1.0, 2.0) & const Size(3.0, 4.0);
  * ```
  */
+@Immutable
 data class Rect(
         // The offset of the left edge of this rectangle from the x axis.
+    @Stable
     val left: Float,
         // The offset of the top edge of this rectangle from the y axis.
+    @Stable
     val top: Float,
         // The offset of the right edge of this rectangle from the x axis.
+    @Stable
     val right: Float,
         // The offset of the bottom edge of this rectangle from the y axis.
+    @Stable
     val bottom: Float
 ) {
 
     companion object {
         /** Construct a rectangle from its left, top, right, and bottom edges. */
+        @Stable
         fun fromLTRB(left: Float, top: Float, right: Float, bottom: Float): Rect {
             return Rect(left, top, right, bottom)
         }
@@ -58,6 +66,7 @@ data class Rect(
          * To construct a [Rect] from an [Offset] and a [Size], you can use the
          * rectangle constructor operator `&`. See [Offset.&].
          */
+        @Stable
         fun fromLTWH(left: Float, top: Float, width: Float, height: Float): Rect {
             return Rect(left, top, left + width, top + height)
         }
@@ -67,6 +76,7 @@ data class Rect(
          *
          * The `center` argument is assumed to be an offset from the origin.
          */
+        @Stable
         fun fromCircle(center: Offset, radius: Float): Rect {
             return Rect(
                 center.dx - radius,
@@ -80,6 +90,7 @@ data class Rect(
          * Construct the smallest rectangle that encloses the given offsets, treating
          * them as vectors from the origin.
          */
+        @Stable
         fun fromPoints(a: Offset, b: Offset): Rect {
             return Rect(
                 min(a.dx, b.dx),
@@ -90,6 +101,7 @@ data class Rect(
         }
 
         /** A rectangle with left, top, right, and bottom edges all at zero. */
+        @Stable
         val zero: Rect = Rect(0.0f, 0.0f, 0.0f, 0.0f)
 
         val _giantScalar: Float = 1e7f // matches kGiantRect from default_layer_builder.cc
@@ -110,9 +122,11 @@ data class Rect(
     }
 
     /** The distance between the left and right edges of this rectangle. */
+    @Stable
     val width = right - left
 
     /** The distance between the top and bottom edges of this rectangle. */
+    @Stable
     val height = bottom - top
 
     // static const int _kDataSize = 4;
@@ -132,6 +146,7 @@ data class Rect(
 
     /** Whether any of the coordinates of this rectangle are equal to positive infinity. */
     // included for consistency with Offset and Size
+    @Stable
     fun isInfinite(): Boolean {
         return left >= Float.POSITIVE_INFINITY ||
                 top >= Float.POSITIVE_INFINITY ||
@@ -140,6 +155,7 @@ data class Rect(
     }
 
     /** Whether all coordinates of this rectangle are finite. */
+    @Stable
     fun isFinite(): Boolean =
             left.isFinite() &&
             top.isFinite() &&
@@ -150,6 +166,7 @@ data class Rect(
      * Whether this rectangle encloses a non-zero area. Negative areas are
      * considered empty.
      */
+    @Stable
     fun isEmpty(): Boolean = left >= right || top >= bottom
 
     /**
@@ -158,6 +175,7 @@ data class Rect(
      * To translate a rectangle by separate x and y components rather than by an
      * [Offset], consider [translate].
      */
+    @Stable
     fun shift(offset: Offset): Rect {
         return fromLTRB(left + offset.dx, top + offset.dy, right + offset.dx, bottom + offset.dy)
     }
@@ -169,6 +187,7 @@ data class Rect(
      * To translate a rectangle by an [Offset] rather than by separate x and y
      * components, consider [shift].
      */
+    @Stable
     fun translate(translateX: Float, translateY: Float): Rect {
         return fromLTRB(
             left + translateX,
@@ -179,11 +198,13 @@ data class Rect(
     }
 
     /** Returns a new rectangle with edges moved outwards by the given delta. */
+    @Stable
     fun inflate(delta: Float): Rect {
         return fromLTRB(left - delta, top - delta, right + delta, bottom + delta)
     }
 
     /** Returns a new rectangle with edges moved inwards by the given delta. */
+    @Stable
     fun deflate(delta: Float): Rect = inflate(-delta)
 
     /**
@@ -192,6 +213,7 @@ data class Rect(
      * for this to be meaningful. If the two rectangles do not overlap,
      * then the resulting Rect will have a negative width or height.
      */
+    @Stable
     fun intersect(other: Rect): Rect {
         return fromLTRB(
             max(left, other.left),
@@ -347,6 +369,7 @@ data class Rect(
  * Values for [fraction] are usually obtained from an [Animation<Float>], such as
  * an `AnimationController`.
  */
+@Stable
 fun lerp(start: Rect, stop: Rect, fraction: Float): Rect {
     return Rect.fromLTRB(
         lerp(start.left, stop.left, fraction),

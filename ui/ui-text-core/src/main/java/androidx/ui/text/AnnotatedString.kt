@@ -16,6 +16,8 @@
 
 package androidx.ui.text
 
+import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.text.AnnotatedString.Builder
 import androidx.ui.text.AnnotatedString.Range
 import androidx.ui.util.fastForEach
@@ -39,6 +41,7 @@ typealias ParagraphStyleRange = Range<ParagraphStyle>
  * The basic data structure of text with multiple styles. To construct an [AnnotatedString] you
  * can use [Builder].
  */
+@Immutable
 data class AnnotatedString internal constructor(
     val text: String,
     val spanStyles: List<SpanStyleRange> = listOf(),
@@ -83,6 +86,7 @@ data class AnnotatedString internal constructor(
         }
     }
 
+    @Stable
     operator fun plus(other: AnnotatedString): AnnotatedString {
         return with(Builder(this)) {
             append(other)

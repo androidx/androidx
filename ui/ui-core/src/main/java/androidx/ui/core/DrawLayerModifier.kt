@@ -18,6 +18,7 @@ package androidx.ui.core
 
 import androidx.annotation.FloatRange
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.util.packFloats
@@ -176,6 +177,7 @@ private data class SimpleDrawLayerModifier(
  * @param shape [DrawLayerModifier.shape]
  * @param clip [DrawLayerModifier.clip]
  */
+@Stable
 fun Modifier.drawLayer(
     scaleX: Float = 1f,
     scaleY: Float = 1f,

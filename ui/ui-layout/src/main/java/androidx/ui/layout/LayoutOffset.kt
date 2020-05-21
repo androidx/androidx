@@ -16,6 +16,7 @@
 
 package androidx.ui.layout
 
+import androidx.compose.Stable
 import androidx.compose.State
 import androidx.compose.mutableStateOf
 import androidx.ui.core.Constraints
@@ -34,6 +35,7 @@ import androidx.ui.unit.dp
  * Example usage:
  * @sample androidx.ui.layout.samples.LayoutOffsetModifier
  */
+@Stable
 fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this + OffsetModifier(x, y)
 
 /**
