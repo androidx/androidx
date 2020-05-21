@@ -16,7 +16,7 @@
 
 package androidx.security.crypto;
 
-import static androidx.security.crypto.MasterKeys.KEYSTORE_PATH_URI;
+import static androidx.security.crypto.MasterKey.KEYSTORE_PATH_URI;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -52,7 +52,7 @@ import java.security.KeyStore;
 public class EncryptedFileTest {
 
     private Context mContext;
-    private String mMasterKeyAlias;
+    private MasterKey mMasterKey;
 
     @Before
     public void setup() throws Exception {
@@ -87,7 +87,9 @@ public class EncryptedFileTest {
         keyStore.load(null);
         keyStore.deleteEntry(MasterKeys.MASTER_KEY_ALIAS);
 
-        mMasterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+        mMasterKey = new MasterKey.Builder(mContext)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build();
     }
 
     @Test
@@ -97,8 +99,83 @@ public class EncryptedFileTest {
 
         // Write
 
+        EncryptedFile encryptedFile = new EncryptedFile.Builder(mContext,
+                new File(mContext.getFilesDir(),
+                fileName), mMasterKey,
+                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
+                .build();
+
+        OutputStream outputStream = encryptedFile.openFileOutput();
+        outputStream.write(fileContent.getBytes("UTF-8"));
+        outputStream.flush();
+        outputStream.close();
+
+        FileInputStream rawStream = mContext.openFileInput(fileName);
+        ByteArrayOutputStream rawByteArrayOutputStream = new ByteArrayOutputStream();
+        int rawNextByte = rawStream.read();
+        while (rawNextByte != -1) {
+            rawByteArrayOutputStream.write(rawNextByte);
+            rawNextByte = rawStream.read();
+        }
+        byte[] rawCipherText = rawByteArrayOutputStream.toByteArray();
+        System.out.println("Raw CipherText = " + new String(rawCipherText,
+                UTF_8));
+        rawStream.close();
+
+        InputStream inputStream = encryptedFile.openFileInput();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        int nextByte = inputStream.read();
+        while (nextByte != -1) {
+            byteArrayOutputStream.write(nextByte);
+            nextByte = inputStream.read();
+        }
+
+        byte[] plainText = byteArrayOutputStream.toByteArray();
+
+        System.out.println("Decrypted Data: " + new String(plainText,
+                UTF_8));
+
+        Assert.assertEquals(
+                "Contents should be equal, data was encrypted.",
+                fileContent, new String(plainText, "UTF-8"));
+        inputStream.close();
+
+
+        EncryptedFile existingFileInputCheck = new EncryptedFile.Builder(mContext,
+                new File(mContext.getFilesDir(), "FAKE_FILE"), mMasterKey,
+                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
+                .build();
+        boolean inputFailed = false;
+        try {
+            existingFileInputCheck.openFileInput();
+        } catch (IOException ex) {
+            inputFailed = true;
+        }
+        Assert.assertTrue("File should have failed opening.", inputFailed);
+
+        EncryptedFile existingFileOutputCheck = new EncryptedFile.Builder(mContext,
+                new File(mContext.getFilesDir(), fileName), mMasterKey,
+                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
+                .build();
+        boolean outputFailed = false;
+        try {
+            existingFileOutputCheck.openFileOutput();
+        } catch (IOException ex) {
+            outputFailed = true;
+        }
+        Assert.assertTrue("File should have failed writing.", outputFailed);
+
+    }
+
+    @Test
+    public void testWriteReadEncryptedFileWithAlias() throws Exception {
+        final String fileContent = "Don't tell anyone...";
+        final String fileName = "nothing_to_see_here";
+
+        // Write
+
         EncryptedFile encryptedFile = new EncryptedFile.Builder(new File(mContext.getFilesDir(),
-                fileName), mContext, mMasterKeyAlias,
+                        fileName), mContext, mMasterKey.getKeyAlias(),
                 EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
                 .build();
 
@@ -139,8 +216,8 @@ public class EncryptedFileTest {
 
 
         EncryptedFile existingFileInputCheck = new EncryptedFile.Builder(
-                new File(mContext.getFilesDir(), "FAKE_FILE"), mContext, mMasterKeyAlias,
-                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
+                new File(mContext.getFilesDir(), "FAKE_FILE"), mContext,
+                mMasterKey.getKeyAlias(), EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
                 .build();
         boolean inputFailed = false;
         try {
@@ -151,7 +228,7 @@ public class EncryptedFileTest {
         Assert.assertTrue("File should have failed opening.", inputFailed);
 
         EncryptedFile existingFileOutputCheck = new EncryptedFile.Builder(
-                new File(mContext.getFilesDir(), fileName), mContext, mMasterKeyAlias,
+                new File(mContext.getFilesDir(), fileName), mContext, mMasterKey.getKeyAlias(),
                 EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
                 .build();
         boolean outputFailed = false;
@@ -170,8 +247,9 @@ public class EncryptedFileTest {
         final String fileName = "nothing_to_see_here_custom";
 
         // Write
-        EncryptedFile encryptedFile = new EncryptedFile.Builder(new File(mContext.getFilesDir(),
-                fileName), mContext, mMasterKeyAlias,
+        EncryptedFile encryptedFile = new EncryptedFile.Builder(mContext,
+                new File(mContext.getFilesDir(),
+                fileName), mMasterKey,
                 EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
                 .setKeysetAlias("CustomKEYALIAS")
                 .setKeysetPrefName("CUSTOMPREFNAME")
@@ -225,7 +303,7 @@ public class EncryptedFileTest {
         File file = new File(mContext.getFilesDir(), fileName);
 
         // Write
-        EncryptedFile encryptedFile = new EncryptedFile.Builder(file, mContext, mMasterKeyAlias,
+        EncryptedFile encryptedFile = new EncryptedFile.Builder(mContext, file, mMasterKey,
                 EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
                 .build();
 
@@ -240,7 +318,7 @@ public class EncryptedFileTest {
                 .withSharedPref(mContext,
                         "__androidx_security_crypto_encrypted_file_keyset__",
                         "__androidx_security_crypto_encrypted_file_pref__")
-                .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKeyAlias)
+                .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKey.getKeyAlias())
                 .build().getKeysetHandle();
 
         StreamingAead streamingAead = StreamingAeadFactory.getPrimitive(
