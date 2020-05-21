@@ -82,11 +82,22 @@ fun Clickable(
         modifier.clickable(
             enabled,
             onClickLabel,
-            interactionState ?: remember { InteractionState() },
+            tempFunToAvoidCreatingLambdaInsideClickable(interactionState),
             onClick = onClick
         ),
         children
     )
+}
+
+// when there is a lambda inside Clickable it is created as a file $Clickable\$2.class which
+// conflicts with similar lambda from Modifier.clickable which stored in $clickable\$2.class
+// on the case-insensitive FS. proper workaround would be to use different @JvmName on these
+// functions but it is currently not supported for composables b/157075847
+@Composable
+private fun tempFunToAvoidCreatingLambdaInsideClickable(
+    interactionState: InteractionState?
+): InteractionState {
+    return interactionState ?: remember { InteractionState() }
 }
 
 /**
