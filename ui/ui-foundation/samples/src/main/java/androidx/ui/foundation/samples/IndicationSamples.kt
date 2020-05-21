@@ -49,7 +49,7 @@ fun IndicationSample() {
             modifier = Modifier
                 // this element doesn't have a click, but will indicate as it accepts same
                 // interaction state
-                .indication(interactionState, IndicationAmbient.current)
+                .indication(interactionState, IndicationAmbient.current())
                 .padding(10.dp)
         )
     }

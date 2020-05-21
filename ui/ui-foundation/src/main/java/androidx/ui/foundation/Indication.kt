@@ -16,6 +16,7 @@
 
 package androidx.ui.foundation
 
+import androidx.compose.Composable
 import androidx.compose.CompositionLifecycleObserver
 import androidx.compose.Stable
 import androidx.compose.remember
@@ -101,7 +102,8 @@ fun Modifier.indication(
  *
  * By default there will be [DefaultDebugIndication] created.
  */
-val IndicationAmbient = staticAmbientOf<Indication> { DefaultDebugIndication }
+// TODO : temporary made it to be lambda, fix when b/157150564 is fixed
+val IndicationAmbient = staticAmbientOf<@Composable () -> Indication> { { DefaultDebugIndication } }
 
 private object NoIndication : Indication {
     private object NoIndicationInstance : IndicationInstance {
