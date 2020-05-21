@@ -1,9 +1,5 @@
 // Baseline format: 1.0
-AcronymName: androidx.ui.geometry.Rect.Companion#fromCircle-hSKLB2U(long, float):
-    Acronyms should not be capitalized in method names: was `fromCircle-hSKLB2U`, should this be `fromCircle-hSklB2U`?
 AcronymName: androidx.ui.geometry.Rect.Companion#fromLTRB(float, float, float, float):
     Acronyms should not be capitalized in method names: was `fromLTRB`, should this be `fromLtrb`?
 AcronymName: androidx.ui.geometry.Rect.Companion#fromLTWH(float, float, float, float):
     Acronyms should not be capitalized in method names: was `fromLTWH`, should this be `fromLtwh`?
-AcronymName: androidx.ui.geometry.Size.Companion#lerp-T-c3OIQ(long, long, float):
-    Acronyms should not be capitalized in method names: was `lerp-T-c3OIQ`, should this be `lerp-T-c3Oiq`?
