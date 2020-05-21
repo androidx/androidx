@@ -54,6 +54,7 @@ import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
+import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.impl.LensFacingConverter;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -71,7 +72,8 @@ import java.util.concurrent.Executor;
  * A {@link View} that displays a preview of the camera with methods {@link
  * #takePicture(Executor, OnImageCapturedCallback)},
  * {@link #takePicture(ImageCapture.OutputFileOptions, Executor, OnImageSavedCallback)},
- * {@link #startRecording(File, Executor, OnVideoSavedCallback)} and {@link #stopRecording()}.
+ * {@link #startRecording(File , Executor , OnVideoSavedCallback callback)}
+ * and {@link #stopRecording()}.
  *
  * <p>Because the Camera is a limited resource and consumes a high amount of power, CameraView must
  * be opened/closed. CameraView will handle opening/closing automatically through use of a {@link
@@ -410,8 +412,10 @@ public final class CameraView extends FrameLayout {
     }
 
     /**
-     * Sets the maximum video duration before {@link OnVideoSavedCallback#onVideoSaved(File)} is
-     * called automatically. Use {@link #INDEFINITE_VIDEO_DURATION} to disable the timeout.
+     * Sets the maximum video duration before
+     * {@link OnVideoSavedCallback#onVideoSaved(VideoCapture.OutputFileResults)} is called
+     * automatically.
+     * Use {@link #INDEFINITE_VIDEO_DURATION} to disable the timeout.
      */
     private void setMaxVideoDuration(long duration) {
         mCameraModule.setMaxVideoDuration(duration);
@@ -426,7 +430,8 @@ public final class CameraView extends FrameLayout {
     }
 
     /**
-     * Sets the maximum video size in bytes before {@link OnVideoSavedCallback#onVideoSaved(File)}
+     * Sets the maximum video size in bytes before
+     * {@link OnVideoSavedCallback#onVideoSaved(VideoCapture.OutputFileResults)}
      * is called automatically. Use {@link #INDEFINITE_VIDEO_SIZE} to disable the size restriction.
      */
     private void setMaxVideoSize(long size) {
@@ -471,7 +476,25 @@ public final class CameraView extends FrameLayout {
      */
     public void startRecording(@NonNull File file, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
-        mCameraModule.startRecording(file, executor, callback);
+        VideoCapture.OutputFileOptions options = new VideoCapture.OutputFileOptions.Builder(
+                file).build();
+        startRecording(options, executor, callback);
+    }
+
+    /**
+     * Takes a video and calls the OnVideoSavedCallback when done.
+     *
+     * @param outputFileOptions     Options to store the newly captured video.
+     * @param executor              The executor in which the callback methods will be run.
+     * @param callback              Callback which will receive success or failure.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void startRecording(@NonNull VideoCapture.OutputFileOptions outputFileOptions,
+            @NonNull Executor executor,
+            @NonNull OnVideoSavedCallback callback) {
+        mCameraModule.startRecording(outputFileOptions, executor, callback);
     }
 
     /** Stops an in progress video. */
