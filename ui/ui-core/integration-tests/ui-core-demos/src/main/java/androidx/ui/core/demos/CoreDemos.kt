@@ -35,7 +35,7 @@ import androidx.ui.core.demos.gestures.PressReleasedGestureDetectorDemo
 import androidx.ui.core.demos.gestures.RawDragGestureDetectorDemo
 import androidx.ui.core.demos.gestures.ScaleGestureDetectorDemo
 import androidx.ui.core.demos.gestures.TouchSlopDragGestureDetectorDemo
-import androidx.ui.core.demos.gestures.TouchSlopExceededGestureDetectorDemo
+import androidx.ui.core.demos.gestures.DragSlopExceededGestureFilterDemo
 import androidx.ui.core.demos.keyinput.KeyInputDemo
 import androidx.ui.core.demos.viewinterop.ViewInComposeDemo
 
@@ -50,8 +50,8 @@ private val GestureDemos = DemoCategory("Gestures", listOf(
         ComposableDemo("TouchSlopDragGestureDetector") { TouchSlopDragGestureDetectorDemo() },
         ComposableDemo("LongPressDragGestureDetector") { LongPressDragGestureDetectorDemo() },
         ComposableDemo("RawDragGestureDetector") { RawDragGestureDetectorDemo() },
-        ComposableDemo("TouchSlopExceededGestureDetector") {
-            TouchSlopExceededGestureDetectorDemo()
+        ComposableDemo("DragSlopExceededGestureFilter") {
+            DragSlopExceededGestureFilterDemo()
         },
         ComposableDemo("ScaleGestureDetector") { ScaleGestureDetectorDemo() }
     )),
