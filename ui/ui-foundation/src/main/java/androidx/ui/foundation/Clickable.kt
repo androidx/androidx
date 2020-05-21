@@ -113,7 +113,7 @@ fun Modifier.clickable(
     enabled: Boolean = true,
     onClickLabel: String? = null,
     interactionState: InteractionState = remember { InteractionState() },
-    indication: Indication? = IndicationAmbient.current,
+    indication: Indication? = IndicationAmbient.current(),
     onLongClick: (() -> Unit)? = null,
     onDoubleClick: (() -> Unit)? = null,
     onClick: () -> Unit
