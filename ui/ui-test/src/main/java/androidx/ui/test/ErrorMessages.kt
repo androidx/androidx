@@ -235,7 +235,7 @@ internal fun SemanticsNode.toStringInfo(): String {
 }
 
 private fun pxBoundsToShortString(bounds: PxBounds): String {
-    return "LTRB(${bounds.left}, ${bounds.top}, ${bounds.right}, ${bounds.bottom})"
+    return "LTRB(${bounds.left}.px, ${bounds.top}.px, ${bounds.right}.px, ${bounds.bottom}.px)"
 }
 
 private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration) {

@@ -149,8 +149,7 @@ class BottomNavigationTest {
             // Absolute y position of the text baseline
             val absoluteTextBaseline = textCoords.globalPosition.y + relativeTextBaseline
 
-            val itemBottom = itemCoords.size.height.toPx().value +
-                    itemCoords.globalPosition.y
+            val itemBottom = itemCoords.size.height.toPx().value + itemCoords.globalPosition.y
             // Text baseline should be 12.dp from the bottom of the item
             Truth.assertThat(absoluteTextBaseline).isEqualTo(itemBottom - textBaseline)
 
@@ -240,10 +239,10 @@ class BottomNavigationTest {
         composeTestRule.runOnIdleComposeWithDensity {
             // The icon should be centered in the item, as there is no text placeable provided
             val iconExpectedX = (itemCoords.size.width.toPx() - iconCoords.size.width.toPx()) / 2
-            val iconExpectedY = (itemCoords.size.height - iconCoords.size.height) / 2
+            val iconExpectedY = (itemCoords.size.height.toPx() - iconCoords.size.height.toPx()) / 2
 
             Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(iconExpectedX.value)
-            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY.toPx().value)
+            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY.value)
         }
     }
 

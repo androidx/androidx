@@ -151,7 +151,7 @@ class TabTest {
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords.localToGlobal(PxPosition.Origin).y
-            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toPx().value
+            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).value.toFloat()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
 
             tabRowWidth to tabRowHeight
@@ -169,7 +169,8 @@ class TabTest {
                 assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
                 val indicatorPositionY = indicatorCoords.localToGlobal(PxPosition.Origin).y
-                val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toPx().value
+                val expectedPositionY =
+                    (tabRowHeight - indicatorHeight.toIntPx()).value.toFloat()
                 assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
             }
         }
@@ -357,11 +358,11 @@ class TabTest {
             // Indicator should be placed in the bottom left of the first tab
             val indicatorPositionX = indicatorCoords.localToGlobal(PxPosition.Origin).x
             // Tabs in a scrollable tab row are offset 52.dp from each end
-            val expectedPositionX = scrollableTabRowOffset.toIntPx().toPx().value
+            val expectedPositionX = scrollableTabRowOffset.toIntPx().value.toFloat()
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords.localToGlobal(PxPosition.Origin).y
-            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toPx().value
+            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).value.toFloat()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
 
             tabRowHeight
@@ -374,12 +375,13 @@ class TabTest {
         // should be in the middle of the TabRow
         composeTestRule.runOnIdleComposeWithDensity {
             val indicatorPositionX = indicatorCoords.localToGlobal(PxPosition.Origin).x
-            val expectedPositionX = (scrollableTabRowOffset + minimumTabWidth).toIntPx()
-                .toPx().value
+            val expectedPositionX =
+                (scrollableTabRowOffset + minimumTabWidth).toIntPx().value.toFloat()
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords.localToGlobal(PxPosition.Origin).y
-            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toPx().value
+            val expectedPositionY =
+                (tabRowHeight - indicatorHeight.toIntPx()).value.toFloat()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
         }
     }

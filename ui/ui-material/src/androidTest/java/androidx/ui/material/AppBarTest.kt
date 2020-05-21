@@ -144,7 +144,7 @@ class AppBarTest {
             val actionPositionY = actionCoords!!.globalPosition.y
             val actionExpectedPositionY = (appBarBottomEdgeY - AppBarStartAndEndPadding.toPx() -
                 FakeIconSize.toPx()
-            ).roundToInt()
+            ).roundToInt().toFloat()
             assertThat(actionPositionY).isEqualTo(actionExpectedPositionY)
         }
     }

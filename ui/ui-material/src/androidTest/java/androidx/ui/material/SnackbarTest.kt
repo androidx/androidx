@@ -45,7 +45,6 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toPx
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -261,8 +260,9 @@ class SnackbarTest {
                             localTextCoords[FirstBaseline]!!
                 ).isEqualTo(30.dp.toIntPx())
 
-                assertThat(buttonCenter)
-                    .isEqualTo((localSnackCoords.size.height / 2).value.toFloat())
+                assertThat(buttonCenter).isEqualTo(
+                    (localSnackCoords.size.height / 2).value.toFloat()
+                )
             }
         }
     }

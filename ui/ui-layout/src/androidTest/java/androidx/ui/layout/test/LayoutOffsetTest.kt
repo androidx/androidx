@@ -165,8 +165,8 @@ class LayoutOffsetTest : LayoutTest() {
                     .wrapContentSize(Alignment.TopStart)
                     .offsetPx(state { offsetX }, state { offsetY })
                     .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.globalPosition.x.roundToInt().toFloat()
-                        positionY = coordinates.globalPosition.y.roundToInt().toFloat()
+                        positionX = coordinates.globalPosition.x
+                        positionY = coordinates.globalPosition.y
                     }
             ) {
                 // TODO(popam): this box should not be needed after b/154758475 is fixed.
@@ -177,9 +177,8 @@ class LayoutOffsetTest : LayoutTest() {
         findByTag("stack").assertExists()
         runOnIdleCompose {
             Assert.assertEquals(
-                containerWidth.toIntPx().value.toFloat() -
-                        offsetX.roundToInt().toFloat() - boxSize,
-                positionX.roundToInt().toFloat()
+                containerWidth.toIntPx().value - offsetX.roundToInt() - boxSize,
+                positionX
             )
             Assert.assertEquals(offsetY, positionY)
         }

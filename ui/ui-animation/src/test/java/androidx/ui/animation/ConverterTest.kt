@@ -24,7 +24,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.colorspace.ColorSpaces
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,10 +53,10 @@ class ConverterTest {
     @Test
     fun testPxConverter() {
         val value = Random.nextFloat()
-        assertEquals(PxToVectorConverter.convertFromVector(AnimationVector1D(value)), value.px)
+        assertEquals(PxToVectorConverter.convertFromVector(AnimationVector1D(value)), value)
 
         val value2 = Random.nextFloat()
-        assertEquals(PxToVectorConverter.convertToVector(value2.px), AnimationVector1D(value2))
+        assertEquals(PxToVectorConverter.convertToVector(value2), AnimationVector1D(value2))
     }
 
     @Test

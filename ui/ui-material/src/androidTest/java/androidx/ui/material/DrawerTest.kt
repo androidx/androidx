@@ -228,7 +228,7 @@ class DrawerTest {
         // Click on the left-center pixel of the drawer
         findByTag("Drawer").doGesture {
             val left = 1.0f
-            val centerY = (globalBounds.height / 2).value
+            val centerY = (globalBounds.height / 2)
             sendClick(PxPosition(left, centerY))
         }
 
@@ -326,8 +326,8 @@ class DrawerTest {
         // Click on the bottom-center pixel of the drawer
         findByTag("Drawer").doGesture {
             val bounds = globalBounds
-            val centerX = (bounds.width / 2).value
-            val bottom = (bounds.height - 1.px).value
+            val centerX = bounds.width / 2
+            val bottom = bounds.height - 1.0f
             sendClick(PxPosition(centerX, bottom))
         }
 

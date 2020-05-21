@@ -98,7 +98,7 @@ val BaseGestureScope.globalBounds: PxBounds
  */
 fun BaseGestureScope.localToGlobal(position: PxPosition): PxPosition {
     val bounds = globalBounds
-    return position + PxPosition(bounds.left.value, bounds.top.value)
+    return position + PxPosition(bounds.left, bounds.top)
 }
 
 /**

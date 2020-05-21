@@ -248,21 +248,21 @@ open class LayoutTest {
         actual as PxSize
 
         assertEquals(
-            "Expected width ${expected.width.value} but obtained ${actual.width.value}",
-            expected.width.value,
-            actual.width.value,
+            "Expected width ${expected.width} but obtained ${actual.width}",
+            expected.width,
+            actual.width,
             0f
         )
         assertEquals(
-            "Expected height ${expected.height.value} but obtained ${actual.height.value}",
-            expected.height.value,
-            actual.height.value,
+            "Expected height ${expected.height} but obtained ${actual.height}",
+            expected.height,
+            actual.height,
             0f
         )
-        if (actual.width.value != actual.width.value.toInt().toFloat()) {
+        if (actual.width != actual.width.toInt().toFloat()) {
             fail("Expected integer width")
         }
-        if (actual.height.value != actual.height.value.toInt().toFloat()) {
+        if (actual.height != actual.height.toInt().toFloat()) {
             fail("Expected integer height")
         }
     }

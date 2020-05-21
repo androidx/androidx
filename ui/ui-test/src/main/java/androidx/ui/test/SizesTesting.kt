@@ -27,9 +27,9 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.round
 import androidx.ui.unit.toPxSize
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 /**
  * Constant to emulate very big but finite constraints
@@ -96,33 +96,33 @@ class CollectedSizes(private val size: PxSize, private val density: Density) {
 
     fun assertWidthEqualsTo(expectedWidthPx: Density.() -> IntPx): CollectedSizes {
         val widthPx = with(density) {
-            expectedWidthPx()
+            expectedWidthPx().value
         }
-        assertSize(size.width.round(), widthPx)
+        assertSize(size.width.roundToInt(), widthPx)
         return this
     }
 
     fun assertHeightEqualsTo(expectedHeightPx: Density.() -> IntPx): CollectedSizes {
         val heightPx = with(density) {
-            expectedHeightPx()
+            expectedHeightPx().value
         }
-        assertSize(size.height.round(), heightPx)
+        assertSize(size.height.roundToInt(), heightPx)
         return this
     }
 
     fun assertIsSquareWithSize(expectedSquarePx: Density.() -> IntPx): CollectedSizes {
         val squarePx = with(density) {
-            expectedSquarePx()
+            expectedSquarePx().value
         }
-        assertSize(size.width.round(), squarePx)
-        assertSize(size.height.round(), squarePx)
+        assertSize(size.width.roundToInt(), squarePx)
+        assertSize(size.height.roundToInt(), squarePx)
         return this
     }
 }
 
-private fun assertSize(actual: IntPx, expected: IntPx) {
+private fun assertSize(actual: Int, expected: Int) {
     // TODO: because if dp and ipx collision. Remove dp assertion later
-    if (abs(actual.value - expected.value) > 1) {
+    if (abs(actual - expected) > 1) {
         throw AssertionError("Found size: $actual pixels.\nExpected size $expected pixels")
     }
 }

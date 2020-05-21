@@ -128,10 +128,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         try {
             info.setBoundsInScreen(
                 android.graphics.Rect(
-                    semanticsNode.globalBounds.left.value.toInt(),
-                    semanticsNode.globalBounds.top.value.toInt(),
-                    semanticsNode.globalBounds.right.value.toInt(),
-                    semanticsNode.globalBounds.bottom.value.toInt()
+                    semanticsNode.globalBounds.left.toInt(),
+                    semanticsNode.globalBounds.top.toInt(),
+                    semanticsNode.globalBounds.right.toInt(),
+                    semanticsNode.globalBounds.bottom.toInt()
                 )
             )
         } catch (e: IllegalStateException) {
@@ -471,8 +471,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun getVirtualViewAt(x: Float, y: Float): Int {
         var node = view.semanticsOwner.rootSemanticsNode
-        var id = findVirtualViewAt(x + node.globalBounds.left.value,
-            y + node.globalBounds.top.value, node)
+        var id = findVirtualViewAt(x + node.globalBounds.left,
+            y + node.globalBounds.top, node)
         if (id == node.id) {
             return AccessibilityNodeProviderCompat.HOST_VIEW_ID
         }
@@ -488,8 +488,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
         }
 
-        if (node.globalBounds.left.value < x && node.globalBounds.right.value > x && node
-                .globalBounds.top.value < y && node.globalBounds.bottom.value > y) {
+        if (node.globalBounds.left < x && node.globalBounds.right > x && node
+                .globalBounds.top < y && node.globalBounds.bottom > y) {
             return node.id
         }
 

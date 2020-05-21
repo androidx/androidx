@@ -221,7 +221,7 @@ class ButtonTest {
         }
 
         with(composeTestRule.density) {
-            assertThat(realSize.height.value)
+            assertThat(realSize.height)
                 .isGreaterThan(36.dp.toIntPx().value.toFloat())
         }
     }
@@ -490,8 +490,8 @@ class ButtonTest {
             assertThat(contentBounds.width).isLessThan(buttonBounds.width)
             assertThat(contentBounds.height).isLessThan(buttonBounds.height)
             with(composeTestRule.density) {
-                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toPx())
-                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toPx())
+                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().value.toFloat())
+                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().value.toFloat())
             }
             assertWithinOnePixel(buttonBounds.center(), contentBounds.center())
         }

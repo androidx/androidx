@@ -21,7 +21,6 @@ import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsPropertyKey
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 
 /**
  * Performs a click action on the given component.
@@ -71,8 +70,8 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
 
     runOnUiThread {
         scrollableSemanticsNode.config[SemanticsActions.ScrollTo].action(
-            (globalPosition.x - position.x).px,
-            (globalPosition.y - position.y).px
+            (globalPosition.x - position.x),
+            (globalPosition.y - position.y)
         )
     }
 

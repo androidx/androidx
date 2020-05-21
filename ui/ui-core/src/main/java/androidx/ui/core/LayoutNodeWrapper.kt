@@ -29,7 +29,6 @@ import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import androidx.ui.unit.toPxPosition
 
 /**
@@ -282,10 +281,10 @@ internal abstract class LayoutNodeWrapper(
             wrapper = parent
         }
         return PxBounds(
-            left = bounds.left.px,
-            top = bounds.top.px,
-            right = bounds.right.px,
-            bottom = bounds.bottom.px
+            left = bounds.left,
+            top = bounds.top,
+            right = bounds.right,
+            bottom = bounds.bottom
         )
     }
 

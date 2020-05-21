@@ -464,11 +464,12 @@ package androidx.ui.unit {
   }
 
   @androidx.compose.Immutable public final class PxBounds {
+    ctor public PxBounds(float left, float top, float right, float bottom);
     method public float component1();
     method public float component2();
     method public float component3();
     method public float component4();
-    method @androidx.compose.Immutable public androidx.ui.unit.PxBounds copy-wHlpFhg(float left, float top, float right, float bottom);
+    method @androidx.compose.Immutable public androidx.ui.unit.PxBounds copy(float left, float top, float right, float bottom);
     method public float getBottom();
     method public float getLeft();
     method public float getRight();

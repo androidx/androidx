@@ -224,7 +224,7 @@ class IntPxTest {
 
     @Test
     fun createSize() {
-        assertEquals(PxSize(10.px, 20.px), PxSize(10.ipx, 20.ipx))
+        assertEquals(PxSize(10f, 20f), PxSize(10.ipx, 20.ipx))
     }
 
     @Test

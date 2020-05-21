@@ -20,8 +20,6 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
-import androidx.ui.unit.toPx
 
 /**
  * A holder of the measured bounds for the layout (MeasureBox).
@@ -112,7 +110,7 @@ val LayoutCoordinates.positionInParent: PxPosition
  */
 val LayoutCoordinates.boundsInParent: PxBounds
     get() = parentCoordinates?.childBoundingBox(this)
-        ?: PxBounds(0.px, 0.px, size.width.toPx(), size.height.toPx())
+        ?: PxBounds(0f, 0f, size.width.value.toFloat(), size.height.value.toFloat())
 
 /**
  * The global boundaries of this layout inside.
@@ -123,10 +121,10 @@ val LayoutCoordinates.globalBounds: PxBounds
         val rootPosition = root.localToGlobal(PxPosition.Origin)
         val bounds = root.childBoundingBox(this)
         return PxBounds(
-            left = bounds.left + rootPosition.x.px,
-            top = bounds.top + rootPosition.y.px,
-            right = bounds.right + rootPosition.x.px,
-            bottom = bounds.bottom + rootPosition.y.px
+            left = bounds.left + rootPosition.x,
+            top = bounds.top + rootPosition.y,
+            right = bounds.right + rootPosition.x,
+            bottom = bounds.bottom + rootPosition.y
         )
     }
 
