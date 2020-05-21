@@ -24,7 +24,6 @@ import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verify
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule
@@ -45,7 +44,7 @@ class SendCancelTest(config: TestConfig) {
     )
 
     companion object {
-        private val downPosition = PxPosition(5.px, 5.px)
+        private val downPosition = PxPosition(5f, 5f)
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -54,7 +53,7 @@ class SendCancelTest(config: TestConfig) {
                 listOf(0f, -10f).map { y ->
                     TestConfig(x, y)
                 }
-            }.plus(TestConfig(downPosition.x.value, downPosition.y.value))
+            }.plus(TestConfig(downPosition.x, downPosition.y))
         }
     }
 
@@ -64,7 +63,7 @@ class SendCancelTest(config: TestConfig) {
     @get:Rule
     val inputDispatcherRule: TestRule = dispatcherRule
 
-    private val position = PxPosition(config.x.px, config.y.px)
+    private val position = PxPosition(config.x, config.y)
 
     private val recorder = MotionEventRecorder()
     private val subject = AndroidInputDispatcher(recorder::recordEvent)
@@ -95,8 +94,8 @@ class SendCancelTest(config: TestConfig) {
  */
 @SmallTest
 class SendCancelAfterFinishedTest {
-    private val downPosition = PxPosition(5.px, 5.px)
-    private val position = PxPosition(1.px, 1.px)
+    private val downPosition = PxPosition(5f, 5f)
+    private val position = PxPosition(1f, 1f)
 
     @get:Rule
     val inputDispatcherRule: TestRule = AndroidInputDispatcher.TestRule(

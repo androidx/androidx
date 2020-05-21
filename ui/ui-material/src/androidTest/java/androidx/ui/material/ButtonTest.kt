@@ -553,7 +553,7 @@ class ButtonTest {
             val topLeft = childCoordinates!!.localToGlobal(PxPosition.Origin).x -
                     parentCoordinates!!.localToGlobal(PxPosition.Origin).x
             val currentPadding = with(composeTestRule.density) {
-                padding.toIntPx().toPx()
+                padding.toIntPx().value.toFloat()
             }
             assertThat(currentPadding).isEqualTo(topLeft)
         }
@@ -561,8 +561,8 @@ class ButtonTest {
 }
 
 fun assertWithinOnePixel(expected: PxPosition, actual: PxPosition) {
-    assertWithinOnePixel(expected.x.value, actual.x.value)
-    assertWithinOnePixel(expected.y.value, actual.y.value)
+    assertWithinOnePixel(expected.x, actual.x)
+    assertWithinOnePixel(expected.y, actual.y)
 }
 
 fun assertWithinOnePixel(expected: Float, actual: Float) {

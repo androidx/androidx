@@ -325,52 +325,52 @@ class PxTest {
     @Test
     fun sizeCenter() {
         val size = PxSize(width = 10.px, height = 20.px)
-        assertEquals(PxPosition(5.px, 10.px), size.center())
+        assertEquals(PxPosition(5f, 10f), size.center())
     }
 
     @Test
     fun positionDistance() {
-        val position = PxPosition(3.px, 4.px)
+        val position = PxPosition(3f, 4f)
         assertEquals(5.px, position.getDistance())
     }
 
     @Test
     fun lerpPosition() {
-        val a = PxPosition(3.px, 10.px)
-        val b = PxPosition(5.px, 8.px)
-        assertEquals(PxPosition(4.px, 9.px), lerp(a, b, 0.5f))
-        assertEquals(PxPosition(3.px, 10.px), lerp(a, b, 0f))
-        assertEquals(PxPosition(5.px, 8.px), lerp(a, b, 1f))
+        val a = PxPosition(3f, 10f)
+        val b = PxPosition(5f, 8f)
+        assertEquals(PxPosition(4f, 9f), lerp(a, b, 0.5f))
+        assertEquals(PxPosition(3f, 10f), lerp(a, b, 0f))
+        assertEquals(PxPosition(5f, 8f), lerp(a, b, 1f))
     }
 
     @Test
     fun positionMinus() {
-        val a = PxPosition(3.px, 10.px)
-        val b = PxPosition(5.px, 8.px)
-        assertEquals(PxPosition(-2.px, 2.px), a - b)
-        assertEquals(PxPosition(2.px, -2.px), b - a)
+        val a = PxPosition(3f, 10f)
+        val b = PxPosition(5f, 8f)
+        assertEquals(PxPosition(-2f, 2f), a - b)
+        assertEquals(PxPosition(2f, -2f), b - a)
     }
 
     @Test
     fun positionPlus() {
-        val a = PxPosition(3.px, 10.px)
-        val b = PxPosition(5.px, 8.px)
-        assertEquals(PxPosition(8.px, 18.px), a + b)
-        assertEquals(PxPosition(8.px, 18.px), b + a)
+        val a = PxPosition(3f, 10f)
+        val b = PxPosition(5f, 8f)
+        assertEquals(PxPosition(8f, 18f), a + b)
+        assertEquals(PxPosition(8f, 18f), b + a)
     }
 
     @Test
     fun pxPositionMinusIntPxPosition() {
-        val a = PxPosition(3.px, 10.px)
+        val a = PxPosition(3f, 10f)
         val b = IntPxPosition(5.ipx, 8.ipx)
-        assertEquals(PxPosition(-2.px, 2.px), a - b)
+        assertEquals(PxPosition(-2f, 2f), a - b)
     }
 
     @Test
     fun pxPositionPlusIntPxPosition() {
-        val a = PxPosition(3.px, 10.px)
+        val a = PxPosition(3f, 10f)
         val b = IntPxPosition(5.ipx, 8.ipx)
-        assertEquals(PxPosition(8.px, 18.px), a + b)
+        assertEquals(PxPosition(8f, 18f), a + b)
     }
 
     @Test

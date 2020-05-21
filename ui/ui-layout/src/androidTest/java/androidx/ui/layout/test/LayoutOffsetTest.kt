@@ -47,6 +47,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -74,8 +75,8 @@ class LayoutOffsetTest : LayoutTest() {
                     .wrapContentSize(Alignment.TopStart)
                     .offset(offsetX, offsetY)
                     .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.globalPosition.x.round()
-                        positionY = coordinates.globalPosition.y.round()
+                        positionX = coordinates.globalPosition.x.px.round()
+                        positionY = coordinates.globalPosition.y.px.round()
                     }
             ) {
             }
@@ -105,8 +106,8 @@ class LayoutOffsetTest : LayoutTest() {
                     .wrapContentSize(Alignment.TopStart)
                     .offset(offsetX, offsetY)
                     .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.globalPosition.x.round()
-                        positionY = coordinates.globalPosition.y.round()
+                        positionX = coordinates.globalPosition.x.px.round()
+                        positionY = coordinates.globalPosition.y.px.round()
                     }
             ) {
                 // TODO(popam): this box should not be needed after b/154758475 is fixed.
@@ -123,10 +124,10 @@ class LayoutOffsetTest : LayoutTest() {
 
     @Test
     fun positionIsModified_px() = with(density) {
-        val offsetX = 10.px
-        val offsetY = 20.px
-        var positionX = 0.px
-        var positionY = 0.px
+        val offsetX = 10f
+        val offsetY = 20f
+        var positionX = 0f
+        var positionY = 0f
         composeTestRule.setContent {
             Stack(
                 Modifier.testTag("stack")
@@ -150,11 +151,11 @@ class LayoutOffsetTest : LayoutTest() {
     @Test
     fun positionIsModified_px_rtl() = with(density) {
         val containerWidth = 30.dp
-        val boxSize = 1.ipx
-        val offsetX = 10.px
-        val offsetY = 20.px
-        var positionX = 0.px
-        var positionY = 0.px
+        val boxSize = 1f
+        val offsetX = 10f
+        val offsetY = 20f
+        var positionX = 0f
+        var positionY = 0f
         composeTestRule.setContent {
             Stack(
                 Modifier.testTag("stack")
@@ -164,8 +165,8 @@ class LayoutOffsetTest : LayoutTest() {
                     .wrapContentSize(Alignment.TopStart)
                     .offsetPx(state { offsetX }, state { offsetY })
                     .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.globalPosition.x
-                        positionY = coordinates.globalPosition.y
+                        positionX = coordinates.globalPosition.x.roundToInt().toFloat()
+                        positionY = coordinates.globalPosition.y.roundToInt().toFloat()
                     }
             ) {
                 // TODO(popam): this box should not be needed after b/154758475 is fixed.
@@ -176,8 +177,9 @@ class LayoutOffsetTest : LayoutTest() {
         findByTag("stack").assertExists()
         runOnIdleCompose {
             Assert.assertEquals(
-                containerWidth.toIntPx() - offsetX.round() - boxSize,
-                positionX.round()
+                containerWidth.toIntPx().value.toFloat() -
+                        offsetX.roundToInt().toFloat() - boxSize,
+                positionX.roundToInt().toFloat()
             )
             Assert.assertEquals(offsetY, positionY)
         }

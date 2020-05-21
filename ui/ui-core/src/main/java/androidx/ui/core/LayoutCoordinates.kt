@@ -123,10 +123,10 @@ val LayoutCoordinates.globalBounds: PxBounds
         val rootPosition = root.localToGlobal(PxPosition.Origin)
         val bounds = root.childBoundingBox(this)
         return PxBounds(
-            left = bounds.left + rootPosition.x,
-            top = bounds.top + rootPosition.y,
-            right = bounds.right + rootPosition.x,
-            bottom = bounds.bottom + rootPosition.y
+            left = bounds.left + rootPosition.x.px,
+            top = bounds.top + rootPosition.y.px,
+            right = bounds.right + rootPosition.x.px,
+            bottom = bounds.bottom + rootPosition.y.px
         )
     }
 

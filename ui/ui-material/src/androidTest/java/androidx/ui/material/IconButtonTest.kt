@@ -79,8 +79,8 @@ class IconButtonTest {
             val iconX = iconCoords.positionInParent.x
             val iconY = iconCoords.positionInParent.y
             // Icon should be centered inside the IconButton
-            Truth.assertThat(iconX).isEqualTo(12.dp.toIntPx().toPx())
-            Truth.assertThat(iconY).isEqualTo(12.dp.toIntPx().toPx())
+            Truth.assertThat(iconX).isEqualTo(12.dp.toIntPx().toPx().value)
+            Truth.assertThat(iconY).isEqualTo(12.dp.toIntPx().toPx().value)
         }
     }
 
@@ -104,8 +104,8 @@ class IconButtonTest {
             val iconX = iconCoords.positionInParent.x
             val iconY = iconCoords.positionInParent.y
 
-            val expectedX = ((48.dp - width) / 2).toIntPx().toPx()
-            val expectedY = ((48.dp - height) / 2).toIntPx().toPx()
+            val expectedX = ((48.dp - width) / 2).toIntPx().toPx().value
+            val expectedY = ((48.dp - height) / 2).toIntPx().toPx().value
             // Icon should be centered inside the IconButton
             Truth.assertThat(iconX).isEqualTo(expectedX)
             Truth.assertThat(iconY).isEqualTo(expectedY)
@@ -143,8 +143,8 @@ class IconButtonTest {
             val iconX = iconCoords.positionInParent.x
             val iconY = iconCoords.positionInParent.y
             // Icon should be centered inside the IconButton
-            Truth.assertThat(iconX).isEqualTo(12.dp.toIntPx().toPx())
-            Truth.assertThat(iconY).isEqualTo(12.dp.toIntPx().toPx())
+            Truth.assertThat(iconX).isEqualTo(12.dp.toIntPx().toPx().value)
+            Truth.assertThat(iconY).isEqualTo(12.dp.toIntPx().toPx().value)
         }
     }
 
@@ -167,8 +167,8 @@ class IconButtonTest {
             val iconX = iconCoords.positionInParent.x
             val iconY = iconCoords.positionInParent.y
 
-            val expectedX = ((48.dp - width) / 2).toIntPx().toPx()
-            val expectedY = ((48.dp - height) / 2).toIntPx().toPx()
+            val expectedX = ((48.dp - width) / 2).toIntPx().toPx().value
+            val expectedY = ((48.dp - height) / 2).toIntPx().toPx().value
             // Icon should be centered inside the IconButton
             Truth.assertThat(iconX).isEqualTo(expectedX)
             Truth.assertThat(iconY).isEqualTo(expectedY)

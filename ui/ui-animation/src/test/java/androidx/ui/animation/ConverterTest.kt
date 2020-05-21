@@ -73,9 +73,9 @@ class ConverterTest {
     fun testPxPositionConverter() {
         val x = Random.nextFloat()
         val y = Random.nextFloat()
-        assertEquals(PxPosition(x.px, y.px),
+        assertEquals(PxPosition(x, y),
             PxPositionToVectorConverter.convertFromVector(AnimationVector2D(x, y)))
         assertEquals(AnimationVector2D(x, y),
-            PxPositionToVectorConverter.convertToVector(PxPosition(x.px, y.px)))
+            PxPositionToVectorConverter.convertToVector(PxPosition(x, y)))
     }
 }

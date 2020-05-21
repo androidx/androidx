@@ -84,7 +84,7 @@ private fun SwipeToDismiss() {
         }
 
         override fun onDrag(dragDistance: PxPosition): PxPosition {
-            itemBottom.snapTo(itemBottom.targetValue + dragDistance.y.value)
+            itemBottom.snapTo(itemBottom.targetValue + dragDistance.y)
             return dragDistance
         }
 
@@ -107,9 +107,9 @@ private fun SwipeToDismiss() {
 
         override fun onStop(velocity: PxPosition) {
             isFlinging.value = true
-            itemBottom.fling(velocity.y.value,
+            itemBottom.fling(velocity.y,
                 ExponentialDecay(3.0f),
-                adjustTarget(velocity.y.value),
+                adjustTarget(velocity.y),
                 onEnd = { endReason, final, _ ->
                     isFlinging.value = false
                     if (endReason != AnimationEndReason.Interrupted && final == 0f) {

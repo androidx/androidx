@@ -77,7 +77,7 @@ class OnPositionedTest {
                                 minWidth = size,
                                 minHeight = size,
                                 modifier = Modifier.onPositioned { coordinates ->
-                                    wrap1Position = coordinates.globalPosition.x
+                                    wrap1Position = coordinates.globalPosition.x.px
                                     latch.countDown()
                                 }
                             )
@@ -86,7 +86,7 @@ class OnPositionedTest {
                                 minWidth = size,
                                 minHeight = size,
                                 modifier = Modifier.onPositioned { coordinates ->
-                                    wrap2Position = coordinates.globalPosition.x
+                                    wrap2Position = coordinates.globalPosition.x.px
                                     latch.countDown()
                                 }
                             )
@@ -148,7 +148,7 @@ class OnPositionedTest {
     @Test
     fun callbackCalledForChildWhenParentMoved() {
         var position by mutableStateOf(0.ipx)
-        var childGlobalPosition = PxPosition(0.px, 0.px)
+        var childGlobalPosition = PxPosition(0f, 0f)
         var latch = CountDownLatch(1)
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -185,7 +185,7 @@ class OnPositionedTest {
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(PxPosition(10.px, 0.px), childGlobalPosition)
+        assertEquals(PxPosition(10f, 0f), childGlobalPosition)
     }
 
     @Test
@@ -259,7 +259,7 @@ class OnPositionedTest {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         rule.runOnUiThread {
-            assertEquals(PxPosition(5.px, 5.px), coordinates!!.positionInParent)
+            assertEquals(PxPosition(5f, 5f), coordinates!!.positionInParent)
 
             var root = coordinates!!
             while (root.parentCoordinates != null) {

@@ -29,8 +29,8 @@ import androidx.ui.unit.IntPxBounds
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
-import androidx.ui.unit.round
 import java.lang.reflect.Field
+import kotlin.math.roundToInt
 
 /**
  * A group in the slot table. Represents either a call or an emitted node.
@@ -180,8 +180,8 @@ private fun boundsOfLayoutNode(node: LayoutNode): IntPxBounds {
     }
     val position = node.coordinates.globalPosition
     val size = node.coordinates.size
-    val left = position.x.round()
-    val top = position.y.round()
+    val left = position.x.roundToInt().ipx
+    val top = position.y.roundToInt().ipx
     val right = left + size.width
     val bottom = top + size.height
     return IntPxBounds(left = left, top = top, right = right, bottom = bottom)

@@ -69,8 +69,8 @@ class OnPositionedTest : LayoutTest() {
                 Modifier.fillMaxSize()
                     .padding(start = paddingLeftPx.toDp(), top = paddingTopPx.toDp())
                     .onPositioned {
-                        realLeft = it.positionInParent.x.value
-                        realTop = it.positionInParent.y.value
+                        realLeft = it.positionInParent.x
+                        realTop = it.positionInParent.y
                         positionedLatch.countDown()
                     }
             ) {
@@ -92,8 +92,8 @@ class OnPositionedTest : LayoutTest() {
         val positionedLatch = CountDownLatch(1)
         show {
             Container(Modifier.onChildPositioned {
-                realLeft = it.positionInParent.x.value
-                realTop = it.positionInParent.y.value
+                realLeft = it.positionInParent.x
+                realTop = it.positionInParent.y
                 positionedLatch.countDown()
             }) {
                 Container(
@@ -146,12 +146,12 @@ class OnPositionedTest : LayoutTest() {
 
         // global position
         val gPos = childCoordinates!!.localToGlobal(PxPosition.Origin).x
-        assertThat(gPos).isEqualTo(firstPaddingPx + secondPaddingPx + thirdPaddingPx)
+        assertThat(gPos).isEqualTo((firstPaddingPx + secondPaddingPx + thirdPaddingPx).value)
         // Position in grandparent Px(value=50.0)
         val gpPos = gpCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin).x
-        assertThat(gpPos).isEqualTo(secondPaddingPx + thirdPaddingPx)
+        assertThat(gpPos).isEqualTo((secondPaddingPx + thirdPaddingPx).value)
         // local position
-        assertThat(childCoordinates!!.positionInParent.x).isEqualTo(thirdPaddingPx)
+        assertThat(childCoordinates!!.positionInParent.x).isEqualTo(thirdPaddingPx.value)
     }
 
     @Test
@@ -177,8 +177,8 @@ class OnPositionedTest : LayoutTest() {
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        assertThat(0.0f).isEqualTo(firstCoordinates!!.positionInParent.x.value)
-        assertThat(size).isEqualTo(secondCoordinates!!.positionInParent.x.value)
+        assertThat(0.0f).isEqualTo(firstCoordinates!!.positionInParent.x)
+        assertThat(size).isEqualTo(secondCoordinates!!.positionInParent.x)
     }
 
     @Test
@@ -244,7 +244,7 @@ class OnPositionedTest : LayoutTest() {
             Stack {
                 Container(
                     Modifier.onPositioned {
-                        realLeft = it.positionInParent.x.value
+                        realLeft = it.positionInParent.x
                         positionedLatch.countDown()
                     }
                         .fillMaxSize()
@@ -279,7 +279,7 @@ class OnPositionedTest : LayoutTest() {
                         Container(width = 10.dp, height = 10.dp) {
                             Container(
                                 Modifier.onPositioned {
-                                    realLeft = it.positionInRoot.x.value
+                                    realLeft = it.positionInRoot.x
                                     positionedLatch.countDown()
                                 },
                                 width = 10.dp,

@@ -32,7 +32,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.em
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -224,7 +223,9 @@ class MultiParagraphIntegrationTest {
                 val col = i % lineLength
                 val x = fontSizeInPx * col
 
-                val actualOffset = paragraph.getOffsetForPosition(PxPosition(x.px, y.px))
+                val actualOffset = paragraph.getOffsetForPosition(
+                    PxPosition(x.toFloat(), y.toFloat())
+                )
                 assertWithMessage("getOffsetForPosition($x, $y) failed")
                     .that(actualOffset).isEqualTo(i)
             }

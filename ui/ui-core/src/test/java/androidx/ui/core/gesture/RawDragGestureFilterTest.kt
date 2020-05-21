@@ -31,7 +31,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -220,8 +219,8 @@ class RawDragGestureFilterTest {
         assertThat(onDragLog).hasSize(2)
         // OnDrags get's called twice each time because RawDragGestureDetector calls it on both
         // PostUp and PostDown and the distance is not consumed by PostUp.
-        assertThat(onDragLog[0].pxPosition).isEqualTo(PxPosition(5.px, (-2).px))
-        assertThat(onDragLog[1].pxPosition).isEqualTo(PxPosition(5.px, (-2).px))
+        assertThat(onDragLog[0].pxPosition).isEqualTo(PxPosition(5f, -2f))
+        assertThat(onDragLog[1].pxPosition).isEqualTo(PxPosition(5f, -2f))
     }
 
     @Test
@@ -240,10 +239,10 @@ class RawDragGestureFilterTest {
         change = change.moveBy(100.milliseconds, -3f, 7f)
         filter::onPointerInput.invokeOverAllPasses(change)
         change = change.moveBy(100.milliseconds, 11f, 13f)
-            .consumePositionChange(5.px, 3.px)
+            .consumePositionChange(5f, 3f)
         filter::onPointerInput.invokeOverAllPasses(change)
         change = change.moveBy(100.milliseconds, -13f, -11f)
-            .consumePositionChange((-3).px, (-5).px)
+            .consumePositionChange(-3f, -5f)
         filter::onPointerInput.invokeOverAllPasses(change)
 
         // Assert
@@ -252,14 +251,14 @@ class RawDragGestureFilterTest {
         assertThat(onDragLog).hasSize(8)
         // OnDrags get's called twice each time because RawDragGestureDetector calls it on both
         // PostUp and PostDown and the distance is not consumed by PostUp.
-        assertThat(onDragLog[0].pxPosition).isEqualTo(PxPosition(3.px, (-5).px))
-        assertThat(onDragLog[1].pxPosition).isEqualTo(PxPosition(3.px, (-5).px))
-        assertThat(onDragLog[2].pxPosition).isEqualTo(PxPosition((-3).px, 7.px))
-        assertThat(onDragLog[3].pxPosition).isEqualTo(PxPosition((-3).px, 7.px))
-        assertThat(onDragLog[4].pxPosition).isEqualTo(PxPosition(6.px, 10.px))
-        assertThat(onDragLog[5].pxPosition).isEqualTo(PxPosition(6.px, 10.px))
-        assertThat(onDragLog[6].pxPosition).isEqualTo(PxPosition((-10).px, (-6).px))
-        assertThat(onDragLog[7].pxPosition).isEqualTo(PxPosition((-10).px, (-6).px))
+        assertThat(onDragLog[0].pxPosition).isEqualTo(PxPosition(3f, -5f))
+        assertThat(onDragLog[1].pxPosition).isEqualTo(PxPosition(3f, -5f))
+        assertThat(onDragLog[2].pxPosition).isEqualTo(PxPosition(-3f, 7f))
+        assertThat(onDragLog[3].pxPosition).isEqualTo(PxPosition(-3f, 7f))
+        assertThat(onDragLog[4].pxPosition).isEqualTo(PxPosition(6f, 10f))
+        assertThat(onDragLog[5].pxPosition).isEqualTo(PxPosition(6f, 10f))
+        assertThat(onDragLog[6].pxPosition).isEqualTo(PxPosition(-10f, -6f))
+        assertThat(onDragLog[7].pxPosition).isEqualTo(PxPosition(-10f, -6f))
     }
 
     @Test
@@ -288,16 +287,10 @@ class RawDragGestureFilterTest {
         // 2 onDrags because RawDragGestureDetector calls onDrag on both PostUp and PostDown and the
         // distance is never consumed.
         assertThat(onDragLog[0].pxPosition).isEqualTo(
-            PxPosition(
-                3.px,
-                (-4).px
-            )
+            PxPosition(3f, -4f)
         )
         assertThat(onDragLog[1].pxPosition).isEqualTo(
-            PxPosition(
-                3.px,
-                (-4).px
-            )
+            PxPosition(3f, -4f)
         )
     }
 
@@ -398,8 +391,8 @@ class RawDragGestureFilterTest {
         val loggedStops = log.filter { it.methodName == "onStop" }
         assertThat(loggedStops).hasSize(1)
         val velocity = loggedStops[0].pxPosition!!
-        assertThat(velocity.x.value).isWithin(.01f).of(expectedPxPerSecondDx)
-        assertThat(velocity.y.value).isWithin(.01f).of(expectedPxPerSecondDy)
+        assertThat(velocity.x).isWithin(.01f).of(expectedPxPerSecondDx)
+        assertThat(velocity.y).isWithin(.01f).of(expectedPxPerSecondDy)
     }
 
     // Verification that callbacks occur in the correct order
@@ -527,8 +520,8 @@ class RawDragGestureFilterTest {
             PointerEventPass.PostDown
         )
 
-        assertThat(result.consumed.positionChange.x.value).isEqualTo(7f)
-        assertThat(result.consumed.positionChange.y.value).isEqualTo(-11f)
+        assertThat(result.consumed.positionChange.x).isEqualTo(7f)
+        assertThat(result.consumed.positionChange.y).isEqualTo(-11f)
     }
 
     @Test
@@ -559,7 +552,7 @@ class RawDragGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move)
 
         assertThat(log.first { it.methodName == "onStart" }.pxPosition)
-            .isEqualTo(PxPosition(3.px, 4.px))
+            .isEqualTo(PxPosition(3f, 4f))
     }
 
     @Test
@@ -580,7 +573,7 @@ class RawDragGestureFilterTest {
 
         assertThat(log.first { it.methodName == "onStart" }.pxPosition)
             // average position
-            .isEqualTo(PxPosition(3.px, 4.px))
+            .isEqualTo(PxPosition(3f, 4f))
     }
 
     // Tests that verify when onCancel should not be called.
@@ -637,7 +630,7 @@ class RawDragGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move)
 
         assertThat(log.first { it.methodName == "onStart" }.pxPosition)
-            .isEqualTo(PxPosition(7.px, 11.px))
+            .isEqualTo(PxPosition(7f, 11f))
     }
 
     @Test
@@ -680,8 +673,8 @@ class RawDragGestureFilterTest {
         val loggedStops = log.filter { it.methodName == "onStop" }
         assertThat(loggedStops).hasSize(1)
         val velocity = loggedStops[0].pxPosition!!
-        assertThat(velocity.x.value).isWithin(.01f).of(100f)
-        assertThat(velocity.y.value).isWithin(.01f).of(100f)
+        assertThat(velocity.x).isWithin(.01f).of(100f)
+        assertThat(velocity.y).isWithin(.01f).of(100f)
     }
 
     data class LogItem(

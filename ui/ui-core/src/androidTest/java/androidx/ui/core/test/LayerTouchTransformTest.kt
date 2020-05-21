@@ -41,7 +41,6 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doPartialGesture
 import androidx.ui.test.findByTag
 import androidx.ui.test.sendDown
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -123,7 +122,7 @@ class LayerTouchTransformTest {
         // however, after transformations, this point will be within
         // its bounds
 
-        val mappedPosition = PxPosition(Px(342.0f), Px(168.0f))
+        val mappedPosition = PxPosition(342.0f, 168.0f)
         val node = findByTag(testTag).doPartialGesture { sendDown(mappedPosition) }
 
         latch = CountDownLatch(1).apply {
@@ -134,8 +133,8 @@ class LayerTouchTransformTest {
             Assert.assertEquals(
                 Color.Red.toArgb(),
                 getPixel(
-                    mappedPosition.x.value.toInt(),
-                    mappedPosition.y.value.toInt()
+                    mappedPosition.x.toInt(),
+                    mappedPosition.y.toInt()
                 )
             )
         }

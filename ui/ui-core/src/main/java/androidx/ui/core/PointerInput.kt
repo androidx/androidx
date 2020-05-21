@@ -19,10 +19,8 @@ package androidx.ui.core
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.Uptime
-import androidx.ui.unit.px
 
 /**
  * Describes a change that has occurred for a particular pointer, as well as how much of the change
@@ -213,7 +211,7 @@ private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = 
 
     val offset =
         if (previousPosition == null || currentPosition == null) {
-            PxPosition(0.px, 0.px)
+            PxPosition(0.0f, 0.0f)
         } else {
             currentPosition - previousPosition
         }
@@ -231,7 +229,7 @@ private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = 
  * True if any of this [PointerInputChange]'s movement has been consumed.
  */
 fun PointerInputChange.anyPositionChangeConsumed() =
-    consumed.positionChange.x.value != 0f || consumed.positionChange.y.value != 0f
+    consumed.positionChange.x != 0f || consumed.positionChange.y != 0f
 
 /**
  * True if any aspect of this [PointerInputChange] has been consumed.
@@ -262,8 +260,8 @@ fun PointerInputChange.consumeDownChange() =
  * @param consumedDy The amount of position change on the y axis to consume.
  */
 fun PointerInputChange.consumePositionChange(
-    consumedDx: Px,
-    consumedDy: Px
+    consumedDx: Float,
+    consumedDy: Float
 ): PointerInputChange {
     val newConsumedDx = consumedDx + consumed.positionChange.x
     val newConsumedDy = consumedDy + consumed.positionChange.y

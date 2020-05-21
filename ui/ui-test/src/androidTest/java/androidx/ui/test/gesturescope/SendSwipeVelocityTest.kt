@@ -159,8 +159,8 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
 
                 // Check velocity
                 val actualVelocity = recordedVelocity.pixelsPerSecond
-                assertThat(actualVelocity.x.value).isWithin(.1f).of(expectedXVelocity)
-                assertThat(actualVelocity.y.value).isWithin(.1f).of(expectedYVelocity)
+                assertThat(actualVelocity.x).isWithin(.1f).of(expectedXVelocity)
+                assertThat(actualVelocity.y).isWithin(.1f).of(expectedYVelocity)
                 assertThat(actualVelocity.getDistance().value)
                     .isWithin(velocity * 0.001f).of(velocity)
             }

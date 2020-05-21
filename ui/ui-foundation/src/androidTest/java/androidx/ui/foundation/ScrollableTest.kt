@@ -44,7 +44,6 @@ import androidx.ui.test.sendSwipeWithVelocity
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -84,7 +83,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100.px, this.center.y),
+                end = PxPosition(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -97,7 +96,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x, this.center.y + 100.px),
+                end = PxPosition(this.center.x, this.center.y + 100f),
                 duration = 100.milliseconds
             )
         }
@@ -109,7 +108,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x - 100.px, this.center.y),
+                end = PxPosition(this.center.x - 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -140,7 +139,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x, this.center.y + 100.px),
+                end = PxPosition(this.center.x, this.center.y + 100f),
                 duration = 100.milliseconds
             )
         }
@@ -153,7 +152,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100.px, this.center.y),
+                end = PxPosition(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -165,7 +164,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x, this.center.y - 100.px),
+                end = PxPosition(this.center.x, this.center.y - 100f),
                 duration = 100.milliseconds
             )
         }
@@ -204,7 +203,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100.px, this.center.y),
+                end = PxPosition(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -244,7 +243,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100.px, this.center.y),
+                end = PxPosition(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -257,7 +256,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100.px, this.center.y),
+                end = PxPosition(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -292,7 +291,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipeWithVelocity(
                 start = this.center,
-                end = PxPosition(this.center.x + 100.px, this.center.y),
+                end = PxPosition(this.center.x + 100f, this.center.y),
                 endVelocity = 112f,
                 duration = 100.milliseconds
 
@@ -303,7 +302,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipeWithVelocity(
                 start = this.center,
-                end = PxPosition(this.center.x - 100.px, this.center.y),
+                end = PxPosition(this.center.x - 100f, this.center.y),
                 endVelocity = 312f,
                 duration = 100.milliseconds
 
@@ -336,7 +335,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100.px, this.center.y),
+                end = PxPosition(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -348,7 +347,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 114.px, this.center.y),
+                end = PxPosition(this.center.x + 114f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -388,7 +387,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100.px, this.center.y),
+                end = PxPosition(this.center.x + 100, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -551,7 +550,7 @@ class ScrollableTest {
         findByTag(scrollableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 200.px, this.center.y),
+                end = PxPosition(this.center.x + 200f, this.center.y),
                 duration = 300.milliseconds
             )
         }

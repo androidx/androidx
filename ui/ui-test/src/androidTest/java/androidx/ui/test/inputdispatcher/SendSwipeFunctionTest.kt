@@ -33,7 +33,6 @@ import androidx.ui.unit.Duration
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -45,8 +44,8 @@ import org.junit.runners.Parameterized
 
 private val curve = { t: Long ->
     PxPosition(
-        t.toFloat().px,
-        (-t).toFloat().px
+        t.toFloat(),
+        (-t).toFloat()
     )
 }
 
@@ -317,8 +316,8 @@ class SendSwipeWithKeyTimesAndEventPeriodTest(private val config: TestConfig) {
 
             // Check that coordinates are the function's value at the respective timestamps
             forEach {
-                assertThat(it.x).isEqualTo(curve(it.relativeTime).x.value)
-                assertThat(it.y).isEqualTo(curve(it.relativeTime).y.value)
+                assertThat(it.x).isEqualTo(curve(it.relativeTime).x)
+                assertThat(it.y).isEqualTo(curve(it.relativeTime).y)
             }
 
             // The given keyTimes must occur as event timestamps

@@ -105,7 +105,7 @@ class BottomNavigationTest {
                 Truth.assertThat(coord.size.width).isEqualTo(expectedItemWidth)
                 Truth.assertThat(coord.size.height).isEqualTo(expectedItemHeight)
                 Truth.assertThat(coord.globalPosition.x)
-                    .isEqualTo((expectedItemWidth * index).toPx())
+                    .isEqualTo((expectedItemWidth * index).value.toFloat())
             }
         }
     }
@@ -142,14 +142,15 @@ class BottomNavigationTest {
         composeTestRule.runOnIdleComposeWithDensity {
             // Distance from the bottom to the text baseline and from the text baseline to the
             // bottom of the icon
-            val textBaseline = 12.dp.toIntPx().toPx()
+            val textBaseline = 12.dp.toIntPx().value.toFloat()
 
             // Relative position of the baseline to the top of text
-            val relativeTextBaseline = textCoords[LastBaseline]!!.toPx()
+            val relativeTextBaseline = textCoords[LastBaseline]!!.toPx().value
             // Absolute y position of the text baseline
             val absoluteTextBaseline = textCoords.globalPosition.y + relativeTextBaseline
 
-            val itemBottom = itemCoords.size.height.toPx() + itemCoords.globalPosition.y
+            val itemBottom = itemCoords.size.height.toPx().value +
+                    itemCoords.globalPosition.y
             // Text baseline should be 12.dp from the bottom of the item
             Truth.assertThat(absoluteTextBaseline).isEqualTo(itemBottom - textBaseline)
 
@@ -157,9 +158,10 @@ class BottomNavigationTest {
             val iconExpectedX = (itemCoords.size.width.toPx() - iconCoords.size.width.toPx()) / 2
             // The bottom of the icon is 12.dp above the text baseline
             val iconExpectedY =
-                absoluteTextBaseline - 12.dp.toIntPx().toPx() - iconCoords.size.height
+                absoluteTextBaseline - 12.dp.toIntPx().value.toFloat() -
+                        iconCoords.size.height.value
 
-            Truth.assertThat(iconCoords.globalPosition.x.value).isWithin(1f).of(iconExpectedX.value)
+            Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(iconExpectedX.value)
             Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY)
         }
     }
@@ -206,8 +208,8 @@ class BottomNavigationTest {
             val iconExpectedX = (itemCoords.size.width.toPx() - iconCoords.size.width.toPx()) / 2
             val iconExpectedY = (itemCoords.size.height - iconCoords.size.height) / 2
 
-            Truth.assertThat(iconCoords.globalPosition.x.value).isWithin(1f).of(iconExpectedX.value)
-            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY.toPx())
+            Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(iconExpectedX.value)
+            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY.toPx().value)
         }
     }
 
@@ -240,8 +242,8 @@ class BottomNavigationTest {
             val iconExpectedX = (itemCoords.size.width.toPx() - iconCoords.size.width.toPx()) / 2
             val iconExpectedY = (itemCoords.size.height - iconCoords.size.height) / 2
 
-            Truth.assertThat(iconCoords.globalPosition.x.value).isWithin(1f).of(iconExpectedX.value)
-            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY.toPx())
+            Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(iconExpectedX.value)
+            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY.toPx().value)
         }
     }
 

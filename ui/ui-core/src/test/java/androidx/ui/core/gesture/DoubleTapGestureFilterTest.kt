@@ -30,7 +30,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -543,7 +542,7 @@ class DoubleTapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move2)
         filter::onPointerInput.invokeOverAllPasses(up2)
 
-        verify(onDoubleTap).invoke(PxPosition(3.px, 5.px))
+        verify(onDoubleTap).invoke(PxPosition(3f, 5f))
     }
 
     @Test
@@ -566,7 +565,7 @@ class DoubleTapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(up2A, move2B2)
         filter::onPointerInput.invokeOverAllPasses(up2B)
 
-        verify(onDoubleTap).invoke(PxPosition((7).px, (11).px))
+        verify(onDoubleTap).invoke(PxPosition(7f, 11f))
     }
 
     // Tests that verify correct consumption behavior

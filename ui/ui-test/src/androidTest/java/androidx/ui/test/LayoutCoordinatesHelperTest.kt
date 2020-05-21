@@ -30,7 +30,6 @@ import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -105,7 +104,7 @@ class LayoutCoordinatesHelperTest {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(
-            PxPosition(5.px, 0.px),
+            PxPosition(5f, 0f),
             parentCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin)
         )
     }

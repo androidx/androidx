@@ -36,7 +36,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -92,7 +91,7 @@ class StackTest : LayoutTest() {
 
         assertEquals(IntPxSize(size, size), stackSize.value)
         assertEquals(IntPxSize(size, size), alignedChildSize.value)
-        assertEquals(PxPosition(0.px, 0.px), alignedChildPosition.value)
+        assertEquals(PxPosition(0f, 0f), alignedChildPosition.value)
         assertEquals(IntPxSize(30.dp.toIntPx(), 30.dp.toIntPx()), positionedChildSize.value)
         assertEquals(PxPosition(10.dp.toIntPx(), 10.dp.toIntPx()), positionedChildPosition.value)
     }
@@ -145,7 +144,7 @@ class StackTest : LayoutTest() {
         assertEquals(IntPxSize(size, size), childSize[0].value)
         assertEquals(PxPosition(size, size), childPosition[0].value)
         assertEquals(IntPxSize(doubleSize, doubleSize), childSize[1].value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition[1].value)
+        assertEquals(PxPosition(0f, 0f), childPosition[1].value)
     }
 
     @Test
@@ -215,11 +214,11 @@ class StackTest : LayoutTest() {
 
         assertEquals(IntPxSize(size, size), stackSize.value)
         assertEquals(IntPxSize(size, size), childSize[0].value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0].value)
+        assertEquals(PxPosition(0f, 0f), childPosition[0].value)
         assertEquals(IntPxSize(size - inset, size - inset), childSize[1].value)
         assertEquals(PxPosition(inset, inset), childPosition[1].value)
         assertEquals(IntPxSize(size - inset, size - inset), childSize[2].value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition[2].value)
+        assertEquals(PxPosition(0f, 0f), childPosition[2].value)
         assertEquals(IntPxSize(size - inset * 2, size), childSize[3].value)
         assertEquals(PxPosition(inset, 0.ipx), childPosition[3].value)
         assertEquals(IntPxSize(size, size - inset * 2), childSize[4].value)
@@ -307,13 +306,19 @@ class StackTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(tripleSize, tripleSize), stackSize.value)
-        assertEquals(PxPosition((size * 2).toPx(), 0.px), childPosition[0].value)
+        assertEquals(PxPosition((size * 2).value.toFloat(), 0f), childPosition[0].value)
         assertEquals(PxPosition(size, 0.ipx), childPosition[1].value)
         assertEquals(PxPosition(0.ipx, 0.ipx), childPosition[2].value)
-        assertEquals(PxPosition((size * 2).toPx(), size.toPx()), childPosition[3].value)
+        assertEquals(PxPosition((size * 2).toPx().value, size.toPx().value), childPosition[3].value)
         assertEquals(PxPosition(size, size), childPosition[4].value)
         assertEquals(PxPosition(0.ipx, size), childPosition[5].value)
-        assertEquals(PxPosition((size * 2).toPx(), (size * 2).toPx()), childPosition[6].value)
+        assertEquals(
+            PxPosition(
+                (size * 2).toPx().value,
+                (size * 2).toPx().value
+            ),
+            childPosition[6].value
+        )
         assertEquals(PxPosition(size, size * 2), childPosition[7].value)
         assertEquals(PxPosition(0.ipx, size * 2), childPosition[8].value)
     }
@@ -360,7 +365,7 @@ class StackTest : LayoutTest() {
 
         assertEquals(IntPxSize(size, size), stackSize.value)
         assertEquals(IntPxSize(size, size), childSize[0].value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0].value)
+        assertEquals(PxPosition(0f, 0f), childPosition[0].value)
         assertEquals(IntPxSize(halfSize, halfSize), childSize[1].value)
         assertEquals(PxPosition(size - halfSize, size - halfSize), childPosition[1].value)
     }

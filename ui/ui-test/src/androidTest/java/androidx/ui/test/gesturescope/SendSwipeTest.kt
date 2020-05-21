@@ -120,7 +120,7 @@ private fun PointerInputRecorder.assertSwipeIsUp() {
     // Last event must be above first event
     assertThat(events.last().position.y).isLessThan(events.first().position.y)
     // All events in between only move up
-    events.map { it.position.x.value }.assertSame(tolerance = 0.001f)
+    events.map { it.position.x }.assertSame(tolerance = 0.001f)
     events.map { it.position.y }.assertDecreasing()
 }
 
@@ -130,7 +130,7 @@ private fun PointerInputRecorder.assertSwipeIsDown() {
     // Last event must be below first event
     assertThat(events.last().position.y).isGreaterThan(events.first().position.y)
     // All events in between only move down
-    events.map { it.position.x.value }.assertSame(tolerance = 0.001f)
+    events.map { it.position.x }.assertSame(tolerance = 0.001f)
     events.map { it.position.y }.assertIncreasing()
 }
 
@@ -141,7 +141,7 @@ private fun PointerInputRecorder.assertSwipeIsLeft() {
     assertThat(events.last().position.x).isLessThan(events.first().position.x)
     // All events in between only move to the left
     events.map { it.position.x }.assertDecreasing()
-    events.map { it.position.y.value }.assertSame(tolerance = 0.001f)
+    events.map { it.position.y }.assertSame(tolerance = 0.001f)
 }
 
 private fun PointerInputRecorder.assertSwipeIsRight() {
@@ -151,7 +151,7 @@ private fun PointerInputRecorder.assertSwipeIsRight() {
     assertThat(events.last().position.x).isGreaterThan(events.first().position.x)
     // All events in between only move to the right
     events.map { it.position.x }.assertIncreasing()
-    events.map { it.position.y.value }.assertSame(tolerance = 0.001f)
+    events.map { it.position.y }.assertSame(tolerance = 0.001f)
 }
 
 private fun List<Float>.assertSame(tolerance: Float = 0f) {

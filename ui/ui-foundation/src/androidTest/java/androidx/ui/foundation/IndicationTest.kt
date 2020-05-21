@@ -31,7 +31,6 @@ import androidx.ui.test.sendDown
 import androidx.ui.test.sendUp
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule
@@ -141,7 +140,7 @@ class IndicationTest {
         findByTag(testTag)
             .assertExists()
             .doPartialGesture {
-                position1 = PxPosition(center.x, center.y + 20.px)
+                position1 = PxPosition(center.x, center.y + 20f)
                 // pointer 1, when we have multitouch
                 sendDown(position1!!)
             }
@@ -151,7 +150,7 @@ class IndicationTest {
         findByTag(testTag)
             .assertExists()
             .doPartialGesture {
-                val position2 = PxPosition(center.x + 20.px, center.y)
+                val position2 = PxPosition(center.x + 20f, center.y)
                 // pointer 2, when we have multitouch
                 sendDown(position2)
             }

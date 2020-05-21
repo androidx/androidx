@@ -50,8 +50,8 @@ private fun RippleRect() {
     val toState = state { ButtonStatus.Initial }
     val rippleTransDef = remember { createTransDef(radius) }
     val onPress: (PxPosition) -> Unit = { position ->
-        down.x = position.x.value
-        down.y = position.y.value
+        down.x = position.x
+        down.y = position.y
         toState.value = ButtonStatus.Pressed
     }
 

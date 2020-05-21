@@ -67,12 +67,12 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
             "No Layout Node found!"
         )
 
-    val position = layoutNode.coordinates.localToGlobal(PxPosition(0.px, 0.px))
+    val position = layoutNode.coordinates.localToGlobal(PxPosition(0.0f, 0.0f))
 
     runOnUiThread {
         scrollableSemanticsNode.config[SemanticsActions.ScrollTo].action(
-            globalPosition.x - position.x,
-            globalPosition.y - position.y
+            (globalPosition.x - position.x).px,
+            (globalPosition.y - position.y).px
         )
     }
 

@@ -60,9 +60,9 @@ internal fun List<PointerInputChange>.toMotionEventScope(block: (MotionEvent) ->
     val pointerCoords =
         map {
             if (it.changedToUpIgnoreConsumed()) {
-                PointerCoords(it.previous.position!!.x.value, it.previous.position.y.value)
+                PointerCoords(it.previous.position!!.x, it.previous.position.y)
             } else {
-                PointerCoords(it.current.position!!.x.value, it.current.position.y.value)
+                PointerCoords(it.current.position!!.x, it.current.position.y)
             }
         }.toTypedArray()
 
@@ -95,9 +95,9 @@ internal fun List<PointerInputChange>.toCancelMotionEventScope(block: (MotionEve
     val pointerCoords =
         map {
             if (it.changedToUpIgnoreConsumed()) {
-                PointerCoords(it.previous.position!!.x.value, it.previous.position.y.value)
+                PointerCoords(it.previous.position!!.x, it.previous.position.y)
             } else {
-                PointerCoords(it.current.position!!.x.value, it.current.position.y.value)
+                PointerCoords(it.current.position!!.x, it.current.position.y)
             }
         }.toTypedArray()
 

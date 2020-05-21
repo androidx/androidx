@@ -33,7 +33,6 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.positionChange
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import androidx.ui.util.fastAny
 import androidx.ui.util.fastForEach
 
@@ -266,8 +265,8 @@ internal class RawDragGestureFilter : PointerInputFilter() {
                     var totalDy = 0f
 
                     movedChanges.fastForEach {
-                        totalDx += it.positionChange().x.value
-                        totalDy += it.positionChange().y.value
+                        totalDx += it.positionChange().x
+                        totalDy += it.positionChange().y
                     }
 
                     if (totalDx != 0f || totalDy != 0f) {
@@ -284,8 +283,8 @@ internal class RawDragGestureFilter : PointerInputFilter() {
 
                             val consumed = dragObserver.onDrag(
                                 PxPosition(
-                                    (totalDx / changesToReturn.size).px,
-                                    (totalDy / changesToReturn.size).px
+                                    totalDx / changesToReturn.size,
+                                    totalDy / changesToReturn.size
                                 )
                             )
 
@@ -313,8 +312,8 @@ internal class RawDragGestureFilter : PointerInputFilter() {
 }
 
 private fun Iterable<PxPosition>.averagePosition(): PxPosition {
-    var x = 0.px
-    var y = 0.px
+    var x = 0f
+    var y = 0f
     forEach {
         x += it.x
         y += it.y

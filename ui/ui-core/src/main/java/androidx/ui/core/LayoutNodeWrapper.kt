@@ -99,10 +99,10 @@ internal abstract class LayoutNodeWrapper(
         // TODO(shepshapard): Right now globalToLocal has to traverse the tree all the way back up
         //  so calling this is expensive.  Would be nice to cache data such that this is cheap.
         val localPointerPosition = globalToLocal(globalPointerPosition)
-        return localPointerPosition.x.value >= 0 &&
-                localPointerPosition.x < measuredSize.width &&
-                localPointerPosition.y.value >= 0 &&
-                localPointerPosition.y < measuredSize.height
+        return localPointerPosition.x >= 0 &&
+                localPointerPosition.x < measuredSize.width.value &&
+                localPointerPosition.y >= 0 &&
+                localPointerPosition.y < measuredSize.height.value
     }
 
     /**

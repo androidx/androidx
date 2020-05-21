@@ -183,8 +183,8 @@ val PxToVectorConverter: TwoWayConverter<Px, AnimationVector1D> = TwoWayConverte
  */
 val PxPositionToVectorConverter: TwoWayConverter<PxPosition, AnimationVector2D> =
     TwoWayConverter(
-        convertToVector = { AnimationVector2D(it.x.value, it.y.value) },
-        convertFromVector = { PxPosition(it.v1.px, it.v2.px) }
+        convertToVector = { AnimationVector2D(it.x, it.y) },
+        convertFromVector = { PxPosition(it.v1, it.v2) }
     )
 
 /**

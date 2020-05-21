@@ -516,7 +516,6 @@ package androidx.ui.unit {
   public final class PxKt {
     method @androidx.compose.Stable public static inline androidx.ui.unit.PxBounds PxBounds(androidx.ui.unit.PxPosition topLeft, androidx.ui.unit.PxSize size);
     method @androidx.compose.Stable public static inline androidx.ui.unit.PxPosition PxPosition(float x, float y);
-    method @androidx.compose.Stable public static inline androidx.ui.unit.PxPosition PxPosition-qHcltEY(float x, float y);
     method @androidx.compose.Stable public static inline androidx.ui.unit.PxSize PxSize(float width, float height);
     method @androidx.compose.Stable public static inline androidx.ui.unit.PxSize PxSize-qHcltEY(float width, float height);
     method @androidx.compose.Stable public static inline float abs-NgWp0Z8(float x);

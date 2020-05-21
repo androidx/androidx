@@ -88,10 +88,10 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertEquals(childSize.value!!.height, parentSize.value!!.height)
         Assert.assertNotNull(childPosition.value)
         Assert.assertEquals(
-            beforeDp.toIntPx().toPx() - lineDp.toIntPx().toPx(),
+            (beforeDp.toIntPx().toPx() - lineDp.toIntPx().toPx()).value,
             childPosition.value!!.x
         )
-        Assert.assertEquals(0.px, childPosition.value!!.y)
+        Assert.assertEquals(0f, childPosition.value!!.y)
     }
 
     @Test
@@ -134,9 +134,9 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertNotNull(parentSize.value)
         Assert.assertEquals(beforeDp.toIntPx() + afterDp.toIntPx(), parentSize.value!!.height)
         Assert.assertNotNull(childPosition.value)
-        Assert.assertEquals(0.px, childPosition.value!!.x)
+        Assert.assertEquals(0f, childPosition.value!!.x)
         Assert.assertEquals(
-            beforeDp.toIntPx().toPx() - lineDp.toIntPx().toPx(),
+            (beforeDp.toIntPx().toPx() - lineDp.toIntPx().toPx()).value,
             childPosition.value!!.y
         )
     }
@@ -171,8 +171,8 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertNotNull(childSize.value)
         Assert.assertEquals(childSize.value, parentSize.value)
         Assert.assertNotNull(childPosition.value)
-        Assert.assertEquals(0.px, childPosition.value!!.x)
-        Assert.assertEquals(0.px, childPosition.value!!.y)
+        Assert.assertEquals(0f, childPosition.value!!.x)
+        Assert.assertEquals(0f, childPosition.value!!.y)
     }
 
     @Test
@@ -205,8 +205,8 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertNotNull(childSize.value)
         Assert.assertEquals(childSize.value, parentSize.value)
         Assert.assertNotNull(childPosition.value)
-        Assert.assertEquals(0.px, childPosition.value!!.x)
-        Assert.assertEquals(0.px, childPosition.value!!.y)
+        Assert.assertEquals(0f, childPosition.value!!.x)
+        Assert.assertEquals(0f, childPosition.value!!.y)
     }
 
     @Test
@@ -246,8 +246,8 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertNotNull(childSize.value)
         Assert.assertEquals(childSize.value!!.height, parentSize.value!!.height)
         Assert.assertNotNull(childPosition.value)
-        Assert.assertEquals(5.px, childPosition.value!!.x)
-        Assert.assertEquals(0.px, childPosition.value!!.y)
+        Assert.assertEquals(5f, childPosition.value!!.x)
+        Assert.assertEquals(0f, childPosition.value!!.y)
     }
 
     @Test
@@ -287,8 +287,8 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertNotNull(parentSize.value)
         Assert.assertEquals(maxHeight.toIntPx(), parentSize.value!!.height)
         Assert.assertNotNull(childPosition.value)
-        Assert.assertEquals(0.px, childPosition.value!!.x)
-        Assert.assertEquals(5.px, childPosition.value!!.y)
+        Assert.assertEquals(0f, childPosition.value!!.x)
+        Assert.assertEquals(5f, childPosition.value!!.y)
     }
 
     @Test

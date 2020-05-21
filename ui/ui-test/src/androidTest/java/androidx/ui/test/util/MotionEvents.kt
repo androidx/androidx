@@ -70,8 +70,8 @@ internal fun MotionEvent.verify(
     assertThat(relativeTime).isEqualTo(expectedRelativeTime)
     // x and y can just be taken from the function. We're not testing the function, we're
     // testing if the MotionEvent sampled the function at the correct point
-    assertThat(x).isEqualTo(expectedPosition.x.value)
-    assertThat(y).isEqualTo(expectedPosition.y.value)
+    assertThat(x).isEqualTo(expectedPosition.x)
+    assertThat(y).isEqualTo(expectedPosition.y)
 }
 
 /**
@@ -85,8 +85,8 @@ fun List<MotionEvent>.between(t0: Long, t1: Long): List<MotionEvent> {
  * Checks that the coordinates are progressing in a monotonous direction
  */
 fun List<MotionEvent>.isMonotonicBetween(start: PxPosition, end: PxPosition) {
-    map { it.x }.isMonotonicBetween(start.x.value, end.x.value, 1e-6f)
-    map { it.y }.isMonotonicBetween(start.y.value, end.y.value, 1e-6f)
+    map { it.x }.isMonotonicBetween(start.x, end.x, 1e-6f)
+    map { it.y }.isMonotonicBetween(start.y, end.y, 1e-6f)
 }
 
 /**

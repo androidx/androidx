@@ -31,7 +31,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.padding
 import androidx.ui.layout.size
-import androidx.ui.unit.px
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -50,8 +49,8 @@ class ModifierInfoTest : ToolingTest() {
         show {
             Inspectable(slotTableRecord) {
                 with(DensityAmbient.current) {
-                    val px10 = 10.px.toDp()
-                    val px5 = 5.px.toDp()
+                    val px10 = 10f.toDp()
+                    val px5 = 5f.toDp()
                     Box {
                         Column(Modifier.padding(px10).drawLayer().drawBackground(Color.Blue)) {
                             Box(Modifier.padding(px5).size(px5))
@@ -80,13 +79,13 @@ class ModifierInfoTest : ToolingTest() {
             assertEquals(2, boxModifierInfo.size)
             assertTrue("Box should only have LayoutModifiers, but the first was " +
                 "${boxModifierInfo[0].modifier}", boxModifierInfo[0].modifier is LayoutModifier)
-            assertEquals(10.px, boxModifierInfo[0].coordinates.positionInRoot.x)
+            assertEquals(10f, boxModifierInfo[0].coordinates.positionInRoot.x)
 
             assertTrue("Box should only have LayoutModifiers, but the second was " +
                     "${boxModifierInfo[1].modifier}",
                 boxModifierInfo[1].modifier is LayoutModifier
             )
-            assertEquals(15.px, boxModifierInfo[1].coordinates.positionInRoot.x)
+            assertEquals(15f, boxModifierInfo[1].coordinates.positionInRoot.x)
 
             val columnModifierInfo = modifierInfo[1]
             assertEquals(3, columnModifierInfo.size)
@@ -95,20 +94,20 @@ class ModifierInfoTest : ToolingTest() {
                         "but was ${columnModifierInfo[0].modifier}",
                 columnModifierInfo[0].modifier is LayoutModifier
             )
-            assertEquals(0.px, columnModifierInfo[0].coordinates.positionInRoot.x)
+            assertEquals(0f, columnModifierInfo[0].coordinates.positionInRoot.x)
             assertTrue(
                 "The second modifier in the column should be a DrawLayerModifier" +
                         "but was ${columnModifierInfo[1].modifier}",
                 columnModifierInfo[1].modifier is DrawLayerModifier
             )
             assertTrue(columnModifierInfo[1].extra is OwnedLayer)
-            assertEquals(10.px, columnModifierInfo[1].coordinates.positionInRoot.x)
+            assertEquals(10f, columnModifierInfo[1].coordinates.positionInRoot.x)
             assertTrue(
                 "The third modifier in the column should be a DrawModifier" +
                         "but was ${columnModifierInfo[2].modifier}",
                 columnModifierInfo[2].modifier is DrawModifier
             )
-            assertEquals(10.px, columnModifierInfo[2].coordinates.positionInRoot.x)
+            assertEquals(10f, columnModifierInfo[2].coordinates.positionInRoot.x)
         }
     }
 }

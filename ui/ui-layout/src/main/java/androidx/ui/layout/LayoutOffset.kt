@@ -26,9 +26,9 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.unit.Dp
-import androidx.ui.unit.Px
 import androidx.ui.unit.dp
-import androidx.ui.unit.round
+import androidx.ui.unit.ipx
+import kotlin.math.roundToInt
 
 /**
  * Offset the content by ([x] dp, [y] dp). The offsets can be positive as well as non positive.
@@ -47,8 +47,8 @@ fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this + OffsetModifier(x, y)
  * @sample androidx.ui.layout.samples.LayoutOffsetPxModifier
  */
 fun Modifier.offsetPx(
-    x: State<Px> = mutableStateOf(Px.Zero),
-    y: State<Px> = mutableStateOf(Px.Zero)
+    x: State<Float> = mutableStateOf(0f),
+    y: State<Float> = mutableStateOf(0f)
 ) = this + OffsetPxModifier(x, y)
 
 private data class OffsetModifier(val x: Dp, val y: Dp) : LayoutModifier {
@@ -64,7 +64,7 @@ private data class OffsetModifier(val x: Dp, val y: Dp) : LayoutModifier {
     }
 }
 
-private data class OffsetPxModifier(val x: State<Px>, val y: State<Px>) : LayoutModifier {
+private data class OffsetPxModifier(val x: State<Float>, val y: State<Float>) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
@@ -72,7 +72,7 @@ private data class OffsetPxModifier(val x: State<Px>, val y: State<Px>) : Layout
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {
-            placeable.place(x.value.round(), y.value.round())
+            placeable.place(x.value.roundToInt().ipx, y.value.roundToInt().ipx)
         }
     }
 }
