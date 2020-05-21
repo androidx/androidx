@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe.testing
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.hardware.camera2.params.StreamConfigurationMap
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
@@ -65,6 +66,16 @@ class FakeCameraMetadata(
 
     override fun <T> getChecked(key: CameraCharacteristics.Key<T>): T = (values[key] as T)!!
     override val camera = CameraId("Fake")
+    override val isRedacted = false
+    override val keys: Set<CameraCharacteristics.Key<*>> = emptySet()
+    override val requestKeys: Set<CaptureRequest.Key<*>> = emptySet()
+    override val resultKeys: Set<CaptureResult.Key<*>> = emptySet()
+    override val sessionKeys: Set<CaptureRequest.Key<*>> = emptySet()
+    override val physicalCameraIds: Set<CameraId> = emptySet()
+    override val physicalRequestKeys: Set<CaptureRequest.Key<*>> = emptySet()
+    override val streamMap: StreamConfigurationMap
+        get() = throw UnsupportedOperationException("StreamConfigurationMap is not available.")
+
     override fun unwrap(): CameraCharacteristics? {
         throw UnsupportedOperationException(
             "FakeCameraMetadata does not wrap CameraCharacteristics")
