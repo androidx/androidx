@@ -22,10 +22,10 @@ import android.widget.Button
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.LoadState
+import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
-import androidx.paging.LoadType
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.PagingDataAdapter
 import androidx.paging.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
@@ -72,31 +72,20 @@ class V3Activity : AppCompatActivity() {
 
     private fun setupLoadStateButtons(adapter: PagingDataAdapter<Item, RecyclerView.ViewHolder>) {
         val button = findViewById<Button>(R.id.button_refresh)
-        adapter.addLoadStateListener { type: LoadType, state: LoadState ->
-            if (type != LoadType.REFRESH) return@addLoadStateListener
-
-            when (state) {
-                is LoadState.NotLoading -> {
-                    button.text = if (state.endOfPaginationReached) "Refresh" else "Done"
-                    button.isEnabled = state.endOfPaginationReached
-                    if (state.endOfPaginationReached) {
-                        button.setOnClickListener {
-                            adapter.refresh()
-                        }
-                    }
-                }
-                is Loading -> {
-                    button.text = "Loading"
-                    button.isEnabled = false
-                }
-                is Error -> {
-                    button.text = "Error"
-                    button.isEnabled = true
-                    button.setOnClickListener {
-                        adapter.retry()
-                    }
-                }
+        adapter.addLoadStateListener { loadStates: CombinedLoadStates ->
+            button.text = when (loadStates.refresh) {
+                is NotLoading -> "Refresh"
+                is Loading -> "Loading"
+                is Error -> "Error"
             }
+
+            if (loadStates.refresh is NotLoading) {
+                button.setOnClickListener { adapter.refresh() }
+            } else if (loadStates.refresh is Error) {
+                button.setOnClickListener { adapter.retry() }
+            }
+
+            button.isEnabled = loadStates.refresh !is Loading
         }
     }
 }
