@@ -230,7 +230,7 @@
 
         <activity android:name=".app.ActionBarActionMode"
                   android:label="@string/action_bar_action_mode"
-                  android:theme="@style/Theme.Custom">
+                  android:theme="@style/Theme.Custom.WithActionMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
@@ -333,7 +333,7 @@
 
         <activity android:name=".app.ToolbarActionMode"
                   android:label="@string/toolbar_action_mode"
-                  android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+                  android:theme="@style/Theme.Custom.NoActionBar.WithActionMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
