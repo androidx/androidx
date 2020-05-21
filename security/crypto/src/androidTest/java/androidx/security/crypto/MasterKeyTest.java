@@ -24,6 +24,7 @@ import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
+import androidx.security.crypto.MasterKey.KeyScheme;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -40,9 +41,8 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 
 @MediumTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 @RunWith(JUnit4.class)
-public class MasterKeysTest {
+public class MasterKeyTest {
     private static final String PREFS_FILE = "test_shared_prefs";
     private static final int KEY_SIZE = 256;
 
@@ -85,127 +85,136 @@ public class MasterKeysTest {
 
     @Test
     public void testCreateDefaultKey() throws GeneralSecurityException, IOException {
-        String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
-        assertKeyExists(masterKeyAlias);
+        MasterKey masterKey = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build();
+        assertKeyExists(masterKey.getKeyAlias());
     }
 
+    @Test
+    public void testCreateRenamedKey() throws GeneralSecurityException, IOException {
+        final String testAlias = "TestKeyAlias";
+        MasterKey masterKey =
+                new MasterKey.Builder(ApplicationProvider.getApplicationContext(), testAlias)
+                        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                        .build();
+        Assert.assertEquals(masterKey.getKeyAlias(), testAlias);
+        assertKeyExists(masterKey.getKeyAlias());
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     public void testCreateKeyWithParamSpec() throws GeneralSecurityException, IOException {
-        KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(MasterKeys.MASTER_KEY_ALIAS,
+        KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(
+                MasterKey.DEFAULT_MASTER_KEY_ALIAS,
                 KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                 .setKeySize(KEY_SIZE)
                 .build();
-        String masterKeyAlias = MasterKeys.getOrCreate(spec);
-        assertKeyExists(masterKeyAlias);
+        MasterKey masterKey = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
+                .setKeyGenParameterSpec(spec)
+                .build();
+        assertKeyExists(masterKey.getKeyAlias());
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
-    public void testValidateKeyWithAuth() throws GeneralSecurityException, IOException {
-        KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(MasterKeys.MASTER_KEY_ALIAS,
+    public void testCreateKeyWithParamSpecAndAlias() throws GeneralSecurityException,
+            IOException {
+        KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder("test_key_alias",
                 KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                 .setKeySize(KEY_SIZE)
-                .setUserAuthenticationRequired(true)
-                .setUserAuthenticationValidityDurationSeconds(60)
                 .build();
-        // Validate throws if it fails.
-        MasterKeys.validate(spec);
+        MasterKey masterKey = new MasterKey.Builder(
+                ApplicationProvider.getApplicationContext(), "test_key_alias")
+                .setKeyGenParameterSpec(spec)
+                .build();
+        assertKeyExists(masterKey.getKeyAlias());
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    @Test
+    public void testCreateKeyWithParamSpecWithDifferentAliasFails() throws GeneralSecurityException,
+            IOException {
+        KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder("test_key_alias",
+                KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setKeySize(KEY_SIZE)
+                .build();
+        try {
+            MasterKey masterKey = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
+                    .setKeyGenParameterSpec(spec)
+                    .build();
+            Assert.fail("Could create key with inconsistent key alias");
+        } catch (IllegalArgumentException iae) {
+            // Pass
+        }
     }
 
     @Test
-    public void testCreateWithWrongPurposeFails() throws GeneralSecurityException, IOException {
+    public void testCheckIfKeyIsKeyStoreBacked() throws GeneralSecurityException,
+            IOException {
+        MasterKey masterKey = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
+                .setKeyScheme(KeyScheme.AES256_GCM)
+                .build();
+
+        KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+        keyStore.load(null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Assert.assertTrue(masterKey.isKeyStoreBacked());
+            assertKeyExists(masterKey.getKeyAlias());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    @Test
+    public void testUseOfSchemeAndParamsFails() throws GeneralSecurityException,
+            IOException {
         KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(MasterKeys.MASTER_KEY_ALIAS,
-                KeyProperties.PURPOSE_SIGN)
+                KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                 .setKeySize(KEY_SIZE)
                 .build();
 
         try {
-            String masterKeyAlias = MasterKeys.getOrCreate(spec);
-            Assert.fail("Key created with wrong purpose: " + masterKeyAlias);
+            MasterKey masterKey = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
+                    .setKeyScheme(KeyScheme.AES256_GCM)
+                    .setKeyGenParameterSpec(spec)
+                    .build();
+            Assert.fail("Could create key with both scheme + KeyGenParameterSpec");
         } catch (IllegalArgumentException iae) {
-            // Expected -- Test pass
+            // Pass.
         }
     }
 
     @Test
-    public void testCreateWithWrongBlockModeFails() throws GeneralSecurityException, IOException {
-        KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(MasterKeys.MASTER_KEY_ALIAS,
-                KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                .setBlockModes(KeyProperties.BLOCK_MODE_CTR)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .setKeySize(KEY_SIZE)
+    public void testCheckGettersAreCallable() throws GeneralSecurityException,
+            IOException {
+        MasterKey masterKey = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
+                .setKeyScheme(KeyScheme.AES256_GCM)
                 .build();
-
-        try {
-            String masterKeyAlias = MasterKeys.getOrCreate(spec);
-            Assert.fail("Key created with wrong block mode: " + masterKeyAlias);
-        } catch (IllegalArgumentException iae) {
-            // Expected -- Test pass
+        Assert.assertFalse(masterKey.isUserAuthenticationRequired());
+        Assert.assertFalse(masterKey.isStrongBoxBacked());
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            Assert.assertEquals(masterKey.getUserAuthenticationValidityDurationSeconds(), 0);
         }
     }
 
-    @Test
-    public void testCreateWithWrongPaddingFails() throws GeneralSecurityException, IOException {
-        KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(MasterKeys.MASTER_KEY_ALIAS,
-                KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
-                .setKeySize(KEY_SIZE)
-                .build();
-
-        try {
-            String masterKeyAlias = MasterKeys.getOrCreate(spec);
-            Assert.fail("Key created with wrong key size: " + masterKeyAlias);
-        } catch (IllegalArgumentException iae) {
-            // Expected -- Test pass
-        }
-    }
-
-    @Test
-    public void testCreateWithWrongKeySizeFails() throws GeneralSecurityException, IOException {
-        KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(MasterKeys.MASTER_KEY_ALIAS,
-                KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .setKeySize(KEY_SIZE * 2)
-                .build();
-
-        try {
-            String masterKeyAlias = MasterKeys.getOrCreate(spec);
-            Assert.fail("Key created with wrong key size: " + masterKeyAlias);
-        } catch (IllegalArgumentException iae) {
-            // Expected -- Test pass
-        }
-    }
-
-    @Test
-    public void testValidateKeyWithPerUseAuthFails() throws GeneralSecurityException, IOException {
-        KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(MasterKeys.MASTER_KEY_ALIAS,
-                KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .setKeySize(KEY_SIZE)
-                .setUserAuthenticationRequired(true)
-                .setUserAuthenticationValidityDurationSeconds(0)
-                .build();
-        try {
-            MasterKeys.validate(spec);
-            Assert.fail("KeyGenParamSpec validated with per-use authentication required");
-        } catch (IllegalArgumentException iae) {
-            // Expected -- Test pass
-        }
-    }
-
-    private void assertKeyExists(String keyAlias) {
+    static void assertKeyExists(String keyAlias) {
         try {
             KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
-            Assert.assertTrue(keyStore.isKeyEntry(keyAlias));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Assert.assertTrue(keyStore.isKeyEntry(keyAlias));
+            } else {
+                // Key shouldn't exist on Lollipop =o
+                Assert.assertFalse(keyStore.isKeyEntry(keyAlias));
+            }
         } catch (Exception e) {
             Assert.fail("Exception checking for key: " + keyAlias);
             throw new RuntimeException(e);
