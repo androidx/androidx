@@ -806,6 +806,11 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         readTracks();
         assertEquals(2, mSubtitleTrackInfos.size());
 
+        // Test isSelectable
+        assertFalse(mVideoTrackInfos.get(0).isSelectable());
+        assertTrue(mSubtitleTrackInfos.get(0).isSelectable());
+        assertTrue(mSubtitleTrackInfos.get(1).isSelectable());
+
         mPlayer.reset();
     }
 
@@ -843,6 +848,10 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertEquals(1, mVideoTrackInfos.size());
         assertEquals(1, mAudioTrackInfos.size());
         assertEquals(0, mSubtitleTrackInfos.size());
+
+        // Test isSelectable
+        assertFalse(mVideoTrackInfos.get(0).isSelectable());
+        assertTrue(mAudioTrackInfos.get(0).isSelectable());
 
         // Test getSelectedTrack
         assertEquals(mVideoTrackInfos.get(0),
