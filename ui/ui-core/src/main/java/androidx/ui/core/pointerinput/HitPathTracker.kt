@@ -411,6 +411,7 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
             }
 
         if (relevantChanges.isEmpty()) {
+            // If there are not relevant changes, there is nothing to process so return.
             return false
         }
 
