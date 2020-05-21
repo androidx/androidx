@@ -20,20 +20,22 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.scaleGestureFilter
 import androidx.ui.core.gesture.ScaleObserver
+import androidx.ui.core.gesture.scaleGestureFilter
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
+import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.dp
 
 /**
- * Simple demo that shows off ScaleGestureDetectorDemo.
+ * Simple [scaleGestureFilter] demo.
  */
 @Composable
-fun ScaleGestureDetectorDemo() {
+fun ScaleGestureFilterDemo() {
     val size = state { 192.dp }
 
     val scaleObserver = object : ScaleObserver {
@@ -42,11 +44,15 @@ fun ScaleGestureDetectorDemo() {
         }
     }
 
-    Box(
-        Modifier.fillMaxSize()
-            .wrapContentSize(Alignment.Center)
-            .scaleGestureFilter(scaleObserver)
-            .preferredSize(size.value),
-        backgroundColor = Color(0xFF9e9e9e.toInt())
-    )
+    Column {
+        Text("Demonstrates the scale gesture detector!")
+        Text("This is only scaling, not translating.")
+        Box(
+            Modifier.fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+                .scaleGestureFilter(scaleObserver)
+                .preferredSize(size.value),
+            backgroundColor = Color(0xFF9e9e9e.toInt())
+        )
+    }
 }
