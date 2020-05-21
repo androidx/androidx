@@ -31,6 +31,7 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -45,6 +46,7 @@ import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -73,7 +75,7 @@ public class WebViewCompat {
 
     /**
      * This listener receives messages sent on the JavaScript object which was injected by {@link
-     * #addWebMessageListener(WebView, String, List, WebViewCompat.WebMessageListener)}.
+     * #addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
      */
     public interface WebMessageListener {
         /**
@@ -593,7 +595,7 @@ public class WebViewCompat {
      * @param webView The {@link WebView} instance that we are interacting with.
      * @param jsObjectName The name for the injected JavaScript object for this {@link
      *         WebMessageListener}.
-     * @param allowedOriginRules A list of matching rules for the allowed origins.
+     * @param allowedOriginRules A set of matching rules for the allowed origins.
      * @param listener The {@link WebMessageListener WebMessageListener} to handle postMessage()
      *         calls on the JavaScript object.
      * @throws IllegalArgumentException If one of the {@code allowedOriginRules} is invalid.
@@ -604,7 +606,7 @@ public class WebViewCompat {
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_LISTENER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void addWebMessageListener(@NonNull WebView webView, @NonNull String jsObjectName,
-            @NonNull List<String> allowedOriginRules, @NonNull WebMessageListener listener) {
+            @NonNull Set<String> allowedOriginRules, @NonNull WebMessageListener listener) {
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.WEB_MESSAGE_LISTENER);
         if (feature.isSupportedByWebView()) {
@@ -629,9 +631,9 @@ public class WebViewCompat {
      * returns true for {@link WebViewFeature#WEB_MESSAGE_LISTENER}.
      *
      * @param jsObjectName The JavaScript object's name that was previously passed to {@link
-     *         #addWebMessageListener(WebView, String,  List, WebMessageListener)}.
+     *         #addWebMessageListener(WebView, String, Set, WebMessageListener)}.
      *
-     * @see #addWebMessageListener(WebView, String, List, WebMessageListener)
+     * @see #addWebMessageListener(WebView, String, Set, WebMessageListener)
      */
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_LISTENER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -641,6 +643,29 @@ public class WebViewCompat {
                 WebViewFeatureInternal.getFeature(WebViewFeature.WEB_MESSAGE_LISTENER);
         if (feature.isSupportedByWebView()) {
             getProvider(webview).removeWebMessageListener(jsObjectName);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * TODO(ctzsm): Add Javadoc.
+     * TODO(ctzsm): unhide when ready.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            name = WebViewFeature.DOCUMENT_START_SCRIPT,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static @NonNull ScriptReferenceCompat addDocumentStartJavascript(
+            @NonNull WebView webview,
+            @NonNull String script,
+            @NonNull Set<String> allowedOriginRules) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.DOCUMENT_START_SCRIPT);
+        if (feature.isSupportedByWebView()) {
+            return getProvider(webview).addDocumentStartJavascript(
+                    script, allowedOriginRules.toArray(new String[0]));
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

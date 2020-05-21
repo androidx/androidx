@@ -70,7 +70,8 @@ class TextLayoutDirectionModifierTest : LayoutTest() {
                 style = TextStyle.Default,
                 softWrap = true,
                 overflow = TextOverflow.Clip,
-                maxLines = 1
+                maxLines = 1,
+                inlineContent = mapOf()
             ) { result ->
                 layoutDirection = result.layoutInput.layoutDirection
                 latch.countDown()

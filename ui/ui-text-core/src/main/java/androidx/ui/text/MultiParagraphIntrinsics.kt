@@ -40,7 +40,7 @@ import androidx.ui.unit.Density
 class MultiParagraphIntrinsics(
     val annotatedString: AnnotatedString,
     style: TextStyle,
-    val placeholders: List<AnnotatedString.Item<Placeholder>>,
+    val placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
     resourceLoader: Font.ResourceLoader
 ) : ParagraphIntrinsics {
@@ -112,12 +112,12 @@ class MultiParagraphIntrinsics(
     }
 }
 
-private fun List<AnnotatedString.Item<Placeholder>>.getLocalPlaceholders(start: Int, end: Int) =
+private fun List<AnnotatedString.Range<Placeholder>>.getLocalPlaceholders(start: Int, end: Int) =
     filter { intersect(start, end, it.start, it.end) }.map {
         require(start <= it.start && it.end <= end) {
             "placeholder can not overlap with paragraph."
         }
-        AnnotatedString.Item(it.item, it.start - start, it.end - start)
+        AnnotatedString.Range(it.item, it.start - start, it.end - start)
     }
 
 internal data class ParagraphIntrinsicInfo(

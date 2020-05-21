@@ -26,18 +26,14 @@ import androidx.lifecycle.coroutineScope
 import kotlinx.coroutines.CoroutineScope
 
 /**
- * Construct the primary Paging reactive stream: `LiveData<PagingData<T>>`.
- *
- * Creates a stream of [PagingData] objects, each of which represents a single generation of
- * paginated data. These objects can be transformed to alter data as it loads, and presented in a
- * [RecyclerView][androidx.recyclerview.widget.RecyclerView].
+ * A [LiveData] of [PagingData], which mirrors the stream provided by [Pager.flow], but exposes it
+ * as a [LiveData].
  */
-@Suppress("unused")
 val <Key : Any, Value : Any> Pager<Key, Value>.liveData: LiveData<PagingData<Value>>
     get() = flow.asLiveData()
 
 /**
- * Operator which caches a stream of [PagingData] within the scope of a [Lifecycle].
+ * Operator which caches a [LiveData] of [PagingData] within the scope of a [Lifecycle].
  *
  * @param lifecycle The [Lifecycle] where the page cache will be kept alive.
  */
@@ -46,11 +42,11 @@ fun <T : Any> LiveData<PagingData<T>>.cachedIn(lifecycle: Lifecycle) = asFlow()
     .asLiveData()
 
 /**
- * Operator which caches a stream of [PagingData] within a [CoroutineScope].
+ * Operator which caches a [LiveData] of [PagingData] within a [CoroutineScope].
  *
  * @param scope The [CoroutineScope] where the page cache will be kept alive. Typically this
- * would be a managed scope such as ViewModelScope, which automatically cancels after the
- * [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
+ * would be a managed scope such as `ViewModel.viewModelScope`, which automatically cancels after
+ * the [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
  * manually cancelled to avoid memory leaks.
  */
 fun <T : Any> LiveData<PagingData<T>>.cachedIn(scope: CoroutineScope) = asFlow()

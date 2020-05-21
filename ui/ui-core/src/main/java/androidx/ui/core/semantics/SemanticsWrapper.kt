@@ -18,10 +18,11 @@ package androidx.ui.core.semantics
 
 import androidx.ui.core.DelegatingLayoutNodeWrapper
 import androidx.ui.core.LayoutNodeWrapper
+import androidx.ui.util.fastForEach
 
 internal class SemanticsWrapper(
     wrapped: LayoutNodeWrapper,
-    semanticsModifier: SemanticsModifier
+    val semanticsModifier: SemanticsModifier
 ) : DelegatingLayoutNodeWrapper<SemanticsModifier>(wrapped, semanticsModifier) {
     fun semanticsNode(): SemanticsNode {
         return SemanticsNode(modifier.id,
@@ -30,8 +31,8 @@ internal class SemanticsWrapper(
     }
 
     fun collapsedSemanticsConfiguration(): SemanticsConfiguration {
-        var config = modifier.semanticsConfiguration.copy()
-        findOneImmediateChild()?.collapseChainedSemanticsIntoTopConfig(config, this)
+        var config = SemanticsConfiguration()
+        collapseChainedSemanticsIntoTopConfig(config, this)
         return config
     }
 
@@ -52,17 +53,27 @@ internal class SemanticsWrapper(
     ) {
         parentConfig.absorb(modifier.semanticsConfiguration, ignoreAlreadySet = true)
 
-        // Recursively collapse the chain, if we have an immediate child
-        findOneImmediateChild()?.collapseChainedSemanticsIntoTopConfig(
-            parentConfig, topNodeOfConfig)
+        if (semanticsModifier.applyToChildLayoutNode) {
+            // Recursively collapse the chain, if we have an immediate child
+            findOneImmediateChild()?.collapseChainedSemanticsIntoTopConfig(
+                parentConfig, topNodeOfConfig)
+        } else {
+            // Collapse locally within the modifiers directly applying to the current layout node
+            val innerConfig = wrapped.nearestSemantics?.collapsedSemanticsConfiguration()
+            if (innerConfig != null) {
+                parentConfig.absorb(innerConfig, ignoreAlreadySet = true)
+            }
+        }
     }
 
     // This searches the children down only one level of the tree and returns one child found.
     // Note that this assumes each LayoutNode only has one semantics modifier for now.
     private fun findOneImmediateChild(): SemanticsWrapper? {
         var immediateChild: SemanticsWrapper? = null
-        layoutNode.visitChildren { child ->
-            if (child.outerSemantics != null) immediateChild = child.outerSemantics
+        layoutNode.children.fastForEach { child ->
+            if (child.outerSemantics != null) {
+                immediateChild = child.outerSemantics
+            }
         }
         return immediateChild
     }

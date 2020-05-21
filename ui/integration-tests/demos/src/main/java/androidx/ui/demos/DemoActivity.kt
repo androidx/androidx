@@ -111,7 +111,7 @@ class DemoActivity : ComponentActivity() {
 private fun DemoTheme(
     demoColors: DemoColorPalette,
     window: Window,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     MaterialTheme(demoColors.colors) {
         val statusBarColor = with(MaterialTheme.colors) {

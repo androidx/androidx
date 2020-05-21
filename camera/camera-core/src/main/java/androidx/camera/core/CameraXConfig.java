@@ -32,7 +32,6 @@ import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.TargetConfig;
 
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
@@ -53,7 +52,7 @@ import java.util.concurrent.Executor;
  * @see androidx.camera.lifecycle
  * @see CameraXConfig.Builder
  */
-public final class CameraXConfig implements TargetConfig<CameraX>, Config {
+public final class CameraXConfig implements TargetConfig<CameraX> {
 
     /**
      * An interface which can be implemented to provide the configuration for CameraX.
@@ -163,95 +162,13 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
         return mConfig.retrieveOption(OPTION_SCHEDULER_HANDLER, valueIfMissing);
     }
 
-    // Start of the default implementation of Config
-    // *********************************************************************************************
-
-    // Implementations of Config default methods
-
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public boolean containsOption(@NonNull Option<?> id) {
-        return mConfig.containsOption(id);
-    }
-
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id) {
-        return mConfig.retrieveOption(id);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id,
-            @Nullable ValueT valueIfMissing) {
-        return mConfig.retrieveOption(id, valueIfMissing);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
-        mConfig.findOptions(idStem, matcher);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
     @NonNull
-    public Set<Option<?>> listOptions() {
-        return mConfig.listOptions();
-    }
-
-    // Implementations of TargetConfig default methods
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    @Nullable
-    public Class<CameraX> getTargetClass(
-            @Nullable Class<CameraX> valueIfMissing) {
-        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<CameraX> storedClass = (Class<CameraX>) retrieveOption(
-                OPTION_TARGET_CLASS,
-                valueIfMissing);
-        return storedClass;
+    public Config getConfig() {
+        return mConfig;
     }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @NonNull
-    public Class<CameraX> getTargetClass() {
-        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<CameraX> storedClass = (Class<CameraX>) retrieveOption(
-                OPTION_TARGET_CLASS);
-        return storedClass;
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public String getTargetName(@Nullable String valueIfMissing) {
-        return retrieveOption(OPTION_TARGET_NAME, valueIfMissing);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @NonNull
-    public String getTargetName() {
-        return retrieveOption(OPTION_TARGET_NAME);
-    }
-
-    // End of the default implementation of Config
-    // *********************************************************************************************
 
     /** A builder for generating {@link CameraXConfig} objects. */
     public static final class Builder
@@ -259,7 +176,8 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
 
         private final MutableOptionsBundle mMutableConfig;
 
-        /** Creates a new Builder object.
+        /**
+         * Creates a new Builder object.
          *
          * @hide
          */
@@ -299,7 +217,6 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
          * Sets the {@link CameraFactory} implementation for the application.
          *
          * @hide
-         * @param cameraFactory
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -367,9 +284,8 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
          * will create and use an optimized default internal handler.
          *
          * @see #setCameraExecutor(Executor)
-         * @hide
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @ExperimentalCustomizableThreads
         @NonNull
         public Builder setSchedulerHandler(@NonNull Handler handler) {
             getMutableConfig().insertOption(OPTION_SCHEDULER_HANDLER, handler);

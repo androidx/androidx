@@ -21,8 +21,10 @@ import static androidx.camera.view.PreviewView.ImplementationMode.TEXTURE_VIEW;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -30,8 +32,12 @@ import static org.mockito.Mockito.when;
 
 import android.Manifest;
 import android.content.Context;
+import android.graphics.SurfaceTexture;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.util.Size;
 import android.view.LayoutInflater;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -41,8 +47,13 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.fakes.FakeActivity;
+import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.view.preview.transform.transformation.Transformation;
 import androidx.camera.view.test.R;
+import androidx.core.content.ContextCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -50,11 +61,15 @@ import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -74,8 +89,39 @@ public class PreviewViewTest {
     private SurfaceRequest mSurfaceRequest;
 
     private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
-        return new SurfaceRequest(new Size(640, 480), cameraInfo);
+        FakeCamera fakeCamera = spy(new FakeCamera());
+        when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
+
+        return new SurfaceRequest(new Size(640, 480), fakeCamera);
     }
+
+    private CountDownLatch mCountDownLatch = new CountDownLatch(1);
+
+    private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
+            new TextureView.SurfaceTextureListener() {
+                @Override
+                public void onSurfaceTextureAvailable(SurfaceTexture surface, int width,
+                        int height) {
+
+                    mCountDownLatch.countDown();
+                }
+
+                @Override
+                public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width,
+                        int height) {
+
+                }
+
+                @Override
+                public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                    return false;
+                }
+
+                @Override
+                public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+                }
+            };
 
     @After
     public void tearDown() {
@@ -87,12 +133,39 @@ public class PreviewViewTest {
         }
     }
 
+    private CameraInfo createCameraInfo(String implementationType) {
+        final CameraInfo cameraInfo = mock(CameraInfoInternal.class);
+        when(cameraInfo.getImplementationType()).thenReturn(implementationType);
+        return cameraInfo;
+    }
+
+    private CameraInfo createCameraInfo(int rotationDegrees, String implementationType) {
+        final CameraInfo cameraInfo = mock(CameraInfoInternal.class);
+        when(cameraInfo.getImplementationType()).thenReturn(implementationType);
+        when(cameraInfo.getSensorRotationDegrees()).thenReturn(rotationDegrees);
+        return cameraInfo;
+    }
+
     @Test
     @UiThreadTest
     public void usesTextureView_whenLegacyDevice() {
-        final CameraInfo cameraInfo = mock(CameraInfo.class);
-        when(cameraInfo.getImplementationType()).thenReturn(
-                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
+        final CameraInfo cameraInfo =
+                createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
+        final PreviewView previewView = new PreviewView(mContext);
+        setContentView(previewView);
+        previewView.setPreferredImplementationMode(SURFACE_VIEW);
+        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        mSurfaceRequest = createSurfaceRequest(cameraInfo);
+        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+
+        assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
+    }
+
+    @Test
+    @UiThreadTest
+    public void usesTextureView_whenAPILevelNotNewerThanN() {
+        assumeTrue(Build.VERSION.SDK_INT <= 24);
+        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
@@ -106,10 +179,9 @@ public class PreviewViewTest {
 
     @Test
     @UiThreadTest
-    public void usesSurfaceView_whenNonLegacyDevice_andPreferredImplModeSurfaceView() {
-        final CameraInfo cameraInfo = mock(CameraInfo.class);
-        when(cameraInfo.getImplementationType()).thenReturn(
-                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+    public void usesSurfaceView_whenNonLegacyDevice_andAPILevelNewerThanN() {
+        assumeTrue(Build.VERSION.SDK_INT > 24);
+        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
@@ -124,9 +196,7 @@ public class PreviewViewTest {
     @Test
     @UiThreadTest
     public void usesTextureView_whenNonLegacyDevice_andPreferredImplModeTextureView() {
-        final CameraInfo cameraInfo = mock(CameraInfo.class);
-        when(cameraInfo.getImplementationType()).thenReturn(
-                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
@@ -253,6 +323,105 @@ public class PreviewViewTest {
         verify(implementation, timeout(1_000).times(1)).redrawPreview();
     }
 
+    @Test
+    public void sensorDimensionFlippedCorrectly() throws Throwable {
+        final AtomicReference<PreviewView> previewView = new AtomicReference<>();
+        final AtomicReference<FrameLayout> container = new AtomicReference<>();
+        final AtomicReference<TextureView> textureView = new AtomicReference<>();
+        final Size containerSize = new Size(800, 1000);
+        final Size bufferSize = new Size(2000, 1000);
+
+        // Creates mock CameraInfo to return sensor degrees as 90. This means the sensor
+        // dimension flip is needed in related transform calculations.
+        final CameraInfo cameraInfo = createCameraInfo(90, CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+
+        FakeCamera fakeCamera = spy(new FakeCamera());
+        when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
+
+        mActivityRule.runOnUiThread(() -> {
+            previewView.set(new PreviewView(mContext));
+
+            container.set(new FrameLayout(mContext));
+            container.get().addView(previewView.get());
+            setContentView(container.get());
+            // Sets as TEXTURE_VIEW mode so that we can verify the TextureView result
+            // transformation.
+            previewView.get().setPreferredImplementationMode(TEXTURE_VIEW);
+            previewView.get().setScaleType(PreviewView.ScaleType.FILL_CENTER);
+
+            // Sets container size as 640x480
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                    containerSize.getWidth(), containerSize.getHeight());
+            container.get().setLayoutParams(layoutParams);
+
+            // Creates surface provider and request surface for 1080p surface size.
+            Preview.SurfaceProvider surfaceProvider =
+                    previewView.get().createSurfaceProvider();
+            mSurfaceRequest = new SurfaceRequest(bufferSize, fakeCamera);
+            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+
+            // Retrieves the TextureView
+            textureView.set((TextureView) previewView.get().mImplementation.getPreview());
+
+            // Sets SurfaceTextureListener to wait for surface texture available.
+            mCountDownLatch = new CountDownLatch(1);
+            textureView.get().setSurfaceTextureListener(mSurfaceTextureListener);
+
+        });
+
+        // Wait for surface texture available.
+        mCountDownLatch.await(1, TimeUnit.SECONDS);
+
+        // Retrieves the transformation applied to the TextureView
+        Transformation resultTransformation = Transformation.getTransformation(textureView.get());
+        float[] resultTransformParameters = new float[]{resultTransformation.getScaleX(),
+                resultTransformation.getScaleY(), resultTransformation.getTransX(),
+                resultTransformation.getTransY(), resultTransformation.getRotation()};
+
+        float[] expectedTransformParameters = new float[]{0.4f, 1.6f, -600.0f, 0.0f, 0.0f};
+
+        assertThat(resultTransformParameters).isEqualTo(expectedTransformParameters);
+    }
+
+    @Test
+    @UiThreadTest
+    public void setsDefaultBackground_whenBackgroundNotExplicitlySet() {
+        final PreviewView previewView = new PreviewView(mContext);
+
+        assertThat(previewView.getBackground()).isInstanceOf(ColorDrawable.class);
+
+        final ColorDrawable actualBackground = (ColorDrawable) previewView.getBackground();
+        final int expectedBackground = ContextCompat.getColor(mContext,
+                PreviewView.DEFAULT_BACKGROUND_COLOR);
+        assertThat(actualBackground.getColor()).isEqualTo(expectedBackground);
+    }
+
+    @Test
+    @UiThreadTest
+    public void overridesDefaultBackground_whenBackgroundExplicitlySet_programmatically() {
+        final PreviewView previewView = new PreviewView(mContext);
+        final int backgroundColor = ContextCompat.getColor(mContext, android.R.color.white);
+        previewView.setBackgroundColor(backgroundColor);
+
+        assertThat(previewView.getBackground()).isInstanceOf(ColorDrawable.class);
+
+        final ColorDrawable actualBackground = (ColorDrawable) previewView.getBackground();
+        assertThat(actualBackground.getColor()).isEqualTo(backgroundColor);
+    }
+
+    @Test
+    @UiThreadTest
+    public void overridesDefaultBackground_whenBackgroundExplicitlySet_xml() {
+        final PreviewView previewView = (PreviewView) LayoutInflater.from(mContext).inflate(
+                R.layout.preview_view_background_white, null);
+
+        assertThat(previewView.getBackground()).isInstanceOf(ColorDrawable.class);
+
+        final ColorDrawable actualBackground = (ColorDrawable) previewView.getBackground();
+        final int expectedBackground = ContextCompat.getColor(mContext, android.R.color.white);
+        assertThat(actualBackground.getColor()).isEqualTo(expectedBackground);
+    }
+
     private void setContentView(View view) {
         mActivityRule.getActivity().setContentView(view);
     }
@@ -273,11 +442,9 @@ public class PreviewViewTest {
             return null;
         }
 
-        @SuppressWarnings("ConstantConditions")
-        @NonNull
         @Override
-        public Preview.SurfaceProvider getSurfaceProvider() {
-            return null;
+        void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest,
+                @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener) {
         }
 
         @Override
@@ -290,6 +457,12 @@ public class PreviewViewTest {
 
         @Override
         void onDetachedFromWindow() {
+        }
+
+        @Override
+        @NonNull
+        ListenableFuture<Void> waitForNextFrame() {
+            return Futures.immediateFuture(null);
         }
     }
 }

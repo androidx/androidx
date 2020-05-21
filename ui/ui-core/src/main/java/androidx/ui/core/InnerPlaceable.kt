@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.ui.core.focus.ModifiedFocusNode
+import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -26,8 +27,8 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.toPxSize
 import androidx.ui.util.fastAny
+import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.fastForEach
 
 internal class InnerPlaceable(
@@ -48,7 +49,7 @@ internal class InnerPlaceable(
         layoutNode.layoutDirection = layoutDirection
         val measureResult = layoutNode.measureBlocks.measure(
             layoutNode.measureScope,
-            layoutNode.layoutChildren,
+            layoutNode.children,
             constraints,
             measureScope.layoutDirection
         )
@@ -59,24 +60,28 @@ internal class InnerPlaceable(
     override val parentData: Any?
         @Suppress("DEPRECATION")
         get() = if (layoutNode.handlesParentData) {
-            layoutNode.parentDataNode?.value
+            null
         } else {
-            layoutNode.parentDataNode?.value
-                ?: layoutNode.layoutChildren
-                    .firstOrNull { it.layoutNodeWrapper.parentData != null }?.parentData
+            layoutNode.children
+                .fastFirstOrNull { it.parentData != null }?.parentData
         }
 
-    override fun findFocusWrapperWrappingThisWrapper() =
-        wrappedBy?.findFocusWrapperWrappingThisWrapper()
+    override fun findPreviousFocusWrapper() = wrappedBy?.findPreviousFocusWrapper()
 
-    override fun findFocusWrapperWrappedByThisWrapper() = null
+    override fun findNextFocusWrapper() = null
 
-    override fun findLastFocusWrapper(): ModifiedFocusNode? = findFocusWrapperWrappingThisWrapper()
+    override fun findLastFocusWrapper(): ModifiedFocusNode? = findPreviousFocusWrapper()
+
+    override fun findPreviousKeyInputWrapper() = wrappedBy?.findPreviousKeyInputWrapper()
+
+    override fun findNextKeyInputWrapper() = null
+
+    override fun findLastKeyInputWrapper(): ModifiedKeyInputNode? = findPreviousKeyInputWrapper()
 
     override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.minIntrinsicWidth(
             layoutNode.measureScope,
-            layoutNode.layoutChildren,
+            layoutNode.children,
             height,
             layoutDirection
         )
@@ -85,7 +90,7 @@ internal class InnerPlaceable(
     override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.minIntrinsicHeight(
             layoutNode.measureScope,
-            layoutNode.layoutChildren,
+            layoutNode.children,
             width,
             layoutDirection
         )
@@ -94,7 +99,7 @@ internal class InnerPlaceable(
     override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.maxIntrinsicWidth(
             layoutNode.measureScope,
-            layoutNode.layoutChildren,
+            layoutNode.children,
             height,
             layoutDirection
         )
@@ -103,7 +108,7 @@ internal class InnerPlaceable(
     override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.maxIntrinsicHeight(
             layoutNode.measureScope,
-            layoutNode.layoutChildren,
+            layoutNode.children,
             width,
             layoutDirection
         )
@@ -130,9 +135,12 @@ internal class InnerPlaceable(
     override fun draw(canvas: Canvas) {
         withPositionTranslation(canvas) {
             val owner = layoutNode.requireOwner()
-            val sizePx = measuredSize.toPxSize()
             layoutNode.zIndexSortedChildren.fastForEach { child ->
-                owner.callDraw(canvas, child, sizePx)
+                if (child.isPlaced) {
+                    require(!child.needsRemeasure) { "$child is not measured, draw requested" }
+                    require(!child.needsRelayout) { "$child is not laid out, draw requested" }
+                    child.draw(canvas)
+                }
             }
             if (owner.showLayoutBounds) {
                 drawBorder(canvas, innerBoundsPaint)
@@ -147,7 +155,7 @@ internal class InnerPlaceable(
         if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
             // Any because as soon as true is returned, we know we have found a hit path and we must
             //  not add PointerInputFilters on different paths so we should not even go looking.
-            return layoutNode.children.reversed().fastAny { child ->
+            return layoutNode.zIndexSortedChildren.reversed().fastAny { child ->
                 callHitTest(child, pointerPositionRelativeToScreen, hitPointerInputFilters)
             }
         } else {
@@ -172,19 +180,11 @@ internal class InnerPlaceable(
         }
 
         private fun callHitTest(
-            node: ComponentNode,
+            node: LayoutNode,
             globalPoint: PxPosition,
             hitPointerInputFilters: MutableList<PointerInputFilter>
         ): Boolean {
-            if (node is LayoutNode) {
-                return node.hitTest(globalPoint, hitPointerInputFilters)
-            } else {
-                // Any because as soon as true is returned, we know we have found a hit path and we must
-                // not add PointerInputFilters on different paths so we should not even go looking.
-                return node.children.reversed().fastAny { child ->
-                    callHitTest(child, globalPoint, hitPointerInputFilters)
-                }
-            }
+            return node.hitTest(globalPoint, hitPointerInputFilters)
         }
     }
 }

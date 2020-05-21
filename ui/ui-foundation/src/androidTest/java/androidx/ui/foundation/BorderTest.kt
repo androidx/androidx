@@ -37,7 +37,6 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.unit.Density
-import androidx.ui.unit.px
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,7 +51,7 @@ class BorderTest(val shape: Shape) {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun initShapes(): Array<Any> = arrayOf(
-            RectangleShape, CircleShape, RoundedCornerShape(5.px)
+            RectangleShape, CircleShape, RoundedCornerShape(5.0f)
         )
     }
 
@@ -66,9 +65,9 @@ class BorderTest(val shape: Shape) {
         composeTestRule.setContent {
             SemanticParent {
                 Stack(
-                    Modifier.preferredSize(40.px.toDp(), 40.px.toDp())
+                    Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp())
                         .drawBackground(Color.Blue, shape)
-                        .drawBorder(Border(10.px.toDp(), Color.Red), shape)
+                        .drawBorder(Border(10.0f.toDp(), Color.Red), shape)
 
                 ) {}
             }
@@ -79,10 +78,10 @@ class BorderTest(val shape: Shape) {
             backgroundColor = Color.Red,
             shape = shape,
             backgroundShape = shape,
-            shapeSizeX = 20.px,
-            shapeSizeY = 20.px,
+            shapeSizeX = 20.0f,
+            shapeSizeY = 20.0f,
             shapeColor = Color.Blue,
-            shapeOverlapPixelCount = 3.px
+            shapeOverlapPixelCount = 3.0f
         )
     }
 
@@ -91,10 +90,10 @@ class BorderTest(val shape: Shape) {
         composeTestRule.setContent {
             SemanticParent {
                 Stack(
-                    Modifier.preferredSize(40.px.toDp(), 40.px.toDp())
+                    Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp())
                         .drawBackground(Color.Blue, shape)
                         .drawBorder(
-                            Border(10.px.toDp(), SolidColor(Color.Red)),
+                            Border(10.0f.toDp(), SolidColor(Color.Red)),
                             shape
                         )
                 ) {}
@@ -106,10 +105,10 @@ class BorderTest(val shape: Shape) {
             backgroundColor = Color.Red,
             shape = shape,
             backgroundShape = shape,
-            shapeSizeX = 20.px,
-            shapeSizeY = 20.px,
+            shapeSizeX = 20.0f,
+            shapeSizeY = 20.0f,
             shapeColor = Color.Blue,
-            shapeOverlapPixelCount = 3.px
+            shapeOverlapPixelCount = 3.0f
         )
     }
 
@@ -118,9 +117,9 @@ class BorderTest(val shape: Shape) {
         composeTestRule.setContent {
             SemanticParent {
                 Stack(
-                    Modifier.preferredSize(40.px.toDp(), 40.px.toDp())
+                    Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp())
                         .drawBackground(Color.Blue, shape)
-                        .drawBorder(Border(1500.px.toDp(), Color.Red), shape)
+                        .drawBorder(Border(1500.0f.toDp(), Color.Red), shape)
                 ) {}
             }
         }
@@ -131,7 +130,7 @@ class BorderTest(val shape: Shape) {
             shapeColor = Color.Red,
             shape = shape,
             backgroundShape = shape,
-            shapeOverlapPixelCount = 2.px
+            shapeOverlapPixelCount = 2.0f
         )
     }
 
@@ -140,9 +139,9 @@ class BorderTest(val shape: Shape) {
         composeTestRule.setContent {
             SemanticParent {
                 Stack(
-                    Modifier.preferredSize(40.px.toDp(), 40.px.toDp())
+                    Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp())
                         .drawBackground(Color.Blue, shape)
-                        .drawBorder(Border(-5.px.toDp(), Color.Red), shape)
+                        .drawBorder(Border(-5.0f.toDp(), Color.Red), shape)
                 ) {}
             }
         }
@@ -153,7 +152,7 @@ class BorderTest(val shape: Shape) {
             shapeColor = Color.Blue,
             shape = shape,
             backgroundShape = shape,
-            shapeOverlapPixelCount = 2.px
+            shapeOverlapPixelCount = 2.0f
         )
     }
 
@@ -162,12 +161,12 @@ class BorderTest(val shape: Shape) {
         composeTestRule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.preferredSize(40.px.toDp(), 40.px.toDp()),
+                    Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp()),
                     backgroundColor = Color.White
                 ) {
                     Stack(
-                        Modifier.preferredSize(0.px.toDp(), 40.px.toDp())
-                            .drawBorder(Border(4.px.toDp(), Color.Red), shape)
+                        Modifier.preferredSize(0.0f.toDp(), 40.0f.toDp())
+                            .drawBorder(Border(4.0f.toDp(), Color.Red), shape)
                     ) {}
                 }
             }
@@ -178,7 +177,7 @@ class BorderTest(val shape: Shape) {
             backgroundColor = Color.White,
             shapeColor = Color.White,
             shape = RectangleShape,
-            shapeOverlapPixelCount = 1.px
+            shapeOverlapPixelCount = 1.0f
         )
     }
 

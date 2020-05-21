@@ -285,7 +285,8 @@ public final class CaptureConfig {
                     if (newValue instanceof MultiValueSet) {
                         newValue = ((MultiValueSet) newValue).clone();
                     }
-                    mImplementationOptions.insertOption(objectOpt, newValue);
+                    mImplementationOptions.insertOption(objectOpt,
+                            config.getOptionPriority(option), newValue);
                 }
             }
         }

@@ -15,6 +15,7 @@
  */
 package androidx.datastore
 
+import androidx.datastore.handlers.NoOpCorruptionHandler
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,6 +60,7 @@ class SingleProcessDataStore<T>(
      * result in deadlock.
      */
     initTasksList: List<suspend (api: DataStore.InitializerApi<T>) -> Unit> = emptyList(),
+    private val corruptionHandler: CorruptionHandler<T> = NoOpCorruptionHandler<T>(),
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 ) : DataStore<T> {
 
@@ -174,7 +176,7 @@ class SingleProcessDataStore<T>(
         }
 
         val updateLock = Mutex()
-        var initData = readData()
+        var initData = readDataOrHandleCorruption()
 
         var initializationComplete: Boolean = false
 
@@ -183,8 +185,10 @@ class SingleProcessDataStore<T>(
             override suspend fun updateData(transform: suspend (t: T) -> T): T {
                 return updateLock.withLock() {
                     if (initializationComplete) {
-                        throw IllegalStateException("InitializerApi.updateData should not be " +
-                                "called after initialization is complete.")
+                        throw IllegalStateException(
+                            "InitializerApi.updateData should not be " +
+                                    "called after initialization is complete."
+                        )
                     }
 
                     val newData = transform(initData)
@@ -205,6 +209,27 @@ class SingleProcessDataStore<T>(
         }
 
         dataChannel.offer(initData)
+    }
+
+    private suspend fun readDataOrHandleCorruption(): T {
+        try {
+            return readData()
+        } catch (ex: DataStore.Serializer.CorruptionException) {
+
+            val newData: T = corruptionHandler.handleCorruption(ex)
+
+            try {
+                writeData(newData)
+            } catch (writeEx: IOException) {
+                // If we fail to write the handled data, add the new exception as a suppressed
+                // exception.
+                ex.addSuppressed(writeEx)
+                throw ex
+            }
+
+            // If we reach this point, we've successfully replaced the data on disk with newData.
+            return newData
+        }
     }
 
     private suspend fun readData(): T {
@@ -246,7 +271,8 @@ class SingleProcessDataStore<T>(
     private fun writeData(newData: T) {
         // TODO(b/151635324): consider caching produceFile result.
         val file = produceFile()
-        file.mkdirs()
+        file.createParentDirectories()
+
         val scratchFile = File(file.absolutePath + SCRATCH_SUFFIX)
         try {
             FileOutputStream(scratchFile).use { stream ->
@@ -255,12 +281,25 @@ class SingleProcessDataStore<T>(
                 // TODO(b/151635324): fsync the directory, otherwise a badly timed crash could
                 //  result in reverting to a previous state.
             }
-            scratchFile.renameTo(file)
+            if (!scratchFile.renameTo(file)) {
+                throw IOException("$scratchFile could not be renamed to $file")
+            }
         } catch (ex: IOException) {
             if (scratchFile.exists()) {
                 scratchFile.delete()
             }
             throw ex
+        }
+    }
+
+    private fun File.createParentDirectories() {
+        val parent: File? = canonicalFile.parentFile
+
+        parent?.let {
+            it.mkdirs()
+            if (!it.isDirectory) {
+                throw IOException("Unable to create parent directories of $this")
+            }
         }
     }
 

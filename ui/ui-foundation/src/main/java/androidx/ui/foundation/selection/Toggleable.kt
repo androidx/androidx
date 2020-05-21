@@ -53,7 +53,7 @@ fun Toggleable(
     onValueChange: (Boolean) -> Unit,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     TriStateToggleable(
         state = ToggleableState(value),
@@ -91,7 +91,7 @@ fun TriStateToggleable(
     onClick: () -> Unit,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     // TODO(pavlis): Handle multiple states for Semantics
     Semantics(container = true, properties = {
@@ -105,13 +105,13 @@ fun TriStateToggleable(
         this.enabled = enabled
 
         if (enabled) {
-            onClick(action = onClick, label = "Toggle")
+            onClick(action = { onClick(); return@onClick true }, label = "Toggle")
         }
     }) {
         // TODO(b/150706555): This layout is temporary and should be removed once Semantics
         //  is implemented with modifiers.
         @Suppress("DEPRECATION")
-        PassThroughLayout(modifier.tapGestureFilter(onClick), children)
+        PassThroughLayout(modifier.tapGestureFilter { onClick() }, children)
     }
 }
 

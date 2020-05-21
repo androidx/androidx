@@ -21,9 +21,9 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
+import androidx.ui.foundation.clickable
 import androidx.ui.foundation.shape.corner.CornerSize
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
@@ -33,7 +33,6 @@ import androidx.ui.layout.defaultMinSizeConstraints
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
-import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
@@ -65,7 +64,7 @@ fun FloatingActionButton(
     backgroundColor: Color = MaterialTheme.colors.secondary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = 6.dp,
-    icon: @Composable() () -> Unit
+    icon: @Composable () -> Unit
 ) {
     // Since we're adding layouts in between the clickable layer and the content, we need to
     // merge all descendants, or we'll get multiple nodes
@@ -77,17 +76,14 @@ fun FloatingActionButton(
             contentColor = contentColor,
             elevation = elevation
         ) {
-            Clickable(onClick, modifier = Modifier.ripple()) {
-                ProvideTextStyle(MaterialTheme.typography.button) {
-                    Box(
-                        modifier = Modifier.defaultMinSizeConstraints(
-                            minWidth = FabSize,
-                            minHeight = FabSize
-                        ),
-                        gravity = ContentGravity.Center,
-                        children = icon
-                    )
-                }
+            ProvideTextStyle(MaterialTheme.typography.button) {
+                Box(
+                    modifier = Modifier
+                        .defaultMinSizeConstraints(minWidth = FabSize, minHeight = FabSize)
+                        .clickable(onClick = onClick),
+                    gravity = ContentGravity.Center,
+                    children = icon
+                )
             }
         }
     }
@@ -116,10 +112,10 @@ fun FloatingActionButton(
  */
 @Composable
 fun ExtendedFloatingActionButton(
-    text: @Composable() () -> Unit,
+    text: @Composable () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    icon: @Composable() (() -> Unit)? = null,
+    icon: @Composable (() -> Unit)? = null,
     shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     backgroundColor: Color = MaterialTheme.colors.secondary,
     contentColor: Color = contentColorFor(backgroundColor),

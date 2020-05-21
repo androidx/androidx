@@ -40,8 +40,10 @@ import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
+import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertIsEnabled
@@ -308,7 +310,7 @@ class ButtonTest {
                 shape = shape,
                 shapeColor = primary,
                 backgroundColor = surface,
-                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx() }
+                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx().value }
             )
     }
 
@@ -440,7 +442,7 @@ class ButtonTest {
             }
         }
 
-        assertThat(content).isEqualTo(emphasis!!.emphasize(onSurface))
+        assertThat(content).isEqualTo(emphasis!!.applyEmphasis(onSurface))
     }
 
     @Test
@@ -456,7 +458,7 @@ class ButtonTest {
             }
         }
 
-        assertThat(content).isEqualTo(emphasis!!.emphasize(onSurface))
+        assertThat(content).isEqualTo(emphasis!!.applyEmphasis(onSurface))
     }
 
     @Test
@@ -472,7 +474,7 @@ class ButtonTest {
             }
         }
 
-        assertThat(content).isEqualTo(emphasis!!.emphasize(onSurface))
+        assertThat(content).isEqualTo(emphasis!!.applyEmphasis(onSurface))
     }
 
     @Test
@@ -503,9 +505,47 @@ class ButtonTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun zOrderingBasedOnElevationIsApplied() {
+        composeTestRule.setMaterialContent {
+            TestTag(tag = "stack") {
+                Semantics(container = true, mergeAllDescendants = true) {
+                    Stack(Modifier.preferredSize(10.dp, 10.dp)) {
+                        Button(
+                            backgroundColor = Color.Yellow,
+                            elevation = 2.dp,
+                            onClick = {},
+                            shape = RectangleShape
+                        ) {
+                            Box(Modifier.fillMaxSize())
+                        }
+                        Button(
+                            backgroundColor = Color.Green,
+                            elevation = 0.dp,
+                            onClick = {},
+                            shape = RectangleShape
+                        ) {
+                            Box(Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+
+        findByTag("stack")
+            .captureToBitmap()
+            .assertShape(
+                density = composeTestRule.density,
+                shape = RectangleShape,
+                shapeColor = Color.Yellow,
+                backgroundColor = Color.White
+            )
+    }
+
     private fun assertLeftPaddingIs(
         padding: Dp,
-        button: @Composable() (@Composable() () -> Unit) -> Unit
+        button: @Composable (@Composable () -> Unit) -> Unit
     ) {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null

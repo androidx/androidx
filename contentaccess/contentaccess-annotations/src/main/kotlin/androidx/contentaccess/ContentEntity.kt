@@ -25,4 +25,4 @@ package androidx.contentaccess
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
-annotation class ContentEntity(val uri: String)
+annotation class ContentEntity(val uri: String = "")

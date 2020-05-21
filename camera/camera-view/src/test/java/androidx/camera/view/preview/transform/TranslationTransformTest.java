@@ -55,7 +55,19 @@ public class TranslationTransformTest {
     public void start_viewNotScaled_rotation0() {
         final View view = setUpView(Surface.ROTATION_0);
         final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
-        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY,
+                RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(transformation.getTransX()).isEqualTo(0);
+        assertThat(transformation.getTransY()).isEqualTo(0);
+    }
+
+    @Test
+    public void start_viewNotScaled_rotation90_deviceRotation0() {
+        final View view = setUpView(Surface.ROTATION_90);
+        final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY,
+                Surface.ROTATION_0);
 
         assertThat(transformation.getTransX()).isEqualTo(0);
         assertThat(transformation.getTransY()).isEqualTo(0);
@@ -65,7 +77,19 @@ public class TranslationTransformTest {
     public void start_viewNotScaled_rotation90() {
         final View view = setUpView(Surface.ROTATION_90);
         final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
-        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY,
+                RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(transformation.getTransX()).isEqualTo(50);
+        assertThat(transformation.getTransY()).isEqualTo(-50);
+    }
+
+    @Test
+    public void start_viewNotScaled_rotation0_deviceRotation90() {
+        final View view = setUpView(Surface.ROTATION_0);
+        final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY,
+                Surface.ROTATION_90);
 
         assertThat(transformation.getTransX()).isEqualTo(50);
         assertThat(transformation.getTransY()).isEqualTo(-50);
@@ -75,7 +99,19 @@ public class TranslationTransformTest {
     public void start_viewScaled_rotation0() {
         final View view = setUpView(Surface.ROTATION_0);
         final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
-        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY,
+                RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(transformation.getTransX()).isEqualTo(100);
+        assertThat(transformation.getTransY()).isEqualTo(-75);
+    }
+
+    @Test
+    public void start_viewScaled_rotation90_deviceRotation0() {
+        final View view = setUpView(Surface.ROTATION_90);
+        final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY,
+                Surface.ROTATION_0);
 
         assertThat(transformation.getTransX()).isEqualTo(100);
         assertThat(transformation.getTransY()).isEqualTo(-75);
@@ -85,20 +121,66 @@ public class TranslationTransformTest {
     public void start_viewScaled_rotation90() {
         final View view = setUpView(Surface.ROTATION_90);
         final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
-        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY,
+                RotationTransform.ROTATION_AUTOMATIC);
 
         assertThat(transformation.getTransX()).isEqualTo(-25);
         assertThat(transformation.getTransY()).isEqualTo(50);
     }
 
     @Test
-    public void start_rtlLayout() {
+    public void start_viewScaled_rotation0_deviceRotation90() {
+        final View view = setUpView(Surface.ROTATION_0);
+        final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY,
+                Surface.ROTATION_90);
+
+        assertThat(transformation.getTransX()).isEqualTo(-25);
+        assertThat(transformation.getTransY()).isEqualTo(50);
+    }
+
+    @Test
+    public void start_rtlLayout_rotation0() {
         final View view = setUpView(Surface.ROTATION_0, LAYOUT_DIRECTION_RTL);
         final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
-        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY,
+                Surface.ROTATION_0);
 
         assertThat(transformation.getTransX()).isEqualTo(-100);
         assertThat(transformation.getTransY()).isEqualTo(-75);
+    }
+
+    @Test
+    public void start_rtlLayout_rotation90_deviceRotation0() {
+        final View view = setUpView(Surface.ROTATION_90, LAYOUT_DIRECTION_RTL);
+        final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY,
+                Surface.ROTATION_0);
+
+        assertThat(transformation.getTransX()).isEqualTo(-100);
+        assertThat(transformation.getTransY()).isEqualTo(-75);
+    }
+
+    @Test
+    public void start_rtlLayout_rotation90() {
+        final View view = setUpView(Surface.ROTATION_90, LAYOUT_DIRECTION_RTL);
+        final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY,
+                RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(transformation.getTransX()).isEqualTo(25);
+        assertThat(transformation.getTransY()).isEqualTo(50);
+    }
+
+    @Test
+    public void start_rtlLayout_rotation0_deviceRotation90() {
+        final View view = setUpView(Surface.ROTATION_0, LAYOUT_DIRECTION_RTL);
+        final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY,
+                Surface.ROTATION_90);
+
+        assertThat(transformation.getTransX()).isEqualTo(25);
+        assertThat(transformation.getTransY()).isEqualTo(50);
     }
 
     @Test
@@ -167,7 +249,19 @@ public class TranslationTransformTest {
         final View view = setUpView(Surface.ROTATION_0);
         final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
         final TranslationTransformation transformation = TranslationTransform.end(container, view,
-                scaleXY);
+                scaleXY, RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(transformation.getTransX()).isEqualTo(300);
+        assertThat(transformation.getTransY()).isEqualTo(500);
+    }
+
+    @Test
+    public void end_viewNotScaled_rotation90_deviceRotation0() {
+        final View container = setUpContainer();
+        final View view = setUpView(Surface.ROTATION_90);
+        final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
+        final TranslationTransformation transformation = TranslationTransform.end(container, view,
+                scaleXY, Surface.ROTATION_0);
 
         assertThat(transformation.getTransX()).isEqualTo(300);
         assertThat(transformation.getTransY()).isEqualTo(500);
@@ -179,7 +273,19 @@ public class TranslationTransformTest {
         final View view = setUpView(Surface.ROTATION_90);
         final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
         final TranslationTransformation transformation = TranslationTransform.end(container, view,
-                scaleXY);
+                scaleXY, RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(transformation.getTransX()).isEqualTo(250);
+        assertThat(transformation.getTransY()).isEqualTo(550);
+    }
+
+    @Test
+    public void end_viewNotScaled_rotation0_deviceRotation90() {
+        final View container = setUpContainer();
+        final View view = setUpView(Surface.ROTATION_0);
+        final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
+        final TranslationTransformation transformation = TranslationTransform.end(container, view,
+                scaleXY, Surface.ROTATION_90);
 
         assertThat(transformation.getTransX()).isEqualTo(250);
         assertThat(transformation.getTransY()).isEqualTo(550);
@@ -191,7 +297,19 @@ public class TranslationTransformTest {
         final View view = setUpView(Surface.ROTATION_0);
         final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
         final TranslationTransformation transformation = TranslationTransform.end(container, view,
-                scaleXY);
+                scaleXY, RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(transformation.getTransX()).isEqualTo(200);
+        assertThat(transformation.getTransY()).isEqualTo(575);
+    }
+
+    @Test
+    public void end_viewScaled_rotation90_deviceRotation0() {
+        final View container = setUpContainer();
+        final View view = setUpView(Surface.ROTATION_90);
+        final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
+        final TranslationTransformation transformation = TranslationTransform.end(container, view,
+                scaleXY, Surface.ROTATION_0);
 
         assertThat(transformation.getTransX()).isEqualTo(200);
         assertThat(transformation.getTransY()).isEqualTo(575);
@@ -203,22 +321,70 @@ public class TranslationTransformTest {
         final View view = setUpView(Surface.ROTATION_90);
         final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
         final TranslationTransformation transformation = TranslationTransform.end(container, view,
-                scaleXY);
+                scaleXY, RotationTransform.ROTATION_AUTOMATIC);
 
         assertThat(transformation.getTransX()).isEqualTo(325);
         assertThat(transformation.getTransY()).isEqualTo(450);
     }
 
     @Test
-    public void end_rtlLayout() {
+    public void end_viewScaled_rotation0_deviceRotation90() {
+        final View container = setUpContainer();
+        final View view = setUpView(Surface.ROTATION_0);
+        final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
+        final TranslationTransformation transformation = TranslationTransform.end(container, view,
+                scaleXY, Surface.ROTATION_90);
+
+        assertThat(transformation.getTransX()).isEqualTo(325);
+        assertThat(transformation.getTransY()).isEqualTo(450);
+    }
+
+    @Test
+    public void end_rtlLayout_rotation0() {
         final View container = setUpContainer();
         final View view = setUpView(Surface.ROTATION_0, LAYOUT_DIRECTION_RTL);
         final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
         final TranslationTransformation transformation = TranslationTransform.end(container, view,
-                scaleXY);
+                scaleXY, RotationTransform.ROTATION_AUTOMATIC);
 
         assertThat(transformation.getTransX()).isEqualTo(-300);
         assertThat(transformation.getTransY()).isEqualTo(500);
+    }
+
+    @Test
+    public void end_rtlLayout_rotation90_deviceRotation0() {
+        final View container = setUpContainer();
+        final View view = setUpView(Surface.ROTATION_90, LAYOUT_DIRECTION_RTL);
+        final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
+        final TranslationTransformation transformation = TranslationTransform.end(container, view,
+                scaleXY, Surface.ROTATION_0);
+
+        assertThat(transformation.getTransX()).isEqualTo(-300);
+        assertThat(transformation.getTransY()).isEqualTo(500);
+    }
+
+    @Test
+    public void end_rtlLayout_rotation90() {
+        final View container = setUpContainer();
+        final View view = setUpView(Surface.ROTATION_90, LAYOUT_DIRECTION_RTL);
+        final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
+        final TranslationTransformation transformation = TranslationTransform.end(container, view,
+                scaleXY, RotationTransform.ROTATION_AUTOMATIC);
+
+        assertThat(transformation.getTransX()).isEqualTo(-250);
+        assertThat(transformation.getTransY()).isEqualTo(550);
+    }
+
+    @Test
+    public void end_rtlLayout_rotation0_deviceRotation90() {
+        final View container = setUpContainer();
+        final View view = setUpView(Surface.ROTATION_0, LAYOUT_DIRECTION_RTL);
+        final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
+        final TranslationTransformation transformation = TranslationTransform.end(container, view,
+                scaleXY, Surface.ROTATION_90);
+
+        assertThat(transformation.getTransX()).isEqualTo(-250);
+        assertThat(transformation.getTransY()).isEqualTo(550);
     }
 
     @NonNull

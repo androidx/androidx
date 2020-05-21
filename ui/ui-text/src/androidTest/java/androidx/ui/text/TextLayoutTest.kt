@@ -198,7 +198,7 @@ class TextLayoutTest {
         verify(callback, times(1)).invoke(any())
     }
 
-    private fun show(composable: @Composable() () -> Unit) {
+    private fun show(composable: @Composable () -> Unit) {
         val runnable: Runnable = object : Runnable {
             override fun run() {
                 activity.setContent {
@@ -243,6 +243,7 @@ private fun TestingText(
         softWrap = true,
         maxLines = Int.MAX_VALUE,
         overflow = TextOverflow.Clip,
+        inlineContent = mapOf(),
         onTextLayout = onTextLayout
     )
 }

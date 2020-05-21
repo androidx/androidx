@@ -31,6 +31,7 @@ import androidx.ui.core.hasBoundedWidth
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
@@ -40,7 +41,8 @@ import androidx.ui.unit.min
  * Declare the preferred width of the content to be exactly [width]dp. The incoming measurement
  * [Constraints] may override this value, forcing the content to be either smaller or larger.
  *
- * See [preferredHeight] or [preferredSize] to set other preferred dimensions.
+ * For a modifier that sets the width of the content regardless of the incoming constraints see
+ * [Modifier.width]. See [preferredHeight] or [preferredSize] to set other preferred dimensions.
  * See [preferredWidthIn], [preferredHeightIn] or [preferredSizeIn] to set a preferred size range.
  *
  * Example usage:
@@ -52,7 +54,8 @@ fun Modifier.preferredWidth(width: Dp) = preferredSizeIn(minWidth = width, maxWi
  * Declare the preferred height of the content to be exactly [height]dp. The incoming measurement
  * [Constraints] may override this value, forcing the content to be either smaller or larger.
  *
- * See [preferredWidth] or [preferredSize] to set other preferred dimensions.
+ * For a modifier that sets the height of the content regardless of the incoming constraints see
+ * [Modifier.height]. See [preferredWidth] or [preferredSize] to set other preferred dimensions.
  * See [preferredWidthIn], [preferredHeightIn] or [preferredSizeIn] to set a preferred size range.
  *
  * Example usage:
@@ -64,7 +67,8 @@ fun Modifier.preferredHeight(height: Dp) = preferredSizeIn(minHeight = height, m
  * Declare the preferred size of the content to be exactly [size]dp square. The incoming measurement
  * [Constraints] may override this value, forcing the content to be either smaller or larger.
  *
- * See [preferredWidth] or [preferredHeight] to set width or height alone.
+ * For a modifier that sets the size of the content regardless of the incoming constraints, see
+ * [Modifier.size]. See [preferredWidth] or [preferredHeight] to set width or height alone.
  * See [preferredWidthIn], [preferredHeightIn] or [preferredSizeIn] to set a preferred size range.
  *
  * Example usage:
@@ -77,7 +81,8 @@ fun Modifier.preferredSize(size: Dp) = preferredSizeIn(size, size, size, size)
  * measurement [Constraints] may override this value, forcing the content to be either smaller or
  * larger.
  *
- * See [preferredWidth] or [preferredHeight] to set width or height alone.
+ * For a modifier that sets the size of the content regardless of the incoming constraints, see
+ * [Modifier.size]. See [preferredWidth] or [preferredHeight] to set width or height alone.
  * See [preferredWidthIn], [preferredHeightIn] or [preferredSizeIn] to set a preferred size range.
  *
  * Example usage:
@@ -307,8 +312,10 @@ fun Modifier.fillMaxSize() = this + FillModifier(Direction.Both)
  * @sample androidx.ui.layout.samples.SimpleWrapContentHorizontallyAlignedModifier
  */
 // TODO(popam): avoid recreating modifier for common align
-fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHorizontally) =
-    this + AlignmentModifier(Alignment(-1f, align.bias), Direction.Horizontal)
+fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHorizontally) = this +
+        AlignmentModifier(Direction.Horizontal) { size, layoutDirection ->
+            IntPxPosition(align.align(size.width, layoutDirection), 0.ipx)
+        }
 
 /**
  * Allow the content to measure at its desired height without regard for the incoming measurement
@@ -320,7 +327,9 @@ fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHori
  */
 // TODO(popam): avoid recreating modifier for common align
 fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVertically) =
-    this + AlignmentModifier(Alignment(align.bias, -1f), Direction.Vertical)
+    this + AlignmentModifier(Direction.Vertical) { size, _ ->
+        IntPxPosition(0.ipx, align.align(size.height))
+    }
 
 /**
  * Allow the content to measure at its desired size without regard for the incoming measurement
@@ -332,7 +341,9 @@ fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVerti
  * @sample androidx.ui.layout.samples.SimpleWrapContentAlignedModifier
  */
 fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) =
-    this + AlignmentModifier(align, Direction.Both)
+    this + AlignmentModifier(Direction.Both) { size, layoutDirection ->
+        align.align(size, layoutDirection)
+    }
 
 /**
  * Constrain the size of the wrapped layout only when it would be otherwise unconstrained:
@@ -473,8 +484,8 @@ private data class SizeModifier(
 }
 
 private data class AlignmentModifier(
-    private val alignment: Alignment,
-    private val direction: Direction
+    private val direction: Direction,
+    private val alignmentCallback: (IntPxSize, LayoutDirection) -> IntPxPosition
 ) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -493,7 +504,7 @@ private data class AlignmentModifier(
             wrapperWidth,
             wrapperHeight
         ) {
-            val position = alignment.align(
+            val position = alignmentCallback(
                 IntPxSize(wrapperWidth - placeable.width, wrapperHeight - placeable.height),
                 layoutDirection
             )

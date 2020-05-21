@@ -38,7 +38,7 @@ import java.util.Set;
 /**
  * A collection of {@link CameraInternal} instances.
  */
-public final class CameraRepository implements UseCaseGroup.StateChangeCallback {
+public final class CameraRepository implements UseCaseMediator.StateChangeCallback {
     private static final String TAG = "CameraRepository";
 
     private final Object mCamerasLock = new Object();
@@ -74,7 +74,6 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
     /**
      * Clear and release all cameras from the repository.
      */
-    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
     @NonNull
     public ListenableFuture<Void> deinit() {
         synchronized (mCamerasLock) {
@@ -93,8 +92,9 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
                 // CameraRepository is initialized and deinitialized multiple times in quick
                 // succession.
                 currentFuture = CallbackToFutureAdapter.getFuture((completer) -> {
-                    Preconditions.checkState(Thread.holdsLock(mCamerasLock));
-                    mDeinitCompleter = completer;
+                    synchronized (mCamerasLock) {
+                        mDeinitCompleter = completer;
+                    }
                     return "CameraRepository-deinit";
                 });
                 mDeinitFuture = currentFuture;
@@ -178,14 +178,16 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
     }
 
     /**
-     * Attaches all the use cases in the {@link UseCaseGroup} and opens all the associated cameras.
+     * Attaches all the use cases in the {@link UseCaseMediator} and opens all the associated
+     * cameras.
      *
      * <p>This will start streaming data to the uses cases which are also online.
      */
     @Override
-    public void onGroupActive(@NonNull UseCaseGroup useCaseGroup) {
+    public void onActive(@NonNull UseCaseMediator useCaseMediator) {
         synchronized (mCamerasLock) {
-            Map<String, Set<UseCase>> cameraIdToUseCaseMap = useCaseGroup.getCameraIdToUseCaseMap();
+            Map<String, Set<UseCase>> cameraIdToUseCaseMap =
+                    useCaseMediator.getCameraIdToUseCaseMap();
             for (Map.Entry<String, Set<UseCase>> cameraUseCaseEntry :
                     cameraIdToUseCaseMap.entrySet()) {
                 CameraInternal cameraInternal = getCamera(cameraUseCaseEntry.getKey());
@@ -197,17 +199,19 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
     /** Attaches a set of use cases to a camera. */
     @GuardedBy("mCamerasLock")
     private void attachUseCasesToCamera(CameraInternal cameraInternal, Set<UseCase> useCases) {
-        cameraInternal.addOnlineUseCase(useCases);
+        cameraInternal.attachUseCases(useCases);
     }
 
     /**
-     * Detaches all the use cases in the {@link UseCaseGroup} and closes the camera with no attached
+     * Detaches all the use cases in the {@link UseCaseMediator} and closes the camera with no
+     * attached
      * use cases.
      */
     @Override
-    public void onGroupInactive(@NonNull UseCaseGroup useCaseGroup) {
+    public void onInactive(@NonNull UseCaseMediator useCaseMediator) {
         synchronized (mCamerasLock) {
-            Map<String, Set<UseCase>> cameraIdToUseCaseMap = useCaseGroup.getCameraIdToUseCaseMap();
+            Map<String, Set<UseCase>> cameraIdToUseCaseMap =
+                    useCaseMediator.getCameraIdToUseCaseMap();
             for (Map.Entry<String, Set<UseCase>> cameraUseCaseEntry :
                     cameraIdToUseCaseMap.entrySet()) {
                 CameraInternal cameraInternal = getCamera(cameraUseCaseEntry.getKey());
@@ -219,6 +223,6 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
     /** Detaches a set of use cases from a camera. */
     @GuardedBy("mCamerasLock")
     private void detachUseCasesFromCamera(CameraInternal cameraInternal, Set<UseCase> useCases) {
-        cameraInternal.removeOnlineUseCase(useCases);
+        cameraInternal.detachUseCases(useCases);
     }
 }

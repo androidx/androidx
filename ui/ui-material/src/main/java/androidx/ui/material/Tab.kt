@@ -67,6 +67,9 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.max
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
+import androidx.ui.util.fastFirstOrNull
+import androidx.ui.util.fastForEach
+import androidx.ui.util.fastForEachIndexed
 
 /**
  * A TabRow contains a row of [Tab]s, and displays an indicator underneath the currently
@@ -142,15 +145,15 @@ fun <T> TabRow(
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     scrollable: Boolean = false,
-    indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit = { tabPositions ->
+    indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit = { tabPositions ->
         TabRow.IndicatorContainer(tabPositions, selectedIndex) {
             TabRow.Indicator()
         }
     },
-    divider: @Composable() () -> Unit = {
+    divider: @Composable () -> Unit = {
         Divider(thickness = 1.dp, color = contentColor().copy(alpha = DividerOpacity))
     },
-    tab: @Composable() (Int, T) -> Unit
+    tab: @Composable (Int, T) -> Unit
 ) {
     Surface(modifier = modifier, color = backgroundColor, contentColor = contentColor) {
         WithConstraints {
@@ -158,7 +161,7 @@ fun <T> TabRow(
             // TODO: force scrollable for tabs that will be too small if they take up equal space?
             if (scrollable) {
                 val tabs = @Composable {
-                    items.forEachIndexed { index, item ->
+                    items.fastForEachIndexed { index, item ->
                         tab(index, item)
                     }
                 }
@@ -167,7 +170,7 @@ fun <T> TabRow(
                 // TODO: b/150138067 remove modifier here and use the global LayoutWeight
                 // modifier when it exists
                 val tabs = @Composable { modifier: Modifier ->
-                    items.forEachIndexed { index, item ->
+                    items.fastForEachIndexed { index, item ->
                         Box(modifier, gravity = ContentGravity.Center) {
                             tab(index, item)
                         }
@@ -183,9 +186,9 @@ fun <T> TabRow(
 private fun FixedTabRow(
     width: IntPx,
     tabCount: Int,
-    tabs: @Composable() (Modifier) -> Unit,
-    indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit,
-    divider: @Composable() () -> Unit
+    tabs: @Composable (Modifier) -> Unit,
+    indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit,
+    divider: @Composable () -> Unit
 ) {
     val tabWidth = width / tabCount
 
@@ -211,9 +214,9 @@ private fun FixedTabRow(
 private fun ScrollableTabRow(
     width: IntPx,
     selectedIndex: Int,
-    tabs: @Composable() () -> Unit,
-    indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit,
-    divider: @Composable() () -> Unit
+    tabs: @Composable () -> Unit,
+    indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit,
+    divider: @Composable () -> Unit
 ) {
     val edgeOffset = with(DensityAmbient.current) { ScrollableTabRowEdgeOffset.toIntPx() }
 
@@ -279,19 +282,19 @@ private fun ScrollableTabRow(
             // Position the children.
             layout(layoutWidth, layoutHeight) {
                 // Place the tabs
-                tabPlaceables.forEach { (placeable, left) ->
+                tabPlaceables.fastForEach { (placeable, left) ->
                     placeable.place(left, IntPx.Zero)
                 }
 
                 // The divider is measured with its own height, and width equal to the total width
                 // of the tab row, and then placed on top of the tabs.
-                measurables.firstOrNull { it.tag == dividerTag }
+                measurables.fastFirstOrNull { it.tag == dividerTag }
                     ?.measure(constraints.copy(minWidth = layoutWidth, maxWidth = layoutWidth))
                     ?.run { place(IntPx.Zero, layoutHeight - height) }
 
                 // The indicator container is measured to fill the entire space occupied by the tab
                 // row, and then placed on top of the divider.
-                measurables.firstOrNull { it.tag == indicatorTag }
+                measurables.fastFirstOrNull { it.tag == indicatorTag }
                     ?.measure(Constraints.fixed(layoutWidth, layoutHeight))
                     ?.place(IntPx.Zero, IntPx.Zero)
             }
@@ -383,7 +386,7 @@ object TabRow {
     fun IndicatorContainer(
         tabPositions: List<TabPosition>,
         selectedIndex: Int,
-        indicator: @Composable() () -> Unit
+        indicator: @Composable () -> Unit
     ) {
         // TODO: should we animate the width of the indicator as it moves between tabs of different
         // sizes inside a scrollable tab row?
@@ -421,7 +424,7 @@ object TabRow {
     internal fun IndicatorTransition(
         tabPositions: List<TabPosition>,
         selectedIndex: Int,
-        indicator: @Composable() (indicatorOffset: Px) -> Unit
+        indicator: @Composable (indicatorOffset: Px) -> Unit
     ) {
         val transitionDefinition = remember(tabPositions) {
             transitionDefinition {
@@ -476,13 +479,13 @@ object TabRow {
  */
 @Composable
 fun Tab(
-    text: @Composable() () -> Unit = emptyContent(),
-    icon: @Composable() () -> Unit = emptyContent(),
+    text: @Composable () -> Unit = emptyContent(),
+    icon: @Composable () -> Unit = emptyContent(),
     selected: Boolean,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier,
     activeColor: Color = contentColor(),
-    inactiveColor: Color = EmphasisAmbient.current.medium.emphasize(activeColor)
+    inactiveColor: Color = EmphasisAmbient.current.medium.applyEmphasis(activeColor)
 ) {
     val styledText = @Composable {
         val style = MaterialTheme.typography.button.copy(textAlign = TextAlign.Center)
@@ -514,7 +517,7 @@ fun Tab(
     selected: Boolean,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     MutuallyExclusiveSetItem(
         selected = selected,
@@ -537,7 +540,7 @@ private fun TabTransition(
     activeColor: Color,
     inactiveColor: Color,
     selected: Boolean,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     val transitionDefinition = remember(activeColor, inactiveColor) {
         transitionDefinition {
@@ -577,8 +580,8 @@ private fun TabTransition(
  */
 @Composable
 private fun TabBaselineLayout(
-    text: @Composable() () -> Unit,
-    icon: @Composable() () -> Unit
+    text: @Composable () -> Unit,
+    icon: @Composable () -> Unit
 ) {
     Layout(
         {

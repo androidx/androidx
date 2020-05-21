@@ -7,9 +7,10 @@ function echoAndDo() {
   echo "cd $(pwd)"
   echo "$*"
   if eval "$*"; then
-    echo "Succeeded: $*"
+    echo "Succeeded: $*" >&2
   else
-    echo "Failed: $*"
+    echo >&2
+    echo "Failed: $*" >&2
     return 1
   fi
 }

@@ -15,7 +15,7 @@
  */
 package androidx.ui.material
 
-import androidx.compose.Model
+import androidx.compose.mutableStateOf
 import androidx.test.filters.LargeTest
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Strings
@@ -33,11 +33,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@Model
-private class State {
-    var progress = 0f
-}
-
 @LargeTest
 @RunWith(JUnit4::class)
 class ProgressIndicatorTest {
@@ -51,12 +46,12 @@ class ProgressIndicatorTest {
     @Test
     fun determinateLinearProgressIndicator_Progress() {
         val tag = "linear"
-        val state = State()
+        val progress = mutableStateOf(0f)
 
         composeTestRule
             .setMaterialContent {
                 TestTag(tag = tag) {
-                    LinearProgressIndicator(progress = state.progress)
+                    LinearProgressIndicator(progress = progress.value)
                 }
             }
 
@@ -66,7 +61,7 @@ class ProgressIndicatorTest {
             .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
 
         runOnUiThread {
-            state.progress = 0.5f
+            progress.value = 0.5f
         }
 
         findByTag(tag)
@@ -115,12 +110,12 @@ class ProgressIndicatorTest {
     @Test
     fun determinateCircularProgressIndicator_Progress() {
         val tag = "circular"
-        val state = State()
+        val progress = mutableStateOf(0f)
 
         composeTestRule
             .setMaterialContent {
                 TestTag(tag = tag) {
-                    CircularProgressIndicator(progress = state.progress)
+                    CircularProgressIndicator(progress = progress.value)
                 }
             }
 
@@ -130,7 +125,7 @@ class ProgressIndicatorTest {
             .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
 
         runOnUiThread {
-            state.progress = 0.5f
+            progress.value = 0.5f
         }
 
         findByTag(tag)

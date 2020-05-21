@@ -16,20 +16,15 @@
 
 package androidx.camera.core;
 
-import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.util.Log;
-import android.util.Rational;
 import android.util.Size;
-import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
@@ -38,7 +33,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraFilter;
@@ -49,13 +43,14 @@ import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.core.impl.UseCaseGroup;
+import androidx.camera.core.impl.UseCaseMediator;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.UseCaseOccupancy;
+import androidx.camera.core.internal.ViewPorts;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.core.util.Preconditions;
@@ -180,7 +175,8 @@ public final class CameraX {
 
     final CameraRepository mCameraRepository = new CameraRepository();
     private final Object mInitializeLock = new Object();
-    private final UseCaseGroupRepository mUseCaseGroupRepository = new UseCaseGroupRepository();
+    private final UseCaseMediatorRepository
+            mUseCaseMediatorRepository = new UseCaseMediatorRepository();
     private final Executor mCameraExecutor;
     private final Handler mSchedulerHandler;
     @Nullable
@@ -292,17 +288,19 @@ public final class CameraX {
             @NonNull UseCase... useCases) {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
+        // TODO(b/153096869): override UseCase's target rotation.
 
-        UseCaseGroupLifecycleController useCaseGroupLifecycleController =
-                cameraX.getOrCreateUseCaseGroup(lifecycleOwner);
-        UseCaseGroup useCaseGroupToBind = useCaseGroupLifecycleController.getUseCaseGroup();
+        UseCaseMediatorLifecycleController useCaseMediatorLifecycleController =
+                cameraX.getOrCreateUseCaseMediator(lifecycleOwner);
+        UseCaseMediator useCaseMediatorToBind =
+                useCaseMediatorLifecycleController.getUseCaseMediator();
 
-        Collection<UseCaseGroupLifecycleController> controllers =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
+        Collection<UseCaseMediatorLifecycleController> controllers =
+                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
         for (UseCase useCase : useCases) {
-            for (UseCaseGroupLifecycleController controller : controllers) {
-                UseCaseGroup useCaseGroup = controller.getUseCaseGroup();
-                if (useCaseGroup.contains(useCase) && useCaseGroup != useCaseGroupToBind) {
+            for (UseCaseMediatorLifecycleController controller : controllers) {
+                UseCaseMediator useCaseMediator = controller.getUseCaseMediator();
+                if (useCaseMediator.contains(useCase) && useCaseMediator != useCaseMediatorToBind) {
                     throw new IllegalStateException(
                             String.format(
                                     "Use case %s already bound to a different lifecycle.",
@@ -333,17 +331,17 @@ public final class CameraX {
 
         List<UseCase> originalUseCases = new ArrayList<>();
 
-        // Collect original use cases bound to the camera
-        for (UseCase useCase : useCaseGroupToBind.getUseCases()) {
-            CameraInternal boundCamera = useCase.getBoundCamera();
-            if (boundCamera != null) {
-                if (camera.equals(boundCamera)) {
+        // Collect original use cases attached to the camera
+        for (UseCase useCase : useCaseMediatorToBind.getUseCases()) {
+            CameraInternal attachedCamera = useCase.getCamera();
+            if (attachedCamera != null) {
+                if (camera.equals(attachedCamera)) {
                     originalUseCases.add(useCase);
                 }
             }
         }
 
-        // Only do resolution calculation if UseCases were bound
+        // Only do resolution calculation if UseCases were attached
         if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(originalUseCases,
                 Arrays.asList(useCases))) {
             throw new IllegalArgumentException("Attempting to bind too many ImageCapture or "
@@ -355,7 +353,19 @@ public final class CameraX {
                 originalUseCases,
                 Arrays.asList(useCases));
 
-        // TODO(b/153096869): calculates crop rect using viewPort.
+        if (viewPort != null) {
+            // Calculate crop rect if view port is provided.
+            Map<UseCase, Rect> cropRectMap = ViewPorts.calculateViewPortRects(
+                    camera.getCameraControlInternal().getSensorRect(),
+                    viewPort.getAspectRatio(),
+                    camera.getCameraInfoInternal().getSensorRotationDegrees(
+                            viewPort.getRotation()),
+                    viewPort.getScaleType(),
+                    suggestedResolutionsMap);
+            for (UseCase useCase : useCases) {
+                useCase.setViewPortCropRect(cropRectMap.get(useCase));
+            }
+        }
 
         // At this point the binding will succeed since all the calculations are done
         // Do all binding related work
@@ -363,11 +373,11 @@ public final class CameraX {
             useCase.onAttach(camera);
             useCase.updateSuggestedResolution(suggestedResolutionsMap.get(useCase));
 
-            // Update the UseCaseGroup
-            useCaseGroupToBind.addUseCase(useCase);
+            // Update the UseCaseMediator
+            useCaseMediatorToBind.addUseCase(useCase);
         }
 
-        useCaseGroupLifecycleController.notifyState();
+        useCaseMediatorLifecycleController.notifyState();
 
         return camera;
     }
@@ -385,12 +395,12 @@ public final class CameraX {
     public static boolean isBound(@NonNull UseCase useCase) {
         CameraX cameraX = checkInitialized();
 
-        Collection<UseCaseGroupLifecycleController> controllers =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
+        Collection<UseCaseMediatorLifecycleController> controllers =
+                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
 
-        for (UseCaseGroupLifecycleController controller : controllers) {
-            UseCaseGroup useCaseGroup = controller.getUseCaseGroup();
-            if (useCaseGroup.contains(useCase)) {
+        for (UseCaseMediatorLifecycleController controller : controllers) {
+            UseCaseMediator useCaseMediator = controller.getUseCaseMediator();
+            if (useCaseMediator.contains(useCase)) {
                 return true;
             }
         }
@@ -418,14 +428,16 @@ public final class CameraX {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
 
-        Collection<UseCaseGroupLifecycleController> useCaseGroups =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
+        Collection<UseCaseMediatorLifecycleController> useCaseMediators =
+                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
 
         for (UseCase useCase : useCases) {
-            // Remove the UseCase from the group
+            // Remove the UseCase from the mediator.
             boolean wasUnbound = false;
-            for (UseCaseGroupLifecycleController useCaseGroupLifecycleController : useCaseGroups) {
-                if (useCaseGroupLifecycleController.getUseCaseGroup().removeUseCase(useCase)) {
+            for (UseCaseMediatorLifecycleController useCaseMediatorLifecycleController :
+                    useCaseMediators) {
+                if (useCaseMediatorLifecycleController.getUseCaseMediator().removeUseCase(
+                        useCase)) {
                     wasUnbound = true;
                 }
             }
@@ -451,13 +463,15 @@ public final class CameraX {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
 
-        Collection<UseCaseGroupLifecycleController> useCaseGroups =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
+        Collection<UseCaseMediatorLifecycleController> useCaseMediators =
+                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
 
         List<UseCase> useCases = new ArrayList<>();
-        for (UseCaseGroupLifecycleController useCaseGroupLifecycleController : useCaseGroups) {
-            UseCaseGroup useCaseGroup = useCaseGroupLifecycleController.getUseCaseGroup();
-            useCases.addAll(useCaseGroup.getUseCases());
+        for (UseCaseMediatorLifecycleController useCaseMediatorLifecycleController :
+                useCaseMediators) {
+            UseCaseMediator useCaseMediator =
+                    useCaseMediatorLifecycleController.getUseCaseMediator();
+            useCases.addAll(useCaseMediator.getUseCases());
         }
 
         unbind(useCases.toArray(new UseCase[0]));
@@ -730,12 +744,12 @@ public final class CameraX {
 
         Collection<UseCase> activeUseCases = null;
 
-        Collection<UseCaseGroupLifecycleController> controllers =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
+        Collection<UseCaseMediatorLifecycleController> controllers =
+                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
 
-        for (UseCaseGroupLifecycleController controller : controllers) {
-            if (controller.getUseCaseGroup().isActive()) {
-                activeUseCases = controller.getUseCaseGroup().getUseCases();
+        for (UseCaseMediatorLifecycleController controller : controllers) {
+            if (controller.getUseCaseMediator().isActive()) {
+                activeUseCases = controller.getUseCaseMediator().getUseCases();
                 break;
             }
         }
@@ -882,140 +896,6 @@ public final class CameraX {
             throw new IllegalStateException(e);
         }
 
-    }
-
-    /**
-     * Calculates the crop rect for each use cases.
-     *
-     * <p> The calculation steps:
-     * <ul>
-     * <li> Rotate output aspect ratio to match the sensor orientation.
-     * <li> Get the transformation matrix from use case coordinates to sensor coordinates for
-     * each use case.
-     * <li> Get the intersection of all use case sensor rect and apply user provided aspect ratio
-     * to get the max viable sensor rect.
-     * <li> Map the sensor rect back to each UseCase's coordinates.
-     * </ul>
-     *
-     * @param fullSensorRect        full sensor rect of the camera.
-     * @param viewPortAspectRatio   aspect ratio of the {@link ViewPort} specified by the
-     *                              caller.
-     * @param outputRotationDegrees output rotation degrees in relation to the sensor orientation.
-     * @param useCaseSizes          the {@link Surface} size of each use case.
-     * @return the {@link ViewPort} rect in each {@link UseCase}'s output coordinates.
-     */
-    @NonNull
-    static Map<UseCase, Rect> calculateViewPortRects(
-            @NonNull Rect fullSensorRect,
-            @NonNull Rational viewPortAspectRatio,
-            @IntRange(from = 0, to = 359) int outputRotationDegrees,
-            @ViewPort.ScaleType int scaleType,
-            @NonNull Map<UseCase, Size> useCaseSizes) {
-        // Transform aspect ratio to sensor orientation. The the rest of the method is in sensor
-        // orientation.
-        Rational rotatedViewPortAspectRatio = ImageUtil.getRotatedAspectRatio(
-                outputRotationDegrees, viewPortAspectRatio);
-        RectF fullSensorRectF = new RectF(fullSensorRect);
-
-        // Calculate the transformation for each UseCase.
-        Map<UseCase, Matrix> useCaseToSensorTransformations = new HashMap<>();
-        RectF sensorIntersectionRect = new RectF(fullSensorRect);
-        for (Map.Entry<UseCase, Size> entry : useCaseSizes.entrySet()) {
-            // Calculate the transformation from UseCase to sensor.
-            Matrix useCaseToSensorTransformation = new Matrix();
-            RectF srcRect = new RectF(0, 0, entry.getValue().getWidth(),
-                    entry.getValue().getHeight());
-            useCaseToSensorTransformation.setRectToRect(srcRect, fullSensorRectF,
-                    Matrix.ScaleToFit.CENTER);
-            useCaseToSensorTransformations.put(entry.getKey(), useCaseToSensorTransformation);
-
-            // Calculate the UseCase intersection in sensor coordinates.
-            RectF useCaseSensorRect = new RectF();
-            useCaseToSensorTransformation.mapRect(useCaseSensorRect, srcRect);
-            sensorIntersectionRect.intersect(useCaseSensorRect);
-        }
-
-        // Get the shared sensor rect by the given aspect ratio.
-        sensorIntersectionRect = getScaledRect(
-                sensorIntersectionRect, rotatedViewPortAspectRatio, scaleType);
-
-        // Map the max shared sensor rect to UseCase coordinates.
-        Map<UseCase, Rect> useCaseOutputRects = new HashMap<>();
-        RectF useCaseOutputRect = new RectF();
-        Matrix sensorToUseCaseTransformation = new Matrix();
-        for (Map.Entry<UseCase, Matrix> entry : useCaseToSensorTransformations.entrySet()) {
-            // Transform the sensor crop rect to UseCase coordinates.
-            entry.getValue().invert(sensorToUseCaseTransformation);
-            sensorToUseCaseTransformation.mapRect(useCaseOutputRect, sensorIntersectionRect);
-            Rect outputCropRect = new Rect();
-            useCaseOutputRect.round(outputCropRect);
-            useCaseOutputRects.put(entry.getKey(), outputCropRect);
-        }
-        return useCaseOutputRects;
-    }
-
-    /**
-     * Returns the scaled surface rect that fits/fills the given view port aspect ratio.
-     *
-     * <p> Scale type represents the transformation from surface to view port. For FIT types,
-     * this method returns the smallest rectangle that is larger the surface; For FILL types,
-     * returns the largest rectangle that is smaller than the view port. The returned rectangle
-     * is also required to 1) have the view port's aspect ratio and 2) be in the surface
-     * coordinates.
-     */
-    @SuppressLint("SwitchIntDef")
-    @VisibleForTesting
-    @NonNull
-    static RectF getScaledRect(
-            @NonNull RectF surfaceRect,
-            @NonNull Rational viewPortAspectRatio,
-            @ViewPort.ScaleType int scaleType) {
-        Matrix viewPortToSurfaceTransformation = new Matrix();
-        RectF viewPortRect = new RectF(0, 0, viewPortAspectRatio.getNumerator(),
-                viewPortAspectRatio.getDenominator());
-        if (scaleType == ViewPort.FIT_CENTER || scaleType == ViewPort.FIT_END
-                || scaleType == ViewPort.FIT_START) {
-            Matrix surfaceToViewPortTransformation = new Matrix();
-            switch (scaleType) {
-                // To workaround the limitation that Matrix doesn't not support FILL types
-                // natively, use inverted backward FIT mapping to achieve forward FILL mapping.
-                case ViewPort.FIT_CENTER:
-                    surfaceToViewPortTransformation.setRectToRect(
-                            surfaceRect, viewPortRect, Matrix.ScaleToFit.CENTER);
-                    break;
-                case ViewPort.FIT_START:
-                    surfaceToViewPortTransformation.setRectToRect(
-                            surfaceRect, viewPortRect, Matrix.ScaleToFit.START);
-                    break;
-                case ViewPort.FIT_END:
-                    surfaceToViewPortTransformation.setRectToRect(
-                            surfaceRect, viewPortRect, Matrix.ScaleToFit.END);
-                    break;
-            }
-            surfaceToViewPortTransformation.invert(viewPortToSurfaceTransformation);
-        } else if (scaleType == ViewPort.FILL_CENTER || scaleType == ViewPort.FILL_END
-                || scaleType == ViewPort.FILL_START) {
-            switch (scaleType) {
-                case ViewPort.FILL_CENTER:
-                    viewPortToSurfaceTransformation.setRectToRect(
-                            viewPortRect, surfaceRect, Matrix.ScaleToFit.CENTER);
-                    break;
-                case ViewPort.FILL_START:
-                    viewPortToSurfaceTransformation.setRectToRect(
-                            viewPortRect, surfaceRect, Matrix.ScaleToFit.START);
-                    break;
-                case ViewPort.FILL_END:
-                    viewPortToSurfaceTransformation.setRectToRect(
-                            viewPortRect, surfaceRect, Matrix.ScaleToFit.END);
-                    break;
-            }
-        } else {
-            throw new IllegalStateException("Unexpected scale type: " + scaleType);
-        }
-
-        RectF viewPortRectInSurfaceCoordinates = new RectF();
-        viewPortToSurfaceTransformation.mapRect(viewPortRectInSurfaceCoordinates, viewPortRect);
-        return viewPortRectInSurfaceCoordinates;
     }
 
     /**
@@ -1222,9 +1102,10 @@ public final class CameraX {
         }
     }
 
-    private UseCaseGroupLifecycleController getOrCreateUseCaseGroup(LifecycleOwner lifecycleOwner) {
-        return mUseCaseGroupRepository.getOrCreateUseCaseGroup(
-                lifecycleOwner, useCaseGroup -> useCaseGroup.setListener(mCameraRepository));
+    private UseCaseMediatorLifecycleController getOrCreateUseCaseMediator(
+            LifecycleOwner lifecycleOwner) {
+        return mUseCaseMediatorRepository.getOrCreateUseCaseMediator(
+                lifecycleOwner, useCaseMediator -> useCaseMediator.setListener(mCameraRepository));
     }
 
     private CameraRepository getCameraRepository() {

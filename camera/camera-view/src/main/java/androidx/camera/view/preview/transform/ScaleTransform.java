@@ -34,20 +34,23 @@ final class ScaleTransform {
      * Computes the scale on both the x and y axes so that the view can uniformly fill its
      * container.
      */
-    static ScaleTransformation fill(@NonNull final View container, @NonNull final View view) {
-        return computeScale(container, view, Math::max);
+    static ScaleTransformation fill(@NonNull final View container, @NonNull final View view,
+            final int deviceRotation) {
+        return computeScale(container, view, Math::max, deviceRotation);
     }
 
     /**
      * Computes the scale on both the x and y axes so that the view can uniformly fit inside its
      * container.
      */
-    static ScaleTransformation fit(@NonNull final View container, @NonNull final View view) {
-        return computeScale(container, view, Math::min);
+    static ScaleTransformation fit(@NonNull final View container, @NonNull final View view,
+            final int deviceRotation) {
+        return computeScale(container, view, Math::min, deviceRotation);
     }
 
     private static ScaleTransformation computeScale(@NonNull final View container,
-            @NonNull final View view, @NonNull final FloatBiFunction function) {
+            @NonNull final View view, @NonNull final FloatBiFunction function,
+            final int deviceRotation) {
         // Scaling only makes sense when none of the dimensions are equal to zero. In the
         // opposite case, a default scale of 1 is returned,
         if (container.getWidth() == 0 || container.getHeight() == 0 || view.getWidth() == 0
@@ -55,10 +58,11 @@ final class ScaleTransform {
             return new ScaleTransformation(1);
         }
 
-        final int viewRotationDegrees = (int) RotationTransform.getRotationDegrees(view);
+        final int rotationDegrees = (int) RotationTransform.getRotationDegrees(view,
+                deviceRotation);
         float bufferRotatedWidth;
         float bufferRotatedHeight;
-        if (viewRotationDegrees == 0 || viewRotationDegrees == 180) {
+        if (rotationDegrees == 0 || rotationDegrees == 180) {
             bufferRotatedWidth = view.getWidth() * view.getScaleX();
             bufferRotatedHeight = view.getHeight() * view.getScaleY();
         } else {

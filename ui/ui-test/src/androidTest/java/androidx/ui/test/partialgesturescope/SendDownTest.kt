@@ -37,14 +37,14 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-private const val tag = "widget"
-
 @MediumTest
 @RunWith(Parameterized::class)
 class SendDownTest(private val config: TestConfig) {
     data class TestConfig(val position: PxPosition)
 
     companion object {
+        private const val tag = "widget"
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
@@ -66,13 +66,12 @@ class SendDownTest(private val config: TestConfig) {
         disableDispatchInRealTime = true
     )
 
-    private lateinit var recorder: PointerInputRecorder
+    private val recorder = PointerInputRecorder()
     private val expectedPosition = config.position
 
     @Test
     fun testSendDown() {
         // Given some content
-        recorder = PointerInputRecorder()
         composeTestRule.setContent {
             ClickableTestBox(recorder, tag = tag)
         }

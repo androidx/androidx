@@ -21,7 +21,6 @@ import androidx.compose.state
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.input.KeyboardType
-import androidx.ui.layout.Column
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextStyle
@@ -30,13 +29,11 @@ import androidx.ui.unit.sp
 @Composable
 fun InputFieldTrickyUseCase() {
     VerticalScroller {
-        Column {
-            TagLine(tag = "don't set if non number is added")
-            RejectNonDigits()
+        TagLine(tag = "don't set if non number is added")
+        RejectNonDigits()
 
-            TagLine(tag = "always clear composition")
-            RejectComposition()
-        }
+        TagLine(tag = "always clear composition")
+        RejectComposition()
     }
 }
 

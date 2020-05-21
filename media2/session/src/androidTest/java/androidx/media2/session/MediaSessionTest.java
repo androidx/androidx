@@ -43,6 +43,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
+import androidx.media.MediaSessionManager;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -658,15 +659,33 @@ public class MediaSessionTest extends MediaSessionTestBase {
      * Test {@link MediaSession#getSessionCompatToken()}.
      */
     @Test
-    public void getSessionCompatToken_returnsCompatibleWithMediaControlleCompat()
+    public void getSessionCompatToken_returnsCompatibleWithMediaControllerCompat()
             throws Exception {
-        MediaSessionCompat.Token token = mSession.getSessionCompatToken();
-        MediaControllerCompat compat = new MediaControllerCompat(mContext, token);
-        long testSeekPosition = 1234;
-        compat.getTransportControls().seekTo(testSeekPosition);
-        assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertTrue(mPlayer.mSeekToCalled);
-        assertEquals(testSeekPosition, mPlayer.mSeekPosition);
+        String expectedControllerCompatPackageName =
+                (21 <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT <= 24)
+                        ? MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER
+                        : mContext.getPackageName();
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setId("getSessionCompatToken_returnsCompatibleWithMediaControllerCompat")
+                .setSessionCallback(sHandlerExecutor, new SessionCallback() {
+                    @Override
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
+                        if (TextUtils.equals(expectedControllerCompatPackageName,
+                                controller.getPackageName())) {
+                            return super.onConnect(session, controller);
+                        }
+                        return null;
+                    }
+                }).build()) {
+            MediaSessionCompat.Token token = session.getSessionCompatToken();
+            MediaControllerCompat compat = new MediaControllerCompat(mContext, token);
+            long testSeekPosition = 1234;
+            compat.getTransportControls().seekTo(testSeekPosition);
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            assertTrue(mPlayer.mSeekToCalled);
+            assertEquals(testSeekPosition, mPlayer.mSeekPosition);
+        }
     }
 
     private ControllerInfo getTestControllerInfo() {

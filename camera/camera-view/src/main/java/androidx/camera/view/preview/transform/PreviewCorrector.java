@@ -16,10 +16,9 @@
 
 package androidx.camera.view.preview.transform;
 
-import android.graphics.Point;
 import android.util.Pair;
 import android.util.Size;
-import android.view.Display;
+import android.view.Surface;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -34,32 +33,47 @@ final class PreviewCorrector {
     /**
      * Corrects a camera preview by scaling and rotating it.
      *
-     * @param container  Preview container
-     * @param preview    Preview view (a {@link android.view.TextureView} or
-     *                   {@link android.view.SurfaceView})
-     * @param bufferSize Camera output size
+     * @param container                 Preview container
+     * @param preview                   Preview view (a {@link android.view.TextureView} or
+     *                                  {@link android.view.SurfaceView})
+     * @param bufferSize                Camera output size
+     * @param sensorDimensionFlipNeeded True if the sensor x and y dimensions need to be flipped.
+     * @param deviceRotation            If the app is not running in remote display mode, set the
+     *                                  parameter as {@link RotationTransform#ROTATION_AUTOMATIC}.
+     *                                  Then, the rotation value queried from the preview will be
+     *                                  used to do the transformation calculations. If the app is
+     *                                  running in remote display mode, the device rotation value
+     *                                  needs to be provided to make the result be rotated into
+     *                                  correct orientation. The device rotation should be obtained
+     *                                  from {@link android.view.OrientationEventListener} and
+     *                                  needs to be converted into {@link Surface#ROTATION_0},
+     *                                  {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180}
+     *                                  , or {@link Surface#ROTATION_270}.
      */
     @NonNull
     static PreviewCorrectionTransformation getCorrectionTransformation(
             @NonNull final View container, @NonNull final View preview,
-            @NonNull final Size bufferSize) {
-        final int rotation = (int) RotationTransform.getRotationDegrees(preview);
+            @NonNull final Size bufferSize, final boolean sensorDimensionFlipNeeded,
+            final int deviceRotation) {
+        final int rotation = (int) RotationTransform.getRotationDegrees(preview, deviceRotation);
         final Pair<Float, Float> scaleXY = getCorrectionScale(container, preview,
-                bufferSize);
+                bufferSize, sensorDimensionFlipNeeded);
         return new PreviewCorrectionTransformation(scaleXY.first, scaleXY.second, -rotation);
     }
 
     /**
      * Computes the scales on both the x and y axes so that the preview can be corrected.
      *
-     * @param container  Preview container
-     * @param preview    Preview view (a {@link android.view.TextureView} or
-     *                   {@link android.view.SurfaceView})
-     * @param bufferSize Camera output size
+     * @param container                 Preview container
+     * @param preview                   Preview view (a {@link android.view.TextureView} or
+     *                                  {@link android.view.SurfaceView})
+     * @param bufferSize                Camera output size
+     * @param sensorDimensionFlipNeeded True if the sensor x and y dimensions need to be flipped.
      * @return The scales on both the x and y axes so that the preview can be corrected.
      */
     private static Pair<Float, Float> getCorrectionScale(@NonNull final View container,
-            @NonNull final View preview, @NonNull final Size bufferSize) {
+            @NonNull final View preview, @NonNull final Size bufferSize,
+            final boolean sensorDimensionFlipNeeded) {
 
         // Scaling only makes sense when none of the dimensions are equal to zero. In the
         // opposite case, a default scale of 1 is returned,
@@ -71,7 +85,7 @@ final class PreviewCorrector {
 
         final int bufferWidth;
         final int bufferHeight;
-        if (isNaturalPortrait(preview)) {
+        if (sensorDimensionFlipNeeded) {
             bufferWidth = bufferSize.getHeight();
             bufferHeight = bufferSize.getWidth();
         } else {
@@ -83,38 +97,5 @@ final class PreviewCorrector {
         float scaleX = bufferWidth / (float) preview.getWidth();
         float scaleY = bufferHeight / (float) preview.getHeight();
         return new Pair<>(scaleX, scaleY);
-    }
-
-    /**
-     * Determines whether the current device is a natural portrait-oriented device
-     *
-     * <p>
-     * Using the current app's window to determine whether the device is a natural
-     * portrait-oriented device doesn't work in all scenarios, one example of this is multi-window
-     * mode.
-     * Taking a natural portrait-oriented device in multi-window mode, rotating it 90 degrees (so
-     * that it's in landscape), with the app open, and its window's width being smaller than its
-     * height. Using the app's width and height would determine that the device isn't
-     * naturally portrait-oriented, where in fact it is, which is why it is important to use the
-     * size of the device instead.
-     * </p>
-     *
-     * @param view A {@link View} used to get the current {@link Display}.
-     * @return Whether the device is naturally portrait-oriented.
-     */
-    private static boolean isNaturalPortrait(@NonNull final View view) {
-        final Display display = view.getDisplay();
-        if (display == null) {
-            return true;
-        }
-
-        final Point deviceSize = new Point();
-        display.getRealSize(deviceSize);
-
-        final int width = deviceSize.x;
-        final int height = deviceSize.y;
-        final int rotationDegrees = (int) RotationTransform.getRotationDegrees(view);
-        return ((rotationDegrees == 0 || rotationDegrees == 180) && width < height) || (
-                (rotationDegrees == 90 || rotationDegrees == 270) && width >= height);
     }
 }

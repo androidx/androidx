@@ -33,7 +33,6 @@ import androidx.compose.Composable
  * @param group Group name for this @[Preview]. This allows grouping them in the UI and display only
  * one or more of them.
  * @param apiLevel API level to be used when rendering the annotated @[Composable]
- * @param theme Theme name to be used when rendering the annotated @[Composable]
  * @param widthDp Max width in DP the annotated @[Composable] will be rendered in. Use this to
  * restrict the size of the rendering viewport.
  * @param heightDp Max height in DP the annotated @[Composable] will be rendered in. Use this to
@@ -46,6 +45,8 @@ import androidx.compose.Composable
  * @param showDecoration If true, the status bar and action bar of the device will be displayed.
  * The @[Composable] will be render in the context of a full activity.
  * @param showBackground If true, the @[Composable] will use a default background color.
+ * @param backgroundColor The 32-bit ARGB color int for the background or 0 if not set
+ * @param uiMode Bit mask of the ui mode as per [android.content.res.Configuration#uiMode]
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.SOURCE)
@@ -56,7 +57,6 @@ annotation class Preview(
     val name: String = "",
     val group: String = "",
     @IntRange(from = 1) val apiLevel: Int = -1,
-    val theme: String = "",
     // TODO(mount): Make this Dp when they are inline classes
     val widthDp: Int = -1,
     // TODO(mount): Make this Dp when they are inline classes
@@ -64,5 +64,7 @@ annotation class Preview(
     val locale: String = "",
     @FloatRange(from = 0.01) val fontScale: Float = 1f,
     val showDecoration: Boolean = false,
-    val showBackground: Boolean = false
+    val showBackground: Boolean = false,
+    val backgroundColor: Long = 0,
+    @UiMode val uiMode: Int = 0
 )

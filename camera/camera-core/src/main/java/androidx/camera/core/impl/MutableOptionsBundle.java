@@ -16,26 +16,25 @@
 
 package androidx.camera.core.impl;
 
+import android.util.ArrayMap;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.Comparator;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
  * A MutableOptionsBundle is an {@link OptionsBundle} which allows for insertion/removal.
  */
 public final class MutableOptionsBundle extends OptionsBundle implements MutableConfig {
+    @NonNull
+    private static final OptionPriority DEFAULT_PRIORITY = OptionPriority.OPTIONAL;
 
-    private static final Comparator<Option<?>> ID_COMPARE =
-            new Comparator<Option<?>>() {
-                @Override
-                public int compare(Option<?> o1, Option<?> o2) {
-                    return o1.getId().compareTo(o2.getId());
-                }
-            };
-
-    private MutableOptionsBundle(TreeMap<Option<?>, Object> persistentOptions) {
+    private MutableOptionsBundle(
+            TreeMap<Option<?>, Map<OptionPriority, Object>> persistentOptions) {
         super(persistentOptions);
     }
 
@@ -57,9 +56,15 @@ public final class MutableOptionsBundle extends OptionsBundle implements Mutable
      */
     @NonNull
     public static MutableOptionsBundle from(@NonNull Config otherConfig) {
-        TreeMap<Option<?>, Object> persistentOptions = new TreeMap<>(ID_COMPARE);
+        TreeMap<Option<?>, Map<OptionPriority, Object>> persistentOptions =
+                new TreeMap<>(ID_COMPARE);
         for (Option<?> opt : otherConfig.listOptions()) {
-            persistentOptions.put(opt, otherConfig.retrieveOption(opt));
+            Set<OptionPriority> priorities = otherConfig.getPriorities(opt);
+            Map<OptionPriority, Object> valuesMap = new ArrayMap<>();
+            for (OptionPriority priority : priorities) {
+                valuesMap.put(priority, otherConfig.retrieveOptionWithPriority(opt, priority));
+            }
+            persistentOptions.put(opt, valuesMap);
         }
 
         return new MutableOptionsBundle(persistentOptions);
@@ -76,6 +81,33 @@ public final class MutableOptionsBundle extends OptionsBundle implements Mutable
 
     @Override
     public <ValueT> void insertOption(@NonNull Option<ValueT> opt, @Nullable ValueT value) {
-        mOptions.put(opt, value);
+        insertOption(opt, DEFAULT_PRIORITY, value);
+    }
+
+    @Override
+    public <ValueT> void insertOption(@NonNull Option<ValueT> opt,
+            @NonNull OptionPriority priority, @Nullable ValueT value) {
+        Map<OptionPriority, Object> values = mOptions.get(opt);
+
+        if (values == null) {
+            // the option is first added
+            values = new ArrayMap<>();
+            mOptions.put(opt, values);
+            values.put(priority, value);
+            return;
+        }
+
+        // get the highest priority.
+        OptionPriority priority1 = Collections.min(values.keySet());
+        OptionPriority priority2 = priority;
+        Object value1 = values.get(priority1);
+        ValueT value2 = value;
+        if (!value1.equals(value2) && Config.hasConflict(priority1, priority2)) {
+            throw new IllegalArgumentException("Option values conflicts: " + opt.getId()
+                    + ", existing value (" + priority1 + ")=" + values.get(priority1)
+                    + ", conflicting (" + priority2 + ")=" + value);
+        }
+
+        values.put(priority, value);
     }
 }

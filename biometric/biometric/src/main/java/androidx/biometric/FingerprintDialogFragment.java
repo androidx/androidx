@@ -395,7 +395,7 @@ public class FingerprintDialogFragment extends DialogFragment {
 
     /** Attempts to dismiss this fragment while avoiding potential crashes. */
     private void dismissSafely() {
-        if (getFragmentManager() != null) {
+        if (isAdded()) {
             dismissAllowingStateLoss();
         } else {
             Log.e(TAG, "Failed to dismiss fingerprint dialog fragment. Fragment manager was null.");

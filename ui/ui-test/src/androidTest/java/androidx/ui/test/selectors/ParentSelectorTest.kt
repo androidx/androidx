@@ -57,6 +57,7 @@ class ParentSelectorTest {
 
         findByTag("Node")
             .parent()
+            .parent()
             .assertDoesNotExist()
     }
 
@@ -69,9 +70,10 @@ class ParentSelectorTest {
         expectErrorMessage("" +
                 "Failed: assertExists.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
-                "((TestTag = 'Node').parent)"
+                "(((TestTag = 'Node').parent).parent)"
         ) {
             findByTag("Node")
+                .parent()
                 .parent()
                 .assertExists()
         }

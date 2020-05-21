@@ -360,6 +360,7 @@ class ViewModelGeneratorTest {
         import dagger.Module;
         import dagger.hilt.InstallIn;
         import dagger.hilt.android.components.ActivityRetainedComponent;
+        import dagger.hilt.codegen.OriginatingElement;
         import dagger.multibindings.IntoMap;
         import dagger.multibindings.StringKey;
         import $GENERATED_TYPE;
@@ -367,6 +368,7 @@ class ViewModelGeneratorTest {
         $GENERATED_ANNOTATION
         @Module
         @InstallIn(ActivityRetainedComponent.class)
+        @OriginatingElement(topLevelClass = MyViewModel.class)
         public interface MyViewModel_HiltModule {
             @Binds
             @IntoMap
@@ -434,6 +436,7 @@ class ViewModelGeneratorTest {
         import dagger.Module;
         import dagger.hilt.InstallIn;
         import dagger.hilt.android.components.ActivityRetainedComponent;
+        import dagger.hilt.codegen.OriginatingElement;
         import dagger.multibindings.IntoMap;
         import dagger.multibindings.StringKey;
         import $GENERATED_TYPE;
@@ -441,6 +444,7 @@ class ViewModelGeneratorTest {
         $GENERATED_ANNOTATION
         @Module
         @InstallIn(ActivityRetainedComponent.class)
+        @OriginatingElement(topLevelClass = Outer.class)
         public interface Outer_InnerViewModel_HiltModule {
             @Binds
             @IntoMap

@@ -16,4 +16,6 @@
 
 package android.graphics
 
-class Matrix
+class Matrix() {
+    fun isIdentity() = true
+}

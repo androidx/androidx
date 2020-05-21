@@ -47,7 +47,7 @@ import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -486,7 +486,9 @@ public final class ActivityResultContracts {
 
         @NonNull
         static List<Uri> getClipDataUris(@NonNull Intent intent) {
-            HashSet<Uri> resultSet = new HashSet<>();
+            // Use a LinkedHashSet to maintain any ordering that may be
+            // present in the ClipData
+            LinkedHashSet<Uri> resultSet = new LinkedHashSet<>();
             if (intent.getData() != null) {
                 resultSet.add(intent.getData());
             }

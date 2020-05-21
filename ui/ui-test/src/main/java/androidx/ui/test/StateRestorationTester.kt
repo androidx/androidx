@@ -48,7 +48,7 @@ class StateRestorationTester(private val composeTestRule: ComposeTestRule) {
      *
      * @see ComposeTestRule.setContent
      */
-    fun setContent(composable: @Composable() () -> Unit) {
+    fun setContent(composable: @Composable () -> Unit) {
         composeTestRule.setContent {
             InjectRestorationRegistry { registry ->
                 this.registry = registry
@@ -79,7 +79,7 @@ class StateRestorationTester(private val composeTestRule: ComposeTestRule) {
     }
 
     @Composable
-    private fun InjectRestorationRegistry(children: @Composable() (RestorationRegistry) -> Unit) {
+    private fun InjectRestorationRegistry(children: @Composable (RestorationRegistry) -> Unit) {
         val original = requireNotNull(UiSavedStateRegistryAmbient.current) {
             "StateRestorationTester requires composeTestRule.setContent() to provide " +
                     "an UiSavedStateRegistry implementation via UiSavedStateRegistryAmbient"

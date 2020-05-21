@@ -19,9 +19,9 @@ package androidx.ui.text.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.foundation.Text
-import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
+import androidx.ui.text.annotatedString
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
@@ -60,7 +60,7 @@ fun ParagraphStyleAnnotatedStringsSample() {
     )
 
     Text(
-        text = AnnotatedString {
+        text = annotatedString {
             append(text)
             addStyle(paragraphStyle1, 0, text.indexOf('\n') + 1)
             addStyle(paragraphStyle2, text.indexOf('\n') + 1, text.length)

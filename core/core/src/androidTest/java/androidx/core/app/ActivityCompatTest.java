@@ -16,6 +16,8 @@
 
 package androidx.core.app;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertSame;
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.eq;
@@ -36,6 +38,8 @@ import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Arrays;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -68,6 +72,32 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
         ActivityCompat.requestPermissions(activity, new String[]{
                 Manifest.permission.ACCESS_FINE_LOCATION}, 42);
         verifyNoMoreInteractions(delegate);
+    }
+
+    @Test
+    public void testPermissionNull() {
+        Activity activity = mActivityTestRule.getActivity();
+        String[] permissions = new String[]{null};
+
+        try {
+            ActivityCompat.requestPermissions(activity, permissions, 42);
+        } catch (IllegalArgumentException e) {
+            assertThat(e).hasMessageThat().contains("Permission request for permissions "
+                    + Arrays.toString(permissions) + " must not contain null or empty values");
+        }
+    }
+
+    @Test
+    public void testPermissionEmpty() {
+        Activity activity = mActivityTestRule.getActivity();
+        String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, ""};
+
+        try {
+            ActivityCompat.requestPermissions(activity, permissions, 42);
+        } catch (IllegalArgumentException e) {
+            assertThat(e).hasMessageThat().contains("Permission request for permissions "
+                    + Arrays.toString(permissions) + " must not contain null or empty values");
+        }
     }
 
     @Test

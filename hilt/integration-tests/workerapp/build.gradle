@@ -39,8 +39,6 @@ dependencies {
     implementation(project(":hilt:hilt-work"))
     kapt(project(":hilt:hilt-compiler"))
     implementation(KOTLIN_STDLIB)
-    implementation(DAGGER)
-    kapt(DAGGER_COMPILER)
     implementation(HILT_ANDROID)
     kapt(HILT_ANDROID_COMPILER)
 }

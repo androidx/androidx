@@ -16,7 +16,7 @@
 
 package androidx.ui.text.selection
 
-import androidx.ui.unit.PxBounds
+import androidx.ui.geometry.Rect
 import androidx.ui.unit.PxPosition
 
 /**
@@ -30,36 +30,36 @@ internal enum class SelectionMode {
      */
     Vertical {
         override fun isSelected(
-            bounds: PxBounds,
+            bounds: Rect,
             start: PxPosition,
             end: PxPosition
         ): Boolean {
             // When the end of the selection is above the top of the composable, the composable is outside
             // of the selection range.
-            if (end.y < bounds.top) return false
+            if (end.y.value < bounds.top) return false
 
             // When the end of the selection is on the left of the composable, and not below the bottom
             // of composable, the composable is outside of the selection range.
-            if (end.x < bounds.left && end.y < bounds.bottom) return false
+            if (end.x.value < bounds.left && end.y.value < bounds.bottom) return false
 
             // When the start of the selection is below the bottom of the composable, the composable is
             // outside of the selection range.
-            if (start.y >= bounds.bottom) return false
+            if (start.y.value >= bounds.bottom) return false
 
             // When the start of the selection is on the right of the composable, and not above the top
             // of the composable, the composable is outside of the selection range.
-            if (start.x >= bounds.right && start.y >= bounds.top) return false
+            if (start.x.value >= bounds.right && start.y.value >= bounds.top) return false
 
             return true
         }
 
         override fun areHandlesCrossed(
-            bounds: PxBounds,
+            bounds: Rect,
             start: PxPosition,
             end: PxPosition
         ): Boolean {
-            if (start.y >= bounds.top && start.y < bounds.bottom &&
-                end.y >= bounds.top && end.y < bounds.bottom
+            if (start.y.value >= bounds.top && start.y.value < bounds.bottom &&
+                end.y.value >= bounds.top && end.y.value < bounds.bottom
             ) {
                 // When the start and end of the selection are in the same row of widgets, check if
                 // x coordinates of the start and end are crossed each other.
@@ -79,36 +79,36 @@ internal enum class SelectionMode {
      */
     Horizontal {
         override fun isSelected(
-            bounds: PxBounds,
+            bounds: Rect,
             start: PxPosition,
             end: PxPosition
         ): Boolean {
             // When the end of the selection is on the left of the composable, the composable is outside of
             // the selection range.
-            if (end.x < bounds.left) return false
+            if (end.x.value < bounds.left) return false
 
             // When the end of the selection is on the top of the composable, and the not on the right
             // of the composable, the composable is outside of the selection range.
-            if (end.y < bounds.top && end.x < bounds.right) return false
+            if (end.y.value < bounds.top && end.x.value < bounds.right) return false
 
             // When the start of the selection is on the right of the composable, the composable is outside
             // of the selection range.
-            if (start.x >= bounds.right) return false
+            if (start.x.value >= bounds.right) return false
 
             // When the start of the selection is below the composable, and not on the left of the
             // composable, the composable is outside of the selection range.
-            if (start.y >= bounds.bottom && start.x >= bounds.left) return false
+            if (start.y.value >= bounds.bottom && start.x.value >= bounds.left) return false
 
             return true
         }
 
         override fun areHandlesCrossed(
-            bounds: PxBounds,
+            bounds: Rect,
             start: PxPosition,
             end: PxPosition
         ): Boolean {
-            if (start.x >= bounds.left && start.x < bounds.right &&
-                end.x >= bounds.left && end.x < bounds.right
+            if (start.x.value >= bounds.left && start.x.value < bounds.right &&
+                end.x.value >= bounds.left && end.x.value < bounds.right
             ) {
                 // When the start and end of the selection are in the same column of widgets,
                 // check if y coordinates of the start and end are crossed each other.
@@ -130,7 +130,7 @@ internal enum class SelectionMode {
      * @param end The end coordinates of the selection, in SelectionContainer range.
      */
     internal abstract fun isSelected(
-        bounds: PxBounds,
+        bounds: Rect,
         start: PxPosition,
         end: PxPosition
     ): Boolean
@@ -145,7 +145,7 @@ internal enum class SelectionMode {
      * @param end The end coordinates of the selection, in SelectionContainer range.
      */
     internal abstract fun areHandlesCrossed(
-        bounds: PxBounds,
+        bounds: Rect,
         start: PxPosition,
         end: PxPosition
     ): Boolean

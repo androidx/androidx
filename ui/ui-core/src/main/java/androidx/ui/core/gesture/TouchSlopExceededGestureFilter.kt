@@ -30,6 +30,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.positionChange
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
+import androidx.ui.util.fastForEach
 
 /**
  * This gesture filter detects when at least one pointer has moved far enough to exceed touch slop.
@@ -70,7 +71,7 @@ internal class TouchSlopExceededGestureFilter(
         bounds: IntPxSize
     ): List<PointerInputChange> {
         if (pass == PointerEventPass.PostUp) {
-            changes.forEach {
+            changes.fastForEach {
                 if (it.changedToUpIgnoreConsumed()) {
                     pointerTrackers.remove(it.id)
                 } else if (it.changedToDownIgnoreConsumed()) {
@@ -90,7 +91,7 @@ internal class TouchSlopExceededGestureFilter(
             (pass == PointerEventPass.PostUp || pass == PointerEventPass.PostDown)
         ) {
 
-            changes.filter { it.current.down && !it.changedToDownIgnoreConsumed() }.forEach {
+            changes.filter { it.current.down && !it.changedToDownIgnoreConsumed() }.fastForEach {
 
                 if (!passedSlop) {
 

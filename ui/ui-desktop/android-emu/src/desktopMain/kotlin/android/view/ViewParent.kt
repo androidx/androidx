@@ -16,4 +16,6 @@
 
 package android.view
 
-class ViewParent
+interface ViewParent {
+    fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean)
+}

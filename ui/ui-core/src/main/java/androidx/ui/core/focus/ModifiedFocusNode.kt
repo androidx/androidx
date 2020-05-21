@@ -17,11 +17,12 @@ package androidx.ui.core.focus
 
 import androidx.ui.core.DelegatingLayoutNodeWrapper
 import androidx.ui.core.LayoutNodeWrapper
-import androidx.ui.focus.FocusDetailedState.Active
-import androidx.ui.focus.FocusDetailedState.ActiveParent
-import androidx.ui.focus.FocusDetailedState.Captured
-import androidx.ui.focus.FocusDetailedState.Disabled
-import androidx.ui.focus.FocusDetailedState.Inactive
+import androidx.ui.core.focus.FocusDetailedState.Active
+import androidx.ui.core.focus.FocusDetailedState.ActiveParent
+import androidx.ui.core.focus.FocusDetailedState.Captured
+import androidx.ui.core.focus.FocusDetailedState.Disabled
+import androidx.ui.core.focus.FocusDetailedState.Inactive
+import androidx.ui.util.fastForEach
 
 internal class ModifiedFocusNode(
     wrapped: LayoutNodeWrapper,
@@ -252,16 +253,16 @@ internal class ModifiedFocusNode(
         return owner.requestFocus()
     }
 
-    override fun findFocusWrapperWrappingThisWrapper() = this
+    override fun findPreviousFocusWrapper() = this
 
-    override fun findFocusWrapperWrappedByThisWrapper() = this
+    override fun findNextFocusWrapper() = this
 
     // TODO(b/152051577): Measure the performance of focusableChildren.
     //  Consider caching the children.
     internal fun focusableChildren(): List<ModifiedFocusNode> {
         // Check the modifier chain that this focus node is part of. If it has a focus modifier,
         // that means you have found the only focusable child for this node.
-        val focusableChild = wrapped.findFocusWrapperWrappedByThisWrapper()
+        val focusableChild = wrapped.findNextFocusWrapper()
         // findChildFocusNodeInWrapperChain()
         if (focusableChild != null) {
             return listOf(focusableChild)
@@ -269,9 +270,17 @@ internal class ModifiedFocusNode(
 
         // Go through all your children and find the first focusable node from each child.
         val focusableChildren = mutableListOf<ModifiedFocusNode>()
-        for (node in layoutNode.layoutChildren) {
+        layoutNode.children.fastForEach { node ->
             focusableChildren.addAll(node.focusableChildren())
         }
         return focusableChildren
+    }
+
+    internal fun findActiveFocusNode(): ModifiedFocusNode? {
+        return when (modifier.focusDetailedState) {
+            Active, Captured -> this
+            ActiveParent -> modifier.focusedChild?.findActiveFocusNode()
+            Inactive, Disabled -> null
+        }
     }
 }

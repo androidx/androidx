@@ -19,7 +19,7 @@ package androidx.camera.core.impl;
 import androidx.camera.core.Camera;
 
 /** Configuration containing options for configuring the input image data of a pipeline. */
-public interface ImageInputConfig {
+public interface ImageInputConfig extends ReadableConfig {
     Config.Option<Integer> OPTION_INPUT_FORMAT =
             Config.Option.create("camerax.core.imageInput.inputFormat", int.class);
 
@@ -37,5 +37,7 @@ public interface ImageInputConfig {
      * code 0x22 for internal corresponding format HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED.
      * Therefore, setting 0x22 as default image format.
      */
-    int getInputFormat();
+    default int getInputFormat() {
+        return retrieveOption(OPTION_INPUT_FORMAT);
+    }
 }

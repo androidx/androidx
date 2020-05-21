@@ -36,6 +36,7 @@ import androidx.ui.semantics.CustomAccessibilityAction
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsActions.Companion.CustomActions
 import androidx.ui.semantics.SemanticsProperties
+import androidx.ui.util.fastForEach
 
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
     AccessibilityDelegateCompat() {
@@ -100,7 +101,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
             info.setSource(view)
             semanticsNode = view.semanticsOwner.rootSemanticsNode
-            info.setParent(ViewCompat.getParentForAccessibility(view) as View)
+            info.setParent(ViewCompat.getParentForAccessibility(view) as? View)
         } else {
             semanticsNode = view.semanticsOwner.rootSemanticsNode.findChildById(virtualViewId)
             if (semanticsNode == null) {
@@ -183,8 +184,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (rangeInfo != null) {
             info.rangeInfo = AccessibilityNodeInfoCompat.RangeInfoCompat.obtain(
                 AccessibilityNodeInfoCompat.RangeInfoCompat.RANGE_TYPE_FLOAT,
-                rangeInfo.current,
-                rangeInfo.range.start, rangeInfo.range.endInclusive
+                rangeInfo.range.start, rangeInfo.range.endInclusive, rangeInfo.current
             )
         }
 
@@ -405,11 +405,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             AccessibilityNodeInfoCompat.ACTION_CLEAR_ACCESSIBILITY_FOCUS ->
                 return clearAccessibilityFocus(virtualViewId)
             AccessibilityNodeInfoCompat.ACTION_CLICK -> {
-                if (node.config.contains(SemanticsActions.OnClick)) {
+                return if (node.canPerformAction(SemanticsActions.OnClick)) {
                     node.config[SemanticsActions.OnClick].action()
-                    return true
                 } else {
-                    return false
+                    false
                 }
             }
             // TODO: handling for other system actions
@@ -482,7 +481,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     // TODO(b/151729467): compose accessibility getVirtualViewAt needs to be more efficient
     private fun findVirtualViewAt(x: Float, y: Float, node: SemanticsNode): Int {
-        node.children.forEach {
+        node.children.fastForEach {
             var id = findVirtualViewAt(x, y, it)
             if (id != InvalidId) {
                 return id

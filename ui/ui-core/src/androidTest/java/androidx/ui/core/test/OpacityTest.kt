@@ -137,14 +137,14 @@ class OpacityTest {
     @Test
     fun switchFromHalfOpacityToFull() {
         val color = Color.Green
-        val model = ValueModel(0.5f)
+        val opacity = mutableStateOf(0.5f)
 
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(
                     size = 10.ipx,
                     modifier = Modifier.background(Color.White)
-                        .drawOpacity(model.value)
+                        .drawOpacity(opacity.value)
                         .plus(unlatch)
                         .background(color)
                 ) {
@@ -154,7 +154,7 @@ class OpacityTest {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         rule.runOnUiThreadIR {
-            model.value = 1f
+            opacity.value = 1f
         }
 
         takeScreenShot(10).apply {
@@ -195,7 +195,7 @@ class OpacityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun emitDrawWithOpacityLater() {
-        val model = ValueModel(false)
+        val model = mutableStateOf(false)
 
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -232,7 +232,7 @@ class OpacityTest {
 }
 
 @Composable
-fun Row(modifier: Modifier = Modifier, children: @Composable() () -> Unit) {
+fun Row(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { it.measure(constraints) }
         var width = 0.ipx

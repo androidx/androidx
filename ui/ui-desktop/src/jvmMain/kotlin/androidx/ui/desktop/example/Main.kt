@@ -16,14 +16,26 @@
 package androidx.ui.desktop.example
 
 import androidx.compose.Composable
+import androidx.compose.state
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
 import androidx.ui.graphics.Color
 import androidx.ui.desktop.SkiaWindow
 import androidx.ui.desktop.setContent
-import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
-import androidx.ui.core.Modifier
+import androidx.ui.layout.Arrangement
+import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
+import androidx.ui.layout.wrapContentSize
+import androidx.ui.layout.preferredHeight
+import androidx.ui.material.Button
+import androidx.ui.material.CircularProgressIndicator
+import androidx.ui.material.ExtendedFloatingActionButton
+import androidx.ui.material.FilledTextField
+import androidx.ui.material.Scaffold
+import androidx.ui.material.Slider
+import androidx.ui.material.TopAppBar
 import androidx.ui.unit.dp
 
 import javax.swing.WindowConstants
@@ -47,6 +59,50 @@ fun main() {
 
 @Composable
 fun App() {
-    Box(Modifier.fillMaxSize(), backgroundColor = Color.Green)
-    Box(Modifier.padding(40.dp) + Modifier.drawBackground(color = Color.Blue))
+    Scaffold(
+        topAppBar = {
+            TopAppBar(
+                title = { Text("Desktop Compose") }
+            )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = { Text("BUTTON") },
+                onClick = {
+                    println("Floating button clicked")
+                }
+            )
+        },
+        bodyContent = { modifier ->
+            val amount = state { 0 }
+            Column(modifier.fillMaxSize(), Arrangement.SpaceEvenly) {
+                Text(
+                    text = "Привет! 你好! Desktop Compose ${amount.value}",
+                    color = Color.Black,
+                    modifier = Modifier
+                        .drawBackground(Color.Blue)
+                        .preferredHeight(56.dp)
+                        .wrapContentSize(Alignment.Center)
+                )
+                Button(onClick = {
+                    amount.value++
+                }) {
+                    Text("Base")
+                }
+                CircularProgressIndicator()
+                Slider(value = amount.value.toFloat() / 100f,
+                    onValueChange = { amount.value = (it * 100).toInt() })
+                FilledTextField(
+                    value = "",
+                    onValueChange = { amount.value = it.toIntOrNull() ?: 42 },
+                    label = { Text(text = "Input1") }
+                )
+                FilledTextField(
+                    value = amount.value.toString(),
+                    onValueChange = { },
+                    label = { Text(text = "Input2") }
+                )
+            }
+        }
+    )
 }

@@ -27,8 +27,8 @@ import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.painter.CanvasScope
-import androidx.ui.graphics.painter.Stroke
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.Stack
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
@@ -45,6 +45,7 @@ import androidx.ui.unit.dp
  * @param checked whether or not this components is checked
  * @param onCheckedChange callback to be invoked when Switch is being clicked,
  * therefore the change of checked state is requested.
+ * @param modifier Modifier to be applied to the switch layout
  * @param enabled whether or not components is enabled and can be clicked to request state change
  * @param color active color for Switch
  */
@@ -52,11 +53,12 @@ import androidx.ui.unit.dp
 fun Switch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     color: Color = MaterialTheme.colors.secondaryVariant
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
-        Stack {
+        Stack(modifier) {
             Toggleable(
                 value = checked,
                 onValueChange = onCheckedChange,
@@ -111,20 +113,16 @@ private fun DrawSwitch(
     }
 
     val trackStroke: Stroke
-    val trackWidth: Float
-    val thumbDiameter: Float
     with(DensityAmbient.current) {
         trackStroke = Stroke(width = TrackStrokeWidth.toPx().value, cap = StrokeCap.round)
-        trackWidth = TrackWidth.toPx().value
-        thumbDiameter = ThumbDiameter.toPx().value
     }
     Canvas(modifier.preferredSize(SwitchWidth, SwitchHeight)) {
-        drawTrack(trackColor, trackWidth, trackStroke)
-        drawThumb(thumbValue.value, thumbDiameter, thumbColor)
+        drawTrack(trackColor, TrackWidth.toPx().value, trackStroke)
+        drawThumb(thumbValue.value, ThumbDiameter.toPx().value, thumbColor)
     }
 }
 
-private fun CanvasScope.drawTrack(trackColor: Color, trackWidth: Float, stroke: Stroke) {
+private fun DrawScope.drawTrack(trackColor: Color, trackWidth: Float, stroke: Stroke) {
     val strokeRadius = stroke.width / 2
     drawLine(
         trackColor,
@@ -134,7 +132,7 @@ private fun CanvasScope.drawTrack(trackColor: Color, trackWidth: Float, stroke: 
     )
 }
 
-private fun CanvasScope.drawThumb(position: Float, thumbDiameter: Float, thumbColor: Color) {
+private fun DrawScope.drawThumb(position: Float, thumbDiameter: Float, thumbColor: Color) {
     val thumbRadius = thumbDiameter / 2
     val x = position + thumbRadius
     drawCircle(thumbColor, thumbRadius, Offset(x, center.dy))

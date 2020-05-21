@@ -48,7 +48,7 @@ import androidx.ui.semantics.Semantics
  * @param children The content to be displayed inside the dialog.
  */
 @Composable
-fun Dialog(onCloseRequest: () -> Unit, children: @Composable() () -> Unit) {
+fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
     val context = ContextAmbient.current
 
     val recomposer = currentComposer.recomposer
@@ -87,7 +87,7 @@ private class DialogWrapper(
         setContentView(frameLayout)
     }
 
-    fun setContent(children: @Composable() () -> Unit) {
+    fun setContent(children: @Composable () -> Unit) {
         // TODO: This should probably create a child composition of the original
         composition = frameLayout.setContent(recomposer, children)
     }

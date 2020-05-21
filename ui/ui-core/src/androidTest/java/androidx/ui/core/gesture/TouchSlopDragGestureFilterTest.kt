@@ -26,7 +26,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.layout.Stack
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -51,7 +50,7 @@ class TouchSlopDragGestureFilterTest {
     val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var dragObserver: DragObserver
     private lateinit var view: View
-    private var touchSlop: Px = Px(Float.NEGATIVE_INFINITY)
+    private var touchSlop: Float = Float.NEGATIVE_INFINITY
 
     private val TinyNum = .01f
 
@@ -59,7 +58,7 @@ class TouchSlopDragGestureFilterTest {
     fun ui_pointerMovementWithinTouchSlop_noCallbacksCalled() {
         setup(false)
 
-        val touchSlop = touchSlop.value
+        val touchSlop = touchSlop
 
         val down = MotionEvent(
             0,
@@ -98,7 +97,7 @@ class TouchSlopDragGestureFilterTest {
     fun ui_pointerDownMovementBeyondTouchSlopUp_correctCallbacksInOrder() {
         setup(false)
 
-        val touchSlop = touchSlop.value
+        val touchSlop = touchSlop
 
         val down = MotionEvent(
             0,
@@ -145,7 +144,7 @@ class TouchSlopDragGestureFilterTest {
     fun ui_pointerDownMovementBeyondTouchSlopCancel_correctCallbacksInOrder() {
         setup(false)
 
-        val touchSlop = touchSlop.value
+        val touchSlop = touchSlop
 
         val down = MotionEvent(
             0,
@@ -216,7 +215,7 @@ class TouchSlopDragGestureFilterTest {
         setup(false)
 
         // Guaranteed to be over slop
-        val movement = (touchSlop.value + 1 * 2).toInt()
+        val movement = (touchSlop + 1 * 2).toInt()
 
         val down = MotionEvent(
             0,
@@ -253,7 +252,7 @@ class TouchSlopDragGestureFilterTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 Stack {
-                    touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
+                    touchSlop = with(DensityAmbient.current) { TouchSlop.toPx().value }
                     Layout(
                         modifier = Modifier.dragGestureFilter(
                             dragObserver,

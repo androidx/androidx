@@ -39,6 +39,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class RotationTransformTest {
+    private final int[] mPossibleRotations = {Surface.ROTATION_0, Surface.ROTATION_90,
+            Surface.ROTATION_180, Surface.ROTATION_270};
 
     @Test
     public void rotation_0() {
@@ -62,6 +64,30 @@ public class RotationTransformTest {
     public void rotation_270() {
         final View view = setUpView(Surface.ROTATION_270);
         assertThat(RotationTransform.getRotationDegrees(view)).isEqualTo(270);
+    }
+
+    @Test
+    public void viewAndDeviceRotationCombinations() {
+        for (int viewRotation : mPossibleRotations) {
+            final View view = setUpView(viewRotation);
+
+            // If the device rotation value is available, the return degrees will be calculated
+            // from the device rotation value.
+            for (int deviceRotation : mPossibleRotations) {
+                int deviceRotationDegrees =
+                        SurfaceRotation.rotationDegreesFromSurfaceRotation(deviceRotation);
+                assertThat(
+                        RotationTransform.getRotationDegrees(view, deviceRotation)).isEqualTo(
+                        deviceRotationDegrees);
+            }
+
+            // If the device rotation value is ROTATION_AUTOMATIC, the return degrees will be
+            // calculated from the view.
+            int viewRotationDegrees =
+                    SurfaceRotation.rotationDegreesFromSurfaceRotation(viewRotation);
+            assertThat(RotationTransform.getRotationDegrees(view,
+                    RotationTransform.ROTATION_AUTOMATIC)).isEqualTo(viewRotationDegrees);
+        }
     }
 
     @Test(expected = UnsupportedOperationException.class)

@@ -18,7 +18,6 @@ package androidx.ui.demos
 
 import androidx.compose.Composable
 import androidx.compose.getValue
-import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.ui.animation.Crossfade
 import androidx.ui.core.Alignment
@@ -33,12 +32,14 @@ import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.layout.Column
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.material.IconButton
 import androidx.ui.material.ListItem
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Scaffold
+import androidx.ui.material.Surface
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.ArrowBack
@@ -91,14 +92,16 @@ private fun DemoContent(
     onNavigate: (Demo) -> Unit
 ) {
     Crossfade(isFiltering to currentDemo) { (filtering, demo) ->
-        if (filtering) {
-            DemoFilter(
-                launchableDemos = AllDemosCategory.allLaunchableDemos(),
-                filterText = filterText,
-                onNavigate = onNavigate
-            )
-        } else {
-            DisplayDemo(demo, onNavigate)
+        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
+            if (filtering) {
+                DemoFilter(
+                    launchableDemos = AllDemosCategory.allLaunchableDemos(),
+                    filterText = filterText,
+                    onNavigate = onNavigate
+                )
+            } else {
+                DisplayDemo(demo, onNavigate)
+            }
         }
     }
 }
@@ -117,21 +120,19 @@ private fun DisplayDemo(demo: Demo, onNavigate: (Demo) -> Unit) {
 @Composable
 private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Unit) {
     VerticalScroller {
-        Column {
-            category.demos.forEach { demo ->
-                ListItem(
-                    text = {
-                        Text(
-                            modifier = Modifier.preferredHeight(56.dp)
-                                .wrapContentSize(Alignment.Center),
-                            text = demo.title
-                        )
-                    },
-                    onClick = {
-                        onNavigate(demo)
-                    }
-                )
-            }
+        category.demos.forEach { demo ->
+            ListItem(
+                text = {
+                    Text(
+                        modifier = Modifier.preferredHeight(56.dp)
+                            .wrapContentSize(Alignment.Center),
+                        text = demo.title
+                    )
+                },
+                onClick = {
+                    onNavigate(demo)
+                }
+            )
         }
     }
 }
@@ -139,7 +140,7 @@ private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Un
 @Composable
 private fun DemoAppBar(
     title: String,
-    navigationIcon: @Composable() (() -> Unit)?,
+    navigationIcon: @Composable (() -> Unit)?,
     isFiltering: Boolean,
     filterText: TextFieldValue,
     onFilter: (TextFieldValue) -> Unit,

@@ -1,6 +1,8 @@
 // Baseline format: 1.0
 AcronymName: androidx.ui.core.AlignmentLineKt#merge-CBRbNzc(androidx.ui.core.AlignmentLine, int, int):
     Acronyms should not be capitalized in method names: was `merge-CBRbNzc`, should this be `merge-CbRbNzc`?
+AcronymName: androidx.ui.core.ContentScaleKt#scale-iWWM28M(androidx.ui.core.ContentScale, long, long):
+    Acronyms should not be capitalized in method names: was `scale-iWWM28M`, should this be `scale-iWwM28M`?
 AcronymName: androidx.ui.core.DrawShadowKt#drawShadow-xWKVMPI(androidx.ui.core.Modifier, float, androidx.ui.graphics.Shape, boolean, float):
     Acronyms should not be capitalized in method names: was `drawShadow-xWKVMPI`, should this be `drawShadow-xWkvmpi`?
 AcronymName: androidx.ui.core.IntrinsicMeasureScope#maxIntrinsicHeight-e0m06WU(androidx.ui.core.IntrinsicMeasurable, int):
@@ -19,8 +21,6 @@ AcronymName: androidx.ui.core.LayoutModifier#minIntrinsicHeight-QYUUffc(androidx
     Acronyms should not be capitalized in method names: was `minIntrinsicHeight-QYUUffc`, should this be `minIntrinsicHeight-QyuUffc`?
 AcronymName: androidx.ui.core.LayoutModifier#minIntrinsicWidth-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
     Acronyms should not be capitalized in method names: was `minIntrinsicWidth-QYUUffc`, should this be `minIntrinsicWidth-QyuUffc`?
-AcronymName: androidx.ui.graphics.vector.VectorComposeKt#drawVector-DGWccOo(androidx.ui.core.Modifier, float, float, float, float, long, androidx.ui.graphics.BlendMode, androidx.ui.core.Alignment, androidx.ui.core.ContentScale, String, kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>):
-    Acronyms should not be capitalized in method names: was `drawVector-DGWccOo`, should this be `drawVector-DgWccOo`?
 
 
 ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange[], androidx.ui.unit.IntPxSize) parameter #1:
@@ -31,17 +31,33 @@ ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotli
     Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.ui.core.PointerInputChange[]`
 
 
-ContextFirst: androidx.ui.core.WrapperKt#subcomposeInto(androidx.ui.core.ComponentNode, android.content.Context, androidx.compose.CompositionReference, kotlin.jvm.functions.Function0<kotlin.Unit>) parameter #1:
+BuilderSetStyle: androidx.ui.graphics.vector.VectorAssetBuilder#popGroup():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.VectorAssetBuilder.popGroup()
+BuilderSetStyle: androidx.ui.graphics.vector.VectorAssetBuilder#pushGroup(String, float, float, float, float, float, float, float, java.util.List<? extends androidx.ui.graphics.vector.PathNode>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.VectorAssetBuilder.pushGroup(String,float,float,float,float,float,float,float,java.util.List<? extends androidx.ui.graphics.vector.PathNode>)
+
+
+CallbackName: androidx.ui.core.ModelObserver:
+    Class should be named ModelCallback
+CallbackName: androidx.ui.core.gesture.DragObserver:
+    Class should be named DragCallback
+CallbackName: androidx.ui.core.gesture.LongPressDragObserver:
+    Class should be named LongPressDragCallback
+CallbackName: androidx.ui.core.gesture.RawScaleObserver:
+    Class should be named RawScaleCallback
+CallbackName: androidx.ui.core.gesture.ScaleObserver:
+    Class should be named ScaleCallback
+
+
+ContextFirst: androidx.ui.core.WrapperKt#subcomposeInto(androidx.ui.core.LayoutNode, android.content.Context, androidx.compose.CompositionReference, kotlin.jvm.functions.Function0<kotlin.Unit>) parameter #1:
     Context is distinct, so it must be the first argument (method `subcomposeInto`)
 
 
-TopLevelBuilder: androidx.ui.graphics.vector.VectorAssetBuilder:
-    Builder should be defined as inner class: androidx.ui.graphics.vector.VectorAssetBuilder
-
-
-MissingNullability: androidx.ui.core.Constraints2#toString-impl(long):
-    Missing nullability on method `toString-impl` return
 MissingNullability: androidx.ui.core.PointerId#toString-impl(long):
     Missing nullability on method `toString-impl` return
 MissingNullability: androidx.ui.core.TransformOrigin#toString-impl(long):
     Missing nullability on method `toString-impl` return
+
+
+TopLevelBuilder: androidx.ui.graphics.vector.VectorAssetBuilder:
+    Builder should be defined as inner class: androidx.ui.graphics.vector.VectorAssetBuilder

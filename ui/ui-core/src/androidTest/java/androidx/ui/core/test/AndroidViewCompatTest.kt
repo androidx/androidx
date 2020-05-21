@@ -29,7 +29,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.mutableStateOf
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
@@ -79,7 +79,7 @@ class AndroidViewCompatTest {
     @Test
     fun simpleLayoutTest() {
         val squareRef = Ref<ColoredSquareView>()
-        val squareSize = OffsetModel(100.ipx)
+        val squareSize = mutableStateOf(100.ipx)
         var expectedSize = 100
         composeTestRule.setContent {
             TestTag("content") {
@@ -87,7 +87,7 @@ class AndroidViewCompatTest {
                     Semantics(container = true) {
                         Layout(
                             @Composable {
-                                ColoredSquareView(size = squareSize.offset.value, ref = squareRef)
+                                ColoredSquareView(size = squareSize.value.value, ref = squareRef)
                             }
                         ) { measurables, constraints, _ ->
                             assertEquals(1, measurables.size)
@@ -114,7 +114,7 @@ class AndroidViewCompatTest {
 
         runOnUiThread {
             // Change view attribute using recomposition.
-            squareSize.offset = 200.ipx
+            squareSize.value = 200.ipx
             expectedSize = 200
         }
         findByTag("content").assertIsDisplayed()
@@ -139,15 +139,15 @@ class AndroidViewCompatTest {
     @Test
     fun simpleDrawTest() {
         val squareRef = Ref<ColoredSquareView>()
-        val colorModel = ColorModel(Color.Blue)
+        val colorModel = mutableStateOf(Color.Blue)
         val squareSize = 100
         var expectedColor = Color.Blue
         composeTestRule.setContent {
             Align {
                 TestTag("content") {
                     Semantics(container = true) {
-                        Container(Modifier.drawLayer(clipToBounds = false)) {
-                            ColoredSquareView(color = colorModel.color, ref = squareRef)
+                        Container(Modifier.drawLayer()) {
+                            ColoredSquareView(color = colorModel.value, ref = squareRef)
                         }
                     }
                 }
@@ -173,7 +173,7 @@ class AndroidViewCompatTest {
 
         runOnUiThread {
             // Change view attribute using recomposition.
-            colorModel.color = Color.Green
+            colorModel.value = Color.Green
             expectedColor = Color.Green
         }
         Espresso
@@ -187,7 +187,7 @@ class AndroidViewCompatTest {
 
         runOnUiThread {
             // Change view attribute using the View reference.
-            colorModel.color = Color.Red
+            colorModel.value = Color.Red
             expectedColor = Color.Red
         }
         Espresso
@@ -333,10 +333,10 @@ class AndroidViewCompatTest {
         val heightMeasureSpecRef = Ref<Int>()
         // Unique starting constraints so that new constraints are different and thus recomp is
         // guaranteed.
-        val constraintsHolder = ConstraintsModel(Constraints.fixed(1234.ipx, 5678.ipx))
+        val constraintsHolder = mutableStateOf(Constraints.fixed(1234.ipx, 5678.ipx))
 
         composeTestRule.setContent {
-            Container(LayoutConstraints(constraintsHolder.constraints)) {
+            Container(LayoutConstraints(constraintsHolder.value)) {
                 MeasureSpecSaverView(
                     ref = viewRef,
                     widthMeasureSpecRef = widthMeasureSpecRef,
@@ -346,7 +346,7 @@ class AndroidViewCompatTest {
         }
 
         runOnUiThread {
-            constraintsHolder.constraints = constraints
+            constraintsHolder.value = constraints
             viewRef.value?.layoutParams = layoutParams
         }
 
@@ -359,14 +359,14 @@ class AndroidViewCompatTest {
     @Test
     fun testMeasurement_isDoneWithCorrectMinimumDimensionsSetOnView() {
         val viewRef = Ref<MeasureSpecSaverView>()
-        val constraintsHolder = ConstraintsModel(Constraints())
+        val constraintsHolder = mutableStateOf(Constraints())
         composeTestRule.setContent {
-            Container(LayoutConstraints(constraintsHolder.constraints)) {
+            Container(LayoutConstraints(constraintsHolder.value)) {
                 MeasureSpecSaverView(ref = viewRef)
             }
         }
         runOnUiThread {
-            constraintsHolder.constraints = Constraints(minWidth = 20.ipx, minHeight = 30.ipx)
+            constraintsHolder.value = Constraints(minWidth = 20.ipx, minHeight = 30.ipx)
         }
 
         runOnIdleCompose {
@@ -445,7 +445,7 @@ class AndroidViewCompatTest {
     @Composable
     fun Container(
         modifier: Modifier = Modifier,
-        children: @Composable() () -> Unit
+        children: @Composable () -> Unit
     ) {
         Layout(children, modifier) { measurables, constraints, _ ->
             val placeable = measurables[0].measure(constraints)
@@ -455,9 +455,3 @@ class AndroidViewCompatTest {
         }
     }
 }
-
-@Model
-private data class ColorModel(var color: Color)
-
-@Model
-private data class ConstraintsModel(var constraints: Constraints)

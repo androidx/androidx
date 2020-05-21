@@ -14,24 +14,43 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.LibraryVersions
+buildscript {
+    dependencies {
+        classpath("org.anarres.jarjar:jarjar-gradle:1.0.1")
+    }
+}
+
 import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import androidx.build.Publish
+import org.anarres.gradle.plugin.jarjar.JarjarTask
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    id("kotlin-kapt")
+    id("org.anarres.jarjar")
 }
 
-dependencies {
-    api("androidx.annotation:annotation:1.0.0")
-    implementation(GUAVA_LISTENABLE_FUTURE)
-    implementation(project(":camera:camera-core"))
+apply from: "dependencies.gradle"
 
-    testImplementation(JUNIT)
+dependencies {
+    // NOTE: API and IMPLEMENTATION dependencies are defined in dependencies.gradle to export for
+    // other modules depending on the jarjar variant of CameraPipe. All dependencies should be
+    // added there rather than directly here.
+    api CAMERA_PIPE_DEPS.API
+    implementation CAMERA_PIPE_DEPS.IMPLEMENTATION
+
+    kapt(DAGGER_COMPILER)
+
+    testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
+    testImplementation(ROBOLECTRIC)
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
@@ -46,11 +65,33 @@ android {
     testOptions.unitTests.includeAndroidResources = true
 }
 
+// Create jarjar artifact for all variants (debug/release)
+android.libraryVariants.all { variant ->
+    def variantName = variant.name
+    def suffix = variantName.capitalize()
+    def jarjarTask = tasks.create("jarjar${suffix}", JarjarTask) {
+        destinationName "camera-camera2-pipe-${variantName}-jarjar.jar"
+        def kotlinCompileTask = tasks.findByName("compile${suffix}Kotlin")
+        from kotlinCompileTask.outputs.files
+        from files(variant.javaCompileProvider.get().destinationDir)
+        dependsOn kotlinCompileTask
+        dependsOn variant.javaCompileProvider.get()
+    }
+
+    def jarjarConf = configurations.register("jarjar${suffix}")
+    artifacts.add("${jarjarConf.name}", jarjarTask.destinationPath) {
+        name "camera-camera2-pipe-${variantName}-jarjar"
+        type "jar"
+        builtBy jarjarTask
+    }
+}
+
 androidx {
     name = "Jetpack Camera Pipe"
     publish = Publish.NONE
     mavenGroup = LibraryGroups.CAMERA
+    mavenVersion = LibraryVersions.CAMERA_PIPE
     inceptionYear = "2020"
     description = "A set of opinionated camera interfaces and implementations on top of Camera2 " +
-           "that will form a flexible shim layer to power Frameserver and CameraX."
+            "that will form a flexible shim layer to power Frameserver and CameraX."
 }

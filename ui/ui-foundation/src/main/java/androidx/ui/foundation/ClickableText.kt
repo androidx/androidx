@@ -19,6 +19,7 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
+import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
@@ -66,13 +67,12 @@ fun ClickableText(
     onClick: (Int) -> Unit
 ) {
     val layoutResult = state<TextLayoutResult?> { null }
-    val pressIndicator = Modifier.pressIndicatorGestureFilter(
-        onStart = { pos ->
-            layoutResult.value?.let { layoutResult ->
-                onClick(layoutResult.getOffsetForPosition(pos))
-            }
+    val pressIndicator = Modifier.tapGestureFilter { pos ->
+        layoutResult.value?.let { layoutResult ->
+            onClick(layoutResult.getOffsetForPosition(pos))
         }
-    )
+    }
+
     Text(
         text = text,
         modifier = modifier + pressIndicator,

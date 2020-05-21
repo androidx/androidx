@@ -18,6 +18,7 @@ package androidx.animation
 
 import android.util.Log
 import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
+import androidx.annotation.RestrictTo
 
 /**
  * [TransitionAnimation] is the underlying animation used in [androidx.ui.animation.Transition] for
@@ -40,7 +41,7 @@ import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
  * @see [androidx.ui.animation.Transition]
  */
 class TransitionAnimation<T>(
-    private val def: TransitionDefinition<T>,
+    internal val def: TransitionDefinition<T>,
     private val clock: AnimationClockObservable,
     initState: T? = null
 ) : TransitionState {
@@ -68,11 +69,17 @@ class TransitionAnimation<T>(
             AnimationWrapper<Any, AnimationVector>
             > = mutableMapOf()
     private var startVelocityMap: MutableMap<PropKey<Any, AnimationVector>, Any> = mutableMapOf()
-    private val animationClockObserver = object : AnimationClockObserver {
+
+    // Named class for animation clock observer to help with tools' reflection.
+    private inner class TransitionAnimationClockObserver : AnimationClockObserver {
+        // This API is intended for tools' use only. Hence the @RestrictTo.
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        val animation: TransitionAnimation<T> = this@TransitionAnimation
         override fun onAnimationFrame(frameTimeMillis: Long) {
             doAnimationFrame(frameTimeMillis)
         }
     }
+    private val animationClockObserver: AnimationClockObserver = TransitionAnimationClockObserver()
 
     // TODO("Create a more efficient code path for default only transition def")
 
@@ -126,16 +133,6 @@ class TransitionAnimation<T>(
 
         // Start animation should be called after all the setup has been done
         startAnimation()
-    }
-
-    private fun <T, V : AnimationVector> PropKey<T, V>.createAnimationWrapper(
-        anim: Animation<V>,
-        start: T,
-        startVelocity: V?,
-        end: T
-    ): AnimationWrapper<T, V> {
-        val velocity: V = startVelocity ?: typeConverter.convertToVector(start).newInstance()
-        return TargetBasedAnimationWrapper(start, velocity, end, anim, typeConverter)
     }
 
     private fun getPlayTime(): Long {
@@ -235,6 +232,16 @@ class TransitionAnimation<T>(
         lastFrameTime = UNSET
         isRunning = false
     }
+}
+
+internal fun <T, V : AnimationVector> PropKey<T, V>.createAnimationWrapper(
+    anim: Animation<V>,
+    start: T,
+    startVelocity: V?,
+    end: T
+): AnimationWrapper<T, V> {
+    val velocity: V = startVelocity ?: typeConverter.convertToVector(start).newInstance()
+    return TargetBasedAnimationWrapper(start, velocity, end, anim, typeConverter)
 }
 
 /**

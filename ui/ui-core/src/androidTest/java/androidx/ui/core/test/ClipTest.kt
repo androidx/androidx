@@ -18,12 +18,12 @@ package androidx.ui.core.test
 
 import android.graphics.Bitmap
 import android.os.Build
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.Modifier
-import androidx.ui.core.DrawScope
 import androidx.ui.core.clip
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.drawBehind
@@ -36,10 +36,10 @@ import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.Shape
+import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
@@ -277,7 +277,7 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromRectToRounded() {
-        val model = ValueModel<Shape>(rectShape)
+        val model = mutableStateOf<Shape>(rectShape)
 
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -312,7 +312,7 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromRectToPath() {
-        val model = ValueModel<Shape>(rectShape)
+        val model = mutableStateOf<Shape>(rectShape)
 
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -339,7 +339,7 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromPathToRect() {
-        val model = ValueModel<Shape>(triangleShape)
+        val model = mutableStateOf<Shape>(triangleShape)
 
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -366,7 +366,7 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchBetweenDifferentPaths() {
-        val model = ValueModel<Shape>(triangleShape)
+        val model = mutableStateOf<Shape>(triangleShape)
         // to be replaced with a DrawModifier wrapped into remember, so the recomposition
         // is not causing invalidation as the DrawModifier didn't change
         val drawCallback: DrawScope.() -> Unit = {
@@ -379,11 +379,9 @@ class ClipTest {
         }
 
         val clip = object : DrawLayerModifier {
-            override val outlineShape: Shape?
+            override val shape: Shape
                 get() = model.value
-            override val clipToBounds: Boolean
-                get() = true
-            override val clipToOutline: Boolean
+            override val clip: Boolean
                 get() = true
         }
 
@@ -414,7 +412,7 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun emitClipLater() {
-        val model = ValueModel(false)
+        val model = mutableStateOf(false)
 
         rule.runOnUiThreadIR {
             activity.setContent {

@@ -23,9 +23,9 @@ import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.REFRESH
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executor
@@ -39,7 +39,14 @@ internal class LivePagedList<Key : Any, Value : Any>(
     private val pagingSourceFactory: () -> PagingSource<Key, Value>,
     private val notifyDispatcher: CoroutineDispatcher,
     private val fetchDispatcher: CoroutineDispatcher
-) : LiveData<PagedList<Value>>() {
+) : LiveData<PagedList<Value>>(
+    InitialPagedList(
+        pagingSourceFactory(),
+        coroutineScope,
+        config,
+        initialKey
+    )
+) {
     private var currentData: PagedList<Value>
     private var currentJob: Job? = null
 
@@ -48,14 +55,8 @@ internal class LivePagedList<Key : Any, Value : Any>(
     private val refreshRetryCallback = Runnable { invalidate(true) }
 
     init {
-        currentData = InitialPagedList(
-            pagingSourceFactory(),
-            coroutineScope,
-            config,
-            initialKey
-        )
+        currentData = value!!
         currentData.setRetryCallback(refreshRetryCallback)
-        value = currentData
     }
 
     override fun onActive() {
@@ -246,7 +247,8 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     coroutineScope: CoroutineScope = GlobalScope,
-    fetchDispatcher: CoroutineDispatcher = Dispatchers.IO
+    fetchDispatcher: CoroutineDispatcher = ArchTaskExecutor.getIOThreadExecutor()
+        .asCoroutineDispatcher()
 ): LiveData<PagedList<Value>> {
     return LivePagedList(
         coroutineScope,
@@ -254,7 +256,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
         config,
         boundaryCallback,
         this,
-        Dispatchers.Main.immediate,
+        ArchTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher(),
         fetchDispatcher
     )
 }
@@ -297,7 +299,8 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     coroutineScope: CoroutineScope = GlobalScope,
-    fetchDispatcher: CoroutineDispatcher = Dispatchers.IO
+    fetchDispatcher: CoroutineDispatcher = ArchTaskExecutor.getIOThreadExecutor()
+        .asCoroutineDispatcher()
 ): LiveData<PagedList<Value>> {
     return LivePagedList(
         coroutineScope,
@@ -305,7 +308,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
         PagedList.Config.Builder().setPageSize(pageSize).build(),
         boundaryCallback,
         this,
-        Dispatchers.Main.immediate,
+        ArchTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher(),
         fetchDispatcher
     )
 }

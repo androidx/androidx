@@ -84,6 +84,7 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorComponent extends androidx.ui.graphics.vector.VNode {
+    ctor public VectorComponent(float viewportWidth, float viewportHeight, float defaultWidth, float defaultHeight, String name);
     method public void draw(androidx.ui.graphics.Canvas canvas, float alpha, androidx.ui.graphics.ColorFilter? colorFilter);
     method public void draw(androidx.ui.graphics.Canvas canvas);
     method public float getDefaultHeight();
@@ -93,8 +94,8 @@ package androidx.ui.graphics.vector {
     method public int getSize();
     method public float getViewportHeight();
     method public float getViewportWidth();
-    method public void setDefaultHeight-NgWp0Z8(float p);
-    method public void setDefaultWidth-NgWp0Z8(float p);
+    method public void setDefaultHeight(float p);
+    method public void setDefaultWidth(float p);
     method public void setViewportHeight(float p);
     method public void setViewportWidth(float p);
     property public final androidx.ui.graphics.vector.GroupComponent root;

@@ -28,11 +28,20 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicReference
 
+/**
+ * Helper class for mapping a [PagingData] into a
+ * [RecyclerView.Adapter][androidx.recyclerview.widget.RecyclerView.Adapter].
+ *
+ * For simplicity, [PagingDataAdapter] can often be used in place of this class.
+ * [AsyncPagingDataDiffer] is exposed for complex cases, and where overriding [PagingDataAdapter] to
+ * support paging isn't convenient.
+ */
 class AsyncPagingDataDiffer<T : Any>(
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
@@ -135,7 +144,28 @@ class AsyncPagingDataDiffer<T : Any>(
 
     private val job = AtomicReference<Job?>(null)
 
-    suspend fun presentData(pagingData: PagingData<T>) {
+    /**
+     * Present a [PagingData] until it is invalidated by a call to [refresh] or
+     * [PagingSource.invalidate].
+     *
+     * [submitData] should be called on the same [CoroutineDispatcher] where updates will be
+     * dispatched to UI, typically [Dispatchers.Main]. (this is done for you if you use
+     * `lifecycleScope.launch {}`).
+     *
+     * This method is typically used when collecting from a [Flow][kotlinx.coroutines.flow.Flow]
+     * produced by [Pager]. For RxJava or LiveData support, use the non-suspending overload of
+     * [submitData], which accepts a [Lifecycle].
+     *
+     * Note: This method suspends while it is actively presenting page loads from a [PagingData],
+     * until the [PagingData] is invalidated. Although cancellation will propagate to this call
+     * automatically, collecting from a [Pager.flow] with the intention of presenting the most
+     * up-to-date representation of your backing dataset should typically be done using
+     * [collectLatest][kotlinx.coroutines.flow.collectLatest].
+     *
+     *
+     * @see [Pager]
+     */
+    suspend fun submitData(pagingData: PagingData<T>) {
         try {
             job.get()?.cancelAndJoin()
         } finally {
@@ -143,6 +173,18 @@ class AsyncPagingDataDiffer<T : Any>(
         }
     }
 
+    /**
+     * Present a [PagingData] until it is either invalidated or another call to [submitData] is
+     * made.
+     *
+     * This method is typically used when observing a RxJava or LiveData stream produced by [Pager].
+     * For [Flow][kotlinx.coroutines.flow.Flow] support, use the suspending overload of
+     * [submitData], which automates cancellation via
+     * [CoroutineScope][kotlinx.coroutines.CoroutineScope] instead of relying of [Lifecycle].
+     *
+     * @see submitData
+     * @see [Pager]
+     */
     fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
         var oldJob: Job?
         var newJob: Job
@@ -168,6 +210,22 @@ class AsyncPagingDataDiffer<T : Any>(
         differBase.retry()
     }
 
+    /**
+     * Refresh the data presented by this [AsyncPagingDataDiffer].
+     *
+     * [refresh] triggers the creation of a new [PagingData] with a new instance of [PagingSource]
+     * to represent an updated snapshot of the backing dataset. If a [RemoteMediator] is set,
+     * calling [refresh] will also trigger a call to [RemoteMediator.load] with [LoadType] [REFRESH]
+     * to allow [RemoteMediator] to check for updates to the dataset backing [PagingSource].
+     *
+     * Note: This API is intended for UI-driven refresh signals, such as swipe-to-refresh.
+     * Invalidation due repository-layer signals, such as DB-updates, should instead use
+     * [PagingSource.invalidate].
+     *
+     * @see PagingSource.invalidate
+     *
+     * @sample androidx.paging.samples.refreshSample
+     */
     fun refresh() {
         differBase.refresh()
     }
@@ -235,5 +293,36 @@ class AsyncPagingDataDiffer<T : Any>(
      */
     fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         loadStateListeners.remove(listener)
+    }
+
+    /**
+     * A [Flow] of [Unit] that is emitted when new [PagingData] generations are submitted and
+     * displayed.
+     */
+    @ExperimentalPagingApi
+    val dataRefreshFlow: Flow<Unit> = differBase.dataRefreshFlow
+
+    /**
+     * Add a listener to observe new [PagingData] generations.
+     *
+     * @param listener called whenever a new [PagingData] is submitted and displayed.
+     *
+     * @see removeDataRefreshListener
+     */
+    @ExperimentalPagingApi
+    fun addDataRefreshListener(listener: () -> Unit) {
+        differBase.addDataRefreshListener(listener)
+    }
+
+    /**
+     * Remove a previously registered listener for new [PagingData] generations.
+     *
+     * @param listener Previously registered listener.
+     *
+     * @see addDataRefreshListener
+     */
+    @ExperimentalPagingApi
+    fun removeDataRefreshListener(listener: () -> Unit) {
+        differBase.removeDataRefreshListener(listener)
     }
 }

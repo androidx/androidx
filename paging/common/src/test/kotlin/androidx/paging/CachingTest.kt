@@ -370,6 +370,9 @@ class CachingTest {
     ) : PagingSource<Int, Item>() {
         private var generation = -1
 
+        override val keyReuseSupported: Boolean
+            get() = true
+
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
             when (params) {
                 is LoadParams.Refresh -> {

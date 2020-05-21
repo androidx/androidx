@@ -247,8 +247,8 @@ interface Paragraph {
 /* actual */ fun Paragraph(
     text: String,
     style: TextStyle,
-    spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
-    placeholders: List<AnnotatedString.Item<Placeholder>> = listOf(),
+    spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
+    placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     maxLines: Int = DefaultMaxLines,
     ellipsis: Boolean = false,
     constraints: ParagraphConstraints,

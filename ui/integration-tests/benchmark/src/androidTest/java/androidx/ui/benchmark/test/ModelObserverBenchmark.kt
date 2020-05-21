@@ -19,10 +19,10 @@ package androidx.ui.benchmark.test
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.FrameManager
-import androidx.compose.Model
 import androidx.compose.frames.commit
 import androidx.compose.frames.inFrame
 import androidx.compose.frames.open
+import androidx.compose.mutableStateOf
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.core.ModelObserver
@@ -61,7 +61,7 @@ class ModelObserverBenchmark(
     val rule = ComposeBenchmarkRule(enableTransitions = false)
 
     lateinit var modelObserver: ModelObserver
-    val models = List(numberOfModels) { SimpleModel() }
+    val models = List(numberOfModels) { mutableStateOf(0) }
     val nodes = List(numberOfNodes) { it }
     lateinit var random: Random
     val numObservations = numberOfModels / 10
@@ -165,6 +165,3 @@ class ModelObserverBenchmark(
         }
     }
 }
-
-@Model
-class SimpleModel(var value: Int = 0)

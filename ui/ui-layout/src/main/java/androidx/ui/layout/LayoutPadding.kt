@@ -87,6 +87,25 @@ fun Modifier.padding(all: Dp) =
     this + PaddingModifier(start = all, top = all, end = all, bottom = all, rtlAware = true)
 
 /**
+ * Apply [InnerPadding] to the component as additional space along each edge of the content's left,
+ * top, right and bottom. Padding is applied before content measurement and takes precedence;
+ * content may only be as large as the remaining space.
+ *
+ * Negative padding is not permitted. See [offset].
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.PaddingInnerPaddingModifier
+ */
+fun Modifier.padding(padding: InnerPadding) =
+    this + PaddingModifier(
+        start = padding.start,
+        top = padding.top,
+        end = padding.end,
+        bottom = padding.bottom,
+        rtlAware = true
+    )
+
+/**
  * Apply additional space along each edge of the content in [Dp]: [left], [top], [right] and
  * [bottom]. These paddings are applied without regard to the current [LayoutDirection], see
  * [padding] to apply relative paddings. Padding is applied before content measurement and takes

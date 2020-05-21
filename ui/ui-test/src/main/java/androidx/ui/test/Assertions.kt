@@ -16,19 +16,18 @@
 
 package androidx.ui.test
 
+import androidx.test.espresso.matcher.ViewMatchers
+import androidx.ui.core.AndroidOwner
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.test.android.SynchronizedTreeCollector
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.height
 import androidx.ui.unit.px
-import androidx.ui.unit.toPx
 import androidx.ui.unit.width
 
 /**
@@ -198,17 +197,23 @@ fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction 
  * Asserts that the provided [matcher] is satisfied for this node.
  *
  * @param matcher Matcher to verify.
+ * @param messagePrefixOnError Prefix to be put in front of an error that gets thrown in case this
+ * assert fails. This can be helpful in situations where this assert fails as part of a bigger
+ * operation that used this assert as a precondition check.
  *
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun SemanticsNodeInteraction.assert(
-    matcher: SemanticsMatcher
+    matcher: SemanticsMatcher,
+    messagePrefixOnError: (() -> String)? = null
 ): SemanticsNodeInteraction {
-    val errorMessageOnFail = "Failed to assert the following: (${matcher.description})"
+    var errorMessageOnFail = "Failed to assert the following: (${matcher.description})"
+    if (messagePrefixOnError != null) {
+        errorMessageOnFail = messagePrefixOnError() + "\n" + errorMessageOnFail
+    }
     val node = fetchSemanticsNode(errorMessageOnFail)
     if (!matcher.matches(node)) {
-        throw AssertionError(buildErrorMessageForMatcherFail(
-            selector, node, matcher))
+        throw AssertionError(buildGeneralErrorMessage(errorMessageOnFail, selector, node))
     }
     return this
 }
@@ -288,54 +293,45 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
     // hierarchy check - check layout nodes are visible
     val errorMessageOnFail = "Failed to perform isDisplayed check."
     val node = fetchSemanticsNode(errorMessageOnFail)
-    if (node.componentNode.findClosestParentNode {
-            it is LayoutNode && !it.isPlaced
-        } != null) {
+
+    fun isNotPlaced(node: LayoutNode): Boolean {
+        return !node.isPlaced
+    }
+
+    val layoutNode = node.componentNode
+    if (isNotPlaced(layoutNode) || layoutNode.findClosestParentNode(::isNotPlaced) != null) {
         return false
+    }
+
+    (layoutNode.owner as? AndroidOwner)?.let {
+        if (!ViewMatchers.isDisplayed().matches(it.view)) {
+            return false
+        }
     }
 
     // check node doesn't clip unintentionally (e.g. row too small for content)
     val globalRect = node.globalBounds
-    if (!isInScreenBounds(globalRect)) {
+    if (!node.isInScreenBounds()) {
         return false
     }
 
     return (globalRect.width > 0.px && globalRect.height > 0.px)
 }
 
-internal fun isInScreenBounds(rectangle: PxBounds): Boolean {
-    if (rectangle.width == 0.px && rectangle.height == 0.px) {
+private fun SemanticsNode.isInScreenBounds(): Boolean {
+    val nodeBounds = globalBounds
+    if (nodeBounds.width == 0.px && nodeBounds.height == 0.px) {
         return false
     }
-    val displayMetrics = SynchronizedTreeCollector.collectOwners()
-        .findActivity()
-        .resources
-        .displayMetrics
 
-    val bottomRight = PxPosition(
-        displayMetrics.widthPixels.px,
-        displayMetrics.heightPixels.px
+    val displayMetrics = (componentNode.owner as AndroidOwner).view.resources.displayMetrics
+    val screenBounds = PxBounds(
+        PxPosition.Origin,
+        PxSize(displayMetrics.widthPixels.px, displayMetrics.heightPixels.px)
     )
-    return rectangle.top >= 0.px &&
-            rectangle.left >= 0.px &&
-            rectangle.right <= bottomRight.x &&
-            rectangle.bottom <= bottomRight.y
-}
 
-/**
- * Returns `true` if the given [rectangle] is completely contained within this
- * [LayoutNode].
- */
-private fun LayoutNode.contains(rectangle: PxBounds): Boolean {
-    val globalPositionTopLeft = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-    // TODO: This method generates a lot of objects when it could compare primitives
-
-    val rect = Rect.fromLTWH(
-        globalPositionTopLeft.x.value,
-        globalPositionTopLeft.y.value,
-        width.toPx().value + 1f,
-        height.toPx().value + 1f)
-
-    return rect.contains(Offset(rectangle.left.value, rectangle.top.value)) &&
-            rect.contains(Offset(rectangle.right.value, rectangle.bottom.value))
+    return nodeBounds.top >= screenBounds.top &&
+            nodeBounds.left >= screenBounds.left &&
+            nodeBounds.right <= screenBounds.right &&
+            nodeBounds.bottom <= screenBounds.bottom
 }

@@ -21,6 +21,7 @@ import androidx.appcompat.res.ColorStateListAlphaDetector
 import androidx.appcompat.res.ColorStateListLoadingDetector
 import androidx.appcompat.res.DrawableLoadingDetector
 import androidx.appcompat.res.ImageViewTintDetector
+import androidx.appcompat.view.OnClickXmlDetector
 import androidx.appcompat.widget.SwitchUsageCodeDetector
 import androidx.appcompat.widget.SwitchUsageXmlDetector
 import androidx.appcompat.widget.TextViewCompoundDrawablesApiDetector
@@ -40,6 +41,7 @@ class AppCompatIssueRegistry : IssueRegistry() {
         SwitchUsageCodeDetector.USING_CORE_SWITCH_CODE,
         SwitchUsageXmlDetector.USING_CORE_SWITCH_XML,
         TextViewCompoundDrawablesApiDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_APIS,
-        TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS
+        TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS,
+        OnClickXmlDetector.USING_ON_CLICK_IN_XML
     )
 }

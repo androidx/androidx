@@ -35,7 +35,11 @@ import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.foundation.gestures.scrollable
+import androidx.ui.layout.Column
+import androidx.ui.layout.ColumnScope
 import androidx.ui.layout.Constraints
+import androidx.ui.layout.Row
+import androidx.ui.layout.RowScope
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.semantics.ScrollTo
@@ -52,18 +56,26 @@ import kotlin.math.roundToInt
  * scroll behavior.
  *
  * @param initial initial scroller position to start with
+ * @param isReversed whether position will be reversed, e.g. 0 will mean bottom for
+ * [VerticalScroller] and end for [HorizontalScroller]
  */
 @Composable
 fun ScrollerPosition(
-    initial: Float = 0f
+    initial: Float = 0f,
+    isReversed: Boolean = false
 ): ScrollerPosition {
     val clock = AnimationClockAmbient.current
     val config = FlingConfig()
     return rememberSavedInstanceState(
         clock, config,
-        saver = ScrollerPosition.Saver(config, clock)
+        saver = ScrollerPosition.Saver(config, isReversed, clock)
     ) {
-        ScrollerPosition(flingConfig = config, initial = initial, animationClock = clock)
+        ScrollerPosition(
+            flingConfig = config,
+            initial = initial,
+            animationClock = clock,
+            isReversed = isReversed
+        )
     }
 }
 
@@ -73,6 +85,8 @@ fun ScrollerPosition(
  *
  * @param flingConfig configuration that specifies fling logic when scrolling ends with velocity
  * @param initial initial scroller position in pixels to start with
+ * @param isReversed whether position will be reversed, e.g. 0 will mean bottom for
+ * [VerticalScroller] and end for [HorizontalScroller]
  * @param animationClock clock observable to run animation on. Consider querying
  * [AnimationClockAmbient] to get current composition value
  */
@@ -81,11 +95,14 @@ class ScrollerPosition(
     /** Configuration that specifies fling logic when scrolling ends with velocity. */
     flingConfig: FlingConfig,
     initial: Float = 0f,
+    internal val isReversed: Boolean = false,
     animationClock: AnimationClockObservable
 ) {
 
+    private fun directionalValue(value: Float) = if (isReversed) value else -value
+
     private val consumeDelta: (Float) -> Float = {
-        val reverseDelta = -it
+        val reverseDelta = directionalValue(it)
         val newValue = value + reverseDelta
         val max = maxPosition
         val min = 0f
@@ -95,7 +112,7 @@ class ScrollerPosition(
             else -> reverseDelta
         }
         value += consumed
-        -consumed
+        directionalValue(consumed)
     }
 
     internal val scrollableState =
@@ -143,7 +160,7 @@ class ScrollerPosition(
         value: Float,
         onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
     ) {
-        scrollableState.smoothScrollBy(-value, onEnd)
+        scrollableState.smoothScrollBy(directionalValue(value), onEnd)
     }
 
     /**
@@ -178,10 +195,11 @@ class ScrollerPosition(
         @Composable
         fun Saver(
             flingConfig: FlingConfig,
+            isReversed: Boolean,
             animationClock: AnimationClockObservable
         ): Saver<ScrollerPosition, *> = Saver<ScrollerPosition, Float>(
             save = { it.value },
-            restore = { ScrollerPosition(flingConfig, it, animationClock) }
+            restore = { ScrollerPosition(flingConfig, it, isReversed, animationClock) }
         )
     }
 }
@@ -207,9 +225,14 @@ fun VerticalScroller(
     scrollerPosition: ScrollerPosition = ScrollerPosition(),
     modifier: Modifier = Modifier,
     isScrollable: Boolean = true,
-    child: @Composable() () -> Unit
+    children: @Composable ColumnScope.() -> Unit
 ) {
-    Scroller(scrollerPosition, modifier, true, isScrollable, child)
+    Scroller(scrollerPosition, modifier, true, isScrollable) {
+        Column(
+            modifier = Modifier.clipToBounds(),
+            children = children
+        )
+    }
 }
 
 /**
@@ -237,9 +260,14 @@ fun HorizontalScroller(
     scrollerPosition: ScrollerPosition = ScrollerPosition(),
     modifier: Modifier = Modifier,
     isScrollable: Boolean = true,
-    child: @Composable() () -> Unit
+    children: @Composable RowScope.() -> Unit
 ) {
-    Scroller(scrollerPosition, modifier, false, isScrollable, child)
+    Scroller(scrollerPosition, modifier, false, isScrollable) {
+        Row(
+            modifier = Modifier.clipToBounds(),
+            children = children
+        )
+    }
 }
 
 @Composable
@@ -248,18 +276,20 @@ private fun Scroller(
     modifier: Modifier,
     isVertical: Boolean,
     isScrollable: Boolean,
-    child: @Composable() () -> Unit
+    child: @Composable () -> Unit
 ) {
     val direction =
         if (isVertical) DragDirection.Vertical else DragDirection.Horizontal
     Semantics(container = true, properties = {
         if (isScrollable) {
+            // when b/156389287 is fixed, this should be proper scrollTo with reverse handling
             ScrollTo(action = { x, y ->
                 if (isVertical) {
                     scrollerPosition.scrollBy(y.value)
                 } else {
                     scrollerPosition.scrollBy(x.value)
                 }
+                return@ScrollTo true
             })
         }
     }) {
@@ -281,16 +311,11 @@ private fun ScrollerLayout(
     scrollerPosition: ScrollerPosition,
     modifier: Modifier,
     isVertical: Boolean,
-    child: @Composable() () -> Unit
+    child: @Composable () -> Unit
 ) {
     Layout(
         modifier = modifier.clipToBounds(),
-        children = {
-            Box(
-                modifier = Modifier.clipToBounds(),
-                children = child
-            )
-        },
+        children = child,
         measureBlock = { measurables, constraints, _ ->
             val childConstraints = constraints.copy(
                 maxHeight = if (isVertical) IntPx.Infinity else constraints.maxHeight,
@@ -305,8 +330,11 @@ private fun ScrollerLayout(
             val side = if (isVertical) scrollHeight else scrollWidth
             layout(width, height) {
                 scrollerPosition.updateMaxPosition(side.value)
-                val xOffset = if (isVertical) 0 else -scrollerPosition.value.roundToInt()
-                val yOffset = if (isVertical) -scrollerPosition.value.roundToInt() else 0
+                val scroll = scrollerPosition.value.coerceIn(0f, side.value)
+                val absScroll =
+                    if (scrollerPosition.isReversed) scroll - side.value else -scroll
+                val xOffset = if (isVertical) 0 else absScroll.roundToInt()
+                val yOffset = if (isVertical) absScroll.roundToInt() else 0
                 placeable.place(xOffset.ipx, yOffset.ipx)
             }
         }

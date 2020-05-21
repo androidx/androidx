@@ -36,6 +36,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
+import androidx.ui.util.fastForEach
 
 /**
  * [Layout] is the main core component for layout. It can be used to measure and position
@@ -57,7 +58,7 @@ import androidx.ui.unit.min
  * see [WithConstraints].
  *
  * Example usage:
- * @sample androidx.ui.framework.samples.LayoutWithProvidedIntrinsicsUsage
+ * @sample androidx.ui.core.samples.LayoutWithProvidedIntrinsicsUsage
  *
  * @param children The children composable to be laid out.
  * @param modifier Modifiers to be applied to the layout.
@@ -73,7 +74,7 @@ import androidx.ui.unit.min
 @Composable
 /*inline*/ fun Layout(
     /*crossinline*/
-    children: @Composable() () -> Unit,
+    children: @Composable () -> Unit,
     /*crossinline*/
     minIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock,
     /*crossinline*/
@@ -134,7 +135,7 @@ import androidx.ui.unit.min
  * see [WithConstraints].
  *
  * Example usage:
- * @sample androidx.ui.framework.samples.LayoutUsage
+ * @sample androidx.ui.core.samples.LayoutUsage
  *
  * @param children The children composable to be laid out.
  * @param modifier Modifiers to be applied to the layout.
@@ -146,7 +147,7 @@ import androidx.ui.unit.min
 @Composable
 /*inline*/ fun Layout(
     /*crossinline*/
-    children: @Composable() () -> Unit,
+    children: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     /*noinline*/
     measureBlock: MeasureBlock
@@ -158,7 +159,7 @@ import androidx.ui.unit.min
 
 /*@PublishedApi*/ @Composable internal /*inline*/ fun Layout(
     /*crossinline*/
-    children: @Composable() () -> Unit,
+    children: @Composable () -> Unit,
     measureBlocks: LayoutNode.MeasureBlocks,
     modifier: Modifier
 ) {
@@ -172,7 +173,7 @@ import androidx.ui.unit.min
         "It should not be used in app code directly.")
 fun MultiMeasureLayout(
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit,
+    children: @Composable () -> Unit,
     measureBlock: MeasureBlock
 ) {
     val measureBlocks = remember(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
@@ -191,7 +192,7 @@ fun MultiMeasureLayout(
         "It should not be used in app code directly.")
 fun PassThroughLayout(
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     val measureBlocks = remember {
         val measureBlock: MeasureBlock = { measurables, constraints, _ ->
@@ -199,7 +200,7 @@ fun PassThroughLayout(
             val width = placeables.maxBy { it.width }?.width ?: constraints.minWidth
             val height = placeables.maxBy { it.height }?.height ?: constraints.minHeight
             layout(width, height) {
-                placeables.forEach { it.place(IntPx.Zero, IntPx.Zero) }
+                placeables.fastForEach { it.place(IntPx.Zero, IntPx.Zero) }
             }
         }
         MeasuringIntrinsicsMeasureBlocks(measureBlock)
@@ -207,8 +208,8 @@ fun PassThroughLayout(
     LayoutNode(
         modifier = currentComposer.materialize(modifier),
         measureBlocks = measureBlocks,
-        handlesParentData =
-        false
+        handlesParentData = false,
+        useChildZIndex = true
     ) {
         children()
     }
@@ -443,7 +444,7 @@ private inline fun Density.MeasuringMaxIntrinsicHeight(
 /**
  * A composable that defines its own content according to the available space, based on the incoming
  * constraints or the current [LayoutDirection]. Example usage:
- * @sample androidx.ui.framework.samples.WithConstraintsSample
+ * @sample androidx.ui.core.samples.WithConstraintsSample
  *
  * The composable will compose the given children, and will position the resulting layout composables
  * in a parent [Layout]. This layout will be as small as possible such that it can fit its
@@ -456,7 +457,7 @@ private inline fun Density.MeasuringMaxIntrinsicHeight(
 @Composable
 fun WithConstraints(
     modifier: Modifier = Modifier,
-    children: @Composable() WithConstraintsScope.() -> Unit
+    children: @Composable WithConstraintsScope.() -> Unit
 ) {
     val state = remember { WithConstrainsState() }
     state.children = children
@@ -532,7 +533,7 @@ private class WithConstrainsState {
     var compositionRef: CompositionReference? = null
     lateinit var context: Context
     val nodeRef = Ref<LayoutNode>()
-    var children: @Composable() WithConstraintsScope.() -> Unit = { }
+    var children: @Composable WithConstraintsScope.() -> Unit = { }
     var forceRecompose = false
     var composition: Composition? = null
 
@@ -566,10 +567,10 @@ private class WithConstrainsState {
             }
 
             // Measure the obtained children and compute our size.
-            val layoutChildren = root.layoutChildren
+            val layoutChildren = root.children
             var maxWidth: IntPx = constraints.minWidth
             var maxHeight: IntPx = constraints.minHeight
-            layoutChildren.forEach {
+            layoutChildren.fastForEach {
                 it.measure(constraints, layoutDirection)
                 maxWidth = max(maxWidth, it.width)
                 maxHeight = max(maxHeight, it.height)
@@ -578,7 +579,7 @@ private class WithConstrainsState {
             maxHeight = min(maxHeight, constraints.maxHeight)
 
             return measureScope.layout(maxWidth, maxHeight) {
-                layoutChildren.forEach { it.place(IntPx.Zero, IntPx.Zero) }
+                layoutChildren.fastForEach { it.place(IntPx.Zero, IntPx.Zero) }
             }
         }
     }

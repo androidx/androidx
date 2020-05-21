@@ -16,7 +16,10 @@
 
 package androidx.camera.core;
 
+import android.graphics.Rect;
+import android.media.ImageReader;
 import android.util.Size;
+import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -30,7 +33,6 @@ import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
-import androidx.camera.core.impl.UseCaseConfig.Builder;
 import androidx.core.util.Preconditions;
 
 import java.util.Collections;
@@ -56,18 +58,23 @@ public abstract class UseCase {
     private SessionConfig mAttachedSessionConfig = SessionConfig.defaultEmptySessionConfig();
 
     /**
-     * A map of the names of the {@link android.hardware.camera2.CameraDevice} to the surface
-     * resolution that have been attached to this UseCase
+     * The resolution assigned to the {@link UseCase} based on the attached camera.
      */
     private Size mAttachedResolution;
+
+    /**
+     * The crop rect calculated at the time of binding based on {@link ViewPort}.
+     */
+    @Nullable
+    private Rect mViewPortCropRect;
 
     private State mState = State.INACTIVE;
 
     private UseCaseConfig<?> mUseCaseConfig;
 
-    private final Object mBoundCameraLock = new Object();
-    @GuardedBy("mBoundCameraLock")
-    private CameraInternal mBoundCamera;
+    private final Object mCameraLock = new Object();
+    @GuardedBy("mCameraLock")
+    private CameraInternal mCamera;
 
     /**
      * Creates a named instance of the use case.
@@ -105,8 +112,8 @@ public abstract class UseCase {
      *
      * <p>This configuration will be combined with the default configuration that is contained in
      * the pre-populated builder supplied by {@link #getDefaultBuilder}, if it exists and the
-     * behavior of {@link #applyDefaults(UseCaseConfig, Builder)} is not overridden. Once this
-     * method returns, the combined use case configuration can be retrieved with
+     * behavior of {@link #applyDefaults(UseCaseConfig, UseCaseConfig.Builder)} is not overridden.
+     * Once this method returns, the combined use case configuration can be retrieved with
      * {@link #getUseCaseConfig()}.
      *
      * <p>This method alone will not make any changes to the {@link SessionConfig}, it is up to
@@ -120,8 +127,7 @@ public abstract class UseCase {
     protected final void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig) {
         // Attempt to retrieve builder containing defaults for this use case's config
         UseCaseConfig.Builder<?, ?, ?> defaultBuilder =
-                getDefaultBuilder(
-                        getBoundCamera() == null ? null : getBoundCamera().getCameraInfo());
+                getDefaultBuilder(getCamera() == null ? null : getCamera().getCameraInfo());
 
         // Combine with default configuration.
         mUseCaseConfig = applyDefaults(useCaseConfig, defaultBuilder);
@@ -166,13 +172,11 @@ public abstract class UseCase {
             @SuppressWarnings("unchecked") // Options/values are being copied directly
                     Option<Object> objectOpt = (Option<Object>) opt;
 
-            defaultMutableConfig.insertOption(objectOpt, userConfig.retrieveOption(objectOpt));
+            defaultMutableConfig.insertOption(objectOpt,
+                    userConfig.getOptionPriority(opt), userConfig.retrieveOption(objectOpt));
         }
 
-        // Since builder is a UseCaseConfig.Builder, it should produce a UseCaseConfig
-        @SuppressWarnings("unchecked")
-        UseCaseConfig<?> defaultConfig = defaultConfigBuilder.getUseCaseConfig();
-        return defaultConfig;
+        return defaultConfigBuilder.getUseCaseConfig();
     }
 
     /**
@@ -205,6 +209,7 @@ public abstract class UseCase {
 
     /**
      * Get the current {@link SessionConfig}.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -286,29 +291,29 @@ public abstract class UseCase {
     }
 
     /**
-     * Returns the camera ID for the currently bound camera, or throws an exception if no camera is
-     * bound.
+     * Returns the camera ID for the currently attached camera, or throws an exception if no
+     * camera is attached.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected String getBoundCameraId() {
-        return Preconditions.checkNotNull(getBoundCamera(),
-                "No camera bound to use case: " + this).getCameraInfoInternal().getCameraId();
+    protected String getCameraId() {
+        return Preconditions.checkNotNull(getCamera(),
+                "No camera attached to use case: " + this).getCameraInfoInternal().getCameraId();
     }
 
     /**
-     * Checks whether the provided camera ID is the currently bound camera ID.
+     * Checks whether the provided camera ID is the currently attached camera ID.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected boolean isCurrentlyBoundCamera(@NonNull String cameraId) {
-        if (getBoundCamera() == null) {
+    protected boolean isCurrentCamera(@NonNull String cameraId) {
+        if (getCamera() == null) {
             return false;
         }
-        return Objects.equals(cameraId, getBoundCameraId());
+        return Objects.equals(cameraId, getCameraId());
     }
 
     /**
@@ -317,7 +322,8 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void clear() {}
+    public void clear() {
+    }
 
     /**
      * Called use case is unbound from lifecycle or the bound lifecycle is destroyed.
@@ -331,7 +337,8 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onDestroy() {}
+    public void onDestroy() {
+    }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -352,15 +359,15 @@ public abstract class UseCase {
     }
 
     /**
-     * Returns the currently bound {@link Camera} or {@code null} if none is bound.
+     * Returns the currently attached {@link Camera} or {@code null} if none is attached.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public CameraInternal getBoundCamera() {
-        synchronized (mBoundCameraLock) {
-            return mBoundCamera;
+    public CameraInternal getCamera() {
+        synchronized (mCameraLock) {
+            return mCamera;
         }
     }
 
@@ -390,12 +397,11 @@ public abstract class UseCase {
      * Called when binding new use cases via {@code CameraX#bindToLifecycle(LifecycleOwner,
      * CameraSelector, UseCase...)}.
      *
-     * <p>Override to create necessary objects like {@link android.media.ImageReader} depending
+     * <p>Override to create necessary objects like {@link ImageReader} depending
      * on the resolution.
      *
-     * @param suggestedResolution The suggested resolution that depends on camera
-     *                               device capability and what and how many use cases will be
-     *                               bound.
+     * @param suggestedResolution The suggested resolution that depends on camera device
+     *                            capability and what and how many use cases will be bound.
      * @return The resolution that finally used to create the SessionConfig to
      * attach to the camera device.
      * @hide
@@ -422,8 +428,8 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected void onAttach(@NonNull CameraInternal camera) {
-        synchronized (mBoundCameraLock) {
-            mBoundCamera = camera;
+        synchronized (mCameraLock) {
+            mCamera = camera;
             addStateChangeCallback(camera);
         }
         updateUseCaseConfig(mUseCaseConfig);
@@ -450,31 +456,31 @@ public abstract class UseCase {
             eventCallback.onUnbind();
         }
 
-        synchronized (mBoundCameraLock) {
-            if (mBoundCamera != null) {
-                mBoundCamera.removeOnlineUseCase(Collections.singleton(this));
-                removeStateChangeCallback(mBoundCamera);
-                mBoundCamera = null;
+        synchronized (mCameraLock) {
+            if (mCamera != null) {
+                mCamera.detachUseCases(Collections.singleton(this));
+                removeStateChangeCallback(mCamera);
+                mCamera = null;
             }
         }
     }
 
     /**
-     * Called when use case is online in camera. This method is called on main thread.
+     * Called when use case is attached to the camera. This method is called on main thread.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onStateOnline() {
+    public void onStateAttached() {
     }
 
     /**
-     * Called when use case is offline in camera. This method is called on main thread.
+     * Called when use case is detached from the camera. This method is called on main thread.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onStateOffline() {
+    public void onStateDetached() {
     }
 
     /**
@@ -485,12 +491,33 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected CameraControlInternal getCameraControl() {
-        synchronized (mBoundCameraLock) {
-            if (mBoundCamera == null) {
+        synchronized (mCameraLock) {
+            if (mCamera == null) {
                 return CameraControlInternal.DEFAULT_EMPTY_INSTANCE;
             }
-            return mBoundCamera.getCameraControlInternal();
+            return mCamera.getCameraControlInternal();
         }
+    }
+
+    /**
+     * Sets the view port crop rect calculated at the time of binding.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected void setViewPortCropRect(@Nullable Rect viewPortCropRect) {
+        mViewPortCropRect = viewPortCropRect;
+    }
+
+    /**
+     * Gets the view port crop rect.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    protected Rect getViewPortCropRect() {
+        return mViewPortCropRect;
     }
 
     /**
@@ -549,7 +576,7 @@ public abstract class UseCase {
          * camera.
          *
          * <p>Updating certain parameters of the use case require a full reset of the camera. This
-         * includes updating the {@link android.view.Surface} used by the use case.
+         * includes updating the {@link Surface} used by the use case.
          */
         void onUseCaseReset(@NonNull UseCase useCase);
     }
@@ -559,7 +586,7 @@ public abstract class UseCase {
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public interface EventCallback {
 
         /**

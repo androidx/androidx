@@ -57,18 +57,15 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
             .executeOnDiskIO { database.customerDao.removeAll() }
     }
 
-    private val pagingSourceFactory = database.customerDao.loadPagedAgeOrder()
-        .asPagingSourceFactory()
-
     val flow = Pager(
         PagingConfig(10),
         remoteMediator = V3RemoteMediator(
             database,
             NetworkCustomerPagingSource.FACTORY()
-        ),
-        pagingSourceFactory = pagingSourceFactory
-    )
-        .flow
+        )
+    ) {
+        database.customerDao.loadPagedAgeOrderPagingSource()
+    }.flow
         .map { pagingData ->
             pagingData
                 .insertSeparators { before: Customer?, after: Customer? ->

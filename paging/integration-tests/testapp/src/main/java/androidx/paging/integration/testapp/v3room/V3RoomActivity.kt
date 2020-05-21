@@ -41,7 +41,7 @@ class V3RoomActivity : AppCompatActivity() {
         lifecycleScope.launch {
             @OptIn(ExperimentalCoroutinesApi::class)
             viewModel.flow.collectLatest {
-                adapter.presentData(it)
+                adapter.submitData(it)
             }
         }
 

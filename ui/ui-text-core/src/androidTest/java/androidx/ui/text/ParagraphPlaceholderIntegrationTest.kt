@@ -38,7 +38,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -65,7 +65,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -96,7 +96,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -124,7 +124,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -152,7 +152,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -181,7 +181,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -210,7 +210,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -241,7 +241,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -273,9 +273,9 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(SpanStyle(fontSize = fontSizeSpan.sp), 2, 3)
+                AnnotatedString.Range(SpanStyle(fontSize = fontSizeSpan.sp), 2, 3)
             ),
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             fontSize = fontSize.sp,
             width = Float.MAX_VALUE
         )
@@ -305,9 +305,9 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(SpanStyle(fontSize = fontSizeSpan.sp), 2, 3)
+                AnnotatedString.Range(SpanStyle(fontSize = fontSizeSpan.sp), 2, 3)
             ),
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             fontSize = fontSize.sp,
             width = Float.MAX_VALUE
         )
@@ -337,9 +337,9 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(SpanStyle(fontSize = fontSizeSpan.sp), 2, 3)
+                AnnotatedString.Range(SpanStyle(fontSize = fontSizeSpan.sp), 2, 3)
             ),
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             fontSize = fontSize.sp,
             width = Float.MAX_VALUE
         )
@@ -359,14 +359,134 @@ class ParagraphPlaceholderIntegrationTest {
     }
 
     @Test
+    fun placeHolder_withRtlText() {
+        val text = "\u05D0\u05D0\u05D0\u05D0"
+        val fontSize = 20f
+        val paragraphWidth = fontSize * (text.length + 3)
+
+        val height = 1.em
+        val width = 1.em
+        val placeholder = Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline)
+        val paragraph = simpleParagraph(
+            text = text,
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
+            fontSize = fontSize.sp,
+            width = paragraphWidth,
+            textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrRtl
+        )
+        val placeholderRects = paragraph.placeholderRects
+        assertThat(placeholderRects.size).isEqualTo(1)
+        assertThat(paragraph.lineCount).isEqualTo(1)
+
+        val bound = placeholderRects[0]!!
+        val expectedBottom = paragraph.firstBaseline
+        assertThat(bound.top).isEqualTo(expectedBottom - height.value * fontSize)
+        assertThat(bound.bottom).isEqualTo(expectedBottom)
+
+        // Text is alight right: |   RR_R|
+        assertThat(bound.left).isEqualTo(paragraphWidth - 2 * fontSize)
+        assertThat(bound.right).isEqualTo(paragraphWidth - 1 * fontSize)
+    }
+
+    @Test
+    fun placeHolder_withBiDiText_coversRtlChar() {
+        val text = "\u05D0\u05D0AA"
+        val fontSize = 20f
+        val paragraphWidth = fontSize * (text.length + 3)
+
+        val height = 1.em
+        val width = 1.em
+        val placeholder = Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline)
+        val paragraph = simpleParagraph(
+            text = text,
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
+            fontSize = fontSize.sp,
+            width = paragraphWidth,
+            textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+        )
+        val placeholderRects = paragraph.placeholderRects
+        assertThat(placeholderRects.size).isEqualTo(1)
+        assertThat(paragraph.lineCount).isEqualTo(1)
+
+        val bound = placeholderRects[0]!!
+        val expectedBottom = paragraph.firstBaseline
+        assertThat(bound.top).isEqualTo(expectedBottom - height.value * fontSize)
+        assertThat(bound.bottom).isEqualTo(expectedBottom)
+
+        // Text is align right: |   LL_R|
+        assertThat(bound.left).isEqualTo(paragraphWidth - 2 * fontSize)
+        assertThat(bound.right).isEqualTo(paragraphWidth - 1 * fontSize)
+    }
+
+    @Test
+    fun placeHolder_withBiDiText_coversLtrChar() {
+        val text = "\u05D0\u05D0AA"
+        val fontSize = 20f
+        val paragraphWidth = fontSize * (text.length + 3)
+
+        val height = 1.em
+        val width = 1.em
+        val placeholder = Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline)
+        val paragraph = simpleParagraph(
+            text = text,
+            placeholders = listOf(AnnotatedString.Range(placeholder, 2, 3)),
+            fontSize = fontSize.sp,
+            width = paragraphWidth,
+            textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+        )
+        val placeholderRects = paragraph.placeholderRects
+        assertThat(placeholderRects.size).isEqualTo(1)
+        assertThat(paragraph.lineCount).isEqualTo(1)
+
+        val bound = placeholderRects[0]!!
+        val expectedBottom = paragraph.firstBaseline
+        assertThat(bound.top).isEqualTo(expectedBottom - height.value * fontSize)
+        assertThat(bound.bottom).isEqualTo(expectedBottom)
+
+        // Text is align right: |   L_RR|
+        assertThat(bound.left).isEqualTo(paragraphWidth - 3 * fontSize)
+        assertThat(bound.right).isEqualTo(paragraphWidth - 2 * fontSize)
+    }
+
+    @Test
+    fun placeHolder_withBiDiText_coversBiDiStr() {
+        val text = "\u05D0\u05D0AA"
+        val fontSize = 20f
+        val paragraphWidth = fontSize * (text.length + 3)
+
+        val height = 1.em
+        val width = 1.em
+        val placeholder = Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline)
+        val paragraph = simpleParagraph(
+            text = text,
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 3)),
+            fontSize = fontSize.sp,
+            width = paragraphWidth,
+            textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+        )
+        val placeholderRects = paragraph.placeholderRects
+        assertThat(placeholderRects.size).isEqualTo(1)
+        assertThat(paragraph.lineCount).isEqualTo(1)
+
+        val bound = placeholderRects[0]!!
+        val expectedBottom = paragraph.firstBaseline
+        assertThat(bound.top).isEqualTo(expectedBottom - height.value * fontSize)
+        assertThat(bound.bottom).isEqualTo(expectedBottom)
+
+        // Text is align right, 2 chars are covered: |   L_R|
+        assertThat(bound.left).isEqualTo(paragraphWidth - 2 * fontSize)
+        assertThat(bound.right).isEqualTo(paragraphWidth - 1 * fontSize)
+    }
+
+    @Test
     fun placeHolderRects_ellipsized() {
         val text = "ABC"
         val fontSize = 20f
 
         val placeholder = Placeholder(1.em, 1.em, PlaceholderVerticalAlign.TextCenter)
         val placeholders = listOf(
-            AnnotatedString.Item(placeholder, 0, 1),
-            AnnotatedString.Item(placeholder, 2, 3)
+            AnnotatedString.Range(placeholder, 0, 1),
+            AnnotatedString.Range(placeholder, 2, 3)
         )
         val paragraph = simpleParagraph(
             text = text,
@@ -390,9 +510,10 @@ class ParagraphPlaceholderIntegrationTest {
     private fun simpleParagraph(
         text: String = "",
         fontSize: TextUnit = TextUnit.Inherit,
-        spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
-        placeholders: List<AnnotatedString.Item<Placeholder>> = listOf(),
+        spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
+        placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
         width: Float = Float.MAX_VALUE,
+        textDirectionAlgorithm: TextDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr,
         maxLines: Int = Int.MAX_VALUE,
         ellipsis: Boolean = false
     ): Paragraph {
@@ -401,7 +522,7 @@ class ParagraphPlaceholderIntegrationTest {
             style = TextStyle(
                 fontSize = fontSize,
                 fontFamily = fontFamilyMeasureFont,
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                textDirectionAlgorithm = textDirectionAlgorithm
             ),
             spanStyles = spanStyles,
             placeholders = placeholders,

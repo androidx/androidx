@@ -17,7 +17,7 @@
 package androidx.ui.benchmark.test
 
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.mutableStateOf
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
@@ -91,17 +91,14 @@ class RadioGroupBenchmark {
     }
 }
 
-@Model
-internal class RadioGroupSelectedState<T>(var selected: T)
-
 internal class RadioGroupTestCase : ComposeTestCase, ToggleableTestCase {
 
     private val radiosCount = 10
     private val options = (0 until radiosCount).toList()
-    private val select = RadioGroupSelectedState(0)
+    private val select = mutableStateOf(0)
 
     override fun toggleState() {
-        select.selected = (select.selected + 1) % radiosCount
+        select.value = (select.value + 1) % radiosCount
     }
 
     @Composable
@@ -112,8 +109,8 @@ internal class RadioGroupTestCase : ComposeTestCase, ToggleableTestCase {
                     options.forEach { item ->
                         RadioGroupTextItem(
                             text = item.toString(),
-                            selected = (select.selected == item),
-                            onSelect = { select.selected = item })
+                            selected = (select.value == item),
+                            onSelect = { select.value = item })
                     }
                 }
             }

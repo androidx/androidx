@@ -27,6 +27,8 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.util.ArrayMap;
+import android.util.Log;
 import android.util.Rational;
 
 import androidx.annotation.NonNull;
@@ -38,11 +40,14 @@ import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -52,14 +57,17 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A Camera2 implementation for CameraControlInternal interface
  */
 final class Camera2CameraControl implements CameraControlInternal {
+    private static final String TAG = "Camera2CameraControl";
     @VisibleForTesting
     final CameraControlSessionCallback mSessionCallback;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -81,6 +89,8 @@ final class Camera2CameraControl implements CameraControlInternal {
 
     //******************** Should only be accessed by executor *****************************//
     private Rect mCropRect = null;
+    private final CameraCaptureCallbackSet mCameraCaptureCallbackSet =
+            new CameraCaptureCallbackSet();
     //**************************************************************************************//
 
     /**
@@ -106,6 +116,10 @@ final class Camera2CameraControl implements CameraControlInternal {
         mSessionConfigBuilder.setTemplateType(getDefaultTemplate());
         mSessionConfigBuilder.addRepeatingCameraCaptureCallback(
                 CaptureCallbackContainer.create(mSessionCallback));
+        // Adding a callback via SessionConfigBuilder requires a expensive updateSessionConfig
+        // call. mCameraCaptureCallbackset is for enabling dynamically add/remove
+        // CameraCaptureCallback efficiently.
+        mSessionConfigBuilder.addRepeatingCameraCaptureCallback(mCameraCaptureCallbackSet);
 
         mFocusMeteringControl = new FocusMeteringControl(this, scheduler, mExecutor);
         mZoomControl = new ZoomControl(this, mCameraCharacteristics);
@@ -282,9 +296,10 @@ final class Camera2CameraControl implements CameraControlInternal {
         return cropRect;
     }
 
+    @Override
     @WorkerThread
     @NonNull
-    Rect getSensorRect() {
+    public Rect getSensorRect() {
         return Preconditions.checkNotNull(
                 mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE));
     }
@@ -297,6 +312,21 @@ final class Camera2CameraControl implements CameraControlInternal {
     @WorkerThread
     void addCaptureResultListener(@NonNull CaptureResultListener listener) {
         mSessionCallback.addListener(listener);
+    }
+
+    /** Adds a session {@link CameraCaptureCallback dynamically */
+    void addSessionCameraCaptureCallback(@NonNull Executor executor,
+            @NonNull CameraCaptureCallback cameraCaptureCallback) {
+        mExecutor.execute(()-> {
+            mCameraCaptureCallbackSet.addCaptureCallback(executor, cameraCaptureCallback);
+        });
+    }
+
+    /** Removes the {@link CameraCaptureCallback} that was added previously */
+    void removeSessionCameraCaptureCallback(@NonNull CameraCaptureCallback cameraCaptureCallback) {
+        mExecutor.execute(()-> {
+            mCameraCaptureCallbackSet.removeCaptureCallback(cameraCaptureCallback);
+        });
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -542,6 +572,70 @@ final class Camera2CameraControl implements CameraControlInternal {
                     mResultListeners.removeAll(removeSet);
                 }
             });
+        }
+    }
+
+    /**
+     * A set of {@link CameraCaptureCallback}s which is capable of adding/removing callbacks
+     * dynamically.
+     */
+    static final class CameraCaptureCallbackSet extends CameraCaptureCallback {
+        Set<CameraCaptureCallback> mCallbacks = new HashSet<>();
+        Map<CameraCaptureCallback, Executor> mCallbackExecutors = new ArrayMap<>();
+
+        @ExecutedBy("mExecutor")
+        void addCaptureCallback(@NonNull Executor executor,
+                @NonNull CameraCaptureCallback callback) {
+            mCallbacks.add(callback);
+            mCallbackExecutors.put(callback, executor);
+        }
+
+        @ExecutedBy("mExecutor")
+        void removeCaptureCallback(@NonNull CameraCaptureCallback callback) {
+            mCallbacks.remove(callback);
+            mCallbackExecutors.remove(callback);
+        }
+
+        @ExecutedBy("mExecutor")
+        @Override
+        public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
+            for (CameraCaptureCallback callback : mCallbacks) {
+                try {
+                    mCallbackExecutors.get(callback).execute(() -> {
+                        callback.onCaptureCompleted(cameraCaptureResult);
+                    });
+                } catch (RejectedExecutionException e) {
+                    Log.e(TAG, "Executor rejected to invoke onCaptureCompleted.", e);
+                }
+            }
+        }
+
+        @ExecutedBy("mExecutor")
+        @Override
+        public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
+            for (CameraCaptureCallback callback : mCallbacks) {
+                try {
+                    mCallbackExecutors.get(callback).execute(() -> {
+                        callback.onCaptureFailed(failure);
+                    });
+                } catch (RejectedExecutionException e) {
+                    Log.e(TAG, "Executor rejected to invoke onCaptureFailed.", e);
+                }
+            }
+        }
+
+        @ExecutedBy("mExecutor")
+        @Override
+        public void onCaptureCancelled() {
+            for (CameraCaptureCallback callback : mCallbacks) {
+                try {
+                    mCallbackExecutors.get(callback).execute(() -> {
+                        callback.onCaptureCancelled();
+                    });
+                } catch (RejectedExecutionException e) {
+                    Log.e(TAG, "Executor rejected to invoke onCaptureCancelled.", e);
+                }
+            }
         }
     }
 }

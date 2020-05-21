@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+AcronymName: androidx.ui.graphics.Canvas#drawCircle-NfwrgZA(long, float, androidx.ui.graphics.Paint):
+    Acronyms should not be capitalized in method names: was `drawCircle-NfwrgZA`, should this be `drawCircle-NfwrgZa`?
+AcronymName: androidx.ui.graphics.Canvas#drawImage--AHD2Ng(androidx.ui.graphics.ImageAsset, long, androidx.ui.graphics.Paint):
+    Acronyms should not be capitalized in method names: was `drawImage--AHD2Ng`, should this be `drawImage--AhD2Ng`?
 AcronymName: androidx.ui.graphics.ColorFilter.Companion#tint-QEYXlZo(long):
     Acronyms should not be capitalized in method names: was `tint-QEYXlZo`, should this be `tint-QeyXlZo`?
 AcronymName: androidx.ui.graphics.ColorKt#isSet-QEYXlZo(long):
@@ -11,21 +15,35 @@ AcronymName: androidx.ui.graphics.ColorKt#luminance-QEYXlZo(long):
     Acronyms should not be capitalized in method names: was `luminance-QEYXlZo`, should this be `luminance-QeyXlZo`?
 AcronymName: androidx.ui.graphics.ColorKt#toArgb-QEYXlZo(long):
     Acronyms should not be capitalized in method names: was `toArgb-QEYXlZo`, should this be `toArgb-QeyXlZo`?
+AcronymName: androidx.ui.graphics.OutlineKt#drawOutline-2ddATRk(androidx.ui.graphics.drawscope.DrawScope, androidx.ui.graphics.Outline, long, float, androidx.ui.graphics.drawscope.DrawStyle, androidx.ui.graphics.ColorFilter, androidx.ui.graphics.BlendMode):
+    Acronyms should not be capitalized in method names: was `drawOutline-2ddATRk`, should this be `drawOutline-2ddAtRk`?
 AcronymName: androidx.ui.graphics.Paint#setColor-QEYXlZo(long):
     Acronyms should not be capitalized in method names: was `setColor-QEYXlZo`, should this be `setColor-QeyXlZo`?
 AcronymName: androidx.ui.graphics.SolidColor#copy-QEYXlZo(long):
     Acronyms should not be capitalized in method names: was `copy-QEYXlZo`, should this be `copy-QeyXlZo`?
+AcronymName: androidx.ui.graphics.drawscope.DrawScope#drawArc-MKXvu20(androidx.ui.graphics.Brush, float, float, boolean, long, long, float, androidx.ui.graphics.drawscope.DrawStyle, androidx.ui.graphics.ColorFilter, androidx.ui.graphics.BlendMode):
+    Acronyms should not be capitalized in method names: was `drawArc-MKXvu20`, should this be `drawArc-MkXvu20`?
+AcronymName: androidx.ui.graphics.drawscope.DrawScope#drawOval-m7aN-JY(androidx.ui.graphics.Brush, long, long, float, androidx.ui.graphics.drawscope.DrawStyle, androidx.ui.graphics.ColorFilter, androidx.ui.graphics.BlendMode):
+    Acronyms should not be capitalized in method names: was `drawOval-m7aN-JY`, should this be `drawOval-m7aN-Jy`?
+AcronymName: androidx.ui.graphics.drawscope.DrawScope#drawPath-u5ZPEDk(androidx.ui.graphics.Path, long, float, androidx.ui.graphics.drawscope.DrawStyle, androidx.ui.graphics.ColorFilter, androidx.ui.graphics.BlendMode):
+    Acronyms should not be capitalized in method names: was `drawPath-u5ZPEDk`, should this be `drawPath-u5ZpeDk`?
+AcronymName: androidx.ui.graphics.drawscope.DrawScope#drawRect-m7aN-JY(androidx.ui.graphics.Brush, long, long, float, androidx.ui.graphics.drawscope.DrawStyle, androidx.ui.graphics.ColorFilter, androidx.ui.graphics.BlendMode):
+    Acronyms should not be capitalized in method names: was `drawRect-m7aN-JY`, should this be `drawRect-m7aN-Jy`?
+AcronymName: androidx.ui.graphics.drawscope.DrawScope#drawRoundRect-JepXTL0(long, long, long, float, float, androidx.ui.graphics.drawscope.DrawStyle, float, androidx.ui.graphics.ColorFilter, androidx.ui.graphics.BlendMode):
+    Acronyms should not be capitalized in method names: was `drawRoundRect-JepXTL0`, should this be `drawRoundRect-JepXtL0`?
 AcronymName: androidx.ui.graphics.painter.ColorPainter#copy-QEYXlZo(long):
     Acronyms should not be capitalized in method names: was `copy-QEYXlZo`, should this be `copy-QeyXlZo`?
+AcronymName: androidx.ui.graphics.painter.ImagePainter#copy-gqgapXI(androidx.ui.graphics.ImageAsset, long, long):
+    Acronyms should not be capitalized in method names: was `copy-gqgapXI`, should this be `copy-gqgapXi`?
 
 
-ArrayReturn: androidx.ui.graphics.BrushKt#HorizontalGradient-G0qqrXo(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, androidx.ui.graphics.TileMode) parameter #0:
+ArrayReturn: androidx.ui.graphics.BrushKt#HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
-ArrayReturn: androidx.ui.graphics.BrushKt#LinearGradient-gbNZAbE(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, float, float, androidx.ui.graphics.TileMode) parameter #0:
+ArrayReturn: androidx.ui.graphics.BrushKt#LinearGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, float, float, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
 ArrayReturn: androidx.ui.graphics.BrushKt#RadialGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, float, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
-ArrayReturn: androidx.ui.graphics.BrushKt#VerticalGradient-G0qqrXo(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, androidx.ui.graphics.TileMode) parameter #0:
+ArrayReturn: androidx.ui.graphics.BrushKt#VerticalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
 
 
@@ -35,6 +53,46 @@ AutoBoxing: androidx.ui.graphics.vectormath.Matrix4#scale(Object, Float, Float) 
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.graphics.vectormath.Matrix4Kt#getAsScale(androidx.ui.graphics.vectormath.Matrix4):
     Must avoid boxed primitives (`java.lang.Float`)
+
+
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#arcTo(float, float, float, boolean, boolean, float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.arcTo(float,float,float,boolean,boolean,float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#arcToRelative(float, float, float, boolean, boolean, float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.arcToRelative(float,float,float,boolean,boolean,float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#close():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.close()
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#curveTo(float, float, float, float, float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.curveTo(float,float,float,float,float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#curveToRelative(float, float, float, float, float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.curveToRelative(float,float,float,float,float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#horizontalLineTo(float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.horizontalLineTo(float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#horizontalLineToRelative(float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.horizontalLineToRelative(float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#lineTo(float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.lineTo(float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#lineToRelative(float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.lineToRelative(float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#moveTo(float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.moveTo(float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#moveToRelative(float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.moveToRelative(float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#quadTo(float, float, float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.quadTo(float,float,float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#quadToRelative(float, float, float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.quadToRelative(float,float,float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#reflectiveCurveTo(float, float, float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.reflectiveCurveTo(float,float,float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#reflectiveCurveToRelative(float, float, float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.reflectiveCurveToRelative(float,float,float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#reflectiveQuadTo(float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.reflectiveQuadTo(float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#reflectiveQuadToRelative(float, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.reflectiveQuadToRelative(float,float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#verticalLineTo(float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.verticalLineTo(float)
+BuilderSetStyle: androidx.ui.graphics.vector.PathBuilder#verticalLineToRelative(float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.ui.graphics.vector.PathBuilder.verticalLineToRelative(float)
 
 
 DocumentExceptions: androidx.ui.graphics.vectormath.Matrix3#get(androidx.ui.graphics.vectormath.MatrixColumn):

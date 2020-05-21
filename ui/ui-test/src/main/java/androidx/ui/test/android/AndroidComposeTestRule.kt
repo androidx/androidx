@@ -31,10 +31,12 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.setContent
 import androidx.ui.geometry.Rect
+import androidx.ui.input.textInputServiceFactory
 import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
+import androidx.ui.test.TextInputServiceForTests
 import androidx.ui.test.isOnUiThread
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
@@ -97,7 +99,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
      * @throws IllegalStateException if called more than once per test.
      */
     @SuppressWarnings("SyntheticAccessor")
-    override fun setContent(composable: @Composable() () -> Unit) {
+    override fun setContent(composable: @Composable () -> Unit) {
         check(disposeContentHook == null) {
             "Cannot call setContent twice per test!"
         }
@@ -125,7 +127,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
         }
     }
 
-    override fun forGivenContent(composable: @Composable() () -> Unit): ComposeTestCaseSetup {
+    override fun forGivenContent(composable: @Composable () -> Unit): ComposeTestCaseSetup {
         return forGivenTestCase(object : ComposeTestCase {
             @Composable
             override fun emitContent() {
@@ -159,23 +161,30 @@ class AndroidComposeTestRule<T : ComponentActivity>(
         private val base: Statement
     ) : Statement() {
         override fun evaluate() {
+            val oldTextInputFactory = textInputServiceFactory
             beforeEvaluate()
             try {
                 base.evaluate()
             } finally {
                 afterEvaluate()
+                textInputServiceFactory = oldTextInputFactory
             }
         }
 
         private fun beforeEvaluate() {
             transitionsEnabled = !disableTransitions
             AndroidOwnerRegistry.setupRegistry()
+            FirstDrawRegistry.setupRegistry()
             registerComposeWithEspresso()
+            textInputServiceFactory = {
+                TextInputServiceForTests(it)
+            }
         }
 
         private fun afterEvaluate() {
             transitionsEnabled = true
             AndroidOwnerRegistry.tearDownRegistry()
+            FirstDrawRegistry.tearDownRegistry()
             // Dispose the content
             if (disposeContentHook != null) {
                 runOnUiThread {

@@ -634,9 +634,9 @@ public class ExifInterfaceTest {
 
         File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertEquals(expectedDatetimeValue, exif.getDateTime());
-        assertEquals(expectedDatetimeValue, exif.getDateTimeOriginal());
-        assertEquals(expectedDatetimeValue, exif.getDateTimeDigitized());
+        assertEquals(expectedDatetimeValue, (long) exif.getDateTime());
+        assertEquals(expectedDatetimeValue, (long) exif.getDateTimeOriginal());
+        assertEquals(expectedDatetimeValue, (long) exif.getDateTimeDigitized());
         // getDateTime() = TAG_DATETIME + TAG_OFFSET_TIME
         assertEquals(expectedDatetimeOffsetStringValue,
                 exif.getAttribute(ExifInterface.TAG_OFFSET_TIME));
@@ -666,7 +666,7 @@ public class ExifInterfaceTest {
         exif.setDateTime(currentTimeStamp);
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertEquals(currentTimeStamp - expectedDatetimeOffsetLongValue, exif.getDateTime());
+        assertEquals(currentTimeStamp - expectedDatetimeOffsetLongValue, (long) exif.getDateTime());
     }
 
     @Test

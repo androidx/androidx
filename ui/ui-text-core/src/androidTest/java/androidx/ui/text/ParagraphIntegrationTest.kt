@@ -2614,7 +2614,7 @@ class ParagraphIntegrationTest {
 
             val paragraph = simpleParagraph(
                 text = text,
-                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
@@ -2638,7 +2638,7 @@ class ParagraphIntegrationTest {
 
             val paragraph = simpleParagraph(
                 text = text,
-                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
                 style = TextStyle(fontSize = fontSize),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
@@ -2668,8 +2668,8 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 spanStyles = listOf(
-                    AnnotatedString.Item(spanStyle, 0, text.length),
-                    AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
+                    AnnotatedString.Range(spanStyle, 0, text.length),
+                    AnnotatedString.Range(spanStyleOverwrite, 0, "abc".length)
                 ),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
@@ -2693,7 +2693,7 @@ class ParagraphIntegrationTest {
 
             val paragraph = simpleParagraph(
                 text = text,
-                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
                 style = TextStyle(fontSize = fontSize)
             )
 
@@ -2717,8 +2717,8 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 spanStyles = listOf(
-                    AnnotatedString.Item(spanStyle, 0, text.length),
-                    AnnotatedString.Item(spanStyleNested, 0, text.length)
+                    AnnotatedString.Range(spanStyle, 0, text.length),
+                    AnnotatedString.Range(spanStyleNested, 0, text.length)
                 ),
                 style = TextStyle(fontSize = fontSize)
             )
@@ -2744,8 +2744,8 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 spanStyles = listOf(
-                    AnnotatedString.Item(fontSizeStyle, 0, text.length),
-                    AnnotatedString.Item(fontSizeScaleStyle, 0, text.length)
+                    AnnotatedString.Range(fontSizeStyle, 0, text.length),
+                    AnnotatedString.Range(fontSizeScaleStyle, 0, text.length)
                 ),
                 style = TextStyle(fontSize = paragraphFontSize)
             )
@@ -2771,8 +2771,8 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 spanStyles = listOf(
-                    AnnotatedString.Item(fontSizeScaleStyle, 0, text.length),
-                    AnnotatedString.Item(fontSizeStyle, 0, text.length)
+                    AnnotatedString.Range(fontSizeScaleStyle, 0, text.length),
+                    AnnotatedString.Range(fontSizeStyle, 0, text.length)
                 ),
                 style = TextStyle(fontSize = paragraphFontSize)
             )
@@ -2800,9 +2800,9 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 spanStyles = listOf(
-                    AnnotatedString.Item(fontSizeScaleStyle1, 0, text.length),
-                    AnnotatedString.Item(fontSizeStyle, 0, text.length),
-                    AnnotatedString.Item(fontSizeScaleStyle2, 0, text.length)
+                    AnnotatedString.Range(fontSizeScaleStyle1, 0, text.length),
+                    AnnotatedString.Range(fontSizeStyle, 0, text.length),
+                    AnnotatedString.Range(fontSizeScaleStyle2, 0, text.length)
                 ),
                 style = TextStyle(fontSize = paragraphFontSize)
             )
@@ -2824,7 +2824,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
-                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
                 constraints = ParagraphConstraints(width = Float.MAX_VALUE)
             )
 
@@ -2847,7 +2847,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
-                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, text.length)),
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
                 constraints = ParagraphConstraints(width = Float.MAX_VALUE)
             )
 
@@ -2870,7 +2870,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
-                spanStyles = listOf(AnnotatedString.Item(spanStyle, 0, "abc".length)),
+                spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, "abc".length)),
                 constraints = ParagraphConstraints(width = Float.MAX_VALUE)
             )
 
@@ -2897,8 +2897,8 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(fontSize = fontSize),
                 spanStyles = listOf(
-                    AnnotatedString.Item(spanStyle, 0, text.length),
-                    AnnotatedString.Item(spanStyleOverwrite, 0, "abc".length)
+                    AnnotatedString.Range(spanStyle, 0, text.length),
+                    AnnotatedString.Range(spanStyleOverwrite, 0, "abc".length)
                 ),
                 constraints = ParagraphConstraints(width = Float.MAX_VALUE)
             )
@@ -2929,8 +2929,8 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(fontSize = fontSize),
                 spanStyles = listOf(
-                    AnnotatedString.Item(letterSpacingStyle, 0, text.length),
-                    AnnotatedString.Item(fontSizeStyle, 0, "abc".length)
+                    AnnotatedString.Range(letterSpacingStyle, 0, text.length),
+                    AnnotatedString.Range(fontSizeStyle, 0, "abc".length)
                 ),
                 constraints = ParagraphConstraints(width = Float.MAX_VALUE)
             )
@@ -2960,8 +2960,8 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(fontSize = fontSize),
                 spanStyles = listOf(
-                    AnnotatedString.Item(letterSpacingStyle, 0, text.length),
-                    AnnotatedString.Item(scaleXStyle, 0, "abc".length)
+                    AnnotatedString.Range(letterSpacingStyle, 0, text.length),
+                    AnnotatedString.Range(scaleXStyle, 0, "abc".length)
                 ),
                 constraints = ParagraphConstraints(width = Float.MAX_VALUE)
             )
@@ -2993,8 +2993,8 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(fontSize = fontSize),
                 spanStyles = listOf(
-                    AnnotatedString.Item(letterSpacingStyle, 0, text.length),
-                    AnnotatedString.Item(fontSizeStyle, 0, "abc".length)
+                    AnnotatedString.Range(letterSpacingStyle, 0, text.length),
+                    AnnotatedString.Range(fontSizeStyle, 0, "abc".length)
                 ),
                 constraints = ParagraphConstraints(width = Float.MAX_VALUE)
             )
@@ -3025,8 +3025,8 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(fontSize = fontSize),
                 spanStyles = listOf(
-                    AnnotatedString.Item(letterSpacingStyle, 0, text.length),
-                    AnnotatedString.Item(scaleXStyle, 0, "abc".length)
+                    AnnotatedString.Range(letterSpacingStyle, 0, text.length),
+                    AnnotatedString.Range(scaleXStyle, 0, "abc".length)
                 ),
                 constraints = ParagraphConstraints(width = Float.MAX_VALUE)
             )
@@ -3055,8 +3055,8 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(fontSize = fontSize.sp),
                 spanStyles = listOf(
-                    AnnotatedString.Item(letterSpacingEmStyle, 0, text.length),
-                    AnnotatedString.Item(letterSpacingSpStyle, 0, "abc".length)
+                    AnnotatedString.Range(letterSpacingEmStyle, 0, text.length),
+                    AnnotatedString.Range(letterSpacingSpStyle, 0, "abc".length)
                 ),
                 constraints = ParagraphConstraints(width = Float.MAX_VALUE)
             )
@@ -3085,8 +3085,8 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(fontSize = fontSize.sp),
                 spanStyles = listOf(
-                    AnnotatedString.Item(letterSpacingSpStyle, 0, "abc".length),
-                    AnnotatedString.Item(letterSpacingEmStyle, 0, text.length)
+                    AnnotatedString.Range(letterSpacingSpStyle, 0, "abc".length),
+                    AnnotatedString.Range(letterSpacingEmStyle, 0, text.length)
                 ),
                 constraints = ParagraphConstraints(width = 500f)
             )
@@ -3254,7 +3254,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 spanStyles = listOf(
-                    AnnotatedString.Item(spanStyle, "a".length, text.length)
+                    AnnotatedString.Range(spanStyle, "a".length, text.length)
                 ),
                 style = TextStyle(
                     fontSize = fontSize,
@@ -3279,7 +3279,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 spanStyles = listOf(
-                    AnnotatedString.Item(spanStyle, 0, "aA".length)
+                    AnnotatedString.Range(spanStyle, 0, "aA".length)
                 ),
                 style = TextStyle(
                     fontSize = fontSize,
@@ -3306,14 +3306,14 @@ class ParagraphIntegrationTest {
                 shadow = Shadow(
                     Color(0xFF00FF00),
                     Offset(1f, 2f),
-                    3.px
+                    3.0f
                 )
             )
 
             val paragraphShadow = simpleParagraph(
                 text = text,
                 spanStyles = listOf(
-                    AnnotatedString.Item(spanStyle, 0, text.length)
+                    AnnotatedString.Range(spanStyle, 0, text.length)
                 ),
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
@@ -3806,7 +3806,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(fontSize = fontSize),
                 spanStyles = listOf(
-                    AnnotatedString.Item(
+                    AnnotatedString.Range(
                         SpanStyle(fontSize = styledFontSize), "a".length, "a bb ".length
                     )
                 )
@@ -3901,7 +3901,7 @@ class ParagraphIntegrationTest {
         style: TextStyle? = null,
         maxLines: Int = Int.MAX_VALUE,
         ellipsis: Boolean = false,
-        spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
+        spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
         density: Density? = null,
         constraints: ParagraphConstraints = ParagraphConstraints(Float.MAX_VALUE)
     ): Paragraph {

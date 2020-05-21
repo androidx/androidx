@@ -34,7 +34,7 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.UseCaseAggregator;
+import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -231,16 +231,16 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     }
 
     /**
-     * Binds a {@link UseCaseAggregator} to a {@link LifecycleOwner}.
+     * Binds a {@link UseCaseGroup} to a {@link LifecycleOwner}.
      *
      * <p> Similar to {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCase[])},
      * with the addition that the bound collection of {@link UseCase} share parameters
-     * defined by {@link UseCaseAggregator} such as consistent camera sensor rect across all
+     * defined by {@link UseCaseGroup} such as consistent camera sensor rect across all
      * {@link UseCase}s.
      *
-     * <p> If one {@link UseCase} is in multiple {@link UseCaseAggregator}s, it will be linked to
-     * the {@link UseCaseAggregator} in the latest
-     * {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCaseAggregator)} call.
+     * <p> If one {@link UseCase} is in multiple {@link UseCaseGroup}s, it will be linked to
+     * the {@link UseCaseGroup} in the latest
+     * {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCaseGroup)} call.
      *
      * @hide
      */
@@ -250,9 +250,9 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @NonNull
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
-            @NonNull UseCaseAggregator useCaseAggregator) {
+            @NonNull UseCaseGroup useCaseGroup) {
         return CameraX.bindToLifecycle(lifecycleOwner, cameraSelector,
-                useCaseAggregator.getViewPort(), useCaseAggregator.getUseCases());
+                useCaseGroup.getViewPort(), useCaseGroup.getUseCases());
     }
 
     @Override

@@ -16,7 +16,7 @@
 
 package androidx.ui.foundation
 
-import androidx.compose.Model
+import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
@@ -34,11 +34,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@Model
-private class State {
-    var progress = 0f
-}
-
 @MediumTest
 @RunWith(JUnit4::class)
 class DeterminateProgressTest {
@@ -49,12 +44,12 @@ class DeterminateProgressTest {
     @Test
     fun determinateProgress_testSemantics() {
         val tag = "linear"
-        val state = State()
+        val progress = mutableStateOf(0f)
 
         composeTestRule
             .setContent {
                 TestTag(tag = tag) {
-                    DeterminateProgressIndicator(progress = state.progress) {
+                    DeterminateProgressIndicator(progress = progress.value) {
                         Box(Modifier.preferredSize(50.dp).drawBackground(Color.Cyan))
                     }
                 }
@@ -65,7 +60,7 @@ class DeterminateProgressTest {
             .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
 
         runOnUiThread {
-            state.progress = 0.5f
+            progress.value = 0.5f
         }
 
         findByTag(tag)

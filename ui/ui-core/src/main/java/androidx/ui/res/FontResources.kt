@@ -28,6 +28,7 @@ import androidx.ui.text.font.LoadedFontFamily
 import androidx.ui.text.font.ResourceFont
 import androidx.ui.text.font.SystemFontFamily
 import androidx.ui.text.typefaceFromFontFamily
+import androidx.ui.util.fastForEach
 
 private val cacheLock = Object()
 
@@ -46,7 +47,10 @@ private val syncLoadedTypefaces = mutableMapOf<FontFamily, Typeface>()
  */
 @Composable
 fun fontResource(fontFamily: FontFamily): Typeface {
-    val context = ContextAmbient.current
+    return fontResourceFromContext(ContextAmbient.current, fontFamily)
+}
+
+internal fun fontResourceFromContext(context: Context, fontFamily: FontFamily): Typeface {
     if (fontFamily is SystemFontFamily || fontFamily is LoadedFontFamily) {
         synchronized(cacheLock) {
             return syncLoadedTypefaces.getOrPut(fontFamily) {
@@ -73,7 +77,7 @@ fun fontResource(fontFamily: FontFamily): Typeface {
  * @throws IllegalArgumentException if [FontFamily] other than synchronously loadable ones are
  * passed as an argument of pendingFontFamily or failedFontFamily.
  *
- * @sample androidx.ui.framework.samples.FontResourcesFontFamily
+ * @sample androidx.ui.core.samples.FontResourcesFontFamily
  */
 @Composable
 fun loadFontResource(
@@ -81,6 +85,7 @@ fun loadFontResource(
     pendingFontFamily: FontFamily? = null,
     failedFontFamily: FontFamily? = null
 ): DeferredResource<Typeface> {
+    val context = ContextAmbient.current
     val pendingTypeface = if (pendingFontFamily == null) {
         null
     } else if (!pendingFontFamily.canLoadSynchronously) {
@@ -89,7 +94,7 @@ fun loadFontResource(
     } else {
         synchronized(cacheLock) {
             syncLoadedTypefaces.getOrPut(pendingFontFamily) {
-                fontResource(pendingFontFamily)
+                fontResourceFromContext(context, pendingFontFamily)
             }
         }
     }
@@ -102,7 +107,7 @@ fun loadFontResource(
     } else {
         synchronized(cacheLock) {
             syncLoadedTypefaces.getOrPut(failedFontFamily) {
-                fontResource(failedFontFamily)
+                fontResourceFromContext(context, failedFontFamily)
             }
         }
     }
@@ -123,7 +128,7 @@ fun loadFontResource(
  * @throws IllegalArgumentException if [FontFamily] other than synchronously loadable ones are
  * passed as an argument of pendingFontFamily or failedFontFamily.
  *
- * @sample androidx.ui.framework.samples.FontResourcesTypeface
+ * @sample androidx.ui.core.samples.FontResourcesTypeface
  */
 @Composable
 fun loadFontResource(
@@ -131,10 +136,11 @@ fun loadFontResource(
     pendingTypeface: Typeface? = null,
     failedTypeface: Typeface? = null
 ): DeferredResource<Typeface> {
+    val context = ContextAmbient.current
     if (fontFamily.canLoadSynchronously) {
         val typeface = synchronized(cacheLock) {
             syncLoadedTypefaces.getOrPut(fontFamily) {
-                fontResource(fontFamily)
+                fontResourceFromContext(context, fontFamily)
             }
         }
         return DeferredResource(
@@ -150,7 +156,6 @@ fun loadFontResource(
                 pendingResource = pendingTypeface,
                 failedResource = failedTypeface)
         }
-        val context = ContextAmbient.current
         val key = fontFamily.cacheKey(context)
         return loadResource(key, pendingTypeface, failedTypeface) {
             typefaceFromFontFamily(context, fontFamily)
@@ -161,7 +166,7 @@ fun loadFontResource(
 internal fun FontListFontFamily.cacheKey(context: Context): String {
     val concatenatedResourcePaths = StringBuilder()
     val value = TypedValue()
-    for (font in fonts) {
+    fonts.fastForEach { font ->
         when (font) {
             is ResourceFont -> {
                 context.resources.getValue(font.resId, value, true)

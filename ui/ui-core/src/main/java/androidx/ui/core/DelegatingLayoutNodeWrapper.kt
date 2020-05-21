@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.ui.core.focus.ModifiedFocusNode
+import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.IntPx
@@ -101,32 +102,43 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         return this
     }
 
-    override fun findFocusWrapperWrappingThisWrapper() =
-        wrappedBy?.findFocusWrapperWrappingThisWrapper()
+    override fun findPreviousFocusWrapper() = wrappedBy?.findPreviousFocusWrapper()
 
-    override fun findFocusWrapperWrappedByThisWrapper() =
-        wrapped.findFocusWrapperWrappedByThisWrapper()
+    override fun findNextFocusWrapper() = wrapped.findNextFocusWrapper()
 
     override fun findLastFocusWrapper(): ModifiedFocusNode? {
         var lastFocusWrapper: ModifiedFocusNode? = null
 
         // Find last focus wrapper for the current layout node.
-        var next: ModifiedFocusNode? = findFocusWrapperWrappedByThisWrapper()
+        var next: ModifiedFocusNode? = findNextFocusWrapper()
         while (next != null) {
             lastFocusWrapper = next
-            next = next.wrapped.findFocusWrapperWrappedByThisWrapper()
+            next = next.wrapped.findNextFocusWrapper()
         }
         return lastFocusWrapper
     }
 
+    override fun findPreviousKeyInputWrapper() = wrappedBy?.findPreviousKeyInputWrapper()
+
+    override fun findNextKeyInputWrapper() = wrapped.findNextKeyInputWrapper()
+
+    override fun findLastKeyInputWrapper(): ModifiedKeyInputNode? {
+        val wrapper = layoutNode.innerLayoutNodeWrapper.findPreviousKeyInputWrapper()
+        return if (wrapper !== this) wrapper else null
+    }
+
     override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection) =
         wrapped.minIntrinsicWidth(height, layoutDirection)
+
     override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection) =
         wrapped.maxIntrinsicWidth(height, layoutDirection)
+
     override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection) =
         wrapped.minIntrinsicHeight(width, layoutDirection)
+
     override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection) =
         wrapped.maxIntrinsicHeight(width, layoutDirection)
+
     override val parentData: Any? get() = wrapped.parentData
 
     override fun attach() {

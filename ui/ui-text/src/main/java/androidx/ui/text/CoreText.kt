@@ -17,7 +17,6 @@ package androidx.ui.text
 
 import androidx.compose.Composable
 import androidx.compose.StructurallyEqual
-import androidx.compose.emptyContent
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onCommit
@@ -36,7 +35,8 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.drawscope.drawCanvas
+import androidx.ui.graphics.Paint
 import androidx.ui.text.font.Font
 import androidx.ui.text.selection.TextSelectionDelegate
 import androidx.ui.text.style.TextAlign
@@ -47,11 +47,15 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
-import androidx.ui.unit.round
+import androidx.ui.unit.px
+import androidx.ui.util.fastForEach
+import kotlin.math.floor
+import kotlin.math.roundToInt
 
 /** The default selection color if none is specified. */
 internal val DefaultSelectionColor = Color(0x6633B5E5)
-
+internal typealias PlaceholderRange = AnnotatedString.Range<Placeholder>
+internal typealias InlineContentRange = AnnotatedString.Range<@Composable() (String)->Unit>
 /**
  * CoreText is a low level element that displays text with multiple different styles. The text to
  * display is described using a [AnnotatedString]. Typically you will instead want to use
@@ -68,6 +72,8 @@ internal val DefaultSelectionColor = Color(0x6633B5E5)
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * @param inlineContent A map store composables that replaces certain ranges of the text. It's
+ * used to insert composables into text layout. Check [InlineTextContent] for more information.
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
  */
 @Composable
@@ -78,6 +84,7 @@ fun CoreText(
     softWrap: Boolean,
     overflow: TextOverflow,
     maxLines: Int,
+    inlineContent: Map<String, InlineTextContent>,
     onTextLayout: (TextLayoutResult) -> Unit
 ) {
     require(maxLines > 0) { "maxLines should be greater than 0" }
@@ -88,6 +95,8 @@ fun CoreText(
     val density = DensityAmbient.current
     val resourceLoader = FontLoaderAmbient.current
 
+    val (placeholders, inlineComposables) = resolveInlineContent(text, inlineContent)
+
     val state = remember {
         TextState(
             TextDelegate(
@@ -97,7 +106,8 @@ fun CoreText(
                 softWrap = softWrap,
                 resourceLoader = resourceLoader,
                 overflow = overflow,
-                maxLines = maxLines
+                maxLines = maxLines,
+                placeholders = placeholders
             )
         )
     }
@@ -109,11 +119,12 @@ fun CoreText(
         softWrap = softWrap,
         resourceLoader = resourceLoader,
         overflow = overflow,
-        maxLines = maxLines
+        maxLines = maxLines,
+        placeholders = placeholders
     )
 
     Layout(
-        children = emptyContent(),
+        children = { InlineChildren(text, inlineComposables) },
         modifier = modifier.drawBehind {
             state.layoutResult?.let { layoutResult ->
                 drawCanvas { canvas, _ ->
@@ -121,7 +132,7 @@ fun CoreText(
                         TextDelegate.paintBackground(
                             it.min,
                             it.max,
-                            DefaultSelectionColor,
+                            state.selectionPaint,
                             canvas,
                             layoutResult
                         )
@@ -175,7 +186,7 @@ fun CoreText(
                     layoutDirection
                 ).size.height
         }
-    ) { _, constraints, layoutDirection ->
+    ) { measurables, constraints, layoutDirection ->
         val layoutResult = state.textDelegate.layout(
             constraints,
             layoutDirection,
@@ -185,6 +196,23 @@ fun CoreText(
             onTextLayout(layoutResult)
         }
         state.layoutResult = layoutResult
+
+        check(measurables.size >= layoutResult.placeholderRects.size)
+        val placeables = layoutResult.placeholderRects.mapIndexedNotNull { index, rect ->
+            // PlaceholderRect will be null if it's ellipsized. In that case, the corresponding
+            // inline children won't be measured or placed.
+            rect?.let {
+                Pair(
+                    measurables[index].measure(
+                        Constraints(
+                            maxWidth = floor(it.width).toInt().ipx,
+                            maxHeight = floor(it.height).toInt().ipx
+                        )
+                    ),
+                    PxPosition(it.left.px, it.top.px)
+                )
+            }
+        }
 
         layout(
             layoutResult.size.width,
@@ -200,10 +228,14 @@ fun CoreText(
             // round.
             // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/jni/android/graphics/Paint.cpp;l=635?q=Paint.cpp
             mapOf(
-                FirstBaseline to layoutResult.firstBaseline.round(),
-                LastBaseline to layoutResult.lastBaseline.round()
+                FirstBaseline to layoutResult.firstBaseline.roundToInt().ipx,
+                LastBaseline to layoutResult.lastBaseline.roundToInt().ipx
             )
-        ) {}
+        ) {
+            placeables.fastForEach { placeable ->
+                placeable.first.place(placeable.second)
+            }
+        }
     }
 
     onCommit(selectionRegistrar) {
@@ -226,6 +258,23 @@ fun CoreText(
     }
 }
 
+@Composable
+internal fun InlineChildren(
+    text: AnnotatedString,
+    inlineContents: List<InlineContentRange>
+) {
+    inlineContents.fastForEach { (content, start, end) ->
+        Layout(
+            children = { content(text.subSequence(start, end).text) }
+        ) { children, constrains, _ ->
+            val placeables = children.map { it.measure(constrains) }
+            layout(width = constrains.maxWidth, height = constrains.maxHeight) {
+                placeables.fastForEach { it.place(0.px, 0.px) }
+            }
+        }
+    }
+}
+
 /**
  * [AlignmentLine] defined by the baseline of a first line of a [CoreText].
  */
@@ -242,7 +291,7 @@ private class TextState(
     /**
      * The current selection range, used by selection.
      * This should be a state as every time we update the value during the selection we
-     * need to redraw it. @Model observation during onDraw callback will make it work.
+     * need to redraw it. state observation during onDraw callback will make it work.
      */
     var selectionRange by mutableStateOf<TextRange?>(null, StructurallyEqual)
     /** The last layout coordinates for the Text's layout, used by selection */
@@ -251,6 +300,11 @@ private class TextState(
     var layoutResult: TextLayoutResult? = null
     /** The global position calculated during the last onPositioned callback */
     var previousGlobalPosition: PxPosition = PxPosition.Origin
+    /** The paint used to draw highlight background for selected text. */
+    val selectionPaint: Paint = Paint().apply {
+        isAntiAlias = true
+        color = DefaultSelectionColor
+    }
 }
 
 /**
@@ -265,14 +319,16 @@ internal fun updateTextDelegate(
     resourceLoader: Font.ResourceLoader,
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.Clip,
-    maxLines: Int = Int.MAX_VALUE
+    maxLines: Int = Int.MAX_VALUE,
+    placeholders: List<AnnotatedString.Range<Placeholder>>
 ): TextDelegate {
     return if (current.text != text ||
         current.style != style ||
         current.softWrap != softWrap ||
         current.overflow != overflow ||
         current.maxLines != maxLines ||
-        current.density != density
+        current.density != density ||
+        current.placeholders != placeholders
     ) {
         TextDelegate(
             text = text,
@@ -281,9 +337,42 @@ internal fun updateTextDelegate(
             overflow = overflow,
             maxLines = maxLines,
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            placeholders = placeholders
         )
     } else {
         current
     }
+}
+
+internal fun resolveInlineContent(
+    text: AnnotatedString,
+    inlineContent: Map<String, InlineTextContent>
+): Pair<List<PlaceholderRange>, List<InlineContentRange>> {
+    if (inlineContent.isEmpty()) {
+        return Pair(listOf(), listOf())
+    }
+    val inlineContentAnnotations = text.getStringAnnotations(INLINE_CONTENT_TAG, 0, text.length)
+
+    val placeholders = mutableListOf<AnnotatedString.Range<Placeholder>>()
+    val inlineComposables = mutableListOf<AnnotatedString.Range<@Composable() (String) ->Unit>>()
+    inlineContentAnnotations.fastForEach { annotation ->
+        inlineContent[annotation.item]?. let { inlineTextContent ->
+            placeholders.add(
+                AnnotatedString.Range(
+                    inlineTextContent.placeholder,
+                    annotation.start,
+                    annotation.end
+                )
+            )
+            inlineComposables.add(
+                AnnotatedString.Range(
+                    inlineTextContent.children,
+                    annotation.start,
+                    annotation.end
+                )
+            )
+        }
+    }
+    return Pair(placeholders, inlineComposables)
 }

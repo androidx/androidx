@@ -18,9 +18,7 @@ package androidx.ui.graphics
 
 import androidx.compose.Immutable
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.Px
-import androidx.ui.unit.lerp
-import androidx.ui.unit.px
+import androidx.ui.util.lerp
 
 /**
  * A single shadow.
@@ -29,7 +27,7 @@ import androidx.ui.unit.px
 data class Shadow(
     val color: Color = Color(0xFF000000),
     val offset: Offset = Offset.zero,
-    val blurRadius: Px = 0.px
+    val blurRadius: Float = 0.0f
 ) {
     companion object {
         /**

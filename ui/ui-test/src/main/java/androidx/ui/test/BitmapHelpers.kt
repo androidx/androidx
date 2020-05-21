@@ -21,11 +21,8 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
@@ -35,43 +32,17 @@ import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.addOutline
 import androidx.ui.graphics.asAndroidPath
-import androidx.ui.test.android.SynchronizedTreeCollector
 import androidx.ui.test.android.captureRegionToBitmap
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
-import androidx.ui.unit.round
 import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-
-@RequiresApi(Build.VERSION_CODES.O)
-internal fun captureNodeToBitmap(node: SemanticsNode): Bitmap {
-    val collectedInfo = SynchronizedTreeCollector.collectOwners()
-
-    val exists = getAllSemanticsNodes().any { it.id == node.id }
-    if (!exists) {
-        throw AssertionError("The required node is no longer in the tree!")
-    }
-
-    val window = collectedInfo.findActivity().window
-
-    // TODO(pavlis): Consider doing assertIsDisplayed here. Will need to move things around.
-
-    // TODO(pavlis): Make sure that the Activity actually hosts the view. As in case of popup
-    // it wouldn't. This will require us rewriting the structure how we collect the nodes.
-
-    // TODO(pavlis): Add support for popups. So if we find composable hosted in popup we can
-    // grab its reference to its window (need to add a hook to popup).
-
-    val handler = Handler(Looper.getMainLooper())
-    return captureRegionToBitmap(node.globalBounds.toRect(), handler, window)
-}
+import kotlin.math.roundToInt
 
 /**
  * Captures the underlying component's surface into bitmap.
@@ -82,8 +53,9 @@ internal fun captureNodeToBitmap(node: SemanticsNode): Bitmap {
  */
 @RequiresApi(Build.VERSION_CODES.O)
 fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
-    val errorMessageOnFail = "Failed to capture a node to bitmap."
-    return captureNodeToBitmap(fetchSemanticsNode(errorMessageOnFail))
+    val node = fetchSemanticsNode("Failed to capture a node to bitmap.")
+    // TODO(pavlis): Consider doing assertIsDisplayed here. Will need to move things around.
+    return captureRegionToBitmap(node.globalBounds.toRect(), node.componentNode.owner!!)
 }
 
 /**
@@ -214,26 +186,26 @@ fun Bitmap.assertShape(
     shapeColor: Color,
     backgroundColor: Color,
     backgroundShape: Shape = RectangleShape,
-    sizeX: Px = width.toFloat().px,
-    sizeY: Px = height.toFloat().px,
-    shapeSizeX: Px = sizeX,
-    shapeSizeY: Px = sizeY,
-    centerX: Px = width.px / 2f,
-    centerY: Px = height.px / 2f,
-    shapeOverlapPixelCount: Px = 1.px
+    sizeX: Float = width.toFloat(),
+    sizeY: Float = height.toFloat(),
+    shapeSizeX: Float = sizeX,
+    shapeSizeY: Float = sizeY,
+    centerX: Float = width / 2f,
+    centerY: Float = height / 2f,
+    shapeOverlapPixelCount: Float = 1.0f
 ) {
-    val width = width.px
-    val height = height.px
+    val width = width
+    val height = height
     assertTrue(centerX + sizeX / 2 <= width)
-    assertTrue(centerX - sizeX / 2 >= 0.px)
+    assertTrue(centerX - sizeX / 2 >= 0.0f)
     assertTrue(centerY + sizeY / 2 <= height)
-    assertTrue(centerY - sizeY / 2 >= 0.px)
+    assertTrue(centerY - sizeY / 2 >= 0.0f)
     val outline = shape.createOutline(PxSize(shapeSizeX, shapeSizeY), density)
     val path = Path()
     path.addOutline(outline)
     val shapeOffset = Offset(
-        (centerX - shapeSizeX / 2f).value,
-        (centerY - shapeSizeY / 2f).value
+        (centerX - shapeSizeX / 2f),
+        (centerY - shapeSizeY / 2f)
     )
     val backgroundPath = Path()
     backgroundPath.addOutline(backgroundShape.createOutline(PxSize(sizeX, sizeY), density))
@@ -298,34 +270,34 @@ fun Bitmap.assertShape(
     backgroundColor: Color,
     shapeColor: Color,
     shape: Shape = RectangleShape,
-    shapeOverlapPixelCount: Px = 1.px
+    shapeOverlapPixelCount: Float = 1.0f
 ) {
-    val fullHorizontalPadding = with(density) { horizontalPadding.toPx() * 2 }
-    val fullVerticalPadding = with(density) { verticalPadding.toPx() * 2 }
+    val fullHorizontalPadding = with(density) { horizontalPadding.toPx().value * 2 }
+    val fullVerticalPadding = with(density) { verticalPadding.toPx().value * 2 }
     return assertShape(
         density = density,
         shape = shape,
         shapeColor = shapeColor,
         backgroundColor = backgroundColor,
         backgroundShape = RectangleShape,
-        shapeSizeX = width.toFloat().px - fullHorizontalPadding,
-        shapeSizeY = height.toFloat().px - fullVerticalPadding,
+        shapeSizeX = width.toFloat() - fullHorizontalPadding,
+        shapeSizeY = height.toFloat() - fullVerticalPadding,
         shapeOverlapPixelCount = shapeOverlapPixelCount
     )
 }
 
-private infix fun Px.until(until: Px): IntRange {
-    val from = this.round().value
-    val to = until.round().value
+private infix fun Float.until(until: Float): IntRange {
+    val from = this.roundToInt()
+    val to = until.roundToInt()
     if (from <= Int.MIN_VALUE) return IntRange.EMPTY
-    return from..(to - 1).toInt()
+    return from..(to - 1)
 }
 
-private fun pixelCloserToCenter(offset: Offset, shapeSizeX: Px, shapeSizeY: Px, delta: Px):
+private fun pixelCloserToCenter(offset: Offset, shapeSizeX: Float, shapeSizeY: Float, delta: Float):
         Offset {
-    val centerX = shapeSizeX.value / 2f
-    val centerY = shapeSizeY.value / 2f
-    val d = delta.value
+    val centerX = shapeSizeX / 2f
+    val centerY = shapeSizeY / 2f
+    val d = delta
     val x = when {
         offset.dx > centerX -> offset.dx - d
         offset.dx < centerX -> offset.dx + d
@@ -339,11 +311,15 @@ private fun pixelCloserToCenter(offset: Offset, shapeSizeX: Px, shapeSizeY: Px, 
     return Offset(x, y)
 }
 
-private fun pixelFartherFromCenter(offset: Offset, shapeSizeX: Px, shapeSizeY: Px, delta: Px):
-        Offset {
-    val centerX = shapeSizeX.value / 2f
-    val centerY = shapeSizeY.value / 2f
-    val d = delta.value
+private fun pixelFartherFromCenter(
+    offset: Offset,
+    shapeSizeX: Float,
+    shapeSizeY: Float,
+    delta: Float
+): Offset {
+    val centerX = shapeSizeX / 2f
+    val centerY = shapeSizeY / 2f
+    val d = delta
     val x = when {
         offset.dx > centerX -> offset.dx + d
         offset.dx < centerX -> offset.dx - d

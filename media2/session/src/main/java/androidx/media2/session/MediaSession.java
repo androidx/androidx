@@ -23,6 +23,7 @@ import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -87,7 +88,9 @@ import java.util.concurrent.Executor;
  * <li><a href="#Thread">Thread</a>
  * <li><a href="#KeyEvents">Media key events mapping</a>
  * <li><a href="#MultipleSessions">Supporting Multiple Sessions</a>
- * <li><a href="#BackwardCompatibility">Backward compatibility with legacy media session APIs</a>
+ * <li><a href="#CompatibilitySession">Backward compatibility with legacy session APIs</a>
+ * <li><a href="#CompatibilityController">Backward compatibility with legacy controller APIs</a>
+ *
  * </ol>
  * <h3 id="SessionLifecycle">Session Lifecycle</h3>
  * <p>
@@ -142,12 +145,23 @@ import java.util.concurrent.Executor;
  * not playing multiple audio content at the same time. Also keep in mind that multiple media
  * sessions would make Android Auto and Bluetooth device with display to show your apps multiple
  * times, because they list up media sessions, not media apps.
- * <h3 id="BackwardCompatibility">Backward compatibility with legacy media session APIs</h3>
+ * <h3 id="CompatibilitySession">Backward compatibility with legacy session APIs</h3>
  * An active {@link MediaSessionCompat} is internally created with the MediaSession for the backward
  * compatibility. It's used to handle incoming connection and command from
  * {@link android.support.v4.media.session.MediaControllerCompat}. And helps to utilize existing
  * APIs that are built with legacy media session APIs. Use {@link #getSessionCompatToken} for
  * getting the token for the underlying MediaSessionCompat.
+ * <h3 id="CompatibilityController">Backward compatibility with legacy controller APIs</h3>
+ * In addition to the {@link MediaController media2 controller} API, session also supports
+ * connection from the legacy controller API -
+ * {@link android.media.session.MediaController framework controller} and
+ * {@link android.support.v4.media.session.MediaControllerCompat AndroidX controller compat}.
+ * However, {@link ControllerInfo} may not be precise for legacy controller.
+ * See {@link ControllerInfo} for the details.
+ * <p>
+ * Unknown package name nor UID doesn't mean that you should disallow connection nor commands. For
+ * SDK levels where such issue happen, session tokens could only be obtained by trusted apps (e.g.
+ * Bluetooth, Auto, ...), so it may be better for you to allow them as you did with legacy session.
  *
  * @see MediaSessionService
  */
@@ -654,149 +668,6 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Called when a controller requested to play a specific mediaId through
-         * {@link MediaController#playFromMediaId(String, Bundle)}.
-         *
-         * @param session the session for this event
-         * @param controller controller information
-         * @param mediaId non-empty media id
-         * @param extras optional extra bundle
-         * @see SessionCommand#COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @ResultCode
-        public int onPlayFromMediaId(@NonNull MediaSession session,
-                @NonNull ControllerInfo controller, @NonNull String mediaId,
-                @Nullable Bundle extras) {
-            return RESULT_ERROR_NOT_SUPPORTED;
-        }
-
-        /**
-         * Called when a controller requested to begin playback from a search query through
-         * {@link MediaController#playFromSearch(String, Bundle)}
-         *
-         * @param session the session for this event
-         * @param controller controller information
-         * @param query non-empty search query.
-         * @param extras optional extra bundle
-         * @see SessionCommand#COMMAND_CODE_SESSION_PLAY_FROM_SEARCH
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @ResultCode
-        public int onPlayFromSearch(@NonNull MediaSession session,
-                @NonNull ControllerInfo controller, @NonNull String query,
-                @Nullable Bundle extras) {
-            return RESULT_ERROR_NOT_SUPPORTED;
-        }
-
-        /**
-         * Called when a controller requested to play a specific media item represented by a URI
-         * through {@link MediaController#playFromUri(Uri, Bundle)}
-         *
-         * @param session the session for this event
-         * @param controller controller information
-         * @param uri uri
-         * @param extras optional extra bundle
-         * @see SessionCommand#COMMAND_CODE_SESSION_PLAY_FROM_URI
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @ResultCode
-        public int onPlayFromUri(@NonNull MediaSession session,
-                @NonNull ControllerInfo controller, @NonNull Uri uri,
-                @Nullable Bundle extras) {
-            return RESULT_ERROR_NOT_SUPPORTED;
-        }
-
-        /**
-         * Called when a controller requested to prepare for playing a specific mediaId through
-         * {@link MediaController#prepareFromMediaId(String, Bundle)}.
-         * <p>
-         * During the prepare, a session should not hold audio focus in order to allow
-         * other sessions play seamlessly. The state of playback should be updated to
-         * {@link SessionPlayer#PLAYER_STATE_PAUSED} after the prepare is done.
-         * <p>
-         * The playback of the prepared content should start in the later calls of
-         * {@link SessionPlayer#play()}.
-         * <p>
-         * Override {@link #onPlayFromMediaId} to handle requests for starting
-         * playback without preparation.
-         *
-         * @param session the session for this event
-         * @param controller controller information
-         * @param mediaId non-empty media id
-         * @param extras optional extra bundle
-         * @see SessionCommand#COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @ResultCode
-        public int onPrepareFromMediaId(@NonNull MediaSession session,
-                @NonNull ControllerInfo controller, @NonNull String mediaId,
-                @Nullable Bundle extras) {
-            return RESULT_ERROR_NOT_SUPPORTED;
-        }
-
-        /**
-         * Called when a controller requested to prepare playback from a search query through
-         * {@link MediaController#prepareFromSearch(String, Bundle)}.
-         * <p>
-         * During the prepare, a session should not hold audio focus in order to allow
-         * other sessions play seamlessly. The state of playback should be updated to
-         * {@link SessionPlayer#PLAYER_STATE_PAUSED} after the prepare is done.
-         * <p>
-         * The playback of the prepared content should start in the later calls of
-         * {@link SessionPlayer#play()}.
-         * <p>
-         * Override {@link #onPlayFromSearch} to handle requests for starting playback without
-         * preparation.
-         *
-         * @param session the session for this event
-         * @param controller controller information
-         * @param query non-empty search query
-         * @param extras optional extra bundle
-         * @see SessionCommand#COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @ResultCode
-        public int onPrepareFromSearch(@NonNull MediaSession session,
-                @NonNull ControllerInfo controller, @NonNull String query,
-                @Nullable Bundle extras) {
-            return RESULT_ERROR_NOT_SUPPORTED;
-        }
-
-        /**
-         * Called when a controller requested to prepare a specific media item represented by a URI
-         * through {@link MediaController#prepareFromUri(Uri, Bundle)}.
-         * <p>
-         * During the prepare, a session should not hold audio focus in order to allow
-         * other sessions play seamlessly. The state of playback should be updated to
-         * {@link SessionPlayer#PLAYER_STATE_PAUSED} after the prepare is done.
-         * <p>
-         * The playback of the prepared content should start in the later calls of
-         * {@link SessionPlayer#play()}.
-         * <p>
-         * Override {@link #onPlayFromUri} to handle requests for starting playback without
-         * preparation.
-         *
-         * @param session the session for this event
-         * @param controller controller information
-         * @param uri uri
-         * @param extras optional extra bundle
-         * @see SessionCommand#COMMAND_CODE_SESSION_PREPARE_FROM_URI
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @ResultCode
-        public int onPrepareFromUri(@NonNull MediaSession session,
-                @NonNull ControllerInfo controller, @NonNull Uri uri, @Nullable Bundle extras) {
-            return RESULT_ERROR_NOT_SUPPORTED;
-        }
-
-        /**
          * Called when a controller called {@link MediaController#fastForward()}.
          * <p>
          * It can be implemented in many ways. For example, it can be implemented by seeking forward
@@ -978,9 +849,26 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
+         * Gets the package name. Can be
+         * {@link androidx.media.MediaSessionManager.RemoteUserInfo#LEGACY_CONTROLLER} for
+         * interoperability.
+         * <p>
+         * Interoperability: Package name may not be precisely obtained for legacy controller API on
+         * older device. Here are details.
+         * <table>
+         * <tr><th>SDK version when package name isn't precise</th>
+         *     <th>{@code ControllerInfo#getPackageName()} for legacy controller</th>
+         * <tr><td>{@code SDK_VERSION} &lt; {@code 21}</td>
+         *     <td>Actual package name via {@link PackageManager#getNameForUid} with UID.<br>
+         *         It's sufficient for most cases, but doesn't precisely distinguish caller if it
+         *         uses shared user ID.</td>
+         * <tr><td>{@code 21} &le; {@code SDK_VERSION} &lt; {@code 24}</td>
+         *     <td>{@link RemoteUserInfo#LEGACY_CONTROLLER LEGACY_CONTROLLER}</td>
+         * </table>
+         *
          * @return package name of the controller. Can be
-         *         {@link androidx.media.MediaSessionManager.RemoteUserInfo#LEGACY_CONTROLLER} if
-         *         the package name cannot be obtained.
+         *         {@link RemoteUserInfo#LEGACY_CONTROLLER LEGACY_CONTROLLER} if the package name
+         *         cannot be obtained.
          */
         @NonNull
         public String getPackageName() {
@@ -988,6 +876,11 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
+         * Gets the UID of the controller. Can be a negative value for interoperability.
+         * <p>
+         * Interoperability: If {@code 21} &le; {@code SDK_VERSION} &lt; {@code 28}, then UID would
+         * be a negative value because it cannot be obtained.
+         *
          * @return uid of the controller. Can be a negative value if the uid cannot be obtained.
          */
         public int getUid() {
@@ -995,7 +888,7 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * @return connection hints sent from controller, or {@link Bundle#EMPTY} if none.
+         * Gets the connection hints sent from controller, or {@link Bundle#EMPTY} if none.
          */
         @NonNull
         public Bundle getConnectionHints() {
@@ -1043,6 +936,21 @@ public class MediaSession implements AutoCloseable {
 
         @Nullable ControllerCb getControllerCb() {
             return mControllerCb;
+        }
+
+        @NonNull
+        static ControllerInfo createLegacyControllerInfo() {
+            RemoteUserInfo legacyRemoteUserInfo =
+                    new RemoteUserInfo(
+                            RemoteUserInfo.LEGACY_CONTROLLER,
+                            /* pid= */ RemoteUserInfo.UNKNOWN_PID,
+                            /* uid= */ RemoteUserInfo.UNKNOWN_UID);
+            return new ControllerInfo(
+                    legacyRemoteUserInfo,
+                    MediaUtils.VERSION_UNKNOWN,
+                    /* trusted= */ false,
+                    /* cb= */ null,
+                    /* connectionHints= */ null);
         }
     }
 

@@ -93,7 +93,7 @@ public final class Renderer {
      *                attribution information
      */
     @Nullable
-    public static PendingIntent getAttribution(@NonNull Slice content) {
+    public static PendingIntent getAttributionIntent(@NonNull Slice content) {
         String contentVersion = SlicedContent.getVersion(content);
         if (!VersionUtils.isVersionSupported(contentVersion)) {
             Log.w(TAG, "Content version unsupported.");
@@ -105,7 +105,7 @@ public final class Renderer {
                 if (contentV1 == null) {
                     return null;
                 }
-                return InlineSuggestionUi.getAttribution(contentV1);
+                return InlineSuggestionUi.getAttributionIntent(contentV1);
         }
         Log.w(TAG, "Renderer does not support the content version: " + contentVersion);
         return null;

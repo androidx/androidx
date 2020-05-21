@@ -26,8 +26,8 @@ import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Modifier
 import androidx.ui.core.LayoutDirection
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.DeterminateProgressIndicator
 import androidx.ui.foundation.Strings
@@ -35,8 +35,8 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.painter.CanvasScope
-import androidx.ui.graphics.painter.Stroke
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.graphics.vectormath.degrees
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
@@ -126,12 +126,11 @@ fun LinearProgressIndicator(
     }
 }
 
-private fun CanvasScope.drawLinearIndicator(
+private fun DrawScope.drawLinearIndicator(
     startFraction: Float,
     endFraction: Float,
     color: Color,
-    stroke: Stroke,
-    layoutDirection: LayoutDirection = LayoutDirection.Ltr
+    stroke: Stroke
 ) {
     val width = size.width
     val height = size.height
@@ -146,11 +145,10 @@ private fun CanvasScope.drawLinearIndicator(
     drawLine(color, Offset(barStart, yOffset), Offset(barEnd, yOffset), stroke)
 }
 
-private fun CanvasScope.drawLinearIndicatorBackground(
+private fun DrawScope.drawLinearIndicatorBackground(
     color: Color,
-    stroke: Stroke,
-    layoutDirection: LayoutDirection = LayoutDirection.Ltr
-) = drawLinearIndicator(0f, 1f, color, stroke, layoutDirection)
+    stroke: Stroke
+) = drawLinearIndicator(0f, 1f, color, stroke)
 
 /**
  * A determinate circular progress indicator that represents progress by drawing an arc ranging from
@@ -233,7 +231,7 @@ fun CircularProgressIndicator(
     }
 }
 
-private fun CanvasScope.drawCircularIndicator(
+private fun DrawScope.drawCircularIndicator(
     startAngle: Float,
     sweep: Float,
     color: Color,
@@ -268,14 +266,14 @@ object ProgressIndicatorConstants {
     val DefaultStrokeWidth = 4.dp
 }
 
-private fun CanvasScope.drawDeterminateCircularIndicator(
+private fun DrawScope.drawDeterminateCircularIndicator(
     startAngle: Float,
     sweep: Float,
     color: Color,
     stroke: Stroke
 ) = drawCircularIndicator(startAngle, sweep, color, stroke)
 
-private fun CanvasScope.drawIndeterminateCircularIndicator(
+private fun DrawScope.drawIndeterminateCircularIndicator(
     startAngle: Float,
     strokeWidth: Dp,
     sweep: Float,

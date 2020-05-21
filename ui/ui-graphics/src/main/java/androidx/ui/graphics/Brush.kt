@@ -17,15 +17,19 @@
 package androidx.ui.graphics
 
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.Px
 
 sealed class Brush {
-    abstract fun applyTo(p: Paint)
+    abstract fun applyTo(p: Paint, alpha: Float)
 }
 
 data class SolidColor(val value: Color) : Brush() {
-    override fun applyTo(p: Paint) {
-        if (p.color != value) p.color = value
+    override fun applyTo(p: Paint, alpha: Float) {
+        p.alpha = DefaultAlpha
+        p.color = if (alpha != DefaultAlpha) {
+            value.copy(alpha = value.alpha * alpha)
+        } else {
+            value
+        }
         if (p.shader != null) p.shader = null
     }
 }
@@ -38,22 +42,20 @@ typealias ColorStop = Pair<Float, Color>
  *
  * ```
  *  LinearGradient(
- *      0.0f to Color.Red,
- *      0.3f to Color.Green,
- *      1.0f to Color.Blue,
- *      startX = Px.Zero,
- *      startY = Px(50.0f),
- *      endY = Px.Zero,
- *      endY = Px(100.0f)
+ *      listOf(Color.Red, Color.Green, Color.Blue),
+ *      startX = 0.0f,
+ *      startY = 50.0f,
+ *      endY = 0.0f,
+ *      endY = 100.0f
  * )
  * ```
  */
 fun LinearGradient(
     colors: List<Color>,
-    startX: Px,
-    startY: Px,
-    endX: Px,
-    endY: Px,
+    startX: Float,
+    startY: Float,
+    endX: Float,
+    endY: Float,
     tileMode: TileMode = TileMode.Clamp
 ) = LinearGradient(
         colors,
@@ -74,19 +76,19 @@ fun LinearGradient(
  *      0.0f to Color.Red,
  *      0.3f to Color.Green,
  *      1.0f to Color.Blue,
- *      startX = Px.Zero,
- *      startY = Px(50.0f),
- *      endY = Px.Zero,
- *      endY = Px(100.0f)
+ *      startX = 0.0f,
+ *      startY = 50.0f,
+ *      endY = 0.0f,
+ *      endY = 100.0f
  * )
  * ```
  */
 fun LinearGradient(
     vararg colorStops: ColorStop,
-    startX: Px,
-    startY: Px,
-    endX: Px,
-    endY: Px,
+    startX: Float,
+    startY: Float,
+    endX: Float,
+    endY: Float,
     tileMode: TileMode = TileMode.Clamp
 ) = LinearGradient(
         List<Color>(colorStops.size) { i -> colorStops[i].second },
@@ -131,9 +133,7 @@ fun RadialGradient(
  * Creates a radial gradient with the given colors evenly dispersed within the gradient
  * ```
  * RadialGradient(
- *      Color.Red,
- *      Color.Green,
- *      Color.Blue,
+ *      listOf(Color.Red, Color.Green, Color.Blue),
  *      centerX = side1 / 2.0f,
  *      centerY = side2 / 2.0f,
  *      radius = side1 / 2.0f,
@@ -150,58 +150,56 @@ fun RadialGradient(
 ) = RadialGradient(colors, null, centerX, centerY, radius, tileMode)
 
 /**
- * Creates a vertical gradient with the given colors at the provided offset defined in the [ColorStop]
+ * Creates a vertical gradient with the given colors evenly dispersed within the gradient
  * Ex:
  * ```
  *  VerticalGradient(
- *      Color.Red,
- *      Color.Green,
- *      Color.Blue,
- *      startY = Px.Zero,
- *      endY = Px(100.0f)
+ *      listOf(Color.Red, Color.Green, Color.Blue),
+ *      startY = 0.0f,
+ *      endY = 100.0f
  * )
  *
  * ```
  */
 fun VerticalGradient(
     colors: List<Color>,
-    startY: Px,
-    endY: Px,
+    startY: Float,
+    endY: Float,
     tileMode: TileMode = TileMode.Clamp
 ) = LinearGradient(
         colors,
         null,
-        startX = Px.Zero,
+        startX = 0.0f,
         startY = startY,
-        endX = Px.Zero,
+        endX = 0.0f,
         endY = endY,
         tileMode = tileMode
     )
 
 /**
- * Creates a vertical gradient with the given colors evenly dispersed within the gradient
+ * Creates a vertical gradient with the given colors at the provided offset defined in the [ColorStop]
  * Ex:
  * ```
  *  VerticalGradient(
- *      Color.Red,
- *      Color.Green,
- *      Color.Blue,
- *      startY = Px.Zero,
- *      endY = Px(100.0f)
+ *      0.1f to Color.Red,
+ *      0.3f to Color.Green,
+ *      0.5f to Color.Blue,
+ *      startY = 0.0f,
+ *      endY = 100.0f
  * )
  * ```
  */
 fun VerticalGradient(
     vararg colorStops: ColorStop,
-    startY: Px,
-    endY: Px,
+    startY: Float,
+    endY: Float,
     tileMode: TileMode = TileMode.Clamp
 ) = LinearGradient(
         List<Color>(colorStops.size) { i -> colorStops[i].second },
         List<Float>(colorStops.size) { i -> colorStops[i].first },
-        startX = Px.Zero,
+        startX = 0.0f,
         startY = startY,
-        endX = Px.Zero,
+        endX = 0.0f,
         endY = endY,
         tileMode = tileMode
     )
@@ -212,26 +210,24 @@ fun VerticalGradient(
  * Ex:
  * ```
  *  HorizontalGradient(
- *      Color.Red,
- *      Color.Green,
- *      Color.Blue,
- *      startX = Px(10.0f),
- *      endX = Px(20.0f)
+ *      listOf(Color.Red, Color.Green, Color.Blue),
+ *      startX = 10.0f,
+ *      endX = 20.0f
  * )
  * ```
  */
 fun HorizontalGradient(
     colors: List<Color>,
-    startX: Px,
-    endX: Px,
+    startX: Float,
+    endX: Float,
     tileMode: TileMode = TileMode.Clamp
 ) = LinearGradient(
         colors,
         null,
         startX = startX,
-        startY = Px.Zero,
+        startY = 0.0f,
         endX = endX,
-        endY = Px.Zero,
+        endY = 0.0f,
         tileMode = tileMode
     )
 
@@ -244,27 +240,25 @@ fun HorizontalGradient(
  *      0.0f to Color.Red,
  *      0.3f to Color.Green,
  *      1.0f to Color.Blue,
- *      startX = Px.Zero,
- *      endX = Px(100.0f)
+ *      startX = 0.0f,
+ *      endX = 100.0f
  * )
  * ```
  */
 fun HorizontalGradient(
     vararg colorStops: ColorStop,
-    startX: Px,
-    endX: Px,
+    startX: Float,
+    endX: Float,
     tileMode: TileMode = TileMode.Clamp
-): Brush {
-    return LinearGradient(
+) = LinearGradient(
         List<Color>(colorStops.size) { i -> colorStops[i].second },
         List<Float>(colorStops.size) { i -> colorStops[i].first },
         startX = startX,
-        startY = Px.Zero,
+        startY = 0.0f,
         endX = endX,
-        endY = Px.Zero,
+        endY = 0.0f,
         tileMode = tileMode
     )
-}
 
 /**
  * Brush implementation used to apply a linear gradient on a given [Paint]
@@ -272,15 +266,15 @@ fun HorizontalGradient(
 data class LinearGradient internal constructor(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
-    private val startX: Px,
-    private val startY: Px,
-    private val endX: Px,
-    private val endY: Px,
+    private val startX: Float,
+    private val startY: Float,
+    private val endX: Float,
+    private val endY: Float,
     private val tileMode: TileMode = TileMode.Clamp
 ) : ShaderBrush(
     LinearGradientShader(
-        Offset(startX.value, startY.value),
-        Offset(endX.value, endY.value),
+        Offset(startX, startY),
+        Offset(endX, endY),
         colors,
         stops,
         tileMode
@@ -311,8 +305,9 @@ data class RadialGradient internal constructor(
  * Brush implementation that wraps and applies a the provided shader to a [Paint]
  */
 open class ShaderBrush(val shader: Shader) : Brush() {
-    final override fun applyTo(p: Paint) {
+    final override fun applyTo(p: Paint, alpha: Float) {
         if (p.color != Color.Black) p.color = Color.Black
         if (p.shader != shader) p.shader = shader
+        if (p.alpha != alpha) p.alpha = alpha
     }
 }

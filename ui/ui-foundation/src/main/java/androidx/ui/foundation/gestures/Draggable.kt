@@ -89,8 +89,8 @@ fun Modifier.draggable(
                 dragState.value = dragState.value + consumed
                 val fractionConsumed = if (projected == 0f) 0f else consumed / projected
                 return PxPosition(
-                    dragDirection.xProjection(dragDistance.x).px * fractionConsumed,
-                    dragDirection.yProjection(dragDistance.y).px * fractionConsumed
+                    dragDirection.xProjection(dragDistance.x.value).px * fractionConsumed,
+                    dragDirection.yProjection(dragDistance.y.value).px * fractionConsumed
                 )
             }
 

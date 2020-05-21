@@ -21,8 +21,11 @@ import android.os.Looper
 import android.util.LruCache
 import androidx.annotation.GuardedBy
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.Stable
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
 import androidx.compose.remember
+import androidx.compose.setValue
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
@@ -46,13 +49,15 @@ internal enum class LoadingState { PENDING, LOADED, FAILED }
 /**
  * A class used for the result of the asynchronous resource loading.
  */
-@Model class DeferredResource<T> internal constructor(
-    internal var state: LoadingState = LoadingState.PENDING,
+@Stable
+class DeferredResource<T> internal constructor(
+    state: LoadingState = LoadingState.PENDING,
     private val pendingResource: T? = null,
     private val failedResource: T? = null
 ) {
-    private var loadedResource: T? = null
-    private var failedReason: Throwable? = null
+    internal var state by mutableStateOf(state)
+    private var loadedResource: T? by mutableStateOf<T?>(null)
+    private var failedReason: Throwable? by mutableStateOf<Throwable?>(null)
 
     internal fun loadCompleted(loadedResource: T) {
         state = LoadingState.LOADED

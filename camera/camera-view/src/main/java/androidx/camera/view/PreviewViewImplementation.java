@@ -22,8 +22,10 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.Preview;
+import androidx.camera.core.SurfaceRequest;
 import androidx.camera.view.preview.transform.PreviewTransform;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * Wraps the underlying handling of the {@link android.view.Surface} used for preview, which is
@@ -46,9 +48,16 @@ abstract class PreviewViewImplementation {
     @Nullable
     abstract View getPreview();
 
-    /** Gets the {@link Preview.SurfaceProvider} to be used with {@link Preview}. */
-    @NonNull
-    abstract Preview.SurfaceProvider getSurfaceProvider();
+    /**
+     * Starts to execute the {@link SurfaceRequest} by providing a Surface.
+     *
+     * <p>A listener can be set optionally to be notified when the provided Surface is not in use
+     * any more or the SurfaceRequest is cancelled before providing a Surface. This can be used
+     * as a signal that SurfaceRequest (and the Preview) is no longer using PreviewView and we
+     * can do some cleanup. The listener will be invoked on main thread.
+     */
+    abstract void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest,
+            @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener);
 
     /**
      * @param parent           the containing parent {@link PreviewView}.
@@ -95,4 +104,20 @@ abstract class PreviewViewImplementation {
     /** Invoked when onDetachedFromWindow happens in the PreviewView */
     abstract void onDetachedFromWindow();
 
+    /**
+     * Returns a {@link ListenableFuture} which will complete when the next frame is shown.
+     *
+     * <p>For implementation that does not support frame update event, the returned future will
+     * complete immediately.
+     */
+    @NonNull
+    abstract ListenableFuture<Void> waitForNextFrame();
+
+    /**
+     * Listener to be notified when the provided Surface is no longer in use or the request is
+     * cancelled before a Surface is provided.
+     */
+    interface OnSurfaceNotInUseListener {
+        void onSurfaceNotInUse();
+    }
 }

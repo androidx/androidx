@@ -22,10 +22,10 @@ import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.Interaction
+import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.clickable
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
@@ -54,26 +54,23 @@ fun InteractionStateSample() {
         else -> "Drag me horizontally, or press me!" to Color.Black
     }
 
-    Box(Modifier
-        .fillMaxSize()
-        .wrapContentSize()
-        .preferredSize(width = 240.dp, height = 80.dp)
+    Box(
+        Modifier
+            .fillMaxSize()
+            .wrapContentSize()
+            .preferredSize(width = 240.dp, height = 80.dp)
     ) {
-        Clickable(
-            interactionState = interactionState,
-            onClick = { /* business logic */ }
+        Box(
+            Modifier
+                .fillMaxSize()
+                .clickable(interactionState = interactionState) { /* do nothing */ }
+                .plus(draggable),
+            border = Border(3.dp, color)
         ) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .plus(draggable),
-                border = Border(3.dp, color)
-            ) {
-                Text(
-                    text, style = currentTextStyle().copy(textAlign = TextAlign.Center),
-                    modifier = Modifier.fillMaxSize().wrapContentSize()
-                )
-            }
+            Text(
+                text, style = currentTextStyle().copy(textAlign = TextAlign.Center),
+                modifier = Modifier.fillMaxSize().wrapContentSize()
+            )
         }
     }
 }

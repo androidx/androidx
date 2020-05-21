@@ -3666,7 +3666,7 @@ private fun BaselineTestLayout(
     height: Dp,
     baseline: Dp,
     modifier: Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     Layout(children = children, modifier = modifier, measureBlock = { _, constraints, _ ->
         val widthPx = max(width.toIntPx(), constraints.minWidth)
@@ -3680,7 +3680,7 @@ private fun BaselineTestLayout(
 
 // Center composable function is deprected whereas FlexTest tests heavily depend on it.
 @Composable
-private fun Center(children: @Composable() () -> Unit) {
+private fun Center(children: @Composable () -> Unit) {
     Layout(children) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.

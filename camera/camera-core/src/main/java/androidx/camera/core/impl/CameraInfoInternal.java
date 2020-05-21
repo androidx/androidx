@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
 
+import java.util.concurrent.Executor;
+
 /**
  * An interface for retrieving camera information.
  *
@@ -45,4 +47,19 @@ public interface CameraInfoInternal extends CameraInfo {
      */
     @NonNull
     String getCameraId();
+
+    /**
+     * Adds a {@link CameraCaptureCallback} which will be invoked when session capture request is
+     * completed, failed or cancelled.
+     *
+     * <p>The callback will be invoked on the specified {@link Executor}.
+     */
+    void addSessionCaptureCallback(@NonNull Executor executor,
+            @NonNull CameraCaptureCallback callback);
+
+    /**
+     * Removes the {@link CameraCaptureCallback} which was added in
+     * {@link #addSessionCaptureCallback(Executor, CameraCaptureCallback)}.
+     */
+    void removeSessionCaptureCallback(@NonNull CameraCaptureCallback callback);
 }

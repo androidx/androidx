@@ -39,6 +39,7 @@ import androidx.ui.unit.max
 import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
+import androidx.ui.util.fastForEach
 import kotlin.math.sign
 
 /**
@@ -51,7 +52,7 @@ internal fun RowColumnImpl(
     arrangement: Arrangement,
     crossAxisSize: SizeMode,
     crossAxisAlignment: Any,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     fun Placeable.mainAxisSize() =
         if (orientation == LayoutOrientation.Horizontal) width else height
@@ -386,7 +387,7 @@ interface Arrangement {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
             val positions = mutableListOf<IntPx>()
             var current = (totalSize - consumedSize).toPx() / 2
-            size.forEach {
+            size.fastForEach {
                 positions.add(current.round())
                 current += it
             }
@@ -408,7 +409,7 @@ interface Arrangement {
             val gapSize = (totalSize - consumedSize).toPx() / (size.size + 1)
             val positions = mutableListOf<IntPx>()
             var current = gapSize
-            size.forEach {
+            size.fastForEach {
                 positions.add(current.round())
                 current += it.toPx() + gapSize
             }
@@ -434,7 +435,7 @@ interface Arrangement {
             }
             val positions = mutableListOf<IntPx>()
             var current = 0.px
-            size.forEach {
+            size.fastForEach {
                 positions.add(current.round())
                 current += it.toPx() + gapSize
             }
@@ -461,7 +462,7 @@ interface Arrangement {
             }
             val positions = mutableListOf<IntPx>()
             var current = gapSize / 2
-            size.forEach {
+            size.fastForEach {
                 positions.add(current.round())
                 current += it.toPx() + gapSize
             }
@@ -474,7 +475,7 @@ interface Arrangement {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
             val positions = mutableListOf<IntPx>()
             var current = totalSize - consumedSize
-            size.forEach {
+            size.fastForEach {
                 positions.add(current)
                 current += it
             }
@@ -483,7 +484,7 @@ interface Arrangement {
         private fun placeLeftOrTop(size: List<IntPx>): List<IntPx> {
             val positions = mutableListOf<IntPx>()
             var current = 0.ipx
-            size.forEach {
+            size.fastForEach {
                 positions.add(current)
                 current += it
             }
@@ -779,7 +780,7 @@ private fun intrinsicMainAxisSize(
     var weightUnitSpace = 0.ipx
     var fixedSpace = 0.ipx
     var totalWeight = 0f
-    children.forEach { child ->
+    children.fastForEach { child ->
         val weight = child.weight
         val size = child.mainAxisSize(crossAxisAvailable)
         if (weight == 0f) {
@@ -801,7 +802,7 @@ private fun intrinsicCrossAxisSize(
     var fixedSpace = 0.ipx
     var crossAxisMax = 0.ipx
     var totalWeight = 0f
-    children.forEach { child ->
+    children.fastForEach { child ->
         val weight = child.weight
         if (weight == 0f) {
             val mainAxisSpace = child.mainAxisSize(IntPx.Infinity)
@@ -818,7 +819,7 @@ private fun intrinsicCrossAxisSize(
         max(mainAxisAvailable - fixedSpace, IntPx.Zero) / totalWeight
     }
 
-    children.forEach { child ->
+    children.fastForEach { child ->
         if (child.weight > 0f) {
             crossAxisMax = max(crossAxisMax, child.crossAxisSize(weightUnitSpace * child.weight))
         }

@@ -25,12 +25,16 @@ import android.view.animation.Animation;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
 import androidx.core.os.CancellationSignal;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A SpecialEffectsController that hooks into the existing Fragment APIs to run
@@ -84,6 +88,29 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
 
     @Override
     void executeOperations(@NonNull List<Operation> operations, boolean isPop) {
+        // Shared element transitions are done between the first fragment leaving and
+        // the last fragment coming in. Finding these operations is the first priority
+        Operation firstOut = null;
+        Operation lastIn = null;
+        for (final Operation operation : operations) {
+            switch (operation.getType()) {
+                case REMOVE:
+                    if (firstOut == null) {
+                        firstOut = operation;
+                    }
+                    break;
+                case ADD:
+                    // To transition from the firstOut to the lastIn, we need
+                    // the firstOut operation to occur first. Only after that
+                    // is set do we set the lastIn
+                    if (firstOut != null) {
+                        lastIn = operation;
+                    }
+            }
+        }
+
+        // Now iterate through the operations, collecting the set of animations
+        // and transitions that need to be executed
         List<AnimationInfo> animations = new ArrayList<>();
         List<TransitionInfo> transitions = new ArrayList<>();
         final List<Operation> awaitingContainerChanges = new ArrayList<>(operations);
@@ -99,7 +126,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             CancellationSignal transitionCancellationSignal = new CancellationSignal();
             addCancellationSignal(operation, transitionCancellationSignal);
             // Add the transition special effect
-            transitions.add(new TransitionInfo(operation, transitionCancellationSignal, isPop));
+            transitions.add(new TransitionInfo(operation, transitionCancellationSignal, isPop,
+                    isPop ? operation == firstOut : operation == lastIn));
 
             // Ensure that if the Operation is synchronously complete, we still
             // apply the container changes before the Operation completes
@@ -123,7 +151,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         }
 
         // Start transition special effects
-        startTransitions(transitions);
+        startTransitions(transitions, isPop, firstOut, lastIn);
 
         // Start animation special effects
         for (AnimationInfo animationInfo : animations) {
@@ -202,7 +230,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         });
     }
 
-    private void startTransitions(@NonNull List<TransitionInfo> transitionInfos) {
+    private void startTransitions(@NonNull List<TransitionInfo> transitionInfos,
+            boolean isPop, @Nullable Operation firstOut, @Nullable Operation lastIn) {
         // First verify that we can run all transitions together
         FragmentTransitionImpl transitionImpl = null;
         for (TransitionInfo transitionInfo : transitionInfos) {
@@ -223,19 +252,91 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 removeCancellationSignal(transitionInfo.getOperation(),
                         transitionInfo.getSignal());
             }
-        } else {
-            // These transitions run together, overlapping one another
-            Object mergedTransition = null;
-            // These transitions run only after all of the other transitions complete
-            Object mergedNonOverlappingTransition = null;
-            // Now iterate through the set of transitions and merge them together
-            for (final TransitionInfo transitionInfo : transitionInfos) {
-                Object transition = transitionInfo.getTransition();
-                if (transition == null) {
-                    // Nothing more to do if the transition is null
+            return;
+        }
+
+        // Every transition needs to target at least one View so that they
+        // don't interfere with one another. This is the view we use
+        // in cases where there are no real views to target
+        final View nonExistentView = new View(getContainer().getContext());
+
+        // Now find the shared element transition if it exists
+        Object sharedElementTransition = null;
+        HashMap<String, String> nameOverrides = new HashMap<>();
+        for (final TransitionInfo transitionInfo : transitionInfos) {
+            boolean hasSharedElementTransition = transitionInfo.hasSharedElementTransition();
+            if (hasSharedElementTransition) {
+                sharedElementTransition = transitionImpl.cloneTransition(
+                        transitionInfo.getSharedElementTransition());
+                transitionImpl.addTarget(sharedElementTransition, nonExistentView);
+                Fragment sharedElementFragment = transitionInfo.getOperation().getFragment();
+                // A pop means returning from the target names to the source names
+                // so we have to swap the source/target sets
+                ArrayList<String> enteringNames = isPop
+                        ? sharedElementFragment.getSharedElementTargetNames()
+                        : sharedElementFragment.getSharedElementSourceNames();
+                ArrayList<String> exitingNames = isPop
+                        ? sharedElementFragment.getSharedElementSourceNames()
+                        : sharedElementFragment.getSharedElementTargetNames();
+                for (int index = 0; index < enteringNames.size(); index++) {
+                    nameOverrides.put(enteringNames.get(index), exitingNames.get(index));
+                }
+            }
+        }
+        ArrayList<View> enteringViews = new ArrayList<>();
+        // These transitions run together, overlapping one another
+        Object mergedTransition = null;
+        // These transitions run only after all of the other transitions complete
+        Object mergedNonOverlappingTransition = null;
+        // Now iterate through the set of transitions and merge them together
+        for (final TransitionInfo transitionInfo : transitionInfos) {
+            Object transition = transitionImpl.cloneTransition(transitionInfo.getTransition());
+            Operation operation = transitionInfo.getOperation();
+            boolean involvedInSharedElementTransition = sharedElementTransition != null
+                    && (operation == firstOut || operation == lastIn);
+            if (transition == null) {
+                // Nothing more to do if the transition is null
+                if (!involvedInSharedElementTransition) {
+                    // Only remove the cancellation signal if this fragment isn't involved
+                    // in the shared element transition (as otherwise we need to wait
+                    // for that to finish)
                     removeCancellationSignal(transitionInfo.getOperation(),
                             transitionInfo.getSignal());
-                } else if (transitionInfo.isOverlapAllowed()) {
+                }
+            } else {
+                // Target the Transition to *only* the set of transitioning views
+                ArrayList<View> transitioningViews = new ArrayList<>();
+                captureTransitioningViews(transitioningViews,
+                        transitionInfo.getOperation().getFragment().mView);
+                if (involvedInSharedElementTransition) {
+                    ArrayMap<String, View> sharedElementViews = new ArrayMap<>();
+                    findNamedViews(sharedElementViews,
+                            transitionInfo.getOperation().getFragment().mView);
+                    // TODO call through to onMapSharedElements
+                    if (operation == firstOut) {
+                        sharedElementViews.retainAll(nameOverrides.values());
+                    } else {
+                        sharedElementViews.retainAll(nameOverrides.keySet());
+                    }
+                    // Remove all of the shared element views from the transition
+                    // by first finding all of the transitioning views under the
+                    // selected shared element views
+                    ArrayList<View> sharedElementTransitioningViews = new ArrayList<>();
+                    for (View sharedElementView : sharedElementViews.values()) {
+                        captureTransitioningViews(sharedElementTransitioningViews,
+                                sharedElementView);
+                    }
+                    transitioningViews.removeAll(sharedElementTransitioningViews);
+                    // And add them to the shared element transition
+                    transitionImpl.addTargets(sharedElementTransition,
+                            new ArrayList<>(sharedElementTransitioningViews));
+                }
+                transitionImpl.addTargets(transition, transitioningViews);
+                if (transitionInfo.getOperation().getType().equals(Operation.Type.ADD)) {
+                    enteringViews.addAll(transitioningViews);
+                }
+                // Now determine how this transition should be merged together
+                if (transitionInfo.isOverlapAllowed()) {
                     // Overlap is allowed, so add them to the mergeTransition set
                     mergedTransition = transitionImpl.mergeTransitionsTogether(
                             mergedTransition, transition, null);
@@ -245,32 +346,86 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                             mergedNonOverlappingTransition, transition, null);
                 }
             }
+        }
 
-            // Make sure that the mergedNonOverlappingTransition set
-            // runs after the mergedTransition set is complete
-            mergedTransition = transitionImpl.mergeTransitionsInSequence(mergedTransition,
-                    mergedNonOverlappingTransition, null);
+        // Make sure that the mergedNonOverlappingTransition set
+        // runs after the mergedTransition set is complete
+        mergedTransition = transitionImpl.mergeTransitionsInSequence(mergedTransition,
+                mergedNonOverlappingTransition, sharedElementTransition);
 
-            // Now set up our cancellation and completion signal on the completely
-            // merged transition set
-            for (final TransitionInfo transitionInfo : transitionInfos) {
-                Object transition = transitionInfo.getTransition();
-                if (transition != null) {
-                    transitionImpl.setListenerForTransitionEnd(
-                            transitionInfo.getOperation().getFragment(),
-                            mergedTransition,
-                            transitionInfo.getSignal(),
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    removeCancellationSignal(transitionInfo.getOperation(),
-                                            transitionInfo.getSignal());
-                                }
-                            });
+        // Now set up our cancellation and completion signal on the completely
+        // merged transition set
+        for (final TransitionInfo transitionInfo : transitionInfos) {
+            Object transition = transitionInfo.getTransition();
+            if (transition != null) {
+                transitionImpl.setListenerForTransitionEnd(
+                        transitionInfo.getOperation().getFragment(),
+                        mergedTransition,
+                        transitionInfo.getSignal(),
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                removeCancellationSignal(transitionInfo.getOperation(),
+                                        transitionInfo.getSignal());
+                            }
+                        });
+            }
+        }
+        // First, hide all of the entering views so they're in
+        // the correct initial state
+        FragmentTransition.setViewVisibility(enteringViews, View.INVISIBLE);
+        // Now actually start the transition
+        transitionImpl.beginDelayedTransition(getContainer(), mergedTransition);
+        // Then, show all of the entering views, putting them into
+        // the correct final state
+        FragmentTransition.setViewVisibility(enteringViews, View.VISIBLE);
+    }
+
+    /**
+     * Gets the Views in the hierarchy affected by entering and exiting transitions.
+     *
+     * @param transitioningViews This View will be added to transitioningViews if it is VISIBLE and
+     *                           a normal View or a ViewGroup with
+     *                           {@link android.view.ViewGroup#isTransitionGroup()} true.
+     * @param view               The base of the view hierarchy to look in.
+     */
+    void captureTransitioningViews(ArrayList<View> transitioningViews, View view) {
+        if (view instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) view;
+            if (ViewGroupCompat.isTransitionGroup(viewGroup)) {
+                transitioningViews.add(viewGroup);
+            } else {
+                int count = viewGroup.getChildCount();
+                for (int i = 0; i < count; i++) {
+                    View child = viewGroup.getChildAt(i);
+                    if (child.getVisibility() == View.VISIBLE) {
+                        captureTransitioningViews(transitioningViews, child);
+                    }
                 }
             }
-            // Now actually start the transition
-            transitionImpl.beginDelayedTransition(getContainer(), mergedTransition);
+        } else {
+            transitioningViews.add(view);
+        }
+    }
+
+    /**
+     * Finds all views that have transition names in the hierarchy under the given view and
+     * stores them in {@code namedViews} map with the name as the key.
+     */
+    void findNamedViews(Map<String, View> namedViews, @NonNull View view) {
+        String transitionName = ViewCompat.getTransitionName(view);
+        if (transitionName != null) {
+            namedViews.put(transitionName, view);
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) view;
+            int count = viewGroup.getChildCount();
+            for (int i = 0; i < count; i++) {
+                View child = viewGroup.getChildAt(i);
+                if (child.getVisibility() == View.VISIBLE) {
+                    findNamedViews(namedViews, child);
+                }
+            }
         }
     }
 
@@ -314,9 +469,12 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         @Nullable
         private final Object mTransition;
         private final boolean mOverlapAllowed;
+        @Nullable
+        private final Object mSharedElementTransition;
 
         TransitionInfo(@NonNull Operation operation,
-                @NonNull CancellationSignal signal, boolean isPop) {
+                @NonNull CancellationSignal signal, boolean isPop,
+                boolean providesSharedElementTransition) {
             mOperation = operation;
             mSignal = signal;
             if (operation.getType() == Operation.Type.ADD) {
@@ -334,6 +492,17 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         : operation.getFragment().getExitTransition();
                 // Removing Fragments always overlap other transitions
                 mOverlapAllowed = true;
+            }
+            if (providesSharedElementTransition) {
+                if (isPop) {
+                    mSharedElementTransition =
+                            operation.getFragment().getSharedElementReturnTransition();
+                } else {
+                    mSharedElementTransition =
+                            operation.getFragment().getSharedElementEnterTransition();
+                }
+            } else {
+                mSharedElementTransition = null;
             }
         }
 
@@ -356,20 +525,46 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             return mOverlapAllowed;
         }
 
+        public boolean hasSharedElementTransition() {
+            return mSharedElementTransition != null;
+        }
+
+        @Nullable
+        public Object getSharedElementTransition() {
+            return mSharedElementTransition;
+        }
+
         @Nullable
         FragmentTransitionImpl getHandlingImpl() {
-            if (mTransition == null) {
+            FragmentTransitionImpl transitionImpl = getHandlingImpl(mTransition);
+            FragmentTransitionImpl sharedElementTransitionImpl =
+                    getHandlingImpl(mSharedElementTransition);
+            if (transitionImpl != null && sharedElementTransitionImpl != null
+                    && transitionImpl != sharedElementTransitionImpl) {
+                throw new IllegalArgumentException("Mixing framework transitions and "
+                        + "AndroidX transitions is not allowed. Fragment "
+                        + mOperation.getFragment() + " returned Transition "
+                        + mTransition + " which uses a different Transition "
+                        + " type than its shared element transition "
+                        + mSharedElementTransition);
+            }
+            return transitionImpl != null ? transitionImpl : sharedElementTransitionImpl;
+        }
+
+        @Nullable
+        private FragmentTransitionImpl getHandlingImpl(Object transition) {
+            if (transition == null) {
                 return null;
             }
             if (FragmentTransition.PLATFORM_IMPL != null
-                    && FragmentTransition.PLATFORM_IMPL.canHandle(mTransition)) {
+                    && FragmentTransition.PLATFORM_IMPL.canHandle(transition)) {
                 return FragmentTransition.PLATFORM_IMPL;
             }
             if (FragmentTransition.SUPPORT_IMPL != null
-                    && FragmentTransition.SUPPORT_IMPL.canHandle(mTransition)) {
+                    && FragmentTransition.SUPPORT_IMPL.canHandle(transition)) {
                 return FragmentTransition.SUPPORT_IMPL;
             }
-            throw new IllegalArgumentException("Transition " + mTransition + " for fragment "
+            throw new IllegalArgumentException("Transition " + transition + " for fragment "
                     + mOperation.getFragment() + " is not a valid framework Transition or "
                     + "AndroidX Transition");
         }

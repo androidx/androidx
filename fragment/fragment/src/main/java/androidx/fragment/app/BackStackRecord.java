@@ -400,6 +400,7 @@ final class BackStackRecord extends FragmentTransaction implements
             final Fragment f = op.mFragment;
             if (f != null) {
                 f.setNextTransition(mTransition);
+                f.setSharedElementNames(mSharedElementSourceNames, mSharedElementTargetNames);
             }
             switch (op.mCmd) {
                 case OP_ADD:
@@ -468,6 +469,8 @@ final class BackStackRecord extends FragmentTransaction implements
             Fragment f = op.mFragment;
             if (f != null) {
                 f.setNextTransition(FragmentManager.reverseTransit(mTransition));
+                // Reverse the target and source names for pop operations
+                f.setSharedElementNames(mSharedElementTargetNames, mSharedElementSourceNames);
             }
             switch (op.mCmd) {
                 case OP_ADD:

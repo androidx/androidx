@@ -17,8 +17,8 @@
 package androidx.paging
 
 import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingSource.LoadResult.Page
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope

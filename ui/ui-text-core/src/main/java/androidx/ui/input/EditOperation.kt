@@ -363,3 +363,12 @@ data class MoveCursorEditOp(
         buffer.cursor = newCursor
     }
 }
+
+/**
+ * An edit operation that represents deleting all the text in the buffer.
+ */
+class DeleteAllEditOp : EditOperation {
+    override fun process(buffer: EditingBuffer) {
+        buffer.delete(0, buffer.length)
+    }
+}

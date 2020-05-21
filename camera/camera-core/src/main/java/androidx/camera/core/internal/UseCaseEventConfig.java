@@ -20,11 +20,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.ReadableConfig;
 
 /**
  * Configuration containing options pertaining to EventCallback object.
  */
-public interface UseCaseEventConfig {
+public interface UseCaseEventConfig extends ReadableConfig {
 
     /**
      * Option: camerax.core.useCaseEventCallback
@@ -40,7 +41,10 @@ public interface UseCaseEventConfig {
      * configuration.
      */
     @Nullable
-    UseCase.EventCallback getUseCaseEventCallback(@Nullable UseCase.EventCallback valueIfMissing);
+    default UseCase.EventCallback getUseCaseEventCallback(
+            @Nullable UseCase.EventCallback valueIfMissing) {
+        return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK, valueIfMissing);
+    }
 
     /**
      * Returns the EventCallback.
@@ -48,7 +52,9 @@ public interface UseCaseEventConfig {
      * @return The stored value, if it exists in this configuration.
      */
     @NonNull
-    UseCase.EventCallback getUseCaseEventCallback();
+    default UseCase.EventCallback getUseCaseEventCallback() {
+        return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK);
+    }
 
     // Option Declarations:
     // *********************************************************************************************

@@ -84,12 +84,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                 return getServiceBinder();
             }
             case MediaBrowserServiceCompat.SERVICE_INTERFACE: {
-                String packageName = MediaBrowserServiceCompat.SERVICE_INTERFACE;
-                RemoteUserInfo remoteUserInfo = new RemoteUserInfo(packageName,
-                        0 /* pid */, 0 /* uid */);
-                ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
-                        MediaUtils.VERSION_UNKNOWN, false /* isTrusted */, null /* ControllerCb */,
-                        null /* connectionHints */);
+                ControllerInfo controllerInfo = ControllerInfo.createLegacyControllerInfo();
                 final MediaSession session = service.onGetSession(controllerInfo);
                 if (session == null) {
                     // Legacy MediaBrowser(Compat) cannot connect to this service.
@@ -167,12 +162,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                 }
                 MediaSession session = MediaSession.getSession(intent.getData());
                 if (session == null) {
-                    String packageName = Intent.ACTION_MEDIA_BUTTON;
-                    RemoteUserInfo remoteUserInfo = new RemoteUserInfo(packageName,
-                            0 /* pid */, 0 /* uid */);
-                    ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
-                            MediaUtils.VERSION_UNKNOWN, false /* isTrusted */,
-                            null /* ControllerCb */, null /* connectionHints */);
+                    ControllerInfo controllerInfo = ControllerInfo.createLegacyControllerInfo();
                     session = instance.onGetSession(controllerInfo);
                 }
                 if (session == null) {

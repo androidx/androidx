@@ -16,4 +16,53 @@
 
 package android.graphics
 
-class Path
+class Path {
+    val skijaPath = org.jetbrains.skija.Path()
+
+    enum class Direction(val skija: org.jetbrains.skija.Path.Direction) {
+        @JvmStatic
+        CW(org.jetbrains.skija.Path.Direction.CLOCKWISE),
+        @JvmStatic
+        CCW(org.jetbrains.skija.Path.Direction.COUNTER_CLOCKWISE)
+    }
+
+    fun addRoundRect(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        rx: Float,
+        ry: Float,
+        dir: Direction
+    ) {
+        println("Path.addRoundRect")
+        // TODO: incorrect.
+        skijaPath.addPoly(floatArrayOf(left, top, left, bottom, right, bottom, right, top), true)
+    }
+
+    fun reset() {
+        skijaPath.reset()
+    }
+
+    fun addRoundRect(
+        rect: RectF,
+        radii: FloatArray,
+        dir: Direction
+    ) {
+        println("Path.addRoundRect")
+        // TODO: incorrect.
+        skijaPath.addPoly(floatArrayOf(
+            rect.left,
+            rect.top,
+            rect.left,
+            rect.bottom,
+            rect.right,
+            rect.bottom,
+            rect.right,
+            rect.top
+        ), true)
+    }
+
+    // TODO: incorrect
+    fun isConvex(): Boolean = true
+}

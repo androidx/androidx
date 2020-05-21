@@ -19,8 +19,8 @@ package androidx.ui.material.ripple
 import androidx.animation.AnimationClockObservable
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
 
 /**
  * An encapsulation of an [RippleEffect] constructor used by [ripple] and [RippleTheme].
@@ -43,7 +43,7 @@ interface RippleEffectFactory {
      * @param onAnimationFinished Call when the effect animation has been finished.
      */
     fun create(
-        size: IntPxSize,
+        size: PxSize,
         startPosition: PxPosition,
         density: Density,
         radius: Dp?,

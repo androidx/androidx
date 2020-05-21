@@ -1229,14 +1229,14 @@ class MultiParagraphIntegrationTest {
         val text = AnnotatedString(
             text = "ab",
             paragraphStyles = listOf(
-                ParagraphStyleItem(
+                ParagraphStyleRange(
                     item = ParagraphStyle(
                         textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
                     ),
                     start = 0,
                     end = "a".length
                 ),
-                ParagraphStyleItem(
+                ParagraphStyleRange(
                     // skip setting [TextDirectionAlgorithm] on purpose, should inherit from the
                     // main [ParagraphStyle]
                     item = ParagraphStyle(),
@@ -1267,7 +1267,7 @@ class MultiParagraphIntegrationTest {
         val fontSize = 20
         val width = 2.em
         val placeholders = listOf(
-            AnnotatedString.Item(
+            AnnotatedString.Range(
                 Placeholder(width, 1.em, PlaceholderVerticalAlign.AboveBaseline),
                 0,
                 1
@@ -1299,7 +1299,7 @@ class MultiParagraphIntegrationTest {
         val fontSize = 20
         val width = 30.sp
         val placeholders = listOf(
-            AnnotatedString.Item(
+            AnnotatedString.Range(
                 Placeholder(width, 1.em, PlaceholderVerticalAlign.AboveBaseline),
                 0,
                 1
@@ -1332,7 +1332,7 @@ class MultiParagraphIntegrationTest {
         val width = 2.em
         val height = 1.em
         val placeholders = listOf(
-            AnnotatedString.Item(
+            AnnotatedString.Range(
                 Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline),
                 0,
                 1
@@ -1370,12 +1370,12 @@ class MultiParagraphIntegrationTest {
         val width = 2.em
         val height = 1.em
         val placeholders = listOf(
-            AnnotatedString.Item(
+            AnnotatedString.Range(
                 Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline),
                 0,
                 1
             ),
-            AnnotatedString.Item(
+            AnnotatedString.Range(
                 Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline),
                 2,
                 3
@@ -1421,7 +1421,7 @@ class MultiParagraphIntegrationTest {
         val width = 2.em
         val height = 1.em
         val placeholders = listOf(
-            AnnotatedString.Item(
+            AnnotatedString.Range(
                 Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline),
                 1,
                 3
@@ -1452,7 +1452,7 @@ class MultiParagraphIntegrationTest {
      * Helper function which creates an AnnotatedString where each input string becomes a paragraph.
      */
     private fun createAnnotatedString(paragraphs: List<String>): AnnotatedString {
-        return AnnotatedString {
+        return annotatedString {
             for (paragraph in paragraphs) {
                 pushStyle(ParagraphStyle())
                 append(paragraph)
@@ -1464,7 +1464,7 @@ class MultiParagraphIntegrationTest {
     private fun simpleMultiParagraphIntrinsics(
         text: AnnotatedString,
         fontSize: TextUnit = TextUnit.Inherit,
-        placeholders: List<AnnotatedString.Item<Placeholder>> = listOf()
+        placeholders: List<AnnotatedString.Range<Placeholder>> = listOf()
     ): MultiParagraphIntrinsics {
         return MultiParagraphIntrinsics(
             text,

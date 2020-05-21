@@ -24,21 +24,21 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.geometry.isSimple
 import androidx.ui.geometry.outerRect
 import androidx.ui.graphics.Brush
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.addOutline
-import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.Fill
+import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
@@ -171,57 +171,47 @@ class DrawBorder internal constructor(
 
     override fun ContentDrawScope.draw() {
         val density = this
-        drawCanvas { canvas, _ ->
-            with(cache) {
-                drawContent()
-                modifierSize = PxSize(Px(size.width), Px(size.height))
-                val outline = modifierSizeOutline(density)
-                val borderSize =
-                    if (borderWidth == Dp.Hairline) 1f else borderWidth.value * density.density
-                brush.applyTo(paint)
-                paint.strokeWidth = borderSize
-
-                if (borderSize <= 0 || size.minDimension <= 0.0f) {
-                    return
-                } else if (outline is Outline.Rectangle) {
-                    drawRoundRectBorder(borderSize, outline.rect, 0f, canvas, paint)
-                } else if (outline is Outline.Rounded && outline.rrect.isSimple) {
-                    val radius = outline.rrect.bottomLeftRadiusY
-                    drawRoundRectBorder(
-                        borderSize,
-                        outline.rrect.outerRect(),
-                        radius,
-                        canvas,
-                        paint
-                    )
-                } else {
-                    val path = borderPath(density, borderSize)
-                    paint.style = PaintingStyle.fill
-                    canvas.drawPath(path, paint)
-                }
+        with(cache) {
+            drawContent()
+            modifierSize = PxSize(Px(size.width), Px(size.height))
+            val outline = modifierSizeOutline(density)
+            val borderSize =
+                if (borderWidth == Dp.Hairline) 1f else borderWidth.value * density.density
+            if (borderSize <= 0 || size.minDimension <= 0.0f) {
+                return
+            } else if (outline is Outline.Rectangle) {
+                drawRoundRectBorder(borderSize, outline.rect, 0f, brush)
+            } else if (outline is Outline.Rounded && outline.rrect.isSimple) {
+                val radius = outline.rrect.bottomLeftRadiusY
+                drawRoundRectBorder(
+                    borderSize,
+                    outline.rrect.outerRect(),
+                    radius,
+                    brush
+                )
+            } else {
+                drawPath(borderPath(density, borderSize), brush)
             }
         }
     }
 
-    private fun drawRoundRectBorder(
+    private fun DrawScope.drawRoundRectBorder(
         borderSize: Float,
         rect: Rect,
         radius: Float,
-        canvas: Canvas,
-        paint: Paint
+        brush: Brush
     ) {
         val fillWithBorder = borderSize * 2 >= rect.minDimension
-        paint.style = if (fillWithBorder) PaintingStyle.fill else PaintingStyle.stroke
+        val style = if (fillWithBorder) Fill else Stroke(borderSize)
 
         val delta = if (fillWithBorder) 0f else borderSize / 2
-        canvas.drawRoundRect(
-            left = rect.left + delta,
-            top = rect.top + delta,
-            right = rect.right - delta,
-            bottom = rect.bottom - delta,
+        drawRoundRect(
+            brush,
+            topLeft = Offset(rect.left + delta, rect.top + delta),
+            size = Size(rect.width - 2 * delta, rect.height - 2 * delta),
             radiusX = radius,
             radiusY = radius,
-            paint = paint
+            style = style
         )
     }
 
@@ -254,8 +244,6 @@ internal class DrawBorderCache {
     private var dirtyPath = true
     private var dirtyOutline = true
     private var outline: Outline? = null
-
-    val paint = Paint().apply { isAntiAlias = true }
 
     var lastShape: Shape? = null
         set(value) {

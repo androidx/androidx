@@ -72,7 +72,7 @@ public class UseCaseAttachStateTest {
         mCameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK);
         if (mCameraId == null) {
             throw new IllegalArgumentException("Unable to attach to camera with LensFacing "
-                            + CameraSelector.LENS_FACING_BACK);
+                    + CameraSelector.LENS_FACING_BACK);
         }
     }
 
@@ -94,9 +94,9 @@ public class UseCaseAttachStateTest {
                         .getUseCaseConfig();
         TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA);
 
-        useCaseAttachState.setUseCaseOnline(fakeUseCase);
+        useCaseAttachState.setUseCaseAttached(fakeUseCase);
 
-        SessionConfig.ValidatingBuilder builder = useCaseAttachState.getOnlineBuilder();
+        SessionConfig.ValidatingBuilder builder = useCaseAttachState.getAttachedBuilder();
         SessionConfig sessionConfig = builder.build();
         List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(sessionConfig.getSurfaces());
         assertThat(surfaces).containsExactly(fakeUseCase.mSurface);
@@ -128,10 +128,10 @@ public class UseCaseAttachStateTest {
                 "UseCase").getUseCaseConfig();
         TestUseCase fakeUseCase1 = createTestUseCase(config1, CameraSelector.DEFAULT_BACK_CAMERA);
 
-        useCaseAttachState.setUseCaseOnline(fakeUseCase0);
-        useCaseAttachState.setUseCaseOnline(fakeUseCase1);
+        useCaseAttachState.setUseCaseAttached(fakeUseCase0);
+        useCaseAttachState.setUseCaseAttached(fakeUseCase1);
 
-        SessionConfig.ValidatingBuilder builder = useCaseAttachState.getOnlineBuilder();
+        SessionConfig.ValidatingBuilder builder = useCaseAttachState.getAttachedBuilder();
         SessionConfig sessionConfig = builder.build();
         List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(sessionConfig.getSurfaces());
         assertThat(surfaces).containsExactly(fakeUseCase0.mSurface, fakeUseCase1.mSurface);
@@ -167,7 +167,7 @@ public class UseCaseAttachStateTest {
 
         useCaseAttachState.setUseCaseActive(fakeUseCase);
 
-        SessionConfig.ValidatingBuilder builder = useCaseAttachState.getActiveAndOnlineBuilder();
+        SessionConfig.ValidatingBuilder builder = useCaseAttachState.getActiveAndAttachedBuilder();
         SessionConfig sessionConfig = builder.build();
         assertThat(sessionConfig.getSurfaces()).isEmpty();
 
@@ -195,10 +195,10 @@ public class UseCaseAttachStateTest {
                 "UseCase").getUseCaseConfig();
         TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA);
 
-        useCaseAttachState.setUseCaseOnline(fakeUseCase);
+        useCaseAttachState.setUseCaseAttached(fakeUseCase);
         useCaseAttachState.setUseCaseActive(fakeUseCase);
 
-        SessionConfig.ValidatingBuilder builder = useCaseAttachState.getActiveAndOnlineBuilder();
+        SessionConfig.ValidatingBuilder builder = useCaseAttachState.getActiveAndAttachedBuilder();
         SessionConfig sessionConfig = builder.build();
         List<Surface> surfaces = DeferrableSurfacesUtil.surfaceList(sessionConfig.getSurfaces());
         assertThat(surfaces).containsExactly(fakeUseCase.mSurface);
@@ -227,10 +227,10 @@ public class UseCaseAttachStateTest {
                 "UseCase").getUseCaseConfig();
         TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA);
 
-        useCaseAttachState.setUseCaseOnline(fakeUseCase);
-        useCaseAttachState.setUseCaseOffline(fakeUseCase);
+        useCaseAttachState.setUseCaseAttached(fakeUseCase);
+        useCaseAttachState.setUseCaseDetached(fakeUseCase);
 
-        SessionConfig.ValidatingBuilder builder = useCaseAttachState.getOnlineBuilder();
+        SessionConfig.ValidatingBuilder builder = useCaseAttachState.getAttachedBuilder();
         SessionConfig sessionConfig = builder.build();
         assertThat(sessionConfig.getSurfaces()).isEmpty();
 
@@ -258,11 +258,11 @@ public class UseCaseAttachStateTest {
                 "UseCase").getUseCaseConfig();
         TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA);
 
-        useCaseAttachState.setUseCaseOnline(fakeUseCase);
+        useCaseAttachState.setUseCaseAttached(fakeUseCase);
         useCaseAttachState.setUseCaseActive(fakeUseCase);
         useCaseAttachState.setUseCaseInactive(fakeUseCase);
 
-        SessionConfig.ValidatingBuilder builder = useCaseAttachState.getActiveAndOnlineBuilder();
+        SessionConfig.ValidatingBuilder builder = useCaseAttachState.getActiveAndAttachedBuilder();
         SessionConfig sessionConfig = builder.build();
         assertThat(sessionConfig.getSurfaces()).isEmpty();
 
@@ -290,11 +290,11 @@ public class UseCaseAttachStateTest {
                 "UseCase").getUseCaseConfig();
         TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_BACK_CAMERA);
 
-        useCaseAttachState.setUseCaseOnline(fakeUseCase);
+        useCaseAttachState.setUseCaseAttached(fakeUseCase);
         useCaseAttachState.setUseCaseActive(fakeUseCase);
 
         // The original template should be PREVIEW.
-        SessionConfig firstSessionConfig = useCaseAttachState.getActiveAndOnlineBuilder().build();
+        SessionConfig firstSessionConfig = useCaseAttachState.getActiveAndAttachedBuilder().build();
         assertThat(firstSessionConfig.getTemplateType()).isEqualTo(CameraDevice.TEMPLATE_PREVIEW);
 
         // Change the template to STILL_CAPTURE.
@@ -305,7 +305,8 @@ public class UseCaseAttachStateTest {
         useCaseAttachState.updateUseCase(fakeUseCase);
 
         // The new template should be STILL_CAPTURE.
-        SessionConfig secondSessionConfig = useCaseAttachState.getActiveAndOnlineBuilder().build();
+        SessionConfig secondSessionConfig =
+                useCaseAttachState.getActiveAndAttachedBuilder().build();
         assertThat(secondSessionConfig.getTemplateType())
                 .isEqualTo(CameraDevice.TEMPLATE_STILL_CAPTURE);
     }
@@ -320,7 +321,7 @@ public class UseCaseAttachStateTest {
         TestUseCase fakeUseCase = createTestUseCase(config, CameraSelector.DEFAULT_FRONT_CAMERA);
 
         // Should throw IllegalArgumentException
-        useCaseAttachState.setUseCaseOnline(fakeUseCase);
+        useCaseAttachState.setUseCaseAttached(fakeUseCase);
     }
 
     @Test(expected = IllegalArgumentException.class)

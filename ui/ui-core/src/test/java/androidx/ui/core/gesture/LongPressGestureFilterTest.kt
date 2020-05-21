@@ -19,6 +19,7 @@ package androidx.ui.core.gesture
 import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.gesture.customevents.LongPressFiredEvent
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses

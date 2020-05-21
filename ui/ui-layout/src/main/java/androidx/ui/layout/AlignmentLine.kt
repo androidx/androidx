@@ -18,7 +18,6 @@ package androidx.ui.layout
 
 import androidx.compose.Composable
 
-import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.HorizontalAlignmentLine
@@ -28,13 +27,9 @@ import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
-import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.isFinite
-import androidx.ui.unit.max
 
 /**
  * Note: This composable is on the deprecation path and will be soon replaced with a [Modifier].
@@ -66,7 +61,7 @@ fun AlignmentLineOffset(
     modifier: Modifier = Modifier,
     before: Dp = 0.dp,
     after: Dp = 0.dp,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     Layout(children, modifier) { measurables, constraints, _ ->
         require(measurables.isNotEmpty()) { "No child found in AlignmentLineOffset" }

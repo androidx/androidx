@@ -25,11 +25,9 @@ import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.testTag
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
@@ -61,6 +59,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -151,6 +150,44 @@ class ScrollerTest {
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
+    fun verticalScroller_Reversed() {
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = ManualAnimationClock(0),
+            isReversed = true
+        )
+        val height = 30
+        val expectedOffset = defaultCellSize * colors.size - height
+
+        composeVerticalScroller(scrollerPosition, height = height)
+
+        validateVerticalScroller(offset = expectedOffset, height = height)
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun verticalScroller_LargeContent_Reversed_ScrollToEnd() {
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = ManualAnimationClock(0),
+            isReversed = true
+        )
+        val height = 20
+        val scrollDistance = 10
+        val expectedOffset = defaultCellSize * colors.size - height - scrollDistance
+
+        composeVerticalScroller(scrollerPosition, height = height)
+
+        runOnIdleCompose {
+            scrollerPosition.scrollTo(scrollDistance.toFloat())
+        }
+
+        runOnIdleCompose {} // Just so the block below is correct
+        validateVerticalScroller(offset = expectedOffset, height = height)
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
     fun horizontalScroller_SmallContent() {
         val width = 40
 
@@ -193,6 +230,46 @@ class ScrollerTest {
         validateHorizontalScroller(offset = scrollDistance, width = width)
     }
 
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun horizontalScroller_reversed() {
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = ManualAnimationClock(0),
+            isReversed = true
+        )
+        val width = 30
+        val expectedOffset = defaultCellSize * colors.size - width
+
+        composeHorizontalScroller(scrollerPosition, width = width)
+
+        validateHorizontalScroller(offset = expectedOffset, width = width)
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun horizontalScroller_LargeContent_Reversed_ScrollToEnd() {
+        val width = 30
+        val scrollDistance = 10
+
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = ManualAnimationClock(0),
+            isReversed = true
+        )
+
+        val expectedOffset = defaultCellSize * colors.size - width - scrollDistance
+
+        composeHorizontalScroller(scrollerPosition, width = width)
+
+        runOnIdleCompose {
+            scrollerPosition.scrollTo(scrollDistance.toFloat())
+        }
+
+        runOnIdleCompose {} // Just so the block below is correct
+        validateHorizontalScroller(offset = expectedOffset, width = width)
+    }
+
     @Test
     fun verticalScroller_scrollTo_scrollForward() {
         createScrollableContent(isVertical = true)
@@ -206,6 +283,40 @@ class ScrollerTest {
     @Test
     fun horizontalScroller_scrollTo_scrollForward() {
         createScrollableContent(isVertical = false)
+
+        findByText("50")
+            .assertIsNotDisplayed()
+            .doScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Ignore("Unignore when b/156389287 is fixed for proper reverve delegation")
+    @Test
+    fun verticalScroller_reversed_scrollTo_scrollForward() {
+        createScrollableContent(
+            isVertical = true, scrollerPosition = ScrollerPosition(
+                FlingConfig(ExponentialDecay()),
+                animationClock = ManualAnimationClock(0),
+                isReversed = true
+            )
+        )
+
+        findByText("50")
+            .assertIsNotDisplayed()
+            .doScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Ignore("Unignore when b/156389287 is fixed for proper reverve delegation")
+    @Test
+    fun horizontalScroller_reversed_scrollTo_scrollForward() {
+        createScrollableContent(
+            isVertical = false, scrollerPosition = ScrollerPosition(
+                FlingConfig(ExponentialDecay()),
+                animationClock = ManualAnimationClock(0),
+                isReversed = true
+            )
+        )
 
         findByText("50")
             .assertIsNotDisplayed()
@@ -309,16 +420,12 @@ class ScrollerTest {
         val itemCount = mutableStateOf(100)
         composeTestRule.setContent {
             Stack {
-                TestTag(scrollerTag) {
-                    VerticalScroller(
-                        scrollerPosition = scrollerPosition,
-                        modifier = Modifier.preferredSize(100.dp)
-                    ) {
-                        Column {
-                            for (i in 0..itemCount.value) {
-                                Text(i.toString())
-                            }
-                        }
+                VerticalScroller(
+                    scrollerPosition = scrollerPosition,
+                    modifier = Modifier.preferredSize(100.dp).testTag(scrollerTag)
+                ) {
+                    for (i in 0..itemCount.value) {
+                        Text(i.toString())
                     }
                 }
             }
@@ -419,10 +526,8 @@ class ScrollerTest {
         restorationTester.setContent {
             scrollerPosition = ScrollerPosition()
             VerticalScroller(scrollerPosition!!) {
-                Column {
-                    repeat(50) {
-                        Box(Modifier.preferredHeight(100.dp))
-                    }
+                repeat(50) {
+                    Box(Modifier.preferredHeight(100.dp))
                 }
             }
         }
@@ -517,19 +622,17 @@ class ScrollerTest {
         with(composeTestRule.density) {
             composeTestRule.setContent {
                 Stack {
-                    TestTag(scrollerTag) {
-                        VerticalScroller(
-                            scrollerPosition = scrollerPosition,
-                            modifier = Modifier.preferredSize(width.toDp(), height.toDp())
-                        ) {
-                            Column {
-                                colors.forEach { color ->
-                                    Box(
-                                        Modifier.preferredSize(width.toDp(), rowHeight.toDp()),
-                                        backgroundColor = color
-                                    )
-                                }
-                            }
+                    VerticalScroller(
+                        scrollerPosition = scrollerPosition,
+                        modifier = Modifier
+                            .preferredSize(width.toDp(), height.toDp())
+                            .testTag(scrollerTag)
+                    ) {
+                        colors.forEach { color ->
+                            Box(
+                                Modifier.preferredSize(width.toDp(), rowHeight.toDp()),
+                                backgroundColor = color
+                            )
                         }
                     }
                 }
@@ -550,19 +653,17 @@ class ScrollerTest {
         with(composeTestRule.density) {
             composeTestRule.setContent {
                 Stack {
-                    TestTag(scrollerTag) {
-                        HorizontalScroller(
-                            scrollerPosition = scrollerPosition,
-                            modifier = Modifier.preferredSize(width.toDp(), height.toDp())
-                        ) {
-                            Row {
-                                colors.forEach { color ->
-                                    Box(
-                                        Modifier.preferredSize(columnWidth.toDp(), height.toDp()),
-                                        backgroundColor = color
-                                    )
-                                }
-                            }
+                    HorizontalScroller(
+                        scrollerPosition = scrollerPosition,
+                        modifier = Modifier
+                            .preferredSize(width.toDp(), height.toDp())
+                            .testTag(scrollerTag)
+                    ) {
+                        colors.forEach { color ->
+                            Box(
+                                Modifier.preferredSize(columnWidth.toDp(), height.toDp()),
+                                backgroundColor = color
+                            )
                         }
                     }
                 }
@@ -620,20 +721,20 @@ class ScrollerTest {
             }
             Stack {
                 Box(Modifier.preferredSize(width, height), backgroundColor = Color.White) {
-                    TestTag(scrollerTag) {
-                        Semantics(container = true) {
-                            if (isVertical) {
-                                VerticalScroller(scrollerPosition) {
-                                    Column {
-                                        content()
-                                    }
-                                }
-                            } else {
-                                HorizontalScroller(scrollerPosition) {
-                                    Row {
-                                        content()
-                                    }
-                                }
+                    Semantics(container = true) {
+                        if (isVertical) {
+                            VerticalScroller(
+                                scrollerPosition,
+                                modifier = Modifier.testTag(scrollerTag)
+                            ) {
+                                content()
+                            }
+                        } else {
+                            HorizontalScroller(
+                                scrollerPosition,
+                                modifier = Modifier.testTag(scrollerTag)
+                            ) {
+                                content()
                             }
                         }
                     }

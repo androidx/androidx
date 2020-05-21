@@ -16,117 +16,128 @@
 
 package androidx.ui.foundation
 
-import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.annotation.FloatRange
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.Modifier
-import androidx.ui.core.composed
 import androidx.ui.geometry.Size
-import androidx.ui.geometry.toRect
+import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
-import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.drawOutline
-import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.DrawStyle
+import androidx.ui.graphics.drawscope.Fill
+import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 
 /**
- * Returns a [DrawModifier] that draws [shape] with a solid [color], with the size of the
- * layout's rectangle.
+ * Draws [shape] with [paint] behind the content.
+ */
+@Deprecated("Prefer usage of drawBackground(color, shape) or " +
+        "drawBackground(brush, shape)",
+    ReplaceWith("Modifier.drawBackground(color, shape)"))
+fun Modifier.drawBackground(
+    paint: Paint,
+    shape: Shape
+) = this + DrawBackground(
+                shape,
+                {
+                    drawCanvas { canvas, size ->
+                        canvas.drawRect(0.0f, 0.0f, size.width, size.height, paint)
+                    }
+                },
+                { outline ->
+                    drawCanvas { canvas, _ ->
+                        canvas.drawOutline(outline, paint)
+                    }
+                }
+            )
+
+/**
+ * Draws [shape] with a solid [color] behind the content.
  *
  * @sample androidx.ui.foundation.samples.DrawBackgroundColor
  *
  * @param color color to paint background with
  * @param shape desired shape of the background
  */
-@Suppress("DEPRECATION")
-@Deprecated(
-    "Use Modifier.drawBackground",
-    replaceWith = ReplaceWith(
-        "Modifier.drawBackground(color, shape)",
-        "androidx.ui.core.Modifier",
-        "androidx.ui.foundation.drawBackground",
-        "androidx.ui.foundation.shape.RectangleShape"
-    )
-)
-@Composable
-fun DrawBackground(color: Color, shape: Shape = RectangleShape): DrawBackground =
-    DrawBackground(SolidColor(color), shape)
+fun Modifier.drawBackground(
+    color: Color,
+    shape: Shape = RectangleShape,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = DrawScope.DefaultAlpha,
+    style: DrawStyle = Fill,
+    colorFilter: ColorFilter? = null,
+    blendMode: BlendMode = DrawScope.DefaultBlendMode
+) = this + DrawBackground(
+                shape,
+                {
+                    drawRect(
+                        color,
+                        alpha = alpha,
+                        style = style,
+                        colorFilter = colorFilter,
+                        blendMode = blendMode
+                    )
+                },
+                { outline ->
+                    drawOutline(
+                        outline,
+                        color,
+                        alpha = alpha,
+                        style = style,
+                        colorFilter = colorFilter,
+                        blendMode = blendMode
+                    )
+                }
+            )
 
 /**
- * Returns a [DrawModifier] that draws [shape] with [brush], with the size of the layout's
- * rectangle.
+ * Draws [shape] with [brush] behind the content.
  *
  * @sample androidx.ui.foundation.samples.DrawBackgroundShapedBrush
  *
  * @param brush brush to paint background with
  * @param shape desired shape of the background
  */
-@Deprecated(
-    "Use Modifier.drawBackground",
-    replaceWith = ReplaceWith(
-        "Modifier.drawBackground(brush, shape)",
-        "androidx.ui.core.Modifier",
-        "androidx.ui.foundation.drawBackground",
-        "androidx.ui.foundation.shape.RectangleShape"
-    )
-)
-@Composable
-fun DrawBackground(brush: Brush, shape: Shape = RectangleShape): DrawBackground {
-    return remember(shape, brush) {
-        val paint = Paint().also {
-            brush.applyTo(it)
-        }
-        DrawBackground(paint, shape)
-    }
-}
-
-/**
- * Draws [shape] with [paint] behind the content.
- */
-fun Modifier.drawBackground(
-    paint: Paint,
-    shape: Shape
-) = this + DrawBackground(paint, shape)
-
-/**
- * Draws [shape] with a solid [color] behind the content.
- *
- * @param color color to paint background with
- * @param shape desired shape of the background
- */
-fun Modifier.drawBackground(
-    color: Color,
-    shape: Shape = RectangleShape
-) = drawBackground(SolidColor(color), shape)
-
-/**
- * Draws [shape] with [brush] behind the content.
- *
- * @param brush brush to paint background with
- * @param shape desired shape of the background
- */
 fun Modifier.drawBackground(
     brush: Brush,
-    shape: Shape = RectangleShape
-) = composed {
-    drawBackground(
-        remember(brush) {
-            Paint().also { brush.applyTo(it) }
-        },
-        shape
-    )
-}
+    shape: Shape = RectangleShape,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = DrawScope.DefaultAlpha,
+    style: DrawStyle = Fill,
+    colorFilter: ColorFilter? = null,
+    blendMode: BlendMode = DrawScope.DefaultBlendMode
+) = this + DrawBackground(
+                shape,
+                { drawRect(
+                        brush = brush,
+                        alpha = alpha,
+                        style = style,
+                        colorFilter = colorFilter,
+                        blendMode = blendMode
+                    )
+                },
+                { outline ->
+                    drawOutline(outline,
+                        brush,
+                        alpha = alpha,
+                        style = style,
+                        colorFilter = colorFilter,
+                        blendMode = blendMode
+                    )
+                }
+            )
 
-data class DrawBackground internal constructor(
-    private val paint: Paint,
-    private val shape: Shape
+private data class DrawBackground internal constructor(
+    private val shape: Shape,
+    private val drawRect: ContentDrawScope.() -> Unit,
+    private val drawOutline: ContentDrawScope.(outline: Outline) -> Unit
 ) : DrawModifier {
 
     // naive cache outline calculation if size is the same
@@ -134,23 +145,21 @@ data class DrawBackground internal constructor(
     private var lastOutline: Outline? = null
 
     override fun ContentDrawScope.draw() {
-        drawCanvas { canvas, _ ->
-            if (shape === RectangleShape) {
-                // shortcut to avoid Outline calculation and allocation
-                canvas.drawRect(size.toRect(), paint)
-            } else {
-                val localOutline =
-                    if (size == lastSize) {
-                        lastOutline!!
-                    } else {
-                        val pxSize = PxSize(Px(size.width), Px(size.height))
-                        shape.createOutline(pxSize, this)
-                    }
-                canvas.drawOutline(localOutline, paint)
-                lastOutline = localOutline
-                lastSize = size
-            }
-            drawContent()
+        if (shape === RectangleShape) {
+            // shortcut to avoid Outline calculation and allocation
+            drawRect()
+        } else {
+            val localOutline =
+                if (size == lastSize) {
+                    lastOutline!!
+                } else {
+                    val pxSize = PxSize(Px(size.width), Px(size.height))
+                    shape.createOutline(pxSize, this)
+                }
+            drawOutline(localOutline)
+            lastOutline = localOutline
+            lastSize = size
         }
+        drawContent()
     }
 }

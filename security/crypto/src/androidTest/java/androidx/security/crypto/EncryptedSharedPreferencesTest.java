@@ -216,7 +216,7 @@ public class EncryptedSharedPreferencesTest {
 
         // Test Remove
         editor.remove(nullKey);
-        editor.commit();
+        editor.apply();
 
         Assert.assertEquals(nullKey + " should have been removed.",
                 null,
@@ -258,7 +258,7 @@ public class EncryptedSharedPreferencesTest {
                 sharedPreferences.getString(twiceKey, null));
 
         // Test getAll
-        Map all = sharedPreferences.getAll();
+        Map<String, ?> all = sharedPreferences.getAll();
 
         Assert.assertTrue("Get all should have supplied " + twiceKey,
                 all.containsKey(twiceKey));

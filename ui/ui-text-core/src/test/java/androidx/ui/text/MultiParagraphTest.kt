@@ -16,7 +16,6 @@
 
 package androidx.ui.text
 
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
@@ -63,16 +62,16 @@ class MultiParagraphTest {
     fun findParagraphByYPosition() {
         val paragraphNumber = 5
         val paragraphHeight = 10
-        var top = 0
+        var top = 0.0f
         val paragraphInfoList = List(paragraphNumber) {
             val bottom = top + paragraphHeight
             // StartIndex and endIndex doesn't matter in this test
-            ParagraphInfo(mock(), 0, 0, top = top.px, bottom = bottom.px)
+            ParagraphInfo(mock(), 0, 0, top = top, bottom = bottom)
                 .also { top = bottom }
         }
 
         for (i in 0 until paragraphNumber * paragraphHeight) {
-            assertThat(findParagraphByY(paragraphInfoList, i.px))
+            assertThat(findParagraphByY(paragraphInfoList, i.toFloat()))
                 .isEqualTo(i / paragraphHeight)
         }
     }

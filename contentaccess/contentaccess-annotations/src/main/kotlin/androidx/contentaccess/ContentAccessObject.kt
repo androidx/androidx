@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020 The Android Open Source Project
  *
@@ -14,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.contentaccess
 
 import kotlin.reflect.KClass
@@ -25,4 +25,4 @@ import kotlin.reflect.KClass
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
-annotation class ContentAccessObject(val contentEntity: KClass<*>)
+annotation class ContentAccessObject(val contentEntity: KClass<*> = Void::class)

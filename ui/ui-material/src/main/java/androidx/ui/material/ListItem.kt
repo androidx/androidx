@@ -18,23 +18,23 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.text.FirstBaseline
-import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.clickable
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Row
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeightIn
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidthIn
-import androidx.ui.material.ripple.ripple
+import androidx.ui.material.ripple.RippleIndication
+import androidx.ui.text.FirstBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Dp
@@ -43,6 +43,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
+import androidx.ui.util.fastForEachIndexed
 
 /**
  * Material Design implementation of [list items](https://material.io/components/lists).
@@ -76,22 +77,22 @@ fun ListItem(
     overlineText: String? = null,
     metaText: String? = null
 ) {
-    val iconComposable: @Composable() (() -> Unit)? = icon?.let {
+    val iconComposable: @Composable (() -> Unit)? = icon?.let {
         { Image(it) }
     }
-    val textComposable: @Composable() () -> Unit = text.let {
+    val textComposable: @Composable () -> Unit = text.let {
         { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) }
     }
-    val secondaryTextComposable: @Composable() (() -> Unit)? = secondaryText?.let {
+    val secondaryTextComposable: @Composable (() -> Unit)? = secondaryText?.let {
         {
             val maxLines = if (!singleLineSecondaryText && overlineText == null) 2 else 1
             Text(it, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
         }
     }
-    val overlineTextComposable: @Composable() (() -> Unit)? = overlineText?.let {
+    val overlineTextComposable: @Composable (() -> Unit)? = overlineText?.let {
         { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) }
     }
-    val metaTextComposable: @Composable() (() -> Unit)? = metaText?.let {
+    val metaTextComposable: @Composable (() -> Unit)? = metaText?.let {
         { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) }
     }
     ListItem(
@@ -130,12 +131,12 @@ fun ListItem(
 fun ListItem(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
-    icon: @Composable() (() -> Unit)? = null,
-    secondaryText: @Composable() (() -> Unit)? = null,
+    icon: @Composable (() -> Unit)? = null,
+    secondaryText: @Composable (() -> Unit)? = null,
     singleLineSecondaryText: Boolean = true,
-    overlineText: @Composable() (() -> Unit)? = null,
-    trailing: @Composable() (() -> Unit)? = null,
-    text: @Composable() (() -> Unit)
+    overlineText: @Composable (() -> Unit)? = null,
+    trailing: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)
 ) {
     val emphasisLevels = EmphasisAmbient.current
     val typography = MaterialTheme.typography
@@ -172,12 +173,10 @@ fun ListItem(
     }
 
     if (onClick != null) {
-        val rippleColor = MaterialTheme.colors.onSurface.copy(alpha = RippleOpacity)
-        Clickable(
-            onClick = onClick,
-            modifier = Modifier.ripple(color = rippleColor),
-            children = item
+        val indication = RippleIndication(
+            color = MaterialTheme.colors.onSurface.copy(alpha = RippleOpacity)
         )
+        Box(Modifier.clickable(onClick = onClick, indication = indication), children = item)
     } else {
         item()
     }
@@ -202,9 +201,9 @@ private object OneLine {
     @Composable
     fun ListItem(
         modifier: Modifier = Modifier,
-        icon: @Composable() (() -> Unit)?,
-        text: @Composable() (() -> Unit),
-        trailing: @Composable() (() -> Unit)?
+        icon: @Composable (() -> Unit)?,
+        text: @Composable (() -> Unit),
+        trailing: @Composable (() -> Unit)?
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
         Row(modifier.preferredHeightIn(minHeight = minHeight)) {
@@ -260,11 +259,11 @@ private object TwoLine {
     @Composable
     fun ListItem(
         modifier: Modifier = Modifier,
-        icon: @Composable() (() -> Unit)?,
-        text: @Composable() (() -> Unit),
-        secondaryText: @Composable() (() -> Unit)?,
-        overlineText: @Composable() (() -> Unit)?,
-        trailing: @Composable() (() -> Unit)?
+        icon: @Composable (() -> Unit)?,
+        text: @Composable (() -> Unit),
+        secondaryText: @Composable (() -> Unit)?,
+        overlineText: @Composable (() -> Unit)?,
+        trailing: @Composable (() -> Unit)?
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
         Row(modifier.preferredHeightIn(minHeight = minHeight)) {
@@ -354,11 +353,11 @@ private object ThreeLine {
     @Composable
     fun ListItem(
         modifier: Modifier = Modifier,
-        icon: @Composable() (() -> Unit)?,
-        text: @Composable() (() -> Unit),
-        secondaryText: @Composable() (() -> Unit),
-        overlineText: @Composable() (() -> Unit)?,
-        trailing: @Composable() (() -> Unit)?
+        icon: @Composable (() -> Unit)?,
+        text: @Composable (() -> Unit),
+        secondaryText: @Composable (() -> Unit),
+        overlineText: @Composable (() -> Unit)?,
+        trailing: @Composable (() -> Unit)?
     ) {
         Row(modifier.preferredHeightIn(minHeight = MinHeight)) {
             if (icon != null) {
@@ -406,7 +405,7 @@ private object ThreeLine {
 private fun BaselinesOffsetColumn(
     offsets: List<Dp>,
     modifier: Modifier = Modifier,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     Layout(content, modifier) { measurables, constraints, _ ->
         val childConstraints = constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity)
@@ -417,7 +416,7 @@ private fun BaselinesOffsetColumn(
         }
         val y = Array(placeables.size) { 0.ipx }
         var containerHeight = 0.ipx
-        placeables.forEachIndexed { index, placeable ->
+        placeables.fastForEachIndexed { index, placeable ->
             val toPreviousBaseline = if (index > 0) {
                 placeables[index - 1].height - placeables[index - 1][LastBaseline]!!
             } else 0.ipx
@@ -430,7 +429,7 @@ private fun BaselinesOffsetColumn(
         }
 
         layout(containerWidth, containerHeight) {
-            placeables.forEachIndexed { index, placeable ->
+            placeables.fastForEachIndexed { index, placeable ->
                 placeable.place(0.ipx, y[index])
             }
         }
@@ -448,7 +447,7 @@ private fun BaselinesOffsetColumn(
 private fun OffsetToBaselineOrCenter(
     offset: Dp,
     modifier: Modifier = Modifier,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     Layout(content, modifier) { measurables, constraints, _ ->
         val placeable = measurables[0].measure(constraints.copy(minHeight = 0.ipx))
@@ -472,8 +471,8 @@ private fun OffsetToBaselineOrCenter(
 private fun applyTextStyle(
     textStyle: TextStyle,
     emphasis: Emphasis,
-    icon: @Composable() (() -> Unit)?
-): @Composable() (() -> Unit)? {
+    icon: @Composable (() -> Unit)?
+): @Composable (() -> Unit)? {
     if (icon == null) return null
     return {
         ProvideEmphasis(emphasis) {

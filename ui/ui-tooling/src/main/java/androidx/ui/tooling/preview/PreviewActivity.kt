@@ -21,36 +21,106 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.currentComposer
+import androidx.compose.state
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Text
+import androidx.ui.material.ExtendedFloatingActionButton
+import androidx.ui.material.Scaffold
 
 /**
  * Activity used to run `@Composable` previews from Android Studio.
  *
- * The `@Composable` function must have no parameters, and its name should be passed to this
- * Activity through intent parameters, using `composable` as the key and the `@Composable` fully
- * qualified name as the value.
+ * The supported `@Composable` functions either have no parameters, or have only parameters with
+ * default values and/or *one* parameter annotated with `@PreviewParameter`.
+ *
+ * The `@Composable` fully qualified name must be passed to this Activity through intent parameters,
+ * using `composable` as the key. When deploying Compose Previews with `@PreviewParameter`
+ * annotated parameters, the provider should be specified as an intent parameter as well, using
+ * the key `parameterProviderClassName`. Optionally, `parameterProviderIndex` can also be set to
+ * display a specific provider value instead of all of them.
  *
  * @suppress
  */
 class PreviewActivity : ComponentActivity() {
 
+    private val TAG = "PreviewActivity"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE == 0) {
-            Log.d("PreviewActivity", "Application is not debuggable. Compose Preview not allowed.")
+            Log.d(TAG, "Application is not debuggable. Compose Preview not allowed.")
             finish()
             return
         }
 
-        intent?.getStringExtra("composable")?.let {
-            Log.d("PreviewActivity", "PreviewActivity has composable $it")
-            val className = it.substringBeforeLast('.')
-            val methodName = it.substringAfterLast('.')
+        intent?.getStringExtra("composable")?.let { setComposableContent(it) }
+    }
+
+    private fun setComposableContent(composableFqn: String) {
+        Log.d(TAG, "PreviewActivity has composable $composableFqn")
+        val className = composableFqn.substringBeforeLast('.')
+        val methodName = composableFqn.substringAfterLast('.')
+
+        intent.getStringExtra("parameterProviderClassName")?.let { parameterProvider ->
+            setParameterizedContent(className, methodName, parameterProvider)
+            return@setComposableContent
+        }
+        Log.d(TAG, "Previewing '$methodName' without a parameter provider.")
+        setContent {
+            invokeComposableViaReflection(
+                className,
+                methodName,
+                currentComposer
+            )
+        }
+    }
+
+    /**
+     * Sets the activity content according to a given `@PreviewParameter` provider. If
+     * `parameterProviderIndex` is also set, the content will be a single `@Composable` that uses
+     * the `parameterProviderIndex`-th value in the provider's sequence as the argument value.
+     * Otherwise, the content will display a FAB that changes the argument value on click, cycling
+     * through all the values in the provider's sequence.
+     */
+    private fun setParameterizedContent(
+        className: String,
+        methodName: String,
+        parameterProvider: String
+    ) {
+        Log.d(TAG, "Previewing '$methodName' with parameter provider: '$parameterProvider'")
+        val previewParameters = getPreviewProviderParameters(
+            parameterProvider.asPreviewProviderClass(),
+            intent.getIntExtra("parameterProviderIndex", -1)
+        )
+
+        // Handle the case where parameterProviderIndex is not provided. In this case, instead of
+        // showing an arbitrary value (e.g. the first one), we display a FAB that can be used to
+        // cycle through all the values.
+        if (previewParameters.size > 1) {
+            setContent {
+                val index = state { 0 }
+
+                Scaffold(bodyContent = {
+                    invokeComposableViaReflection(
+                        className,
+                        methodName,
+                        currentComposer,
+                        previewParameters[index.value]
+                    )
+                }, floatingActionButton = {
+                    ExtendedFloatingActionButton(
+                        text = { Text("Next") },
+                        onClick = { index.value = (index.value + 1) % previewParameters.size }
+                    )
+                })
+            }
+        } else {
             setContent {
                 invokeComposableViaReflection(
                     className,
                     methodName,
-                    currentComposer
+                    currentComposer,
+                    *previewParameters
                 )
             }
         }

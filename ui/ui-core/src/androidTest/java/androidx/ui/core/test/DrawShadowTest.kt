@@ -93,7 +93,7 @@ class DrawShadowTest {
     fun shadowDrawnInsideRenderNode() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                ShadowContainer(modifier = Modifier.drawLayer(clipToBounds = false))
+                ShadowContainer(modifier = Modifier.drawLayer())
             }
         }
 
@@ -131,7 +131,7 @@ class DrawShadowTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                ShadowContainer(elevation, modifier = Modifier.drawLayer(clipToBounds = true))
+                ShadowContainer(elevation, modifier = Modifier.drawLayer(clip = true))
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -174,7 +174,7 @@ class DrawShadowTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun emitShadowLater() {
-        val model = ValueModel(false)
+        val model = mutableStateOf(false)
 
         rule.runOnUiThreadIR {
             activity.setContent {

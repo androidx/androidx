@@ -69,20 +69,20 @@ public final class SearchResults implements Iterator<SearchResults.Result> {
         private final SearchResultProto.ResultProto mResultProto;
 
         @Nullable
-        private AppSearchDocument mDocument;
+        private GenericDocument mDocument;
 
         Result(@NonNull SearchResultProto.ResultProto resultProto) {
             mResultProto = resultProto;
         }
 
         /**
-         * Contains the matching {@link AppSearchDocument}.
+         * Contains the matching {@link GenericDocument}.
          * @return Document object which matched the query.
          */
         @NonNull
-        public AppSearchDocument getDocument() {
+        public GenericDocument getDocument() {
             if (mDocument == null) {
-                mDocument = new AppSearchDocument(mResultProto.getDocument());
+                mDocument = new GenericDocument(mResultProto.getDocument());
             }
             return mDocument;
         }
@@ -102,7 +102,7 @@ public final class SearchResults implements Iterator<SearchResults.Result> {
             if (!mResultProto.hasSnippet()) {
                 return null;
             }
-            AppSearchDocument document = getDocument();
+            GenericDocument document = getDocument();
             List<MatchInfo> matchList = new ArrayList<>();
             for (Iterator entryProtoIterator = mResultProto.getSnippet()
                     .getEntriesList().iterator(); entryProtoIterator.hasNext(); ) {

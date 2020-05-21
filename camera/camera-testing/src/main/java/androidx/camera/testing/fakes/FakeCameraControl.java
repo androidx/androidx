@@ -17,6 +17,7 @@
 package androidx.camera.testing.fakes;
 
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
+import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
 
 import android.graphics.Rect;
 import android.util.Log;
@@ -144,6 +145,12 @@ public final class FakeCameraControl implements CameraControlInternal {
         if (mOnNewCaptureRequestListener != null) {
             mOnNewCaptureRequestListener.onNewCaptureRequests(captureConfigs);
         }
+    }
+
+    @NonNull
+    @Override
+    public Rect getSensorRect() {
+        return new Rect(0, 0, MAX_OUTPUT_SIZE.getWidth(), MAX_OUTPUT_SIZE.getHeight());
     }
 
     private void updateSessionConfig() {

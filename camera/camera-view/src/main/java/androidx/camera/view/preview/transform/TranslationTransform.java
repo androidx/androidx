@@ -45,7 +45,7 @@ final class TranslationTransform {
      * corner in a right-to-left (RTL) layout.
      */
     static TranslationTransformation start(@NonNull final View view,
-            @NonNull final Pair<Float, Float> scaleXY) {
+            @NonNull final Pair<Float, Float> scaleXY, final int deviceRotation) {
         if (view.getWidth() == 0 || view.getHeight() == 0) {
             return new TranslationTransformation(0, 0);
         }
@@ -54,7 +54,8 @@ final class TranslationTransform {
         final int scaledWidth = (int) (view.getWidth() * scaleXY.first);
         final int scaledHeight = (int) (view.getHeight() * scaleXY.second);
 
-        final int viewRotationDegrees = (int) RotationTransform.getRotationDegrees(view);
+        final int viewRotationDegrees = (int) RotationTransform.getRotationDegrees(view,
+                deviceRotation);
         final boolean isPortrait = viewRotationDegrees == 0 || viewRotationDegrees == 180;
 
         // Coordinates of the view's center after the `start` translation
@@ -108,7 +109,7 @@ final class TranslationTransform {
      * left corner in a right-to-left (RTL) layout.
      */
     static TranslationTransformation end(@NonNull final View container, @NonNull final View view,
-            @NonNull final Pair<Float, Float> scaleXY) {
+            @NonNull final Pair<Float, Float> scaleXY, final int deviceRotation) {
         if (view.getWidth() == 0 || view.getHeight() == 0) {
             return new TranslationTransformation(0, 0);
         }
@@ -121,7 +122,8 @@ final class TranslationTransform {
         final int scaledWidth = (int) (view.getWidth() * scaleXY.first);
         final int scaledHeight = (int) (view.getHeight() * scaleXY.second);
 
-        final int viewRotationDegrees = (int) RotationTransform.getRotationDegrees(view);
+        final int viewRotationDegrees = (int) RotationTransform.getRotationDegrees(view,
+                deviceRotation);
         final boolean isPortrait = viewRotationDegrees == 0 || viewRotationDegrees == 180;
 
         // Coordinates of the view's center after the `end` translation

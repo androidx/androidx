@@ -16,6 +16,8 @@
 
 package androidx.camera.core.impl;
 
+import static androidx.camera.core.impl.Config.OptionPriority.REQUIRED;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
@@ -113,6 +115,22 @@ public class CaptureConfigTest {
 
         assertThat(config.containsOption(OPTION)).isTrue();
         assertThat(config.retrieveOption(OPTION)).isEqualTo(1);
+    }
+
+    @Test
+    public void addOption_priorityIsKept() {
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+
+        MutableOptionsBundle options = MutableOptionsBundle.create();
+        options.insertOption(OPTION, REQUIRED, 1);
+        builder.addImplementationOptions(options);
+        CaptureConfig captureConfig = builder.build();
+
+        Config config = captureConfig.getImplementationOptions();
+
+        assertThat(config.containsOption(OPTION)).isTrue();
+        assertThat(config.retrieveOption(OPTION)).isEqualTo(1);
+        assertThat(config.getOptionPriority(OPTION)).isEqualTo(REQUIRED);
     }
 
     @Test

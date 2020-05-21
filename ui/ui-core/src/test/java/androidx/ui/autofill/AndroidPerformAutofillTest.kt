@@ -32,17 +32,14 @@ import org.robolectric.annotation.Config
 
 @SmallTest
 @RunWith(ComposeUiRobolectricTestRunner::class)
-@Config(
-    manifest = Config.NONE,
-    minSdk = 26)
+@Config(minSdk = 26)
 class AndroidPerformAutofillTest {
     private val autofillTree = AutofillTree()
     private lateinit var androidAutofill: AndroidAutofill
 
     @Before
     fun setup() {
-        @Suppress("DEPRECATION") // Robolectric.setupActivity is deprecated
-        val activity = Robolectric.setupActivity(Activity::class.java)
+        val activity = Robolectric.buildActivity(Activity::class.java).get()
         val view = View(activity)
         activity.setContentView(view)
 

@@ -19,7 +19,6 @@ package androidx.media2.session;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.SparseArray;
@@ -125,12 +124,6 @@ public final class SessionCommand implements VersionedParcelable {
             COMMAND_CODE_SESSION_REWIND,
             COMMAND_CODE_SESSION_SKIP_FORWARD,
             COMMAND_CODE_SESSION_SKIP_BACKWARD,
-            COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
-            COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
-            COMMAND_CODE_SESSION_PLAY_FROM_URI,
-            COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
-            COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
-            COMMAND_CODE_SESSION_PREPARE_FROM_URI,
             COMMAND_CODE_SESSION_SET_MEDIA_URI,
             COMMAND_CODE_SESSION_SET_RATING,
             COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
@@ -502,59 +495,7 @@ public final class SessionCommand implements VersionedParcelable {
      */
     public static final int COMMAND_CODE_SESSION_SKIP_BACKWARD = 40003;
 
-    /**
-     * Command code for {@link MediaController#playFromMediaId(String, Bundle)}.
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID = 40004;
-
-    /**
-     * Command code for {@link MediaController#playFromSearch(String, Bundle)}.
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int COMMAND_CODE_SESSION_PLAY_FROM_SEARCH = 40005;
-
-    /**
-     * Command code for {@link MediaController#playFromUri(Uri, Bundle)}.
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int COMMAND_CODE_SESSION_PLAY_FROM_URI = 40006;
-
-    /**
-     * Command code for {@link MediaController#prepareFromMediaId(String, Bundle)}.
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID = 40007;
-
-    /**
-     * Command code for {@link MediaController#prepareFromSearch(String, Bundle)}.
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH = 40008;
-
-    /**
-     * Command code for {@link MediaController#prepareFromUri(Uri, Bundle)}.
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int COMMAND_CODE_SESSION_PREPARE_FROM_URI = 40009;
+    // 40004~40009: removed
 
     /**
      * Command code for {@link MediaController#setRating(String, Rating)}.

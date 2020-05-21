@@ -17,9 +17,8 @@
 package androidx.ui.text.selection
 
 import androidx.test.filters.SmallTest
-import androidx.ui.unit.PxBounds
+import androidx.ui.geometry.Rect
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,12 +27,12 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 @SmallTest
 class SelectionModeTest {
-    private val left = 0.px
-    private val right = 100.px
-    private val top = 0.px
-    private val bottom = 100.px
+    private val left = 0.0f
+    private val right = 100.0f
+    private val top = 0.0f
+    private val bottom = 100.0f
 
-    private val shift = 10.px
+    private val shift = 10.0f
 
     private val smallerThanLeft = left - shift
     private val betweenLeftAndRight = left + (right - left) / 2
@@ -43,7 +42,7 @@ class SelectionModeTest {
     private val betweenTopAndBottom = top + (bottom - top) / 2
     private val largerThanBottom = bottom + shift
 
-    private val bounds = PxBounds(left = left, top = top, right = right, bottom = bottom)
+    private val bounds = Rect(left = left, top = top, right = right, bottom = bottom)
 
     @Test
     fun isSelected_Vertical_contains_start_return_true() {

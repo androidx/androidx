@@ -13,10 +13,6 @@ ActionValue: androidx.wear.ambient.AmbientModeSupport#EXTRA_LOWBIT_AMBIENT:
     Inconsistent extra value; expected `androidx.wear.ambient.extra.LOWBIT_AMBIENT`, was `com.google.android.wearable.compat.extra.LOWBIT_AMBIENT`
 
 
-CallbackMethodName: androidx.wear.widget.CurvingLayoutCallback:
-    Callback method names must follow the on<Something> style: adjustAnchorOffsetXY
-
-
 ForbiddenSuperClass: androidx.wear.activity.ConfirmationActivity:
     ConfirmationActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 

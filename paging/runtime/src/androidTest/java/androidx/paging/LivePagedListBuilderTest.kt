@@ -26,13 +26,9 @@ import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.REFRESH
 import androidx.test.filters.SmallTest
-import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -48,7 +44,6 @@ import org.junit.runners.JUnit4
 @SmallTest
 @RunWith(JUnit4::class)
 class LivePagedListBuilderTest {
-    private val mainDispatcher = TestDispatcher()
     private val backgroundExecutor = TestExecutor()
     private val lifecycleOwner = TestLifecycleOwner()
 
@@ -60,7 +55,6 @@ class LivePagedListBuilderTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setup() {
-        Dispatchers.setMain(mainDispatcher)
         ArchTaskExecutor.getInstance().setDelegate(object : TaskExecutor() {
             override fun executeOnDiskIO(runnable: Runnable) {
                 fail("IO executor should be overwritten")
@@ -82,7 +76,6 @@ class LivePagedListBuilderTest {
     fun teardown() {
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
         ArchTaskExecutor.getInstance().setDelegate(null)
-        Dispatchers.resetMain()
     }
 
     class MockDataSourceFactory {
@@ -130,6 +123,17 @@ class LivePagedListBuilderTest {
                 )
             }
         }
+    }
+
+    @Test
+    fun initialValueOnMainThread() {
+        // Reset ArchTaskExecutor delegate so that main thread != default test executor, to
+        // represent the common case when writing tests.
+        ArchTaskExecutor.getInstance().setDelegate(null)
+
+        @Suppress("DEPRECATION")
+        LivePagedListBuilder(MockDataSourceFactory()::create, 2)
+            .build()
     }
 
     @Test
@@ -263,8 +267,7 @@ class LivePagedListBuilderTest {
         var executed: Boolean
         do {
             executed = backgroundExecutor.executeAll()
-            mainDispatcher.executeAll()
-        } while (executed || mainDispatcher.queue.isNotEmpty())
+        } while (executed)
     }
 
     companion object {

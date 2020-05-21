@@ -15,6 +15,10 @@ AutoBoxing: androidx.textclassifier.TextLinksParams.Builder#setReferenceTime(Lon
     Must avoid boxed primitives (`java.lang.Long`)
 
 
+BuilderSetStyle: androidx.textclassifier.TextClassifier.EntityConfig.Builder#includeTypesFromTextClassifier(boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.textclassifier.TextClassifier.EntityConfig.Builder.includeTypesFromTextClassifier(boolean)
+
+
 MissingNullability: androidx.textclassifier.TextClassification#getConfidenceScore(String) parameter #0:
     Missing nullability on parameter `entity` in method `getConfidenceScore`
 MissingNullability: androidx.textclassifier.TextClassification.Builder#setEntityType(String, float):

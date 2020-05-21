@@ -36,7 +36,7 @@ class ModelObserverTest {
 
     @Test
     fun modelChangeTriggersCallback() {
-        val node = DrawNode()
+        val node = "Hello World"
         val countDownLatch = CountDownLatch(1)
 
         val model = mutableStateOf(0)
@@ -45,7 +45,7 @@ class ModelObserverTest {
 
         open() // open the frame
 
-        val onCommitListener: (DrawNode) -> Unit = { affectedNode ->
+        val onCommitListener: (String) -> Unit = { affectedNode ->
             assertEquals(node, affectedNode)
             assertEquals(1, countDownLatch.count)
             countDownLatch.countDown()
@@ -65,7 +65,7 @@ class ModelObserverTest {
 
     @Test
     fun allThreeStagesWorksTogether() {
-        val drawNode = DrawNode()
+        val str = "Hello World"
         val measureNode = LayoutNode()
         val layoutNode = LayoutNode()
         val drawLatch = CountDownLatch(1)
@@ -75,8 +75,8 @@ class ModelObserverTest {
         val measureModel = mutableStateOf(0)
         val layoutModel = mutableStateOf(0)
 
-        val onCommitDrawListener: (DrawNode) -> Unit = { affectedNode ->
-            assertEquals(drawNode, affectedNode)
+        val onCommitDrawListener: (String) -> Unit = { affectedNode ->
+            assertEquals(str, affectedNode)
             assertEquals(1, drawLatch.count)
             drawLatch.countDown()
         }
@@ -104,7 +104,7 @@ class ModelObserverTest {
             measureModel.value
         }
 
-        modelObserver.observeReads(drawNode, onCommitDrawListener) {
+        modelObserver.observeReads(str, onCommitDrawListener) {
             drawModel.value
         }
 
@@ -180,11 +180,11 @@ class ModelObserverTest {
 
     @Test
     fun modelReadTriggersCallbackAfterSwitchingFrameWithinObserveReads() {
-        val node = DrawNode()
+        val node = "Hello"
         val countDownLatch = CountDownLatch(1)
 
         val model = mutableStateOf(0)
-        val onCommitListener: (DrawNode) -> Unit = { _ ->
+        val onCommitListener: (String) -> Unit = { _ ->
             assertEquals(1, countDownLatch.count)
             countDownLatch.countDown()
         }

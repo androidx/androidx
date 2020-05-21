@@ -16,21 +16,21 @@
 
 package androidx.ui.graphics.painter
 
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.PxSize.Companion.UnspecifiedSize
+import androidx.ui.graphics.drawscope.DrawScope
 
 /**
  * [Painter] implementation used to fill the provided bounds with the specified color
  */
 data class ColorPainter(val color: Color) : Painter() {
 
-    private var alpha: Float = CanvasScope.DefaultAlpha
+    private var alpha: Float = DrawScope.DefaultAlpha
 
     private var colorFilter: ColorFilter? = null
 
-    override fun CanvasScope.onDraw() {
+    override fun DrawScope.onDraw() {
         drawRect(color = color, alpha = alpha, colorFilter = colorFilter)
     }
 
@@ -45,7 +45,7 @@ data class ColorPainter(val color: Color) : Painter() {
     }
 
     /**
-     * Drawing a color does not have an intrinsic size, return [UnspecifiedSize] here
+     * Drawing a color does not have an intrinsic size, return [Size.UnspecifiedSize] here
      */
-    override val intrinsicSize: PxSize = UnspecifiedSize
+    override val intrinsicSize: Size = Size.UnspecifiedSize
 }

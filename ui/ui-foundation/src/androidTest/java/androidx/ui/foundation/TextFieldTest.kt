@@ -27,14 +27,15 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.onPositioned
-import androidx.ui.focus.FocusModifier
-import androidx.ui.focus.FocusState
-import androidx.ui.focus.focusState
+import androidx.ui.core.focus.FocusModifier
+import androidx.ui.core.focus.FocusState
+import androidx.ui.core.focus.focusState
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditorValue
+import androidx.ui.input.ImeAction
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxSize
@@ -42,12 +43,15 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.test.StateRestorationTester
+import androidx.ui.test.assert
 import androidx.ui.test.assertPixels
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
+import androidx.ui.test.hasImeAction
+import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
@@ -56,7 +60,6 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -416,6 +419,7 @@ class TextFieldTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textFieldNotFocused_cursorNotRendered() {
         composeTestRule.setContent {
             TestTag("textField") {
@@ -436,7 +440,7 @@ class TextFieldTest {
                 shape = RectangleShape,
                 shapeColor = Color.White,
                 backgroundColor = Color.White,
-                shapeOverlapPixelCount = 0.px
+                shapeOverlapPixelCount = 0.0f
             )
     }
 
@@ -483,5 +487,37 @@ class TextFieldTest {
                     Color.White
                 }
             }
+    }
+
+    @Test
+    fun defaultSemantics() {
+        composeTestRule.setContent {
+            TestTag("textField") {
+                TextField(
+                    value = TextFieldValue(),
+                    onValueChange = {}
+                )
+            }
+        }
+
+        findByTag("textField")
+            .assert(hasInputMethodsSupport())
+            .assert(hasImeAction(ImeAction.Unspecified))
+    }
+
+    @Test
+    fun setImeAction_isReflectedInSemantics() {
+        composeTestRule.setContent {
+            TestTag("textField") {
+                TextField(
+                    value = TextFieldValue(),
+                    imeAction = ImeAction.Search,
+                    onValueChange = {}
+                )
+            }
+        }
+
+        findByTag("textField")
+            .assert(hasImeAction(ImeAction.Search))
     }
 }

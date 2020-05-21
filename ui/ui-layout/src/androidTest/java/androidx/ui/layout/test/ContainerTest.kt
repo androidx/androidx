@@ -17,7 +17,7 @@
 package androidx.ui.layout.test
 
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
@@ -357,7 +357,7 @@ class ContainerTest : LayoutTest() {
     @Test
     fun testContainer_childAffectsContainerSize() {
         var layoutLatch = CountDownLatch(2)
-        val model = SizeModel(10.dp)
+        val size = mutableStateOf(10.dp)
         var measure = 0
         var layout = 0
         show {
@@ -365,7 +365,7 @@ class ContainerTest : LayoutTest() {
                 Layout(children = {
                     Container {
                         EmptyBox(
-                            width = model.size,
+                            width = size.value,
                             height = 10.dp,
                             modifier = Modifier.onPositioned { layoutLatch.countDown() }
                         )
@@ -386,7 +386,7 @@ class ContainerTest : LayoutTest() {
         assertEquals(1, layout)
 
         layoutLatch = CountDownLatch(2)
-        activityTestRule.runOnUiThread { model.size = 20.dp }
+        activityTestRule.runOnUiThread { size.value = 20.dp }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         assertEquals(2, measure)
         assertEquals(2, layout)
@@ -395,7 +395,7 @@ class ContainerTest : LayoutTest() {
     @Test
     fun testContainer_childDoesNotAffectContainerSize_whenSizeIsMax() {
         var layoutLatch = CountDownLatch(2)
-        val model = SizeModel(10.dp)
+        val size = mutableStateOf(10.dp)
         var measure = 0
         var layout = 0
         show {
@@ -403,7 +403,7 @@ class ContainerTest : LayoutTest() {
                 Layout(children = {
                     Container(expanded = true) {
                         EmptyBox(
-                            width = model.size,
+                            width = size.value,
                             height = 10.dp,
                             modifier = Modifier.onPositioned { layoutLatch.countDown() }
                         )
@@ -424,7 +424,7 @@ class ContainerTest : LayoutTest() {
         assertEquals(1, layout)
 
         layoutLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread { model.size = 20.dp }
+        activityTestRule.runOnUiThread { size.value = 20.dp }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         assertEquals(1, measure)
         assertEquals(1, layout)
@@ -433,7 +433,7 @@ class ContainerTest : LayoutTest() {
     @Test
     fun testContainer_childDoesNotAffectContainerSize_whenFixedWidthAndHeight() {
         var layoutLatch = CountDownLatch(2)
-        val model = SizeModel(10.dp)
+        val size = mutableStateOf(10.dp)
         var measure = 0
         var layout = 0
         show {
@@ -441,7 +441,7 @@ class ContainerTest : LayoutTest() {
                 Layout(children = {
                     Container(width = 20.dp, height = 20.dp) {
                         EmptyBox(
-                            width = model.size,
+                            width = size.value,
                             height = 10.dp,
                             modifier = Modifier.onPositioned { layoutLatch.countDown() }
                         )
@@ -462,7 +462,7 @@ class ContainerTest : LayoutTest() {
         assertEquals(1, layout)
 
         layoutLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread { model.size = 20.dp }
+        activityTestRule.runOnUiThread { size.value = 20.dp }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         assertEquals(1, measure)
         assertEquals(1, layout)
@@ -478,6 +478,3 @@ class ContainerTest : LayoutTest() {
         }
     }
 }
-
-@Model
-data class SizeModel(var size: Dp)

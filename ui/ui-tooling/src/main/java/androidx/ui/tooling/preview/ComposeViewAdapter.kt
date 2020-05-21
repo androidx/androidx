@@ -36,16 +36,14 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
+import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.asTree
-import androidx.ui.tooling.tables
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxBounds
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.toPx
 import androidx.ui.unit.toRect
 import kotlin.reflect.KClass
-import kotlin.reflect.KParameter
-import kotlin.reflect.jvm.isAccessible
 
 const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 
@@ -118,6 +116,7 @@ internal class ComposeViewAdapter : FrameLayout {
      */
     private var debugPaintBounds = false
     internal var viewInfos: List<ViewInfo> = emptyList()
+    private val slotTableRecord = SlotTableRecord.create()
 
     private val debugBoundsPaint = Paint().apply {
         pathEffect = DashPathEffect(floatArrayOf(5f, 10f, 15f, 20f), 0f)
@@ -188,7 +187,7 @@ internal class ComposeViewAdapter : FrameLayout {
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
-        viewInfos = tables.map { it.asTree() }.map { it.toViewInfo() }.toList()
+        viewInfos = slotTableRecord.store.map { it.asTree() }.map { it.toViewInfo() }.toList()
 
         if (debugViewInfos) {
             viewInfos.forEach {
@@ -225,12 +224,12 @@ internal class ComposeViewAdapter : FrameLayout {
      * Wraps a given [Preview] method an does any necessary setup.
      */
     @Composable
-    private fun WrapPreview(children: @Composable() () -> Unit) {
+    private fun WrapPreview(children: @Composable () -> Unit) {
         // We need to replace the FontResourceLoader to avoid using ResourcesCompat.
         // ResourcesCompat can not load fonts within Layoutlib and, since Layoutlib always runs
         // the latest version, we do not need it.
         Providers(FontLoaderAmbient provides LayoutlibFontResourceLoader(context)) {
-            Inspectable(children)
+            Inspectable(slotTableRecord, children)
         }
     }
 
@@ -258,28 +257,18 @@ internal class ComposeViewAdapter : FrameLayout {
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
 
-        val previewParameters: Array<Any?> = if (parameterProvider != null) {
-            val constructor = parameterProvider.constructors
-                .singleOrNull { it.parameters.all(KParameter::isOptional) }
-                ?.apply {
-                    isAccessible = true
-                }
-                ?: throw IllegalArgumentException("PreviewParameterProvider constructor can not " +
-                        "have parameters")
-            arrayOf(
-                constructor.callBy(emptyMap()).values.elementAt(parameterProviderIndex)
-            )
-        } else {
-            emptyArray()
-        }
-
         composition = setContent(Recomposer.current()) {
             WrapPreview {
                 val composer = currentComposer
                 // We need to delay the reflection instantiation of the class until we are in the
                 // composable to ensure all the right initialization has happened and the Composable
                 // class loads correctly.
-                invokeComposableViaReflection(className, methodName, composer, *previewParameters)
+                invokeComposableViaReflection(
+                    className,
+                    methodName,
+                    composer,
+                    *getPreviewProviderParameters(parameterProvider, parameterProviderIndex)
+                )
             }
         }
     }
@@ -300,20 +289,8 @@ internal class ComposeViewAdapter : FrameLayout {
             TOOLS_NS_URI,
             "parameterProviderIndex", 0
         )
-        val parameterProviderClassName = attrs.getAttributeValue(
-            TOOLS_NS_URI,
-            "parameterProviderClass"
-        )
-        val parameterProviderClass = if (parameterProviderClassName != null)
-            try {
-                @Suppress("UNCHECKED_CAST")
-                Class.forName(parameterProviderClassName).kotlin as? KClass<out
-                PreviewParameterProvider<*>>
-            } catch (e: ClassNotFoundException) {
-                Log.e(TAG, "Unable to find provider '$parameterProviderClassName'", e)
-                null
-            }
-        else null
+        val parameterProviderClass = attrs.getAttributeValue(TOOLS_NS_URI, "parameterProviderClass")
+            ?.asPreviewProviderClass()
 
         init(
             className = className,

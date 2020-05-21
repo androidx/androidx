@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,12 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Rational;
+import android.view.Surface;
 
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -72,17 +75,18 @@ public class ImageAnalysisTest {
     private List<ImageProxy> mImageProxiesReceived;
     private ImageAnalysis mImageAnalysis;
     private FakeImageReaderProxy mFakeImageReaderProxy;
+    private HandlerThread mBackgroundThread;
+    private HandlerThread mCallbackThread;
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
-        mFakeImageReaderProxy = new FakeImageReaderProxy(QUEUE_DEPTH);
-        HandlerThread callbackThread = new HandlerThread("Callback");
-        callbackThread.start();
-        mCallbackHandler = new Handler(callbackThread.getLooper());
+        mCallbackThread = new HandlerThread("Callback");
+        mCallbackThread.start();
+        mCallbackHandler = new Handler(mCallbackThread.getLooper());
 
-        HandlerThread backgroundThread = new HandlerThread("Background");
-        backgroundThread.start();
-        mBackgroundHandler = new Handler(backgroundThread.getLooper());
+        mBackgroundThread = new HandlerThread("Background");
+        mBackgroundThread.start();
+        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
         mBackgroundExecutor = CameraXExecutors.newHandlerExecutor(mBackgroundHandler);
 
         mImageProxiesReceived = new ArrayList<>();
@@ -93,7 +97,6 @@ public class ImageAnalysisTest {
                     () -> new FakeCamera(ShadowCameraX.DEFAULT_CAMERA_ID));
             return cameraFactory;
         };
-
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
                 FakeAppConfig.create()).setCameraFactoryProvider(cameraFactoryProvider).build();
 
@@ -106,6 +109,68 @@ public class ImageAnalysisTest {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(CameraX::unbindAll);
         mImageProxiesReceived.clear();
         CameraX.shutdown().get();
+        if (mBackgroundThread != null) {
+            mBackgroundThread.quitSafely();
+        }
+        if (mCallbackThread != null) {
+            mCallbackThread.quitSafely();
+        }
+    }
+
+    @Test
+    public void largerThanBufferViewPortRect_cropRectIsBufferSize() throws InterruptedException {
+        // Arrange.
+        Rect largerThanBufferRect = new Rect(-1, -1, 10000, 10000);
+        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST,
+                new ViewPort.Builder()
+                        .setAspectRatio(new Rational(1, 1))
+                        .setScaleType(ViewPort.FILL_CENTER)
+                        .setRotation(Surface.ROTATION_0).build());
+        // Sets viewPortRect directly because Shadow#invert() doesn't work in unit test.
+        mImageAnalysis.setViewPortCropRect(largerThanBufferRect);
+
+        // Act.
+        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
+        flushHandler(mBackgroundHandler);
+        flushHandler(mCallbackHandler);
+
+        // Assert.
+        ImageProxy imageProxyReceived = Iterables.getOnlyElement(mImageProxiesReceived);
+        assertThat(imageProxyReceived.getCropRect())
+                .isEqualTo(new Rect(0, 0, mFakeImageReaderProxy.getWidth(),
+                        mFakeImageReaderProxy.getHeight()));
+        assertThat(imageProxyReceived.getViewPortRect()).isEqualTo(largerThanBufferRect);
+    }
+
+    @Test
+    public void bindViewPortWithFillStyle_returnsSameViewPortRectAndCropRect()
+            throws InterruptedException {
+        // Arrange.
+        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST,
+                new ViewPort.Builder()
+                        .setAspectRatio(new Rational(1, 1))
+                        .setScaleType(ViewPort.FILL_CENTER)
+                        .setRotation(Surface.ROTATION_0).build());
+
+        // Act.
+        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
+        flushHandler(mBackgroundHandler);
+        flushHandler(mCallbackHandler);
+
+        // Assert: both
+        ImageProxy imageProxyReceived = Iterables.getOnlyElement(mImageProxiesReceived);
+        // The expected value is based on fitting the 1:1 view port into a rect with the size of
+        // the ImageReader.
+        int expectedPadding =
+                (mFakeImageReaderProxy.getWidth() - mFakeImageReaderProxy.getHeight()) / 2;
+        assertThat(imageProxyReceived.getCropRect())
+                .isEqualTo(new Rect(expectedPadding, 0,
+                        mFakeImageReaderProxy.getWidth() - expectedPadding,
+                        mFakeImageReaderProxy.getHeight()));
+        assertThat(imageProxyReceived.getViewPortRect())
+                .isEqualTo(new Rect(expectedPadding, 0,
+                        mFakeImageReaderProxy.getWidth() - expectedPadding,
+                        mFakeImageReaderProxy.getHeight()));
     }
 
     @Test
@@ -233,12 +298,22 @@ public class ImageAnalysisTest {
 
     private void setUpImageAnalysisWithStrategy(
             @ImageAnalysis.BackpressureStrategy int backpressureStrategy) {
+        setUpImageAnalysisWithStrategy(backpressureStrategy, null);
+    }
+
+    private void setUpImageAnalysisWithStrategy(
+            @ImageAnalysis.BackpressureStrategy int backpressureStrategy, ViewPort viewPort) {
         mImageAnalysis = new ImageAnalysis.Builder()
                 .setBackgroundExecutor(mBackgroundExecutor)
+                .setTargetRotation(Surface.ROTATION_0)
                 .setImageQueueDepth(QUEUE_DEPTH)
                 .setBackpressureStrategy(backpressureStrategy)
                 .setImageReaderProxyProvider(
-                        (width, height, format, queueDepth, usage) -> mFakeImageReaderProxy)
+                        (width, height, format, queueDepth, usage) -> {
+                            mFakeImageReaderProxy = FakeImageReaderProxy.newInstance(width,
+                                    height, format, queueDepth, usage);
+                            return mFakeImageReaderProxy;
+                        })
                 .build();
 
         mImageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(mCallbackHandler),
@@ -250,7 +325,10 @@ public class ImageAnalysisTest {
 
         FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            CameraX.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA,
+            CameraX.bindToLifecycle(
+                    lifecycleOwner,
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    viewPort,
                     mImageAnalysis);
             lifecycleOwner.startAndResume();
         });
