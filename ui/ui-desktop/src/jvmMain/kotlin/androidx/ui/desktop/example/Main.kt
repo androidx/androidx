@@ -75,6 +75,7 @@ fun App() {
         },
         bodyContent = { modifier ->
             val amount = state { 0 }
+            val text = state { "Hello" }
             Column(modifier.fillMaxSize(), Arrangement.SpaceEvenly) {
                 Text(
                     text = "Привет! 你好! Desktop Compose ${amount.value}",
@@ -93,13 +94,13 @@ fun App() {
                 Slider(value = amount.value.toFloat() / 100f,
                     onValueChange = { amount.value = (it * 100).toInt() })
                 FilledTextField(
-                    value = "",
+                    value = amount.value.toString(),
                     onValueChange = { amount.value = it.toIntOrNull() ?: 42 },
                     label = { Text(text = "Input1") }
                 )
                 FilledTextField(
-                    value = amount.value.toString(),
-                    onValueChange = { },
+                    value = text.value,
+                    onValueChange = { text.value = it },
                     label = { Text(text = "Input2") }
                 )
             }
