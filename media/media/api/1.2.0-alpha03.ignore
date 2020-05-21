@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedThrows: android.support.v4.media.session.MediaControllerCompat#MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token):
+    Constructor android.support.v4.media.session.MediaControllerCompat no longer throws exception android.os.RemoteException
