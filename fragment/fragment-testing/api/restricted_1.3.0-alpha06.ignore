@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.fragment.app.testing.FragmentScenarioKt#launchFragment(android.os.Bundle, int, androidx.fragment.app.FragmentFactory):
+    Attempted to remove @NonNull annotation from method androidx.fragment.app.testing.FragmentScenarioKt.launchFragment(android.os.Bundle,int,androidx.fragment.app.FragmentFactory)
+InvalidNullConversion: androidx.fragment.app.testing.FragmentScenarioKt#launchFragment(android.os.Bundle, int, kotlin.jvm.functions.Function0<? extends F>):
+    Attempted to remove @NonNull annotation from method androidx.fragment.app.testing.FragmentScenarioKt.launchFragment(android.os.Bundle,int,kotlin.jvm.functions.Function0<? extends F>)
+InvalidNullConversion: androidx.fragment.app.testing.FragmentScenarioKt#launchFragmentInContainer(android.os.Bundle, int, androidx.fragment.app.FragmentFactory):
+    Attempted to remove @NonNull annotation from method androidx.fragment.app.testing.FragmentScenarioKt.launchFragmentInContainer(android.os.Bundle,int,androidx.fragment.app.FragmentFactory)
+InvalidNullConversion: androidx.fragment.app.testing.FragmentScenarioKt#launchFragmentInContainer(android.os.Bundle, int, kotlin.jvm.functions.Function0<? extends F>):
+    Attempted to remove @NonNull annotation from method androidx.fragment.app.testing.FragmentScenarioKt.launchFragmentInContainer(android.os.Bundle,int,kotlin.jvm.functions.Function0<? extends F>)
