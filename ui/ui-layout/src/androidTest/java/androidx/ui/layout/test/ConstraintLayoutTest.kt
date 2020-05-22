@@ -26,6 +26,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.layout.ConstraintLayout
 import androidx.ui.layout.ConstraintSet
+import androidx.ui.layout.ExperimentalLayout
 import androidx.ui.layout.aspectRatio
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
@@ -46,6 +47,7 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalLayout::class)
 class ConstraintLayoutTest : LayoutTest() {
     @get:Rule
     val composeTestRule = createComposeRule()

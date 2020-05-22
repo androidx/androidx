@@ -25,6 +25,7 @@ import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.ConstraintLayout
 import androidx.ui.layout.ConstraintSet
+import androidx.ui.layout.ExperimentalLayout
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
@@ -42,6 +43,7 @@ fun ConstraintLayoutDemo() {
 }
 
 @Composable
+@OptIn(ExperimentalLayout::class)
 fun Demo1() {
     ConstraintLayout(
         modifier = Modifier.drawBackground(color = Color.Gray),
@@ -80,6 +82,7 @@ fun Demo1() {
 }
 
 @Composable
+@OptIn(ExperimentalLayout::class)
 fun Demo2() {
     ConstraintLayout(
         modifier = Modifier.drawBackground(Color.Cyan),
@@ -108,6 +111,7 @@ fun Demo2() {
 }
 
 @Composable
+@OptIn(ExperimentalLayout::class)
 fun Demo3() {
     ConstraintLayout(
         modifier = Modifier.fillMaxSize(),

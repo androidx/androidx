@@ -46,6 +46,7 @@ import androidx.ui.util.fastForEachIndexed
  * @param crossAxisSpacing The cross axis spacing between the rows of the layout.
  * @param lastLineMainAxisAlignment Overrides the main axis alignment of the last row.
  */
+@ExperimentalLayout
 @Composable
 fun FlowRow(
     mainAxisSize: SizeMode = SizeMode.Wrap,
@@ -85,6 +86,7 @@ fun FlowRow(
  * @param crossAxisSpacing The cross axis spacing between the columns of the layout.
  * @param lastLineMainAxisAlignment Overrides the main axis alignment of the last column.
  */
+@ExperimentalLayout
 @Composable
 fun FlowColumn(
     mainAxisSize: SizeMode = SizeMode.Wrap,

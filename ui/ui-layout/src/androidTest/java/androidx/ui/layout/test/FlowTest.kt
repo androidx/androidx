@@ -22,6 +22,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.ExperimentalLayout
 import androidx.ui.layout.FlowColumn
 import androidx.ui.layout.FlowCrossAxisAlignment
 import androidx.ui.layout.FlowMainAxisAlignment
@@ -42,6 +43,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalLayout::class)
 class FlowTest : LayoutTest() {
     @Test
     fun testFlowRow() = with(density) {
