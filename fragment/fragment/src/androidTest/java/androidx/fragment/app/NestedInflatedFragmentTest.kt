@@ -165,7 +165,12 @@ class NestedInflatedFragmentTest {
         Fragment(R.layout.nested_inflated_fragment_container_parent)
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
-    class UserVisibleHintParentFragment : ParentFragment() {
+    class UserVisibleHintParentFragment : ParentFragment(), FragmentOnAttachListener {
+        override fun onAttach(context: Context) {
+            super.onAttach(context)
+            childFragmentManager.addFragmentOnAttachListener(this)
+        }
+
         override fun setUserVisibleHint(isVisibleToUser: Boolean) {
             super.setUserVisibleHint(isVisibleToUser)
             if (host != null) {
@@ -175,14 +180,19 @@ class NestedInflatedFragmentTest {
             }
         }
 
-        override fun onAttachFragment(childFragment: Fragment) {
-            super.onAttachFragment(childFragment)
+        override fun onAttachFragment(fragmentManager: FragmentManager, childFragment: Fragment) {
             childFragment.userVisibleHint = userVisibleHint
         }
     }
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
-    class UserVisibleHintParentFragmentContainerView : ParentFragmentContainerView() {
+    class UserVisibleHintParentFragmentContainerView : ParentFragmentContainerView(),
+        FragmentOnAttachListener {
+        override fun onAttach(context: Context) {
+            super.onAttach(context)
+            childFragmentManager.addFragmentOnAttachListener(this)
+        }
+
         override fun setUserVisibleHint(isVisibleToUser: Boolean) {
             super.setUserVisibleHint(isVisibleToUser)
             if (host != null) {
@@ -192,8 +202,7 @@ class NestedInflatedFragmentTest {
             }
         }
 
-        override fun onAttachFragment(childFragment: Fragment) {
-            super.onAttachFragment(childFragment)
+        override fun onAttachFragment(fragmentManager: FragmentManager, childFragment: Fragment) {
             childFragment.userVisibleHint = userVisibleHint
         }
     }

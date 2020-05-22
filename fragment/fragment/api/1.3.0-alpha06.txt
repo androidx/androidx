@@ -81,7 +81,7 @@ package androidx.fragment.app {
     method @Deprecated public void onActivityResult(int, int, android.content.Intent?);
     method @CallSuper @MainThread public void onAttach(android.content.Context);
     method @Deprecated @CallSuper @MainThread public void onAttach(android.app.Activity);
-    method @MainThread public void onAttachFragment(androidx.fragment.app.Fragment);
+    method @Deprecated @MainThread public void onAttachFragment(androidx.fragment.app.Fragment);
     method @CallSuper public void onConfigurationChanged(android.content.res.Configuration);
     method @MainThread public boolean onContextItemSelected(android.view.MenuItem);
     method @CallSuper @MainThread public void onCreate(android.os.Bundle?);
@@ -168,7 +168,7 @@ package androidx.fragment.app {
     ctor @ContentView public FragmentActivity(@LayoutRes int);
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();
     method @Deprecated public androidx.loader.app.LoaderManager getSupportLoaderManager();
-    method public void onAttachFragment(androidx.fragment.app.Fragment);
+    method @Deprecated @MainThread public void onAttachFragment(androidx.fragment.app.Fragment);
     method @CallSuper public void onMultiWindowModeChanged(boolean);
     method @CallSuper public void onPictureInPictureModeChanged(boolean);
     method protected void onResumeFragments();
@@ -269,6 +269,7 @@ package androidx.fragment.app {
 
   public abstract class FragmentManager implements androidx.fragment.app.FragmentResultOwner {
     ctor public FragmentManager();
+    method public void addFragmentOnAttachListener(androidx.fragment.app.FragmentOnAttachListener);
     method public void addOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
     method public androidx.fragment.app.FragmentTransaction beginTransaction();
     method public final void clearFragmentResult(String);
@@ -295,6 +296,7 @@ package androidx.fragment.app {
     method public boolean popBackStackImmediate(int, int);
     method public void putFragment(android.os.Bundle, String, androidx.fragment.app.Fragment);
     method public void registerFragmentLifecycleCallbacks(androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks, boolean);
+    method public void removeFragmentOnAttachListener(androidx.fragment.app.FragmentOnAttachListener);
     method public void removeOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
     method public androidx.fragment.app.Fragment.SavedState? saveFragmentInstanceState(androidx.fragment.app.Fragment);
     method public void setFragmentFactory(androidx.fragment.app.FragmentFactory);
@@ -336,6 +338,10 @@ package androidx.fragment.app {
   }
 
   @Deprecated public class FragmentManagerNonConfig {
+  }
+
+  public interface FragmentOnAttachListener {
+    method @MainThread public void onAttachFragment(androidx.fragment.app.FragmentManager, androidx.fragment.app.Fragment);
   }
 
   @Deprecated public abstract class FragmentPagerAdapter extends androidx.viewpager.widget.PagerAdapter {

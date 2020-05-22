@@ -146,10 +146,6 @@ class ControllerHostCallbacks(
     override fun onGetWindowAnimations() =
         activity.window?.attributes?.windowAnimations ?: 0
 
-    public override fun onAttachFragment(fragment: Fragment) {
-        activity.onAttachFragment(fragment)
-    }
-
     override fun onFindViewById(id: Int): View? {
         return activity.findViewById(id)
     }
