@@ -45,7 +45,6 @@ import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.center
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
-import androidx.ui.unit.toPx
 import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -298,7 +297,7 @@ class FloatingActionButtonTest {
 
                 assertWithinOnePixel(buttonBounds.center().y, iconBounds.center().y)
                 assertWithinOnePixel(buttonBounds.center().y, textBounds.center().y)
-                val halfPadding = 6.dp.toIntPx().toPx().value
+                val halfPadding = 6.dp.toIntPx().value.toFloat()
                 assertWithinOnePixel(
                     iconBounds.center().x + iconBounds.width / 2 + halfPadding,
                     textBounds.center().x - textBounds.width / 2 - halfPadding

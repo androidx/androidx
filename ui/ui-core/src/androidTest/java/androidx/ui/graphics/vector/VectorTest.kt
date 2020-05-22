@@ -38,7 +38,6 @@ import androidx.ui.graphics.toArgb
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toPx
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -133,7 +132,7 @@ class VectorTest {
         minimumSize: IntPx = size,
         alignment: Alignment = Alignment.Center
     ) {
-        val sizePx = size.toPx()
+        val sizePx = size.value.toFloat()
         val sizeDp = (size.value / DensityAmbient.current.density).dp
         val background = Modifier.paint(
             VectorPainter(
@@ -141,9 +140,9 @@ class VectorTest {
                 defaultHeight = sizeDp) { _, _ ->
                 Path(
                     pathData = PathData {
-                        lineTo(sizePx.value, 0.0f)
-                        lineTo(sizePx.value, sizePx.value)
-                        lineTo(0.0f, sizePx.value)
+                        lineTo(sizePx, 0.0f)
+                        lineTo(sizePx, sizePx)
+                        lineTo(0.0f, sizePx)
                         close()
                     },
                     fill = SolidColor(Color.Black)

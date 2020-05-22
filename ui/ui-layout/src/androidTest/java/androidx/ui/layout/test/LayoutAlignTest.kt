@@ -41,7 +41,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -83,7 +82,7 @@ class LayoutAlignTest : LayoutTest() {
         assertEquals(PxPosition(0f, 0f), alignPosition.value)
         assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(
-            PxPosition((root.width.px - size).value, (root.height.px - size).value),
+            PxPosition(root.width - size.value.toFloat(), root.height - size.value.toFloat()),
             childPosition.value
         )
     }
@@ -123,7 +122,7 @@ class LayoutAlignTest : LayoutTest() {
         assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
         assertEquals(PxPosition(0f, 0f), alignPosition.value)
         assertEquals(IntPxSize(size, root.height.ipx), childSize.value)
-        assertEquals(PxPosition((root.width.px - size).value, 0f), childPosition.value)
+        assertEquals(PxPosition(root.width - size.value.toFloat(), 0f), childPosition.value)
     }
 
     @Test

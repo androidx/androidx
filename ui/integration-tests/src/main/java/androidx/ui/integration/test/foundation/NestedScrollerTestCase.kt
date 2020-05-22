@@ -39,7 +39,6 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.unit.px
 import kotlin.random.Random
 
 /**
@@ -83,22 +82,22 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                             val blue = Random.nextInt(256)
                             Color(red = red, green = green, blue = blue)
                         }
-                        Box(Modifier.preferredSize(350.px.toDp()).drawBackground(color))
+                        Box(Modifier.preferredSize(350f.toDp()).drawBackground(color))
                         Text(
                             text = "Some title",
                             color = Color.Black,
-                            fontSize = 60.px.toSp()
+                            fontSize = 60f.toSp()
                         )
                         Row(Modifier.fillMaxWidth()) {
                             Text(
                                 "3.5 ★",
-                                fontSize = 40.px.toSp(),
+                                fontSize = 40.toSp(),
                                 modifier = Modifier.gravity(Alignment.CenterVertically)
                             )
                             Box(
                                 Modifier
                                     .gravity(Alignment.CenterVertically)
-                                    .preferredSize(40.px.toDp())
+                                    .preferredSize(40f.toDp())
                                     .drawBackground(playStoreColor)
                             )
                         }

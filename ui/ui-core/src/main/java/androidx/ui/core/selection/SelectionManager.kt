@@ -34,7 +34,6 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.length
 import androidx.ui.text.subSequence
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import kotlin.math.max
 import kotlin.math.min
 
@@ -326,7 +325,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             endTop = localLayoutCoordinates.localToRoot(endTop)
 
             val top = min(startTop.y, endTop.y)
-            val bottom = max(startOffset.y, endOffset.y) + (HANDLE_HEIGHT.value * 4.0).px.value
+            val bottom = max(startOffset.y, endOffset.y) + (HANDLE_HEIGHT.value * 4.0).toFloat()
 
             return Rect(
                 left,

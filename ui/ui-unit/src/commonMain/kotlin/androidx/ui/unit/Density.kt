@@ -101,18 +101,6 @@ interface Density {
     }
 
     /**
-     * Convert [Px] to [Dp].
-     */
-    @Stable
-    fun Px.toDp(): Dp = (value / density).dp
-
-    /**
-     * Convert [Px] to Sp.
-     */
-    @Stable
-    fun Px.toSp(): TextUnit = (value / (fontScale * density)).sp
-
-    /**
      * Convert [IntPx] to [Dp].
      */
     @Stable

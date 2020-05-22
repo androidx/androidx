@@ -28,8 +28,7 @@ import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ceil
-import androidx.ui.unit.px
+import androidx.ui.unit.ipx
 
 /**
  * An object that paints text onto a [Canvas].
@@ -95,14 +94,18 @@ class TextDelegate(
      *
      * Valid only after [layout] has been called.
      */
-    val minIntrinsicWidth: IntPx get() = assumeIntrinsics { it.minIntrinsicWidth.px.ceil() }
+    val minIntrinsicWidth: IntPx get() = assumeIntrinsics {
+        kotlin.math.ceil(it.minIntrinsicWidth).toInt().ipx
+    }
 
     /**
      * The width at which increasing the width of the text no longer decreases the height.
      *
      * Valid only after [layout] has been called.
      */
-    val maxIntrinsicWidth: IntPx get() = assumeIntrinsics { it.maxIntrinsicWidth.px.ceil() }
+    val maxIntrinsicWidth: IntPx get() = assumeIntrinsics {
+        kotlin.math.ceil(it.maxIntrinsicWidth).toInt().ipx
+    }
 
     init {
         check(maxLines > 0)
@@ -178,7 +181,10 @@ class TextDelegate(
                 copy(
                     layoutInput = layoutInput.copy(constraints = constraints),
                     size = constraints.constrain(
-                        IntPxSize(multiParagraph.width.px.ceil(), multiParagraph.height.px.ceil())
+                        IntPxSize(
+                            kotlin.math.ceil(multiParagraph.width).toInt().ipx,
+                            kotlin.math.ceil(multiParagraph.height).toInt().ipx
+                        )
                     )
                 )
             }
@@ -191,7 +197,10 @@ class TextDelegate(
         )
 
         val size = constraints.constrain(
-            IntPxSize(multiParagraph.width.px.ceil(), multiParagraph.height.px.ceil())
+            IntPxSize(
+                kotlin.math.ceil(multiParagraph.width).toInt().ipx,
+                kotlin.math.ceil(multiParagraph.height).toInt().ipx
+            )
         )
 
         return TextLayoutResult(

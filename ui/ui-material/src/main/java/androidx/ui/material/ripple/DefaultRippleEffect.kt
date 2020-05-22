@@ -248,7 +248,7 @@ internal fun getRippleStartRadius(size: PxSize) =
  */
 internal fun Density.getRippleEndRadius(bounded: Boolean, size: PxSize): Float {
     val radiusCoveringBounds =
-        (PxPosition(size.width, size.height).getDistance() / 2f).value
+        (PxPosition(size.width, size.height).getDistance() / 2f)
     return if (bounded) {
         radiusCoveringBounds + BoundedRippleExtraRadius.toPx()
     } else {

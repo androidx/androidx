@@ -36,7 +36,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toPx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -309,13 +308,19 @@ class StackTest : LayoutTest() {
         assertEquals(PxPosition((size * 2).value.toFloat(), 0f), childPosition[0].value)
         assertEquals(PxPosition(size, 0.ipx), childPosition[1].value)
         assertEquals(PxPosition(0.ipx, 0.ipx), childPosition[2].value)
-        assertEquals(PxPosition((size * 2).toPx().value, size.toPx().value), childPosition[3].value)
+        assertEquals(
+            PxPosition(
+                (size * 2).value.toFloat(),
+                size.value.toFloat()
+            ),
+            childPosition[3].value
+        )
         assertEquals(PxPosition(size, size), childPosition[4].value)
         assertEquals(PxPosition(0.ipx, size), childPosition[5].value)
         assertEquals(
             PxPosition(
-                (size * 2).toPx().value,
-                (size * 2).toPx().value
+                (size * 2).value.toFloat(),
+                (size * 2).value.toFloat()
             ),
             childPosition[6].value
         )

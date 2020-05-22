@@ -38,8 +38,6 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
-import androidx.ui.unit.round
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
@@ -75,8 +73,8 @@ class LayoutOffsetTest : LayoutTest() {
                     .wrapContentSize(Alignment.TopStart)
                     .offset(offsetX, offsetY)
                     .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.globalPosition.x.px.round()
-                        positionY = coordinates.globalPosition.y.px.round()
+                        positionX = coordinates.globalPosition.x.roundToInt().ipx
+                        positionY = coordinates.globalPosition.y.roundToInt().ipx
                     }
             ) {
             }
@@ -106,8 +104,8 @@ class LayoutOffsetTest : LayoutTest() {
                     .wrapContentSize(Alignment.TopStart)
                     .offset(offsetX, offsetY)
                     .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.globalPosition.x.px.round()
-                        positionY = coordinates.globalPosition.y.px.round()
+                        positionX = coordinates.globalPosition.x.roundToInt().ipx
+                        positionY = coordinates.globalPosition.y.roundToInt().ipx
                     }
             ) {
                 // TODO(popam): this box should not be needed after b/154758475 is fixed.

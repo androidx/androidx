@@ -62,7 +62,6 @@ import androidx.ui.unit.center
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
 import androidx.ui.unit.sp
-import androidx.ui.unit.toPx
 import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule

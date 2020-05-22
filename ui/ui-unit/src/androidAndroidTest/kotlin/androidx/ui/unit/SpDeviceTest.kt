@@ -46,15 +46,15 @@ class SpDeviceTest {
         val sp10InPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, dm)
         with(Density(activity)) {
             assertEquals(sp10InPx, 10.sp.toPx(), 0.01f)
-            assertEquals(10f, Px(sp10InPx).toSp().value, 0.01f)
+            assertEquals(10f, sp10InPx.toSp().value, 0.01f)
         }
     }
 
     @Test
     fun convertSpDp() {
         with(Density(activity)) {
-            val px10InSp = Px(10f).toSp()
-            val px10InDp = Px(10f).toDp()
+            val px10InSp = 10f.toSp()
+            val px10InDp = 10f.toDp()
             assertEquals(px10InDp.value, px10InSp.toDp().value, 0.01f)
             assertEquals(px10InSp.value, px10InDp.toSp().value, 0.01f)
         }

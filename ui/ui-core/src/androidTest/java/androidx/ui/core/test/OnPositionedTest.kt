@@ -34,7 +34,6 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toPx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -96,13 +95,13 @@ class OnPositionedTest {
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(0f, wrap1Position)
-        assertEquals(size.toPx().value, wrap2Position)
+        assertEquals(size.value.toFloat(), wrap2Position)
         latch = CountDownLatch(2)
         rule.runOnUiThread {
             index = 1
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(size.toPx().value, wrap1Position)
+        assertEquals(size.value.toFloat(), wrap1Position)
         assertEquals(0f, wrap2Position)
     }
 

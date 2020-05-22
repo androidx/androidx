@@ -41,7 +41,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Assert.assertTrue
@@ -84,8 +83,8 @@ class OnPositionedTest : LayoutTest() {
 
     @Test
     fun simplePaddingWithChildPositioned() = with(density) {
-        val paddingLeftPx = 100.px
-        val paddingTopPx = 120.px
+        val paddingLeftPx = 100f
+        val paddingTopPx = 120f
         var realLeft: Float? = null
         var realTop: Float? = null
 
@@ -108,15 +107,15 @@ class OnPositionedTest : LayoutTest() {
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        assertThat(realLeft?.px).isEqualTo(paddingLeftPx)
-        assertThat(realTop?.px).isEqualTo(paddingTopPx)
+        assertThat(realLeft).isEqualTo(paddingLeftPx)
+        assertThat(realTop).isEqualTo(paddingTopPx)
     }
 
     @Test
     fun nestedLayoutCoordinates() = with(density) {
-        val firstPaddingPx = 10.px
-        val secondPaddingPx = 20.px
-        val thirdPaddingPx = 30.px
+        val firstPaddingPx = 10f
+        val secondPaddingPx = 20f
+        val thirdPaddingPx = 30f
         var gpCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
 
@@ -146,12 +145,12 @@ class OnPositionedTest : LayoutTest() {
 
         // global position
         val gPos = childCoordinates!!.localToGlobal(PxPosition.Origin).x
-        assertThat(gPos).isEqualTo((firstPaddingPx + secondPaddingPx + thirdPaddingPx).value)
+        assertThat(gPos).isEqualTo((firstPaddingPx + secondPaddingPx + thirdPaddingPx))
         // Position in grandparent Px(value=50.0)
         val gpPos = gpCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin).x
-        assertThat(gpPos).isEqualTo((secondPaddingPx + thirdPaddingPx).value)
+        assertThat(gpPos).isEqualTo((secondPaddingPx + thirdPaddingPx))
         // local position
-        assertThat(childCoordinates!!.positionInParent.x).isEqualTo(thirdPaddingPx.value)
+        assertThat(childCoordinates!!.positionInParent.x).isEqualTo(thirdPaddingPx)
     }
 
     @Test

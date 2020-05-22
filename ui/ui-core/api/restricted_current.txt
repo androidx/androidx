@@ -407,7 +407,6 @@ package androidx.ui.core {
     method public androidx.ui.core.LayoutDirection getLayoutDirection();
     method @androidx.compose.Stable public float toDp(float);
     method @androidx.compose.Stable public float toDp(int);
-    method @androidx.compose.Stable public float toDp-NgWp0Z8(float);
     method @androidx.compose.Stable public float toDp-gshw56o(int);
     method @androidx.compose.Stable public float toDp-vVlMl6k(long);
     method @androidx.compose.Stable public int toIntPx-ipo6vVg(float);
@@ -417,7 +416,6 @@ package androidx.ui.core {
     method @androidx.compose.Stable public androidx.ui.geometry.Rect toRect(androidx.ui.unit.Bounds);
     method @androidx.compose.Stable public long toSp(float);
     method @androidx.compose.Stable public long toSp(int);
-    method @androidx.compose.Stable public long toSp-NgWp0Z8(float);
     method @androidx.compose.Stable public long toSp-gshw56o(int);
     method @androidx.compose.Stable public long toSp-ipo6vVg(float);
   }

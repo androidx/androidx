@@ -21,8 +21,8 @@ import androidx.compose.Stable
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.round
-import androidx.ui.unit.toPx
+import androidx.ui.unit.ipx
+import kotlin.math.roundToInt
 
 /**
  * An interface to position a point inside a 2D box. [Alignment] is often used to define
@@ -124,8 +124,8 @@ private data class DirectionalAlignment(
     ): IntPxPosition {
         // Convert to Px first and only round at the end, to avoid rounding twice while calculating
         // the new positions
-        val centerX = size.width.toPx() / 2f
-        val centerY = size.height.toPx() / 2f
+        val centerX = size.width.value.toFloat() / 2f
+        val centerY = size.height.value.toFloat() / 2f
         val resolvedHorizontalBias = if (layoutDirection == LayoutDirection.Ltr) {
             horizontalBias
         } else {
@@ -134,7 +134,7 @@ private data class DirectionalAlignment(
 
         val x = centerX * (1 + resolvedHorizontalBias)
         val y = centerY * (1 + verticalBias)
-        return IntPxPosition(x.round(), y.round())
+        return IntPxPosition(x.roundToInt().ipx, y.roundToInt().ipx)
     }
 
     @Immutable
@@ -142,8 +142,8 @@ private data class DirectionalAlignment(
         override fun align(size: IntPx): IntPx {
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
-            val center = size.toPx() / 2f
-            return (center * (1 + bias)).round()
+            val center = size.value.toFloat() / 2f
+            return (center * (1 + bias)).roundToInt().ipx
         }
     }
 
@@ -152,9 +152,9 @@ private data class DirectionalAlignment(
         override fun align(size: IntPx, layoutDirection: LayoutDirection): IntPx {
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
-            val center = size.toPx() / 2f
+            val center = size.value.toFloat() / 2f
             val resolvedBias = if (layoutDirection == LayoutDirection.Ltr) bias else -1 * bias
-            return (center * (1 + resolvedBias)).round()
+            return (center * (1 + resolvedBias)).roundToInt().ipx
         }
     }
 }
@@ -175,12 +175,12 @@ data class AbsoluteAlignment internal constructor(
     override fun align(size: IntPxSize, layoutDirection: LayoutDirection): IntPxPosition {
         // Convert to Px first and only round at the end, to avoid rounding twice while calculating
         // the new positions
-        val centerX = size.width.toPx() / 2f
-        val centerY = size.height.toPx() / 2f
+        val centerX = size.width.value.toFloat() / 2f
+        val centerY = size.height.value.toFloat() / 2f
 
         val x = centerX * (1 + horizontalBias)
         val y = centerY * (1 + verticalBias)
-        return IntPxPosition(x.round(), y.round())
+        return IntPxPosition(x.roundToInt().ipx, y.roundToInt().ipx)
     }
 
     /**
@@ -197,8 +197,8 @@ data class AbsoluteAlignment internal constructor(
         override fun align(size: IntPx, layoutDirection: LayoutDirection): IntPx {
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
-            val center = size.toPx() / 2f
-            return (center * (1 + bias)).round()
+            val center = size.value.toFloat() / 2f
+            return (center * (1 + bias)).roundToInt().ipx
         }
     }
 

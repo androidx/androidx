@@ -44,8 +44,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
-import androidx.ui.unit.px
-import androidx.ui.unit.round
+import kotlin.math.roundToInt
 
 /**
  * Default SelectionContainer to be used in order to make composables selectable by default.
@@ -134,7 +133,7 @@ private fun Handle(
                 } else {
                     if (isStartHandle) Alignment.TopStart else Alignment.TopEnd
                 },
-                offset = IntPxPosition(offset.x.px.round(), offset.y.px.round())
+                offset = IntPxPosition(offset.x.roundToInt().ipx, offset.y.roundToInt().ipx)
             ) {
                 val drag = Modifier.dragGestureFilter(
                     dragObserver = manager.handleDragObserver(isStartHandle = isStartHandle)
