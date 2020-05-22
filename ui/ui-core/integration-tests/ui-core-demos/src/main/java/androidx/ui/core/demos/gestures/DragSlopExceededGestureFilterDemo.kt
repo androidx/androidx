@@ -32,7 +32,7 @@ import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.dp
 
 /**
- * Simple demo that demonstrates the functionality of [dragSlopExceededGestureFilter].
+ * Simple [dragSlopExceededGestureFilter] demo.
  */
 @Composable
 fun DragSlopExceededGestureFilterDemo() {

@@ -23,7 +23,9 @@ import androidx.ui.core.gesture.longPressGestureFilter
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.compositeOver
+import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
 import androidx.ui.unit.PxPosition
@@ -34,9 +36,20 @@ import androidx.ui.unit.dp
  */
 @Composable
 fun NestedLongPressDemo() {
-    LongPressableContainer(Modifier.fillMaxSize()) {
-        LongPressableContainer(Modifier.padding(48.dp).fillMaxSize()) {
-            LongPressableContainer(Modifier.padding(48.dp).fillMaxSize()) {}
+    Column {
+        Text(
+            "Demonstrates interaction between nested longPressGestureFitlers  in an " +
+                    "edge case that is nevertheless supported (normally regions will be separated" +
+                    " by a pressIndicatorGestureFilter, but here they are not)."
+        )
+        Text(
+            "This just demonstrates the interaction between directly nested " +
+                    "longPressGestureFilters."
+        )
+        LongPressableContainer(Modifier.fillMaxSize()) {
+            LongPressableContainer(Modifier.padding(48.dp).fillMaxSize()) {
+                LongPressableContainer(Modifier.padding(48.dp).fillMaxSize()) {}
+            }
         }
     }
 }

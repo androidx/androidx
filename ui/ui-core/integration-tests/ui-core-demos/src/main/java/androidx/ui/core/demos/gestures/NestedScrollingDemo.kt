@@ -31,6 +31,7 @@ import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.drawBorder
 import androidx.ui.graphics.Color
@@ -51,17 +52,21 @@ import androidx.ui.unit.round
  */
 @Composable
 fun NestedScrollingDemo() {
-    // Outer composable that scrollsAll mea
-    Draggable {
-        RepeatingList(repetitions = 3) {
-            Box(Modifier.preferredHeight(398.dp), padding = 72.dp) {
-                // Inner composable that scrolls
-                Draggable {
-                    RepeatingList(repetitions = 5) {
-                        // Composable that indicates it is being pressed
-                        Pressable(
-                            height = 72.dp
-                        )
+    Column {
+        Text("Demonstrates nested scrolling.")
+        Text("There are 3 fake vertical scrollers inside another vertical scroller.  Try " +
+                "scrolling with 1 or many fingers.")
+        Draggable {
+            RepeatingList(repetitions = 3) {
+                Box(Modifier.preferredHeight(398.dp), padding = 72.dp) {
+                    // Inner composable that scrolls
+                    Draggable {
+                        RepeatingList(repetitions = 5) {
+                            // Composable that indicates it is being pressed
+                            Pressable(
+                                height = 72.dp
+                            )
+                        }
                     }
                 }
             }

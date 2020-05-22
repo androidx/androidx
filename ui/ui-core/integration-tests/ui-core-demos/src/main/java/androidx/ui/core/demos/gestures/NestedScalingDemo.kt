@@ -23,8 +23,10 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.rawScaleGestureFilter
 import androidx.ui.core.gesture.RawScaleObserver
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
+import androidx.ui.layout.Column
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.IntPx
 
@@ -33,19 +35,26 @@ import androidx.ui.unit.IntPx
  */
 @Composable
 fun NestedScalingDemo() {
-    Layout(
-        children = {
-            Scalable(.66666666f, Color(0xFFffeb3b.toInt())) {
-                Scalable(.5f, Color(0xFF4caf50.toInt())) {}
-            }
-        }) { measurables, constraints, _ ->
-        val placeable = measurables.first().measure(constraints)
+    Column {
+        Text("Demonstrates nested scaling.")
+        Text("As of now, this works the same way that nested scrolling does.  There is a scaling " +
+                "region inside another scaling region. If you scale the inner region far " +
+                "enough, it will actually stop scaling and the outer region will scale instead. " +
+                "Or you can just scale the outer region (Scale out to get started)")
+        Layout(
+            children = {
+                Scalable(.66666666f, Color(0xFFffeb3b.toInt())) {
+                    Scalable(.5f, Color(0xFF4caf50.toInt())) {}
+                }
+            }) { measurables, constraints, _ ->
+            val placeable = measurables.first().measure(constraints)
 
-        layout(constraints.maxWidth, constraints.maxHeight) {
-            placeable.place(
-                (constraints.maxWidth - placeable.width) / 2,
-                (constraints.maxHeight - placeable.height) / 2
-            )
+            layout(constraints.maxWidth, constraints.maxHeight) {
+                placeable.place(
+                    (constraints.maxWidth - placeable.width) / 2,
+                    (constraints.maxHeight - placeable.height) / 2
+                )
+            }
         }
     }
 }

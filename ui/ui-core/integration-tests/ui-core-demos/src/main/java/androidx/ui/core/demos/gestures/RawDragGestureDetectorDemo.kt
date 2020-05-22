@@ -24,6 +24,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.rawDragGestureFilter
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
+import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.offset
 import androidx.ui.layout.preferredSize
@@ -32,10 +34,10 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
 /**
- * Simple DragGestureDetector demo.
+ * Simple [rawDragGestureFilter] demo.
  */
 @Composable
-fun RawDragGestureDetectorDemo() {
+fun RawDragGestureFilterDemo() {
     val offset = state { PxPosition.Origin }
 
     val dragObserver = object : DragObserver {
@@ -48,12 +50,15 @@ fun RawDragGestureDetectorDemo() {
     val (offsetX, offsetY) =
         with(DensityAmbient.current) { offset.value.x.toDp() to offset.value.y.toDp() }
 
-    Box(
-        Modifier.offset(offsetX, offsetY)
-            .fillMaxSize()
-            .wrapContentSize(Alignment.Center)
-            .rawDragGestureFilter(dragObserver)
-            .preferredSize(96.dp),
-        backgroundColor = Grey
-    )
+    Column {
+        Text("Demonstrates dragging that starts immediately (no slop or anything else).")
+        Box(
+            Modifier.offset(offsetX, offsetY)
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+                .rawDragGestureFilter(dragObserver)
+                .preferredSize(96.dp),
+            backgroundColor = Grey
+        )
+    }
 }
