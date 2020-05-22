@@ -16,8 +16,8 @@
 
 package androidx.ui.graphics
 
+import androidx.ui.geometry.Size
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
 
 /**
  * Defines a generic shape.
@@ -31,5 +31,5 @@ interface Shape {
      *
      * @return [Outline] of this shape for the given [size].
      */
-    fun createOutline(size: PxSize, density: Density): Outline
+    fun createOutline(size: Size, density: Density): Outline
 }

@@ -17,6 +17,7 @@
 package androidx.ui.unit
 
 import androidx.ui.geometry.Rect
+import kotlin.math.roundToInt
 
 /**
  * A density of the screen. Used for convert [Dp] to pixels.
@@ -50,14 +51,14 @@ interface Density {
     val fontScale: Float
 
     /**
-     * Convert [Dp] to [Px]. Pixels are used to paint to Canvas.
+     * Convert [Dp] to pixels. Pixels are used to paint to Canvas.
      */
-    fun Dp.toPx(): Px = Px(value * density)
+    fun Dp.toPx(): Float = value * density
 
     /**
      * Convert [Dp] to [IntPx] by rounding
      */
-    fun Dp.toIntPx(): IntPx = toPx().round()
+    fun Dp.toIntPx(): IntPx = toPx().roundToInt().ipx
 
     /**
      * Convert [Dp] to Sp. Sp is used for font size, etc.
@@ -65,18 +66,18 @@ interface Density {
     fun Dp.toSp(): TextUnit = TextUnit.Sp(value / fontScale)
 
     /**
-     * Convert Sp to [Px]. Pixels are used to paint to Canvas.
+     * Convert Sp to pixels. Pixels are used to paint to Canvas.
      * @throws IllegalStateException if TextUnit other than SP unit is specified.
      */
-    fun TextUnit.toPx(): Px {
+    fun TextUnit.toPx(): Float {
         check(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
-        return Px(value * fontScale * density)
+        return value * fontScale * density
     }
 
     /**
      * Convert Sp to [IntPx] by rounding
      */
-    fun TextUnit.toIntPx(): IntPx = toPx().round()
+    fun TextUnit.toIntPx(): IntPx = toPx().roundToInt().ipx
 
     /**
      * Convert Sp to [Dp].
@@ -124,10 +125,10 @@ interface Density {
      */
     fun Bounds.toRect(): Rect {
         return Rect(
-            left.toPx().value,
-            top.toPx().value,
-            right.toPx().value,
-            bottom.toPx().value
+            left.toPx(),
+            top.toPx(),
+            right.toPx(),
+            bottom.toPx()
         )
     }
 }

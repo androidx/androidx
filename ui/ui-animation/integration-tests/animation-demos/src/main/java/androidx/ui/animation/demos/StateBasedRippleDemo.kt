@@ -48,7 +48,7 @@ fun StateBasedRippleDemo() {
 private fun RippleRect() {
     val radius = with(DensityAmbient.current) { TargetRadius.toPx() }
     val toState = state { ButtonStatus.Initial }
-    val rippleTransDef = remember { createTransDef(radius.value) }
+    val rippleTransDef = remember { createTransDef(radius) }
     val onPress: (PxPosition) -> Unit = { position ->
         down.x = position.x.value
         down.y = position.y.value

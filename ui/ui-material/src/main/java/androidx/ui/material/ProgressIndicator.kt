@@ -63,7 +63,7 @@ fun LinearProgressIndicator(
     DeterminateProgressIndicator(progress = progress) {
         val stroke = with(DensityAmbient.current) {
             Stroke(
-                width = ProgressIndicatorConstants.DefaultStrokeWidth.toPx().value,
+                width = ProgressIndicatorConstants.DefaultStrokeWidth.toPx(),
                 cap = StrokeCap.butt
             )
         }
@@ -101,7 +101,7 @@ fun LinearProgressIndicator(
             val backgroundColor = color.copy(alpha = BackgroundOpacity)
             val stroke = with(DensityAmbient.current) {
                 Stroke(
-                    width = ProgressIndicatorConstants.DefaultStrokeWidth.toPx().value,
+                    width = ProgressIndicatorConstants.DefaultStrokeWidth.toPx(),
                     cap = StrokeCap.butt
                 )
             }
@@ -168,7 +168,7 @@ fun CircularProgressIndicator(
 ) {
     DeterminateProgressIndicator(progress = progress) {
         val stroke = with(DensityAmbient.current) {
-            Stroke(width = strokeWidth.toPx().value, cap = StrokeCap.butt)
+            Stroke(width = strokeWidth.toPx(), cap = StrokeCap.butt)
         }
         Canvas(
             modifier
@@ -200,7 +200,7 @@ fun CircularProgressIndicator(
     //  semantics there
     Semantics(container = true, properties = { accessibilityValue = Strings.InProgress }) {
         val stroke = with(DensityAmbient.current) {
-            Stroke(width = strokeWidth.toPx().value, cap = StrokeCap.square)
+            Stroke(width = strokeWidth.toPx(), cap = StrokeCap.square)
         }
         Transition(
             definition = CircularIndeterminateTransition,

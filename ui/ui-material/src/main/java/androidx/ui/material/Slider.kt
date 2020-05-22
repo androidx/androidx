@@ -182,8 +182,8 @@ private fun SliderImpl(
         val trackStrokeWidth: Float
         val thumbPx: Float
         with(DensityAmbient.current) {
-            trackStrokeWidth = TrackHeight.toPx().value
-            thumbPx = ThumbRadius.toPx().value
+            trackStrokeWidth = TrackHeight.toPx()
+            thumbPx = ThumbRadius.toPx()
         }
         val trackStroke = Stroke(trackStrokeWidth, cap = StrokeCap.round)
         Track(center.fillMaxSize(), color, positionFraction, tickFractions, thumbPx, trackStroke)

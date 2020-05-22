@@ -16,11 +16,11 @@
 
 package androidx.ui.foundation.shape
 
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
 
 /**
  * Creates [Shape] defined by applying the provided [builder] on a [Path].
@@ -28,9 +28,9 @@ import androidx.ui.unit.PxSize
  * @param builder the builder lambda to apply on a [Path]
  */
 data class GenericShape(
-    private val builder: Path.(size: PxSize) -> Unit
+    private val builder: Path.(size: Size) -> Unit
 ) : Shape {
-    override fun createOutline(size: PxSize, density: Density): Outline {
+    override fun createOutline(size: Size, density: Density): Outline {
         val path = Path().apply {
             builder(size)
             close()

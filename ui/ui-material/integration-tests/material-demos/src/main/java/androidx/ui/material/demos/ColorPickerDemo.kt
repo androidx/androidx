@@ -292,8 +292,8 @@ private fun MagnifierSelectionCircle(modifier: Modifier, color: Color) {
  * A [GenericShape] that draws a box with a triangle at the bottom center to indicate a popup.
  */
 private val MagnifierPopupShape = GenericShape { size ->
-    val width = size.width.value
-    val height = size.height.value
+    val width = size.width
+    val height = size.height
 
     val arrowY = height * 0.8f
     val arrowXOffset = width * 0.4f

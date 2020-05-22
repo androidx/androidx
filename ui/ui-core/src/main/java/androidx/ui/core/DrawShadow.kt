@@ -48,7 +48,7 @@ fun Modifier.drawShadow(
     composed {
         drawLayer(
             alpha = opacity,
-            shadowElevation = with(DensityAmbient.current) { elevation.toPx().value },
+            shadowElevation = with(DensityAmbient.current) { elevation.toPx() },
             shape = shape,
             clip = clip
         )

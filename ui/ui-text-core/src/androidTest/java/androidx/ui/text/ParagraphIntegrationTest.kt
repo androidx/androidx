@@ -71,7 +71,7 @@ class ParagraphIntegrationTest {
     fun empty_string() {
         with(defaultDensity) {
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val text = ""
             val paragraph = simpleParagraph(
                 text = text,
@@ -94,7 +94,7 @@ class ParagraphIntegrationTest {
     fun single_line_default_values() {
         with(defaultDensity) {
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             for (text in arrayOf("xyz", "\u05D0\u05D1\u05D2")) {
                 val paragraph = simpleParagraph(
@@ -121,7 +121,7 @@ class ParagraphIntegrationTest {
     fun line_break_default_values() {
         with(defaultDensity) {
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             for (text in arrayOf("abcdef", "\u05D0\u05D1\u05D2\u05D3\u05D4\u05D5")) {
                 val paragraph = simpleParagraph(
@@ -154,7 +154,7 @@ class ParagraphIntegrationTest {
     fun newline_default_values() {
         with(defaultDensity) {
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
                 val paragraph = simpleParagraph(
@@ -185,7 +185,7 @@ class ParagraphIntegrationTest {
     fun newline_and_line_break_default_values() {
         with(defaultDensity) {
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
                 val paragraph = simpleParagraph(
@@ -218,7 +218,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -240,7 +240,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -264,7 +264,7 @@ class ParagraphIntegrationTest {
             val secondLine = "def"
             val text = firstLine + secondLine
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -290,7 +290,7 @@ class ParagraphIntegrationTest {
             val secondLine = "\u05D3\u05D4\u05D5"
             val text = firstLine + secondLine
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -314,7 +314,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -338,7 +338,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -362,7 +362,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -387,7 +387,7 @@ class ParagraphIntegrationTest {
             val secondLine = "def"
             val text = firstLine + secondLine
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -412,7 +412,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -434,7 +434,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -451,7 +451,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -467,7 +467,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -483,7 +483,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -510,7 +510,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcdef"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val charsPerLine = 3
             val paragraph = simpleParagraph(
                 text = text,
@@ -549,7 +549,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc\ndef"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize)
@@ -582,7 +582,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize)
@@ -615,7 +615,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -641,7 +641,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val charsPerLine = 3
             val paragraph = simpleParagraph(
                 text = text,
@@ -680,7 +680,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -715,7 +715,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -749,7 +749,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -768,7 +768,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -790,7 +790,7 @@ class ParagraphIntegrationTest {
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -818,7 +818,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -845,7 +845,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -875,7 +875,7 @@ class ParagraphIntegrationTest {
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -908,7 +908,7 @@ class ParagraphIntegrationTest {
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -938,7 +938,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -957,7 +957,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -974,7 +974,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -995,7 +995,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1015,7 +1015,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -1034,7 +1034,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1056,7 +1056,7 @@ class ParagraphIntegrationTest {
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1081,7 +1081,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1109,7 +1109,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1138,7 +1138,7 @@ class ParagraphIntegrationTest {
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1171,7 +1171,7 @@ class ParagraphIntegrationTest {
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1202,7 +1202,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1221,7 +1221,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1238,7 +1238,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1259,7 +1259,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1279,7 +1279,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1298,7 +1298,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1320,7 +1320,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1339,7 +1339,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1363,7 +1363,7 @@ class ParagraphIntegrationTest {
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1384,7 +1384,7 @@ class ParagraphIntegrationTest {
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1408,7 +1408,7 @@ class ParagraphIntegrationTest {
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1430,7 +1430,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1449,7 +1449,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1471,7 +1471,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1490,7 +1490,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1515,7 +1515,7 @@ class ParagraphIntegrationTest {
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1540,7 +1540,7 @@ class ParagraphIntegrationTest {
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1568,7 +1568,7 @@ class ParagraphIntegrationTest {
             val rtlText = "\u05D0\u05D1\u05D2"
             val text = ltrText + rtlText
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
             val paragraph = simpleParagraph(
                 text = text,
@@ -1594,7 +1594,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u82B1"
             val fontSize = 10.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val locales = arrayOf(
                 // duplicate ja is on purpose
                 LocaleList("ja"),
@@ -1684,7 +1684,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "a\na\na"
             val fontSize = 100.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val lineCount = text.lines().size
             val maxLines = lineCount - 1
             val paragraph = simpleParagraph(
@@ -1703,7 +1703,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "a\na\na"
             val fontSize = 100.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val lineCount = text.lines().size
             val maxLines = lineCount - 1
             val paragraph = simpleParagraph(
@@ -1725,7 +1725,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "a\na\na"
             val fontSize = 100.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val maxLines = text.lines().size
             val paragraph = simpleParagraph(
                 text = text,
@@ -1743,7 +1743,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "a\na\na"
             val fontSize = 100.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val lineCount = text.lines().size
             val maxLines = lineCount + 1
             val paragraph = simpleParagraph(
@@ -1763,7 +1763,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "a\na\na"
             val fontSize = 100.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val maxLines = 1
 
             val paragraphWithMaxLine = simpleParagraph(
@@ -1842,7 +1842,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "aa"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val maxLines = 1
             val paragraph = simpleParagraph(
                 text = text,
@@ -1874,7 +1874,7 @@ class ParagraphIntegrationTest {
             val text = "aa"
             val maxLines = 3
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -1931,7 +1931,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "aa"
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val maxLines = 1
             val paragraph = simpleParagraph(
                 text = text,
@@ -1965,7 +1965,7 @@ class ParagraphIntegrationTest {
             val text = "aa"
             val maxLines = 3
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize),
@@ -1985,7 +1985,7 @@ class ParagraphIntegrationTest {
             val textLTR = "aa"
             val textRTL = "\u05D0\u05D0"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val layoutLTRWidth = (textLTR.length + 2) * fontSizeInPx
             val paragraphLTR = simpleParagraph(
@@ -2012,7 +2012,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val texts = listOf("aa", "\u05D0\u05D0")
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             texts.map { text ->
                 val layoutWidth = (text.length + 2) * fontSizeInPx
@@ -2035,7 +2035,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val texts = listOf("aa", "\u05D0\u05D0")
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             texts.map { text ->
                 val layoutWidth = (text.length + 2) * fontSizeInPx
@@ -2059,7 +2059,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val texts = listOf("aa", "\u05D0\u05D0")
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             texts.map { text ->
                 val layoutWidth = (text.length + 2) * fontSizeInPx
@@ -2084,7 +2084,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "aa"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val layoutWidth = (text.length + 2) * fontSizeInPx
 
             val paragraph = simpleParagraph(
@@ -2105,7 +2105,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "aa"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val layoutWidth = (text.length + 2) * fontSizeInPx
 
             val paragraph = simpleParagraph(
@@ -2126,7 +2126,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D0"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val layoutWidth = (text.length + 2) * fontSizeInPx
 
             val paragraph = simpleParagraph(
@@ -2147,7 +2147,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0\u05D0"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val layoutWidth = (text.length + 2) * fontSizeInPx
 
             val paragraph = simpleParagraph(
@@ -2172,7 +2172,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "a a a"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val layoutWidth = ("a a".length + 1) * fontSizeInPx
 
             val paragraph = simpleParagraph(
@@ -2196,7 +2196,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "a.."
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val layoutWidth = text.length * fontSizeInPx
 
             val paragraph = simpleParagraph(
@@ -2220,7 +2220,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "a.."
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val layoutWidth = text.length * fontSizeInPx
 
             val paragraph = simpleParagraph(
@@ -2244,7 +2244,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "..."
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val layoutWidth = text.length * fontSizeInPx
 
             val paragraph = simpleParagraph(
@@ -2267,7 +2267,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "a\u05D0."
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val layoutWidth = text.length * fontSizeInPx
 
             val paragraph = simpleParagraph(
@@ -2290,7 +2290,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u05D0a."
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val layoutWidth = text.length * fontSizeInPx
 
             val paragraph = simpleParagraph(
@@ -2312,7 +2312,7 @@ class ParagraphIntegrationTest {
             val text = "aaa\nbbb"
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val paragraph = simpleParagraph(
                 text = text,
@@ -2329,7 +2329,7 @@ class ParagraphIntegrationTest {
             val text = "aaa\nbbb"
 
             val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val paragraph = simpleParagraph(
                 text = text,
@@ -2608,7 +2608,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val spanStyle = SpanStyle(fontSize = fontSize)
             val paragraphWidth = fontSizeInPx * text.length
 
@@ -2630,9 +2630,9 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val spanStyleFontSize = 30.sp
-            val spanStyleFontSizeInPx = spanStyleFontSize.toPx().value
+            val spanStyleFontSizeInPx = spanStyleFontSize.toPx()
             val spanStyle = SpanStyle(fontSize = spanStyleFontSize)
             val paragraphWidth = spanStyleFontSizeInPx * text.length
 
@@ -2657,11 +2657,11 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val spanStyle = SpanStyle(fontSize = fontSize)
 
             val fontSizeOverwrite = 30.sp
-            val fontSizeOverwriteInPx = fontSizeOverwrite.toPx().value
+            val fontSizeOverwriteInPx = fontSizeOverwrite.toPx()
             val spanStyleOverwrite = SpanStyle(fontSize = fontSizeOverwrite)
             val paragraphWidth = fontSizeOverwriteInPx * text.length
 
@@ -2687,7 +2687,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val em = 0.5.em
             val spanStyle = SpanStyle(fontSize = em)
 
@@ -2707,7 +2707,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val em = 0.5f.em
             val spanStyle = SpanStyle(fontSize = em)
 
@@ -2735,7 +2735,7 @@ class ParagraphIntegrationTest {
             val paragraphFontSize = 20.sp
 
             val fontSize = 30.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val fontSizeStyle = SpanStyle(fontSize = fontSize)
 
             val em = 0.5f.em
@@ -2762,7 +2762,7 @@ class ParagraphIntegrationTest {
             val paragraphFontSize = 20.sp
 
             val fontSize = 30.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val fontSizeStyle = SpanStyle(fontSize = fontSize)
 
             val em = 0.5f.em
@@ -2788,7 +2788,7 @@ class ParagraphIntegrationTest {
             val paragraphFontSize = 20.sp
 
             val fontSize = 30.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val fontSizeStyle = SpanStyle(fontSize = fontSize)
 
             val em1 = 0.5f.em
@@ -2817,7 +2817,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val letterSpacing = 5.0f
             val spanStyle = SpanStyle(letterSpacing = letterSpacing.em)
 
@@ -2840,7 +2840,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val letterSpacing = 5.0f
             val spanStyle = SpanStyle(letterSpacing = letterSpacing.sp)
 
@@ -2863,7 +2863,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val letterSpacing = 5.0f
             val spanStyle = SpanStyle(letterSpacing = letterSpacing.em)
 
@@ -2886,7 +2886,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val letterSpacing = 5.0f
             val spanStyle = SpanStyle(letterSpacing = letterSpacing.em)
 
@@ -2916,13 +2916,13 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val letterSpacing = 2f
             val letterSpacingStyle = SpanStyle(letterSpacing = letterSpacing.em)
 
             val fontSizeOverwrite = 30.sp
-            val fontSizeOverwriteInPx = fontSizeOverwrite.toPx().value
+            val fontSizeOverwriteInPx = fontSizeOverwrite.toPx()
             val fontSizeStyle = SpanStyle(fontSize = fontSizeOverwrite)
 
             val paragraph = simpleParagraph(
@@ -2948,7 +2948,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val letterSpacing = 2f
             val letterSpacingStyle = SpanStyle(letterSpacing = letterSpacing.em)
@@ -2979,14 +2979,14 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val letterSpacing = 10.sp
-            val letterSpacingInPx = letterSpacing.toPx().value
+            val letterSpacingInPx = letterSpacing.toPx()
             val letterSpacingStyle = SpanStyle(letterSpacing = letterSpacing)
 
             val fontSizeOverwrite = 30.sp
-            val fontSizeOverwriteInPx = fontSizeOverwrite.toPx().value
+            val fontSizeOverwriteInPx = fontSizeOverwrite.toPx()
             val fontSizeStyle = SpanStyle(fontSize = fontSizeOverwrite)
 
             val paragraph = simpleParagraph(
@@ -3012,10 +3012,10 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val letterSpacing = 10.sp
-            val letterSpacingInPx = letterSpacing.toPx().value
+            val letterSpacingInPx = letterSpacing.toPx()
             val letterSpacingStyle = SpanStyle(letterSpacing = letterSpacing)
 
             val scaleX = 1.5f
@@ -3103,9 +3103,9 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val indent = 20.sp
-            val indentInPx = indent.toPx().value
+            val indentInPx = indent.toPx()
 
             val paragraph = simpleParagraph(
                 text = text,
@@ -3243,7 +3243,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "ad"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             // custom 100 regular font has b as the wide glyph
             // custom 200 regular font has d as the wide glyph
             val spanStyle = SpanStyle(fontFamily = fontFamilyCustom200)
@@ -3272,7 +3272,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "AaAa"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             // This fontFeatureSetting turns off the kerning
             val spanStyle = SpanStyle(fontFeatureSettings = "\"kern\" 0")
 
@@ -3299,7 +3299,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraphWidth = fontSizeInPx * text.length
 
             val spanStyle = SpanStyle(
@@ -3333,7 +3333,7 @@ class ParagraphIntegrationTest {
             val text = "abc"
             // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
             val fontSize = 100.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraphWidth = fontSizeInPx * text.length
 
             val paragraphWithoutColor = simpleParagraph(
@@ -3362,7 +3362,7 @@ class ParagraphIntegrationTest {
             val text = "abc"
             // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
             val fontSize = 100.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val letterSpacing = 1f
 
             val paragraph = simpleParagraph(
@@ -3383,7 +3383,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(
@@ -3417,7 +3417,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc\nabc"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(
@@ -3465,7 +3465,7 @@ class ParagraphIntegrationTest {
             val selectionLTRStart = 2
             val selectionRTLEnd = 2
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(
@@ -3540,7 +3540,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\uD834\uDD1E\uD834\uDD1F"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(
@@ -3566,7 +3566,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\uD834\uDD1E\uD834\uDD1F"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(
@@ -3592,7 +3592,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\uD834\uDD1E\uD834\uDD1F"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(
@@ -3618,7 +3618,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u1F600\u1F603\u1F604\u1F606"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(
@@ -3652,7 +3652,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u200D"
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(
@@ -3679,7 +3679,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "\u2066"
             val fontSize = 20f.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(
@@ -3771,7 +3771,7 @@ class ParagraphIntegrationTest {
                 style = TextStyle(fontSize = fontSize)
             )
 
-            val expectedWidth = text.length * fontSize.toPx().value
+            val expectedWidth = text.length * fontSize.toPx()
             assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
         }
     }
@@ -3791,7 +3791,7 @@ class ParagraphIntegrationTest {
             )
 
             // +1 is for the white space
-            val expectedWidth = (maxWordLength + 1) * fontSize.toPx().value
+            val expectedWidth = (maxWordLength + 1) * fontSize.toPx()
             assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
         }
     }
@@ -3812,7 +3812,7 @@ class ParagraphIntegrationTest {
                 )
             )
 
-            val expectedWidth = "bb ".length * styledFontSize.toPx().value
+            val expectedWidth = "bb ".length * styledFontSize.toPx()
             assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
         }
     }
@@ -3852,7 +3852,7 @@ class ParagraphIntegrationTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 14.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
 
             val paragraphIntrinsics = ParagraphIntrinsics(
                 text = text,

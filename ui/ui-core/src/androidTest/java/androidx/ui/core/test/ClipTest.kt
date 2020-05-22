@@ -34,6 +34,7 @@ import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Radius
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
@@ -41,9 +42,7 @@ import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toRect
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -63,26 +62,26 @@ class ClipTest {
     private lateinit var drawLatch: CountDownLatch
 
     private val rectShape = object : Shape {
-        override fun createOutline(size: PxSize, density: Density): Outline =
+        override fun createOutline(size: Size, density: Density): Outline =
             Outline.Rectangle(size.toRect())
     }
     private val triangleShape = object : Shape {
-        override fun createOutline(size: PxSize, density: Density): Outline =
+        override fun createOutline(size: Size, density: Density): Outline =
             Outline.Generic(
                 Path().apply {
-                    moveTo(size.width.value / 2f, 0f)
-                    lineTo(size.width.value, size.height.value)
-                    lineTo(0f, size.height.value)
+                    moveTo(size.width / 2f, 0f)
+                    lineTo(size.width, size.height)
+                    lineTo(0f, size.height)
                     close()
                 }
             )
     }
     private val invertedTriangleShape = object : Shape {
-        override fun createOutline(size: PxSize, density: Density): Outline =
+        override fun createOutline(size: Size, density: Density): Outline =
             Outline.Generic(
                 Path().apply {
-                    lineTo(size.width.value, 0f)
-                    lineTo(size.width.value / 2f, size.height.value)
+                    lineTo(size.width, 0f)
+                    lineTo(size.width / 2f, size.height)
                     lineTo(0f, 0f)
                     close()
                 }
@@ -162,7 +161,7 @@ class ClipTest {
     @Test
     fun roundedUniformRectClip() {
         val shape = object : Shape {
-            override fun createOutline(size: PxSize, density: Density): Outline =
+            override fun createOutline(size: Size, density: Density): Outline =
                     Outline.Rounded(RRect(size.toRect(), Radius.circular(12f)))
         }
         rule.runOnUiThreadIR {
@@ -195,7 +194,7 @@ class ClipTest {
     @Test
     fun roundedRectWithDiffCornersClip() {
         val shape = object : Shape {
-            override fun createOutline(size: PxSize, density: Density): Outline =
+            override fun createOutline(size: Size, density: Density): Outline =
                 Outline.Rounded(
                     RRect(size.toRect(),
                         Radius.zero,
@@ -247,7 +246,7 @@ class ClipTest {
     fun concaveClip() {
         // 30 pixels rect with a rect hole of 10 pixels in the middle
         val concaveShape = object : Shape {
-            override fun createOutline(size: PxSize, density: Density): Outline =
+            override fun createOutline(size: Size, density: Density): Outline =
                 Outline.Generic(
                     Path().apply {
                         op(
@@ -296,7 +295,7 @@ class ClipTest {
         drawLatch = CountDownLatch(1)
         rule.runOnUiThreadIR {
             model.value = object : Shape {
-                override fun createOutline(size: PxSize, density: Density): Outline =
+                override fun createOutline(size: Size, density: Density): Outline =
                     Outline.Rounded(RRect(size.toRect(), Radius.circular(12f)))
             }
         }

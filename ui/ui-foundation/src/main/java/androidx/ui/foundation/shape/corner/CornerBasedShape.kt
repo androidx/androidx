@@ -16,11 +16,10 @@
 
 package androidx.ui.foundation.shape.corner
 
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Shape
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.minDimension
 import kotlin.math.min
 
 /**
@@ -40,8 +39,8 @@ abstract class CornerBasedShape(
     val bottomLeft: CornerSize
 ) : Shape {
 
-    final override fun createOutline(size: PxSize, density: Density): Outline {
-        val halfMinDimension = size.minDimension.value / 2f
+    final override fun createOutline(size: Size, density: Density): Outline {
+        val halfMinDimension = size.minDimension / 2f
         val topLeft = min(topLeft.toPx(size, density), halfMinDimension)
         val topRight = min(topRight.toPx(size, density), halfMinDimension)
         val bottomRight = min(bottomRight.toPx(size, density), halfMinDimension)
@@ -63,7 +62,7 @@ abstract class CornerBasedShape(
      * @param bottomLeft the resolved size for the bottom right corner
      */
     abstract fun createOutline(
-        size: PxSize,
+        size: Size,
         topLeft: Float,
         topRight: Float,
         bottomRight: Float,

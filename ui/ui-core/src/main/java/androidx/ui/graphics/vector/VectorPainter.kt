@@ -42,10 +42,10 @@ const val RootGroupName = "VectorRootGroup"
  * @param [defaultHeight] Intrinsic height of the Vector in [Dp]
  * @param [viewportWidth] Width of the viewport space. The viewport is the virtual canvas where
  * paths are drawn on.
- *  This parameter is optional. Not providing it will use the [defaultWidth] converted to [Px]
+ *  This parameter is optional. Not providing it will use the [defaultWidth] converted to pixels
  * @param [viewportHeight] Height of the viewport space. The viewport is the virtual canvas where
  * paths are drawn on.
- *  This parameter is optional. Not providing it will use the [defaultHeight] converted to [Px]
+ *  This parameter is optional. Not providing it will use the [defaultHeight] converted to pixels
  * @param [name] optional identifier used to identify the root of this vector graphic
  * @param [children] Composable used to define the structure and contents of the vector graphic
  */
@@ -59,8 +59,8 @@ fun VectorPainter(
     children: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): VectorPainter {
     val density = DensityAmbient.current
-    val widthPx = with(density) { defaultWidth.toPx().value }
-    val heightPx = with(density) { defaultHeight.toPx().value }
+    val widthPx = with(density) { defaultWidth.toPx() }
+    val heightPx = with(density) { defaultHeight.toPx() }
 
     val vpWidth = if (viewportWidth.isNaN()) widthPx else viewportWidth
     val vpHeight = if (viewportHeight.isNaN()) heightPx else viewportHeight

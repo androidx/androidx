@@ -19,6 +19,7 @@ package androidx.ui.core
 import android.os.Build
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.geometry.isSimple
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
@@ -26,8 +27,6 @@ import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.asAndroidPath
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.px
 import kotlin.math.roundToInt
 
 /**
@@ -42,7 +41,7 @@ internal class OutlineResolver(private val density: Density) {
     /**
      * The size of the layer. This is used in generating the [Outline] from the [Shape].
      */
-    private var size: PxSize = PxSize.Zero
+    private var size: Size = Size.zero
 
     /**
      * The [Shape] of the Outline of the Layer.
@@ -122,7 +121,7 @@ internal class OutlineResolver(private val density: Density) {
     /**
      * Updates the size.
      */
-    fun update(size: PxSize) {
+    fun update(size: Size) {
         if (this.size != size) {
             this.size = size
             cacheIsDirty = true
@@ -133,7 +132,7 @@ internal class OutlineResolver(private val density: Density) {
         if (cacheIsDirty) {
             cacheIsDirty = false
             usePathForClip = false
-            if (outlineNeeded && size.width > 0.px && size.height > 0.px) {
+            if (outlineNeeded && size.width > 0.0f && size.height > 0.0f) {
                 when (val outline = shape.createOutline(size, density)) {
                     is Outline.Rectangle -> updateCacheWithRect(outline.rect)
                     is Outline.Rounded -> updateCacheWithRRect(outline.rrect)

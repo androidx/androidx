@@ -131,7 +131,7 @@ private fun CustomShapeButton() {
 }
 
 private val TriangleShape = GenericShape { size ->
-    moveTo(size.width.value / 2f, 0f)
-    lineTo(size.width.value, size.height.value)
-    lineTo(0f, size.height.value)
+    moveTo(size.width / 2f, 0f)
+    lineTo(size.width, size.height)
+    lineTo(0f, size.height)
 }

@@ -354,7 +354,7 @@ class SnackbarTest {
                 shape = shape,
                 shapeColor = snackBarColor,
                 backgroundColor = background,
-                shapeOverlapPixelCount = with(composeTestRule.density) { 2.dp.toPx().value }
+                shapeOverlapPixelCount = with(composeTestRule.density) { 2.dp.toPx() }
             )
     }
 }

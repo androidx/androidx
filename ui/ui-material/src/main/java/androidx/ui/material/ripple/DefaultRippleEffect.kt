@@ -109,7 +109,7 @@ private class DefaultRippleEffect(
         val surfaceSize = size
         val startRadius = getRippleStartRadius(surfaceSize)
         val targetRadius = with(density) {
-            radius?.toPx()?.value ?: getRippleEndRadius(clipped, surfaceSize)
+            radius?.toPx() ?: getRippleEndRadius(clipped, surfaceSize)
         }
 
         val center = size.center()
@@ -249,7 +249,7 @@ internal fun getRippleStartRadius(size: PxSize) =
 internal fun Density.getRippleEndRadius(bounded: Boolean, size: PxSize): Float {
     val radiusCoveringBounds = (PxPosition(size.width, size.height).getDistance() / 2f).value
     return if (bounded) {
-        radiusCoveringBounds + BoundedRippleExtraRadius.toPx().value
+        radiusCoveringBounds + BoundedRippleExtraRadius.toPx()
     } else {
         radiusCoveringBounds
     }

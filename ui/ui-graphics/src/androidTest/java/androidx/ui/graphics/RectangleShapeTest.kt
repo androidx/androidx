@@ -17,10 +17,9 @@
 package androidx.ui.graphics
 
 import androidx.test.filters.SmallTest
+import androidx.ui.geometry.Size
+import androidx.ui.geometry.toRect
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.px
-import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +30,7 @@ import org.junit.runners.JUnit4
 class RectangleShapeTest {
 
     private val density = Density(2f)
-    private val size = PxSize(100.px, 150.px)
+    private val size = Size(100.0f, 150.0f)
 
     @Test
     fun rectangleShapeWithCorrectSize() {

@@ -34,8 +34,6 @@ import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.DrawStyle
 import androidx.ui.graphics.drawscope.Fill
 import androidx.ui.graphics.drawscope.drawCanvas
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 
 /**
  * Draws [shape] with [paint] behind the content.
@@ -153,8 +151,7 @@ private data class DrawBackground internal constructor(
                 if (size == lastSize) {
                     lastOutline!!
                 } else {
-                    val pxSize = PxSize(Px(size.width), Px(size.height))
-                    shape.createOutline(pxSize, this)
+                    shape.createOutline(size, this)
                 }
             drawOutline(localOutline)
             lastOutline = localOutline

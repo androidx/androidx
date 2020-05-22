@@ -19,12 +19,12 @@ package androidx.ui.foundation.shape.corner
 import androidx.annotation.IntRange
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Radius
+import androidx.ui.geometry.Size
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Shape
 import androidx.ui.unit.Dp
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.toRect
 
 /**
  * A shape describing the rectangle with rounded corners.
@@ -42,7 +42,7 @@ class RoundedCornerShape(
 ) : CornerBasedShape(topLeft, topRight, bottomRight, bottomLeft) {
 
     override fun createOutline(
-        size: PxSize,
+        size: Size,
         topLeft: Float,
         topRight: Float,
         bottomRight: Float,

@@ -45,7 +45,7 @@ class SpDeviceTest {
         val dm = activity.resources.displayMetrics
         val sp10InPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, dm)
         with(Density(activity)) {
-            assertEquals(sp10InPx, 10.sp.toPx().value, 0.01f)
+            assertEquals(sp10InPx, 10.sp.toPx(), 0.01f)
             assertEquals(10f, Px(sp10InPx).toSp().value, 0.01f)
         }
     }
