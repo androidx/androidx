@@ -83,11 +83,11 @@ class AndroidParagraphTest {
                         fontFamily = basicFontFamily
                     ),
                     // 2 chars width
-                    constraints = ParagraphConstraints(width = 2 * fontSize.toPx().value)
+                    constraints = ParagraphConstraints(width = 2 * fontSize.toPx())
                 )
 
                 val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
-                textPaint.textSize = fontSize.toPx().value
+                textPaint.textSize = fontSize.toPx()
                 textPaint.typeface = TypefaceAdapter().create(basicFontFamily)
 
                 val layout = TextLayout(
@@ -234,7 +234,7 @@ class AndroidParagraphTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val paragraphWidth = text.length * fontSize.toPx().value
+            val paragraphWidth = text.length * fontSize.toPx()
             val spanStyle = SpanStyle(fontSize = fontSize)
 
             val paragraph = simpleParagraph(
@@ -252,7 +252,7 @@ class AndroidParagraphTest {
         with(defaultDensity) {
             val text = "abcde"
             val fontSize = 20.sp
-            val paragraphWidth = text.length * fontSize.toPx().value
+            val paragraphWidth = text.length * fontSize.toPx()
             val spanStyle = SpanStyle(fontSize = fontSize)
 
             val paragraph = simpleParagraph(
@@ -271,7 +271,7 @@ class AndroidParagraphTest {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeOverwrite = 30.sp
-            val paragraphWidth = text.length * fontSizeOverwrite.toPx().value
+            val paragraphWidth = text.length * fontSizeOverwrite.toPx()
             val spanStyle = SpanStyle(fontSize = fontSize)
             val spanStyleOverwrite = SpanStyle(fontSize = fontSizeOverwrite)
 
@@ -916,7 +916,7 @@ class AndroidParagraphTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 20.sp
-            val paragraphWidth = (text.length - 1) * fontSize.toPx().value
+            val paragraphWidth = (text.length - 1) * fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 style = TextStyle(
@@ -939,7 +939,7 @@ class AndroidParagraphTest {
             val text = "abcde"
             val fontSize = 100.sp
             // Note that on API 21, if the next line only contains 1 character, ellipsis won't work
-            val paragraphWidth = (text.length - 1.5f) * fontSize.toPx().value
+            val paragraphWidth = (text.length - 1.5f) * fontSize.toPx()
             val paragraph = simpleParagraph(
                 text = text,
                 ellipsis = true,
@@ -960,8 +960,8 @@ class AndroidParagraphTest {
         with(defaultDensity) {
             val text = "abc"
             val fontSize = 100.sp
-            val paragraphWidth = (text.length - 1) * fontSize.toPx().value
-            val maxLines = ceil(text.length * fontSize.toPx().value / paragraphWidth).toInt()
+            val paragraphWidth = (text.length - 1) * fontSize.toPx()
+            val maxLines = ceil(text.length * fontSize.toPx() / paragraphWidth).toInt()
             val paragraph = simpleParagraph(
                 text = text,
                 ellipsis = true,
@@ -989,7 +989,7 @@ class AndroidParagraphTest {
                 constraints = ParagraphConstraints(width = 0.0f)
             )
 
-            assertThat(paragraph.textPaint.textSize).isEqualTo(fontSize.toPx().value)
+            assertThat(paragraph.textPaint.textSize).isEqualTo(fontSize.toPx())
         }
     }
 

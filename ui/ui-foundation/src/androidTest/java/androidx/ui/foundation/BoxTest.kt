@@ -286,8 +286,8 @@ class BoxTest {
                 shape = RectangleShape,
                 shapeColor = Color.Blue,
                 backgroundColor = Color.Red,
-                shapeSizeX = (size.toPx() - padding.toPx() - padding.toPx()).value,
-                shapeSizeY = (size.toPx() - padding.toPx() - padding.toPx()).value
+                shapeSizeX = (size.toPx() - padding.toPx() - padding.toPx()),
+                shapeSizeY = (size.toPx() - padding.toPx() - padding.toPx())
             )
         }
     }
@@ -314,8 +314,8 @@ class BoxTest {
                 shape = CircleShape,
                 shapeColor = Color.Blue,
                 backgroundColor = Color.Red,
-                shapeSizeX = (size.toPx() - padding.toPx() - padding.toPx()).value,
-                shapeSizeY = (size.toPx() - padding.toPx() - padding.toPx()).value,
+                shapeSizeX = (size.toPx() - padding.toPx() - padding.toPx()),
+                shapeSizeY = (size.toPx() - padding.toPx() - padding.toPx()),
                 shapeOverlapPixelCount = 2.0f
             )
         }
@@ -341,8 +341,8 @@ class BoxTest {
                 shape = RectangleShape,
                 shapeColor = Color.Blue,
                 backgroundColor = Color.Red,
-                shapeSizeX = (size.toPx() - borderSize.toPx() * 2).value,
-                shapeSizeY = (size.toPx() - borderSize.toPx() * 2).value,
+                shapeSizeX = (size.toPx() - borderSize.toPx() * 2),
+                shapeSizeY = (size.toPx() - borderSize.toPx() * 2),
                 shapeOverlapPixelCount = 2.0f
             )
         }

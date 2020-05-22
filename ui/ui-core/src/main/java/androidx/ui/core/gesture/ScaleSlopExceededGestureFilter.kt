@@ -25,7 +25,6 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.Px
 import kotlin.math.absoluteValue
 
 // TODO(b/143877464): Implement a "can scale in / can scale out" check so that scale slop is only
@@ -63,7 +62,7 @@ fun Modifier.scaleSlopExceededGestureFilter(
  *
  * @see scaleSlopExceededGestureFilter
  */
-internal class ScaleSlopExceededGestureFilter(private val scaleSlop: Px) : PointerInputFilter
+internal class ScaleSlopExceededGestureFilter(private val scaleSlop: Float) : PointerInputFilter
     () {
     lateinit var onScaleSlopExceeded: () -> Unit
 
@@ -90,7 +89,7 @@ internal class ScaleSlopExceededGestureFilter(private val scaleSlop: Px) : Point
 
                         scaleDiffTotal += scaleDifference
 
-                        if (scaleDiffTotal.absoluteValue > scaleSlop.value) {
+                        if (scaleDiffTotal.absoluteValue > scaleSlop) {
                             passedSlop = true
                             onScaleSlopExceeded.invoke()
                         }

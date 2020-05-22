@@ -92,7 +92,7 @@ internal fun TextPaint.applySpanStyle(
 
     when (style.fontSize.type) {
         TextUnitType.Sp -> with(density) {
-            textSize = style.fontSize.toPx().value
+            textSize = style.fontSize.toPx()
         }
         TextUnitType.Em -> {
             textSize *= style.fontSize.value
@@ -200,7 +200,7 @@ internal fun createStyledText(
     when (lineHeight.type) {
         TextUnitType.Sp -> with(density) {
             spannableString.setSpanWithPriority(
-                LineHeightSpan(ceil(lineHeight.toPx().value).toInt()),
+                LineHeightSpan(ceil(lineHeight.toPx()).toInt()),
                 0,
                 text.length,
                 SPAN_PRIORITY_NORMAL
@@ -222,12 +222,12 @@ internal fun createStyledText(
         if (indent.firstLine.isInherit || indent.restLine.isInherit) return@let
         with(density) {
             val firstLine = when (indent.firstLine.type) {
-                TextUnitType.Sp -> indent.firstLine.toPx().value
+                TextUnitType.Sp -> indent.firstLine.toPx()
                 TextUnitType.Em -> indent.firstLine.value * contextFontSize
                 TextUnitType.Inherit -> { 0f } // do nothing
             }
             val restLine = when (indent.restLine.type) {
-                TextUnitType.Sp -> indent.restLine.toPx().value
+                TextUnitType.Sp -> indent.restLine.toPx()
                 TextUnitType.Em -> indent.restLine.value * contextFontSize
                 TextUnitType.Inherit -> { 0f } // do nothing
             }
@@ -292,7 +292,7 @@ internal fun createStyledText(
         when (style.fontSize.type) {
             TextUnitType.Sp -> with(density) {
                 spannableString.setSpanWithPriority(
-                    AbsoluteSizeSpan(style.fontSize.toPx().value.roundToInt(), true),
+                    AbsoluteSizeSpan(style.fontSize.toPx().roundToInt(), true),
                     start,
                     end,
                     SPAN_PRIORITY_NORMAL
@@ -379,7 +379,7 @@ internal fun createStyledText(
         when (style.letterSpacing.type) {
             TextUnitType.Sp -> with(density) {
                 spannableString.setSpanWithPriority(
-                    LetterSpacingSpanPx(style.letterSpacing.toPx().value),
+                    LetterSpacingSpanPx(style.letterSpacing.toPx()),
                     start,
                     end,
                     SPAN_PRIORITY_LETTERSPACING

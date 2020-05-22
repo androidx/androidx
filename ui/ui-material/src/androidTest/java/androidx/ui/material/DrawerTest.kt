@@ -104,7 +104,7 @@ class DrawerTest {
         val width = composeTestRule.displayMetrics.widthPixels
         composeTestRule.runOnIdleComposeWithDensity {
             assertThat(size!!.width.value)
-                .isEqualTo(width - 56.dp.toPx().round().value)
+                .isEqualTo(width - 56.dp.toPx().roundToInt())
         }
     }
 

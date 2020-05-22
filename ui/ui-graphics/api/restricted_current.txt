@@ -528,7 +528,7 @@ package androidx.ui.graphics {
   }
 
   public interface Shape {
-    method public androidx.ui.graphics.Outline createOutline(androidx.ui.unit.PxSize size, androidx.ui.unit.Density density);
+    method public androidx.ui.graphics.Outline createOutline-SwJi8iY(long size, androidx.ui.unit.Density density);
   }
 
   public final class SolidColor extends androidx.ui.graphics.Brush {

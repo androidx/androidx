@@ -260,7 +260,7 @@ class OnPositionedTest : LayoutTest() {
 
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         with(density) {
-            assertThat(realLeft).isEqualTo(40.dp.toPx())
+            assertThat(realLeft).isEqualTo(40.dp.toPx().px)
         }
     }
 
@@ -270,7 +270,7 @@ class OnPositionedTest : LayoutTest() {
         // position of all the children down the tree(for example during the scrolling).
         // children should be able to react on this change.
         val left = mutableStateOf(20.dp)
-        var realLeft: Px? = null
+        var realLeft: Float? = null
         var positionedLatch = CountDownLatch(1)
         show {
             Stack {
@@ -279,7 +279,7 @@ class OnPositionedTest : LayoutTest() {
                         Container(width = 10.dp, height = 10.dp) {
                             Container(
                                 Modifier.onPositioned {
-                                    realLeft = it.positionInRoot.x
+                                    realLeft = it.positionInRoot.x.value
                                     positionedLatch.countDown()
                                 },
                                 width = 10.dp,
@@ -325,7 +325,7 @@ class OnPositionedTest : LayoutTest() {
         // simple copy of Padding which doesn't recompose when the size changes
         Layout(children) { measurables, constraints, _ ->
             layout(constraints.maxWidth, constraints.maxHeight) {
-                measurables.first().measure(constraints).place(sizeModel.value.toPx(), 0.px)
+                measurables.first().measure(constraints).place(sizeModel.value.toPx().px, 0.px)
             }
         }
     }

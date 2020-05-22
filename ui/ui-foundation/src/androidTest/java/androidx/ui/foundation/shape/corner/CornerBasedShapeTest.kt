@@ -18,11 +18,11 @@ package androidx.ui.foundation.shape.corner
 
 import androidx.test.filters.SmallTest
 import androidx.ui.geometry.RRect
+import androidx.ui.geometry.Size
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Outline
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.toRect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,9 +35,9 @@ class CornerBasedShapeTest {
     @Test
     fun createOutlineCalledWithCorrectParams() {
         val density = Density(2f, 1f)
-        val passedSize = PxSize(100.0f, 50.0f)
+        val passedSize = Size(100.0f, 50.0f)
         var assertionExecuted = false
-        val assertSizes = { size: PxSize,
+        val assertSizes = { size: Size,
                             topLeft: Float,
                             topRight: Float,
                             bottomRight: Float,
@@ -66,11 +66,11 @@ class CornerBasedShapeTest {
     @Test
     fun cornersSizesAreNotLargerThenMinDimension() {
         val density = Density(2f, 1f)
-        val sizeWithLargerWidth = PxSize(6.0f, 4.0f)
-        val sizeWithLargerHeight = PxSize(4.0f, 6.0f)
+        val sizeWithLargerWidth = Size(6.0f, 4.0f)
+        val sizeWithLargerHeight = Size(4.0f, 6.0f)
 
-        val sizesList = mutableListOf<PxSize>()
-        val assertSizes = { size: PxSize,
+        val sizesList = mutableListOf<Size>()
+        val assertSizes = { size: Size,
                             topLeft: Float,
                             topRight: Float,
                             bottomRight: Float,
@@ -154,11 +154,11 @@ private class Impl(
     topRight: CornerSize,
     bottomRight: CornerSize,
     bottomLeft: CornerSize,
-    private val onOutlineRequested: ((PxSize, Float, Float, Float, Float) -> Unit)? = null
+    private val onOutlineRequested: ((Size, Float, Float, Float, Float) -> Unit)? = null
 ) : CornerBasedShape(topLeft, topRight, bottomRight, bottomLeft) {
 
     override fun createOutline(
-        size: PxSize,
+        size: Size,
         topLeft: Float,
         topRight: Float,
         bottomRight: Float,
@@ -184,7 +184,7 @@ private class Impl2(
 ) : CornerBasedShape(topLeft, topRight, bottomRight, bottomLeft) {
 
     override fun createOutline(
-        size: PxSize,
+        size: Size,
         topLeft: Float,
         topRight: Float,
         bottomRight: Float,

@@ -105,8 +105,8 @@ class RippleTest {
                 density = composeTestRule.density,
                 backgroundColor = Color.Blue,
                 shape = RectangleShape,
-                shapeSizeX = 10.dp.toPx().value,
-                shapeSizeY = 10.dp.toPx().value,
+                shapeSizeX = 10.dp.toPx(),
+                shapeSizeY = 10.dp.toPx(),
                 shapeColor = Color.Red
             )
         }
@@ -143,8 +143,8 @@ class RippleTest {
                 density = composeTestRule.density,
                 backgroundColor = Color.Blue,
                 shape = RectangleShape,
-                shapeSizeX = 20.dp.toPx().value,
-                shapeSizeY = 20.dp.toPx().value,
+                shapeSizeX = 20.dp.toPx(),
+                shapeSizeY = 20.dp.toPx(),
                 shapeColor = Color.Red
             )
         }
@@ -209,8 +209,8 @@ class RippleTest {
                 density = composeTestRule.density,
                 backgroundColor = Color.Blue,
                 shape = RectangleShape,
-                shapeSizeX = 10.0.dp.toPx().value,
-                shapeSizeY = 10.0.dp.toPx().value,
+                shapeSizeX = 10.0.dp.toPx(),
+                shapeSizeY = 10.0.dp.toPx(),
                 shapeColor = Color.Red
             )
         }

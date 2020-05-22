@@ -38,7 +38,7 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.Px
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.round
+import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
 import com.google.common.truth.Truth.assertThat
@@ -46,6 +46,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -105,7 +106,8 @@ class AppBarTest {
         }
 
         composeTestRule.runOnIdleComposeWithDensity {
-            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y + appBarCoords!!.size.height
+            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y.value +
+                    appBarCoords!!.size.height.value
 
             // Navigation icon should be 4.dp from the start
             val navigationIconPositionX = navigationIconCoords!!.globalPosition.x
@@ -116,7 +118,7 @@ class AppBarTest {
             val navigationIconPositionY = navigationIconCoords!!.globalPosition.y
             val navigationIconExpectedPositionY = (appBarBottomEdgeY -
                     AppBarStartAndEndPadding.toPx() - FakeIconSize.toPx()
-            ).round().toPx()
+            ).roundToInt().px
             assertThat(navigationIconPositionY).isEqualTo(navigationIconExpectedPositionY)
 
             // Title should be 72.dp from the start
@@ -129,7 +131,8 @@ class AppBarTest {
             val titleLastBaselinePositionY = titleLastBaselineRelativePosition!! +
                     titleCoords!!.globalPosition.y
             // Baseline should be 20.sp from the bottom of the app bar
-            val titleExpectedLastBaselinePositionY = appBarBottomEdgeY - 20.sp.toIntPx().toPx()
+            val titleExpectedLastBaselinePositionY = appBarBottomEdgeY.px - 20.sp.toIntPx()
+                .toPx()
             assertThat(titleLastBaselinePositionY).isEqualTo(titleExpectedLastBaselinePositionY)
 
             // Action should be placed at the end
@@ -141,7 +144,7 @@ class AppBarTest {
             val actionPositionY = actionCoords!!.globalPosition.y
             val actionExpectedPositionY = (appBarBottomEdgeY - AppBarStartAndEndPadding.toPx() -
                 FakeIconSize.toPx()
-            ).round().toPx()
+            ).roundToInt().px
             assertThat(actionPositionY).isEqualTo(actionExpectedPositionY)
         }
     }
@@ -227,13 +230,14 @@ class AppBarTest {
             val childIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
             assertThat(childIconPositionX).isEqualTo(childIconExpectedPositionX)
 
-            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y + appBarCoords!!.size.height
+            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y.value +
+                    appBarCoords!!.size.height.value
 
             // Child icon should be 4.dp from the bottom
             val childIconPositionY = childCoords!!.globalPosition.y
             val childIconExpectedPositionY = (appBarBottomEdgeY - AppBarStartAndEndPadding.toPx() -
                 FakeIconSize.toPx()
-            ).round().toPx()
+            ).roundToInt().px
             assertThat(childIconPositionY).isEqualTo(childIconExpectedPositionY)
         }
     }

@@ -62,7 +62,7 @@ class TextDelegateIntegrationTest {
             textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
 
             assertThat(textDelegate.minIntrinsicWidth)
-                .isEqualTo((fontSize.toPx().value * text.length).toIntPx())
+                .isEqualTo((fontSize.toPx() * text.length).toIntPx())
         }
     }
 
@@ -83,7 +83,7 @@ class TextDelegateIntegrationTest {
             textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
 
             assertThat(textDelegate.maxIntrinsicWidth)
-                .isEqualTo((fontSize.toPx().value * text.length).toIntPx())
+                .isEqualTo((fontSize.toPx() * text.length).toIntPx())
         }
     }
 
@@ -92,7 +92,7 @@ class TextDelegateIntegrationTest {
         with(density) {
             // Setup test.
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val text = "HelloHello"
             val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
             val annotatedString = AnnotatedString(text, spanStyle)
@@ -157,7 +157,7 @@ class TextDelegateIntegrationTest {
             val selectionStart = 0
             val selectionEnd = 3
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val text = "Hello"
             val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
             val annotatedString = AnnotatedString(text, spanStyle)
@@ -213,7 +213,7 @@ class TextDelegateIntegrationTest {
             val selectionLTRStart = 2
             val selectionRTLEnd = 2
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
             val annotatedString = AnnotatedString(text, spanStyle)
             val textDelegate = TextDelegate(
@@ -276,7 +276,7 @@ class TextDelegateIntegrationTest {
             val selectionStart = 0
             val selectionEnd = 3
             val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx()
             val text = "Hello"
             val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
             val annotatedString = AnnotatedString(text, spanStyle)

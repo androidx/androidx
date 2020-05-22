@@ -19,13 +19,13 @@ package androidx.ui.core
 import android.os.Build
 import android.view.View
 import android.view.ViewOutlineProvider
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.CanvasHolder
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.toPxSize
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
@@ -127,7 +127,7 @@ internal class ViewLayer(
         if (width != this.width || height != this.height) {
             pivotX = mTransformOrigin.pivotFractionX * width
             pivotY = mTransformOrigin.pivotFractionY * height
-            outlineResolver.update(size.toPxSize())
+            outlineResolver.update(Size(width.toFloat(), height.toFloat()))
             updateOutlineResolver()
             layout(left, top, left + width, top + height)
             resetClipBounds()

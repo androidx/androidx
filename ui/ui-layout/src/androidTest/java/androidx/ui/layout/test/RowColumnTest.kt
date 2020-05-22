@@ -68,6 +68,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -115,7 +116,7 @@ class RowColumnTest : LayoutTest() {
 
         assertEquals(IntPxSize(size, size), childSize[0])
         assertEquals(
-            IntPxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
+            IntPxSize((sizeDp.toPx() * 2).roundToInt().ipx, (sizeDp.toPx() * 2).roundToInt().ipx),
             childSize[1]
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
@@ -269,7 +270,7 @@ class RowColumnTest : LayoutTest() {
 
         assertEquals(IntPxSize(size, size), childSize[0])
         assertEquals(
-            IntPxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
+            IntPxSize((sizeDp.toPx() * 2).roundToInt().ipx, (sizeDp.toPx() * 2).roundToInt().ipx),
             childSize[1]
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
@@ -630,7 +631,7 @@ class RowColumnTest : LayoutTest() {
 
         assertEquals(IntPxSize(size, root.height.ipx), childSize[0])
         assertEquals(
-            IntPxSize((sizeDp.toPx() * 2).round(), root.height.ipx),
+            IntPxSize((sizeDp.toPx() * 2).roundToInt().ipx, root.height.ipx),
             childSize[1]
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
@@ -3452,7 +3453,7 @@ class RowColumnTest : LayoutTest() {
 
         assertEquals(PxPosition(rootWidth - size.toPx(), 0.px), childPosition[0])
         assertEquals(
-            PxPosition(rootWidth - (sizeDp.toPx() * 3).round().toPx(), 0.px),
+            PxPosition(rootWidth - (sizeDp.toPx() * 3).roundToInt().px, 0.px),
             childPosition[1]
         )
     }
@@ -3489,7 +3490,7 @@ class RowColumnTest : LayoutTest() {
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        assertEquals(PxPosition((sizeDp.toPx() * 2).round().toPx(), 0.px), childPosition[0])
+        assertEquals(PxPosition((sizeDp.toPx() * 2).roundToInt().px, 0.px), childPosition[0])
         assertEquals(PxPosition(0.px, 0.px), childPosition[1])
     }
 
@@ -3530,7 +3531,7 @@ class RowColumnTest : LayoutTest() {
         val root = findOwnerView()
         waitForDraw(root)
 
-        assertEquals(PxPosition((sizeDp.toPx() * 2).round().toPx(), 0.px), childPosition[0])
+        assertEquals(PxPosition((sizeDp.toPx() * 2).roundToInt().px, 0.px), childPosition[0])
         assertEquals(PxPosition(0.px, 0.px), childPosition[1])
     }
 
@@ -3569,7 +3570,7 @@ class RowColumnTest : LayoutTest() {
 
         assertEquals(PxPosition(rootWidth - size.toPx(), 0.px), childPosition[0])
         assertEquals(
-            PxPosition((rootWidth - (sizeDp * 2).toPx()).round().toPx(), size.toPx()),
+            PxPosition((rootWidth.value - (sizeDp * 2).toPx()).roundToInt().px, size.toPx()),
             childPosition[1]
         )
     }

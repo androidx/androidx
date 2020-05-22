@@ -17,10 +17,9 @@
 package androidx.ui.foundation.shape.corner
 
 import androidx.test.filters.SmallTest
+import androidx.ui.geometry.Size
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +30,7 @@ import org.junit.runners.JUnit4
 class CornerSizeTest {
 
     private val density = Density(2.5f)
-    private val size = PxSize(150.px, 300.px)
+    private val size = Size(150.0f, 300.0f)
 
     @Test
     fun pxCorners() {

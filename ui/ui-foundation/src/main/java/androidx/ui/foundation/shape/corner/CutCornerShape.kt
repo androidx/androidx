@@ -17,13 +17,13 @@
 package androidx.ui.foundation.shape.corner
 
 import androidx.annotation.IntRange
+import androidx.ui.geometry.Size
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.toRect
 
 /**
  * A shape describing the rectangle with cut corners.
@@ -42,7 +42,7 @@ class CutCornerShape(
 ) : CornerBasedShape(topLeft, topRight, bottomRight, bottomLeft) {
 
     override fun createOutline(
-        size: PxSize,
+        size: Size,
         topLeft: Float,
         topRight: Float,
         bottomRight: Float,
@@ -54,14 +54,14 @@ class CutCornerShape(
         moveTo(0f, cornerSize)
         lineTo(cornerSize, 0f)
         cornerSize = topRight
-        lineTo(size.width.value - cornerSize, 0f)
-        lineTo(size.width.value, cornerSize)
+        lineTo(size.width - cornerSize, 0f)
+        lineTo(size.width, cornerSize)
         cornerSize = bottomRight
-        lineTo(size.width.value, size.height.value - cornerSize)
-        lineTo(size.width.value - cornerSize, size.height.value)
+        lineTo(size.width, size.height - cornerSize)
+        lineTo(size.width - cornerSize, size.height)
         cornerSize = bottomLeft
-        lineTo(cornerSize, size.height.value)
-        lineTo(0f, size.height.value - cornerSize)
+        lineTo(cornerSize, size.height)
+        lineTo(0f, size.height - cornerSize)
         close()
     })
 

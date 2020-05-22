@@ -61,7 +61,7 @@ class TextLayoutResultIntegrationTest {
             val layoutResult = textDelegate.layout(Constraints(0.ipx, 200.ipx), layoutDirection)
 
             assertThat(layoutResult.size.width).isEqualTo(
-                (fontSize.toPx().value * text.length).toIntPx()
+                (fontSize.toPx() * text.length).toIntPx()
             )
         }
     }
@@ -100,7 +100,7 @@ class TextLayoutResultIntegrationTest {
 
             val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
-            assertThat(layoutResult.size.height).isEqualTo((fontSize.toPx().value).toIntPx())
+            assertThat(layoutResult.size.height).isEqualTo((fontSize.toPx()).toIntPx())
         }
     }
 
@@ -160,7 +160,7 @@ class TextLayoutResultIntegrationTest {
             val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
             val selection = layoutResult.getOffsetForPosition(
-                position = PxPosition((fontSize.toPx().value * characterIndex + 1).px, 0.px)
+                position = PxPosition((fontSize.toPx() * characterIndex + 1).px, 0.px)
             )
 
             assertThat(selection).isEqualTo(characterIndex)

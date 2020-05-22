@@ -666,7 +666,7 @@ class FilledTextFieldTest {
                 shapeColor = Color.White,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                shapeOverlapPixelCount = with(testRule.density) { 3.dp.toPx().value }
+                shapeOverlapPixelCount = with(testRule.density) { 3.dp.toPx() }
             )
     }
 
@@ -704,7 +704,7 @@ class FilledTextFieldTest {
                 shapeColor = expectedColor,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                shapeOverlapPixelCount = with(testRule.density) { 1.dp.toPx().value }
+                shapeOverlapPixelCount = with(testRule.density) { 1.dp.toPx() }
             )
 
         findByTag("textField").doClick()
@@ -718,7 +718,7 @@ class FilledTextFieldTest {
                 shapeColor = expectedColor,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                shapeOverlapPixelCount = with(testRule.density) { 1.dp.toPx().value }
+                shapeOverlapPixelCount = with(testRule.density) { 1.dp.toPx() }
             )
     }
 

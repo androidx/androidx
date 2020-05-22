@@ -220,9 +220,9 @@ fun RadioButton(
                 Canvas(Modifier.padding(RadioButtonPadding).preferredSize(RadioButtonSize)) {
                     drawRadio(
                         state[ColorProp],
-                        state[OuterRadiusProp].toPx().value,
-                        state[InnerRadiusProp].toPx().value,
-                        state[GapProp].toPx().value,
+                        state[OuterRadiusProp].toPx(),
+                        state[InnerRadiusProp].toPx(),
+                        state[GapProp].toPx(),
                         radioStroke
                     )
                 }

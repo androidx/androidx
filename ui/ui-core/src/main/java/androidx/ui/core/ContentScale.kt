@@ -17,27 +17,10 @@
 package androidx.ui.core
 
 import androidx.ui.geometry.Size
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 import kotlin.math.max
 import kotlin.math.min
 
 private const val OriginalScale = 1.0f
-
-/**
- * Convenience method to compute the scale factor from [Size] parameters
- */
-fun ContentScale.scale(srcSize: Size, dstSize: Size): Float =
-    scale(
-        PxSize(
-            Px(srcSize.width),
-            Px(srcSize.height)
-        ),
-        PxSize(
-            Px(dstSize.width),
-            Px(dstSize.height)
-        )
-    )
 
 /**
  * Represents a rule to apply to scale a source rectangle to be inscribed into a destination
@@ -48,7 +31,7 @@ interface ContentScale {
      * Computes the scale factor to apply to both dimensions in order to fit the source
      * appropriately with the given destination size
      */
-    fun scale(srcSize: PxSize, dstSize: PxSize): Float
+    fun scale(srcSize: Size, dstSize: Size): Float
 
     /**
      * Companion object containing commonly used [ContentScale] implementations
@@ -64,7 +47,7 @@ interface ContentScale {
          * provides similar behavior to [android.widget.ImageView.ScaleType.CENTER_CROP]
          */
         val Crop = object : ContentScale {
-            override fun scale(srcSize: PxSize, dstSize: PxSize): Float =
+            override fun scale(srcSize: Size, dstSize: Size): Float =
                 computeFillMaxDimension(srcSize, dstSize)
         }
 
@@ -77,7 +60,7 @@ interface ContentScale {
          * provides similar behavior to [android.widget.ImageView.ScaleType.FIT_CENTER]
          */
         val Fit = object : ContentScale {
-            override fun scale(srcSize: PxSize, dstSize: PxSize): Float =
+            override fun scale(srcSize: Size, dstSize: Size): Float =
                 computeFillMinDimension(srcSize, dstSize)
         }
 
@@ -87,7 +70,7 @@ interface ContentScale {
          * the width.
          */
         val FillHeight = object : ContentScale {
-            override fun scale(srcSize: PxSize, dstSize: PxSize): Float =
+            override fun scale(srcSize: Size, dstSize: Size): Float =
                 computeFillHeight(srcSize, dstSize)
         }
 
@@ -97,7 +80,7 @@ interface ContentScale {
          * larger than the height.
          */
         val FillWidth = object : ContentScale {
-            override fun scale(srcSize: PxSize, dstSize: PxSize): Float =
+            override fun scale(srcSize: Size, dstSize: Size): Float =
                 computeFillWidth(srcSize, dstSize)
         }
 
@@ -111,7 +94,7 @@ interface ContentScale {
          * provides similar behavior to [android.widget.ImageView.ScaleType.CENTER_INSIDE]
          */
         val Inside = object : ContentScale {
-            override fun scale(srcSize: PxSize, dstSize: PxSize): Float =
+            override fun scale(srcSize: Size, dstSize: Size): Float =
                 if (srcSize.width <= dstSize.width && srcSize.height <= dstSize.height) {
                     OriginalScale
                 } else {
@@ -131,23 +114,23 @@ interface ContentScale {
  * fixed floating point value
  */
 data class FixedScale(val value: Float) : ContentScale {
-    override fun scale(srcSize: PxSize, dstSize: PxSize): Float = value
+    override fun scale(srcSize: Size, dstSize: Size): Float = value
 }
 
-private fun computeFillMaxDimension(srcSize: PxSize, dstSize: PxSize): Float {
+private fun computeFillMaxDimension(srcSize: Size, dstSize: Size): Float {
     val widthScale = computeFillWidth(srcSize, dstSize)
     val heightScale = computeFillHeight(srcSize, dstSize)
     return max(widthScale, heightScale)
 }
 
-private fun computeFillMinDimension(srcSize: PxSize, dstSize: PxSize): Float {
+private fun computeFillMinDimension(srcSize: Size, dstSize: Size): Float {
     val widthScale = computeFillWidth(srcSize, dstSize)
     val heightScale = computeFillHeight(srcSize, dstSize)
     return min(widthScale, heightScale)
 }
 
-private fun computeFillWidth(srcSize: PxSize, dstSize: PxSize): Float =
-    dstSize.width.value / srcSize.width.value
+private fun computeFillWidth(srcSize: Size, dstSize: Size): Float =
+    dstSize.width / srcSize.width
 
-private fun computeFillHeight(srcSize: PxSize, dstSize: PxSize): Float =
-    dstSize.height.value / srcSize.height.value
+private fun computeFillHeight(srcSize: Size, dstSize: Size): Float =
+    dstSize.height / srcSize.height

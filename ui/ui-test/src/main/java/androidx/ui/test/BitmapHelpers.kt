@@ -25,6 +25,7 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
@@ -37,7 +38,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
@@ -200,7 +200,7 @@ fun Bitmap.assertShape(
     assertTrue(centerX - sizeX / 2 >= 0.0f)
     assertTrue(centerY + sizeY / 2 <= height)
     assertTrue(centerY - sizeY / 2 >= 0.0f)
-    val outline = shape.createOutline(PxSize(shapeSizeX, shapeSizeY), density)
+    val outline = shape.createOutline(Size(shapeSizeX, shapeSizeY), density)
     val path = Path()
     path.addOutline(outline)
     val shapeOffset = Offset(
@@ -208,7 +208,7 @@ fun Bitmap.assertShape(
         (centerY - shapeSizeY / 2f)
     )
     val backgroundPath = Path()
-    backgroundPath.addOutline(backgroundShape.createOutline(PxSize(sizeX, sizeY), density))
+    backgroundPath.addOutline(backgroundShape.createOutline(Size(sizeX, sizeY), density))
     for (x in centerX - sizeX / 2 until centerX + sizeX / 2) {
         for (y in centerY - sizeY / 2 until centerY + sizeY / 2) {
             val point = Offset(x.toFloat(), y.toFloat())
@@ -272,8 +272,8 @@ fun Bitmap.assertShape(
     shape: Shape = RectangleShape,
     shapeOverlapPixelCount: Float = 1.0f
 ) {
-    val fullHorizontalPadding = with(density) { horizontalPadding.toPx().value * 2 }
-    val fullVerticalPadding = with(density) { verticalPadding.toPx().value * 2 }
+    val fullHorizontalPadding = with(density) { horizontalPadding.toPx() * 2 }
+    val fullVerticalPadding = with(density) { verticalPadding.toPx() * 2 }
     return assertShape(
         density = density,
         shape = shape,

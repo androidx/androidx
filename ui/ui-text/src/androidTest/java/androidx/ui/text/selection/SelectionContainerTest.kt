@@ -137,7 +137,7 @@ class SelectionContainerTest {
     @Test
     fun long_press_select_a_word() {
         // Setup.
-        val characterSize = with(composeTestRule.density) { fontSize.toPx().value }
+        val characterSize = with(composeTestRule.density) { fontSize.toPx() }
 
         // Act.
         longPress(
@@ -162,7 +162,7 @@ class SelectionContainerTest {
         // Setup. Want to selection "Dem".
         val startOffset = textContent.indexOf('D')
         val endOffset = textContent.indexOf('m') + 1
-        val characterSize = with(composeTestRule.density) { fontSize.toPx().value }
+        val characterSize = with(composeTestRule.density) { fontSize.toPx() }
 
         // Act.
         longPressAndDrag(
