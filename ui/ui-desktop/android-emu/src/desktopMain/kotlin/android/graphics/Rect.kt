@@ -17,9 +17,13 @@
 package android.graphics
 
 class Rect(
+    @kotlin.jvm.JvmField
     var left: Int,
+    @kotlin.jvm.JvmField
     var top: Int,
+    @kotlin.jvm.JvmField
     var right: Int,
+    @kotlin.jvm.JvmField
     var bottom: Int
 ) {
     constructor() : this(0, 0, 0, 0)

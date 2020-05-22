@@ -17,9 +17,13 @@
 package android.graphics
 
 class RectF(
+    @kotlin.jvm.JvmField
     var left: Float,
+    @kotlin.jvm.JvmField
     var top: Float,
+    @kotlin.jvm.JvmField
     var right: Float,
+    @kotlin.jvm.JvmField
     var bottom: Float
 ) {
     constructor() : this(0f, 0f, 0f, 0f)

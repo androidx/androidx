@@ -162,10 +162,8 @@ def androidxComponents = [
         "lifecycle:lifecycle-runtime"
 ]
 
-
 def copyToJar(File source, File jar) {
-
-    if(source.name.endsWith(".jar")) {
+    if (source.name.endsWith(".jar")) {
         Files.copy(source.toPath(), jar.toPath(), StandardCopyOption.REPLACE_EXISTING)
         return
     }
@@ -248,26 +246,29 @@ task extractJars {
             } else {
                 def destJar = composeClassDir + component + ".jar"
                 Files.copy(Paths.get(srcJar), Paths.get(destJar), StandardCopyOption.REPLACE_EXISTING)
-                // TODO: restore missing kotlin_module and remove this code.
-                def missingModuleDir = findInDeps(task, { absolutePath ->
-                    absolutePath.indexOf("kotlin-classes/release") != -1
-                })
-                if (missingModuleDir == null)
-                    throw new Error("cannot find build dir")
-                def shortName = "META-INF/" + component + "_release.kotlin_module"
-                def missingModule = missingModuleDir + "/" + shortName
-                addToJar(destJar, shortName, missingModule)
             }
         }
-        def frameworkProject = project(":compose:compose-compiler")
-        def srcJar = findInDeps(frameworkProject.tasks.named("assemble").get(), {
+        // Compose compiler plugin build does ugly renaming tricks, so find the proper jar.
+        def compilerProject = project(":compose:compose-compiler")
+        def compilerJar = findInDeps(compilerProject.tasks.named("embeddedPlugin").get(), {
             absolutePath ->
-            Pattern.matches(".*/compose-compiler.*.jar", absolutePath)
+            println(absolutePath)
+            Pattern.matches(".*/jarjar/compose-compiler.jar", absolutePath)
         })
-        if (srcJar == null)
+        if (compilerJar == null)
             throw new Error("cannot find compose-compiler.jar")
-        Files.copy(Paths.get(srcJar),
+        Files.copy(Paths.get(compilerJar),
                 Paths.get(composeClassDir + "compose-compiler.jar"), StandardCopyOption.REPLACE_EXISTING)
+
+        def runtimeProject = project(":compose:compose-runtime")
+        def runtimeJar = findInDeps(runtimeProject.tasks.named("assemble").get(), {
+            absolutePath ->
+            Pattern.matches(".*/compose-runtime-desktop.*.jar", absolutePath)
+        })
+        if (runtimeJar == null)
+            throw new Error("cannot find compose-runtime.jar")
+        Files.copy(Paths.get(runtimeJar),
+                Paths.get(composeClassDir + "compose-runtime.jar"), StandardCopyOption.REPLACE_EXISTING)
 
         configurations.ui_components.getIncoming().artifactView(
                 { config ->
@@ -294,20 +295,15 @@ tasks.withType(KotlinCompile).configureEach {
     dependsOn("extractJars")
     kotlinOptions {
         useIR = true
-        jvmTarget = "1.8"
-        freeCompilerArgs += [
-                // TODO: hack, apply compose plugin better.
-                "-Xplugin=${project.rootDir.absolutePath}/ui-desktop/compose-libs/compose-compiler.jar",
-                "-P", "plugin:androidx.compose.plugins.idea:enabled=true",
-
-        ]
     }
 }
 
-task run(type: JavaExec) {
-    main = 'androidx.ui.desktop.example.MainKt'
-    jvmArgs += '-Dkotlinx.coroutines.fast.service.loader=false'
-    def compilation = kotlin.jvm().compilations["main"]
-    classpath = compilation.output.allOutputs + compilation.runtimeDependencyFiles +
-            fileTree(composeClassDir)
+task desktopJar(type: Jar) {
+    baseName = "ui-desktop"
+    from { kotlin.jvm().compilations["main"].output.allOutputs }
+    destinationDir file(composeClassDir)
+}
+
+clean.doFirst {
+    delete composeClassDir
 }

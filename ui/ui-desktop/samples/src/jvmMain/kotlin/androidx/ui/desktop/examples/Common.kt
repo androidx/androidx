@@ -13,22 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.ui.desktop.examples
 
-package android.os
+import androidx.compose.Composable
+import androidx.ui.desktop.SkiaWindow
+import androidx.ui.desktop.setContent
 
-import javax.swing.SwingUtilities
+import javax.swing.WindowConstants
 
-public class Handler() {
-    constructor(looper: Looper, callback: Handler.Callback) : this()
+fun mainWith(title: String, app: @Composable () -> Unit) {
+    val width = 1024
+    val height = 768
 
-    constructor(looper: Looper, callback: Callback, async: Boolean) : this()
+    val frame = SkiaWindow(width = width, height = height)
 
-    interface Callback {
-        fun handleMessage(msg: Message): Boolean
+    frame.title = title
+    frame.setLocation(400, 400)
+    frame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
+
+    frame.setContent {
+        app()
     }
-    val looper = Looper()
-    fun post(runnable: Runnable): Boolean {
-        SwingUtilities.invokeLater(runnable)
-        return true
-    }
+
+    frame.setVisible(true)
 }

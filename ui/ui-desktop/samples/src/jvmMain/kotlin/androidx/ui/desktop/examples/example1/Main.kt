@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.desktop.example
+package androidx.ui.desktop.examples.example1
 
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.graphics.Color
-import androidx.ui.desktop.SkiaWindow
-import androidx.ui.desktop.setContent
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
 import androidx.ui.layout.Arrangement
@@ -38,31 +36,15 @@ import androidx.ui.material.Slider
 import androidx.ui.material.TopAppBar
 import androidx.ui.unit.dp
 
-import javax.swing.WindowConstants
+import androidx.ui.desktop.examples.mainWith
 
-fun main() {
-    val width = 1024
-    val height = 768
+private const val title = "Desktop Compose Elements"
 
-    val frame = SkiaWindow(width = width, height = height)
-
-    frame.title = "Skija Demo"
-    frame.setLocation(400, 400)
-    frame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
-
-    frame.setContent {
-        App()
-    }
-
-    frame.setVisible(true)
-}
-
-@Composable
-fun App() {
+fun main() = mainWith(title) @Composable {
     Scaffold(
-        topAppBar = {
+        topBar = {
             TopAppBar(
-                title = { Text("Desktop Compose") }
+                title = { Text(title) }
             )
         },
         floatingActionButton = {
@@ -73,10 +55,10 @@ fun App() {
                 }
             )
         },
-        bodyContent = { modifier ->
+        bodyContent = {
             val amount = state { 0 }
             val text = state { "Hello" }
-            Column(modifier.fillMaxSize(), Arrangement.SpaceEvenly) {
+            Column(Modifier.fillMaxSize(), Arrangement.SpaceEvenly) {
                 Text(
                     text = "Привет! 你好! Desktop Compose ${amount.value}",
                     color = Color.Black,
