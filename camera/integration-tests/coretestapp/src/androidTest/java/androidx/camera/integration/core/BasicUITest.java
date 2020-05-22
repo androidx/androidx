@@ -123,7 +123,7 @@ public final class BasicUITest {
         // Click to disable the preview use case.
         if (preview != null) {
             // Check preview started.
-            onView(withId(R.id.viewFinder)).check(matches(isDisplayed()));
+            onView(withId(R.id.textureView)).check(matches(isDisplayed()));
             // Click toggle.
             onView(withId(R.id.PreviewToggle)).perform(click());
         }
@@ -132,7 +132,7 @@ public final class BasicUITest {
         if (preview == null) {
             onView(withId(R.id.PreviewToggle)).perform(click());
             // Check preview started.
-            onView(withId(R.id.viewFinder)).check(matches(isDisplayed()));
+            onView(withId(R.id.textureView)).check(matches(isDisplayed()));
         }
         IdlingRegistry.getInstance().unregister(
                 mActivityRule.getActivity().getViewIdlingResource());
