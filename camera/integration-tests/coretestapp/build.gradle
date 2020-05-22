@@ -30,14 +30,7 @@ android {
         minSdkVersion 21
         versionCode 1
         multiDexEnabled true
-        testInstrumentationRunnerArgument "listener", "leakcanary.FailAnnotatedTestOnLeakRunListener"
-
-        externalNativeBuild {
-            cmake {
-                cppFlags "-std=c++17"
-                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
-            }
-        }
+        testInstrumentationRunnerArgument "listener", "leakcanary.FailAnnotatedTestOnLeakRunListener "
     }
 
     sourceSets {
@@ -58,17 +51,6 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
-        }
-    }
-
-    externalNativeBuild {
-        cmake {
-            // AGP doesn't allow us to use project.buildDir (or subdirs) for CMake's generated
-            // build files (ninja build files, CMakeCache.txt, etc.). Use a staging directory that
-            // lives alongside the project's buildDir.
-            buildStagingDirectory "${project.buildDir}/../nativeBuildStaging"
-            path "src/main/cpp/CMakeLists.txt"
-            version "3.10.2"
         }
     }
 }

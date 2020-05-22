@@ -22,24 +22,21 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
 
 import android.Manifest;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
-import android.hardware.display.DisplayManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Display;
+import android.util.Size;
+import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
-import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -59,6 +56,7 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
+import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
@@ -80,10 +78,10 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -141,34 +139,17 @@ public class CameraXActivity extends AppCompatActivity
     private Camera mCamera;
     @ImageCapture.CaptureMode
     private int mCaptureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY;
-
-    /**
-     * Intent Extra string for choosing which type of render surface to use to display Preview.
-     */
-    public static final String INTENT_EXTRA_RENDER_SURFACE_TYPE = "render_surface_type";
-    /**
-     * TextureView render surface for {@link #INTENT_EXTRA_RENDER_SURFACE_TYPE}. This is the
-     * default render surface.
-     */
-    public static final String RENDER_SURFACE_TYPE_TEXTUREVIEW = "textureview";
-    /**
-     * SurfaceView render surface for {@link #INTENT_EXTRA_RENDER_SURFACE_TYPE}. This type will
-     * block the main thread while detaching it's {@link android.view.Surface} from the OpenGL
-     * renderer to avoid compatibility issues on some devices.
-     */
-    public static final String RENDER_SURFACE_TYPE_SURFACEVIEW = "surfaceview";
-    /**
-     * SurfaceView render surface (in non-blocking mode) for
-     * {@link #INTENT_EXTRA_RENDER_SURFACE_TYPE}. This type will NOT
-     * block the main thread while detaching it's {@link android.view.Surface} from the OpenGL
-     * renderer, but some devices may crash due to their OpenGL/EGL implementation not being
-     * thread-safe.
-     */
-    public static final String RENDER_SURFACE_TYPE_SURFACEVIEW_NONBLOCKING =
-            "surfaceview_nonblocking";
-
-    private OpenGLRenderer mPreviewRenderer;
-    private DisplayManager.DisplayListener mDisplayListener;
+    // Synthetic Accessor
+    @SuppressWarnings("WeakerAccess")
+    TextureView mTextureView;
+    @SuppressWarnings("WeakerAccess")
+    SurfaceTexture mSurfaceTexture;
+    @SuppressWarnings("WeakerAccess")
+    private Size mResolution;
+    @SuppressWarnings("WeakerAccess")
+    ListenableFuture<SurfaceRequest.Result> mSurfaceReleaseFuture;
+    @SuppressWarnings("WeakerAccess")
+    SurfaceRequest mSurfaceRequest;
 
     SessionImagesUriSet mSessionImagesUriSet = new SessionImagesUriSet();
 
@@ -290,13 +271,139 @@ public class CameraXActivity extends AppCompatActivity
                 .build();
         Log.d(TAG, "enablePreview");
 
-        resetViewIdlingResource();
+        mPreview.setSurfaceProvider(
+                (surfaceRequest) -> {
+                    mResolution = surfaceRequest.getResolution();
 
-        mPreviewRenderer.attachInputPreview(mPreview);
+                    if (mSurfaceRequest != null) {
+                        mSurfaceRequest.willNotProvideSurface();
+                    }
+                    mSurfaceRequest = surfaceRequest;
+                    mSurfaceRequest.addRequestCancellationListener(
+                            ContextCompat.getMainExecutor(mTextureView.getContext()), () -> {
+                                if (mSurfaceRequest != null && mSurfaceRequest == surfaceRequest) {
+                                    mSurfaceRequest = null;
+                                    mSurfaceReleaseFuture = null;
+                                }
+                            });
+                    tryToProvidePreviewSurface();
+                });
+
+        resetViewIdlingResource();
 
         if (bindToLifecycleSafely(mPreview, R.id.PreviewToggle) == null) {
             mPreview = null;
+            return;
         }
+    }
+
+    void transformPreview(@NonNull Size resolution) {
+        if (resolution.getWidth() == 0 || resolution.getHeight() == 0) {
+            return;
+        }
+
+        if (mTextureView.getWidth() == 0 || mTextureView.getHeight() == 0) {
+            return;
+        }
+
+        Matrix matrix = new Matrix();
+
+        int left = mTextureView.getLeft();
+        int right = mTextureView.getRight();
+        int top = mTextureView.getTop();
+        int bottom = mTextureView.getBottom();
+
+        // Compute the preview ui size based on the available width, height, and ui orientation.
+        int viewWidth = (right - left);
+        int viewHeight = (bottom - top);
+
+        int displayRotation = getDisplayRotation();
+        Size scaled =
+                calculatePreviewViewDimens(
+                        resolution, viewWidth, viewHeight, displayRotation);
+
+        // Compute the center of the view.
+        int centerX = viewWidth / 2;
+        int centerY = viewHeight / 2;
+
+        // Do corresponding rotation to correct the preview direction
+        matrix.postRotate(-getDisplayRotation(), centerX, centerY);
+
+        // Compute the scale value for center crop mode
+        float xScale = scaled.getWidth() / (float) viewWidth;
+        float yScale = scaled.getHeight() / (float) viewHeight;
+
+        if (getDisplayRotation() == 90 || getDisplayRotation() == 270) {
+            xScale = scaled.getWidth() / (float) viewHeight;
+            yScale = scaled.getHeight() / (float) viewWidth;
+        }
+
+        // Only two digits after the decimal point are valid for postScale. Need to get ceiling of
+        // two
+        // digits floating value to do the scale operation. Otherwise, the result may be scaled not
+        // large enough and will have some blank lines on the screen.
+        xScale = new BigDecimal(xScale).setScale(2, BigDecimal.ROUND_CEILING).floatValue();
+        yScale = new BigDecimal(yScale).setScale(2, BigDecimal.ROUND_CEILING).floatValue();
+
+        // Do corresponding scale to resolve the deformation problem
+        matrix.postScale(xScale, yScale, centerX, centerY);
+
+        mTextureView.setTransform(matrix);
+    }
+
+    /** @return One of 0, 90, 180, 270. */
+    @SuppressWarnings("deprecation") /* defaultDisplay */
+    private int getDisplayRotation() {
+        int displayRotation = getWindowManager().getDefaultDisplay().getRotation();
+
+        switch (displayRotation) {
+            case Surface.ROTATION_0:
+                displayRotation = 0;
+                break;
+            case Surface.ROTATION_90:
+                displayRotation = 90;
+                break;
+            case Surface.ROTATION_180:
+                displayRotation = 180;
+                break;
+            case Surface.ROTATION_270:
+                displayRotation = 270;
+                break;
+            default:
+                throw new UnsupportedOperationException(
+                        "Unsupported display rotation: " + displayRotation);
+        }
+
+        return displayRotation;
+    }
+
+    private Size calculatePreviewViewDimens(
+            Size srcSize, int parentWidth, int parentHeight, int displayRotation) {
+        int inWidth = srcSize.getWidth();
+        int inHeight = srcSize.getHeight();
+        if (displayRotation == 0 || displayRotation == 180) {
+            // Need to reverse the width and height since we're in landscape orientation.
+            inWidth = srcSize.getHeight();
+            inHeight = srcSize.getWidth();
+        }
+
+        int outWidth = parentWidth;
+        int outHeight = parentHeight;
+        if (inWidth != 0 && inHeight != 0) {
+            float vfRatio = inWidth / (float) inHeight;
+            float parentRatio = parentWidth / (float) parentHeight;
+
+            // Match shortest sides together.
+            if (vfRatio < parentRatio) {
+                outWidth = parentWidth;
+                outHeight = Math.round(parentWidth / vfRatio);
+            } else {
+                outWidth = Math.round(parentHeight * vfRatio);
+                outHeight = parentHeight;
+            }
+        }
+
+        return new Size(outWidth, outHeight);
     }
 
     /**
@@ -684,79 +791,61 @@ public class CameraXActivity extends AppCompatActivity
         createVideoCapture();
     }
 
-    private View chooseViewFinder(@NonNull ViewStub viewFinderStub,
-            @NonNull OpenGLRenderer renderer) {
-        Bundle bundle = getIntent().getExtras();
-        // By default we choose TextureView to maximize compatibility.
-        String renderSurfaceType = RENDER_SURFACE_TYPE_TEXTUREVIEW;
-        if (bundle != null) {
-            renderSurfaceType = bundle.getString(INTENT_EXTRA_RENDER_SURFACE_TYPE,
-                    RENDER_SURFACE_TYPE_TEXTUREVIEW);
-        }
-
-        switch (renderSurfaceType) {
-            case RENDER_SURFACE_TYPE_TEXTUREVIEW:
-                Log.d(TAG, "Using TextureView render surface.");
-                return TextureViewRenderSurface.inflateWith(viewFinderStub, renderer);
-            case RENDER_SURFACE_TYPE_SURFACEVIEW:
-                Log.d(TAG, "Using SurfaceView render surface.");
-                return SurfaceViewRenderSurface.inflateWith(viewFinderStub, renderer);
-            case RENDER_SURFACE_TYPE_SURFACEVIEW_NONBLOCKING:
-                Log.d(TAG, "Using SurfaceView (non-blocking) render surface.");
-                return SurfaceViewRenderSurface.inflateNonBlockingWith(viewFinderStub, renderer);
-            default:
-                throw new IllegalArgumentException(String.format(Locale.US, "Unknown render "
-                        + "surface type: %s. Supported surface types include: [%s, %s, %s]",
-                        renderSurfaceType, RENDER_SURFACE_TYPE_TEXTUREVIEW,
-                        RENDER_SURFACE_TYPE_SURFACEVIEW,
-                        RENDER_SURFACE_TYPE_SURFACEVIEW_NONBLOCKING));
-        }
-    }
-
     @SuppressWarnings("UnstableApiUsage")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_xmain);
-        OpenGLRenderer previewRenderer = mPreviewRenderer = new OpenGLRenderer();
-        ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
-        View viewFinder = chooseViewFinder(viewFinderStub, previewRenderer);
-
-        mDisplayListener = new DisplayManager.DisplayListener() {
+        mTextureView = findViewById(R.id.textureView);
+        mTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
-            public void onDisplayAdded(int displayId) {
-
+            public void onSurfaceTextureAvailable(final SurfaceTexture surfaceTexture,
+                    final int width, final int height) {
+                mSurfaceTexture = surfaceTexture;
+                tryToProvidePreviewSurface();
             }
 
             @Override
-            public void onDisplayRemoved(int displayId) {
-
+            public void onSurfaceTextureSizeChanged(final SurfaceTexture surfaceTexture,
+                    final int width, final int height) {
             }
 
+            /**
+             * If a surface has been provided to the camera (meaning
+             * {@link CameraXActivity#mSurfaceRequest} is null), but the camera
+             * is still using it (meaning {@link CameraXActivity#mSurfaceReleaseFuture} is
+             * not null), a listener must be added to
+             * {@link CameraXActivity#mSurfaceReleaseFuture} to ensure the surface
+             * is properly released after the camera is done using it.
+             *
+             * @param surfaceTexture The {@link SurfaceTexture} about to be destroyed.
+             * @return false if the camera is not done with the surface, true otherwise.
+             */
             @Override
-            public void onDisplayChanged(int displayId) {
-                Display viewFinderDisplay = viewFinder.getDisplay();
-                if (viewFinderDisplay != null && viewFinderDisplay.getDisplayId() == displayId) {
-                    previewRenderer.invalidateSurface(
-                            Surfaces.toSurfaceRotationDegrees(viewFinderDisplay.getRotation()));
+            public boolean onSurfaceTextureDestroyed(final SurfaceTexture surfaceTexture) {
+                mSurfaceTexture = null;
+                if (mSurfaceRequest == null && mSurfaceReleaseFuture != null) {
+                    mSurfaceReleaseFuture.addListener(surfaceTexture::release,
+                            ContextCompat.getMainExecutor(mTextureView.getContext()));
+                    return false;
+                } else {
+                    return true;
                 }
             }
-        };
 
-        DisplayManager dpyMgr = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
-        dpyMgr.registerDisplayListener(mDisplayListener, new Handler(Looper.getMainLooper()));
-
-        previewRenderer.setFrameUpdateListener(ContextCompat.getMainExecutor(this), timestamp -> {
-            // Wait until surface texture receives enough updates. This is for testing.
-            if (mPreviewFrameCount.getAndIncrement() >= FRAMES_UNTIL_VIEW_IS_READY) {
-                try {
-                    if (!mViewIdlingResource.isIdleNow()) {
-                        Log.d(TAG, FRAMES_UNTIL_VIEW_IS_READY + " or more counted on preview."
-                                + " Make IdlingResource idle.");
-                        mViewIdlingResource.decrement();
+            @Override
+            public void onSurfaceTextureUpdated(final SurfaceTexture surfaceTexture) {
+                // Wait until surface texture receives enough updates. This is for testing.
+                if (mPreviewFrameCount.getAndIncrement() >= FRAMES_UNTIL_VIEW_IS_READY) {
+                    try {
+                        if (!mViewIdlingResource.isIdleNow()) {
+                            Log.d(TAG, FRAMES_UNTIL_VIEW_IS_READY + " or more counted on preview."
+                                    + " Make IdlingResource idle.");
+                            mViewIdlingResource.decrement();
+                        }
+                    } catch (IllegalStateException e) {
+                        Log.e(TAG, "Unexpected decrement. Continuing");
                     }
-                } catch (IllegalStateException e) {
-                    Log.e(TAG, "Unexpected decrement. Continuing");
                 }
             }
         });
@@ -785,8 +874,7 @@ public class CameraXActivity extends AppCompatActivity
                     setupCamera();
                 }
             } else {
-                Log.e(TAG, "Failed to retrieve ProcessCameraProvider",
-                        cameraProviderResult.getError());
+                Log.e(TAG, "Failed to retrieve ProcessCameraProvider, e");
                 Toast.makeText(getApplicationContext(), "Unable to initialize CameraX. See logs "
                         + "for details.", Toast.LENGTH_LONG).show();
             }
@@ -809,22 +897,50 @@ public class CameraXActivity extends AppCompatActivity
                     }
                 }
 
-            @Override
-            public void onFailure(@NonNull Throwable throwable) {
-                Toast.makeText(getApplicationContext(), "Unable to request camera "
-                        + "permission.", Toast.LENGTH_SHORT)
-                        .show();
-                finish();
-            }
-        }, ContextCompat.getMainExecutor(this));
+                @Override
+                public void onFailure(@NonNull Throwable throwable) {
+                    Toast.makeText(getApplicationContext(), "Unable to request camera "
+                            + "permission.", Toast.LENGTH_SHORT)
+                            .show();
+                    finish();
+                }
+            }, ContextCompat.getMainExecutor(this));
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        DisplayManager dpyMgr = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
-        dpyMgr.unregisterDisplayListener(mDisplayListener);
-        mPreviewRenderer.shutdown();
+    @SuppressWarnings("WeakerAccess")
+    void tryToProvidePreviewSurface() {
+        /*
+          Should only continue if:
+          - The preview size has been specified.
+          - The textureView's surfaceTexture is available (after TextureView
+          .SurfaceTextureListener#onSurfaceTextureAvailable is invoked)
+          - The surfaceCompleter has been set (after CallbackToFutureAdapter
+          .Resolver#attachCompleter is invoked).
+         */
+        if (mResolution == null || mSurfaceTexture == null || mSurfaceRequest == null) {
+            return;
+        }
+
+        mSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(), mResolution.getHeight());
+
+        final Surface surface = new Surface(mSurfaceTexture);
+        final ListenableFuture<SurfaceRequest.Result> surfaceReleaseFuture =
+                CallbackToFutureAdapter.getFuture(completer -> {
+                    mSurfaceRequest.provideSurface(surface,
+                            CameraXExecutors.directExecutor(), completer::set);
+                    return "provideSurface[request=" + mSurfaceRequest + " surface=" + surface
+                            + "]";
+                });
+        mSurfaceReleaseFuture = surfaceReleaseFuture;
+        mSurfaceReleaseFuture.addListener(() -> {
+            surface.release();
+            if (mSurfaceReleaseFuture == surfaceReleaseFuture) {
+                mSurfaceReleaseFuture = null;
+            }
+        }, ContextCompat.getMainExecutor(mTextureView.getContext()));
+        mSurfaceRequest = null;
+
+        transformPreview(mResolution);
     }
 
     void setupCamera() {
