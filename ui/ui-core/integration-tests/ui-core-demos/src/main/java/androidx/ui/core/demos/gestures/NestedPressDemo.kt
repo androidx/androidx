@@ -37,7 +37,7 @@ import androidx.ui.unit.dp
  * Demonstration of how various press/tap gesture interact together in a nested fashion.
  */
 @Composable
-fun NestedPressDemo() {
+fun NestedPressingDemo() {
     Column {
         Text(
             "Demonstrates correct behavior of a nested set of regions that each respond with " +

@@ -23,6 +23,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
+import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
@@ -30,22 +32,25 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
 /**
- * Simple PressReleasedGestureDetector demo.
+ * Simple [tapGestureFilter] demo.
  */
 @Composable
-fun PressReleasedGestureDetectorDemo() {
+fun TapGestureFilterDemo() {
     val color = state { Colors.random() }
 
     val onTap: (PxPosition) -> Unit = {
         color.value = color.value.anotherRandomColor()
     }
 
-    Box(
-        Modifier.fillMaxSize()
-            .wrapContentSize(Alignment.Center)
-            .tapGestureFilter(onTap)
-            .preferredSize(192.dp),
-        backgroundColor = color.value,
-        border = Border(2.dp, BorderColor)
-    )
+    Column {
+        Text("The box changes color when you tap it.")
+        Box(
+            Modifier.fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+                .tapGestureFilter(onTap)
+                .preferredSize(192.dp),
+            backgroundColor = color.value,
+            border = Border(2.dp, BorderColor)
+        )
+    }
 }

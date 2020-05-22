@@ -22,12 +22,13 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.scaleGestureFilter
 import androidx.ui.core.gesture.ScaleObserver
-import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.gesture.dragGestureFilter
+import androidx.ui.core.gesture.scaleGestureFilter
+import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Box
-import androidx.ui.graphics.Color
+import androidx.ui.foundation.Text
+import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.offset
 import androidx.ui.layout.preferredSize
@@ -40,7 +41,7 @@ import androidx.ui.unit.dp
  * interoperate.
  */
 @Composable
-fun DragScaleGestureDetectorDemo() {
+fun DragAndScaleGestureDetectorDemo() {
     val size = state { 200.dp }
     val offset = state { PxPosition.Origin }
     val dragInScale = state { false }
@@ -75,15 +76,28 @@ fun DragScaleGestureDetectorDemo() {
                 .tapGestureFilter(onRelease)
         }
 
+    val color =
+        if (dragInScale.value) {
+            Red
+        } else {
+            Blue
+        }
+
     val (offsetX, offsetY) =
         with(DensityAmbient.current) { offset.value.x.toDp() to offset.value.y.toDp() }
 
-    Box(
-        Modifier.offset(offsetX, offsetY)
-            .fillMaxSize()
-            .wrapContentSize(Alignment.Center)
-            .plus(gestures)
-            .preferredSize(size.value),
-        backgroundColor = Color(0xFFf44336.toInt())
-    )
+    Column {
+        Text("Demonstrates combining dragging with scaling.")
+        Text("Drag and scale around.  Play with how slop works for both dragging and scaling. Tap" +
+                " on the box to flip the order of scaling and dragging.  The behavior is always " +
+                "the same because the 2 gesture filters are completely orthogonal.")
+        Box(
+            Modifier.offset(offsetX, offsetY)
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+                .plus(gestures)
+                .preferredSize(size.value),
+            backgroundColor = color
+        )
+    }
 }
