@@ -27,9 +27,9 @@
     <string name="abc_searchview_description_clear" msgid="3741173234950517107">"Limpar consulta"</string>
     <string name="abc_searchview_description_submit" msgid="1486535517437947103">"Enviar consulta"</string>
     <string name="abc_searchview_description_voice" msgid="2293578557972875415">"Pesquisa por voz"</string>
-    <string name="abc_activitychooserview_choose_application" msgid="2165779757652331008">"Escolher uma aplicação"</string>
+    <string name="abc_activitychooserview_choose_application" msgid="2165779757652331008">"Escolher uma app"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="1189761859438369441">"Ver tudo"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="9055268688411532828">"Partilhar com a aplicação <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="9055268688411532828">"Partilhar com a app <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
     <string name="abc_shareactionprovider_share_with" msgid="8875138169939072951">"Partilhar com"</string>
     <string name="abc_capital_on" msgid="884982626291842264">"ATIVADO"</string>
     <string name="abc_capital_off" msgid="4215997306490295099">"DESATIVADO"</string>
