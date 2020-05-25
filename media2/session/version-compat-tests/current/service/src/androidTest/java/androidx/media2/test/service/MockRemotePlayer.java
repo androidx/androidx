@@ -274,8 +274,4 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
             executor.execute(() -> callback.onVolumeChanged(this, volume));
         }
     }
-
-    @Override
-    public void close() throws Exception {
-    }
 }

@@ -43,6 +43,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.Closeable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -155,7 +156,7 @@ import java.util.concurrent.Executor;
 // Players can extend this directly (e.g. MediaPlayer) or create wrapper and control underlying
 // player.
 // Preferably it can be interface, but API guideline requires to use abstract class.
-public abstract class SessionPlayer implements AutoCloseable {
+public abstract class SessionPlayer implements Closeable {
     private static final String TAG = "SessionPlayer";
 
     /**
@@ -1008,7 +1009,7 @@ public abstract class SessionPlayer implements AutoCloseable {
      */
     @CallSuper
     @Override
-    public void close() throws Exception {
+    public void close() {
         synchronized (mLock) {
             mCallbacks.clear();
         }

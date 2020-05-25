@@ -52,7 +52,7 @@ package androidx.media2.session {
     method public androidx.media2.session.MediaBrowser.Builder setSessionToken(androidx.media2.session.SessionToken);
   }
 
-  public class MediaController implements java.lang.AutoCloseable {
+  public class MediaController implements java.io.Closeable {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> addPlaylistItem(@IntRange(from=0) int, String);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> adjustVolume(int, int);
     method public void close();
@@ -198,7 +198,7 @@ package androidx.media2.session {
     method public int onUnsubscribe(androidx.media2.session.MediaLibraryService.MediaLibrarySession, androidx.media2.session.MediaSession.ControllerInfo, String);
   }
 
-  public class MediaSession implements java.lang.AutoCloseable {
+  public class MediaSession implements java.io.Closeable {
     method public void broadcastCustomCommand(androidx.media2.session.SessionCommand, android.os.Bundle?);
     method public void close();
     method public java.util.List<androidx.media2.session.MediaSession.ControllerInfo!> getConnectedControllers();

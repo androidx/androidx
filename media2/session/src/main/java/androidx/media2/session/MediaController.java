@@ -63,6 +63,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.Closeable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -141,7 +142,7 @@ import java.util.concurrent.Executors;
  * @see MediaSession
  * @see MediaSessionService
  */
-public class MediaController implements AutoCloseable {
+public class MediaController implements Closeable {
     private static final String TAG = "MediaController";
 
     /**
@@ -1451,7 +1452,7 @@ public class MediaController implements AutoCloseable {
         void run(@NonNull ControllerCallback callback);
     }
 
-    interface MediaControllerImpl extends AutoCloseable {
+    interface MediaControllerImpl extends Closeable {
         @Nullable SessionToken getConnectedToken();
         boolean isConnected();
         ListenableFuture<SessionResult> play();

@@ -33,6 +33,10 @@ RemovedField: androidx.media2.session.SessionCommand#COMMAND_VERSION_CURRENT:
     Removed field androidx.media2.session.SessionCommand.COMMAND_VERSION_CURRENT
 
 
+RemovedInterface: androidx.media2.session.MediaController:
+    Class androidx.media2.session.MediaController no longer implements java.lang.AutoCloseable
+RemovedInterface: androidx.media2.session.MediaSession:
+    Class androidx.media2.session.MediaSession no longer implements java.lang.AutoCloseable
 RemovedInterface: androidx.media2.session.SessionResult:
     Class androidx.media2.session.SessionResult no longer implements androidx.versionedparcelable.VersionedParcelable
 RemovedInterface: androidx.media2.session.SessionToken.OnSessionTokenCreatedListener:
