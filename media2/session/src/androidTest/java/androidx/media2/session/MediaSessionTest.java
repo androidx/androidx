@@ -142,6 +142,12 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
+    public void close_noException() {
+        MediaSession session = new MediaSession.Builder(mContext, mPlayer).build();
+        session.close();
+    }
+
+    @Test
     public void updatePlayer() throws Exception {
         MockPlayer anotherPlayer = new MockPlayer(0);
 

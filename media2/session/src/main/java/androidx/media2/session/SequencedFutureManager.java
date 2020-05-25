@@ -26,13 +26,14 @@ import androidx.concurrent.futures.AbstractResolvableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Manages {@link SequencedFuture} that contains sequence number to be shared across the process.
  */
-class SequencedFutureManager implements AutoCloseable {
+class SequencedFutureManager implements Closeable {
     private static final boolean DEBUG = false;
     private static final String TAG = "SequencedFutureManager";
     private final Object mLock = new Object();
