@@ -2936,7 +2936,6 @@ public class ExifInterface {
     static final byte[] JPEG_SIGNATURE = new byte[] {(byte) 0xff, (byte) 0xd8, (byte) 0xff};
     private static final String RAF_SIGNATURE = "FUJIFILMCCD-RAW";
     private static final int RAF_OFFSET_TO_JPEG_IMAGE_OFFSET = 84;
-    private static final int RAF_JPEG_LENGTH_VALUE_SIZE = 4;
 
     private static final byte[] HEIF_TYPE_FTYP = new byte[] {'f', 't', 'y', 'p'};
     private static final byte[] HEIF_BRAND_MIF1 = new byte[] {'m', 'i', 'f', '1'};
@@ -3870,17 +3869,16 @@ public class ExifInterface {
     private boolean mHasThumbnail;
     private boolean mHasThumbnailStrips;
     private boolean mAreThumbnailStripsConsecutive;
-    // Used to indicate the position of the thumbnail (includes offset to EXIF data segment).
+    // Used to indicate the position of the thumbnail (doesn't include offset to EXIF data segment).
     private int mThumbnailOffset;
     private int mThumbnailLength;
     private byte[] mThumbnailBytes;
     private int mThumbnailCompression;
-    private int mExifOffset;
+    // Used to indicate offset from the start of the original input stream to EXIF data
+    private int mOffsetToExifData;
     private int mOrfMakerNoteOffset;
     private int mOrfThumbnailOffset;
     private int mOrfThumbnailLength;
-    private int mRw2JpgFromRawOffset;
-    private boolean mIsSupportedFile;
     private boolean mModified;
     // XMP data can be contained as either part of the EXIF data (tag number 700), or as a
     // separate data marker (a separate MARKER_APP1).
@@ -4541,12 +4539,13 @@ public class ExifInterface {
             if (!mIsExifDataOnly) {
                 switch (mMimeType) {
                     case IMAGE_TYPE_JPEG: {
-                        getJpegAttributes(inputStream, 0, IFD_TYPE_PRIMARY); // 0 is offset
-                        break;
+                        getJpegAttributes(inputStream, /* offsetToJpeg= */ 0,
+                                IFD_TYPE_PRIMARY);
+                        return;
                     }
                     case IMAGE_TYPE_RAF: {
                         getRafAttributes(inputStream);
-                        break;
+                        return;
                     }
                     case IMAGE_TYPE_HEIF: {
                         getHeifAttributes(inputStream);
@@ -4558,15 +4557,15 @@ public class ExifInterface {
                     }
                     case IMAGE_TYPE_RW2: {
                         getRw2Attributes(inputStream);
-                        break;
+                        return;
                     }
                     case IMAGE_TYPE_PNG: {
                         getPngAttributes(inputStream);
-                        break;
+                        return;
                     }
                     case IMAGE_TYPE_WEBP: {
                         getWebpAttributes(inputStream);
-                        break;
+                        return;
                     }
                     case IMAGE_TYPE_ARW:
                     case IMAGE_TYPE_CR2:
@@ -4587,12 +4586,11 @@ public class ExifInterface {
                 getStandaloneAttributes(inputStream);
             }
             // Set thumbnail image offset and length
+            inputStream.seek(mOffsetToExifData);
             setThumbnailData(inputStream);
-            mIsSupportedFile = true;
         } catch (IOException e) {
             // Ignore exceptions in order to keep the compatibility with the old versions of
             // ExifInterface.
-            mIsSupportedFile = false;
             if (DEBUG) {
                 Log.w(TAG, "Invalid image: ExifInterface got an unsupported image format file"
                         + "(ExifInterface supports JPEG and some RAW image formats only) "
@@ -4803,7 +4801,8 @@ public class ExifInterface {
                 throw new FileNotFoundException();
             }
 
-            if (in.skip(mThumbnailOffset) != mThumbnailOffset) {
+            if (in.skip(mThumbnailOffset + mOffsetToExifData)
+                    != mThumbnailOffset + mOffsetToExifData) {
                 throw new IOException("Corrupted image");
             }
             // TODO: Need to handle potential OutOfMemoryError
@@ -4898,7 +4897,7 @@ public class ExifInterface {
             if (mHasThumbnailStrips && !mAreThumbnailStripsConsecutive) {
                 return null;
             }
-            return new long[] { mThumbnailOffset, mThumbnailLength };
+            return new long[] { mThumbnailOffset + mOffsetToExifData, mThumbnailLength };
         }
         return null;
     }
@@ -5486,25 +5485,26 @@ public class ExifInterface {
      * Loads EXIF attributes from a JPEG input stream.
      *
      * @param in The input stream that starts with the JPEG data.
-     * @param jpegOffset The offset value in input stream for JPEG data.
+     * @param offsetToJpeg The offset to JPEG data for the original input stream.
      * @param imageType The image type from which to retrieve metadata. Use IFD_TYPE_PRIMARY for
      *                   primary image, IFD_TYPE_PREVIEW for preview image, and
      *                   IFD_TYPE_THUMBNAIL for thumbnail image.
      * @throws IOException If the data contains invalid JPEG markers, offsets, or length values.
      */
-    private void getJpegAttributes(ByteOrderedDataInputStream in, int jpegOffset, int imageType)
+    private void getJpegAttributes(ByteOrderedDataInputStream in, int offsetToJpeg, int imageType)
             throws IOException {
         // See JPEG File Interchange Format Specification, "JFIF Specification"
         if (DEBUG) {
             Log.d(TAG, "getJpegAttributes starting with: " + in);
         }
+        // Do not buffer any bytes from this input stream since we don't need to rewind to an
+        // earlier position.
+        in.mark(0);
 
         // JPEG uses Big Endian by default. See https://people.cs.umass.edu/~verts/cs32/endian.html
         in.setByteOrder(ByteOrder.BIG_ENDIAN);
 
-        // Skip to JPEG data
-        in.seek(jpegOffset);
-        int bytesRead = jpegOffset;
+        int bytesRead = 0;
 
         byte marker;
         if ((marker = in.readByte()) != MARKER) {
@@ -5550,12 +5550,15 @@ public class ExifInterface {
                     length = 0;
 
                     if (startsWith(bytes, IDENTIFIER_EXIF_APP1)) {
-                        final int offset = start + IDENTIFIER_EXIF_APP1.length;
                         final byte[] value = Arrays.copyOfRange(bytes, IDENTIFIER_EXIF_APP1.length,
                                 bytes.length);
-                        // Save offset values for handling thumbnail and attribute offsets.
-                        mExifOffset = offset;
+                        // Save offset to EXIF data for handling thumbnail and attribute offsets.
+                        mOffsetToExifData = offsetToJpeg
+                                + /* offset to EXIF from JPEG start */ start
+                                + IDENTIFIER_EXIF_APP1.length;
                         readExifSegment(value, imageType);
+
+                        setThumbnailData(new ByteOrderedDataInputStream(value));
                     } else if (startsWith(bytes, IDENTIFIER_XMP_APP1)) {
                         // See XMP Specification Part 3: Storage in Files, 1.1.3 JPEG, Table 6
                         final int offset = start + IDENTIFIER_XMP_APP1.length;
@@ -5677,22 +5680,34 @@ public class ExifInterface {
      * For data format details, see http://fileformats.archiveteam.org/wiki/Fujifilm_RAF
      */
     private void getRafAttributes(ByteOrderedDataInputStream in) throws IOException {
+        if (DEBUG) {
+            Log.d(TAG, "getRafAttributes starting with: " + in);
+        }
+        // Do not buffer any bytes from this input stream since we don't need to rewind to an
+        // earlier position.
+        in.mark(0);
         // Retrieve offset & length values
         in.skipBytes(RAF_OFFSET_TO_JPEG_IMAGE_OFFSET);
-        byte[] jpegOffsetBytes = new byte[4];
+        byte[] offsetToJpegBytes = new byte[4];
+        byte[] jpegLengthBytes = new byte[4];
         byte[] cfaHeaderOffsetBytes = new byte[4];
-        in.read(jpegOffsetBytes);
-        // Skip JPEG length value since it is not needed
-        in.skipBytes(RAF_JPEG_LENGTH_VALUE_SIZE);
+        in.read(offsetToJpegBytes);
+        in.read(jpegLengthBytes);
         in.read(cfaHeaderOffsetBytes);
-        int rafJpegOffset = ByteBuffer.wrap(jpegOffsetBytes).getInt();
-        int rafCfaHeaderOffset = ByteBuffer.wrap(cfaHeaderOffsetBytes).getInt();
+        int offsetToJpeg = ByteBuffer.wrap(offsetToJpegBytes).getInt();
+        int jpegLength = ByteBuffer.wrap(jpegLengthBytes).getInt();
+        int cfaHeaderOffset = ByteBuffer.wrap(cfaHeaderOffsetBytes).getInt();
+
+        byte[] jpegBytes = new byte[jpegLength];
+        in.seek(offsetToJpeg);
+        in.read(jpegBytes);
 
         // Retrieve JPEG image metadata
-        getJpegAttributes(in, rafJpegOffset, IFD_TYPE_PREVIEW);
+        ByteOrderedDataInputStream jpegInputStream = new ByteOrderedDataInputStream(jpegBytes);
+        getJpegAttributes(jpegInputStream, offsetToJpeg, IFD_TYPE_PREVIEW);
 
         // Skip to CFA header offset.
-        in.seek(rafCfaHeaderOffset);
+        in.seek(cfaHeaderOffset);
 
         // Retrieve primary image length/width values, if TAG_RAF_IMAGE_SIZE exists
         in.setByteOrder(ByteOrder.BIG_ENDIAN);
@@ -5874,8 +5889,8 @@ public class ExifInterface {
                 if (in.read(bytes) != length) {
                     throw new IOException("Can't read exif");
                 }
-                // Save offset values for handling thumbnail and attribute offsets.
-                mExifOffset = offset;
+                // Save offset to EXIF data for handling thumbnail and attribute offsets.
+                mOffsetToExifData = offset;
                 readExifSegment(bytes, IFD_TYPE_PRIMARY);
             }
 
@@ -5892,8 +5907,8 @@ public class ExifInterface {
         // TODO: Need to handle potential OutOfMemoryError
         byte[] data = new byte[in.available()];
         in.readFully(data);
-        // Save offset values for handling thumbnail and attribute offsets.
-        mExifOffset = IDENTIFIER_EXIF_APP1.length;
+        // Save offset to EXIF data for handling thumbnail and attribute offsets.
+        mOffsetToExifData = IDENTIFIER_EXIF_APP1.length;
         readExifSegment(data, IFD_TYPE_PRIMARY);
     }
 
@@ -5991,6 +6006,9 @@ public class ExifInterface {
     // the JpgFromRaw tag
     // See https://libopenraw.freedesktop.org/wiki/Panasonic_RAW/ and piex.cc Rw2GetPreviewData()
     private void getRw2Attributes(ByteOrderedDataInputStream in) throws IOException {
+        if (DEBUG) {
+            Log.d(TAG, "getRw2Attributes starting with: " + in);
+        }
         // Retrieve primary image data
         getRawAttributes(in);
 
@@ -5998,7 +6016,10 @@ public class ExifInterface {
         ExifAttribute jpgFromRawAttribute =
                 (ExifAttribute) mAttributes[IFD_TYPE_PRIMARY].get(TAG_RW2_JPG_FROM_RAW);
         if (jpgFromRawAttribute != null) {
-            getJpegAttributes(in, mRw2JpgFromRawOffset, IFD_TYPE_PREVIEW);
+            ByteOrderedDataInputStream jpegInputStream =
+                    new ByteOrderedDataInputStream(jpgFromRawAttribute.bytes);
+            getJpegAttributes(jpegInputStream, (int) jpgFromRawAttribute.bytesOffset,
+                    IFD_TYPE_PREVIEW);
         }
 
         // Set ISO tag value if necessary
@@ -6017,6 +6038,9 @@ public class ExifInterface {
         if (DEBUG) {
             Log.d(TAG, "getPngAttributes starting with: " + in);
         }
+        // Do not buffer any bytes from this input stream since we don't need to rewind to an
+        // earlier position.
+        in.mark(0);
 
         // PNG uses Big Endian by default.
         // See PNG (Portable Network Graphics) Specification, Version 1.2,
@@ -6079,11 +6103,12 @@ public class ExifInterface {
                                 + "\n recorded CRC value: " + dataCrcValue + ", calculated CRC "
                                 + "value: " + crc.getValue());
                     }
-                    // Save offset values for handling thumbnail and attribute offsets.
-                    mExifOffset = bytesRead;
+                    // Save offset to EXIF data for handling thumbnail and attribute offsets.
+                    mOffsetToExifData = bytesRead;
                     readExifSegment(data, IFD_TYPE_PRIMARY);
-
                     validateImages();
+
+                    setThumbnailData(new ByteOrderedDataInputStream(data));
                     break;
                 } else {
                     // Skip to next chunk
@@ -6105,6 +6130,9 @@ public class ExifInterface {
         if (DEBUG) {
             Log.d(TAG, "getWebpAttributes starting with: " + in);
         }
+        // Do not buffer any bytes from this input stream since we don't need to rewind to an
+        // earlier position.
+        in.mark(0);
 
         // WebP uses little-endian by default.
         // See Section "Terminology & Basics"
@@ -6146,12 +6174,11 @@ public class ExifInterface {
                         throw new IOException("Failed to read given length for given PNG chunk "
                                 + "type: " + byteArrayToHexString(code));
                     }
-                    // Save offset values for handling thumbnail and attribute offsets.
-                    mExifOffset = bytesRead;
+                    // Save offset to EXIF data for handling thumbnail and attribute offsets.
+                    mOffsetToExifData = bytesRead;
                     readExifSegment(payload, IFD_TYPE_PRIMARY);
 
-                    // Save offset values for handleThumbnailFromJfif() function
-                    mExifOffset = bytesRead;
+                    setThumbnailData(new ByteOrderedDataInputStream(payload));
                     break;
                 } else {
                     // Add a single padding byte at end if chunk size is odd
@@ -6310,7 +6337,7 @@ public class ExifInterface {
         //   1) if EXIF chunk did not exist in the original file, it will be stored right after the
         //      first chunk,
         //   2) if EXIF chunk existed in the original file, it will be stored in the same location.
-        if (mExifOffset == 0) {
+        if (mOffsetToExifData == 0) {
             // Copy IHDR chunk bytes
             int ihdrChunkLength = dataInputStream.readInt();
             dataOutputStream.writeInt(ihdrChunkLength);
@@ -6318,7 +6345,7 @@ public class ExifInterface {
                     + ihdrChunkLength + PNG_CHUNK_CRC_BYTE_LENGTH);
         } else {
             // Copy up until the point where EXIF chunk length information is stored.
-            int copyLength = mExifOffset - PNG_SIGNATURE.length
+            int copyLength = mOffsetToExifData - PNG_SIGNATURE.length
                     - 4 /* PNG EXIF chunk length bytes */
                     - PNG_CHUNK_TYPE_BYTE_LENGTH;
             copy(dataInputStream, dataOutputStream, copyLength);
@@ -6415,13 +6442,13 @@ public class ExifInterface {
                     new ByteOrderedDataOutputStream(nonHeaderByteArrayOutputStream,
                             ByteOrder.LITTLE_ENDIAN);
 
-            if (mExifOffset != 0) {
+            if (mOffsetToExifData != 0) {
                 // EXIF chunk exists in the original file
                 // Tested by webp_with_exif.webp
                 int bytesRead = WEBP_SIGNATURE_1.length + WEBP_FILE_SIZE_BYTE_LENGTH
                         + WEBP_SIGNATURE_2.length;
                 copy(totalInputStream, nonHeaderOutputStream,
-                        mExifOffset - bytesRead - WEBP_CHUNK_TYPE_BYTE_LENGTH
+                        mOffsetToExifData - bytesRead - WEBP_CHUNK_TYPE_BYTE_LENGTH
                                 - WEBP_CHUNK_SIZE_BYTE_LENGTH);
 
                 // Skip input stream to the end of the EXIF chunk
@@ -6805,10 +6832,6 @@ public class ExifInterface {
                         mAttributes[IFD_TYPE_THUMBNAIL].put(TAG_JPEG_INTERCHANGE_FORMAT_LENGTH,
                                 jpegInterchangeFormatLengthAttribute);
                     }
-                } else if (mMimeType == IMAGE_TYPE_RW2) {
-                    if (TAG_RW2_JPG_FROM_RAW.equals(tag.name)) {
-                        mRw2JpgFromRawOffset = offset;
-                    }
                 }
                 if (offset + byteCount <= dataInputStream.mLength) {
                     dataInputStream.seek(offset);
@@ -6881,7 +6904,7 @@ public class ExifInterface {
                 continue;
             }
 
-            final int bytesOffset = dataInputStream.peek() + mExifOffset;
+            final int bytesOffset = dataInputStream.peek() + mOffsetToExifData;
             final byte[] bytes = new byte[(int) byteCount];
             dataInputStream.readFully(bytes);
             ExifAttribute attribute = new ExifAttribute(dataFormat, numberOfComponents,
@@ -6961,12 +6984,21 @@ public class ExifInterface {
             // Find if offset for JPEG data exists
             ExifAttribute jpegInterchangeFormatAttribute =
                     (ExifAttribute) mAttributes[imageType].get(TAG_JPEG_INTERCHANGE_FORMAT);
-            if (jpegInterchangeFormatAttribute != null) {
+            ExifAttribute jpegInterchangeFormatLengthAttribute =
+                    (ExifAttribute) mAttributes[imageType].get(TAG_JPEG_INTERCHANGE_FORMAT_LENGTH);
+            if (jpegInterchangeFormatAttribute != null
+                    && jpegInterchangeFormatLengthAttribute != null) {
                 int jpegInterchangeFormat =
+                        jpegInterchangeFormatAttribute.getIntValue(mExifByteOrder);
+                int jpegInterchangeFormatLength =
                         jpegInterchangeFormatAttribute.getIntValue(mExifByteOrder);
 
                 // Searches for SOF marker in JPEG data and updates IMAGE_LENGTH & IMAGE_WIDTH tags
-                getJpegAttributes(in, jpegInterchangeFormat, imageType);
+                in.seek(jpegInterchangeFormat);
+                byte[] jpegBytes = new byte[jpegInterchangeFormatLength];
+                in.read(jpegBytes);
+                getJpegAttributes(new ByteOrderedDataInputStream(jpegBytes), jpegInterchangeFormat,
+                        imageType);
             }
         }
     }
@@ -7021,18 +7053,17 @@ public class ExifInterface {
 
             if (thumbnailOffset > 0 && thumbnailLength > 0) {
                 mHasThumbnail = true;
-                // Need to add mExifOffset, which is the offset to the EXIF data segment
-                mThumbnailOffset = thumbnailOffset + mExifOffset;
-                mThumbnailLength = thumbnailLength;
                 if (mFilename == null && mAssetInputStream == null
                         && mSeekableFileDescriptor == null) {
                     // TODO: Need to handle potential OutOfMemoryError
                     // Save the thumbnail in memory if the input doesn't support reading again.
-                    byte[] thumbnailBytes = new byte[mThumbnailLength];
-                    in.seek(mThumbnailOffset);
-                    in.readFully(thumbnailBytes);
+                    byte[] thumbnailBytes = new byte[thumbnailLength];
+                    in.skip(thumbnailOffset);
+                    in.read(thumbnailBytes);
                     mThumbnailBytes = thumbnailBytes;
                 }
+                mThumbnailOffset = thumbnailOffset;
+                mThumbnailLength = thumbnailLength;
             }
             if (DEBUG) {
                 Log.d(TAG, "Setting thumbnail attributes with offset: " + thumbnailOffset
@@ -7092,17 +7123,22 @@ public class ExifInterface {
                 }
 
                 // Skip to offset
-                int skipBytes = stripOffset - bytesRead;
-                if (skipBytes < 0) {
+                int bytesToSkip = stripOffset - bytesRead;
+                if (bytesToSkip < 0) {
                     Log.d(TAG, "Invalid strip offset value");
+                    return;
                 }
-                in.seek(skipBytes);
-                bytesRead += skipBytes;
-
+                if (in.skip(bytesToSkip) != bytesToSkip) {
+                    Log.d(TAG, "Failed to skip " + bytesToSkip + " bytes.");
+                    return;
+                }
+                bytesRead += bytesToSkip;
                 // TODO: Need to handle potential OutOfMemoryError
-                // Read strip bytes
                 byte[] stripBytes = new byte[stripByteCount];
-                in.read(stripBytes);
+                if (in.read(stripBytes) != stripByteCount) {
+                    Log.d(TAG, "Failed to read " + stripByteCount + " bytes.");
+                    return;
+                }
                 bytesRead += stripByteCount;
 
                 // Add bytes to array
@@ -7113,8 +7149,7 @@ public class ExifInterface {
             mThumbnailBytes = totalStripBytes;
 
             if (mAreThumbnailStripsConsecutive) {
-                // Need to add mExifOffset, which is the offset to the EXIF data segment
-                mThumbnailOffset = (int) stripOffsets[0] + mExifOffset;
+                mThumbnailOffset = (int) stripOffsets[0];
                 mThumbnailLength = totalStripBytes.length;
             }
         }
@@ -7356,8 +7391,7 @@ public class ExifInterface {
             int thumbnailOffset = position;
             mAttributes[IFD_TYPE_THUMBNAIL].put(JPEG_INTERCHANGE_FORMAT_TAG.name,
                     ExifAttribute.createULong(thumbnailOffset, mExifByteOrder));
-            // Need to add mExifOffset, which is the offset to the EXIF data segment
-            mThumbnailOffset = thumbnailOffset + mExifOffset;
+            mThumbnailOffset = thumbnailOffset;
             position += mThumbnailLength;
         }
 
@@ -7813,6 +7847,11 @@ public class ExifInterface {
             return Double.longBitsToDouble(readLong());
         }
 
+        @Override
+        public synchronized void mark(int readlimit) {
+            mDataInputStream.mark(readlimit);
+        }
+
         public int getLength() {
             return mLength;
         }
@@ -8031,8 +8070,8 @@ public class ExifInterface {
     }
 
     private boolean isSupportedFormatForSavingAttributes() {
-        if (mIsSupportedFile && (mMimeType == IMAGE_TYPE_JPEG || mMimeType == IMAGE_TYPE_PNG
-                || mMimeType == IMAGE_TYPE_WEBP)) {
+        if (mMimeType == IMAGE_TYPE_JPEG || mMimeType == IMAGE_TYPE_PNG
+                || mMimeType == IMAGE_TYPE_WEBP) {
             return true;
         }
         return false;
