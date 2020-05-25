@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link MediaController} with framework MediaSession.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // For framework MediaSession
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaController_FrameworkMediaSessionTest extends MediaSessionTestBase {

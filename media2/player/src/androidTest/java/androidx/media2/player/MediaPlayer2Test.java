@@ -2042,60 +2042,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.reset();
     }
 
-    /*
-     *  This test assumes the resources being tested are between 8 and 14 seconds long
-     *  The ones being used here are 10 seconds long.
-     */
-    // This test is disabled due to a framework issue. b/79754424
-    //@Test
-    //@LargeTest
-    //@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void resumeAtEnd() throws Throwable {
-        int testsRun = testResumeAtEnd(R.raw.loudsoftmp3)
-                + testResumeAtEnd(R.raw.loudsoftwav)
-                + testResumeAtEnd(R.raw.loudsoftogg)
-                + testResumeAtEnd(R.raw.loudsoftitunes)
-                + testResumeAtEnd(R.raw.loudsoftfaac)
-                + testResumeAtEnd(R.raw.loudsoftaac);
-    }
-
-    // returns 1 if test was run, 0 otherwise
-    private int testResumeAtEnd(int res) throws Throwable {
-        if (!loadResource(res)) {
-            Log.i(LOG_TAG, "testResumeAtEnd: No decoder found for "
-                    + mContext.getResources().getResourceEntryName(res) + " --- skipping.");
-            return 0; // skip
-        }
-        mOnCompletionCalled.reset();
-        MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
-            @Override
-            public void onInfo(MediaPlayer2 mp, MediaItem item, int what, int extra) {
-                if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
-                    mOnPrepareCalled.signal();
-                } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
-                    mOnCompletionCalled.signal();
-                    mPlayer.play();
-                }
-            }
-        };
-        mPlayer.setEventCallback(mExecutor, ecb);
-
-        mOnPrepareCalled.reset();
-        mPlayer.prepare();
-        mOnPrepareCalled.waitForSignal();
-
-        // skip the first part of the file so we reach EOF sooner
-        mPlayer.seekTo(5000, MediaPlayer2.SEEK_PREVIOUS_SYNC);
-        mPlayer.play();
-        // sleep long enough that we restart playback at least once, but no more
-        Thread.sleep(10000);
-        assertEquals("MediaPlayer2 should still be playing",
-                 MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
-        mPlayer.reset();
-        assertEquals("wrong number of repetitions", 1, mOnCompletionCalled.getNumSignal());
-        return 1;
-    }
-
     @Test
     @LargeTest
     public void positionAtEnd() throws Throwable {
