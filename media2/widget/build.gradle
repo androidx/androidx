@@ -43,9 +43,7 @@ dependencies {
 
 android {
     defaultConfig {
-        // TODO(b/153697872): Lower minSdkVersion to 16
-        //  once other dependent modules are reached to minSdkVersion 16.
-        minSdkVersion 19
+        minSdkVersion 16
     }
     sourceSets {
         main.res.srcDirs += 'src/main/res-public'
