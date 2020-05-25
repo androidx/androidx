@@ -28,6 +28,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -75,7 +76,7 @@ public class MediaWidgetTestBase extends MediaTestBase {
     }
 
     static void checkAttachedToWindow(View view) throws Exception {
-        if (!view.isAttachedToWindow()) {
+        if (!ViewCompat.isAttachedToWindow(view)) {
             final CountDownLatch latch = new CountDownLatch(1);
             View.OnAttachStateChangeListener listener = new View.OnAttachStateChangeListener() {
                 @Override
