@@ -18,6 +18,7 @@ package androidx.camera.view;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -82,10 +83,10 @@ public class PreviewViewTest {
         return cameraInfo;
     }
 
-
-    @Config(maxSdk = 25) // The remote display simulation can only work from sdk 21 to 25.
     @Test
     public void forceUseTextureViewMode_whenNonLegacyDevice_andInRemoteDisplayMode() {
+        // The remote display simulation can only work from sdk 21 to 25.
+        assumeTrue(Build.VERSION.SDK_INT <= 25);
         final PreviewView previewView = new PreviewView(mContext);
 
         // Provides mock CameraInfo to make the device return non-legacy type.
@@ -106,9 +107,10 @@ public class PreviewViewTest {
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
     }
 
-    @Config(maxSdk = 25) // The remote display simulation can only work from sdk 21 to 25.
     @Test
     public void forceUseTextureViewMode_whenLegacyDevice_andInRemoteDisplayMode() {
+        // The remote display simulation can only work from sdk 21 to 25.
+        assumeTrue(Build.VERSION.SDK_INT <= 25);
         final PreviewView previewView = new PreviewView(mContext);
 
         // Provides mock CameraInfo to make the device return legacy type.
