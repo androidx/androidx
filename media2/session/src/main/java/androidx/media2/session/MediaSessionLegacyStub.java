@@ -26,6 +26,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -64,6 +67,9 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     private static final String TAG = "MediaSessionLegacyStub";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
+    // Used to call onDisconnected() after the timeout.
+    private static final int DEFAULT_CONNECTION_TIMEOUT_MS = 300_000; // 5 min.
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static final SparseArray<SessionCommand> sCommandsForOnCommandRequest =
             new SparseArray<>();
@@ -81,19 +87,23 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     final ConnectedControllersManager<RemoteUserInfo> mConnectedControllersManager;
 
-    final Object mLock = new Object();
-
     final MediaSession.MediaSessionImpl mSessionImpl;
     final MediaSessionManager mSessionManager;
     final Context mContext;
     final ControllerCb mControllerLegacyCbForBroadcast;
+    final ConnectionTimeoutHandler mConnectionTimeoutHandler;
 
-    MediaSessionLegacyStub(MediaSession.MediaSessionImpl session) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    volatile long mConnectionTimeoutMs;
+
+    MediaSessionLegacyStub(MediaSession.MediaSessionImpl session, Handler handler) {
         mSessionImpl = session;
         mContext = mSessionImpl.getContext();
         mSessionManager = MediaSessionManager.getSessionManager(mContext);
         mControllerLegacyCbForBroadcast = new ControllerLegacyCbForBroadcast();
+        mConnectionTimeoutHandler = new ConnectionTimeoutHandler(handler.getLooper());
         mConnectedControllersManager = new ConnectedControllersManager<>(session);
+        mConnectionTimeoutMs = DEFAULT_CONNECTION_TIMEOUT_MS;
     }
 
     @Override
@@ -465,23 +475,20 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 if (mSessionImpl.isClosed()) {
                     return;
                 }
-                final ControllerInfo controller;
-                ControllerInfo ctrl = mConnectedControllersManager.getController(remoteUserInfo);
-                if (ctrl != null) {
-                    controller = ctrl;
-                } else {
+                ControllerInfo controller =
+                        mConnectedControllersManager.getController(remoteUserInfo);
+                if (controller == null) {
+                    // Try connect.
                     controller = new ControllerInfo(
                             remoteUserInfo, MediaUtils.VERSION_UNKNOWN,
                             mSessionManager.isTrustedForMediaControl(remoteUserInfo),
-                            new ControllerLegacyCb(remoteUserInfo), null /* connectionHints */);
-                }
+                            new ControllerLegacyCb(remoteUserInfo), /* connectionHints= */ null);
 
-                if (!mConnectedControllersManager.isConnected(controller)) {
                     SessionCommandGroup allowedCommands = mSessionImpl.getCallback().onConnect(
                             mSessionImpl.getInstance(), controller);
                     if (allowedCommands == null) {
                         try {
-                            controller.getControllerCb().onDisconnected(0);
+                            controller.getControllerCb().onDisconnected(/* seq= */ 0);
                         } catch (RemoteException ex) {
                             // Controller may have died prematurely.
                         }
@@ -490,6 +497,10 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                     mConnectedControllersManager.addController(
                             controller.getRemoteUserInfo(), controller, allowedCommands);
                 }
+
+                // Reset disconnect timeout.
+                mConnectionTimeoutHandler.disconnectControllerAfterTimeout(
+                        controller, mConnectionTimeoutMs);
                 handleTaskOnExecutor(controller, sessionCommand, commandCode, task);
             }
         });
@@ -533,6 +544,10 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             //   - DeadSystemException means that errors around it can be ignored.
             Log.w(TAG, "Exception in " + controller, e);
         }
+    }
+
+    public void setLegacyControllerDisconnectTimeoutMs(long timeoutMs) {
+        mConnectionTimeoutMs = timeoutMs;
     }
 
     @FunctionalInterface
@@ -901,6 +916,34 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         void onSubtitleData(int seq, @NonNull MediaItem item,
                 @NonNull TrackInfo track, @NonNull SubtitleData data) {
             // no-op
+        }
+    }
+
+    private class ConnectionTimeoutHandler extends Handler {
+        private static final int MSG_CONNECTION_TIMED_OUT = 1001;
+
+        ConnectionTimeoutHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            ControllerInfo controller = (ControllerInfo) msg.obj;
+            if (mConnectedControllersManager.isConnected(controller)) {
+                try {
+                    controller.getControllerCb().onDisconnected(/* seq= */ 0);
+                } catch (RemoteException ex) {
+                    // Controller may have died prematurely.
+                }
+                mConnectedControllersManager.removeController(controller);
+            }
+        }
+
+        public void disconnectControllerAfterTimeout(@NonNull ControllerInfo controller,
+                long disconnectTimeoutMs) {
+            removeMessages(MSG_CONNECTION_TIMED_OUT, controller);
+            Message msg = obtainMessage(MSG_CONNECTION_TIMED_OUT, controller);
+            sendMessageDelayed(msg, disconnectTimeoutMs);
         }
     }
 }

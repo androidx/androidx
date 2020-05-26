@@ -144,6 +144,80 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
+    public void testDisconnectedAfterTimeout() throws InterruptedException {
+        CountDownLatch disconnectedLatch = new CountDownLatch(1);
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setId("testDisconnectedAfterTimeout")
+                .setSessionCallback(sHandlerExecutor, new SessionCallback() {
+                    private ControllerInfo mConnectedController;
+
+                    @Override
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
+                        if (EXPECTED_CONTROLLER_PACKAGE_NAME.equals(controller.getPackageName())) {
+                            mConnectedController = controller;
+                            return super.onConnect(session, controller);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public void onDisconnected(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
+                        if (mConnectedController == controller) {
+                            disconnectedLatch.countDown();
+                        }
+                    }
+                })
+                .build()) {
+            long timeoutMs = 100;
+            session.setLegacyControllerConnectionTimeoutMs(timeoutMs);
+            disconnectedLatch.await(timeoutMs * 2, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    @Test
+    public void testConnectedCallbackAfterDisconnectedByTimeout() throws InterruptedException {
+        CountDownLatch connectedLatch = new CountDownLatch(1);
+        CountDownLatch disconnectedLatch = new CountDownLatch(1);
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setId("testConnectedAfterDisconnectedByTimeout")
+                .setSessionCallback(sHandlerExecutor, new SessionCallback() {
+                    private ControllerInfo mConnectedController;
+
+                    @Override
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
+                        if (EXPECTED_CONTROLLER_PACKAGE_NAME.equals(controller.getPackageName())) {
+                            mConnectedController = controller;
+                            connectedLatch.countDown();
+                            return super.onConnect(session, controller);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public void onDisconnected(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
+                        if (mConnectedController == controller) {
+                            disconnectedLatch.countDown();
+                        }
+                    }
+                })
+                .build()) {
+            long timeoutMs = 100;
+            session.setLegacyControllerConnectionTimeoutMs(timeoutMs);
+            disconnectedLatch.await(timeoutMs * 2, TimeUnit.MILLISECONDS);
+
+            // Test whether sending any command after the onDisconnected() would invoke onConnect()
+            // again.
+            mController.getTransportControls().seekTo(111);
+
+            connectedLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    @Test
     public void testPlay() {
         mController.getTransportControls().play();
         try {
