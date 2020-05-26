@@ -151,6 +151,12 @@ public abstract class ActivityResultRegistry {
             public void unregister() {
                 ActivityResultRegistry.this.unregister(key);
             }
+
+            @NonNull
+            @Override
+            public ActivityResultContract<I, ?> getContract() {
+                return contract;
+            }
         };
     }
 
@@ -195,6 +201,12 @@ public abstract class ActivityResultRegistry {
             @Override
             public void unregister() {
                 ActivityResultRegistry.this.unregister(key);
+            }
+
+            @NonNull
+            @Override
+            public ActivityResultContract<I, ?> getContract() {
+                return contract;
             }
         };
     }
