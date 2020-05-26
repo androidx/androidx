@@ -35,6 +35,7 @@ class PreferenceDataStoreFactory {
      * Create an instance of SingleProcessDataStore. The user is responsible for ensuring that
      * there is never more than one instance of SingleProcessDataStore acting on a file at a time.
      */
+    @JvmOverloads
     fun create(
         /**
          * Function which returns the file that the new DataStore will act on. The function

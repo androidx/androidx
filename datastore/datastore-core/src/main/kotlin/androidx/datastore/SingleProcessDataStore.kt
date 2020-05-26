@@ -15,6 +15,7 @@
  */
 package androidx.datastore
 
+import androidx.annotation.RestrictTo
 import androidx.datastore.handlers.NoOpCorruptionHandler
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -46,24 +47,29 @@ import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Single process implementation of DataStore. This is NOT multi-process safe.
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @OptIn(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class, FlowPreview::class)
-class SingleProcessDataStore<T>(
+class SingleProcessDataStore<T>
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
     private val produceFile: () -> File,
-    private val serializer: DataStore.Serializer<T>,
+    private val serializer: Serializer<T>,
     /**
      * The list of initialization tasks to perform. These tasks will be completed before any data
-     * is published to the dataFlow and before any read-modify-writes execute in updateData.  If
-     * any of the tasks fail, the tasks will be run again the next time dataFlow is collected or
-     * updateData is called. Init tasks should not wait on results from dataFlow - this will
+     * is published to the data and before any read-modify-writes execute in updateData.  If
+     * any of the tasks fail, the tasks will be run again the next time data is collected or
+     * updateData is called. Init tasks should not wait on results from data - this will
      * result in deadlock.
      */
-    initTasksList: List<suspend (api: DataStore.InitializerApi<T>) -> Unit> = emptyList(),
+    initTasksList: List<suspend (api: InitializerApi<T>) -> Unit> = emptyList(),
     private val corruptionHandler: CorruptionHandler<T> = NoOpCorruptionHandler<T>(),
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 ) : DataStore<T> {
 
-    override val dataFlow: Flow<T> = flow {
+    override val data: Flow<T> = flow {
         val curChannel = downstreamChannel()
         actor.offer(Message.Read(curChannel))
         emitAll(curChannel.asFlow())
@@ -98,7 +104,7 @@ class SingleProcessDataStore<T>(
     private val downstreamChannel: AtomicReference<ConflatedBroadcastChannel<T>> =
         AtomicReference(ConflatedBroadcastChannel())
 
-    private var initTasks: List<suspend (api: DataStore.InitializerApi<T>) -> Unit>? =
+    private var initTasks: List<suspend (api: InitializerApi<T>) -> Unit>? =
         initTasksList.toList()
 
     /** The actions for the actor. */
@@ -180,7 +186,7 @@ class SingleProcessDataStore<T>(
         var initializationComplete: Boolean = false
 
         // TODO(b/151635324): Consider using Context Element to throw an error on re-entrance.
-        val api = object : DataStore.InitializerApi<T> {
+        val api = object : InitializerApi<T> {
             override suspend fun updateData(transform: suspend (t: T) -> T): T {
                 return updateLock.withLock() {
                     if (initializationComplete) {
@@ -213,7 +219,7 @@ class SingleProcessDataStore<T>(
     private suspend fun readDataOrHandleCorruption(): T {
         try {
             return readData()
-        } catch (ex: DataStore.Serializer.CorruptionException) {
+        } catch (ex: CorruptionException) {
 
             val newData: T = corruptionHandler.handleCorruption(ex)
 
