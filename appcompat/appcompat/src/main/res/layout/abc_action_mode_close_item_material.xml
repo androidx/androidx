@@ -23,7 +23,7 @@
     android:layout_marginEnd="16dip"
     android:layout_marginRight="16dip"
     android:clickable="true"
-    android:contentDescription="@string/abc_action_mode_done"
+    android:contentDescription="?attr/actionModeCloseContentDescription"
     android:focusable="true"
     android:paddingLeft="12dp"
     android:paddingStart="12dp"
