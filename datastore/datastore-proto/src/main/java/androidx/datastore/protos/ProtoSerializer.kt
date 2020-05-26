@@ -35,6 +35,8 @@ internal class ProtoSerializer<T : MessageLite>(
     private val extensionRegistryLite: ExtensionRegistryLite
 ) : Serializer<T> {
 
+    override val fileExtension = "pb"
+
     @Suppress("UNCHECKED_CAST")
     override fun readFrom(input: InputStream): T {
         try {
