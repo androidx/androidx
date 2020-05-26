@@ -77,7 +77,7 @@ package androidx.activity.result {
     ctor public ActivityResultRegistry();
     method @MainThread public final boolean dispatchResult(int, int, android.content.Intent?);
     method @MainThread public final <O> boolean dispatchResult(int, O!);
-    method @MainThread public abstract <I, O> void invoke(int, androidx.activity.result.contract.ActivityResultContract<I!,O!>, I!, androidx.core.app.ActivityOptionsCompat?);
+    method @MainThread public abstract <I, O> void onLaunch(int, androidx.activity.result.contract.ActivityResultContract<I!,O!>, I!, androidx.core.app.ActivityOptionsCompat?);
     method public final void onRestoreInstanceState(android.os.Bundle?);
     method public final void onSaveInstanceState(android.os.Bundle);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);

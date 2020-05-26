@@ -35,7 +35,7 @@ class ActivityResultLauncherTest {
         var invokeCount = 0
         var invokeOptions: ActivityOptionsCompat? = null
 
-        override fun <I : Any?, O : Any?> invoke(
+        override fun <I : Any?, O : Any?> onLaunch(
             requestCode: Int,
             contract: ActivityResultContract<I, O>,
             input: I,
