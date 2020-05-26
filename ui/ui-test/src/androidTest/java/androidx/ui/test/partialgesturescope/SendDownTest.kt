@@ -17,7 +17,6 @@
 package androidx.ui.test.partialgesturescope
 
 import androidx.test.filters.MediumTest
-import androidx.ui.test.GestureToken
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doPartialGesture
@@ -27,7 +26,6 @@ import androidx.ui.test.sendDown
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
-import androidx.ui.test.util.inMilliseconds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
@@ -62,9 +60,8 @@ class SendDownTest(private val config: TestConfig) {
     val composeTestRule = createComposeRule()
 
     @get:Rule
-    val inputDispatcherRule: TestRule = AndroidInputDispatcher.TestRule(
-        disableDispatchInRealTime = true
-    )
+    val inputDispatcherRule: TestRule =
+        AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
 
     private val recorder = PointerInputRecorder()
     private val expectedPosition = config.position
@@ -77,8 +74,7 @@ class SendDownTest(private val config: TestConfig) {
         }
 
         // When we inject a down event
-        lateinit var token: GestureToken
-        findByTag(tag).doPartialGesture { token = sendDown(config.position) }
+        findByTag(tag).doPartialGesture { sendDown(config.position) }
 
         runOnIdleCompose {
             recorder.run {
@@ -87,11 +83,6 @@ class SendDownTest(private val config: TestConfig) {
                 assertThat(events).hasSize(1)
                 assertThat(events[0].down).isTrue()
                 assertThat(events[0].position).isEqualTo(expectedPosition)
-
-                // That matches the information in the token
-                assertThat(token.downTime).isEqualTo(events[0].timestamp.inMilliseconds())
-                assertThat(token.eventTime).isEqualTo(events[0].timestamp.inMilliseconds())
-                assertThat(token.lastPosition).isEqualTo(expectedPosition)
             }
         }
     }

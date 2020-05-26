@@ -16,10 +16,15 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.AndroidOwner
+import androidx.ui.core.Owner
+import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.test.android.AndroidOwnerRegistry
 import androidx.ui.unit.Duration
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.lerp
+import java.util.WeakHashMap
 
 /**
  * Interface for dispatching full and partial gestures.
@@ -34,11 +39,47 @@ import androidx.ui.unit.lerp
  * * [sendMove]
  * * [sendUp]
  * * [sendCancel]
+ * * [currentPosition]
  *
  * Chaining methods:
  * * [delay]
  */
 internal interface InputDispatcher {
+    companion object : AndroidOwnerRegistry.OnRegistrationChangedListener {
+        private val states = WeakHashMap<Owner, InputDispatcherState>()
+
+        init {
+            AndroidOwnerRegistry.addOnRegistrationChangedListener(this)
+        }
+
+        internal fun createInstance(owner: Owner): InputDispatcher {
+            require(owner is AndroidOwner) {
+                "InputDispatcher currently only supports dispatching to AndroidOwner, not to " +
+                        owner::class.java.simpleName
+            }
+            val view = owner.view
+            return AndroidInputDispatcher { view.dispatchTouchEvent(it) }.apply {
+                states[owner]?.also {
+                    restoreInstanceState(it)
+                    states.remove(owner)
+                }
+            }
+        }
+
+        internal fun saveInstanceState(owner: Owner?, state: InputDispatcherState) {
+            // Owner may have been removed already
+            if (owner != null && AndroidOwnerRegistry.getUnfilteredOwners().contains(owner)) {
+                states[owner] = state
+            }
+        }
+
+        override fun onRegistrationChanged(owner: AndroidOwner, registered: Boolean) {
+            if (!registered) {
+                states.remove(owner)
+            }
+        }
+    }
+
     /**
      * Sends a click event at [position]. There will be 10ms in between the down and the up
      * event. This method blocks until all input events have been dispatched.
@@ -115,9 +156,15 @@ internal interface InputDispatcher {
     fun delay(duration: Duration)
 
     /**
-     * Sends a down event at [position] and returns a [token][GestureToken] to send subsequent
-     * touch events to continue this gesture. This method blocks until the input event has been
-     * dispatched.
+     * During a partial gesture, returns the position of the last touch event. Returns `null` if
+     * no partial gesture is in progress.
+     */
+    val currentPosition: PxPosition?
+
+    /**
+     * Sends a down event at [position], starting a new partial gesture. A partial gesture can
+     * only be started if none was currently ongoing. This method blocks until the input event
+     * has been dispatched.
      *
      * A full gesture starts with a down event at some position (with this method) that indicates
      * a finger has started touching the screen, followed by zero or more [move][sendMove] events
@@ -134,59 +181,101 @@ internal interface InputDispatcher {
      * event, if the test ends before it expects the finger to be lifted from the screen.
      *
      * @param position The coordinate of the down event
-     * @return A [token][GestureToken] that must be passed to all subsequent events that are part
-     * of the gesture started by this method.
      *
      * @see sendMove
      * @see sendUp
      * @see sendCancel
      */
-    fun sendDown(position: PxPosition): GestureToken
+    fun sendDown(position: PxPosition)
 
     /**
      * Sends a move event at [position], 10 milliseconds after the previous injected event of
      * this gesture. This method blocks until the input event has been dispatched. See [sendDown]
      * for more information on how to make complete gestures from partial gestures.
      *
-     * @param token The token returned from the corresponding [down event][sendDown] that started
-     * this gesture.
      * @param position The coordinate of the move event
      *
      * @see sendDown
      * @see sendUp
      * @see sendCancel
      */
-    fun sendMove(token: GestureToken, position: PxPosition)
+    fun sendMove(position: PxPosition)
 
     /**
      * Sends an up event at [position], 10 milliseconds after the previous injected event of this
      * gesture. This method blocks until the input event has been dispatched. See [sendDown] for
      * more information on how to make complete gestures from partial gestures.
      *
-     * @param token The token returned from the corresponding [down event][sendDown] that started
-     * this gesture.
      * @param position The coordinate of the up event
      *
      * @see sendDown
      * @see sendMove
      * @see sendCancel
      */
-    fun sendUp(token: GestureToken, position: PxPosition)
+    fun sendUp(position: PxPosition?)
 
     /**
      * Sends a cancel event at [position], 10 milliseconds after the previous injected event of
      * this gesture. This method blocks until the input event has been dispatched. See [sendDown]
      * for more information on how to make complete gestures from partial gestures.
      *
-     * @param token The token returned from the corresponding [down event][sendDown] that started
-     * this gesture.
      * @param position The coordinate of the cancel event
      *
      * @see sendDown
      * @see sendMove
      * @see sendUp
      */
-    fun sendCancel(token: GestureToken, position: PxPosition)
+    fun sendCancel(position: PxPosition?)
+
+    /**
+     * Returns the state of this input dispatcher, in case a partial gesture is in progress.
+     */
+    fun saveInstanceState(): InputDispatcherState
+
+    /**
+     * Restores the state of this input dispatcher, in case a partial gesture was in progress. If
+     * a partial gesture was not in progress, no state is restored.
+     */
+    fun restoreInstanceState(state: InputDispatcherState)
 
     // TODO(b/145593752): how to solve multi-touch?
+}
+
+/**
+ * The state of an [InputDispatcher], saved when the [BaseGestureScope] is disposed and restored
+ * when the [BaseGestureScope] is recreated.
+ *
+ * @param nextDownTime The downTime of the start of the next gesture, when chaining gestures.
+ * This property will only be restored if an incomplete gesture was in progress when the state of
+ * the [InputDispatcher] was saved.
+ * @param partialGestureState The state of an incomplete gesture. If no gesture was in progress
+ * when the state of the [InputDispatcher] was saved, this will be `null`.
+ */
+internal data class InputDispatcherState(
+    val nextDownTime: Long,
+    val partialGestureState: PartialGesture.SavedState?
+)
+
+/**
+ * The state of a partial gesture.
+ */
+internal class PartialGesture internal constructor(
+    internal val downTime: Long,
+    internal var lastPosition: PxPosition
+) {
+    internal var lastEventTime: Long = downTime
+
+    constructor(state: SavedState) : this(state.downTime, state.lastPosition) {
+        lastEventTime = state.lastEventTime
+    }
+
+    /**
+     * Immutable representation of [PartialGesture] to save its state between instances of
+     * [InputDispatcher].
+     */
+    class SavedState(partialGesture: PartialGesture) {
+        val downTime = partialGesture.downTime
+        val lastPosition = partialGesture.lastPosition
+        val lastEventTime = partialGesture.lastEventTime
+    }
 }

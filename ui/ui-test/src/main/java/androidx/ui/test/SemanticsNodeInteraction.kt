@@ -16,9 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.AndroidOwner
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.test.android.AndroidInputDispatcher
 
 /**
  * Represents a semantics node and the path to fetch it from the semantics tree. One can interact
@@ -187,9 +185,4 @@ class SemanticsNodeInteractionCollection(
     operator fun get(index: Int): SemanticsNodeInteraction {
         return SemanticsNodeInteraction(selector.addIndexSelector(index))
     }
-}
-
-private var inputDispatcherFactory: (SemanticsNode) -> InputDispatcher = { node ->
-    val view = (node.componentNode.owner as AndroidOwner).view
-    AndroidInputDispatcher { view.dispatchTouchEvent(it) }
 }
