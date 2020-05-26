@@ -270,7 +270,7 @@ private class SimpleDiffer : PagingDataDiffer<Int>() {
     ): Int? = null
 }
 
-private val dummyReceiver = object : UiReceiver {
+internal val dummyReceiver = object : UiReceiver {
     override fun addHint(hint: ViewportHint) {}
 
     override fun retry() {}
