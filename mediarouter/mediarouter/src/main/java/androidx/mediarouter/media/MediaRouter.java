@@ -418,7 +418,7 @@ public final class MediaRouter {
         RouteInfo route = sGlobal.getSelectedRoute();
         if (!route.isDefaultOrBluetooth() && !route.matchesSelector(selector)) {
             route = sGlobal.chooseFallbackRoute();
-            sGlobal.selectRoute(route);
+            sGlobal.selectRoute(route, MediaRouter.UNSELECT_REASON_ROUTE_CHANGED);
         }
         return route;
     }
@@ -437,7 +437,7 @@ public final class MediaRouter {
         if (DEBUG) {
             Log.d(TAG, "selectRoute: " + route);
         }
-        sGlobal.selectRoute(route);
+        sGlobal.selectRoute(route, MediaRouter.UNSELECT_REASON_ROUTE_CHANGED);
     }
 
     /**
@@ -1563,7 +1563,7 @@ public final class MediaRouter {
          */
         public void select() {
             checkCallingThread();
-            sGlobal.selectRoute(this);
+            sGlobal.selectRoute(this, MediaRouter.UNSELECT_REASON_ROUTE_CHANGED);
         }
 
         /**
@@ -2403,10 +2403,6 @@ public final class MediaRouter {
                         + "The media router has not yet been fully initialized.");
             }
             return mSelectedRoute;
-        }
-
-        void selectRoute(@NonNull RouteInfo route) {
-            selectRoute(route, MediaRouter.UNSELECT_REASON_ROUTE_CHANGED);
         }
 
         void addMemberToDynamicGroup(@NonNull RouteInfo route) {
