@@ -25,29 +25,40 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-multiplatform")
 }
 
-dependencies {
-    implementation(KOTLIN_STDLIB)
+kotlin {
+    android()
+    sourceSets {
+        commonMain.dependencies {
+            implementation(KOTLIN_STDLIB_COMMON)
 
-    api "androidx.annotation:annotation:1.1.0"
-    api project(":ui:ui-unit")
-    implementation project(":ui:ui-util")
+            api project(":ui:ui-unit")
+            implementation project(":ui:ui-util")
+            implementation project(":compose:compose-runtime")
+        }
 
-    implementation project(":compose:compose-runtime")
+        androidMain.dependencies {
+            api "androidx.annotation:annotation:1.1.0"
+        }
 
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
+        androidTest.dependencies {
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(JUNIT)
+            implementation(TRUTH)
+        }
 
-    androidTestImplementation project(":ui:ui-graphics:samples")
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation project(":ui:ui-test")
+        androidAndroidTest.dependencies {
+            implementation project(":ui:ui-graphics:samples")
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(ESPRESSO_CORE)
+            implementation(JUNIT)
+            implementation project(":ui:ui-test")
+        }
+    }
 }
 
 androidx {
@@ -61,8 +72,21 @@ androidx {
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental", "-XXLanguage:+InlineClasses"]
+        freeCompilerArgs += [
+            "-Xuse-experimental=kotlin.Experimental",
+            "-XXLanguage:+InlineClasses"
+        ]
         useIR = true
     }
 }
 
+android {
+    buildTypes {
+        debug {
+            testCoverageEnabled = false
+        }
+        release {
+            testCoverageEnabled = false
+        }
+    }
+}
