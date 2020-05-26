@@ -35,7 +35,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ActivityResultRegistryTest {
     private val registry = object : ActivityResultRegistry() {
-        override fun <I : Any?, O : Any?> invoke(
+        override fun <I : Any?, O : Any?> onLaunch(
             requestCode: Int,
             contract: ActivityResultContract<I, O>,
             input: I,
