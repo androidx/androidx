@@ -172,7 +172,7 @@ public final class MasterKey {
 
         private boolean mAuthenticationRequired;
         private int mUserAuthenticationValidityDurationSeconds;
-        private boolean mTryToUseStrongBox;
+        private boolean mRequestStrongBoxBacked;
 
         private final Context mContext;
 
@@ -265,16 +265,16 @@ public final class MasterKey {
         }
 
         /**
-         * Sets whether or not to try to make this key strong box backed. This setting is only
+         * Sets whether or not to request this key is strong box backed. This setting is only
          * applicable on {@link Build.VERSION_CODES#P} and above, and only on devices that
          * support Strongbox.
          *
-         * @param tryToUseStrongBox Whether to try and use strongbox
+         * @param requestStrongBoxBacked Whether to request to use strongbox
          * @return This builder.
          */
         @NonNull
-        public Builder setTryToUseStrongBox(boolean tryToUseStrongBox) {
-            mTryToUseStrongBox = tryToUseStrongBox;
+        public Builder setRequestStrongBoxBacked(boolean requestStrongBoxBacked) {
+            mRequestStrongBoxBacked = requestStrongBoxBacked;
             return this;
         }
 
@@ -338,7 +338,7 @@ public final class MasterKey {
                                     mUserAuthenticationValidityDurationSeconds);
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && mTryToUseStrongBox) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && mRequestStrongBoxBacked) {
                     if (mContext.getPackageManager().hasSystemFeature(
                             PackageManager.FEATURE_STRONGBOX_KEYSTORE)) {
                         builder.setIsStrongBoxBacked(true);
