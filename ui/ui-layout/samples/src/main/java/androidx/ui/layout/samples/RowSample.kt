@@ -40,8 +40,9 @@ fun SimpleRow() {
         // Has weight, the child will occupy half of the remaining width.
         Box(Modifier.preferredHeight(40.dp).weight(1f), backgroundColor = Color.Yellow)
         // Has weight and does not fill, the child will occupy at most half of the remaining width.
+        // Therefore it will occupy 80.dp (its preferred width) if the assigned width is larger.
         Box(
-            Modifier.preferredHeight(80.dp).weight(1f, fill = false),
+            Modifier.preferredSize(80.dp, 40.dp).weight(1f, fill = false),
             backgroundColor = Color.Green
         )
     }
