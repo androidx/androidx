@@ -576,10 +576,10 @@ public final class ActivityResultContracts {
             return null;
         }
 
-        @Nullable
+        @NonNull
         @Override
         public final List<Uri> parseResult(int resultCode, @Nullable Intent intent) {
-            if (resultCode != Activity.RESULT_OK || intent == null) return null;
+            if (resultCode != Activity.RESULT_OK || intent == null) return Collections.emptyList();
             return GetMultipleContents.getClipDataUris(intent);
         }
     }
