@@ -27,6 +27,7 @@ import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
@@ -96,6 +97,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
         List<MediaRouteDescriptor> routeDescriptors = mRoutes.stream()
                 .map(MediaRouter2Utils::toMediaRouteDescriptor)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         MediaRouteProviderDescriptor descriptor = new MediaRouteProviderDescriptor.Builder()
                 .setSupportsDynamicGroupRoute(true)

@@ -20,12 +20,15 @@ import static android.media.MediaRoute2Info.FEATURE_LIVE_AUDIO;
 import static android.media.MediaRoute2Info.FEATURE_LIVE_VIDEO;
 import static android.media.MediaRoute2Info.FEATURE_REMOTE_PLAYBACK;
 
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN;
+
 import android.annotation.SuppressLint;
 import android.content.IntentFilter;
 import android.media.MediaRoute2Info;
 import android.media.RouteDiscoveryPreference;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,8 +45,10 @@ import java.util.stream.Collectors;
 @SuppressLint("NewApi")
 @RequiresApi(api = Build.VERSION_CODES.R)
 class MediaRouter2Utils {
-    //TODO: Once the prebuilt is updated, use those in MediaRoute2Info.
     static final String FEATURE_EMPTY = "android.media.route.feature.EMPTY";
+    static final String KEY_EXTRAS = "androidx.mediarouter.media.KEY_EXTRAS";
+    static final String KEY_CONTROL_FILTERS = "androidx.mediarouter.media.KEY_CONTROL_FILTERS";
+    static final String KEY_DEVICE_TYPE = "androidx.mediarouter.media.KEY_DEVICE_TYPE";
 
     private MediaRouter2Utils() {}
 
@@ -62,12 +67,18 @@ class MediaRouter2Utils {
                 .setVolumeMax(descriptor.getVolumeMax())
                 .addFeatures(toFeatures(descriptor.getControlFilters()))
                 .setIconUri(descriptor.getIconUri())
-                .setExtras(descriptor.getExtras())
-                //TODO: set device type (for SystemUI to display proper icon?)
-                //.setDeviceType(deviceType)
                 //TODO: set client package name
                 //.setClientPackageName(clientMap.get(device.getDeviceId()))
                 ;
+
+        // Since MediaRouter2Info has no public APIs to get/set device types and control filters,
+        // We use extras for passing those kinds of information.
+        Bundle extras = new Bundle();
+        extras.putBundle(KEY_EXTRAS, descriptor.getExtras());
+        extras.putParcelableArrayList(KEY_CONTROL_FILTERS,
+                new ArrayList<>(descriptor.getControlFilters()));
+        extras.putInt(KEY_DEVICE_TYPE, descriptor.getDeviceType());
+        builder.setExtras(extras);
 
         // This is a workaround for preventing IllegalArgumentException in MediaRoute2Info.
         if (descriptor.getControlFilters().isEmpty()) {
@@ -85,9 +96,7 @@ class MediaRouter2Utils {
         }
 
         MediaRouteDescriptor.Builder builder = new MediaRouteDescriptor.Builder(
-                // TODO: We may need to use the original ID by using extras.
                 fwkMediaRoute2Info.getId(), fwkMediaRoute2Info.getName().toString())
-                .addControlFilters(toControlFilters(fwkMediaRoute2Info.getFeatures()))
                 .setConnectionState(fwkMediaRoute2Info.getConnectionState())
                 .setVolumeHandling(fwkMediaRoute2Info.getVolumeHandling())
                 .setVolumeMax(fwkMediaRoute2Info.getVolumeMax())
@@ -106,8 +115,21 @@ class MediaRouter2Utils {
             builder.setIconUri(iconUri);
         }
 
-        // TODO: Set device type by using extras.
-        // builder.setDeviceType()
+        Bundle extras = fwkMediaRoute2Info.getExtras();
+        if (extras == null || !extras.containsKey(KEY_EXTRAS)
+                || !extras.containsKey(KEY_DEVICE_TYPE)
+                || !extras.containsKey(KEY_CONTROL_FILTERS)) {
+            // Filter out routes from non-AndroidX MediaRouteProviderService.
+            return null;
+        }
+
+        builder.setExtras(extras.getBundle(KEY_EXTRAS));
+        builder.setDeviceType(extras.getInt(KEY_DEVICE_TYPE, DEVICE_TYPE_UNKNOWN));
+
+        List<IntentFilter> controlFilters = extras.getParcelableArrayList(KEY_CONTROL_FILTERS);
+        if (controlFilters != null) {
+            builder.addControlFilters(controlFilters);
+        }
 
         // TODO: Set 'dynamic group route' related values properly
         // builder.setIsDynamicGroupRoute();
