@@ -17,6 +17,7 @@
 package androidx.activity.result
 
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.core.app.ActivityOptionsCompat
 
 /**
  * A version of [ActivityResultCaller.registerForActivityResult]
@@ -30,8 +31,17 @@ inline fun <I, O> ActivityResultCaller.registerForActivityResult(
     input: I,
     registry: ActivityResultRegistry,
     crossinline callback: (O) -> Unit
-): () -> Unit {
-    return { registerForActivityResult(contract, registry) { callback(it) }.launch(input) }
+): ActivityResultLauncher<Unit> {
+    val resultLauncher = registerForActivityResult(contract, registry) { callback(it) }
+    return object : ActivityResultLauncher<Unit>() {
+        override fun launch(void: Unit?, options: ActivityOptionsCompat?) {
+            resultLauncher.launch(input, options)
+        }
+
+        override fun unregister() {
+            resultLauncher.unregister()
+        }
+    }
 }
 
 /**
@@ -45,6 +55,15 @@ inline fun <I, O> ActivityResultCaller.registerForActivityResult(
     contract: ActivityResultContract<I, O>,
     input: I,
     crossinline callback: (O) -> Unit
-): () -> Unit {
-    return { registerForActivityResult(contract) { callback(it) }.launch(input) }
+): ActivityResultLauncher<Unit> {
+    val resultLauncher = registerForActivityResult(contract) { callback(it) }
+    return object : ActivityResultLauncher<Unit>() {
+        override fun launch(void: Unit?, options: ActivityOptionsCompat?) {
+            resultLauncher.launch(input, options)
+        }
+
+        override fun unregister() {
+            resultLauncher.unregister()
+        }
+    }
 }
