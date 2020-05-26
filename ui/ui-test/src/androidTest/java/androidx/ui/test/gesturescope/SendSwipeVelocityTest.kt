@@ -29,7 +29,7 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendSwipeWithVelocity
 import androidx.ui.test.util.ClickableTestBox
-import androidx.ui.test.util.PointerInputRecorder
+import androidx.ui.test.util.SinglePointerInputRecorder
 import androidx.ui.test.util.assertOnlyLastEventIsUp
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.downEvents
@@ -127,7 +127,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
         eventPeriodOverride = eventPeriod
     )
 
-    private val recorder = PointerInputRecorder()
+    private val recorder = SinglePointerInputRecorder()
 
     @Test
     fun swipeWithVelocity() {

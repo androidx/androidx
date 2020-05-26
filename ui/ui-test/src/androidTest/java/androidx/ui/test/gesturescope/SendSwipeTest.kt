@@ -32,7 +32,7 @@ import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
 import androidx.ui.test.sendSwipeUp
 import androidx.ui.test.util.ClickableTestBox
-import androidx.ui.test.util.PointerInputRecorder
+import androidx.ui.test.util.SinglePointerInputRecorder
 import androidx.ui.test.util.assertOnlyLastEventIsUp
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import com.google.common.collect.Ordering
@@ -52,7 +52,7 @@ class SendSwipeTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
-    private val recorder = PointerInputRecorder()
+    private val recorder = SinglePointerInputRecorder()
 
     @Composable
     fun Ui(alignment: Alignment) {
@@ -114,7 +114,7 @@ class SendSwipeTest {
     }
 }
 
-private fun PointerInputRecorder.assertSwipeIsUp() {
+private fun SinglePointerInputRecorder.assertSwipeIsUp() {
     // Must have at least two events to have a direction
     assertThat(events.size).isAtLeast(2)
     // Last event must be above first event
@@ -124,7 +124,7 @@ private fun PointerInputRecorder.assertSwipeIsUp() {
     events.map { it.position.y }.assertDecreasing()
 }
 
-private fun PointerInputRecorder.assertSwipeIsDown() {
+private fun SinglePointerInputRecorder.assertSwipeIsDown() {
     // Must have at least two events to have a direction
     assertThat(events.size).isAtLeast(2)
     // Last event must be below first event
@@ -134,7 +134,7 @@ private fun PointerInputRecorder.assertSwipeIsDown() {
     events.map { it.position.y }.assertIncreasing()
 }
 
-private fun PointerInputRecorder.assertSwipeIsLeft() {
+private fun SinglePointerInputRecorder.assertSwipeIsLeft() {
     // Must have at least two events to have a direction
     assertThat(events.size).isAtLeast(2)
     // Last event must be to the left of first event
@@ -144,7 +144,7 @@ private fun PointerInputRecorder.assertSwipeIsLeft() {
     events.map { it.position.y }.assertSame(tolerance = 0.001f)
 }
 
-private fun PointerInputRecorder.assertSwipeIsRight() {
+private fun SinglePointerInputRecorder.assertSwipeIsRight() {
     // Must have at least two events to have a direction
     assertThat(events.size).isAtLeast(2)
     // Last event must be to the right of first event

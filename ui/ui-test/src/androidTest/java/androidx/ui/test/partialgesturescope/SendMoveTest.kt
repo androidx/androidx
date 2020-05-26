@@ -19,31 +19,26 @@ package androidx.ui.test.partialgesturescope
 import androidx.test.filters.MediumTest
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.inputdispatcher.verifyNoGestureInProgress
 import androidx.ui.test.partialgesturescope.Common.partialGesture
-import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendCancel
 import androidx.ui.test.sendDown
+import androidx.ui.test.sendMove
 import androidx.ui.test.sendUp
 import androidx.ui.test.util.ClickableTestBox
-import androidx.ui.test.util.MultiPointerInputRecorder
-import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.expectError
 import androidx.ui.unit.PxPosition
-import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 
 /**
- * Tests if [sendCancel] works
+ * Tests the error states of [sendMove] that are not tested in [SendMoveToTest] and [SendMoveByTest]
  */
 @MediumTest
-class SendCancelTest {
+class SendMoveTest() {
     companion object {
         private val downPosition1 = PxPosition(10f, 10f)
-        private val downPosition2 = PxPosition(20f, 20f)
     }
 
     @get:Rule
@@ -53,75 +48,36 @@ class SendCancelTest {
     val inputDispatcherRule: TestRule =
         AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
 
-    private val recorder = MultiPointerInputRecorder()
-
     @Before
     fun setUp() {
         // Given some content
         composeTestRule.setContent {
-            ClickableTestBox(recorder)
+            ClickableTestBox()
         }
     }
 
     @Test
-    fun onePointer() {
-        // When we inject a down event followed by a cancel event
-        partialGesture { sendDown(downPosition1) }
-        partialGesture { sendCancel() }
-
-        runOnIdleCompose {
-            recorder.run {
-                // Then we have recorded just 1 down event
-                assertTimestampsAreIncreasing()
-                assertThat(events).hasSize(1)
-            }
-        }
-
-        // And no gesture is in progress
-        partialGesture { inputDispatcher.verifyNoGestureInProgress() }
-    }
-
-    @Test
-    fun twoPointers() {
-        // When we inject two down events followed by a cancel event
-        partialGesture { sendDown(1, downPosition1) }
-        partialGesture { sendDown(2, downPosition2) }
-        partialGesture { sendCancel() }
-
-        runOnIdleCompose {
-            recorder.run {
-                // Then we have recorded just 2 down events
-                assertTimestampsAreIncreasing()
-                assertThat(events).hasSize(2)
-            }
-        }
-
-        // And no gesture is in progress
-        partialGesture { inputDispatcher.verifyNoGestureInProgress() }
-    }
-
-    @Test
-    fun cancelWithoutDown() {
+    fun moveWithoutDown() {
         expectError<IllegalStateException> {
-            partialGesture { sendCancel() }
+            partialGesture { sendMove() }
         }
     }
 
     @Test
-    fun cancelAfterUp() {
+    fun moveAfterUp() {
         partialGesture { sendDown(downPosition1) }
         partialGesture { sendUp() }
         expectError<IllegalStateException> {
-            partialGesture { sendCancel() }
+            partialGesture { sendMove() }
         }
     }
 
     @Test
-    fun cancelAfterCancel() {
+    fun moveAfterCancel() {
         partialGesture { sendDown(downPosition1) }
         partialGesture { sendCancel() }
         expectError<IllegalStateException> {
-            partialGesture { sendCancel() }
+            partialGesture { sendMove() }
         }
     }
 }

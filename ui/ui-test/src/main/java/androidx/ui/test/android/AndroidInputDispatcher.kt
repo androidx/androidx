@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-internal class AndroidInputDispatcher constructor(
+internal class AndroidInputDispatcher(
     private val sendEvent: (MotionEvent) -> Unit
 ) : InputDispatcher {
     companion object {
@@ -70,17 +70,14 @@ internal class AndroidInputDispatcher constructor(
     private var nextDownTime = DownTimeNotSet
     private var partialGesture: PartialGesture? = null
 
-    override fun saveInstanceState(): InputDispatcherState {
-        return InputDispatcherState(
-            nextDownTime,
-            partialGesture?.let { PartialGesture.SavedState(it) }
-        )
+    override fun getState(): InputDispatcherState {
+        return InputDispatcherState(nextDownTime, partialGesture)
     }
 
-    override fun restoreInstanceState(state: InputDispatcherState) {
-        if (state.partialGestureState != null) {
+    override fun restoreState(state: InputDispatcherState) {
+        if (state.partialGesture != null) {
             nextDownTime = state.nextDownTime
-            partialGesture = PartialGesture(state.partialGestureState)
+            partialGesture = state.partialGesture
         }
     }
 
@@ -121,55 +118,143 @@ internal class AndroidInputDispatcher constructor(
         sleepUntil(nextDownTime)
     }
 
-    override fun sendClick(position: PxPosition) {
-        val downTime = generateDownTime(eventPeriod.milliseconds)
-        sendMotionEvent(downTime, downTime, ACTION_DOWN, position)
-        sendMotionEvent(downTime, downTime + eventPeriod, ACTION_UP, position)
+    override fun getCurrentPosition(pointerId: Int): PxPosition? {
+        return partialGesture?.lastPositions?.get(pointerId)
     }
 
-    override val currentPosition: PxPosition?
-        get() = partialGesture?.lastPosition
+    override fun sendDown(pointerId: Int, position: PxPosition) {
+        var gesture = partialGesture
 
-    override fun sendDown(position: PxPosition) {
-        check(partialGesture == null) {
-            "Cannot send DOWN event, a gesture is already in progress"
+        // Check if this pointer is not already down
+        require(gesture == null || !gesture.lastPositions.containsKey(pointerId)) {
+            "Cannot send DOWN event, a gesture is already in progress for pointer $pointerId"
         }
-        val downTime = generateDownTime(0.milliseconds)
-        sendMotionEvent(downTime, downTime, ACTION_DOWN, position)
-        partialGesture = PartialGesture(downTime, position)
+
+        gesture?.flushPointerUpdates()
+
+        // Start a new gesture, or add the pointerId to the existing gesture
+        if (gesture == null) {
+            gesture = PartialGesture(generateDownTime(0.milliseconds), position, pointerId)
+            partialGesture = gesture
+        } else {
+            gesture.lastPositions.put(pointerId, position)
+        }
+
+        // Send the ACTION_DOWN or ACTION_POINTER_DOWN
+        val positions = gesture.lastPositions
+        gesture.sendMotionEvent(
+            if (positions.size() == 1) ACTION_DOWN else ACTION_POINTER_DOWN,
+            positions.indexOfKey(pointerId)
+        )
     }
 
-    override fun sendMove(position: PxPosition) {
-        checkNotNull(partialGesture) {
+    // Move 1 pointer and don't send a move event
+    override fun movePointer(pointerId: Int, position: PxPosition) {
+        val gesture = partialGesture
+
+        // Check if this pointer is in the gesture
+        check(gesture != null) {
+            "Cannot move pointers, no gesture is in progress"
+        }
+        require(gesture.lastPositions.containsKey(pointerId)) {
+            "Cannot move pointer $pointerId, it is not active in the current gesture"
+        }
+
+        gesture.lastPositions.put(pointerId, position)
+        gesture.hasPointerUpdates = true
+    }
+
+    // Move 0 pointers and send a move event
+    override fun sendMove() {
+        sendMove(eventPeriod)
+    }
+
+    /**
+     * Sends a move event, [deltaTime] milliseconds after the last event
+     */
+    // TODO(b/157717418): make this public API
+    private fun sendMove(deltaTime: Long) {
+        val gesture = checkNotNull(partialGesture) {
             "Cannot send MOVE event, no gesture is in progress"
-        }.let {
-            sendNextMotionEvent(it, ACTION_MOVE, position)
         }
+
+        gesture.increaseEventTime(deltaTime)
+        gesture.sendMotionEvent(ACTION_MOVE, 0)
+        gesture.hasPointerUpdates = false
     }
 
-    override fun sendUp(position: PxPosition?) {
-        checkNotNull(partialGesture) {
+    override fun sendUp(pointerId: Int) {
+        val gesture = partialGesture
+
+        // Check if this pointer is in the gesture
+        check(gesture != null) {
             "Cannot send UP event, no gesture is in progress"
-        }.let {
-            sendNextMotionEvent(it, ACTION_UP, position ?: it.lastPosition)
         }
-        partialGesture = null
+        require(gesture.lastPositions.containsKey(pointerId)) {
+            "Cannot send UP event for pointer $pointerId, it is not active in the current gesture"
+        }
+
+        gesture.flushPointerUpdates()
+
+        // First send the ACTION_UP or ACTION_POINTER_UP
+        val positions = gesture.lastPositions
+        gesture.sendMotionEvent(
+            if (positions.size() == 1) ACTION_UP else ACTION_POINTER_UP,
+            positions.indexOfKey(pointerId)
+        )
+
+        // Then remove the pointer, and end the gesture if no pointers are left
+        positions.remove(pointerId)
+        if (positions.isEmpty) {
+            partialGesture = null
+        }
     }
 
-    override fun sendCancel(position: PxPosition?) {
-        checkNotNull(partialGesture) {
+    override fun sendCancel() {
+        val gesture = checkNotNull(partialGesture) {
             "Cannot send CANCEL event, no gesture is in progress"
-        }.let {
-            sendNextMotionEvent(it, ACTION_CANCEL, position ?: it.lastPosition)
         }
+
+        gesture.increaseEventTime()
+        gesture.sendMotionEvent(ACTION_CANCEL, 0)
         partialGesture = null
     }
 
-    private fun sendNextMotionEvent(gesture: PartialGesture, action: Int, position: PxPosition) {
-        moveNextDownTime(eventPeriod.milliseconds)
-        gesture.lastEventTime += eventPeriod
-        gesture.lastPosition = position
-        sendMotionEvent(gesture.downTime, gesture.lastEventTime, action, position)
+    /**
+     * Increases the eventTime with the given [time]. Also pushes the downTime for the next
+     * chained gesture by the same amount to facilitate chaining.
+     */
+    private fun PartialGesture.increaseEventTime(time: Long = eventPeriod) {
+        moveNextDownTime(time.milliseconds)
+        lastEventTime += time
+    }
+
+    /**
+     * Sends a MOVE event with all pointer locations, if any of the pointers has been moved by
+     * [movePointer] since the last MOVE event.
+     */
+    private fun PartialGesture.flushPointerUpdates() {
+        if (hasPointerUpdates) {
+            sendMove()
+        }
+    }
+
+    /**
+     * Sends a MotionEvent with the given [action] and [actionIndex], adding all pointers that
+     * are currently in the gesture.
+     *
+     * @see MotionEvent.getAction
+     * @see MotionEvent.getActionIndex
+     */
+    private fun PartialGesture.sendMotionEvent(action: Int, actionIndex: Int) {
+        sendMotionEvent(
+            downTime,
+            lastEventTime,
+            action,
+            actionIndex,
+            List(lastPositions.size()) { lastPositions.valueAt(it) },
+            List(lastPositions.size()) { lastPositions.keyAt(it) }
+        )
     }
 
     override fun sendSwipes(
@@ -192,17 +277,9 @@ internal class AndroidInputDispatcher constructor(
             "keyTimes must be sorted: $keyTimes"
         }
 
-        // Determine time window for the events
-        val downTime = generateDownTime(duration)
-        val upTime = downTime + duration.inMilliseconds()
-
-        val initialPositions = mutableListOf<PxPosition>()
-
         // Send down events
-        for ((index, curve) in curves.withIndex()) {
-            val action = if (index == 0) ACTION_DOWN else ACTION_POINTER_DOWN
-            initialPositions.add(curve(startTime))
-            sendMotionEvent(downTime, downTime, action, index, initialPositions)
+        curves.forEachIndexed { i, curve ->
+            sendDown(i, curve(startTime))
         }
 
         // Send move events between each consecutive pair in [t0, ..keyTimes, tN]
@@ -215,16 +292,13 @@ internal class AndroidInputDispatcher constructor(
             }
             // send events between t and next keyTime
             val tNext = if (key < keyTimes.size) keyTimes[key] else endTime
-            sendPartialSwipes(downTime, curves, currTime, tNext)
+            sendPartialSwipes(curves, currTime, tNext)
             currTime = tNext
         }
 
         // And end with up events
-        val finalPositions = curves.map { it(endTime) }.toMutableList()
-        for (index in curves.indices.reversed()) {
-            val action = if (index > 0) ACTION_POINTER_UP else ACTION_UP
-            sendMotionEvent(downTime, upTime, action, index, finalPositions)
-            finalPositions.removeAt(index)
+        repeat(curves.size) {
+            sendUp(it)
         }
     }
 
@@ -235,13 +309,11 @@ internal class AndroidInputDispatcher constructor(
      * possible, but at least 1. The first event is sent at time `downTime + (tN - t0) /
      * #numEvents`, the last event is sent at time tN.
      *
-     * @param downTime The event time of the down event that started this gesture
      * @param fs The functions that define the coordinates of the respective gestures over time
      * @param t0 The start time of this segment of the swipe, in milliseconds relative to downTime
      * @param tN The end time of this segment of the swipe, in milliseconds relative to downTime
      */
     private fun sendPartialSwipes(
-        downTime: Long,
         fs: List<(Long) -> PxPosition>,
         t0: Long,
         tN: Long
@@ -251,10 +323,15 @@ internal class AndroidInputDispatcher constructor(
         // bring as as close to eventPeriod as possible
         val steps = max(1, ((tN - t0) / eventPeriod.toFloat()).roundToInt())
 
+        var tPrev = t0
         while (step++ < steps) {
             val progress = step / steps.toFloat()
             val t = lerp(t0, tN, progress)
-            sendMotionEvent(downTime, downTime + t, ACTION_MOVE, 0, fs.map { it(t) })
+            fs.forEachIndexed { i, f ->
+                movePointer(i, f(t))
+            }
+            sendMove(t - tPrev)
+            tPrev = t
         }
     }
 
@@ -266,46 +343,35 @@ internal class AndroidInputDispatcher constructor(
         eventTime: Long,
         action: Int,
         actionIndex: Int,
-        coordinates: List<PxPosition>
+        coordinates: List<PxPosition>,
+        pointerIds: List<Int>
     ) {
         sleepUntil(eventTime)
         sendAndRecycleEvent(
             MotionEvent.obtain(
-                downTime,
-                eventTime,
-                action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
-                coordinates.size,
-                Array(coordinates.size) {
-                    MotionEvent.PointerProperties().apply { id = it }
+                /* downTime = */ downTime,
+                /* eventTime = */ eventTime,
+                /* action = */ action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
+                /* pointerCount = */ coordinates.size,
+                /* pointerProperties = */ Array(coordinates.size) {
+                    MotionEvent.PointerProperties().apply { id = pointerIds[it] }
                 },
-                Array(coordinates.size) {
+                /* pointerCoords = */ Array(coordinates.size) {
                     MotionEvent.PointerCoords().apply {
                         x = coordinates[it].x
                         y = coordinates[it].y
                     }
                 },
-                0,
-                0,
-                0f,
-                0f,
-                0,
-                0,
-                0,
-                0
+                /* metaState = */ 0,
+                /* buttonState = */ 0,
+                /* xPrecision = */ 0f,
+                /* yPrecision = */ 0f,
+                /* deviceId = */ 0,
+                /* edgeFlags = */ 0,
+                /* source = */ 0,
+                /* flags = */ 0
             )
         )
-    }
-
-    /**
-     * Sends an event with the given parameters. Method blocks if [dispatchInRealTime] is `true`.
-     */
-    private fun sendMotionEvent(
-        downTime: Long,
-        eventTime: Long,
-        action: Int,
-        position: PxPosition
-    ) {
-        sendMotionEvent(downTime, eventTime, action, 0, listOf(position))
     }
 
     private fun sleepUntil(time: Long) {

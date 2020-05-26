@@ -64,7 +64,7 @@ sealed class BaseGestureScope(node: SemanticsNode) {
         }
 
     internal fun dispose() {
-        InputDispatcher.saveInstanceState(owner, inputDispatcher.saveInstanceState())
+        InputDispatcher.saveState(owner, inputDispatcher)
         _semanticsNode = null
         _inputDispatcher = null
     }
@@ -120,77 +120,51 @@ class GestureScope internal constructor(
 ) : BaseGestureScope(semanticsNode)
 
 /**
- * Performs a click gesture at the given [position] on the associated component. The [position]
- * is in the component's local coordinate system, where (0.px, 0.px) is the top left corner of
- * the component.
+ * Performs a click gesture at the given [position] on the associated component, or in the center
+ * if the [position] is omitted. The [position] is in the component's local coordinate system,
+ * where (0.px, 0.px) is the top left corner of the component. The default [position] is the
+ * center of the component.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  *
- * @param position The position where to click, in the component's local coordinate system
+ * @param position The position where to click, in the component's local coordinate system. If
+ * omitted, the center position will be used.
  */
-fun GestureScope.sendClick(position: PxPosition) {
+fun GestureScope.sendClick(position: PxPosition = center) {
     inputDispatcher.sendClick(localToGlobal(position))
 }
 
 /**
- * Performs a click gesture on the associated component. The click is done in the middle of the
- * component's bounds.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- */
-fun GestureScope.sendClick() {
-    sendClick(center)
-}
-
-/**
- * Performs a long click gesture at the given [position] on the associated component. There will
- * be [LongPressTimeout] + 100 milliseconds time between the down and the up event. The
- * [position] is in the component's local coordinate system, where (0.px, 0.px) is the top left
- * corner of the component.
+ * Performs a long click gesture at the given [position] on the associated component, or in the
+ * center if the [position] is omitted. There will be [LongPressTimeout] + 100 milliseconds time
+ * between the down and the up event. The [position] is in the component's local coordinate
+ * system, where (0.px, 0.px) is the top left corner of the component.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  *
- * @param position The position of the long click, in the component's local coordinate system
+ * @param position The position of the long click, in the component's local coordinate system. If
+ * omitted, the center position will be used.
  */
-fun GestureScope.sendLongClick(position: PxPosition) {
+fun GestureScope.sendLongClick(position: PxPosition = center) {
     // Keep down for 100ms more than needed, to allow the long press logic to trigger
     sendSwipe(position, position, LongPressTimeout + 100.milliseconds)
 }
 
 /**
- * Performs a long click gesture at the middle of the associated component. There will
- * be [LongPressTimeout] + 100 milliseconds time between the down and the up event.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- */
-fun GestureScope.sendLongClick() {
-    sendLongClick(center)
-}
-
-/**
- * Performs a double click gesture at the given [position] on the associated component. The
- * [position] is in the component's local coordinate system, where (0.px, 0.px) is the top left
- * corner of the component.
+ * Performs a double click gesture at the given [position] on the associated component, or in the
+ * center if the [position] is omitted. The [position] is in the component's local coordinate
+ * system, where (0.px, 0.px) is the top left corner of the component.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  *
- * @param position The position of the double click, in the component's local coordinate system
+ * @param position The position of the double click, in the component's local coordinate system.
+ * If omitted, the center position will be used.
  */
-fun GestureScope.sendDoubleClick(position: PxPosition) {
+fun GestureScope.sendDoubleClick(position: PxPosition = center) {
     val globalPosition = localToGlobal(position)
     inputDispatcher.sendClick(globalPosition)
     inputDispatcher.delay(doubleClickDelay)
     inputDispatcher.sendClick(globalPosition)
-}
-
-/**
- * Performs a double click gesture on the associated component. The clicks are done in the middle
- * of the component's bounds.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- */
-fun GestureScope.sendDoubleClick() {
-    sendDoubleClick(center)
 }
 
 /**
@@ -451,63 +425,177 @@ class PartialGestureScope internal constructor(
 ) : BaseGestureScope(semanticsNode)
 
 /**
- * Starts a partial gesture by sending a down event at the given [position] on the associated
+ * Sends a down event for the pointer with the given [pointerId] at [position] on the associated
  * component. The [position] is in the component's local coordinate system, where (0.px, 0.px) is
  * the top left corner of the component.
+ *
+ * If no pointers are down yet, this will start a new partial gesture. If a partial gesture is
+ * already in progress, this event is sent with at the same timestamp as the last event. If the
+ * given pointer is already down, an [IllegalArgumentException] will be thrown.
+ *
+ * This gesture is considered _partial_, because the entire gesture can be spread over several
+ * invocations of [doPartialGesture]. An entire gesture starts with a [down][sendDown] event,
+ * followed by several down, move or up events, and ends with an [up][sendUp] or a
+ * [cancel][sendCancel] event. Movement can be expressed with [sendMoveTo] and [sendMoveBy] to
+ * move a single pointer at a time, or [movePointerTo] and [movePointerBy] to move multiple
+ * pointers at a time. The `movePointer[To|By]` methods do not send the move event directly, use
+ * [sendMove] to send the move event. Some other methods can send a move event as well. All
+ * events, regardless the method used, will always contain the current position of _all_ pointers.
+ *
+ * Down and up events are sent at the same time as the previous event, but will send an extra
+ * move event just before the down or up event if [movePointerTo] or [movePointerBy] has been
+ * called and no move event has been sent yet. This does not happen for cancel events, but the
+ * cancel event will contain the up to date position of all pointers. Move and cancel events will
+ * advance the event time by 10 milliseconds.
+ *
+ * Because partial gestures don't have to be defined all in the same [doPartialGesture] block,
+ * keep in mind that while the gesture is not complete, all code you execute in between
+ * blocks that progress the gesture, will be executed while imaginary fingers are actively
+ * touching the screen.
+ *
+ * In the context of testing, it is not necessary to complete a gesture with an up or cancel
+ * event, if the test ends before it expects the finger to be lifted from the screen.
+ *
+ * @param pointerId The id of the pointer, can be any number not yet in use by another pointer
+ * @param position The position of the down event, in the component's local coordinate system
+ */
+fun PartialGestureScope.sendDown(pointerId: Int, position: PxPosition) {
+    val globalPosition = localToGlobal(position)
+    inputDispatcher.sendDown(pointerId, globalPosition)
+}
+
+/**
+ * Sends a down event for the default pointer at [position] on the associated component. The
+ * [position] is in the component's local coordinate system, where (0.px, 0.px) is the top left
+ * corner of the component. The default pointer has `pointerId = 0`.
+ *
+ * If no pointers are down yet, this will start a new partial gesture. If a partial gesture is
+ * already in progress, this event is sent with at the same timestamp as the last event. If the
+ * default pointer is already down, an [IllegalArgumentException] will be thrown.
  *
  * @param position The position of the down event, in the component's local coordinate system
  */
 fun PartialGestureScope.sendDown(position: PxPosition) {
-    val globalPosition = localToGlobal(position)
-    inputDispatcher.sendDown(globalPosition)
+    sendDown(0, position)
 }
 
 /**
- * Sends a move event at the given [position] on the associated component. The [position] is in
+ * Sends a move event on the associated component, with the position of the pointer with the
+ * given [pointerId] updated to [position]. The [position] is in the component's local coordinate
+ * system, where (0.px, 0.px) is the top left corner of the component.
+ *
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param pointerId The id of the pointer to move, as supplied in [sendDown]
+ * @param position The new position of the pointer, in the component's local coordinate system
+ */
+fun PartialGestureScope.sendMoveTo(pointerId: Int, position: PxPosition) {
+    movePointerTo(pointerId, position)
+    sendMove()
+}
+
+/**
+ * Sends a move event on the associated component, with the position of the default pointer
+ * updated to [position]. The [position] is in the component's local coordinate system, where
+ * (0.px, 0.px) is the top left corner of the component. The default pointer has `pointerId = 0`.
+ *
+ * If the default pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param position The new position of the pointer, in the component's local coordinate system
+ */
+fun PartialGestureScope.sendMoveTo(position: PxPosition) {
+    sendMoveTo(0, position)
+}
+
+/**
+ * Updates the position of the pointer with the given [pointerId] to the given [position], but
+ * does not send a move event. The move event can be sent with [sendMove]. The [position] is in
  * the component's local coordinate system, where (0.px, 0.px) is the top left corner of the
  * component.
  *
- * @param position The position of the move event, in the component's local coordinate system
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param pointerId The id of the pointer to move, as supplied in [sendDown]
+ * @param position The new position of the pointer, in the component's local coordinate system
  */
-fun PartialGestureScope.sendMoveTo(position: PxPosition) {
+fun PartialGestureScope.movePointerTo(pointerId: Int, position: PxPosition) {
     val globalPosition = localToGlobal(position)
-    inputDispatcher.sendMove(globalPosition)
+    inputDispatcher.movePointer(pointerId, globalPosition)
 }
 
 /**
- * Sends a move event on the associated component, using the last used coordinate and moving it
- * by the given [delta].
+ * Sends a move event on the associated component, with the position of the pointer with the
+ * given [pointerId] moved by the given [delta].
  *
- * @param delta The position for this move event, relative to the last sent event. For example,
- * `delta = PxPosition(10.px, -10.px) will add 10.px to the last event's x-position, and subtract
- * 10.px from the last event's y-position.
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param pointerId The id of the pointer to move, as supplied in [sendDown]
+ * @param delta The position for this move event, relative to the last sent position of the
+ * pointer. For example, `delta = PxPosition(10.px, -10.px) will add 10.px to the pointer's last
+ * x-position, and subtract 10.px from the pointer's last y-position.
+ */
+fun PartialGestureScope.sendMoveBy(pointerId: Int, delta: PxPosition) {
+    movePointerBy(pointerId, delta)
+    sendMove()
+}
+
+/**
+ * Sends a move event on the associated component, with the position of the default pointer
+ * moved by the given [delta]. The default pointer has `pointerId = 0`.
+ *
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param delta The position for this move event, relative to the last sent position of the
+ * pointer. For example, `delta = PxPosition(10.px, -10.px) will add 10.px to the pointer's last
+ * x-position, and subtract 10.px from the pointer's last y-position.
  */
 fun PartialGestureScope.sendMoveBy(delta: PxPosition) {
-    // If `currentPosition == null`, let sendMove generate the error for consistency
-    val globalPosition = (inputDispatcher.currentPosition ?: PxPosition.Origin) + delta
-    inputDispatcher.sendMove(globalPosition)
+    sendMoveBy(0, delta)
 }
 
 /**
- * Sends an up event at the given [position] on the associated component. If [position] is
- * omitted, the position of the previous event is used. The [position] is in the component's
- * local coordinate system, where (0.px, 0.px) is the top left corner of the component.
+ * Moves the position of the pointer with the given [pointerId] by the given [delta], but does
+ * not send a move event. The move event can be sent with [sendMove].
  *
- * @param position The position of the up event, in the component's local coordinate system
+ * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
+ *
+ * @param pointerId The id of the pointer to move, as supplied in [sendDown]
+ * @param delta The position for this move event, relative to the last sent position of the
+ * pointer. For example, `delta = PxPosition(10.px, -10.px) will add 10.px to the pointer's last
+ * x-position, and subtract 10.px from the pointer's last y-position.
  */
-fun PartialGestureScope.sendUp(position: PxPosition? = null) {
-    val globalPosition = position?.let { localToGlobal(it) }
-    inputDispatcher.sendUp(globalPosition)
+fun PartialGestureScope.movePointerBy(pointerId: Int, delta: PxPosition) {
+    // Ignore currentPosition of null here, let movePointer generate the error
+    val globalPosition =
+        (inputDispatcher.getCurrentPosition(pointerId) ?: PxPosition.Origin) + delta
+    inputDispatcher.movePointer(pointerId, globalPosition)
 }
 
 /**
- * Sends a cancel event at the given [position] on the associated component. If [position] is
- * omitted, the position of the previous event is used. The [position] is in the component's
- * local coordinate system, where (0.px, 0.px) is the top left corner of the component.
- *
- * @param position The position of the cancel event, in the component's local coordinate system
+ * Sends a move event without updating any of the pointer positions. This can be useful when
+ * batching movement of multiple pointers together, which can be done with [movePointerTo] and
+ * [movePointerBy].
  */
-fun PartialGestureScope.sendCancel(position: PxPosition? = null) {
-    val globalPosition = position?.let { localToGlobal(it) }
-    inputDispatcher.sendCancel(globalPosition)
+fun PartialGestureScope.sendMove() {
+    inputDispatcher.sendMove()
+}
+
+/**
+ * Sends an up event for the pointer with the given [pointerId], or the default pointer if
+ * [pointerId] is omitted, on the associated component. If any pointers have been moved with
+ * [movePointerTo] or [movePointerBy] and no move event has been sent yet, a move event will be
+ * sent right before the up event.
+ *
+ * @param pointerId The id of the pointer to lift up, as supplied in [sendDown]
+ */
+fun PartialGestureScope.sendUp(pointerId: Int = 0) {
+    inputDispatcher.sendUp(pointerId)
+}
+
+/**
+ * Sends a cancel event to cancel the current partial gesture. The cancel event contains the
+ * current position of all active pointers.
+ */
+fun PartialGestureScope.sendCancel() {
+    inputDispatcher.sendCancel()
 }

@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import androidx.collection.SparseArrayCompat
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.Owner
 import androidx.ui.test.android.AndroidInputDispatcher
@@ -39,7 +40,7 @@ import java.util.WeakHashMap
  * * [sendMove]
  * * [sendUp]
  * * [sendCancel]
- * * [currentPosition]
+ * * [getCurrentPosition]
  *
  * Chaining methods:
  * * [delay]
@@ -59,17 +60,16 @@ internal interface InputDispatcher {
             }
             val view = owner.view
             return AndroidInputDispatcher { view.dispatchTouchEvent(it) }.apply {
-                states[owner]?.also {
-                    restoreInstanceState(it)
-                    states.remove(owner)
+                states.remove(owner)?.also {
+                    restoreState(it)
                 }
             }
         }
 
-        internal fun saveInstanceState(owner: Owner?, state: InputDispatcherState) {
+        internal fun saveState(owner: Owner?, inputDispatcher: InputDispatcher) {
             // Owner may have been removed already
             if (owner != null && AndroidOwnerRegistry.getUnfilteredOwners().contains(owner)) {
-                states[owner] = state
+                states[owner] = inputDispatcher.getState()
             }
         }
 
@@ -86,7 +86,11 @@ internal interface InputDispatcher {
      *
      * @param position The coordinate of the click
      */
-    fun sendClick(position: PxPosition)
+    fun sendClick(position: PxPosition) {
+        sendDown(0, position)
+        sendMove()
+        sendUp(0)
+    }
 
     /**
      * Sends a swipe gesture from [start] to [end] with the given [duration]. This method blocks
@@ -156,89 +160,117 @@ internal interface InputDispatcher {
     fun delay(duration: Duration)
 
     /**
-     * During a partial gesture, returns the position of the last touch event. Returns `null` if
-     * no partial gesture is in progress.
+     * During a partial gesture, returns the position of the last touch event of the given
+     * [pointerId]. Returns `null` if no partial gesture is in progress for that [pointerId].
+     *
+     * @param pointerId The id of the pointer for which to return the current position
+     * @return The current position of the pointer with the given [pointerId], or `null` if the
+     * pointer is not currently in use
      */
-    val currentPosition: PxPosition?
+    fun getCurrentPosition(pointerId: Int): PxPosition?
 
     /**
-     * Sends a down event at [position], starting a new partial gesture. A partial gesture can
-     * only be started if none was currently ongoing. This method blocks until the input event
-     * has been dispatched.
+     * Sends a down event at [position] for the pointer with the given [pointerId], starting a
+     * new partial gesture. A partial gesture can only be started if none was currently ongoing
+     * for that pointer. Pointer ids may be reused during the same gesture. This method blocks
+     * until the input event has been dispatched.
+     *
+     * It is possible to mix partial gestures with full gestures (e.g. send a [click][sendClick]
+     * during a partial gesture), as long as you make sure that the default pointer id (id=0) is
+     * free to be used by the full gesture.
      *
      * A full gesture starts with a down event at some position (with this method) that indicates
-     * a finger has started touching the screen, followed by zero or more [move][sendMove] events
-     * that indicate the finger has moved around along those positions, and is finished by an
-     * [up][sendUp] or a [cancel][sendCancel] event that indicate the finger was lifted up from
-     * the screen.
+     * a finger has started touching the screen, followed by zero or more [down][sendDown],
+     * [move][sendMove] and [up][sendUp] events that respectively indicate that another finger
+     * started touching the screen, a finger moved around or a finger was lifted up from the
+     * screen. A gesture is finished when [up][sendUp] lifts the last remaining finger from the
+     * screen, or when a single [cancel][sendCancel] event is sent.
      *
      * Partial gestures don't have to be defined all in the same [doPartialGesture] block, but
      * keep in mind that while the gesture is not complete, all code you execute in between
-     * blocks that progress the gesture, will be executed while an imaginary finger is actively
+     * blocks that progress the gesture, will be executed while imaginary fingers are actively
      * touching the screen.
      *
      * In the context of testing, it is not necessary to complete a gesture with an up or cancel
      * event, if the test ends before it expects the finger to be lifted from the screen.
      *
+     * @param pointerId The id of the pointer, can be any number not yet in use by another pointer
      * @param position The coordinate of the down event
      *
+     * @see movePointer
      * @see sendMove
      * @see sendUp
      * @see sendCancel
      */
-    fun sendDown(position: PxPosition)
+    fun sendDown(pointerId: Int, position: PxPosition)
 
     /**
-     * Sends a move event at [position], 10 milliseconds after the previous injected event of
-     * this gesture. This method blocks until the input event has been dispatched. See [sendDown]
-     * for more information on how to make complete gestures from partial gestures.
+     * Updates the position of the pointer with the given [pointerId] to the given [position],
+     * but does not send a move event. Use this to move multiple pointers simultaneously. To send
+     * the next move event, which will contain the current position of _all_ pointers (not just
+     * the moved ones), call [sendMove] without arguments. If you move one or more pointers and
+     * then call [sendDown] or [sendUp], without calling [sendMove] first, a move event will be
+     * sent right before that down or up event. See [sendDown] for more information on how to make
+     * complete gestures from partial gestures.
      *
-     * @param position The coordinate of the move event
-     *
-     * @see sendDown
-     * @see sendUp
-     * @see sendCancel
-     */
-    fun sendMove(position: PxPosition)
-
-    /**
-     * Sends an up event at [position], 10 milliseconds after the previous injected event of this
-     * gesture. This method blocks until the input event has been dispatched. See [sendDown] for
-     * more information on how to make complete gestures from partial gestures.
-     *
-     * @param position The coordinate of the up event
-     *
-     * @see sendDown
-     * @see sendMove
-     * @see sendCancel
-     */
-    fun sendUp(position: PxPosition?)
-
-    /**
-     * Sends a cancel event at [position], 10 milliseconds after the previous injected event of
-     * this gesture. This method blocks until the input event has been dispatched. See [sendDown]
-     * for more information on how to make complete gestures from partial gestures.
-     *
-     * @param position The coordinate of the cancel event
+     * @param pointerId The id of the pointer to move, as supplied in [sendDown]
+     * @param position The position to move the pointer to
      *
      * @see sendDown
      * @see sendMove
      * @see sendUp
+     * @see sendCancel
      */
-    fun sendCancel(position: PxPosition?)
+    fun movePointer(pointerId: Int, position: PxPosition)
+
+    /**
+     * Sends a move event 10 milliseconds after the previous injected event of this gesture,
+     * without moving any of the pointers. Use this to commit all changes in pointer location
+     * made with [movePointer]. The sent event will contain the current position of all pointers.
+     * See [sendDown] for more information on how to make complete gestures from partial gestures.
+     */
+    fun sendMove()
+
+    /**
+     * Sends an up event for the given [pointerId] at the current position of that pointer, 10
+     * milliseconds after the previous injected event of this gesture. This method blocks until
+     * the input event has been dispatched. See [sendDown] for more information on how to make
+     * complete gestures from partial gestures.
+     *
+     * @param pointerId The id of the pointer to lift up, as supplied in [sendDown]
+     *
+     * @see sendDown
+     * @see movePointer
+     * @see sendMove
+     * @see sendCancel
+     */
+    fun sendUp(pointerId: Int)
+
+    /**
+     * Sends a cancel event 10 milliseconds after the previous injected event of this gesture.
+     * This method blocks until the input event has been dispatched. See [sendDown] for more
+     * information on how to make complete gestures from partial gestures.
+     *
+     * @see sendDown
+     * @see movePointer
+     * @see sendMove
+     * @see sendUp
+     */
+    fun sendCancel()
 
     /**
      * Returns the state of this input dispatcher, in case a partial gesture is in progress.
      */
-    fun saveInstanceState(): InputDispatcherState
+    fun getState(): InputDispatcherState
 
     /**
      * Restores the state of this input dispatcher, in case a partial gesture was in progress. If
      * a partial gesture was not in progress, no state is restored.
+     *
+     * @param state The state to restore
      */
-    fun restoreInstanceState(state: InputDispatcherState)
-
-    // TODO(b/145593752): how to solve multi-touch?
+    fun restoreState(state: InputDispatcherState)
+    // TODO(b/157653315): Move restore state to constructor
 }
 
 /**
@@ -248,34 +280,16 @@ internal interface InputDispatcher {
  * @param nextDownTime The downTime of the start of the next gesture, when chaining gestures.
  * This property will only be restored if an incomplete gesture was in progress when the state of
  * the [InputDispatcher] was saved.
- * @param partialGestureState The state of an incomplete gesture. If no gesture was in progress
+ * @param partialGesture The state of an incomplete gesture. If no gesture was in progress
  * when the state of the [InputDispatcher] was saved, this will be `null`.
  */
 internal data class InputDispatcherState(
     val nextDownTime: Long,
-    val partialGestureState: PartialGesture.SavedState?
+    val partialGesture: PartialGesture?
 )
 
-/**
- * The state of a partial gesture.
- */
-internal class PartialGesture internal constructor(
-    internal val downTime: Long,
-    internal var lastPosition: PxPosition
-) {
-    internal var lastEventTime: Long = downTime
-
-    constructor(state: SavedState) : this(state.downTime, state.lastPosition) {
-        lastEventTime = state.lastEventTime
-    }
-
-    /**
-     * Immutable representation of [PartialGesture] to save its state between instances of
-     * [InputDispatcher].
-     */
-    class SavedState(partialGesture: PartialGesture) {
-        val downTime = partialGesture.downTime
-        val lastPosition = partialGesture.lastPosition
-        val lastEventTime = partialGesture.lastEventTime
-    }
+internal class PartialGesture(val downTime: Long, startPosition: PxPosition, pointerId: Int) {
+    var lastEventTime: Long = downTime
+    val lastPositions = SparseArrayCompat<PxPosition>().apply { put(pointerId, startPosition) }
+    var hasPointerUpdates: Boolean = false
 }

@@ -51,12 +51,7 @@ class DelayTest(private val config: TestConfig) {
 
     enum class Gesture(internal val function: (InputDispatcher) -> Unit) {
         Click({ it.sendClick(anyPosition) }),
-        Swipe({ it.sendSwipe(anyPosition, anyPosition, 107.milliseconds) }),
-        Partial({
-            it.sendDown(anyPosition)
-            it.sendMove(anyPosition)
-            it.sendUp(anyPosition)
-        })
+        Swipe({ it.sendSwipe(anyPosition, anyPosition, 107.milliseconds) })
     }
 
     companion object {

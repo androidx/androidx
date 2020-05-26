@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Tests if the [AndroidInputDispatcher.sendClick] gesture works
+ * Tests if [AndroidInputDispatcher.sendClick] works
  */
 @SmallTest
 @RunWith(Parameterized::class)
@@ -75,9 +75,10 @@ class SendClickTest(config: TestConfig) {
         subject.sendClick(position)
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
-            assertThat(size).isEqualTo(2)
-            first().verify(position, MotionEvent.ACTION_DOWN, 0)
-            last().verify(position, MotionEvent.ACTION_UP, eventPeriod)
+            assertThat(size).isEqualTo(3)
+            this[0].verify(position, MotionEvent.ACTION_DOWN, 0)
+            this[1].verify(position, MotionEvent.ACTION_MOVE, eventPeriod)
+            this[2].verify(position, MotionEvent.ACTION_UP, eventPeriod)
         }
     }
 }
