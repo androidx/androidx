@@ -18,6 +18,11 @@ package androidx.activity.result {
     method public static inline <I, O> kotlin.jvm.functions.Function0<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I? input, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> callback);
   }
 
+  public final class ActivityResultKt {
+    method public static operator int component1(androidx.activity.result.ActivityResult);
+    method public static operator android.content.Intent? component2(androidx.activity.result.ActivityResult);
+  }
+
   public final class ActivityResultLauncherKt {
     method public static void launch(androidx.activity.result.ActivityResultLauncher<java.lang.Void>, androidx.core.app.ActivityOptionsCompat? options = null);
     method public static void launchUnit(androidx.activity.result.ActivityResultLauncher<kotlin.Unit>, androidx.core.app.ActivityOptionsCompat? options = null);
