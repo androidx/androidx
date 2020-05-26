@@ -165,7 +165,7 @@ package androidx.activity.result.contract {
     ctor public ActivityResultContracts.OpenMultipleDocuments();
     method @CallSuper public android.content.Intent createIntent(android.content.Context, String![]);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri!>!>? getSynchronousResult(android.content.Context, String![]);
-    method public final java.util.List<android.net.Uri!>? parseResult(int, android.content.Intent?);
+    method public final java.util.List<android.net.Uri!> parseResult(int, android.content.Intent?);
   }
 
   public static final class ActivityResultContracts.PickContact extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void,android.net.Uri> {
