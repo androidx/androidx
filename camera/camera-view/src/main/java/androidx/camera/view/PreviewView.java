@@ -21,6 +21,7 @@ import android.content.res.TypedArray;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.View;
@@ -57,6 +58,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link android.view.SurfaceView} to display the camera feed.
  */
 public class PreviewView extends FrameLayout {
+
+    private static final String TAG = "PreviewView";
 
     @ColorRes
     static final int DEFAULT_BACKGROUND_COLOR = android.R.color.black;
@@ -196,6 +199,7 @@ public class PreviewView extends FrameLayout {
         removeAllViews();
 
         return surfaceRequest -> {
+            Log.d(TAG, "Surface requested by Preview.");
             CameraInternal camera = (CameraInternal) surfaceRequest.getCamera();
             final ImplementationMode actualImplementationMode =
                     computeImplementationMode(camera.getCameraInfo(), mPreferredImplementationMode);
