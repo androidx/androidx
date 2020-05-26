@@ -1560,7 +1560,52 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
-    fun keyReuse_unsupported() = testScope.runBlockingTest {
+    fun keyReuse_unsupported_success() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pager = PageFetcherSnapshot(
+                initialKey = 50,
+                pagingSource = object : PagingSource<Int, Int>() {
+                    var loads = 0
+
+                    override val keyReuseSupported: Boolean
+                        get() = true
+
+                    override suspend fun load(params: LoadParams<Int>) = when (params) {
+                        is LoadParams.Refresh -> Page(listOf(0), 0, 0)
+                        else -> Page<Int, Int>(
+                            listOf(),
+                            if (loads < 3) loads else null,
+                            if (loads < 3) loads else null
+                        )
+                    }.also {
+                        loads++
+                    }
+                },
+                config = config,
+                retryFlow = retryCh.asFlow()
+            )
+
+            // Trigger collection on flow.
+            val job = launch {
+                pager.pageEventFlow.collect { }
+            }
+
+            advanceUntilIdle()
+
+            // Trigger first prepend with key = 0
+            pager.addHint(ViewportHint(0, 0))
+            advanceUntilIdle()
+
+            // Trigger second prepend with key = 0
+            pager.addHint(ViewportHint(0, 0))
+            advanceUntilIdle()
+
+            job.cancel()
+        }
+    }
+
+    @Test
+    fun keyReuse_unsupported_failure() = testScope.runBlockingTest {
         pauseDispatcher {
             val pager = PageFetcherSnapshot(
                 initialKey = 50,
