@@ -373,31 +373,31 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         // this load loop terminates due to fulfilling prefetchDistance.
         var endOfPaginationReached = false
         loop@ while (loadKey != null) {
-            // Check for common error case where the same key is re-used to load
-            // new pages, often resulting in infinite loops.
-            stateLock.withLock {
-                val previousKey = when (loadType) {
-                    PREPEND -> state.pages.first().prevKey
-                    APPEND -> state.pages.last().nextKey
-                    else -> throw IllegalArgumentException(
-                        "Use doInitialLoad for LoadType == REFRESH"
-                    )
-                }
-
-                check(
-                    pagingSource.keyReuseSupported || loadKey != previousKey
-                ) {
-                    """A load key, $loadKey, was re-used to load two distinct pages with the same
-                    | loadType, $loadType. Re-using load keys in PagingSource is often an error, and
-                    | must be explicitly enabled by overriding PagingSource.keyReuseSupported.
-                    """.trimMargin()
-                }
-            }
-
             val params = loadParams(loadType, loadKey)
             val result: LoadResult<Key, Value> = pagingSource.load(params)
             when (result) {
                 is Page<Key, Value> -> {
+                    // First, check for common error case where the same key is re-used to load
+                    // new pages, often resulting in infinite loops.
+                    val nextKey = when (loadType) {
+                        PREPEND -> result.prevKey
+                        APPEND -> result.nextKey
+                        else -> throw IllegalArgumentException(
+                            "Use doInitialLoad for LoadType == REFRESH"
+                        )
+                    }
+
+                    check(
+                        pagingSource.keyReuseSupported || nextKey != loadKey
+                    ) {
+                        val keyFieldName = if (loadType == PREPEND) "prevKey" else "nextKey"
+                        """The same value, $loadKey, was passed as the $keyFieldName in two
+                            | sequential Pages loaded from a PagingSource. Re-using load keys in
+                            | PagingSource is often an error, and must be explicitly enabled by
+                            | overriding PagingSource.keyReuseSupported.
+                            """.trimMargin()
+                    }
+
                     val insertApplied = stateLock.withLock {
                         state.insert(generationalHint.generationId, loadType, result)
                     }
