@@ -17,7 +17,6 @@
 package androidx.ui.test.partialgesturescope
 
 import androidx.test.filters.MediumTest
-import androidx.ui.test.GestureToken
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doPartialGesture
@@ -28,9 +27,7 @@ import androidx.ui.test.sendUp
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
-import androidx.ui.test.util.inMilliseconds
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -66,9 +63,9 @@ class SendUpTest(private val config: TestConfig) {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
     @get:Rule
-    val inputDispatcherRule: TestRule = dispatcherRule
+    val inputDispatcherRule: TestRule =
+        AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
 
     private val recorder = PointerInputRecorder()
     private val expectedEndPosition = config.upPosition ?: config.downPosition
@@ -81,9 +78,8 @@ class SendUpTest(private val config: TestConfig) {
         }
 
         // When we inject a down event followed by an up event
-        lateinit var token: GestureToken
-        findByTag(tag).doPartialGesture { token = sendDown(config.downPosition) }
-        findByTag(tag).doPartialGesture { sendUp(token, config.upPosition) }
+        findByTag(tag).doPartialGesture { sendDown(config.downPosition) }
+        findByTag(tag).doPartialGesture { sendUp(config.upPosition) }
 
         runOnIdleCompose {
             recorder.run {
@@ -92,13 +88,6 @@ class SendUpTest(private val config: TestConfig) {
                 assertThat(events).hasSize(2)
                 assertThat(events[1].down).isFalse()
                 assertThat(events[1].position).isEqualTo(expectedEndPosition)
-                assertThat((events[1].timestamp - events[0].timestamp).inMilliseconds())
-                    .isEqualTo(dispatcherRule.eventPeriod)
-
-                // And the information in the token matches the last move event
-                assertThat(token.downTime).isEqualTo(events[0].timestamp.inMilliseconds())
-                assertThat(token.eventTime).isEqualTo(events[1].timestamp.inMilliseconds())
-                assertThat(token.lastPosition).isEqualTo(expectedEndPosition)
             }
         }
     }

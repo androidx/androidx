@@ -76,17 +76,16 @@ class SendCancelTest(config: TestConfig) {
 
     @Test
     fun testSendCancel() {
-        val token = subject.sendDown(downPosition)
-        subject.sendCancel(token, position)
+        subject.sendDown(downPosition)
+        subject.sendCancel(position)
+        assertThat(subject.currentPosition).isNull()
+
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
             assertThat(size).isEqualTo(2)
             first().verify(downPosition, MotionEvent.ACTION_DOWN, 0)
             last().verify(position, MotionEvent.ACTION_CANCEL, eventPeriod)
         }
-        assertThat(token.lastPosition).isEqualTo(position)
-        assertThat(token.eventTime - token.downTime).isEqualTo(eventPeriod)
-        assertThat(token.finished).isTrue()
     }
 }
 
@@ -107,20 +106,27 @@ class SendCancelAfterFinishedTest {
     private val subject = AndroidInputDispatcher {}
 
     @Test
+    fun testCancelWithoutDown() {
+        expectError<IllegalStateException> {
+            subject.sendCancel(position)
+        }
+    }
+
+    @Test
     fun testCancelAfterUp() {
-        val token = subject.sendDown(downPosition)
-        subject.sendUp(token, downPosition)
-        expectError<IllegalArgumentException> {
-            subject.sendCancel(token, position)
+        subject.sendDown(downPosition)
+        subject.sendUp(downPosition)
+        expectError<IllegalStateException> {
+            subject.sendCancel(position)
         }
     }
 
     @Test
     fun testCancelAfterCancel() {
-        val token = subject.sendDown(downPosition)
-        subject.sendCancel(token, downPosition)
-        expectError<IllegalArgumentException> {
-            subject.sendCancel(token, position)
+        subject.sendDown(downPosition)
+        subject.sendCancel(downPosition)
+        expectError<IllegalStateException> {
+            subject.sendCancel(position)
         }
     }
 }

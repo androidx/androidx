@@ -17,7 +17,6 @@
 package androidx.ui.test.partialgesturescope
 
 import androidx.test.filters.MediumTest
-import androidx.ui.test.GestureToken
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doPartialGesture
@@ -28,7 +27,6 @@ import androidx.ui.test.sendDown
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
-import androidx.ui.test.util.inMilliseconds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
@@ -65,12 +63,11 @@ class SendCancelTest(private val config: TestConfig) {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
     @get:Rule
-    val inputDispatcherRule: TestRule = dispatcherRule
+    val inputDispatcherRule: TestRule =
+        AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
 
     private val recorder = PointerInputRecorder()
-    private val expectedCancelPosition = config.cancelPosition ?: config.downPosition
 
     @Test
     fun testSendCancel() {
@@ -80,21 +77,14 @@ class SendCancelTest(private val config: TestConfig) {
         }
 
         // When we inject a down event followed by a cancel event
-        lateinit var token: GestureToken
-        findByTag(tag).doPartialGesture { token = sendDown(config.downPosition) }
-        findByTag(tag).doPartialGesture { sendCancel(token, config.cancelPosition) }
+        findByTag(tag).doPartialGesture { sendDown(config.downPosition) }
+        findByTag(tag).doPartialGesture { sendCancel(config.cancelPosition) }
 
         runOnIdleCompose {
             recorder.run {
                 // Then we have only recorded 1 down event
                 assertTimestampsAreIncreasing()
                 assertThat(events).hasSize(1)
-
-                // But the information in the token matches the cancel event
-                assertThat(token.downTime).isEqualTo(events[0].timestamp.inMilliseconds())
-                assertThat(token.eventTime)
-                    .isEqualTo(events[0].timestamp.inMilliseconds() + dispatcherRule.eventPeriod)
-                assertThat(token.lastPosition).isEqualTo(expectedCancelPosition)
             }
         }
     }

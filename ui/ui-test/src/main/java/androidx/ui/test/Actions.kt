@@ -114,15 +114,11 @@ fun SemanticsNodeInteraction.doGesture(
  *
  * Example usage:
  * ```
- * lateinit var token: GestureToken
+ * val position = PxPosition(10.px, 10.px)
  * findByTag("myWidget")
- *    .doPartialGesture {
- *        token = sendDown()
- *    }
+ *    .doPartialGesture { sendDown(position) }
  *    .assertHasClickAction()
- *    .doPartialGesture {
- *        sendUp(token)
- *    }
+ *    .doPartialGesture { sendUp(position) }
  * ```
  */
 fun SemanticsNodeInteraction.doPartialGesture(
