@@ -45,6 +45,7 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -539,8 +540,15 @@ public class FragmentActivity extends ComponentActivity implements
      * <p>This is called after the attached fragment's <code>onAttach</code> and before
      * the attached fragment's <code>onCreate</code> if the fragment has not yet had a previous
      * call to <code>onCreate</code>.</p>
+     *
+     * @deprecated Call
+     * {@link FragmentManager#addFragmentOnAttachListener(FragmentOnAttachListener)}
+     * with this Fragment's {@link #getSupportFragmentManager()} in your constructor
+     * to get callbacks when a fragment is attached.
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "DeprecatedIsStillUsed"})
+    @Deprecated
+    @MainThread
     public void onAttachFragment(@NonNull Fragment fragment) {
     }
 
@@ -662,7 +670,8 @@ public class FragmentActivity extends ComponentActivity implements
     class HostCallbacks extends FragmentHostCallback<FragmentActivity> implements
             ViewModelStoreOwner,
             OnBackPressedDispatcherOwner,
-            ActivityResultRegistryOwner {
+            ActivityResultRegistryOwner,
+            FragmentOnAttachListener {
         public HostCallbacks() {
             super(FragmentActivity.this /*fragmentActivity*/);
         }
@@ -733,8 +742,10 @@ public class FragmentActivity extends ComponentActivity implements
             return (w == null) ? 0 : w.getAttributes().windowAnimations;
         }
 
+        @SuppressWarnings("deprecation")
         @Override
-        public void onAttachFragment(@NonNull Fragment fragment) {
+        public void onAttachFragment(@NonNull FragmentManager fragmentManager,
+                @NonNull Fragment fragment) {
             FragmentActivity.this.onAttachFragment(fragment);
         }
 

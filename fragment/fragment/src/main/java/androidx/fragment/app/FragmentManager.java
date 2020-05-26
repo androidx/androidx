@@ -78,6 +78,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -428,6 +429,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
             };
     private final FragmentLifecycleCallbacksDispatcher mLifecycleCallbacksDispatcher =
             new FragmentLifecycleCallbacksDispatcher(this);
+    private final CopyOnWriteArrayList<FragmentOnAttachListener> mOnAttachListeners =
+            new CopyOnWriteArrayList<>();
 
     int mCurState = Fragment.INITIALIZING;
     private FragmentHostCallback<?> mHost;
@@ -2712,6 +2715,22 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mHost = host;
         mContainer = container;
         mParent = parent;
+
+        // Add a FragmentOnAttachListener to the parent fragment / host to support
+        // backward compatibility with the deprecated onAttachFragment() APIs
+        if (mParent != null) {
+            addFragmentOnAttachListener(new FragmentOnAttachListener() {
+                @SuppressWarnings("deprecation")
+                @Override
+                public void onAttachFragment(@NonNull FragmentManager fragmentManager,
+                        @NonNull Fragment fragment) {
+                    parent.onAttachFragment(fragment);
+                }
+            });
+        } else if (host instanceof FragmentOnAttachListener) {
+            addFragmentOnAttachListener((FragmentOnAttachListener) host);
+        }
+
         if (mParent != null) {
             // Since the callback depends on us being the primary navigation fragment,
             // update our callback now that we have a parent so that we have the correct
@@ -3259,6 +3278,40 @@ public abstract class FragmentManager implements FragmentResultOwner {
      */
     public void unregisterFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb) {
         mLifecycleCallbacksDispatcher.unregisterFragmentLifecycleCallbacks(cb);
+    }
+
+    /**
+     * Add a {@link FragmentOnAttachListener} that should receive a call to
+     * {@link FragmentOnAttachListener#onAttachFragment(FragmentManager, Fragment)} when a
+     * new Fragment is attached to this FragmentManager.
+     *
+     * @param listener Listener to add
+     */
+    public void addFragmentOnAttachListener(@NonNull FragmentOnAttachListener listener) {
+        mOnAttachListeners.add(listener);
+    }
+
+    /**
+     * Dispatch {@link FragmentOnAttachListener#onAttachFragment(FragmentManager, Fragment)} to
+     * each listener registered via {@link #addFragmentOnAttachListener(FragmentOnAttachListener)}.
+     *
+     * @param fragment The Fragment that was attached
+     */
+    void dispatchOnAttachFragment(@NonNull Fragment fragment) {
+        for (FragmentOnAttachListener listener : mOnAttachListeners) {
+            listener.onAttachFragment(this, fragment);
+        }
+    }
+
+    /**
+     * Remove a {@link FragmentOnAttachListener} that was previously added via
+     * {@link #addFragmentOnAttachListener(FragmentOnAttachListener)}. It will no longer
+     * get called when a new Fragment is attached.
+     *
+     * @param listener Listener to remove
+     */
+    public void removeFragmentOnAttachListener(@NonNull FragmentOnAttachListener listener) {
+        mOnAttachListeners.remove(listener);
     }
 
     // Checks if fragments that belong to this fragment manager (or their children) have menus,

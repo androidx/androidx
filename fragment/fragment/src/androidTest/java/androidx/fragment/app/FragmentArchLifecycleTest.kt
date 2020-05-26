@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
@@ -247,7 +248,7 @@ class FragmentArchLifecycleActivity : FragmentActivity(R.layout.activity_content
     }
 }
 
-class NestedLifecycleFragmentParent : StrictFragment() {
+class NestedLifecycleFragmentParent : StrictFragment(), FragmentOnAttachListener {
     private val archLifecycleActivity by lazy {
         requireActivity() as FragmentArchLifecycleActivity
     }
@@ -256,6 +257,11 @@ class NestedLifecycleFragmentParent : StrictFragment() {
         lifecycle.addObserver(LifecycleEventObserver { _, event ->
             archLifecycleActivity.collectedEvents.add("parent" to event)
         })
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        childFragmentManager.addFragmentOnAttachListener(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -267,8 +273,7 @@ class NestedLifecycleFragmentParent : StrictFragment() {
         }
     }
 
-    override fun onAttachFragment(childFragment: Fragment) {
-        super.onAttachFragment(childFragment)
+    override fun onAttachFragment(fragmentManager: FragmentManager, childFragment: Fragment) {
         childFragment.lifecycle.addObserver(LifecycleEventObserver { _, event ->
             archLifecycleActivity.collectedEvents.add("child" to event)
         })

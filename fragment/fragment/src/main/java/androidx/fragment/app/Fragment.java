@@ -1760,8 +1760,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * call to <code>onCreate</code>.</p>
      *
      * @param childFragment child fragment being attached
+     *
+     * @deprecated Call
+     * {@link FragmentManager#addFragmentOnAttachListener(FragmentOnAttachListener)}
+     * with this Fragment's {@link #getChildFragmentManager()} in {@link #onAttach(Context)}
+     * to get callbacks when a child fragment is attached.
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "DeprecatedIsStillUsed"})
+    @Deprecated
     @MainThread
     public void onAttachFragment(@NonNull Fragment childFragment) {
     }
@@ -2878,11 +2884,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onAttach()");
         }
-        if (mParentFragment == null) {
-            mHost.onAttachFragment(this);
-        } else {
-            mParentFragment.onAttachFragment(this);
-        }
+        mFragmentManager.dispatchOnAttachFragment(this);
         mChildFragmentManager.dispatchAttach();
     }
 
