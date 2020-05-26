@@ -25,6 +25,7 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.localeLayoutDirection
+import androidx.ui.layout.ExperimentalLayout
 import androidx.ui.layout.IntrinsicSize
 import androidx.ui.layout.Stack
 import androidx.ui.layout.ltr
@@ -70,6 +71,7 @@ class LayoutDirectionModifierTest : LayoutTest() {
         val layoutDirection = Ref<LayoutDirection>()
 
         show {
+            @OptIn(ExperimentalLayout::class)
             Layout(
                 children = @Composable {},
                 modifier = Modifier.preferredWidth(IntrinsicSize.Max).rtl,

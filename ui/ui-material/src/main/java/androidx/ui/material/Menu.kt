@@ -40,6 +40,7 @@ import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.clickable
 import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnScope
+import androidx.ui.layout.ExperimentalLayout
 import androidx.ui.layout.IntrinsicSize
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
@@ -123,6 +124,7 @@ fun DropdownMenu(
                             .padding(MenuElevation),
                         elevation = MenuElevation
                     ) {
+                        @OptIn(ExperimentalLayout::class)
                         Column(
                             dropdownModifier
                                 .padding(vertical = DropdownMenuVerticalPadding)
