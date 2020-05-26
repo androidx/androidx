@@ -16,6 +16,7 @@
 package androidx.ui.text.font
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.util.lerp
 
 /**
@@ -37,43 +38,61 @@ import androidx.ui.util.lerp
 
     companion object {
         /** [Thin] */
+        @Stable
         val W100 = FontWeight(100)
         /** [ExtraLight] */
+        @Stable
         val W200 = FontWeight(200)
         /** [Light] */
+        @Stable
         val W300 = FontWeight(300)
         /** [Normal] / regular / plain */
+        @Stable
         val W400 = FontWeight(400)
         /** [Medium] */
+        @Stable
         val W500 = FontWeight(500)
         /** [SemiBold] */
+        @Stable
         val W600 = FontWeight(600)
         /** [Bold] */
+        @Stable
         val W700 = FontWeight(700)
         /** [ExtraBold] */
+        @Stable
         val W800 = FontWeight(800)
         /** [Black] */
+        @Stable
         val W900 = FontWeight(900)
 
         /** Alias for [W100] */
+        @Stable
         val Thin = W100
         /** Alias for [W200] */
+        @Stable
         val ExtraLight = W200
         /** Alias for [W300] */
+        @Stable
         val Light = W300
         /** The default font weight - alias for [W400] */
+        @Stable
         val Normal = W400
         /** Alias for [W500] */
+        @Stable
         val Medium = W500
         /** Alias for [W600] */
+        @Stable
         val SemiBold = W600
         /**
          * A commonly used font weight that is heavier than normal - alias for [W700]
          */
+        @Stable
         val Bold = W700
         /** Alias for [W800] */
+        @Stable
         val ExtraBold = W800
         /** Alias for [W900] */
+        @Stable
         val Black = W900
 
         /** A list of all the font weights. */

@@ -17,6 +17,7 @@
 package androidx.ui.text.style
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.util.lerp
 
 /**
@@ -34,6 +35,7 @@ data class TextGeometricTransform(
     val skewX: Float = 0f
 ) {
     companion object {
+        @Stable
         internal val None = TextGeometricTransform(1.0f, 0.0f)
     }
 }

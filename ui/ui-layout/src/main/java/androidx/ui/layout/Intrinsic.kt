@@ -17,6 +17,7 @@
 package androidx.ui.layout
 
 import androidx.compose.Composable
+import androidx.compose.Stable
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureScope
@@ -45,6 +46,7 @@ import androidx.ui.unit.ipx
  * Example usage for max intrinsic:
  * @sample androidx.ui.layout.samples.SameWidthTextBoxes
  */
+@Stable
 fun Modifier.preferredWidth(intrinsicSize: IntrinsicSize) = when (intrinsicSize) {
     IntrinsicSize.Min -> this + PreferredMinIntrinsicWidthModifier
     IntrinsicSize.Max -> this + PreferredMaxIntrinsicWidthModifier
@@ -64,6 +66,7 @@ fun Modifier.preferredWidth(intrinsicSize: IntrinsicSize) = when (intrinsicSize)
  * Example usage for max intrinsic:
  * @sample androidx.ui.layout.samples.MatchParentDividerForAspectRatio
  */
+@Stable
 fun Modifier.preferredHeight(intrinsicSize: IntrinsicSize) = when (intrinsicSize) {
     IntrinsicSize.Min -> this + PreferredMinIntrinsicHeightModifier
     IntrinsicSize.Max -> this + PreferredMaxIntrinsicHeightModifier

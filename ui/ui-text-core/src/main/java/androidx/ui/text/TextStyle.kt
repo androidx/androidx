@@ -18,6 +18,7 @@ package androidx.ui.text
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.core.LayoutDirection
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
@@ -128,6 +129,7 @@ data class TextStyle(
         }
     }
 
+    @Stable
     fun toSpanStyle(): SpanStyle = SpanStyle(
         color = color,
         fontSize = fontSize,
@@ -145,6 +147,7 @@ data class TextStyle(
         shadow = shadow
     )
 
+    @Stable
     fun toParagraphStyle(): ParagraphStyle = ParagraphStyle(
         textAlign = textAlign,
         textDirectionAlgorithm = textDirectionAlgorithm,
@@ -161,6 +164,7 @@ data class TextStyle(
      *
      * If the given text style is null, returns this text style.
      */
+    @Stable
     fun merge(other: TextStyle? = null): TextStyle {
         if (other == null || other == Default) return this
         return TextStyle(
@@ -174,6 +178,7 @@ data class TextStyle(
      *
      * @see merge
      */
+    @Stable
     fun merge(other: SpanStyle): TextStyle {
         return TextStyle(
             spanStyle = toSpanStyle().merge(other),
@@ -186,6 +191,7 @@ data class TextStyle(
      *
      * @see merge
      */
+    @Stable
     fun merge(other: ParagraphStyle): TextStyle {
         return TextStyle(
             spanStyle = toSpanStyle(),
@@ -196,22 +202,26 @@ data class TextStyle(
     /**
      * Plus operator overload that applies a [merge].
      */
+    @Stable
     operator fun plus(other: TextStyle): TextStyle = this.merge(other)
 
     /**
      * Plus operator overload that applies a [merge].
      */
+    @Stable
     operator fun plus(other: ParagraphStyle): TextStyle = this.merge(other)
 
     /**
      * Plus operator overload that applies a [merge].
      */
+    @Stable
     operator fun plus(other: SpanStyle): TextStyle = this.merge(other)
 
     companion object {
         /**
          * Constant for default text style.
          */
+        @Stable
         val Default = TextStyle()
     }
 }

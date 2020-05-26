@@ -18,6 +18,8 @@ package androidx.ui.layout
 
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
+import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.core.Alignment
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Measured
@@ -77,6 +79,7 @@ fun Row(
  * Scope for the children of [Row].
  */
 @LayoutScopeMarker
+@Immutable
 object RowScope {
     /**
      * Position the element vertically within the [Row] according to [align].
@@ -84,6 +87,7 @@ object RowScope {
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleGravityInRow
      */
+    @Stable
     fun Modifier.gravity(align: Alignment.Vertical) = this + GravityModifier(align)
 
     /**
@@ -104,6 +108,7 @@ object RowScope {
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblingsInRow
      */
+    @Stable
     fun Modifier.alignWithSiblings(alignmentLine: HorizontalAlignmentLine) =
         this + SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
 
@@ -115,6 +120,7 @@ object RowScope {
      * Otherwise, the element is allowed to be smaller - this will result in [Row] being smaller,
      * as the unused allocated width will not be redistributed to other siblings.
      */
+    @Stable
     fun Modifier.weight(
         @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
         fill: Boolean = true
@@ -140,6 +146,7 @@ object RowScope {
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblings
      */
+    @Stable
     fun Modifier.alignWithSiblings(
         alignmentLineBlock: (Measured) -> IntPx
     ) = this + SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock)

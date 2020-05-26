@@ -16,11 +16,15 @@
 
 package androidx.ui.text.font
 
+import androidx.compose.Immutable
+import androidx.compose.Stable
+
 /**
  * The interface of the font resource.
  *
  * @see ResourceFont
  */
+@Immutable
 interface Font {
     /**
      * The weight of the font. The system uses this to match a font to a font request
@@ -78,6 +82,7 @@ data class ResourceFont(
  *
  * @see FontFamily
  */
+@Stable
 fun font(
     resId: Int,
     weight: FontWeight = FontWeight.Normal,
@@ -87,4 +92,5 @@ fun font(
 /**
  * Create a [FontFamily] from this single [font].
  */
+@Stable
 fun Font.asFontFamily() = fontFamily(this)

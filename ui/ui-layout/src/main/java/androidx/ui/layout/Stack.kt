@@ -17,6 +17,8 @@
 package androidx.ui.layout
 
 import androidx.compose.Composable
+import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
@@ -97,10 +99,12 @@ fun Stack(
  * A StackScope provides a scope for the children of a [Stack].
  */
 @LayoutScopeMarker
+@Immutable
 class StackScope {
     /**
      * Pull the content element to a specific [Alignment] within the [Stack].
      */
+    @Stable
     fun Modifier.gravity(align: Alignment) = this + StackGravityModifier(align)
 
     /**
@@ -115,9 +119,11 @@ class StackScope {
      * using it for an element inside a [Stack] will make the [Stack] itself always fill the
      * available space.
      */
+    @Stable
     fun Modifier.matchParentSize() = this + StretchGravityModifier
 
     internal companion object {
+        @Stable
         val StretchGravityModifier: ParentDataModifier =
             StackGravityModifier(Alignment.Center, true)
     }

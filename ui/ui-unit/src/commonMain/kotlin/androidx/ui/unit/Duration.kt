@@ -19,6 +19,9 @@
 
 package androidx.ui.unit
 
+import androidx.compose.Immutable
+import androidx.compose.Stable
+
 /*
  * The following unit conversion factors are required to be public due to their use
  * from inline functions.
@@ -160,38 +163,45 @@ val Int.nanoseconds: Duration get() = toLong().nanoseconds
  *     val aLongWeekend = 86.hours
  *     assertEquals(3, aLongWeekend.inDays())
  */
+@Immutable
 data class Duration(val nanoseconds: Long) : Comparable<Duration> {
 
     /**
      * Adds this Duration and [other] and returns the sum as a Duration.
      */
+    @Stable
     operator fun plus(other: Duration) = Duration(nanoseconds + other.nanoseconds)
 
     /**
      * Subtracts [other] from this Duration and returns the difference.
      */
+    @Stable
     operator fun minus(other: Duration) = Duration(nanoseconds - other.nanoseconds)
 
     /**
      * Multiplies this Duration by the given [factor] and returns the result.
      */
+    @Stable
     operator fun times(factor: Int) = Duration(nanoseconds * factor)
 
     /**
      * Multiplies this Duration by the given [factor] and returns the result.
      */
+    @Stable
     operator fun times(factor: Double) = Duration((nanoseconds * factor).toLong())
 
     /**
      * Divides this Duration by the given [quotient] and returns the truncated
      * result as a Duration.
      */
+    @Stable
     operator fun div(quotient: Int) = Duration(nanoseconds / quotient)
 
     /**
      * Divides this Duration by the given [quotient] and returns the truncated
      * result as a Duration.
      */
+    @Stable
     operator fun div(quotient: Double) = Duration((nanoseconds / quotient).toLong())
 
     /**
@@ -205,6 +215,7 @@ data class Duration(val nanoseconds: Long) : Comparable<Duration> {
      * It is always the case that `duration1.compareTo(duration2) < 0` if
      * `(someDate + duration1).compareTo(someDate + duration2) < 0`.
      */
+    @Stable
     override fun compareTo(other: Duration): Int = when {
         nanoseconds < other.nanoseconds -> -1
         nanoseconds == other.nanoseconds -> 0
@@ -220,6 +231,7 @@ data class Duration(val nanoseconds: Long) : Comparable<Duration> {
      *     val d = Duration(days = 1, hours = 1, minutes = 33, microseconds = 500)
      *     d.toString()  // "25:33:00.000500"
      */
+    @Stable
     override fun toString(): String {
         if (inMicroseconds() < 0) {
             return "-${Duration(-nanoseconds)}"
@@ -232,6 +244,7 @@ data class Duration(val nanoseconds: Long) : Comparable<Duration> {
 
     companion object {
         /** An empty Duration. No delay. Instant. */
+        @Stable
         val Zero = Duration(0)
     }
 }

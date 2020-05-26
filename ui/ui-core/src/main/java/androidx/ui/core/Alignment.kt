@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -68,24 +69,39 @@ interface Alignment {
 
     companion object {
         // 2D Alignments.
+        @Stable
         val TopStart: Alignment = DirectionalAlignment(-1f, -1f)
+        @Stable
         val TopCenter: Alignment = DirectionalAlignment(-1f, 0f)
+        @Stable
         val TopEnd: Alignment = DirectionalAlignment(-1f, 1f)
+        @Stable
         val CenterStart: Alignment = DirectionalAlignment(0f, -1f)
+        @Stable
         val Center: Alignment = DirectionalAlignment(0f, 0f)
+        @Stable
         val CenterEnd: Alignment = DirectionalAlignment(0f, 1f)
+        @Stable
         val BottomStart: Alignment = DirectionalAlignment(1f, -1f)
+        @Stable
         val BottomCenter: Alignment = DirectionalAlignment(1f, 0f)
+        @Stable
         val BottomEnd: Alignment = DirectionalAlignment(1f, 1f)
 
         // 1D Alignment.Verticals.
+        @Stable
         val Top: Vertical = DirectionalAlignment.Vertical(-1f)
+        @Stable
         val CenterVertically: Vertical = DirectionalAlignment.Vertical(0f)
+        @Stable
         val Bottom: Vertical = DirectionalAlignment.Vertical(1f)
 
         // 1D Alignment.Horizontals.
+        @Stable
         val Start: Horizontal = DirectionalAlignment.Horizontal(-1f)
+        @Stable
         val CenterHorizontally: Horizontal = DirectionalAlignment.Horizontal(0f)
+        @Stable
         val End: Horizontal = DirectionalAlignment.Horizontal(1f)
     }
 }
@@ -188,15 +204,23 @@ data class AbsoluteAlignment internal constructor(
 
     companion object {
         // 2D AbsoluteAlignments.
+        @Stable
         val TopLeft = AbsoluteAlignment(-1f, -1f)
+        @Stable
         val TopRight = AbsoluteAlignment(-1f, 1f)
+        @Stable
         val CenterLeft = AbsoluteAlignment(0f, -1f)
+        @Stable
         val CenterRight = AbsoluteAlignment(0f, 1f)
+        @Stable
         val BottomLeft = AbsoluteAlignment(1f, -1f)
+        @Stable
         val BottomRight = AbsoluteAlignment(1f, 1f)
 
         // 1D AbsoluteAlignment.Horizontals.
+        @Stable
         val Left: Horizontal = Horizontal(-1f)
+        @Stable
         val Right: Horizontal = Horizontal(1f)
     }
 }

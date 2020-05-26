@@ -17,6 +17,7 @@
 package androidx.ui.graphics
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.geometry.Offset
 import androidx.ui.util.lerp
 
@@ -25,14 +26,18 @@ import androidx.ui.util.lerp
  */
 @Immutable
 data class Shadow(
+    @Stable
     val color: Color = Color(0xFF000000),
+    @Stable
     val offset: Offset = Offset.zero,
+    @Stable
     val blurRadius: Float = 0.0f
 ) {
     companion object {
         /**
          * Constant for no shadow.
          */
+        @Stable
         val None = Shadow()
     }
 }
@@ -40,6 +45,7 @@ data class Shadow(
 /**
  * Linearly interpolate two [Shadow]s.
  */
+@Stable
 fun lerp(start: Shadow, stop: Shadow, fraction: Float): Shadow {
     return Shadow(
         lerp(start.color, stop.color, fraction),

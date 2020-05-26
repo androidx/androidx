@@ -16,6 +16,7 @@
 
 package androidx.ui.input
 
+import androidx.compose.Immutable
 import androidx.ui.text.TextRange
 import androidx.ui.text.substring
 import kotlin.math.max
@@ -28,6 +29,7 @@ import kotlin.math.min
  * This class stores a snapshot of the input state of the edit buffer and provide utility functions
  * for answering these information retrieval requests.
  */
+@Immutable
 data class EditorValue(
     /**
      * A text visible to IME

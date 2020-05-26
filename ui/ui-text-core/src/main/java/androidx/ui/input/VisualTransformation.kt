@@ -16,6 +16,8 @@
 
 package androidx.ui.input
 
+import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.text.AnnotatedString
 
 /**
@@ -80,6 +82,7 @@ data class TransformedText(
  * For example, you can mask characters in password filed with asterisk with
  * PasswordVisualTransformation.
  */
+@Immutable
 interface VisualTransformation {
     /**
      * Change the visual output of given text.
@@ -109,6 +112,7 @@ interface VisualTransformation {
         /**
          * A special visual transformation object indicating that no transformation is applied.
          */
+        @Stable
         val None: VisualTransformation = object : VisualTransformation {
             override fun filter(text: AnnotatedString) =
                 TransformedText(text, OffsetMap.identityOffsetMap)

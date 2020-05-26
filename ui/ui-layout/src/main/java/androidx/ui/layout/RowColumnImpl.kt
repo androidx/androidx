@@ -18,6 +18,7 @@ package androidx.ui.layout
 
 import androidx.compose.Composable
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
@@ -558,6 +559,7 @@ enum class MainAxisAlignment(internal val arrangement: Arrangement) {
  * Used to specify the alignment of a layout's children, in cross axis direction.
  */
 // TODO(popam): refine this API surface with modifiers - add type safety for alignment orientation.
+@Immutable
 class CrossAxisAlignment private constructor(
     internal val alignmentLineProvider: AlignmentLineProvider? = null
 ) {
@@ -565,16 +567,19 @@ class CrossAxisAlignment private constructor(
         /**
          * Place children such that their center is in the middle of the cross axis.
          */
+        @Stable
         val Center = CrossAxisAlignment(null)
         /**
          * Place children such that their start edge is aligned to the start edge of the cross
          * axis. TODO(popam): Consider rtl directionality.
          */
+        @Stable
         val Start = CrossAxisAlignment(null)
         /**
          * Place children such that their end edge is aligned to the end edge of the cross
          * axis. TODO(popam): Consider rtl directionality.
          */
+        @Stable
         val End = CrossAxisAlignment(null)
         /**
          * Align children by their baseline.

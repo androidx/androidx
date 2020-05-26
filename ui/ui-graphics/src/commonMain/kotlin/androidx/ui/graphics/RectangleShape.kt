@@ -18,11 +18,13 @@ package androidx.ui.graphics
 
 import androidx.ui.geometry.Size
 import androidx.ui.geometry.toRect
+import androidx.compose.Stable
 import androidx.ui.unit.Density
 
 /**
  * A shape describing the rectangle.
  */
+@Stable
 val RectangleShape: Shape = object : Shape {
     override fun createOutline(size: Size, density: Density) =
         Outline.Rectangle(size.toRect())

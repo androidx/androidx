@@ -18,6 +18,8 @@ package androidx.ui.layout
 
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
+import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Measured
 import androidx.ui.core.Modifier
@@ -79,6 +81,7 @@ fun Column(
  * Scope for the children of [Column].
  */
 @LayoutScopeMarker
+@Immutable
 object ColumnScope {
     /**
      * Position the element horizontally within the [Column] according to [align].
@@ -86,6 +89,7 @@ object ColumnScope {
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleGravityInColumn
      */
+    @Stable
     fun Modifier.gravity(align: Alignment.Horizontal) = this + GravityModifier(align)
 
     /**
@@ -104,6 +108,7 @@ object ColumnScope {
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblingsInColumn
      */
+    @Stable
     fun Modifier.alignWithSiblings(alignmentLine: VerticalAlignmentLine) =
         this + SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
 
@@ -117,6 +122,7 @@ object ColumnScope {
      *
      * @sample androidx.ui.layout.samples.SimpleColumn
      */
+    @Stable
     fun Modifier.weight(
         @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
         fill: Boolean = true
@@ -142,6 +148,7 @@ object ColumnScope {
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblings
      */
+    @Stable
     fun Modifier.alignWithSiblings(
         alignmentLineBlock: (Measured) -> IntPx
     ) = this + SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock)
