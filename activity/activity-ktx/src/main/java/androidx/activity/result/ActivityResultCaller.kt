@@ -26,22 +26,14 @@ import androidx.core.app.ActivityOptionsCompat
  *
  * @see ActivityResultCaller.registerForActivityResult
  */
-inline fun <I, O> ActivityResultCaller.registerForActivityResult(
+fun <I, O> ActivityResultCaller.registerForActivityResult(
     contract: ActivityResultContract<I, O>,
     input: I,
     registry: ActivityResultRegistry,
-    crossinline callback: (O) -> Unit
+    callback: (O) -> Unit
 ): ActivityResultLauncher<Unit> {
     val resultLauncher = registerForActivityResult(contract, registry) { callback(it) }
-    return object : ActivityResultLauncher<Unit>() {
-        override fun launch(void: Unit?, options: ActivityOptionsCompat?) {
-            resultLauncher.launch(input, options)
-        }
-
-        override fun unregister() {
-            resultLauncher.unregister()
-        }
-    }
+    return ActivityResultCallerLauncher(resultLauncher, input)
 }
 
 /**
@@ -51,19 +43,24 @@ inline fun <I, O> ActivityResultCaller.registerForActivityResult(
  *
  * @see ActivityResultCaller.registerForActivityResult
  */
-inline fun <I, O> ActivityResultCaller.registerForActivityResult(
+fun <I, O> ActivityResultCaller.registerForActivityResult(
     contract: ActivityResultContract<I, O>,
     input: I,
-    crossinline callback: (O) -> Unit
+    callback: (O) -> Unit
 ): ActivityResultLauncher<Unit> {
     val resultLauncher = registerForActivityResult(contract) { callback(it) }
-    return object : ActivityResultLauncher<Unit>() {
-        override fun launch(void: Unit?, options: ActivityOptionsCompat?) {
-            resultLauncher.launch(input, options)
-        }
+    return ActivityResultCallerLauncher(resultLauncher, input)
+}
 
-        override fun unregister() {
-            resultLauncher.unregister()
-        }
+internal class ActivityResultCallerLauncher<I>(
+    val launcher: ActivityResultLauncher<I>,
+    val input: I
+) : ActivityResultLauncher<Unit>() {
+    override fun launch(void: Unit?, options: ActivityOptionsCompat?) {
+        launcher.launch(input, options)
+    }
+
+    override fun unregister() {
+        launcher.unregister()
     }
 }
