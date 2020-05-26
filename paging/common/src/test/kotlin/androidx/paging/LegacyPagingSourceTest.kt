@@ -215,7 +215,7 @@ class LegacyPagingSourceTest {
         var initialized = false
         val pagingSource = LegacyPagingSource(manualDispatcher) {
             initialized = true
-            createTestPositionalDataSource()
+            createTestPositionalDataSource(expectInitialLoad = true)
         }
 
         assertFalse { initialized }
@@ -241,16 +241,21 @@ class LegacyPagingSourceTest {
     }
 
     @Suppress("DEPRECATION")
-    private fun createTestPositionalDataSource() = object : PositionalDataSource<String>() {
-        override fun loadInitial(
-            params: LoadInitialParams,
-            callback: LoadInitialCallback<String>
-        ) {
-            Assert.fail("loadInitial not expected")
-        }
+    private fun createTestPositionalDataSource(expectInitialLoad: Boolean = false) =
+        object : PositionalDataSource<String>() {
+            override fun loadInitial(
+                params: LoadInitialParams,
+                callback: LoadInitialCallback<String>
+            ) {
+                if (!expectInitialLoad) {
+                    Assert.fail("loadInitial not expected")
+                } else {
+                    callback.onResult(listOf(), 0)
+                }
+            }
 
-        override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
-            Assert.fail("loadRange not expected")
+            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
+                Assert.fail("loadRange not expected")
+            }
         }
-    }
 }
