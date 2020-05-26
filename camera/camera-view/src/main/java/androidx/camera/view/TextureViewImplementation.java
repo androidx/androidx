@@ -19,6 +19,7 @@ package androidx.camera.view;
 import static androidx.camera.core.SurfaceRequest.Result;
 
 import android.graphics.SurfaceTexture;
+import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -119,6 +120,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
             @Override
             public void onSurfaceTextureAvailable(final SurfaceTexture surfaceTexture,
                     final int width, final int height) {
+                Log.d(TAG, "SurfaceTexture available. Size: " + width +  "x" + height);
                 mSurfaceTexture = surfaceTexture;
                 tryToProvidePreviewSurface();
             }
@@ -126,6 +128,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
             @Override
             public void onSurfaceTextureSizeChanged(final SurfaceTexture surfaceTexture,
                     final int width, final int height) {
+                Log.d(TAG, "SurfaceTexture size changed: " + width +  "x" + height);
             }
 
             /**
@@ -141,6 +144,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
              */
             @Override
             public boolean onSurfaceTextureDestroyed(final SurfaceTexture surfaceTexture) {
+                Log.d(TAG, "SurfaceTexture destroyed");
                 mSurfaceTexture = null;
                 if (mSurfaceRequest == null && mSurfaceReleaseFuture != null) {
                     Futures.addCallback(mSurfaceReleaseFuture,
@@ -200,6 +204,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
         final Surface surface = new Surface(mSurfaceTexture);
         final ListenableFuture<Result> surfaceReleaseFuture =
                 CallbackToFutureAdapter.getFuture(completer -> {
+                    Log.d(TAG, "Surface set on Preview.");
                     mSurfaceRequest.provideSurface(surface,
                             CameraXExecutors.directExecutor(), completer::set);
                     return "provideSurface[request=" + mSurfaceRequest + " surface=" + surface
@@ -207,6 +212,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
                 });
         mSurfaceReleaseFuture = surfaceReleaseFuture;
         mSurfaceReleaseFuture.addListener(() -> {
+            Log.d(TAG, "Safe to release surface.");
             notifySurfaceNotInUse();
             surface.release();
             if (mSurfaceReleaseFuture == surfaceReleaseFuture) {
