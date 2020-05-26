@@ -55,6 +55,10 @@ import java.io.PrintWriter;
  *     <li><strong>{@link ActivityResultRegistryOwner}</strong>: Removes the need to
  *     override {@link #onStartIntentSenderFromFragment} or
  *     {@link #onRequestPermissionsFromFragment}.</li>
+ *     <li><strong>{@link FragmentOnAttachListener}</strong>: Removes the need to
+ *     manually call {@link FragmentManager#addFragmentOnAttachListener} from your
+ *     host in order to receive {@link FragmentOnAttachListener#onAttachFragment} callbacks
+ *     for the {@link FragmentController#getSupportFragmentManager()}.</li>
  *     <li><strong>{@link androidx.activity.OnBackPressedDispatcherOwner}</strong>: Removes
  *     the need to manually call
  *     {@link FragmentManager#popBackStackImmediate()} when handling the system
@@ -245,8 +249,5 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     @NonNull
     Handler getHandler() {
         return mHandler;
-    }
-
-    void onAttachFragment(@NonNull Fragment fragment) {
     }
 }
