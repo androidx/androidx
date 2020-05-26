@@ -1,1 +1,41 @@
 // Signature format: 3.0
+package androidx.appsearch.app {
+
+  public final class AppSearchSchema {
+  }
+
+  public static final class AppSearchSchema.Builder {
+    ctor public AppSearchSchema.Builder(String);
+    method public androidx.appsearch.app.AppSearchSchema.Builder addProperty(androidx.appsearch.app.AppSearchSchema.PropertyConfig);
+    method public androidx.appsearch.app.AppSearchSchema build();
+  }
+
+  public static final class AppSearchSchema.PropertyConfig {
+    field public static final int CARDINALITY_OPTIONAL = 2; // 0x2
+    field public static final int CARDINALITY_REPEATED = 1; // 0x1
+    field public static final int CARDINALITY_REQUIRED = 3; // 0x3
+    field public static final int DATA_TYPE_BOOLEAN = 4; // 0x4
+    field public static final int DATA_TYPE_BYTES = 5; // 0x5
+    field public static final int DATA_TYPE_DOCUMENT = 6; // 0x6
+    field public static final int DATA_TYPE_DOUBLE = 3; // 0x3
+    field public static final int DATA_TYPE_INT64 = 2; // 0x2
+    field public static final int DATA_TYPE_STRING = 1; // 0x1
+    field public static final int INDEXING_TYPE_EXACT_TERMS = 1; // 0x1
+    field public static final int INDEXING_TYPE_NONE = 0; // 0x0
+    field public static final int INDEXING_TYPE_PREFIXES = 2; // 0x2
+    field public static final int TOKENIZER_TYPE_NONE = 0; // 0x0
+    field public static final int TOKENIZER_TYPE_PLAIN = 1; // 0x1
+  }
+
+  public static final class AppSearchSchema.PropertyConfig.Builder {
+    ctor public AppSearchSchema.PropertyConfig.Builder(String);
+    method public androidx.appsearch.app.AppSearchSchema.PropertyConfig build();
+    method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setCardinality(int);
+    method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setDataType(int);
+    method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setIndexingType(int);
+    method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setSchemaType(String);
+    method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setTokenizerType(int);
+  }
+
+}
+
