@@ -81,14 +81,14 @@ fun AnimatedCircle(
                 val sweep = proportion * state[AngleOffset]
                 drawArc(
                     color = colors[index],
-                    startAngle = startAngle,
-                    sweepAngle = sweep,
+                    startAngle = startAngle + DividerLengthInDegrees / 2,
+                    sweepAngle = sweep - DividerLengthInDegrees,
                     topLeft = topLeft,
                     size = size,
                     useCenter = false,
                     style = stroke
                 )
-                startAngle += sweep + DividerLengthInDegrees
+                startAngle += sweep
             }
         }
     }
