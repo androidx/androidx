@@ -1346,7 +1346,7 @@ public class MediaSession implements Closeable {
          */
         @NonNull
         @SuppressWarnings("unchecked")
-        public U setExtras(@NonNull Bundle extras) {
+        U setExtras(@NonNull Bundle extras) {
             if (extras == null) {
                 throw new NullPointerException("extras shouldn't be null");
             }

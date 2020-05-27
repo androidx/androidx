@@ -1560,6 +1560,12 @@ public class MediaController implements Closeable {
 
         @Override
         @NonNull
+        public Builder setConnectionHints(@NonNull Bundle connectionHints) {
+            return super.setConnectionHints(connectionHints);
+        }
+
+        @Override
+        @NonNull
         public Builder setControllerCallback(@NonNull Executor executor,
                 @NonNull ControllerCallback callback) {
             return super.setControllerCallback(executor, callback);
@@ -1667,7 +1673,7 @@ public class MediaController implements Closeable {
          */
         @NonNull
         @SuppressWarnings("unchecked")
-        public U setSessionToken(@NonNull SessionToken token) {
+        U setSessionToken(@NonNull SessionToken token) {
             if (token == null) {
                 throw new NullPointerException("token shouldn't be null");
             }
@@ -1687,7 +1693,7 @@ public class MediaController implements Closeable {
          */
         @NonNull
         @SuppressWarnings("unchecked")
-        public U setSessionCompatToken(@NonNull MediaSessionCompat.Token compatToken) {
+        U setSessionCompatToken(@NonNull MediaSessionCompat.Token compatToken) {
             if (compatToken == null) {
                 throw new NullPointerException("compatToken shouldn't be null");
             }
@@ -1733,7 +1739,7 @@ public class MediaController implements Closeable {
          */
         @NonNull
         @SuppressWarnings("unchecked")
-        public U setControllerCallback(@NonNull Executor executor, @NonNull C callback) {
+        U setControllerCallback(@NonNull Executor executor, @NonNull C callback) {
             if (executor == null) {
                 throw new NullPointerException("executor shouldn't be null");
             }
