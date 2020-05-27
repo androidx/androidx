@@ -250,6 +250,15 @@ private class SeparatorState<R : Any, T : R>(
         val eventTerminatesEnd = event.terminatesEnd()
         val eventEmpty = event.pages.isEmpty()
 
+        if (pageStash.isNotEmpty()) {
+            require(pageStash.first() != null || event.loadType != PREPEND) {
+                "Additional prepend event after prepend state is done"
+            }
+            require(pageStash.last() != null || event.loadType != APPEND) {
+                "Additional append event after append state is done"
+            }
+        }
+
         if (eventEmpty) {
             if (eventTerminatesStart && eventTerminatesEnd) {
                 // if event is empty, and fully terminal, resolve single separator, and that's it
