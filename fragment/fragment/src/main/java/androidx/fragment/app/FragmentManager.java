@@ -1298,7 +1298,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     if (newState > Fragment.CREATED) {
                         fragmentStateManager.createView();
                         fragmentStateManager.activityCreated();
-                        fragmentStateManager.restoreViewState();
                     }
                     // fall through
                 case Fragment.ACTIVITY_CREATED:

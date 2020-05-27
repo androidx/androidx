@@ -2938,7 +2938,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onActivityCreated()");
         }
+        restoreViewState();
         mChildFragmentManager.dispatchActivityCreated();
+    }
+
+    private void restoreViewState() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(FragmentManager.TAG, "moveto RESTORE_VIEW_STATE: " + this);
+        }
+        if (mView != null) {
+            restoreViewState(mSavedFragmentState);
+        }
+        mSavedFragmentState = null;
     }
 
     @SuppressWarnings("ConstantConditions")
