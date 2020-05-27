@@ -84,6 +84,7 @@ class FocusMeteringControl {
     private FocusMeteringAction mCurrentFocusMeteringAction;
     private boolean mIsInAfAutoMode = false;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @NonNull
     Integer mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
     private ScheduledFuture<?> mAutoCancelHandle;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -600,7 +601,11 @@ class FocusMeteringControl {
                 result -> {
                     Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
                     if (shouldTriggerAF()) {
-                        if (mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
+                        if (!isAfModeSupported || afState == null) {
+                            // set isFocusSuccessful to true when camera does not support AF_AUTO.
+                            mIsFocusSuccessful = true;
+                            mIsAutoFocusCompleted = true;
+                        } else if (mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
                             if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED) {
                                 mIsFocusSuccessful = true;
                                 mIsAutoFocusCompleted = true;
@@ -609,10 +614,6 @@ class FocusMeteringControl {
                                 mIsFocusSuccessful = false;
                                 mIsAutoFocusCompleted = true;
                             }
-                        } else if (!isAfModeSupported) {
-                            // set isFocusSuccessful to true when camera does not support AF_AUTO.
-                            mIsFocusSuccessful = true;
-                            mIsAutoFocusCompleted = true;
                         }
                     }
 
@@ -639,7 +640,7 @@ class FocusMeteringControl {
                         }
                     }
 
-                    if (!mCurrentAfState.equals(afState)) {
+                    if (!mCurrentAfState.equals(afState) && afState != null) {
                         mCurrentAfState = afState;
                     }
                     return false; // continue checking
