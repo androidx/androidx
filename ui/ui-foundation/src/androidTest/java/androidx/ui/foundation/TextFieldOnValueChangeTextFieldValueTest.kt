@@ -19,7 +19,6 @@ package androidx.ui.foundation
 import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SmallTest
-import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.DeleteSurroundingTextEditOp
@@ -31,7 +30,8 @@ import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.find
+import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
@@ -76,25 +76,23 @@ class TextFieldOnValueChangeTextFieldValueTest {
             Providers(
                 TextInputServiceAmbient provides textInputService
             ) {
-                TestTag(tag = "textField") {
-                    val state = state {
-                        TextFieldValue(
-                            "abcde",
-                            TextRange(0, 0)
-                        )
-                    }
-                    TextField(
-                        value = state.value,
-                        onValueChange = {
-                            state.value = it
-                            onValueChange(it)
-                        })
+                val state = state {
+                    TextFieldValue(
+                        "abcde",
+                        TextRange(0, 0)
+                    )
                 }
+                TextField(
+                    value = state.value,
+                    onValueChange = {
+                        state.value = it
+                        onValueChange(it)
+                    })
             }
         }
 
         // Perform click to focus in.
-        findByTag("textField")
+        find(hasInputMethodsSupport())
             .doGesture { sendClick(PxPosition(1.px, 1.px)) }
 
         runOnIdleCompose {
