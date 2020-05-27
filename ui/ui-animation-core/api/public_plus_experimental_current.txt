@@ -319,7 +319,7 @@ package androidx.animation {
 
   public final class ToolingGlueKt {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <T> androidx.animation.SeekableAnimation<T> createSeekableAnimation(androidx.animation.TransitionAnimation<T>, T? fromState, T? toState);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <T> java.util.Set<T> getStates(androidx.animation.TransitionDefinition<T>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <T> java.util.Set<T> getStates(androidx.animation.TransitionAnimation<T>);
   }
 
   public final class TransitionAnimation<T> implements androidx.animation.TransitionState {
@@ -334,6 +334,13 @@ package androidx.animation {
     property public final boolean isRunning;
     property public final kotlin.jvm.functions.Function1<T,kotlin.Unit>? onStateChangeFinished;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onUpdate;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TransitionAnimation.TransitionAnimationClockObserver implements androidx.animation.AnimationClockObserver {
+    ctor public TransitionAnimation.TransitionAnimationClockObserver();
+    method public androidx.animation.TransitionAnimation<T> getAnimation();
+    method public void onAnimationFrame(long frameTimeMillis);
+    property public final androidx.animation.TransitionAnimation<T> animation;
   }
 
   public final class TransitionAnimationKt {

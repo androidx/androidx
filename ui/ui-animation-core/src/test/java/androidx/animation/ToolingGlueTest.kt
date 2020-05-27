@@ -60,7 +60,8 @@ class ToolingGlueTest {
 
     @Test
     fun testGetStates() {
-        val states = def.getStates()
+        val anim = def.createAnimation(ManualAnimationClock(0L))
+        val states = anim.getStates()
         assertEquals(2, states.size)
         assertTrue(states.contains("start"))
         assertTrue(states.contains("end"))
