@@ -16,7 +16,76 @@
 
 package androidx.media2.session;
 
-class MediaConstants {
+/**
+ * Media constants for sharing constants between media provider and consumer apps
+ */
+public class MediaConstants {
+    /**
+     * A {@link android.net.Uri} scheme used in a media Uri.
+     *
+     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     */
+    public static final String MEDIA_URI_SCHEME = "androidx";
+
+    /**
+     * A {@link android.net.Uri} authority used in a media Uri.
+     *
+     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     */
+    public static final String MEDIA_URI_AUTHORITY = "media2-session";
+
+    /**
+     * A {@link android.net.Uri} path used by {@link android.support.v4.media.session
+     * .MediaControllerCompat.TransportControls#playFromMediaId}
+     *
+     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     */
+    public static final String MEDIA_URI_PATH_PLAY_FROM_MEDIA_ID = "playFromMediaId";
+
+    /**
+     * A {@link android.net.Uri} path used by {@link android.support.v4.media.session
+     * .MediaControllerCompat.TransportControls#playFromSearch}
+     *
+     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     */
+    public static final String MEDIA_URI_PATH_PLAY_FROM_SEARCH = "playFromSearch";
+
+    /**
+     * A {@link android.net.Uri} path used by {@link android.support.v4.media.session
+     * .MediaControllerCompat.TransportControls#prepareFromMediaId}
+     *
+     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     */
+    public static final String MEDIA_URI_PATH_PREPARE_FROM_MEDIA_ID = "prepareFromMediaId";
+
+    /**
+     * A {@link android.net.Uri} path used by {@link android.support.v4.media.session
+     * .MediaControllerCompat.TransportControls#prepareFromSearch}
+     *
+     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     */
+    public static final String MEDIA_URI_PATH_PREPARE_FROM_SEARCH = "prepareFromSearch";
+
+    /**
+     * A {@link android.net.Uri} query used by {@link android.support.v4.media.session
+     * .MediaControllerCompat.TransportControls#prepareFromMediaId}, and
+     * {@link android.support.v4.media.session.MediaControllerCompat
+     * .TransportControls#playFromMediaId}
+     *
+     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     */
+    public static final String MEDIA_URI_QUERY_ID = "id";
+
+    /**
+     * A {@link android.net.Uri} query used by {@link android.support.v4.media.session
+     * .MediaControllerCompat.TransportControls#prepareFromSearch}, and
+     * {@link android.support.v4.media.session.MediaControllerCompat
+     * .TransportControls#playFromSearch}
+     *
+     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     */
+    public static final String MEDIA_URI_QUERY_QUERY = "query";
+
     static final String ARGUMENT_CAPTIONING_ENABLED = "androidx.media2.argument.CAPTIONING_ENABLED";
 
     private MediaConstants() {
