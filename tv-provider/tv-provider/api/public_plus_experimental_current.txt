@@ -123,9 +123,9 @@ package androidx.tvprovider.media.tv {
     method public void deletePreviewProgram(long);
     method protected android.graphics.Bitmap! downloadBitmap(android.net.Uri) throws java.io.IOException;
     method public java.util.List<androidx.tvprovider.media.tv.PreviewChannel!>! getAllChannels();
-    method public androidx.tvprovider.media.tv.PreviewChannel! getPreviewChannel(long);
-    method public androidx.tvprovider.media.tv.PreviewProgram! getPreviewProgram(long);
-    method public androidx.tvprovider.media.tv.WatchNextProgram! getWatchNextProgram(long);
+    method public androidx.tvprovider.media.tv.PreviewChannel? getPreviewChannel(long);
+    method public androidx.tvprovider.media.tv.PreviewProgram? getPreviewProgram(long);
+    method public androidx.tvprovider.media.tv.WatchNextProgram? getWatchNextProgram(long);
     method public long publishChannel(androidx.tvprovider.media.tv.PreviewChannel) throws java.io.IOException;
     method public long publishDefaultChannel(androidx.tvprovider.media.tv.PreviewChannel) throws java.io.IOException;
     method public long publishPreviewProgram(androidx.tvprovider.media.tv.PreviewProgram);

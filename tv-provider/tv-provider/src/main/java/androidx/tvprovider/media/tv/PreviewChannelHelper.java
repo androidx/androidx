@@ -26,10 +26,12 @@ import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.text.format.DateUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 
@@ -40,6 +42,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -122,6 +125,11 @@ public class PreviewChannelHelper {
      * published channel. You can use it later to get a reference to this published PreviewChannel.
      */
     public long publishChannel(@NonNull PreviewChannel channel) throws IOException {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return INVALID_CONTENT_ID;
+        }
+
         try {
             Uri channelUri = mContext.getContentResolver().insert(
                     TvContractCompat.Channels.CONTENT_URI,
@@ -164,8 +172,12 @@ public class PreviewChannelHelper {
      * @return channelId: This is the id the system assigns to your published channel. You can
      * use it later to get a reference to this published PreviewChannel.
      */
-    public long publishDefaultChannel(@NonNull PreviewChannel channel)
-            throws IOException {
+    public long publishDefaultChannel(@NonNull PreviewChannel channel) throws IOException {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return INVALID_CONTENT_ID;
+        }
+
         long channelId = publishChannel(channel);
         TvContractCompat.requestChannelBrowsable(mContext, channelId);
         return channelId;
@@ -177,6 +189,11 @@ public class PreviewChannelHelper {
      * your channels at once and then use the returned list as necessary.
      */
     public List<PreviewChannel> getAllChannels() {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return Collections.emptyList();
+        }
+
         Cursor cursor = mContext.getContentResolver()
                 .query(
                         TvContractCompat.Channels.CONTENT_URI,
@@ -201,7 +218,13 @@ public class PreviewChannelHelper {
      * @param channelId ID of preview channel in TvProvider
      * @return PreviewChannel or null if not found
      */
+    @Nullable
     public PreviewChannel getPreviewChannel(long channelId) {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return null;
+        }
+
         PreviewChannel channel = null;
         Uri channelUri = TvContractCompat.buildChannelUri(channelId);
         Cursor cursor = mContext.getContentResolver()
@@ -363,6 +386,11 @@ public class PreviewChannelHelper {
      * Adds programs to a preview channel.
      */
     public long publishPreviewProgram(@NonNull PreviewProgram program) {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return INVALID_CONTENT_ID;
+        }
+
         try {
             Uri programUri = mContext.getContentResolver().insert(
                     TvContractCompat.PreviewPrograms.CONTENT_URI,
@@ -379,7 +407,13 @@ public class PreviewChannelHelper {
     /**
      * Retrieves a single preview program from the system content provider (aka TvProvider).
      */
+    @Nullable
     public PreviewProgram getPreviewProgram(long programId) {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return null;
+        }
+
         PreviewProgram program = null;
         Uri programUri = TvContractCompat.buildPreviewProgramUri(programId);
         Cursor cursor = mContext.getContentResolver().query(programUri, null, null, null, null);
@@ -418,6 +452,11 @@ public class PreviewChannelHelper {
      * Removes programs from a preview channel.
      */
     public void deletePreviewProgram(long programId) {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return;
+        }
+
         mContext.getContentResolver().delete(
                 TvContractCompat.buildPreviewProgramUri(programId), null, null);
     }
@@ -426,6 +465,11 @@ public class PreviewChannelHelper {
      * Adds a program to the Watch Next channel
      */
     public long publishWatchNextProgram(@NonNull WatchNextProgram program) {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return INVALID_CONTENT_ID;
+        }
+
         try {
             Uri programUri = mContext.getContentResolver().insert(
                     TvContractCompat.WatchNextPrograms.CONTENT_URI, program.toContentValues());
@@ -440,7 +484,13 @@ public class PreviewChannelHelper {
     /**
      * Retrieves a single WatchNext program from the system content provider (aka TvProvider).
      */
+    @Nullable
     public WatchNextProgram getWatchNextProgram(long programId) {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return null;
+        }
+
         WatchNextProgram program = null;
         Uri programUri = TvContractCompat.buildWatchNextProgramUri(programId);
         Cursor cursor = mContext.getContentResolver().query(programUri, null, null, null, null);
