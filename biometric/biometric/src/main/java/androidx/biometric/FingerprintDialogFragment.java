@@ -16,7 +16,6 @@
 
 package androidx.biometric;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -33,7 +32,6 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -41,14 +39,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.core.os.CancellationSignal;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
-
-import java.util.concurrent.Executor;
 
 /**
  * This class implements a custom AlertDialog that prompts the user for fingerprint authentication.
@@ -59,15 +53,9 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressLint("SyntheticAccessor")
 public class FingerprintDialogFragment extends DialogFragment {
     private static final String TAG = "FingerprintDialogFrag";
     private static final String KEY_DIALOG_BUNDLE = "SavedBundle";
-
-    // Where the dialog was canceled from.
-    static final int USER_CANCELED_FROM_NONE = 0;
-    static final int USER_CANCELED_FROM_USER = 1;
-    static final int USER_CANCELED_FROM_NEGATIVE_BUTTON = 2;
 
     /**
      * Error/help message will show for this amount of time, unless
@@ -78,10 +66,6 @@ public class FingerprintDialogFragment extends DialogFragment {
      * after this amount of time.
      */
     private static final int MESSAGE_DISPLAY_TIME_MS = 2000;
-
-    // In order to keep consistent behavior between versions, we need to send
-    // FingerprintDialogFragment a message indicating whether or not to dismiss the UI instantly.
-    private static final int DISMISS_INSTANTLY_DELAY_MS = 500;
 
     // States for icon animation
     private static final int STATE_NONE = 0;
@@ -96,116 +80,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         }
     };
 
-    // Created once and retained.
-    @VisibleForTesting
-    @SuppressWarnings("deprecation")
-    final androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback
-            mAuthenticationCallback =
-            new androidx.core.hardware.fingerprint.FingerprintManagerCompat
-                    .AuthenticationCallback() {
-
-                @Override
-                public void onAuthenticationError(final int errMsgId, CharSequence errString) {
-                    if (errMsgId == BiometricPrompt.ERROR_CANCELED) {
-                        if (mCanceledFrom == USER_CANCELED_FROM_NONE) {
-                            sendErrorToClient(errMsgId, errString);
-                        }
-                        dismissSafely();
-                    } else if (errMsgId == BiometricPrompt.ERROR_LOCKOUT
-                            || errMsgId == BiometricPrompt.ERROR_LOCKOUT_PERMANENT) {
-                        dismissAndForwardError(errMsgId, errString);
-                    } else {
-                        // Ensure we're only sending publicly defined errors.
-                        final int dialogErrMsgId = Utils.isUnknownError(errMsgId)
-                                ? BiometricPrompt.ERROR_VENDOR : errMsgId;
-                        dismissAndForwardError(dialogErrMsgId, errString);
-                    }
-                }
-
-                @Override
-                public void onAuthenticationHelp(final int helpMsgId,
-                        final CharSequence helpString) {
-                    showHelp(helpString);
-                    // Don't forward the result to the client, since the dialog takes care of it.
-                }
-
-                @Override
-                public void onAuthenticationSucceeded(final androidx.core.hardware.fingerprint
-                        .FingerprintManagerCompat.AuthenticationResult result) {
-                    // Create a dummy result if necessary, since the framework result isn't
-                    // guaranteed to be non-null.
-                    final BiometricPrompt.AuthenticationResult promptResult = result != null
-                            ? new BiometricPrompt.AuthenticationResult(
-                                    unwrapCryptoObject(result.getCryptoObject()))
-                            : new BiometricPrompt.AuthenticationResult(null /* crypto */);
-
-                    mExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mClientAuthenticationCallback.onAuthenticationSucceeded(promptResult);
-                        }
-                    });
-
-                    dismissSafely();
-                }
-
-                @Override
-                public void onAuthenticationFailed() {
-                    showHelp(getString(R.string.fingerprint_not_recognized));
-                    mExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mClientAuthenticationCallback.onAuthenticationFailed();
-                        }
-                    });
-                }
-            };
-
-    // Created once and retained.
-    private final DialogInterface.OnClickListener mDeviceCredentialButtonListener =
-            new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(final DialogInterface dialog, int which) {
-                    if (which == DialogInterface.BUTTON_NEGATIVE) {
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                            Log.e(TAG, "Failed to check device credential."
-                                    + " Not supported prior to L.");
-                            return;
-                        }
-
-                        DeviceCredentialLauncher.launchConfirmation(
-                                TAG, FingerprintDialogFragment.this.getActivity(), mBundle,
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        // Dismiss the fingerprint dialog without forwarding errors.
-                                        FingerprintDialogFragment.this.onCancel(dialog);
-                                    }
-                                });
-                    }
-                }
-            };
-
-    // Re-set by the application, through BiometricPromptCompat upon orientation changes.
-    @VisibleForTesting
-    Executor mExecutor;
-
-    @VisibleForTesting
-    BiometricPrompt.AuthenticationCallback mClientAuthenticationCallback;
-
-    // This should be re-set by the BiometricPromptCompat each time the lifecycle changes.
-    @VisibleForTesting
-    DialogInterface.OnClickListener mNegativeButtonListener;
-
     private Handler mHandler = new Handler(Looper.getMainLooper());
-
-    // Set once and retained.
-    private boolean mShowing;
-    private BiometricPrompt.CryptoObject mCryptoObject;
-
-    // Created once and retained.
-    private int mCanceledFrom;
-    private CancellationSignal mCancellationSignal;
 
     private Bundle mBundle;
     private int mErrorColor;
@@ -214,38 +89,14 @@ public class FingerprintDialogFragment extends DialogFragment {
     private ImageView mFingerprintIcon;
     private TextView mErrorText;
 
-    /**
-     * This flag is used to control the instant dismissal of the dialog fragment. In the case where
-     * the user is already locked out this dialog will not appear. In the case where the user is
-     * being locked out for the first time an error message will be displayed on the UI before
-     * dismissing.
-     */
-    private boolean mDismissInstantly = true;
-
     @NonNull
     static FingerprintDialogFragment newInstance() {
         return new FingerprintDialogFragment();
     }
 
     @Override
-    public void onAttach(@NonNull final Context context) {
-        super.onAttach(context);
-        mHandler.postDelayed(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        mDismissInstantly = DeviceConfig.shouldHideFingerprintDialog(
-                                context, Build.MODEL);
-                    }
-                },
-                DISMISS_INSTANTLY_DELAY_MS);
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-
         final Context context = getContext();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mErrorColor = getThemedColorFor(android.R.attr.colorError);
@@ -303,10 +154,9 @@ public class FingerprintDialogFragment extends DialogFragment {
         builder.setNegativeButton(negativeButtonText, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (FingerprintDialogFragment.this.isDeviceCredentialAllowed()) {
-                    mDeviceCredentialButtonListener.onClick(dialog, which);
-                } else if (mNegativeButtonListener != null) {
-                    mNegativeButtonListener.onClick(dialog, which);
+                final BiometricFragment biometricFragment = getBiometricFragment();
+                if (biometricFragment != null) {
+                    biometricFragment.onNegativeButtonPressed(dialog, which);
                 } else {
                     Log.w(TAG, "No suitable negative button listener.");
                 }
@@ -317,33 +167,6 @@ public class FingerprintDialogFragment extends DialogFragment {
         Dialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
         return dialog;
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    @Nullable
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
-        final Context context = getContext();
-        if (!mShowing && context != null) {
-            mCanceledFrom = USER_CANCELED_FROM_NONE;
-            mCancellationSignal = new CancellationSignal();
-            androidx.core.hardware.fingerprint.FingerprintManagerCompat fingerprintManagerCompat =
-                    androidx.core.hardware.fingerprint.FingerprintManagerCompat.from(context);
-            final int errorCode = checkForPreAuthenticationErrors(fingerprintManagerCompat);
-            if (errorCode != 0) {
-                dismissAndForwardError(errorCode, getErrorString(errorCode));
-            } else {
-                fingerprintManagerCompat.authenticate(
-                        wrapCryptoObject(mCryptoObject),
-                        0 /* flags */,
-                        mCancellationSignal,
-                        mAuthenticationCallback,
-                        null /* handler */);
-                mShowing = true;
-            }
-        }
-        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -360,128 +183,55 @@ public class FingerprintDialogFragment extends DialogFragment {
     }
 
     @Override
+    public void onCancel(@NonNull DialogInterface dialog) {
+        super.onCancel(dialog);
+        final BiometricFragment biometricFragment = getBiometricFragment();
+        if (biometricFragment != null) {
+            biometricFragment.cancel(BiometricFragment.USER_CANCELED_FROM_USER);
+        }
+    }
+
+    @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBundle(KEY_DIALOG_BUNDLE, mBundle);
     }
 
-    @Override
-    public void onCancel(@NonNull DialogInterface dialog) {
-        super.onCancel(dialog);
-        reportCancellation(USER_CANCELED_FROM_USER);
-    }
-
-    @Override
-    public void onDismiss(@NonNull DialogInterface dialog) {
-        super.onDismiss(dialog);
-        FragmentActivity activity = getActivity();
-        if (activity != null && !activity.isChangingConfigurations()) {
-            mShowing = false;
-            if (!Utils.isConfirmingDeviceCredential()) {
-                Utils.maybeFinishHandler(activity);
-            }
-        }
-    }
-
-    /**
-     * Cancel the authentication.
-     *
-     * @param canceledFrom one of the USER_CANCELED_FROM* constants
-     */
-    void cancel(int canceledFrom) {
-        reportCancellation(canceledFrom);
-        dismissSafely();
-    }
-
     /** Attempts to dismiss this fragment while avoiding potential crashes. */
-    private void dismissSafely() {
+    void dismissSafely() {
         if (isAdded()) {
             dismissAllowingStateLoss();
         } else {
-            Log.e(TAG, "Failed to dismiss fingerprint dialog fragment. Fragment manager was null.");
+            Log.w(TAG, "Failed to dismiss fingerprint dialog fragment.");
         }
-    }
-
-    private void showErrorAndDismissAfterDelay(final int errorCode,
-            final @Nullable CharSequence errorMessage) {
-
-        mHandler.removeCallbacks(mResetMessageRunnable);
-        updateFingerprintIcon(STATE_FINGERPRINT_ERROR);
-
-        // May be null if we're intentionally suppressing the dialog.
-        if (mErrorText != null) {
-            mErrorText.setTextColor(mErrorColor);
-            mErrorText.setText(errorMessage);
-        }
-
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                sendErrorToClient(errorCode, errorMessage);
-                FingerprintDialogFragment.this.dismissSafely();
-            }
-        }, getHideDialogDelay(getContext()));
     }
 
     void setBundle(@NonNull Bundle bundle) {
         mBundle = bundle;
     }
 
-    void setNegativeButtonListener(DialogInterface.OnClickListener listener) {
-        mNegativeButtonListener = listener;
-    }
-
     /**
-     * Sets the client's callback. This should be done whenever the lifecycle changes (orientation
-     * changes).
+     * The negative button text is persisted in the fragment, not in BiometricPromptCompat. Since
+     * the dialog persists through rotation, this allows us to return this as the error text for
+     * ERROR_NEGATIVE_BUTTON.
      */
-    void setCallback(Executor executor, BiometricPrompt.AuthenticationCallback callback) {
-        mExecutor = executor;
-        mClientAuthenticationCallback = callback;
+    @Nullable
+    protected CharSequence getNegativeButtonText() {
+        return mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);
     }
 
-    /**
-     * Sets the crypto object to be associated with the authentication. Should be called before
-     * adding the fragment to guarantee that it's ready in onCreate().
-     */
-    void setCryptoObject(BiometricPrompt.CryptoObject crypto) {
-        mCryptoObject = crypto;
-    }
+    void showHelp(CharSequence helpMessage) {
+        updateFingerprintIcon(STATE_FINGERPRINT_ERROR);
+        mHandler.removeCallbacks(mResetMessageRunnable);
 
-    @VisibleForTesting
-    void setHandler(Handler handler) {
-        mHandler = handler;
-    }
-
-    @VisibleForTesting
-    boolean isShowing() {
-        return mShowing;
-    }
-
-    /**
-     * Check before starting authentication for basic conditions, notifies client and returns true
-     * if conditions are not met
-     */
-    @SuppressWarnings("deprecation")
-    private int checkForPreAuthenticationErrors(
-            androidx.core.hardware.fingerprint.FingerprintManagerCompat fingerprintManager) {
-        if (!fingerprintManager.isHardwareDetected()) {
-            return BiometricPrompt.ERROR_HW_NOT_PRESENT;
-        } else if (!fingerprintManager.hasEnrolledFingerprints()) {
-            return BiometricPrompt.ERROR_NO_BIOMETRICS;
+        // May be null if we're intentionally suppressing the dialog.
+        if (mErrorText != null) {
+            mErrorText.setTextColor(mErrorColor);
+            mErrorText.setText(helpMessage);
         }
-        return 0;
-    }
 
-    private void reportCancellation(int canceledFrom) {
-        mCanceledFrom = canceledFrom;
-        if (canceledFrom == USER_CANCELED_FROM_USER) {
-            final int errorCode = BiometricPrompt.ERROR_USER_CANCELED;
-            sendErrorToClient(errorCode, getErrorString(errorCode));
-        }
-        if (mCancellationSignal != null) {
-            mCancellationSignal.cancel();
-        }
+        // Reset the text after a delay
+        mHandler.postDelayed(mResetMessageRunnable, MESSAGE_DISPLAY_TIME_MS);
     }
 
     private void updateFingerprintIcon(int newState) {
@@ -512,61 +262,14 @@ public class FingerprintDialogFragment extends DialogFragment {
         }
     }
 
-    private void showHelp(CharSequence helpMessage) {
-        updateFingerprintIcon(STATE_FINGERPRINT_ERROR);
-        mHandler.removeCallbacks(mResetMessageRunnable);
-
-        // May be null if we're intentionally suppressing the dialog.
-        if (mErrorText != null) {
-            mErrorText.setTextColor(mErrorColor);
-            mErrorText.setText(helpMessage);
-        }
-
-        // Reset the text after a delay
-        mHandler.postDelayed(mResetMessageRunnable, MESSAGE_DISPLAY_TIME_MS);
-    }
-
-    private void dismissAndForwardError(int errorCode, @Nullable CharSequence errorMessage) {
-        // Avoid passing a null error string to the client callback.
-        if (mDismissInstantly) {
-            sendErrorToClient(errorCode, errorMessage);
-            dismissSafely();
-        } else {
-            showErrorAndDismissAfterDelay(errorCode, errorMessage);
-        }
-
-        // Always set this to true. In case the user tries to authenticate again the UI will not be
-        // shown.
-        mDismissInstantly = true;
-    }
-
-    private void resetMessage() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void resetMessage() {
         updateFingerprintIcon(STATE_FINGERPRINT);
 
         // May be null if we're intentionally suppressing the dialog.
         if (mErrorText != null) {
             mErrorText.setTextColor(mTextColor);
             mErrorText.setText(getString(R.string.fingerprint_dialog_touch_sensor));
-        }
-    }
-
-    /**
-     * Bypasses the FingerprintManager authentication callback wrapper and sends it directly to the
-     * client's callback, since the UI is not even showing yet.
-     *
-     * @param errorCode The error code that will be sent to the client.
-     */
-    private void sendErrorToClient(final int errorCode, @Nullable CharSequence errorMessage) {
-        if (!Utils.isConfirmingDeviceCredential()) {
-            final CharSequence errorString = errorMessage != null
-                    ? errorMessage
-                    : getErrorString(errorCode);
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mClientAuthenticationCallback.onAuthenticationError(errorCode, errorString);
-                }
-            });
         }
     }
 
@@ -585,40 +288,6 @@ public class FingerprintDialogFragment extends DialogFragment {
         final int color = arr.getColor(0 /* index */, 0 /* defValue */);
         arr.recycle();
         return color;
-    }
-
-    /**
-     * The negative button text is persisted in the fragment, not in BiometricPromptCompat. Since
-     * the dialog persists through rotation, this allows us to return this as the error text for
-     * ERROR_NEGATIVE_BUTTON.
-     */
-    @Nullable
-    protected CharSequence getNegativeButtonText() {
-        return mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);
-    }
-
-    /**
-     * Only needs to provide a subset of the fingerprint error strings since the rest are translated
-     * in FingerprintManager
-     */
-    @NonNull
-    private String getErrorString(int errorCode) {
-        switch (errorCode) {
-            case BiometricPrompt.ERROR_HW_NOT_PRESENT:
-                return getString(R.string.fingerprint_error_hw_not_present);
-            case BiometricPrompt.ERROR_HW_UNAVAILABLE:
-                return getString(R.string.fingerprint_error_hw_not_available);
-            case BiometricPrompt.ERROR_NO_BIOMETRICS:
-                return getString(R.string.fingerprint_error_no_fingerprints);
-            case BiometricPrompt.ERROR_USER_CANCELED:
-                return getString(R.string.fingerprint_error_user_canceled);
-            case BiometricPrompt.ERROR_LOCKOUT:
-            case BiometricPrompt.ERROR_LOCKOUT_PERMANENT:
-                return getString(R.string.fingerprint_error_lockout);
-            default:
-                Log.e(TAG, "Unknown error code: " + errorCode);
-                return getString(R.string.default_error_msg);
-        }
     }
 
     private boolean isDeviceCredentialAllowed() {
@@ -664,48 +333,11 @@ public class FingerprintDialogFragment extends DialogFragment {
         return ContextCompat.getDrawable(context, iconRes);
     }
 
-    /**
-     * @return The effective millisecond delay to wait before hiding the dialog, while respecting
-     * the result of {@link DeviceConfig#shouldHideFingerprintDialog(Context, String)}.
-     */
-    private static int getHideDialogDelay(Context context) {
-        return context != null && DeviceConfig.shouldHideFingerprintDialog(context, Build.MODEL)
-                ? 0
-                : MESSAGE_DISPLAY_TIME_MS;
-    }
-
-    @SuppressWarnings("deprecation")
-    private static BiometricPrompt.CryptoObject unwrapCryptoObject(
-            androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject cryptoObject) {
-        if (cryptoObject == null) {
-            return null;
-        } else if (cryptoObject.getCipher() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getCipher());
-        } else if (cryptoObject.getSignature() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getSignature());
-        } else if (cryptoObject.getMac() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getMac());
-        } else {
-            return null;
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    private static androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject
-            wrapCryptoObject(BiometricPrompt.CryptoObject cryptoObject) {
-        if (cryptoObject == null) {
-            return null;
-        } else if (cryptoObject.getCipher() != null) {
-            return new androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject(
-                    cryptoObject.getCipher());
-        } else if (cryptoObject.getSignature() != null) {
-            return new androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject(
-                    cryptoObject.getSignature());
-        } else if (cryptoObject.getMac() != null) {
-            return new androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject(
-                    cryptoObject.getMac());
-        } else {
-            return null;
-        }
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable BiometricFragment getBiometricFragment() {
+        return isAdded()
+                ? (BiometricFragment) getParentFragmentManager().findFragmentByTag(
+                        BiometricPrompt.BIOMETRIC_FRAGMENT_TAG)
+                : null;
     }
 }
