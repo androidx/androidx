@@ -27,7 +27,6 @@ import android.util.Log;
 import android.util.Size;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -361,6 +360,7 @@ public final class CameraX {
                     camera.getCameraInfoInternal().getSensorRotationDegrees(
                             viewPort.getRotation()),
                     viewPort.getScaleType(),
+                    viewPort.getLayoutDirection(),
                     suggestedResolutionsMap);
             for (UseCase useCase : useCases) {
                 useCase.setViewPortCropRect(cropRectMap.get(useCase));
@@ -896,26 +896,6 @@ public final class CameraX {
             throw new IllegalStateException(e);
         }
 
-    }
-
-    /**
-     * Returns a map of {@link Size} based on rotation degrees.
-     */
-    static Map<UseCase, Size> getRotatedUseCaseSizes(
-            @IntRange(from = 0, to = 359) int rotationDegrees,
-            @NonNull Map<UseCase, Size> originalUseCaseSizes) {
-        Map<UseCase, Size> useCaseSizes = new HashMap<>();
-        for (Map.Entry<UseCase, Size> entry : originalUseCaseSizes.entrySet()) {
-            Size size;
-            if (rotationDegrees == 90 || rotationDegrees == 270) {
-                // Swaps width and height.
-                size = new Size(entry.getValue().getHeight(), entry.getValue().getWidth());
-            } else {
-                size = new Size(entry.getValue().getWidth(), entry.getValue().getHeight());
-            }
-            useCaseSizes.put(entry.getKey(), size);
-        }
-        return useCaseSizes;
     }
 
     private static Map<UseCase, Size> calculateSuggestedResolutions(
