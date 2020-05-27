@@ -69,14 +69,15 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
  * which provides a stream of [PagingData] that you may collect from and submit to a
  * [PagingDataAdapter][androidx.paging.PagingDataAdapter].
  *
- * @param Key Type for unique identifier for items loaded from [PagingSource]. E.g., [Int] to
- * represent an item's position in a [PagingSource] that is keyed by item position. Note that this
- * is distinct from e.g. Room's `<Value>` type loaded by the [PagingSource].
+ * @param Key Type of key which define what data to load. E.g. [Int] to represent either a page
+ * number or item position, or [String] if your network uses Strings as next tokens returned with
+ * each response.
  * @param Value Type of data loaded in by this [PagingSource]. E.g., the type of data that will be
  * passed to a [PagingDataAdapter][androidx.paging.PagingDataAdapter] to be displayed in a
  * `RecyclerView`.
  *
- * @sample androidx.paging.samples.pagingSourceSample
+ * @sample androidx.paging.samples.pageKeyedPagingSourceSample
+ * @sample androidx.paging.samples.pageIndexedPagingSourceSample
  *
  * @see Pager
  */
@@ -210,8 +211,13 @@ abstract class PagingSource<Key : Any, Value : Any> {
      */
     sealed class LoadResult<Key : Any, Value : Any> {
         /**
-         * Recoverable error used to update [LoadState] in a [PagingData] that may be retried via
-         * [PagingDataDiffer.retry].
+         * Error result object for [PagingSource.load].
+         *
+         * This return type indicates an expected, recoverable error (such as a network load
+         * failure). This failure will be forwarded to the UI as a [LoadState.Error], and may be
+         * retried.
+         *
+         * @sample androidx.paging.samples.pageKeyedPagingSourceSample
          */
         data class Error<Key : Any, Value : Any>(
             val throwable: Throwable
@@ -219,6 +225,9 @@ abstract class PagingSource<Key : Any, Value : Any> {
 
         /**
          * Success result object for [PagingSource.load].
+         *
+         * @sample androidx.paging.samples.pageKeyedPage
+         * @sample androidx.paging.samples.pageIndexedPage
          */
         data class Page<Key : Any, Value : Any>(
             /**
