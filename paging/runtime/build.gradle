@@ -36,7 +36,7 @@ dependencies {
     api("androidx.recyclerview:recyclerview:1.2.0-alpha03")
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_ANDROID)
-    implementation(project(":core:core-ktx"))
+    implementation("androidx.core:core-ktx:1.2.0")
 
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(project(":internal-testutils-ktx"))
