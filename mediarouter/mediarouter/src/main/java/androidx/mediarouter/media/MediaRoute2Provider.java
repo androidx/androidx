@@ -16,20 +16,32 @@
 
 package androidx.mediarouter.media;
 
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_ROUTE_CONTROL_REQUEST;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_DATA_ERROR;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_FAILED;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED;
 import static androidx.mediarouter.media.MediaRouter.UNSELECT_REASON_ROUTE_CHANGED;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaRoute2Info;
 import android.media.MediaRouter2;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.DeadObjectException;
 import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -151,6 +163,18 @@ class MediaRoute2Provider extends MediaRouteProvider {
         return null;
     }
 
+    @Nullable
+    static Messenger getMessengerFromRoutingController(
+            @Nullable MediaRouter2.RoutingController controller) {
+        if (controller == null) {
+            return null;
+        }
+
+        Bundle controlHints = controller.getControlHints();
+        return controlHints == null ? null : controlHints.getParcelable(
+                MediaRouter2Utils.KEY_MESSENGER);
+    }
+
     private class RouteCallback extends MediaRouter2.RouteCallback {
         RouteCallback() {}
 
@@ -230,11 +254,49 @@ class MediaRoute2Provider extends MediaRouteProvider {
     private class DynamicMediaRoute2Controller extends DynamicGroupRouteController {
         final String mInitialMemberRouteId;
         final MediaRouter2.RoutingController mRoutingController;
+        @Nullable
+        final Messenger mServiceMessenger;
+        @Nullable
+        final Messenger mReceiveMessenger;
+        final SparseArray<ControlRequestCallback> mPendingCallbacks = new SparseArray<>();
+
+        int mNextRequestId = 0;
 
         DynamicMediaRoute2Controller(@NonNull String initialMemberRouteId,
                 @NonNull MediaRouter2.RoutingController routingController) {
             mInitialMemberRouteId = initialMemberRouteId;
             mRoutingController = routingController;
+            mServiceMessenger = getMessengerFromRoutingController(routingController);
+            mReceiveMessenger = mServiceMessenger == null ? null :
+                    new Messenger(new ReceiveHandler());
+        }
+
+        @Override
+        public boolean onControlRequest(Intent intent, @Nullable ControlRequestCallback callback) {
+            if (mRoutingController == null || mRoutingController.isReleased()
+                    || mServiceMessenger == null) {
+                return false;
+            }
+
+            int requestId = mNextRequestId++;
+            Message msg = Message.obtain();
+            msg.what = CLIENT_MSG_ROUTE_CONTROL_REQUEST;
+            msg.arg1 = requestId;
+            msg.obj = intent;
+            msg.replyTo = mReceiveMessenger;
+            try {
+                mServiceMessenger.send(msg);
+                // TODO: Clear callbacks for unresponsive requests
+                if (callback != null) {
+                    mPendingCallbacks.put(requestId, callback);
+                }
+                return true;
+            } catch (DeadObjectException ex) {
+                // The service died.
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Could not send control request to service.", ex);
+            }
+            return false;
         }
 
         @Override
@@ -250,5 +312,33 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
         @Override
         public void onRemoveMemberRoute(String routeId) {}
+
+        class ReceiveHandler extends Handler {
+            @Override
+            public void handleMessage(Message msg) {
+                final int what = msg.what;
+                final int requestId = msg.arg1;
+                final int arg = msg.arg2;
+                final Object obj = msg.obj;
+                final Bundle data = msg.peekData();
+
+                ControlRequestCallback callback = mPendingCallbacks.get(requestId);
+                if (callback == null) {
+                    Log.w(TAG, "Pending callback not found for control request.");
+                    return;
+                }
+                mPendingCallbacks.remove(requestId);
+
+                switch (what) {
+                    case SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED:
+                        callback.onResult((Bundle) obj);
+                        break;
+                    case SERVICE_MSG_CONTROL_REQUEST_FAILED:
+                        String error = data == null ? null : data.getString(SERVICE_DATA_ERROR);
+                        callback.onError(error, (Bundle) obj);
+                        break;
+                }
+            }
+        }
     }
 }

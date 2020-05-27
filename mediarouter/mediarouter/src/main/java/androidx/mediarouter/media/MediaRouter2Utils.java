@@ -49,6 +49,7 @@ class MediaRouter2Utils {
     static final String KEY_EXTRAS = "androidx.mediarouter.media.KEY_EXTRAS";
     static final String KEY_CONTROL_FILTERS = "androidx.mediarouter.media.KEY_CONTROL_FILTERS";
     static final String KEY_DEVICE_TYPE = "androidx.mediarouter.media.KEY_DEVICE_TYPE";
+    static final String KEY_MESSENGER = "androidx.mediarouter.media.KEY_MESSENGER";
 
     private MediaRouter2Utils() {}
 
