@@ -81,7 +81,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private val pageEventChCollected = AtomicBoolean(false)
     private val pageEventCh = Channel<PageEvent<Value>>(BUFFERED)
     private val stateLock = Mutex()
-    private val state = PagerState<Key, Value>(config.pageSize, config.maxSize)
+    private val state = PagerState<Key, Value>(
+        pageSize = config.pageSize,
+        maxSize = config.maxSize,
+        hasRemoteState = remoteMediatorAccessor != null
+    )
 
     private val pageEventChannelFlowJob = Job()
 
@@ -221,10 +225,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         // Skip this generationId of loads if there is no more to load in this
                         // direction. In the case of the terminal page getting dropped, a new
                         // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates[PREPEND] == NotLoading.Done) {
+                        if (state.loadStates.get(PREPEND, false) == NotLoading.Done) {
                             return@transformLatest
                         } else if (state.failedHintsByLoadType[PREPEND] == null) {
-                            state.loadStates[PREPEND] = NotLoading.Idle
+                            state.loadStates.set(PREPEND, false, NotLoading.Idle)
                         }
                     }
 
@@ -252,10 +256,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         // Skip this generationId of loads if there is no more to load in this
                         // direction. In the case of the terminal page getting dropped, a new
                         // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates[APPEND] == NotLoading.Done) {
+                        if (state.loadStates.get(APPEND, false) == NotLoading.Done) {
                             return@transformLatest
                         } else if (state.failedHintsByLoadType[APPEND] == null) {
-                            state.loadStates[APPEND] = NotLoading.Idle
+                            state.loadStates.set(APPEND, false, NotLoading.Idle)
                         }
                     }
 
@@ -295,17 +299,21 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
                 // Update loadStates which are sent along with this load's Insert PageEvent.
                 stateLock.withLock {
-                    state.loadStates[REFRESH] = NotLoading.Idle
+                    state.loadStates.set(REFRESH, false, NotLoading.Idle)
                     if (result.prevKey == null) {
-                        state.loadStates[PREPEND] = NotLoading.instance(
-                            endOfPaginationReached = remoteMediatorAccessor == null,
-                            fromMediator = false
+                        state.loadStates.set(
+                            PREPEND, false, NotLoading.instance(
+                                endOfPaginationReached = remoteMediatorAccessor == null,
+                                fromMediator = false
+                            )
                         )
                     }
                     if (result.nextKey == null) {
-                        state.loadStates[APPEND] = NotLoading.instance(
-                            endOfPaginationReached = remoteMediatorAccessor == null,
-                            fromMediator = false
+                        state.loadStates.set(
+                            APPEND, false, NotLoading.instance(
+                                endOfPaginationReached = remoteMediatorAccessor == null,
+                                fromMediator = false
+                            )
                         )
                     }
                 }
@@ -338,9 +346,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             }
             is LoadResult.Error -> stateLock.withLock {
                 state.setHintError(
-                    REFRESH,
-                    Error(result.throwable, fromMediator = false),
-                    ViewportHint.DUMMY_VALUE
+                    loadType = REFRESH,
+                    fromMediator = false,
+                    loadState = Error(result.throwable),
+                    hint = ViewportHint.DUMMY_VALUE
                 )
             }
         }
@@ -416,9 +425,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 is LoadResult.Error -> {
                     stateLock.withLock {
                         state.setHintError(
-                            loadType,
-                            Error(result.throwable, fromMediator = false),
-                            generationalHint.hint
+                            loadType = loadType,
+                            fromMediator = false,
+                            loadState = Error(result.throwable),
+                            hint = generationalHint.hint
                         )
                     }
                     return
@@ -451,16 +461,17 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 }
             }
 
+            // TODO: remove if/else!
             if (remoteMediatorAccessor == null) {
                 stateLock.withLock {
                     // Update load state to success if this is the final load result for this
                     // load hint, and only if we didn't error out.
                     if (loadKey == null && state.failedHintsByLoadType[loadType] == null) {
-                        state.loadStates[loadType] = if (endOfPaginationReached) {
-                            NotLoading.Done
-                        } else {
-                            NotLoading.Idle
-                        }
+                        state.loadStates.set(
+                            type = loadType,
+                            remote = false,
+                            state = NotLoading.instance(endOfPaginationReached, false)
+                        )
                     }
                 }
             } else {
@@ -492,21 +503,23 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     ) {
         stateLock.withLock { state.setLoading(loadType, true) }
         @OptIn(ExperimentalPagingApi::class)
-        when (val boundaryResult = load(coroutineScope, loadType, pagingState)) {
+        when (val mediatorResult = load(coroutineScope, loadType, pagingState)) {
             is RemoteMediator.MediatorResult.Error -> {
                 stateLock.withLock {
-                    this@PageFetcherSnapshot.state.setBoundaryError(
+                    this@PageFetcherSnapshot.state.setMediatorError(
                         loadType,
-                        Error(boundaryResult.throwable, fromMediator = true)
+                        Error(mediatorResult.throwable)
                     )
                 }
             }
             is RemoteMediator.MediatorResult.Success -> {
                 if (loadType != REFRESH) {
                     stateLock.withLock {
-                        this@PageFetcherSnapshot.state.loadStates[loadType] = NotLoading.instance(
-                            endOfPaginationReached = boundaryResult.endOfPaginationReached,
-                            fromMediator = true
+                        this@PageFetcherSnapshot.state.loadStates.set(
+                            loadType, true, NotLoading.instance(
+                                endOfPaginationReached = mediatorResult.endOfPaginationReached,
+                                fromMediator = true
+                            )
                         )
 
                         val page = Page<Key, Value>(listOf(), null, null)
@@ -541,37 +554,33 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         loadType: LoadType,
         fromMediator: Boolean
     ) {
-        if (loadStates[loadType] != Loading.instance(fromMediator)) {
-            loadStates[loadType] = Loading.instance(fromMediator)
-            pageEventCh.send(LoadStateUpdate(loadType, Loading.instance(fromMediator)))
+        if (loadStates.set(loadType, fromMediator, Loading)) {
+            pageEventCh.send(
+                LoadStateUpdate(loadType, fromMediator, Loading)
+            )
         }
     }
 
     private suspend fun PagerState<Key, Value>.setHintError(
         loadType: LoadType,
+        fromMediator: Boolean,
         loadState: Error,
         hint: ViewportHint
     ) {
-        if (loadStates[loadType] !is Error) {
-            loadStates[loadType] = loadState
-            pageEventCh.send(LoadStateUpdate(loadType, loadState))
+        if (loadStates.set(loadType, fromMediator, loadState)) {
+            pageEventCh.send(LoadStateUpdate(loadType, fromMediator, loadState))
         }
 
         // Save the hint for retry on incoming retry signal, typically sent from user interaction.
         failedHintsByLoadType[loadType] = LoadError.Hint(loadType, hint)
     }
 
-    // TODO: We need a map of desired behaviors:
-    //   DB idle/done/load, NW * -> reflect NW state
-    //   DB error, NW load -> reflect DB error? configurable?
-    //   DB error, NW error -> reflect NW error? configurable?
-    private suspend fun PagerState<Key, Value>.setBoundaryError(
+    private suspend fun PagerState<Key, Value>.setMediatorError(
         loadType: LoadType,
         loadState: Error
     ) {
-        if (loadStates[loadType] !is Error) {
-            loadStates[loadType] = loadState
-            pageEventCh.send(LoadStateUpdate(loadType, loadState))
+        if (loadStates.set(loadType, true, loadState)) {
+            pageEventCh.send(LoadStateUpdate(loadType, true, loadState))
         }
 
         // Save the hint for retry on incoming retry signal, typically sent from user interaction.

@@ -75,9 +75,9 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(1..2),
-            LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(PREPEND, false, Loading),
             createPrepend(
                 pageOffset = -1,
                 range = 0..0,
@@ -101,15 +101,15 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(1..2),
-            LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(PREPEND, false, Loading),
             createPrepend(
                 pageOffset = -1,
                 range = 0..0,
                 startState = NotLoading.Done
             ),
-            LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(APPEND, false, Loading),
             Drop(PREPEND, 1, 1),
             createAppend(
                 pageOffset = 1,
@@ -133,9 +133,9 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(range = 97..98),
-            LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(APPEND, false, Loading),
             createAppend(pageOffset = 1, range = 99..99, endState = NotLoading.Done)
         )
 
@@ -155,16 +155,16 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(range = 97..98),
-            LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(APPEND, false, Loading),
             createAppend(
                 pageOffset = 1,
                 range = 99..99,
                 startState = NotLoading.Idle,
                 endState = NotLoading.Done
             ),
-            LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(PREPEND, false, Loading),
             Drop(APPEND, 1, 1),
             createPrepend(
                 pageOffset = -1,
@@ -186,7 +186,7 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(range = 0..1, startState = NotLoading.Done, endState = NotLoading.Idle)
         )
 
@@ -202,7 +202,7 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(
                 range = 98..99,
                 startState = NotLoading.Idle,
@@ -222,7 +222,7 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(range = 50..51)
         )
 
@@ -239,9 +239,9 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(range = 50..51),
-            LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(PREPEND, false, Loading),
             createPrepend(pageOffset = -1, range = 49..49)
         )
 
@@ -259,9 +259,9 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(range = 50..51),
-            LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(PREPEND, false, Loading),
             createPrepend(pageOffset = -1, range = 49..49)
         )
 
@@ -282,11 +282,11 @@ class PageFetcherSnapshotTest {
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
-                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                LoadStateUpdate(REFRESH, false, Loading),
                 createRefresh(range = 50..51),
-                LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
+                LoadStateUpdate(PREPEND, false, Loading),
                 createPrepend(pageOffset = -1, range = 49..49),
-                LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
+                LoadStateUpdate(PREPEND, false, Loading),
                 Drop(APPEND, 1, 50),
                 createPrepend(pageOffset = -2, range = 48..48)
             )
@@ -317,13 +317,13 @@ class PageFetcherSnapshotTest {
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
-                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                LoadStateUpdate(REFRESH, false, Loading),
                 createRefresh(range = 50..54),
-                LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
+                LoadStateUpdate(PREPEND, false, Loading),
                 createPrepend(
                     pageOffset = -1,
                     range = 49..49,
-                    startState = Loading(fromMediator = false)
+                    startState = Loading
                 ),
                 createPrepend(pageOffset = -2, range = 48..48)
             )
@@ -349,12 +349,12 @@ class PageFetcherSnapshotTest {
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
-                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                LoadStateUpdate(REFRESH, false, Loading),
                 createRefresh(range = 50..51),
-                LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
+                LoadStateUpdate(PREPEND, false, Loading),
                 createPrepend(pageOffset = -1, range = 49..49),
-                LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
-                LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+                LoadStateUpdate(PREPEND, false, Loading),
+                LoadStateUpdate(APPEND, false, Loading),
                 Drop(APPEND, 1, 50),
                 createPrepend(pageOffset = -2, range = 48..48)
             )
@@ -381,13 +381,13 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(50..52),
-            LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(PREPEND, false, Loading),
             createPrepend(
                 pageOffset = -1,
                 range = 49..49,
-                startState = Loading(fromMediator = false)
+                startState = Loading
             ),
             createPrepend(-2, 48..48)
         )
@@ -406,9 +406,9 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(50..51),
-            LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(APPEND, false, Loading),
             createAppend(1, 52..52)
         )
 
@@ -433,14 +433,14 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(50..52),
-            LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(APPEND, false, Loading),
             createAppend(
                 pageOffset = 1,
                 range = 53..53,
                 startState = NotLoading.Idle,
-                endState = Loading(fromMediator = false)
+                endState = Loading
             ),
             createAppend(2, 54..54)
         )
@@ -461,11 +461,11 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(range = 50..51),
-            LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(APPEND, false, Loading),
             createAppend(pageOffset = 1, range = 52..52),
-            LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(APPEND, false, Loading),
             Drop(PREPEND, 1, 52),
             createAppend(pageOffset = 2, range = 53..53)
         )
@@ -495,13 +495,13 @@ class PageFetcherSnapshotTest {
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
-                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                LoadStateUpdate(REFRESH, false, Loading),
                 createRefresh(range = 50..54),
-                LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+                LoadStateUpdate(APPEND, false, Loading),
                 createAppend(
                     pageOffset = 1,
                     range = 55..55,
-                    endState = Loading(fromMediator = false)
+                    endState = Loading
                 ),
                 createAppend(pageOffset = 2, range = 56..56)
             )
@@ -527,12 +527,12 @@ class PageFetcherSnapshotTest {
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
-                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                LoadStateUpdate(REFRESH, false, Loading),
                 createRefresh(range = 50..51),
-                LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+                LoadStateUpdate(APPEND, false, Loading),
                 createAppend(pageOffset = 1, range = 52..52),
-                LoadStateUpdate(APPEND, Loading(fromMediator = false)),
-                LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
+                LoadStateUpdate(APPEND, false, Loading),
+                LoadStateUpdate(PREPEND, false, Loading),
                 Drop(PREPEND, 1, 52),
                 createAppend(
                     pageOffset = 2,
@@ -556,11 +556,11 @@ class PageFetcherSnapshotTest {
 
         val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
-                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                LoadStateUpdate(REFRESH, false, Loading),
                 createRefresh(50..51)
             ),
             listOf(
-                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                LoadStateUpdate(REFRESH, false, Loading),
                 createRefresh(50..51)
             )
         )
@@ -585,13 +585,13 @@ class PageFetcherSnapshotTest {
 
         val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
-                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                LoadStateUpdate(REFRESH, false, Loading),
                 createRefresh(50..51),
-                LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+                LoadStateUpdate(APPEND, false, Loading),
                 createAppend(1, 52..52)
             ),
             listOf(
-                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                LoadStateUpdate(REFRESH, false, Loading),
                 createRefresh(51..52)
             )
         )
@@ -637,11 +637,11 @@ class PageFetcherSnapshotTest {
 
             collectPagerData(pager) { pageEvents, _ ->
                 val expected = listOf<PageEvent<Int>>(
-                    LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                    LoadStateUpdate(REFRESH, false, Loading),
                     createRefresh(50..51),
-                    LoadStateUpdate(APPEND, Loading(fromMediator = false)),
-                    LoadStateUpdate(APPEND, Error(LOAD_ERROR, fromMediator = false)),
-                    LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+                    LoadStateUpdate(APPEND, false, Loading),
+                    LoadStateUpdate(APPEND, false, Error(LOAD_ERROR)),
+                    LoadStateUpdate(APPEND, false, Loading),
                     createAppend(1, 52..52)
                 )
 
@@ -665,9 +665,9 @@ class PageFetcherSnapshotTest {
 
             collectPagerData(pager) { pageEvents, _ ->
                 val expected = listOf<PageEvent<Int>>(
-                    LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                    LoadStateUpdate(REFRESH, false, Loading),
                     createRefresh(50..51),
-                    LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+                    LoadStateUpdate(APPEND, false, Loading),
                     createAppend(1, 52..52)
                 )
 
@@ -690,11 +690,11 @@ class PageFetcherSnapshotTest {
 
             collectPagerData(pager) { pageEvents, _ ->
                 val expected = listOf<PageEvent<Int>>(
-                    LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                    LoadStateUpdate(REFRESH, false, Loading),
                     createRefresh(50..51),
-                    LoadStateUpdate(APPEND, Loading(fromMediator = false)),
-                    LoadStateUpdate(APPEND, Error(LOAD_ERROR, fromMediator = false)),
-                    LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+                    LoadStateUpdate(APPEND, false, Loading),
+                    LoadStateUpdate(APPEND, false, Error(LOAD_ERROR)),
+                    LoadStateUpdate(APPEND, false, Loading),
                     createAppend(1, 52..52)
                 )
 
@@ -720,19 +720,19 @@ class PageFetcherSnapshotTest {
 
             collectPagerData(pager) { pageEvents, _ ->
                 val expected = listOf<PageEvent<Int>>(
-                    LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                    LoadStateUpdate(REFRESH, false, Loading),
                     createRefresh(50..51),
-                    LoadStateUpdate(APPEND, Loading(fromMediator = false)),
-                    LoadStateUpdate(APPEND, Error(LOAD_ERROR, fromMediator = false)),
-                    LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
-                    LoadStateUpdate(PREPEND, Error(LOAD_ERROR, fromMediator = false)),
-                    LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
-                    LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+                    LoadStateUpdate(APPEND, false, Loading),
+                    LoadStateUpdate(APPEND, false, Error(LOAD_ERROR)),
+                    LoadStateUpdate(PREPEND, false, Loading),
+                    LoadStateUpdate(PREPEND, false, Error(LOAD_ERROR)),
+                    LoadStateUpdate(PREPEND, false, Loading),
+                    LoadStateUpdate(APPEND, false, Loading),
                     createPrepend(
                         pageOffset = -1,
                         range = 49..49,
                         startState = NotLoading.Idle,
-                        endState = Loading(fromMediator = false)
+                        endState = Loading
                     ),
                     Drop(PREPEND, 1, 50),
                     createAppend(1, 52..52)
@@ -761,9 +761,9 @@ class PageFetcherSnapshotTest {
 
             collectPagerData(pager) { pageEvents, _ ->
                 val expected = listOf<PageEvent<Int>>(
-                    LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
-                    LoadStateUpdate(REFRESH, Error(LOAD_ERROR, fromMediator = false)),
-                    LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                    LoadStateUpdate(REFRESH, false, Loading),
+                    LoadStateUpdate(REFRESH, false, Error(LOAD_ERROR)),
+                    LoadStateUpdate(REFRESH, false, Loading),
                     createRefresh(50..51)
                 )
 
@@ -784,11 +784,11 @@ class PageFetcherSnapshotTest {
             val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
             collectPagerData(pager) { pageEvents, _ ->
                 val expected = listOf<PageEvent<Int>>(
-                    LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
-                    LoadStateUpdate(REFRESH, Error(LOAD_ERROR, fromMediator = false)),
-                    LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+                    LoadStateUpdate(REFRESH, false, Loading),
+                    LoadStateUpdate(REFRESH, false, Error(LOAD_ERROR)),
+                    LoadStateUpdate(REFRESH, false, Loading),
                     createRefresh(50..51),
-                    LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
+                    LoadStateUpdate(PREPEND, false, Loading),
                     createPrepend(pageOffset = -1, range = 49..49)
                 )
 
@@ -903,8 +903,8 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
-            createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.loadStates) }
+            LoadStateUpdate(REFRESH, false, Loading),
+            createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.combinedLoadStates) }
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -928,10 +928,10 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
-            createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.loadStates) },
-            LoadStateUpdate(PREPEND, Loading(fromMediator = false)),
-            createPrepend(-1, 49..49).let { Prepend(it.pages, 0, it.loadStates) }
+            LoadStateUpdate(REFRESH, false, Loading),
+            createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.combinedLoadStates) },
+            LoadStateUpdate(PREPEND, false, Loading),
+            createPrepend(-1, 49..49).let { Prepend(it.pages, 0, it.combinedLoadStates) }
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -955,10 +955,10 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
-            createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.loadStates) },
-            LoadStateUpdate(APPEND, Loading(fromMediator = false)),
-            createAppend(1, 52..52).let { Append(it.pages, 0, it.loadStates) }
+            LoadStateUpdate(REFRESH, false, Loading),
+            createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.combinedLoadStates) },
+            LoadStateUpdate(APPEND, false, Loading),
+            createAppend(1, 52..52).let { Append(it.pages, 0, it.combinedLoadStates) }
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -982,9 +982,9 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         val expected: List<PageEvent<Int>> = listOf(
-            LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
+            LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(range = 50..52),
-            LoadStateUpdate(APPEND, Loading(fromMediator = false)),
+            LoadStateUpdate(APPEND, false, Loading),
             createAppend(pageOffset = 1, range = 53..53)
         )
 
@@ -1120,10 +1120,10 @@ class PageFetcherSnapshotTest {
 
             assertEvents(
                 listOf(
-                    LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
-                    LoadStateUpdate(REFRESH, Error(LOAD_ERROR, fromMediator = false)),
-                    LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
-                    LoadStateUpdate(REFRESH, Error(LOAD_ERROR, fromMediator = false))
+                    LoadStateUpdate(REFRESH, false, Loading),
+                    LoadStateUpdate(REFRESH, false, Error(LOAD_ERROR)),
+                    LoadStateUpdate(REFRESH, false, Loading),
+                    LoadStateUpdate(REFRESH, false, Error(LOAD_ERROR))
                 ),
                 pageEvents
             )
@@ -1156,8 +1156,8 @@ class PageFetcherSnapshotTest {
 
             assertEvents(
                 listOf(
-                    LoadStateUpdate(REFRESH, Loading(fromMediator = true)),
-                    LoadStateUpdate(REFRESH, Error(EXCEPTION, fromMediator = true))
+                    LoadStateUpdate(REFRESH, true, Loading),
+                    LoadStateUpdate(REFRESH, true, Error(EXCEPTION))
                 ),
                 pageEvents
             )
@@ -1251,7 +1251,11 @@ class PageFetcherSnapshotTest {
 
             assertEvents(
                 listOf(
-                    LoadStateUpdate(loadType = REFRESH, loadState = Loading(fromMediator = false)),
+                    LoadStateUpdate(
+                        loadType = REFRESH,
+                        fromMediator = false,
+                        loadState = Loading
+                    ),
                     Refresh(
                         pages = listOf(
                             TransformablePage(
@@ -1263,13 +1267,13 @@ class PageFetcherSnapshotTest {
                         ),
                         placeholdersBefore = 0,
                         placeholdersAfter = 99,
-                        loadStates = mapOf(
-                            REFRESH to NotLoading.Idle,
-                            PREPEND to NotLoading.Idle,
-                            APPEND to NotLoading.Idle
-                        )
+                        combinedLoadStates = remoteLoadStatesOf()
                     ),
-                    LoadStateUpdate(loadType = PREPEND, loadState = Loading(fromMediator = true)),
+                    LoadStateUpdate(
+                        loadType = PREPEND,
+                        fromMediator = true,
+                        loadState = Loading
+                    ),
                     Prepend(
                         pages = listOf(
                             TransformablePage(
@@ -1280,11 +1284,7 @@ class PageFetcherSnapshotTest {
                             )
                         ),
                         placeholdersBefore = 0,
-                        loadStates = mapOf(
-                            REFRESH to NotLoading.Idle,
-                            PREPEND to NotLoading.IdleRemote,
-                            APPEND to NotLoading.Idle
-                        )
+                        combinedLoadStates = remoteLoadStatesOf()
                     )
                 ),
                 pageEvents
@@ -1325,7 +1325,11 @@ class PageFetcherSnapshotTest {
 
             assertEvents(
                 listOf(
-                    LoadStateUpdate(loadType = REFRESH, loadState = Loading(fromMediator = false)),
+                    LoadStateUpdate(
+                        loadType = REFRESH,
+                        fromMediator = false,
+                        loadState = Loading
+                    ),
                     Refresh(
                         pages = listOf(
                             TransformablePage(
@@ -1337,13 +1341,13 @@ class PageFetcherSnapshotTest {
                         ),
                         placeholdersBefore = 0,
                         placeholdersAfter = 99,
-                        loadStates = mapOf(
-                            REFRESH to NotLoading.Idle,
-                            PREPEND to NotLoading.Idle,
-                            APPEND to NotLoading.Idle
-                        )
+                        combinedLoadStates = remoteLoadStatesOf()
                     ),
-                    LoadStateUpdate(loadType = PREPEND, loadState = Loading(fromMediator = true)),
+                    LoadStateUpdate(
+                        loadType = PREPEND,
+                        fromMediator = true,
+                        loadState = Loading
+                    ),
                     Prepend(
                         pages = listOf(
                             TransformablePage(
@@ -1354,10 +1358,8 @@ class PageFetcherSnapshotTest {
                             )
                         ),
                         placeholdersBefore = 0,
-                        loadStates = mapOf(
-                            REFRESH to NotLoading.Idle,
-                            PREPEND to NotLoading.DoneRemote,
-                            APPEND to NotLoading.Idle
+                        combinedLoadStates = remoteLoadStatesOf(
+                            prependRemote = NotLoading.DoneRemote
                         )
                     )
                 ),
@@ -1399,7 +1401,11 @@ class PageFetcherSnapshotTest {
 
             assertEvents(
                 listOf(
-                    LoadStateUpdate(loadType = REFRESH, loadState = Loading(fromMediator = false)),
+                    LoadStateUpdate(
+                        loadType = REFRESH,
+                        fromMediator = false,
+                        loadState = Loading
+                    ),
                     Refresh(
                         pages = listOf(
                             TransformablePage(
@@ -1411,13 +1417,13 @@ class PageFetcherSnapshotTest {
                         ),
                         placeholdersBefore = 99,
                         placeholdersAfter = 0,
-                        loadStates = mapOf(
-                            REFRESH to NotLoading.Idle,
-                            PREPEND to NotLoading.Idle,
-                            APPEND to NotLoading.Idle
-                        )
+                        combinedLoadStates = remoteLoadStatesOf()
                     ),
-                    LoadStateUpdate(loadType = APPEND, loadState = Loading(fromMediator = true)),
+                    LoadStateUpdate(
+                        loadType = APPEND,
+                        fromMediator = true,
+                        loadState = Loading
+                    ),
                     Append(
                         pages = listOf(
                             TransformablePage(
@@ -1428,11 +1434,7 @@ class PageFetcherSnapshotTest {
                             )
                         ),
                         placeholdersAfter = 0,
-                        loadStates = mapOf(
-                            REFRESH to NotLoading.Idle,
-                            PREPEND to NotLoading.Idle,
-                            APPEND to NotLoading.IdleRemote
-                        )
+                        combinedLoadStates = remoteLoadStatesOf()
                     )
                 ),
                 pageEvents
@@ -1473,7 +1475,11 @@ class PageFetcherSnapshotTest {
 
             assertEvents(
                 listOf(
-                    LoadStateUpdate(loadType = REFRESH, loadState = Loading(fromMediator = false)),
+                    LoadStateUpdate(
+                        loadType = REFRESH,
+                        fromMediator = false,
+                        loadState = Loading
+                    ),
                     Refresh(
                         pages = listOf(
                             TransformablePage(
@@ -1485,13 +1491,13 @@ class PageFetcherSnapshotTest {
                         ),
                         placeholdersBefore = 99,
                         placeholdersAfter = 0,
-                        loadStates = mapOf(
-                            REFRESH to NotLoading.Idle,
-                            PREPEND to NotLoading.Idle,
-                            APPEND to NotLoading.Idle
-                        )
+                        combinedLoadStates = remoteLoadStatesOf()
                     ),
-                    LoadStateUpdate(loadType = APPEND, loadState = Loading(fromMediator = true)),
+                    LoadStateUpdate(
+                        loadType = APPEND,
+                        fromMediator = true,
+                        loadState = Loading
+                    ),
                     Append(
                         pages = listOf(
                             TransformablePage(
@@ -1502,10 +1508,8 @@ class PageFetcherSnapshotTest {
                             )
                         ),
                         placeholdersAfter = 0,
-                        loadStates = mapOf(
-                            REFRESH to NotLoading.Idle,
-                            PREPEND to NotLoading.Idle,
-                            APPEND to NotLoading.DoneRemote
+                        combinedLoadStates = remoteLoadStatesOf(
+                            appendRemote = NotLoading.DoneRemote
                         )
                     )
                 ),

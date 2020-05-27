@@ -38,7 +38,8 @@ import kotlinx.coroutines.flow.onStart
  */
 internal class PagerState<Key : Any, Value : Any>(
     private val pageSize: Int,
-    private val maxSize: Int
+    private val maxSize: Int,
+    hasRemoteState: Boolean
 ) {
     private val _pages = mutableListOf<Page<Key, Value>>()
     internal val pages: List<Page<Key, Value>> = _pages
@@ -53,12 +54,10 @@ internal class PagerState<Key : Any, Value : Any>(
     private val prependLoadIdCh = Channel<Int>(Channel.CONFLATED)
     private val appendLoadIdCh = Channel<Int>(Channel.CONFLATED)
 
+    // TODO: use LoadType + Origin as key! (is this redundant with loadStates???)
     internal val failedHintsByLoadType = mutableMapOf<LoadType, LoadError<Key, Value>>()
-    internal val loadStates = mutableMapOf<LoadType, LoadState>(
-        REFRESH to NotLoading.Idle,
-        PREPEND to NotLoading.Idle,
-        APPEND to NotLoading.Idle
-    )
+
+    internal val loadStates = MutableLoadStateCollection(hasRemoteState)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun consumePrependGenerationIdAsFlow(): Flow<Int> {
@@ -95,17 +94,17 @@ internal class PagerState<Key : Any, Value : Any>(
                 pages = pages,
                 placeholdersBefore = if (placeholdersEnabled) placeholdersBefore else 0,
                 placeholdersAfter = if (placeholdersEnabled) placeholdersAfter else 0,
-                loadStates = loadStates.toMap()
+                combinedLoadStates = loadStates.snapshot()
             )
             PREPEND -> Prepend(
                 pages = pages,
                 placeholdersBefore = if (placeholdersEnabled) placeholdersBefore else 0,
-                loadStates = loadStates.toMap()
+                combinedLoadStates = loadStates.snapshot()
             )
             APPEND -> Append(
                 pages = pages,
                 placeholdersAfter = if (placeholdersEnabled) placeholdersAfter else 0,
-                loadStates = loadStates.toMap()
+                combinedLoadStates = loadStates.snapshot()
             )
         }
     }
@@ -176,7 +175,7 @@ internal class PagerState<Key : Any, Value : Any>(
             "invalid drop count. have ${pages.size} but wanted to drop $pageCount"
         }
 
-        loadStates[loadType] = NotLoading.Idle
+        loadStates.set(loadType, false, NotLoading.Idle)
 
         when (loadType) {
             PREPEND -> {

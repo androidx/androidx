@@ -61,7 +61,11 @@ class AsyncPagingDataDiffer<T : Any>(
             updateCallback.onChanged(position, count, null)
         }
 
-        override fun onStateUpdate(loadType: LoadType, loadState: LoadState) {
+        override fun onStateUpdate(
+            loadType: LoadType,
+            fromMediator: Boolean,
+            loadState: LoadState
+        ) {
             when (loadType) {
                 REFRESH -> {
                     if (loadState != loadStates[REFRESH]) {
@@ -92,11 +96,18 @@ class AsyncPagingDataDiffer<T : Any>(
     /** True if we're currently executing [getItem] */
     internal var inGetItem: Boolean = false
 
+    // Internal for synthetic access in differBase anonymous class.
+    internal fun PresenterCallback.dispatchLoadStates(states: CombinedLoadStates) {
+        states.forEach { type, fromMediator, state ->
+            onStateUpdate(type, fromMediator, state)
+        }
+    }
+
     private val differBase = object : PagingDataDiffer<T>(mainDispatcher) {
         override suspend fun performDiff(
             previousList: NullPaddedList<T>,
             newList: NullPaddedList<T>,
-            newLoadStates: Map<LoadType, LoadState>,
+            newCombinedLoadStates: CombinedLoadStates,
             lastAccessedIndex: Int
         ): Int? {
             return withContext(mainDispatcher) {
@@ -104,13 +115,13 @@ class AsyncPagingDataDiffer<T : Any>(
                     previousList.size == 0 -> {
                         // fast path for no items -> some items
                         callback.onInserted(0, newList.size)
-                        newLoadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
+                        callback.dispatchLoadStates(newCombinedLoadStates)
                         return@withContext null
                     }
                     newList.size == 0 -> {
                         // fast path for some items -> no items
                         callback.onRemoved(0, previousList.size)
-                        newLoadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
+                        callback.dispatchLoadStates(newCombinedLoadStates)
                         return@withContext null
                     }
                     else -> { // full diff
@@ -119,7 +130,7 @@ class AsyncPagingDataDiffer<T : Any>(
                         }
 
                         previousList.dispatchDiff(updateCallback, newList, diffResult)
-                        newLoadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
+                        callback.dispatchLoadStates(newCombinedLoadStates)
 
                         return@withContext previousList.transformAnchorIndex(
                             diffResult = diffResult,
@@ -260,9 +271,9 @@ class AsyncPagingDataDiffer<T : Any>(
         CopyOnWriteArrayList()
 
     internal val loadStates = mutableMapOf<LoadType, LoadState>(
-        REFRESH to LoadState.NotLoading(endOfPaginationReached = false, fromMediator = false),
-        PREPEND to LoadState.NotLoading(endOfPaginationReached = false, fromMediator = false),
-        APPEND to LoadState.NotLoading(endOfPaginationReached = false, fromMediator = false)
+        REFRESH to LoadState.NotLoading(endOfPaginationReached = false),
+        PREPEND to LoadState.NotLoading(endOfPaginationReached = false),
+        APPEND to LoadState.NotLoading(endOfPaginationReached = false)
     )
 
     /**

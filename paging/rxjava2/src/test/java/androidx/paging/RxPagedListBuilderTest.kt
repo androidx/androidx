@@ -202,7 +202,7 @@ class RxPagedListBuilderTest {
         initPagedList.addWeakLoadStateListener(loadStateChangedCallback)
         assertEquals(
             listOf(
-                LoadStateEvent(REFRESH, Loading(fromMediator = false))
+                LoadStateEvent(REFRESH, Loading)
             ), loadStates
         )
 
@@ -212,8 +212,8 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
-                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false))
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Error(EXCEPTION))
             ), loadStates
         )
 
@@ -223,9 +223,9 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
-                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false)),
-                LoadStateEvent(REFRESH, Loading(fromMediator = false))
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Error(EXCEPTION)),
+                LoadStateEvent(REFRESH, Loading)
             ), loadStates
         )
         // flush loadInitial, should succeed now
@@ -241,12 +241,12 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
-                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false)),
-                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Error(EXCEPTION)),
+                LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(
                     REFRESH,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ), loadStates
         )

@@ -211,13 +211,10 @@ class LivePagedListBuilderTest {
         assertEquals(
             listOf(
                 LoadStateEvent(
-                    REFRESH, NotLoading(
-                        endOfPaginationReached = false,
-                        fromMediator = false
-                    )
+                    REFRESH, NotLoading(endOfPaginationReached = false)
                 ),
-                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
-                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false))
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Error(EXCEPTION))
             ), loadStates
         )
 
@@ -234,11 +231,11 @@ class LivePagedListBuilderTest {
             listOf(
                 LoadStateEvent(
                     REFRESH,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 ),
-                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
-                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false)),
-                LoadStateEvent(REFRESH, Loading(fromMediator = false))
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Error(EXCEPTION)),
+                LoadStateEvent(REFRESH, Loading)
             ), loadStates
         )
 
@@ -249,14 +246,14 @@ class LivePagedListBuilderTest {
             listOf(
                 LoadStateEvent(
                     REFRESH,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 ),
-                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
-                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false)),
-                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Error(EXCEPTION)),
+                LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(
                     REFRESH,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             loadStates

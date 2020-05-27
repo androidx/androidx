@@ -606,7 +606,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             listOf(
                 StateChange(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             states.getAllAndClear()
@@ -617,7 +617,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.loadAround(35)
         mainThread.executeAll()
         assertEquals(
-            listOf(StateChange(APPEND, Loading(fromMediator = false))),
+            listOf(StateChange(APPEND, Loading)),
             states.getAllAndClear()
         )
         verifyRange(0, 40, pagedList)
@@ -628,7 +628,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             listOf(
                 StateChange(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             states.getAllAndClear()
@@ -641,7 +641,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.loadAround(55)
         mainThread.executeAll()
         assertEquals(
-            listOf(StateChange(APPEND, Loading(fromMediator = false))),
+            listOf(StateChange(APPEND, Loading)),
             states.getAllAndClear()
         )
         verifyRange(0, 60, pagedList)
@@ -649,7 +649,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         // load now in error state
         drain()
         assertEquals(
-            listOf(StateChange(APPEND, Error(EXCEPTION, fromMediator = false))),
+            listOf(StateChange(APPEND, Error(EXCEPTION))),
             states.getAllAndClear()
         )
         verifyRange(0, 60, pagedList)
@@ -658,7 +658,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.retry()
         mainThread.executeAll()
         assertEquals(
-            listOf(StateChange(APPEND, Loading(fromMediator = false))),
+            listOf(StateChange(APPEND, Loading)),
             states.getAllAndClear()
         )
 
@@ -668,7 +668,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             listOf(
                 StateChange(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             states.getAllAndClear()
@@ -697,12 +697,12 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             listOf(
                 StateChange(
                     PREPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 ),
-                StateChange(PREPEND, Loading(fromMediator = false)),
+                StateChange(PREPEND, Loading),
                 StateChange(
                     PREPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             states.getAllAndClear()
@@ -715,8 +715,8 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(1, 3, pagedList)
         assertEquals(
             listOf(
-                StateChange(PREPEND, Loading(fromMediator = false)),
-                StateChange(PREPEND, Error(EXCEPTION, fromMediator = false))
+                StateChange(PREPEND, Loading),
+                StateChange(PREPEND, Error(EXCEPTION))
             ),
             states.getAllAndClear()
         )
@@ -728,7 +728,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             listOf(
                 StateChange(
                     PREPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             states.getAllAndClear()
@@ -757,12 +757,12 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             listOf(
                 StateChange(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 ),
-                StateChange(APPEND, Loading(fromMediator = false)),
+                StateChange(APPEND, Loading),
                 StateChange(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             states.getAllAndClear()
@@ -775,8 +775,8 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(1, 3, pagedList)
         assertEquals(
             listOf(
-                StateChange(APPEND, Loading(fromMediator = false)),
-                StateChange(APPEND, Error(EXCEPTION, fromMediator = false))
+                StateChange(APPEND, Loading),
+                StateChange(APPEND, Error(EXCEPTION))
             ),
             states.getAllAndClear()
         )
@@ -788,7 +788,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             listOf(
                 StateChange(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             states.getAllAndClear()
@@ -810,10 +810,10 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             listOf(
                 StateChange(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                    NotLoading(endOfPaginationReached = false)
                 ),
-                StateChange(APPEND, Loading(fromMediator = false)),
-                StateChange(APPEND, Error(EXCEPTION, fromMediator = false))
+                StateChange(APPEND, Loading),
+                StateChange(APPEND, Error(EXCEPTION))
             ),
             states.getAllAndClear()
         )

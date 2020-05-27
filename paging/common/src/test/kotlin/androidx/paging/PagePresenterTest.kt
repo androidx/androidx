@@ -46,11 +46,7 @@ internal fun <T : Any> PagePresenter(
         },
         placeholdersBefore = leadingNullCount,
         placeholdersAfter = trailingNullCount,
-        loadStates = mapOf(
-            REFRESH to NotLoading.Idle,
-            PREPEND to NotLoading.Idle,
-            APPEND to NotLoading.Idle
-        )
+        combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
     )
 )
 
@@ -315,7 +311,7 @@ class PagePresenterTest {
         data.dropPages(false, pagesToDrop, newNulls, callback)
 
         assertEquals(
-            events + listOf(StateEvent(APPEND, NotLoading.Idle)),
+            events + listOf(StateEvent(APPEND, false, NotLoading.Idle)),
             callback.getAllAndClear()
         )
 
@@ -351,7 +347,7 @@ class PagePresenterTest {
         data.dropPages(true, pagesToDrop, newNulls, callback)
 
         assertEvents(
-            events + listOf(StateEvent(PREPEND, NotLoading.Idle)),
+            events + listOf(StateEvent(PREPEND, false, NotLoading.Idle)),
             callback.getAllAndClear()
         )
 
@@ -557,9 +553,9 @@ class PagePresenterTest {
 
     companion object {
         val IDLE_EVENTS = listOf<PresenterEvent>(
-            StateEvent(REFRESH, NotLoading.Idle),
-            StateEvent(PREPEND, NotLoading.Idle),
-            StateEvent(APPEND, NotLoading.Idle)
+            StateEvent(REFRESH, false, NotLoading.Idle),
+            StateEvent(PREPEND, false, NotLoading.Idle),
+            StateEvent(APPEND, false, NotLoading.Idle)
         )
     }
 }
