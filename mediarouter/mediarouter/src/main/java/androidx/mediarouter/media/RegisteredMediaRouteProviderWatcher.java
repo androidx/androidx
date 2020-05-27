@@ -27,11 +27,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.media.MediaRoute2ProviderService;
+import android.os.Build;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -111,7 +111,7 @@ final class RegisteredMediaRouteProviderWatcher {
         }
 
         List<ServiceInfo> mediaRoute2ProviderServices = new ArrayList<>();
-        if (BuildCompat.isAtLeastR()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             mediaRoute2ProviderServices = getMediaRoute2ProviderServices();
         }
 
@@ -175,7 +175,7 @@ final class RegisteredMediaRouteProviderWatcher {
         return false;
     }
 
-    @RequiresApi(30)
+    @RequiresApi(Build.VERSION_CODES.R)
     @NonNull
     List<ServiceInfo> getMediaRoute2ProviderServices() {
         Intent intent = new Intent(MediaRoute2ProviderService.SERVICE_INTERFACE);

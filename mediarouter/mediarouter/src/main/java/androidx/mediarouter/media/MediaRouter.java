@@ -31,6 +31,7 @@ import android.content.res.Resources;
 import android.media.MediaRouter2;
 import android.media.RouteDiscoveryPreference;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -49,7 +50,6 @@ import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.hardware.display.DisplayManagerCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.VolumeProviderCompat;
@@ -727,7 +727,7 @@ public final class MediaRouter {
      * @see #addCallback(MediaRouteSelector, Callback, int)
      */
     public void enableTransfer() {
-        if (!BuildCompat.isAtLeastR()) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             // Transfer cannot be enabled on devices running earlier than Android R
             return;
         }
@@ -2259,7 +2259,7 @@ public final class MediaRouter {
             mLowRam = ActivityManagerCompat.isLowRamDevice(
                     (ActivityManager)applicationContext.getSystemService(
                             Context.ACTIVITY_SERVICE));
-            if (BuildCompat.isAtLeastR()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 mMediaRouter2Fwk = MediaRouter2.getInstance(mApplicationContext);
                 mMr2RouteCallbackFwk = new MediaRouter2.RouteCallback() {};
                 mMr2TransferCallbackFwk = new Mr2TransferCallback();
@@ -2578,7 +2578,7 @@ public final class MediaRouter {
         }
 
         void updateMr2RouteDiscoveryPreferenceFwk() {
-            if (!BuildCompat.isAtLeastR() || !mIsTransferEnabled) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R || !mIsTransferEnabled) {
                 return;
             }
 
@@ -3128,9 +3128,9 @@ public final class MediaRouter {
 
         public void setMediaSessionCompat(final MediaSessionCompat session) {
             mCompatSession = session;
-            if (android.os.Build.VERSION.SDK_INT >= 21) {
+            if (Build.VERSION.SDK_INT >= 21) {
                 setMediaSessionRecord(session != null ? new MediaSessionRecord(session) : null);
-            } else if (android.os.Build.VERSION.SDK_INT >= 14) {
+            } else if (Build.VERSION.SDK_INT >= 14) {
                 if (mRccMediaSession != null) {
                     removeRemoteControlClient(mRccMediaSession.getRemoteControlClient());
                     mRccMediaSession.removeOnActiveChangeListener(mSessionActiveListener);
@@ -3249,7 +3249,7 @@ public final class MediaRouter {
             }
         }
 
-        @RequiresApi(30)
+        @RequiresApi(Build.VERSION_CODES.R)
         private final class Mr2TransferCallback extends MediaRouter2.TransferCallback {
             @Override
             public void onTransfer(@NonNull MediaRouter2.RoutingController oldController,

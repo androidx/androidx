@@ -19,6 +19,7 @@ package androidx.mediarouter.media;
 import android.content.Context;
 import android.media.MediaRoute2Info;
 import android.media.MediaRouter2;
+import android.os.Build;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
  * Provides routes and RouteController by using MediaRouter2.
  * This provider is added only when {@link MediaRouter#enableTransfer()} is called.
  */
-@RequiresApi(30)
+@RequiresApi(Build.VERSION_CODES.R)
 @SuppressWarnings({"unused", "ClassCanBeStatic"})
 class MediaRoute2Provider extends MediaRouteProvider {
     private final MediaRouter2 mMediaRouter2Fwk;
