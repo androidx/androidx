@@ -21,7 +21,6 @@ import androidx.compose.state
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.input.EditorValue
 import androidx.ui.layout.width
@@ -74,9 +73,7 @@ class TextFieldFocusTest {
                     FocusTestData(FocusModifier())
                 )
 
-                TestTag(tag = "textField") {
-                    TextFieldApp(testDataList)
-                }
+                TextFieldApp(testDataList)
             }
         }
 

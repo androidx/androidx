@@ -22,12 +22,12 @@ import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.semantics.semantics
+import androidx.ui.core.testTag
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
@@ -308,27 +308,27 @@ class DraggableTest {
         var outerDrag = 0f
         composeTestRule.setContent {
             Stack {
-                TestTag(draggableBoxTag) {
-                    Semantics(container = true) {
-                        Box(gravity = ContentGravity.Center,
-                            modifier = Modifier.preferredSize(300.dp)
-                                .draggable(
-                                    dragDirection = DragDirection.Horizontal,
-                                    onDragDeltaConsumptionRequested = { delta ->
-                                        outerDrag += delta
-                                        delta
-                                    }
-                                )) {
-                            Box(modifier = Modifier.preferredSize(300.dp)
-                                .draggable(
-                                    dragDirection = DragDirection.Horizontal,
-                                    onDragDeltaConsumptionRequested = { delta ->
-                                        innerDrag += delta / 2
-                                        delta / 2
-                                    }
-                                ))
-                        }
-                    }
+                Box(gravity = ContentGravity.Center,
+                    modifier = Modifier
+                        .semantics(container = true)
+                        .testTag(draggableBoxTag)
+                        .preferredSize(300.dp)
+                        .draggable(
+                            dragDirection = DragDirection.Horizontal,
+                            onDragDeltaConsumptionRequested = { delta ->
+                                outerDrag += delta
+                                delta
+                            }
+                        )
+                ) {
+                    Box(modifier = Modifier.preferredSize(300.dp)
+                        .draggable(
+                            dragDirection = DragDirection.Horizontal,
+                            onDragDeltaConsumptionRequested = { delta ->
+                                innerDrag += delta / 2
+                                delta / 2
+                            }
+                        ))
                 }
             }
         }
@@ -385,17 +385,16 @@ class DraggableTest {
 
         composeTestRule.setContent {
             Stack {
-                TestTag(draggableBoxTag) {
-                    Semantics(container = true) {
-                        if (emitDraggableBox) {
-                            Box(modifier = Modifier.preferredSize(100.dp)
-                                .draggable(
-                                    DragDirection.Horizontal,
-                                    interactionState = interactionState
-                                ) { 0f }
-                            )
-                        }
-                    }
+                if (emitDraggableBox) {
+                    Box(modifier = Modifier
+                        .semantics(container = true)
+                        .testTag(draggableBoxTag)
+                        .preferredSize(100.dp)
+                        .draggable(
+                            DragDirection.Horizontal,
+                            interactionState = interactionState
+                        ) { 0f }
+                    )
                 }
             }
         }
@@ -427,11 +426,11 @@ class DraggableTest {
         composeTestRule.setContent {
             Stack {
                 val draggable = draggableFactory()
-                TestTag(draggableBoxTag) {
-                    Semantics(container = true) {
-                        Box(modifier = Modifier.preferredSize(100.dp) + draggable)
-                    }
-                }
+                Box(modifier = Modifier
+                    .semantics(container = true)
+                    .testTag(draggableBoxTag)
+                    .preferredSize(100.dp) + draggable
+                )
             }
         }
     }

@@ -20,13 +20,13 @@ import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
-import androidx.ui.test.findByTag
+import androidx.ui.test.find
+import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.SoftwareKeyboardController
 import com.nhaarman.mockitokotlin2.any
@@ -58,22 +58,20 @@ class SoftwareKeyboardTest {
             Providers(
                 TextInputServiceAmbient provides textInputService
             ) {
-                TestTag(tag = "textField") {
-                    val state = state { TextFieldValue("") }
-                    TextField(
-                        value = state.value,
-                        modifier = Modifier.fillMaxSize(),
-                        onValueChange = {
-                            state.value = it
-                        },
-                        onTextInputStarted = onTextInputStarted
-                    )
-                }
+                val state = state { TextFieldValue("") }
+                TextField(
+                    value = state.value,
+                    modifier = Modifier.fillMaxSize(),
+                    onValueChange = {
+                        state.value = it
+                    },
+                    onTextInputStarted = onTextInputStarted
+                )
             }
         }
 
         // Perform click to focus in.
-        findByTag("textField")
+        find(hasInputMethodsSupport())
             .doClick()
 
         runOnIdleCompose {

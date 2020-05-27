@@ -20,7 +20,7 @@ import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.testTag
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
@@ -61,9 +61,7 @@ class IndicationTest {
             }
         }
         composeTestRule.setContent {
-            TestTag(testTag) {
-                Box(Modifier.preferredSize(100.dp).indication(state, indication))
-            }
+            Box(Modifier.testTag(testTag).preferredSize(100.dp).indication(state, indication))
         }
         assertThat(countDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
@@ -77,9 +75,11 @@ class IndicationTest {
             countDownLatch.countDown()
         }
         composeTestRule.setContent {
-            TestTag(testTag) {
-                Box(Modifier.preferredSize(100.dp).clickable(indication = indication) {})
-            }
+            Box(Modifier
+                .testTag(testTag)
+                .preferredSize(100.dp)
+                .clickable(indication = indication) {}
+            )
         }
         assertThat(countDownLatch.count).isEqualTo(2)
         findByTag(testTag)
@@ -108,11 +108,9 @@ class IndicationTest {
             onDraw = { countDownLatch.countDown() }
         )
         composeTestRule.setContent {
-            TestTag(testTag) {
-                val switchableIndication =
-                    if (switchState.value) Modifier.indication(state, indication) else Modifier
-                Box(Modifier.preferredSize(100.dp).plus(switchableIndication))
-            }
+            val switchableIndication =
+                if (switchState.value) Modifier.indication(state, indication) else Modifier
+            Box(Modifier.testTag(testTag).preferredSize(100.dp).plus(switchableIndication))
         }
         assertThat(countDownLatch.count).isEqualTo(1)
         runOnIdleCompose {
@@ -132,9 +130,11 @@ class IndicationTest {
             lastPosition = it.interactionPositionFor(Interaction.Pressed)
         }
         composeTestRule.setContent {
-            TestTag(testTag) {
-                Box(Modifier.preferredSize(100.dp).clickable(indication = indication) { })
-            }
+            Box(Modifier
+                .testTag(testTag)
+                .preferredSize(100.dp)
+                .clickable(indication = indication) { }
+            )
         }
         assertThat(lastPosition).isNull()
         var position1: PxPosition? = null

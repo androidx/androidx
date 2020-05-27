@@ -24,9 +24,10 @@ import androidx.ui.core.AbsoluteAlignment
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
+import androidx.ui.core.semantics.semantics
+import androidx.ui.core.testTag
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
@@ -36,7 +37,6 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.rtl
 import androidx.ui.layout.size
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
@@ -401,12 +401,12 @@ class BoxTest {
 
     @Composable
     private fun SemanticsParent(children: @Composable Density.() -> Unit) {
-        Stack(Modifier.wrapContentSize(Alignment.TopStart)) {
-            TestTag(contentTag) {
-                Semantics(container = true) {
-                    DensityAmbient.current.children()
-                }
-            }
+        Stack(Modifier
+            .semantics(container = true)
+            .testTag(contentTag)
+            .wrapContentSize(Alignment.TopStart)
+        ) {
+            DensityAmbient.current.children()
         }
     }
 }
