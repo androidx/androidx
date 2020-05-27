@@ -18,7 +18,8 @@ package androidx.ui.material
 
 import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.layout.DpConstraints
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
@@ -43,13 +44,12 @@ class SliderTest {
     fun sliderPosition_valueCoercion() {
         val state = mutableStateOf(0f)
         composeTestRule.setContent {
-            TestTag(tag = tag) {
-                Slider(
-                    value = state.value,
-                    onValueChange = { state.value = it },
-                    valueRange = 0f..1f
-                )
-            }
+            Slider(
+                modifier = Modifier.testTag(tag),
+                value = state.value,
+                onValueChange = { state.value = it },
+                valueRange = 0f..1f
+            )
         }
         runOnIdleCompose {
             state.value = 2f
@@ -74,9 +74,8 @@ class SliderTest {
 
         composeTestRule
             .setMaterialContent {
-                TestTag(tag = tag) {
-                    Slider(value = state.value, onValueChange = { state.value = it })
-                }
+                Slider(modifier = Modifier.testTag(tag), value = state.value,
+                    onValueChange = { state.value = it })
             }
 
         findByTag(tag)

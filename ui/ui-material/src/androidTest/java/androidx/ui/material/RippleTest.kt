@@ -26,7 +26,7 @@ import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.clickable
@@ -82,16 +82,14 @@ class RippleTest {
     fun rippleDrawsCorrectly() {
         composeTestRule.setMaterialContent {
             DrawRectRippleCallback {
-                TestTag(contentTag) {
+                Box(
+                    modifier = Modifier.drawBackground(Color.Blue).testTag(contentTag),
+                    gravity = ContentGravity.Center
+                ) {
                     Box(
-                        modifier = Modifier.drawBackground(Color.Blue),
-                        gravity = ContentGravity.Center
-                    ) {
-                        Box(
-                            Modifier.preferredSize(10.dp)
-                                .ripple()
-                        )
-                    }
+                        Modifier.preferredSize(10.dp)
+                            .ripple()
+                    )
                 }
             }
         }
@@ -117,19 +115,17 @@ class RippleTest {
     fun rippleUsesCorrectSize() {
         composeTestRule.setMaterialContent {
             DrawRectRippleCallback {
-                TestTag(contentTag) {
+                Box(
+                    modifier = Modifier.drawBackground(Color.Blue).testTag(contentTag),
+                    gravity = ContentGravity.Center
+                ) {
                     Box(
-                        modifier = Modifier.drawBackground(Color.Blue),
-                        gravity = ContentGravity.Center
-                    ) {
-                        Box(
-                            Modifier.preferredSize(30.dp)
-                                .padding(5.dp)
-                                .ripple()
-                                // this padding should not affect the size of the ripple
-                                .padding(5.dp)
-                        )
-                    }
+                        Modifier.preferredSize(30.dp)
+                            .padding(5.dp)
+                            .ripple()
+                            // this padding should not affect the size of the ripple
+                            .padding(5.dp)
+                    )
                 }
             }
         }
@@ -155,13 +151,11 @@ class RippleTest {
     fun unboundedIsNotClipped() {
         composeTestRule.setMaterialContent {
             DrawRectRippleCallback {
-                TestTag(contentTag) {
-                    Box(
-                        modifier = Modifier.drawBackground(Color.Blue),
-                        gravity = ContentGravity.Center
-                    ) {
-                        Box(Modifier.preferredSize(10.dp).ripple(bounded = false))
-                    }
+                Box(
+                    modifier = Modifier.drawBackground(Color.Blue).testTag(contentTag),
+                    gravity = ContentGravity.Center
+                ) {
+                    Box(Modifier.preferredSize(10.dp).ripple(bounded = false))
                 }
             }
         }
@@ -185,17 +179,15 @@ class RippleTest {
     fun rippleDrawnAfterContent() {
         composeTestRule.setMaterialContent {
             DrawRectRippleCallback {
-                TestTag(contentTag) {
+                Box(
+                    modifier = Modifier.drawBackground(Color.Blue).testTag(contentTag),
+                    gravity = ContentGravity.Center
+                ) {
                     Box(
-                        modifier = Modifier.drawBackground(Color.Blue),
-                        gravity = ContentGravity.Center
-                    ) {
-                        Box(
-                            Modifier.preferredSize(10.dp)
-                                .ripple()
-                                .drawBackground(Color.Blue)
-                        )
-                    }
+                        Modifier.preferredSize(10.dp)
+                            .ripple()
+                            .drawBackground(Color.Blue)
+                    )
                 }
             }
         }
@@ -230,9 +222,7 @@ class RippleTest {
                 Card {
                     if (emit) {
                         Row {
-                            TestTag(tag = contentTag) {
-                                RippleButton()
-                            }
+                            RippleButton(modifier = Modifier.testTag(contentTag))
                         }
                     }
                 }
@@ -294,9 +284,7 @@ class RippleTest {
                 Card {
                     if (emit) {
                         Row {
-                            TestTag(tag = contentTag) {
-                                RippleButton()
-                            }
+                            RippleButton(modifier = Modifier.testTag(contentTag))
                         }
                     }
                 }
@@ -348,9 +336,7 @@ class RippleTest {
                     drawLatch.countDown()
                 }
             ) {
-                TestTag(tag = contentTag) {
-                    RippleButton()
-                }
+                RippleButton(modifier = Modifier.testTag(contentTag))
             }
         }
 
@@ -374,9 +360,7 @@ class RippleTest {
                     drawLatch.countDown()
                 }
             ) {
-                TestTag(tag = contentTag) {
-                    RippleButton(color = color)
-                }
+                RippleButton(modifier = Modifier.testTag(contentTag), color = color)
             }
         }
 
@@ -396,9 +380,7 @@ class RippleTest {
                 onEffectCreated = { createdLatch.countDown() }
             ) {
                 Card {
-                    TestTag(tag = contentTag) {
-                        RippleButton(enabled = false)
-                    }
+                    RippleButton(modifier = Modifier.testTag(contentTag), enabled = false)
                 }
             }
         }
@@ -424,9 +406,7 @@ class RippleTest {
                     drawLatch.countDown()
                 }
             ) {
-                TestTag(tag = contentTag) {
-                    RippleButton()
-                }
+                RippleButton(modifier = Modifier.testTag(contentTag))
             }
         }
 
@@ -447,11 +427,12 @@ class RippleTest {
 
     @Composable
     private fun RippleButton(
+        modifier: Modifier = Modifier,
         size: Dp = 10.dp,
         color: Color = Color.Unset,
         enabled: Boolean = true
     ) {
-        Box(Modifier
+        Box(modifier
             .ripple(bounded = false, color = color, enabled = enabled)
             .clickable(indication = null) {}) {
             Box(Modifier.preferredSize(size))

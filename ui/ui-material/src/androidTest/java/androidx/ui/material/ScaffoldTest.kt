@@ -25,6 +25,8 @@ import androidx.ui.core.TestTag
 import androidx.ui.core.drawShadow
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInParent
+import androidx.ui.core.semantics.semantics
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
@@ -370,24 +372,24 @@ class ScaffoldTest {
     @Test
     fun scaffold_topAppBarIsDrawnOnTopOfContent() {
         composeTestRule.setContent {
-            Stack(Modifier.size(10.dp, 20.dp)) {
-                TestTag(tag = "Scaffold") {
-                    Semantics(container = true, mergeAllDescendants = true) {
-                        Scaffold(
-                            topAppBar = {
-                                Box(
-                                    Modifier.size(10.dp)
-                                        .drawShadow(4.dp)
-                                        .drawBackground(Color.White)
-                                )
-                            }
-                        ) {
-                            Box(
-                                Modifier.size(10.dp)
-                                    .drawBackground(Color.White)
-                            )
-                        }
+            Stack(Modifier
+                .size(10.dp, 20.dp)
+                .semantics(container = true, mergeAllDescendants = true)
+                .testTag("Scaffold")
+            ) {
+                Scaffold(
+                    topAppBar = {
+                        Box(
+                            Modifier.size(10.dp)
+                                .drawShadow(4.dp)
+                                .drawBackground(Color.White)
+                        )
                     }
+                ) {
+                    Box(
+                        Modifier.size(10.dp)
+                            .drawBackground(Color.White)
+                    )
                 }
             }
         }

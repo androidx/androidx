@@ -21,13 +21,13 @@ import androidx.compose.Providers
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.semantics.semantics
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
@@ -56,12 +56,12 @@ class CardTest {
                 Stack {
                     cardColor = MaterialTheme.colors.surface
                     Providers(ShapesAmbient provides Shapes(medium = shape)) {
-                        TestTag(tag = "card") {
-                            Semantics(container = true, mergeAllDescendants = true) {
-                                Card(elevation = 0.dp) {
-                                    Box(Modifier.preferredSize(50.dp, 50.dp))
-                                }
-                            }
+                        Card(modifier = Modifier
+                            .semantics(container = true, mergeAllDescendants = true)
+                            .testTag("card"),
+                            elevation = 0.dp
+                        ) {
+                            Box(Modifier.preferredSize(50.dp, 50.dp))
                         }
                     }
                 }
