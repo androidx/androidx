@@ -5,7 +5,7 @@ package androidx.slice {
     method public long currentTimeMillis();
   }
 
-  @RequiresApi(19) public final class Slice extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
+  @RequiresApi(19) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, isCustom=true) public final class Slice extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.slice.Slice? bindSlice(android.content.Context!, android.net.Uri, java.util.Set<androidx.slice.SliceSpec!>!);
     method public java.util.List<java.lang.String!>! getHints();
     method public java.util.List<androidx.slice.SliceItem!>! getItems();
@@ -47,7 +47,7 @@ package androidx.slice {
     method public static androidx.slice.Slice! wrap(android.app.slice.Slice!, android.content.Context!);
   }
 
-  @RequiresApi(19) public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
+  @RequiresApi(19) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, ignoreParcelables=true, isCustom=true) public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceItem(Object!, String!, String!, String![]!);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceItem(Object!, String!, String!, java.util.List<java.lang.String!>!);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceItem();
@@ -78,7 +78,7 @@ package androidx.slice {
   }
 
   @RequiresApi(19) public abstract class SliceManager {
-    method public abstract int checkSlicePermission(android.net.Uri, int, int);
+    method @androidx.core.content.PermissionChecker.PermissionResult public abstract int checkSlicePermission(android.net.Uri, int, int);
     method public static androidx.slice.SliceManager getInstance(android.content.Context);
     method public abstract java.util.List<android.net.Uri!> getPinnedSlices();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract java.util.Set<androidx.slice.SliceSpec!> getPinnedSpecs(android.net.Uri);
@@ -112,7 +112,7 @@ package androidx.slice {
     method public final int update(android.net.Uri, android.content.ContentValues?, String?, String![]?);
   }
 
-  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SliceSpec implements androidx.versionedparcelable.VersionedParcelable {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true) public final class SliceSpec implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SliceSpec(String, int);
     method public boolean canRender(androidx.slice.SliceSpec);
     method public int getRevision();
