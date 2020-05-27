@@ -22,7 +22,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.ImageReaderProxy;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.concurrent.Executor;
 
@@ -115,8 +114,7 @@ class SafeCloseImageReaderProxy implements ImageReaderProxy {
     void safeClose() {
         synchronized (mLock) {
             mIsClosed = true;
-            mImageReaderProxy.setOnImageAvailableListener((imageReaderProxy) -> { },
-                    CameraXExecutors.directExecutor());
+            mImageReaderProxy.clearOnImageAvailableListener();
 
             if (mOutstandingImages == 0) {
                 close();
@@ -166,6 +164,13 @@ class SafeCloseImageReaderProxy implements ImageReaderProxy {
         synchronized (mLock) {
             mImageReaderProxy.setOnImageAvailableListener(
                     imageReader -> listener.onImageAvailable(this), executor);
+        }
+    }
+
+    @Override
+    public void clearOnImageAvailableListener() {
+        synchronized (mLock) {
+            mImageReaderProxy.clearOnImageAvailableListener();
         }
     }
 }
