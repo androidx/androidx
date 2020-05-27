@@ -44,11 +44,10 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Owner
 import androidx.ui.core.Ref
-import androidx.ui.core.TestTag
 import androidx.ui.core.drawLayer
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
-import androidx.ui.semantics.Semantics
+import androidx.ui.core.testTag
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
@@ -82,24 +81,21 @@ class AndroidViewCompatTest {
         val squareSize = mutableStateOf(100.ipx)
         var expectedSize = 100
         composeTestRule.setContent {
-            TestTag("content") {
-                Align {
-                    Semantics(container = true) {
-                        Layout(
-                            @Composable {
-                                ColoredSquareView(size = squareSize.value.value, ref = squareRef)
-                            }
-                        ) { measurables, constraints, _ ->
-                            assertEquals(1, measurables.size)
-                            val placeable = measurables.first().measure(
-                                constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
-                            )
-                            assertEquals(placeable.width, expectedSize.ipx)
-                            assertEquals(placeable.height, expectedSize.ipx)
-                            layout(constraints.maxWidth, constraints.maxHeight) {
-                                placeable.place(0.ipx, 0.ipx)
-                            }
-                        }
+            Align {
+                Layout(
+                    modifier = Modifier.testTag("content"),
+                    children = @Composable {
+                        ColoredSquareView(size = squareSize.value.value, ref = squareRef)
+                    }
+                ) { measurables, constraints, _ ->
+                    assertEquals(1, measurables.size)
+                    val placeable = measurables.first().measure(
+                        constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+                    )
+                    assertEquals(placeable.width, expectedSize.ipx)
+                    assertEquals(placeable.height, expectedSize.ipx)
+                    layout(constraints.maxWidth, constraints.maxHeight) {
+                        placeable.place(0.ipx, 0.ipx)
                     }
                 }
             }
@@ -144,12 +140,8 @@ class AndroidViewCompatTest {
         var expectedColor = Color.Blue
         composeTestRule.setContent {
             Align {
-                TestTag("content") {
-                    Semantics(container = true) {
-                        Container(Modifier.drawLayer()) {
-                            ColoredSquareView(color = colorModel.value, ref = squareRef)
-                        }
-                    }
+                Container(Modifier.testTag("content").drawLayer()) {
+                    ColoredSquareView(color = colorModel.value, ref = squareRef)
                 }
             }
         }

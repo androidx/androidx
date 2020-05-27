@@ -18,8 +18,9 @@ package androidx.ui.test
 
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.layout.Column
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.semantics.testTag
@@ -121,8 +122,6 @@ class FindersTest {
 
     @Composable
     fun BoundaryNode(props: (SemanticsPropertyReceiver.() -> Unit)? = null) {
-        Semantics(container = true, properties = props) {
-            Column {}
-        }
+        Column(Modifier.semantics(properties = props)) {}
     }
 }

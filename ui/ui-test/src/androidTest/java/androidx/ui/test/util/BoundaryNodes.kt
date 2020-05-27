@@ -17,25 +17,21 @@
 package androidx.ui.test.util
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.layout.Column
-import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.testTag
 
 @Composable
 fun BoundaryNode(
     testTag: String,
     children: @Composable () -> Unit
 ) {
-    Semantics(container = true, properties = { this.testTag = testTag }) {
-        Column { children() }
-    }
+    Column(Modifier.testTag(testTag)) { children() }
 }
 
 @Composable
 fun BoundaryNode(
     testTag: String
 ) {
-    Semantics(container = true, properties = { this.testTag = testTag }) {
-        Column {}
-    }
+    Column(Modifier.testTag(testTag)) {}
 }

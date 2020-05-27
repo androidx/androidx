@@ -28,7 +28,8 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.MediumTest
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.core.setContent
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.material.MaterialTheme
@@ -111,16 +112,15 @@ class MultipleComposeRootsTest {
                 frameLayout1.setContent(Recomposer.current()) {
                     MaterialTheme {
                         Surface {
-                            TestTag(tag = "checkbox1") {
-                                TriStateCheckbox(
-                                    state = state1.value,
-                                    onClick = {
-                                        state1.toggle()
-                                        state2.toggle()
-                                        updateTitle1()
-                                        updateTitle2()
-                                    })
-                            }
+                            TriStateCheckbox(
+                                modifier = Modifier.testTag("checkbox1"),
+                                state = state1.value,
+                                onClick = {
+                                    state1.toggle()
+                                    state2.toggle()
+                                    updateTitle1()
+                                    updateTitle2()
+                                })
                         }
                     }
                 }
@@ -128,16 +128,15 @@ class MultipleComposeRootsTest {
                 frameLayout2.setContent(Recomposer.current()) {
                     MaterialTheme {
                         Surface {
-                            TestTag(tag = "checkbox2") {
-                                TriStateCheckbox(
-                                    state = state2.value,
-                                    onClick = {
-                                        state1.toggle()
-                                        state2.toggle()
-                                        updateTitle1()
-                                        updateTitle2()
-                                    })
-                            }
+                            TriStateCheckbox(
+                                modifier = Modifier.testTag("checkbox2"),
+                                state = state2.value,
+                                onClick = {
+                                    state1.toggle()
+                                    state2.toggle()
+                                    updateTitle1()
+                                    updateTitle2()
+                                })
                         }
                     }
                 }

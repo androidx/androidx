@@ -19,11 +19,10 @@ package androidx.ui.test.util
 import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.size
-import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.testTag
 import androidx.ui.test.util.ClickableTestBox.defaultColor
 import androidx.ui.test.util.ClickableTestBox.defaultSize
 import androidx.ui.test.util.ClickableTestBox.defaultTag
@@ -42,12 +41,10 @@ fun ClickableTestBox(
     color: Color = defaultColor,
     tag: String = defaultTag
 ) {
-    Semantics(container = true, properties = { testTag = tag }) {
-        with(DensityAmbient.current) {
-            Box(
-                modifier = modifier.size(width.toDp(), height.toDp()),
-                backgroundColor = color
-            )
-        }
+    with(DensityAmbient.current) {
+        Box(
+            modifier = modifier.testTag(tag).size(width.toDp(), height.toDp()),
+            backgroundColor = color
+        )
     }
 }

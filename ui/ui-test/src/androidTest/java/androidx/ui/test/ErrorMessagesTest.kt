@@ -20,14 +20,14 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.semantics.semantics
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.clickable
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.test.util.expectErrorMessage
 import androidx.ui.test.util.expectErrorMessageStartsWith
@@ -289,15 +289,11 @@ class ErrorMessagesTest {
     fun ComposeSimpleCase() {
         MaterialTheme {
             Column {
-                TestTag("MyButton") {
-                    TestButton() {
-                        Text("Toggle")
-                    }
+                TestButton(Modifier.testTag("MyButton")) {
+                    Text("Toggle")
                 }
-                TestTag("MyButton2") {
-                    TestButton() {
-                        Text("Toggle")
-                    }
+                TestButton(Modifier.testTag("MyButton2")) {
+                    Text("Toggle")
                 }
             }
         }
@@ -308,15 +304,14 @@ class ErrorMessagesTest {
         MaterialTheme {
             val (showText, toggle) = state { true }
             Column {
-                TestTag("MyButton") {
-                    TestButton(onClick = { toggle(!showText) }) {
-                        Text("Toggle")
-                    }
+                TestButton(
+                    modifier = Modifier.testTag("MyButton"),
+                    onClick = { toggle(!showText) }
+                ) {
+                    Text("Toggle")
                 }
                 if (showText) {
-                    Semantics(container = true) {
-                        Text("Hello")
-                    }
+                    Text("Hello")
                 }
             }
         }
@@ -324,16 +319,16 @@ class ErrorMessagesTest {
 
     @Composable
     fun TestButton(
+        modifier: Modifier = Modifier,
         onClick: (() -> Unit)? = null,
         children: @Composable () -> Unit
     ) {
         // Since we're adding layouts in between the clickable layer and the content, we need to
         // merge all descendants, or we'll get multiple nodes
-        Semantics(container = true, mergeAllDescendants = true) {
-            Surface {
-                Box(Modifier.clickable(onClick = onClick ?: {}, enabled = onClick != null)) {
-                    Box(children = children)
-                }
+        Surface {
+            Box(modifier.semantics(mergeAllDescendants = true)
+                        .clickable(onClick = onClick ?: {}, enabled = onClick != null)) {
+                Box(children = children)
             }
         }
     }

@@ -21,7 +21,6 @@ import androidx.test.filters.MediumTest
 import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.util.obfuscateNodesInfo
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -85,12 +84,8 @@ class DumpToStringTest {
     fun ComposeSimpleCase() {
         MaterialTheme {
             Column {
-                Semantics(container = true) {
-                    Text("Hello")
-                }
-                Semantics(container = true) {
-                    Text("World")
-                }
+                Text("Hello")
+                Text("World")
             }
         }
     }

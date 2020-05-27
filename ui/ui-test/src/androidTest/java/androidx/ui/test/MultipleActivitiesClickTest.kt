@@ -23,11 +23,10 @@ import androidx.activity.ComponentActivity
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.testTag
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.util.PointerInputRecorder
 import com.google.common.truth.Truth.assertThat
@@ -71,9 +70,7 @@ class MultipleActivitiesClickTest {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setContent {
-                Semantics(container = true, properties = { testTag = tag }) {
-                    Box(modifier = Modifier.fillMaxSize().plus(recorder))
-                }
+                Box(modifier = Modifier.testTag(tag).fillMaxSize().plus(recorder))
             }
         }
 

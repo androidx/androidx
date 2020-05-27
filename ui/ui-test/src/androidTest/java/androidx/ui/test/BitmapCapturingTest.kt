@@ -20,7 +20,7 @@ import android.os.Build
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
@@ -28,7 +28,6 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
@@ -156,46 +155,30 @@ class BitmapCapturingTest {
         with(composeTestRule.density) {
             composeTestRule.setContent {
                 Box(Modifier.fillMaxSize(), backgroundColor = colorBg) {
-                    TestTag(rootTag) {
-                        Semantics(container = true) {
-                            Column {
-                                Row {
-                                    TestTag(tag11) {
-                                        Semantics(container = true) {
-                                            Box(Modifier
-                                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
-                                                .drawBackground(color11)
-                                            )
-                                        }
-                                    }
-                                    TestTag(tag12) {
-                                        Semantics(container = true) {
-                                            Box(Modifier
-                                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
-                                                .drawBackground(color12)
-                                            )
-                                        }
-                                    }
-                                }
-                                Row {
-                                    TestTag(tag21) {
-                                        Semantics(container = true) {
-                                            Box(Modifier
-                                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
-                                                .drawBackground(color21)
-                                            )
-                                        }
-                                    }
-                                    TestTag(tag22) {
-                                        Semantics(container = true) {
-                                            Box(Modifier
-                                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
-                                                .drawBackground(color22)
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+                    Column(Modifier.testTag(rootTag)) {
+                        Row {
+                            Box(Modifier
+                                .testTag(tag11)
+                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                .drawBackground(color11)
+                            )
+                            Box(Modifier
+                                .testTag(tag12)
+                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                .drawBackground(color12)
+                            )
+                        }
+                        Row {
+                            Box(Modifier
+                                .testTag(tag21)
+                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                .drawBackground(color21)
+                            )
+                            Box(Modifier
+                                .testTag(tag22)
+                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                .drawBackground(color22)
+                            )
                         }
                     }
                 }

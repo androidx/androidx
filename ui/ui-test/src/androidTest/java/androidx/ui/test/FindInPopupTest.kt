@@ -19,9 +19,9 @@ package androidx.ui.test
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Popup
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
-import androidx.ui.semantics.Semantics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,18 +39,10 @@ class FindInPopupTest {
     @Test
     fun test() {
         composeTestRule.setContent {
-            TestTag(contentTag) {
-                Semantics {
-                    Box()
-                }
-            }
+            Box(Modifier.testTag(contentTag))
 
             Popup(alignment = Alignment.Center) {
-                TestTag(popupTag) {
-                    Semantics {
-                        Box()
-                    }
-                }
+                Box(Modifier.testTag(popupTag))
             }
         }
         findByTag(contentTag).assertExists()
