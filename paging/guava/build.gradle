@@ -29,7 +29,7 @@ plugins {
 dependencies {
     api(project(":paging:paging-common"))
     api(KOTLIN_STDLIB)
-    api(project(":concurrent:concurrent-futures-ktx"))
+    api("androidx.concurrent:concurrent-futures-ktx:1.1.0-alpha01")
 
     testImplementation(project(":internal-testutils-common"))
     testImplementation(JUNIT)
