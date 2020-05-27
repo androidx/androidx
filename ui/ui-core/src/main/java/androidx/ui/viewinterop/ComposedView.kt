@@ -56,10 +56,12 @@ fun AndroidView(view: View) {
 internal open class AndroidViewHolder(context: Context) : ViewGroup(context) {
     var view: View? = null
         set(value) {
-            if (value != field) {
+            if (value !== field) {
                 field = value
                 removeAllViews()
-                addView(view)
+                if (value != null) {
+                    addView(value)
+                }
             }
         }
 
@@ -94,5 +96,10 @@ internal open class AndroidViewHolder(context: Context) : ViewGroup(context) {
     override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
         onRequestDisallowInterceptTouchEvent?.invoke(disallowIntercept)
         super.requestDisallowInterceptTouchEvent(disallowIntercept)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        view = null
     }
 }
