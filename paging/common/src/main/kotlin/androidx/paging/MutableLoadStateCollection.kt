@@ -16,13 +16,17 @@
 
 package androidx.paging
 
-internal class MutableLoadStateCollection(hasRemoteState: Boolean) {
-    private var source: LoadStates = CombinedLoadStates.IDLE_SOURCE.source
-    private var mediator: LoadStates? = if (hasRemoteState) {
-        CombinedLoadStates.IDLE_MEDIATOR.mediator
-    } else {
-        null
-    }
+import androidx.annotation.RestrictTo
+
+/**
+ * TODO: Remove this once [PageEvent.LoadStateUpdate] contained [CombinedLoadStates].
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class MutableLoadStateCollection(hasRemoteState: Boolean) {
+    private var source: LoadStates = LoadStates.IDLE_SOURCE
+    private var mediator: LoadStates? = if (hasRemoteState) LoadStates.IDLE_MEDIATOR else null
 
     fun snapshot() = CombinedLoadStates(source, mediator)
 
@@ -47,7 +51,7 @@ internal class MutableLoadStateCollection(hasRemoteState: Boolean) {
         return (if (remote) mediator else source)?.get(type)
     }
 
-    inline fun forEach(op: (LoadType, Boolean, LoadState?) -> Unit) {
+    internal inline fun forEach(op: (LoadType, Boolean, LoadState?) -> Unit) {
         source.forEach { type, state ->
             op(type, false, state)
         }

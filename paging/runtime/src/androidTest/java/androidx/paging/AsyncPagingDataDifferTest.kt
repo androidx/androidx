@@ -23,8 +23,6 @@ import androidx.paging.ListUpdateEvent.Moved
 import androidx.paging.ListUpdateEvent.Removed
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
@@ -75,11 +73,6 @@ private sealed class ListUpdateEvent {
     data class Removed(val position: Int, val count: Int) : ListUpdateEvent()
 }
 
-private data class LoadEvent(
-    val loadType: LoadType,
-    val loadState: LoadState
-)
-
 @OptIn(ExperimentalCoroutinesApi::class)
 @SmallTest
 @RunWith(JUnit4::class)
@@ -108,10 +101,8 @@ class AsyncPagingDataDifferTest {
 
     @Test
     fun performDiff_fastPathLoadStates() = testScope.runBlockingTest {
-        val loadEvents = mutableListOf<LoadEvent>()
-        differ.addLoadStateListener { loadType, loadState ->
-            loadEvents.add(LoadEvent(loadType, loadState))
-        }
+        val loadEvents = mutableListOf<CombinedLoadStates>()
+        differ.addLoadStateListener { loadEvents.add(it) }
 
         val pager = Pager(
             config = PagingConfig(
@@ -137,18 +128,9 @@ class AsyncPagingDataDifferTest {
         // empty previous list.
         assertEvents(
             listOf(
-                LoadEvent(
-                    REFRESH,
-                    NotLoading(endOfPaginationReached = false)
-                ),
-                LoadEvent(
-                    PREPEND,
-                    NotLoading(endOfPaginationReached = false)
-                ),
-                LoadEvent(APPEND, NotLoading(endOfPaginationReached = false)),
-                LoadEvent(REFRESH, Loading),
-                LoadEvent(REFRESH, NotLoading(endOfPaginationReached = false))
-            ),
+                REFRESH to Loading,
+                REFRESH to NotLoading(endOfPaginationReached = false)
+            ).toCombinedLoadStatesLocal(),
             loadEvents
         )
         loadEvents.clear()
@@ -161,18 +143,24 @@ class AsyncPagingDataDifferTest {
         // Assert that all load state updates are sent, even when differ enters fast path for
         // empty next list.
         assertEvents(
-            listOf(
-                LoadEvent(PREPEND, NotLoading(endOfPaginationReached = true)),
-                LoadEvent(APPEND, NotLoading(endOfPaginationReached = true))
+            expected = listOf(
+                localLoadStatesOf(
+                    refreshLocal = NotLoading(endOfPaginationReached = false),
+                    prependLocal = NotLoading(endOfPaginationReached = true),
+                    appendLocal = NotLoading(endOfPaginationReached = false)
+                ),
+                localLoadStatesOf(
+                    refreshLocal = NotLoading(endOfPaginationReached = false),
+                    prependLocal = NotLoading(endOfPaginationReached = true),
+                    appendLocal = NotLoading(endOfPaginationReached = true)
+                )
             ),
-            loadEvents
+            actual = loadEvents
         )
     }
 
     @Test
     fun lastAccessedIndex() = testScope.runBlockingTest {
-        // TODO: Consider making PagedData public, which would simplify this test by allowing it
-        //  to directly construct a flow of PagedData.
         pauseDispatcher {
             var currentPagedSource: TestPagingSource? = null
             val pager = Pager(
