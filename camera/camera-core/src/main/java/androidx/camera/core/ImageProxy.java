@@ -19,7 +19,6 @@ package androidx.camera.core;
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.media.Image;
-import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -58,7 +57,7 @@ public interface ImageProxy extends AutoCloseable {
      * <p> Returns the value of {@link #getCropRect()} if {@link ViewPort} is not provided.
      *
      * @hide
-     * @see ViewPort.Builder#setAspectRatio(Rational)
+     * @see ViewPort
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
