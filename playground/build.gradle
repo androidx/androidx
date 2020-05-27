@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import androidx.build.AndroidXRootPlugin
 
 buildscript {
@@ -47,9 +47,11 @@ buildscript {
         classpath build_libs.agp
         classpath build_libs.kotlin.gradle_plugin
         classpath 'androidx.build:gradle-plugin:0.1.0'
+        classpath "com.github.jengelman.gradle.plugins:shadow:5.2.0"
     }
 }
 
+apply from: "../buildSrc/dependencies.gradle"
 apply from: "../buildSrc/out.gradle"
 init.chooseOutDir("/playground")
 
@@ -58,20 +60,7 @@ allprojects {
         google()
         mavenCentral()
         jcenter()
-        maven {
-            url 'https://androidx.dev/metalava/builds/6401339/artifacts/repo/m2repository'
-            metadataSources {
-                mavenPom()
-                artifact()
-            }
-        }
-        maven {
-            url 'https://androidx.dev/dokka/builds/6402791/artifacts/repository'
-            metadataSources {
-                mavenPom()
-                artifact()
-            }
-        }
+        maven { url 'https://androidx.dev/snapshots/builds/6530523/artifacts/repository' }
     }
 }
 
