@@ -285,6 +285,7 @@ class StaticLayoutFactoryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 26)
     fun create_withJustificationModeInterWord_isJustified() {
         val text = "a b c"
         val charWidth = 20.0f
