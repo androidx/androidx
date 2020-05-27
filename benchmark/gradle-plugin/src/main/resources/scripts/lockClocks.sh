@@ -173,6 +173,39 @@ function_lock_cpu() {
         fi
     done
 
+    # Lock wembley clocks using high-priority op code method.
+    # This block depends on the shell utility awk, which is only available on API 27+
+    if [ "$DEVICE" == "wembley" ]; then
+        # Get list of available frequencies to lock to by parsing the op-code list.
+        AVAIL_OP_FREQS=`cat /proc/cpufreq/MT_CPU_DVFS_LL/cpufreq_oppidx \
+            | awk '{print $2}' \
+            | tail -n +3 \
+            | while read line; do
+                echo "${line:1:${#line}-2}"
+            done`
+
+        # Compute the closest available frequency to the desired frequency, $chosenFreq.
+        # This assumes the op codes listen in /proc/cpufreq/MT_CPU_DVFS_LL/cpufreq_oppidx are listed
+        # in order and 0-indexed.
+        opCode=-1
+        opFreq=0
+        currOpCode=-1
+        for currOpFreq in $AVAIL_OP_FREQS; do
+            currOpCode=$((currOpCode + 1))
+
+            prevDiff=$((chosenFreq-opFreq))
+            prevDiff=`function_abs $prevDiff`
+            currDiff=$((chosenFreq-currOpFreq))
+            currDiff=`function_abs $currDiff`
+            if [ $currDiff -lt $prevDiff ]; then
+                opCode="$currOpCode"
+                opFreq="$currOpFreq"
+            fi
+        done
+
+        echo "$opCode" > /proc/ppm/policy/ut_fix_freq_idx
+    fi
+
     # enable 'big' CPUs
     for cpu in ${enableIndices}; do
         freq=${CPU_BASE}/cpu$cpu/cpufreq
@@ -215,6 +248,16 @@ function_lock_cpu() {
     echo "Locked CPUs ${enableIndices// /,} to $chosenFreq / $cpuIdealFreq KHz"
     echo "Disabled CPUs ${disableIndices// /,}"
     echo "=================================="
+}
+
+# Returns the absolute value of the first arg passed to this helper.
+function_abs() {
+    n=$1
+    if [ $n -lt 0 ]; then
+        echo "$((n * -1 ))"
+    else
+        echo "$n"
+    fi
 }
 
 # If we have a Qualcomm GPU, find its max frequency, and lock to
