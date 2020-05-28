@@ -69,6 +69,7 @@ package androidx.activity.result {
 
   public abstract class ActivityResultLauncher<I> {
     ctor public ActivityResultLauncher();
+    method public abstract androidx.activity.result.contract.ActivityResultContract<I!,?> getContract();
     method public void launch(I!);
     method public abstract void launch(I!, androidx.core.app.ActivityOptionsCompat?);
     method @MainThread public abstract void unregister();

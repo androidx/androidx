@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
 
@@ -59,4 +60,12 @@ public abstract class ActivityResultLauncher<I> {
      */
     @MainThread
     public abstract void unregister();
+
+    /**
+     * Get the {@link ActivityResultContract} that was used to create this launcher.
+     *
+     * @return the contract that was used to create this launcher
+     */
+    @NonNull
+    public abstract ActivityResultContract<I, ?> getContract();
 }

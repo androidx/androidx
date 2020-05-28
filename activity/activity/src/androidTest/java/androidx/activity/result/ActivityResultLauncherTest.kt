@@ -24,6 +24,7 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -84,5 +85,13 @@ class ActivityResultLauncherTest {
         assertWithMessage("the options passed to invoke did not match")
             .that(registry.invokeOptions?.launchBounds?.left)
             .isEqualTo(1)
+    }
+
+    @Test
+    fun getContractTest() {
+        val contract = StartActivityForResult()
+        val launcher = registry.register("key", contract) {}
+
+        assertThat(contract).isSameInstanceAs(launcher.contract)
     }
 }

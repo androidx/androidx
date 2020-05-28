@@ -51,6 +51,9 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation project(':internal-testutils-runtime'), {
+        exclude group: 'androidx.activity', module: 'activity'
+    }
 }
 
 androidx {

@@ -3379,6 +3379,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     delegate.unregister();
                 }
             }
+
+            @NonNull
+            @Override
+            public ActivityResultContract<I, ?> getContract() {
+                return contract;
+            }
         };
     }
 
