@@ -17,6 +17,7 @@
 package androidx.ui.text.style
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.sp
 import androidx.ui.text.lerpTextUnitInheritable
@@ -36,6 +37,7 @@ data class TextIndent(
         /**
          * Constant fot no text indent.
          */
+        @Stable
         val None = TextIndent()
     }
 }

@@ -17,6 +17,7 @@
 package androidx.ui.geometry
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.util.lerp
 import androidx.ui.util.packFloats
 import androidx.ui.util.toStringAsFixed
@@ -60,9 +61,11 @@ fun Offset(dx: Float, dy: Float) = Offset(packFloats(dx, dy))
 @Immutable
 inline class Offset(@PublishedApi internal val packedValue: Long) {
 
+    @Stable
     val dx: Float
         get() = unpackFloat1(packedValue)
 
+    @Stable
     val dy: Float
         get() = unpackFloat2(packedValue)
 
@@ -72,6 +75,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
          *
          * This can be used to represent the origin of a coordinate space.
          */
+        @Stable
         val zero = Offset(0.0f, 0.0f)
 
         /**
@@ -83,6 +87,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
          *  * [isFinite], which checks whether both components are finite.
          */
         // This is included for completeness, because [Size.infinite] exists.
+        @Stable
         val infinite = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
 
         /**
@@ -100,6 +105,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
          * Values for [fraction] are usually obtained from an [Animation<Float>], such as
          * an `AnimationController`.
          */
+        @Stable
         fun lerp(start: Offset, stop: Offset, fraction: Float): Offset {
             return Offset(
                 lerp(start.dx, stop.dx, fraction),
@@ -107,6 +113,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
             )
         }
 
+        @Stable
         fun isValid(offset: Offset): Boolean {
             check(!offset.dx.isNaN() && !offset.dy.isNaN()) {
                 "Offset argument contained a NaN value."
@@ -121,6 +128,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
      * If you need this value to compare it to another [Offset]'s distance,
      * consider using [getDistanceSquared] instead, since it is cheaper to compute.
      */
+    @Stable
     fun getDistance() = sqrt(dx * dx + dy * dy)
 
     /**
@@ -128,6 +136,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
      *
      * This is cheaper than computing the [getDistance] itself.
      */
+    @Stable
     fun getDistanceSquared() = dx * dx + dy * dy
 
     /**
@@ -181,6 +190,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
      * Offset b = -a; // same as: a.scale(-1.0, -1.0)
      * ```
      */
+    @Stable
     fun scale(scaleX: Float, scaleY: Float): Offset = Offset(dx * scaleX, dy * scaleY)
 
     /**
@@ -197,6 +207,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
      * Offset d = a - b; // same as: a.translate(-b.dx, -b.dy)
      * ```
      */
+    @Stable
     fun translate(translateX: Float, translateY: Float): Offset =
         Offset(dx + translateX, dy + translateY)
 
@@ -208,6 +219,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
      * If the [Offset] represents an arrow on a plane, this operator returns the
      * same arrow but pointing in the reverse direction.
      */
+    @Stable
     operator fun unaryMinus(): Offset = Offset(-dx, -dy)
 
     /**
@@ -219,6 +231,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
      *
      * See also [translate].
      */
+    @Stable
     operator fun minus(other: Offset): Offset = Offset(dx - other.dx, dy - other.dy)
 
     /**
@@ -230,6 +243,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
      *
      * See also [translate].
      */
+    @Stable
     operator fun plus(other: Offset): Offset = Offset(dx + other.dx, dy + other.dy)
 
     /**
@@ -241,6 +255,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
      *
      * See also [scale].
      */
+    @Stable
     operator fun times(operand: Float): Offset = Offset(dx * operand, dy * operand)
 
     /**
@@ -252,6 +267,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
      *
      * See also [scale].
      */
+    @Stable
     operator fun div(operand: Float): Offset = Offset(dx / operand, dy / operand)
 
     /**
@@ -272,6 +288,7 @@ inline class Offset(@PublishedApi internal val packedValue: Long) {
      * coordinates of the left-hand-side operand (an Offset) by the scalar
      * right-hand-side operand (a Float).
      */
+    @Stable
     operator fun rem(operand: Float) = Offset(dx % operand, dy % operand)
 
     /**

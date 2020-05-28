@@ -17,6 +17,7 @@
 package androidx.ui.geometry
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.util.lerp
 import androidx.ui.util.packFloats
 import androidx.ui.util.toStringAsFixed
@@ -30,6 +31,7 @@ import kotlin.math.truncate
 /**
  * Constructs a [Size] from the given width and height
  */
+@Stable
 fun Size(width: Float, height: Float) = Size(packFloats(width, height))
 
 /**
@@ -40,9 +42,11 @@ fun Size(width: Float, height: Float) = Size(packFloats(width, height))
 @Immutable
 inline class Size(@PublishedApi internal val value: Long) {
 
+    @Stable
     val width: Float
         get() = unpackFloat1(value)
 
+    @Stable
     val height: Float
         get() = unpackFloat2(value)
 
@@ -98,6 +102,7 @@ inline class Size(@PublishedApi internal val value: Long) {
         /**
          * An empty size, one with a zero width and a zero height.
          */
+        @Stable
         val zero = Size(0.0f, 0.0f)
 
         /**
@@ -108,6 +113,7 @@ inline class Size(@PublishedApi internal val value: Long) {
          *  * [isInfinite], which checks whether either dimension is infinite.
          *  * [isFinite], which checks whether both dimensions are finite.
          */
+        @Stable
         val UnspecifiedSize = Size(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
 
         /**
@@ -125,6 +131,7 @@ inline class Size(@PublishedApi internal val value: Long) {
          * Values for [fraction] are usually obtained from an [Animation<Float>], such as
          * an `AnimationController`.
          */
+        @Stable
         fun lerp(start: Size, stop: Size, fraction: Float): Size? {
             return Size(
                 lerp(start.width, stop.width, fraction),
@@ -138,6 +145,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      *
      * Negative areas are considered empty.
      */
+    @Stable
     fun isEmpty() = width <= 0.0f || height <= 0.0f
 
     /**
@@ -158,10 +166,12 @@ inline class Size(@PublishedApi internal val value: Long) {
      * left-hand-side operand minus the [Offset.dy] dimension of the
      * right-hand-side operand.
      */
+    @Stable
     operator fun minus(other: Offset): Size {
         return Size(width - other.dx, height - other.dy)
     }
 
+    @Stable
     operator fun minus(other: Size): Offset {
         return Offset(width - other.width, height - other.height)
     }
@@ -175,6 +185,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * [height] of the left-hand-side operand and the [Offset.dy] dimension of
      * the right-hand-side operand.
      */
+    @Stable
     operator fun plus(other: Offset) = Size(width + other.dx, height + other.dy)
 
     /**
@@ -184,6 +195,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * operand (a [Size]) multiplied by the scalar right-hand-side operand (a
      * [Float]).
      */
+    @Stable
     operator fun times(operand: Float) = Size(width * operand, height * operand)
 
     /**
@@ -193,6 +205,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * operand (a [Size]) divided by the scalar right-hand-side operand (a
      * [Float]).
      */
+    @Stable
     operator fun div(operand: Float) = Size(width / operand, height / operand)
 
     /**
@@ -202,6 +215,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * operand (a [Size]) divided by the scalar right-hand-side operand (a
      * [Float]), rounded towards zero.
      */
+    @Stable
     fun truncDiv(operand: Float) =
         Size(truncate(width / operand), truncate(height / operand))
 
@@ -212,17 +226,20 @@ inline class Size(@PublishedApi internal val value: Long) {
      * left-hand-side operand (a [Size]) by the scalar right-hand-side operand (a
      * [Float]).
      */
+    @Stable
     operator fun rem(operand: Float) = Size(width % operand, height % operand)
 
     /**
      * The lesser of the magnitudes of the [width] and the [height].
      */
+    @Stable
     val minDimension: Float
         get() = min(width.absoluteValue, height.absoluteValue)
 
     /**
      * The greater of the magnitudes of the [width] and the [height].
      */
+    @Stable
     val maxDimension: Float
         get() = max(width.absoluteValue, height.absoluteValue)
 
@@ -236,6 +253,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      *
      * See also [Rect.topLeft].
      */
+    @Stable
     fun topLeft(origin: Offset): Offset = origin
 
     /**
@@ -244,6 +262,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      *
      * See also [Rect.topCenter].
      */
+    @Stable
     fun topCenter(origin: Offset): Offset = Offset(origin.dx + width / 2.0f, origin.dy)
 
     /**
@@ -253,6 +272,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      *
      * See also [Rect.topRight].
      */
+    @Stable
     fun topRight(origin: Offset): Offset = Offset(origin.dx + width, origin.dy)
 
     /**
@@ -261,6 +281,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      *
      * See also [Rect.centerLeft].
      */
+    @Stable
     fun centerLeft(origin: Offset): Offset = Offset(origin.dx, origin.dy + height / 2.0f)
 
     /**
@@ -270,6 +291,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      *
      * See also [Rect.center].
      */
+    @Stable
     fun center(origin: Offset = Offset.zero): Offset = Offset(origin.dx + width / 2.0f, origin.dy +
             height / 2.0f)
 
@@ -279,6 +301,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      *
      * See also [Rect.centerLeft].
      */
+    @Stable
     fun centerRight(origin: Offset): Offset = Offset(origin.dx + width, origin.dy + height / 2.0f)
 
     /**
@@ -288,6 +311,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      *
      * See also [Rect.bottomLeft].
      */
+    @Stable
     fun bottomLeft(origin: Offset): Offset = Offset(origin.dx, origin.dy + height)
 
     /**
@@ -297,6 +321,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      *
      * See also [Rect.bottomLeft].
      */
+    @Stable
     fun bottomCenter(origin: Offset): Offset = Offset(origin.dx + width / 2.0f, origin.dy + height)
 
     /**
@@ -306,6 +331,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      *
      * See also [Rect.bottomRight].
      */
+    @Stable
     fun bottomRight(origin: Offset): Offset = Offset(origin.dx + width, origin.dy + height)
 
     /**
@@ -316,6 +342,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * Rectangles include their top and left edges but exclude their bottom and
      * right edges.
      */
+    @Stable
     fun contains(offset: Offset): Boolean {
         return offset.dx >= 0.0f && offset.dx < width && offset.dy >= 0.0f && offset.dy < height
     }
@@ -323,6 +350,7 @@ inline class Size(@PublishedApi internal val value: Long) {
     /**
      * A [Size] with the [width] and [height] swapped.
      */
+    @Stable
     fun getFlipped() = Size(height, width)
 
     override fun toString() = "Size(${width.toStringAsFixed(1)}, ${height.toStringAsFixed(1)})"
@@ -331,6 +359,7 @@ inline class Size(@PublishedApi internal val value: Long) {
 /**
  * Convert a [Size] to a [Rect].
  */
+@Stable
 fun Size.toRect(): Rect {
     return Rect(0f, 0f, width, height)
 }

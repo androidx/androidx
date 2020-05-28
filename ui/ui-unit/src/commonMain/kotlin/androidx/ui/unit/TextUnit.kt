@@ -18,6 +18,7 @@
 package androidx.ui.unit
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.util.lerp
 
 /**
@@ -207,6 +208,7 @@ inline class TextUnit(val packedValue: Long) {
         /**
          * A special [TextUnit] instance for representing inheriting from parent value.
          */
+        @Stable
         val Inherit = pack(UNIT_TYPE_INHERIT, 0f)
     }
 
@@ -249,31 +251,37 @@ inline class TextUnit(val packedValue: Long) {
 /**
  * Creates a SP unit [TextUnit]
  */
+@Stable
 val Float.sp: TextUnit get() = pack(UNIT_TYPE_SP, this)
 
 /**
  * Creates an EM unit [TextUnit]
  */
+@Stable
 val Float.em: TextUnit get() = pack(UNIT_TYPE_EM, this)
 
 /**
  * Creates a SP unit [TextUnit]
  */
+@Stable
 val Double.sp: TextUnit get() = pack(UNIT_TYPE_SP, this.toFloat())
 
 /**
  * Creates an EM unit [TextUnit]
  */
+@Stable
 val Double.em: TextUnit get() = pack(UNIT_TYPE_EM, this.toFloat())
 
 /**
  * Creates a SP unit [TextUnit]
  */
+@Stable
 val Int.sp: TextUnit get() = pack(UNIT_TYPE_SP, this.toFloat())
 
 /**
  * Creates an EM unit [TextUnit]
  */
+@Stable
 val Int.em: TextUnit get() = pack(UNIT_TYPE_EM, this.toFloat())
 
 /**
@@ -282,6 +290,7 @@ val Int.em: TextUnit get() = pack(UNIT_TYPE_EM, this.toFloat())
  * This operation works only if the right operand is not equal to [TextUnit.Inherit].
  * The result of this operation is the same unit type of the given one.
  */
+@Stable
 inline operator fun Float.times(other: TextUnit) = checkArithmetic(other) {
     pack(other.rawType, this * other.value)
 }
@@ -292,6 +301,7 @@ inline operator fun Float.times(other: TextUnit) = checkArithmetic(other) {
  * This operation works only if the right operand is not equal to [TextUnit.Inherit].
  * The result of this operation is the same unit type of the given one.
  */
+@Stable
 inline operator fun Double.times(other: TextUnit) = checkArithmetic(other) {
     pack(other.rawType, this.toFloat() * other.value)
 }
@@ -302,6 +312,7 @@ inline operator fun Double.times(other: TextUnit) = checkArithmetic(other) {
  * This operation works only if the right operand is not equal to [TextUnit.Inherit].
  * The result of this operation is the same unit type of the given one.
  */
+@Stable
 inline operator fun Int.times(other: TextUnit) = checkArithmetic(other) {
     pack(other.rawType, this * other.value)
 }
@@ -313,6 +324,7 @@ inline operator fun Int.times(other: TextUnit) = checkArithmetic(other) {
  * equal to [TextUnit.Inherit].
  * The result of this operation is the same unit type of the given one.
  */
+@Stable
 inline fun min(a: TextUnit, b: TextUnit): TextUnit = checkArithmetic(a, b) {
     if (a.value < b.value) a else b
 }
@@ -324,6 +336,7 @@ inline fun min(a: TextUnit, b: TextUnit): TextUnit = checkArithmetic(a, b) {
  * equal to [TextUnit.Inherit].
  * The result of this operation is the same unit type of the given one.
  */
+@Stable
 inline fun max(a: TextUnit, b: TextUnit): TextUnit = checkArithmetic(a, b) {
     if (a.value < b.value) b else a
 }
@@ -339,6 +352,7 @@ inline fun max(a: TextUnit, b: TextUnit): TextUnit = checkArithmetic(a, b) {
  * @return this value if it's in the range, or [minimumValue] if this value is less than
  * [minimumValue], or [maximumValue] if this value is greater than [maximumValue].
  */
+@Stable
 inline fun TextUnit.coerceIn(minimumValue: TextUnit, maximumValue: TextUnit): TextUnit =
     checkArithmetic(this, minimumValue, maximumValue) {
         pack(rawType, value.coerceIn(minimumValue.value, maximumValue.value))
@@ -350,6 +364,7 @@ inline fun TextUnit.coerceIn(minimumValue: TextUnit, maximumValue: TextUnit): Te
  * @return this value if it's greater than or equal to the [minimumValue] or the
  * [minimumValue] otherwise.
  */
+@Stable
 inline fun TextUnit.coerceAtLeast(minimumValue: TextUnit): TextUnit =
     checkArithmetic(this, minimumValue) {
         pack(rawType, value.coerceAtLeast(minimumValue.value))
@@ -361,6 +376,7 @@ inline fun TextUnit.coerceAtLeast(minimumValue: TextUnit): TextUnit =
  * @return this value if it's less than or equal to the [maximumValue] or the
  * [maximumValue] otherwise.
  */
+@Stable
 inline fun TextUnit.coerceAtMost(maximumValue: TextUnit): TextUnit =
     checkArithmetic(this, maximumValue) {
         pack(rawType, value.coerceAtMost(maximumValue.value))
@@ -401,6 +417,7 @@ internal inline fun <T> checkArithmetic(a: TextUnit, b: TextUnit, c: TextUnit, b
     return block()
 }
 
+@Stable
 fun lerp(a: TextUnit, b: TextUnit, t: Float): TextUnit = checkArithmetic(a, b) {
     return pack(a.rawType, lerp(a.value, b.value, t))
 }

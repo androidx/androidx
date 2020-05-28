@@ -18,6 +18,7 @@
 package androidx.ui.core
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.unit.IntSize
 import androidx.ui.util.annotation.IntRange
 import kotlin.math.max
@@ -70,12 +71,14 @@ inline class Constraints2(
      * * MinFocusHeight
      * * MaxFocusHeight
      */
+    @Stable
     private val focusIndex
         get() = (value and FocusMask).toInt()
 
     /**
      * The minimum width that the measurement can take.
      */
+    @Stable
     val minWidth: Int
         @IntRange(from = 0)
         get() {
@@ -87,6 +90,7 @@ inline class Constraints2(
      * The maximum width that the measurement can take. This will either be
      * a positive value greater than or equal to [minWidth] or [Constraints2.Infinity].
      */
+    @Stable
     val maxWidth: Int
         get() {
             val mask = WidthMask[focusIndex]
@@ -97,6 +101,7 @@ inline class Constraints2(
     /**
      * The minimum height that the measurement can take.
      */
+    @Stable
     val minHeight: Int
         @IntRange(from = 0)
         get() {
@@ -110,6 +115,7 @@ inline class Constraints2(
      * The maximum height that the measurement can take. This will either be
      * a positive value greater than or equal to [minHeight] or [Constraints2.Infinity].
      */
+    @Stable
     val maxHeight: Int
         get() {
             val focus = focusIndex
@@ -123,6 +129,7 @@ inline class Constraints2(
      * Whether or not the upper bound on the maximum width.
      * @see hasBoundedHeight
      */
+    @Stable
     val hasBoundedWidth: Boolean
         get() {
             val mask = WidthMask[focusIndex]
@@ -133,6 +140,7 @@ inline class Constraints2(
      * Whether or not the upper bound on the maximum height.
      * @see hasBoundedWidth
      */
+    @Stable
     val hasBoundedHeight: Boolean
         get() {
             val focus = focusIndex
@@ -147,6 +155,7 @@ inline class Constraints2(
      * [maxWidth] and [maxHeight] must be greater than or equal to [minWidth] and [minHeight],
      * respectively, or [Infinity].
      */
+    @Stable
     fun copy(
         minWidth: Int = this.minWidth,
         maxWidth: Int = this.maxWidth,
@@ -174,6 +183,7 @@ inline class Constraints2(
          * be considered infinite. [hasBoundedHeight] or [hasBoundedWidth] will be
          * `true` when [maxHeight] or [maxWidth] is [Infinity], respectively.
          */
+        @Stable
         const val Infinity = Int.MIN_VALUE / 2
 
         /**
@@ -289,6 +299,7 @@ inline class Constraints2(
         /**
          * Creates constraints for fixed size in both dimensions.
          */
+        @Stable
         fun fixed(width: Int, height: Int): Constraints2 {
             require(width >= 0 && height >= 0) {
                 "width($width) and height($height) must be >= 0"
@@ -299,6 +310,7 @@ inline class Constraints2(
         /**
          * Creates constraints for fixed width and unspecified height.
          */
+        @Stable
         fun fixedWidth(width: Int): Constraints2 {
             require(width >= 0) {
                 "width($width) must be >= 0"
@@ -314,6 +326,7 @@ inline class Constraints2(
         /**
          * Creates constraints for fixed height and unspecified width.
          */
+        @Stable
         fun fixedHeight(height: Int): Constraints2 {
             require(height >= 0) {
                 "height($height) must be >= 0"
@@ -390,6 +403,7 @@ inline class Constraints2(
  * [maxWidth] and [maxHeight] must be greater than or equal to [minWidth] and [minHeight],
  * respectively, or [Infinity][Constraints2.Infinity].
  */
+@Stable
 fun Constraints2(
     @IntRange(from = 0)
     minWidth: Int = 0,
@@ -413,22 +427,26 @@ fun Constraints2(
 /**
  * Whether there is exactly one width value that satisfies the constraints.
  */
+@Stable
 val Constraints2.hasFixedWidth get() = maxWidth == minWidth
 
 /**
  * Whether there is exactly one height value that satisfies the constraints.
  */
+@Stable
 val Constraints2.hasFixedHeight get() = maxHeight == minHeight
 
 /**
  * Whether the area of a component respecting these constraints will definitely be 0.
  * This is true when at least one of maxWidth and maxHeight are 0.
  */
+@Stable
 val Constraints2.isZero get() = maxWidth == 0 || maxHeight == 0
 
 /**
  * Returns the result of coercing the current constraints in a different set of constraints.
  */
+@Stable
 fun Constraints2.enforce(otherConstraints: Constraints2) = Constraints2(
     minWidth = minWidth.coerceIn(otherConstraints.minWidth, otherConstraints.maxWidth),
     maxWidth = maxWidth.coerceIn(otherConstraints.minWidth, otherConstraints.maxWidth),
@@ -439,6 +457,7 @@ fun Constraints2.enforce(otherConstraints: Constraints2) = Constraints2(
 /**
  * Takes a size and returns the closest size to it that satisfies the constraints.
  */
+@Stable
 fun Constraints2.constrain(size: IntSize) = IntSize(
     width = size.width.coerceIn(minWidth, maxWidth),
     height = size.height.coerceIn(minHeight, maxHeight)
@@ -447,12 +466,14 @@ fun Constraints2.constrain(size: IntSize) = IntSize(
 /**
  * Takes a size and returns whether it satisfies the current constraints.
  */
+@Stable
 fun Constraints2.satisfiedBy(size: IntSize) =
     size.width in minWidth..maxWidth && size.height in minHeight..maxHeight
 
 /**
  * Returns the Constraints obtained by offsetting the current instance with the given values.
  */
+@Stable
 fun Constraints2.offset(horizontal: Int = 0, vertical: Int = 0) = Constraints2(
     (minWidth + horizontal).coerceAtLeast(0),
     (maxWidth + horizontal).coerceAtLeast(0),

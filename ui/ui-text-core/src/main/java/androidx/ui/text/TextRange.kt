@@ -16,6 +16,8 @@
 
 package androidx.ui.text
 
+import androidx.compose.Immutable
+
 fun CharSequence.substring(range: TextRange): String = this.substring(range.min, range.max)
 
 /**
@@ -26,6 +28,7 @@ fun CharSequence.substring(range: TextRange): String = this.substring(range.min,
  * @param start the inclusive start offset of the range.
  * @param end the exclusive end offset of the range
  */
+@Immutable
 data class TextRange(val start: Int, val end: Int) {
     /** The minimum offset of the range. */
     val min: Int get() = if (start > end) end else start

@@ -16,25 +16,32 @@
 
 package androidx.ui.geometry
 
+import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.util.lerp
 import androidx.ui.util.toStringAsFixed
 import kotlin.math.truncate
 
 /** A radius for either circular or elliptical shapes. */
+@Immutable
 data class Radius(
     /** The radius value on the horizontal axis. */
+    @Stable
     val x: Float,
     /** The radius value on the vertical axis. */
+    @Stable
     val y: Float
 ) {
 
     companion object {
         /** Constructs a circular radius. [x] and [y] will have the same radius value. */
+        @Stable
         fun circular(radius: Float): Radius {
             return Radius(radius, radius)
         }
 
         /** Constructs an elliptical radius with the given radii. */
+        @Stable
         fun elliptical(x: Float, y: Float): Radius {
             return Radius(x, y)
         }
@@ -44,6 +51,7 @@ data class Radius(
          *
          * You can use [Radius.zero] with [RRect] to have right-angle corners.
          */
+        @Stable
         val zero: Radius = circular(0.0f)
     }
 
@@ -57,6 +65,7 @@ data class Radius(
      * and then adding the result to another radius is equivalent to subtracting
      * a radius of one pixel from the other.
      */
+    @Stable
     operator fun unaryMinus() = elliptical(-x, -y)
 
     /**
@@ -66,6 +75,7 @@ data class Radius(
      * minus the right-hand-side operand's [x] and whose [y] value is the
      * left-hand-side operand's [y] minus the right-hand-side operand's [y].
      */
+    @Stable
     operator fun minus(other: Radius) = elliptical(x - other.x, y - other.y)
 
     /**
@@ -75,6 +85,7 @@ data class Radius(
      * two operands, and whose [y] value is the sum of the [y] values of the
      * two operands.
      */
+    @Stable
     operator fun plus(other: Radius) = elliptical(x + other.x, y + other.y)
 
     /**
@@ -84,6 +95,7 @@ data class Radius(
      * left-hand-side operand (a radius) multiplied by the scalar
      * right-hand-side operand (a Float).
      */
+    @Stable
     operator fun times(operand: Float) = elliptical(x * operand, y * operand)
 
     /**
@@ -93,6 +105,7 @@ data class Radius(
      * left-hand-side operand (a radius) divided by the scalar right-hand-side
      * operand (a Float).
      */
+    @Stable
     operator fun div(operand: Float) = elliptical(x / operand, y / operand)
 
     /**
@@ -112,6 +125,7 @@ data class Radius(
      * coordinates of the left-hand-side operand (a radius) by the scalar
      * right-hand-side operand (a Float).
      */
+    @Stable
     operator fun rem(operand: Float) = elliptical(x % operand, y % operand)
 
     override fun toString(): String {
@@ -152,6 +166,7 @@ data class Radius(
  * Values for [fraction] are usually obtained from an [Animation<Float>], such as
  * an `AnimationController`.
  */
+@Stable
 fun lerp(start: Radius, stop: Radius, fraction: Float): Radius {
     return Radius.elliptical(
         lerp(start.x, stop.x, fraction),

@@ -16,6 +16,9 @@
 
 package androidx.ui.graphics
 
+import androidx.compose.Immutable
+import androidx.compose.Stable
+
 /**
  * Creates a color filter that applies the blend mode given as the second
  * argument. The source color is the one given as the first argument, and the
@@ -25,14 +28,18 @@ package androidx.ui.graphics
  * to the [Paint.blendMode], using the output of this filter as the source
  * and the background as the destination.
  */
+@Immutable
 data class ColorFilter(
+    @Stable
     val color: Color,
+    @Stable
     val blendMode: BlendMode
 ) {
     companion object {
         /**
          * Helper method to create a [ColorFilter] that tints contents to the specified color
          */
+        @Stable
         fun tint(color: Color): ColorFilter = ColorFilter(color, BlendMode.srcIn)
     }
 }

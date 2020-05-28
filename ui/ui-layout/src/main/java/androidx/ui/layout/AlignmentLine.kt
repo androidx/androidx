@@ -17,6 +17,7 @@
 package androidx.ui.layout
 
 import androidx.compose.Composable
+import androidx.compose.Stable
 
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
@@ -112,6 +113,7 @@ fun AlignmentLineOffset(
  * Example usage:
  * @sample androidx.ui.layout.samples.RelativePaddingFromSample
  */
+@Stable
 fun Modifier.relativePaddingFrom(
     alignmentLine: AlignmentLine,
     before: Dp = 0.dp,

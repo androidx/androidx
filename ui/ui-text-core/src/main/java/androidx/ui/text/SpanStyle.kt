@@ -17,6 +17,7 @@
 package androidx.ui.text
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.lerp
@@ -91,6 +92,7 @@ data class SpanStyle(
      *
      * If the given span style is null, returns this span style.
      */
+    @Stable
     fun merge(other: SpanStyle? = null): SpanStyle {
         if (other == null) return this
 
@@ -119,6 +121,7 @@ data class SpanStyle(
     /**
      * Plus operator overload that applies a [merge].
      */
+    @Stable
     operator fun plus(other: SpanStyle): SpanStyle = this.merge(other)
 }
 

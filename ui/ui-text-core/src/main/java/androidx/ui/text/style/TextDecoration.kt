@@ -16,6 +16,7 @@
 package androidx.ui.text.style
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 
 /**
  * Defines a horizontal line to be drawn on the text.
@@ -24,6 +25,7 @@ import androidx.compose.Immutable
 data class TextDecoration internal constructor(val mask: Int) {
 
     companion object {
+        @Stable
         val None: TextDecoration = TextDecoration(0x0)
 
         /**
@@ -31,6 +33,7 @@ data class TextDecoration internal constructor(val mask: Int) {
          *
          * @sample androidx.ui.text.samples.TextDecorationUnderlineSample
          */
+        @Stable
         val Underline: TextDecoration = TextDecoration(0x1)
 
         /**
@@ -38,6 +41,7 @@ data class TextDecoration internal constructor(val mask: Int) {
          *
          * @sample androidx.ui.text.samples.TextDecorationLineThroughSample
          */
+        @Stable
         val LineThrough: TextDecoration = TextDecoration(0x2)
 
         /**

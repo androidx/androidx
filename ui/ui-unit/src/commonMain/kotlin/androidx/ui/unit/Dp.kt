@@ -18,6 +18,7 @@
 package androidx.ui.unit
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.unit.Dp.Companion.Hairline
 import androidx.ui.util.lerp
 import androidx.ui.util.packFloats
@@ -46,66 +47,79 @@ inline class Dp(val value: Float) : Comparable<Dp> {
     /**
      * Add two [Dp]s together.
      */
+    @Stable
     inline operator fun plus(other: Dp) =
         Dp(value = this.value + other.value)
 
     /**
      * Subtract a Dp from another one.
      */
+    @Stable
     inline operator fun minus(other: Dp) =
         Dp(value = this.value - other.value)
 
     /**
      * This is the same as multiplying the Dp by -1.0.
      */
+    @Stable
     inline operator fun unaryMinus() = Dp(-value)
 
     /**
      * Divide a Dp by a scalar.
      */
+    @Stable
     inline operator fun div(other: Float): Dp =
         Dp(value = value / other)
 
+    @Stable
     inline operator fun div(other: Int): Dp =
         Dp(value = value / other)
 
     /**
      * Divide by another Dp to get a scalar.
      */
+    @Stable
     inline operator fun div(other: Dp): Float = value / other.value
 
     /**
      * Divide by [DpSquared] to get a [DpInverse].
      */
+    @Stable
     inline operator fun div(other: DpSquared): DpInverse =
         DpInverse(value = value / other.value)
 
     /**
      * Multiply a Dp by a scalar.
      */
+    @Stable
     inline operator fun times(other: Float): Dp =
         Dp(value = value * other)
 
+    @Stable
     inline operator fun times(other: Int): Dp =
         Dp(value = value * other)
 
     /**
      * Multiply by a Dp to get a [DpSquared] result.
      */
+    @Stable
     inline operator fun times(other: Dp): DpSquared =
         DpSquared(value = value * other.value)
 
     /**
      * Multiply by a Dp to get a [DpSquared] result.
      */
+    @Stable
     inline operator fun times(other: DpSquared): DpCubed =
         DpCubed(value = value * other.value)
 
     /**
      * Support comparing Dimensions with comparison operators.
      */
+    @Stable
     override /* TODO: inline */ operator fun compareTo(other: Dp) = value.compareTo(other.value)
 
+    @Stable
     override fun toString() = "$value.dp"
 
     companion object {
@@ -113,16 +127,19 @@ inline class Dp(val value: Float) : Comparable<Dp> {
          * A dimension used to represent a hairline drawing element. Hairline elements take up no
          * space, but will draw a single pixel, independent of the device's resolution and density.
          */
+        @Stable
         val Hairline = Dp(value = 0f)
 
         /**
          * Infinite dp dimension.
          */
+        @Stable
         val Infinity = Dp(value = Float.POSITIVE_INFINITY)
 
         /**
          * Constant that means unspecified Dp
          */
+        @Stable
         val Unspecified = Dp(value = Float.NaN)
     }
 }
@@ -134,7 +151,8 @@ inline class Dp(val value: Float) : Comparable<Dp> {
  *     // -- or --
  *     val y = 10.dp
  */
-inline val Int.dp: Dp get() = if (this == 0) Hairline else Dp(value = this.toFloat())
+@Stable
+inline val Int.dp: Dp get() = Dp(value = this.toFloat())
 
 /**
  * Create a [Dp] using a [Double]:
@@ -143,7 +161,8 @@ inline val Int.dp: Dp get() = if (this == 0) Hairline else Dp(value = this.toFlo
  *     // -- or --
  *     val y = 10.0.dp
  */
-inline val Double.dp: Dp get() = if (this == 0.0) Hairline else Dp(value = this.toFloat())
+@Stable
+inline val Double.dp: Dp get() = Dp(value = this.toFloat())
 
 /**
  * Create a [Dp] using a [Float]:
@@ -152,28 +171,37 @@ inline val Double.dp: Dp get() = if (this == 0.0) Hairline else Dp(value = this.
  *     // -- or --
  *     val y = 10f.dp
  */
-inline val Float.dp: Dp get() = if (this == 0f) Hairline else Dp(value = this)
+@Stable
+inline val Float.dp: Dp get() = Dp(value = this)
 
+@Stable
 inline operator fun Float.div(other: Dp) =
     DpInverse(this / other.value)
 
+@Stable
 inline operator fun Double.div(other: Dp) =
     DpInverse(this.toFloat() / other.value)
 
+@Stable
 inline operator fun Int.div(other: Dp) =
     DpInverse(this / other.value)
 
+@Stable
 inline operator fun Float.times(other: Dp) =
     Dp(this * other.value)
 
+@Stable
 inline operator fun Double.times(other: Dp) =
     Dp(this.toFloat() * other.value)
 
+@Stable
 inline operator fun Int.times(other: Dp) =
     Dp(this * other.value)
 
+@Stable
 inline fun min(a: Dp, b: Dp): Dp = Dp(value = min(a.value, b.value))
 
+@Stable
 inline fun max(a: Dp, b: Dp): Dp = Dp(value = max(a.value, b.value))
 
 /**
@@ -182,6 +210,7 @@ inline fun max(a: Dp, b: Dp): Dp = Dp(value = max(a.value, b.value))
  * @return this value if it's in the range, or [minimumValue] if this value is less than
  * [minimumValue], or [maximumValue] if this value is greater than [maximumValue].
  */
+@Stable
 inline fun Dp.coerceIn(minimumValue: Dp, maximumValue: Dp): Dp =
     Dp(value = value.coerceIn(minimumValue.value, maximumValue.value))
 
@@ -190,6 +219,7 @@ inline fun Dp.coerceIn(minimumValue: Dp, maximumValue: Dp): Dp =
  * @return this value if it's greater than or equal to the [minimumValue] or the
  * [minimumValue] otherwise.
  */
+@Stable
 inline fun Dp.coerceAtLeast(minimumValue: Dp): Dp =
     Dp(value = value.coerceAtLeast(minimumValue.value))
 
@@ -199,6 +229,7 @@ inline fun Dp.coerceAtLeast(minimumValue: Dp): Dp =
  * @return this value if it's less than or equal to the [maximumValue] or the
  * [maximumValue] otherwise.
  */
+@Stable
 inline fun Dp.coerceAtMost(maximumValue: Dp): Dp =
     Dp(value = value.coerceAtMost(maximumValue.value))
 
@@ -206,6 +237,7 @@ inline fun Dp.coerceAtMost(maximumValue: Dp): Dp =
  *
  * Return `true` when it is finite or `false` when it is [Dp.Infinity]
  */
+@Stable
 inline fun Dp.isFinite(): Boolean = value != Float.POSITIVE_INFINITY
 
 /**
@@ -219,6 +251,7 @@ inline fun Dp.isFinite(): Boolean = value != Float.POSITIVE_INFINITY
  * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
+@Stable
 fun lerp(start: Dp, stop: Dp, fraction: Float): Dp {
     return Dp(lerp(start.value, stop.value, fraction))
 }
@@ -238,56 +271,66 @@ inline class DpSquared(val value: Float) : Comparable<DpSquared> {
     /**
      * Add two DimensionSquares together.
      */
+    @Stable
     inline operator fun plus(other: DpSquared) =
         DpSquared(value = value + other.value)
 
     /**
      * Subtract a DimensionSquare from another one.
      */
+    @Stable
     inline operator fun minus(other: DpSquared) =
         DpSquared(value = value - other.value)
 
     /**
      * Divide a DimensionSquare by a scalar.
      */
+    @Stable
     inline operator fun div(other: Float): DpSquared =
         DpSquared(value = value / other)
 
     /**
      * Divide by a [Dp] to get a [Dp] result.
      */
+    @Stable
     inline operator fun div(other: Dp): Dp =
         Dp(value = value / other.value)
 
     /**
      * Divide by a DpSquared to get a scalar result.
      */
+    @Stable
     inline operator fun div(other: DpSquared): Float = value / other.value
 
     /**
      * Divide by a [DpCubed] to get a [DpInverse] result.
      */
+    @Stable
     inline operator fun div(other: DpCubed): DpInverse =
         DpInverse(value / other.value)
 
     /**
      * Multiply by a scalar to get a DpSquared result.
      */
+    @Stable
     inline operator fun times(other: Float): DpSquared =
         DpSquared(value = value * other)
 
     /**
      * Multiply by a scalar to get a DpSquared result.
      */
+    @Stable
     inline operator fun times(other: Dp): DpCubed =
         DpCubed(value = value * other.value)
 
     /**
      * Support comparing DpSquared with comparison operators.
      */
+    @Stable
     override /* TODO: inline */ operator fun compareTo(other: DpSquared) =
         value.compareTo(other.value)
 
+    @Stable
     override fun toString(): String = "$value.dp^2"
 }
 
@@ -307,50 +350,59 @@ inline class DpCubed(val value: Float) : Comparable<DpCubed> {
     /**
      * Add two DpCubed together.
      */
+    @Stable
     inline operator fun plus(dimension: DpCubed) =
         DpCubed(value = value + dimension.value)
 
     /**
      * Subtract a DpCubed from another one.
      */
+    @Stable
     inline operator fun minus(dimension: DpCubed) =
         DpCubed(value = value - dimension.value)
 
     /**
      * Divide a DpCubed by a scalar.
      */
+    @Stable
     inline operator fun div(other: Float): DpCubed =
         DpCubed(value = value / other)
 
     /**
      * Divide by a [Dp] to get a [DpSquared] result.
      */
+    @Stable
     inline operator fun div(other: Dp): DpSquared =
         DpSquared(value = value / other.value)
 
     /**
      * Divide by a [DpSquared] to get a [Dp] result.
      */
+    @Stable
     inline operator fun div(other: DpSquared): Dp =
         Dp(value = value / other.value)
 
     /**
      * Divide by a DpCubed to get a scalar result.
      */
+    @Stable
     inline operator fun div(other: DpCubed): Float = value / other.value
 
     /**
      * Multiply by a scalar to get a DpCubed result.
      */
+    @Stable
     inline operator fun times(other: Float): DpCubed =
         DpCubed(value = value * other)
 
     /**
      * Support comparing DpCubed with comparison operators.
      */
+    @Stable
     override /* TODO: inline */ operator fun compareTo(other: DpCubed) =
         value.compareTo(other.value)
 
+    @Stable
     override fun toString(): String = "$value.dp^3"
 }
 /**
@@ -368,50 +420,59 @@ inline class DpInverse(val value: Float) : Comparable<DpInverse> {
     /**
      * Add two DpInverse together.
      */
+    @Stable
     inline operator fun plus(dimension: DpInverse) =
         DpInverse(value = value + dimension.value)
 
     /**
      * Subtract a DpInverse from another one.
      */
+    @Stable
     inline operator fun minus(dimension: DpInverse) =
         DpInverse(value = value - dimension.value)
 
     /**
      * Divide a DpInverse by a scalar.
      */
+    @Stable
     inline operator fun div(other: Float): DpInverse =
         DpInverse(value = value / other)
 
     /**
      * Multiply by a scalar to get a DpInverse result.
      */
+    @Stable
     inline operator fun times(other: Float): DpInverse =
         DpInverse(value = value * other)
 
     /**
      * Multiply by a [Dp] to get a scalar result.
      */
+    @Stable
     inline operator fun times(other: Dp): Float = value * other.value
 
     /**
      * Multiply by a [DpSquared] to get a [Dp] result.
      */
+    @Stable
     inline operator fun times(other: DpSquared): Dp =
         Dp(value = value * other.value)
 
     /**
      * Multiply by a [DpCubed] to get a [DpSquared] result.
      */
+    @Stable
     inline operator fun times(other: DpCubed): DpSquared =
         DpSquared(value = value * other.value)
 
     /**
      * Support comparing DpInverse with comparison operators.
      */
+    @Stable
     override /* TODO: inline */ operator fun compareTo(other: DpInverse) =
         value.compareTo(other.value)
 
+    @Stable
     override fun toString(): String = "$value.dp^-1"
 }
 
@@ -429,27 +490,32 @@ inline class Position(@PublishedApi internal val value: Long) {
     /**
      * The horizontal aspect of the position in [Dp]
      */
+    @Stable
     /*inline*/ val x: Dp
         get() = unpackFloat1(value).dp
 
     /**
      * The vertical aspect of the position in [Dp]
      */
+    @Stable
     /*inline*/ val y: Dp
         get() = unpackFloat2(value).dp
 
     /**
      * Subtract a [Position] from another one.
      */
+    @Stable
     inline operator fun minus(other: Position) =
         Position(x - other.x, y - other.y)
 
     /**
      * Add a [Position] to another one.
      */
+    @Stable
     inline operator fun plus(other: Position) =
         Position(x + other.x, y + other.y)
 
+    @Stable
     override fun toString(): String = "($x, $y)"
 }
 
@@ -457,11 +523,13 @@ inline class Position(@PublishedApi internal val value: Long) {
  * Constructs a [Position] from [x] and [y] position [Dp] values.
  */
 @OptIn(ExperimentalUnsignedTypes::class)
+@Stable
 inline fun Position(x: Dp, y: Dp): Position = Position(packFloats(x.value, y.value))
 
 /**
  * The magnitude of the offset represented by this [Position].
  */
+@Stable
 fun Position.getDistance(): Dp {
     return Dp(sqrt(x.value * x.value + y.value * y.value))
 }
@@ -477,6 +545,7 @@ fun Position.getDistance(): Dp {
  * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
+@Stable
 fun lerp(start: Position, stop: Position, fraction: Float): Position =
     Position(lerp(start.x, stop.x, fraction), lerp(start.y, stop.y, fraction))
 
@@ -485,18 +554,24 @@ fun lerp(start: Position, stop: Position, fraction: Float): Position =
  */
 @Immutable
 data class Bounds(
+    @Stable
     val left: Dp,
+    @Stable
     val top: Dp,
+    @Stable
     val right: Dp,
+    @Stable
     val bottom: Dp
 )
 
 /**
  * A width of this Bounds in [Dp].
  */
+@Stable
 inline val Bounds.width: Dp get() = right - left
 
 /**
  * A height of this Bounds in [Dp].
  */
+@Stable
 inline val Bounds.height: Dp get() = bottom - top

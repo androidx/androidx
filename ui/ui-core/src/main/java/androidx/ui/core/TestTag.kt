@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
+import androidx.compose.Stable
 import androidx.ui.core.semantics.semantics
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.SemanticsPropertyReceiver
@@ -43,6 +44,7 @@ fun TestTag(tag: String, children: @Composable () -> Unit) {
  * Note that this does not, by itself, create a semantics boundary. If the element you are
  * setting this on does not already create a boundary, you will need to create one.
  */
+@Stable
 fun Modifier.testTag(tag: String) = semantics(
     properties = {
         testTag = tag

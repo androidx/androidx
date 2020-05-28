@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.coerceAtLeast
@@ -58,9 +59,13 @@ import androidx.ui.unit.isFinite
  */
 @Immutable
 data class Constraints(
+    @Stable
     val minWidth: IntPx = IntPx.Zero,
+    @Stable
     val maxWidth: IntPx = IntPx.Infinity,
+    @Stable
     val minHeight: IntPx = IntPx.Zero,
+    @Stable
     val maxHeight: IntPx = IntPx.Infinity
 ) {
     init {
@@ -83,11 +88,13 @@ data class Constraints(
         /**
          * Creates constraints for fixed size in both dimensions.
          */
+        @Stable
         fun fixed(width: IntPx, height: IntPx) = Constraints(width, width, height, height)
 
         /**
          * Creates constraints for fixed width and unspecified height.
          */
+        @Stable
         fun fixedWidth(width: IntPx) = Constraints(
             minWidth = width,
             maxWidth = width,
@@ -98,6 +105,7 @@ data class Constraints(
         /**
          * Creates constraints for fixed height and unspecified width.
          */
+        @Stable
         fun fixedHeight(height: IntPx) = Constraints(
             minWidth = IntPx.Zero,
             maxWidth = IntPx.Infinity,
@@ -111,33 +119,39 @@ data class Constraints(
  * Whether or not the upper bound on the maximum height.
  * @see hasBoundedWidth
  */
+@Stable
 val Constraints.hasBoundedHeight get() = maxHeight.isFinite()
 
 /**
  * Whether or not the upper bound on the maximum width.
  * @see hasBoundedHeight
  */
+@Stable
 val Constraints.hasBoundedWidth get() = maxWidth.isFinite()
 
 /**
  * Whether there is exactly one width value that satisfies the constraints.
  */
+@Stable
 val Constraints.hasFixedWidth get() = maxWidth == minWidth
 
 /**
  * Whether there is exactly one height value that satisfies the constraints.
  */
+@Stable
 val Constraints.hasFixedHeight get() = maxHeight == minHeight
 
 /**
  * Whether the area of a component respecting these constraints will definitely be 0.
  * This is true when at least one of maxWidth and maxHeight are 0.
  */
+@Stable
 val Constraints.isZero get() = maxWidth == IntPx.Zero || maxHeight == IntPx.Zero
 
 /**
  * Returns the result of coercing the current constraints in a different set of constraints.
  */
+@Stable
 fun Constraints.enforce(otherConstraints: Constraints) = Constraints(
     minWidth = minWidth.coerceIn(otherConstraints.minWidth, otherConstraints.maxWidth),
     maxWidth = maxWidth.coerceIn(otherConstraints.minWidth, otherConstraints.maxWidth),
@@ -148,6 +162,7 @@ fun Constraints.enforce(otherConstraints: Constraints) = Constraints(
 /**
  * Takes a size and returns the closest size to it that satisfies the constraints.
  */
+@Stable
 fun Constraints.constrain(size: IntPxSize) = IntPxSize(
     size.width.coerceIn(minWidth, maxWidth),
     size.height.coerceIn(minHeight, maxHeight)
@@ -156,6 +171,7 @@ fun Constraints.constrain(size: IntPxSize) = IntPxSize(
 /**
  * Takes a size and returns whether it satisfies the current constraints.
  */
+@Stable
 fun Constraints.satisfiedBy(size: IntPxSize) =
         minWidth <= size.width && size.width <= maxWidth &&
                 minHeight <= size.height && size.height <= maxHeight
@@ -163,6 +179,7 @@ fun Constraints.satisfiedBy(size: IntPxSize) =
 /**
  * Returns the Constraints obtained by offsetting the current instance with the given values.
  */
+@Stable
 fun Constraints.offset(horizontal: IntPx = 0.ipx, vertical: IntPx = 0.ipx) = Constraints(
     (minWidth + horizontal).coerceAtLeast(0.ipx),
     (maxWidth + horizontal).coerceAtLeast(0.ipx),

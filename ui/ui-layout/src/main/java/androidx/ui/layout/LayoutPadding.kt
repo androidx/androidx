@@ -17,6 +17,7 @@
 package androidx.ui.layout
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
@@ -38,6 +39,7 @@ import androidx.ui.unit.dp
  * Example usage:
  * @sample androidx.ui.layout.samples.PaddingModifier
  */
+@Stable
 fun Modifier.padding(
     start: Dp = 0.dp,
     top: Dp = 0.dp,
@@ -62,6 +64,7 @@ fun Modifier.padding(
  * Example usage:
  * @sample androidx.ui.layout.samples.SymmetricPaddingModifier
  */
+@Stable
 fun Modifier.padding(
     horizontal: Dp = 0.dp,
     vertical: Dp = 0.dp
@@ -83,6 +86,7 @@ fun Modifier.padding(
  * Example usage:
  * @sample androidx.ui.layout.samples.PaddingAllModifier
  */
+@Stable
 fun Modifier.padding(all: Dp) =
     this + PaddingModifier(start = all, top = all, end = all, bottom = all, rtlAware = true)
 
@@ -116,6 +120,7 @@ fun Modifier.padding(padding: InnerPadding) =
  * Example usage:
  * @sample androidx.ui.layout.samples.AbsolutePaddingModifier
  */
+@Stable
 fun Modifier.absolutePadding(
     left: Dp = 0.dp,
     top: Dp = 0.dp,
@@ -171,9 +176,13 @@ private data class PaddingModifier(
  */
 @Immutable
 data class InnerPadding(
+    @Stable
     val start: Dp = 0.dp,
+    @Stable
     val top: Dp = 0.dp,
+    @Stable
     val end: Dp = 0.dp,
+    @Stable
     val bottom: Dp = 0.dp
 ) {
     constructor(all: Dp) : this(all, all, all, all)

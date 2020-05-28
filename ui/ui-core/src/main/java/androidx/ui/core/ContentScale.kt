@@ -16,6 +16,8 @@
 
 package androidx.ui.core
 
+import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.geometry.Size
 import kotlin.math.max
 import kotlin.math.min
@@ -25,6 +27,7 @@ private const val OriginalScale = 1.0f
 /**
  * Represents a rule to apply to scale a source rectangle to be inscribed into a destination
  */
+@Stable
 interface ContentScale {
 
     /**
@@ -46,6 +49,7 @@ interface ContentScale {
          * This [ContentScale] implementation in combination with usage of [Alignment.Center]
          * provides similar behavior to [android.widget.ImageView.ScaleType.CENTER_CROP]
          */
+        @Stable
         val Crop = object : ContentScale {
             override fun scale(srcSize: Size, dstSize: Size): Float =
                 computeFillMaxDimension(srcSize, dstSize)
@@ -59,6 +63,7 @@ interface ContentScale {
          * This [ContentScale] implementation in combination with usage of [Alignment.Center]
          * provides similar behavior to [android.widget.ImageView.ScaleType.FIT_CENTER]
          */
+        @Stable
         val Fit = object : ContentScale {
             override fun scale(srcSize: Size, dstSize: Size): Float =
                 computeFillMinDimension(srcSize, dstSize)
@@ -69,6 +74,7 @@ interface ContentScale {
          * height. This can cover a larger area than the destination if the height is larger than
          * the width.
          */
+        @Stable
         val FillHeight = object : ContentScale {
             override fun scale(srcSize: Size, dstSize: Size): Float =
                 computeFillHeight(srcSize, dstSize)
@@ -79,6 +85,7 @@ interface ContentScale {
          * destination width. This can cover a larger area than the destination if the width is
          * larger than the height.
          */
+        @Stable
         val FillWidth = object : ContentScale {
             override fun scale(srcSize: Size, dstSize: Size): Float =
                 computeFillWidth(srcSize, dstSize)
@@ -93,6 +100,7 @@ interface ContentScale {
          * This [ContentScale] implementation in combination with usage of [Alignment.Center]
          * provides similar behavior to [android.widget.ImageView.ScaleType.CENTER_INSIDE]
          */
+        @Stable
         val Inside = object : ContentScale {
             override fun scale(srcSize: Size, dstSize: Size): Float =
                 if (srcSize.width <= dstSize.width && srcSize.height <= dstSize.height) {
@@ -105,6 +113,7 @@ interface ContentScale {
         /**
          * Do not apply any scaling to the source
          */
+        @Stable
         val None = FixedScale(OriginalScale)
     }
 }
@@ -113,6 +122,7 @@ interface ContentScale {
  * [ContentScale] implementation that always scales the dimension by the provided
  * fixed floating point value
  */
+@Immutable
 data class FixedScale(val value: Float) : ContentScale {
     override fun scale(srcSize: Size, dstSize: Size): Float = value
 }

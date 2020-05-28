@@ -16,6 +16,8 @@
 
 package androidx.ui.core
 
+import androidx.compose.Stable
+
 /**
  * A [Modifier.Element] that controls the drawing order for the children of the same layout
  * parent. A child with larger [zIndex] will be drawn after all the children with smaller [zIndex].
@@ -42,6 +44,7 @@ interface ZIndexModifier : Modifier.Element {
  *
  * @sample androidx.ui.core.samples.ZIndexModifierSample
  */
+@Stable
 fun Modifier.zIndex(zIndex: Float): Modifier = this + SimpleZIndexModifier(zIndex)
 
 private data class SimpleZIndexModifier(override val zIndex: Float) : ZIndexModifier

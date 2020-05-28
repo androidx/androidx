@@ -17,11 +17,13 @@
 package androidx.ui.graphics
 
 import androidx.ui.geometry.Size
+import androidx.compose.Immutable
 import androidx.ui.unit.Density
 
 /**
  * Defines a generic shape.
  */
+@Immutable
 interface Shape {
     /**
      * Creates [Outline] of this shape for the given [size].

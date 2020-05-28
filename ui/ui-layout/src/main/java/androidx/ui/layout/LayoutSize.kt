@@ -16,6 +16,7 @@
 
 package androidx.ui.layout
 
+import androidx.compose.Stable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntrinsicMeasurable
@@ -48,6 +49,7 @@ import androidx.ui.unit.min
  * Example usage:
  * @sample androidx.ui.layout.samples.SimplePreferredWidthModifier
  */
+@Stable
 fun Modifier.preferredWidth(width: Dp) = preferredSizeIn(minWidth = width, maxWidth = width)
 
 /**
@@ -61,6 +63,7 @@ fun Modifier.preferredWidth(width: Dp) = preferredSizeIn(minWidth = width, maxWi
  * Example usage:
  * @sample androidx.ui.layout.samples.SimplePreferredHeightModifier
  */
+@Stable
 fun Modifier.preferredHeight(height: Dp) = preferredSizeIn(minHeight = height, maxHeight = height)
 
 /**
@@ -74,6 +77,7 @@ fun Modifier.preferredHeight(height: Dp) = preferredSizeIn(minHeight = height, m
  * Example usage:
  * @sample androidx.ui.layout.samples.SimplePreferredSizeModifier
  */
+@Stable
 fun Modifier.preferredSize(size: Dp) = preferredSizeIn(size, size, size, size)
 
 /**
@@ -88,6 +92,7 @@ fun Modifier.preferredSize(size: Dp) = preferredSizeIn(size, size, size, size)
  * Example usage:
  * @sample androidx.ui.layout.samples.SimplePreferredSizeModifier
  */
+@Stable
 fun Modifier.preferredSize(width: Dp, height: Dp) = preferredSizeIn(
     minWidth = width,
     maxWidth = width,
@@ -101,6 +106,7 @@ fun Modifier.preferredSize(width: Dp, height: Dp) = preferredSizeIn(
  * the requested size will obey the incoming constraints and attempt to be as close as possible
  * to the preferred size.
  */
+@Stable
 fun Modifier.preferredWidthIn(
     minWidth: Dp = Dp.Unspecified,
     maxWidth: Dp = Dp.Unspecified
@@ -112,6 +118,7 @@ fun Modifier.preferredWidthIn(
  * the requested size will obey the incoming constraints and attempt to be as close as possible
  * to the preferred size.
  */
+@Stable
 fun Modifier.preferredHeightIn(
     minHeight: Dp = Dp.Unspecified,
     maxHeight: Dp = Dp.Unspecified
@@ -123,6 +130,7 @@ fun Modifier.preferredHeightIn(
  * requested size will obey the incoming constraints and attempt to be as close as possible to
  * the preferred size.
  */
+@Stable
 fun Modifier.preferredSizeIn(constraints: DpConstraints) = preferredSizeIn(
     constraints.minWidth,
     constraints.minHeight,
@@ -136,6 +144,7 @@ fun Modifier.preferredSizeIn(constraints: DpConstraints) = preferredSizeIn(
  * measurement [Constraints]. If the incoming constraints are more restrictive the requested size
  * will obey the incoming constraints and attempt to be as close as possible to the preferred size.
  */
+@Stable
 fun Modifier.preferredSizeIn(
     minWidth: Dp = Dp.Unspecified,
     minHeight: Dp = Dp.Unspecified,
@@ -158,6 +167,7 @@ fun Modifier.preferredSizeIn(
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleWidthModifier
  */
+@Stable
 fun Modifier.width(width: Dp) = sizeIn(minWidth = width, maxWidth = width)
 
 /**
@@ -175,6 +185,7 @@ fun Modifier.width(width: Dp) = sizeIn(minWidth = width, maxWidth = width)
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleHeightModifier
  */
+@Stable
 fun Modifier.height(height: Dp) = sizeIn(minHeight = height, maxHeight = height)
 
 /**
@@ -192,6 +203,7 @@ fun Modifier.height(height: Dp) = sizeIn(minHeight = height, maxHeight = height)
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleSizeModifier
  */
+@Stable
 fun Modifier.size(size: Dp) = sizeIn(size, size, size, size)
 
 /**
@@ -209,6 +221,7 @@ fun Modifier.size(size: Dp) = sizeIn(size, size, size, size)
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleWidthModifier
  */
+@Stable
 fun Modifier.size(width: Dp, height: Dp) = sizeIn(
     minWidth = width,
     maxWidth = width,
@@ -223,6 +236,7 @@ fun Modifier.size(width: Dp, height: Dp) = sizeIn(
  * of the content will be automatically offset to be centered on the space assigned to
  * the child by the parent layout under the assumption that [Constraints] were respected.
  */
+@Stable
 fun Modifier.widthIn(
     minWidth: Dp = Dp.Unspecified,
     maxWidth: Dp = Dp.Unspecified
@@ -235,6 +249,7 @@ fun Modifier.widthIn(
  * of the content will be automatically offset to be centered on the space assigned to
  * the child by the parent layout under the assumption that [Constraints] were respected.
  */
+@Stable
 fun Modifier.heightIn(
     minHeight: Dp = Dp.Unspecified,
     maxHeight: Dp = Dp.Unspecified
@@ -247,6 +262,7 @@ fun Modifier.heightIn(
  * of the content will be automatically offset to be centered on the space assigned to
  * the child by the parent layout under the assumption that [Constraints] were respected.
  */
+@Stable
 fun Modifier.sizeIn(constraints: DpConstraints) = sizeIn(
     constraints.minWidth,
     constraints.minHeight,
@@ -262,6 +278,7 @@ fun Modifier.sizeIn(constraints: DpConstraints) = sizeIn(
  * of the content will be automatically offset to be centered on the space assigned to
  * the child by the parent layout under the assumption that [Constraints] were respected.
  */
+@Stable
 fun Modifier.sizeIn(
     minWidth: Dp = Dp.Unspecified,
     minHeight: Dp = Dp.Unspecified,
@@ -278,6 +295,7 @@ fun Modifier.sizeIn(
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleFillWidthModifier
  */
+@Stable
 fun Modifier.fillMaxWidth() = this + FillModifier(Direction.Horizontal)
 
 /**
@@ -289,6 +307,7 @@ fun Modifier.fillMaxWidth() = this + FillModifier(Direction.Horizontal)
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleFillHeightModifier
  */
+@Stable
 fun Modifier.fillMaxHeight() = this + FillModifier(Direction.Vertical)
 
 /**
@@ -301,6 +320,7 @@ fun Modifier.fillMaxHeight() = this + FillModifier(Direction.Vertical)
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleFillModifier
  */
+@Stable
 fun Modifier.fillMaxSize() = this + FillModifier(Direction.Both)
 
 /**
@@ -311,6 +331,7 @@ fun Modifier.fillMaxSize() = this + FillModifier(Direction.Both)
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleWrapContentHorizontallyAlignedModifier
  */
+@Stable
 // TODO(popam): avoid recreating modifier for common align
 fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHorizontally) = this +
         AlignmentModifier(Direction.Horizontal) { size, layoutDirection ->
@@ -326,6 +347,7 @@ fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHori
  * @sample androidx.ui.layout.samples.SimpleWrapContentVerticallyAlignedModifier
  */
 // TODO(popam): avoid recreating modifier for common align
+@Stable
 fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVertically) =
     this + AlignmentModifier(Direction.Vertical) { size, _ ->
         IntPxPosition(0.ipx, align.align(size.height))
@@ -340,6 +362,7 @@ fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVerti
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleWrapContentAlignedModifier
  */
+@Stable
 fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) =
     this + AlignmentModifier(Direction.Both) { size, layoutDirection ->
         align.align(size, layoutDirection)
@@ -355,6 +378,7 @@ fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) =
  * Example usage:
  * @sample androidx.ui.layout.samples.DefaultMinSizeConstraintsSample
  */
+@Stable
 fun Modifier.defaultMinSizeConstraints(
     minWidth: Dp = Dp.Unspecified,
     minHeight: Dp = Dp.Unspecified

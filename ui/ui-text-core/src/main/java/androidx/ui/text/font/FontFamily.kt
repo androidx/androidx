@@ -17,6 +17,7 @@
 package androidx.ui.text.font
 
 import androidx.compose.Immutable
+import androidx.compose.Stable
 import androidx.ui.text.Typeface
 
 /**
@@ -106,6 +107,7 @@ data class FontListFontFamily(val fonts: List<Font>) : FileBasedFontFamily(), Li
  *
  * @param fonts list of font files
  */
+@Stable
 fun fontFamily(fonts: List<Font>) = FontListFontFamily(fonts)
 
 /**
@@ -113,6 +115,7 @@ fun fontFamily(fonts: List<Font>) = FontListFontFamily(fonts)
  *
  * @param fonts list of font files
  */
+@Stable
 fun fontFamily(vararg fonts: Font) = FontListFontFamily(fonts.asList())
 
 /**

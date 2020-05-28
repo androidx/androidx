@@ -17,6 +17,7 @@
 package androidx.ui.layout
 
 import androidx.annotation.FloatRange
+import androidx.compose.Stable
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureScope
@@ -42,6 +43,7 @@ import androidx.ui.unit.isFinite
  *
  * @param ratio the desired width/height positive ratio
  */
+@Stable
 fun Modifier.aspectRatio(
     @FloatRange(from = 0.0, fromInclusive = false)
     ratio: Float

@@ -16,7 +16,10 @@
 
 package androidx.ui.unit
 
+import androidx.compose.Immutable
+
 /** A velocity in two dimensions. */
+@Immutable
 data class Velocity(
     /** The number of pixels per second of velocity in the x and y directions. */
     val pixelsPerSecond: PxPosition
