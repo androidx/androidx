@@ -143,12 +143,13 @@ class AndroidComposeTestRule<T : ComponentActivity>(
         private val base: Statement
     ) : Statement() {
         override fun evaluate() {
-            val oldTextInputFactory = textInputServiceFactory
+            val oldTextInputFactory = @Suppress("DEPRECATION_ERROR")(textInputServiceFactory)
             beforeEvaluate()
             try {
                 base.evaluate()
             } finally {
                 afterEvaluate()
+                @Suppress("DEPRECATION_ERROR")
                 textInputServiceFactory = oldTextInputFactory
             }
         }
@@ -158,6 +159,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             AndroidOwnerRegistry.setupRegistry()
             FirstDrawRegistry.setupRegistry()
             registerComposeWithEspresso()
+            @Suppress("DEPRECATION_ERROR")
             textInputServiceFactory = {
                 TextInputServiceForTests(it)
             }
