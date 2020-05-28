@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.LayoutDirection;
 import android.util.Rational;
 import android.util.Size;
 
@@ -43,11 +44,12 @@ public class ViewPorts {
     /**
      * Calculate a set of ViewPorts based on the combination of the camera, viewport, and use cases.
      *
-     * @param fullSensorRect The full size of the viewport.
-     * @param viewPortAspectRatio The aspect ratio of the viewport.
+     * @param fullSensorRect        The full size of the viewport.
+     * @param viewPortAspectRatio   The aspect ratio of the viewport.
      * @param outputRotationDegrees The output rotation of the viewport
-     * @param scaleType The scaletype to calculate
-     * @param useCaseSizes The resolutions of the UseCases
+     * @param scaleType             The scale type to calculate
+     * @param layoutDirection       The direction of layout.
+     * @param useCaseSizes          The resolutions of the UseCases
      * @return The set of Viewports that should be set for each UseCase
      */
     @NonNull
@@ -56,6 +58,7 @@ public class ViewPorts {
             @NonNull Rational viewPortAspectRatio,
             @IntRange(from = 0, to = 359) int outputRotationDegrees,
             @ViewPort.ScaleType int scaleType,
+            @ViewPort.LayoutDirection int layoutDirection,
             @NonNull Map<UseCase, Size> useCaseSizes) {
         // Transform aspect ratio to sensor orientation. The the rest of the method is in sensor
         // orientation.
@@ -93,11 +96,51 @@ public class ViewPorts {
             // Transform the sensor crop rect to UseCase coordinates.
             entry.getValue().invert(sensorToUseCaseTransformation);
             sensorToUseCaseTransformation.mapRect(useCaseOutputRect, sensorIntersectionRect);
+            correctOutputRectForRtl(layoutDirection, useCaseSizes.get(entry.getKey()),
+                    useCaseOutputRect);
             Rect outputCropRect = new Rect();
             useCaseOutputRect.round(outputCropRect);
             useCaseOutputRects.put(entry.getKey(), outputCropRect);
         }
         return useCaseOutputRects;
+    }
+
+    /**
+     * Flips and corrects the Rect for LTR layout direction.
+     *
+     * <p> The definition of "start" and "end" in {@link ViewPort.ScaleType} depends on
+     * {@link LayoutDirection}. For {@link LayoutDirection#LTR}, the start is (0,0) and the
+     * end is (width, height); for {@link LayoutDirection#RTL}, the start is (width, 0) and
+     * the end is (0, height). The output rect needs to be transformed to match View properties.
+     */
+    static void correctOutputRectForRtl(
+            @ViewPort.LayoutDirection int layoutDirection,
+            Size size,
+            RectF rect) {
+        if (layoutDirection == LayoutDirection.LTR) {
+            // No transformation needed for the default LTR.
+            return;
+        }
+
+        // Flip based on the middle line of the Surface.
+        Matrix rtlTransformation = new Matrix();
+        // Create a transformation that mirror the Surface.
+        rtlTransformation.setPolyToPoly(
+                new float[]{0, 0, size.getWidth(), 0, size.getWidth(), size.getHeight(), 0,
+                        size.getHeight()},
+                0,
+                new float[]{size.getWidth(), 0, 0, 0, 0, size.getHeight(), size.getWidth(),
+                        size.getHeight()},
+                0,
+                4);
+        rtlTransformation.mapRect(rect);
+
+        // The order of the vertices are mirrored too. Rearrange them based on value.
+        float newLeft = Math.min(rect.left, rect.right);
+        float newRight = Math.max(rect.left, rect.right);
+        float newTop = Math.min(rect.top, rect.bottom);
+        float newBottom = Math.max(rect.top, rect.bottom);
+        rect.set(newLeft, newTop, newRight, newBottom);
     }
 
     /**

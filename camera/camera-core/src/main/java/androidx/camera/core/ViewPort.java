@@ -134,11 +134,15 @@ public final class ViewPort {
     @ImageOutputConfig.RotationValue
     private int mRotation;
 
+    @LayoutDirection
+    private int mLayoutDirection;
+
     ViewPort(@ScaleType int scaleType, @NonNull Rational aspectRatio,
-            @ImageOutputConfig.RotationValue int rotation) {
+            @ImageOutputConfig.RotationValue int rotation, @LayoutDirection int layoutDirection) {
         mScaleType = scaleType;
         mAspectRatio = aspectRatio;
         mRotation = rotation;
+        mLayoutDirection = layoutDirection;
     }
 
     /**
@@ -175,12 +179,25 @@ public final class ViewPort {
     }
 
     /**
+     * Gets the layout direction of the {@link ViewPort}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ScaleType
+    public int getLayoutDirection() {
+        return mLayoutDirection;
+    }
+
+    /**
      * Builder for {@link ViewPort}.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class Builder {
+
+        private static final int DEFAULT_LAYOUT_DIRECTION = android.util.LayoutDirection.LTR;
 
         @ScaleType
         private int mScaleType;
@@ -190,6 +207,9 @@ public final class ViewPort {
 
         @ImageOutputConfig.RotationValue
         private int mRotation;
+
+        @LayoutDirection
+        private int mLayoutDirection = DEFAULT_LAYOUT_DIRECTION;
 
         public Builder() {
         }
@@ -248,7 +268,8 @@ public final class ViewPort {
         @NonNull
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder setLayoutDirection(@LayoutDirection int layoutDirection) {
-            throw new UnsupportedOperationException("LayoutDirection is not implemented");
+            mLayoutDirection = layoutDirection;
+            return this;
         }
 
         /**
@@ -260,7 +281,7 @@ public final class ViewPort {
         @NonNull
         public ViewPort build() {
             Preconditions.checkNotNull(mAspectRatio, "The crop aspect ratio must be set.");
-            return new ViewPort(mScaleType, mAspectRatio, mRotation);
+            return new ViewPort(mScaleType, mAspectRatio, mRotation, mLayoutDirection);
         }
     }
 }

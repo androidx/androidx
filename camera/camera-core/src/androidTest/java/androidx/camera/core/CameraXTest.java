@@ -26,12 +26,8 @@ import static org.mockito.Mockito.spy;
 
 import android.app.Instrumentation;
 import android.content.Context;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.util.Rational;
 import android.util.Size;
 
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraFactory;
@@ -41,7 +37,6 @@ import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.internal.ViewPorts;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -62,11 +57,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -82,10 +73,6 @@ public final class CameraXTest {
             new CameraSelector.Builder().requireLensFacing(CAMERA_LENS_FACING).build();
     private static final String CAMERA_ID = "0";
     private static final String CAMERA_ID_FRONT = "1";
-    // A container rect that is 4:3.
-    private static final RectF CONTAINER_RECT = new RectF(10, 10, 50, 40);
-    // 1:1 narrow aspect ratio
-    private static final Rational FIT_ASPECT_RATIO = new Rational(100, 100);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Context mContext;
@@ -126,189 +113,6 @@ public final class CameraXTest {
         CameraX.shutdown().get();
     }
 
-    @Test
-    public void viewPortRectWithTwoSurfacesIntersectWide() {
-        assertThat(
-                getViewPortRects(
-                        new Size(800, 800),
-                        new Rational(1, 2),
-                        180,
-                        ViewPort.FILL_CENTER,
-                        new Size(400, 800),
-                        new Size(800, 400)))
-                .isEqualTo(
-                        new Rect[]{
-                                new Rect(100, 200, 300, 600),
-                                new Rect(300, 0, 500, 400)
-                        });
-    }
-
-    @Test
-    public void viewPortRectWithTwoSurfacesIntersectNarrow() {
-        assertThat(
-                getViewPortRects(
-                        new Size(800, 800),
-                        new Rational(2, 1),
-                        180,
-                        ViewPort.FILL_CENTER,
-                        new Size(400, 800),
-                        new Size(800, 400)))
-                .isEqualTo(
-                        new Rect[]{
-                                new Rect(0, 300, 400, 500),
-                                new Rect(200, 100, 600, 300)
-                        });
-    }
-
-    @Test
-    public void viewPortRectLandscapeForPortraitModeAndRotate90Degrees() {
-        assertThat(
-                getViewPortRects(
-                        new Size(800, 600),
-                        new Rational(400, 300),
-                        90,
-                        ViewPort.FILL_CENTER,
-                        new Size(400, 300)))
-                .isEqualTo(new Rect[]{
-                        new Rect(88, 0, 313, 300)
-                });
-    }
-
-    @Test
-    public void viewPortRectFitStart() {
-        assertThat(
-                getViewPortRects(
-                        new Size(800, 600),
-                        new Rational(1, 1),
-                        0,
-                        ViewPort.FIT_END,
-                        new Size(400, 300)))
-                .isEqualTo(new Rect[]{
-                        new Rect(0, -100, 400, 300)
-                });
-    }
-
-    /**
-     * Calls {@link CameraX#calculateViewPortRects(Rect, Rational, int, int, Map)}.
-     */
-    private Rect[] getViewPortRects(Size sensorSize,
-            Rational aspectRatio,
-            @IntRange(from = 0, to = 359) int rotationDegree,
-            @ViewPort.ScaleType int scaleType,
-            Size... sizes) {
-        // Convert the sizes into a UseCase map.
-        List<UseCase> orderedUseCases = new ArrayList<>();
-        Map<UseCase, Size> useCaseSizeMap = new HashMap<UseCase, Size>() {
-            {
-                for (Size size : sizes) {
-                    FakeUseCase fakeUseCase = new FakeUseCaseConfig.Builder().build();
-                    put(fakeUseCase, size);
-                    orderedUseCases.add(fakeUseCase);
-                }
-            }
-        };
-
-        Map<UseCase, Rect> useCaseCropRects = ViewPorts.calculateViewPortRects(
-                new Rect(0, 0, sensorSize.getWidth(), sensorSize.getHeight()),
-                aspectRatio,
-                rotationDegree,
-                scaleType,
-                useCaseSizeMap);
-
-        // Converts the map back to sizes array.
-        List<Rect> orderedCropRects = new ArrayList<>();
-        for (UseCase useCase : orderedUseCases) {
-            orderedCropRects.add(useCaseCropRects.get(useCase));
-        }
-
-        return orderedCropRects.toArray(new Rect[0]);
-    }
-
-    @Test
-    public void viewPortRectFillCenter() {
-        Rect expectedRect = new Rect();
-        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_CENTER).round(
-                expectedRect);
-        assertThat(expectedRect).isEqualTo(new Rect(15, 10, 45, 40));
-    }
-
-    @Test
-    public void getScaledRectFillStart() {
-        Rect expectedRect = new Rect();
-        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_START).round(
-                expectedRect);
-        assertThat(expectedRect).isEqualTo(new Rect(10, 10, 40, 40));
-    }
-
-    @Test
-    public void getScaledRectFillEnd() {
-        Rect expectedRect = new Rect();
-        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_END).round(
-                expectedRect);
-        assertThat(expectedRect).isEqualTo(new Rect(20, 10, 50, 40));
-    }
-
-    @Test
-    public void getScaledRectFitCenter() {
-        Rect expectedRect = new Rect();
-        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_CENTER).round(
-                expectedRect);
-        assertThat(expectedRect).isEqualTo(new Rect(10, 5, 50, 45));
-    }
-
-    @Test
-    public void getScaledRectFitStart() {
-        Rect expectedRect = new Rect();
-        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_START).round(
-                expectedRect);
-        assertThat(expectedRect).isEqualTo(new Rect(10, 10, 50, 50));
-    }
-
-    @Test
-    public void getScaledRectFitEnd() {
-        Rect expectedRect = new Rect();
-        ViewPorts.getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_END).round(
-                expectedRect);
-        assertThat(expectedRect).isEqualTo(new Rect(10, 0, 50, 40));
-    }
-
-    @Test
-    public void rotateUseCasesWith180Degrees_unchanged() {
-        // Arrange.
-        UseCase useCase1 = mock(UseCase.class);
-        UseCase useCase2 = mock(UseCase.class);
-        Map<UseCase, Size> useCaseSizeMap = new HashMap<UseCase, Size>() {
-            {
-                put(useCase1, new Size(800, 600));
-                put(useCase2, new Size(1600, 900));
-            }
-        };
-
-        // Assert: return the same set of sizes.
-        assertThat(CameraX.getRotatedUseCaseSizes(180, useCaseSizeMap)).isEqualTo(useCaseSizeMap);
-    }
-
-    @Test
-    public void rotateUseCasesWith90Degrees_rotated() {
-        // Arrange.
-        UseCase useCase1 = mock(UseCase.class);
-        UseCase useCase2 = mock(UseCase.class);
-        Map<UseCase, Size> useCaseSizeMap = new HashMap<UseCase, Size>() {
-            {
-                put(useCase1, new Size(800, 600));
-                put(useCase2, new Size(1600, 900));
-            }
-        };
-
-        // Assert: return a set of rotated sizes.
-        assertThat(CameraX.getRotatedUseCaseSizes(90, useCaseSizeMap)).isEqualTo(
-                new HashMap<UseCase, Size>() {
-                    {
-                        put(useCase1, new Size(600, 800));
-                        put(useCase2, new Size(900, 1600));
-                    }
-                });
-    }
 
     @Test
     public void initDeinit_success() throws ExecutionException, InterruptedException {
