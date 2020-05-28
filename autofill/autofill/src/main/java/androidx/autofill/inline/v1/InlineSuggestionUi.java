@@ -573,10 +573,8 @@ public final class InlineSuggestionUi {
                         return HINT_INLINE_START_ICON;
                     } else if (sliceItem.getHints().contains(HINT_INLINE_END_ICON)) {
                         return HINT_INLINE_END_ICON;
-                    } else {
-                        throw new IllegalStateException(
-                                "Unrecognized Image SliceItem in Inline Presentation");
                     }
+                    break;
                 case FORMAT_TEXT:
                     if (TextUtils.isEmpty(sliceItem.getText())) {
                         return null;
@@ -587,21 +585,18 @@ public final class InlineSuggestionUi {
                         return HINT_INLINE_SUBTITLE;
                     } else if (sliceItem.getHints().contains(HINT_INLINE_CONTENT_DESCRIPTION)) {
                         return HINT_INLINE_CONTENT_DESCRIPTION;
-                    } else {
-                        throw new IllegalStateException(
-                                "Unrecognized Text SliceItem in Inline Presentation");
                     }
+                    break;
                 case FORMAT_ACTION:
                     if (sliceItem.getAction() != null && sliceItem.getHints().contains(
                             HINT_INLINE_ATTRIBUTION_INTENT)) {
                         return HINT_INLINE_ATTRIBUTION_INTENT;
-                    } else {
-                        throw new IllegalStateException(
-                                "Unrecognized Action SliceItem in Inline Presentation");
                     }
+                    break;
                 default:
                     return null;
             }
+            return null;
         }
 
         /**
