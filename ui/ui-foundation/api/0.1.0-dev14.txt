@@ -308,15 +308,21 @@ package androidx.ui.foundation.selection {
 
   public final class SelectableKt {
     method @Deprecated @androidx.compose.Composable public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method @androidx.compose.Composable public static androidx.ui.core.Modifier selectable(androidx.ui.core.Modifier, boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, boolean inMutuallyExclusiveGroup = true, androidx.ui.foundation.InteractionState interactionState = remember({ 
+    method @androidx.compose.Composable public static androidx.ui.core.Modifier selectable(androidx.ui.core.Modifier, boolean selected, boolean enabled = true, boolean inMutuallyExclusiveGroup = true, androidx.ui.foundation.InteractionState interactionState = remember({ 
     return <init>()
-}), androidx.ui.foundation.Indication? indication = IndicationAmbient.invoke());
+}), androidx.ui.foundation.Indication? indication = IndicationAmbient.invoke(), kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
   }
 
   public final class ToggleableKt {
-    method @androidx.compose.Composable public static void Toggleable(boolean value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onValueChange, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated @androidx.compose.Composable public static void Toggleable(boolean value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onValueChange, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.foundation.selection.ToggleableState ToggleableState(boolean value);
-    method @androidx.compose.Composable public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState state = androidx.ui.foundation.selection.ToggleableState.On, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated @androidx.compose.Composable public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState state = androidx.ui.foundation.selection.ToggleableState.On, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static androidx.ui.core.Modifier toggleable(androidx.ui.core.Modifier, boolean value, boolean enabled = true, androidx.ui.foundation.InteractionState interactionState = remember({ 
+    return <init>()
+}), androidx.ui.foundation.Indication? indication = IndicationAmbient.invoke(), kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onValueChange);
+    method @androidx.compose.Composable public static androidx.ui.core.Modifier triStateToggleable(androidx.ui.core.Modifier, androidx.ui.foundation.selection.ToggleableState state, boolean enabled = true, androidx.ui.foundation.InteractionState interactionState = remember({ 
+    return <init>()
+}), androidx.ui.foundation.Indication? indication = IndicationAmbient.invoke(), kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
   }
 
   public enum ToggleableState {
