@@ -22,6 +22,9 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -29,6 +32,9 @@ import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.filters.SmallTest
 import androidx.ui.core.test.R
 import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
+import com.google.common.truth.Truth.assertThat
 import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
@@ -89,5 +95,27 @@ class ComposedViewTest {
                     throw exception
                 }
             }
+    }
+
+    @Test
+    fun androidViewProperlyDetached() {
+        val frameLayout = FrameLayout(composeTestRule.activityTestRule.activity).apply {
+            layoutParams = ViewGroup.LayoutParams(300, 300)
+        }
+        var emit by mutableStateOf(true)
+        composeTestRule.setContent {
+            if (emit) {
+                AndroidView(frameLayout)
+            }
+        }
+
+        runOnUiThread {
+            assertThat(frameLayout.parent).isNotNull()
+            emit = false
+        }
+
+        runOnIdleCompose {
+            assertThat(frameLayout.parent).isNull()
+        }
     }
 }
