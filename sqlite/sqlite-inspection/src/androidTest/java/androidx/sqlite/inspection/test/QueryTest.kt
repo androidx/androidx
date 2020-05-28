@@ -16,7 +16,9 @@
 
 package androidx.sqlite.inspection.test
 
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryResponse
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Row
 import androidx.sqlite.inspection.test.MessageFactory.createGetSchemaCommand
@@ -82,9 +84,9 @@ class QueryTest {
 
         val expectedValues = listOf(
             repeat5("abc").toList(),
-            listOf("500.0", 500, 500, 500.0f, "500.0"), // text|integer|integer|float|text
-            listOf("500.0", 500, 500, 500.0f, 500.0f), // text|integer|integer|float|float
-            listOf("500", 500, 500, 500.0f, 500), // text|integer|integer|float|integer
+            listOf("500.0", 500, 500, 500.0, "500.0"), // text|integer|integer|float|text
+            listOf("500.0", 500, 500, 500.0, 500.0), // text|integer|integer|float|float
+            listOf("500", 500, 500, 500.0, 500), // text|integer|integer|float|integer
             listOf(*repeat5(arrayOf<Any?>(5.toByte(), 0.toByte()))), // blob|blob|blob|blob|blob
             listOf(*repeat5<Any?>(null)) // null|null|null|null|null
         )
@@ -291,7 +293,7 @@ class QueryTest {
 
         val expectedValues = listOf(
             listOf(null, null),
-            listOf(0.5f, null),
+            listOf(0.5, null),
             listOf("'2'", null),
             listOf(null, "A")
         )
@@ -535,6 +537,42 @@ class QueryTest {
         assertThat(queryTotalChanges(databaseId)).isEqualTo(expectedTotalChanges)
     }
 
+    @Test
+    fun test_int64() {
+        test_value64(Long.MAX_VALUE, { s -> s.getLong(0) }, { c -> c.longValue })
+    }
+
+    @Test
+    fun test_float64() {
+        test_value64(Float.MAX_VALUE * 2.0, { s -> s.getDouble(0) }, { c -> c.doubleValue })
+    }
+
+    private fun <T> test_value64(
+        value: T,
+        fromCursor: (Cursor) -> T,
+        fromCellValue: (CellValue) -> T
+    ) = runBlocking {
+        val db = Database("db1", Table("t1", Column("c1", "INT"))).createInstance(temporaryFolder)
+        testEnvironment.registerAlreadyOpenDatabases(listOf(db))
+        testEnvironment.sendCommand(createTrackDatabasesCommand())
+        val id = testEnvironment.receiveEvent().databaseOpened.databaseId
+
+        db.execSQL("insert into t1 values ($value)")
+        val query = "select * from t1"
+        val dbValue: T = db.rawQuery(query, emptyArray()).also { it.moveToNext() }.let {
+            val result = fromCursor(it)
+            it.close()
+            result
+        }
+        assertThat(dbValue).isEqualTo(value)
+
+        testEnvironment.issueQuery(id, query, null).let { response ->
+            assertThat(response.rowsList).hasSize(1)
+            assertThat(response.rowsList[0].valuesList).hasSize(1)
+            assertThat(fromCellValue(response.rowsList[0].valuesList[0])).isEqualTo(value)
+        }
+    }
+
     private suspend fun inspectDatabase(databaseInstance: SQLiteDatabase): Int {
         testEnvironment.registerAlreadyOpenDatabases(
             listOf(
@@ -556,18 +594,18 @@ class QueryTest {
     private suspend fun querySchema(databaseId: Int): List<Table> =
         testEnvironment.sendCommand(createGetSchemaCommand(databaseId)).getSchema.toTableList()
 
-    private suspend fun queryChanges(databaseId: Int, useTotal: Boolean = false): Int {
+    private suspend fun queryChanges(databaseId: Int, useTotal: Boolean = false): Long {
         val criterion = if (useTotal) "total_changes" else "changes"
         return issueQuery(databaseId, "select $criterion()").rowsList.let { response ->
             assertThat(response).hasSize(1)
             assertThat(response.first().valuesList).hasSize(1)
             val cell = response.first().getValues(0)
             assertThat(cell.type).isEqualTo("integer")
-            cell.value as Int
+            cell.value as Long
         }
     }
 
-    private suspend fun queryTotalChanges(databaseId: Int): Int = queryChanges(databaseId, true)
+    private suspend fun queryTotalChanges(databaseId: Int): Long = queryChanges(databaseId, true)
 
     private inline fun <reified T> repeatN(value: T, n: Int): Array<T> =
         (0 until n).map { value }.toTypedArray()
