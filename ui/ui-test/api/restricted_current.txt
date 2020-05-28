@@ -55,8 +55,8 @@ package androidx.ui.test {
     method public static void assertPixels(android.graphics.Bitmap, androidx.ui.unit.IntPxSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntPxPosition,androidx.ui.graphics.Color> expectedColorProvider);
     method public static void assertShape--mmofgM(android.graphics.Bitmap, androidx.ui.unit.Density density, float horizontalPadding, float verticalPadding, long backgroundColor, long shapeColor, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, float shapeOverlapPixelCount = 1.0f);
     method public static void assertShape-t2RoSCg(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, long shapeColor, long backgroundColor, androidx.ui.graphics.Shape backgroundShape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, float sizeX = width.toFloat(), float sizeY = height.toFloat(), float shapeSizeX = sizeX, float shapeSizeY = sizeY, float centerX = width / 2.0, float centerY = height / 2.0, float shapeOverlapPixelCount = 1.0f);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(android.view.View);
+    method public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
+    method public static android.graphics.Bitmap captureToBitmap(android.view.View);
     method public static boolean contains-m3TnucA(androidx.ui.graphics.Path, long offset);
   }
 
@@ -123,7 +123,6 @@ package androidx.ui.test {
   }
 
   public interface ComposeTestRule extends org.junit.rules.TestRule {
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public android.graphics.Bitmap captureScreenOnIdle();
     method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
@@ -343,7 +342,6 @@ package androidx.ui.test.android {
   public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRule {
     ctor public AndroidComposeTestRule(androidx.test.rule.ActivityTestRule<T> activityTestRule, androidx.compose.Recomposer? recomposer, boolean disableTransitions);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public android.graphics.Bitmap captureScreenOnIdle();
     method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.test.rule.ActivityTestRule<T> getActivityTestRule();

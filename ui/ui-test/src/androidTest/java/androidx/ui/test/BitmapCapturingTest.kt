@@ -16,9 +16,9 @@
 
 package androidx.ui.test
 
-import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
+import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
@@ -27,7 +27,10 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
+import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.gesturescope.ActivityWithActionBar
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
@@ -35,15 +38,26 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(JUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class BitmapCapturingTest {
+@RunWith(Parameterized::class)
+class BitmapCapturingTest(val config: TestConfig) {
+    data class TestConfig(
+        val activityClass: Class<out ComponentActivity>
+    )
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun createTestSet(): List<TestConfig> = listOf(
+            TestConfig(ComponentActivity::class.java),
+            TestConfig(ActivityWithActionBar::class.java)
+        )
+    }
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = AndroidComposeTestRule(ActivityTestRule(config.activityClass))
 
     private val rootTag = "Root"
     private val tag11 = "Rect11"
@@ -101,17 +115,6 @@ class BitmapCapturingTest {
             }
     }
 
-    @Test
-    fun captureWholeWindow_checkSizeAndColors() {
-        composeCheckerboard()
-
-        composeTestRule
-            .captureScreenOnIdle()
-            .assertPixels() {
-                expectedColorProvider(it)
-            }
-    }
-
     @Test(expected = AssertionError::class)
     fun assertWrongColor_expectException() {
         composeCheckerboard()
@@ -155,30 +158,32 @@ class BitmapCapturingTest {
         with(composeTestRule.density) {
             composeTestRule.setContent {
                 Box(Modifier.fillMaxSize(), backgroundColor = colorBg) {
-                    Column(Modifier.testTag(rootTag)) {
-                        Row {
-                            Box(Modifier
-                                .testTag(tag11)
-                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
-                                .drawBackground(color11)
-                            )
-                            Box(Modifier
-                                .testTag(tag12)
-                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
-                                .drawBackground(color12)
-                            )
-                        }
-                        Row {
-                            Box(Modifier
-                                .testTag(tag21)
-                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
-                                .drawBackground(color21)
-                            )
-                            Box(Modifier
-                                .testTag(tag22)
-                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
-                                .drawBackground(color22)
-                            )
+                    Box(Modifier.padding(top = 20.ipx.toDp()), backgroundColor = colorBg) {
+                        Column(Modifier.testTag(rootTag)) {
+                            Row {
+                                Box(Modifier
+                                    .testTag(tag11)
+                                    .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                    .drawBackground(color11)
+                                )
+                                Box(Modifier
+                                    .testTag(tag12)
+                                    .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                    .drawBackground(color12)
+                                )
+                            }
+                            Row {
+                                Box(Modifier
+                                    .testTag(tag21)
+                                    .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                    .drawBackground(color21)
+                                )
+                                Box(Modifier
+                                    .testTag(tag22)
+                                    .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                    .drawBackground(color22)
+                                )
+                            }
                         }
                     }
                 }

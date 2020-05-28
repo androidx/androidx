@@ -16,21 +16,17 @@
 
 package androidx.ui.test.android
 
-import android.graphics.Bitmap
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.SparseArray
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
-import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.compose.Recomposer
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.setContent
-import androidx.ui.geometry.Rect
 import androidx.ui.input.textInputServiceFactory
 import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.ComposeTestCase
@@ -141,20 +137,6 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             testCase,
             activityTestRule.activity
         )
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun captureScreenOnIdle(): Bitmap {
-        waitForIdle()
-        val contentView = activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
-
-        val screenRect = Rect.fromLTWH(
-            0f,
-            0f,
-            contentView.width.toFloat(),
-            contentView.height.toFloat()
-        )
-        return captureRegionToBitmap(screenRect, handler, activityTestRule.activity.window)
     }
 
     inner class AndroidComposeStatement(

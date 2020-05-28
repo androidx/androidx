@@ -16,11 +16,8 @@
 
 package androidx.ui.test
 
-import android.graphics.Bitmap
-import android.os.Build
 import android.util.DisplayMetrics
 import androidx.activity.ComponentActivity
-import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.compose.Recomposer
 import androidx.ui.unit.Density
@@ -67,22 +64,6 @@ interface ComposeTestRule : TestRule {
      * [ComposeTestCaseSetup].
      */
     fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup
-
-    /**
-     * Takes screenshot of the Activity's window after Compose UI gets idle.
-     *
-     * This function blocks until complete.
-     *
-     * Note that this does not capture the full device screen as it has access only to the test
-     * Activity's window surface. The test Activity is the one that hosts the initial composition
-     * created via [setContent]. If there are windows on top of the Activity's window these won't
-     * be included. It will also not include any other Activities started afterwards.
-     *
-     * You can also use [SemanticsNodeInteraction.captureToBitmap] to capture individual components.
-     * That one does not require any specific Activity.
-     */
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun captureScreenOnIdle(): Bitmap
 
     // TODO(pavlis): Provide better abstraction for host side reusability
     val displayMetrics: DisplayMetrics get
