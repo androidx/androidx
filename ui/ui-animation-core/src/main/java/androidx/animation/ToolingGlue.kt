@@ -96,4 +96,4 @@ fun <T> TransitionAnimation<T>.createSeekableAnimation(fromState: T, toState: T)
  * This API is intended for tools' use only. Hence the @RestrictTo.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun <T> TransitionDefinition<T>.getStates(): Set<T> = this.states.keys
+fun <T> TransitionAnimation<T>.getStates(): Set<T> = def.states.keys

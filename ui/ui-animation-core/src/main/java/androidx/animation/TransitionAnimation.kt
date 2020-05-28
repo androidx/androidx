@@ -71,7 +71,8 @@ class TransitionAnimation<T>(
     private var startVelocityMap: MutableMap<PropKey<Any, AnimationVector>, Any> = mutableMapOf()
 
     // Named class for animation clock observer to help with tools' reflection.
-    private inner class TransitionAnimationClockObserver : AnimationClockObserver {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    inner class TransitionAnimationClockObserver : AnimationClockObserver {
         // This API is intended for tools' use only. Hence the @RestrictTo.
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         val animation: TransitionAnimation<T> = this@TransitionAnimation
