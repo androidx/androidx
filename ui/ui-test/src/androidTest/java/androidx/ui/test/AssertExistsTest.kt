@@ -18,13 +18,13 @@ package androidx.ui.test
 
 import androidx.compose.state
 import androidx.test.filters.MediumTest
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.util.expectAssertionError
 import org.junit.Rule
 import org.junit.Test
@@ -45,15 +45,14 @@ class AssertExistsTest {
                 Surface {
                     val (showText, toggle) = state { true }
                     Column {
-                        TestTag("MyButton") {
-                            Button(onClick = { toggle(!showText) }) {
-                                Text("Toggle")
-                            }
+                        Button(
+                            modifier = Modifier.testTag("MyButton"),
+                            onClick = { toggle(!showText) }
+                        ) {
+                            Text("Toggle")
                         }
                         if (showText) {
-                            Semantics(container = true) {
-                                Text("Hello")
-                            }
+                            Text("Hello")
                         }
                     }
                 }

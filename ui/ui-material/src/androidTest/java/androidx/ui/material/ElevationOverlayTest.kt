@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
@@ -104,7 +103,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayColor: Color?) {
                                 Modifier.preferredSize(
                                     SurfaceSize.width.toDp(),
                                     SurfaceSize.height.toDp()
-                                ).semantics(container = true).testTag(Tag)
+                                ).testTag(Tag)
                             )
                         }
                     }

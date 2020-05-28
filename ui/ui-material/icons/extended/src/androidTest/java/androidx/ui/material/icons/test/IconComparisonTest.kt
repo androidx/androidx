@@ -28,7 +28,6 @@ import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.paint
-import androidx.ui.core.semantics.semantics
 import androidx.ui.core.setContent
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
@@ -202,13 +201,13 @@ private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset)
                 modifier = layoutSize.paint(
                     VectorPainter(programmaticVector),
                     colorFilter = ColorFilter.tint(Color.Red)
-                ).semantics(container = true).testTag(ProgrammaticTestTag)
+                ).testTag(ProgrammaticTestTag)
             )
             Box(
                 modifier = layoutSize.paint(
                     VectorPainter(xmlVector),
                     colorFilter = ColorFilter.tint(Color.Red)
-                ).semantics(container = true).testTag(XmlTestTag)
+                ).testTag(XmlTestTag)
             )
         }
     }

@@ -311,12 +311,14 @@ class ButtonTest {
         composeTestRule.setMaterialContent {
             surface = MaterialTheme.colors.surface
             onSurface = MaterialTheme.colors.onSurface
-            // stack allows to verify there is no shadow
-            Stack(Modifier.padding(padding).testTag("myButton")) {
-                Button(
-                    onClick = {},
-                    enabled = false,
-                    shape = RectangleShape) {}
+            Box(Modifier.testTag("myButton")) {
+                // stack allows to verify there is no shadow
+                Stack(Modifier.padding(padding)) {
+                    Button(
+                        onClick = {},
+                        enabled = false,
+                        shape = RectangleShape) {}
+                }
             }
         }
 
@@ -340,14 +342,16 @@ class ButtonTest {
         composeTestRule.setMaterialContent {
             surface = MaterialTheme.colors.surface
             onSurface = MaterialTheme.colors.onSurface
-            // stack allows to verify there is no shadow
-            Stack(Modifier.padding(padding).testTag("myButton")) {
-                Button(
-                    onClick = {},
-                    enabled = false,
-                    backgroundColor = Color.Red,
-                    shape = RectangleShape
-                ) {}
+            Box(Modifier.testTag("myButton")) {
+                // stack allows to verify there is no shadow
+                Stack(Modifier.padding(padding)) {
+                    Button(
+                        onClick = {},
+                        enabled = false,
+                        backgroundColor = Color.Red,
+                        shape = RectangleShape
+                    ) {}
+                }
             }
         }
 

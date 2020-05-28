@@ -258,6 +258,14 @@ fun hasImeAction(actionType: ImeAction) =
 fun hasInputMethodsSupport() =
     SemanticsMatcher.expectValue(TextSemanticsProperties.SupportsInputMethods, true)
 
+/*
+ * Return whether the component is the root semantics node.
+ *
+ * There is always one root in every component tree, added implicitly by Compose.
+ */
+fun isRoot() =
+    SemanticsMatcher("isRoot") { it.isRoot }
+
 /**
  * Returns whether the component's parent satisfies the given matcher.
  *

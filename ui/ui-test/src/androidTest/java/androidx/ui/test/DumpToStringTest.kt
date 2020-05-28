@@ -21,7 +21,6 @@ import androidx.test.filters.MediumTest
 import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.util.obfuscateNodesInfo
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -60,8 +59,7 @@ class DumpToStringTest {
 
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
                 "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'Hello'\n" +
-                "- Boundary = 'true'")
+                "- AccessibilityLabel = 'Hello'")
     }
 
     @Test
@@ -75,25 +73,19 @@ class DumpToStringTest {
 
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
                 "1) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- Boundary = 'true'\n" +
+                "\n" +
                 "2) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
                 "- AccessibilityLabel = 'Hello'\n" +
-                "- Boundary = 'true'\n" +
                 "3) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'World'\n" +
-                "- Boundary = 'true'")
+                "- AccessibilityLabel = 'World'")
     }
 
     @Composable
     fun ComposeSimpleCase() {
         MaterialTheme {
             Column {
-                Semantics(container = true) {
-                    Text("Hello")
-                }
-                Semantics(container = true) {
-                    Text("World")
-                }
+                Text("Hello")
+                Text("World")
             }
         }
     }

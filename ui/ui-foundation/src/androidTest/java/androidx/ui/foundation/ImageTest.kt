@@ -43,6 +43,7 @@ import androidx.ui.res.loadVectorResource
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
+import androidx.ui.test.findRoot
 import androidx.ui.unit.dp
 import org.junit.Assert
 import org.junit.Rule
@@ -136,8 +137,7 @@ class ImageTest {
                     .wrapContentSize(Alignment.Center)
             ) {
                 Image(
-                    modifier = Modifier.testTag(contentTag),
-                    painter = ImagePainter(createImageAsset(),
+                    ImagePainter(createImageAsset(),
                         Offset(
                             imageWidth / 2.0f - subsectionWidth / 2.0f,
                             imageHeight / 2.0f - subsectionHeight / 2.0f
@@ -152,7 +152,7 @@ class ImageTest {
         val bgColorArgb = bgColor.toArgb()
         val pathArgb = pathColor.toArgb()
 
-        findByTag(contentTag).captureToBitmap().apply {
+        findRoot().captureToBitmap().apply {
             val imageStartX = width / 2 - subsectionWidth / 2
             val imageStartY = height / 2 - subsectionHeight / 2
             Assert.assertEquals(bgColorArgb, getPixel(imageStartX + 2, imageStartY))
@@ -303,13 +303,11 @@ class ImageTest {
                 loadVectorResource(R.drawable.ic_vector_asset_test).resource.resource?.let {
                     Image(
                         it,
-                        modifier = Modifier
-                            .testTag(contentTag)
-                            .preferredSizeIn(
-                                minWidth = minWidth,
-                                minHeight = minHeight
-                            )
-                            .drawBehind { vectorLatch.countDown() },
+                        modifier = Modifier.preferredSizeIn(
+                            minWidth = minWidth,
+                            minHeight = minHeight
+                        )
+                        .drawBehind { vectorLatch.countDown() },
                         contentScale = ContentScale.Fit
                     )
                 }
@@ -320,7 +318,7 @@ class ImageTest {
 
         val imageColor = Color.Red.toArgb()
         val containerBgColor = Color.White.toArgb()
-        findByTag(contentTag).captureToBitmap().apply {
+        findRoot().captureToBitmap().apply {
             val imageStartX = width / 2 - boxWidth / 2
             val imageStartY = height / 2 - boxHeight / 2
             Assert.assertEquals(containerBgColor, getPixel(imageStartX - 1, imageStartY - 1))

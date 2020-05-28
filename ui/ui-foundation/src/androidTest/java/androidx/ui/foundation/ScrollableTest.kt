@@ -26,7 +26,6 @@ import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
@@ -533,7 +532,6 @@ class ScrollableTest {
                 Box(
                     gravity = ContentGravity.Center,
                     modifier = Modifier
-                        .semantics(container = true)
                         .testTag(scrollableBoxTag)
                         .preferredSize(300.dp)
                         .scrollable(
@@ -577,7 +575,6 @@ class ScrollableTest {
             Stack {
                 val scrollable = scrollableModifierFactory()
                 Box(modifier = Modifier
-                    .semantics(container = true)
                     .testTag(scrollableBoxTag)
                     .preferredSize(100.dp) +
                         scrollable
