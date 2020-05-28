@@ -27,9 +27,10 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.paint
+import androidx.ui.core.semantics.semantics
 import androidx.ui.core.setContent
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
@@ -39,7 +40,6 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.res.vectorResource
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.findByTag
@@ -198,26 +198,18 @@ private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset)
             Modifier.preferredSize(72.ipx.toDp())
         }
         Row(Modifier.gravity(Alignment.Center)) {
-            TestTag(ProgrammaticTestTag) {
-                Semantics(container = true) {
-                    Box(
-                        modifier = layoutSize.paint(
-                            VectorPainter(programmaticVector),
-                            colorFilter = ColorFilter.tint(Color.Red)
-                        )
-                    )
-                }
-            }
-            TestTag(XmlTestTag) {
-                Semantics(container = true) {
-                    Box(
-                        modifier = layoutSize.paint(
-                            VectorPainter(xmlVector),
-                            colorFilter = ColorFilter.tint(Color.Red)
-                        )
-                    )
-                }
-            }
+            Box(
+                modifier = layoutSize.paint(
+                    VectorPainter(programmaticVector),
+                    colorFilter = ColorFilter.tint(Color.Red)
+                ).semantics(container = true).testTag(ProgrammaticTestTag)
+            )
+            Box(
+                modifier = layoutSize.paint(
+                    VectorPainter(xmlVector),
+                    colorFilter = ColorFilter.tint(Color.Red)
+                ).semantics(container = true).testTag(XmlTestTag)
+            )
         }
     }
 }

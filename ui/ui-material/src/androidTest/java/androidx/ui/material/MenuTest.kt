@@ -23,7 +23,7 @@ import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.contentColor
@@ -72,10 +72,8 @@ class MenuTest {
                 },
                 onDismissRequest = {}
             ) {
-                TestTag("MenuContent") {
-                    DropdownMenuItem(onClick = {}) {
-                        Text("Option 1")
-                    }
+                DropdownMenuItem(modifier = Modifier.testTag("MenuContent"), onClick = {}) {
+                    Text("Option 1")
                 }
             }
         }

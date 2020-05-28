@@ -18,7 +18,8 @@ package androidx.ui.material
 
 import androidx.compose.state
 import androidx.test.filters.MediumTest
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Strings
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
@@ -49,12 +50,12 @@ class SwitchUiTest {
     fun switch_defaultSemantics() {
         composeTestRule.setMaterialContent {
             Column {
-                TestTag(tag = "checked") {
-                    Switch(checked = true, onCheckedChange = {})
-                }
-                TestTag(tag = "unchecked") {
-                    Switch(checked = false, onCheckedChange = {})
-                }
+                Switch(modifier = Modifier.testTag("checked"), checked = true, onCheckedChange = {})
+                Switch(
+                    modifier = Modifier.testTag("unchecked"),
+                    checked = false,
+                    onCheckedChange = {}
+                )
             }
         }
 
@@ -75,9 +76,11 @@ class SwitchUiTest {
 
             // Stack is needed because otherwise the control will be expanded to fill its parent
             Stack {
-                TestTag(tag = defaultSwitchTag) {
-                    Switch(checked, onChecked)
-                }
+                Switch(
+                    modifier = Modifier.testTag(defaultSwitchTag),
+                    checked = checked,
+                    onCheckedChange = onChecked
+                )
             }
         }
         findByTag(defaultSwitchTag)
@@ -93,9 +96,11 @@ class SwitchUiTest {
 
             // Stack is needed because otherwise the control will be expanded to fill its parent
             Stack {
-                TestTag(tag = defaultSwitchTag) {
-                    Switch(checked, onChecked)
-                }
+                Switch(
+                    modifier = Modifier.testTag(defaultSwitchTag),
+                    checked = checked,
+                    onCheckedChange = onChecked
+                )
             }
         }
         findByTag(defaultSwitchTag)
@@ -110,9 +115,12 @@ class SwitchUiTest {
     fun switch_uncheckableWithNoLambda() {
         composeTestRule.setMaterialContent {
             val (checked, _) = state { false }
-            TestTag(tag = defaultSwitchTag) {
-                Switch(checked = checked, onCheckedChange = {}, enabled = false)
-            }
+            Switch(
+                modifier = Modifier.testTag(defaultSwitchTag),
+                checked = checked,
+                onCheckedChange = {},
+                enabled = false
+            )
         }
         findByTag(defaultSwitchTag)
             .assertHasNoClickAction()

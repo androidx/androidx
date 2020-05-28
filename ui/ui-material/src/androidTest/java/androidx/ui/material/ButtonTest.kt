@@ -26,10 +26,10 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.boundsInRoot
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.contentColor
@@ -83,10 +83,8 @@ class ButtonTest {
     fun defaultSemantics() {
         composeTestRule.setMaterialContent {
             Stack {
-                TestTag(tag = "myButton") {
-                    Button(onClick = {}) {
-                        Text("myButton")
-                    }
+                Button(modifier = Modifier.testTag("myButton"), onClick = {}) {
+                    Text("myButton")
                 }
             }
         }
@@ -99,10 +97,8 @@ class ButtonTest {
     fun disabledSemantics() {
         composeTestRule.setMaterialContent {
             Stack {
-                TestTag(tag = "myButton") {
-                    Button(onClick = {}, enabled = false) {
-                        Text("myButton")
-                    }
+                Button(modifier = Modifier.testTag("myButton"), onClick = {}, enabled = false) {
+                    Text("myButton")
                 }
             }
         }
@@ -143,10 +139,8 @@ class ButtonTest {
             var enabled by state { true }
             val onClick = { enabled = false }
             Stack {
-                TestTag(tag = tag) {
-                    Button(onClick = onClick, enabled = enabled) {
-                        Text("Hello")
-                    }
+                Button(modifier = Modifier.testTag(tag), onClick = onClick, enabled = enabled) {
+                    Text("Hello")
                 }
             }
         }
@@ -174,15 +168,11 @@ class ButtonTest {
 
         composeTestRule.setMaterialContent {
             Column {
-                TestTag(tag = button1Tag) {
-                    Button(onClick = button1OnClick) {
-                        Text(text)
-                    }
+                Button(modifier = Modifier.testTag(button1Tag), onClick = button1OnClick) {
+                    Text(text)
                 }
-                TestTag(tag = button2Tag) {
-                    Button(onClick = button2OnClick) {
-                        Text(text)
-                    }
+                Button(modifier = Modifier.testTag(button2Tag), onClick = button2OnClick) {
+                    Text(text)
                 }
             }
         }
@@ -295,10 +285,8 @@ class ButtonTest {
             surface = MaterialTheme.colors.surface
             primary = MaterialTheme.colors.primary
             Providers(ShapesAmbient provides Shapes(small = shape)) {
-                TestTag(tag = "myButton") {
-                    Button(onClick = {}, elevation = 0.dp) {
-                        Box(Modifier.preferredSize(10.dp, 10.dp))
-                    }
+                Button(modifier = Modifier.testTag("myButton"), onClick = {}, elevation = 0.dp) {
+                    Box(Modifier.preferredSize(10.dp, 10.dp))
                 }
             }
         }
@@ -323,11 +311,12 @@ class ButtonTest {
         composeTestRule.setMaterialContent {
             surface = MaterialTheme.colors.surface
             onSurface = MaterialTheme.colors.onSurface
-            TestTag(tag = "myButton") {
-                // stack allows to verify there is no shadow
-                Stack(Modifier.padding(padding)) {
-                    Button(onClick = {}, enabled = false, shape = RectangleShape) {}
-                }
+            // stack allows to verify there is no shadow
+            Stack(Modifier.padding(padding).testTag("myButton")) {
+                Button(
+                    onClick = {},
+                    enabled = false,
+                    shape = RectangleShape) {}
             }
         }
 
@@ -351,16 +340,14 @@ class ButtonTest {
         composeTestRule.setMaterialContent {
             surface = MaterialTheme.colors.surface
             onSurface = MaterialTheme.colors.onSurface
-            TestTag(tag = "myButton") {
-                // stack allows to verify there is no shadow
-                Stack(Modifier.padding(padding)) {
-                    Button(
-                        onClick = {},
-                        enabled = false,
-                        backgroundColor = Color.Red,
-                        shape = RectangleShape
-                    ) {}
-                }
+            // stack allows to verify there is no shadow
+            Stack(Modifier.padding(padding).testTag("myButton")) {
+                Button(
+                    onClick = {},
+                    enabled = false,
+                    backgroundColor = Color.Red,
+                    shape = RectangleShape
+                ) {}
             }
         }
 
@@ -382,16 +369,15 @@ class ButtonTest {
         val padding = 8.dp
         composeTestRule.setMaterialContent {
             surface = MaterialTheme.colors.surface
-            TestTag(tag = "myButton") {
-                // stack allows to verify there is no shadow
-                Stack(Modifier.padding(padding)) {
-                    OutlinedButton(
-                        onClick = {},
-                        enabled = false,
-                        shape = RectangleShape,
-                        border = null
-                    ) {}
-                }
+            // stack allows to verify there is no shadow
+            Stack(Modifier.padding(padding)) {
+                OutlinedButton(
+                    modifier = Modifier.testTag("myButton"),
+                    onClick = {},
+                    enabled = false,
+                    shape = RectangleShape,
+                    border = null
+                ) {}
             }
         }
 
@@ -411,11 +397,14 @@ class ButtonTest {
         var surface = Color.Transparent
         composeTestRule.setMaterialContent {
             surface = MaterialTheme.colors.surface
-            TestTag(tag = "myButton") {
-                // stack allows to verify there is no shadow
-                Stack(Modifier.padding(8.dp)) {
-                    TextButton(onClick = {}, enabled = false, shape = RectangleShape) {}
-                }
+            // stack allows to verify there is no shadow
+            Stack(Modifier.padding(8.dp)) {
+                TextButton(
+                    modifier = Modifier.testTag("myButton"),
+                    onClick = {},
+                    enabled = false,
+                    shape = RectangleShape
+                ) {}
             }
         }
 
@@ -509,25 +498,23 @@ class ButtonTest {
     @Test
     fun zOrderingBasedOnElevationIsApplied() {
         composeTestRule.setMaterialContent {
-            TestTag(tag = "stack") {
-                Semantics(container = true, mergeAllDescendants = true) {
-                    Stack(Modifier.preferredSize(10.dp, 10.dp)) {
-                        Button(
-                            backgroundColor = Color.Yellow,
-                            elevation = 2.dp,
-                            onClick = {},
-                            shape = RectangleShape
-                        ) {
-                            Box(Modifier.fillMaxSize())
-                        }
-                        Button(
-                            backgroundColor = Color.Green,
-                            elevation = 0.dp,
-                            onClick = {},
-                            shape = RectangleShape
-                        ) {
-                            Box(Modifier.fillMaxSize())
-                        }
+            Semantics(container = true, mergeAllDescendants = true) {
+                Stack(Modifier.testTag("stack").preferredSize(10.dp, 10.dp)) {
+                    Button(
+                        backgroundColor = Color.Yellow,
+                        elevation = 2.dp,
+                        onClick = {},
+                        shape = RectangleShape
+                    ) {
+                        Box(Modifier.fillMaxSize())
+                    }
+                    Button(
+                        backgroundColor = Color.Green,
+                        elevation = 0.dp,
+                        onClick = {},
+                        shape = RectangleShape
+                    ) {
+                        Box(Modifier.fillMaxSize())
                     }
                 }
             }

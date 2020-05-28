@@ -20,7 +20,8 @@ import android.os.Build
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.semantics.semantics
+import androidx.ui.core.testTag
 import androidx.ui.core.zIndex
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
@@ -29,7 +30,6 @@ import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
@@ -51,16 +51,15 @@ class SurfaceTest {
     @Test
     fun zOrderingBasedOnElevationIsApplied() {
         composeTestRule.setMaterialContent {
-            TestTag(tag = "stack") {
-                Semantics(container = true, mergeAllDescendants = true) {
-                    Stack(Modifier.preferredSize(10.dp, 10.dp)) {
-                        Surface(color = Color.Yellow, elevation = 2.dp) {
-                            Box(Modifier.fillMaxSize())
-                        }
-                        Surface(color = Color.Green) {
-                            Box(Modifier.fillMaxSize())
-                        }
-                    }
+            Stack(Modifier
+                .preferredSize(10.dp, 10.dp)
+                .semantics(container = true, mergeAllDescendants = true)
+                .testTag("stack")) {
+                Surface(color = Color.Yellow, elevation = 2.dp) {
+                    Box(Modifier.fillMaxSize())
+                }
+                Surface(color = Color.Green) {
+                    Box(Modifier.fillMaxSize())
                 }
             }
         }
@@ -79,16 +78,15 @@ class SurfaceTest {
     @Test
     fun originalOrderingWhenTheDefaultElevationIsUsed() {
         composeTestRule.setMaterialContent {
-            TestTag(tag = "stack") {
-                Semantics(container = true, mergeAllDescendants = true) {
-                    Stack(Modifier.preferredSize(10.dp, 10.dp)) {
-                        Surface(color = Color.Yellow) {
-                            Box(Modifier.fillMaxSize())
-                        }
-                        Surface(color = Color.Green) {
-                            Box(Modifier.fillMaxSize())
-                        }
-                    }
+            Stack(Modifier
+                .preferredSize(10.dp, 10.dp)
+                .semantics(container = true, mergeAllDescendants = true)
+                .testTag("stack")) {
+                Surface(color = Color.Yellow) {
+                    Box(Modifier.fillMaxSize())
+                }
+                Surface(color = Color.Green) {
+                    Box(Modifier.fillMaxSize())
                 }
             }
         }
@@ -107,14 +105,13 @@ class SurfaceTest {
     @Test
     fun elevationRawValueIsUsedAsZIndex_drawsBelow() {
         composeTestRule.setMaterialContent {
-            TestTag(tag = "stack") {
-                Semantics(container = true, mergeAllDescendants = true) {
-                    Stack(Modifier.preferredSize(10.dp, 10.dp)) {
-                        Box(Modifier.fillMaxSize().drawBackground(Color.Green).zIndex(3f))
-                        Surface(color = Color.Yellow, elevation = 2.dp) {
-                            Box(Modifier.fillMaxSize())
-                        }
-                    }
+            Stack(Modifier
+                .preferredSize(10.dp, 10.dp)
+                .semantics(container = true, mergeAllDescendants = true)
+                .testTag("stack")) {
+                Box(Modifier.fillMaxSize().drawBackground(Color.Green).zIndex(3f))
+                Surface(color = Color.Yellow, elevation = 2.dp) {
+                    Box(Modifier.fillMaxSize())
                 }
             }
         }
@@ -133,14 +130,13 @@ class SurfaceTest {
     @Test
     fun elevationRawValueIsUsedAsZIndex_drawsAbove() {
         composeTestRule.setMaterialContent {
-            TestTag(tag = "stack") {
-                Semantics(container = true, mergeAllDescendants = true) {
-                    Stack(Modifier.preferredSize(10.dp, 10.dp)) {
-                        Box(Modifier.fillMaxSize().drawBackground(Color.Green).zIndex(1f))
-                        Surface(color = Color.Yellow, elevation = 2.dp) {
-                            Box(Modifier.fillMaxSize())
-                        }
-                    }
+            Stack(Modifier
+                .preferredSize(10.dp, 10.dp)
+                .semantics(container = true, mergeAllDescendants = true)
+                .testTag("stack")) {
+                Box(Modifier.fillMaxSize().drawBackground(Color.Green).zIndex(1f))
+                Surface(color = Color.Yellow, elevation = 2.dp) {
+                    Box(Modifier.fillMaxSize())
                 }
             }
         }

@@ -23,10 +23,10 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextFieldValue
@@ -111,22 +111,20 @@ class FilledTextFieldTest {
 
         testRule.setMaterialContent {
             Column {
-                TestTag(tag = textField1Tag) {
-                    FilledTextField(
-                        value = "input1",
-                        onValueChange = {},
-                        label = {},
-                        onFocusChange = { textField1Focused = it }
-                    )
-                }
-                TestTag(tag = textField2Tag) {
-                    FilledTextField(
-                        value = "input2",
-                        onValueChange = {},
-                        label = {},
-                        onFocusChange = { textField2Focused = it }
-                    )
-                }
+                FilledTextField(
+                    modifier = Modifier.testTag(textField1Tag),
+                    value = "input1",
+                    onValueChange = {},
+                    label = {},
+                    onFocusChange = { textField1Focused = it }
+                )
+                FilledTextField(
+                    modifier = Modifier.testTag(textField2Tag),
+                    value = "input2",
+                    onValueChange = {},
+                    label = {},
+                    onFocusChange = { textField2Focused = it }
+                )
             }
         }
 
@@ -150,14 +148,13 @@ class FilledTextFieldTest {
         var focused = false
         testRule.setMaterialContent {
             Box {
-                TestTag("textField") {
-                    FilledTextField(
-                        value = "input",
-                        onValueChange = {},
-                        label = {},
-                        onFocusChange = { focused = it }
-                    )
-                }
+                FilledTextField(
+                    modifier = Modifier.testTag("textField"),
+                    value = "input",
+                    onValueChange = {},
+                    label = {},
+                    onFocusChange = { focused = it }
+                )
             }
         }
 
@@ -252,20 +249,19 @@ class FilledTextFieldTest {
         val baseline = Ref<Px>()
         testRule.setMaterialContent {
             Box {
-                TestTag("textField") {
-                    FilledTextField(
-                        value = "",
-                        onValueChange = {},
-                        label = {
-                            Text(text = "label", modifier = Modifier.onPositioned {
-                                labelPosition.value = it.globalPosition
-                                labelSize.value = it.size
-                                baseline.value =
-                                    it[FirstBaseline]!!.toPx() + labelPosition.value!!.y
-                            })
-                        }
-                    )
-                }
+                FilledTextField(
+                    modifier = Modifier.testTag("textField"),
+                    value = "",
+                    onValueChange = {},
+                    label = {
+                        Text(text = "label", modifier = Modifier.onPositioned {
+                            labelPosition.value = it.globalPosition
+                            labelSize.value = it.size
+                            baseline.value =
+                                it[FirstBaseline]!!.toPx() + labelPosition.value!!.y
+                        })
+                    }
+                )
             }
         }
 
@@ -331,21 +327,20 @@ class FilledTextFieldTest {
         val placeholderBaseline = Ref<Px>()
         testRule.setMaterialContent {
             Box {
-                TestTag("textField") {
-                    FilledTextField(
-                        value = "",
-                        onValueChange = {},
-                        label = { Text("label") },
-                        placeholder = {
-                            Text(text = "placeholder", modifier = Modifier.onPositioned {
-                                placeholderPosition.value = it.globalPosition
-                                placeholderSize.value = it.size
-                                placeholderBaseline.value =
-                                    it[FirstBaseline]!!.toPx() + placeholderPosition.value!!.y
-                            })
-                        }
-                    )
-                }
+                FilledTextField(
+                    modifier = Modifier.testTag("textField"),
+                    value = "",
+                    onValueChange = {},
+                    label = { Text("label") },
+                    placeholder = {
+                        Text(text = "placeholder", modifier = Modifier.onPositioned {
+                            placeholderPosition.value = it.globalPosition
+                            placeholderSize.value = it.size
+                            placeholderBaseline.value =
+                                it[FirstBaseline]!!.toPx() + placeholderPosition.value!!.y
+                        })
+                    }
+                )
             }
         }
         // click to focus
@@ -374,22 +369,20 @@ class FilledTextFieldTest {
         val height = 60.dp
         testRule.setMaterialContent {
             Box {
-                TestTag("textField") {
-                    FilledTextField(
-                        value = "",
-                        onValueChange = {},
-                        label = {},
-                        modifier = Modifier.preferredHeight(height),
-                        placeholder = {
-                            Text(text = "placeholder", modifier = Modifier.onPositioned {
-                                placeholderPosition.value = it.globalPosition
-                                placeholderSize.value = it.size
-                                placeholderBaseline.value =
-                                    it[FirstBaseline]!!.toPx() + placeholderPosition.value!!.y
-                            })
-                        }
-                    )
-                }
+                FilledTextField(
+                    modifier = Modifier.preferredHeight(height).testTag("textField"),
+                    value = "",
+                    onValueChange = {},
+                    label = {},
+                    placeholder = {
+                        Text(text = "placeholder", modifier = Modifier.onPositioned {
+                            placeholderPosition.value = it.globalPosition
+                            placeholderSize.value = it.size
+                            placeholderBaseline.value =
+                                it[FirstBaseline]!!.toPx() + placeholderPosition.value!!.y
+                        })
+                    }
+                )
             }
         }
         // click to focus
@@ -416,19 +409,18 @@ class FilledTextFieldTest {
         val placeholderPosition = Ref<PxPosition>()
         testRule.setMaterialContent {
             Box {
-                TestTag("textField") {
-                    FilledTextField(
-                        value = "input",
-                        onValueChange = {},
-                        label = {},
-                        placeholder = {
-                            Text(text = "placeholder", modifier = Modifier.onPositioned {
-                                placeholderPosition.value = it.globalPosition
-                                placeholderSize.value = it.size
-                            })
-                        }
-                    )
-                }
+                FilledTextField(
+                    modifier = Modifier.testTag("textField"),
+                    value = "input",
+                    onValueChange = {},
+                    label = {},
+                    placeholder = {
+                        Text(text = "placeholder", modifier = Modifier.onPositioned {
+                            placeholderPosition.value = it.globalPosition
+                            placeholderSize.value = it.size
+                        })
+                    }
+                )
             }
         }
 
@@ -444,19 +436,18 @@ class FilledTextFieldTest {
     @Test
     fun testPlaceholderColorAndTextStyle() {
         testRule.setMaterialContent {
-            TestTag("textField") {
-                FilledTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = {},
-                    placeholder = {
-                        Text("placeholder")
-                        assertThat(contentColor())
-                            .isEqualTo(MaterialTheme.colors.onSurface.copy(0.6f))
-                        assertThat(currentTextStyle()).isEqualTo(MaterialTheme.typography.subtitle1)
-                    }
-                )
-            }
+            FilledTextField(
+                modifier = Modifier.testTag("textField"),
+                value = "",
+                onValueChange = {},
+                label = {},
+                placeholder = {
+                    Text("placeholder")
+                    assertThat(contentColor())
+                        .isEqualTo(MaterialTheme.colors.onSurface.copy(0.6f))
+                    assertThat(currentTextStyle()).isEqualTo(MaterialTheme.typography.subtitle1)
+                }
+            )
         }
 
         // click to focus
@@ -616,16 +607,15 @@ class FilledTextFieldTest {
             Providers(
                 TextInputServiceAmbient provides textInputService
             ) {
-                TestTag("textField") {
-                    var text = state { TextFieldValue("") }
-                    FilledTextField(
-                        value = text.value,
-                        onValueChange = { text.value = it },
-                        label = {},
-                        imeAction = ImeAction.Go,
-                        keyboardType = KeyboardType.Email
-                    )
-                }
+                var text = state { TextFieldValue("") }
+                FilledTextField(
+                    modifier = Modifier.testTag("textField"),
+                    value = text.value,
+                    onValueChange = { text.value = it },
+                    label = {},
+                    imeAction = ImeAction.Go,
+                    keyboardType = KeyboardType.Email
+                )
             }
         }
 
@@ -646,16 +636,15 @@ class FilledTextFieldTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testVisualTransformationPropagated() {
         testRule.setMaterialContent {
-            TestTag("textField") {
-                FilledTextField(
-                    value = "qwerty",
-                    onValueChange = {},
-                    label = {},
-                    visualTransformation = PasswordVisualTransformation('\u0020'),
-                    backgroundColor = Color.White,
-                    shape = RectangleShape
-                )
-            }
+            FilledTextField(
+                modifier = Modifier.testTag("textField"),
+                value = "qwerty",
+                onValueChange = {},
+                label = {},
+                visualTransformation = PasswordVisualTransformation('\u0020'),
+                backgroundColor = Color.White,
+                shape = RectangleShape
+            )
         }
 
         findByTag("textField")
@@ -676,21 +665,20 @@ class FilledTextFieldTest {
         val latch = CountDownLatch(1)
 
         testRule.setMaterialContent {
-            TestTag("textField") {
-                Stack(Modifier.drawBackground(Color.White)) {
-                    FilledTextField(
-                        value = "",
-                        onValueChange = {},
-                        label = {},
-                        shape = RectangleShape,
-                        backgroundColor = Color.Blue,
-                        activeColor = Color.Transparent,
-                        inactiveColor = Color.Transparent,
-                        onFocusChange = { focused ->
-                            if (focused) latch.countDown()
-                        }
-                    )
-                }
+            Stack(Modifier.drawBackground(Color.White)) {
+                FilledTextField(
+                    modifier = Modifier.testTag("textField"),
+                    value = "",
+                    onValueChange = {},
+                    label = {},
+                    shape = RectangleShape,
+                    backgroundColor = Color.Blue,
+                    activeColor = Color.Transparent,
+                    inactiveColor = Color.Transparent,
+                    onFocusChange = { focused ->
+                        if (focused) latch.countDown()
+                    }
+                )
             }
         }
 
@@ -727,16 +715,15 @@ class FilledTextFieldTest {
         var controller: SoftwareKeyboardController? = null
 
         testRule.setMaterialContent {
-            TestTag("textField") {
-                FilledTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = {},
-                    onTextInputStarted = {
-                        controller = it
-                    }
-                )
-            }
+            FilledTextField(
+                modifier = Modifier.testTag("textField"),
+                value = "",
+                onValueChange = {},
+                label = {},
+                onTextInputStarted = {
+                    controller = it
+                }
+            )
         }
         assertThat(controller).isNull()
 
@@ -753,17 +740,16 @@ class FilledTextFieldTest {
         var controller: SoftwareKeyboardController? = null
 
         testRule.setMaterialContent {
-            TestTag("textField") {
-                FilledTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = {},
-                    imeAction = ImeAction.Go,
-                    onImeActionPerformed = { _, softwareKeyboardController ->
-                        controller = softwareKeyboardController
-                    }
-                )
-            }
+            FilledTextField(
+                modifier = Modifier.testTag("textField"),
+                value = "",
+                onValueChange = {},
+                label = {},
+                imeAction = ImeAction.Go,
+                onImeActionPerformed = { _, softwareKeyboardController ->
+                    controller = softwareKeyboardController
+                }
+            )
         }
         assertThat(controller).isNull()
 

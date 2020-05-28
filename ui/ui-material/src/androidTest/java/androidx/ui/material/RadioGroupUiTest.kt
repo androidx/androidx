@@ -19,7 +19,8 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Strings
 import androidx.ui.layout.Column
 import androidx.ui.test.SemanticsNodeInteraction
@@ -75,12 +76,11 @@ class RadioGroupUiTest {
         composeTestRule.setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
-                    TestTag(tag = item) {
-                        RadioGroupTextItem(
-                            text = item,
-                            selected = (selected.value == item),
-                            onSelect = { selected.value = item })
-                    }
+                    RadioGroupTextItem(
+                        modifier = Modifier.testTag(item),
+                        text = item,
+                        selected = (selected.value == item),
+                        onSelect = { selected.value = item })
                 }
             }
         }
@@ -97,12 +97,11 @@ class RadioGroupUiTest {
         composeTestRule.setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
-                    TestTag(tag = item) {
-                        RadioGroupTextItem(
-                            text = item,
-                            selected = (selected.value == item),
-                            onSelect = { selected.value = item })
-                    }
+                    RadioGroupTextItem(
+                        modifier = Modifier.testTag(item),
+                        text = item,
+                        selected = (selected.value == item),
+                        onSelect = { selected.value = item })
                 }
             }
         }
@@ -125,12 +124,11 @@ class RadioGroupUiTest {
         composeTestRule.setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
-                    TestTag(tag = item) {
-                        RadioGroupTextItem(
-                            text = item,
-                            selected = (selected.value == item),
-                            onSelect = { selected.value = item })
-                    }
+                    RadioGroupTextItem(
+                        modifier = Modifier.testTag(item),
+                        text = item,
+                        selected = (selected.value == item),
+                        onSelect = { selected.value = item })
                 }
             }
         }
@@ -153,12 +151,11 @@ class RadioGroupUiTest {
         composeTestRule.setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
-                    TestTag(tag = item) {
-                        RadioGroupTextItem(
-                            text = item,
-                            selected = (selected.value == item),
-                            onSelect = { selected.value = item })
-                    }
+                    RadioGroupTextItem(
+                        modifier = Modifier.testTag(item),
+                        text = item,
+                        selected = (selected.value == item),
+                        onSelect = { selected.value = item })
                 }
             }
         }

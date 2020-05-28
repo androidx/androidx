@@ -22,9 +22,9 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.boundsInRoot
 import androidx.ui.core.onPositioned
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
@@ -65,10 +65,8 @@ class FloatingActionButtonTest {
     fun fabDefaultSemantics() {
         composeTestRule.setMaterialContent {
             Stack {
-                TestTag(tag = "myButton") {
-                    FloatingActionButton(onClick = {}) {
-                        Icon(Icons.Filled.Favorite)
-                    }
+                FloatingActionButton(modifier = Modifier.testTag("myButton"), onClick = {}) {
+                    Icon(Icons.Filled.Favorite)
                 }
             }
         }
@@ -151,10 +149,12 @@ class FloatingActionButtonTest {
                 surface = MaterialTheme.colors.surface
                 fabColor = MaterialTheme.colors.secondary
                 Providers(ShapesAmbient provides Shapes(small = themeShape)) {
-                    TestTag(tag = "myButton") {
-                        FloatingActionButton(onClick = {}, elevation = 0.dp) {
-                            Box(Modifier.preferredSize(10.dp, 10.dp))
-                        }
+                    FloatingActionButton(
+                        modifier = Modifier.testTag("myButton"),
+                        onClick = {},
+                        elevation = 0.dp
+                    ) {
+                        Box(Modifier.preferredSize(10.dp, 10.dp))
                     }
                 }
             }
@@ -183,11 +183,12 @@ class FloatingActionButtonTest {
                 surface = MaterialTheme.colors.surface
                 fabColor = MaterialTheme.colors.secondary
                 Providers(ShapesAmbient provides Shapes(small = themeShape)) {
-                    TestTag(tag = "myButton") {
-                        ExtendedFloatingActionButton(onClick = {}, elevation = 0.dp, text = {
-                            Box(Modifier.preferredSize(10.dp, 50.dp))
-                        })
-                    }
+                    ExtendedFloatingActionButton(
+                        modifier = Modifier.testTag("myButton"),
+                        onClick = {},
+                        elevation = 0.dp,
+                        text = { Box(Modifier.preferredSize(10.dp, 50.dp)) }
+                    )
                 }
             }
         }

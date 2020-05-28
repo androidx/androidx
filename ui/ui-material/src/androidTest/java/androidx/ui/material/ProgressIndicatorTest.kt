@@ -17,7 +17,8 @@ package androidx.ui.material
 
 import androidx.compose.mutableStateOf
 import androidx.test.filters.LargeTest
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Strings
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.test.assertIsDisplayed
@@ -50,9 +51,7 @@ class ProgressIndicatorTest {
 
         composeTestRule
             .setMaterialContent {
-                TestTag(tag = tag) {
-                    LinearProgressIndicator(progress = progress.value)
-                }
+                LinearProgressIndicator(modifier = Modifier.testTag(tag), progress = progress.value)
             }
 
         findByTag(tag)
@@ -87,9 +86,7 @@ class ProgressIndicatorTest {
 
         composeTestRule
             .setMaterialContent {
-                TestTag(tag = tag) {
-                    LinearProgressIndicator()
-                }
+                LinearProgressIndicator(modifier = Modifier.testTag(tag))
             }
 
         findByTag(tag)
@@ -114,9 +111,10 @@ class ProgressIndicatorTest {
 
         composeTestRule
             .setMaterialContent {
-                TestTag(tag = tag) {
-                    CircularProgressIndicator(progress = progress.value)
-                }
+                CircularProgressIndicator(
+                    modifier = Modifier.testTag(tag),
+                    progress = progress.value
+                )
             }
 
         findByTag(tag)
@@ -150,9 +148,7 @@ class ProgressIndicatorTest {
 
         composeTestRule
             .setMaterialContent {
-                TestTag(tag = tag) {
-                    CircularProgressIndicator()
-                }
+                CircularProgressIndicator(modifier = Modifier.testTag(tag))
             }
 
         findByTag(tag)

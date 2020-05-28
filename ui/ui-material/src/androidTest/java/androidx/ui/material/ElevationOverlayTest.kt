@@ -20,11 +20,11 @@ import android.os.Build
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.semantics.semantics
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
@@ -100,16 +100,12 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayColor: Color?) {
                     Box {
                         Surface(elevation = elevation) {
                             // Make the surface size small so we compare less pixels
-                            TestTag(Tag) {
-                                Semantics(container = true) {
-                                    Box(
-                                        Modifier.preferredSize(
-                                            SurfaceSize.width.toDp(),
-                                            SurfaceSize.height.toDp()
-                                        )
-                                    )
-                                }
-                            }
+                            Box(
+                                Modifier.preferredSize(
+                                    SurfaceSize.width.toDp(),
+                                    SurfaceSize.height.toDp()
+                                ).semantics(container = true).testTag(Tag)
+                            )
                         }
                     }
                 }
