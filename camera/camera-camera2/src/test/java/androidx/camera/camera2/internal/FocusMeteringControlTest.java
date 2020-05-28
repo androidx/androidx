@@ -632,14 +632,14 @@ public class FocusMeteringControlTest {
 
     private static void updateCaptureResultWithAfState(
             CaptureResultListener captureResultListener,
-            int afState) {
+            Integer afState) {
         TotalCaptureResult result1 = mock(TotalCaptureResult.class);
         when(result1.get(CaptureResult.CONTROL_AF_STATE)).thenReturn(afState);
         captureResultListener.onCaptureResult(result1);
     }
 
     private static void updateCaptureResultWithAfStateAnd3ARegions(
-            CaptureResultListener captureResultListener, int afState,
+            CaptureResultListener captureResultListener, Integer afState,
             MeteringRectangle[] afRegions, MeteringRectangle[] aeRegions,
             MeteringRectangle[] awbRegions) {
         TotalCaptureResult result = mock(TotalCaptureResult.class);
@@ -804,6 +804,28 @@ public class FocusMeteringControlTest {
                 new MeteringRectangle[]{METERING_RECTANGLE_1});
 
         assertFutureFocusCompleted(future, false);
+    }
+
+    // When AfState is null, it means it does not support AF.
+    @Test
+    public void startFocusMetering_AfStateIsNull_completesWithFocusTrue()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1).build();
+
+        ListenableFuture<FocusMeteringResult> future =
+                mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
+
+        CaptureResultListener captureResultListener = retrieveCaptureResultListener();
+
+        updateCaptureResultWithAfState(captureResultListener, null);
+
+        updateCaptureResultWithAfStateAnd3ARegions(captureResultListener,
+                null,
+                new MeteringRectangle[]{METERING_RECTANGLE_1},
+                new MeteringRectangle[]{METERING_RECTANGLE_1},
+                new MeteringRectangle[]{METERING_RECTANGLE_1});
+
+        assertFutureFocusCompleted(future, true);
     }
 
     @Test
