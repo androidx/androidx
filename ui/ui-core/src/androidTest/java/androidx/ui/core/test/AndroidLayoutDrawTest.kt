@@ -2360,6 +2360,7 @@ class AndroidLayoutDrawTest {
 
     // When a layer moves, it should redraw properly
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun drawOnLayerMove() {
         val offset = mutableStateOf(10.ipx)
         var placeLatch = CountDownLatch(1)
@@ -2409,6 +2410,7 @@ class AndroidLayoutDrawTest {
 
     // When a layer property changes, it should redraw properly
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun drawOnLayerPropertyChange() {
         val offset = mutableStateOf(0f)
         var translationLatch = CountDownLatch(1)
