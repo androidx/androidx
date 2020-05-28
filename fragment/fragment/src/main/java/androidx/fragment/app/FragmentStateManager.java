@@ -272,7 +272,6 @@ class FragmentStateManager {
                             ensureInflatedView();
                             createView();
                             activityCreated();
-                            restoreViewState();
                             break;
                         case Fragment.ACTIVITY_CREATED:
                             if (mFragment.mView != null && mFragment.mContainer != null) {
@@ -520,16 +519,6 @@ class FragmentStateManager {
         mFragment.performActivityCreated(mFragment.mSavedFragmentState);
         mDispatcher.dispatchOnFragmentActivityCreated(
                 mFragment, mFragment.mSavedFragmentState, false);
-    }
-
-    void restoreViewState() {
-        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
-            Log.d(TAG, "moveto RESTORE_VIEW_STATE: " + mFragment);
-        }
-        if (mFragment.mView != null) {
-            mFragment.restoreViewState(mFragment.mSavedFragmentState);
-        }
-        mFragment.mSavedFragmentState = null;
     }
 
     void start() {
