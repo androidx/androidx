@@ -114,39 +114,7 @@ fun verifyAndClearTransition(
     } else {
         assertThat(transition.capturedEpicenter).isEqualTo(epicenter)
     }
-    val targets = transition.trackedTargets
-    val sb = StringBuilder()
-    sb.append("Expected: [")
-        .append(expected.size)
-        .append("] {")
-    var isFirst = true
-    for (view in expected) {
-        if (isFirst) {
-            isFirst = false
-        } else {
-            sb.append(", ")
-        }
-        sb.append(view)
-    }
-    sb.append("}, but got: [")
-        .append(targets.size)
-        .append("] {")
-    isFirst = true
-    for (view in targets) {
-        if (isFirst) {
-            isFirst = false
-        } else {
-            sb.append(", ")
-        }
-        sb.append(view)
-    }
-    sb.append("}")
-    val errorMessage = sb.toString()
-
-    assertWithMessage(errorMessage).that(targets.size).isEqualTo(expected.size)
-    for (view in expected) {
-        assertWithMessage(errorMessage).that(targets.contains(view)).isTrue()
-    }
+    assertThat(transition.trackedTargets).containsExactlyElementsIn(expected)
     transition.clearTargets()
 }
 

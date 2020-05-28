@@ -23,7 +23,6 @@ import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.TargetTracking
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -31,7 +30,6 @@ import androidx.test.rule.ActivityTestRule
 import androidx.testutils.waitForExecution
 import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Before
@@ -1165,61 +1163,6 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         for (fragment in others) {
             verifyNoOtherTransitions(fragment)
         }
-    }
-
-    fun verifyAndClearTransition(
-        transition: TargetTracking,
-        epicenter: Rect?,
-        vararg expected: View
-    ) {
-        if (epicenter == null) {
-            assertThat(transition.capturedEpicenter).isNull()
-        } else {
-            assertThat(transition.capturedEpicenter).isEqualTo(epicenter)
-        }
-        val targets = transition.trackedTargets
-        val sb = StringBuilder()
-        sb.append("Expected: [")
-            .append(expected.size)
-            .append("] {")
-        var isFirst = true
-        for (view in expected) {
-            if (isFirst) {
-                isFirst = false
-            } else {
-                sb.append(", ")
-            }
-            sb.append(view)
-        }
-        sb.append("}, but got: [")
-            .append(targets.size)
-            .append("] {")
-        isFirst = true
-        for (view in targets) {
-            if (isFirst) {
-                isFirst = false
-            } else {
-                sb.append(", ")
-            }
-            sb.append(view)
-        }
-        sb.append("}")
-        val errorMessage = sb.toString()
-
-        assertWithMessage(errorMessage).that(targets.size).isEqualTo(expected.size)
-        for (view in expected) {
-            assertWithMessage(errorMessage).that(targets.contains(view)).isTrue()
-        }
-        transition.clearTargets()
-    }
-
-    fun verifyNoOtherTransitions(fragment: TransitionFragment) {
-        assertThat(fragment.enterTransition.targets.size).isEqualTo(0)
-        assertThat(fragment.exitTransition.targets.size).isEqualTo(0)
-        assertThat(fragment.reenterTransition.targets.size).isEqualTo(0)
-        assertThat(fragment.returnTransition.targets.size).isEqualTo(0)
-        assertThat(fragment.sharedElementEnter.targets.size).isEqualTo(0)
-        assertThat(fragment.sharedElementReturn.targets.size).isEqualTo(0)
     }
 
     class ComplexTransitionFragment : TransitionFragment(R.layout.fragment_scene2) {
