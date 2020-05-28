@@ -25,6 +25,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onChildPositioned
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.ExperimentalLayout
 import androidx.ui.layout.Stack
 import androidx.ui.layout.IntrinsicSize
 import androidx.ui.layout.preferredHeight
@@ -45,6 +46,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalLayout::class)
 class IntrinsicTest : LayoutTest() {
     @Test
     fun testMinIntrinsicWidth() = with(density) {
