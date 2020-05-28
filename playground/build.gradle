@@ -23,7 +23,7 @@ buildscript {
         mavenCentral()
         jcenter()
         maven {
-            url 'https://androidx.dev/metalava/builds/6401339/artifacts/repo/m2repository'
+            url 'https://androidx.dev/metalava/builds/6535121/artifacts/repo/m2repository'
             metadataSources {
                 mavenPom()
                 artifact()
@@ -59,7 +59,7 @@ allprojects {
         mavenCentral()
         jcenter()
         maven {
-            url 'https://androidx.dev/metalava/builds/6401339/artifacts/repo/m2repository'
+            url 'https://androidx.dev/metalava/builds/6535121/artifacts/repo/m2repository'
             metadataSources {
                 mavenPom()
                 artifact()
