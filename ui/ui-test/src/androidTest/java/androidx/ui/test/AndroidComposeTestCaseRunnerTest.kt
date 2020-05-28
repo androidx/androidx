@@ -43,6 +43,9 @@ class AndroidComposeTestCaseRunnerTest {
             Text("Hello ${count.value}")
             count.value++
         }.performTestWithEventsControl {
+            // Force the first recompose as the changes during initial composition are not
+            // considered to invalidate the composition.
+            count.value++
             assertFailsWith<AssertionError>(
                 "Changes are still pending after '10' frames.") {
                 doFramesAssertAllHadChangesExceptLastOne(10)
@@ -130,10 +133,13 @@ class AndroidComposeTestCaseRunnerTest {
         val count = mutableStateOf(0)
         composeTestRule.forGivenContent {
             Text("Hello ${count.value}")
-            if (count.value < 2) {
+            if (count.value < 3) {
                 count.value++
             }
         }.performTestWithEventsControl {
+            // Force the first recompose as the changes during initial composition are not
+            // considered to invalidate the composition.
+            count.value++
             doFramesAssertAllHadChangesExceptLastOne(2)
         }
     }
