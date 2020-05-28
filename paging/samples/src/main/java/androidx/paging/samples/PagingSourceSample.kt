@@ -20,6 +20,7 @@ package androidx.paging.samples
 
 import androidx.annotation.Sampled
 import androidx.paging.PagingSource
+import androidx.paging.PagingSource.LoadResult
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -36,16 +37,22 @@ internal class MyBackendService {
     }
 
     @Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER")
+    suspend fun searchItems(pageNumber: Int): RemoteResult {
+        throw NotImplementedError()
+    }
+
+    @Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER")
     suspend fun itemsAfter(itemKey: String?): RemoteResult {
         throw NotImplementedError()
     }
 }
 
 @Sampled
-fun pagingSourceSample() {
+fun pageKeyedPagingSourceSample() {
     /**
-     * Sample PagingSource which loads `Item`s from network requests via Retrofit to a backend
-     * service, which uses String tokens to load pages (each response has a next/previous token).
+     * Sample Page-Keyed PagingSource, which uses String tokens to load pages.
+     *
+     * Loads Items from network requests via Retrofit to a backend service.
      */
     class MyPagingSource(
         val myBackend: MyBackendService
@@ -70,5 +77,96 @@ fun pagingSourceSample() {
                 LoadResult.Error(e)
             }
         }
+    }
+}
+
+@Sampled
+fun pageIndexedPagingSourceSample() {
+    /**
+     * Sample Page-Indexed PagingSource, which uses Int page number to load pages.
+     *
+     * Loads Items from network requests via Retrofit to a backend service.
+     *
+     * Note that the key type is Int, since we're using page number to load a page.
+     */
+    class MyPagingSource(
+        val myBackend: MyBackendService
+    ) : PagingSource<Int, Item>() {
+        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
+
+            // Retrofit calls that return the body type throw either IOException for network
+            // failures, or HttpException for any non-2xx HTTP status codes. This code reports all
+            // errors to the UI, but you can inspect/wrap the exceptions to provide more context.
+            return try {
+                // Key may be null during a refresh, if no explicit key is passed into Pager
+                // construction. Use 0 as default, because our API is indexed started at index 0
+                val pageNumber = params.key ?: 0
+
+                // Suspending network load via Retrofit. This doesn't need to be wrapped in a
+                // withContext(Dispatcher.IO) { ... } block since Retrofit's Coroutine
+                // CallAdapter dispatches on a worker thread.
+                val response = myBackend.searchItems(pageNumber)
+
+                // Since 0 is the lowest page number, return null to signify no more pages should
+                // be loaded before it.
+                val prevKey = if (pageNumber > 0) pageNumber - 1 else null
+
+                // This API defines that it's out of data when a page returns empty. When out of
+                // data, we return `null` to signify no more pages should be loaded
+                val nextKey = if (response.items.isNotEmpty()) pageNumber + 1 else null
+                LoadResult.Page(
+                    data = response.items,
+                    prevKey = prevKey,
+                    nextKey = nextKey
+                )
+            } catch (e: IOException) {
+                LoadResult.Error(e)
+            } catch (e: HttpException) {
+                LoadResult.Error(e)
+            }
+        }
+    }
+}
+
+@Sampled
+fun pageKeyedPage() {
+    // One common method of pagination is to use next (and optionally previous) tokens.
+    // The below code shows you how to
+    data class NetworkResponseObject(
+        val items: List<Item>,
+        val next: String,
+        val approximateItemsRemaining: Int
+    )
+
+    // The following shows how you use convert such a response loaded in PagingSource.load() to
+    // a Page, which can be returned from that method
+    fun NetworkResponseObject.toPage() = LoadResult.Page(
+        data = items,
+        prevKey = null, // this implementation can only append, can't load a prepend
+        nextKey = next, // next token will be the params.key of a subsequent append load
+        itemsAfter = approximateItemsRemaining
+    )
+}
+
+@Sampled
+fun pageIndexedPage() {
+    // If you load by page number, the response may not define how to load the next page.
+    data class NetworkResponseObject(
+        val items: List<Item>
+    )
+
+    // The following shows how you use the current page number (e.g., the current key in
+    // PagingSource.load() to convert a response into a Page, which can be returned from that method
+    fun NetworkResponseObject.toPage(pageNumber: Int): LoadResult.Page<Int, Item> {
+        return LoadResult.Page(
+            data = items,
+            // Since 0 is the lowest page number, return null to signify no more pages
+            // should be loaded before it.
+            prevKey = if (pageNumber > 0) pageNumber - 1 else null,
+            // This API defines that it's out of data when a page returns empty. When out of
+            // data, we return `null` to signify no more pages should be loaded
+            // If the response instead
+            nextKey = if (items.isNotEmpty()) pageNumber + 1 else null
+        )
     }
 }
