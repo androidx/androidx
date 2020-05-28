@@ -18,8 +18,6 @@ package androidx.paging
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
-import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
@@ -66,30 +64,14 @@ class AsyncPagingDataDiffer<T : Any>(
             fromMediator: Boolean,
             loadState: LoadState
         ) {
-            when (loadType) {
-                REFRESH -> {
-                    if (loadState != loadStates[REFRESH]) {
-                        loadStates[REFRESH] = loadState
-                        dispatchLoadState(REFRESH, loadState)
-                    }
-                }
-                PREPEND -> {
-                    if (loadState != loadStates[PREPEND]) {
-                        loadStates[PREPEND] = loadState
-                        dispatchLoadState(PREPEND, loadState)
-                    }
-                }
-                APPEND -> {
-                    if (loadState != loadStates[APPEND]) {
-                        loadStates[APPEND] = loadState
-                        dispatchLoadState(APPEND, loadState)
-                    }
-                }
-            }
-        }
+            val currentLoadState = combinedLoadStates.get(loadType, fromMediator)
 
-        private fun dispatchLoadState(type: LoadType, state: LoadState) {
-            loadStateListeners.forEach { it(type, state) }
+            // No change, skip update + dispatch.
+            if (currentLoadState == loadState) return
+
+            combinedLoadStates.set(loadType, fromMediator, loadState)
+            val combinedLoadStatesSnapshot = combinedLoadStates.snapshot()
+            loadStateListeners.forEach { it(combinedLoadStatesSnapshot) }
         }
     }
 
@@ -267,42 +249,38 @@ class AsyncPagingDataDiffer<T : Any>(
     val itemCount: Int
         get() = differBase.size
 
-    internal val loadStateListeners: MutableList<(LoadType, LoadState) -> Unit> =
+    internal val loadStateListeners: MutableList<(CombinedLoadStates) -> Unit> =
         CopyOnWriteArrayList()
 
-    internal val loadStates = mutableMapOf<LoadType, LoadState>(
-        REFRESH to LoadState.NotLoading(endOfPaginationReached = false),
-        PREPEND to LoadState.NotLoading(endOfPaginationReached = false),
-        APPEND to LoadState.NotLoading(endOfPaginationReached = false)
+    internal val combinedLoadStates = MutableLoadStateCollection(
+        hasRemoteState = false
     )
 
     /**
-     * Add a listener to observe the loading state.
+     * Add a [CombinedLoadStates] listener to observe the loading state of the current [PagingData].
      *
      * As new [PagingData] generations are submitted and displayed, the listener will be notified to
-     * reflect current [LoadType.REFRESH], [LoadType.PREPEND], and [LoadType.APPEND] states.
+     * reflect the current [CombinedLoadStates].
      *
-     * @param listener to receive [LoadState] updates.
+     * @param listener [LoadStates] listener to receive updates.
      *
      * @see removeLoadStateListener
      */
-    fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         // Note: Important to add the listener first before sending off events, in case the
         // callback triggers removal, which could lead to a leak if the listener is added
         // afterwards.
         loadStateListeners.add(listener)
-        listener(REFRESH, loadStates[REFRESH]!!)
-        if (loadStateListeners.contains(listener)) listener(PREPEND, loadStates[PREPEND]!!)
-        if (loadStateListeners.contains(listener)) listener(APPEND, loadStates[APPEND]!!)
+        listener(combinedLoadStates.snapshot())
     }
 
     /**
-     * Remove a previously registered load state listener.
+     * Remove a previously registered [CombinedLoadStates] listener.
      *
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         loadStateListeners.remove(listener)
     }
 

@@ -110,8 +110,8 @@ fun refreshSample() {
             setContentView(binding.root)
 
             binding.recyclerView.adapter = pagingAdapter
-            pagingAdapter.addLoadStateListener { _, loadState ->
-                binding.swipeRefreshLayout.isRefreshing = loadState is LoadState.Loading
+            pagingAdapter.addLoadStateListener { loadStates ->
+                binding.swipeRefreshLayout.isRefreshing = loadStates.refresh is LoadState.Loading
             }
 
             binding.swipeRefreshLayout.setOnRefreshListener {

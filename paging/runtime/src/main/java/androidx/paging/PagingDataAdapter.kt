@@ -151,26 +151,26 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     override fun getItemCount() = differ.itemCount
 
     /**
-     * Add a [LoadState] listener to observe the loading state of the current [PagingData].
+     * Add a [CombinedLoadStates] listener to observe the loading state of the current [PagingData].
      *
      * As new [PagingData] generations are submitted and displayed, the listener will be notified to
-     * reflect current [LoadType.REFRESH], [LoadType.PREPEND], and [LoadType.APPEND] states.
+     * reflect the current [CombinedLoadStates].
      *
-     * @param listener [LoadState] listener to receive updates.
+     * @param listener [LoadStates] listener to receive updates.
      *
      * @see removeLoadStateListener
      */
-    fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         differ.addLoadStateListener(listener)
     }
 
     /**
-     * Remove a previously registered [LoadState] listener.
+     * Remove a previously registered [CombinedLoadStates] listener.
      *
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         differ.removeLoadStateListener(listener)
     }
 
@@ -185,10 +185,8 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     fun withLoadStateHeader(
         header: LoadStateAdapter<*>
     ): MergeAdapter {
-        addLoadStateListener { loadType, loadState ->
-            if (loadType == LoadType.PREPEND) {
-                header.loadState = loadState
-            }
+        addLoadStateListener { loadStates ->
+            header.loadState = loadStates.prepend
         }
         return MergeAdapter(header, this)
     }
@@ -204,10 +202,8 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     fun withLoadStateFooter(
         footer: LoadStateAdapter<*>
     ): MergeAdapter {
-        addLoadStateListener { loadType, loadState ->
-            if (loadType == LoadType.APPEND) {
-                footer.loadState = loadState
-            }
+        addLoadStateListener { loadStates ->
+            footer.loadState = loadStates.append
         }
         return MergeAdapter(this, footer)
     }
@@ -225,12 +221,9 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         header: LoadStateAdapter<*>,
         footer: LoadStateAdapter<*>
     ): MergeAdapter {
-        addLoadStateListener { loadType, loadState ->
-            if (loadType == LoadType.PREPEND) {
-                header.loadState = loadState
-            } else if (loadType == LoadType.APPEND) {
-                footer.loadState = loadState
-            }
+        addLoadStateListener { loadStates ->
+                header.loadState = loadStates.prepend
+                footer.loadState = loadStates.append
         }
         return MergeAdapter(header, this, footer)
     }
