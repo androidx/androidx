@@ -128,10 +128,7 @@ class ImageCaptureTest {
     fun captureImageWithViewPortCropRectLargerThanBuffer_cropRectIsFullSize() {
         // Arrange.
         val imageCapture = bindImageCapture(
-            ViewPort.Builder()
-                .setAspectRatio(Rational(1, 1))
-                .setScaleType(ViewPort.FILL_CENTER)
-                .setRotation(Surface.ROTATION_0).build()
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
         )
         // Overwrites the view port crop rect to be larger than the surface. Cannot rely on the
         // real code path to test this because ShadowMatrix#invert doesn't work.
@@ -156,10 +153,7 @@ class ImageCaptureTest {
     fun captureImageWithViewPort_isSet() {
         // Arrange
         val imageCapture = bindImageCapture(
-            ViewPort.Builder()
-                .setAspectRatio(Rational(1, 1))
-                .setScaleType(ViewPort.FILL_CENTER)
-                .setRotation(Surface.ROTATION_0).build()
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
         )
 
         // Act

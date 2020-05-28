@@ -122,10 +122,8 @@ public class ImageAnalysisTest {
         // Arrange.
         Rect largerThanBufferRect = new Rect(-1, -1, 10000, 10000);
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST,
-                new ViewPort.Builder()
-                        .setAspectRatio(new Rational(1, 1))
-                        .setScaleType(ViewPort.FILL_CENTER)
-                        .setRotation(Surface.ROTATION_0).build());
+                new ViewPort.Builder(new Rational(1, 1), Surface.ROTATION_0)
+                        .build());
         // Sets viewPortRect directly because Shadow#invert() doesn't work in unit test.
         mImageAnalysis.setViewPortCropRect(largerThanBufferRect);
 
@@ -147,10 +145,8 @@ public class ImageAnalysisTest {
             throws InterruptedException {
         // Arrange.
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST,
-                new ViewPort.Builder()
-                        .setAspectRatio(new Rational(1, 1))
-                        .setScaleType(ViewPort.FILL_CENTER)
-                        .setRotation(Surface.ROTATION_0).build());
+                new ViewPort.Builder(new Rational(1, 1), Surface.ROTATION_0)
+                        .build());
 
         // Act.
         mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
