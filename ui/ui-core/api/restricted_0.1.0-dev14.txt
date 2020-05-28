@@ -837,25 +837,6 @@ package androidx.ui.core {
   public final class SavedStateDelegateKt {
   }
 
-  @Deprecated public interface ScaleFit extends androidx.ui.core.ContentScale {
-    field @Deprecated public static final androidx.ui.core.ScaleFit.Companion! Companion;
-  }
-
-  @Deprecated public static final class ScaleFit.Companion {
-    method @Deprecated public androidx.ui.core.ContentScale getFillHeight();
-    method @Deprecated public androidx.ui.core.ContentScale getFillMaxDimension();
-    method @Deprecated public androidx.ui.core.ContentScale getFillMinDimension();
-    method @Deprecated public androidx.ui.core.ContentScale getFillWidth();
-    method @Deprecated public androidx.ui.core.ContentScale getFit();
-    method @Deprecated public androidx.ui.core.FixedScale getNone();
-    property @Deprecated public final androidx.ui.core.ContentScale FillHeight;
-    property @Deprecated public final androidx.ui.core.ContentScale FillMaxDimension;
-    property @Deprecated public final androidx.ui.core.ContentScale FillMinDimension;
-    property @Deprecated public final androidx.ui.core.ContentScale FillWidth;
-    property @Deprecated public final androidx.ui.core.ContentScale Fit;
-    property @Deprecated public final androidx.ui.core.FixedScale None;
-  }
-
   public final class TestTagKt {
     method public static void TestTag(String tag, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.core.Modifier testTag(androidx.ui.core.Modifier, String tag);
