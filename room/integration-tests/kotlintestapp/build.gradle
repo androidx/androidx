@@ -75,8 +75,6 @@ android {
 
 dependencies {
     implementation(project(":room:room-common"))
-    implementation(project(":sqlite:sqlite"))
-    implementation(project(":sqlite:sqlite-framework"))
     implementation(project(":room:room-runtime"))
     implementation(project(":arch:core-runtime"))
     implementation(project(":lifecycle:lifecycle-livedata"))
