@@ -61,12 +61,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
 
     // Callback when Image is ready from the underlying ImageReader.
     private ImageReaderProxy.OnImageAvailableListener mTransformedListener =
-            new ImageReaderProxy.OnImageAvailableListener() {
-                @Override
-                public void onImageAvailable(@NonNull ImageReaderProxy reader) {
-                    imageIncoming(reader);
-                }
-            };
+            (reader) -> imageIncoming(reader);
 
     @GuardedBy("mLock")
     private boolean mClosed = false;
@@ -248,6 +243,14 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
             mListener = Preconditions.checkNotNull(listener);
             mExecutor = Preconditions.checkNotNull(executor);
             mImageReaderProxy.setOnImageAvailableListener(mTransformedListener, executor);
+        }
+    }
+
+    @Override
+    public void clearOnImageAvailableListener() {
+        synchronized (mLock) {
+            mListener = null;
+            mExecutor = null;
         }
     }
 

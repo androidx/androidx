@@ -228,6 +228,12 @@ final class QueuedImageReaderProxy
     }
 
     @Override
+    public synchronized void clearOnImageAvailableListener() {
+        mOnImageAvailableListener = null;
+        mOnImageAvailableExecutor = null;
+    }
+
+    @Override
     public synchronized void onImageClose(ImageProxy image) {
         int index = mImages.indexOf(image);
         if (index >= 0) {

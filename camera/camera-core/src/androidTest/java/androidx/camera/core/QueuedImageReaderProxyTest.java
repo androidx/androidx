@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import android.graphics.ImageFormat;
@@ -179,6 +180,18 @@ public final class QueuedImageReaderProxyTest {
         mImageReaderProxy.enqueueImage(createForwardingImageProxy());
 
         verify(listener, timeout(2000).times(2)).onImageAvailable(mImageReaderProxy);
+    }
+
+    @Test
+    public void listenerNotInvoked_afterItIsCleared() {
+        ImageReaderProxy.OnImageAvailableListener listener =
+                mock(ImageReaderProxy.OnImageAvailableListener.class);
+        mImageReaderProxy.setOnImageAvailableListener(listener, mExecutor);
+
+        mImageReaderProxy.clearOnImageAvailableListener();
+        mImageReaderProxy.enqueueImage(createForwardingImageProxy());
+
+        verifyZeroInteractions(listener);
     }
 
     @Test

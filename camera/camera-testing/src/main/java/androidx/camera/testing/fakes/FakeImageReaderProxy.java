@@ -43,6 +43,8 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     private int mImageFormat = ImageFormat.JPEG;
     private final int mMaxImages;
     private Surface mSurface;
+
+    @Nullable
     private Executor mExecutor;
 
     private boolean mIsClosed = false;
@@ -55,7 +57,8 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     private BlockingQueue<ImageProxy> mImageProxyAcquisitionQueue;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-            ImageReaderProxy.OnImageAvailableListener mListener;
+    @Nullable
+    ImageReaderProxy.OnImageAvailableListener mListener;
 
     /**
      * Create a new {@link FakeImageReaderProxy} instance.
@@ -153,6 +156,12 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         mExecutor = executor;
     }
 
+    @Override
+    public void clearOnImageAvailableListener() {
+        mListener = null;
+        mExecutor = null;
+    }
+
     public void setSurface(Surface surface) {
         mSurface = surface;
     }
@@ -232,14 +241,8 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     private void triggerImageAvailableListener() {
         if (mListener != null) {
-            Runnable listenerRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    mListener.onImageAvailable(FakeImageReaderProxy.this);
-                }
-            };
             if (mExecutor != null) {
-                mExecutor.execute(listenerRunnable);
+                mExecutor.execute(() -> mListener.onImageAvailable(FakeImageReaderProxy.this));
             } else {
                 mListener.onImageAvailable(FakeImageReaderProxy.this);
             }

@@ -106,6 +106,13 @@ public interface ImageReaderProxy {
             @NonNull Executor executor);
 
     /**
+     * Clears the currently set {@link OnImageAvailableListener}.
+     *
+     * <p> This does not cancel any currently in progress listener.
+     */
+    void clearOnImageAvailableListener();
+
+    /**
      * A listener for newly available images.
      *
      * @hide
