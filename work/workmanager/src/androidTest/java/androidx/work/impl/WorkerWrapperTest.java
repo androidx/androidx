@@ -1278,6 +1278,18 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(workSpec.scheduleRequestedAt, is(-1L));
     }
 
+    @Test
+    @SmallTest
+    public void testWorkRequest_withInvalidClassName() {
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        work.getWorkSpec().workerClassName = "Bad class name";
+        insertWork(work);
+        WorkerWrapper workerWrapper = createBuilder(work.getStringId()).build();
+        workerWrapper.run();
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
+    }
+
     private WorkerWrapper.Builder createBuilder(String workSpecId) {
         return new WorkerWrapper.Builder(
                 mContext,
