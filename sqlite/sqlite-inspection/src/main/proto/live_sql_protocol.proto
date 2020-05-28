@@ -136,8 +136,8 @@ message Row {
 message CellValue {
   // Resulting cell value depending on type affinity rules.
   oneof OneOf {
-    float float_value = 1;
-    int32 int_value = 2;
+    double double_value = 1;
+    int64 long_value = 2;
     string string_value = 3;
     bytes blob_value = 4;
   }

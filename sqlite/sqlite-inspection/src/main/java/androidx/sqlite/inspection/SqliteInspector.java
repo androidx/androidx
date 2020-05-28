@@ -615,10 +615,10 @@ final class SqliteInspector extends Inspector {
                 builder.setStringValue(cursor.getString(index));
                 break;
             case Cursor.FIELD_TYPE_INTEGER:
-                builder.setIntValue(cursor.getInt(index));
+                builder.setLongValue(cursor.getLong(index));
                 break;
             case Cursor.FIELD_TYPE_FLOAT:
-                builder.setFloatValue(cursor.getFloat(index));
+                builder.setDoubleValue(cursor.getDouble(index));
                 break;
         }
 
