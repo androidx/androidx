@@ -43,7 +43,7 @@ class ReplaceFileCorruptionHandlerTest {
 
     @Before
     fun setUp() {
-        testFile = tmp.newFile()
+        testFile = tmp.newFile("test_file." + TestingSerializer().fileExtension)
     }
 
     @Test

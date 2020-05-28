@@ -52,7 +52,7 @@ import java.util.concurrent.atomic.AtomicInteger
 @RunWith(JUnit4::class)
 class SingleProcessDataStoreTest {
     @get:Rule
-    val tmp = TemporaryFolder()
+    val tempFolder = TemporaryFolder()
 
     private lateinit var store: DataStore<Byte>
     private lateinit var serializer: TestingSerializer
@@ -62,7 +62,7 @@ class SingleProcessDataStoreTest {
     @Before
     fun setUp() {
         serializer = TestingSerializer()
-        testFile = tmp.newFile()
+        testFile = tempFolder.newFile("test_file." + serializer.fileExtension)
         dataStoreScope = TestCoroutineScope(TestCoroutineDispatcher() + Job())
         store =
             SingleProcessDataStore<Byte>({ testFile }, serializer, scope = dataStoreScope)
@@ -174,7 +174,8 @@ class SingleProcessDataStoreTest {
 
     @Test
     fun testWriteToNonExistentDir() = runBlockingTest {
-        val fileInNonExistentDir = File(tmp.newFolder(), "/this/does/not/exist/foo.pb")
+        val fileInNonExistentDir =
+            File(tempFolder.newFolder(), "/this/does/not/exist/foo." + serializer.fileExtension)
         var newStore = newDataStore(fileInNonExistentDir)
 
         newStore.updateData { 1 }
@@ -187,12 +188,52 @@ class SingleProcessDataStoreTest {
 
     @Test
     fun testWriteToDirFails() = runBlockingTest {
-        val directoryFile = File(tmp.newFolder(), "/this/is/a/directory")
+        val directoryFile =
+            File(tempFolder.newFolder(), "/this/is/a/directory." + serializer.fileExtension)
         directoryFile.mkdirs()
         assertThat(directoryFile.isDirectory)
 
         val newStore = newDataStore(directoryFile)
         assertThrows<IOException> { newStore.data.first() }
+    }
+
+    @Test
+    fun testIncorrectFileExtension() = runBlockingTest {
+        val badExtensionFile =
+            File(tempFolder.newFile().absolutePath + "/file/with.incorrect_extension")
+
+        val newStore = newDataStore(badExtensionFile)
+        assertThrows<IllegalStateException> { newStore.data.first() }.hasMessageThat()
+            .contains("does not match required extension for serializer")
+        assertThrows<IllegalStateException> { newStore.updateData { 1 } }.hasMessageThat()
+            .contains("does not match required extension for serializer")
+    }
+
+    @Test
+    fun testExceptionWhenCreatingFilePropagates() = runBlockingTest {
+        var failFileProducer = true
+
+        val fileProducer = {
+            if (failFileProducer) {
+                throw IOException("Exception when producing file")
+            }
+            testFile
+        }
+
+        val newStore = SingleProcessDataStore(
+            fileProducer,
+            serializer = serializer,
+            scope = dataStoreScope,
+            initTasksList = listOf()
+        )
+
+        assertThrows<IOException> { newStore.data.first() }.hasMessageThat().isEqualTo(
+            "Exception when producing file"
+        )
+
+        failFileProducer = false
+
+        assertThat(newStore.data.first()).isEqualTo(0)
     }
 
     @Test
@@ -603,7 +644,7 @@ class SingleProcessDataStoreTest {
     }
 
     private fun newDataStore(
-        file: File = tmp.newFile(),
+        file: File = testFile,
         scope: CoroutineScope = dataStoreScope,
         initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
         corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>()

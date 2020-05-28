@@ -51,4 +51,6 @@ internal class TestingSerializer(
         }
         output.write(t.toInt())
     }
+
+    override val fileExtension = "testing_byte"
 }

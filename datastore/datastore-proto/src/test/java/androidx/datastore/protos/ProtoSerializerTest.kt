@@ -36,7 +36,7 @@ class ProtoSerializerTest {
 
     @Test
     fun testReadWriteProto() {
-        val file = temporaryFolder.newFile()
+        val file = temporaryFolder.newFile("test_file.pb")
 
         val fooProtoWithText = FooProto.newBuilder().setText("abc").build()
 
@@ -56,7 +56,7 @@ class ProtoSerializerTest {
 
     @Test
     fun testReadWriteProtoWithExtension() {
-        val file = temporaryFolder.newFile()
+        val file = temporaryFolder.newFile("test_file.pb")
 
         val registry = ExtensionRegistryLite.newInstance()
         registry.add(ExtensionProto.extension)
@@ -81,7 +81,7 @@ class ProtoSerializerTest {
 
     @Test
     fun testThrowsCorruptionException() {
-        val file = temporaryFolder.newFile()
+        val file = temporaryFolder.newFile("test_file.pb")
         file.writeBytes(byteArrayOf(0x00, 0x02)) // Protos cannot start with 0x00.
 
         val protoSerializer = ProtoSerializer<FooProto>(

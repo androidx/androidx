@@ -42,7 +42,7 @@ class PreferenceDataStoreFactoryTest {
 
     @Before
     fun setUp() {
-        testFile = tmp.newFile()
+        testFile = tmp.newFile("test_file." + PreferencesSerializer.fileExtension)
         dataStoreScope = TestCoroutineScope()
     }
 
