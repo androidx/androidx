@@ -1,0 +1,52 @@
+
+name: AndroidX Presubmits
+on:
+  pull_request
+
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    # The type of runner that the job will run on
+    runs-on: ${{ matrix.os }}
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    - name: Setup Java environment based on setup-java
+      uses: actions/setup-java@v1
+      with:
+        java-version: '11'
+        java-package: jdk
+        architecture: x64
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+    # build cache
+    - name: Cache
+      uses: actions/cache@v1.1.2
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+      # An ordered list of keys to use for restoring the cache if no cache hit occurred for key
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+    - uses: actions/cache@v1.1.2
+      with:
+        path: ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+    - uses: actions/cache@v1.1.2
+      with:
+        path: ~/.konan
+        key: ${{ runner.os }}-konan
+    # Runs a single command using the runners shell
+    - name: build on server
+      run: ./gradlew buildOnServer
+    - name: Upload Results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: ${{ DIST_DIR }}
+env:
+  DIST_DIR: ${{GITHUB_WORKSPACE}}/dist
