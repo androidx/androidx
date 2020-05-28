@@ -258,10 +258,10 @@ class SendSwipeWithKeyTimesAndEventPeriodTest(private val config: TestConfig) {
                 // pick a prime number for duration
                 val durationMs = 101L
                 // testing all possible keyTimes between 0 and 100 takes way too long,
-                // only test all possible keyTimes close to the middle instead
+                // only test several combinations keyTimes close to the middle instead
                 val firstKeyTime = (durationMs / 2) - eventPeriod
                 val lastKeyTime = (durationMs / 2) + eventPeriod
-                (firstKeyTime..lastKeyTime).flatMap { keyTime1 ->
+                (firstKeyTime..lastKeyTime step eventPeriod).flatMap { keyTime1 ->
                     (keyTime1..lastKeyTime).map { keyTime2 ->
                         TestConfig(
                             Duration(milliseconds = durationMs),

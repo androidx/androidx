@@ -41,11 +41,13 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.math.max
 
-private const val TAG = "PINCH"
-
 @MediumTest
 @RunWith(JUnit4::class)
 class SendPinchTest {
+    companion object {
+        private const val TAG = "PINCH"
+    }
+
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 

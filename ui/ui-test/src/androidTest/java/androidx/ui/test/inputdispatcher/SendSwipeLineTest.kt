@@ -25,9 +25,8 @@ import androidx.ui.test.util.isMonotonicBetween
 import androidx.ui.test.util.moveEvents
 import androidx.ui.test.util.splitsDurationEquallyInto
 import androidx.ui.test.util.verify
-import androidx.ui.unit.Duration
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.inMilliseconds
+import androidx.ui.unit.milliseconds
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -38,9 +37,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import kotlin.math.max
 
-private val start = PxPosition(5f.px, 7f.px)
-private val end = PxPosition(23f.px, 29f.px)
-
 /**
  * Tests if the [AndroidInputDispatcher.sendSwipe] gesture works when specifying the gesture as a
  * line between two positions
@@ -49,17 +45,20 @@ private val end = PxPosition(23f.px, 29f.px)
 @RunWith(Parameterized::class)
 class SendSwipeLineTest(private val config: TestConfig) {
     data class TestConfig(
-        val duration: Duration,
+        val duration: Long,
         val eventPeriod: Long
     )
 
     companion object {
+        private val start = PxPosition(5f.px, 7f.px)
+        private val end = PxPosition(23f.px, 29f.px)
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return listOf(10L, 9L, 11L).flatMap { period ->
-                (1L..100L).map { durationMs ->
-                    TestConfig(Duration(milliseconds = durationMs), period)
+                (1L..100L step 11).map { durationMs ->
+                    TestConfig(durationMs, period)
                 }
             }
         }
@@ -84,14 +83,14 @@ class SendSwipeLineTest(private val config: TestConfig) {
 
     @Test
     fun swipeByLine() {
-        subject.sendSwipe(start, end, duration)
+        subject.sendSwipe(start, end, duration.milliseconds)
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
-            val expectedMoveEvents = max(1, duration.inMilliseconds() / eventPeriod).toInt()
+            val expectedMoveEvents = max(1, duration / eventPeriod).toInt()
             assertThat(size).isAtLeast(2 + expectedMoveEvents) // down move+ up
 
             // Check down and up events
-            val durationMs = duration.inMilliseconds()
+            val durationMs = duration
             first().verify(start, MotionEvent.ACTION_DOWN, 0)
             last().verify(end, MotionEvent.ACTION_UP, durationMs)
 

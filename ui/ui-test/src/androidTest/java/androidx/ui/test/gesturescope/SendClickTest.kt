@@ -49,7 +49,7 @@ private const val tag = "widget"
 private const val numberOfSquares = 5
 private const val first = 0
 private const val last = numberOfSquares - 1
-private val squareSize = 10.0f
+private const val squareSize = 10.0f
 private val center = PxPosition(squareSize / 2, squareSize / 2)
 private val colors = listOf(Color.Red, Color.Yellow, Color.Blue, Color.Green, Color.Cyan)
 
@@ -145,11 +145,11 @@ class SendClickWithoutArgumentsTest(config: TestConfig) {
         val recordedClicks = mutableListOf<ClickData>()
         composeTestRule.setContent(recordedClicks)
 
-        // When I click each of the components
+        // When I click the first and last of these components
         findByTag("$tag$first").doGesture { sendClick() }
         findByTag("$tag$last").doGesture { sendClick() }
 
-        // Then each component has registered a click
+        // Then those components have registered a click
         runOnIdleCompose {
             assertThat(recordedClicks).isEqualTo(
                 listOf(
@@ -196,11 +196,11 @@ class SendClickWithArgumentsTest(private val config: TestConfig) {
         val recordedClicks = mutableListOf<ClickData>()
         composeTestRule.setContent(recordedClicks)
 
-        // When I click each of the components
+        // When I click the first and last of these components
         findByTag("$tag$first").doGesture { sendClick(config.position) }
         findByTag("$tag$last").doGesture { sendClick(config.position) }
 
-        // Then each component has registered a click
+        // Then those components have registered a click
         runOnIdleCompose {
             assertThat(recordedClicks).isEqualTo(
                 listOf(
