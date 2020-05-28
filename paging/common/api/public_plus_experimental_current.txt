@@ -53,7 +53,7 @@ package androidx.paging {
     method @AnyThread public void onInvalidated();
   }
 
-  public @interface ExperimentalPagingApi {
+  @kotlin.RequiresOptIn public @interface ExperimentalPagingApi {
   }
 
   @Deprecated public abstract class ItemKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {

@@ -220,17 +220,17 @@ package androidx.ui.graphics {
     enum_constant public static final androidx.ui.graphics.ClipOp intersect;
   }
 
-  public final inline class Color {
+  @androidx.compose.Immutable public final inline class Color {
     ctor public Color();
-    method public static operator float component1-impl(long $this);
-    method public static operator float component2-impl(long $this);
-    method public static operator float component3-impl(long $this);
-    method public static operator float component4-impl(long $this);
-    method public static operator androidx.ui.graphics.colorspace.ColorSpace component5-impl(long $this);
+    method @androidx.compose.Stable public static operator float component1-impl(long $this);
+    method @androidx.compose.Stable public static operator float component2-impl(long $this);
+    method @androidx.compose.Stable public static operator float component3-impl(long $this);
+    method @androidx.compose.Stable public static operator float component4-impl(long $this);
+    method @androidx.compose.Stable public static operator androidx.ui.graphics.colorspace.ColorSpace component5-impl(long $this);
     method public static long constructor-impl(long value);
     method public static long convert-impl(long $this, androidx.ui.graphics.colorspace.ColorSpace colorSpace);
-    method public static long copy-impl(long $this, float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
-    method public static inline boolean equals-impl(long p, Object? p1);
+    method @androidx.compose.Stable public static long copy-impl(long $this, float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static float getAlpha-impl(long $this);
     method public static float getBlue-impl(long $this);
@@ -238,7 +238,7 @@ package androidx.ui.graphics {
     method public static float getGreen-impl(long $this);
     method public static float getRed-impl(long $this);
     method public long getValue();
-    method public static inline int hashCode-impl(long p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
     method public static String toString-impl(long $this);
     field public static final androidx.ui.graphics.Color.Companion! Companion;
   }
@@ -272,30 +272,30 @@ package androidx.ui.graphics {
     property public final long Yellow;
   }
 
-  public final class ColorFilter {
+  @androidx.compose.Immutable public final class ColorFilter {
     method public long component1();
     method public androidx.ui.graphics.BlendMode component2();
-    method public androidx.ui.graphics.ColorFilter copy-vOa7YyA(long color, androidx.ui.graphics.BlendMode blendMode);
+    method @androidx.compose.Immutable public androidx.ui.graphics.ColorFilter copy-vOa7YyA(long color, androidx.ui.graphics.BlendMode blendMode);
     method public androidx.ui.graphics.BlendMode getBlendMode();
     method public long getColor();
     field public static final androidx.ui.graphics.ColorFilter.Companion! Companion;
   }
 
   public static final class ColorFilter.Companion {
-    method public androidx.ui.graphics.ColorFilter tint-QEYXlZo(long color);
+    method @androidx.compose.Stable public androidx.ui.graphics.ColorFilter tint-QEYXlZo(long color);
   }
 
   public final class ColorKt {
-    method public static long Color(float red, float green, float blue, float alpha = 1f, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
-    method public static long Color(@ColorInt int color);
-    method public static long Color(long color);
-    method public static long Color(@IntRange(from=0, to=255) int red, @IntRange(from=0, to=255) int green, @IntRange(from=0, to=255) int blue, @IntRange(from=0, to=255) int alpha = 0xFF);
-    method public static long compositeOver-MsF30Tg(long, long background);
+    method @androidx.compose.Stable public static long Color(float red, float green, float blue, float alpha = 1f, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
+    method @androidx.compose.Stable public static long Color(@ColorInt int color);
+    method @androidx.compose.Stable public static long Color(long color);
+    method @androidx.compose.Stable public static long Color(@IntRange(from=0, to=255) int red, @IntRange(from=0, to=255) int green, @IntRange(from=0, to=255) int blue, @IntRange(from=0, to=255) int alpha = 0xFF);
+    method @androidx.compose.Stable public static long compositeOver-MsF30Tg(long, long background);
     method public static inline boolean isSet-QEYXlZo(long);
     method public static inline boolean isUnset-QEYXlZo(long);
-    method public static long lerp-hhXNEtA(long start, long stop, @FloatRange(from=0.0, to=1.0) float fraction);
-    method public static float luminance-QEYXlZo(long);
-    method @ColorInt public static int toArgb-QEYXlZo(long);
+    method @androidx.compose.Stable public static long lerp-hhXNEtA(long start, long stop, @FloatRange(from=0.0, to=1.0) float fraction);
+    method @androidx.compose.Stable public static float luminance-QEYXlZo(long);
+    method @ColorInt @androidx.compose.Stable public static int toArgb-QEYXlZo(long);
     method public static inline long useOrElse-4UtWFt0(long, kotlin.jvm.functions.Function0<androidx.ui.graphics.Color> block);
   }
 
@@ -529,11 +529,11 @@ package androidx.ui.graphics {
     method public static android.graphics.Shader RadialGradientShader-nSjqbmE(long center, float radius, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
   }
 
-  public final class Shadow {
+  @androidx.compose.Immutable public final class Shadow {
     method public long component1();
     method public long component2();
     method public float component3();
-    method public androidx.ui.graphics.Shadow copy-hgWLwZA(long color, long offset, float blurRadius);
+    method @androidx.compose.Immutable public androidx.ui.graphics.Shadow copy-hgWLwZA(long color, long offset, float blurRadius);
     method public float getBlurRadius();
     method public long getColor();
     method public long getOffset();
@@ -546,10 +546,10 @@ package androidx.ui.graphics {
   }
 
   public final class ShadowKt {
-    method public static androidx.ui.graphics.Shadow lerp(androidx.ui.graphics.Shadow start, androidx.ui.graphics.Shadow stop, float fraction);
+    method @androidx.compose.Stable public static androidx.ui.graphics.Shadow lerp(androidx.ui.graphics.Shadow start, androidx.ui.graphics.Shadow stop, float fraction);
   }
 
-  public interface Shape {
+  @androidx.compose.Immutable public interface Shape {
     method public androidx.ui.graphics.Outline createOutline-SwJi8iY(long size, androidx.ui.unit.Density density);
   }
 

@@ -6,7 +6,7 @@ package androidx.ads.identifier.provider {
     method public boolean isLimitAdTrackingEnabled();
   }
 
-  public abstract class AdvertisingIdProviderInfo {
+  @com.google.auto.value.AutoValue public abstract class AdvertisingIdProviderInfo {
     method public abstract String getPackageName();
     method public abstract android.content.Intent? getSettingsIntent();
     method public abstract boolean isHighestPriority();
