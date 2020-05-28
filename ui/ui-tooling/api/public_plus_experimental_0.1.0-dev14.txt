@@ -17,7 +17,7 @@ package androidx.ui.tooling {
   }
 
   public final class InspectableKt {
-    method public static void InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class JoinedKey {

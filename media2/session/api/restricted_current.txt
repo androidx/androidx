@@ -1,14 +1,14 @@
 // Signature format: 3.0
 package androidx.media2.session {
 
-  public final class HeartRating implements androidx.media2.common.Rating {
+  @androidx.versionedparcelable.VersionedParcelize public final class HeartRating implements androidx.media2.common.Rating {
     ctor public HeartRating();
     ctor public HeartRating(boolean);
     method public boolean hasHeart();
     method public boolean isRated();
   }
 
-  public class LibraryResult extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.media2.common.BaseResult {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class LibraryResult extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.media2.common.BaseResult {
     ctor public LibraryResult(int);
     ctor public LibraryResult(int, androidx.media2.common.MediaItem?, androidx.media2.session.MediaLibraryService.LibraryParams?);
     ctor public LibraryResult(int, java.util.List<androidx.media2.common.MediaItem!>?, androidx.media2.session.MediaLibraryService.LibraryParams?);
@@ -152,7 +152,7 @@ package androidx.media2.session {
     method public void onVideoSizeChanged(androidx.media2.session.MediaController, androidx.media2.common.VideoSize);
   }
 
-  public static final class MediaController.PlaybackInfo implements androidx.versionedparcelable.VersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize public static final class MediaController.PlaybackInfo implements androidx.versionedparcelable.VersionedParcelable {
     method public androidx.media.AudioAttributesCompat? getAudioAttributes();
     method public int getControlType();
     method public int getCurrentVolume();
@@ -168,7 +168,7 @@ package androidx.media2.session {
     field public static final String SERVICE_INTERFACE = "androidx.media2.session.MediaLibraryService";
   }
 
-  public static final class MediaLibraryService.LibraryParams implements androidx.versionedparcelable.VersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize public static final class MediaLibraryService.LibraryParams implements androidx.versionedparcelable.VersionedParcelable {
     method public android.os.Bundle? getExtras();
     method public boolean isOffline();
     method public boolean isRecent();
@@ -232,7 +232,7 @@ package androidx.media2.session {
     method public androidx.media2.session.MediaSession.Builder setSessionCallback(java.util.concurrent.Executor, androidx.media2.session.MediaSession.SessionCallback);
   }
 
-  public static final class MediaSession.CommandButton implements androidx.versionedparcelable.VersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize public static final class MediaSession.CommandButton implements androidx.versionedparcelable.VersionedParcelable {
     method public androidx.media2.session.SessionCommand? getCommand();
     method public CharSequence? getDisplayName();
     method public android.os.Bundle? getExtras();
@@ -294,7 +294,7 @@ package androidx.media2.session {
     method public int getNotificationId();
   }
 
-  public final class PercentageRating implements androidx.media2.common.Rating {
+  @androidx.versionedparcelable.VersionedParcelize public final class PercentageRating implements androidx.media2.common.Rating {
     ctor public PercentageRating();
     ctor public PercentageRating(float);
     method public float getPercentRating();
@@ -318,7 +318,7 @@ package androidx.media2.session {
     method public void onVolumeChanged(androidx.media2.session.RemoteSessionPlayer, int);
   }
 
-  public final class SessionCommand implements androidx.versionedparcelable.VersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize public final class SessionCommand implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionCommand(int);
     ctor public SessionCommand(String, android.os.Bundle?);
     method public int getCommandCode();
@@ -367,7 +367,7 @@ package androidx.media2.session {
     field public static final int COMMAND_VERSION_2 = 2; // 0x2
   }
 
-  public final class SessionCommandGroup implements androidx.versionedparcelable.VersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize public final class SessionCommandGroup implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionCommandGroup();
     ctor public SessionCommandGroup(java.util.Collection<androidx.media2.session.SessionCommand!>?);
     method public java.util.Set<androidx.media2.session.SessionCommand!> getCommands();
@@ -384,7 +384,7 @@ package androidx.media2.session {
     method public androidx.media2.session.SessionCommandGroup.Builder removeCommand(androidx.media2.session.SessionCommand);
   }
 
-  public class SessionResult extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.media2.common.BaseResult {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class SessionResult extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.media2.common.BaseResult {
     ctor public SessionResult(int, android.os.Bundle?);
     method public long getCompletionTime();
     method public android.os.Bundle? getCustomCommandResult();
@@ -401,7 +401,7 @@ package androidx.media2.session {
     field public static final int RESULT_SUCCESS = 0; // 0x0
   }
 
-  public final class SessionToken implements androidx.versionedparcelable.VersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize public final class SessionToken implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionToken(android.content.Context, android.content.ComponentName);
     method public android.os.Bundle getExtras();
     method public String getPackageName();
@@ -413,7 +413,7 @@ package androidx.media2.session {
     field public static final int TYPE_SESSION_SERVICE = 1; // 0x1
   }
 
-  public final class StarRating implements androidx.media2.common.Rating {
+  @androidx.versionedparcelable.VersionedParcelize public final class StarRating implements androidx.media2.common.Rating {
     ctor public StarRating(@IntRange(from=1) int);
     ctor public StarRating(@IntRange(from=1) int, float);
     method public int getMaxStars();
@@ -421,7 +421,7 @@ package androidx.media2.session {
     method public boolean isRated();
   }
 
-  public final class ThumbRating implements androidx.media2.common.Rating {
+  @androidx.versionedparcelable.VersionedParcelize public final class ThumbRating implements androidx.media2.common.Rating {
     ctor public ThumbRating();
     ctor public ThumbRating(boolean);
     method public boolean isRated();
