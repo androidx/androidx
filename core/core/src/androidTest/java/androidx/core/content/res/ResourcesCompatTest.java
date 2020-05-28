@@ -312,6 +312,17 @@ public class ResourcesCompatTest {
         assertNotSame(Typeface.DEFAULT, font);
     }
 
+    @Test
+    public void testGetFont_adjustDisplayStyle() {
+        Typeface tf = ResourcesCompat.getFont(mContext, R.font.thin_italic);
+
+        assertNotNull(tf);
+        if (Build.VERSION.SDK_INT >= 28) {
+            assertEquals(100, tf.getWeight());
+        }
+        assertEquals(Typeface.ITALIC, tf.getStyle());
+    }
+
     private static final class FontCallback extends ResourcesCompat.FontCallback {
         private final CountDownLatch mLatch;
         Typeface mTypeface;
