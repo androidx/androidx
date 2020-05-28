@@ -451,29 +451,7 @@ private class ListState<T> {
         if (atEnd || atStart) {
             // This is a new node, either at the end or the start
             node = LayoutNode()
-            node.measureBlocks = MeasuringIntrinsicsMeasureBlocks { measurables, constraints, _ ->
-                val placeables = measurables.map { measurable ->
-                    measurable.measure(
-                        Constraints(
-                            minWidth = constraints.minWidth,
-                            maxWidth = constraints.maxWidth
-                        )
-                    )
-                }
-                val columnWidth = (placeables.maxBy { it.width.value }?.width ?: 0.ipx)
-                    .coerceAtLeast(constraints.minWidth)
-                val columnHeight = placeables.sumBy { it.height.value }.ipx.coerceIn(
-                    constraints.minHeight,
-                    constraints.maxHeight
-                )
-                layout(columnWidth, columnHeight) {
-                    var top = 0.ipx
-                    placeables.forEach { placeable ->
-                        placeable.placeAbsolute(0.ipx, top)
-                        top += placeable.height
-                    }
-                }
-            }
+            node.measureBlocks = ListItemMeasureBlocks
 
             // If it's at the end, then the value is already correct, because we don't need to
             // move any existing LayoutNodes.
@@ -498,6 +476,31 @@ private class ListState<T> {
         }
         compositionsForLayoutNodes[node] = composition
         return node
+    }
+}
+
+private val ListItemMeasureBlocks = MeasuringIntrinsicsMeasureBlocks { measurables, constraints,
+                                                                       _ ->
+    val placeables = measurables.map { measurable ->
+        measurable.measure(
+            Constraints(
+                minWidth = constraints.minWidth,
+                maxWidth = constraints.maxWidth
+            )
+        )
+    }
+    val columnWidth = (placeables.maxBy { it.width.value }?.width ?: 0.ipx)
+        .coerceAtLeast(constraints.minWidth)
+    val columnHeight = placeables.sumBy { it.height.value }.ipx.coerceIn(
+        constraints.minHeight,
+        constraints.maxHeight
+    )
+    layout(columnWidth, columnHeight) {
+        var top = 0.ipx
+        placeables.forEach { placeable ->
+            placeable.placeAbsolute(0.ipx, top)
+            top += placeable.height
+        }
     }
 }
 
