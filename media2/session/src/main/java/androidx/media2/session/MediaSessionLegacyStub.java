@@ -138,17 +138,39 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPrepareFromMediaId(final String mediaId, final Bundle extras) {
-        // TODO(b/145644087): Support this
+        Uri mediaUri = new Uri.Builder()
+                .scheme(MediaConstants.MEDIA_URI_SCHEME)
+                .authority(MediaConstants.MEDIA_URI_AUTHORITY)
+                .path(MediaConstants.MEDIA_URI_PATH_PREPARE_FROM_MEDIA_ID)
+                .appendQueryParameter(MediaConstants.MEDIA_URI_QUERY_ID, mediaId)
+                .build();
+        onPrepareFromUri(mediaUri, extras);
     }
 
     @Override
     public void onPrepareFromSearch(final String query, final Bundle extras) {
-        // TODO(b/145644087): Support this
+        Uri mediaUri = new Uri.Builder()
+                .scheme(MediaConstants.MEDIA_URI_SCHEME)
+                .authority(MediaConstants.MEDIA_URI_AUTHORITY)
+                .path(MediaConstants.MEDIA_URI_PATH_PREPARE_FROM_SEARCH)
+                .appendQueryParameter(MediaConstants.MEDIA_URI_QUERY_QUERY, query)
+                .build();
+        onPrepareFromUri(mediaUri, extras);
     }
 
     @Override
-    public void onPrepareFromUri(final Uri uri, final Bundle extras) {
-        // TODO(b/145644087): Support this
+    public void onPrepareFromUri(final Uri mediaUri, final Bundle extras) {
+        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI, new SessionTask() {
+            // TODO(b/138091975) Do not ignore the returned Future.
+            @SuppressWarnings("FutureReturnValueIgnored")
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                if (mSessionImpl.getCallback().onSetMediaUri(mSessionImpl.getInstance(),
+                        controller, mediaUri, extras) == RESULT_SUCCESS) {
+                    mSessionImpl.prepare();
+                }
+            }
+        });
     }
 
     @Override
@@ -165,17 +187,39 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPlayFromMediaId(final String mediaId, final Bundle extras) {
-        // TODO(b/145644087): Support this
+        Uri mediaUri = new Uri.Builder()
+                .scheme(MediaConstants.MEDIA_URI_SCHEME)
+                .authority(MediaConstants.MEDIA_URI_AUTHORITY)
+                .path(MediaConstants.MEDIA_URI_PATH_PLAY_FROM_MEDIA_ID)
+                .appendQueryParameter(MediaConstants.MEDIA_URI_QUERY_ID, mediaId)
+                .build();
+        onPlayFromUri(mediaUri, extras);
     }
 
     @Override
     public void onPlayFromSearch(final String query, final Bundle extras) {
-        // TODO(b/145644087): Support this
+        Uri mediaUri = new Uri.Builder()
+                .scheme(MediaConstants.MEDIA_URI_SCHEME)
+                .authority(MediaConstants.MEDIA_URI_AUTHORITY)
+                .path(MediaConstants.MEDIA_URI_PATH_PLAY_FROM_SEARCH)
+                .appendQueryParameter(MediaConstants.MEDIA_URI_QUERY_QUERY, query)
+                .build();
+        onPlayFromUri(mediaUri, extras);
     }
 
     @Override
-    public void onPlayFromUri(final Uri uri, final Bundle extras) {
-        // TODO(b/145644087): Support this
+    public void onPlayFromUri(final Uri mediaUri, final Bundle extras) {
+        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI, new SessionTask() {
+            // TODO(b/138091975) Do not ignore the returned Future.
+            @SuppressWarnings("FutureReturnValueIgnored")
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                if (mSessionImpl.getCallback().onSetMediaUri(mSessionImpl.getInstance(),
+                        controller, mediaUri, extras) == RESULT_SUCCESS) {
+                    mSessionImpl.play();
+                }
+            }
+        });
     }
 
     @Override
