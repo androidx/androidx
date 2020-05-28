@@ -10,9 +10,10 @@ package androidx.ui.core {
 
 package androidx.ui.graphics {
 
+  public final class AndroidBlendModeKt {
+  }
+
   public final class AndroidCanvasKt {
-    method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.ImageAsset image);
-    method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.PictureRecorder recorder, androidx.ui.geometry.Rect cullRect = Rect.largest);
     method public static androidx.ui.graphics.Canvas Canvas(android.graphics.Canvas c);
   }
 
@@ -21,6 +22,9 @@ package androidx.ui.graphics {
     method public static android.graphics.Bitmap asAndroidBitmap(androidx.ui.graphics.ImageAsset);
     method public static androidx.ui.graphics.ImageAsset asImageAsset(android.graphics.Bitmap);
     method public static androidx.ui.graphics.ImageAsset imageFromResource(android.content.res.Resources res, int resId);
+  }
+
+  public final class AndroidPaintKt {
   }
 
   public final class AndroidPath implements androidx.ui.graphics.Path {
@@ -62,8 +66,24 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.Path asComposePath(android.graphics.Path);
   }
 
+  public final class AndroidPictureKt {
+    method public static android.graphics.Canvas beginNativeRecording(android.graphics.Picture, int width, int height);
+    method public static int getNativeHeight(android.graphics.Picture);
+    method public static int getNativeWidth(android.graphics.Picture);
+  }
+
+  public final class AndroidShaderKt {
+  }
+
+  public final class AndroidTileModeKt {
+    method public static android.graphics.Shader.TileMode toNativeTileMode(androidx.ui.graphics.TileMode);
+  }
+
+  public final class AndroidVertexModeKt {
+    method public static android.graphics.Canvas.VertexMode toNativeVertexMode(androidx.ui.graphics.VertexMode);
+  }
+
   public enum BlendMode {
-    method public final android.graphics.PorterDuff.Mode toPorterDuffMode();
     enum_constant public static final androidx.ui.graphics.BlendMode clear;
     enum_constant public static final androidx.ui.graphics.BlendMode color;
     enum_constant public static final androidx.ui.graphics.BlendMode colorBurn;
@@ -152,6 +172,8 @@ package androidx.ui.graphics {
   }
 
   public final class CanvasKt {
+    method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.ImageAsset image);
+    method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.PictureRecorder recorder, androidx.ui.geometry.Rect cullRect = Rect.largest);
     method public static void rotate(androidx.ui.graphics.Canvas, float degrees, float pivotX, float pivotY);
     method public static void rotateRad(androidx.ui.graphics.Canvas, float radians, float pivotX = 0.0f, float pivotY = 0.0f);
     method public static void scale(androidx.ui.graphics.Canvas, float sx, float sy = sx, float pivotX, float pivotY);
@@ -415,10 +437,10 @@ package androidx.ui.graphics {
   }
 
   public final class Picture {
-    ctor public Picture(android.graphics.Picture frameworkPicture);
+    ctor public Picture(android.graphics.Picture nativePicture);
     method public androidx.ui.geometry.Rect cullRect();
     method public void dispose();
-    method public android.graphics.Picture getFrameworkPicture();
+    method public android.graphics.Picture getNativePicture();
   }
 
   public final class PictureRecorder {
@@ -517,20 +539,12 @@ package androidx.ui.graphics {
   }
 
   public enum TileMode {
-    method public final android.graphics.Shader.TileMode getNativeTileMode();
     enum_constant public static final androidx.ui.graphics.TileMode Clamp;
     enum_constant public static final androidx.ui.graphics.TileMode Mirror;
     enum_constant public static final androidx.ui.graphics.TileMode Repeated;
   }
 
-  public final class TileModeKt {
-    method public static android.graphics.Shader.TileMode NativeClampTileMode();
-    method public static android.graphics.Shader.TileMode NativeMirrorTileMode();
-    method public static android.graphics.Shader.TileMode NativeRepeatedTileMode();
-  }
-
   public enum VertexMode {
-    method public final android.graphics.Canvas.VertexMode toFrameworkVertexMode();
     enum_constant public static final androidx.ui.graphics.VertexMode triangleFan;
     enum_constant public static final androidx.ui.graphics.VertexMode triangleStrip;
     enum_constant public static final androidx.ui.graphics.VertexMode triangles;
@@ -1107,9 +1121,6 @@ package androidx.ui.graphics.vector {
     method public androidx.ui.graphics.vector.PathParser parsePathString(String pathData);
     method public java.util.List<androidx.ui.graphics.vector.PathNode> toNodes();
     method public androidx.ui.graphics.Path toPath(androidx.ui.graphics.Path target = Path());
-  }
-
-  public final class PathParserKt {
   }
 
 }
