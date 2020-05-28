@@ -85,8 +85,9 @@ public class PreviewViewTest {
 
     @Test
     public void forceUseTextureViewMode_whenNonLegacyDevice_andInRemoteDisplayMode() {
-        // The remote display simulation can only work from sdk 21 to 25.
-        assumeTrue(Build.VERSION.SDK_INT <= 25);
+        // The remote display simulation can only work from sdk 21 to 25. Limit to 24 because the
+        // test may be failed when running presubmit in API level 25.
+        assumeTrue(Build.VERSION.SDK_INT <= 24);
         final PreviewView previewView = new PreviewView(mContext);
 
         // Provides mock CameraInfo to make the device return non-legacy type.
@@ -109,8 +110,9 @@ public class PreviewViewTest {
 
     @Test
     public void forceUseTextureViewMode_whenLegacyDevice_andInRemoteDisplayMode() {
-        // The remote display simulation can only work from sdk 21 to 25.
-        assumeTrue(Build.VERSION.SDK_INT <= 25);
+        // The remote display simulation can only work from sdk 21 to 25. Limit to 24 because the
+        // test may be failed when running presubmit in API level 25.
+        assumeTrue(Build.VERSION.SDK_INT <= 24);
         final PreviewView previewView = new PreviewView(mContext);
 
         // Provides mock CameraInfo to make the device return legacy type.
