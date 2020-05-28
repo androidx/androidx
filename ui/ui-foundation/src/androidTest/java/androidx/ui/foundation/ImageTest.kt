@@ -22,7 +22,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.foundation.test.R
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
@@ -33,6 +32,7 @@ import androidx.ui.graphics.Path
 import androidx.ui.core.ContentScale
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.core.drawBehind
+import androidx.ui.core.testTag
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.toArgb
@@ -104,9 +104,7 @@ class ImageTest {
                     .drawBackground(Color.White)
                     .wrapContentSize(Alignment.Center)
             ) {
-                TestTag(contentTag) {
-                    Image(asset = createImageAsset())
-                }
+                Image(modifier = Modifier.testTag(contentTag), asset = createImageAsset())
             }
         }
 
@@ -137,17 +135,16 @@ class ImageTest {
                     .drawBackground(Color.White)
                     .wrapContentSize(Alignment.Center)
             ) {
-                TestTag(contentTag) {
-                    Image(
-                        ImagePainter(createImageAsset(),
-                            Offset(
-                                imageWidth / 2.0f - subsectionWidth / 2.0f,
-                                imageHeight / 2.0f - subsectionHeight / 2.0f
-                            ),
-                            Size(subsectionWidth.toFloat(), subsectionHeight.toFloat())
-                        )
+                Image(
+                    modifier = Modifier.testTag(contentTag),
+                    painter = ImagePainter(createImageAsset(),
+                        Offset(
+                            imageWidth / 2.0f - subsectionWidth / 2.0f,
+                            imageHeight / 2.0f - subsectionHeight / 2.0f
+                        ),
+                        Size(subsectionWidth.toFloat(), subsectionHeight.toFloat())
                     )
-                }
+                )
             }
         }
 
@@ -209,18 +206,18 @@ class ImageTest {
                     .drawBackground(Color.White)
                     .wrapContentSize(Alignment.Center)
             ) {
-                TestTag(contentTag) {
-                    // The resultant Image composable should be twice the size of the underlying
-                    // ImageAsset that is to be drawn and will stretch the content to fit
-                    // the bounds
-                    Image(asset = createImageAsset(),
-                        modifier = Modifier.preferredSize(
+                // The resultant Image composable should be twice the size of the underlying
+                // ImageAsset that is to be drawn and will stretch the content to fit
+                // the bounds
+                Image(asset = createImageAsset(),
+                    modifier = Modifier
+                        .testTag(contentTag)
+                        .preferredSize(
                             (imageComposableWidth / density).dp,
                             (imageComposableHeight / density).dp
                         ),
-                        contentScale = ContentScale.Fit
-                    )
-                }
+                    contentScale = ContentScale.Fit
+                )
             }
         }
 
@@ -252,17 +249,17 @@ class ImageTest {
                     .drawBackground(Color.White)
                     .wrapContentSize(Alignment.Center)
             ) {
-                TestTag(contentTag) {
-                    // The resultant Image composable should be twice the size of the underlying
-                    // ImageAsset that is to be drawn in the bottom end section of the composable
-                    Image(asset = createImageAsset(),
-                        modifier = Modifier.preferredSize(
+                // The resultant Image composable should be twice the size of the underlying
+                // ImageAsset that is to be drawn in the bottom end section of the composable
+                Image(asset = createImageAsset(),
+                    modifier = Modifier
+                        .testTag(contentTag)
+                        .preferredSize(
                             (imageComposableWidth / density).dp,
                             (imageComposableHeight / density).dp
                         ),
-                        alignment = Alignment.BottomEnd
-                    )
-                }
+                    alignment = Alignment.BottomEnd
+                )
             }
         }
 
@@ -300,21 +297,21 @@ class ImageTest {
                     .drawBackground(Color.White)
                     .wrapContentSize(Alignment.Center)
             ) {
-                TestTag(contentTag) {
-                    // This is an async call to parse the VectorDrawable xml asset into
-                    // a VectorAsset, update the latch once we receive this callback
-                    // and draw the Image composable
-                    loadVectorResource(R.drawable.ic_vector_asset_test).resource.resource?.let {
-                        Image(
-                            it,
-                            modifier = Modifier.preferredSizeIn(
+                // This is an async call to parse the VectorDrawable xml asset into
+                // a VectorAsset, update the latch once we receive this callback
+                // and draw the Image composable
+                loadVectorResource(R.drawable.ic_vector_asset_test).resource.resource?.let {
+                    Image(
+                        it,
+                        modifier = Modifier
+                            .testTag(contentTag)
+                            .preferredSizeIn(
                                 minWidth = minWidth,
                                 minHeight = minHeight
                             )
                             .drawBehind { vectorLatch.countDown() },
-                            contentScale = ContentScale.Fit
-                        )
-                    }
+                        contentScale = ContentScale.Fit
+                    )
                 }
             }
         }

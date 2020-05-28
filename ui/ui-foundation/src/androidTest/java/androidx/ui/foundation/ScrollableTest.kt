@@ -26,14 +26,14 @@ import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.semantics.semantics
+import androidx.ui.core.testTag
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
@@ -530,23 +530,23 @@ class ScrollableTest {
 
         composeTestRule.setContent {
             Stack {
-                TestTag(scrollableBoxTag) {
-                    Semantics(container = true) {
-                        Box(
-                            gravity = ContentGravity.Center,
-                            modifier = Modifier.preferredSize(300.dp).scrollable(
-                                scrollableState = outerState,
-                                dragDirection = DragDirection.Horizontal
-                            )
-                        ) {
-                            Box(
-                                modifier = Modifier.preferredSize(300.dp).scrollable(
-                                    scrollableState = innerState,
-                                    dragDirection = DragDirection.Horizontal
-                                )
-                            )
-                        }
-                    }
+                Box(
+                    gravity = ContentGravity.Center,
+                    modifier = Modifier
+                        .semantics(container = true)
+                        .testTag(scrollableBoxTag)
+                        .preferredSize(300.dp)
+                        .scrollable(
+                            scrollableState = outerState,
+                            dragDirection = DragDirection.Horizontal
+                        )
+                ) {
+                    Box(
+                        modifier = Modifier.preferredSize(300.dp).scrollable(
+                            scrollableState = innerState,
+                            dragDirection = DragDirection.Horizontal
+                        )
+                    )
                 }
             }
         }
@@ -576,11 +576,12 @@ class ScrollableTest {
         composeTestRule.setContent {
             Stack {
                 val scrollable = scrollableModifierFactory()
-                TestTag(scrollableBoxTag) {
-                    Semantics(container = true) {
-                        Box(modifier = Modifier.preferredSize(100.dp) + scrollable)
-                    }
-                }
+                Box(modifier = Modifier
+                    .semantics(container = true)
+                    .testTag(scrollableBoxTag)
+                    .preferredSize(100.dp) +
+                        scrollable
+                )
             }
         }
     }

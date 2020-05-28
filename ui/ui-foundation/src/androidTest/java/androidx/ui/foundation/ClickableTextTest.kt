@@ -17,7 +17,8 @@
 package androidx.ui.foundation
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
@@ -42,12 +43,11 @@ class ClickableTextTest {
     fun onclick_callback() {
         val onClick: (Int) -> Unit = mock()
         composeTestRule.setContent {
-            TestTag(tag = "clickableText") {
-                ClickableText(
-                    text = AnnotatedString("android"),
-                    onClick = onClick
-                )
-            }
+            ClickableText(
+                modifier = Modifier.testTag("clickableText"),
+                text = AnnotatedString("android"),
+                onClick = onClick
+            )
         }
 
         findByTag("clickableText").doClick()

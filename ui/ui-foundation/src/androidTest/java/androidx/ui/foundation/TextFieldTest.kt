@@ -24,12 +24,12 @@ import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.onPositioned
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
+import androidx.ui.core.testTag
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.input.CommitTextEditOp
@@ -49,6 +49,7 @@ import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
+import androidx.ui.test.find
 import androidx.ui.test.findByTag
 import androidx.ui.test.hasImeAction
 import androidx.ui.test.hasInputMethodsSupport
@@ -95,17 +96,15 @@ class TextFieldTest {
                 TextInputServiceAmbient provides inputService
             ) {
                 focusModifier = FocusModifier()
-                TestTag(tag = "textField") {
-                    TextField(
-                        value = state.value,
-                        modifier = Modifier.fillMaxSize() + focusModifier,
-                        onValueChange = { state.value = it }
-                    )
-                }
+                TextField(
+                    value = state.value,
+                    modifier = Modifier.fillMaxSize() + focusModifier,
+                    onValueChange = { state.value = it }
+                )
             }
         }
 
-        findByTag("textField").doClick()
+        find(hasInputMethodsSupport()).doClick()
 
         runOnIdleCompose {
             assertThat(focusModifier.focusState).isEqualTo(FocusState.Focused)
@@ -136,13 +135,11 @@ class TextFieldTest {
             Providers(
                 TextInputServiceAmbient provides textInputService
             ) {
-                TestTag(tag = "textField") {
-                    TextFieldApp()
-                }
+                TextFieldApp()
             }
         }
 
-        findByTag("textField").doClick()
+        find(hasInputMethodsSupport()).doClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
         runOnIdleCompose {
@@ -210,13 +207,11 @@ class TextFieldTest {
             Providers(
                 TextInputServiceAmbient provides textInputService
             ) {
-                TestTag(tag = "textField") {
-                    OnlyDigitsApp()
-                }
+                OnlyDigitsApp()
             }
         }
 
-        findByTag("textField").doClick()
+        find(hasInputMethodsSupport()).doClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
         runOnIdleCompose {
@@ -272,21 +267,19 @@ class TextFieldTest {
             Providers(
                 TextInputServiceAmbient provides textInputService
             ) {
-                TestTag(tag = "textField") {
-                    val state = state { TextFieldValue("") }
-                    TextField(
-                        value = state.value,
-                        modifier = Modifier.fillMaxSize(),
-                        onValueChange = {
-                            state.value = it
-                        },
-                        onTextLayout = onTextLayout
-                    )
-                }
+                val state = state { TextFieldValue("") }
+                TextField(
+                    value = state.value,
+                    modifier = Modifier.fillMaxSize(),
+                    onValueChange = {
+                        state.value = it
+                    },
+                    onTextLayout = onTextLayout
+                )
             }
         }
 
-        findByTag("textField").doClick()
+        find(hasInputMethodsSupport()).doClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
         runOnIdleCompose {
@@ -422,18 +415,16 @@ class TextFieldTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textFieldNotFocused_cursorNotRendered() {
         composeTestRule.setContent {
-            TestTag("textField") {
-                TextField(
-                    value = TextFieldValue(),
-                    onValueChange = {},
-                    textColor = Color.White,
-                    modifier = Modifier.preferredSize(10.dp, 20.dp).drawBackground(Color.White),
-                    cursorColor = Color.Blue
-                )
-            }
+            TextField(
+                value = TextFieldValue(),
+                onValueChange = {},
+                textColor = Color.White,
+                modifier = Modifier.preferredSize(10.dp, 20.dp).drawBackground(Color.White),
+                cursorColor = Color.Blue
+            )
         }
 
-        findByTag("textField")
+        find(hasInputMethodsSupport())
             .captureToBitmap()
             .assertShape(
                 density = composeTestRule.density,
@@ -452,23 +443,21 @@ class TextFieldTest {
         val halfCursorWidth = 2.dp.toIntPx() / 2f
         val latch = CountDownLatch(1)
         composeTestRule.setContent {
-            TestTag("textField") {
-                TextField(
-                    value = TextFieldValue(),
-                    onValueChange = {},
-                    textStyle = TextStyle(color = Color.White, background = Color.White),
-                    modifier = Modifier.preferredSize(width, height).drawBackground(Color.White),
-                    cursorColor = Color.Red,
-                    onFocusChange = { focused ->
-                        if (focused) latch.countDown()
-                    }
-                )
-            }
+            TextField(
+                value = TextFieldValue(),
+                onValueChange = {},
+                textStyle = TextStyle(color = Color.White, background = Color.White),
+                modifier = Modifier.preferredSize(width, height).drawBackground(Color.White),
+                cursorColor = Color.Red,
+                onFocusChange = { focused ->
+                    if (focused) latch.countDown()
+                }
+            )
         }
-        findByTag("textField").doClick()
+        find(hasInputMethodsSupport()).doClick()
         assert(latch.await(1, TimeUnit.SECONDS))
 
-        findByTag("textField")
+        find(hasInputMethodsSupport())
             .captureToBitmap()
             .assertPixels(
                 IntPxSize(width.toIntPx(), height.toIntPx())
@@ -492,12 +481,11 @@ class TextFieldTest {
     @Test
     fun defaultSemantics() {
         composeTestRule.setContent {
-            TestTag("textField") {
-                TextField(
-                    value = TextFieldValue(),
-                    onValueChange = {}
-                )
-            }
+            TextField(
+                modifier = Modifier.testTag("textField"),
+                value = TextFieldValue(),
+                onValueChange = {}
+            )
         }
 
         findByTag("textField")
@@ -508,16 +496,14 @@ class TextFieldTest {
     @Test
     fun setImeAction_isReflectedInSemantics() {
         composeTestRule.setContent {
-            TestTag("textField") {
-                TextField(
-                    value = TextFieldValue(),
-                    imeAction = ImeAction.Search,
-                    onValueChange = {}
-                )
-            }
+            TextField(
+                value = TextFieldValue(),
+                imeAction = ImeAction.Search,
+                onValueChange = {}
+            )
         }
 
-        findByTag("textField")
+        find(hasInputMethodsSupport())
             .assert(hasImeAction(ImeAction.Search))
     }
 }

@@ -21,7 +21,7 @@ import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.testTag
 import androidx.ui.layout.Stack
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
@@ -54,9 +54,7 @@ class ClickableTest {
     fun clickableTest_defaultSemantics() {
         composeTestRule.setContent {
             Stack {
-                TestTag(tag = "myClickable") {
-                    Text("ClickableText", modifier = Modifier.clickable {})
-                }
+                Text("ClickableText", modifier = Modifier.testTag("myClickable").clickable {})
             }
         }
 
@@ -69,9 +67,10 @@ class ClickableTest {
     fun clickableTest_disabledSemantics() {
         composeTestRule.setContent {
             Stack {
-                TestTag(tag = "myClickable") {
-                    Text("ClickableText", modifier = Modifier.clickable(enabled = false) {})
-                }
+                Text(
+                    "ClickableText",
+                    modifier = Modifier.testTag("myClickable").clickable(enabled = false) {}
+                )
             }
         }
 
@@ -87,9 +86,10 @@ class ClickableTest {
 
         composeTestRule.setContent {
             Stack {
-                TestTag(tag = "myClickable") {
-                    Text("ClickableText", modifier = Modifier.clickable(onClick = onClick))
-                }
+                Text(
+                    "ClickableText",
+                    modifier = Modifier.testTag("myClickable").clickable(onClick = onClick)
+                )
             }
         }
 
@@ -115,9 +115,10 @@ class ClickableTest {
 
         composeTestRule.setContent {
             Stack {
-                TestTag(tag = "myClickable") {
-                    Text("ClickableText", modifier = Modifier.clickable(onLongClick = onClick) {})
-                }
+                Text(
+                    "ClickableText",
+                    modifier = Modifier.testTag("myClickable").clickable(onLongClick = onClick) {}
+                )
             }
         }
 
@@ -149,14 +150,15 @@ class ClickableTest {
 
         composeTestRule.setContent {
             Stack {
-                TestTag(tag = "myClickable") {
-                    Text(
-                        "ClickableText", modifier = Modifier.clickable(
+                Text(
+                    "ClickableText",
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .clickable(
                             onLongClick = onLongClick,
                             onClick = onClick
                         )
-                    )
-                }
+                )
             }
         }
 
@@ -190,14 +192,15 @@ class ClickableTest {
 
         composeTestRule.setContent {
             Stack {
-                TestTag(tag = "myClickable") {
-                    Text(
-                        "ClickableText", modifier = Modifier.clickable(
+                Text(
+                    "ClickableText",
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .clickable(
                             onDoubleClick = onDoubleClick,
                             onClick = onClick
                         )
-                    )
-                }
+                )
             }
         }
 
@@ -232,15 +235,16 @@ class ClickableTest {
 
         composeTestRule.setContent {
             Stack {
-                TestTag(tag = "myClickable") {
-                    Text(
-                        "ClickableText", modifier = Modifier.clickable(
+                Text(
+                    "ClickableText",
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .clickable(
                             onDoubleClick = onDoubleClick,
                             onLongClick = onLongClick,
                             onClick = onClick
                         )
-                    )
-                }
+                )
             }
         }
 
@@ -284,9 +288,10 @@ class ClickableTest {
 
         composeTestRule.setContent {
             Stack {
-                TestTag(tag = "myClickable") {
-                    Text("ClickableText", modifier = Modifier.clickable(onDoubleClick = onClick) {})
-                }
+                Text(
+                    "ClickableText",
+                    modifier = Modifier.testTag("myClickable").clickable(onDoubleClick = onClick) {}
+                )
             }
         }
 
@@ -315,11 +320,12 @@ class ClickableTest {
 
         composeTestRule.setContent {
             Stack {
-                TestTag(tag = "myClickable") {
-                    Text(
-                        "ClickableText",
-                        modifier = Modifier.clickable(interactionState = interactionState) {})
-                }
+                Text(
+                    "ClickableText",
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .clickable(interactionState = interactionState) {}
+                )
             }
         }
 
@@ -353,12 +359,13 @@ class ClickableTest {
 
         composeTestRule.setContent {
             Stack {
-                TestTag(tag = "myClickable") {
-                    if (emitClickableText) {
-                        Text(
-                            "ClickableText",
-                            modifier = Modifier.clickable(interactionState = interactionState) {})
-                    }
+                if (emitClickableText) {
+                    Text(
+                        "ClickableText",
+                        modifier = Modifier
+                            .testTag("myClickable")
+                            .clickable(interactionState = interactionState) {}
+                    )
                 }
             }
         }
@@ -398,16 +405,17 @@ class ClickableTest {
 
         composeTestRule.setContent {
             Stack {
-                TestTag(tag = "myClickable") {
-                    Text(
-                        "ClickableText", modifier = Modifier.clickable(
+                Text(
+                    "ClickableText",
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .clickable(
                             enabled = enabled.value,
                             onDoubleClick = onDoubleClick,
                             onLongClick = onLongClick,
                             onClick = onClick
                         )
-                    )
-                }
+                )
             }
         }
 
