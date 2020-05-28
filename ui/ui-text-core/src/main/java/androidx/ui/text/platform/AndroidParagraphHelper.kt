@@ -18,7 +18,6 @@ package androidx.ui.text.platform
 
 import android.graphics.Typeface
 import android.os.Build
-import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
@@ -32,7 +31,6 @@ import android.text.style.ScaleXSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import androidx.annotation.RequiresApi
-import androidx.annotation.VisibleForTesting
 import androidx.ui.text.platform.style.BaselineShiftSpan
 import androidx.ui.text.platform.style.FontFeatureSpan
 import androidx.ui.text.platform.style.LetterSpacingSpanEm
@@ -70,19 +68,6 @@ import kotlin.math.ceil
 import kotlin.math.roundToInt
 import android.os.LocaleList as AndroidLocaleList
 import java.util.Locale as JavaLocale
-
-// Maximum span priority supported by android framework.
-private const val SPAN_PRIORITY_MAX = 255
-// Minimum span priority supported by android framework.
-private const val SPAN_PRIORITY_MIN = 0
-// Span priority is in the range of [0, 255]. Here we used 127 as default priority(instead of 0)
-// in case some spans need  lower priority.
-private const val SPAN_PRIORITY_NORMAL = 127
-//  FontSpan must be applied after FontWeightStyleSpan, but before LetterSpacingSpan.
-private const val SPAN_PRIORITY_FONTSPAN = 1
-//  LetterSpacingSpanPx or LetterSpacingSpanEm must be applied after all other spans
-//  that change fontSize and scaleX.
-private const val SPAN_PRIORITY_LETTERSPACING = 0
 
 internal fun TextPaint.applySpanStyle(
     style: SpanStyle,
@@ -184,6 +169,19 @@ internal fun TextPaint.applySpanStyle(
     )
 }
 
+private data class SpanRange(
+    val span: Any,
+    val start: Int,
+    val end: Int,
+    val priority: Int
+)
+
+// FontSpan and LetterSpacingSpanPx/LetterSpacingSpanSP has lower priority than normal spans. So
+// they have negative priority.
+// Meanwhile, FontSpan needs to be applied before LetterSpacing.
+private const val SPAN_PRIORITY_FONT = -1
+private const val SPAN_PRIORITY_LETTERSPACING = -2
+
 internal fun createStyledText(
     text: String,
     contextFontSize: Float,
@@ -197,21 +195,22 @@ internal fun createStyledText(
     if (spanStyles.isEmpty() && textIndent == null) return text
     val spannableString = SpannableString(text)
 
+    val lowPrioritySpans = ArrayList<SpanRange>()
     when (lineHeight.type) {
         TextUnitType.Sp -> with(density) {
-            spannableString.setSpanWithPriority(
+            spannableString.setSpan(
                 LineHeightSpan(ceil(lineHeight.toPx()).toInt()),
                 0,
                 text.length,
-                SPAN_PRIORITY_NORMAL
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
         TextUnitType.Em -> {
-            spannableString.setSpanWithPriority(
+            spannableString.setSpan(
                 LineHeightSpan(ceil(lineHeight.value * contextFontSize).toInt()),
                 0,
                 text.length,
-                SPAN_PRIORITY_NORMAL
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
         TextUnitType.Inherit -> {} // Do nothing
@@ -231,14 +230,14 @@ internal fun createStyledText(
                 TextUnitType.Em -> indent.restLine.value * contextFontSize
                 TextUnitType.Inherit -> { 0f } // do nothing
             }
-            spannableString.setSpanWithPriority(
+            spannableString.setSpan(
                 LeadingMarginSpan.Standard(
                     ceil(firstLine).toInt(),
                     ceil(restLine).toInt()
                 ),
                 0,
                 text.length,
-                SPAN_PRIORITY_NORMAL
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
     }
@@ -253,89 +252,87 @@ internal fun createStyledText(
         // Be aware that SuperscriptSpan needs to be applied before all other spans which
         // affect FontMetrics
         style.baselineShift?.let {
-            spannableString.setSpanWithPriority(
+            spannableString.setSpan(
                 BaselineShiftSpan(it.multiplier),
                 start,
                 end,
-                SPAN_PRIORITY_NORMAL
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
 
         if (style.color.isSet) {
-            spannableString.setSpanWithPriority(
+            spannableString.setSpan(
                 ForegroundColorSpan(style.color.toArgb()),
                 start,
                 end,
-                SPAN_PRIORITY_NORMAL
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
 
         style.textDecoration?.let {
             if (it.contains(TextDecoration.Underline)) {
-                spannableString.setSpanWithPriority(
+                spannableString.setSpan(
                     UnderlineSpan(),
                     start,
                     end,
-                    SPAN_PRIORITY_NORMAL
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
             if (it.contains(TextDecoration.LineThrough)) {
-                spannableString.setSpanWithPriority(
+                spannableString.setSpan(
                     StrikethroughSpan(),
                     start,
                     end,
-                    SPAN_PRIORITY_NORMAL
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
         }
 
         when (style.fontSize.type) {
             TextUnitType.Sp -> with(density) {
-                spannableString.setSpanWithPriority(
+                spannableString.setSpan(
                     AbsoluteSizeSpan(style.fontSize.toPx().roundToInt(), true),
                     start,
                     end,
-                    SPAN_PRIORITY_NORMAL
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
             TextUnitType.Em -> {
-                spannableString.setSpanWithPriority(
+                spannableString.setSpan(
                     RelativeSizeSpan(style.fontSize.value),
                     start,
                     end,
-                    SPAN_PRIORITY_NORMAL
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
             TextUnitType.Inherit -> {} // Do nothing
         }
 
         style.fontFeatureSettings?.let {
-            spannableString.setSpanWithPriority(
+            spannableString.setSpan(
                 FontFeatureSpan(it),
                 start,
                 end,
-                SPAN_PRIORITY_NORMAL
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
 
         style.fontFamily?.let {
-            spannableString.setSpanWithPriority(
-                FontSpan { weight, isItalic ->
-                    createTypeface(
-                        fontFamily = it,
-                        weight = weight,
-                        isItalic = isItalic,
-                        fontSynthesis = style.fontSynthesis,
-                        typefaceAdapter = typefaceAdapter
-                    )
-                },
-                start,
-                end,
-                if (it is FontListFontFamily) {
-                    SPAN_PRIORITY_FONTSPAN
-                } else {
-                    SPAN_PRIORITY_NORMAL
-                }
+            lowPrioritySpans.add(
+                SpanRange(
+                    FontSpan { weight, isItalic ->
+                        createTypeface(
+                            fontFamily = it,
+                            weight = weight,
+                            isItalic = isItalic,
+                            fontSynthesis = style.fontSynthesis,
+                            typefaceAdapter = typefaceAdapter
+                        )
+                    },
+                    start,
+                    end,
+                    SPAN_PRIORITY_FONT
+                )
             )
         }
 
@@ -346,58 +343,62 @@ internal fun createStyledText(
                 FontStyle.Italic -> FontWeightStyleSpan.STYLE_ITALIC
                 else -> FontWeightStyleSpan.STYLE_NONE
             }
-            spannableString.setSpanWithPriority(
+            spannableString.setSpan(
                 FontWeightStyleSpan(weight, fontStyle),
                 start,
                 end,
-                SPAN_PRIORITY_NORMAL
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
 
         style.textGeometricTransform?.let {
             if (it.scaleX != 1.0f) {
-                spannableString.setSpanWithPriority(
+                spannableString.setSpan(
                     ScaleXSpan(it.scaleX),
                     start,
                     end,
-                    SPAN_PRIORITY_NORMAL
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
         }
 
         style.textGeometricTransform?.let {
             if (it.skewX != 0f) {
-                spannableString.setSpanWithPriority(
+                spannableString.setSpan(
                     SkewXSpan(it.skewX),
                     start,
                     end,
-                    SPAN_PRIORITY_NORMAL
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
         }
 
         when (style.letterSpacing.type) {
             TextUnitType.Sp -> with(density) {
-                spannableString.setSpanWithPriority(
-                    LetterSpacingSpanPx(style.letterSpacing.toPx()),
-                    start,
-                    end,
-                    SPAN_PRIORITY_LETTERSPACING
+                lowPrioritySpans.add(
+                    SpanRange(
+                        LetterSpacingSpanPx(style.letterSpacing.toPx()),
+                        start,
+                        end,
+                        SPAN_PRIORITY_LETTERSPACING
+                    )
                 )
             }
             TextUnitType.Em -> {
-                spannableString.setSpanWithPriority(
-                    LetterSpacingSpanEm(style.letterSpacing.value),
-                    start,
-                    end,
-                    SPAN_PRIORITY_LETTERSPACING
+                lowPrioritySpans.add(
+                    SpanRange(
+                        LetterSpacingSpanEm(style.letterSpacing.value),
+                        start,
+                        end,
+                        SPAN_PRIORITY_LETTERSPACING
+                    )
                 )
             }
             TextUnitType.Inherit -> {}
         }
 
         style.localeList?.let {
-            spannableString.setSpanWithPriority(
+            spannableString.setSpan(
                 if (Build.VERSION.SDK_INT >= 24) {
                     LocaleSpan(it.toAndroidLocaleList())
                 } else {
@@ -406,31 +407,40 @@ internal fun createStyledText(
                 },
                 start,
                 end,
-                SPAN_PRIORITY_NORMAL
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
         if (style.background.isSet) {
-            spannableString.setSpanWithPriority(
+            spannableString.setSpan(
                 BackgroundColorSpan(style.background.toArgb()),
                 start,
                 end,
-                SPAN_PRIORITY_NORMAL
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
         style.shadow?.let {
-            spannableString.setSpanWithPriority(
+            spannableString.setSpan(
                 ShadowSpan(it.color.toArgb(), it.offset.dx, it.offset.dy, it.blurRadius),
                 start,
                 end,
-                SPAN_PRIORITY_NORMAL
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
+    }
+    lowPrioritySpans.sortBy { it.priority }
+    lowPrioritySpans.fastForEach { (span, start, end) ->
+        spannableString.setSpan(
+            span,
+            start,
+            end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
     }
 
     placeholders.fastForEach {
         val (placeholder, start, end) = it
         with(placeholder) {
-            spannableString.setSpanWithPriority(
+            spannableString.setSpan(
                 PlaceholderSpan(
                     width = width.value,
                     widthUnit = width.spanUnit,
@@ -441,20 +451,11 @@ internal fun createStyledText(
                 ),
                 start,
                 end,
-                SPAN_PRIORITY_NORMAL
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
     }
     return spannableString
-}
-
-@VisibleForTesting
-internal fun Spannable.setSpanWithPriority(span: Any, start: Int, end: Int, priority: Int) {
-    require(priority >= SPAN_PRIORITY_MIN && priority <= SPAN_PRIORITY_MAX) {
-        "Invalid span priority: $priority must be in the range of [0, 255]."
-    }
-    val flag = (priority shl Spanned.SPAN_PRIORITY_SHIFT) or Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-    setSpan(span, start, end, flag)
 }
 
 /**
