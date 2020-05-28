@@ -11,7 +11,6 @@ package androidx.datastore.preferences {
 
   public final class Preferences {
     method public operator boolean contains(String key);
-    method public static androidx.datastore.preferences.Preferences empty();
     method public java.util.Map<java.lang.String,java.lang.Object> getAll();
     method public boolean getBoolean(String key, boolean defaultValue);
     method public float getFloat(String key, float defaultValue);
