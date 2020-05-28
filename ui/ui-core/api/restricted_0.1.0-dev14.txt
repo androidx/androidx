@@ -723,7 +723,7 @@ package androidx.ui.core {
   }
 
   public interface ParentDataModifier extends androidx.ui.core.Modifier.Element {
-    method public default Object? modifyParentData(androidx.ui.unit.Density, Object? parentData);
+    method public Object? modifyParentData(androidx.ui.unit.Density, Object? parentData);
   }
 
   public abstract class Placeable {
