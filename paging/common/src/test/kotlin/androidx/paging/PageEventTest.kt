@@ -16,8 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
@@ -31,12 +29,6 @@ import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
-
-private val LoadStatesIdle = mapOf(
-    REFRESH to NotLoading.Idle,
-    PREPEND to NotLoading.Idle,
-    APPEND to NotLoading.Idle
-)
 
 internal fun <T : Any> adjacentInsertEvent(
     isPrepend: Boolean,
@@ -52,7 +44,7 @@ internal fun <T : Any> adjacentInsertEvent(
             )
         ),
         placeholdersBefore = placeholdersRemaining,
-        loadStates = LoadStatesIdle
+        combinedLoadStates = localLoadStatesOf()
     )
 } else {
     Append(
@@ -63,13 +55,12 @@ internal fun <T : Any> adjacentInsertEvent(
             )
         ),
         placeholdersAfter = placeholdersRemaining,
-        loadStates = LoadStatesIdle
+        combinedLoadStates = localLoadStatesOf()
     )
 }
 
 @RunWith(JUnit4::class)
 class PageEventTest {
-
     @Test
     fun placeholdersException() {
         assertFailsWith<IllegalArgumentException> {
@@ -77,7 +68,7 @@ class PageEventTest {
                 pages = listOf(),
                 placeholdersBefore = 1,
                 placeholdersAfter = -1,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             )
         }
         assertFailsWith<IllegalArgumentException> {
@@ -85,7 +76,7 @@ class PageEventTest {
                 pages = listOf(),
                 placeholdersBefore = -1,
                 placeholdersAfter = 1,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             )
         }
     }
@@ -140,7 +131,8 @@ class PageEventTest {
     fun stateTransform() {
         val state = LoadStateUpdate<Char>(
             loadType = REFRESH,
-            loadState = LoadState.Loading(fromMediator = false)
+            fromMediator = false,
+            loadState = LoadState.Loading
         )
 
         assertSame(state, state.map { it + 1 })
@@ -153,13 +145,13 @@ class PageEventTest {
         val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
             placeholdersAfter = 4,
-            loadStates = LoadStatesIdle
+            combinedLoadStates = localLoadStatesOf()
         )
         assertEquals(
             Append(
                 pages = listOf(TransformablePage(listOf("a", "b"))),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ),
             insert.map { it.toString() }
         )
@@ -183,7 +175,7 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ),
             Append(
                 pages = listOf(
@@ -195,7 +187,7 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ).map { it.toString() }
         )
     }
@@ -205,11 +197,7 @@ class PageEventTest {
         val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b', 'c', 'd'))),
             placeholdersAfter = 4,
-            loadStates = mapOf(
-                REFRESH to NotLoading.Idle,
-                PREPEND to NotLoading.Idle,
-                APPEND to NotLoading.Idle
-            )
+            combinedLoadStates = MutableLoadStateCollection(false).snapshot()
         )
 
         // filter out C
@@ -225,7 +213,7 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ),
             insertNoC
         )
@@ -242,7 +230,7 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ),
             insertNoC.filter { it != 'a' }
         )
@@ -253,7 +241,7 @@ class PageEventTest {
         val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
             placeholdersAfter = 4,
-            loadStates = LoadStatesIdle
+            combinedLoadStates = localLoadStatesOf()
         )
 
         val flatMapped = insert.flatMap {
@@ -271,7 +259,7 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ),
             flatMapped
         )
@@ -291,7 +279,7 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                loadStates = LoadStatesIdle
+                combinedLoadStates = localLoadStatesOf()
             ),
             flatMappedAgain
         )

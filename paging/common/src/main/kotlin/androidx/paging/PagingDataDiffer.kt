@@ -52,7 +52,7 @@ abstract class PagingDataDiffer<T : Any>(
     abstract suspend fun performDiff(
         previousList: NullPaddedList<T>,
         newList: NullPaddedList<T>,
-        newLoadStates: Map<LoadType, LoadState>,
+        newCombinedLoadStates: CombinedLoadStates,
         lastAccessedIndex: Int
     ): Int?
 
@@ -74,7 +74,7 @@ abstract class PagingDataDiffer<T : Any>(
                             val transformedLastAccessedIndex = performDiff(
                                 previousList = presenter,
                                 newList = newPresenter,
-                                newLoadStates = event.loadStates,
+                                newCombinedLoadStates = event.combinedLoadStates,
                                 lastAccessedIndex = lastAccessedIndex
                             )
                             presenter = newPresenter

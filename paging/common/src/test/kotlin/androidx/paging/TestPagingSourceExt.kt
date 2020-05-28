@@ -21,47 +21,35 @@ import androidx.paging.TestPagingSource.Companion.ITEMS
 
 internal fun createRefresh(
     range: IntRange,
-    startState: LoadState = NotLoading(endOfPaginationReached = false, fromMediator = false),
-    endState: LoadState = NotLoading(endOfPaginationReached = false, fromMediator = false)
+    startState: LoadState = NotLoading.Idle,
+    endState: LoadState = NotLoading.Idle
 ) = PageEvent.Insert.Refresh(
     pages = pages(0, range),
     placeholdersBefore = range.first.coerceAtLeast(0),
     placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
-    loadStates = mapOf(
-        LoadType.REFRESH to NotLoading(endOfPaginationReached = false, fromMediator = false),
-        LoadType.PREPEND to startState,
-        LoadType.APPEND to endState
-    )
+    combinedLoadStates = localLoadStatesOf(prependLocal = startState, appendLocal = endState)
 )
 
 internal fun createPrepend(
     pageOffset: Int,
     range: IntRange,
-    startState: LoadState = NotLoading(endOfPaginationReached = false, fromMediator = false),
-    endState: LoadState = NotLoading(endOfPaginationReached = false, fromMediator = false)
+    startState: LoadState = NotLoading.Idle,
+    endState: LoadState = NotLoading.Idle
 ) = PageEvent.Insert.Prepend(
     pages = pages(pageOffset, range),
     placeholdersBefore = range.first.coerceAtLeast(0),
-    loadStates = mapOf(
-        LoadType.REFRESH to NotLoading(endOfPaginationReached = false, fromMediator = false),
-        LoadType.PREPEND to startState,
-        LoadType.APPEND to endState
-    )
+    combinedLoadStates = localLoadStatesOf(prependLocal = startState, appendLocal = endState)
 )
 
 internal fun createAppend(
     pageOffset: Int,
     range: IntRange,
-    startState: LoadState = NotLoading(endOfPaginationReached = false, fromMediator = false),
-    endState: LoadState = NotLoading(endOfPaginationReached = false, fromMediator = false)
+    startState: LoadState = NotLoading.Idle,
+    endState: LoadState = NotLoading.Idle
 ) = PageEvent.Insert.Append(
     pages = pages(pageOffset, range),
     placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
-    loadStates = mapOf(
-        LoadType.REFRESH to NotLoading(endOfPaginationReached = false, fromMediator = false),
-        LoadType.PREPEND to startState,
-        LoadType.APPEND to endState
-    )
+    combinedLoadStates = localLoadStatesOf(prependLocal = startState, appendLocal = endState)
 )
 
 private fun pages(

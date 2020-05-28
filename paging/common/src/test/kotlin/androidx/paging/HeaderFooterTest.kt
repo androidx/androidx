@@ -19,9 +19,6 @@
 package androidx.paging
 
 import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
@@ -32,6 +29,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
+
+/**
+ * Prepend and append are both Done, so that headers will appear
+ */
+private val fullLoadStates = localLoadStatesOf(
+    prependLocal = NotLoading.Done,
+    appendLocal = NotLoading.Done
+)
 
 @RunWith(JUnit4::class)
 class HeaderFooterTest {
@@ -63,7 +68,7 @@ class HeaderFooterTest {
                 )
             ),
             placeholdersBefore = 0,
-            loadStates = loadStates
+            combinedLoadStates = fullLoadStates
         ).insertHeaderItem(-1)
 
         val expected = Prepend(
@@ -82,7 +87,7 @@ class HeaderFooterTest {
                 )
             ),
             placeholdersBefore = 0,
-            loadStates = loadStates
+            combinedLoadStates = fullLoadStates
         )
 
         assertEquals(expected, actual)
@@ -101,7 +106,7 @@ class HeaderFooterTest {
             ),
             placeholdersBefore = 0,
             placeholdersAfter = 0,
-            loadStates = loadStates
+            combinedLoadStates = fullLoadStates
         ).insertHeaderItem("HEADER")
 
         val expected = Refresh(
@@ -127,7 +132,7 @@ class HeaderFooterTest {
             ),
             placeholdersBefore = 0,
             placeholdersAfter = 0,
-            loadStates = loadStates
+            combinedLoadStates = fullLoadStates
         )
 
         assertEquals(expected, actual)
@@ -146,7 +151,7 @@ class HeaderFooterTest {
             ),
             placeholdersBefore = 0,
             placeholdersAfter = 0,
-            loadStates = loadStates
+            combinedLoadStates = fullLoadStates
         ).insertHeaderItem("HEADER")
 
         val expected = Refresh(
@@ -160,7 +165,7 @@ class HeaderFooterTest {
             ),
             placeholdersBefore = 0,
             placeholdersAfter = 0,
-            loadStates = loadStates
+            combinedLoadStates = fullLoadStates
         )
 
         assertEquals(expected, actual)
@@ -178,7 +183,7 @@ class HeaderFooterTest {
                 )
             ),
             placeholdersAfter = 0,
-            loadStates = loadStates
+            combinedLoadStates = fullLoadStates
         ).insertFooterItem("FOOTER")
 
         val expected = Append(
@@ -197,7 +202,7 @@ class HeaderFooterTest {
                 )
             ),
             placeholdersAfter = 0,
-            loadStates = loadStates
+            combinedLoadStates = fullLoadStates
         )
 
         assertEquals(expected, actual)
@@ -216,7 +221,7 @@ class HeaderFooterTest {
             ),
             placeholdersBefore = 0,
             placeholdersAfter = 0,
-            loadStates = loadStates
+            combinedLoadStates = fullLoadStates
         ).insertFooterItem("FOOTER")
 
         val expected = Refresh(
@@ -242,7 +247,7 @@ class HeaderFooterTest {
             ),
             placeholdersBefore = 0,
             placeholdersAfter = 0,
-            loadStates = loadStates
+            combinedLoadStates = fullLoadStates
         )
 
         assertEquals(expected, actual)
@@ -261,7 +266,7 @@ class HeaderFooterTest {
             ),
             placeholdersBefore = 0,
             placeholdersAfter = 0,
-            loadStates = loadStates
+            combinedLoadStates = fullLoadStates
         ).insertFooterItem("FOOTER")
 
         val expected = Refresh(
@@ -275,15 +280,9 @@ class HeaderFooterTest {
             ),
             placeholdersBefore = 0,
             placeholdersAfter = 0,
-            loadStates = loadStates
+            combinedLoadStates = fullLoadStates
         )
 
         assertEquals(expected, actual)
     }
 }
-
-private val loadStates = mapOf(
-    REFRESH to NotLoading.Idle,
-    PREPEND to NotLoading.Done,
-    APPEND to NotLoading.Done
-)

@@ -20,6 +20,8 @@ import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
+import androidx.paging.PageEvent.Insert.Companion.Prepend
+import androidx.paging.PageEvent.Insert.Companion.Refresh
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -167,10 +169,10 @@ class PagingDataDifferTest {
     fun listUpdateFlow() = testScope.runBlockingTest {
         val differ = SimpleDiffer()
         val pageEventFlow = flowOf<PageEvent<Int>>(
-            Insert.Refresh(listOf(), 0, 0, mapOf()),
-            Insert.Prepend(listOf(), 0, mapOf()),
+            Refresh(listOf(), 0, 0, CombinedLoadStates.IDLE_SOURCE),
+            Prepend(listOf(), 0, CombinedLoadStates.IDLE_SOURCE),
             Drop(PREPEND, 0, 0),
-            Insert.Refresh(listOf(TransformablePage(0, listOf(0))), 0, 0, mapOf())
+            Refresh(listOf(TransformablePage(0, listOf(0))), 0, 0, CombinedLoadStates.IDLE_SOURCE)
         )
 
         val pagingData = PagingData(pageEventFlow, dummyReceiver)
@@ -198,10 +200,10 @@ class PagingDataDifferTest {
     fun listUpdateCallback() = testScope.runBlockingTest {
         val differ = SimpleDiffer()
         val pageEventFlow = flowOf<PageEvent<Int>>(
-            Insert.Refresh(listOf(), 0, 0, mapOf()),
-            Insert.Prepend(listOf(), 0, mapOf()),
+            Refresh(listOf(), 0, 0, CombinedLoadStates.IDLE_SOURCE),
+            Prepend(listOf(), 0, CombinedLoadStates.IDLE_SOURCE),
             Drop(PREPEND, 0, 0),
-            Insert.Refresh(listOf(TransformablePage(0, listOf(0))), 0, 0, mapOf())
+            Refresh(listOf(TransformablePage(0, listOf(0))), 0, 0, CombinedLoadStates.IDLE_SOURCE)
         )
 
         val pagingData = PagingData(pageEventFlow, dummyReceiver)
@@ -263,7 +265,7 @@ private class SimpleDiffer : PagingDataDiffer<Int>() {
     override suspend fun performDiff(
         previousList: NullPaddedList<Int>,
         newList: NullPaddedList<Int>,
-        newLoadStates: Map<LoadType, LoadState>,
+        newCombinedLoadStates: CombinedLoadStates,
         lastAccessedIndex: Int
     ): Int? = null
 }
@@ -283,5 +285,5 @@ private val dummyPresenterCallback = object : PresenterCallback {
 
     override fun onRemoved(position: Int, count: Int) {}
 
-    override fun onStateUpdate(loadType: LoadType, loadState: LoadState) {}
+    override fun onStateUpdate(loadType: LoadType, fromMediator: Boolean, loadState: LoadState) {}
 }

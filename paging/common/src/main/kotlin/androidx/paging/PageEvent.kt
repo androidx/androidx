@@ -33,7 +33,7 @@ internal sealed class PageEvent<T : Any> {
         val pages: List<TransformablePage<T>>,
         val placeholdersBefore: Int,
         val placeholdersAfter: Int,
-        val loadStates: Map<LoadType, LoadState>
+        val combinedLoadStates: CombinedLoadStates
     ) : PageEvent<T>() {
         init {
             require(loadType == APPEND || placeholdersBefore >= 0) {
@@ -43,9 +43,6 @@ internal sealed class PageEvent<T : Any> {
             require(loadType == PREPEND || placeholdersAfter >= 0) {
                 "Prepend state defining placeholdersAfter must be > 0, but was" +
                         " $placeholdersAfter"
-            }
-            require(loadStates[REFRESH]?.endOfPaginationReached != true) {
-                "Refresh state may not set endOfPaginationReached = true"
             }
         }
 
@@ -60,7 +57,7 @@ internal sealed class PageEvent<T : Any> {
             pages = transform(pages),
             placeholdersBefore = placeholdersBefore,
             placeholdersAfter = placeholdersAfter,
-            loadStates = loadStates
+            combinedLoadStates = combinedLoadStates
         )
 
         override fun <R : Any> map(transform: (T) -> R): PageEvent<R> = mapPages {
@@ -112,20 +109,38 @@ internal sealed class PageEvent<T : Any> {
                 pages: List<TransformablePage<T>>,
                 placeholdersBefore: Int,
                 placeholdersAfter: Int,
-                loadStates: Map<LoadType, LoadState>
-            ) = Insert(REFRESH, pages, placeholdersBefore, placeholdersAfter, loadStates)
+                combinedLoadStates: CombinedLoadStates
+            ) = Insert(REFRESH, pages, placeholdersBefore, placeholdersAfter, combinedLoadStates)
 
             fun <T : Any> Prepend(
                 pages: List<TransformablePage<T>>,
                 placeholdersBefore: Int,
-                loadStates: Map<LoadType, LoadState>
-            ) = Insert(PREPEND, pages, placeholdersBefore, -1, loadStates)
+                combinedLoadStates: CombinedLoadStates
+            ) = Insert(PREPEND, pages, placeholdersBefore, -1, combinedLoadStates)
 
             fun <T : Any> Append(
                 pages: List<TransformablePage<T>>,
                 placeholdersAfter: Int,
-                loadStates: Map<LoadType, LoadState>
-            ) = Insert(APPEND, pages, -1, placeholdersAfter, loadStates)
+                combinedLoadStates: CombinedLoadStates
+            ) = Insert(APPEND, pages, -1, placeholdersAfter, combinedLoadStates)
+
+            /**
+             * Empty refresh, used to convey initial state.
+             *
+             * Note - has no remote state, so remote state may be added over time
+             */
+            val EMPTY_REFRESH_LOCAL = Refresh<Any>(
+                pages = listOf(),
+                placeholdersBefore = 0,
+                placeholdersAfter = 0,
+                combinedLoadStates = CombinedLoadStates(
+                    source = LoadStates(
+                        refresh = LoadState.NotLoading.Idle,
+                        prepend = LoadState.NotLoading.Done,
+                        append = LoadState.NotLoading.Done
+                    )
+                )
+            )
         }
     }
 
@@ -146,7 +161,8 @@ internal sealed class PageEvent<T : Any> {
 
     data class LoadStateUpdate<T : Any>(
         val loadType: LoadType,
-        val loadState: LoadState
+        val fromMediator: Boolean,
+        val loadState: LoadState // TODO: consider using full state object here
     ) : PageEvent<T>() {
         init {
             require(loadState is LoadState.Loading || loadState is LoadState.Error) {

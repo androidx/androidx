@@ -17,11 +17,6 @@
 package androidx.paging
 
 import androidx.annotation.CheckResult
-import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
-import androidx.paging.PageEvent.Insert.Companion.Refresh
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -113,18 +108,7 @@ class PagingData<T : Any> internal constructor(
         }
 
         private val EMPTY = PagingData<Any>(
-            flow = flowOf(
-                Refresh(
-                    pages = listOf(TransformablePage(originalPageOffset = 0, data = emptyList())),
-                    placeholdersBefore = 0,
-                    placeholdersAfter = 0,
-                    loadStates = mapOf(
-                        REFRESH to NotLoading.Idle,
-                        PREPEND to NotLoading.Done,
-                        APPEND to NotLoading.Done
-                    )
-                )
-            ),
+            flow = flowOf(PageEvent.Insert.EMPTY_REFRESH_LOCAL),
             receiver = NOOP_RECEIVER
         )
 

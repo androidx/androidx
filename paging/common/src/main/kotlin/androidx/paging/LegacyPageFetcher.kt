@@ -87,7 +87,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
     private fun onLoadError(type: LoadType, throwable: Throwable) {
         if (isDetached) return // abort!
 
-        val state = LoadState.Error(throwable, fromMediator = false)
+        val state = LoadState.Error(throwable)
         loadStateManager.setState(type, state)
     }
 
@@ -112,7 +112,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
             return
         }
 
-        loadStateManager.setState(LoadType.PREPEND, Loading.instance(fromMediator = false))
+        loadStateManager.setState(LoadType.PREPEND, Loading)
 
         val loadParams = LoadParams.Prepend(
             key,
@@ -130,7 +130,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
             return
         }
 
-        loadStateManager.setState(LoadType.APPEND, Loading.instance(fromMediator = false))
+        loadStateManager.setState(LoadType.APPEND, Loading)
         val loadParams = LoadParams.Append(
             key,
             config.pageSize,

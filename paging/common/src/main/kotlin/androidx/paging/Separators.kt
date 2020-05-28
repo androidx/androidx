@@ -223,17 +223,26 @@ private class SeparatorState<R : Any, T : R>(
         return this as Insert<R>
     }
 
-    internal fun <T : Any> Insert<T>.terminatesStart(): Boolean =
-        if (loadType == APPEND) {
-            startTerminalSeparatorDeferred
-        } else {
-            loadStates[PREPEND]?.endOfPaginationReached == true
-        }
+    fun CombinedLoadStates.terminatesStart(): Boolean {
+        val endState = prepend
+        return endState is LoadState.NotLoading && endState.endOfPaginationReached
+    }
+
+    fun CombinedLoadStates.terminatesEnd(): Boolean {
+        val endState = append
+        return endState is LoadState.NotLoading && endState.endOfPaginationReached
+    }
+
+    internal fun <T : Any> Insert<T>.terminatesStart(): Boolean = if (loadType == APPEND) {
+        startTerminalSeparatorDeferred
+    } else {
+        combinedLoadStates.terminatesStart()
+    }
 
     internal fun <T : Any> Insert<T>.terminatesEnd(): Boolean = if (loadType == PREPEND) {
         endTerminalSeparatorDeferred
     } else {
-        loadStates[APPEND]?.endOfPaginationReached == true
+        combinedLoadStates.terminatesEnd()
     }
 
     fun onInsert(event: Insert<T>): Insert<R> {

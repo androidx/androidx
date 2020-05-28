@@ -192,7 +192,13 @@ internal class FlattenedPageEventStorage<T : Any> {
     private var placeholdersBefore: Int = 0
     private var placeholdersAfter: Int = 0
     private val pages = ArrayDeque<TransformablePage<T>>()
-    private val loadStates = mutableMapOf<LoadType, LoadState>()
+
+    /**
+     * Note - this is initialized without remote state, since we don't know if we have remote
+     * data once we start getting events. This is fine, since downstream needs to handle this
+     * anyway - remote state being added after initial, empty, PagingData.
+     */
+    private val loadStates = MutableLoadStateCollection(hasRemoteState = false)
     fun add(event: PageEvent<T>) {
         when (event) {
             is PageEvent.Insert<T> -> handleInsert(event)
@@ -202,11 +208,10 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handlePageDrop(event: PageEvent.Drop<T>) {
-        val previousState = loadStates[event.loadType]
-        loadStates[event.loadType] = LoadState.NotLoading(
-            endOfPaginationReached = false,
-            fromMediator = previousState?.fromMediator == true
-        )
+        // TODO: include state in drop event for simplicity, instead of reconstructing behavior.
+        //  This allows upstream to control how drop affects states (e.g. letting drop affect both
+        //  remote and local)
+        loadStates.set(event.loadType, false, LoadState.NotLoading.Idle)
 
         when (event.loadType) {
             LoadType.PREPEND -> {
@@ -226,9 +231,7 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handleInsert(event: PageEvent.Insert<T>) {
-        event.loadStates.entries.forEach {
-            loadStates[it.key] = it.value
-        }
+        loadStates.set(event.combinedLoadStates)
         when (event.loadType) {
             LoadType.REFRESH -> {
                 pages.clear()
@@ -250,7 +253,7 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handleLoadStateUpdate(event: PageEvent.LoadStateUpdate<T>) {
-        loadStates[event.loadType] = event.loadState
+        loadStates.set(event.loadType, event.fromMediator, event.loadState)
     }
 
     fun getAsEvents(): List<PageEvent<T>> {
@@ -261,13 +264,15 @@ internal class FlattenedPageEventStorage<T : Any> {
                     pages = pages.toList(),
                     placeholdersBefore = placeholdersBefore,
                     placeholdersAfter = placeholdersAfter,
-                    loadStates = loadStates.toMap() // copy
+                    combinedLoadStates = loadStates.snapshot()
                 )
             )
         } else {
-            loadStates.forEach { entry ->
-                if (entry.value is LoadState.Loading || entry.value is LoadState.Error) {
-                    events.add(PageEvent.LoadStateUpdate(entry.key, entry.value))
+            loadStates.forEach { type, fromMediator, state ->
+                // Should be mostly safe to ignore NotLoading states since they don't need to be
+                // communicated... but it's unclear if this is true when endOfPagination = true
+                if (state is LoadState.Loading || state is LoadState.Error) {
+                    events.add(PageEvent.LoadStateUpdate(type, fromMediator, state))
                 }
             }
         }
