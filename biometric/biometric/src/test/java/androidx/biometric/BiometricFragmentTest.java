@@ -18,20 +18,19 @@ package androidx.biometric;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-
-import android.content.DialogInterface;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.test.filters.LargeTest;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.concurrent.Executor;
@@ -39,15 +38,7 @@ import java.util.concurrent.Executor;
 @LargeTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.P)
 public class BiometricFragmentTest {
-    private static final DialogInterface.OnClickListener CLICK_LISTENER =
-            new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                }
-            };
-
     private static final Executor EXECUTOR = new Executor() {
         @Override
         public void execute(@NonNull Runnable runnable) {
@@ -55,25 +46,57 @@ public class BiometricFragmentTest {
         }
     };
 
-    @Test
-    public void testOnAuthenticationSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
-        final BiometricFragment biometricFragment = BiometricFragment.newInstance();
-        final BiometricPrompt.AuthenticationCallback callback =
-                mock(BiometricPrompt.AuthenticationCallback.class);
-        biometricFragment.setCallbacks(EXECUTOR, CLICK_LISTENER, callback);
+    @Mock
+    public BiometricPrompt.AuthenticationCallback mAuthenticationCallback;
 
-        biometricFragment.mAuthenticationCallback.onAuthenticationSucceeded(null /* result */);
+    @Captor
+    public ArgumentCaptor<BiometricPrompt.AuthenticationResult> mResultCaptor;
 
-        final ArgumentCaptor<BiometricPrompt.AuthenticationResult> resultCaptor =
-                ArgumentCaptor.forClass(BiometricPrompt.AuthenticationResult.class);
-        verify(callback).onAuthenticationSucceeded(resultCaptor.capture());
-        assertThat(resultCaptor.getValue().getCryptoObject()).isNull();
+    private BiometricFragment mFragment;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        mFragment = BiometricFragment.newInstance();
     }
 
     @Test
-    public void testIsDeviceCredentialAllowed_ReturnsFalse_WhenBundleIsNull() {
-        final BiometricFragment biometricFragment = BiometricFragment.newInstance();
-        biometricFragment.setBundle(null);
-        assertThat(biometricFragment.isDeviceCredentialAllowed()).isFalse();
+    public void testCancel_DoesNotCrash_WhenNotAssociatedWithFragmentManager() {
+        mFragment.cancel(BiometricFragment.USER_CANCELED_FROM_NONE);
+    }
+
+    @Test
+    public void testOnBiometricSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
+        mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
+
+        mFragment.mCallbackProvider.getBiometricCallback()
+                .onAuthenticationSucceeded(null /* result */);
+
+        verify(mAuthenticationCallback).onAuthenticationSucceeded(mResultCaptor.capture());
+        assertThat(mResultCaptor.getValue().getCryptoObject()).isNull();
+    }
+
+    @Test
+    public void testOnFingerprintSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
+        mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
+
+        mFragment.mCallbackProvider.getFingerprintCallback()
+                .onAuthenticationSucceeded(null /* result */);
+
+        verify(mAuthenticationCallback).onAuthenticationSucceeded(mResultCaptor.capture());
+        assertThat(mResultCaptor.getValue().getCryptoObject()).isNull();
+    }
+
+    @Test
+    public void testOnFingerprintError_DoesShowErrorAndDismissDialog_WhenHardwareUnavailable() {
+        mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
+
+        final int errMsgId = BiometricConstants.ERROR_HW_UNAVAILABLE;
+        final String errString = "lorem ipsum";
+        mFragment.mCallbackProvider.getFingerprintCallback()
+                .onAuthenticationError(errMsgId, errString);
+
+        verify(mAuthenticationCallback).onAuthenticationError(errMsgId, errString);
+        assertThat(mFragment.isVisible()).isFalse();
     }
 }
