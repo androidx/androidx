@@ -58,7 +58,7 @@ package androidx.security.crypto {
     method public androidx.security.crypto.MasterKey build() throws java.security.GeneralSecurityException, java.io.IOException;
     method @RequiresApi(android.os.Build.VERSION_CODES.M) public androidx.security.crypto.MasterKey.Builder setKeyGenParameterSpec(android.security.keystore.KeyGenParameterSpec);
     method public androidx.security.crypto.MasterKey.Builder setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme);
-    method public androidx.security.crypto.MasterKey.Builder setTryToUseStrongBox(boolean);
+    method public androidx.security.crypto.MasterKey.Builder setRequestStrongBoxBacked(boolean);
     method public androidx.security.crypto.MasterKey.Builder setUserAuthenticationRequired(boolean);
     method public androidx.security.crypto.MasterKey.Builder setUserAuthenticationRequired(boolean, @IntRange(from=1) int);
   }
