@@ -345,11 +345,11 @@ package androidx.browser.trusted {
   public final class TrustedWebActivityServiceConnection {
     method public boolean areNotificationsEnabled(String) throws android.os.RemoteException;
     method public void cancel(String, int) throws android.os.RemoteException;
-    method public android.os.Bundle? extraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallback?) throws android.os.RemoteException;
     method public android.content.ComponentName getComponentName();
     method public android.graphics.Bitmap? getSmallIconBitmap() throws android.os.RemoteException;
     method public int getSmallIconId() throws android.os.RemoteException;
     method public boolean notify(String, int, android.app.Notification, String) throws android.os.RemoteException;
+    method public android.os.Bundle? sendExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallback?) throws android.os.RemoteException;
   }
 
   public final class TrustedWebActivityServiceConnectionPool {
