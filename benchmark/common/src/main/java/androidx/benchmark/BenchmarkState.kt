@@ -537,9 +537,14 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         return status
     }
 
-    private fun sendStatus(testName: String) {
+    private fun reportResultsBundle(testName: String) {
         val bundle = getFullStatusReport(key = testName, includeStats = Arguments.outputEnable)
-        InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
+
+        // Before addResults() was added in the platform, we use sendStatus(). The constant '2'
+        // comes from IInstrumentationResultParser.StatusCodes.IN_PROGRESS, and signals the
+        // test infra that this is an "additional result" bundle, equivalent to addResults()
+        // NOTE: we should a version check to call addResults(), but don't yet due to b/155103514
+        InstrumentationRegistry.getInstrumentation().sendStatus(2, bundle)
     }
 
     private fun sleepIfThermalThrottled(sleepSeconds: Long) = when {
@@ -565,7 +570,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     ) {
         checkState() // this method is triggered externally
         val fullTestName = "$PREFIX$simpleClassName.$methodName"
-        sendStatus(fullTestName)
+        reportResultsBundle(fullTestName)
 
         ResultWriter.appendReport(
             getReport(
