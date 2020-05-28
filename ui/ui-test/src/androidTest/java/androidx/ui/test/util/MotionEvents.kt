@@ -26,11 +26,11 @@ internal class MotionEventRecorder {
     private val _events = mutableListOf<MotionEvent>()
     val events get() = _events as List<MotionEvent>
 
-    fun clear() {
+    fun disposeEvents() {
         _events.removeAll { it.recycle(); true }
     }
 
-    fun sendEvent(event: MotionEvent) {
+    fun recordEvent(event: MotionEvent) {
         _events.add(MotionEvent.obtain(event))
     }
 }

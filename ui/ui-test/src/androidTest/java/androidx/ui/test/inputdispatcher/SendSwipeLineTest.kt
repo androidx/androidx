@@ -74,11 +74,11 @@ class SendSwipeLineTest(private val config: TestConfig) {
     private val eventPeriod = config.eventPeriod
 
     private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::sendEvent)
+    private val subject = AndroidInputDispatcher(recorder::recordEvent)
 
     @After
     fun tearDown() {
-        recorder.clear()
+        recorder.disposeEvents()
     }
 
     @Test
