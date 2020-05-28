@@ -17,12 +17,13 @@
 package androidx.ui.test
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
 import androidx.ui.foundation.semantics.selected
 import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.layout.Column
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.hidden
 import androidx.ui.semantics.testTag
@@ -254,8 +255,6 @@ class AssertsTest {
 
     @Composable
     fun BoundaryNode(props: (SemanticsPropertyReceiver.() -> Unit)? = null) {
-        Semantics(container = true, properties = props) {
-            Column {}
-        }
+        Column(Modifier.semantics(properties = props)) {}
     }
 }

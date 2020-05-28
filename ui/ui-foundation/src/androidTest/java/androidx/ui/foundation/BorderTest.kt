@@ -22,7 +22,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
@@ -184,7 +183,7 @@ class BorderTest(val shape: Shape) {
     @Composable
     fun SemanticParent(children: @Composable Density.() -> Unit) {
         Stack {
-            Box(modifier = Modifier.semantics(container = true).testTag(testTag)) {
+            Box(modifier = Modifier.testTag(testTag)) {
                 DensityAmbient.current.children()
             }
         }

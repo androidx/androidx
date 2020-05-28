@@ -19,7 +19,8 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.MediumTest
-import androidx.ui.core.TestTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.input.ImeAction
@@ -48,17 +49,16 @@ class TextActionsTest {
         textCallback: (String) -> Unit = {}
     ) {
         val state = state { TextFieldValue("") }
-        TestTag(fieldTag) {
-            TextField(
-                value = state.value,
-                imeAction = imeAction,
-                onImeActionPerformed = onImeActionPerformed,
-                onValueChange = {
-                    state.value = it
-                    textCallback(it.text)
-                }
-            )
-        }
+        TextField(
+            modifier = Modifier.testTag(fieldTag),
+            value = state.value,
+            imeAction = imeAction,
+            onImeActionPerformed = onImeActionPerformed,
+            onValueChange = {
+                state.value = it
+                textCallback(it.text)
+            }
+        )
     }
 
     @Test

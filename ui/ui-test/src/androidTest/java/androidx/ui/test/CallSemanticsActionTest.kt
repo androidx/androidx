@@ -19,9 +19,10 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.layout.Column
 import androidx.ui.semantics.AccessibilityAction
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.SemanticsPropertyKey
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.accessibilityLabel
@@ -68,8 +69,6 @@ class CallSemanticsActionTest {
 
     @Composable
     fun BoundaryNode(props: (SemanticsPropertyReceiver.() -> Unit)? = null) {
-        Semantics(container = true, properties = props) {
-            Column {}
-        }
+        Column(Modifier.semantics(properties = props)) {}
     }
 }

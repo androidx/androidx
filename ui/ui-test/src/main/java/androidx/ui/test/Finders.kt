@@ -66,6 +66,15 @@ fun findAllByText(text: String, ignoreCase: Boolean = false): SemanticsNodeInter
     findAll(hasText(text, ignoreCase))
 
 /**
+ * Finds the root semantics node of the Compose tree.  Useful for example for screenshot tests
+ * of the entire scene.
+ *
+ * For usage patterns see [SemanticsNodeInteraction]
+ */
+fun findRoot(): SemanticsNodeInteraction =
+    find(isRoot())
+
+/**
  * Finds a component that matches the given condition.
  *
  * Any subsequent operation on its result will expect exactly one element found (unless

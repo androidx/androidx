@@ -252,11 +252,6 @@ private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration) {
         append(separator)
     }
 
-    if (config.isSemanticBoundary) {
-        append(prefix)
-        append("Boundary = 'true'")
-        append(separator)
-    }
     if (config.isMergingSemanticsOfDescendants) {
         append(prefix)
         append("MergeDescendants = 'true'")

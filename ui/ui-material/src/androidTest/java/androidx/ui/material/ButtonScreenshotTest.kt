@@ -21,7 +21,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
 import androidx.ui.foundation.Text
 import androidx.ui.layout.Stack
 import androidx.ui.layout.size
@@ -31,8 +30,8 @@ import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doPartialGesture
 import androidx.ui.test.find
-import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
+import androidx.ui.test.findRoot
 import androidx.ui.unit.dp
 import androidx.ui.test.hasClickAction
 import androidx.ui.test.sendDown
@@ -82,7 +81,7 @@ class ButtonScreenshotTest {
     @Test
     fun ripple() {
         composeTestRule.setMaterialContent {
-            Stack(Modifier.size(200.dp, 100.dp).wrapContentSize().testTag("Container")) {
+            Stack(Modifier.size(200.dp, 100.dp).wrapContentSize()) {
                 Button(onClick = { }) { }
             }
         }
@@ -97,7 +96,7 @@ class ButtonScreenshotTest {
         waitForIdle()
         composeTestRule.clockTestRule.advanceClock(50)
 
-        findByTag("Container")
+        findRoot()
             .captureToBitmap()
             .assertAgainstGolden(screenshotRule, "button_ripple")
     }

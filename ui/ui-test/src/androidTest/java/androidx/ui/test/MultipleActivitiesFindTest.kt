@@ -21,9 +21,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
-import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.testTag
 import androidx.ui.test.android.AndroidComposeTestRule
 import org.junit.Rule
 import org.junit.Test
@@ -47,9 +46,7 @@ class MultipleActivitiesFindTest {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setContent {
-                Semantics(container = true, properties = { testTag = tag }) {
-                    Box(Modifier)
-                }
+                Box(Modifier.testTag(tag))
             }
         }
 
