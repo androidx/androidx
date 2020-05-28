@@ -20,7 +20,6 @@ import android.util.Rational;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.core.util.Preconditions;
@@ -198,26 +197,32 @@ public final class ViewPort {
     public static class Builder {
 
         private static final int DEFAULT_LAYOUT_DIRECTION = android.util.LayoutDirection.LTR;
+        @ScaleType
+        private static final int DEFAULT_SCALE_TYPE = FILL_CENTER;
 
         @ScaleType
-        private int mScaleType;
+        private int mScaleType = DEFAULT_SCALE_TYPE;
 
-        @Nullable
-        private Rational mAspectRatio;
+        private final Rational mAspectRatio;
 
         @ImageOutputConfig.RotationValue
-        private int mRotation;
+        private final int mRotation;
 
         @LayoutDirection
         private int mLayoutDirection = DEFAULT_LAYOUT_DIRECTION;
 
-        public Builder() {
+
+        public Builder(@NonNull Rational aspectRatio,
+                @ImageOutputConfig.RotationValue int rotation) {
+            mAspectRatio = aspectRatio;
+            mRotation = rotation;
         }
 
         /**
          * Sets the {@link ScaleType} of the {@link ViewPort}.
          *
-         * The value is used by {@link UseCase} to calculate the crop rect.
+         * <p> The value is used by {@link UseCase} to calculate the crop rect. The default value is
+         * {@link #FILL_CENTER} if not set.
          *
          * @hide
          */
@@ -229,39 +234,13 @@ public final class ViewPort {
         }
 
         /**
-         * Sets the rotation of the {@link ViewPort}.
-         *
-         * This value overrides the target rotation of {@link UseCase}.
-         *
-         * @hide
-         */
-        @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public Builder setRotation(@ImageOutputConfig.RotationValue int rotation) {
-            mRotation = rotation;
-            return this;
-        }
-
-        /**
-         * Sets the aspect ratio of the {@link ViewPort}.
-         *
-         * The is used by {@link UseCase} to calculate the crop rect.
-         *
-         * @hide
-         */
-        @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public Builder setAspectRatio(@NonNull Rational aspectRatio) {
-            mAspectRatio = aspectRatio;
-            return this;
-        }
-
-        /**
          * Sets the layout direction of the {@link ViewPort}.
          *
          * <p> The {@link LayoutDirection} decides the start and the end of the crop rect if
          * the {@link ScaleType} is one of the following types: {@link #FILL_END},
          * {@link #FILL_START},{@link #FIT_START} or {@link #FIT_END}.
+         *
+         * <p> The default value is {@link android.util.LayoutDirection#LTR} if not set.
          *
          * @hide
          */

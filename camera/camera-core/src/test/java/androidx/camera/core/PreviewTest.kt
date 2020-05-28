@@ -80,10 +80,7 @@ class PreviewTest {
     @Test
     fun viewPortCropSize() {
         val expectedSurfaceRequest = bindToLifecycleAndGetSurfaceRequest(
-            ViewPort.Builder()
-                .setAspectRatio(Rational(1, 1))
-                .setScaleType(ViewPort.FILL_CENTER)
-                .setRotation(Surface.ROTATION_0).build()
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
         )
         // The expected value is based on fitting the 1:1 view port into a rect with the size of
         // FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.
