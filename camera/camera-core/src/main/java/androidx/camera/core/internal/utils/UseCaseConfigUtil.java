@@ -32,7 +32,7 @@ public final class UseCaseConfigUtil {
     private UseCaseConfigUtil() {}
 
     /**
-     * Updates target rotation together with related orientation-sensitive configs.
+     * Updates target rotation together with related orientation-dependent configs.
      *
      * @param builder The builder that target rotation needs to be updated.
      * @param newRotation The new target rotation of the output image, expressed as one of
@@ -62,14 +62,13 @@ public final class UseCaseConfigUtil {
         // match the new target rotation value.
         //
         // For the target resolution, the width and height of original setting value will be
-        // swapped then set back. The target resolution value is orientation-sensitive that will
+        // swapped then set back. The target resolution value is orientation-dependent that will
         // be used by auto-resolution mechanism to find the nearest boxing size if anyone exists.
         //
         // For the crop aspect ratio value, the numerator and denominator of original setting
-        // value will be swapped then set back. The crop aspect ratio value is
-        // orientation-sensitive that will be used by auto-resolution mechanism to select those
-        // supported sizes with same aspect ratio in priority. It will also be used to crop
-        // ImageCapture's output image.
+        // value will be swapped then set back. It is a orientation-dependent value that will be
+        // used by auto-resolution mechanism to select those supported sizes with same aspect
+        // ratio in priority. It will also be used to crop ImageCapture's output image.
         if ((Math.abs(newRotationDegrees - oldRotationDegrees) % 180) == 90) {
             Size targetResolution = config.getTargetResolution(null);
             Rational targetAspectRatioCustom = config.getTargetAspectRatioCustom(null);

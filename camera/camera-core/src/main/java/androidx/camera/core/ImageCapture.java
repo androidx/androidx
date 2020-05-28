@@ -462,8 +462,8 @@ public final class ImageCapture extends UseCase {
     /**
      * Sets target cropping aspect ratio for output image.
      *
-     * <p>This aspect ratio is in the coordinate frame after rotating the image by the target
-     * rotation.
+     * <p>This aspect ratio is orientation-dependent. It should be expressed in the coordinate
+     * frame after rotating the image by the target rotation.
      *
      * <p>This sets the cropping rectangle returned by {@link ImageProxy#getCropRect()} returned
      * from {@link ImageCapture#takePicture(Executor, OnImageCapturedCallback)}.
@@ -540,8 +540,12 @@ public final class ImageCapture extends UseCase {
      * use {@link ImageCapture#setTargetRotation} to set target rotation dynamically according to
      * the {@link android.view.OrientationEventListener}, without re-creating the use case.  Note
      * the OrientationEventListener output of degrees in the range [0..359] should be converted to
-     * a surface rotation, i.e. one of {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
-     * {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
+     * a surface rotation. The mapping values are listed as the following.
+     * <p>{@link android.view.OrientationEventListener#ORIENTATION_UNKNOWN}: orientation == -1
+     * <p>{@link Surface#ROTATION_0}: orientation >= 315 || orientation < 45
+     * <p>{@link Surface#ROTATION_90}: orientation >= 225 && orientation < 315
+     * <p>{@link Surface#ROTATION_180}: orientation >= 135 && orientation < 225
+     * <p>{@link Surface#ROTATION_270}: orientation >= 45 && orientation < 135
      *
      * <p>When this function is called, value set by
      * {@link ImageCapture.Builder#setTargetResolution(Size)} will be updated automatically to make
@@ -2315,8 +2319,7 @@ public final class ImageCapture extends UseCase {
          * <p>The aspect ratio is the ratio of width to height in the sensor orientation.
          *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
-         * use case.  Attempting so will throw an IllegalArgumentException when building the
-         * Config.
+         * use case. Attempting so will throw an IllegalArgumentException when building the Config.
          *
          * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
          * ratio which may differ from the request, possibly due to device constraints.
@@ -2338,8 +2341,8 @@ public final class ImageCapture extends UseCase {
         /**
          * Sets the rotation of the intended target for images from this configuration.
          *
-         * This will affect the EXIF rotation metadata in images saved by takePicture calls and the
-         * {@link ImageInfo#getRotationDegrees()} value of the {@link ImageProxy} returned by
+         * <p>This will affect the EXIF rotation metadata in images saved by takePicture calls and
+         * the {@link ImageInfo#getRotationDegrees()} value of the {@link ImageProxy} returned by
          * {@link OnImageCapturedCallback}. These will be set to be the rotation, which if
          * applied to the output image data, will make the image match the target rotation
          * specified here.
@@ -2359,7 +2362,7 @@ public final class ImageCapture extends UseCase {
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
          * @see androidx.camera.core.ImageCapture#setTargetRotation(int)
-         * * @see android.view.OrientationEventListener
+         * @see android.view.OrientationEventListener
          */
         @NonNull
         @Override
@@ -2380,13 +2383,13 @@ public final class ImageCapture extends UseCase {
          * higher priority before resolutions of different aspect ratios.
          *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
-         * use case.  Attempting so will throw an IllegalArgumentException when building the
-         * Config.
+         * use case. Attempting so will throw an IllegalArgumentException when building the Config.
          *
-         * <p>The resolution {@link Size} should be expressed at the use cases's target rotation.
-         * For example, a device with portrait natural orientation in natural target rotation
-         * requesting a portrait image may specify 480x640, and the same device, rotated 90 degrees
-         * and targeting landscape orientation may specify 640x480.
+         * <p>The resolution {@link Size} should be expressed in the coordinate frame after
+         * rotating the supported sizes by the target rotation. For example, a device with
+         * portrait natural orientation in natural target rotation requesting a portrait image
+         * may specify 480x640, and the same device, rotated 90 degrees and targeting landscape
+         * orientation may specify 640x480.
          *
          * <p>When the target resolution is set,
          * {@link ImageCapture.Builder#setCropAspectRatio(Rational)} will be automatically called
