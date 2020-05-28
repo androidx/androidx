@@ -586,7 +586,7 @@ package android.support.v4.media.session {
 
 package androidx.media {
 
-  public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize(jetifyAs="android.support.v4.media.AudioAttributesCompat") public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.media.AudioAttributesCompat! fromBundle(android.os.Bundle!);
     method public int getContentType();
     method public int getFlags();
@@ -620,7 +620,7 @@ package androidx.media {
     field public static final int USAGE_UNKNOWN = 0; // 0x0
     field public static final int USAGE_VOICE_COMMUNICATION = 2; // 0x2
     field public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING = 3; // 0x3
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.media.AudioAttributesImpl! mImpl;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.ParcelField(1) public androidx.media.AudioAttributesImpl! mImpl;
   }
 
   @IntDef({androidx.media.AudioAttributesCompat.CONTENT_TYPE_UNKNOWN, androidx.media.AudioAttributesCompat.CONTENT_TYPE_SPEECH, androidx.media.AudioAttributesCompat.CONTENT_TYPE_MUSIC, androidx.media.AudioAttributesCompat.CONTENT_TYPE_MOVIE, androidx.media.AudioAttributesCompat.CONTENT_TYPE_SONIFICATION}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AudioAttributesCompat.AttributeContentType {
@@ -639,7 +639,7 @@ package androidx.media {
     method public androidx.media.AudioAttributesCompat.Builder! setUsage(@androidx.media.AudioAttributesCompat.AttributeUsage int);
   }
 
-  @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class AudioAttributesImplApi21 implements androidx.versionedparcelable.VersionedParcelable {
+  @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(jetifyAs="android.support.v4.media.AudioAttributesImplApi21") public class AudioAttributesImplApi21 implements androidx.versionedparcelable.VersionedParcelable {
     method public static androidx.media.AudioAttributesImpl! fromBundle(android.os.Bundle!);
     method public Object! getAudioAttributes();
     method public int getContentType();
@@ -649,14 +649,14 @@ package androidx.media {
     method @androidx.media.AudioAttributesCompat.AttributeUsage public int getUsage();
     method public int getVolumeControlStream();
     method public android.os.Bundle toBundle();
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.media.AudioAttributes! mAudioAttributes;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mLegacyStreamType;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.ParcelField(1) public android.media.AudioAttributes! mAudioAttributes;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.ParcelField(2) public int mLegacyStreamType;
   }
 
-  @RequiresApi(26) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class AudioAttributesImplApi26 extends androidx.media.AudioAttributesImplApi21 {
+  @RequiresApi(26) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(jetifyAs="android.support.v4.media.AudioAttributesImplApi26") public class AudioAttributesImplApi26 extends androidx.media.AudioAttributesImplApi21 {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class AudioAttributesImplBase implements androidx.versionedparcelable.VersionedParcelable {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(jetifyAs="android.support.v4.media.AudioAttributesImplBase") public class AudioAttributesImplBase implements androidx.versionedparcelable.VersionedParcelable {
     method public static androidx.media.AudioAttributesImpl! fromBundle(android.os.Bundle!);
     method public Object! getAudioAttributes();
     method public int getContentType();
@@ -666,10 +666,10 @@ package androidx.media {
     method @androidx.media.AudioAttributesCompat.AttributeUsage public int getUsage();
     method public int getVolumeControlStream();
     method public android.os.Bundle toBundle();
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mContentType;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mFlags;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mLegacyStream;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mUsage;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.ParcelField(2) public int mContentType;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.ParcelField(3) public int mFlags;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.ParcelField(4) public int mLegacyStream;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.ParcelField(1) public int mUsage;
   }
 
   public class AudioFocusRequestCompat {

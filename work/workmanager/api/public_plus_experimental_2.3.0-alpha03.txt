@@ -64,7 +64,7 @@ package androidx.work {
 
   public final class Data {
     ctor public Data(androidx.work.Data);
-    method public static androidx.work.Data fromByteArray(byte[]);
+    method @androidx.room.TypeConverter public static androidx.work.Data fromByteArray(byte[]);
     method public boolean getBoolean(String, boolean);
     method public boolean[]? getBooleanArray(String);
     method public byte getByte(String, byte);
