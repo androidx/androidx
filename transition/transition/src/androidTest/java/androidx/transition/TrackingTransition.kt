@@ -20,8 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.TargetTracking
 
-import java.util.ArrayList
-
 /**
  * A transition that tracks which targets are applied to it.
  * It will assume any target that it applies to will have differences
@@ -35,8 +33,9 @@ import java.util.ArrayList
  * is created.
  */
 class TrackingTransition : Transition(), TargetTracking {
-    val targets = ArrayList<View>()
-    private val baseEpicenter = Rect()
+    override val enteringTargets = mutableListOf<View>()
+    override val exitingTargets = mutableListOf<View>()
+    override val capturedEpicenter: Rect = Rect()
 
     override fun getTransitionProperties(): Array<String> {
         return PROPS
@@ -56,26 +55,20 @@ class TrackingTransition : Transition(), TargetTracking {
         endValues: TransitionValues?
     ) = null.also {
         if (startValues != null) {
-            targets.add(startValues.view)
+            exitingTargets.add(startValues.view)
         }
         if (endValues != null) {
-            targets.add(endValues.view)
+            enteringTargets.add(endValues.view)
         }
         if (epicenter != null) {
-            baseEpicenter.set(Rect(epicenter))
+            capturedEpicenter.set(Rect(epicenter))
         }
-    }
-
-    override fun getTrackedTargets(): ArrayList<View> {
-        return targets
     }
 
     override fun clearTargets() {
-        targets.clear()
-    }
-
-    override fun getCapturedEpicenter(): Rect? {
-        return baseEpicenter
+        enteringTargets.clear()
+        exitingTargets.clear()
+        capturedEpicenter.set(Rect())
     }
 
     companion object {

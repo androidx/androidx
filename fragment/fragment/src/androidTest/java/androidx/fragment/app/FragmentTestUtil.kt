@@ -108,27 +108,40 @@ fun ActivityTestRule<out FragmentActivity>.findRed(): View? {
     return activity.findViewById(R.id.redSquare)
 }
 
-fun verifyAndClearTransition(
-    transition: TargetTracking,
-    epicenter: Rect?,
-    vararg expected: View
-) {
+data class TransitionVerificationInfo(
+    var epicenter: Rect? = null,
+    val exitingViews: MutableList<View> = mutableListOf(),
+    val enteringViews: MutableList<View> = mutableListOf()
+)
+
+fun TargetTracking.verifyAndClearTransition(block: TransitionVerificationInfo.() -> Unit) {
+    val (epicenter, exitingViews, enteringViews) = TransitionVerificationInfo().apply { block() }
+
     if (epicenter == null) {
-        assertThat(transition.capturedEpicenter).isNull()
+        assertThat(capturedEpicenter).isNull()
     } else {
-        assertThat(transition.capturedEpicenter).isEqualTo(epicenter)
+        assertThat(capturedEpicenter).isEqualTo(epicenter)
     }
-    assertThat(transition.trackedTargets).containsExactlyElementsIn(expected)
-    transition.clearTargets()
+    assertThat(exitingTargets).containsExactlyElementsIn(exitingViews)
+    assertThat(enteringTargets).containsExactlyElementsIn(enteringViews)
+    clearTargets()
 }
 
 fun verifyNoOtherTransitions(fragment: TransitionFragment) {
-    assertThat(fragment.enterTransition.targets.size).isEqualTo(0)
-    assertThat(fragment.exitTransition.targets.size).isEqualTo(0)
-    assertThat(fragment.reenterTransition.targets.size).isEqualTo(0)
-    assertThat(fragment.returnTransition.targets.size).isEqualTo(0)
-    assertThat(fragment.sharedElementEnter.targets.size).isEqualTo(0)
-    assertThat(fragment.sharedElementReturn.targets.size).isEqualTo(0)
+    assertThat(fragment.enterTransition.enteringTargets.size).isEqualTo(0)
+    assertThat(fragment.enterTransition.exitingTargets.size).isEqualTo(0)
+    assertThat(fragment.exitTransition.enteringTargets.size).isEqualTo(0)
+    assertThat(fragment.exitTransition.exitingTargets.size).isEqualTo(0)
+
+    assertThat(fragment.reenterTransition.enteringTargets.size).isEqualTo(0)
+    assertThat(fragment.reenterTransition.exitingTargets.size).isEqualTo(0)
+    assertThat(fragment.returnTransition.enteringTargets.size).isEqualTo(0)
+    assertThat(fragment.returnTransition.exitingTargets.size).isEqualTo(0)
+
+    assertThat(fragment.sharedElementEnter.enteringTargets.size).isEqualTo(0)
+    assertThat(fragment.sharedElementEnter.exitingTargets.size).isEqualTo(0)
+    assertThat(fragment.sharedElementReturn.enteringTargets.size).isEqualTo(0)
+    assertThat(fragment.sharedElementReturn.exitingTargets.size).isEqualTo(0)
 }
 // Transition test methods end
 
