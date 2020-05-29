@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.ui.core
 
 import android.view.View
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.LifecycleOwner
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -41,6 +41,24 @@ interface AndroidOwner : Owner {
      * from the hierarchy.
      */
     fun removeAndroidView(view: View)
+
+    /**
+     * Used for updating the ConfigurationAmbient when configuration changes - consume the
+     * configuration ambient instead of changing this observer if you are writing a component
+     * that adapts to configuration changes.
+     */
+    var configurationChangeObserver: () -> Unit
+
+    /**
+     * The [LifecycleOwner] associated with this owner. If it's null you can wait for it to became
+     * available using [setOnLifecycleOwnerAvailable].
+     */
+    val lifecycleOwner: LifecycleOwner?
+
+    /**
+     * Allows other components to be notified when the [lifecycleOwner] became available.
+     */
+    fun setOnLifecycleOwnerAvailable(callback: (LifecycleOwner) -> Unit)
 
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
