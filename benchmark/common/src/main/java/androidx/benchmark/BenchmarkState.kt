@@ -538,7 +538,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     }
 
     private fun reportResultsBundle(testName: String) {
-        val bundle = getFullStatusReport(key = testName, includeStats = Arguments.outputEnable)
+        val bundle = getFullStatusReport(key = testName, includeStats = !Arguments.dryRunMode)
 
         // Before addResults() was added in the platform, we use sendStatus(). The constant '2'
         // comes from IInstrumentationResultParser.StatusCodes.IN_PROGRESS, and signals the
