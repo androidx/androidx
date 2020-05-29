@@ -46,7 +46,7 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
-import androidx.ui.material.ripple.ripple
+import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -159,8 +159,7 @@ fun DropdownMenuItem(
     // TODO(popam, b/156911853): investigate replacing this Box with ListItem
     Box(
         modifier = modifier
-            .clickable(enabled = enabled, onClick = onClick)
-            .ripple(enabled = enabled)
+            .clickable(enabled = enabled, onClick = onClick, indication = RippleIndication(true))
             .fillMaxWidth()
             // Preferred min and max width used during the intrinsic measurement.
             .preferredSizeIn(

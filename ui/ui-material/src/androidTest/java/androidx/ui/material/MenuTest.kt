@@ -26,6 +26,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.clickable
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
@@ -34,6 +35,7 @@ import androidx.ui.layout.size
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.testTag
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.doClick
 import androidx.ui.test.find
 import androidx.ui.test.findByTag
 import androidx.ui.test.hasAnyChildThat
@@ -263,5 +265,26 @@ class MenuTest {
 
         assertThat(enabledContentColor).isEqualTo(enabledEmphasis.applyEmphasis(onSurface))
         assertThat(disabledContentColor).isEqualTo(disabledEmphasis.applyEmphasis(onSurface))
+    }
+
+    @Test
+    fun dropdownMenuItem_onClick() {
+        var clicked = false
+        val onClick: () -> Unit = { clicked = true }
+
+        composeTestRule.setContent {
+            DropdownMenuItem(
+                onClick,
+                modifier = Modifier.testTag("MenuItem").clickable(onClick = onClick)
+            ) {
+                Box(Modifier.size(40.dp))
+            }
+        }
+
+        findByTag("MenuItem").doClick()
+
+        runOnIdleCompose {
+            assertThat(clicked).isTrue()
+        }
     }
 }
