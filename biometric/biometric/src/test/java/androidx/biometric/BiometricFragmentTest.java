@@ -21,7 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.verify;
 
 import androidx.annotation.NonNull;
-import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +35,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.concurrent.Executor;
 
-@LargeTest
+@MediumTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class BiometricFragmentTest {
@@ -68,7 +68,7 @@ public class BiometricFragmentTest {
     @Test
     public void testOnBiometricSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
         mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
-
+        mFragment.mAwaitingResult = true;
         mFragment.mCallbackProvider.getBiometricCallback()
                 .onAuthenticationSucceeded(null /* result */);
 
@@ -79,7 +79,7 @@ public class BiometricFragmentTest {
     @Test
     public void testOnFingerprintSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
         mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
-
+        mFragment.mAwaitingResult = true;
         mFragment.mCallbackProvider.getFingerprintCallback()
                 .onAuthenticationSucceeded(null /* result */);
 
@@ -89,10 +89,11 @@ public class BiometricFragmentTest {
 
     @Test
     public void testOnFingerprintError_DoesShowErrorAndDismissDialog_WhenHardwareUnavailable() {
-        mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
-
         final int errMsgId = BiometricConstants.ERROR_HW_UNAVAILABLE;
         final String errString = "lorem ipsum";
+
+        mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
+        mFragment.mAwaitingResult = true;
         mFragment.mCallbackProvider.getFingerprintCallback()
                 .onAuthenticationError(errMsgId, errString);
 
