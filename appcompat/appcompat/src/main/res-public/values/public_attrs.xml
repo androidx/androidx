@@ -34,6 +34,7 @@
      <public type="attr" name="actionMenuTextColor"/>
      <public type="attr" name="actionModeBackground"/>
      <public type="attr" name="actionModeCloseButtonStyle"/>
+     <public type="attr" name="actionModeCloseContentDescription"/>
      <public type="attr" name="actionModeCloseDrawable"/>
      <public type="attr" name="actionModeCopyDrawable"/>
      <public type="attr" name="actionModeCutDrawable"/>

@@ -16,6 +16,7 @@ attr actionMenuTextAppearance
 attr actionMenuTextColor
 attr actionModeBackground
 attr actionModeCloseButtonStyle
+attr actionModeCloseContentDescription
 attr actionModeCloseDrawable
 attr actionModeCopyDrawable
 attr actionModeCutDrawable

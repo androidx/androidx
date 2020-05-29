@@ -40,11 +40,13 @@
     <style name="Theme.Custom.WithActionMode">
         <item name="actionModeBackground">@color/color_grass</item>
         <item name="actionModeTheme">@style/ThemeOverlay.ActionMode</item>
+        <item name="actionModeCloseContentDescription">@string/action_mode_done_content_description</item>
     </style>
 
     <style name="Theme.Custom.NoActionBar.WithActionMode" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="actionModeBackground">@color/color_sky_day</item>
         <item name="actionModeTheme">@style/ThemeOverlay.ActionMode</item>
+        <item name="actionModeCloseContentDescription">@string/action_mode_done_content_description</item>
     </style>
 
     <style name="Theme.SampleMediaRouter" parent="Theme.AppCompat">
