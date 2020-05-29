@@ -39,7 +39,6 @@ import static junit.framework.Assert.fail;
 
 import static org.junit.Assert.assertNotEquals;
 
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -59,7 +58,6 @@ import androidx.media2.test.common.MediaBrowserConstants;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.versionedparcelable.ParcelUtils;
 
 import org.junit.Test;
@@ -78,7 +76,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link MediaController} works cleanly.
  */
 // TODO: (internal cleanup) Move tests that aren't related with callbacks.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {

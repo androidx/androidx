@@ -46,14 +46,10 @@ import static androidx.media2.test.common.MediaBrowserConstants.SEARCH_QUERY_TAK
 import static androidx.media2.test.common.MediaBrowserConstants.SEARCH_RESULT;
 import static androidx.media2.test.common.MediaBrowserConstants.SEARCH_RESULT_COUNT;
 import static androidx.media2.test.common.MediaBrowserConstants.SEARCH_TIME_IN_MS;
-import static androidx.media2.test.common.MediaBrowserConstants
-        .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL;
-import static androidx.media2.test.common.MediaBrowserConstants
-        .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID;
-import static androidx.media2.test.common.MediaBrowserConstants
-        .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
-import static androidx.media2.test.common.MediaBrowserConstants
-        .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
+import static androidx.media2.test.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL;
+import static androidx.media2.test.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID;
+import static androidx.media2.test.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
+import static androidx.media2.test.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
 import static androidx.media2.test.service.MediaTestUtils.assertEqualLibraryParams;
 
 import android.app.Service;

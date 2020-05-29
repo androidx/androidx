@@ -22,7 +22,6 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
 
@@ -37,7 +36,6 @@ import androidx.media2.common.UriMediaItem;
 import androidx.media2.test.service.MediaTestUtils;
 import androidx.media2.test.service.test.R;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
@@ -56,7 +54,6 @@ import java.util.Collection;
 /**
  * Tests {@link MediaItem} and its subclasses.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(Parameterized.class)
 @SmallTest
 public class MediaItemTest {
