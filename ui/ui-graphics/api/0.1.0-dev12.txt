@@ -10,12 +10,9 @@ package androidx.ui.core {
 
 package androidx.ui.graphics {
 
-  public final class AndroidBlendModeKt {
-  }
-
   public final class AndroidCanvasKt {
     method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.ImageAsset image);
-    method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.PictureRecorder recorder, androidx.ui.geometry.Rect cullRect);
+    method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.PictureRecorder recorder, androidx.ui.geometry.Rect cullRect = Rect.largest);
     method public static androidx.ui.graphics.Canvas Canvas(android.graphics.Canvas c);
   }
 
@@ -24,9 +21,6 @@ package androidx.ui.graphics {
     method public static android.graphics.Bitmap asAndroidBitmap(androidx.ui.graphics.ImageAsset);
     method public static androidx.ui.graphics.ImageAsset asImageAsset(android.graphics.Bitmap);
     method public static androidx.ui.graphics.ImageAsset imageFromResource(android.content.res.Resources res, int resId);
-  }
-
-  public final class AndroidPaintKt {
   }
 
   public final class AndroidPath implements androidx.ui.graphics.Path {
@@ -68,27 +62,8 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.Path asComposePath(android.graphics.Path);
   }
 
-  public final class AndroidPictureKt {
-    method public static android.graphics.Canvas beginNativeRecording(android.graphics.Picture, int width, int height);
-    method public static int getNativeHeight(android.graphics.Picture);
-    method public static int getNativeWidth(android.graphics.Picture);
-  }
-
-  public final class AndroidShaderKt {
-    method public static android.graphics.Shader ImageShader(androidx.ui.graphics.ImageAsset image, androidx.ui.graphics.TileMode tileModeX, androidx.ui.graphics.TileMode tileModeY);
-    method public static android.graphics.Shader LinearGradientShader-BG1VTC8(long from, long to, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops, androidx.ui.graphics.TileMode tileMode);
-    method public static android.graphics.Shader RadialGradientShader-nSjqbmE(long center, float radius, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops, androidx.ui.graphics.TileMode tileMode);
-  }
-
-  public final class AndroidTileModeKt {
-    method public static android.graphics.Shader.TileMode toNativeTileMode(androidx.ui.graphics.TileMode);
-  }
-
-  public final class AndroidVertexModeKt {
-    method public static android.graphics.Canvas.VertexMode toNativeVertexMode(androidx.ui.graphics.VertexMode);
-  }
-
   public enum BlendMode {
+    method public final android.graphics.PorterDuff.Mode toPorterDuffMode();
     enum_constant public static final androidx.ui.graphics.BlendMode clear;
     enum_constant public static final androidx.ui.graphics.BlendMode color;
     enum_constant public static final androidx.ui.graphics.BlendMode colorBurn;
@@ -189,7 +164,7 @@ package androidx.ui.graphics {
     enum_constant public static final androidx.ui.graphics.ClipOp intersect;
   }
 
-  public final inline class Color {
+  @androidx.compose.Immutable public final inline class Color {
     ctor public Color();
     method public static operator float component1-impl(long $this);
     method public static operator float component2-impl(long $this);
@@ -199,7 +174,7 @@ package androidx.ui.graphics {
     method public static long constructor-impl(long value);
     method public static long convert-impl(long $this, androidx.ui.graphics.colorspace.ColorSpace colorSpace);
     method public static long copy-impl(long $this, float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
-    method public static inline boolean equals-impl(long p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static float getAlpha-impl(long $this);
     method public static float getBlue-impl(long $this);
@@ -207,7 +182,7 @@ package androidx.ui.graphics {
     method public static float getGreen-impl(long $this);
     method public static float getRed-impl(long $this);
     method public long getValue();
-    method public static inline int hashCode-impl(long p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
     method public static String toString-impl(long $this);
     field public static final androidx.ui.graphics.Color.Companion! Companion;
   }
@@ -440,10 +415,10 @@ package androidx.ui.graphics {
   }
 
   public final class Picture {
-    ctor public Picture(android.graphics.Picture nativePicture);
+    ctor public Picture(android.graphics.Picture frameworkPicture);
     method public androidx.ui.geometry.Rect cullRect();
     method public void dispose();
-    method public android.graphics.Picture getNativePicture();
+    method public android.graphics.Picture getFrameworkPicture();
   }
 
   public final class PictureRecorder {
@@ -492,11 +467,17 @@ package androidx.ui.graphics {
     method public final android.graphics.Shader getShader();
   }
 
-  public final class Shadow {
+  public final class ShaderKt {
+    method public static android.graphics.Shader ImageShader(androidx.ui.graphics.ImageAsset image, androidx.ui.graphics.TileMode tileModeX = androidx.ui.graphics.TileMode.Clamp, androidx.ui.graphics.TileMode tileModeY = androidx.ui.graphics.TileMode.Clamp);
+    method public static android.graphics.Shader LinearGradientShader-BG1VTC8(long from, long to, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static android.graphics.Shader RadialGradientShader-nSjqbmE(long center, float radius, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+  }
+
+  @androidx.compose.Immutable public final class Shadow {
     method public long component1();
     method public long component2();
     method public float component3();
-    method public androidx.ui.graphics.Shadow copy-hgWLwZA(long color, long offset, float blurRadius);
+    method @androidx.compose.Immutable public androidx.ui.graphics.Shadow copy-hgWLwZA(long color, long offset, float blurRadius);
     method public float getBlurRadius();
     method public long getColor();
     method public long getOffset();
@@ -536,12 +517,20 @@ package androidx.ui.graphics {
   }
 
   public enum TileMode {
+    method public final android.graphics.Shader.TileMode getNativeTileMode();
     enum_constant public static final androidx.ui.graphics.TileMode Clamp;
     enum_constant public static final androidx.ui.graphics.TileMode Mirror;
     enum_constant public static final androidx.ui.graphics.TileMode Repeated;
   }
 
+  public final class TileModeKt {
+    method public static android.graphics.Shader.TileMode NativeClampTileMode();
+    method public static android.graphics.Shader.TileMode NativeMirrorTileMode();
+    method public static android.graphics.Shader.TileMode NativeRepeatedTileMode();
+  }
+
   public enum VertexMode {
+    method public final android.graphics.Canvas.VertexMode toFrameworkVertexMode();
     enum_constant public static final androidx.ui.graphics.VertexMode triangleFan;
     enum_constant public static final androidx.ui.graphics.VertexMode triangleStrip;
     enum_constant public static final androidx.ui.graphics.VertexMode triangles;
@@ -1118,6 +1107,9 @@ package androidx.ui.graphics.vector {
     method public androidx.ui.graphics.vector.PathParser parsePathString(String pathData);
     method public java.util.List<androidx.ui.graphics.vector.PathNode> toNodes();
     method public androidx.ui.graphics.Path toPath(androidx.ui.graphics.Path target = Path());
+  }
+
+  public final class PathParserKt {
   }
 
 }

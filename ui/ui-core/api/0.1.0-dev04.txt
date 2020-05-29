@@ -58,14 +58,14 @@ package androidx.ui.core {
     method public static androidx.ui.unit.IntPx merge(androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx position1, androidx.ui.unit.IntPx position2);
   }
 
-  public final class Constraints {
+  @androidx.compose.Immutable public final class Constraints {
     ctor public Constraints(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
     ctor public Constraints();
     method public androidx.ui.unit.IntPx component1();
     method public androidx.ui.unit.IntPx component2();
     method public androidx.ui.unit.IntPx component3();
     method public androidx.ui.unit.IntPx component4();
-    method public androidx.ui.core.Constraints copy(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
+    method @androidx.compose.Immutable public androidx.ui.core.Constraints copy(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
     method public androidx.ui.unit.IntPx getMaxHeight();
     method public androidx.ui.unit.IntPx getMaxWidth();
     method public androidx.ui.unit.IntPx getMinHeight();
@@ -139,18 +139,17 @@ package androidx.ui.core {
 
   public interface LayoutCoordinates {
     method public androidx.ui.unit.PxPosition childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.unit.PxPosition childLocal);
-    method public operator androidx.ui.unit.IntPx? get(androidx.ui.core.AlignmentLine line);
     method public androidx.ui.core.LayoutCoordinates? getParentCoordinates();
-    method public java.util.Set<androidx.ui.core.AlignmentLine> getProvidedAlignmentLines();
-    method public androidx.ui.unit.IntPxSize getSize();
+    method public androidx.ui.unit.PxPosition getPosition();
+    method public java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> getProvidedAlignmentLines();
+    method public androidx.ui.unit.PxSize getSize();
     method public androidx.ui.unit.PxPosition globalToLocal(androidx.ui.unit.PxPosition global);
-    method public boolean isAttached();
     method public androidx.ui.unit.PxPosition localToGlobal(androidx.ui.unit.PxPosition local);
     method public androidx.ui.unit.PxPosition localToRoot(androidx.ui.unit.PxPosition local);
-    property public abstract boolean isAttached;
     property public abstract androidx.ui.core.LayoutCoordinates? parentCoordinates;
-    property public abstract java.util.Set<androidx.ui.core.AlignmentLine> providedAlignmentLines;
-    property public abstract androidx.ui.unit.IntPxSize size;
+    property public abstract androidx.ui.unit.PxPosition position;
+    property public abstract java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> providedAlignmentLines;
+    property public abstract androidx.ui.unit.PxSize size;
   }
 
   public final class LayoutCoordinatesKt {
@@ -198,7 +197,7 @@ package androidx.ui.core {
   public final class MeasureScopeKt {
   }
 
-  public interface Modifier {
+  @androidx.compose.Stable public interface Modifier {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public default operator androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
@@ -329,15 +328,6 @@ package androidx.ui.semantics {
     method public androidx.ui.semantics.AccessibilityAction<T> copy(String? label, T action);
     method public T getAction();
     method public String? getLabel();
-  }
-
-  public final class AccessibilityRangeInfo {
-    ctor public AccessibilityRangeInfo(float current, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> range);
-    method public float component1();
-    method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> component2();
-    method public androidx.ui.semantics.AccessibilityRangeInfo copy(float current, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> range);
-    method public float getCurrent();
-    method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getRange();
   }
 
   public class SemanticsPropertyKey<T> implements kotlin.properties.ReadWriteProperty<androidx.ui.semantics.SemanticsPropertyReceiver,T> {
