@@ -22,15 +22,18 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 import android.content.res.Resources.Theme;
 import android.content.res.XmlResourceParser;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.util.SparseArray;
 import android.util.TypedValue;
 
 import androidx.annotation.AnyRes;
@@ -49,17 +52,25 @@ import androidx.core.provider.FontsContractCompat.FontRequestCallback;
 import androidx.core.provider.FontsContractCompat.FontRequestCallback.FontRequestFailReason;
 import androidx.core.util.Preconditions;
 
+import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.WeakHashMap;
 
 /**
  * Helper for accessing features in {@link android.content.res.Resources}.
  */
 public final class ResourcesCompat {
     private static final String TAG = "ResourcesCompat";
+    private static final ThreadLocal<TypedValue> sTempTypedValue = new ThreadLocal<>();
+
+    private static final WeakHashMap<Resources, SparseArray<ColorStateListCacheEntry>>
+            sColorStateCaches = new WeakHashMap<>(0);
+
+    private static final Object sColorStateCacheLock = new Object();
 
     /**
      * The {@code null} resource ID. This denotes an invalid resource ID that is returned by the
@@ -183,10 +194,108 @@ public final class ResourcesCompat {
     @SuppressWarnings("deprecation")
     public static ColorStateList getColorStateList(@NonNull Resources res, @ColorRes int id,
             @Nullable Theme theme) throws NotFoundException {
-        if (SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            // On M+ we can use the framework
             return res.getColorStateList(id, theme);
-        } else {
-            return res.getColorStateList(id);
+        }
+
+        // Before that, we'll try handle it ourselves
+        ColorStateList csl = getCachedColorStateList(res, id);
+        if (csl != null) {
+            return csl;
+        }
+        // Cache miss, so try and inflate it ourselves
+        csl = inflateColorStateList(res, id, theme);
+        if (csl != null) {
+            // If we inflated it, add it to the cache and return
+            addColorStateListToCache(res, id, csl);
+            return csl;
+        }
+
+        // If we reach here then we couldn't inflate it, so let the framework handle it
+        return res.getColorStateList(id);
+    }
+
+    /**
+     * Inflates a {@link ColorStateList} from resources, honouring theme attributes.
+     */
+    @Nullable
+    private static ColorStateList inflateColorStateList(Resources resources, int resId,
+            @Nullable Theme theme) {
+        if (isColorInt(resources, resId)) {
+            // The resource is a color int, we can't handle it so return null
+            return null;
+        }
+
+        final XmlPullParser xml = resources.getXml(resId);
+        try {
+            return ColorStateListInflaterCompat.createFromXml(resources, xml, theme);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to inflate ColorStateList, leaving it to the framework", e);
+        }
+        return null;
+    }
+
+    @Nullable
+    private static ColorStateList getCachedColorStateList(@NonNull Resources resources,
+            @ColorRes int resId) {
+        synchronized (sColorStateCacheLock) {
+            final SparseArray<ColorStateListCacheEntry> entries = sColorStateCaches.get(resources);
+            if (entries != null && entries.size() > 0) {
+                final ColorStateListCacheEntry entry = entries.get(resId);
+                if (entry != null) {
+                    if (entry.mConfiguration.equals(resources.getConfiguration())) {
+                        // If the current configuration matches the entry's, we can use it
+                        return entry.mValue;
+                    } else {
+                        // Otherwise we'll remove the entry
+                        entries.remove(resId);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static void addColorStateListToCache(@NonNull Resources resources, @ColorRes int resId,
+            @NonNull ColorStateList value) {
+        synchronized (sColorStateCacheLock) {
+            SparseArray<ColorStateListCacheEntry> entries = sColorStateCaches.get(resources);
+            if (entries == null) {
+                entries = new SparseArray<>();
+                sColorStateCaches.put(resources, entries);
+            }
+            entries.append(resId, new ColorStateListCacheEntry(value,
+                    resources.getConfiguration()));
+        }
+    }
+
+    private static boolean isColorInt(@NonNull Resources resources, @ColorRes int resId) {
+        final TypedValue value = getTypedValue();
+        resources.getValue(resId, value, true);
+
+        return value.type >= TypedValue.TYPE_FIRST_COLOR_INT
+                && value.type <= TypedValue.TYPE_LAST_COLOR_INT;
+    }
+
+    @NonNull
+    private static TypedValue getTypedValue() {
+        TypedValue tv = sTempTypedValue.get();
+        if (tv == null) {
+            tv = new TypedValue();
+            sTempTypedValue.set(tv);
+        }
+        return tv;
+    }
+
+    private static class ColorStateListCacheEntry {
+        final ColorStateList mValue;
+        final Configuration mConfiguration;
+
+        ColorStateListCacheEntry(@NonNull ColorStateList value,
+                @NonNull Configuration configuration) {
+            mValue = value;
+            mConfiguration = configuration;
         }
     }
 
