@@ -89,7 +89,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
             .commit()
 
         fragment.waitForTransition()
-        verifyAndClearTransition(fragment.exitTransition, null, green, blue)
+        fragment.exitTransition.verifyAndClearTransition {
+            exitingViews += listOf(green, blue)
+        }
         verifyNoOtherTransitions(fragment)
         assertThat(onBackStackChangedTimes).isEqualTo(2)
 
@@ -98,14 +100,18 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         fragment.waitForTransition()
         val green2 = activityRule.findGreen()
         val blue2 = activityRule.findBlue()
-        verifyAndClearTransition(fragment.reenterTransition, null, green2, blue2)
+        fragment.reenterTransition.verifyAndClearTransition {
+            enteringViews += listOf(green2, blue2)
+        }
         verifyNoOtherTransitions(fragment)
         assertThat(onBackStackChangedTimes).isEqualTo(3)
 
         // return transition
         activityRule.popBackStackImmediate()
         fragment.waitForTransition()
-        verifyAndClearTransition(fragment.returnTransition, null, green2, blue2)
+        fragment.returnTransition.verifyAndClearTransition {
+            exitingViews += listOf(green2, blue2)
+        }
         verifyNoOtherTransitions(fragment)
         assertThat(onBackStackChangedTimes).isEqualTo(4)
     }
@@ -146,7 +152,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
             // If reorder is not allowed we will get the exit Transition and the fragment will be
             // added with a different view.
             fragment.waitForTransition()
-            verifyAndClearTransition(fragment.exitTransition, null, green, blue)
+            fragment.exitTransition.verifyAndClearTransition {
+                exitingViews += listOf(green, blue)
+            }
             assertThat(onBackStackChangedTimes).isEqualTo(3)
             assertThat(fragment.requireView()).isNotEqualTo(view1)
         }
@@ -167,7 +175,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         fragment.waitForTransition()
         val blueSquare1 = activityRule.findBlue()
         val greenSquare1 = activityRule.findGreen()
-        verifyAndClearTransition(fragment.enterTransition, null, blueSquare1, greenSquare1)
+        fragment.enterTransition.verifyAndClearTransition {
+            enteringViews += listOf(blueSquare1, greenSquare1)
+        }
         verifyNoOtherTransitions(fragment)
 
         // Ensure that our countdown latch has been reset for the Fragment
@@ -262,8 +272,12 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         fragment2.waitForTransition()
         val endBlue = activityRule.findBlue()
         val endGreen = activityRule.findGreen()
-        verifyAndClearTransition(fragment1.exitTransition, null, startBlue, startGreen)
-        verifyAndClearTransition(fragment2.enterTransition, null, endBlue, endGreen)
+        fragment1.exitTransition.verifyAndClearTransition {
+            exitingViews += listOf(startBlue, startGreen)
+        }
+        fragment2.enterTransition.verifyAndClearTransition {
+            enteringViews += listOf(endBlue, endGreen)
+        }
         verifyNoOtherTransitions(fragment1)
         verifyNoOtherTransitions(fragment2)
 
@@ -275,8 +289,12 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         fragment2.waitForTransition()
         val popBlue = activityRule.findBlue()
         val popGreen = activityRule.findGreen()
-        verifyAndClearTransition(fragment1.reenterTransition, null, popBlue, popGreen)
-        verifyAndClearTransition(fragment2.returnTransition, null, endBlue, endGreen)
+        fragment1.reenterTransition.verifyAndClearTransition {
+            enteringViews += listOf(popBlue, popGreen)
+        }
+        fragment2.returnTransition.verifyAndClearTransition {
+            exitingViews += listOf(endBlue, endGreen)
+        }
         verifyNoOtherTransitions(fragment1)
         verifyNoOtherTransitions(fragment2)
     }
@@ -299,12 +317,16 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         fragment1.waitForTransition()
         val greenSquare1 = findViewById(fragment1, R.id.greenSquare)
         val blueSquare1 = findViewById(fragment1, R.id.blueSquare)
-        verifyAndClearTransition(fragment1.enterTransition, null, greenSquare1, blueSquare1)
+        fragment1.enterTransition.verifyAndClearTransition {
+            enteringViews += listOf(greenSquare1, blueSquare1)
+        }
         verifyNoOtherTransitions(fragment1)
         fragment2.waitForTransition()
         val greenSquare2 = findViewById(fragment2, R.id.greenSquare)
         val blueSquare2 = findViewById(fragment2, R.id.blueSquare)
-        verifyAndClearTransition(fragment2.enterTransition, null, greenSquare2, blueSquare2)
+        fragment2.enterTransition.verifyAndClearTransition {
+            enteringViews += listOf(greenSquare2, blueSquare2)
+        }
         verifyNoOtherTransitions(fragment2)
 
         // Make sure the correct transitions are run when the target names
@@ -425,10 +447,11 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val endBlue = activityRule.findBlue()
         val endBlueBounds = getBoundsOnScreen(endBlue)
 
-        verifyAndClearTransition(
-            fragment2.sharedElementEnter, startGreenBounds, startGreen,
-            endBlue
-        )
+        fragment2.sharedElementEnter.verifyAndClearTransition {
+            epicenter = startGreenBounds
+            exitingViews += startGreen
+            enteringViews += endBlue
+        }
 
         val mapBack = object : SharedElementCallback() {
             override fun onMapSharedElements(
@@ -452,10 +475,11 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         fragment2.waitForTransition()
 
         val reenterGreen = activityRule.findGreen()
-        verifyAndClearTransition(
-            fragment2.sharedElementReturn, endBlueBounds, endBlue,
-            reenterGreen
-        )
+        fragment2.sharedElementReturn.verifyAndClearTransition {
+            epicenter = endBlueBounds
+            exitingViews += endBlue
+            enteringViews += reenterGreen
+        }
     }
 
     // Make sure that onMapSharedElement works to change the shared element target
@@ -500,10 +524,11 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val endBlue = activityRule.findBlue()
         val endGreenBounds = getBoundsOnScreen(endGreen)
 
-        verifyAndClearTransition(
-            fragment2.sharedElementEnter, startBlueBounds, startBlue,
-            endGreen
-        )
+        fragment2.sharedElementEnter.verifyAndClearTransition {
+            epicenter = startBlueBounds
+            exitingViews += startBlue
+            enteringViews += endGreen
+        }
 
         val mapBack = object : SharedElementCallback() {
             override fun onMapSharedElements(
@@ -525,10 +550,11 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         fragment2.waitForTransition()
 
         val reenterBlue = activityRule.findBlue()
-        verifyAndClearTransition(
-            fragment2.sharedElementReturn, endGreenBounds, endGreen,
-            reenterBlue
-        )
+        fragment2.sharedElementReturn.verifyAndClearTransition {
+            epicenter = endGreenBounds
+            exitingViews += endGreen
+            enteringViews += reenterBlue
+        }
     }
 
     // Ensure that shared element transitions that have targets properly target the views
@@ -560,14 +586,16 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val endGreen = activityRule.findGreen()
         val endBlueBounds = getBoundsOnScreen(endBlue)
 
-        verifyAndClearTransition(
-            fragment2.sharedElementEnterTransition1, startBlueBounds,
-            startBlue, endBlue
-        )
-        verifyAndClearTransition(
-            fragment2.sharedElementEnterTransition2, startBlueBounds,
-            startGreen, endGreen
-        )
+        fragment2.sharedElementEnterTransition1.verifyAndClearTransition {
+            epicenter = startBlueBounds
+            exitingViews += startBlue
+            enteringViews += endBlue
+        }
+        fragment2.sharedElementEnterTransition2.verifyAndClearTransition {
+            epicenter = startBlueBounds
+            exitingViews += startGreen
+            enteringViews += endGreen
+        }
 
         // Now see if it works when popped
         activityRule.popBackStackImmediate()
@@ -579,14 +607,16 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val reenterBlue = activityRule.findBlue()
         val reenterGreen = activityRule.findGreen()
 
-        verifyAndClearTransition(
-            fragment2.sharedElementReturnTransition1, endBlueBounds,
-            endBlue, reenterBlue
-        )
-        verifyAndClearTransition(
-            fragment2.sharedElementReturnTransition2, endBlueBounds,
-            endGreen, reenterGreen
-        )
+        fragment2.sharedElementReturnTransition1.verifyAndClearTransition {
+            epicenter = endBlueBounds
+            exitingViews += endBlue
+            enteringViews += reenterBlue
+        }
+        fragment2.sharedElementReturnTransition2.verifyAndClearTransition {
+            epicenter = endBlueBounds
+            exitingViews += endGreen
+            enteringViews += reenterGreen
+        }
     }
 
     // Ensure that after transitions have executed that they don't have any targets or other
@@ -599,9 +629,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val fragment2 = TransitionFragment(R.layout.scene2)
 
         verifyTransition(fragment1, fragment2, "blueSquare")
-        assertThat(fragment1.exitTransition.getTargets().size).isEqualTo(0)
-        assertThat(fragment2.sharedElementEnter.getTargets().size).isEqualTo(0)
-        assertThat(fragment2.enterTransition.getTargets().size).isEqualTo(0)
+        assertThat(fragment1.exitTransition.targets).isEmpty()
+        assertThat(fragment2.sharedElementEnter.targets).isEmpty()
+        assertThat(fragment2.enterTransition.targets).isEmpty()
         assertThat(fragment1.exitTransition.epicenterCallback).isNull()
         assertThat(fragment2.enterTransition.epicenterCallback).isNull()
         assertThat(fragment2.sharedElementEnter.epicenterCallback).isNull()
@@ -609,9 +639,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         // Now pop the back stack
         verifyPopTransition(1, fragment2, fragment1)
 
-        assertThat(fragment2.returnTransition.getTargets().size).isEqualTo(0)
-        assertThat(fragment2.sharedElementReturn.getTargets().size).isEqualTo(0)
-        assertThat(fragment1.reenterTransition.getTargets().size).isEqualTo(0)
+        assertThat(fragment2.returnTransition.targets).isEmpty()
+        assertThat(fragment2.sharedElementReturn.targets).isEmpty()
+        assertThat(fragment1.reenterTransition.targets).isEmpty()
         assertThat(fragment2.returnTransition.epicenterCallback).isNull()
         assertThat(fragment2.sharedElementReturn.epicenterCallback).isNull()
         assertThat(fragment2.reenterTransition.epicenterCallback).isNull()
@@ -654,10 +684,14 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         assertThat(startGreen.visibility).isEqualTo(View.VISIBLE)
         assertThat(startBlue.visibility).isEqualTo(View.VISIBLE)
 
-        verifyAndClearTransition(fragment1.exitTransition, null, startGreen, startBlue)
+        fragment1.exitTransition.verifyAndClearTransition {
+            exitingViews += listOf(startGreen, startBlue)
+        }
         verifyNoOtherTransitions(fragment1)
 
-        verifyAndClearTransition(fragment2.enterTransition, null, endGreen, endBlue)
+        fragment2.enterTransition.verifyAndClearTransition {
+            enteringViews += listOf(endGreen, endBlue)
+        }
         verifyNoOtherTransitions(fragment2)
 
         activityRule.popBackStackImmediate()
@@ -666,14 +700,18 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         fragment1.waitForTransition()
         fragment2.waitForTransition()
 
-        verifyAndClearTransition(fragment1.reenterTransition, null, startGreen, startBlue)
+        fragment1.reenterTransition.verifyAndClearTransition {
+            enteringViews += listOf(startGreen, startBlue)
+        }
         verifyNoOtherTransitions(fragment1)
 
         assertThat(fragment1.requireView().visibility).isEqualTo(View.VISIBLE)
         assertThat(startGreen.visibility).isEqualTo(View.VISIBLE)
         assertThat(startBlue.visibility).isEqualTo(View.VISIBLE)
 
-        verifyAndClearTransition(fragment2.returnTransition, null, endGreen, endBlue)
+        fragment2.returnTransition.verifyAndClearTransition {
+            exitingViews += listOf(endGreen, endBlue)
+        }
         verifyNoOtherTransitions(fragment2)
     }
 
@@ -698,10 +736,14 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val endGreen = findViewById(fragment2, R.id.greenSquare)
         val endBlue = findViewById(fragment2, R.id.blueSquare)
 
-        verifyAndClearTransition(fragment1.exitTransition, null, startGreen, startBlue)
+        fragment1.exitTransition.verifyAndClearTransition {
+            exitingViews += listOf(startGreen, startBlue)
+        }
         verifyNoOtherTransitions(fragment1)
 
-        verifyAndClearTransition(fragment2.enterTransition, null, endGreen, endBlue)
+        fragment2.enterTransition.verifyAndClearTransition {
+            enteringViews += listOf(endGreen, endBlue)
+        }
         verifyNoOtherTransitions(fragment2)
 
         activityRule.popBackStackImmediate()
@@ -711,10 +753,14 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val reenterBlue = activityRule.findBlue()
         val reenterGreen = activityRule.findGreen()
 
-        verifyAndClearTransition(fragment1.reenterTransition, null, reenterGreen, reenterBlue)
+        fragment1.reenterTransition.verifyAndClearTransition {
+            enteringViews += listOf(reenterGreen, reenterBlue)
+        }
         verifyNoOtherTransitions(fragment1)
 
-        verifyAndClearTransition(fragment2.returnTransition, null, endGreen, endBlue)
+        fragment2.returnTransition.verifyAndClearTransition {
+            exitingViews += listOf(endGreen, endBlue)
+        }
         verifyNoOtherTransitions(fragment2)
     }
 
@@ -745,14 +791,24 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val endGreen = activityRule.findGreen()
 
         if (reorderingAllowed) {
-            verifyAndClearTransition(fragment1.exitTransition, null, startGreen, startBlue)
+            fragment1.exitTransition.verifyAndClearTransition {
+                exitingViews += listOf(startGreen, startBlue)
+            }
         } else {
-            verifyAndClearTransition(fragment1.exitTransition, startBlueBounds, startGreen)
-            verifyAndClearTransition(fragment2.sharedElementEnter, startBlueBounds, startBlue)
+            fragment1.exitTransition.verifyAndClearTransition {
+                epicenter = startBlueBounds
+                exitingViews += startGreen
+            }
+            fragment2.sharedElementEnter.verifyAndClearTransition {
+                epicenter = startBlueBounds
+                exitingViews += startBlue
+            }
         }
         verifyNoOtherTransitions(fragment1)
 
-        verifyAndClearTransition(fragment2.enterTransition, null, endGreen, endBlue)
+        fragment2.enterTransition.verifyAndClearTransition {
+            enteringViews += listOf(endGreen, endBlue)
+        }
         verifyNoOtherTransitions(fragment2)
     }
 
@@ -846,9 +902,19 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val midGreen = activityRule.findGreen()
         val midBlue = activityRule.findBlue()
         val midBlueBounds = getBoundsOnScreen(midBlue)
-        verifyAndClearTransition(fragment1.exitTransition, startBlueBounds, startGreen)
-        verifyAndClearTransition(fragment2.sharedElementEnter, startBlueBounds, startBlue, midBlue)
-        verifyAndClearTransition(fragment2.enterTransition, midBlueBounds, midGreen)
+        fragment1.exitTransition.verifyAndClearTransition {
+            epicenter = startBlueBounds
+            exitingViews += startGreen
+        }
+        fragment2.sharedElementEnter.verifyAndClearTransition {
+            epicenter = startBlueBounds
+            exitingViews += startBlue
+            enteringViews += midBlue
+        }
+        fragment2.enterTransition.verifyAndClearTransition {
+            epicenter = midBlueBounds
+            enteringViews += midGreen
+        }
         verifyNoOtherTransitions(fragment1)
         verifyNoOtherTransitions(fragment2)
 
@@ -872,11 +938,15 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         if (reorderingAllowed) {
             // reordering allowed fragment3 to get a transition so we should wait for it to finish
             fragment3.waitForTransition()
-            verifyAndClearTransition(fragment2.returnTransition, null, midGreen, midBlue)
+            fragment2.returnTransition.verifyAndClearTransition {
+                exitingViews += listOf(midGreen, midBlue)
+            }
             val endGreen = activityRule.findGreen()
             val endBlue = activityRule.findBlue()
             val endRed = activityRule.findRed()
-            verifyAndClearTransition(fragment3.enterTransition, null, endGreen, endBlue, endRed!!)
+            fragment3.enterTransition.verifyAndClearTransition {
+                enteringViews += listOfNotNull(endGreen, endBlue, endRed)
+            }
             verifyNoOtherTransitions(fragment2)
             verifyNoOtherTransitions(fragment3)
         } else {
@@ -918,10 +988,16 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         // It does not transition properly for ordered transactions, though.
         if (reorderingAllowed) {
-            verifyAndClearTransition(fragment1.returnTransition, null, startGreen)
+            fragment1.returnTransition.verifyAndClearTransition {
+                exitingViews += startGreen
+            }
             val endGreen = activityRule.findGreen()
-            verifyAndClearTransition(fragment2.enterTransition, startGreenBounds, endGreen)
-            assertThat(fragment2.sharedElementEnter.targets.size).isEqualTo(2)
+            fragment2.enterTransition.verifyAndClearTransition {
+                epicenter = startGreenBounds
+                enteringViews += endGreen
+            }
+            assertThat(fragment2.sharedElementEnter.enteringTargets.size).isEqualTo(1)
+            assertThat(fragment2.sharedElementEnter.exitingTargets.size).isEqualTo(1)
             fragment2.sharedElementEnter.clearTargets()
             verifyNoOtherTransitions(fragment1)
             verifyNoOtherTransitions(fragment2)
@@ -958,17 +1034,22 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val midRed = activityRule.findRed()
         val midGreenBounds = getBoundsOnScreen(midGreen)
         if (reorderingAllowed) {
-            verifyAndClearTransition(
-                fragment2.sharedElementEnter, startGreenBounds, startGreen,
-                midGreen
-            )
+            fragment2.sharedElementEnter.verifyAndClearTransition {
+                epicenter = startGreenBounds
+                exitingViews += startGreen
+                enteringViews += midGreen
+            }
         } else {
-            verifyAndClearTransition(
-                fragment2.sharedElementEnter, startGreenBounds, startGreen,
-                midGreen, startBlue
-            )
+            fragment2.sharedElementEnter.verifyAndClearTransition {
+                epicenter = startGreenBounds
+                exitingViews += listOf(startGreen, startBlue)
+                enteringViews += midGreen
+            }
         }
-        verifyAndClearTransition(fragment2.enterTransition, midGreenBounds, midBlue, midRed!!)
+        fragment2.enterTransition.verifyAndClearTransition {
+            epicenter = midGreenBounds
+            enteringViews += listOfNotNull(midBlue, midRed)
+        }
         verifyNoOtherTransitions(fragment2)
 
         activityRule.popBackStackImmediate()
@@ -994,7 +1075,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         fragment1.waitForTransition()
         val blueSquare1 = activityRule.findBlue()
         val greenSquare1 = activityRule.findGreen()
-        verifyAndClearTransition(fragment1.enterTransition, null, blueSquare1, greenSquare1)
+        fragment1.enterTransition.verifyAndClearTransition {
+            enteringViews += listOf(blueSquare1, greenSquare1)
+        }
         verifyNoOtherTransitions(fragment1)
         return fragment1
     }
@@ -1031,19 +1114,22 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val endRed = activityRule.findRed()
         val endBlueRect = getBoundsOnScreen(endBlue)
 
-        if (startRed != null) {
-            verifyAndClearTransition(from.exitTransition, startBlueRect, startGreen, startRed)
-        } else {
-            verifyAndClearTransition(from.exitTransition, startBlueRect, startGreen)
+        from.exitTransition.verifyAndClearTransition {
+            epicenter = startBlueRect
+            exitingViews += listOfNotNull(startGreen, startRed)
         }
         verifyNoOtherTransitions(from)
 
-        if (endRed != null) {
-            verifyAndClearTransition(to.enterTransition, endBlueRect, endGreen, endRed)
-        } else {
-            verifyAndClearTransition(to.enterTransition, endBlueRect, endGreen)
+        to.enterTransition.verifyAndClearTransition {
+            epicenter = endBlueRect
+            enteringViews += listOfNotNull(endGreen, endRed)
         }
-        verifyAndClearTransition(to.sharedElementEnter, startBlueRect, startBlue, endBlue)
+
+        to.sharedElementEnter.verifyAndClearTransition {
+            epicenter = startBlueRect
+            exitingViews += startBlue
+            enteringViews += endBlue
+        }
         verifyNoOtherTransitions(to)
     }
 
@@ -1101,15 +1187,35 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val toShared2 = findViewById(to2, fromExitId2)
         val toSharedRect2 = getBoundsOnScreen(toShared2)
 
-        verifyAndClearTransition(from1.exitTransition, fromSharedRect1, fromExit1)
-        verifyAndClearTransition(from2.exitTransition, fromSharedRect2, fromExit2)
+        from1.exitTransition.verifyAndClearTransition {
+            epicenter = fromSharedRect1
+            exitingViews += fromExit1
+        }
+        from2.exitTransition.verifyAndClearTransition {
+            epicenter = fromSharedRect2
+            exitingViews += fromExit2
+        }
         verifyNoOtherTransitions(from1)
         verifyNoOtherTransitions(from2)
 
-        verifyAndClearTransition(to1.enterTransition, toSharedRect1, toEnter1)
-        verifyAndClearTransition(to2.enterTransition, toSharedRect2, toEnter2)
-        verifyAndClearTransition(to1.sharedElementEnter, fromSharedRect1, fromShared1, toShared1)
-        verifyAndClearTransition(to2.sharedElementEnter, fromSharedRect2, fromShared2, toShared2)
+        to1.enterTransition.verifyAndClearTransition {
+            epicenter = toSharedRect1
+            enteringViews += toEnter1
+        }
+        to2.enterTransition.verifyAndClearTransition {
+            epicenter = toSharedRect2
+            enteringViews += toEnter2
+        }
+        to1.sharedElementEnter.verifyAndClearTransition {
+            epicenter = fromSharedRect1
+            exitingViews += fromShared1
+            enteringViews += toShared1
+        }
+        to2.sharedElementEnter.verifyAndClearTransition {
+            epicenter = fromSharedRect2
+            exitingViews += fromShared2
+            enteringViews += toShared2
+        }
         verifyNoOtherTransitions(to1)
         verifyNoOtherTransitions(to2)
 
@@ -1133,15 +1239,35 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val returnEnter2 = findViewById(from2, fromExitId2)
         val returnShared2 = findViewById(from2, fromSharedId2)
 
-        verifyAndClearTransition(to1.returnTransition, toSharedRect1, toEnter1)
-        verifyAndClearTransition(to2.returnTransition, toSharedRect2, toEnter2)
-        verifyAndClearTransition(to1.sharedElementReturn, toSharedRect1, toShared1, returnShared1)
-        verifyAndClearTransition(to2.sharedElementReturn, toSharedRect2, toShared2, returnShared2)
+        to1.returnTransition.verifyAndClearTransition {
+            epicenter = toSharedRect1
+            exitingViews += toEnter1
+        }
+        to2.returnTransition.verifyAndClearTransition {
+            epicenter = toSharedRect2
+            exitingViews += toEnter2
+        }
+        to1.sharedElementReturn.verifyAndClearTransition {
+            epicenter = toSharedRect1
+            exitingViews += toShared1
+            enteringViews += returnShared1
+        }
+        to2.sharedElementReturn.verifyAndClearTransition {
+            epicenter = toSharedRect2
+            exitingViews += toShared2
+            enteringViews += returnShared2
+        }
         verifyNoOtherTransitions(to1)
         verifyNoOtherTransitions(to2)
 
-        verifyAndClearTransition(from1.reenterTransition, fromSharedRect1, returnEnter1)
-        verifyAndClearTransition(from2.reenterTransition, fromSharedRect2, returnEnter2)
+        from1.reenterTransition.verifyAndClearTransition {
+            epicenter = fromSharedRect1
+            enteringViews += returnEnter1
+        }
+        from2.reenterTransition.verifyAndClearTransition {
+            epicenter = fromSharedRect2
+            enteringViews += returnEnter2
+        }
         verifyNoOtherTransitions(from1)
         verifyNoOtherTransitions(from2)
     }
@@ -1172,18 +1298,20 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val endRed = activityRule.findRed()
         val endSharedRect = getBoundsOnScreen(endBlue)
 
-        if (startRed != null) {
-            verifyAndClearTransition(from.returnTransition, startSharedRect, startGreen, startRed)
-        } else {
-            verifyAndClearTransition(from.returnTransition, startSharedRect, startGreen)
+        from.returnTransition.verifyAndClearTransition {
+            epicenter = startSharedRect
+            exitingViews += listOfNotNull(startGreen, startRed)
         }
-        verifyAndClearTransition(from.sharedElementReturn, startSharedRect, startBlue, endBlue)
+        from.sharedElementReturn.verifyAndClearTransition {
+            epicenter = startSharedRect
+            exitingViews += startBlue
+            enteringViews += endBlue
+        }
         verifyNoOtherTransitions(from)
 
-        if (endRed != null) {
-            verifyAndClearTransition(to.reenterTransition, endSharedRect, endGreen, endRed)
-        } else {
-            verifyAndClearTransition(to.reenterTransition, endSharedRect, endGreen)
+        to.reenterTransition.verifyAndClearTransition {
+            epicenter = endSharedRect
+            enteringViews += listOfNotNull(endGreen, endRed)
         }
         verifyNoOtherTransitions(to)
 
@@ -1198,10 +1326,10 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val sharedElementReturnTransition1 = TrackingTransition()
         val sharedElementReturnTransition2 = TrackingTransition()
 
-        val sharedElementEnterTransition: TransitionSet = TransitionSet()
+        private val sharedElementEnterTransition: TransitionSet = TransitionSet()
             .addTransition(sharedElementEnterTransition1)
             .addTransition(sharedElementEnterTransition2)
-        val sharedElementReturnTransition: TransitionSet = TransitionSet()
+        private val sharedElementReturnTransition: TransitionSet = TransitionSet()
             .addTransition(sharedElementReturnTransition1)
             .addTransition(sharedElementReturnTransition2)
 

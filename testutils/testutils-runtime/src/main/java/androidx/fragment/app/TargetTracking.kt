@@ -13,34 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.fragment.app;
+package androidx.fragment.app
 
-import android.graphics.Rect;
-import android.view.View;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import java.util.ArrayList;
+import android.graphics.Rect
+import android.view.View
 
 /**
  * Used in testing to keep track of view Targets
  */
-public interface TargetTracking {
+interface TargetTracking {
     /**
-     * Return tracked targets in a list
+     * Return tracked exiting targets in a list
      */
-    @NonNull
-    ArrayList<View> getTrackedTargets();
+    val exitingTargets: List<View?>
+    /**
+     * Return tracked entering targets in a list
+     */
+    val enteringTargets: List<View?>
 
     /**
      * Clear all tracked targets
      */
-    void clearTargets();
+    fun clearTargets()
 
     /**
      * Get the captured epicenter.
      */
-    @Nullable
-    Rect getCapturedEpicenter();
+    val capturedEpicenter: Rect?
 }
