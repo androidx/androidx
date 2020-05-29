@@ -53,6 +53,7 @@ fun Project.writeSdkPathToLocalPropertiesFile() {
  */
 fun Project.getSdkPath(): File {
     val sdkPath = androidxSdkPath()
+    println(">> SDK Path $sdkPath")
     if (sdkPath != null) {
         return File(sdkPath)
     }
