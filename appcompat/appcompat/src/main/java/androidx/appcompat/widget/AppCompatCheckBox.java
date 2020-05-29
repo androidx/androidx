@@ -209,7 +209,7 @@ public class AppCompatCheckBox extends CheckBox implements TintableCompoundButto
     }
 
     @Override
-    public void setBackgroundDrawable(Drawable background) {
+    public void setBackgroundDrawable(@Nullable Drawable background) {
         super.setBackgroundDrawable(background);
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.onSetBackgroundDrawable(background);
