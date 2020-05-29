@@ -29,6 +29,7 @@ import androidx.compose.Composition
 import androidx.compose.Providers
 import androidx.compose.Recomposer
 import androidx.compose.currentComposer
+import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.setContent
 import androidx.ui.core.toAndroidRect
@@ -38,6 +39,7 @@ import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.asTree
+import androidx.ui.tooling.preview.animation.PreviewAnimationClock
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxBounds
 import androidx.ui.unit.PxBounds
@@ -99,6 +101,9 @@ private val KEY_INFO_REGEX =
  *  for debugging purposes.
  *  - `tools:printViewInfos`: If true, the [ComposeViewAdapter] will log the tree of [ViewInfo]
  *  to logcat for debugging.
+ *  - `tools:animationClockStartTime`: When set, the [AnimationClockAmbient] will provide a
+ *  [PreviewAnimationClock] using this value as start time. The clock will control the animations
+ *  in the [ComposeViewAdapter] context.
  *
  * @suppress
  */
@@ -221,6 +226,14 @@ internal class ComposeViewAdapter : FrameLayout {
     }
 
     /**
+     * Clock that controls the animations defined in the context of this [ComposeViewAdapter].
+     *
+     * @suppress
+     */
+    @VisibleForTesting
+    internal lateinit var clock: PreviewAnimationClock
+
+    /**
      * Wraps a given [Preview] method an does any necessary setup.
      */
     @Composable
@@ -244,6 +257,8 @@ internal class ComposeViewAdapter : FrameLayout {
      * @param debugPaintBounds if true, the view will paint the boundaries around the layout
      * elements.
      * @param debugViewInfos if true, it will generate the [ViewInfo] structures and will log it.
+     * @param animationClockStartTime if positive, the [AnimationClockAmbient] will provide
+     * [clock] instead of the default clock, setting this value as the clock's initial time.
      */
     @VisibleForTesting
     internal fun init(
@@ -252,7 +267,8 @@ internal class ComposeViewAdapter : FrameLayout {
         parameterProvider: KClass<out PreviewParameterProvider<*>>? = null,
         parameterProviderIndex: Int = 0,
         debugPaintBounds: Boolean = false,
-        debugViewInfos: Boolean = false
+        debugViewInfos: Boolean = false,
+        animationClockStartTime: Long = -1
     ) {
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
@@ -263,12 +279,25 @@ internal class ComposeViewAdapter : FrameLayout {
                 // We need to delay the reflection instantiation of the class until we are in the
                 // composable to ensure all the right initialization has happened and the Composable
                 // class loads correctly.
-                invokeComposableViaReflection(
-                    className,
-                    methodName,
-                    composer,
-                    *getPreviewProviderParameters(parameterProvider, parameterProviderIndex)
-                )
+                val composable = {
+                    invokeComposableViaReflection(
+                        className,
+                        methodName,
+                        composer,
+                        *getPreviewProviderParameters(parameterProvider, parameterProviderIndex)
+                    )
+                }
+                if (animationClockStartTime >= 0) {
+                    // Provide a custom clock when animation inspection is enabled, i.e. when a
+                    // valid `animationClockStartTime` is passed. This clock will control the
+                    // animations defined in this `ComposeViewAdapter` from Android Studio.
+                    clock = PreviewAnimationClock(animationClockStartTime)
+                    Providers(AnimationClockAmbient provides clock) {
+                        composable()
+                    }
+                } else {
+                    composable()
+                }
             }
         }
     }
@@ -281,6 +310,23 @@ internal class ComposeViewAdapter : FrameLayout {
         composition = null
     }
 
+    /**
+     * Sets the relative time of the [PreviewAnimationClock] that controls inspected animations.
+     *
+     * Expected to be called via reflection from Android Studio and will fail otherwise, since
+     * [clock] will not be initialized in that case.
+     *
+     * @suppress
+     */
+    fun setClockTime(timeMs: Long) {
+        try {
+            clock.setClockTime(timeMs)
+        } catch (e: UninitializedPropertyAccessException) {
+            throw IllegalStateException("This method is expected to be called from Android Studio" +
+                    " via reflection, otherwise 'clock' is expected to be null.")
+        }
+    }
+
     private fun init(attrs: AttributeSet) {
         val composableName = attrs.getAttributeValue(TOOLS_NS_URI, "composableName") ?: return
         val className = composableName.substringBeforeLast('.')
@@ -291,6 +337,12 @@ internal class ComposeViewAdapter : FrameLayout {
         )
         val parameterProviderClass = attrs.getAttributeValue(TOOLS_NS_URI, "parameterProviderClass")
             ?.asPreviewProviderClass()
+
+        val animationClockStartTime = try {
+            attrs.getAttributeValue(TOOLS_NS_URI, "animationClockStartTime").toLong()
+        } catch (e: Exception) {
+            -1L
+        }
 
         init(
             className = className,
@@ -306,7 +358,8 @@ internal class ComposeViewAdapter : FrameLayout {
                 TOOLS_NS_URI,
                 "printViewInfos",
                 debugViewInfos
-            )
+            ),
+            animationClockStartTime = animationClockStartTime
         )
     }
 }
