@@ -27,7 +27,6 @@ import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.Dp
@@ -45,8 +44,9 @@ fun SimpleColumn() {
         // Has weight, the child will occupy half of the remaining height.
         Box(Modifier.preferredWidth(40.dp).weight(1f), backgroundColor = Color.Yellow)
         // Has weight and does not fill, the child will occupy at most half of the remaining height.
+        // Therefore it will occupy 80.dp (its preferred height) if the assigned height is larger.
         Box(
-            Modifier.preferredHeight(80.dp)
+            Modifier.preferredSize(40.dp, 80.dp)
                 .weight(1f, fill = false),
             backgroundColor = Color.Green
         )
