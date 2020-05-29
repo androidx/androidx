@@ -856,7 +856,7 @@ package androidx.ui.core {
   }
 
   public final class TestTagKt {
-    method @androidx.compose.Composable public static void TestTag(String tag, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated @androidx.compose.Composable public static void TestTag(String tag, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method @androidx.compose.Stable public static androidx.ui.core.Modifier testTag(androidx.ui.core.Modifier, String tag);
   }
 

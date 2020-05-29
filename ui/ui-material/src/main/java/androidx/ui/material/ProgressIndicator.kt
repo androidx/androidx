@@ -29,8 +29,8 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.DeterminateProgressIndicator
 import androidx.ui.foundation.Strings
+import androidx.ui.foundation.determinateProgressIndicator
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
@@ -60,18 +60,18 @@ fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary
 ) {
-    DeterminateProgressIndicator(progress = progress) {
-        val stroke = with(DensityAmbient.current) {
-            Stroke(
-                width = ProgressIndicatorConstants.DefaultStrokeWidth.toPx(),
-                cap = StrokeCap.butt
-            )
-        }
-        val backgroundColor = color.copy(alpha = BackgroundOpacity)
-        Canvas(modifier.preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)) {
-            drawLinearIndicatorBackground(backgroundColor, stroke)
-            drawLinearIndicator(0f, progress, color, stroke)
-        }
+    val stroke = with(DensityAmbient.current) {
+        Stroke(
+            width = ProgressIndicatorConstants.DefaultStrokeWidth.toPx(),
+            cap = StrokeCap.butt
+        )
+    }
+    val backgroundColor = color.copy(alpha = BackgroundOpacity)
+    Canvas(modifier.determinateProgressIndicator(progress)
+        .preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)
+    ) {
+        drawLinearIndicatorBackground(backgroundColor, stroke)
+        drawLinearIndicator(0f, progress, color, stroke)
     }
 }
 
@@ -166,20 +166,19 @@ fun CircularProgressIndicator(
     color: Color = MaterialTheme.colors.primary,
     strokeWidth: Dp = ProgressIndicatorConstants.DefaultStrokeWidth
 ) {
-    DeterminateProgressIndicator(progress = progress) {
-        val stroke = with(DensityAmbient.current) {
-            Stroke(width = strokeWidth.toPx(), cap = StrokeCap.butt)
-        }
-        Canvas(
-            modifier
-                .padding(CircularIndicatorPadding)
-                .preferredSize(CircularIndicatorDiameter)
-        ) {
-            // Start at 12 O'clock
-            val startAngle = 270f
-            val sweep = progress * 360f
-            drawDeterminateCircularIndicator(startAngle, sweep, color, stroke)
-        }
+    val stroke = with(DensityAmbient.current) {
+        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.butt)
+    }
+    Canvas(
+        modifier
+            .determinateProgressIndicator(progress)
+            .padding(CircularIndicatorPadding)
+            .preferredSize(CircularIndicatorDiameter)
+    ) {
+        // Start at 12 O'clock
+        val startAngle = 270f
+        val sweep = progress * 360f
+        drawDeterminateCircularIndicator(startAngle, sweep, color, stroke)
     }
 }
 
