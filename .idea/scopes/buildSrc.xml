@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="buildSrc" pattern="src:androidx.build..*" />
+</component>
