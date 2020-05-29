@@ -90,7 +90,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             new ArrayList<ControllerConnection>();
 
     private boolean mStarted;
-    private boolean mTransferEnabled;
     private boolean mBound;
     private Connection mActiveConnection;
     private boolean mConnectionReady;
@@ -204,16 +203,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    public void enableTransfer(boolean shouldUpdateBinding) {
-        mTransferEnabled = true;
-        if (DEBUG) {
-            Log.d(TAG, this + ": Enabling transfer");
-        }
-        if (shouldUpdateBinding) {
-            updateBinding();
-        }
-    }
-
     public void rebindIfDisconnected() {
         if (mActiveConnection == null && shouldBind()) {
             unbind();
@@ -231,11 +220,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
     private boolean shouldBind() {
         if (mStarted) {
-            // When transfer is enabled, we need to keep the connection.
-            if (mTransferEnabled) {
-                return true;
-            }
-
             // Bind whenever there is a discovery request.
             if (getDiscoveryRequest() != null) {
                 return true;

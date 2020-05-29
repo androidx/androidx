@@ -50,7 +50,6 @@ final class RegisteredMediaRouteProviderWatcher {
 
     private final ArrayList<RegisteredMediaRouteProvider> mProviders = new ArrayList<>();
     private boolean mRunning;
-    private boolean mTransferEnabled;
 
     RegisteredMediaRouteProviderWatcher(Context context, Callback callback) {
         mContext = context;
@@ -92,11 +91,6 @@ final class RegisteredMediaRouteProviderWatcher {
         }
     }
 
-    public void enableTransfer() {
-        mTransferEnabled = true;
-        scanPackages();
-    }
-
     void scanPackages() {
         if (!mRunning) {
             return;
@@ -116,7 +110,7 @@ final class RegisteredMediaRouteProviderWatcher {
             if (serviceInfo == null) {
                 continue;
             }
-            if (mTransferEnabled
+            if (MediaRouter.isTransferEnabled()
                     && listContainsServiceInfo(mediaRoute2ProviderServices, serviceInfo)) {
                 // Do not register services which supports MediaRoute2ProviderService,
                 // since we will communicate with them via MediaRouter2.
@@ -126,17 +120,11 @@ final class RegisteredMediaRouteProviderWatcher {
             if (sourceIndex < 0) {
                 RegisteredMediaRouteProvider provider = new RegisteredMediaRouteProvider(
                         mContext, new ComponentName(serviceInfo.packageName, serviceInfo.name));
-                if (mTransferEnabled) {
-                    provider.enableTransfer(/* shouldUpdateBinding = */ false);
-                }
                 provider.start();
                 mProviders.add(targetIndex++, provider);
                 mCallback.addProvider(provider);
             } else if (sourceIndex >= targetIndex) {
                 RegisteredMediaRouteProvider provider = mProviders.get(sourceIndex);
-                if (mTransferEnabled) {
-                    provider.enableTransfer(/* shouldUpdateBinding = */ false);
-                }
                 provider.start(); // restart the provider if needed
                 provider.rebindIfDisconnected();
                 Collections.swap(mProviders, sourceIndex, targetIndex++);

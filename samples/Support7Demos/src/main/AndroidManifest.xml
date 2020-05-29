@@ -752,6 +752,9 @@
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
+
+        <meta-data android:name="androidx.mediarouter.MEDIA_ROUTER_FEATURE"
+            android:value="seamless_transfer" />
     </application>
 
 </manifest>
