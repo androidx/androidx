@@ -1784,7 +1784,9 @@ class AndroidLayoutDrawTest {
                 }
             }
         }
-        val parentDataModifier = object : ParentDataModifier {}
+        val parentDataModifier = object : ParentDataModifier {
+            override fun Density.modifyParentData(parentData: Any?) = parentData
+        }
         val size = 50.ipx
 
         val latch = CountDownLatch(2)

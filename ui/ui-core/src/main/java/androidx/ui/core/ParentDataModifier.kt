@@ -19,12 +19,14 @@ package androidx.ui.core
 import androidx.ui.unit.Density
 
 /**
- * A [Modifier.Element] that provides additional data to the parent layout which is available
- * during the measurement.
+ * A [Modifier] that provides data to the parent [Layout]. This can be read from within the
+ * the [Layout] during measurement and positioning, via [IntrinsicMeasurable.parentData].
+ * Th parent data is commonly used to inform the parent how the child [Layout] should be measured
+ * and positioned.
  */
 interface ParentDataModifier : Modifier.Element {
     /**
-     * Provides a parentData given the [parentData] already provided through the modifier's chain.
+     * Provides a parentData, given the [parentData] already provided through the modifier's chain.
      */
-    fun Density.modifyParentData(parentData: Any?): Any? = parentData
+    fun Density.modifyParentData(parentData: Any?): Any?
 }
