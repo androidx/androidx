@@ -43,7 +43,9 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class SoftwareKeyboardTest {
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createComposeRule().also {
+        it.clockTestRule.pauseClock()
+    }
 
     @Test
     fun textField_onTextLayoutCallback() {
