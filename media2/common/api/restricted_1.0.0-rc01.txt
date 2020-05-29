@@ -1,7 +1,7 @@
 // Signature format: 3.0
 package androidx.media2.common {
 
-  public class CallbackMediaItem extends androidx.media2.common.MediaItem {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class CallbackMediaItem extends androidx.media2.common.MediaItem {
     method public androidx.media2.common.DataSourceCallback getDataSourceCallback();
   }
 
@@ -19,7 +19,7 @@ package androidx.media2.common {
     method public abstract int readAt(long, byte[], int, int) throws java.io.IOException;
   }
 
-  public class FileMediaItem extends androidx.media2.common.MediaItem {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class FileMediaItem extends androidx.media2.common.MediaItem {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void decreaseRefCount();
     method public long getFileDescriptorLength();
     method public long getFileDescriptorOffset();
@@ -38,7 +38,7 @@ package androidx.media2.common {
     method public androidx.media2.common.FileMediaItem.Builder setStartPosition(long);
   }
 
-  public class MediaItem extends androidx.versionedparcelable.CustomVersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class MediaItem extends androidx.versionedparcelable.CustomVersionedParcelable {
     method public long getEndPosition();
     method public androidx.media2.common.MediaMetadata? getMetadata();
     method public long getStartPosition();
@@ -54,7 +54,7 @@ package androidx.media2.common {
     method public androidx.media2.common.MediaItem.Builder setStartPosition(long);
   }
 
-  public final class MediaMetadata extends androidx.versionedparcelable.CustomVersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public final class MediaMetadata extends androidx.versionedparcelable.CustomVersionedParcelable {
     method public boolean containsKey(String);
     method public android.graphics.Bitmap? getBitmap(@androidx.media2.common.MediaMetadata.BitmapKey String);
     method public android.os.Bundle? getExtras();
@@ -259,7 +259,7 @@ package androidx.media2.common {
   @IntDef({androidx.media2.common.SessionPlayer.SHUFFLE_MODE_NONE, androidx.media2.common.SessionPlayer.SHUFFLE_MODE_ALL, androidx.media2.common.SessionPlayer.SHUFFLE_MODE_GROUP}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SessionPlayer.ShuffleMode {
   }
 
-  public class UriMediaItem extends androidx.media2.common.MediaItem {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class UriMediaItem extends androidx.media2.common.MediaItem {
     method public android.net.Uri getUri();
     method public java.util.List<java.net.HttpCookie!>? getUriCookies();
     method public java.util.Map<java.lang.String!,java.lang.String!>? getUriHeaders();

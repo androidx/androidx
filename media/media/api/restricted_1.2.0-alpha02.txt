@@ -552,7 +552,7 @@ package android.support.v4.media.session {
 
 package androidx.media {
 
-  public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize(jetifyAs="android.support.v4.media.AudioAttributesCompat") public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
     method public int getContentType();
     method public int getFlags();
     method public int getLegacyStreamType();
@@ -672,8 +672,6 @@ package androidx.media {
     method public int getPid();
     method public int getUid();
     field public static final String LEGACY_CONTROLLER = "android.media.session.MediaController";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int UNKNOWN_PID = -1; // 0xffffffff
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int UNKNOWN_UID = -1; // 0xffffffff
   }
 
   public abstract class VolumeProviderCompat {
@@ -730,15 +728,6 @@ package androidx.media.session {
     method public static android.app.PendingIntent! buildMediaButtonPendingIntent(android.content.Context!, android.content.ComponentName!, long);
     method public static android.view.KeyEvent! handleIntent(android.support.v4.media.session.MediaSessionCompat!, android.content.Intent!);
     method public void onReceive(android.content.Context!, android.content.Intent!);
-  }
-
-}
-
-package androidx.media.utils {
-
-  public final class MediaConstants {
-    field public static final String SESSION_EXTRAS_KEY_ACCOUNT_NAME = "androidx.media.MediaSessionCompat.Extras.KEY_ACCOUNT_NAME";
-    field public static final String SESSION_EXTRAS_KEY_ACCOUNT_TYPE = "androidx.media.MediaSessionCompat.Extras.KEY_ACCOUNT_TYPE";
   }
 
 }

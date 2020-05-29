@@ -14,7 +14,7 @@ package androidx.navigation.dynamicfeatures {
     property public final String? moduleName;
   }
 
-  public final class DynamicActivityNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.ActivityNavigator.Destination> {
+  @androidx.navigation.NavDestinationDsl public final class DynamicActivityNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.ActivityNavigator.Destination> {
     ctor public DynamicActivityNavigatorDestinationBuilder(androidx.navigation.dynamicfeatures.DynamicActivityNavigator activityNavigator, @IdRes int id);
     method public androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination build();
     method public String? getAction();

@@ -333,7 +333,7 @@ package androidx.fragment.app {
     ctor public FragmentTabHost(android.content.Context, android.util.AttributeSet?);
     method public void addTab(android.widget.TabHost.TabSpec, Class<?>, android.os.Bundle?);
     method public void onTabChanged(String?);
-    method @Deprecated public void setup();
+    method public void setOnTabChangedListener(android.widget.TabHost.OnTabChangeListener?);
     method public void setup(android.content.Context, androidx.fragment.app.FragmentManager);
     method public void setup(android.content.Context, androidx.fragment.app.FragmentManager, int);
   }
