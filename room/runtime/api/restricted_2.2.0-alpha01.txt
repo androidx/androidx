@@ -274,7 +274,7 @@ package androidx.room.util {
     ctor @Deprecated public TableInfo.Column(String!, String!, boolean, int);
     ctor public TableInfo.Column(String!, String!, boolean, int, String!, int);
     method public boolean isPrimaryKey();
-    field public final int affinity;
+    field @androidx.room.ColumnInfo.SQLiteTypeAffinity public final int affinity;
     field public final String! defaultValue;
     field public final String! name;
     field public final boolean notNull;

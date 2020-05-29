@@ -66,7 +66,7 @@ package androidx.work {
 
   public final class Data {
     ctor public Data(androidx.work.Data);
-    method public static androidx.work.Data fromByteArray(byte[]);
+    method @androidx.room.TypeConverter public static androidx.work.Data fromByteArray(byte[]);
     method public boolean getBoolean(String, boolean);
     method public boolean[]? getBooleanArray(String);
     method public byte getByte(String, byte);
@@ -303,14 +303,14 @@ package androidx.work {
     method public java.util.List<java.lang.String!> getUniqueWorkNames();
   }
 
-  public static final class WorkQuery.Builder {
+  public static class WorkQuery.Builder {
     method public androidx.work.WorkQuery.Builder addStates(java.util.List<androidx.work.WorkInfo.State!>);
     method public androidx.work.WorkQuery.Builder addTags(java.util.List<java.lang.String!>);
     method public androidx.work.WorkQuery.Builder addUniqueWorkNames(java.util.List<java.lang.String!>);
     method public androidx.work.WorkQuery build();
-    method public static androidx.work.WorkQuery.Builder fromStates(java.util.List<androidx.work.WorkInfo.State!>);
-    method public static androidx.work.WorkQuery.Builder fromTags(java.util.List<java.lang.String!>);
-    method public static androidx.work.WorkQuery.Builder fromUniqueWorkNames(java.util.List<java.lang.String!>);
+    method public static androidx.work.WorkQuery.Builder withStates(java.util.List<androidx.work.WorkInfo.State!>);
+    method public static androidx.work.WorkQuery.Builder withTags(java.util.List<java.lang.String!>);
+    method public static androidx.work.WorkQuery.Builder withUniqueWorkNames(java.util.List<java.lang.String!>);
   }
 
   public abstract class WorkRequest {

@@ -6,7 +6,7 @@ package androidx.ads.identifier {
     method public static boolean isAdvertisingIdProviderAvailable(android.content.Context);
   }
 
-  public abstract class AdvertisingIdInfo {
+  @com.google.auto.value.AutoValue public abstract class AdvertisingIdInfo {
     method public abstract String getId();
     method public abstract String getProviderPackageName();
     method public abstract boolean isLimitAdTrackingEnabled();

@@ -260,7 +260,7 @@ package androidx.camera.core {
     method public boolean willNotProvideSurface();
   }
 
-  public abstract static class SurfaceRequest.Result {
+  @com.google.auto.value.AutoValue public abstract static class SurfaceRequest.Result {
     method public abstract int getResultCode();
     method public abstract android.view.Surface getSurface();
     field public static final int RESULT_INVALID_SURFACE = 2; // 0x2
