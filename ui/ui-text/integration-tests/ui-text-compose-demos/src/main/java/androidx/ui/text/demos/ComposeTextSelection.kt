@@ -101,12 +101,10 @@ fun TextDemoSelectionWithStringInput() {
         onSelectionChange = { selection.value = it }) {
         Text(
             text = "$displayText    $displayTextChinese    $displayTextHindi",
-            style = TextStyle(
-                color = Color(0xFFFF0000),
-                fontSize = fontSize6,
-                fontWeight = FontWeight.W200,
-                fontStyle = FontStyle.Italic
-            )
+            color = Color(0xFFFF0000),
+            fontSize = fontSize6,
+            fontWeight = FontWeight.W200,
+            fontStyle = FontStyle.Italic
         )
     }
 }
