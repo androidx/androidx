@@ -4,8 +4,6 @@ package androidx.ui.graphics.vector {
   public final class GroupComponent extends androidx.ui.graphics.vector.VNode {
     ctor public GroupComponent(String name);
     ctor public GroupComponent();
-    method public String component1();
-    method public androidx.ui.graphics.vector.GroupComponent copy(String name);
     method public void draw(androidx.ui.graphics.Canvas canvas);
     method public java.util.List<androidx.ui.graphics.vector.PathNode> getClipPathData();
     method public String getName();
@@ -42,8 +40,6 @@ package androidx.ui.graphics.vector {
 
   public final class PathComponent extends androidx.ui.graphics.vector.VNode {
     ctor public PathComponent(String name);
-    method public String component1();
-    method public androidx.ui.graphics.vector.PathComponent copy(String name);
     method public void draw(androidx.ui.graphics.Canvas canvas);
     method public androidx.ui.graphics.Brush? getFill();
     method public float getFillAlpha();
@@ -84,8 +80,8 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorComponent extends androidx.ui.graphics.vector.VNode {
-    ctor public VectorComponent(float viewportWidth, float viewportHeight, androidx.ui.unit.Px defaultWidth, androidx.ui.unit.Px defaultHeight, String name);
-    method public void draw(androidx.ui.graphics.Canvas canvas, float alpha, androidx.ui.graphics.ColorFilter? colorFilter);
+    ctor public VectorComponent(String name, float viewportWidth, float viewportHeight, androidx.ui.unit.Px defaultWidth, androidx.ui.unit.Px defaultHeight);
+    method public void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.graphics.Color tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode blendMode = DefaultTintBlendMode);
     method public void draw(androidx.ui.graphics.Canvas canvas);
     method public androidx.ui.unit.Px getDefaultHeight();
     method public androidx.ui.unit.Px getDefaultWidth();

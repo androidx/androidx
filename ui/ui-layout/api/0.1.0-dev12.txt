@@ -2,11 +2,11 @@
 package androidx.ui.layout {
 
   public final class AlignmentLineKt {
-    method @Deprecated public static void AlignmentLineOffset-QVeNkNc(androidx.ui.core.AlignmentLine alignmentLine, androidx.ui.core.Modifier modifier = Modifier, float before = 0.dp, float after = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated @androidx.compose.Composable public static void AlignmentLineOffset-QVeNkNc(androidx.ui.core.AlignmentLine alignmentLine, androidx.ui.core.Modifier modifier = Modifier, float before = 0.dp, float after = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.core.Modifier relativePaddingFrom-J8n-V1w(androidx.ui.core.Modifier, androidx.ui.core.AlignmentLine alignmentLine, float before = 0.dp, float after = 0.dp);
   }
 
-  public interface Arrangement {
+  @androidx.compose.Immutable public interface Arrangement {
     method public java.util.List<androidx.ui.unit.IntPx> arrange-SVHdN54(int totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
     field @Deprecated public static final androidx.ui.layout.Arrangement.Companion! Companion;
   }
@@ -58,7 +58,7 @@ package androidx.ui.layout {
   }
 
   public final class ColumnKt {
-    method public static void Column(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.layout.Arrangement.Vertical verticalArrangement = Arrangement.Top, androidx.ui.core.Alignment.Horizontal horizontalGravity = Alignment.Start, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Column(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.layout.Arrangement.Vertical verticalArrangement = Arrangement.Top, androidx.ui.core.Alignment.Horizontal horizontalGravity = Alignment.Start, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
   }
 
   @androidx.ui.layout.LayoutScopeMarker public final class ColumnScope {
@@ -70,12 +70,12 @@ package androidx.ui.layout {
   }
 
   public final class ConstraintLayoutKt {
-    method public static void ConstraintLayout(androidx.ui.layout.ConstraintSet constraintSet, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void ConstraintLayout(androidx.ui.layout.ConstraintSet constraintSet, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class ConstraintSet {
+  @androidx.compose.Immutable public final class ConstraintSet {
     ctor public ConstraintSet(internal kotlin.jvm.functions.Function1<? super androidx.ui.layout.ConstraintSetBuilderScope,kotlin.Unit> description);
-    method public androidx.ui.layout.ConstraintSet copy(kotlin.jvm.functions.Function1<? super androidx.ui.layout.ConstraintSetBuilderScope,kotlin.Unit> description);
+    method @androidx.compose.Immutable public androidx.ui.layout.ConstraintSet copy(kotlin.jvm.functions.Function1<? super androidx.ui.layout.ConstraintSetBuilderScope,kotlin.Unit> description);
   }
 
   public final class ConstraintSetBuilderScope {
@@ -274,12 +274,12 @@ package androidx.ui.layout {
     property public final androidx.ui.layout.CrossAxisAlignment Start;
   }
 
-  public final class DpConstraints {
+  @androidx.compose.Immutable public final class DpConstraints {
     method public float component1();
     method public float component2();
     method public float component3();
     method public float component4();
-    method public androidx.ui.layout.DpConstraints copy-rIHlIKc(float minWidth, float maxWidth, float minHeight, float maxHeight);
+    method @androidx.compose.Immutable public androidx.ui.layout.DpConstraints copy-rIHlIKc(float minWidth, float maxWidth, float minHeight, float maxHeight);
     method public float getMaxHeight();
     method public float getMaxWidth();
     method public float getMinHeight();
@@ -313,16 +313,16 @@ package androidx.ui.layout {
   }
 
   public final class FlowKt {
-    method public static void FlowColumn-UKRdXhE(androidx.ui.layout.SizeMode mainAxisSize = androidx.ui.layout.SizeMode.Wrap, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, float mainAxisSpacing = 0.dp, androidx.ui.layout.FlowCrossAxisAlignment crossAxisAlignment = androidx.ui.layout.FlowCrossAxisAlignment.Start, float crossAxisSpacing = 0.dp, androidx.ui.layout.MainAxisAlignment lastLineMainAxisAlignment = mainAxisAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void FlowRow-UKRdXhE(androidx.ui.layout.SizeMode mainAxisSize = androidx.ui.layout.SizeMode.Wrap, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, float mainAxisSpacing = 0.dp, androidx.ui.layout.FlowCrossAxisAlignment crossAxisAlignment = androidx.ui.layout.FlowCrossAxisAlignment.Start, float crossAxisSpacing = 0.dp, androidx.ui.layout.MainAxisAlignment lastLineMainAxisAlignment = mainAxisAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void FlowColumn-UKRdXhE(androidx.ui.layout.SizeMode mainAxisSize = androidx.ui.layout.SizeMode.Wrap, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, float mainAxisSpacing = 0.dp, androidx.ui.layout.FlowCrossAxisAlignment crossAxisAlignment = androidx.ui.layout.FlowCrossAxisAlignment.Start, float crossAxisSpacing = 0.dp, androidx.ui.layout.MainAxisAlignment lastLineMainAxisAlignment = mainAxisAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void FlowRow-UKRdXhE(androidx.ui.layout.SizeMode mainAxisSize = androidx.ui.layout.SizeMode.Wrap, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, float mainAxisSpacing = 0.dp, androidx.ui.layout.FlowCrossAxisAlignment crossAxisAlignment = androidx.ui.layout.FlowCrossAxisAlignment.Start, float crossAxisSpacing = 0.dp, androidx.ui.layout.MainAxisAlignment lastLineMainAxisAlignment = mainAxisAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class InnerPadding {
+  @androidx.compose.Immutable public final class InnerPadding {
     method public float component1();
     method public float component2();
     method public float component3();
     method public float component4();
-    method public androidx.ui.layout.InnerPadding copy-rIHlIKc(float start, float top, float end, float bottom);
+    method @androidx.compose.Immutable public androidx.ui.layout.InnerPadding copy-rIHlIKc(float start, float top, float end, float bottom);
     method public float getBottom();
     method public float getEnd();
     method public float getStart();
@@ -330,10 +330,10 @@ package androidx.ui.layout {
   }
 
   public final class IntrinsicKt {
-    method @Deprecated public static void MaxIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method @Deprecated public static void MaxIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method @Deprecated public static void MinIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method @Deprecated public static void MinIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated @androidx.compose.Composable public static void MaxIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated @androidx.compose.Composable public static void MaxIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated @androidx.compose.Composable public static void MinIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated @androidx.compose.Composable public static void MinIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.core.Modifier preferredHeight(androidx.ui.core.Modifier, androidx.ui.layout.IntrinsicSize intrinsicSize);
     method public static androidx.ui.core.Modifier preferredWidth(androidx.ui.core.Modifier, androidx.ui.layout.IntrinsicSize intrinsicSize);
   }
@@ -407,7 +407,7 @@ package androidx.ui.layout {
   }
 
   public final class RowKt {
-    method public static void Row(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.layout.Arrangement.Horizontal horizontalArrangement = Arrangement.Start, androidx.ui.core.Alignment.Vertical verticalGravity = Alignment.Top, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Row(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.layout.Arrangement.Horizontal horizontalArrangement = Arrangement.Start, androidx.ui.core.Alignment.Vertical verticalGravity = Alignment.Top, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
   }
 
   @androidx.ui.layout.LayoutScopeMarker public final class RowScope {
@@ -424,11 +424,11 @@ package androidx.ui.layout {
   }
 
   public final class SpacerKt {
-    method public static void Spacer(androidx.ui.core.Modifier modifier);
+    method @androidx.compose.Composable public static void Spacer(androidx.ui.core.Modifier modifier);
   }
 
   public final class StackKt {
-    method public static void Stack(androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.layout.StackScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Stack(androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.layout.StackScope,kotlin.Unit> children);
   }
 
   @androidx.ui.layout.LayoutScopeMarker public final class StackScope {

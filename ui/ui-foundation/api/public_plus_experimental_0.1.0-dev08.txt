@@ -2,14 +2,14 @@
 package androidx.ui.foundation {
 
   public final class AdapterListKt {
-    method public static <T> void AdapterList(java.util.List<? extends T> data, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> itemCallback);
+    method @androidx.compose.Composable public static <T> void AdapterList(java.util.List<? extends T> data, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> itemCallback);
   }
 
-  public final class Border {
+  @androidx.compose.Immutable public final class Border {
     ctor public Border(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.graphics.Brush component2();
-    method public androidx.ui.foundation.Border copy(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush);
+    method @androidx.compose.Immutable public androidx.ui.foundation.Border copy(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush);
     method public androidx.ui.graphics.Brush getBrush();
     method public androidx.ui.unit.Dp getSize();
   }
@@ -19,14 +19,14 @@ package androidx.ui.foundation {
   }
 
   public final class BoxKt {
-    method public static void Box(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = RectangleShape, androidx.ui.graphics.Color backgroundColor = Color.Transparent, androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp padding = elvis {
-    @null var var411905cf: androidx.ui.unit.Dp = border?.size
+    method @androidx.compose.Composable public static void Box(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = RectangleShape, androidx.ui.graphics.Color backgroundColor = Color.Transparent, androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp padding = elvis {
+    var var411905cf: androidx.ui.unit.Dp = border?.size
     if (var411905cf != null) var411905cf else 0.dp
 }, androidx.ui.unit.Dp paddingStart = Dp.Unspecified, androidx.ui.unit.Dp paddingTop = Dp.Unspecified, androidx.ui.unit.Dp paddingEnd = Dp.Unspecified, androidx.ui.unit.Dp paddingBottom = Dp.Unspecified, androidx.ui.core.Alignment gravity = ContentGravity.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children = emptyContent());
   }
 
   public final class CanvasKt {
-    method public static void Canvas(androidx.ui.core.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.ui.foundation.CanvasScope,kotlin.Unit> onCanvas);
+    method @androidx.compose.Composable public static void Canvas(androidx.ui.core.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.ui.foundation.CanvasScope,kotlin.Unit> onCanvas);
   }
 
   public interface CanvasScope extends androidx.ui.graphics.Canvas androidx.ui.unit.Density {
@@ -35,33 +35,33 @@ package androidx.ui.foundation {
   }
 
   public final class ClickableKt {
-    method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, String? onClickLabel = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, String? onClickLabel = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ClickableTextKt {
-    method public static void ClickableText(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle style = TextStyle.Default, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = TextOverflow.Clip, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onClick);
+    method @androidx.compose.Composable public static void ClickableText(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle style = TextStyle.Default, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = TextOverflow.Clip, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onClick);
   }
 
   public final class ColoredRectKt {
-    method public static void ColoredRect(androidx.ui.graphics.Brush brush, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
-    method public static void ColoredRect(androidx.ui.graphics.Color color, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
+    method @androidx.compose.Composable public static void ColoredRect(androidx.ui.graphics.Brush brush, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
+    method @androidx.compose.Composable public static void ColoredRect(androidx.ui.graphics.Color color, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
   }
 
   public final class ContentColorKt {
-    method public static void ProvideContentColor(androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static androidx.ui.graphics.Color contentColor();
+    method @androidx.compose.Composable public static void ProvideContentColor(androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static androidx.ui.graphics.Color contentColor();
   }
 
   public final class DarkThemeKt {
-    method public static boolean isSystemInDarkTheme();
+    method @androidx.compose.Composable public static boolean isSystemInDarkTheme();
   }
 
   public final class DeterminateProgressIndicatorKt {
-    method public static void DeterminateProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void DeterminateProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DialogKt {
-    method public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DrawBackground implements androidx.ui.core.DrawModifier {
@@ -70,11 +70,11 @@ package androidx.ui.foundation {
   }
 
   public final class DrawBackgroundKt {
-    method @Deprecated public static androidx.ui.foundation.DrawBackground DrawBackground(androidx.ui.graphics.Color color, androidx.ui.graphics.Shape shape = RectangleShape);
-    method @Deprecated public static androidx.ui.foundation.DrawBackground DrawBackground(androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = RectangleShape);
+    method @Deprecated @androidx.compose.Composable public static androidx.ui.foundation.DrawBackground DrawBackground(androidx.ui.graphics.Color color, androidx.ui.graphics.Shape shape = RectangleShape);
+    method @Deprecated @androidx.compose.Composable public static androidx.ui.foundation.DrawBackground DrawBackground(androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = RectangleShape);
     method public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Paint paint, androidx.ui.graphics.Shape shape);
-    method public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Color color, androidx.ui.graphics.Shape shape = RectangleShape);
-    method public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = RectangleShape);
+    method @androidx.compose.Composable public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Color color, androidx.ui.graphics.Shape shape = RectangleShape);
+    method @androidx.compose.Composable public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = RectangleShape);
   }
 
   public final class DrawBorder implements androidx.ui.core.DrawModifier {
@@ -82,9 +82,9 @@ package androidx.ui.foundation {
   }
 
   public final class DrawBorderKt {
-    method public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.foundation.Border border, androidx.ui.graphics.Shape shape = RectangleShape);
-    method public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.unit.Dp size, androidx.ui.graphics.Color color, androidx.ui.graphics.Shape shape = RectangleShape);
-    method public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
+    method @androidx.compose.Composable public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.foundation.Border border, androidx.ui.graphics.Shape shape = RectangleShape);
+    method @androidx.compose.Composable public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.unit.Dp size, androidx.ui.graphics.Color color, androidx.ui.graphics.Shape shape = RectangleShape);
+    method @androidx.compose.Composable public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
   }
 
   public final class DrawBordersReceiver {
@@ -101,29 +101,29 @@ package androidx.ui.foundation {
   }
 
   public final class IconKt {
-    method public static void Icon(androidx.ui.graphics.vector.VectorAsset asset, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color tint = contentColor());
-    method public static void Icon(androidx.ui.graphics.ImageAsset asset, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color tint = contentColor());
-    method public static void Icon(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color tint = contentColor());
+    method @androidx.compose.Composable public static void Icon(androidx.ui.graphics.vector.VectorAsset asset, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color tint = contentColor());
+    method @androidx.compose.Composable public static void Icon(androidx.ui.graphics.ImageAsset asset, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color tint = contentColor());
+    method @androidx.compose.Composable public static void Icon(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color tint = contentColor());
   }
 
   public final class ImageKt {
-    method public static inline void Image(androidx.ui.graphics.ImageAsset asset, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
-    method public static inline void Image(androidx.ui.graphics.vector.VectorAsset asset, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
-    method public static void Image(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
-    method @Deprecated public static void SimpleImage(androidx.ui.graphics.ImageAsset image, androidx.ui.graphics.Color? tint = null);
+    method @androidx.compose.Composable public static inline void Image(androidx.ui.graphics.ImageAsset asset, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
+    method @androidx.compose.Composable public static inline void Image(androidx.ui.graphics.vector.VectorAsset asset, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
+    method @androidx.compose.Composable public static void Image(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
+    method @Deprecated @androidx.compose.Composable public static void SimpleImage(androidx.ui.graphics.ImageAsset image, androidx.ui.graphics.Color? tint = null);
   }
 
   public final class PasswordTextFieldKt {
-    method public static void PasswordTextField(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange = {}, androidx.ui.graphics.Color? textColor = null, androidx.ui.text.TextStyle textStyle = TextStyle.Default, char mask = '\u2022', androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {});
+    method @androidx.compose.Composable public static void PasswordTextField(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange = {}, androidx.ui.text.TextStyle textStyle = TextStyle.Default, char mask = '\u2022', androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {});
   }
 
   public final class ScrollerKt {
-    method public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier.None, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
-    method public static androidx.ui.foundation.ScrollerPosition ScrollerPosition(float initial = 0f);
-    method public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier.None, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+    method @androidx.compose.Composable public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier.None, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+    method @androidx.compose.Composable public static androidx.ui.foundation.ScrollerPosition ScrollerPosition(float initial = 0f);
+    method @androidx.compose.Composable public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier.None, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
   }
 
-  public final class ScrollerPosition {
+  @androidx.compose.Model public final class ScrollerPosition {
     ctor public ScrollerPosition(androidx.ui.foundation.animation.FlingConfig flingConfig, float initial, androidx.animation.AnimationClockObservable animationClock);
     method public float getMaxPosition();
     method public float getValue();
@@ -156,16 +156,16 @@ package androidx.ui.foundation {
   }
 
   public final class TextFieldKt {
-    method public static void TextField(String value, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange, androidx.ui.graphics.Color? textColor = null, androidx.ui.text.TextStyle textStyle = currentTextStyle(), androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
-    method public static void TextField(androidx.ui.text.TextFieldValue value, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextFieldValue,kotlin.Unit> onValueChange, androidx.ui.graphics.Color? textColor = null, androidx.ui.text.TextStyle textStyle = currentTextStyle(), androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
-    method public static void TextField(androidx.ui.text.TextFieldValue model, androidx.ui.text.TextRange? compositionRange, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function2<? super androidx.ui.text.TextFieldValue,? super androidx.ui.text.TextRange,kotlin.Unit> onValueChange, androidx.ui.graphics.Color? textColor = null, androidx.ui.text.TextStyle textStyle = currentTextStyle(), androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
+    method @androidx.compose.Composable public static void TextField(String value, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange, androidx.ui.text.TextStyle textStyle = currentTextStyle(), androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
+    method @androidx.compose.Composable public static void TextField(androidx.ui.text.TextFieldValue value, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextFieldValue,kotlin.Unit> onValueChange, androidx.ui.text.TextStyle textStyle = currentTextStyle(), androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
+    method @androidx.compose.Composable public static void TextField(androidx.ui.text.TextFieldValue model, androidx.ui.text.TextRange? compositionRange, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function2<? super androidx.ui.text.TextFieldValue,? super androidx.ui.text.TextRange,kotlin.Unit> onValueChange, androidx.ui.text.TextStyle textStyle = currentTextStyle(), androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
   }
 
   public final class TextKt {
-    method public static void ProvideTextStyle(androidx.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Text(String text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color? color = null, androidx.ui.unit.TextUnit size = TextUnit.Inherit, androidx.ui.text.style.TextAlign? align = null, androidx.ui.text.TextStyle style = currentTextStyle(), boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = TextOverflow.Clip, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
-    method public static void Text(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color? color = null, androidx.ui.unit.TextUnit size = TextUnit.Inherit, androidx.ui.text.style.TextAlign? align = null, androidx.ui.text.TextStyle style = currentTextStyle(), boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = TextOverflow.Clip, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
-    method public static androidx.ui.text.TextStyle currentTextStyle();
+    method @androidx.compose.Composable public static void ProvideTextStyle(androidx.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Text(String text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle style = currentTextStyle(), boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = TextOverflow.Clip, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
+    method @androidx.compose.Composable public static void Text(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.text.TextStyle style = currentTextStyle(), boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = TextOverflow.Clip, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
+    method @androidx.compose.Composable public static androidx.ui.text.TextStyle currentTextStyle();
   }
 
 }
@@ -226,12 +226,12 @@ package androidx.ui.foundation.animation {
   public final class AndroidFlingSplineKt {
   }
 
-  public final class FlingConfig {
+  @androidx.compose.Immutable public final class FlingConfig {
     ctor public FlingConfig(androidx.animation.DecayAnimation decayAnimation, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
     method public androidx.animation.DecayAnimation component1();
     method public kotlin.jvm.functions.Function3<androidx.animation.AnimationEndReason,java.lang.Float,java.lang.Float,kotlin.Unit>? component2();
     method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> component3();
-    method public androidx.ui.foundation.animation.FlingConfig copy(androidx.animation.DecayAnimation decayAnimation, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
+    method @androidx.compose.Immutable public androidx.ui.foundation.animation.FlingConfig copy(androidx.animation.DecayAnimation decayAnimation, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
     method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> getAdjustTarget();
     method public androidx.animation.DecayAnimation getDecayAnimation();
     method public kotlin.jvm.functions.Function3<androidx.animation.AnimationEndReason,java.lang.Float,java.lang.Float,kotlin.Unit>? getOnAnimationEnd();
@@ -239,7 +239,7 @@ package androidx.ui.foundation.animation {
 
   public final class FlingConfigKt {
     method public static androidx.ui.foundation.animation.FlingConfig AnchorsFlingConfig(java.util.List<java.lang.Float> anchors, androidx.animation.AnimationBuilder<java.lang.Float> animationBuilder = androidx.animation.PhysicsBuilder(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, androidx.animation.DecayAnimation decayAnimation = androidx.animation.ExponentialDecay());
-    method public static androidx.ui.foundation.animation.FlingConfig FlingConfig(kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget = { null });
+    method @androidx.compose.Composable public static androidx.ui.foundation.animation.FlingConfig FlingConfig(kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget = { return null });
     method public static void fling(androidx.animation.AnimatedFloat, androidx.ui.foundation.animation.FlingConfig config, float startVelocity);
   }
 
@@ -259,12 +259,12 @@ package androidx.ui.foundation.gestures {
   }
 
   public final class DraggableKt {
-    method public static androidx.ui.core.Modifier draggable(androidx.ui.foundation.gestures.DragDirection dragDirection, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, boolean enabled = true, boolean startDragImmediately = false, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onDragDeltaConsumptionRequested);
+    method @androidx.compose.Composable public static androidx.ui.core.Modifier draggable(androidx.ui.foundation.gestures.DragDirection dragDirection, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, boolean enabled = true, boolean startDragImmediately = false, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onDragDeltaConsumptionRequested);
   }
 
   public final class ScrollableKt {
-    method public static androidx.ui.foundation.gestures.ScrollableState ScrollableState(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onScrollDeltaConsumptionRequested);
-    method public static androidx.ui.core.Modifier scrollable(androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.gestures.ScrollableState scrollableState, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {}, boolean enabled = true);
+    method @androidx.compose.Composable public static androidx.ui.foundation.gestures.ScrollableState ScrollableState(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onScrollDeltaConsumptionRequested);
+    method @androidx.compose.Composable public static androidx.ui.core.Modifier scrollable(androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.gestures.ScrollableState scrollableState, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {}, boolean enabled = true);
   }
 
   public final class ScrollableState {
@@ -282,13 +282,13 @@ package androidx.ui.foundation.gestures {
 package androidx.ui.foundation.selection {
 
   public final class MutuallyExclusiveSetItemKt {
-    method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ToggleableKt {
-    method public static void Toggleable(boolean value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onValueChange, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Toggleable(boolean value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onValueChange, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.foundation.selection.ToggleableState ToggleableState(boolean value);
-    method public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState state = androidx.ui.foundation.selection.ToggleableState.On, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState state = androidx.ui.foundation.selection.ToggleableState.On, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public enum ToggleableState {

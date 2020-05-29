@@ -43,9 +43,9 @@ package androidx.ui.test {
   }
 
   public final class BitmapHelpersKt {
-    method public static void assertPixelColor-9bBi3KA(android.graphics.Bitmap, long expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String> error = { color -> "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
+    method public static void assertPixelColor-9bBi3KA(android.graphics.Bitmap, long expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String> error = { color -> return "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
     method public static void assertPixels(android.graphics.Bitmap, androidx.ui.unit.IntPxSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntPxPosition,androidx.ui.graphics.Color> expectedColorProvider);
-    method public static void assertShape-nbwoFSQ(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, long shapeColor, long backgroundColor, androidx.ui.graphics.Shape backgroundShape = RectangleShape, float sizeX = width.toFloat().px, float sizeY = height.toFloat().px, float shapeSizeX = sizeX, float shapeSizeY = sizeY, float centerX = width.px / 2.0, float centerY = height.px / 2.0, float shapeOverlapPixelCount = 1.px);
+    method public static void assertShape-nbwoFSQ(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, long shapeColor, long backgroundColor, androidx.ui.graphics.Shape backgroundShape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, float sizeX = width.toFloat().px, float sizeY = height.toFloat().px, float shapeSizeX = sizeX, float shapeSizeY = sizeY, float centerX = width.px / 2.0, float centerY = height.px / 2.0, float shapeOverlapPixelCount = 1.px);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(android.view.View);
     method public static boolean contains(androidx.ui.graphics.Path, androidx.ui.geometry.Offset offset);
@@ -106,7 +106,7 @@ package androidx.ui.test {
   }
 
   public interface ComposeTestCase {
-    method public void emitContent();
+    method @androidx.compose.Composable public void emitContent();
   }
 
   public interface ComposeTestCaseSetup {
@@ -317,7 +317,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRuleKt {
-    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T> AndroidComposeTestRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T>! AndroidComposeTestRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false);
   }
 
   public final class ComposeIdlingResourceKt {

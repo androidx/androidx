@@ -115,7 +115,7 @@ package androidx.ui.test {
   }
 
   public interface ComposeTestCase {
-    method public void emitContent();
+    method @androidx.compose.Composable public void emitContent();
   }
 
   public interface ComposeTestCaseSetup {
@@ -367,7 +367,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRuleKt {
-    method public static inline <reified T> androidx.ui.test.android.AndroidComposeTestRule<T>! AndroidComposeTestRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T>! AndroidComposeTestRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false);
   }
 
   public final class ComposeIdlingResourceKt {

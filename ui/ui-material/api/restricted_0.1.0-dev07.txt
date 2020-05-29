@@ -7,23 +7,23 @@ package androidx.ui.material {
   }
 
   public final class AlertDialogKt {
-    method public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton = null, androidx.ui.material.AlertDialogButtonLayout buttonLayout = androidx.ui.material.AlertDialogButtonLayout.SideBySide);
-    method public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> buttons);
+    method @androidx.compose.Composable public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton = null, androidx.ui.material.AlertDialogButtonLayout buttonLayout = androidx.ui.material.AlertDialogButtonLayout.SideBySide);
+    method @androidx.compose.Composable public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> buttons);
   }
 
   public final class AppBarKt {
-    method public static void BottomAppBar(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.material.BottomAppBar.FabConfiguration? fabConfiguration = null, androidx.ui.graphics.Shape? cutoutShape = null, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
-    method public static void TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = null, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> actions = {}, androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.unit.Dp elevation = androidx.ui.material.AppBarKt.TopAppBarElevation);
-    method public static void TopAppBar(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.unit.Dp elevation = androidx.ui.material.AppBarKt.TopAppBarElevation, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void BottomAppBar(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.material.BottomAppBar.FabConfiguration? fabConfiguration = null, androidx.ui.graphics.Shape? cutoutShape = null, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = null, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> actions = {}, androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.unit.Dp elevation = androidx.ui.material.AppBarKt.TopAppBarElevation);
+    method @androidx.compose.Composable public static void TopAppBar(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.unit.Dp elevation = androidx.ui.material.AppBarKt.TopAppBarElevation, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
   }
 
   public final class BottomAppBar {
     field public static final androidx.ui.material.BottomAppBar! INSTANCE;
   }
 
-  public static final class BottomAppBar.FabConfiguration {
+  @androidx.compose.Immutable public static final class BottomAppBar.FabConfiguration {
     ctor public BottomAppBar.FabConfiguration(internal androidx.ui.unit.IntPxSize fabSize, internal androidx.ui.unit.PxPosition fabTopLeftPosition, internal androidx.ui.material.BottomAppBar.FabDockedPosition fabDockedPosition);
-    method public androidx.ui.material.BottomAppBar.FabConfiguration copy(androidx.ui.unit.IntPxSize fabSize, androidx.ui.unit.PxPosition fabTopLeftPosition, androidx.ui.material.BottomAppBar.FabDockedPosition fabDockedPosition);
+    method @androidx.compose.Immutable public androidx.ui.material.BottomAppBar.FabConfiguration copy(androidx.ui.unit.IntPxSize fabSize, androidx.ui.unit.PxPosition fabTopLeftPosition, androidx.ui.material.BottomAppBar.FabDockedPosition fabDockedPosition);
   }
 
   public enum BottomAppBar.FabDockedPosition {
@@ -32,8 +32,8 @@ package androidx.ui.material {
   }
 
   public final class BottomNavigationKt {
-    method public static void BottomNavigation(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.unit.Dp elevation = androidx.ui.material.BottomNavigationKt.BottomNavigationElevation, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
-    method public static void BottomNavigationItem(androidx.ui.layout.RowScope, kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> text = emptyContent(), boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.ui.core.Modifier modifier = Modifier.None, boolean alwaysShowLabels = true, androidx.ui.graphics.Color activeColor = contentColor(), androidx.ui.graphics.Color inactiveColor = MaterialTheme.emphasisLevels().medium.emphasize(activeColor));
+    method @androidx.compose.Composable public static void BottomNavigation(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.unit.Dp elevation = androidx.ui.material.BottomNavigationKt.BottomNavigationElevation, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void BottomNavigationItem(androidx.ui.layout.RowScope, kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> text = emptyContent(), boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.ui.core.Modifier modifier = Modifier.None, boolean alwaysShowLabels = true, androidx.ui.graphics.Color activeColor = contentColor(), androidx.ui.graphics.Color inactiveColor = MaterialTheme.emphasisLevels().medium.emphasize(activeColor));
   }
 
   public final class Button {
@@ -43,23 +43,24 @@ package androidx.ui.material {
   }
 
   public final class ButtonKt {
-    method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp elevation = 2.dp, androidx.ui.graphics.Shape shape = button, androidx.ui.foundation.Border? border = null, androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors().primary, androidx.ui.graphics.Color contentColor = contentColorFor(backgroundColor), androidx.ui.layout.EdgeInsets innerPadding = Button.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static inline void OutlinedButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp elevation = 0.dp, androidx.ui.graphics.Shape shape = button, androidx.ui.foundation.Border? border = Border(1.dp, MaterialTheme.colors().onSurface.copy(OutlinedStrokeOpacity)), androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = MaterialTheme.colors().primary, androidx.ui.layout.EdgeInsets innerPadding = Button.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static inline void TextButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp elevation = 0.dp, androidx.ui.graphics.Shape shape = button, androidx.ui.foundation.Border? border = null, androidx.ui.graphics.Color backgroundColor = Color.Transparent, androidx.ui.graphics.Color contentColor = MaterialTheme.colors().primary, androidx.ui.layout.EdgeInsets innerPadding = TextButton.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp elevation = 2.dp, androidx.ui.graphics.Shape shape = button, androidx.ui.foundation.Border? border = null, androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors().primary, androidx.ui.graphics.Color contentColor = contentColorFor(backgroundColor), androidx.ui.layout.EdgeInsets innerPadding = Button.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static inline void OutlinedButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp elevation = 0.dp, androidx.ui.graphics.Shape shape = button, androidx.ui.foundation.Border? border = Border(1.dp, MaterialTheme.colors().onSurface.copy(OutlinedStrokeOpacity)), androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = MaterialTheme.colors().primary, androidx.ui.layout.EdgeInsets innerPadding = Button.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static inline void TextButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp elevation = 0.dp, androidx.ui.graphics.Shape shape = button, androidx.ui.foundation.Border? border = null, androidx.ui.graphics.Color backgroundColor = Color.Transparent, androidx.ui.graphics.Color contentColor = MaterialTheme.colors().primary, androidx.ui.layout.EdgeInsets innerPadding = TextButton.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    field @kotlin.PublishedApi internal static final float OutlinedStrokeOpacity = 0.12f;
   }
 
   public final class CardKt {
-    method public static void Card(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = card, androidx.ui.graphics.Color color = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp elevation = 1.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Card(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = card, androidx.ui.graphics.Color color = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp elevation = 1.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class CheckboxKt {
-    method public static void Checkbox(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().secondary);
-    method public static void TriStateCheckbox(androidx.ui.foundation.selection.ToggleableState value, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().secondary);
+    method @androidx.compose.Composable public static void Checkbox(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().secondary);
+    method @androidx.compose.Composable public static void TriStateCheckbox(androidx.ui.foundation.selection.ToggleableState value, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().secondary);
   }
 
   public final class ColorKt {
     method public static androidx.ui.graphics.Color? contentColorFor(androidx.ui.material.ColorPalette, androidx.ui.graphics.Color color);
-    method public static androidx.ui.graphics.Color contentColorFor(androidx.ui.graphics.Color color);
+    method @androidx.compose.Composable public static androidx.ui.graphics.Color contentColorFor(androidx.ui.graphics.Color color);
     method public static androidx.ui.material.ColorPalette darkColorPalette(androidx.ui.graphics.Color primary = Color(4290479868), androidx.ui.graphics.Color primaryVariant = Color(4281794739), androidx.ui.graphics.Color secondary = Color(4278442694), androidx.ui.graphics.Color background = Color(4279374354), androidx.ui.graphics.Color surface = Color(4279374354), androidx.ui.graphics.Color error = Color(4291782265), androidx.ui.graphics.Color onPrimary = Color.Black, androidx.ui.graphics.Color onSecondary = Color.Black, androidx.ui.graphics.Color onBackground = Color.White, androidx.ui.graphics.Color onSurface = Color.White, androidx.ui.graphics.Color onError = Color.Black);
     method public static androidx.ui.material.ColorPalette lightColorPalette(androidx.ui.graphics.Color primary = Color(4284612846), androidx.ui.graphics.Color primaryVariant = Color(4281794739), androidx.ui.graphics.Color secondary = Color(4278442694), androidx.ui.graphics.Color secondaryVariant = Color(4278290310), androidx.ui.graphics.Color background = Color.White, androidx.ui.graphics.Color surface = Color.White, androidx.ui.graphics.Color error = Color(4289724448), androidx.ui.graphics.Color onPrimary = Color.White, androidx.ui.graphics.Color onSecondary = Color.Black, androidx.ui.graphics.Color onBackground = Color.Black, androidx.ui.graphics.Color onSurface = Color.Black, androidx.ui.graphics.Color onError = Color.White);
   }
@@ -95,15 +96,15 @@ package androidx.ui.material {
 
   public final class DataTableChildren {
     method public void dataRow(boolean selected = false, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onSelectedChange = null, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> children);
-    method public void dataRow(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.String> text, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.graphics.ImageAsset> icon = { null }, boolean selected = false, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onSelectedChange = null);
+    method public void dataRow(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.String> text, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.graphics.ImageAsset> icon = { return null }, boolean selected = false, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onSelectedChange = null);
     method public void headerRow(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onSelectAll = null, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> children);
-    method public void headerRow(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.String> text, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.graphics.ImageAsset> icon = { null }, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onSelectAll = null);
+    method public void headerRow(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.String> text, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.graphics.ImageAsset> icon = { return null }, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onSelectAll = null);
   }
 
   public final class DataTableKt {
-    method public static void DataTable(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> numeric = { false }, androidx.ui.unit.Dp dataRowHeight = androidx.ui.material.DataTableKt.DataRowHeight, androidx.ui.unit.Dp headerRowHeight = androidx.ui.material.DataTableKt.HeaderRowHeight, androidx.ui.layout.EdgeInsets cellSpacing = androidx.ui.material.DataTableKt.CellSpacing, androidx.ui.foundation.Border border = Border(BorderColor, BorderWidth), androidx.ui.graphics.Color selectedColor = MaterialTheme.colors().primary.copy(0.08), androidx.ui.material.DataTablePagination? pagination = null, androidx.ui.material.DataTableSorting? sorting = null, kotlin.jvm.functions.Function1<? super androidx.ui.material.DataTableChildren,kotlin.Unit> block);
-    method public static androidx.ui.material.DataTablePagination DefaultDataTablePagination(int initialPage = 0, int initialRowsPerPage, java.util.List<java.lang.Integer> availableRowsPerPage);
-    method public static androidx.ui.material.DataTableSorting DefaultDataTableSorting(Integer? initialColumn = null, boolean initialAscending = true, java.util.Set<java.lang.Integer> sortableColumns, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> onSortRequest);
+    method @androidx.compose.Composable public static void DataTable(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> numeric = { return false }, androidx.ui.unit.Dp dataRowHeight = androidx.ui.material.DataTableKt.DataRowHeight, androidx.ui.unit.Dp headerRowHeight = androidx.ui.material.DataTableKt.HeaderRowHeight, androidx.ui.layout.EdgeInsets cellSpacing = androidx.ui.material.DataTableKt.CellSpacing, androidx.ui.foundation.Border border = Border(BorderColor, BorderWidth), androidx.ui.graphics.Color selectedColor = MaterialTheme.colors().primary.copy(0.08), androidx.ui.material.DataTablePagination? pagination = null, androidx.ui.material.DataTableSorting? sorting = null, kotlin.jvm.functions.Function1<? super androidx.ui.material.DataTableChildren,kotlin.Unit> block);
+    method @androidx.compose.Composable public static androidx.ui.material.DataTablePagination DefaultDataTablePagination(int initialPage = 0, int initialRowsPerPage, java.util.List<java.lang.Integer> availableRowsPerPage);
+    method @androidx.compose.Composable public static androidx.ui.material.DataTableSorting DefaultDataTableSorting(Integer? initialColumn = null, boolean initialAscending = true, java.util.Set<java.lang.Integer> sortableColumns, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> onSortRequest);
   }
 
   public final class DataTablePagination {
@@ -135,13 +136,13 @@ package androidx.ui.material {
   }
 
   public final class DividerKt {
-    method public static void Divider(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().surface, androidx.ui.unit.Dp height = 1.dp, androidx.ui.unit.Dp indent = 0.dp);
+    method @androidx.compose.Composable public static void Divider(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().surface, androidx.ui.unit.Dp height = 1.dp, androidx.ui.unit.Dp indent = 0.dp);
   }
 
   public final class DrawerKt {
-    method public static void BottomDrawerLayout(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
-    method public static void ModalDrawerLayout(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
-    method public static void StaticDrawer(kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent);
+    method @androidx.compose.Composable public static void BottomDrawerLayout(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
+    method @androidx.compose.Composable public static void ModalDrawerLayout(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, boolean gesturesEnabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
+    method @androidx.compose.Composable public static void StaticDrawer(kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent);
   }
 
   public enum DrawerState {
@@ -149,12 +150,12 @@ package androidx.ui.material {
     enum_constant public static final androidx.ui.material.DrawerState Opened;
   }
 
-  public interface Emphasis {
+  @androidx.compose.Immutable public interface Emphasis {
     method public androidx.ui.graphics.Color emphasize(androidx.ui.graphics.Color color);
   }
 
   public final class EmphasisKt {
-    method public static void ProvideEmphasis(androidx.ui.material.Emphasis emphasis, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void ProvideEmphasis(androidx.ui.material.Emphasis emphasis, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.compose.Ambient<androidx.ui.material.EmphasisLevels> getEmphasisAmbient();
   }
 
@@ -168,49 +169,49 @@ package androidx.ui.material {
   }
 
   public final class FloatingActionButtonKt {
-    method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp minSize = androidx.ui.material.FloatingActionButtonKt.FabSize, androidx.ui.graphics.Shape shape = CircleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void FloatingActionButton(androidx.ui.graphics.ImageAsset icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = CircleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp);
-    method public static void FloatingActionButton(String text, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.ImageAsset? icon = null, androidx.ui.text.TextStyle? textStyle = null, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp);
+    method @androidx.compose.Composable public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp minSize = androidx.ui.material.FloatingActionButtonKt.FabSize, androidx.ui.graphics.Shape shape = androidx.ui.foundation.shape.corner.RoundedCornerShapeKt.CircleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void FloatingActionButton(androidx.ui.graphics.ImageAsset icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = androidx.ui.foundation.shape.corner.RoundedCornerShapeKt.CircleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp);
+    method @androidx.compose.Composable public static void FloatingActionButton(String text, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.ImageAsset? icon = null, androidx.ui.text.TextStyle? textStyle = null, androidx.ui.graphics.Color color = MaterialTheme.colors().primary, androidx.ui.unit.Dp elevation = 6.dp);
   }
 
   public final class IconButtonKt {
-    method public static void IconButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void IconToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void IconButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void IconToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ListItemKt {
-    method public static void ListItem(String text, androidx.ui.graphics.ImageAsset? icon = null, String? secondaryText = null, boolean singleLineSecondaryText = true, String? overlineText = null, String? metaText = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null);
-    method public static void ListItem(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit>? icon = null, kotlin.jvm.functions.Function0<kotlin.Unit>? secondaryText = null, boolean singleLineSecondaryText = true, kotlin.jvm.functions.Function0<kotlin.Unit>? overlineText = null, kotlin.jvm.functions.Function0<kotlin.Unit>? trailing = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null);
+    method @androidx.compose.Composable public static void ListItem(String text, androidx.ui.graphics.ImageAsset? icon = null, String? secondaryText = null, boolean singleLineSecondaryText = true, String? overlineText = null, String? metaText = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null);
+    method @androidx.compose.Composable public static void ListItem(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit>? icon = null, kotlin.jvm.functions.Function0<kotlin.Unit>? secondaryText = null, boolean singleLineSecondaryText = true, kotlin.jvm.functions.Function0<kotlin.Unit>? overlineText = null, kotlin.jvm.functions.Function0<kotlin.Unit>? trailing = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null);
   }
 
   public final class MaterialTheme {
-    method public androidx.ui.material.ColorPalette colors();
-    method public androidx.ui.material.EmphasisLevels emphasisLevels();
-    method public androidx.ui.material.Shapes shapes();
-    method public androidx.ui.material.Typography typography();
+    method @androidx.compose.Composable public androidx.ui.material.ColorPalette colors();
+    method @androidx.compose.Composable public androidx.ui.material.EmphasisLevels emphasisLevels();
+    method @androidx.compose.Composable public androidx.ui.material.Shapes shapes();
+    method @androidx.compose.Composable public androidx.ui.material.Typography typography();
     field public static final androidx.ui.material.MaterialTheme! INSTANCE;
   }
 
   public final class MaterialThemeKt {
-    method public static void MaterialTheme(androidx.ui.material.ColorPalette colors = lightColorPalette(), androidx.ui.material.Typography typography = androidx.ui.material.Typography(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void MaterialTheme(androidx.ui.material.ColorPalette colors = lightColorPalette(), androidx.ui.material.Typography typography = androidx.ui.material.Typography(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ProgressIndicatorKt {
-    method public static void CircularProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
-    method public static void CircularProgressIndicator(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
-    method public static void LinearProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
-    method public static void LinearProgressIndicator(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
+    method @androidx.compose.Composable public static void CircularProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
+    method @androidx.compose.Composable public static void CircularProgressIndicator(androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
+    method @androidx.compose.Composable public static void LinearProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
+    method @androidx.compose.Composable public static void LinearProgressIndicator(androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
   }
 
   public final class RadioButtonKt {
-    method public static void RadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit>? onSelect, androidx.ui.graphics.Color color = MaterialTheme.colors().secondary);
-    method public static void RadioGroup(kotlin.jvm.functions.Function1<? super androidx.ui.material.RadioGroupScope,kotlin.Unit> children);
-    method public static void RadioGroup(java.util.List<java.lang.String> options, String? selectedOption, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onSelectedChange, androidx.ui.graphics.Color radioColor = MaterialTheme.colors().secondary, androidx.ui.text.TextStyle? textStyle = null);
+    method @androidx.compose.Composable public static void RadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit>? onSelect, androidx.ui.graphics.Color color = MaterialTheme.colors().secondary);
+    method @androidx.compose.Composable public static void RadioGroup(kotlin.jvm.functions.Function1<? super androidx.ui.material.RadioGroupScope,kotlin.Unit> children);
+    method @androidx.compose.Composable public static void RadioGroup(java.util.List<java.lang.String> options, String? selectedOption, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onSelectedChange, androidx.ui.graphics.Color radioColor = MaterialTheme.colors().secondary, androidx.ui.text.TextStyle? textStyle = null);
   }
 
-  public final class RadioGroupScope {
-    method public void RadioGroupItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void RadioGroupTextItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, String text, androidx.ui.graphics.Color radioColor = MaterialTheme.colors().secondary, androidx.ui.text.TextStyle? textStyle = null);
+  @androidx.compose.Stable public final class RadioGroupScope {
+    method @androidx.compose.Composable public void RadioGroupItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public void RadioGroupTextItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, String text, androidx.ui.graphics.Color radioColor = MaterialTheme.colors().secondary, androidx.ui.text.TextStyle? textStyle = null);
   }
 
   public final class Scaffold {
@@ -225,12 +226,12 @@ package androidx.ui.material {
   }
 
   public final class ScaffoldKt {
-    method public static void Scaffold(androidx.ui.material.ScaffoldState scaffoldState = remember({ 
-    <init>()
+    method @androidx.compose.Composable public static void Scaffold(androidx.ui.material.ScaffoldState scaffoldState = remember({ 
+    return <init>()
 }), kotlin.jvm.functions.Function0<kotlin.Unit>? topAppBar = null, kotlin.jvm.functions.Function1<? super androidx.ui.material.BottomAppBar.FabConfiguration,kotlin.Unit>? bottomAppBar = null, kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton = null, androidx.ui.material.Scaffold.FabPosition floatingActionButtonPosition = androidx.ui.material.Scaffold.FabPosition.End, kotlin.jvm.functions.Function0<kotlin.Unit>? drawerContent = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier,kotlin.Unit> bodyContent);
   }
 
-  public final class ScaffoldState {
+  @androidx.compose.Model public final class ScaffoldState {
     ctor public ScaffoldState(androidx.ui.material.DrawerState drawerState, boolean isDrawerGesturesEnabled);
     ctor public ScaffoldState();
     method public androidx.ui.material.DrawerState getDrawerState();
@@ -253,8 +254,8 @@ package androidx.ui.material {
   }
 
   public final class SliderKt {
-    method public static void Slider(androidx.ui.material.SliderPosition position, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange = { position.value = it }, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> onValueChangeEnd = {}, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
-    method public static androidx.ui.material.SliderPosition SliderPosition(float initial = 0f, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange = 0.0 .. 1.0, @IntRange(from=0) int steps = 0);
+    method @androidx.compose.Composable public static void Slider(androidx.ui.material.SliderPosition position, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange = { position.value = it }, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> onValueChangeEnd = {}, androidx.ui.graphics.Color color = MaterialTheme.colors().primary);
+    method @androidx.compose.Composable public static androidx.ui.material.SliderPosition SliderPosition(float initial = 0f, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange = 0.0 .. 1.0, @IntRange(from=0) int steps = 0);
   }
 
   public final class SliderPosition {
@@ -266,30 +267,30 @@ package androidx.ui.material {
   }
 
   public final class SnackbarKt {
-    method public static void Snackbar(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit>? action = null, androidx.ui.core.Modifier modifier = Modifier.None, boolean actionOnNewLine = false);
+    method @androidx.compose.Composable public static void Snackbar(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit>? action = null, androidx.ui.core.Modifier modifier = Modifier.None, boolean actionOnNewLine = false);
     method public static androidx.ui.graphics.Color snackbarPrimaryColorFor(androidx.ui.material.ColorPalette colors);
   }
 
   public final class SurfaceKt {
-    method public static void Surface(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = RectangleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Surface(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = androidx.ui.foundation.shape.RectangleShapeKt.RectangleShape, androidx.ui.graphics.Color color = MaterialTheme.colors().surface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.graphics.Color getPrimarySurface(androidx.ui.material.ColorPalette);
   }
 
   public final class SwitchKt {
-    method public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.graphics.Color color = MaterialTheme.colors().secondaryVariant);
+    method @androidx.compose.Composable public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.graphics.Color color = MaterialTheme.colors().secondaryVariant);
   }
 
   public final class TabKt {
-    method public static void Tab(kotlin.jvm.functions.Function0<kotlin.Unit> text = emptyContent(), kotlin.jvm.functions.Function0<kotlin.Unit> icon = emptyContent(), boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.ui.graphics.Color activeColor = contentColor(), androidx.ui.graphics.Color inactiveColor = MaterialTheme.emphasisLevels().medium.emphasize(activeColor));
-    method public static void Tab(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static <T> void TabRow(java.util.List<? extends T> items, int selectedIndex, androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), boolean scrollable = false, kotlin.jvm.functions.Function1<? super java.util.List<androidx.ui.material.TabRow.TabPosition>,kotlin.Unit> indicatorContainer = { tabPositions -> TabRow.IndicatorContainer(tabPositions, selectedIndex, { 
+    method @androidx.compose.Composable public static void Tab(kotlin.jvm.functions.Function0<kotlin.Unit> text = emptyContent(), kotlin.jvm.functions.Function0<kotlin.Unit> icon = emptyContent(), boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.ui.graphics.Color activeColor = contentColor(), androidx.ui.graphics.Color inactiveColor = MaterialTheme.emphasisLevels().medium.emphasize(activeColor));
+    method @androidx.compose.Composable public static void Tab(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static <T> void TabRow(java.util.List<? extends T> items, int selectedIndex, androidx.ui.graphics.Color color = MaterialTheme.colors().primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), boolean scrollable = false, kotlin.jvm.functions.Function1<? super java.util.List<androidx.ui.material.TabRow.TabPosition>,kotlin.Unit> indicatorContainer = { tabPositions -> TabRow.IndicatorContainer(tabPositions, selectedIndex, { 
     TabRow.Indicator()
 }) }, kotlin.jvm.functions.Function0<kotlin.Unit> divider = { Divider(1.dp, contentColor().copy(DividerOpacity)) }, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> tab);
   }
 
   public final class TabRow {
-    method public void Indicator(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = contentColor());
-    method public void IndicatorContainer(java.util.List<androidx.ui.material.TabRow.TabPosition> tabPositions, int selectedIndex, kotlin.jvm.functions.Function0<kotlin.Unit> indicator);
+    method @androidx.compose.Composable public void Indicator(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = contentColor());
+    method @androidx.compose.Composable public void IndicatorContainer(java.util.List<androidx.ui.material.TabRow.TabPosition> tabPositions, int selectedIndex, kotlin.jvm.functions.Function0<kotlin.Unit> indicator);
     field public static final androidx.ui.material.TabRow! INSTANCE;
   }
 
@@ -374,7 +375,7 @@ package androidx.ui.material.ripple {
   }
 
   public final class RippleKt {
-    method public static void Ripple(boolean bounded, androidx.ui.unit.Dp? radius = null, androidx.ui.graphics.Color? color = null, boolean enabled = true, androidx.animation.AnimationClockObservable clock = AnimationClockAmbient.current, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Ripple(boolean bounded, androidx.ui.unit.Dp? radius = null, androidx.ui.graphics.Color? color = null, boolean enabled = true, androidx.animation.AnimationClockObservable clock = AnimationClockAmbient.current, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class RippleTheme {
