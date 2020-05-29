@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -34,7 +35,8 @@ import java.util.concurrent.CountDownLatch;
  * By default, this transition does no animation.
  */
 public class TrackingVisibility extends Visibility implements TargetTracking {
-    public final ArrayList<View> targets = new ArrayList<>();
+    private final ArrayList<View> mEnteringTargets = new ArrayList<>();
+    private final ArrayList<View> mExitingTargets = new ArrayList<>();
     private final Rect[] mEpicenter = new Rect[1];
     private boolean mRealTransition;
     public CountDownLatch endAnimatorCountDownLatch = new CountDownLatch(1);
@@ -46,7 +48,7 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
     @Override
     public Animator onAppear(ViewGroup sceneRoot, View view, TransitionValues startValues,
             TransitionValues endValues) {
-        targets.add(endValues.view);
+        mEnteringTargets.add(endValues.view);
         Rect epicenter = getEpicenter();
         if (epicenter != null) {
             mEpicenter[0] = new Rect(epicenter);
@@ -59,7 +61,7 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
     @Override
     public Animator onDisappear(ViewGroup sceneRoot, View view, TransitionValues startValues,
             TransitionValues endValues) {
-        targets.add(startValues.view);
+        mExitingTargets.add(startValues.view);
         Rect epicenter = getEpicenter();
         if (epicenter != null) {
             mEpicenter[0] = new Rect(epicenter);
@@ -94,13 +96,21 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
 
     @NonNull
     @Override
-    public ArrayList<View> getTrackedTargets() {
-        return targets;
+    public List<View> getEnteringTargets() {
+        return mEnteringTargets;
+    }
+
+    @NonNull
+    @Override
+    public List<View> getExitingTargets() {
+        return mExitingTargets;
     }
 
     @Override
     public void clearTargets() {
-        targets.clear();
+        mEnteringTargets.clear();
+        mExitingTargets.clear();
+        mEpicenter[0] = null;
     }
 
     @Override

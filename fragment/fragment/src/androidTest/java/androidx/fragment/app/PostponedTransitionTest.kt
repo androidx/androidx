@@ -28,6 +28,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import androidx.testutils.runOnUiThreadRethrow
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -706,8 +707,8 @@ class PostponedTransitionTest {
         fragment.waitForNoTransition()
         beginningFragment.waitForNoTransition()
 
-        assureNoTransition(fragment)
-        assureNoTransition(beginningFragment)
+        verifyNoOtherTransitions(fragment)
+        verifyNoOtherTransitions(beginningFragment)
 
         assertThat(fragment.isAdded).isFalse()
         assertThat(fragment.view).isNull()
@@ -949,7 +950,7 @@ class PostponedTransitionTest {
     ) {
         if (removedFragment != null) {
             assertThat(removedFragment.view).isNull()
-            assureNoTransition(removedFragment)
+            verifyNoOtherTransitions(removedFragment)
         }
 
         toFragment.waitForNoTransition()
@@ -960,59 +961,64 @@ class PostponedTransitionTest {
         assertThat(fromFragment.requireView().visibility).isEqualTo(View.VISIBLE)
         assertThat(toFragment.requireView().visibility).isEqualTo(View.VISIBLE)
         assertThat(toFragment.requireView().alpha).isWithin(0f).of(0f)
-        assureNoTransition(fromFragment)
-        assureNoTransition(toFragment)
+        verifyNoOtherTransitions(fromFragment)
+        verifyNoOtherTransitions(toFragment)
         assertThat(fromFragment.isResumed).isTrue()
         assertThat(toFragment.isResumed).isFalse()
     }
 
     private fun clearTargets(fragment: TransitionFragment) {
-        fragment.enterTransition.targets.clear()
-        fragment.reenterTransition.targets.clear()
-        fragment.exitTransition.targets.clear()
-        fragment.returnTransition.targets.clear()
-        fragment.sharedElementEnter.targets.clear()
-        fragment.sharedElementReturn.targets.clear()
-    }
-
-    private fun assureNoTransition(fragment: TransitionFragment) {
-        assertThat(fragment.enterTransition.targets.size).isEqualTo(0)
-        assertThat(fragment.reenterTransition.targets.size).isEqualTo(0)
-        assertThat(fragment.enterTransition.targets.size).isEqualTo(0)
-        assertThat(fragment.returnTransition.targets.size).isEqualTo(0)
-        assertThat(fragment.sharedElementEnter.targets.size).isEqualTo(0)
-        assertThat(fragment.sharedElementReturn.targets.size).isEqualTo(0)
+        fragment.enterTransition.clearTargets()
+        fragment.reenterTransition.clearTargets()
+        fragment.exitTransition.clearTargets()
+        fragment.returnTransition.clearTargets()
+        fragment.sharedElementEnter.clearTargets()
+        fragment.sharedElementReturn.clearTargets()
     }
 
     private fun assertForwardTransition(start: TransitionFragment, end: TransitionFragment) {
         start.waitForTransition()
         end.waitForTransition()
-        assertThat(start.enterTransition.targets.size).isEqualTo(0)
-        assertThat(end.enterTransition.targets.size).isEqualTo(1)
+        assertThat(start.enterTransition.exitingTargets).isEmpty()
+        assertThat(start.enterTransition.enteringTargets).isEmpty()
+        assertThat(end.enterTransition.exitingTargets).isEmpty()
+        assertThat(end.enterTransition.enteringTargets).hasSize(1)
 
-        assertThat(start.reenterTransition.targets.size).isEqualTo(0)
-        assertThat(end.reenterTransition.targets.size).isEqualTo(0)
+        assertThat(start.reenterTransition.exitingTargets).isEmpty()
+        assertThat(start.reenterTransition.enteringTargets).isEmpty()
+        assertThat(end.reenterTransition.exitingTargets).isEmpty()
+        assertThat(end.reenterTransition.enteringTargets).isEmpty()
 
-        assertThat(start.returnTransition.targets.size).isEqualTo(0)
-        assertThat(end.returnTransition.targets.size).isEqualTo(0)
+        assertThat(start.returnTransition.exitingTargets).isEmpty()
+        assertThat(start.returnTransition.enteringTargets).isEmpty()
+        assertThat(end.returnTransition.exitingTargets).isEmpty()
+        assertThat(end.returnTransition.enteringTargets).isEmpty()
 
-        assertThat(start.exitTransition.targets.size).isEqualTo(1)
-        assertThat(end.exitTransition.targets.size).isEqualTo(0)
+        assertThat(start.exitTransition.exitingTargets).hasSize(1)
+        assertThat(start.exitTransition.enteringTargets).isEmpty()
+        assertThat(end.exitTransition.exitingTargets).isEmpty()
+        assertThat(end.exitTransition.enteringTargets).isEmpty()
 
-        assertThat(start.sharedElementEnter.targets.size).isEqualTo(0)
-        assertThat(end.sharedElementEnter.targets.size).isEqualTo(2)
+        assertThat(start.sharedElementEnter.exitingTargets).isEmpty()
+        assertThat(start.sharedElementEnter.enteringTargets).isEmpty()
+        assertThat(end.sharedElementEnter.exitingTargets).hasSize(1)
+        assertThat(end.sharedElementEnter.enteringTargets).hasSize(1)
 
-        assertThat(start.sharedElementReturn.targets.size).isEqualTo(0)
-        assertThat(end.sharedElementReturn.targets.size).isEqualTo(0)
+        assertThat(start.sharedElementReturn.exitingTargets).isEmpty()
+        assertThat(start.sharedElementReturn.enteringTargets).isEmpty()
+        assertThat(end.sharedElementReturn.exitingTargets).isEmpty()
+        assertThat(end.sharedElementReturn.enteringTargets).isEmpty()
 
         // This checks need to be done on the mainThread to ensure that the shared element draw is
         // complete. If these checks are not on the mainThread, there is a chance that this gets
         // checked during OnShotPreDrawListener.onPreDraw, causing the name assert to fail.
         activityRule.runOnUiThread {
             val blue = end.requireView().findViewById<View>(R.id.blueSquare)
-            assertThat(end.sharedElementEnter.targets.contains(blue)).isTrue()
-            assertThat(end.sharedElementEnter.targets[0].transitionName).isEqualTo("blueSquare")
-            assertThat(end.sharedElementEnter.targets[1].transitionName).isEqualTo("blueSquare")
+            assertThat(end.sharedElementEnter.enteringTargets).containsExactly(blue)
+            assertThat(end.sharedElementEnter.exitingTargets[0].transitionName)
+                .isEqualTo("blueSquare")
+            assertThat(end.sharedElementEnter.enteringTargets[0].transitionName)
+                .isEqualTo("blueSquare")
         }
 
         assertNoTargets(start)
@@ -1025,32 +1031,46 @@ class PostponedTransitionTest {
     private fun assertBackTransition(start: TransitionFragment, end: TransitionFragment) {
         start.waitForTransition()
         end.waitForTransition()
-        assertThat(end.reenterTransition.targets.size).isEqualTo(1)
-        assertThat(start.reenterTransition.targets.size).isEqualTo(0)
+        assertThat(end.reenterTransition.exitingTargets).isEmpty()
+        assertThat(end.reenterTransition.enteringTargets).hasSize(1)
+        assertThat(start.reenterTransition.exitingTargets).isEmpty()
+        assertThat(start.reenterTransition.enteringTargets).isEmpty()
 
-        assertThat(end.returnTransition.targets.size).isEqualTo(0)
-        assertThat(start.returnTransition.targets.size).isEqualTo(1)
+        assertThat(end.returnTransition.exitingTargets).isEmpty()
+        assertThat(end.returnTransition.enteringTargets).isEmpty()
+        assertThat(start.returnTransition.exitingTargets).hasSize(1)
+        assertThat(start.returnTransition.enteringTargets).isEmpty()
 
-        assertThat(start.enterTransition.targets.size).isEqualTo(0)
-        assertThat(end.enterTransition.targets.size).isEqualTo(0)
+        assertThat(start.enterTransition.exitingTargets).isEmpty()
+        assertThat(start.enterTransition.enteringTargets).isEmpty()
+        assertThat(end.enterTransition.exitingTargets).isEmpty()
+        assertThat(end.enterTransition.enteringTargets).isEmpty()
 
-        assertThat(start.exitTransition.targets.size).isEqualTo(0)
-        assertThat(end.exitTransition.targets.size).isEqualTo(0)
+        assertThat(start.exitTransition.exitingTargets).isEmpty()
+        assertThat(start.exitTransition.enteringTargets).isEmpty()
+        assertThat(end.exitTransition.exitingTargets).isEmpty()
+        assertThat(end.exitTransition.enteringTargets).isEmpty()
 
-        assertThat(start.sharedElementEnter.targets.size).isEqualTo(0)
-        assertThat(end.sharedElementEnter.targets.size).isEqualTo(0)
+        assertThat(start.sharedElementEnter.exitingTargets).isEmpty()
+        assertThat(start.sharedElementEnter.enteringTargets).isEmpty()
+        assertThat(end.sharedElementEnter.exitingTargets).isEmpty()
+        assertThat(end.sharedElementEnter.enteringTargets).isEmpty()
 
-        assertThat(start.sharedElementReturn.targets.size).isEqualTo(2)
-        assertThat(end.sharedElementReturn.targets.size).isEqualTo(0)
+        assertThat(start.sharedElementReturn.exitingTargets).hasSize(1)
+        assertThat(start.sharedElementReturn.enteringTargets).hasSize(1)
+        assertThat(end.sharedElementReturn.exitingTargets).isEmpty()
+        assertThat(end.sharedElementReturn.enteringTargets).isEmpty()
 
         // This checks need to be done on the mainThread to ensure that the shared element draw is
         // complete. If these checks are not on the mainThread, there is a chance that this gets
         // checked during OnShotPreDrawListener.onPreDraw, causing the name assert to fail.
-        activityRule.runOnUiThread {
+        activityRule.runOnUiThreadRethrow {
             val blue = end.requireView().findViewById<View>(R.id.blueSquare)
-            assertThat(start.sharedElementReturn.targets.contains(blue)).isTrue()
-            assertThat(start.sharedElementReturn.targets[0].transitionName).isEqualTo("blueSquare")
-            assertThat(start.sharedElementReturn.targets[1].transitionName).isEqualTo("blueSquare")
+            assertThat(start.sharedElementReturn.enteringTargets).containsExactly(blue)
+            assertThat(start.sharedElementReturn.exitingTargets[0].transitionName)
+                .isEqualTo("blueSquare")
+            assertThat(start.sharedElementReturn.enteringTargets[0].transitionName)
+                .isEqualTo("blueSquare")
         }
 
         assertNoTargets(end)
@@ -1061,12 +1081,12 @@ class PostponedTransitionTest {
     }
 
     private fun assertNoTargets(fragment: TransitionFragment) {
-        assertThat(fragment.enterTransition.getTargets().isEmpty()).isTrue()
-        assertThat(fragment.reenterTransition.getTargets().isEmpty()).isTrue()
-        assertThat(fragment.exitTransition.getTargets().isEmpty()).isTrue()
-        assertThat(fragment.returnTransition.getTargets().isEmpty()).isTrue()
-        assertThat(fragment.sharedElementEnter.getTargets().isEmpty()).isTrue()
-        assertThat(fragment.sharedElementReturn.getTargets().isEmpty()).isTrue()
+        assertThat(fragment.enterTransition.targets.isEmpty()).isTrue()
+        assertThat(fragment.reenterTransition.targets.isEmpty()).isTrue()
+        assertThat(fragment.exitTransition.targets.isEmpty()).isTrue()
+        assertThat(fragment.returnTransition.targets.isEmpty()).isTrue()
+        assertThat(fragment.sharedElementEnter.targets.isEmpty()).isTrue()
+        assertThat(fragment.sharedElementReturn.targets.isEmpty()).isTrue()
     }
 
     open class PostponedFragment1 : TransitionFragment(R.layout.scene1) {

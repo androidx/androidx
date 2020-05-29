@@ -75,7 +75,9 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
             val blue = withActivity { findViewById<View>(R.id.blueSquare) }
             val green = withActivity { findViewById<View>(R.id.greenSquare) }
 
-            verifyAndClearTransition(fragment.enterTransition, null, blue, green)
+            fragment.enterTransition.verifyAndClearTransition {
+                enteringViews += listOf(blue, green)
+            }
             verifyNoOtherTransitions(fragment)
 
             val changeBoundsExitTransition = ChangeBounds().apply {
@@ -126,7 +128,9 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
             val blue = withActivity { findViewById<View>(R.id.blueSquare) }
             val green = withActivity { findViewById<View>(R.id.greenSquare) }
 
-            verifyAndClearTransition(fragment.enterTransition, null, blue, green)
+            fragment.enterTransition.verifyAndClearTransition {
+                enteringViews += listOf(blue, green)
+            }
             verifyNoOtherTransitions(fragment)
 
             val changeBoundsExitTransition = ChangeBounds().apply {
@@ -177,7 +181,9 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
             val blue = withActivity { findViewById<View>(R.id.blueSquare) }
             val green = withActivity { findViewById<View>(R.id.greenSquare) }
 
-            verifyAndClearTransition(fragment.enterTransition, null, blue, green)
+            fragment.enterTransition.verifyAndClearTransition {
+                enteringViews += listOf(blue, green)
+            }
             verifyNoOtherTransitions(fragment)
 
             val changeBoundsExitTransition = ChangeBounds().apply {
@@ -227,7 +233,9 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
             val blue = withActivity { findViewById<View>(R.id.blueSquare) }
             val green = withActivity { findViewById<View>(R.id.greenSquare) }
 
-            verifyAndClearTransition(fragment.enterTransition, null, blue, green)
+            fragment.enterTransition.verifyAndClearTransition {
+                enteringViews += listOf(blue, green)
+            }
             verifyNoOtherTransitions(fragment)
 
             val changeBoundsExitTransition = ChangeBounds().apply {
