@@ -2270,8 +2270,8 @@ public final class MediaRouter {
                     }
                 };
                 if (USE_FWK_MR2_PROTOCOL) {
-                    mMr2Provider =
-                            new MediaRoute2Provider(mApplicationContext, mMediaRouter2Fwk);
+                    mMr2Provider = new MediaRoute2Provider(
+                            mApplicationContext, new Mr2ProviderCallback());
                 } else {
                     mMr2Provider = null;
                 }
@@ -2462,6 +2462,13 @@ public final class MediaRouter {
             }
             if (!route.mEnabled) {
                 Log.w(TAG, "Ignoring attempt to select disabled route: " + route);
+                return;
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && USE_FWK_MR2_PROTOCOL
+                    && route.getProviderInstance() == mMr2Provider && mSelectedRoute != route) {
+                // Asynchronously select the route
+                mMr2Provider.transferTo(route.getDescriptorId());
                 return;
             }
             setSelectedRouteInternal(route, unselectReason, /* preCreatedController= */ null);
@@ -3270,6 +3277,61 @@ public final class MediaRouter {
                 RouteInfo fallbackRoute = chooseFallbackRoute();
                 if (getSelectedRoute() != fallbackRoute) {
                     selectRoute(fallbackRoute, reason);
+                }
+                // Does nothing when the selected route is same with fallback route.
+                // This is the difference between this and unselect().
+            }
+        }
+
+        private final class Mr2ProviderCallback extends MediaRoute2Provider.Callback {
+            @Override
+            public void onSelectRoute(@NonNull String routeDescriptorId, int reason) {
+                MediaRouter.RouteInfo routeToSelect = null;
+                for (MediaRouter.RouteInfo routeInfo : getRoutes()) {
+                    if (routeInfo.getProviderInstance() != mMr2Provider) {
+                        continue;
+                    }
+                    if (TextUtils.equals(routeDescriptorId, routeInfo.getDescriptorId())) {
+                        routeToSelect = routeInfo;
+                        break;
+                    }
+                }
+
+                if (routeToSelect == null) {
+                    Log.w(TAG, "onSelectRoute: The target RouteInfo is not found for descriptorId="
+                            + routeDescriptorId);
+                    return;
+                }
+
+                setSelectedRouteInternal(routeToSelect, reason, null);
+            }
+
+            @Override
+            public void onSelectFallbackRoute(int reason) {
+                setSelectedRouteToFallbackRoute(reason);
+            }
+
+            @Override
+            public void onReleaseController(@Nullable RouteController controller) {
+                if (controller == null) {
+                    return;
+                }
+
+                if (controller == mSelectedRouteController) {
+                    // Stop casting
+                    setSelectedRouteToFallbackRoute(UNSELECT_REASON_STOPPED);
+                } else if (DEBUG) {
+                    // 'Cast -> Phone' / 'Cast -> Cast(old)' cases triggered by selectRoute().
+                    // Nothing to do.
+                    Log.d(TAG, "A RouteController unrelated to the selected route is released."
+                            + " controller=" + controller);
+                }
+            }
+
+            void setSelectedRouteToFallbackRoute(@UnselectReason int reason) {
+                RouteInfo fallbackRoute = chooseFallbackRoute();
+                if (getSelectedRoute() != fallbackRoute) {
+                    setSelectedRouteInternal(fallbackRoute, reason, null);
                 }
                 // Does nothing when the selected route is same with fallback route.
                 // This is the difference between this and unselect().

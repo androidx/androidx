@@ -72,7 +72,6 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
     final SparseArray<String> mSessionIdMap = new SparseArray<>();
     //TODO: Remove these when xMR is finished
     final Map<String, Messenger> mMessengers = new ArrayMap<>();
-    private static final String KEY_MESSENGER_BINDER = "binder";
 
     private volatile MediaRouteProviderDescriptor mProviderDescriptor;
     // Use a large enough initial value so that it can't be the same as the controller ID in
@@ -167,7 +166,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         mMessengers.put(sessionId, messenger);
 
         Bundle controlHints = new Bundle();
-        controlHints.putBinder(KEY_MESSENGER_BINDER, messenger.getBinder());
+        controlHints.putParcelable(MediaRouter2Utils.KEY_MESSENGER, messenger);
         builder.setControlHints(controlHints).build();
 
         // Dynamic grouping info will be notified by the provider.
@@ -570,7 +569,6 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         }
     }
 
-    //TODO: Remove this and use the existing messenger
     static class IncomingHandler extends Handler {
         private final MediaRoute2ProviderServiceAdapter mServiceAdapter;
         private final String mSessionId;
