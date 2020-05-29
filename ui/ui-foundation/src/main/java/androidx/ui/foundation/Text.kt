@@ -33,6 +33,7 @@ import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
+import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextOverflow
@@ -64,6 +65,7 @@ import androidx.ui.unit.TextUnit
  * @param fontSize The size of glyphs to use when painting the text. See [TextStyle.fontSize].
  * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
  * See [TextStyle.fontStyle].
+ * @param fontWeight The typeface thickness to use when painting the text (e.g., [FontWeight.Bold]).
  * @param fontFamily The font family to be used when rendering the text. See [TextStyle.fontFamily].
  * @param letterSpacing The amount of space to add between each letter.
  * See [TextStyle.letterSpacing].
@@ -92,6 +94,7 @@ fun Text(
     color: Color = Color.Unset,
     fontSize: TextUnit = TextUnit.Inherit,
     fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = null,
     fontFamily: FontFamily? = null,
     letterSpacing: TextUnit = TextUnit.Inherit,
     textDecoration: TextDecoration? = null,
@@ -110,6 +113,7 @@ fun Text(
         color,
         fontSize,
         fontStyle,
+        fontWeight,
         fontFamily,
         letterSpacing,
         textDecoration,
@@ -150,6 +154,7 @@ fun Text(
  * @param fontSize The size of glyphs to use when painting the text. See [TextStyle.fontSize].
  * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
  * See [TextStyle.fontStyle].
+ * @param fontWeight The typeface thickness to use when painting the text (e.g., [FontWeight.Bold]).
  * @param fontFamily The font family to be used when rendering the text. See [TextStyle.fontFamily].
  * @param letterSpacing The amount of space to add between each letter.
  * See [TextStyle.letterSpacing].
@@ -178,6 +183,7 @@ fun Text(
     color: Color = Color.Unset,
     fontSize: TextUnit = TextUnit.Inherit,
     fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = null,
     fontFamily: FontFamily? = null,
     letterSpacing: TextUnit = TextUnit.Inherit,
     textDecoration: TextDecoration? = null,
@@ -195,6 +201,7 @@ fun Text(
         TextStyle(
             color = textColor,
             fontSize = fontSize,
+            fontWeight = fontWeight,
             textAlign = textAlign,
             lineHeight = lineHeight,
             fontFamily = fontFamily,
