@@ -26,6 +26,7 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
 import javax.annotation.processing.Processor
 import com.google.auto.service.AutoService
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 
 @AutoService(Processor::class)
 // TODO(obenabde): Make this Gradle incremental
@@ -40,6 +41,7 @@ class ContentAccessProcessor : BasicAnnotationProcessor() {
     }
 
     class ContentAccessProcessStep(val processingEnv: ProcessingEnvironment) : ProcessingStep {
+        @KotlinPoetMetadataPreview
         override fun process(elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>?):
                 Set<Element> {
 

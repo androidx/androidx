@@ -24,20 +24,41 @@ import androidx.contentaccess.ext.getAllMethodsIncludingSupers
 import androidx.contentaccess.ext.hasAnnotation
 import javax.annotation.processing.ProcessingEnvironment
 import androidx.contentaccess.ext.toAnnotationBox
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
+import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
+import javax.tools.Diagnostic
 
 class ContentAccessObjectProcessor(
     val element: TypeElement,
     private val processingEnv:
             ProcessingEnvironment
 ) {
+    private val messager = processingEnv.messager
+
+    @KotlinPoetMetadataPreview
     fun process() {
-        // TODO(obenabde): Verify this is indeed an interface
-        // TODO(obenabde): Ensure only one ContentAccessObject annotation exists on the object
+        // TODO(obenabde): create helper functions for errors.
+        // TODO(obenabde): See if you can do more stuff before returning after some of the errors
+        // here.
+        // TODO(obenabde): Examine error propagation through passing some context/error reporter
+        // validation type of structure.
+        if (element.kind != ElementKind.INTERFACE) {
+            messager.printMessage(Diagnostic.Kind.ERROR, "Only interfaces should be annotated" +
+                    " with @ContentAccessObject, ${element.qualifiedName} is not interface.",
+                element)
+            return
+        }
         val entity = ContentEntityProcessor(element.toAnnotationBox
             (ContentAccessObject::class)!!.getAsTypeMirror("contentEntity")!!,
             processingEnv).processEntity()
-        // TODO(obenabde): ensure there are some methods!
+        if (element.getAllMethodsIncludingSupers().isEmpty()) {
+            messager.printMessage(Diagnostic.Kind.ERROR, "Interface ${element.qualifiedName} " +
+                    "annotated with @ContentAccessObject doesn't delcare any methods. Interfaces " +
+                    "annotated with @ContentAccessObject should declare at least one method.",
+                element)
+            return
+        }
         val queryMethods = element.getAllMethodsIncludingSupers()
             .filter { it.hasAnnotation(ContentQuery::class) }
             .map {
@@ -45,8 +66,11 @@ class ContentAccessObjectProcessor(
                     (ContentQuery::class
                     .java), processingEnv).process()
             }
+        // Return if there was an error.
+        queryMethods.forEach { if (it.second) return }
         ContentAccessObjectWriter(ContentAccessObjectVO(entity, element
             .qualifiedName.toString(), processingEnv.elementUtils.getPackageOf
-            (element).toString(), element.asType(), queryMethods), processingEnv).generateFile()
+            (element).toString(), element.asType(), queryMethods.map { it.first!! }), processingEnv)
+            .generateFile()
     }
 }

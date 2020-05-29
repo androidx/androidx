@@ -29,12 +29,12 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeMirror
 
 class ContentEntityProcessor(
-    val contentAccessObjectAnnotation: TypeMirror,
+    val contentEntityAnnotation: TypeMirror,
     val processingEnv: ProcessingEnvironment
 ) {
 
     fun processEntity(): ContentEntityVO {
-        val entity = contentAccessObjectAnnotation.asTypeElement()
+        val entity = contentEntityAnnotation.asTypeElement()
         // TODO(obenabde): ensure the above exists.
         // TODO(obenabde): change this to only consider the constructor params
         val columns = entity.getAllFieldsIncludingPrivateSupers(processingEnv)

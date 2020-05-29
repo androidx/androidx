@@ -14,35 +14,90 @@
  * limitations under the License.
  */
 import com.google.auto.common.MoreTypes
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.asTypeName
 import java.lang.RuntimeException
-import java.util.Optional
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.ElementFilter
 
 fun TypeMirror.asTypeElement(): TypeElement = MoreTypes.asTypeElement(this)
 
-fun TypeMirror.isSupportedWrapper(): Boolean {
-    for (supportedType in SUPPORTED_RETURN_WRAPPERS) {
-        if (MoreTypes.isTypeOf(supportedType, this)) {
-            return true
-        }
+fun TypeMirror.isList(): Boolean {
+    return MoreTypes.isTypeOf(java.util.List::class.java, this)
+}
+
+fun TypeMirror.isSet(): Boolean {
+    // Is of type kotlin.collections.Set?
+    return MoreTypes.isTypeOf(Set::class.java, this)
+}
+
+fun TypeMirror.isSupportedCollection(): Boolean {
+    return isList() || isSet()
+}
+
+fun TypeMirror.isOptional(): Boolean {
+    return MoreTypes.isTypeOf(java.util.Optional::class.java, this)
+}
+
+fun TypeMirror.isFlowable(): Boolean {
+    return this.asTypeName() == ClassName("io.reactivex", "Flowable")
+}
+
+fun TypeMirror.isSupportedGenericType(): Boolean {
+    return isSupportedCollection() || isOptional() || isFlowable()
+}
+
+fun TypeMirror.extractFirstTypeParameter():
+        TypeMirror {
+    val asDeclared = MoreTypes.asDeclared(this)
+    return asDeclared.typeArguments.first()
+}
+
+fun TypeMirror.extractIntendedReturnType(): TypeMirror {
+    val firstWrappedType = extractFirstTypeParameter()
+    if (isFlowable() && (firstWrappedType.isSupportedCollection() ||
+                firstWrappedType.isOptional())) {
+        return firstWrappedType.extractFirstTypeParameter()
     }
-    return false
+    return firstWrappedType
+}
+
+fun TypeMirror.toKotlinClassName(): ClassName {
+    if (isInt()) {
+        return ClassName("kotlin", "Int")
+    } else if (isLong()) {
+        return ClassName("kotlin", "Long")
+    } else if (isDouble()) {
+        return ClassName("kotlin", "Double")
+    } else if (isShort()) {
+        return ClassName("kotlin", "Short")
+    } else if (isFloat()) {
+        return ClassName("kotlin", "Short")
+    }
+    return ClassName.bestGuess(this.toString())
+}
+
+fun TypeMirror.boxIfPrimitive(processingEnv: ProcessingEnvironment): TypeMirror {
+    val types = processingEnv.typeUtils
+    if (isInt()) {
+        return types.boxedClass(types.getPrimitiveType(TypeKind.INT)).asType()
+    } else if (isLong()) {
+        return types.boxedClass(types.getPrimitiveType(TypeKind.LONG)).asType()
+    } else if (isDouble()) {
+        return types.boxedClass(types.getPrimitiveType(TypeKind.DOUBLE)).asType()
+    } else if (isShort()) {
+        return types.boxedClass(types.getPrimitiveType(TypeKind.SHORT)).asType()
+    } else if (isFloat()) {
+        return types.boxedClass(types.getPrimitiveType(TypeKind.FLOAT)).asType()
+    }
+    return this
 }
 
 fun TypeMirror.isVoidObject() =
     MoreTypes.isType(this) && MoreTypes.isTypeOf(Void::class.java, this)
-
-// TODO(obenabde): this assumes we already know the type is among the supported types, make
-// nullable eventually and let the caller decide whether it could be nullable
-fun TypeMirror.extractSingleTypeArgument(processingEnv: ProcessingEnvironment):
-        TypeMirror {
-    return processingEnv.elementUtils.getTypeElement(this.toString()
-        .substringAfter("<").substringBeforeLast(">")).asType()
-}
 
 fun TypeMirror.isPrimitiveInt() = kind == TypeKind.INT
 
@@ -70,7 +125,7 @@ fun TypeMirror.isPrimitiveShort() = kind == TypeKind.SHORT
 fun TypeMirror.isBoxedShort() =
     MoreTypes.isType(this) && MoreTypes.isTypeOf(java.lang.Short::class.java, this)
 
-fun TypeMirror.isShort() = isPrimitiveFloat() || isBoxedShort()
+fun TypeMirror.isShort() = isPrimitiveShort() || isBoxedShort()
 
 fun TypeMirror.isPrimitiveDouble() = kind == TypeKind.DOUBLE
 
@@ -90,15 +145,8 @@ fun TypeMirror.isBoxedBlob() = MoreTypes.isType(this) && MoreTypes.isTypeOf(Arra
 
 fun TypeMirror.isBlob() = isPrimitiveBlob() || isBoxedBlob()
 
-fun TypeMirror.isPrimitiveBoolean() = kind == TypeKind.BOOLEAN
-
-fun TypeMirror.isBoxedBoolean() =
-    MoreTypes.isType(this) && MoreTypes.isTypeOf(java.lang.Boolean::class.java, this)
-
-fun TypeMirror.isBoolean() = isPrimitiveBoolean() || isBoxedBoolean()
-
 fun TypeMirror.isSupportedColumnType() = isBlob() || isInt() || isString() || isFloat() ||
-        isDouble() || isShort() || isLong() || isBoolean()
+        isDouble() || isShort() || isLong()
 
 fun TypeMirror.getCursorMethod(): String {
     if (isShort()) {
@@ -115,28 +163,19 @@ fun TypeMirror.getCursorMethod(): String {
         return "getBlob"
     } else if (isDouble()) {
         return "getDouble"
-    } else if (isBoolean()) {
-        return "getBoolean"
     }
     // This should honestly only ever be called after checking isSupportedColumnType() but you
     // never know.
     throw RuntimeException("No cursor method for the given return type.")
 }
 
-fun TypeMirror.getOrderedConstructorParams(): List<String> {
-    val constructors = this.asTypeElement().enclosedElements.filter { e ->
-        e.kind == ElementKind.CONSTRUCTOR
-    }
+fun TypeMirror.getOrderedConstructorParams(): List<Pair<String, TypeMirror>> {
+    val constructors = ElementFilter.constructorsIn(this.asTypeElement().enclosedElements)
     if (constructors.size > 1) {
         // TODO(obenabde): error, should have only one constructor otherwise it becomes
         //  ambiguous
     }
-    return constructors.first().enclosedElements.filter { e -> e.kind == ElementKind.PARAMETER }
-        .map { e -> e.simpleName.toString() }
+    return constructors.first().parameters.map({ it.simpleName.toString() to it.asType() })
 }
 
-internal val SUPPORTED_RETURN_WRAPPERS = listOf(
-    List::class.java,
-    Set::class.java,
-    Optional::class.java
-)
+internal val FLOWABLE_TYPE = "io.reactivex.Flowable"
