@@ -119,7 +119,8 @@ package androidx.ui.graphics {
     enum_constant public static final androidx.ui.graphics.ClipOp intersect;
   }
 
-  public final class Color {
+  @androidx.compose.Immutable public final class Color {
+    ctor @kotlin.PublishedApi internal Color(long value, boolean unused);
     method public androidx.ui.graphics.Color convert(androidx.ui.graphics.colorspace.ColorSpace colorSpace);
     method public androidx.ui.graphics.Color copy(float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
     method public float getAlpha();
@@ -317,10 +318,6 @@ package androidx.ui.graphics {
     property public final androidx.ui.graphics.PaintingStyle style;
   }
 
-  public final class PaintKt {
-    field public static final float DefaultAlpha = 1.0f;
-  }
-
   public enum PaintingStyle {
     enum_constant public static final androidx.ui.graphics.PaintingStyle fill;
     enum_constant public static final androidx.ui.graphics.PaintingStyle stroke;
@@ -450,22 +447,16 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.Shader RadialGradientShader(androidx.ui.geometry.Offset center, float radius, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
   }
 
-  public final class Shadow {
+  @androidx.compose.Immutable public final class Shadow {
     ctor public Shadow(androidx.ui.graphics.Color color, androidx.ui.geometry.Offset offset, androidx.ui.unit.Px blurRadius);
     ctor public Shadow();
     method public androidx.ui.graphics.Color component1();
     method public androidx.ui.geometry.Offset component2();
     method public androidx.ui.unit.Px component3();
-    method public androidx.ui.graphics.Shadow copy(androidx.ui.graphics.Color color, androidx.ui.geometry.Offset offset, androidx.ui.unit.Px blurRadius);
+    method @androidx.compose.Immutable public androidx.ui.graphics.Shadow copy(androidx.ui.graphics.Color color, androidx.ui.geometry.Offset offset, androidx.ui.unit.Px blurRadius);
     method public androidx.ui.unit.Px getBlurRadius();
     method public androidx.ui.graphics.Color getColor();
     method public androidx.ui.geometry.Offset getOffset();
-    field public static final androidx.ui.graphics.Shadow.Companion! Companion;
-  }
-
-  public static final class Shadow.Companion {
-    method public androidx.ui.graphics.Shadow getNone();
-    property public final androidx.ui.graphics.Shadow None;
   }
 
   public final class ShadowKt {
@@ -479,8 +470,6 @@ package androidx.ui.graphics {
   public final class SolidColor implements androidx.ui.graphics.Brush {
     ctor public SolidColor(androidx.ui.graphics.Color value);
     method public void applyTo(androidx.ui.graphics.Paint p);
-    method public androidx.ui.graphics.Color component1();
-    method public androidx.ui.graphics.SolidColor copy(androidx.ui.graphics.Color value);
     method public androidx.ui.graphics.Color getValue();
   }
 
@@ -704,42 +693,6 @@ package androidx.ui.graphics.colorspace {
     method public androidx.ui.graphics.colorspace.WhitePoint copy(float x, float y);
     method public float getX();
     method public float getY();
-  }
-
-}
-
-package androidx.ui.graphics.painter {
-
-  public final class ColorPainter extends androidx.ui.graphics.painter.Painter {
-    ctor public ColorPainter(androidx.ui.graphics.Color color);
-    method public androidx.ui.graphics.Color component1();
-    method public androidx.ui.graphics.painter.ColorPainter copy(androidx.ui.graphics.Color color);
-    method public androidx.ui.graphics.Color getColor();
-    method public androidx.ui.unit.PxSize getIntrinsicSize();
-    method protected void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
-    property public androidx.ui.unit.PxSize intrinsicSize;
-  }
-
-  public final class ImagePainter extends androidx.ui.graphics.painter.Painter {
-    ctor public ImagePainter(androidx.ui.graphics.Image image);
-    method public androidx.ui.graphics.painter.ImagePainter copy(androidx.ui.graphics.Image image);
-    method public androidx.ui.unit.PxSize getIntrinsicSize();
-    method protected void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
-    property public androidx.ui.unit.PxSize intrinsicSize;
-  }
-
-  public final class ImagePainterKt {
-  }
-
-  public abstract class Painter {
-    ctor public Painter();
-    method protected boolean applyAlpha(float alpha);
-    method protected boolean applyColorFilter(androidx.ui.graphics.ColorFilter? colorFilter);
-    method protected boolean applyRtl(boolean rtl);
-    method public final void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
-    method public abstract androidx.ui.unit.PxSize getIntrinsicSize();
-    method protected abstract void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
-    property public abstract androidx.ui.unit.PxSize intrinsicSize;
   }
 
 }

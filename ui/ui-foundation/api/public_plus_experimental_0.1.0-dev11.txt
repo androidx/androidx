@@ -2,13 +2,13 @@
 package androidx.ui.foundation {
 
   public final class AdapterListKt {
-    method public static <T> void AdapterList(java.util.List<? extends T> data, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> itemCallback);
+    method @androidx.compose.Composable public static <T> void AdapterList(java.util.List<? extends T> data, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> itemCallback);
   }
 
-  public final class Border {
+  @androidx.compose.Immutable public final class Border {
     method public float component1();
     method public androidx.ui.graphics.Brush component2();
-    method public androidx.ui.foundation.Border copy-HIF-_f0(float size, androidx.ui.graphics.Brush brush);
+    method @androidx.compose.Immutable public androidx.ui.foundation.Border copy-HIF-_f0(float size, androidx.ui.graphics.Brush brush);
     method public androidx.ui.graphics.Brush getBrush();
     method public float getSize();
   }
@@ -18,39 +18,39 @@ package androidx.ui.foundation {
   }
 
   public final class BoxKt {
-    method public static void Box-TInkGdk(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, long backgroundColor = Color.Transparent, androidx.ui.foundation.Border? border = null, float padding = elvis {
+    method @androidx.compose.Composable public static void Box-TInkGdk(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.graphics.Shape shape = RectangleShape, long backgroundColor = Color.Transparent, androidx.ui.foundation.Border? border = null, float padding = elvis {
     var var411925d7: androidx.ui.unit.Dp = border?.size
     if (var411925d7 != null) var411925d7 else 0.dp
-}, float paddingStart = Dp.Unspecified, float paddingTop = Dp.Unspecified, float paddingEnd = Dp.Unspecified, float paddingBottom = Dp.Unspecified, androidx.ui.core.Alignment gravity = ContentGravity.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children = emptyContent());
+}, float paddingStart = Dp.Unspecified, float paddingTop = Dp.Unspecified, float paddingEnd = Dp.Unspecified, float paddingBottom = Dp.Unspecified, androidx.ui.core.Alignment gravity = ContentGravity.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children = <anonymous class>());
   }
 
   public final class CanvasKt {
-    method public static void Canvas(androidx.ui.core.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.DrawScope,kotlin.Unit> onCanvas);
+    method @androidx.compose.Composable public static error.NonExistentClass! Canvas(androidx.ui.core.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.DrawScope,kotlin.Unit> onCanvas);
   }
 
   public final class ClickableKt {
-    method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, String? onClickLabel = null, androidx.ui.foundation.InteractionState? interactionState = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, String? onClickLabel = null, androidx.ui.foundation.InteractionState? interactionState = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ClickableTextKt {
-    method public static void ClickableText(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.text.TextStyle style = TextStyle.Default, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = TextOverflow.Clip, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onClick);
+    method @androidx.compose.Composable public static void ClickableText(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.text.TextStyle style = TextStyle.Default, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = TextOverflow.Clip, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onClick);
   }
 
   public final class ContentColorKt {
-    method public static long contentColor();
-    method public static androidx.compose.ProvidableAmbient<androidx.ui.graphics.Color> getContentColorAmbient();
+    method @androidx.compose.Composable public static error.NonExistentClass contentColor();
+    method public static error.NonExistentClass! getContentColorAmbient();
   }
 
   public final class DarkThemeKt {
-    method public static boolean isSystemInDarkTheme();
+    method @androidx.compose.Composable public static boolean isSystemInDarkTheme();
   }
 
   public final class DeterminateProgressIndicatorKt {
-    method public static void DeterminateProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void DeterminateProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DialogKt {
-    method public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DrawBackground implements androidx.ui.core.DrawModifier {
@@ -59,11 +59,11 @@ package androidx.ui.foundation {
   }
 
   public final class DrawBackgroundKt {
-    method @Deprecated public static androidx.ui.foundation.DrawBackground DrawBackground(androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
-    method @Deprecated public static androidx.ui.foundation.DrawBackground DrawBackground-qSsqlCY(long color, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
+    method @Deprecated @androidx.compose.Composable public static androidx.ui.foundation.DrawBackground DrawBackground(androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = RectangleShape);
+    method @Deprecated @androidx.compose.Composable public static androidx.ui.foundation.DrawBackground DrawBackground-qSsqlCY(long color, androidx.ui.graphics.Shape shape = RectangleShape);
     method public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Paint paint, androidx.ui.graphics.Shape shape);
-    method public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
-    method public static androidx.ui.core.Modifier drawBackground-IZZjS-Q(androidx.ui.core.Modifier, long color, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
+    method public static error.NonExistentClass! drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = RectangleShape);
+    method public static error.NonExistentClass drawBackground-IZZjS-Q(androidx.ui.core.Modifier, long color, androidx.ui.graphics.Shape shape = RectangleShape);
   }
 
   public final class DrawBorder implements androidx.ui.core.DrawModifier {
@@ -71,25 +71,25 @@ package androidx.ui.foundation {
   }
 
   public final class DrawBorderKt {
-    method @Deprecated public static androidx.ui.core.Modifier DrawBorder(androidx.ui.foundation.Border border, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
-    method @Deprecated public static androidx.ui.foundation.DrawBorder DrawBorder-3vYgddY(float size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
-    method @Deprecated public static androidx.ui.core.Modifier DrawBorder-Wounw_8(float size, long color, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
-    method public static androidx.ui.core.Modifier drawBorder(androidx.ui.core.Modifier, androidx.ui.foundation.Border border, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
-    method public static androidx.ui.core.Modifier drawBorder-ik3FbJE(androidx.ui.core.Modifier, float size, long color, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
+    method @Deprecated @androidx.compose.Composable public static androidx.ui.core.Modifier DrawBorder(androidx.ui.foundation.Border border, androidx.ui.graphics.Shape shape = RectangleShape);
+    method @Deprecated @androidx.compose.Composable public static androidx.ui.foundation.DrawBorder DrawBorder-3vYgddY(float size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
+    method @Deprecated @androidx.compose.Composable public static androidx.ui.core.Modifier DrawBorder-Wounw_8(float size, long color, androidx.ui.graphics.Shape shape = RectangleShape);
+    method public static androidx.ui.core.Modifier drawBorder(androidx.ui.core.Modifier, androidx.ui.foundation.Border border, androidx.ui.graphics.Shape shape = RectangleShape);
+    method public static androidx.ui.core.Modifier drawBorder-ik3FbJE(androidx.ui.core.Modifier, float size, long color, androidx.ui.graphics.Shape shape = RectangleShape);
     method public static androidx.ui.core.Modifier drawBorder-vGsXmEw(androidx.ui.core.Modifier, float size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
   }
 
   public final class IconKt {
-    method public static void Icon-A4lfJGc(androidx.ui.graphics.vector.VectorAsset asset, androidx.ui.core.Modifier modifier = Modifier, long tint = contentColor());
-    method public static void Icon-RCipKA8(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier, long tint = contentColor());
-    method public static void Icon-smRaMnI(androidx.ui.graphics.ImageAsset asset, androidx.ui.core.Modifier modifier = Modifier, long tint = contentColor());
+    method @androidx.compose.Composable public static void Icon-A4lfJGc(androidx.ui.graphics.vector.VectorAsset asset, androidx.ui.core.Modifier modifier = Modifier, long tint = contentColor());
+    method @androidx.compose.Composable public static void Icon-RCipKA8(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier, long tint = contentColor());
+    method @androidx.compose.Composable public static void Icon-smRaMnI(androidx.ui.graphics.ImageAsset asset, androidx.ui.core.Modifier modifier = Modifier, long tint = contentColor());
   }
 
   public final class ImageKt {
-    method public static inline void Image(androidx.ui.graphics.ImageAsset asset, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
-    method public static inline void Image(androidx.ui.graphics.vector.VectorAsset asset, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
-    method public static void Image(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
-    method @Deprecated public static void SimpleImage--SSR55g(androidx.ui.graphics.ImageAsset image, long tint = Color.Unset);
+    method @androidx.compose.Composable public static inline void Image(androidx.ui.graphics.ImageAsset asset, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = DefaultAlpha, androidx.ui.graphics.ColorFilter? colorFilter = null);
+    method @androidx.compose.Composable public static inline void Image(androidx.ui.graphics.vector.VectorAsset asset, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = DefaultAlpha, androidx.ui.graphics.ColorFilter? colorFilter = null);
+    method @androidx.compose.Composable public static void Image(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = DefaultAlpha, androidx.ui.graphics.ColorFilter? colorFilter = null);
+    method @Deprecated @androidx.compose.Composable public static void SimpleImage--SSR55g(androidx.ui.graphics.ImageAsset image, long tint = Color.Unset);
   }
 
   public interface Interaction {
@@ -103,7 +103,7 @@ package androidx.ui.foundation {
     field public static final androidx.ui.foundation.Interaction.Pressed! INSTANCE;
   }
 
-  public final class InteractionState implements androidx.compose.State<java.util.Set<? extends androidx.ui.foundation.Interaction>> {
+  @androidx.compose.Stable public final class InteractionState implements androidx.compose.State<java.util.Set<? extends androidx.ui.foundation.Interaction>> {
     ctor public InteractionState();
     method public void addInteraction(androidx.ui.foundation.Interaction interaction);
     method public operator boolean contains(androidx.ui.foundation.Interaction interaction);
@@ -113,28 +113,28 @@ package androidx.ui.foundation {
   }
 
   public final class ScrollerKt {
-    method public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
-    method public static androidx.ui.foundation.ScrollerPosition ScrollerPosition(float initial = 0f);
-    method public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+    method @androidx.compose.Composable public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+    method @androidx.compose.Composable public static androidx.ui.foundation.ScrollerPosition ScrollerPosition(float initial = 0f);
+    method @androidx.compose.Composable public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
   }
 
-  public final class ScrollerPosition {
+  @androidx.compose.Stable public final class ScrollerPosition {
     ctor public ScrollerPosition(androidx.ui.foundation.animation.FlingConfig flingConfig, float initial, androidx.animation.AnimationClockObservable animationClock);
-    method public float getMaxPosition();
-    method public float getValue();
-    method public boolean isAnimating();
+    method public error.NonExistentClass! getMaxPosition();
+    method public error.NonExistentClass! getValue();
+    method public error.NonExistentClass! isAnimating();
     method public void scrollBy(float value);
     method public void scrollTo(float value);
     method public void smoothScrollBy(float value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
     method public void smoothScrollTo(float value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
-    property public final boolean isAnimating;
-    property public final float maxPosition;
-    property public final float value;
+    property public final error.NonExistentClass! isAnimating;
+    property public final error.NonExistentClass! maxPosition;
+    property public final error.NonExistentClass! value;
     field public static final androidx.ui.foundation.ScrollerPosition.Companion! Companion;
   }
 
   public static final class ScrollerPosition.Companion {
-    method public androidx.ui.savedinstancestate.Saver<androidx.ui.foundation.ScrollerPosition,?> Saver(androidx.ui.foundation.animation.FlingConfig flingConfig, androidx.animation.AnimationClockObservable animationClock);
+    method @androidx.compose.Composable public androidx.ui.savedinstancestate.Saver<androidx.ui.foundation.ScrollerPosition,?> Saver(androidx.ui.foundation.animation.FlingConfig flingConfig, androidx.animation.AnimationClockObservable animationClock);
   }
 
   public final class Strings {
@@ -156,7 +156,7 @@ package androidx.ui.foundation {
   }
 
   public final class TextFieldKt {
-    method public static void TextField-DBcCkQs(androidx.ui.foundation.TextFieldValue value, kotlin.jvm.functions.Function1<? super androidx.ui.foundation.TextFieldValue,kotlin.Unit> onValueChange, androidx.ui.core.Modifier modifier = Modifier, long textColor = Color.Unset, androidx.ui.text.TextStyle textStyle = currentTextStyle(), androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onFocusChange = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation visualTransformation = VisualTransformation.None, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, kotlin.jvm.functions.Function1<? super androidx.ui.text.SoftwareKeyboardController,kotlin.Unit> onTextInputStarted = {}, long cursorColor = contentColor());
+    method @androidx.compose.Composable public static void TextField-DBcCkQs(androidx.ui.foundation.TextFieldValue value, kotlin.jvm.functions.Function1<? super androidx.ui.foundation.TextFieldValue,kotlin.Unit> onValueChange, androidx.ui.core.Modifier modifier = Modifier, long textColor = Color.Unset, androidx.ui.text.TextStyle textStyle = currentTextStyle(), androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onFocusChange = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation visualTransformation = VisualTransformation.None, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, kotlin.jvm.functions.Function1<? super androidx.ui.text.SoftwareKeyboardController,kotlin.Unit> onTextInputStarted = {}, long cursorColor = contentColor());
   }
 
   public final class TextFieldValue {
@@ -171,15 +171,15 @@ package androidx.ui.foundation {
   }
 
   public static final class TextFieldValue.Companion {
-    method public androidx.ui.savedinstancestate.Saver<androidx.ui.foundation.TextFieldValue,java.lang.Object> getSaver();
-    property public final androidx.ui.savedinstancestate.Saver<androidx.ui.foundation.TextFieldValue,java.lang.Object> Saver;
+    method public error.NonExistentClass! getSaver();
+    property public final error.NonExistentClass! Saver;
   }
 
   public final class TextKt {
-    method public static void ProvideTextStyle(androidx.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Text-eN_2_vM(String text, androidx.ui.core.Modifier modifier = Modifier, long color = Color.Unset, long fontSize = TextUnit.Inherit, androidx.ui.text.font.FontStyle? fontStyle = null, androidx.ui.text.font.FontFamily? fontFamily = null, long letterSpacing = TextUnit.Inherit, androidx.ui.text.style.TextDecoration? textDecoration = null, androidx.ui.text.style.TextAlign? textAlign = null, long lineHeight = TextUnit.Inherit, androidx.ui.text.style.TextOverflow overflow = TextOverflow.Clip, boolean softWrap = true, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, androidx.ui.text.TextStyle style = currentTextStyle());
-    method public static void Text-ibhWsbw(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier, long color = Color.Unset, long fontSize = TextUnit.Inherit, androidx.ui.text.font.FontStyle? fontStyle = null, androidx.ui.text.font.FontFamily? fontFamily = null, long letterSpacing = TextUnit.Inherit, androidx.ui.text.style.TextDecoration? textDecoration = null, androidx.ui.text.style.TextAlign? textAlign = null, long lineHeight = TextUnit.Inherit, androidx.ui.text.style.TextOverflow overflow = TextOverflow.Clip, boolean softWrap = true, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, androidx.ui.text.TextStyle style = currentTextStyle());
-    method public static androidx.ui.text.TextStyle currentTextStyle();
+    method @androidx.compose.Composable public static void ProvideTextStyle(androidx.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Text-eN_2_vM(String text, androidx.ui.core.Modifier modifier = Modifier, long color = Color.Unset, long fontSize = TextUnit.Inherit, androidx.ui.text.font.FontStyle? fontStyle = null, androidx.ui.text.font.FontFamily? fontFamily = null, long letterSpacing = TextUnit.Inherit, androidx.ui.text.style.TextDecoration? textDecoration = null, androidx.ui.text.style.TextAlign? textAlign = null, long lineHeight = TextUnit.Inherit, androidx.ui.text.style.TextOverflow overflow = TextOverflow.Clip, boolean softWrap = true, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, androidx.ui.text.TextStyle style = currentTextStyle());
+    method @androidx.compose.Composable public static void Text-ibhWsbw(androidx.ui.text.AnnotatedString text, androidx.ui.core.Modifier modifier = Modifier, long color = Color.Unset, long fontSize = TextUnit.Inherit, androidx.ui.text.font.FontStyle? fontStyle = null, androidx.ui.text.font.FontFamily? fontFamily = null, long letterSpacing = TextUnit.Inherit, androidx.ui.text.style.TextDecoration? textDecoration = null, androidx.ui.text.style.TextAlign? textAlign = null, long lineHeight = TextUnit.Inherit, androidx.ui.text.style.TextOverflow overflow = TextOverflow.Clip, boolean softWrap = true, int maxLines = 2147483647, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, androidx.ui.text.TextStyle style = currentTextStyle());
+    method @androidx.compose.Composable public static androidx.ui.text.TextStyle currentTextStyle();
   }
 
 }
@@ -240,20 +240,20 @@ package androidx.ui.foundation.animation {
   public final class AndroidFlingSplineKt {
   }
 
-  public final class FlingConfig {
-    ctor public FlingConfig(androidx.animation.DecayAnimation decayAnimation, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
+  @androidx.compose.Immutable public final class FlingConfig {
+    ctor public FlingConfig(androidx.animation.DecayAnimation decayAnimation, error.NonExistentClass? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
     method public androidx.animation.DecayAnimation component1();
-    method public kotlin.jvm.functions.Function3<androidx.animation.AnimationEndReason,java.lang.Float,java.lang.Float,kotlin.Unit>? component2();
+    method public error.NonExistentClass? component2();
     method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> component3();
-    method public androidx.ui.foundation.animation.FlingConfig copy(androidx.animation.DecayAnimation decayAnimation, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
+    method @androidx.compose.Immutable public androidx.ui.foundation.animation.FlingConfig copy(androidx.animation.DecayAnimation decayAnimation, error.NonExistentClass? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
     method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> getAdjustTarget();
     method public androidx.animation.DecayAnimation getDecayAnimation();
-    method public kotlin.jvm.functions.Function3<androidx.animation.AnimationEndReason,java.lang.Float,java.lang.Float,kotlin.Unit>? getOnAnimationEnd();
+    method public error.NonExistentClass? getOnAnimationEnd();
   }
 
   public final class FlingConfigKt {
-    method public static androidx.ui.foundation.animation.FlingConfig AnchorsFlingConfig(java.util.List<java.lang.Float> anchors, androidx.animation.AnimationBuilder<java.lang.Float> animationBuilder = androidx.animation.PhysicsBuilder(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, androidx.animation.DecayAnimation decayAnimation = androidx.animation.ExponentialDecay());
-    method public static androidx.ui.foundation.animation.FlingConfig FlingConfig(kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget = { return null });
+    method public static androidx.ui.foundation.animation.FlingConfig AnchorsFlingConfig(java.util.List<java.lang.Float> anchors, androidx.animation.AnimationBuilder<java.lang.Float> animationBuilder = androidx.animation.PhysicsBuilder(), error.NonExistentClass? onAnimationEnd = null, androidx.animation.DecayAnimation decayAnimation = androidx.animation.ExponentialDecay());
+    method @androidx.compose.Composable public static androidx.ui.foundation.animation.FlingConfig FlingConfig(error.NonExistentClass? onAnimationEnd = null, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget = { return null });
     method public static void fling(androidx.animation.AnimatedFloat, androidx.ui.foundation.animation.FlingConfig config, float startVelocity);
   }
 
@@ -277,7 +277,7 @@ package androidx.ui.foundation.gestures {
   }
 
   public final class ScrollableKt {
-    method public static androidx.ui.foundation.gestures.ScrollableState ScrollableState(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onScrollDeltaConsumptionRequested);
+    method @androidx.compose.Composable public static androidx.ui.foundation.gestures.ScrollableState ScrollableState(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onScrollDeltaConsumptionRequested);
     method public static androidx.ui.core.Modifier scrollable(androidx.ui.core.Modifier, androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.gestures.ScrollableState scrollableState, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {}, boolean enabled = true);
   }
 
@@ -285,10 +285,10 @@ package androidx.ui.foundation.gestures {
     ctor public ScrollableState(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onScrollDeltaConsumptionRequested, androidx.ui.foundation.animation.FlingConfig flingConfig, androidx.animation.AnimationClockObservable animationClock);
     method public androidx.ui.foundation.animation.FlingConfig getFlingConfig();
     method public kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> getOnScrollDeltaConsumptionRequested();
-    method public boolean isAnimating();
+    method public error.NonExistentClass! isAnimating();
     method public void smoothScrollBy(float value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
     method public void stopAnimation();
-    property public final boolean isAnimating;
+    property public final error.NonExistentClass! isAnimating;
   }
 
 }
@@ -296,13 +296,13 @@ package androidx.ui.foundation.gestures {
 package androidx.ui.foundation.selection {
 
   public final class MutuallyExclusiveSetItemKt {
-    method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ToggleableKt {
-    method public static void Toggleable(boolean value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onValueChange, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Toggleable(boolean value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onValueChange, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.foundation.selection.ToggleableState ToggleableState(boolean value);
-    method public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState state = androidx.ui.foundation.selection.ToggleableState.On, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState state = androidx.ui.foundation.selection.ToggleableState.On, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public enum ToggleableState {

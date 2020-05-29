@@ -16,7 +16,6 @@ package androidx.animation {
   }
 
   public final class AnimatedValueKt {
-    ctor public AnimatedValueKt();
     method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.animation.DecayAnimation decay = androidx.animation.ExponentialDecay(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onEnd = null);
     method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.animation.DecayAnimation decay = androidx.animation.ExponentialDecay(), kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onEnd = null);
   }
@@ -26,7 +25,6 @@ package androidx.animation {
   }
 
   public final class AnimationBuilderKt {
-    ctor public AnimationBuilderKt();
     field public static final int DefaultDuration = 300; // 0x12c
     field public static final int Infinite = 2147483647; // 0x7fffffff
   }
@@ -38,7 +36,6 @@ package androidx.animation {
   }
 
   public final class AnimationKt {
-    ctor public AnimationKt();
     field public static final boolean DEBUG = false;
   }
 
@@ -75,7 +72,6 @@ package androidx.animation {
   }
 
   public final class DecayAnimationKt {
-    ctor public DecayAnimationKt();
   }
 
   public abstract class DurationBasedAnimationBuilder<T> extends androidx.animation.AnimationBuilder<T> {
@@ -105,7 +101,6 @@ package androidx.animation {
   }
 
   public final class EasingKt {
-    ctor public EasingKt();
     method public static androidx.animation.CubicBezierEasing getFastOutLinearInEasing();
     method public static androidx.animation.CubicBezierEasing getFastOutSlowInEasing();
     method public static kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> getLinearEasing();
@@ -185,7 +180,6 @@ package androidx.animation {
   }
 
   public final class SpringSimulationKt {
-    ctor public SpringSimulationKt();
   }
 
   public final class TargetAnimation {
@@ -220,8 +214,7 @@ package androidx.animation {
   }
 
   public final class TransitionDefinitionKt {
-    ctor public TransitionDefinitionKt();
-    method public static <T> androidx.animation.TransitionDefinition<T> transitionDefinition(kotlin.jvm.functions.Function1<? super androidx.animation.TransitionDefinition<T>,kotlin.Unit> init);
+    method @kotlin.UseExperimental(markerClass=ExperimentalTypeInference::class) public static <T> androidx.animation.TransitionDefinition<T> transitionDefinition(@kotlin.BuilderInference kotlin.jvm.functions.Function1<? super androidx.animation.TransitionDefinition<T>,kotlin.Unit> init);
   }
 
   public final class TransitionSpec<S> {
@@ -244,7 +237,6 @@ package androidx.animation {
   }
 
   public final class TransitionStateKt {
-    ctor public TransitionStateKt();
   }
 
   public final class TweenBuilder<T> extends androidx.animation.DurationBasedAnimationBuilder<T> {

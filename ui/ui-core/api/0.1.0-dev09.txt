@@ -72,12 +72,12 @@ package androidx.ui.autofill {
 
 package androidx.ui.core {
 
-  public final class Alignment {
+  @androidx.compose.Immutable public final class Alignment {
     ctor public Alignment(float verticalBias, float horizontalBias);
     method public androidx.ui.unit.IntPxPosition align(androidx.ui.unit.IntPxSize size, androidx.ui.core.LayoutDirection layoutDirection = androidx.ui.core.LayoutDirection.Ltr);
     method public float component1();
     method public float component2();
-    method public androidx.ui.core.Alignment copy(float verticalBias, float horizontalBias);
+    method @androidx.compose.Immutable public androidx.ui.core.Alignment copy(float verticalBias, float horizontalBias);
     method public float getHorizontalBias();
     method public float getVerticalBias();
     field public static final androidx.ui.core.Alignment.Companion! Companion;
@@ -116,19 +116,19 @@ package androidx.ui.core {
     property public final androidx.ui.core.Alignment TopStart;
   }
 
-  public static final class Alignment.Horizontal {
+  @androidx.compose.Immutable public static final class Alignment.Horizontal {
     ctor public Alignment.Horizontal(float bias);
     method public androidx.ui.unit.IntPx align(androidx.ui.unit.IntPx size, androidx.ui.core.LayoutDirection layoutDirection = androidx.ui.core.LayoutDirection.Ltr);
     method public float component1();
-    method public androidx.ui.core.Alignment.Horizontal copy(float bias);
+    method @androidx.compose.Immutable public androidx.ui.core.Alignment.Horizontal copy(float bias);
     method public float getBias();
   }
 
-  public static final class Alignment.Vertical {
+  @androidx.compose.Immutable public static final class Alignment.Vertical {
     ctor public Alignment.Vertical(float bias);
     method public androidx.ui.unit.IntPx align(androidx.ui.unit.IntPx size);
     method public float component1();
-    method public androidx.ui.core.Alignment.Vertical copy(float bias);
+    method @androidx.compose.Immutable public androidx.ui.core.Alignment.Vertical copy(float bias);
     method public float getBias();
   }
 
@@ -139,14 +139,14 @@ package androidx.ui.core {
     method public static androidx.ui.unit.IntPx merge(androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx position1, androidx.ui.unit.IntPx position2);
   }
 
-  public final class Constraints {
+  @androidx.compose.Immutable public final class Constraints {
     ctor public Constraints(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
     ctor public Constraints();
     method public androidx.ui.unit.IntPx component1();
     method public androidx.ui.unit.IntPx component2();
     method public androidx.ui.unit.IntPx component3();
     method public androidx.ui.unit.IntPx component4();
-    method public androidx.ui.core.Constraints copy(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
+    method @androidx.compose.Immutable public androidx.ui.core.Constraints copy(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
     method public androidx.ui.unit.IntPx getMaxHeight();
     method public androidx.ui.unit.IntPx getMaxWidth();
     method public androidx.ui.unit.IntPx getMinHeight();
@@ -381,7 +381,7 @@ package androidx.ui.core {
     property public final androidx.ui.unit.IntPx width;
   }
 
-  public interface Modifier {
+  @androidx.compose.Stable public interface Modifier {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public default operator androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
@@ -527,7 +527,7 @@ package androidx.ui.core {
     property @Deprecated public final androidx.ui.core.FixedScale None;
   }
 
-  public final class TransformOrigin {
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final class TransformOrigin {
     ctor public TransformOrigin(internal long value);
     method public float getPivotFractionX();
     method public float getPivotFractionY();

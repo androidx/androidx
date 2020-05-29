@@ -13,9 +13,8 @@ package androidx.ui.tooling {
   }
 
   public final class InspectableKt {
-    ctor public InspectableKt();
-    method public static void InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Inspectable(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Inspectable(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static java.util.Set<androidx.compose.SlotTable>! getTables();
   }
 
@@ -34,7 +33,6 @@ package androidx.ui.tooling {
   }
 
   public final class SlotTreeKt {
-    ctor public SlotTreeKt();
     method public static androidx.ui.tooling.Group asTree(androidx.compose.SlotTable);
     method public static String? getPosition(androidx.ui.tooling.Group);
   }
@@ -44,7 +42,6 @@ package androidx.ui.tooling {
 package androidx.ui.tooling.preview {
 
   public final class ComposeViewAdapterKt {
-    ctor public ComposeViewAdapterKt();
     field public static final String TOOLS_NS_URI = "http://schemas.android.com/tools";
   }
 

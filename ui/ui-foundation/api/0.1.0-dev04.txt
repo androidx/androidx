@@ -13,26 +13,26 @@ package androidx.ui.foundation {
   }
 
   public final class BorderKt {
-    method public static androidx.ui.foundation.Border Border(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp width, androidx.ui.graphics.Color color);
-    method public static androidx.ui.foundation.Border Border(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp width, androidx.ui.graphics.Brush brush);
+    method @androidx.compose.Composable public static androidx.ui.foundation.Border Border(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp width, androidx.ui.graphics.Color color);
+    method @androidx.compose.Composable public static androidx.ui.foundation.Border Border(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp width, androidx.ui.graphics.Brush brush);
   }
 
   public final class BoxKt {
-    method public static void Box(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.EdgeInsets padding = null(0.dp), androidx.ui.core.Alignment gravity = ContentGravity.TopLeft, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Box(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.EdgeInsets padding = null(0.dp), androidx.ui.core.Alignment gravity = ContentGravity.TopLeft, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ClickableKt {
-    method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, String? onClickLabel = null, boolean consumeDownOnStart = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, String? onClickLabel = null, boolean consumeDownOnStart = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ColoredRectKt {
-    method public static void ColoredRect(androidx.ui.graphics.Brush brush, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
-    method public static void ColoredRect(androidx.ui.graphics.Color color, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
+    method @androidx.compose.Composable public static void ColoredRect(androidx.ui.graphics.Brush brush, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
+    method @androidx.compose.Composable public static void ColoredRect(androidx.ui.graphics.Color color, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
   }
 
   public final class ContentColorKt {
-    method public static void ProvideContentColor(androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static androidx.ui.graphics.Color contentColor();
+    method @androidx.compose.Composable public static void ProvideContentColor(androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static androidx.ui.graphics.Color contentColor();
   }
 
   public final class DarkThemeKt {
@@ -40,11 +40,11 @@ package androidx.ui.foundation {
   }
 
   public final class DeterminateProgressIndicatorKt {
-    method public static void DeterminateProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void DeterminateProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DialogKt {
-    method public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DrawBordersReceiver {
@@ -61,17 +61,17 @@ package androidx.ui.foundation {
   }
 
   public final class ImageKt {
-    method public static void DrawImage(androidx.ui.graphics.Image image, androidx.ui.graphics.Color? tint = null);
-    method public static void SimpleImage(androidx.ui.graphics.Image image, androidx.ui.graphics.Color? tint = null);
+    method @androidx.compose.Composable public static void DrawImage(androidx.ui.graphics.Image image, androidx.ui.graphics.Color? tint = null);
+    method @androidx.compose.Composable public static void SimpleImage(androidx.ui.graphics.Image image, androidx.ui.graphics.Color? tint = null);
   }
 
   public final class ScrollerKt {
-    method public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier.None, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
-    method public static androidx.ui.foundation.ScrollerPosition ScrollerPosition(float initial = 0f);
-    method public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier.None, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+    method @androidx.compose.Composable public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier.None, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+    method @androidx.compose.Composable public static androidx.ui.foundation.ScrollerPosition ScrollerPosition(float initial = 0f);
+    method @androidx.compose.Composable public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.ui.core.Modifier modifier = Modifier.None, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
   }
 
-  public final class ScrollerPosition {
+  @androidx.compose.Model public final class ScrollerPosition {
     ctor public ScrollerPosition(androidx.ui.foundation.animation.FlingConfig flingConfig, float initial);
     method public void fling(float startVelocity);
     method public androidx.ui.foundation.animation.FlingConfig getFlingConfig();
@@ -168,7 +168,7 @@ package androidx.ui.foundation.animation {
   public final class AndroidFlingSplineKt {
   }
 
-  public final class AnimatedValueHolder implements androidx.ui.foundation.ValueHolder<java.lang.Float> {
+  @androidx.compose.Model public final class AnimatedValueHolder implements androidx.ui.foundation.ValueHolder<java.lang.Float> {
     ctor public AnimatedValueHolder(float initial);
     method public void fling(androidx.ui.foundation.animation.FlingConfig config, float startVelocity);
     method public androidx.animation.AnimatedFloat getAnimatedFloat();
@@ -179,7 +179,7 @@ package androidx.ui.foundation.animation {
   }
 
   public final class AnimatedValueHolderKt {
-    method public static androidx.ui.foundation.animation.AnimatedValueHolder animatedDragValue(float initial, float minBound, float maxBound);
+    method @androidx.compose.Composable public static androidx.ui.foundation.animation.AnimatedValueHolder animatedDragValue(float initial, float minBound, float maxBound);
   }
 
   public final class FlingConfig {
@@ -195,7 +195,7 @@ package androidx.ui.foundation.animation {
 
   public final class FlingConfigKt {
     method public static androidx.ui.foundation.animation.FlingConfig AnchorsFlingConfig(java.util.List<java.lang.Float> anchors, androidx.animation.AnimationBuilder<java.lang.Float> animationBuilder = androidx.animation.PhysicsBuilder(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, androidx.animation.DecayAnimation decayAnimation = androidx.animation.ExponentialDecay());
-    method public static androidx.ui.foundation.animation.FlingConfig FlingConfig(kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget = { null });
+    method @androidx.compose.Composable public static androidx.ui.foundation.animation.FlingConfig FlingConfig(kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget = { return null });
     method public static void fling(androidx.animation.AnimatedFloat, androidx.ui.foundation.animation.FlingConfig config, float startVelocity);
   }
 
@@ -223,7 +223,7 @@ package androidx.ui.foundation.gestures {
   }
 
   public final class DraggableKt {
-    method public static void Draggable(androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.ValueHolder<java.lang.Float> dragValue, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragValueChangeRequested, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, boolean enabled = true, boolean isValueAnimating = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Draggable(androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.ValueHolder<java.lang.Float> dragValue, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragValueChangeRequested, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, boolean enabled = true, boolean isValueAnimating = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class FloatDragValueController implements androidx.ui.foundation.gestures.DragValueController {
@@ -240,13 +240,13 @@ package androidx.ui.foundation.gestures {
 package androidx.ui.foundation.selection {
 
   public final class MutuallyExclusiveSetItemKt {
-    method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ToggleableKt {
-    method public static void Toggleable(boolean value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onValueChange = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Toggleable(boolean value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onValueChange = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.foundation.selection.ToggleableState ToggleableState(boolean value);
-    method public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState value = androidx.ui.foundation.selection.ToggleableState.On, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState value = androidx.ui.foundation.selection.ToggleableState.On, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public enum ToggleableState {
@@ -283,8 +283,8 @@ package androidx.ui.foundation.semantics {
 package androidx.ui.foundation.shape {
 
   public final class DrawShapeKt {
-    method public static void DrawShape(androidx.ui.graphics.Shape shape, androidx.ui.graphics.Color color);
-    method public static void DrawShape(androidx.ui.graphics.Shape shape, androidx.ui.graphics.Brush brush);
+    method @androidx.compose.Composable public static void DrawShape(androidx.ui.graphics.Shape shape, androidx.ui.graphics.Color color);
+    method @androidx.compose.Composable public static void DrawShape(androidx.ui.graphics.Shape shape, androidx.ui.graphics.Brush brush);
   }
 
   public final class GenericShape implements androidx.ui.graphics.Shape {

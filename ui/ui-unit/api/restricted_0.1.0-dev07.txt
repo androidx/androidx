@@ -1,13 +1,13 @@
 // Signature format: 3.0
 package androidx.ui.unit {
 
-  public final class Bounds {
+  @androidx.compose.Immutable public final class Bounds {
     ctor public Bounds(androidx.ui.unit.Dp left, androidx.ui.unit.Dp top, androidx.ui.unit.Dp right, androidx.ui.unit.Dp bottom);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.unit.Dp component2();
     method public androidx.ui.unit.Dp component3();
     method public androidx.ui.unit.Dp component4();
-    method public androidx.ui.unit.Bounds copy(androidx.ui.unit.Dp left, androidx.ui.unit.Dp top, androidx.ui.unit.Dp right, androidx.ui.unit.Dp bottom);
+    method @androidx.compose.Immutable public androidx.ui.unit.Bounds copy(androidx.ui.unit.Dp left, androidx.ui.unit.Dp top, androidx.ui.unit.Dp right, androidx.ui.unit.Dp bottom);
     method public androidx.ui.unit.Dp getBottom();
     method public androidx.ui.unit.Dp getLeft();
     method public androidx.ui.unit.Dp getRight();
@@ -42,11 +42,11 @@ package androidx.ui.unit {
     method public static androidx.ui.unit.Density Density(float density, float fontScale = 1f);
   }
 
-  public final class Dp implements java.lang.Comparable<androidx.ui.unit.Dp> {
+  @androidx.compose.Immutable public final class Dp implements java.lang.Comparable<androidx.ui.unit.Dp> {
     ctor public Dp(float value);
     method public operator int compareTo(androidx.ui.unit.Dp other);
     method public float component1();
-    method public androidx.ui.unit.Dp copy(float value);
+    method @androidx.compose.Immutable public androidx.ui.unit.Dp copy(float value);
     method public inline operator androidx.ui.unit.Dp div(float other);
     method public inline operator androidx.ui.unit.Dp div(int other);
     method public inline operator float div(androidx.ui.unit.Dp other);
@@ -71,7 +71,7 @@ package androidx.ui.unit {
     property public final androidx.ui.unit.Dp Unspecified;
   }
 
-  public final inline class DpCubed implements java.lang.Comparable<androidx.ui.unit.DpCubed> {
+  @androidx.compose.Immutable public final inline class DpCubed implements java.lang.Comparable<androidx.ui.unit.DpCubed> {
     ctor public DpCubed();
     method public operator int compareTo-JDqhs2g(float p);
     method public static operator int compareTo-JDqhs2g(float $this, float other);
@@ -80,26 +80,26 @@ package androidx.ui.unit {
     method public static inline operator float div-impl(float $this, float other);
     method public static inline operator float div-impl(float $this, androidx.ui.unit.Dp other);
     method public static inline operator androidx.ui.unit.Dp div-x8crYZs(float $this, float other);
-    method public static boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public static int hashCode-impl(float p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
     method public static inline operator float minus-JDqhs2g(float $this, float dimension);
     method public static inline operator float plus-JDqhs2g(float $this, float dimension);
     method public static inline operator float times-impl(float $this, float other);
     method public static String toString-impl(float $this);
   }
 
-  public final inline class DpInverse implements java.lang.Comparable<androidx.ui.unit.DpInverse> {
+  @androidx.compose.Immutable public final inline class DpInverse implements java.lang.Comparable<androidx.ui.unit.DpInverse> {
     ctor public DpInverse();
     method public operator int compareTo-_K2iRR8(float p);
     method public static operator int compareTo-_K2iRR8(float $this, float other);
     method public static float constructor-impl(float value);
     method public static inline operator float div-impl(float $this, float other);
-    method public static boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public static int hashCode-impl(float p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
     method public static inline operator float minus-_K2iRR8(float $this, float dimension);
     method public static inline operator float plus-_K2iRR8(float $this, float dimension);
     method public static inline operator float times-JDqhs2g(float $this, float other);
@@ -110,8 +110,8 @@ package androidx.ui.unit {
   }
 
   public final class DpKt {
-    method public static inline long Position(androidx.ui.unit.Dp x, androidx.ui.unit.Dp y);
-    method public static inline long Size(androidx.ui.unit.Dp width, androidx.ui.unit.Dp height);
+    method @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline long Position(androidx.ui.unit.Dp x, androidx.ui.unit.Dp y);
+    method @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline long Size(androidx.ui.unit.Dp width, androidx.ui.unit.Dp height);
     method public static long center-kAYDl8w(long);
     method public static inline androidx.ui.unit.Dp coerceAtLeast(androidx.ui.unit.Dp, androidx.ui.unit.Dp minimumValue);
     method public static inline androidx.ui.unit.Dp coerceAtMost(androidx.ui.unit.Dp, androidx.ui.unit.Dp maximumValue);
@@ -140,7 +140,7 @@ package androidx.ui.unit {
     method public static inline long toSize(androidx.ui.unit.Bounds);
   }
 
-  public final inline class DpSquared implements java.lang.Comparable<androidx.ui.unit.DpSquared> {
+  @androidx.compose.Immutable public final inline class DpSquared implements java.lang.Comparable<androidx.ui.unit.DpSquared> {
     ctor public DpSquared();
     method public operator int compareTo-x8crYZs(float p);
     method public static operator int compareTo-x8crYZs(float $this, float other);
@@ -149,10 +149,10 @@ package androidx.ui.unit {
     method public static inline operator float div-impl(float $this, float other);
     method public static inline operator androidx.ui.unit.Dp div-impl(float $this, androidx.ui.unit.Dp other);
     method public static inline operator float div-x8crYZs(float $this, float other);
-    method public static boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public static int hashCode-impl(float p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
     method public static inline operator float minus-x8crYZs(float $this, float other);
     method public static inline operator float plus-x8crYZs(float $this, float other);
     method public static inline operator float times-impl(float $this, float other);
@@ -215,12 +215,12 @@ package androidx.ui.unit {
     field public static final long SecondsPerMinute = 60L; // 0x3cL
   }
 
-  public final class IntPx implements java.lang.Comparable<androidx.ui.unit.IntPx> {
+  @androidx.compose.Immutable public final class IntPx implements java.lang.Comparable<androidx.ui.unit.IntPx> {
     ctor public IntPx(int value);
     method public operator int compareTo(androidx.ui.unit.IntPx other);
     method public inline operator int compareTo(androidx.ui.unit.Px other);
     method public int component1();
-    method public androidx.ui.unit.IntPx copy(int value);
+    method @androidx.compose.Immutable public androidx.ui.unit.IntPx copy(int value);
     method public operator androidx.ui.unit.IntPx div(float other);
     method public operator androidx.ui.unit.IntPx div(double other);
     method public operator androidx.ui.unit.IntPx div(int other);
@@ -256,8 +256,8 @@ package androidx.ui.unit {
   }
 
   public final class IntPxKt {
-    method public static inline androidx.ui.unit.IntPxPosition IntPxPosition(androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
-    method public static inline androidx.ui.unit.IntPxSize IntPxSize(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
+    method @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline androidx.ui.unit.IntPxPosition IntPxPosition(androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
+    method @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline androidx.ui.unit.IntPxSize IntPxSize(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
     method public static inline androidx.ui.unit.PxPosition PxPosition(androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
     method public static inline androidx.ui.unit.PxSize PxSize(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
     method public static inline androidx.ui.unit.IntPx ceil(androidx.ui.unit.Px);
@@ -269,6 +269,8 @@ package androidx.ui.unit {
     method public static inline androidx.ui.unit.IntPx getIpx(int);
     method public static inline androidx.ui.unit.IntPx getWidth(androidx.ui.unit.IntPxBounds);
     method public static inline boolean isFinite(androidx.ui.unit.IntPx);
+    method @kotlin.PublishedApi internal static inline androidx.ui.unit.IntPx keepInfinity(androidx.ui.unit.IntPx, androidx.ui.unit.IntPx other, androidx.ui.unit.IntPx noInfinityValue);
+    method @kotlin.PublishedApi internal static inline androidx.ui.unit.IntPx keepInfinity(androidx.ui.unit.IntPx, androidx.ui.unit.IntPx noInfinityValue);
     method public static androidx.ui.unit.IntPx lerp(androidx.ui.unit.IntPx start, androidx.ui.unit.IntPx stop, float fraction);
     method public static androidx.ui.unit.IntPxPosition lerp(androidx.ui.unit.IntPxPosition start, androidx.ui.unit.IntPxPosition stop, float fraction);
     method public static inline androidx.ui.unit.IntPx max(androidx.ui.unit.IntPx a, androidx.ui.unit.IntPx b);
@@ -284,8 +286,9 @@ package androidx.ui.unit {
     method public static inline androidx.ui.unit.IntPxSize toSize(androidx.ui.unit.IntPxBounds);
   }
 
-  public final class IntPxPosition {
-    method public androidx.ui.unit.IntPxPosition copy(long value);
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final class IntPxPosition {
+    ctor @kotlin.PublishedApi internal IntPxPosition(internal long value);
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public androidx.ui.unit.IntPxPosition copy(long value);
     method public inline androidx.ui.unit.IntPx getX();
     method public inline androidx.ui.unit.IntPx getY();
     method public inline operator androidx.ui.unit.IntPxPosition minus(androidx.ui.unit.IntPxPosition other);
@@ -301,8 +304,9 @@ package androidx.ui.unit {
     property public final androidx.ui.unit.IntPxPosition Origin;
   }
 
-  public final class IntPxSize {
-    method public androidx.ui.unit.IntPxSize copy(long value);
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final class IntPxSize {
+    ctor @kotlin.PublishedApi internal IntPxSize(internal long value);
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public androidx.ui.unit.IntPxSize copy(long value);
     method public inline operator androidx.ui.unit.IntPxSize div(int other);
     method public inline androidx.ui.unit.IntPx getHeight();
     method public inline androidx.ui.unit.IntPx getWidth();
@@ -311,25 +315,25 @@ package androidx.ui.unit {
     property public final inline androidx.ui.unit.IntPx width;
   }
 
-  public final inline class Position {
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final inline class Position {
     ctor public Position();
     method public static long constructor-impl(internal long value);
-    method public static boolean equals-impl(long p, Object? p1);
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static androidx.ui.unit.Dp getX-impl(long $this);
     method public static androidx.ui.unit.Dp getY-impl(long $this);
-    method public static int hashCode-impl(long p);
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline int hashCode-impl(long p);
     method public static inline operator long minus-T8eBu-w(long $this, long other);
     method public static inline operator long plus-T8eBu-w(long $this, long other);
     method public static String toString-impl(long $this);
   }
 
-  public final class Px implements java.lang.Comparable<androidx.ui.unit.Px> {
+  @androidx.compose.Immutable public final class Px implements java.lang.Comparable<androidx.ui.unit.Px> {
     ctor public Px(float value);
     method public operator int compareTo(androidx.ui.unit.Px other);
     method public inline operator int compareTo(androidx.ui.unit.IntPx other);
     method public float component1();
-    method public androidx.ui.unit.Px copy(float value);
+    method @androidx.compose.Immutable public androidx.ui.unit.Px copy(float value);
     method public inline operator androidx.ui.unit.Px div(float other);
     method public inline operator androidx.ui.unit.Px div(int other);
     method public inline operator float div(androidx.ui.unit.Px other);
@@ -354,20 +358,20 @@ package androidx.ui.unit {
     property public final androidx.ui.unit.Px Zero;
   }
 
-  public final class PxBounds {
+  @androidx.compose.Immutable public final class PxBounds {
     ctor public PxBounds(androidx.ui.unit.Px left, androidx.ui.unit.Px top, androidx.ui.unit.Px right, androidx.ui.unit.Px bottom);
     method public androidx.ui.unit.Px component1();
     method public androidx.ui.unit.Px component2();
     method public androidx.ui.unit.Px component3();
     method public androidx.ui.unit.Px component4();
-    method public androidx.ui.unit.PxBounds copy(androidx.ui.unit.Px left, androidx.ui.unit.Px top, androidx.ui.unit.Px right, androidx.ui.unit.Px bottom);
+    method @androidx.compose.Immutable public androidx.ui.unit.PxBounds copy(androidx.ui.unit.Px left, androidx.ui.unit.Px top, androidx.ui.unit.Px right, androidx.ui.unit.Px bottom);
     method public androidx.ui.unit.Px getBottom();
     method public androidx.ui.unit.Px getLeft();
     method public androidx.ui.unit.Px getRight();
     method public androidx.ui.unit.Px getTop();
   }
 
-  public final inline class PxCubed implements java.lang.Comparable<androidx.ui.unit.PxCubed> {
+  @androidx.compose.Immutable public final inline class PxCubed implements java.lang.Comparable<androidx.ui.unit.PxCubed> {
     ctor public PxCubed();
     method public operator int compareTo-bji3ab4(float p);
     method public static operator int compareTo-bji3ab4(float $this, float other);
@@ -376,26 +380,26 @@ package androidx.ui.unit {
     method public static inline operator float div-bji3ab4(float $this, float other);
     method public static inline operator float div-impl(float $this, float other);
     method public static inline operator float div-impl(float $this, androidx.ui.unit.Px other);
-    method public static boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public static int hashCode-impl(float p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
     method public static inline operator float minus-bji3ab4(float $this, float dimension);
     method public static inline operator float plus-bji3ab4(float $this, float dimension);
     method public static inline operator float times-impl(float $this, float other);
     method public static String toString-impl(float $this);
   }
 
-  public final inline class PxInverse implements java.lang.Comparable<androidx.ui.unit.PxInverse> {
+  @androidx.compose.Immutable public final inline class PxInverse implements java.lang.Comparable<androidx.ui.unit.PxInverse> {
     ctor public PxInverse();
     method public operator int compareTo-KGV0gLo(float p);
     method public static operator int compareTo-KGV0gLo(float $this, float other);
     method public static float constructor-impl(float value);
     method public static inline operator float div-impl(float $this, float other);
-    method public static boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public static int hashCode-impl(float p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
     method public static inline operator float minus-KGV0gLo(float $this, float dimension);
     method public static inline operator float plus-KGV0gLo(float $this, float dimension);
     method public static inline operator androidx.ui.unit.Px times-RjPF0Mw(float $this, float other);
@@ -407,8 +411,8 @@ package androidx.ui.unit {
 
   public final class PxKt {
     method public static inline androidx.ui.unit.PxBounds PxBounds(androidx.ui.unit.PxPosition topLeft, androidx.ui.unit.PxSize size);
-    method public static inline androidx.ui.unit.PxPosition PxPosition(androidx.ui.unit.Px x, androidx.ui.unit.Px y);
-    method public static inline androidx.ui.unit.PxSize PxSize(androidx.ui.unit.Px width, androidx.ui.unit.Px height);
+    method @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline androidx.ui.unit.PxPosition PxPosition(androidx.ui.unit.Px x, androidx.ui.unit.Px y);
+    method @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline androidx.ui.unit.PxSize PxSize(androidx.ui.unit.Px width, androidx.ui.unit.Px height);
     method public static inline androidx.ui.unit.Px abs(androidx.ui.unit.Px x);
     method public static androidx.ui.unit.PxPosition center(androidx.ui.unit.PxSize);
     method public static inline androidx.ui.unit.Px coerceAtLeast(androidx.ui.unit.Px, androidx.ui.unit.Px minimumValue);
@@ -442,8 +446,9 @@ package androidx.ui.unit {
     method public static androidx.ui.unit.PxSize toSize(androidx.ui.unit.PxBounds);
   }
 
-  public final class PxPosition {
-    method public androidx.ui.unit.PxPosition copy(long value);
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final class PxPosition {
+    ctor @kotlin.PublishedApi internal PxPosition(internal long value);
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public androidx.ui.unit.PxPosition copy(long value);
     method public inline androidx.ui.unit.Px getX();
     method public inline androidx.ui.unit.Px getY();
     method public inline operator androidx.ui.unit.PxPosition minus(androidx.ui.unit.PxPosition other);
@@ -461,8 +466,9 @@ package androidx.ui.unit {
     property public final androidx.ui.unit.PxPosition Origin;
   }
 
-  public final class PxSize {
-    method public androidx.ui.unit.PxSize copy(long value);
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final class PxSize {
+    ctor @kotlin.PublishedApi internal PxSize(internal long value);
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public androidx.ui.unit.PxSize copy(long value);
     method public inline operator androidx.ui.unit.PxSize div(int other);
     method public inline operator androidx.ui.unit.PxSize div(float other);
     method public inline operator androidx.ui.unit.PxSize div(double other);
@@ -483,7 +489,7 @@ package androidx.ui.unit {
     property public final androidx.ui.unit.PxSize Zero;
   }
 
-  public final inline class PxSquared implements java.lang.Comparable<androidx.ui.unit.PxSquared> {
+  @androidx.compose.Immutable public final inline class PxSquared implements java.lang.Comparable<androidx.ui.unit.PxSquared> {
     ctor public PxSquared();
     method public operator int compareTo-RjPF0Mw(float p);
     method public static operator int compareTo-RjPF0Mw(float $this, float other);
@@ -492,10 +498,10 @@ package androidx.ui.unit {
     method public static inline operator float div-bji3ab4(float $this, float other);
     method public static inline operator float div-impl(float $this, float other);
     method public static inline operator androidx.ui.unit.Px div-impl(float $this, androidx.ui.unit.Px other);
-    method public static boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public static int hashCode-impl(float p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
     method public static inline operator float minus-RjPF0Mw(float $this, float other);
     method public static inline operator float plus-RjPF0Mw(float $this, float other);
     method public static inline operator float times-impl(float $this, float other);
@@ -503,28 +509,28 @@ package androidx.ui.unit {
     method public static String toString-impl(float $this);
   }
 
-  public final inline class Size {
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final inline class Size {
     ctor public Size();
     method public static long constructor-impl(internal long value);
     method public static inline operator long div-impl(long $this, int other);
     method public static inline operator long div-impl(long $this, float other);
     method public static inline operator long div-impl(long $this, double other);
-    method public static boolean equals-impl(long p, Object? p1);
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static androidx.ui.unit.Dp getHeight-impl(long $this);
     method public static androidx.ui.unit.Dp getWidth-impl(long $this);
-    method public static int hashCode-impl(long p);
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline int hashCode-impl(long p);
     method public static inline operator long times-impl(long $this, int other);
     method public static inline operator long times-impl(long $this, float other);
     method public static inline operator long times-impl(long $this, double other);
     method public static String toString-impl(long $this);
   }
 
-  public final class TextUnit {
+  @androidx.compose.Immutable public final class TextUnit {
     ctor public TextUnit(long packedValue);
     method public inline operator int compareTo(androidx.ui.unit.TextUnit other);
     method public long component1();
-    method public androidx.ui.unit.TextUnit copy(long packedValue);
+    method @androidx.compose.Immutable public androidx.ui.unit.TextUnit copy(long packedValue);
     method public inline operator androidx.ui.unit.TextUnit div(float other);
     method public inline operator androidx.ui.unit.TextUnit div(double other);
     method public inline operator androidx.ui.unit.TextUnit div(int other);
@@ -561,6 +567,9 @@ package androidx.ui.unit {
   }
 
   public final class TextUnitKt {
+    method @kotlin.PublishedApi internal static inline <T> T! checkArithmetic(androidx.ui.unit.TextUnit a, kotlin.jvm.functions.Function0<? extends T> block);
+    method @kotlin.PublishedApi internal static inline <T> T! checkArithmetic(androidx.ui.unit.TextUnit a, androidx.ui.unit.TextUnit b, kotlin.jvm.functions.Function0<? extends T> block);
+    method @kotlin.PublishedApi internal static inline <T> T! checkArithmetic(androidx.ui.unit.TextUnit a, androidx.ui.unit.TextUnit b, androidx.ui.unit.TextUnit c, kotlin.jvm.functions.Function0<? extends T> block);
     method public static inline androidx.ui.unit.TextUnit coerceAtLeast(androidx.ui.unit.TextUnit, androidx.ui.unit.TextUnit minimumValue);
     method public static inline androidx.ui.unit.TextUnit coerceAtMost(androidx.ui.unit.TextUnit, androidx.ui.unit.TextUnit maximumValue);
     method public static inline androidx.ui.unit.TextUnit coerceIn(androidx.ui.unit.TextUnit, androidx.ui.unit.TextUnit minimumValue, androidx.ui.unit.TextUnit maximumValue);
@@ -573,6 +582,7 @@ package androidx.ui.unit {
     method public static androidx.ui.unit.TextUnit lerp(androidx.ui.unit.TextUnit a, androidx.ui.unit.TextUnit b, float t);
     method public static inline androidx.ui.unit.TextUnit max(androidx.ui.unit.TextUnit a, androidx.ui.unit.TextUnit b);
     method public static inline androidx.ui.unit.TextUnit min(androidx.ui.unit.TextUnit a, androidx.ui.unit.TextUnit b);
+    method @kotlin.PublishedApi internal static inline androidx.ui.unit.TextUnit pack(long unitType, float v);
     method public static inline operator androidx.ui.unit.TextUnit times(float, androidx.ui.unit.TextUnit other);
     method public static inline operator androidx.ui.unit.TextUnit times(double, androidx.ui.unit.TextUnit other);
     method public static inline operator androidx.ui.unit.TextUnit times(int, androidx.ui.unit.TextUnit other);
@@ -584,11 +594,11 @@ package androidx.ui.unit {
     enum_constant public static final androidx.ui.unit.TextUnitType Sp;
   }
 
-  public final class Uptime implements java.lang.Comparable<androidx.ui.unit.Uptime> {
+  @androidx.compose.Immutable public final class Uptime implements java.lang.Comparable<androidx.ui.unit.Uptime> {
     ctor public Uptime(long nanoseconds);
     method public int compareTo(androidx.ui.unit.Uptime other);
     method public long component1();
-    method public androidx.ui.unit.Uptime copy(long nanoseconds);
+    method @androidx.compose.Immutable public androidx.ui.unit.Uptime copy(long nanoseconds);
     method public long getNanoseconds();
     method public operator androidx.ui.unit.Uptime minus(androidx.ui.unit.Duration duration);
     method public operator androidx.ui.unit.Duration minus(androidx.ui.unit.Uptime other);
