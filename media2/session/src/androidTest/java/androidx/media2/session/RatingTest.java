@@ -18,12 +18,10 @@ package androidx.media2.session;
 
 import static org.junit.Assert.assertEquals;
 
-import android.os.Build;
 import android.os.Parcel;
 
 import androidx.media2.common.Rating;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
@@ -34,7 +32,6 @@ import org.junit.runner.RunWith;
 /**
  * Tests {@link Rating} and its subclasses.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class RatingTest extends MediaTestBase {

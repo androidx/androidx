@@ -56,7 +56,6 @@ import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -73,7 +72,6 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Tests {@link MediaController.ControllerCallback}.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaControllerCallbackTest extends MediaSessionTestBase {

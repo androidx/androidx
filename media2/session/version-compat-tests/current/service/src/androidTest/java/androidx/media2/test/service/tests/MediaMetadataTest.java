@@ -27,7 +27,6 @@ import static org.junit.Assert.fail;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -44,7 +43,6 @@ import androidx.media2.session.ThumbRating;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
 
@@ -55,7 +53,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class MediaMetadataTest {

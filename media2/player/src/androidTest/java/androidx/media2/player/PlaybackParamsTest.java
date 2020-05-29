@@ -55,7 +55,7 @@ public class PlaybackParamsTest extends MediaTestBase {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // For framework PlaybackParams
     public void constants() {
         assertEquals(android.media.PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT,
                 PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT);
