@@ -16,8 +16,6 @@
 
 package androidx.mediarouter.media;
 
-import static androidx.mediarouter.media.MediaRouter.USE_FWK_MR2_PROTOCOL;
-
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -96,13 +94,7 @@ final class RegisteredMediaRouteProviderWatcher {
 
     public void enableTransfer() {
         mTransferEnabled = true;
-        if (USE_FWK_MR2_PROTOCOL) {
-            scanPackages();
-        } else {
-            for (int i = mProviders.size() - 1; i >= 0; i--) {
-                mProviders.get(i).enableTransfer(/* shouldUpdateBinding = */ true);
-            }
-        }
+        scanPackages();
     }
 
     void scanPackages() {
@@ -124,7 +116,7 @@ final class RegisteredMediaRouteProviderWatcher {
             if (serviceInfo == null) {
                 continue;
             }
-            if (USE_FWK_MR2_PROTOCOL && mTransferEnabled
+            if (mTransferEnabled
                     && listContainsServiceInfo(mediaRoute2ProviderServices, serviceInfo)) {
                 // Do not register services which supports MediaRoute2ProviderService,
                 // since we will communicate with them via MediaRouter2.

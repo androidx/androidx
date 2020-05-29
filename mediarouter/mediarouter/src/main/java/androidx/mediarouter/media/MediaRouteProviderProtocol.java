@@ -235,6 +235,7 @@ abstract class MediaRouteProviderProtocol {
      */
     public static final int SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED = 7;
 
+    // TODO: Remove this when related logic in service is removed.
     /** (service v3)
      * Dynamic route controller created without any request. (unsolicited event)
      * - arg1   : reserved (0)
@@ -273,15 +274,9 @@ abstract class MediaRouteProviderProtocol {
     public static final int CLIENT_VERSION_3 = 3;
 
     /**
-     * The client version used from androidx 1.2.0.
-     * From this version, framework MediaRouter2 is used to support transfer.
-     */
-    public static final int CLIENT_VERSION_4 = 4;
-
-    /**
      * The current client version.
      */
-    public static final int CLIENT_VERSION_CURRENT = CLIENT_VERSION_4;
+    public static final int CLIENT_VERSION_CURRENT = CLIENT_VERSION_3;
 
     /*
      * Recognized server version numbers.  (Reserved for future use.)
@@ -299,15 +294,9 @@ abstract class MediaRouteProviderProtocol {
     public static final int SERVICE_VERSION_2 = 2;
 
     /**
-     * The service version used from androidx 1.2.0.
-     * From this version, framework MediaRoute2ProviderService is used to support transfer.
-     */
-    public static final int SERVICE_VERSION_3 = 3;
-
-    /**
      * The current service version.
      */
-    public static final int SERVICE_VERSION_CURRENT = SERVICE_VERSION_3;
+    public static final int SERVICE_VERSION_CURRENT = SERVICE_VERSION_2;
 
     static final int CLIENT_VERSION_START = CLIENT_VERSION_1;
 

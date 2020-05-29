@@ -28,8 +28,6 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
-import android.media.MediaRouter2;
-import android.media.RouteDiscoveryPreference;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,14 +36,12 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
-import android.util.ArraySet;
 import android.util.Log;
 import android.view.Display;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.core.content.ContextCompat;
@@ -73,8 +69,6 @@ import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
 /**
  * MediaRouter allows applications to control the routing of media channels
@@ -143,10 +137,6 @@ public final class MediaRouter {
     // MediaRouter objects are instantiated so it is guaranteed to be
     // valid whenever any instance method is invoked.
     static GlobalMediaRouter sGlobal;
-
-    // TODO: After implementation of b/155377435 is complete, remove this variable and
-    //       related logic. Before then, test the new code with setting this value to true.
-    static final boolean USE_FWK_MR2_PROTOCOL = false;
 
     // Context-bound state of the media router.
     final Context mContext;
@@ -684,9 +674,6 @@ public final class MediaRouter {
         }
         if (updateNeeded) {
             sGlobal.updateDiscoveryRequest();
-            if (!USE_FWK_MR2_PROTOCOL) {
-                sGlobal.updateMr2RouteDiscoveryPreferenceFwk();
-            }
         }
     }
 
@@ -711,9 +698,6 @@ public final class MediaRouter {
         if (index >= 0) {
             mCallbackRecords.remove(index);
             sGlobal.updateDiscoveryRequest();
-            if (!USE_FWK_MR2_PROTOCOL) {
-                sGlobal.updateMr2RouteDiscoveryPreferenceFwk();
-            }
         }
     }
 
@@ -2205,10 +2189,6 @@ public final class MediaRouter {
             implements SystemMediaRouteProvider.SyncCallback,
             RegisteredMediaRouteProviderWatcher.Callback {
         final Context mApplicationContext;
-        final MediaRouter2 mMediaRouter2Fwk;
-        final MediaRouter2.RouteCallback mMr2RouteCallbackFwk;
-        final MediaRouter2.TransferCallback mMr2TransferCallbackFwk;
-        final Executor mMr2CbExecutor;
         final MediaRoute2Provider mMr2Provider;
         final ArrayList<WeakReference<MediaRouter>> mRouters = new ArrayList<>();
         private final ArrayList<RouteInfo> mRoutes = new ArrayList<>();
@@ -2260,26 +2240,9 @@ public final class MediaRouter {
                     (ActivityManager)applicationContext.getSystemService(
                             Context.ACTIVITY_SERVICE));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                mMediaRouter2Fwk = MediaRouter2.getInstance(mApplicationContext);
-                mMr2RouteCallbackFwk = new MediaRouter2.RouteCallback() {};
-                mMr2TransferCallbackFwk = new Mr2TransferCallback();
-                mMr2CbExecutor = new Executor() {
-                    @Override
-                    public void execute(@NonNull Runnable command) {
-                        mCallbackHandler.post(command);
-                    }
-                };
-                if (USE_FWK_MR2_PROTOCOL) {
-                    mMr2Provider = new MediaRoute2Provider(
-                            mApplicationContext, new Mr2ProviderCallback());
-                } else {
-                    mMr2Provider = null;
-                }
+                mMr2Provider = new MediaRoute2Provider(
+                        mApplicationContext, new Mr2ProviderCallback());
             } else {
-                mMediaRouter2Fwk = null;
-                mMr2RouteCallbackFwk = null;
-                mMr2TransferCallbackFwk = null;
-                mMr2CbExecutor = null;
                 mMr2Provider = null;
             }
             // Add the system media route provider for interoperating with
@@ -2455,7 +2418,7 @@ public final class MediaRouter {
                     .onUpdateMemberRoutes(Collections.singletonList(route.getDescriptorId()));
         }
 
-        void selectRoute(@NonNull RouteInfo route, int unselectReason) {
+        void selectRoute(@NonNull RouteInfo route, @UnselectReason int unselectReason) {
             if (!mRoutes.contains(route)) {
                 Log.w(TAG, "Ignoring attempt to select removed route: " + route);
                 return;
@@ -2465,13 +2428,13 @@ public final class MediaRouter {
                 return;
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && USE_FWK_MR2_PROTOCOL
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
                     && route.getProviderInstance() == mMr2Provider && mSelectedRoute != route) {
                 // Asynchronously select the route
                 mMr2Provider.transferTo(route.getDescriptorId());
                 return;
             }
-            setSelectedRouteInternal(route, unselectReason, /* preCreatedController= */ null);
+            setSelectedRouteInternal(route, unselectReason);
         }
 
         public boolean isRouteAvailable(MediaRouteSelector selector, int flags) {
@@ -2508,11 +2471,7 @@ public final class MediaRouter {
             }
             mIsTransferEnabled = true;
             mRegisteredProviderWatcher.enableTransfer();
-            if (USE_FWK_MR2_PROTOCOL) {
-                addProvider(mMr2Provider);
-            } else {
-                updateMr2RouteDiscoveryPreferenceFwk();
-            }
+            addProvider(mMr2Provider);
         }
 
         public void updateDiscoveryRequest() {
@@ -2581,42 +2540,6 @@ public final class MediaRouter {
             final int providerCount = mProviders.size();
             for (int i = 0; i < providerCount; i++) {
                 mProviders.get(i).mProviderInstance.setDiscoveryRequest(mDiscoveryRequest);
-            }
-        }
-
-        void updateMr2RouteDiscoveryPreferenceFwk() {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R || !mIsTransferEnabled) {
-                return;
-            }
-
-            boolean callbackExists = false;
-            Set<String> controlCategories = new ArraySet<>();
-            for (int i = mRouters.size(); --i >= 0; ) {
-                MediaRouter router = mRouters.get(i).get();
-                if (router == null) {
-                    mRouters.remove(i);
-                } else {
-                    final int count = router.mCallbackRecords.size();
-                    if (count > 0) {
-                        callbackExists = true;
-                    }
-                    for (int j = 0; j < count; j++) {
-                        CallbackRecord callback = router.mCallbackRecords.get(j);
-                        controlCategories.addAll(callback.mSelector.getControlCategories());
-                    }
-                }
-            }
-
-            if (callbackExists) {
-                RouteDiscoveryPreference preference = new RouteDiscoveryPreference.Builder(
-                        controlCategories.stream().map(MediaRouter2Utils::toRouteFeature)
-                                .collect(Collectors.toList()), /* activeScan= */ false).build();
-                mMediaRouter2Fwk.registerRouteCallback(
-                        mMr2CbExecutor, mMr2RouteCallbackFwk, preference);
-                mMediaRouter2Fwk.registerTransferCallback(mMr2CbExecutor, mMr2TransferCallbackFwk);
-            } else {
-                mMediaRouter2Fwk.unregisterRouteCallback(mMr2RouteCallbackFwk);
-                mMediaRouter2Fwk.unregisterTransferCallback(mMr2TransferCallbackFwk);
             }
         }
 
@@ -2903,7 +2826,7 @@ public final class MediaRouter {
                 Log.i(TAG, "Unselecting the current route because it "
                         + "is no longer selectable: " + mSelectedRoute);
                 setSelectedRouteInternal(chooseFallbackRoute(),
-                        MediaRouter.UNSELECT_REASON_UNKNOWN, /* preCreatedController= */ null);
+                        MediaRouter.UNSELECT_REASON_UNKNOWN);
             } else if (selectedRouteDescriptorChanged) {
                 // In case the selected route is a route group, select/unselect route controllers
                 // for the added/removed route members.
@@ -2969,8 +2892,8 @@ public final class MediaRouter {
                             SystemMediaRouteProvider.DEFAULT_ROUTE_ID);
         }
 
-        void setSelectedRouteInternal(@NonNull RouteInfo route, int unselectReason,
-                @Nullable DynamicGroupRouteController preCreatedController) {
+        void setSelectedRouteInternal(@NonNull RouteInfo route,
+                @UnselectReason int unselectReason) {
             // TODO: Remove the following logging when no longer needed.
             if (sGlobal == null || (mBluetoothRoute != null && route.isDefault())) {
                 final StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
@@ -2999,10 +2922,50 @@ public final class MediaRouter {
             }
 
             clearSelectedRoute(unselectReason);
-            setSelectedRouteWithController(route, unselectReason, preCreatedController);
+
+            RouteController newController;
+            if (route.getProvider().supportsDynamicGroup()) {
+                MediaRouteProvider.DynamicGroupRouteController dynamicGroupRouteController =
+                        route.getProviderInstance().onCreateDynamicGroupRouteController(
+                                route.mDescriptorId);
+                if (dynamicGroupRouteController != null) {
+                    dynamicGroupRouteController.setOnDynamicRoutesChangedListener(
+                            ContextCompat.getMainExecutor(mApplicationContext),
+                            mDynamicRoutesListener);
+                }
+                newController = dynamicGroupRouteController;
+            } else {
+                newController = route.getProviderInstance().onCreateRouteController(
+                        route.mDescriptorId);
+            }
+
+            mSelectedRouteController = newController;
+            mSelectedRoute = route;
+            if (mSelectedRouteController != null) {
+                mSelectedRouteController.onSelect();
+            }
+
+            if (DEBUG) {
+                Log.d(TAG, "Route selected: " + mSelectedRoute);
+            }
+            mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute,
+                    unselectReason);
+
+            if (mSelectedRoute.isGroup()) {
+                List<RouteInfo> routes = mSelectedRoute.getMemberRoutes();
+                mRouteControllerMap.clear();
+                for (RouteInfo memberRoute : routes) {
+                    RouteController memberRouteController =
+                            memberRoute.getProviderInstance().onCreateRouteController(
+                                    memberRoute.mDescriptorId, mSelectedRoute.mDescriptorId);
+                    memberRouteController.onSelect();
+                    mRouteControllerMap.put(memberRoute.mUniqueId, memberRouteController);
+                }
+            }
+            updatePlaybackInfoFromSelectedRoute();
         }
 
-        void clearSelectedRoute(int unselectReason) {
+        void clearSelectedRoute(@UnselectReason int unselectReason) {
             if (mSelectedRoute == null) {
                 return;
             }
@@ -3026,65 +2989,6 @@ public final class MediaRouter {
                 mRouteControllerMap.clear();
             }
             mSelectedRoute = null;
-        }
-
-        void setSelectedRouteWithController(@NonNull RouteInfo route,
-                int unselectReason, @Nullable DynamicGroupRouteController preCreatedController) {
-            RouteController newController;
-
-            if (route.getProvider().supportsDynamicGroup()) {
-                if (preCreatedController != null) {
-                    newController = preCreatedController;
-                } else {
-                    // Need to create controller
-                    // MRP will create a new dynamic group route with initially selected route.
-                    newController = route.getProviderInstance().onCreateDynamicGroupRouteController(
-                            route.mDescriptorId);
-                }
-            } else {
-                if (preCreatedController != null) {
-                    Log.w(TAG, "DynamicRouteGroupController is created for a route which doesn't "
-                            + "support dynamic group.");
-                    newController = preCreatedController;
-
-                } else {
-                    newController = route.getProviderInstance().onCreateRouteController(
-                            route.mDescriptorId);
-                }
-            }
-
-            if (newController instanceof DynamicGroupRouteController) {
-                ((DynamicGroupRouteController) newController).setOnDynamicRoutesChangedListener(
-                        ContextCompat.getMainExecutor(mApplicationContext),
-                        mDynamicRoutesListener);
-            }
-
-            mSelectedRouteController = newController;
-            mSelectedRoute = route;
-
-            // Pre-created controller is already selected, so don't need to call onSelect() again.
-            if (mSelectedRouteController != null && preCreatedController == null) {
-                mSelectedRouteController.onSelect();
-            }
-
-            if (DEBUG) {
-                Log.d(TAG, "Route selected: " + mSelectedRoute);
-            }
-            mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute,
-                    unselectReason);
-
-            if (mSelectedRoute.isGroup()) {
-                List<RouteInfo> routes = mSelectedRoute.getMemberRoutes();
-                mRouteControllerMap.clear();
-                for (RouteInfo memberRoute : routes) {
-                    RouteController memberRouteController =
-                            memberRoute.getProviderInstance().onCreateRouteController(
-                                    memberRoute.mDescriptorId, mSelectedRoute.mDescriptorId);
-                    memberRouteController.onSelect();
-                    mRouteControllerMap.put(memberRoute.mUniqueId, memberRouteController);
-                }
-            }
-            updatePlaybackInfoFromSelectedRoute();
         }
 
         DynamicGroupRouteController.OnDynamicRoutesChangedListener mDynamicRoutesListener =
@@ -3227,65 +3131,12 @@ public final class MediaRouter {
                     MediaRouteProviderDescriptor descriptor) {
                 updateProviderDescriptor(provider, descriptor);
             }
-
-            @Override
-            public void onDynamicGroupRouteControllerCreatedWithoutRequest(
-                    @NonNull MediaRouteProvider provider,
-                    @NonNull DynamicGroupRouteController controller,
-                    @NonNull String routeId) {
-
-                String uniqueRouteId = getUniqueId(new ProviderInfo(provider), routeId);
-
-                RouteInfo route = null;
-                for (RouteInfo r : getRoutes()) {
-                    if (r.getId().equals(uniqueRouteId)) {
-                        route = r;
-                        break;
-                    }
-                }
-
-                if (route == null) {
-                    Log.w(TAG, "onDynamicGroupRouteControllerCreatedWithoutRequest: "
-                            + "the selected route does not exist. uniqueRouteId=" + uniqueRouteId);
-                    controller.onUnselect(UNSELECT_REASON_UNKNOWN);
-                    controller.onRelease();
-                    return;
-                }
-
-                setSelectedRouteInternal(route, UNSELECT_REASON_ROUTE_CHANGED, controller);
-            }
-        }
-
-        @RequiresApi(Build.VERSION_CODES.R)
-        private final class Mr2TransferCallback extends MediaRouter2.TransferCallback {
-            @Override
-            public void onTransfer(@NonNull MediaRouter2.RoutingController oldController,
-                    @NonNull MediaRouter2.RoutingController newController) {
-                // Ignore other cases, since this callback is only used for checking
-                // Cast->Phone case.
-                if (newController == mMediaRouter2Fwk.getSystemController()) {
-                    selectFallbackRoute(UNSELECT_REASON_ROUTE_CHANGED);
-                }
-            }
-
-            @Override
-            public void onStop(@NonNull MediaRouter2.RoutingController controller) {
-                selectFallbackRoute(UNSELECT_REASON_STOPPED);
-            }
-
-            void selectFallbackRoute(int reason) {
-                RouteInfo fallbackRoute = chooseFallbackRoute();
-                if (getSelectedRoute() != fallbackRoute) {
-                    selectRoute(fallbackRoute, reason);
-                }
-                // Does nothing when the selected route is same with fallback route.
-                // This is the difference between this and unselect().
-            }
         }
 
         private final class Mr2ProviderCallback extends MediaRoute2Provider.Callback {
             @Override
-            public void onSelectRoute(@NonNull String routeDescriptorId, int reason) {
+            public void onSelectRoute(@NonNull String routeDescriptorId,
+                    @UnselectReason int reason) {
                 MediaRouter.RouteInfo routeToSelect = null;
                 for (MediaRouter.RouteInfo routeInfo : getRoutes()) {
                     if (routeInfo.getProviderInstance() != mMr2Provider) {
@@ -3303,11 +3154,11 @@ public final class MediaRouter {
                     return;
                 }
 
-                setSelectedRouteInternal(routeToSelect, reason, null);
+                setSelectedRouteInternal(routeToSelect, reason);
             }
 
             @Override
-            public void onSelectFallbackRoute(int reason) {
+            public void onSelectFallbackRoute(@UnselectReason int reason) {
                 setSelectedRouteToFallbackRoute(reason);
             }
 
@@ -3331,7 +3182,7 @@ public final class MediaRouter {
             void setSelectedRouteToFallbackRoute(@UnselectReason int reason) {
                 RouteInfo fallbackRoute = chooseFallbackRoute();
                 if (getSelectedRoute() != fallbackRoute) {
-                    setSelectedRouteInternal(fallbackRoute, reason, null);
+                    setSelectedRouteInternal(fallbackRoute, reason);
                 }
                 // Does nothing when the selected route is same with fallback route.
                 // This is the difference between this and unselect().

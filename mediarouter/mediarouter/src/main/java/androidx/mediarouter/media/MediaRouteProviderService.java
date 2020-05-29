@@ -162,7 +162,7 @@ public abstract class MediaRouteProviderService extends Service {
         boolean onSelectRoute(Messenger messenger, int requestId,
                 int controllerId);
         boolean onUnselectRoute(Messenger messenger, int requestId,
-                int controllerId, int reason);
+                int controllerId, @MediaRouter.UnselectReason int reason);
         boolean onSetRouteVolume(Messenger messenger, int requestId,
                 int controllerId, int volume);
         boolean onUpdateRouteVolume(Messenger messenger, int requestId,
@@ -711,7 +711,7 @@ public abstract class MediaRouteProviderService extends Service {
 
         @Override
         public boolean onUnselectRoute(Messenger messenger, int requestId,
-                int controllerId, int reason) {
+                int controllerId, @MediaRouter.UnselectReason int reason) {
             ClientRecord client = getClient(messenger);
             if (client != null) {
                 RouteController controller =
