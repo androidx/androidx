@@ -58,7 +58,9 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TextFieldOnValueChangeTextFieldValueTest {
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createComposeRule().also {
+        it.clockTestRule.pauseClock()
+    }
 
     val onValueChange: (TextFieldValue) -> Unit = mock()
 
