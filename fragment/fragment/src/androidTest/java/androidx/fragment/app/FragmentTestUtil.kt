@@ -124,13 +124,13 @@ data class TransitionVerificationInfo(
 fun TargetTracking.verifyAndClearTransition(block: TransitionVerificationInfo.() -> Unit) {
     val (epicenter, exitingViews, enteringViews) = TransitionVerificationInfo().apply { block() }
 
+    assertThat(exitingTargets).containsExactlyElementsIn(exitingViews)
+    assertThat(enteringTargets).containsExactlyElementsIn(enteringViews)
     if (epicenter == null) {
         assertThat(capturedEpicenter).isNull()
     } else {
         assertThat(capturedEpicenter).isEqualTo(epicenter)
     }
-    assertThat(exitingTargets).containsExactlyElementsIn(exitingViews)
-    assertThat(enteringTargets).containsExactlyElementsIn(enteringViews)
     clearTargets()
 }
 
