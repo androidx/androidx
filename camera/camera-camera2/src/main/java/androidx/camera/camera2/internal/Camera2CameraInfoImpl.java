@@ -24,6 +24,8 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ExperimentalExposureCompensation;
+import androidx.camera.core.ExposureState;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -46,6 +48,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     private final Camera2CameraControl mCamera2CameraControl;
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
+    private final ExposureControl mExposureControl;
 
     Camera2CameraInfoImpl(@NonNull String cameraId,
             @NonNull CameraCharacteristics cameraCharacteristics,
@@ -56,6 +59,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         mCamera2CameraControl = camera2CameraControl;
         mZoomControl = camera2CameraControl.getZoomControl();
         mTorchControl = camera2CameraControl.getTorchControl();
+        mExposureControl = camera2CameraControl.getExposureControl();
         logDeviceInfo();
     }
 
@@ -171,6 +175,13 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @Override
     public LiveData<ZoomState> getZoomState() {
         return mZoomControl.getZoomState();
+    }
+
+    @NonNull
+    @Override
+    @ExperimentalExposureCompensation
+    public ExposureState getExposureState() {
+        return mExposureControl.getExposureState();
     }
 
     /**

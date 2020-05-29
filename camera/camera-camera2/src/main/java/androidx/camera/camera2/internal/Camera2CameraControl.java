@@ -37,6 +37,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
+import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
@@ -107,6 +108,7 @@ final class Camera2CameraControl implements CameraControlInternal {
     private final FocusMeteringControl mFocusMeteringControl;
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
+    private final ExposureControl mExposureControl;
     private final AeFpsRange mAeFpsRange;
     @GuardedBy("mLock")
     private int mUseCount = 0;
@@ -149,6 +151,7 @@ final class Camera2CameraControl implements CameraControlInternal {
         // CameraCaptureCallback efficiently.
         mSessionConfigBuilder.addRepeatingCameraCaptureCallback(mCameraCaptureCallbackSet);
 
+        mExposureControl = new ExposureControl(this, mCameraCharacteristics);
         mFocusMeteringControl = new FocusMeteringControl(this, scheduler, mExecutor);
         mZoomControl = new ZoomControl(this, mCameraCharacteristics, mExecutor);
         mTorchControl = new TorchControl(this, mCameraCharacteristics, mExecutor);
@@ -204,6 +207,11 @@ final class Camera2CameraControl implements CameraControlInternal {
         return mTorchControl;
     }
 
+    @NonNull
+    public ExposureControl getExposureControl() {
+        return mExposureControl;
+    }
+
     /**
      * Set current active state. Set active if it is ready to trigger camera control operation.
      *
@@ -215,6 +223,7 @@ final class Camera2CameraControl implements CameraControlInternal {
         mFocusMeteringControl.setActive(isActive);
         mZoomControl.setActive(isActive);
         mTorchControl.setActive(isActive);
+        mExposureControl.setActive(isActive);
     }
 
     @ExecutedBy("mExecutor")
@@ -369,6 +378,13 @@ final class Camera2CameraControl implements CameraControlInternal {
                 cancelAePrecaptureTrigger));
     }
 
+    @NonNull
+    @Override
+    @ExperimentalExposureCompensation
+    public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
+        return mExposureControl.setExposureCompensationIndex(exposure);
+    }
+
     /** {@inheritDoc} */
     @Override
     public void submitCaptureRequests(@NonNull final List<CaptureConfig> captureConfigs) {
@@ -514,6 +530,8 @@ final class Camera2CameraControl implements CameraControlInternal {
         if (mCropRect != null) {
             builder.setCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, mCropRect);
         }
+
+        mExposureControl.setCaptureRequestOption(builder);
 
         return builder.build();
     }

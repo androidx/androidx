@@ -23,6 +23,7 @@ import android.graphics.Rect;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraControl;
+import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture.FlashMode;
@@ -83,6 +84,18 @@ public interface CameraControlInternal extends CameraControl {
     void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger);
 
     /**
+     * Set a exposure compensation to the camera
+     *
+     * @param exposure the exposure compensation value to set
+     * @return a ListenableFuture which is completed when the new exposure compensation reach the
+     * target.
+     */
+    @NonNull
+    @Override
+    @ExperimentalExposureCompensation
+    ListenableFuture<Integer> setExposureCompensationIndex(int exposure);
+
+    /**
      * Performs capture requests.
      */
     void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
@@ -129,6 +142,13 @@ public interface CameraControlInternal extends CameraControl {
         @Override
         public void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger) {
 
+        }
+
+        @NonNull
+        @Override
+        @ExperimentalExposureCompensation
+        public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
+            return Futures.immediateFuture(0);
         }
 
         @Override
