@@ -30,6 +30,7 @@ import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -1369,6 +1370,105 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
+    fun remoteMediator_prependEndOfPaginationReachedLocalThenRemote() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
+        val remoteMediator = object : RemoteMediatorMock() {
+            override suspend fun load(
+                loadType: LoadType,
+                state: PagingState<Int, Int>
+            ): MediatorResult {
+                super.load(loadType, state)
+                return MediatorResult.Success(endOfPaginationReached = true)
+            }
+        }
+
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 3,
+            maxSize = 5
+        )
+        val pager = PageFetcherSnapshot(
+            initialKey = 1,
+            pagingSource = pagingSourceFactory(),
+            config = config,
+            retryFlow = retryCh.asFlow(),
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
+        )
+
+        collectPagerData(pager) { pageEvents, _ ->
+            advanceUntilIdle()
+
+            pager.addHint(ViewportHint(0, 0))
+            advanceUntilIdle()
+
+            assertThat(pageEvents)
+                .isEqualTo(
+                    listOf<PageEvent<Int>>(
+                        LoadStateUpdate(
+                            loadType = REFRESH,
+                            fromMediator = false,
+                            loadState = Loading
+                        ),
+                        Refresh(
+                            pages = listOf(
+                                TransformablePage(
+                                    originalPageOffset = 0,
+                                    data = listOf(1, 2, 3),
+                                    originalPageSize = 3,
+                                    originalIndices = null
+                                )
+                            ),
+                            placeholdersBefore = 1,
+                            placeholdersAfter = 96,
+                            combinedLoadStates = remoteLoadStatesOf()
+                        ),
+                        LoadStateUpdate(
+                            loadType = PREPEND,
+                            fromMediator = false,
+                            loadState = Loading
+                        ),
+                        Prepend(
+                            pages = listOf(
+                                TransformablePage(
+                                    originalPageOffset = -1,
+                                    data = listOf(0),
+                                    originalPageSize = 1,
+                                    originalIndices = null
+                                )
+                            ),
+                            placeholdersBefore = 0,
+                            combinedLoadStates = remoteLoadStatesOf(
+                                prependLocal = NotLoading.Done
+                            )
+                        ),
+                        LoadStateUpdate(
+                            loadType = PREPEND,
+                            fromMediator = true,
+                            loadState = Loading
+                        ),
+                        Prepend(
+                            pages = listOf(
+                                TransformablePage(
+                                    originalPageOffset = -2,
+                                    data = listOf(),
+                                    originalPageSize = 0,
+                                    originalIndices = null
+                                )
+                            ),
+                            placeholdersBefore = 0,
+                            combinedLoadStates = remoteLoadStatesOf(
+                                prependLocal = NotLoading.Done,
+                                prependRemote = NotLoading.DoneRemote
+                            )
+                        )
+                    )
+                )
+        }
+    }
+
+    @Test
     fun remoteMediator_endOfPaginationNotReachedLoadStateAppend() = testScope.runBlockingTest {
         @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
@@ -1515,6 +1615,105 @@ class PageFetcherSnapshotTest {
                 ),
                 pageEvents
             )
+        }
+    }
+
+    @Test
+    fun remoteMediator_appendEndOfPaginationReachedLocalThenRemote() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
+        val remoteMediator = object : RemoteMediatorMock() {
+            override suspend fun load(
+                loadType: LoadType,
+                state: PagingState<Int, Int>
+            ): MediatorResult {
+                super.load(loadType, state)
+                return MediatorResult.Success(endOfPaginationReached = true)
+            }
+        }
+
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 3,
+            maxSize = 5
+        )
+        val pager = PageFetcherSnapshot(
+            initialKey = 96,
+            pagingSource = pagingSourceFactory(),
+            config = config,
+            retryFlow = retryCh.asFlow(),
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
+        )
+
+        collectPagerData(pager) { pageEvents, _ ->
+            advanceUntilIdle()
+
+            pager.addHint(ViewportHint(0, 2))
+            advanceUntilIdle()
+
+            assertThat(pageEvents)
+                .isEqualTo(
+                    listOf<PageEvent<Int>>(
+                        LoadStateUpdate(
+                            loadType = REFRESH,
+                            fromMediator = false,
+                            loadState = Loading
+                        ),
+                        Refresh(
+                            pages = listOf(
+                                TransformablePage(
+                                    originalPageOffset = 0,
+                                    data = listOf(96, 97, 98),
+                                    originalPageSize = 3,
+                                    originalIndices = null
+                                )
+                            ),
+                            placeholdersBefore = 96,
+                            placeholdersAfter = 1,
+                            combinedLoadStates = remoteLoadStatesOf()
+                        ),
+                        LoadStateUpdate(
+                            loadType = APPEND,
+                            fromMediator = false,
+                            loadState = Loading
+                        ),
+                        Append(
+                            pages = listOf(
+                                TransformablePage(
+                                    originalPageOffset = 1,
+                                    data = listOf(99),
+                                    originalPageSize = 1,
+                                    originalIndices = null
+                                )
+                            ),
+                            placeholdersAfter = 0,
+                            combinedLoadStates = remoteLoadStatesOf(
+                                appendLocal = NotLoading.Done
+                            )
+                        ),
+                        LoadStateUpdate(
+                            loadType = APPEND,
+                            fromMediator = true,
+                            loadState = Loading
+                        ),
+                        Append(
+                            pages = listOf(
+                                TransformablePage(
+                                    originalPageOffset = 2,
+                                    data = listOf(),
+                                    originalPageSize = 0,
+                                    originalIndices = null
+                                )
+                            ),
+                            placeholdersAfter = 0,
+                            combinedLoadStates = remoteLoadStatesOf(
+                                appendLocal = NotLoading.Done,
+                                appendRemote = NotLoading.DoneRemote
+                            )
+                        )
+                    )
+                )
         }
     }
 
