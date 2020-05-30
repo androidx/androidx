@@ -206,6 +206,7 @@ final class OpenGLRenderer {
     @WorkerThread
     private void doShutdownIfNeeded() {
         if (mIsShutdown && mNumOutstandingSurfaces == 0) {
+            mFrameUpdateListener = null;
             mExecutor.shutdown();
         }
     }
@@ -245,9 +246,9 @@ final class OpenGLRenderer {
                     mPreviewTransform);
             if (success && mFrameUpdateListener != null) {
                 Executor executor = mFrameUpdateListener.first;
+                Consumer<Long> listener = mFrameUpdateListener.second;
                 try {
                     executor.execute(() -> {
-                        Consumer<Long> listener = mFrameUpdateListener.second;
                         listener.accept(timestampNs);
                     });
                 } catch (RejectedExecutionException e) {

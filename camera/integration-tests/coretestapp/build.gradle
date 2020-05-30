@@ -108,5 +108,7 @@ dependencies {
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(':internal-testutils-runtime'))
 
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
 }
 
