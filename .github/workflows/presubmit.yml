@@ -1,0 +1,58 @@
+name: AndroidX Presubmits
+on: [push, pull_request]
+
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest]
+    # The type of runner that the job will run on
+    runs-on: ${{ matrix.os }}
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Setup Java environment based on setup-java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+          java-package: jdk
+          architecture: x64
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          # Forces to fetch all history
+          fetch-depth: 0
+      # build cache
+      - name: cache
+        uses: actions/cache@v1.1.2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          # An ordered list of keys to use for restoring the cache if no cache hit occurred for key
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - uses: actions/cache@v1.1.2
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - uses: actions/cache@v1.1.2
+        with:
+          path: ~/.konan
+          key: ${{ runner.os }}-konan
+      - name: create output directory
+        run: echo ~$HOME/dist && mkdir -p ~/dist
+      - name: set environment
+        # Makes the assumption that we are running on macOS currently.
+        run: echo ::set-env name=DIST_DIR::$(echo $HOME)/dist && echo ::set-env name=ANDROID_SDK_ROOT::$(echo $HOME)/Library/Android/sdk
+      - name: test environment
+        run: echo $DIST_DIR && ls $HOME/Library/Android/sdk
+      - name: build on server
+        run: cd playground && ./gradlew --build-file build.gradle -Pandroidx.sdkPath=$(echo $HOME)/Library/Android/sdk :buildOnServer && cd ..
+      - name: Upload Results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts
+          path: ~/dist
