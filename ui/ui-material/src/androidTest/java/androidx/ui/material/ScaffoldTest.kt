@@ -21,7 +21,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.drawShadow
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInParent
@@ -40,6 +39,7 @@ import androidx.ui.layout.size
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.testTag
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
@@ -170,28 +170,26 @@ class ScaffoldTest {
         lateinit var drawerChildPosition: PxPosition
         val scaffoldState = ScaffoldState(isDrawerGesturesEnabled = false)
         composeTestRule.setMaterialContent {
-            TestTag(scaffoldTag) {
-                Semantics(container = true) {
-                    Scaffold(
-                        scaffoldState = scaffoldState,
-                        drawerContent = {
-                            Box(Modifier
-                                .onPositioned { positioned: LayoutCoordinates ->
-                                    drawerChildPosition = positioned.positionInParent
-                                }
-                                .fillMaxWidth()
-                                .preferredHeight(50.dp)
-                                .drawBackground(Color.Blue)
-                            )
-                        }
-                    ) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .preferredHeight(50.dp)
-                                .drawBackground(Color.Blue)
+            Semantics(properties = { testTag = scaffoldTag }) {
+                Scaffold(
+                    scaffoldState = scaffoldState,
+                    drawerContent = {
+                        Box(Modifier
+                            .onPositioned { positioned: LayoutCoordinates ->
+                                drawerChildPosition = positioned.positionInParent
+                            }
+                            .fillMaxWidth()
+                            .preferredHeight(50.dp)
+                            .drawBackground(Color.Blue)
                         )
                     }
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .preferredHeight(50.dp)
+                            .drawBackground(Color.Blue)
+                    )
                 }
             }
         }
@@ -225,28 +223,26 @@ class ScaffoldTest {
         lateinit var drawerChildPosition: PxPosition
         val scaffoldState = ScaffoldState()
         composeTestRule.setMaterialContent {
-            TestTag(scaffoldTag) {
-                Semantics(container = true) {
-                    Scaffold(
-                        scaffoldState = scaffoldState,
-                        drawerContent = {
-                            Box(Modifier
-                                .onPositioned { positioned: LayoutCoordinates ->
-                                    drawerChildPosition = positioned.positionInParent
-                                }
-                                .fillMaxWidth()
-                                .preferredHeight(50.dp)
-                                .drawBackground(Color.Blue)
-                            )
-                        }
-                    ) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .preferredHeight(50.dp)
-                                .drawBackground(Color.Blue)
+            Semantics(properties = { testTag = scaffoldTag }) {
+                Scaffold(
+                    scaffoldState = scaffoldState,
+                    drawerContent = {
+                        Box(Modifier
+                            .onPositioned { positioned: LayoutCoordinates ->
+                                drawerChildPosition = positioned.positionInParent
+                            }
+                            .fillMaxWidth()
+                            .preferredHeight(50.dp)
+                            .drawBackground(Color.Blue)
                         )
                     }
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .preferredHeight(50.dp)
+                            .drawBackground(Color.Blue)
+                    )
                 }
             }
         }

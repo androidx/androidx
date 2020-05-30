@@ -20,6 +20,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Image
@@ -176,7 +177,9 @@ fun ListItem(
         val indication = RippleIndication(
             color = MaterialTheme.colors.onSurface.copy(alpha = RippleOpacity)
         )
-        Box(Modifier.clickable(onClick = onClick, indication = indication), children = item)
+        Box(Modifier
+            .semantics(mergeAllDescendants = true)
+            .clickable(onClick = onClick, indication = indication), children = item)
     } else {
         item()
     }

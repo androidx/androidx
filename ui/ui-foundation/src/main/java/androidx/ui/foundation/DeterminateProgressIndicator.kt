@@ -17,8 +17,9 @@
 package androidx.ui.foundation
 
 import androidx.annotation.FloatRange
-import androidx.ui.semantics.Semantics
-import androidx.compose.Composable
+import androidx.compose.Stable
+import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.semantics.accessibilityValueRange
@@ -32,28 +33,25 @@ import kotlin.math.roundToInt
  *
  * @param progress The progress of this progress indicator, where 0.0 represents no progress and 1.0
  * represents full progress
- * @param children The progress indicator that is drawn on screen, representing [progress]
  * @throws IllegalArgumentException when the progress is not within range
  */
-@Composable
-fun DeterminateProgressIndicator(
-    @FloatRange(from = 0.0, to = 1.0) progress: Float,
-    children: @Composable () -> Unit
-) {
+@Stable
+fun Modifier.determinateProgressIndicator(
+    @FloatRange(from = 0.0, to = 1.0) progress: Float
+): Modifier {
     if (progress !in 0f..1f) {
         throw IllegalArgumentException("Progress must be between 0.0 and 1.0")
     }
-    Semantics(container = true, properties = {
-        var percent: Int
-        // We only report 0% or 100% when it is exactly 0% or 100%.
-        if (progress > 0 && progress < 0.01) {
-            percent = 1
-        } else if (progress > 0.99 && progress < 1) {
-            percent = 99
-        } else {
-            percent = (progress * 100).roundToInt()
-        }
+
+    // We only display 0% or 100% when it is exactly 0% or 100%.
+    val percent = when (progress) {
+        0f -> 0
+        1f -> 100
+        else -> (progress * 100).roundToInt().coerceIn(1, 99)
+    }
+
+    return semantics {
         accessibilityValue = Strings.TemplatePercent.format(percent)
         accessibilityValueRange = AccessibilityRangeInfo(progress, 0f..1f)
-    }, children = children)
+    }
 }

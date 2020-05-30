@@ -19,7 +19,7 @@ package androidx.ui.foundation
 import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
+import androidx.ui.core.testTag
 import androidx.ui.graphics.Color
 import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.AccessibilityRangeInfo
@@ -48,16 +48,24 @@ class DeterminateProgressTest {
 
         composeTestRule
             .setContent {
-                TestTag(tag = tag) {
-                    DeterminateProgressIndicator(progress = progress.value) {
-                        Box(Modifier.preferredSize(50.dp).drawBackground(Color.Cyan))
-                    }
-                }
+                Box(Modifier
+                    .testTag(tag)
+                    .determinateProgressIndicator(progress.value)
+                    .preferredSize(50.dp)
+                    .drawBackground(Color.Cyan))
             }
 
         findByTag(tag)
             .assertValueEquals("0 percent")
             .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
+
+        runOnUiThread {
+            progress.value = 0.005f
+        }
+
+        findByTag(tag)
+            .assertValueEquals("1 percent")
+            .assertRangeInfoEquals(AccessibilityRangeInfo(0.005f, 0f..1f))
 
         runOnUiThread {
             progress.value = 0.5f
