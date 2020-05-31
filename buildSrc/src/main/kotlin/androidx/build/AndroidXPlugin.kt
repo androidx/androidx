@@ -339,17 +339,21 @@ class AndroidXPlugin : Plugin<Project> {
             check(minSdkVersion >= DEFAULT_MIN_SDK_VERSION) {
                 "minSdkVersion $minSdkVersion lower than the default of $DEFAULT_MIN_SDK_VERSION"
             }
-            project.configurations.all { configuration ->
-                configuration.resolutionStrategy.eachDependency { dep ->
-                    val target = dep.target
-                    val version = target.version
-                    // Enforce the ban on declaring dependencies with version ranges.
-                    if (version != null && Version.isDependencyRange(version)) {
-                        throw IllegalArgumentException(
-                                "Dependency ${dep.target} declares its version as " +
-                                        "version range ${dep.target.version} however the use of " +
-                                        "version ranges is not allowed, please update the " +
-                                        "dependency to list a fixed version.")
+            // allow range versions for playground so that it can substitute projects
+            // with artifacts
+            if (project.rootProject.name != "playground") {
+                project.configurations.all { configuration ->
+                    configuration.resolutionStrategy.eachDependency { dep ->
+                        val target = dep.target
+                        val version = target.version
+                        // Enforce the ban on declaring dependencies with version ranges.
+                        if (version != null && Version.isDependencyRange(version)) {
+                            throw IllegalArgumentException(
+                                    "Dependency ${dep.target} declares its version as " +
+                                            "version range ${dep.target.version} however the use of " +
+                                            "version ranges is not allowed, please update the " +
+                                            "dependency to list a fixed version.")
+                        }
                     }
                 }
             }

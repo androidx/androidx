@@ -34,8 +34,15 @@ buildscript {
 
 def root = project
 repos.addMavenRepositories(root.repositories)
+
+// Do not allow project -> artifact substitution in main project
+def projectOrArtifact(String path) {
+    return project(path)
+}
+def projectOrArtifactRef = this.&projectOrArtifact
 subprojects { subproject ->
     subproject.repositories.addAll(root.repositories)
+    subproject.ext.projectOrArtifact = projectOrArtifactRef
 }
 
 apply from: "buildSrc/dependencies.gradle"
