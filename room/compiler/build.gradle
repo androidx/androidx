@@ -113,7 +113,7 @@ dependencies {
     implementation(APACHE_COMMONS_CODEC)
     implementation(INTELLIJ_ANNOTATIONS)
     testImplementation(GOOGLE_COMPILE_TESTING)
-    testImplementation project(":paging:paging-common")
+    testImplementation projectOrArtifact(":paging:paging-common")
     testImplementation(JUNIT)
     testImplementation(JSR250)
     testImplementation(MOCKITO_CORE)
