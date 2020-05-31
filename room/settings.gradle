@@ -1,0 +1,37 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+apply from: "../playground-common/settings.gradle"
+setupPlayground(this)
+
+includeProject(":room:integration-tests:room-incremental-annotation-processing", "integration-tests/incremental-annotation-processing")
+includeProject(":room:integration-tests:room-testapp-noappcompat", "integration-tests/noappcompattestapp")
+includeProject(":room:integration-tests:room-testapp-autovalue", "integration-tests/autovaluetestapp")
+includeProject(":room:integration-tests:room-testapp", "integration-tests/testapp")
+includeProject(":room:integration-tests:room-testapp-kotlin", "integration-tests/kotlintestapp")
+includeProject(":room:room-benchmark", "benchmark")
+includeProject(":room:room-common", "common")
+includeProject(":room:room-compiler", "compiler")
+includeProject(":room:room-guava", "guava")
+includeProject(":room:room-ktx", "ktx")
+includeProject(":room:room-migration", "migration")
+includeProject(":room:room-runtime", "runtime")
+includeProject(":room:room-rxjava2", "rxjava2")
+includeProject(":room:room-testing", "testing")
+
+includeProject(":sqlite:sqlite", "../sqlite/sqlite")
+includeProject(":sqlite:sqlite-ktx", "../sqlite/sqlite-ktx")
+includeProject(":sqlite:sqlite-framework", "../sqlite/sqlite-framework")

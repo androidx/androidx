@@ -63,12 +63,7 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.extra
-import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.getPlugin
+import org.gradle.kotlin.dsl.*
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
@@ -341,7 +336,8 @@ class AndroidXPlugin : Plugin<Project> {
             }
             // allow range versions for playground so that it can substitute projects
             // with artifacts
-            if (project.rootProject.name != "playground") {
+
+            if (! (project.rootProject.extensions.findByName("allowVersionRangeInDependencies") == true)) {
                 project.configurations.all { configuration ->
                     configuration.resolutionStrategy.eachDependency { dep ->
                         val target = dep.target

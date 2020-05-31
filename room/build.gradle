@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import androidx.build.AndroidXRootPlugin
 buildscript {
     apply from:"../playground-common/build.gradle"
@@ -23,8 +22,9 @@ buildscript {
     ext.addDependencies(dependencies)
 }
 
+rootProject.extensions.putAt("allowVersionRangeInDependencies", true)
 ext.setupProjects(rootProject)
 apply from: "../buildSrc/out.gradle"
-init.chooseOutDir("/playground")
+init.chooseOutDir("/room-playground")
 
 apply plugin: AndroidXRootPlugin

@@ -1,0 +1,96 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+def addPlaygroundRepos(RepositoryHandler handler) {
+    handler.google()
+    handler.mavenCentral()
+    handler.jcenter()
+    handler.maven {
+        url 'https://androidx.dev/metalava/builds/6535121/artifacts/repo/m2repository'
+        metadataSources {
+            mavenPom()
+            artifact()
+        }
+    }
+    handler.maven {
+        url 'https://androidx.dev/dokka/builds/6402791/artifacts/repository'
+        metadataSources {
+            mavenPom()
+            artifact()
+        }
+    }
+    handler.maven {
+        url 'https://androidx.dev/snapshots/builds/6543454/artifacts/repository'
+    }
+}
+
+def addDependencies(DependencyHandler handler) {
+    apply from: '../buildSrc/build_dependencies.gradle'
+    handler.classpath build_libs.agp
+    handler.classpath build_libs.kotlin.gradle_plugin
+    handler.classpath 'androidx.build:gradle-plugin:0.1.0'
+    handler.classpath "com.github.jengelman.gradle.plugins:shadow:5.2.0"
+}
+
+def projectOrArtifact(String path) {
+    println "trying to load $path"
+    def requested = rootProject.findProject(path)
+    if (requested != null) {
+        return requested
+    } else {
+        def sections = path.split(":")
+        if (sections.size() == 3) {
+            // first is empty, second is project, third is artifact
+            def group = "androidx.${sections[1]}"
+            if (group.toString() == "androidx.arch") {
+                group = "androidx.arch.core"
+            }
+            def replacement = "$group:${sections[2]}:+"
+            return replacement
+        }
+        throw new GradleException("cannot find/replace project $path")
+    }
+}
+
+def setupProjects(rootProject) {
+    def libs = [:]
+
+    libs.exclude_bytebuddy = {
+        exclude group: 'net.bytebuddy'
+    }
+
+    libs.exclude_for_espresso = {
+        exclude group: 'androidx.annotation'
+        exclude group: 'androidx.appcompat'
+        exclude group: 'androidx.recyclerview'
+        exclude group: 'androidx.legacy'
+        exclude group: 'androidx.cardview'
+        exclude group: 'androidx.fragment'
+        exclude group: 'com.google.android.material'
+        exclude group: 'androidx.core'
+    }
+    rootProject.ext['libs'] = libs
+    rootProject.allprojects {
+        addPlaygroundRepos(repositories)
+        ext.projectOrArtifact = rootProject.ext.projectOrArtifact
+    }
+
+}
+
+ext.addPlaygroundRepos = this.&addPlaygroundRepos
+ext.addDependencies = this.&addDependencies
+ext.setupProjects = this.&setupProjects
+ext.projectOrArtifact = this.&projectOrArtifact
