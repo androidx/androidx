@@ -42,7 +42,6 @@ def setupPlayground(settings) {
         }
     }
     settings.includeBuild("../androidx-plugin")
-
     settings.includeProject(":lint-checks", "../lint-checks")
     settings.includeProject(":internal-testutils-common", "../testutils/testutils-common")
     settings.includeProject(":internal-testutils-gradle-plugin", "../testutils/testutils-gradle-plugin")

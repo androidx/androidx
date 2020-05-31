@@ -87,7 +87,6 @@ def setupProjects(rootProject) {
         addPlaygroundRepos(repositories)
         ext.projectOrArtifact = rootProject.ext.projectOrArtifact
     }
-
 }
 
 ext.addPlaygroundRepos = this.&addPlaygroundRepos

@@ -63,7 +63,12 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.extra
+import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.getPlugin
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
@@ -334,9 +339,9 @@ class AndroidXPlugin : Plugin<Project> {
             check(minSdkVersion >= DEFAULT_MIN_SDK_VERSION) {
                 "minSdkVersion $minSdkVersion lower than the default of $DEFAULT_MIN_SDK_VERSION"
             }
-            // allow range versions for playground so that it can substitute projects
-            // with artifacts
-
+            // allow range versions if project asks for it explicitly.
+            // this is done so that sub projects can live by themselves just for local
+            // build convenience. (their tests are still run via androidx build)
             if (! (project.rootProject.extensions.findByName("allowVersionRangeInDependencies") == true)) {
                 project.configurations.all { configuration ->
                     configuration.resolutionStrategy.eachDependency { dep ->
