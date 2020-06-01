@@ -236,7 +236,6 @@ public final class InlineSuggestionUi {
                 return;
             }
             // start icon
-            // start icon
             if (startIconView.getVisibility() != View.GONE) {
                 ImageViewStyle startIconViewStyle = getStartIconStyle();
                 if (startIconViewStyle != null) {
@@ -474,7 +473,10 @@ public final class InlineSuggestionUi {
         Content(@NonNull Slice slice) {
             super(slice);
             for (SliceItem sliceItem : slice.getItems()) {
-                String itemType = itemType(sliceItem);
+                final String itemType = itemType(sliceItem);
+                if (itemType == null) {
+                    continue;
+                }
                 switch (itemType) {
                     case HINT_INLINE_TITLE:
                         mTitle = sliceItem.getText().toString();
