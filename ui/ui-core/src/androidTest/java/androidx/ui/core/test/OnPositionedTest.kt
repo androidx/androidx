@@ -34,7 +34,6 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -66,8 +65,8 @@ class OnPositionedTest {
         val size = 50.ipx
         var index by mutableStateOf(0)
         var latch = CountDownLatch(2)
-        var wrap1Position = 0.px
-        var wrap2Position = 0.px
+        var wrap1Position = 0f
+        var wrap2Position = 0f
         rule.runOnUiThread {
             activity.setContent {
                 SimpleRow {
@@ -96,15 +95,15 @@ class OnPositionedTest {
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(0.px, wrap1Position)
-        assertEquals(size.toPx(), wrap2Position)
+        assertEquals(0f, wrap1Position)
+        assertEquals(size.toPx().value, wrap2Position)
         latch = CountDownLatch(2)
         rule.runOnUiThread {
             index = 1
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(size.toPx(), wrap1Position)
-        assertEquals(0.px, wrap2Position)
+        assertEquals(size.toPx().value, wrap1Position)
+        assertEquals(0f, wrap2Position)
     }
 
     @Test
@@ -148,7 +147,7 @@ class OnPositionedTest {
     @Test
     fun callbackCalledForChildWhenParentMoved() {
         var position by mutableStateOf(0.ipx)
-        var childGlobalPosition = PxPosition(0.px, 0.px)
+        var childGlobalPosition = PxPosition(0f, 0f)
         var latch = CountDownLatch(1)
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -185,7 +184,7 @@ class OnPositionedTest {
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(PxPosition(10.px, 0.px), childGlobalPosition)
+        assertEquals(PxPosition(10f, 0f), childGlobalPosition)
     }
 
     @Test
@@ -259,7 +258,7 @@ class OnPositionedTest {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         rule.runOnUiThread {
-            assertEquals(PxPosition(5.px, 5.px), coordinates!!.positionInParent)
+            assertEquals(PxPosition(5f, 5f), coordinates!!.positionInParent)
 
             var root = coordinates!!
             while (root.parentCoordinates != null) {
@@ -290,14 +289,14 @@ class OnPositionedTest {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         rule.runOnUiThread {
-            assertEquals(PxBounds(5.px, 5.px, 15.px, 15.px), coordinates!!.boundsInParent)
+            assertEquals(PxBounds(5f, 5f, 15f, 15f), coordinates!!.boundsInParent)
 
             var root = coordinates!!
             while (root.parentCoordinates != null) {
                 root = root.parentCoordinates!!
             }
 
-            assertEquals(PxBounds(0.px, 0.px, 20.px, 20.px), root.boundsInParent)
+            assertEquals(PxBounds(0f, 0f, 20f, 20f), root.boundsInParent)
         }
     }
 }

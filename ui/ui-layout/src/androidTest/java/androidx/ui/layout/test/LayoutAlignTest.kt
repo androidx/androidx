@@ -80,10 +80,10 @@ class LayoutAlignTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
-        assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
+        assertEquals(PxPosition(0f, 0f), alignPosition.value)
         assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(
-            PxPosition(root.width.px - size, root.height.px - size),
+            PxPosition((root.width.px - size).value, (root.height.px - size).value),
             childPosition.value
         )
     }
@@ -121,9 +121,9 @@ class LayoutAlignTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
-        assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
+        assertEquals(PxPosition(0f, 0f), alignPosition.value)
         assertEquals(IntPxSize(size, root.height.ipx), childSize.value)
-        assertEquals(PxPosition(root.width.px - size, 0.px), childPosition.value)
+        assertEquals(PxPosition((root.width.px - size).value, 0f), childPosition.value)
     }
 
     @Test
@@ -236,9 +236,9 @@ class LayoutAlignTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(IntPxSize(size, size), alignSize.value)
-        assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
+        assertEquals(PxPosition(0f, 0f), alignPosition.value)
         assertEquals(IntPxSize(size, size), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test

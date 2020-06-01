@@ -28,7 +28,6 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.layout.Stack
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.spy
@@ -239,7 +238,7 @@ class TouchSlopDragGestureFilterTest {
             view.dispatchTouchEvent(move)
         }
 
-        verify(dragObserver, times(2)).onDrag(PxPosition(movement.px, 0.px))
+        verify(dragObserver, times(2)).onDrag(PxPosition(movement.toFloat(), 0.0f))
     }
 
     private fun setup(startDragImmediately: Boolean) {

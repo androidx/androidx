@@ -35,7 +35,6 @@ import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.timeDiffWith
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -45,7 +44,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 private const val tag = "widget"
-private val anyPosition = PxPosition(1.px, 1.px)
+private val anyPosition = PxPosition(1f, 1f)
 
 private val (PartialGestureScope.(PxPosition) -> Unit).string: String
     get() = when (this) {

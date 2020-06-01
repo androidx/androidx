@@ -206,8 +206,8 @@ internal class AndroidParagraph constructor(
         get() = paragraphIntrinsics.textPaint
 
     override fun getOffsetForPosition(position: PxPosition): Int {
-        val line = layout.getLineForVertical(position.y.value.toInt())
-        return layout.getOffsetForHorizontal(line, position.x.value)
+        val line = layout.getLineForVertical(position.y.toInt())
+        return layout.getOffsetForHorizontal(line, position.x)
     }
 
     /**

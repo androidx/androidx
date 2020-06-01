@@ -27,7 +27,6 @@ import androidx.ui.test.util.splitsDurationEquallyInto
 import androidx.ui.test.util.verify
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule
@@ -50,8 +49,8 @@ class SendSwipeLineTest(private val config: TestConfig) {
     )
 
     companion object {
-        private val start = PxPosition(5f.px, 7f.px)
-        private val end = PxPosition(23f.px, 29f.px)
+        private val start = PxPosition(5f, 7f)
+        private val end = PxPosition(23f, 29f)
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")

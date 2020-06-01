@@ -325,110 +325,110 @@ class PxTest {
     @Test
     fun sizeCenter() {
         val size = PxSize(width = 10.px, height = 20.px)
-        assertEquals(PxPosition(5.px, 10.px), size.center())
+        assertEquals(PxPosition(5f, 10f), size.center())
     }
 
     @Test
     fun positionDistance() {
-        val position = PxPosition(3.px, 4.px)
+        val position = PxPosition(3f, 4f)
         assertEquals(5.px, position.getDistance())
     }
 
     @Test
     fun lerpPosition() {
-        val a = PxPosition(3.px, 10.px)
-        val b = PxPosition(5.px, 8.px)
-        assertEquals(PxPosition(4.px, 9.px), lerp(a, b, 0.5f))
-        assertEquals(PxPosition(3.px, 10.px), lerp(a, b, 0f))
-        assertEquals(PxPosition(5.px, 8.px), lerp(a, b, 1f))
+        val a = PxPosition(3f, 10f)
+        val b = PxPosition(5f, 8f)
+        assertEquals(PxPosition(4f, 9f), lerp(a, b, 0.5f))
+        assertEquals(PxPosition(3f, 10f), lerp(a, b, 0f))
+        assertEquals(PxPosition(5f, 8f), lerp(a, b, 1f))
     }
 
     @Test
     fun positionMinus() {
-        val a = PxPosition(3.px, 10.px)
-        val b = PxPosition(5.px, 8.px)
-        assertEquals(PxPosition(-2.px, 2.px), a - b)
-        assertEquals(PxPosition(2.px, -2.px), b - a)
+        val a = PxPosition(3f, 10f)
+        val b = PxPosition(5f, 8f)
+        assertEquals(PxPosition(-2f, 2f), a - b)
+        assertEquals(PxPosition(2f, -2f), b - a)
     }
 
     @Test
     fun positionPlus() {
-        val a = PxPosition(3.px, 10.px)
-        val b = PxPosition(5.px, 8.px)
-        assertEquals(PxPosition(8.px, 18.px), a + b)
-        assertEquals(PxPosition(8.px, 18.px), b + a)
+        val a = PxPosition(3f, 10f)
+        val b = PxPosition(5f, 8f)
+        assertEquals(PxPosition(8f, 18f), a + b)
+        assertEquals(PxPosition(8f, 18f), b + a)
     }
 
     @Test
     fun pxPositionMinusIntPxPosition() {
-        val a = PxPosition(3.px, 10.px)
+        val a = PxPosition(3f, 10f)
         val b = IntPxPosition(5.ipx, 8.ipx)
-        assertEquals(PxPosition(-2.px, 2.px), a - b)
+        assertEquals(PxPosition(-2f, 2f), a - b)
     }
 
     @Test
     fun pxPositionPlusIntPxPosition() {
-        val a = PxPosition(3.px, 10.px)
+        val a = PxPosition(3f, 10f)
         val b = IntPxPosition(5.ipx, 8.ipx)
-        assertEquals(PxPosition(8.px, 18.px), a + b)
+        assertEquals(PxPosition(8f, 18f), a + b)
     }
 
     @Test
     fun boundsWidth() {
-        val bounds = PxBounds(10.px, 5.px, 25.px, 15.px)
-        assertEquals(15.px, bounds.width)
+        val bounds = PxBounds(10f, 5f, 25f, 15f)
+        assertEquals(15f, bounds.width)
     }
 
     @Test
     fun boundsHeight() {
-        val bounds = PxBounds(10.px, 5.px, 25.px, 15.px)
-        assertEquals(10.px, bounds.height)
+        val bounds = PxBounds(10f, 5f, 25f, 15f)
+        assertEquals(10f, bounds.height)
     }
 
     @Test
     fun toSize() {
-        val size = PxSize(15.px, 10.px)
-        val bounds = PxBounds(10.px, 5.px, 25.px, 15.px)
+        val size = PxSize(15f, 10f)
+        val bounds = PxBounds(10f, 5f, 25f, 15f)
         assertEquals(size, bounds.toSize())
     }
 
     @Test
     fun toBounds() {
-        val size = PxSize(15.px, 10.px)
-        val bounds = PxBounds(0.px, 0.px, 15.px, 10.px)
+        val size = PxSize(15f, 10f)
+        val bounds = PxBounds(0f, 0f, 15f, 10f)
         assertEquals(bounds, size.toBounds())
     }
 
     @Test
     fun sizeTimesInt() {
-        assertEquals(PxSize(10.px, 10.px), PxSize(2.5.px, 2.5.px) * 4)
-        assertEquals(PxSize(10.px, 10.px), 4 * PxSize(2.5.px, 2.5.px))
+        assertEquals(PxSize(10f, 10f), PxSize(2.5f, 2.5f) * 4)
+        assertEquals(PxSize(10f, 10f), 4 * PxSize(2.5f, 2.5f))
     }
 
     @Test
     fun sizeDivInt() {
-        assertEquals(PxSize(10.px, 10.px), PxSize(40.px, 40.px) / 4)
+        assertEquals(PxSize(10f, 10f), PxSize(40f, 40f) / 4)
     }
 
     @Test
     fun sizeTimesFloat() {
-        assertEquals(PxSize(10.px, 10.px), PxSize(4.px, 4.px) * 2.5f)
-        assertEquals(PxSize(10.px, 10.px), 2.5f * PxSize(4.px, 4.px))
+        assertEquals(PxSize(10f, 10f), PxSize(4f, 4f) * 2.5f)
+        assertEquals(PxSize(10f, 10f), 2.5f * PxSize(4f, 4f))
     }
 
     @Test
     fun sizeDivFloat() {
-        assertEquals(PxSize(10.px, 10.px), PxSize(40.px, 40.px) / 4f)
+        assertEquals(PxSize(10f, 10f), PxSize(40f, 40f) / 4f)
     }
 
     @Test
     fun sizeTimesDouble() {
-        assertEquals(PxSize(10.px, 10.px), PxSize(4.px, 4.px) * 2.5)
-        assertEquals(PxSize(10.px, 10.px), 2.5 * PxSize(4.px, 4.px))
+        assertEquals(PxSize(10f, 10f), PxSize(4f, 4f) * 2.5)
+        assertEquals(PxSize(10f, 10f), 2.5 * PxSize(4f, 4f))
     }
 
     @Test
     fun sizeDivDouble() {
-        assertEquals(PxSize(10.px, 10.px), PxSize(40.px, 40.px) / 4.0)
+        assertEquals(PxSize(10f, 10f), PxSize(40f, 40f) / 4.0)
     }
 }

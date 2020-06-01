@@ -28,7 +28,6 @@ import androidx.ui.layout.offset
 import androidx.ui.layout.offsetPx
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 
 @Sampled
 @Composable
@@ -46,11 +45,11 @@ fun LayoutOffsetModifier() {
 @Composable
 fun LayoutOffsetPxModifier() {
     // This text will be offset in steps of 10.dp from the top left of the available space.
-    val offset = state { 0.px }
+    val offset = state { 0f }
     Text(
         "Layout offset modifier sample",
         Modifier
-            .tapGestureFilter { offset.value += 10.px }
+            .tapGestureFilter { offset.value += 10f }
             .offsetPx(offset, offset)
     )
 }

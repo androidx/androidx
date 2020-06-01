@@ -44,7 +44,6 @@ import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.TextUnit
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
@@ -233,7 +232,7 @@ class TextSelectionDelegateTest {
 
                 // Assert.
                 assertThat(coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * startOffset).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * startOffset), fontSizeInPx)
                 )
             }
         }
@@ -287,7 +286,7 @@ class TextSelectionDelegateTest {
 
                 // Assert.
                 assertThat(coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * startOffset).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * startOffset), fontSizeInPx)
                 )
             }
         }
@@ -341,7 +340,7 @@ class TextSelectionDelegateTest {
 
                 // Assert.
                 assertThat(coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * (text.length - 1 - startOffset)).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * (text.length - 1 - startOffset)), fontSizeInPx)
                 )
             }
         }
@@ -395,7 +394,7 @@ class TextSelectionDelegateTest {
 
                 // Assert.
                 assertThat(coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * (text.length - 1 - startOffset)).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * (text.length - 1 - startOffset)), fontSizeInPx)
                 )
             }
         }
@@ -451,7 +450,7 @@ class TextSelectionDelegateTest {
 
                 // Assert.
                 assertThat(coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * (text.length)).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * (text.length)), fontSizeInPx)
                 )
             }
         }
@@ -507,7 +506,7 @@ class TextSelectionDelegateTest {
 
                 // Assert.
                 assertThat(coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * (textLtr.length)).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * (textLtr.length)), fontSizeInPx)
                 )
             }
         }
@@ -561,7 +560,7 @@ class TextSelectionDelegateTest {
 
                 // Assert.
                 assertThat(coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * endOffset).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * endOffset), fontSizeInPx)
                 )
             }
         }
@@ -615,7 +614,7 @@ class TextSelectionDelegateTest {
 
                 // Assert.
                 assertThat(coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * endOffset).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * endOffset), fontSizeInPx)
                 )
             }
         }
@@ -669,7 +668,7 @@ class TextSelectionDelegateTest {
 
                 // Assert.
                 assertThat(coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * (text.length - 1 - endOffset)).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * (text.length - 1 - endOffset)), fontSizeInPx)
                 )
             }
         }
@@ -723,7 +722,7 @@ class TextSelectionDelegateTest {
 
                 // Assert.
                 assertThat(coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * (text.length - 1 - endOffset)).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * (text.length - 1 - endOffset)), fontSizeInPx)
                 )
             }
         }
@@ -779,7 +778,7 @@ class TextSelectionDelegateTest {
 
                 // Assert.
                 assertThat(coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * (textLtr.length)).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * (textLtr.length)), fontSizeInPx)
                 )
             }
         }
@@ -835,7 +834,7 @@ class TextSelectionDelegateTest {
 
                 // Assert.
                 assertThat(coordinates).isEqualTo(
-                    PxPosition((fontSizeInPx * (text.length)).px, fontSizeInPx.px)
+                    PxPosition((fontSizeInPx * (text.length)), fontSizeInPx)
                 )
             }
         }
@@ -1010,7 +1009,7 @@ class TextSelectionDelegateTest {
             density = defaultDensity
         )
 
-        val start = PxPosition((fontSizeInPx * 2).px, (fontSizeInPx / 2).px)
+        val start = PxPosition((fontSizeInPx * 2), (fontSizeInPx / 2))
         val end = start
 
         // Act.
@@ -1049,7 +1048,7 @@ class TextSelectionDelegateTest {
             density = defaultDensity
         )
 
-        val start = PxPosition((fontSizeInPx * 2).px, (fontSizeInPx / 2).px)
+        val start = PxPosition((fontSizeInPx * 2), (fontSizeInPx / 2))
         val end = start
 
         // Act.
@@ -1090,8 +1089,8 @@ class TextSelectionDelegateTest {
 
         val rawStartOffset = text.indexOf('e')
         val rawEndOffset = text.indexOf('r')
-        val start = PxPosition((fontSizeInPx * rawStartOffset).px, (fontSizeInPx / 2).px)
-        val end = PxPosition((fontSizeInPx * rawEndOffset).px, (fontSizeInPx / 2).px)
+        val start = PxPosition((fontSizeInPx * rawStartOffset), (fontSizeInPx / 2))
+        val end = PxPosition((fontSizeInPx * rawEndOffset), (fontSizeInPx / 2))
 
         // Act.
         val textSelectionInfo = getTextSelectionInfo(
@@ -1133,8 +1132,8 @@ class TextSelectionDelegateTest {
 
             val rawStartOffset = text.indexOf('r')
             val rawEndOffset = text.indexOf('e')
-            val start = PxPosition((fontSizeInPx * rawStartOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * rawEndOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * rawStartOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * rawEndOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -1178,8 +1177,8 @@ class TextSelectionDelegateTest {
             // "llo wor" is selected.
             val startOffset = text.indexOf("l")
             val endOffset = text.indexOf("r") + 1
-            val start = PxPosition((fontSizeInPx * startOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * endOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * startOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * endOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -1223,12 +1222,12 @@ class TextSelectionDelegateTest {
             val startOffset = text.indexOf("\u05D1")
             val endOffset = text.indexOf("\u05D3") + 1
             val start = PxPosition(
-                (fontSizeInPx * (text.length - 1 - startOffset)).px,
-                (fontSizeInPx / 2).px
+                (fontSizeInPx * (text.length - 1 - startOffset)),
+                (fontSizeInPx / 2)
             )
             val end = PxPosition(
-                (fontSizeInPx * (text.length - 1 - endOffset)).px,
-                (fontSizeInPx / 2).px
+                (fontSizeInPx * (text.length - 1 - endOffset)),
+                (fontSizeInPx / 2)
             )
 
             // Act.
@@ -1275,12 +1274,12 @@ class TextSelectionDelegateTest {
             val startOffset = text.indexOf("l")
             val endOffset = text.indexOf("\u05D2") + 1
             val start = PxPosition(
-                (fontSizeInPx * startOffset).px,
-                (fontSizeInPx / 2).px
+                (fontSizeInPx * startOffset),
+                (fontSizeInPx / 2)
             )
             val end = PxPosition(
-                (fontSizeInPx * (textLtr.length + text.length - endOffset)).px,
-                (fontSizeInPx / 2).px
+                (fontSizeInPx * (textLtr.length + text.length - endOffset)),
+                (fontSizeInPx / 2)
             )
 
             // Act.
@@ -1322,8 +1321,8 @@ class TextSelectionDelegateTest {
             // "llo wor" is selected.
             val startOffset = text.indexOf("r") + 1
             val endOffset = text.indexOf("l")
-            val start = PxPosition((fontSizeInPx * startOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * endOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * startOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * endOffset), (fontSizeInPx / 2))
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),
@@ -1364,12 +1363,12 @@ class TextSelectionDelegateTest {
             val startOffset = text.indexOf("\u05D3") + 1
             val endOffset = text.indexOf("\u05D1")
             val start = PxPosition(
-                (fontSizeInPx * (text.length - 1 - startOffset)).px,
-                (fontSizeInPx / 2).px
+                (fontSizeInPx * (text.length - 1 - startOffset)),
+                (fontSizeInPx / 2)
             )
             val end = PxPosition(
-                (fontSizeInPx * (text.length - 1 - endOffset)).px,
-                (fontSizeInPx / 2).px
+                (fontSizeInPx * (text.length - 1 - endOffset)),
+                (fontSizeInPx / 2)
             )
 
             // Act.
@@ -1414,12 +1413,12 @@ class TextSelectionDelegateTest {
             val startOffset = text.indexOf("\u05D2") + 1
             val endOffset = text.indexOf("l")
             val start = PxPosition(
-                (fontSizeInPx * (textLtr.length + text.length - startOffset)).px,
-                (fontSizeInPx / 2).px
+                (fontSizeInPx * (textLtr.length + text.length - startOffset)),
+                (fontSizeInPx / 2)
             )
             val end = PxPosition(
-                (fontSizeInPx * endOffset).px,
-                (fontSizeInPx / 2).px
+                (fontSizeInPx * endOffset),
+                (fontSizeInPx / 2)
             )
 
             // Act.
@@ -1476,8 +1475,8 @@ class TextSelectionDelegateTest {
                 handlesCrossed = false
             )
             // "l" is selected.
-            val start = PxPosition((fontSizeInPx * oldStartOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * oldStartOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * oldStartOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * oldStartOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -1533,12 +1532,12 @@ class TextSelectionDelegateTest {
             )
             // "\u05D1" is selected.
             val start = PxPosition(
-                (fontSizeInPx * (text.length - 1 - oldStartOffset)).px,
-                (fontSizeInPx / 2).px
+                (fontSizeInPx * (text.length - 1 - oldStartOffset)),
+                (fontSizeInPx / 2)
             )
             val end = PxPosition(
-                (fontSizeInPx * (text.length - 1 - oldStartOffset)).px,
-                (fontSizeInPx / 2).px
+                (fontSizeInPx * (text.length - 1 - oldStartOffset)),
+                (fontSizeInPx / 2)
             )
 
             // Act.
@@ -1594,8 +1593,8 @@ class TextSelectionDelegateTest {
                 handlesCrossed = false
             )
             // The Space after "o" is selected.
-            val start = PxPosition((fontSizeInPx * oldEndOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * oldEndOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * oldEndOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * oldEndOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -1651,8 +1650,8 @@ class TextSelectionDelegateTest {
                 handlesCrossed = true
             )
             // "l" is selected.
-            val start = PxPosition((fontSizeInPx * oldEndOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * oldEndOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * oldEndOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * oldEndOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -1708,8 +1707,8 @@ class TextSelectionDelegateTest {
                 handlesCrossed = false
             )
             // "e" should be selected.
-            val start = PxPosition((fontSizeInPx * oldEndOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * oldEndOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * oldEndOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * oldEndOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -1755,8 +1754,8 @@ class TextSelectionDelegateTest {
                 handlesCrossed = true
             )
             // "e" should be selected.
-            val start = PxPosition((fontSizeInPx * oldEndOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * oldEndOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * oldEndOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * oldEndOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -1802,10 +1801,10 @@ class TextSelectionDelegateTest {
                 handlesCrossed = false
             )
             // "d" should be selected.
-            val start = PxPosition((fontSizeInPx * oldEndOffset).px - (fontSizeInPx / 2).px,
-                (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * oldEndOffset).px - 1.px,
-                (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * oldEndOffset) - (fontSizeInPx / 2),
+                (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * oldEndOffset) - 1,
+                (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -1851,8 +1850,8 @@ class TextSelectionDelegateTest {
                 handlesCrossed = true
             )
             // "e" should be selected.
-            val start = PxPosition((fontSizeInPx * oldEndOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * oldEndOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * oldEndOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * oldEndOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -1898,8 +1897,8 @@ class TextSelectionDelegateTest {
                 handlesCrossed = true
             )
             // The space after "o" is selected.
-            val start = PxPosition((fontSizeInPx * oldStartOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * oldStartOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * oldStartOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * oldStartOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -1955,8 +1954,8 @@ class TextSelectionDelegateTest {
                 handlesCrossed = false
             )
             // "e" should be selected.
-            val start = PxPosition((fontSizeInPx * oldStartOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * oldStartOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * oldStartOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * oldStartOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -2002,8 +2001,8 @@ class TextSelectionDelegateTest {
                 handlesCrossed = true
             )
             // "e" should be selected.
-            val start = PxPosition((fontSizeInPx * oldStartOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * oldStartOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * oldStartOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * oldStartOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -2049,10 +2048,10 @@ class TextSelectionDelegateTest {
                 handlesCrossed = false
             )
             // "h" should be selected.
-            val start = PxPosition((fontSizeInPx * oldStartOffset).px,
-                (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * oldStartOffset).px,
-                (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * oldStartOffset),
+                (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * oldStartOffset),
+                (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -2098,10 +2097,10 @@ class TextSelectionDelegateTest {
                 handlesCrossed = true
             )
             // "d" should be selected.
-            val start = PxPosition((fontSizeInPx * oldStartOffset).px - 1.px,
-                (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * oldStartOffset).px - 1.px,
-                (fontSizeInPx / 2).px)
+            val start = PxPosition((fontSizeInPx * oldStartOffset) - 1,
+                (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * oldStartOffset) - 1,
+                (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -2131,8 +2130,8 @@ class TextSelectionDelegateTest {
             )
             // "hello w" is selected.
             val endOffset = text.indexOf("w") + 1
-            val start = PxPosition(-50.px, -50.px)
-            val end = PxPosition((fontSizeInPx * endOffset).px, (fontSizeInPx / 2).px)
+            val start = PxPosition(-50f, -50f)
+            val end = PxPosition((fontSizeInPx * endOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -2171,9 +2170,9 @@ class TextSelectionDelegateTest {
             )
             // "o world" is selected.
             val startOffset = text.indexOf("o")
-            val start = PxPosition((fontSizeInPx * startOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition((fontSizeInPx * text.length * 2).px, (fontSizeInPx * 2)
-                .px)
+            val start = PxPosition((fontSizeInPx * startOffset), (fontSizeInPx / 2))
+            val end = PxPosition((fontSizeInPx * text.length * 2), (fontSizeInPx * 2)
+                )
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -2213,8 +2212,8 @@ class TextSelectionDelegateTest {
             // "world" is selected.
             val endOffset = text.indexOf("w")
             val start =
-                PxPosition((fontSizeInPx * text.length * 2).px, (fontSizeInPx * 2).px)
-            val end = PxPosition((fontSizeInPx * endOffset).px, (fontSizeInPx / 2).px)
+                PxPosition((fontSizeInPx * text.length * 2), (fontSizeInPx * 2))
+            val end = PxPosition((fontSizeInPx * endOffset), (fontSizeInPx / 2))
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -2255,8 +2254,8 @@ class TextSelectionDelegateTest {
             // "hell" is selected.
             val startOffset = text.indexOf("o")
             val start =
-                PxPosition((fontSizeInPx * startOffset).px, (fontSizeInPx / 2).px)
-            val end = PxPosition(-50.px, -50.px)
+                PxPosition((fontSizeInPx * startOffset), (fontSizeInPx / 2))
+            val end = PxPosition(-50f, -50f)
 
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
@@ -2293,8 +2292,8 @@ class TextSelectionDelegateTest {
                 fontSize = fontSize,
                 density = defaultDensity
             )
-            val start = PxPosition(-50.px, -50.px)
-            val end = PxPosition(-20.px, -20.px)
+            val start = PxPosition(-50f, -50f)
+            val end = PxPosition(-20f, -20f)
             // Act.
             val textSelectionInfo = getTextSelectionInfo(
                 selectionCoordinates = Pair(start, end),

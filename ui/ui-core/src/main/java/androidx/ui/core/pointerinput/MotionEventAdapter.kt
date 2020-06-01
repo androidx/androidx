@@ -28,7 +28,6 @@ import androidx.ui.core.PointerInputData
 import androidx.ui.unit.NanosecondsPerMillisecond
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.Uptime
-import androidx.ui.unit.px
 
 /**
  * Converts Android framework [MotionEvent]s into Compose [PointerInputEvent]s.
@@ -145,7 +144,7 @@ internal class MotionEventAdapter {
     ): PointerInputData {
         val pointerCoords = MotionEvent.PointerCoords()
         motionEvent.getPointerCoords(index, pointerCoords)
-        val offset = PxPosition(pointerCoords.x.px, pointerCoords.y.px)
+        val offset = PxPosition(pointerCoords.x, pointerCoords.y)
 
         return PointerInputData(
             timestamp,

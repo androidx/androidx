@@ -280,8 +280,8 @@ internal class AndroidInputDispatcher constructor(
                 },
                 Array(coordinates.size) {
                     MotionEvent.PointerCoords().apply {
-                        x = coordinates[it].x.value
-                        y = coordinates[it].y.value
+                        x = coordinates[it].x
+                        y = coordinates[it].y
                     }
                 },
                 0,

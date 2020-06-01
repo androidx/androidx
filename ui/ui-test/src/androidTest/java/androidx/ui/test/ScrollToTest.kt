@@ -86,8 +86,8 @@ class ScrollToTest {
 
             Box(Modifier.semantics {
                 ScrollTo(action = { x, y ->
-                    currentScrollPositionY = y.value
-                    currentScrollPositionX = x.value
+                    currentScrollPositionY = y
+                    currentScrollPositionX = x
                     return@ScrollTo true
                 })
             }) {

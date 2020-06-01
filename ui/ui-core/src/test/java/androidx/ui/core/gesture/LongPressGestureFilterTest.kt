@@ -30,7 +30,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -277,7 +276,7 @@ class LongPressGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(down)
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition(13.px, 17.px))
+        verify(onLongPress).invoke(PxPosition(13f, 17f))
     }
 
     @Test
@@ -290,7 +289,7 @@ class LongPressGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move)
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition((7).px, 5.px))
+        verify(onLongPress).invoke(PxPosition(7f, 5f))
     }
 
     @Test
@@ -305,7 +304,7 @@ class LongPressGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move0, down1)
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition(13.px, 17.px))
+        verify(onLongPress).invoke(PxPosition(13f, 17f))
     }
 
     @Test
@@ -325,7 +324,7 @@ class LongPressGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(up0, move1)
         testContext.advanceTimeBy(25, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition(11.px, 19.px))
+        verify(onLongPress).invoke(PxPosition(11f, 19f))
     }
 
     @Test
@@ -340,7 +339,7 @@ class LongPressGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move0, down1)
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition(27.px, 29.px))
+        verify(onLongPress).invoke(PxPosition(27f, 29f))
     }
 
     @Test
@@ -360,7 +359,7 @@ class LongPressGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(up0, move1)
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition(27.px, 23.px))
+        verify(onLongPress).invoke(PxPosition(27f, 23f))
     }
 
     // Tests that verify that consumption behavior

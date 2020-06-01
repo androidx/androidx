@@ -29,7 +29,6 @@ import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import androidx.ui.unit.toPxPosition
 
 /**
@@ -99,10 +98,10 @@ internal abstract class LayoutNodeWrapper(
         // TODO(shepshapard): Right now globalToLocal has to traverse the tree all the way back up
         //  so calling this is expensive.  Would be nice to cache data such that this is cheap.
         val localPointerPosition = globalToLocal(globalPointerPosition)
-        return localPointerPosition.x.value >= 0 &&
-                localPointerPosition.x < measuredSize.width &&
-                localPointerPosition.y.value >= 0 &&
-                localPointerPosition.y < measuredSize.height
+        return localPointerPosition.x >= 0 &&
+                localPointerPosition.x < measuredSize.width.value &&
+                localPointerPosition.y >= 0 &&
+                localPointerPosition.y < measuredSize.height.value
     }
 
     /**
@@ -282,10 +281,10 @@ internal abstract class LayoutNodeWrapper(
             wrapper = parent
         }
         return PxBounds(
-            left = bounds.left.px,
-            top = bounds.top.px,
-            right = bounds.right.px,
-            bottom = bounds.bottom.px
+            left = bounds.left,
+            top = bounds.top,
+            right = bounds.right,
+            bottom = bounds.bottom
         )
     }
 

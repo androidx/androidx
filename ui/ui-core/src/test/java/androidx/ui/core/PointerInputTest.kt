@@ -20,7 +20,6 @@ import androidx.test.filters.SmallTest
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.Uptime
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.core.IsEqual.equalTo
 import org.junit.Assert.assertThat
@@ -196,7 +195,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
         assertThat(
             pointerInputChange.positionChange(),
-            `is`(equalTo(PxPosition(6.px, 12.px)))
+            `is`(equalTo(PxPosition(6f, 12f)))
         )
     }
 
@@ -206,7 +205,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 5f, 9f, false)
         assertThat(
             pointerInputChange.positionChange(),
-            `is`(equalTo(PxPosition(1.px, 3.px)))
+            `is`(equalTo(PxPosition(1f, 3f)))
         )
     }
 
@@ -236,7 +235,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(PxPosition(6.px, 12.px)))
+            `is`(equalTo(PxPosition(6f, 12f)))
         )
     }
 
@@ -246,7 +245,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 5f, 9f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(PxPosition(6.px, 12.px)))
+            `is`(equalTo(PxPosition(6f, 12f)))
         )
     }
 
@@ -256,7 +255,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 6f, 12f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(PxPosition(6.px, 12.px)))
+            `is`(equalTo(PxPosition(6f, 12f)))
         )
     }
 
@@ -419,7 +418,7 @@ class PointerInputTest {
         val pointerInputChange1 =
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
 
-        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(0.px, 0.px)
+        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(0f, 0f)
 
         assertThat(pointerInputChangeResult1, `is`(equalTo(pointerInputChange1)))
     }
@@ -429,9 +428,9 @@ class PointerInputTest {
         val pointerInputChange1 =
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
 
-        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(5.px, 0.px)
-        val pointerInputChangeResult2 = pointerInputChange1.consumePositionChange(0.px, 3.px)
-        val pointerInputChangeResult3 = pointerInputChange1.consumePositionChange(5.px, 3.px)
+        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(5f, 0f)
+        val pointerInputChangeResult2 = pointerInputChange1.consumePositionChange(0f, 3f)
+        val pointerInputChangeResult3 = pointerInputChange1.consumePositionChange(5f, 3f)
 
         assertThat(
             pointerInputChangeResult1,
@@ -452,9 +451,9 @@ class PointerInputTest {
         val pointerInputChange1 =
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
 
-        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(6.px, 0.px)
-        val pointerInputChangeResult2 = pointerInputChange1.consumePositionChange(0.px, 12.px)
-        val pointerInputChangeResult3 = pointerInputChange1.consumePositionChange(6.px, 12.px)
+        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(6f, 0f)
+        val pointerInputChangeResult2 = pointerInputChange1.consumePositionChange(0f, 12f)
+        val pointerInputChangeResult3 = pointerInputChange1.consumePositionChange(6f, 12f)
 
         assertThat(
             pointerInputChangeResult1,
@@ -475,9 +474,9 @@ class PointerInputTest {
         val pointerInputChange1 =
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 1f, 5f, false)
 
-        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(2.px, 0.px)
-        val pointerInputChangeResult2 = pointerInputChange1.consumePositionChange(0.px, 3.px)
-        val pointerInputChangeResult3 = pointerInputChange1.consumePositionChange(2.px, 3.px)
+        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(2f, 0f)
+        val pointerInputChangeResult2 = pointerInputChange1.consumePositionChange(0f, 3f)
+        val pointerInputChangeResult3 = pointerInputChange1.consumePositionChange(2f, 3f)
 
         assertThat(
             pointerInputChangeResult1,
@@ -584,15 +583,15 @@ class PointerInputTest {
             PointerId(0),
             PointerInputData(
                 Uptime.Boot + 100.milliseconds,
-                PxPosition(currentX.px, currentY.px),
+                PxPosition(currentX, currentY),
                 currentDown
             ),
             PointerInputData(
                 Uptime.Boot + 0.milliseconds,
-                PxPosition(previousX.px, previousY.px),
+                PxPosition(previousX, previousY),
                 previousDown
             ),
-            ConsumedData(PxPosition(consumedX.px, consumedY.px), consumedDown)
+            ConsumedData(PxPosition(consumedX, consumedY), consumedDown)
         )
     }
 }

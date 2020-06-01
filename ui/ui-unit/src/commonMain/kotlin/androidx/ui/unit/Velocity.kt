@@ -32,7 +32,7 @@ data class Velocity(
         /**
          * Velocity of 0 pixels per second in both x and y.
          */
-        val Zero = Velocity(PxPosition(0.px, 0.px))
+        val Zero = Velocity(PxPosition(0f, 0f))
     }
 }
 

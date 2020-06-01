@@ -37,7 +37,6 @@ import androidx.ui.unit.IntPxBounds
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Position
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
@@ -246,14 +245,14 @@ fun animate(
 }
 
 /**
- * Fire-and-forget animation [Composable] for [Px]. Once such an animation is created, it will be
+ * Fire-and-forget animation [Composable] for pixels. Once such an animation is created, it will be
  * positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
  * course of the animation, simply supply a different [target] to the [Composable].
  *
  * Note, [animate] is for simple animations that cannot be canceled. For cancellable animations
  * see [animatedValue].
  *
- *    val height : Px = animate(if (collapsed) 10.px else 20.px)
+ *    val height : Float = animate(if (collapsed) 10f else 20f)
  *
  * @param target Target value of the animation
  * @param animBuilder The animation that will be used to change the value through time. Physics
@@ -262,10 +261,10 @@ fun animate(
  */
 @Composable
 fun animate(
-    target: Px,
-    animBuilder: AnimationBuilder<Px> = remember { PhysicsBuilder() },
-    endListener: ((Px) -> Unit)? = null
-): Px {
+    target: Float,
+    animBuilder: AnimationBuilder<Float> = remember { PhysicsBuilder() },
+    endListener: ((Float) -> Unit)? = null
+): Float {
     return animate(target, PxToVectorConverter, animBuilder, PxVisibilityThreshold1D, endListener)
 }
 

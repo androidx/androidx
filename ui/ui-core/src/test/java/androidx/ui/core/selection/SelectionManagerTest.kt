@@ -30,7 +30,6 @@ import androidx.ui.text.length
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.subSequence
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
@@ -61,8 +60,8 @@ class SelectionManagerTest {
     private val middleSelectable = mock<Selectable>()
     private val lastSelectable = mock<Selectable>()
 
-    private val startCoordinates = PxPosition(3.px, 30.px)
-    private val endCoordinates = PxPosition(3.px, 600.px)
+    private val startCoordinates = PxPosition(3f, 30f)
+    private val endCoordinates = PxPosition(3f, 600f)
 
     private val fakeSelection =
         Selection(
@@ -417,8 +416,8 @@ class SelectionManagerTest {
 
         verify(selectable, times(1))
             .getSelection(
-                startPosition = PxPosition((-1).px, (-1).px),
-                endPosition = PxPosition((-1).px, (-1).px),
+                startPosition = PxPosition(-1f, -1f),
+                endPosition = PxPosition(-1f, -1f),
                 containerLayoutCoordinates = selectionManager.requireContainerCoordinates(),
                 longPress = false,
                 previousSelection = fakeSelection

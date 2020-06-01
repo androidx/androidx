@@ -105,37 +105,37 @@ class AppBarTest {
         }
 
         composeTestRule.runOnIdleComposeWithDensity {
-            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y.value +
+            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y +
                     appBarCoords!!.size.height.value
 
             // Navigation icon should be 4.dp from the start
             val navigationIconPositionX = navigationIconCoords!!.globalPosition.x
-            val navigationIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
+            val navigationIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx().value
             assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
             // Navigation icon should be 4.dp from the bottom
             val navigationIconPositionY = navigationIconCoords!!.globalPosition.y
             val navigationIconExpectedPositionY = (appBarBottomEdgeY -
                     AppBarStartAndEndPadding.toPx() - FakeIconSize.toPx()
-            ).roundToInt().px
+            ).roundToInt().toFloat()
             assertThat(navigationIconPositionY).isEqualTo(navigationIconExpectedPositionY)
 
             // Title should be 72.dp from the start
             val titlePositionX = titleCoords!!.globalPosition.x
             // 4.dp padding for the whole app bar + 68.dp inset
-            val titleExpectedPositionX = (4.dp.toIntPx() + 68.dp.toIntPx()).toPx()
+            val titleExpectedPositionX = (4.dp.toIntPx() + 68.dp.toIntPx()).value.toFloat()
             assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
 
             // Absolute position of the baseline
             val titleLastBaselinePositionY = titleLastBaselineRelativePosition!! +
-                    titleCoords!!.globalPosition.y.value
+                    titleCoords!!.globalPosition.y
             // Baseline should be 20.sp from the bottom of the app bar
             val titleExpectedLastBaselinePositionY = (appBarBottomEdgeY.px - 20.sp.toIntPx()
                 .toPx()).value
             assertThat(titleLastBaselinePositionY).isEqualTo(titleExpectedLastBaselinePositionY)
 
             // Action should be placed at the end
-            val actionPositionX = actionCoords!!.globalPosition.x.value
+            val actionPositionX = actionCoords!!.globalPosition.x
             val actionExpectedPositionX =
                 expectedActionPosition(appBarCoords!!.size.width.toPx().value)
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
@@ -144,7 +144,7 @@ class AppBarTest {
             val actionPositionY = actionCoords!!.globalPosition.y
             val actionExpectedPositionY = (appBarBottomEdgeY - AppBarStartAndEndPadding.toPx() -
                 FakeIconSize.toPx()
-            ).roundToInt().px
+            ).roundToInt().toFloat()
             assertThat(actionPositionY).isEqualTo(actionExpectedPositionY)
         }
     }
@@ -172,11 +172,11 @@ class AppBarTest {
             // Title should now be placed 16.dp from the start, as there is no navigation icon
             val titlePositionX = titleCoords!!.globalPosition.x
             // 4.dp padding for the whole app bar + 12.dp inset
-            val titleExpectedPositionX = (4.dp.toIntPx() + 12.dp.toIntPx()).toPx()
+            val titleExpectedPositionX = (4.dp.toIntPx() + 12.dp.toIntPx()).toPx().value
             assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
 
             // Action should still be placed at the end
-            val actionPositionX = actionCoords!!.globalPosition.x.value
+            val actionPositionX = actionCoords!!.globalPosition.x
             val actionExpectedPositionX =
                 expectedActionPosition(appBarCoords!!.size.width.toPx().value)
             assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
@@ -228,17 +228,17 @@ class AppBarTest {
         composeTestRule.runOnIdleComposeWithDensity {
             // Child icon should be 4.dp from the start
             val childIconPositionX = childCoords!!.globalPosition.x
-            val childIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx()
+            val childIconExpectedPositionX = AppBarStartAndEndPadding.toIntPx().toPx().value
             assertThat(childIconPositionX).isEqualTo(childIconExpectedPositionX)
 
-            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y.value +
+            val appBarBottomEdgeY = appBarCoords!!.globalPosition.y +
                     appBarCoords!!.size.height.value
 
             // Child icon should be 4.dp from the bottom
             val childIconPositionY = childCoords!!.globalPosition.y
             val childIconExpectedPositionY = (appBarBottomEdgeY - AppBarStartAndEndPadding.toPx() -
                 FakeIconSize.toPx()
-            ).roundToInt().px
+            ).roundToInt().toFloat()
             assertThat(childIconPositionY).isEqualTo(childIconExpectedPositionY)
         }
     }

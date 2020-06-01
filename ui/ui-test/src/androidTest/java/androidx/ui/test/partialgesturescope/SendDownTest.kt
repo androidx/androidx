@@ -27,7 +27,6 @@ import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -47,8 +46,8 @@ class SendDownTest(private val config: TestConfig) {
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return mutableListOf<TestConfig>().apply {
-                for (x in listOf(1.px, 99.px)) {
-                    for (y in listOf(2.px, 53.px)) {
+                for (x in listOf(1f, 99f)) {
+                    for (y in listOf(2f, 53f)) {
                         add(TestConfig(PxPosition(x, y)))
                     }
                 }

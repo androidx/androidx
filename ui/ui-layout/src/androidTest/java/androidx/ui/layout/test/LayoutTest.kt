@@ -145,7 +145,7 @@ open class LayoutTest {
         positionedLatch: CountDownLatch
     ): Modifier = this.onPositioned { coordinates ->
         size.value = IntPxSize(coordinates.size.width, coordinates.size.height)
-        position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+        position.value = coordinates.localToGlobal(PxPosition(0f, 0f))
         positionedLatch.countDown()
     }
 
@@ -248,21 +248,21 @@ open class LayoutTest {
         actual as PxSize
 
         assertEquals(
-            "Expected width ${expected.width.value} but obtained ${actual.width.value}",
-            expected.width.value,
-            actual.width.value,
+            "Expected width ${expected.width} but obtained ${actual.width}",
+            expected.width,
+            actual.width,
             0f
         )
         assertEquals(
-            "Expected height ${expected.height.value} but obtained ${actual.height.value}",
-            expected.height.value,
-            actual.height.value,
+            "Expected height ${expected.height} but obtained ${actual.height}",
+            expected.height,
+            actual.height,
             0f
         )
-        if (actual.width.value != actual.width.value.toInt().toFloat()) {
+        if (actual.width != actual.width.toInt().toFloat()) {
             fail("Expected integer width")
         }
-        if (actual.height.value != actual.height.value.toInt().toFloat()) {
+        if (actual.height != actual.height.toInt().toFloat()) {
             fail("Expected integer height")
         }
     }
@@ -274,21 +274,21 @@ open class LayoutTest {
         actual as PxPosition
 
         assertEquals(
-            "Expected x ${expected.x.value} but obtained ${actual.x.value}",
-            expected.x.value,
-            actual.x.value,
+            "Expected x ${expected.x} but obtained ${actual.x}",
+            expected.x,
+            actual.x,
             0f
         )
         assertEquals(
-            "Expected y ${expected.y.value} but obtained ${actual.y.value}",
-            expected.y.value,
-            actual.y.value,
+            "Expected y ${expected.y} but obtained ${actual.y}",
+            expected.y,
+            actual.y,
             0f
         )
-        if (actual.x.value != actual.x.value.toInt().toFloat()) {
+        if (actual.x != actual.x.toInt().toFloat()) {
             fail("Expected integer x coordinate")
         }
-        if (actual.y.value != actual.y.value.toInt().toFloat()) {
+        if (actual.y != actual.y.toInt().toFloat()) {
             fail("Expected integer y coordinate")
         }
     }

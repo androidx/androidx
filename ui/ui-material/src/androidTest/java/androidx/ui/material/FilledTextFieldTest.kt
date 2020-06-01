@@ -56,7 +56,6 @@ import androidx.ui.test.sendClick
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -200,10 +199,11 @@ class FilledTextFieldTest {
             assertThat(labelSize.value?.width).isGreaterThan(0.ipx)
             // centered position
             assertThat(labelPosition.value?.x).isEqualTo(
-                ExpectedPadding.toIntPx().toPx()
+                ExpectedPadding.toIntPx().value.toFloat()
             )
             assertThat(labelPosition.value?.y).isEqualTo(
-                ((ExpectedMinimumTextFieldHeight.toIntPx() - labelSize.value!!.height) / 2f).toPx()
+                ((ExpectedMinimumTextFieldHeight.toIntPx() - labelSize.value!!.height) / 2f)
+                    .value.toFloat()
             )
         }
     }
@@ -236,10 +236,10 @@ class FilledTextFieldTest {
             assertThat(labelSize.value?.width).isGreaterThan(0.ipx)
             // centered position
             assertThat(labelPosition.value?.x).isEqualTo(
-                ExpectedPadding.toIntPx().toPx()
+                ExpectedPadding.toIntPx().value.toFloat()
             )
             assertThat(labelPosition.value?.y).isEqualTo(
-                ((height.toIntPx() - labelSize.value!!.height) / 2f).toPx()
+                ((height.toIntPx() - labelSize.value!!.height) / 2f).value.toFloat()
             )
         }
     }
@@ -248,7 +248,7 @@ class FilledTextFieldTest {
     fun testLabelPosition_whenFocused() {
         val labelSize = Ref<IntPxSize>()
         val labelPosition = Ref<PxPosition>()
-        val baseline = Ref<Px>()
+        val baseline = Ref<Float>()
         testRule.setMaterialContent {
             Box {
                 FilledTextField(
@@ -260,7 +260,7 @@ class FilledTextFieldTest {
                             labelPosition.value = it.globalPosition
                             labelSize.value = it.size
                             baseline.value =
-                                it[FirstBaseline]!!.toPx() + labelPosition.value!!.y
+                                it[FirstBaseline]!!.value.toFloat() + labelPosition.value!!.y
                         })
                     }
                 )
@@ -277,10 +277,10 @@ class FilledTextFieldTest {
             assertThat(labelSize.value?.width).isGreaterThan(0.ipx)
             // label's top position
             assertThat(labelPosition.value?.x).isEqualTo(
-                ExpectedPadding.toIntPx().toPx()
+                ExpectedPadding.toIntPx().value.toFloat()
             )
             assertThat(baseline.value).isEqualTo(
-                ExpectedBaselineOffset.toIntPx().toPx()
+                ExpectedBaselineOffset.toIntPx().value.toFloat()
             )
         }
     }
@@ -289,7 +289,7 @@ class FilledTextFieldTest {
     fun testLabelPosition_whenInput() {
         val labelSize = Ref<IntPxSize>()
         val labelPosition = Ref<PxPosition>()
-        val baseline = Ref<Px>()
+        val baseline = Ref<Float>()
         testRule.setMaterialContent {
             Box {
                 FilledTextField(
@@ -300,7 +300,7 @@ class FilledTextFieldTest {
                             labelPosition.value = it.globalPosition
                             labelSize.value = it.size
                             baseline.value =
-                                it[FirstBaseline]!!.toPx() + labelPosition.value!!.y
+                                it[FirstBaseline]!!.value.toFloat() + labelPosition.value!!.y
                         })
                     }
                 )
@@ -314,10 +314,10 @@ class FilledTextFieldTest {
             assertThat(labelSize.value?.width).isGreaterThan(0.ipx)
             // label's top position
             assertThat(labelPosition.value?.x).isEqualTo(
-                ExpectedPadding.toIntPx().toPx()
+                ExpectedPadding.toIntPx().value.toFloat()
             )
             assertThat(baseline.value).isEqualTo(
-                ExpectedBaselineOffset.toIntPx().toPx()
+                ExpectedBaselineOffset.toIntPx().value.toFloat()
             )
         }
     }
@@ -326,7 +326,7 @@ class FilledTextFieldTest {
     fun testPlaceholderPosition_withLabel() {
         val placeholderSize = Ref<IntPxSize>()
         val placeholderPosition = Ref<PxPosition>()
-        val placeholderBaseline = Ref<Px>()
+        val placeholderBaseline = Ref<Float>()
         testRule.setMaterialContent {
             Box {
                 FilledTextField(
@@ -339,7 +339,8 @@ class FilledTextFieldTest {
                             placeholderPosition.value = it.globalPosition
                             placeholderSize.value = it.size
                             placeholderBaseline.value =
-                                it[FirstBaseline]!!.toPx() + placeholderPosition.value!!.y
+                                it[FirstBaseline]!!.value.toFloat() +
+                                        placeholderPosition.value!!.y
                         })
                     }
                 )
@@ -355,10 +356,10 @@ class FilledTextFieldTest {
             assertThat(placeholderSize.value?.width).isGreaterThan(0.ipx)
             // placeholder's position
             assertThat(placeholderPosition.value?.x).isEqualTo(
-                ExpectedPadding.toIntPx().toPx()
+                ExpectedPadding.toIntPx().value.toFloat()
             )
             assertThat(placeholderBaseline.value).isEqualTo(
-                ExpectedBaselineOffset.toIntPx().toPx() * 2
+                ExpectedBaselineOffset.toIntPx().value.toFloat() * 2
             )
         }
     }
@@ -367,7 +368,7 @@ class FilledTextFieldTest {
     fun testPlaceholderPosition_whenNoLabel() {
         val placeholderSize = Ref<IntPxSize>()
         val placeholderPosition = Ref<PxPosition>()
-        val placeholderBaseline = Ref<Px>()
+        val placeholderBaseline = Ref<Float>()
         val height = 60.dp
         testRule.setMaterialContent {
             Box {
@@ -381,7 +382,8 @@ class FilledTextFieldTest {
                             placeholderPosition.value = it.globalPosition
                             placeholderSize.value = it.size
                             placeholderBaseline.value =
-                                it[FirstBaseline]!!.toPx() + placeholderPosition.value!!.y
+                                it[FirstBaseline]!!.value.toFloat() +
+                                        placeholderPosition.value!!.y
                         })
                     }
                 )
@@ -397,10 +399,10 @@ class FilledTextFieldTest {
             assertThat(placeholderSize.value?.width).isGreaterThan(0.ipx)
             // centered position
             assertThat(placeholderPosition.value?.x).isEqualTo(
-                ExpectedPadding.toIntPx().toPx()
+                ExpectedPadding.toIntPx().value.toFloat()
             )
             assertThat(placeholderPosition.value?.y).isEqualTo(
-                ((height.toIntPx() - placeholderSize.value!!.height) / 2f).toPx()
+                ((height.toIntPx() - placeholderSize.value!!.height) / 2f).value.toFloat()
             )
         }
     }
@@ -490,18 +492,18 @@ class FilledTextFieldTest {
         testRule.runOnIdleComposeWithDensity {
             // leading
             assertThat(leadingSize.value).isEqualTo(IntPxSize(size.toIntPx(), size.toIntPx()))
-            assertThat(leadingPosition.value?.x).isEqualTo(IconPadding.toIntPx().toPx())
+            assertThat(leadingPosition.value?.x).isEqualTo(IconPadding.toIntPx().value.toFloat())
             assertThat(leadingPosition.value?.y).isEqualTo(
-                ((textFieldHeight.toIntPx() - leadingSize.value!!.height) / 2f).toPx()
+                ((textFieldHeight.toIntPx() - leadingSize.value!!.height) / 2f).value.toFloat()
             )
             // trailing
             assertThat(trailingSize.value).isEqualTo(IntPxSize(size.toIntPx(), size.toIntPx()))
             assertThat(trailingPosition.value?.x).isEqualTo(
                 (textFieldWidth.toIntPx() - IconPadding.toIntPx() - trailingSize.value!!.width)
-                    .toPx()
+                    .value.toFloat()
             )
             assertThat(trailingPosition.value?.y).isEqualTo(
-                ((textFieldHeight.toIntPx() - trailingSize.value!!.height) / 2f).toPx()
+                ((textFieldHeight.toIntPx() - trailingSize.value!!.height) / 2f).value.toFloat()
             )
         }
     }
@@ -530,7 +532,8 @@ class FilledTextFieldTest {
 
         testRule.runOnIdleComposeWithDensity {
             assertThat(labelPosition.value?.x).isEqualTo(
-                (ExpectedPadding.toIntPx() + IconPadding.toIntPx() + iconSize.toIntPx()).toPx()
+                (ExpectedPadding.toIntPx() + IconPadding.toIntPx() + iconSize.toIntPx()).value
+                    .toFloat()
             )
         }
     }
@@ -558,7 +561,7 @@ class FilledTextFieldTest {
 
         testRule.runOnIdleComposeWithDensity {
             assertThat(labelPosition.value?.x).isEqualTo(
-                ExpectedPadding.toIntPx().toPx()
+                ExpectedPadding.toIntPx().value.toFloat()
             )
         }
     }

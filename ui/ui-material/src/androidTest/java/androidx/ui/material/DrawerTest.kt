@@ -70,7 +70,7 @@ class DrawerTest {
             }, bodyContent = emptyContent())
         }
         runOnIdleCompose {
-            assertThat(position!!.x.value).isEqualTo(0f)
+            assertThat(position!!.x).isEqualTo(0f)
         }
     }
 
@@ -86,7 +86,7 @@ class DrawerTest {
         }
         val width = composeTestRule.displayMetrics.widthPixels
         runOnIdleCompose {
-            assertThat(position!!.x.round().value).isEqualTo(-width)
+            assertThat(position!!.x.px.round().value).isEqualTo(-width)
         }
     }
 
@@ -124,7 +124,7 @@ class DrawerTest {
         // temporary calculation of landscape screen
         val expectedHeight = if (width > height) 0 else (height / 2f).roundToInt()
         runOnIdleCompose {
-            assertThat(position!!.y.round().value).isEqualTo(expectedHeight)
+            assertThat(position!!.y.px.round().value).isEqualTo(expectedHeight)
         }
     }
 
@@ -140,7 +140,7 @@ class DrawerTest {
         }
         val height = composeTestRule.displayMetrics.heightPixels
         runOnIdleCompose {
-            assertThat(position!!.y.round().value).isEqualTo(height)
+            assertThat(position!!.y.px.round().value).isEqualTo(height)
         }
     }
 
@@ -157,10 +157,10 @@ class DrawerTest {
                     Box(
                         Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
                             val pos = info.localToGlobal(PxPosition.Origin)
-                            if (pos.x == 0.px) {
+                            if (pos.x == 0.0f) {
                                 // If fully opened, mark the openedLatch if present
                                 openedLatch?.countDown()
-                            } else if (-pos.x.round() == contentWidth) {
+                            } else if (-pos.x.px.round() == contentWidth) {
                                 // If fully closed, mark the closedLatch if present
                                 closedLatch?.countDown()
                             }
@@ -227,8 +227,8 @@ class DrawerTest {
 
         // Click on the left-center pixel of the drawer
         findByTag("Drawer").doGesture {
-            val left = 1.px
-            val centerY = globalBounds.height / 2
+            val left = 1.0f
+            val centerY = (globalBounds.height / 2)
             sendClick(PxPosition(left, centerY))
         }
 
@@ -251,10 +251,10 @@ class DrawerTest {
                 drawerContent = {
                     Box(Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
                         val pos = info.localToGlobal(PxPosition.Origin)
-                        if (pos.y.round() == openedHeight) {
+                        if (pos.y.px.round() == openedHeight) {
                             // If fully opened, mark the openedLatch if present
                             openedLatch?.countDown()
-                        } else if (pos.y.round() == contentHeight) {
+                        } else if (pos.y.px.round() == contentHeight) {
                             // If fully closed, mark the closedLatch if present
                             closedLatch?.countDown()
                         }
@@ -327,7 +327,7 @@ class DrawerTest {
         findByTag("Drawer").doGesture {
             val bounds = globalBounds
             val centerX = bounds.width / 2
-            val bottom = bounds.height - 1.px
+            val bottom = bounds.height - 1.0f
             sendClick(PxPosition(centerX, bottom))
         }
 

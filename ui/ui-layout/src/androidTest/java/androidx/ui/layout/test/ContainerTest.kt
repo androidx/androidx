@@ -37,7 +37,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
 import org.junit.Assert.assertEquals
@@ -94,7 +93,7 @@ class ContainerTest : LayoutTest() {
                 ) {
                     EmptyBox(width = sizeDp, height = sizeDp,
                         modifier = Modifier.onPositioned { coordinates ->
-                            childPosition.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition.value = coordinates.localToGlobal(PxPosition(0f, 0f))
                             positionedLatch.countDown()
                         }
                     )
@@ -198,7 +197,7 @@ class ContainerTest : LayoutTest() {
                         height = sizeDp,
                         modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize.value = coordinates.size
-                            childPosition.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition.value = coordinates.localToGlobal(PxPosition(0f, 0f))
                             positionedLatch.countDown()
                         })
                 }
@@ -244,7 +243,7 @@ class ContainerTest : LayoutTest() {
                             modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                                 childSize.value = coordinates.size
                                 childPosition.value =
-                                    coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                    coordinates.localToGlobal(PxPosition(0f, 0f))
                                 positionedLatch.countDown()
                             })
                     }

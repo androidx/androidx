@@ -42,7 +42,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
@@ -183,13 +182,13 @@ class TextFieldDelegate {
                 )
                 Rect(0f, 0f, 1.0f, lineHeightForEmptyText.value.toFloat())
             }
-            val globalLT = layoutCoordinates.localToRoot(PxPosition(bbox.left.px, bbox.top.px))
+            val globalLT = layoutCoordinates.localToRoot(PxPosition(bbox.left, bbox.top))
 
             textInputService.notifyFocusedRect(
                 token,
                 Rect.fromLTWH(
-                    globalLT.x.value,
-                    globalLT.y.value,
+                    globalLT.x,
+                    globalLT.y,
                     bbox.width,
                     bbox.height
                 )

@@ -47,7 +47,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
-import androidx.ui.unit.px
 import androidx.ui.util.fastForEach
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -209,7 +208,7 @@ fun CoreText(
                             maxHeight = floor(it.height).toInt().ipx
                         )
                     ),
-                    PxPosition(it.left.px, it.top.px)
+                    PxPosition(it.left, it.top)
                 )
             }
         }

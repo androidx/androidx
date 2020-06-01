@@ -32,7 +32,6 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
@@ -96,7 +95,7 @@ class RootNodeLayoutTest {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertNotNull(coordinates)
-        assertEquals(PxBounds(left = 0.px, top = 0.px, right = 10.px, bottom = 10.px),
+        assertEquals(PxBounds(left = 0f, top = 0f, right = 10f, bottom = 10f),
             coordinates!!.boundsInRoot)
     }
 

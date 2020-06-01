@@ -25,8 +25,6 @@ import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
-import androidx.ui.unit.toPx
 import androidx.ui.util.lerp
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -289,7 +287,7 @@ fun GestureScope.sendSwipeWithVelocity(
 
     // Decompose v into it's x and y components
     val delta = end - start
-    val theta = atan2(delta.y.value, delta.x.value)
+    val theta = atan2(delta.y, delta.x)
     // VelocityTracker internally calculates px/s, not px/ms
     val vx = cos(theta) * endVelocity / 1000
     val vy = sin(theta) * endVelocity / 1000
@@ -305,10 +303,10 @@ fun GestureScope.sendSwipeWithVelocity(
     // (-age, x) and (-age, y) for vx and vy respectively, which is accounted for in
     // f(Long, Long, Float, Float, Float).
     val durationMs = duration.inMilliseconds()
-    val fx = createFunctionForVelocity(durationMs, globalStart.x.value, globalEnd.x.value, vx)
-    val fy = createFunctionForVelocity(durationMs, globalStart.y.value, globalEnd.y.value, vy)
+    val fx = createFunctionForVelocity(durationMs, globalStart.x, globalEnd.x, vx)
+    val fy = createFunctionForVelocity(durationMs, globalStart.y, globalEnd.y, vy)
 
-    inputDispatcher.sendSwipe({ t -> PxPosition(fx(t).px, fy(t).px) }, duration)
+    inputDispatcher.sendSwipe({ t -> PxPosition(fx(t), fy(t)) }, duration)
 }
 
 /**
@@ -319,9 +317,9 @@ fun GestureScope.sendSwipeWithVelocity(
  */
 fun GestureScope.sendSwipeUp() {
     val x = center.x
-    val y0 = size.height * (1 - edgeFuzzFactor)
-    val y1 = 0.px
-    val start = PxPosition(x, y0.toPx())
+    val y0 = (size.height * (1 - edgeFuzzFactor)).value.toFloat()
+    val y1 = 0.0f
+    val start = PxPosition(x, y0)
     val end = PxPosition(x, y1)
     sendSwipe(start, end, 200.milliseconds)
 }
@@ -334,10 +332,10 @@ fun GestureScope.sendSwipeUp() {
  */
 fun GestureScope.sendSwipeDown() {
     val x = center.x
-    val y0 = size.height * edgeFuzzFactor
-    val y1 = size.height
-    val start = PxPosition(x, y0.toPx())
-    val end = PxPosition(x, y1.toPx())
+    val y0 = (size.height * edgeFuzzFactor).value.toFloat()
+    val y1 = size.height.value.toFloat()
+    val start = PxPosition(x, y0)
+    val end = PxPosition(x, y1)
     sendSwipe(start, end, 200.milliseconds)
 }
 
@@ -348,10 +346,10 @@ fun GestureScope.sendSwipeDown() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeLeft() {
-    val x0 = size.width * (1 - edgeFuzzFactor)
-    val x1 = 0.px
+    val x0 = (size.width * (1 - edgeFuzzFactor)).value.toFloat()
+    val x1 = 0.0f
     val y = center.y
-    val start = PxPosition(x0.toPx(), y)
+    val start = PxPosition(x0, y)
     val end = PxPosition(x1, y)
     sendSwipe(start, end, 200.milliseconds)
 }
@@ -363,11 +361,11 @@ fun GestureScope.sendSwipeLeft() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeRight() {
-    val x0 = size.width * edgeFuzzFactor
-    val x1 = size.width
+    val x0 = (size.width * edgeFuzzFactor).value.toFloat()
+    val x1 = size.width.value.toFloat()
     val y = center.y
-    val start = PxPosition(x0.toPx(), y)
-    val end = PxPosition(x1.toPx(), y)
+    val start = PxPosition(x0, y)
+    val end = PxPosition(x1, y)
     sendSwipe(start, end, 200.milliseconds)
 }
 

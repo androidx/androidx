@@ -341,8 +341,8 @@ private class ColorWheel(diameter: Int) {
  * or the color is partially transparent.
  */
 private fun ColorWheel.colorForPosition(position: PxPosition): Color {
-    val x = position.x.value.toInt().coerceAtLeast(0)
-    val y = position.y.value.toInt().coerceAtLeast(0)
+    val x = position.x.toInt().coerceAtLeast(0)
+    val y = position.y.toInt().coerceAtLeast(0)
     with(image.toPixelMap()) {
         if (x >= width || y >= height) return Color.Unset
         return this[x, y].takeIf { it.alpha == 1f } ?: Color.Unset

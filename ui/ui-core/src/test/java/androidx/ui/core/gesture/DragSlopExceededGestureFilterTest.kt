@@ -28,7 +28,6 @@ import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
 import androidx.ui.unit.Duration
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -786,8 +785,8 @@ class DragSlopExceededGestureFilterTest {
         // Assert
 
         assertThat(result.consumed.downChange).isFalse()
-        assertThat(result.consumed.positionChange.x).isEqualTo(0.px)
-        assertThat(result.consumed.positionChange.y).isEqualTo(0.px)
+        assertThat(result.consumed.positionChange.x).isEqualTo(0f)
+        assertThat(result.consumed.positionChange.y).isEqualTo(0f)
     }
 
     @Test
@@ -802,8 +801,8 @@ class DragSlopExceededGestureFilterTest {
         // Assert
 
         assertThat(result.consumed.downChange).isFalse()
-        assertThat(result.consumed.positionChange.x).isEqualTo(0.px)
-        assertThat(result.consumed.positionChange.y).isEqualTo(0.px)
+        assertThat(result.consumed.positionChange.x).isEqualTo(0f)
+        assertThat(result.consumed.positionChange.y).isEqualTo(0f)
     }
 
     @Test
@@ -821,8 +820,8 @@ class DragSlopExceededGestureFilterTest {
         // Assert
 
         assertThat(result.consumed.downChange).isFalse()
-        assertThat(result.consumed.positionChange.x).isEqualTo(0.px)
-        assertThat(result.consumed.positionChange.y).isEqualTo(0.px)
+        assertThat(result.consumed.positionChange.x).isEqualTo(0f)
+        assertThat(result.consumed.positionChange.y).isEqualTo(0f)
     }
 
     @Test
@@ -838,8 +837,8 @@ class DragSlopExceededGestureFilterTest {
         // Assert
 
         assertThat(result.consumed.downChange).isFalse()
-        assertThat(result.consumed.positionChange.x).isEqualTo(0.px)
-        assertThat(result.consumed.positionChange.y).isEqualTo(0.px)
+        assertThat(result.consumed.positionChange.x).isEqualTo(0f)
+        assertThat(result.consumed.positionChange.y).isEqualTo(0f)
     }
 
     @Test
@@ -858,8 +857,8 @@ class DragSlopExceededGestureFilterTest {
         // Assert
 
         assertThat(result.consumed.downChange).isFalse()
-        assertThat(result.consumed.positionChange.x).isEqualTo(0.px)
-        assertThat(result.consumed.positionChange.y).isEqualTo(0.px)
+        assertThat(result.consumed.positionChange.x).isEqualTo(0f)
+        assertThat(result.consumed.positionChange.y).isEqualTo(0f)
     }
 
     // Verification that TouchSlopExceededGestureDetector resets after up correctly.

@@ -19,7 +19,6 @@ package androidx.ui.core.selection
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -76,10 +75,10 @@ class SelectionRegistrarImplTest {
         whenever(handler3.getLayoutCoordinates()).thenReturn(layoutCoordinates3)
 
         // The order of the 4 handlers should be 1, 0, 3, 2.
-        val relativeCoordinates0 = PxPosition(20.px, 12.px)
-        val relativeCoordinates1 = PxPosition(5.px, 12.px)
-        val relativeCoordinates2 = PxPosition(20.px, 24.px)
-        val relativeCoordinates3 = PxPosition(5.px, 24.px)
+        val relativeCoordinates0 = PxPosition(20f, 12f)
+        val relativeCoordinates1 = PxPosition(5f, 12f)
+        val relativeCoordinates2 = PxPosition(20f, 24f)
+        val relativeCoordinates3 = PxPosition(5f, 24f)
 
         val containerLayoutCoordinates = mock<LayoutCoordinates>()
         whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, PxPosition.Origin))
@@ -127,10 +126,10 @@ class SelectionRegistrarImplTest {
         whenever(handler3.getLayoutCoordinates()).thenReturn(layoutCoordinates3)
 
         // The order of the 4 handlers should be 1, 0, 3, 2.
-        val relativeCoordinates0 = PxPosition(20.px, 12.px)
-        val relativeCoordinates1 = PxPosition(5.px, 12.px)
-        val relativeCoordinates2 = PxPosition(20.px, 24.px)
-        val relativeCoordinates3 = PxPosition(5.px, 24.px)
+        val relativeCoordinates0 = PxPosition(20f, 12f)
+        val relativeCoordinates1 = PxPosition(5f, 12f)
+        val relativeCoordinates2 = PxPosition(20f, 24f)
+        val relativeCoordinates3 = PxPosition(5f, 24f)
 
         val containerLayoutCoordinates = mock<LayoutCoordinates>()
         whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, PxPosition.Origin))

@@ -145,10 +145,10 @@ internal fun getTextSelectionInfo(
     val lastOffset = textLayoutResult.layoutInput.text.text.length
 
     val containsWholeSelectionStart =
-        bounds.contains(Offset(startPosition.x.value, startPosition.y.value))
+        bounds.contains(Offset(startPosition.x, startPosition.y))
 
     val containsWholeSelectionEnd =
-        bounds.contains(Offset(endPosition.x.value, endPosition.y.value))
+        bounds.contains(Offset(endPosition.x, endPosition.y))
 
     val rawStartOffset =
         if (containsWholeSelectionStart)

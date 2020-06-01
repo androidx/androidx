@@ -285,9 +285,9 @@ private fun Scroller(
             // when b/156389287 is fixed, this should be proper scrollTo with reverse handling
             ScrollTo(action = { x, y ->
                 if (isVertical) {
-                    scrollerPosition.scrollBy(y.value)
+                    scrollerPosition.scrollBy(y)
                 } else {
-                    scrollerPosition.scrollBy(x.value)
+                    scrollerPosition.scrollBy(x)
                 }
                 return@ScrollTo true
             })

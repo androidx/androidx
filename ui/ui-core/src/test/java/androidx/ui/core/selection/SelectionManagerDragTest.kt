@@ -22,7 +22,6 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
@@ -47,7 +46,7 @@ class SelectionManagerDragTest {
     private val containerLayoutCoordinates = mock<LayoutCoordinates> {
         on { isAttached } doReturn true
     }
-    private val childToLocal_result = PxPosition(300.px, 400.px)
+    private val childToLocal_result = PxPosition(300f, 400f)
 
     private val startSelectable = mock<Selectable>()
     private val endSelectable = mock<Selectable>()
@@ -151,7 +150,7 @@ class SelectionManagerDragTest {
     @Test
     fun handleDragObserver_onDrag_startHandle_reuse_endHandle_calls_getSelection_change_selection
                 () {
-        val dragDistance = PxPosition(100.px, 100.px)
+        val dragDistance = PxPosition(100f, 100f)
         selectionManager.handleDragObserver(isStartHandle = true).onStart(PxPosition.Origin)
 
         val result = selectionManager.handleDragObserver(isStartHandle = true).onDrag(dragDistance)
@@ -178,7 +177,7 @@ class SelectionManagerDragTest {
     @Test
     fun handleDragObserver_onDrag_endHandle_resue_startHandle_calls_getSelection_change_selection
                 () {
-        val dragDistance = PxPosition(100.px, 100.px)
+        val dragDistance = PxPosition(100f, 100f)
         selectionManager.handleDragObserver(isStartHandle = false).onStart(PxPosition.Origin)
 
         val result = selectionManager.handleDragObserver(isStartHandle = false).onDrag(dragDistance)
@@ -213,12 +212,12 @@ class SelectionManagerDragTest {
     }
 
     private fun getAdjustedCoordinates(position: PxPosition): PxPosition {
-        return PxPosition(position.x, position.y - 1.px)
+        return PxPosition(position.x, position.y - 1f)
     }
 
     private fun verify_draggingHandle(expectedDraggingHandleValue: Boolean) {
         // Verify draggingHandle is true, by verifying LongPress does nothing. Vice Versa.
-        val position = PxPosition(100.px, 100.px)
+        val position = PxPosition(100f, 100f)
         selectionManager.longPressDragObserver.onLongPress(position)
         verify(selectable, times(if (expectedDraggingHandleValue) 0 else 1))
             .getSelection(

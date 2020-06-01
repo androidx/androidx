@@ -44,6 +44,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
+import androidx.ui.unit.px
 import androidx.ui.unit.round
 
 /**
@@ -133,7 +134,7 @@ private fun Handle(
                 } else {
                     if (isStartHandle) Alignment.TopStart else Alignment.TopEnd
                 },
-                offset = IntPxPosition(offset.x.round(), offset.y.round())
+                offset = IntPxPosition(offset.x.px.round(), offset.y.px.round())
             ) {
                 val drag = Modifier.dragGestureFilter(
                     dragObserver = manager.handleDragObserver(isStartHandle = isStartHandle)

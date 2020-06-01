@@ -35,7 +35,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -74,7 +73,7 @@ class IntrinsicTest : LayoutTest() {
 
         assertEquals(IntPxSize(10.dp.toIntPx(), 50.dp.toIntPx()), minIntrinsicWidthSize.value)
         assertEquals(IntPxSize(10.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test
@@ -103,7 +102,7 @@ class IntrinsicTest : LayoutTest() {
 
         assertEquals(IntPxSize(20.dp.toIntPx(), 40.dp.toIntPx()), minIntrinsicHeightSize.value)
         assertEquals(IntPxSize(20.dp.toIntPx(), 40.dp.toIntPx()), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test
@@ -132,7 +131,7 @@ class IntrinsicTest : LayoutTest() {
 
         assertEquals(IntPxSize(30.dp.toIntPx(), 50.dp.toIntPx()), maxIntrinsicWidthSize.value)
         assertEquals(IntPxSize(30.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test
@@ -161,7 +160,7 @@ class IntrinsicTest : LayoutTest() {
 
         assertEquals(IntPxSize(20.dp.toIntPx(), 60.dp.toIntPx()), maxIntrinsicHeightSize.value)
         assertEquals(IntPxSize(20.dp.toIntPx(), 60.dp.toIntPx()), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test
@@ -194,7 +193,7 @@ class IntrinsicTest : LayoutTest() {
 
         assertEquals(IntPxSize(5.dp.toIntPx(), 50.dp.toIntPx()), minIntrinsicWidthSize.value)
         assertEquals(IntPxSize(5.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test
@@ -227,7 +226,7 @@ class IntrinsicTest : LayoutTest() {
 
         assertEquals(IntPxSize(15.dp.toIntPx(), 50.dp.toIntPx()), minIntrinsicWidthSize.value)
         assertEquals(IntPxSize(15.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test
@@ -258,7 +257,7 @@ class IntrinsicTest : LayoutTest() {
 
         assertEquals(IntPxSize(20.dp.toIntPx(), 35.dp.toIntPx()), minIntrinsicHeightSize.value)
         assertEquals(IntPxSize(20.dp.toIntPx(), 35.dp.toIntPx()), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test
@@ -289,7 +288,7 @@ class IntrinsicTest : LayoutTest() {
 
         assertEquals(IntPxSize(20.dp.toIntPx(), 45.dp.toIntPx()), minIntrinsicHeightSize.value)
         assertEquals(IntPxSize(20.dp.toIntPx(), 45.dp.toIntPx()), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test
@@ -320,7 +319,7 @@ class IntrinsicTest : LayoutTest() {
 
         assertEquals(IntPxSize(25.dp.toIntPx(), 50.dp.toIntPx()), maxIntrinsicWidthSize.value)
         assertEquals(IntPxSize(25.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test
@@ -351,7 +350,7 @@ class IntrinsicTest : LayoutTest() {
 
         assertEquals(IntPxSize(35.dp.toIntPx(), 50.dp.toIntPx()), maxIntrinsicWidthSize.value)
         assertEquals(IntPxSize(35.dp.toIntPx(), 50.dp.toIntPx()), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test
@@ -382,7 +381,7 @@ class IntrinsicTest : LayoutTest() {
 
         assertEquals(IntPxSize(20.dp.toIntPx(), 55.dp.toIntPx()), maxIntrinsicHeightSize.value)
         assertEquals(IntPxSize(20.dp.toIntPx(), 55.dp.toIntPx()), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test
@@ -413,7 +412,7 @@ class IntrinsicTest : LayoutTest() {
 
         assertEquals(IntPxSize(20.dp.toIntPx(), 65.dp.toIntPx()), maxIntrinsicHeightSize.value)
         assertEquals(IntPxSize(20.dp.toIntPx(), 65.dp.toIntPx()), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+        assertEquals(PxPosition(0f, 0f), childPosition.value)
     }
 
     @Test
