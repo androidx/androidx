@@ -30,6 +30,7 @@ internal object ClassNames {
     val INJECT = ClassName.get("javax.inject", "Inject")
     val INSTALL_IN = ClassName.get("dagger.hilt", "InstallIn")
     val INTO_MAP = ClassName.get("dagger.multibindings", "IntoMap")
+    val LISTENABLE_WORKER = ClassName.get("androidx.work", "ListenableWorker")
     val MODULE = ClassName.get("dagger", "Module")
     val ORIGINATING_ELEMENT = ClassName.get("dagger.hilt.codegen", "OriginatingElement")
     val PROVIDER = ClassName.get("javax.inject", "Provider")

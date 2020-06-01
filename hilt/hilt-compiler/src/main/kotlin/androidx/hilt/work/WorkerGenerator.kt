@@ -111,7 +111,7 @@ internal class WorkerGenerator(
                     .returns(
                         ParameterizedTypeName.get(
                             ClassNames.WORKER_ASSISTED_FACTORY,
-                            WildcardTypeName.subtypeOf(ClassNames.WORKER)))
+                            WildcardTypeName.subtypeOf(ClassNames.LISTENABLE_WORKER)))
                     .addParameter(injectedWorker.factoryClassName, "factory")
                     .build())
             .build()

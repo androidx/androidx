@@ -19,7 +19,7 @@ package androidx.hilt.integration.workerapp
 import android.os.Bundle
 import android.widget.Button
 import androidx.activity.ComponentActivity
-import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -36,7 +36,8 @@ class SimpleActivity : ComponentActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<Button>(R.id.work_button).setOnClickListener {
-            workManager.enqueue(OneTimeWorkRequest.Builder(SimpleWorker::class.java).build())
+            workManager.enqueue(OneTimeWorkRequestBuilder<SimpleWorker>().build())
+            workManager.enqueue(OneTimeWorkRequestBuilder<SimpleCoroutineWorker>().build())
         }
     }
 }
