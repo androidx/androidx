@@ -25,16 +25,26 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-multiplatform")
 }
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
+}
 
-    api project(':ui:ui-graphics')
-    api project(":compose:compose-runtime")
-    implementation project(":ui:ui-util")
-    implementation (KOTLIN_STDLIB)
+kotlin {
+    android()
+    sourceSets {
+        androidMain {
+        }
+
+        commonMain.dependencies {
+            api project(':ui:ui-graphics')
+            api project(":compose:compose-runtime")
+            implementation project(":ui:ui-util")
+            implementation (KOTLIN_STDLIB_COMMON)
+        }
+    }
 }
 
 androidx {

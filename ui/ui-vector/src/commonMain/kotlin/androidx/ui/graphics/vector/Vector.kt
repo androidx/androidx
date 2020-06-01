@@ -16,7 +16,6 @@
 
 package androidx.ui.graphics.vector
 
-import android.graphics.Matrix
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
@@ -29,8 +28,10 @@ import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
+import androidx.ui.graphics.vectormath.Matrix4
 import androidx.ui.graphics.withSave
 import androidx.ui.util.fastForEach
+import androidx.ui.util.toRadians
 import kotlin.math.ceil
 
 const val DefaultGroupName = ""
@@ -350,7 +351,7 @@ data class PathComponent(val name: String) : VNode() {
 
 data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
 
-    private var groupMatrix: Matrix? = null
+    private var groupMatrix: Matrix4? = null
 
     private val children = mutableListOf<VNode>()
 
@@ -467,22 +468,22 @@ data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
     private var isMatrixDirty = true
 
     private fun updateMatrix() {
-        val matrix: Matrix
+        val matrix: Matrix4
         val target = groupMatrix
         if (target == null) {
-            matrix = Matrix()
+            matrix = Matrix4()
             groupMatrix = matrix
         } else {
             matrix = target
         }
-        with(matrix) {
-            reset()
-            postTranslate(-pivotX, -pivotY)
-            postScale(scaleX, scaleY)
-            postRotate(rotation, 0f, 0f)
-            postTranslate(translationX + pivotX,
-                translationY + pivotY)
-        }
+        matrix.assignColumns(Matrix4.identity())
+        // M = T(translationX + pivotX, translationY + pivotY) *
+        //     R(rotation) * S(scaleX, scaleY) *
+        //     T(-pivotX, -pivotY)
+        matrix.translate(translationX + pivotX, translationY + pivotY)
+        matrix.rotateZ(radians = rotation.toRadians())
+        matrix.scale(scaleX, scaleY, 1f)
+        matrix.translate(-pivotX, -pivotY)
     }
 
     fun insertAt(index: Int, instance: VNode) {
@@ -542,7 +543,7 @@ data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
             val matrix = groupMatrix
             if (matrix != null) {
                 // TODO (njawad) add concat support to matrix
-                canvas.nativeCanvas.concat(matrix)
+                canvas.concat(matrix)
             }
 
             children.fastForEach { node ->

@@ -45,12 +45,12 @@ fun imageFromResource(res: Resources, resId: Int): ImageAsset {
  */
 fun Bitmap.asImageAsset(): ImageAsset = AndroidImageAsset(this)
 
-/* actual */ fun ImageAsset(
+internal actual fun ActualImageAsset(
     width: Int,
     height: Int,
-    config: ImageAssetConfig = ImageAssetConfig.Argb8888,
-    hasAlpha: Boolean = true,
-    colorSpace: ColorSpace = ColorSpaces.Srgb
+    config: ImageAssetConfig,
+    hasAlpha: Boolean,
+    colorSpace: ColorSpace
 ): ImageAsset {
     val bitmapConfig = config.toBitmapConfig()
     val bitmap: Bitmap
