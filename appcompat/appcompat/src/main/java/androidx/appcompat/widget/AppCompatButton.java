@@ -48,6 +48,7 @@ import androidx.core.widget.TintableCompoundDrawablesView;
  *     {@link androidx.core.view.ViewCompat}.</li>
  *     <li>Allows setting of the background tint using {@link R.attr#backgroundTint} and
  *     {@link R.attr#backgroundTintMode}.</li>
+ *     <li>Allows setting of the font family using {@link android.R.attr#fontFamily}</li>
  * </ul>
  *
  * <p>This will automatically be used when you use {@link Button} in your layouts
@@ -92,7 +93,7 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     @Override
-    public void setBackgroundDrawable(Drawable background) {
+    public void setBackgroundDrawable(@Nullable Drawable background) {
         super.setBackgroundDrawable(background);
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.onSetBackgroundDrawable(background);
