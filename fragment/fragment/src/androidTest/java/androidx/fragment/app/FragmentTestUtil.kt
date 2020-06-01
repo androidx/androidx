@@ -108,6 +108,13 @@ fun ActivityTestRule<out FragmentActivity>.findRed(): View? {
     return activity.findViewById(R.id.redSquare)
 }
 
+val View.boundsOnScreen: Rect
+    get() {
+        val loc = IntArray(2)
+        getLocationOnScreen(loc)
+        return Rect(loc[0], loc[1], loc[0] + width, loc[1] + height)
+    }
+
 data class TransitionVerificationInfo(
     var epicenter: Rect? = null,
     val exitingViews: MutableList<View> = mutableListOf(),
