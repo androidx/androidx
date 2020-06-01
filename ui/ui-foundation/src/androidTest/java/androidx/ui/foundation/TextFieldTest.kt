@@ -40,6 +40,7 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.savedinstancestate.savedInstanceState
@@ -479,16 +480,21 @@ class TextFieldTest {
         val height = 20.dp
         val latch = CountDownLatch(1)
         composeTestRule.setContent {
-            TextField(
-                value = TextFieldValue(),
-                onValueChange = {},
-                textStyle = TextStyle(color = Color.White, background = Color.White),
-                modifier = Modifier.preferredSize(width, height).drawBackground(Color.White),
-                cursorColor = Color.Red,
-                onFocusChange = { focused ->
-                    if (focused) latch.countDown()
-                }
-            )
+            // The padding helps if the test is run accidentally in landscape. Landscape makes
+            // the cursor to be next to the navigation bar which affects the red color to be a bit
+            // different - possibly anti-aliasing.
+            Box(Modifier.padding(10.dp)) {
+                TextField(
+                    value = TextFieldValue(),
+                    onValueChange = {},
+                    textStyle = TextStyle(color = Color.White, background = Color.White),
+                    modifier = Modifier.preferredSize(width, height).drawBackground(Color.White),
+                    cursorColor = Color.Red,
+                    onFocusChange = { focused ->
+                        if (focused) latch.countDown()
+                    }
+                )
+            }
         }
 
         find(hasInputMethodsSupport()).doClick()
@@ -506,6 +512,11 @@ class TextFieldTest {
 
         // cursor invisible during next 500 ms
         composeTestRule.clockTestRule.advanceClock(700)
+
+        // TODO: There seems to be an issue on Pixel that we capture the bitmap too early and
+        // perform the assert while the cursor is still there.
+        waitForIdle()
+
         find(hasInputMethodsSupport())
             .captureToBitmap()
             .assertShape(
