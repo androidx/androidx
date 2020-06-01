@@ -24,6 +24,7 @@ import androidx.ui.tooling.preview.ViewInfo
 import androidx.ui.tooling.test.R
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -53,6 +54,36 @@ class ComposeViewAdapterTest {
         }
 
         return composeViewAdapter.viewInfos
+    }
+
+    @Test
+    fun setClockTimeWithAnimationInspection() {
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init("androidx.ui.tooling.SimpleComposablePreviewKt",
+                "SimpleComposablePreview", animationClockStartTime = 0L)
+        }
+
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.setClockTime(100) // Sanity-check. The call should succeed.
+        }
+    }
+
+    @Test
+    fun setClockTimeWithoutAnimationInspection() {
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init("androidx.ui.tooling.SimpleComposablePreviewKt",
+                "SimpleComposablePreview")
+        }
+
+        activityTestRule.runOnUiThread {
+            try {
+                composeViewAdapter.setClockTime(100)
+                fail("Expected to throw an Exception")
+            } catch (e: IllegalStateException) {
+                assertTrue(e.message!!.contains("This method is expected to be called from " +
+                        "Android Studio via reflection, otherwise 'clock' is expected to be null."))
+            }
+        }
     }
 
     @Test
