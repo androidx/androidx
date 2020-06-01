@@ -16,13 +16,8 @@
 
 package androidx.ui.test
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.graphics.Bitmap
-import android.os.Build
 import android.view.View
-import androidx.annotation.RequiresApi
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
@@ -45,17 +40,15 @@ import org.junit.Assert.assertTrue
 import kotlin.math.roundToInt
 
 /**
- * Captures the underlying component's surface into bitmap.
+ * Captures the screen region occupied by this component into a bitmap.
  *
- * This has currently several limitations. Currently we assume that the component is hosted in
- * Activity's window. Also if there is another window covering part of the component if won't occur
- * in the bitmap as this is taken from the component's window surface.
+ * In case there is anything else (for example a popup) on top of this component, it will be also
+ * captured as part of this operation.
  */
-@RequiresApi(Build.VERSION_CODES.O)
 fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
     val node = fetchSemanticsNode("Failed to capture a node to bitmap.")
     // TODO(pavlis): Consider doing assertIsDisplayed here. Will need to move things around.
-    return captureRegionToBitmap(node.globalBounds.toRect(), node.componentNode.owner!!)
+    return captureRegionToBitmap(node.globalBounds.toRect())
 }
 
 /**
@@ -65,24 +58,13 @@ fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
  * Activity's window. Also if there is another window covering part of the component if won't occur
  * in the bitmap as this is taken from the component's window surface.
  */
-@RequiresApi(Build.VERSION_CODES.O)
 fun View.captureToBitmap(): Bitmap {
     val locationOnScreen = intArrayOf(0, 0)
     getLocationOnScreen(locationOnScreen)
     val x = locationOnScreen[0].toFloat()
     val y = locationOnScreen[1].toFloat()
     val bounds = Rect(x, y, x + width, y + height)
-
-    // Recursively search for the Activity context through (possible) ContextWrappers
-    fun Context.getActivity(): Activity? {
-        return when (this) {
-            is Activity -> this
-            is ContextWrapper -> this.baseContext.getActivity()
-            else -> null
-        }
-    }
-
-    return captureRegionToBitmap(bounds, handler, context.getActivity()!!.window)
+    return captureRegionToBitmap(bounds)
 }
 
 /**
