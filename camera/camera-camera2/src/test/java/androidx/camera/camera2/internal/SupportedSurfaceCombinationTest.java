@@ -40,6 +40,7 @@ import android.view.WindowManager;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
@@ -172,7 +173,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkLegacySurfaceCombinationSupportedInLegacyDevice() {
+    public void checkLegacySurfaceCombinationSupportedInLegacyDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -188,7 +190,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkLegacySurfaceCombinationSubListSupportedInLegacyDevice() {
+    public void checkLegacySurfaceCombinationSubListSupportedInLegacyDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -202,7 +205,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkLimitedSurfaceCombinationNotSupportedInLegacyDevice() {
+    public void checkLimitedSurfaceCombinationNotSupportedInLegacyDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -218,7 +222,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkFullSurfaceCombinationNotSupportedInLegacyDevice() {
+    public void checkFullSurfaceCombinationNotSupportedInLegacyDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -234,7 +239,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkLevel3SurfaceCombinationNotSupportedInLegacyDevice() {
+    public void checkLevel3SurfaceCombinationNotSupportedInLegacyDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -250,7 +256,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkLimitedSurfaceCombinationSupportedInLimitedDevice() {
+    public void checkLimitedSurfaceCombinationSupportedInLimitedDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -266,7 +273,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkLimitedSurfaceCombinationSubListSupportedInLimited3Device() {
+    public void checkLimitedSurfaceCombinationSubListSupportedInLimited3Device()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -280,7 +288,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkFullSurfaceCombinationNotSupportedInLimitedDevice() {
+    public void checkFullSurfaceCombinationNotSupportedInLimitedDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -296,7 +305,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkLevel3SurfaceCombinationNotSupportedInLimitedDevice() {
+    public void checkLevel3SurfaceCombinationNotSupportedInLimitedDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -312,7 +322,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkFullSurfaceCombinationSupportedInFullDevice() {
+    public void checkFullSurfaceCombinationSupportedInFullDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -328,7 +339,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkFullSurfaceCombinationSubListSupportedInFullDevice() {
+    public void checkFullSurfaceCombinationSubListSupportedInFullDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -342,7 +354,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkLevel3SurfaceCombinationNotSupportedInFullDevice() {
+    public void checkLevel3SurfaceCombinationNotSupportedInFullDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -358,7 +371,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkLimitedSurfaceCombinationSupportedInRawDevice() {
+    public void checkLimitedSurfaceCombinationSupportedInRawDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 new int[]{CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW});
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
@@ -375,7 +389,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkLegacySurfaceCombinationSupportedInRawDevice() {
+    public void checkLegacySurfaceCombinationSupportedInRawDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 new int[]{CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW});
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
@@ -392,7 +407,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkFullSurfaceCombinationSupportedInRawDevice() {
+    public void checkFullSurfaceCombinationSupportedInRawDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 new int[]{CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW});
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
@@ -409,7 +425,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkRawSurfaceCombinationSupportedInRawDevice() {
+    public void checkRawSurfaceCombinationSupportedInRawDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 new int[]{CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW});
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
@@ -426,7 +443,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkLevel3SurfaceCombinationSupportedInLevel3Device() {
+    public void checkLevel3SurfaceCombinationSupportedInLevel3Device()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -442,7 +460,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkLevel3SurfaceCombinationSubListSupportedInLevel3Device() {
+    public void checkLevel3SurfaceCombinationSubListSupportedInLevel3Device()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -456,7 +475,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkTargetAspectRatioForPreviewInLegacyDevice() {
+    public void checkTargetAspectRatioForPreviewInLegacyDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -506,7 +526,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkDefaultAspectRatioAndResolutionForMixedUseCase() {
+    public void checkDefaultAspectRatioAndResolutionForMixedUseCase()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -550,7 +571,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkSmallSizesAreFilteredOutByDefaultSize480p() {
+    public void checkSmallSizesAreFilteredOutByDefaultSize480p()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -590,7 +612,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkAspectRatioMatchedSizeCanBeSelected() {
+    public void checkAspectRatioMatchedSizeCanBeSelected() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -613,7 +635,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkCorrectAspectRatioNotMatchedSizeCanBeSelected() {
+    public void checkCorrectAspectRatioNotMatchedSizeCanBeSelected()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -636,7 +659,8 @@ public final class SupportedSurfaceCombinationTest {
 
 
     @Test
-    public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
+    public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -663,7 +687,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSuggestedResolutionsForMixedUseCaseInLimitedDevice() {
+    public void getSuggestedResolutionsForMixedUseCaseInLimitedDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -695,7 +720,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSuggestedResolutionsWithSameSupportedListForDifferentUseCases() {
+    public void getSuggestedResolutionsWithSameSupportedListForDifferentUseCases()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -732,7 +758,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void setTargetAspectRatioForMixedUseCases() {
+    public void setTargetAspectRatioForMixedUseCases() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -803,7 +829,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSuggestedResolutionsForCustomizedSupportedResolutions() {
+    public void getSuggestedResolutionsForCustomizedSupportedResolutions()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -842,7 +869,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void transformSurfaceConfigWithYUVAnalysisSize() {
+    public void transformSurfaceConfigWithYUVAnalysisSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -855,7 +882,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void transformSurfaceConfigWithYUVPreviewSize() {
+    public void transformSurfaceConfigWithYUVPreviewSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -868,7 +895,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void transformSurfaceConfigWithYUVRecordSize() {
+    public void transformSurfaceConfigWithYUVRecordSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -881,7 +908,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void transformSurfaceConfigWithYUVMaximumSize() {
+    public void transformSurfaceConfigWithYUVMaximumSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -894,7 +921,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void transformSurfaceConfigWithYUVNotSupportSize() {
+    public void transformSurfaceConfigWithYUVNotSupportSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -908,7 +935,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void transformSurfaceConfigWithJPEGAnalysisSize() {
+    public void transformSurfaceConfigWithJPEGAnalysisSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -921,7 +948,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void transformSurfaceConfigWithJPEGPreviewSize() {
+    public void transformSurfaceConfigWithJPEGPreviewSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -934,7 +961,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void transformSurfaceConfigWithJPEGRecordSize() {
+    public void transformSurfaceConfigWithJPEGRecordSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -947,7 +974,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void transformSurfaceConfigWithJPEGMaximumSize() {
+    public void transformSurfaceConfigWithJPEGMaximumSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -960,7 +987,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void transformSurfaceConfigWithJPEGNotSupportSize() {
+    public void transformSurfaceConfigWithJPEGNotSupportSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -974,7 +1001,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getMaximumSizeForImageFormat() {
+    public void getMaximumSizeForImageFormat() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -987,7 +1014,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void isAspectRatioMatchWithSupportedMod16Resolution() {
+    public void isAspectRatioMatchWithSupportedMod16Resolution()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1035,7 +1063,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_noConfigSettings() {
+    public void getSupportedOutputSizes_noConfigSettings() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1062,7 +1090,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_aspectRatio4x3() {
+    public void getSupportedOutputSizes_aspectRatio4x3() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1094,7 +1122,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_aspectRatio16x9() {
+    public void getSupportedOutputSizes_aspectRatio16x9() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1127,7 +1155,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_targetResolution1080x1920InRotation0() {
+    public void getSupportedOutputSizes_targetResolution1080x1920InRotation0()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1160,7 +1189,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_targetResolutionLargerThan640x480() {
+    public void getSupportedOutputSizes_targetResolutionLargerThan640x480()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1192,7 +1222,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_targetResolutionSmallerThan640x480() {
+    public void getSupportedOutputSizes_targetResolutionSmallerThan640x480()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1219,7 +1250,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_targetResolution1800x1440NearTo4x3() {
+    public void getSupportedOutputSizes_targetResolution1800x1440NearTo4x3()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1251,7 +1283,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_aspectRatioCustom4x3_targetResolution1800x1440NearTo4x3() {
+    public void getSupportedOutputSizes_aspectRatioCustom4x3_targetResolution1800x1440NearTo4x3()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1284,7 +1317,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_aspectRatioCustom16x9_targetResolution1800x1440NearTo4x3() {
+    public void getSupportedOutputSizes_aspectRatioCustom16x9_targetResolution1800x1440NearTo4x3()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1318,7 +1352,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_targetResolution1280x600NearTo16x9() {
+    public void getSupportedOutputSizes_targetResolution1280x600NearTo16x9()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1347,7 +1382,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_aspectRatioCustom16x9_targetResolution1280x600NearTo16x9() {
+    public void getSupportedOutputSizes_aspectRatioCustom16x9_targetResolution1280x600NearTo16x9()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1378,7 +1414,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_aspectRatioCustom4x3_targetResolution1280x600NearTo16x9() {
+    public void getSupportedOutputSizes_aspectRatioCustom4x3_targetResolution1280x600NearTo16x9()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1409,7 +1446,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_maxResolution1280x720() {
+    public void getSupportedOutputSizes_maxResolution1280x720() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1432,7 +1469,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_defaultResolution1280x720_noTargetResolution() {
+    public void getSupportedOutputSizes_defaultResolution1280x720_noTargetResolution()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1456,7 +1494,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_defaultResolution1280x720_targetResolution1920x1080() {
+    public void getSupportedOutputSizes_defaultResolution1280x720_targetResolution1920x1080()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1489,7 +1528,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_fallbackToGuaranteedResolution_whenNotFulfillConditions() {
+    public void getSupportedOutputSizes_fallbackToGuaranteedResolution_whenNotFulfillConditions()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
@@ -1514,7 +1554,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_whenMaxSizeSmallerThanDefaultMiniSize() {
+    public void getSupportedOutputSizes_whenMaxSizeSmallerThanDefaultMiniSize()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
@@ -1542,7 +1583,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_whenMaxSizeSmallerThanSmallTargetResolution() {
+    public void getSupportedOutputSizes_whenMaxSizeSmallerThanSmallTargetResolution()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
@@ -1571,7 +1613,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_whenBothMaxAndTargetResolutionsSmallerThan640x480() {
+    public void getSupportedOutputSizes_whenBothMaxAndTargetResolutionsSmallerThan640x480()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
@@ -1601,7 +1644,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_whenMaxSizeSmallerThanBigTargetResolution() {
+    public void getSupportedOutputSizes_whenMaxSizeSmallerThanBigTargetResolution()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
@@ -1633,7 +1677,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_whenNoSizeBetweenMaxSizeAndTargetResolution() {
+    public void getSupportedOutputSizes_whenNoSizeBetweenMaxSizeAndTargetResolution()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
@@ -1662,7 +1707,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_whenTargetResolutionSmallerThanAnySize() {
+    public void getSupportedOutputSizes_whenTargetResolutionSmallerThanAnySize()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
@@ -1689,7 +1735,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getSupportedOutputSizes_whenMaxResolutionSmallerThanAnySize() {
+    public void getSupportedOutputSizes_whenMaxResolutionSmallerThanAnySize()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
@@ -1708,7 +1755,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_whenMod16IsIgnoredForSmallSizes() {
+    public void getSupportedOutputSizes_whenMod16IsIgnoredForSmallSizes()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),

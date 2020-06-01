@@ -21,6 +21,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.InitializationException;
 
 /**
  * A Repository for generating use case configurations.
@@ -31,9 +32,15 @@ public interface UseCaseConfigFactory {
      * Interface for deferring creation of a UseCaseConfigFactory.
      */
     interface Provider {
-        /** Creates a new, initialized instance of a UseCaseConfigFactory. */
+        /**
+         * Creates a new, initialized instance of a UseCaseConfigFactory.
+         *
+         * @param context the android context
+         * @return the factory instance
+         * @throws InitializationException if it fails to create the factory
+         */
         @NonNull
-        UseCaseConfigFactory newInstance(@NonNull Context context);
+        UseCaseConfigFactory newInstance(@NonNull Context context) throws InitializationException;
     }
 
     /**

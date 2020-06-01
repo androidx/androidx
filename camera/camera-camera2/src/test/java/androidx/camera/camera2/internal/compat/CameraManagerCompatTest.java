@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.os.Build;
@@ -77,8 +78,16 @@ public final class CameraManagerCompatTest {
     }
 
     @Test
+    public void getCameraCharacteristics_callUnderlyingMethod() throws CameraAccessExceptionCompat {
+        CameraManagerCompat manager = CameraManagerCompat.from(mContext);
+        manager.getCameraCharacteristics(CAMERA_ID);
+
+        verify(mInteractionCallback, times(1)).getCameraCharacteristics(any(String.class));
+    }
+
+    @Test
     @Config(maxSdk = 27)
-    public void openCamera_callsHandlerMethod() throws CameraAccessException {
+    public void openCamera_callsHandlerMethod() throws CameraAccessExceptionCompat {
         CameraManagerCompat manager = CameraManagerCompat.from(mContext);
         manager.openCamera(CAMERA_ID, mock(Executor.class),
                 mock(CameraDevice.StateCallback.class));
@@ -89,7 +98,7 @@ public final class CameraManagerCompatTest {
 
     @Test
     @Config(minSdk = 28)
-    public void openCamera_callsExecutorMethod() throws CameraAccessException {
+    public void openCamera_callsExecutorMethod() throws CameraAccessExceptionCompat {
         CameraManagerCompat manager = CameraManagerCompat.from(mContext);
         manager.openCamera(CAMERA_ID, mock(Executor.class),
                 mock(CameraDevice.StateCallback.class));
@@ -184,6 +193,8 @@ public final class CameraManagerCompatTest {
 
         private static final String[] EMPTY_ID_LIST = new String[]{};
         private final List<Callback> mCallbacks = new ArrayList<>();
+        private final CameraCharacteristics mCameraCharacteristics =
+                mock(CameraCharacteristics.class);
 
         void addCallback(Callback callback) {
             mCallbacks.add(callback);
@@ -197,6 +208,15 @@ public final class CameraManagerCompatTest {
             }
 
             return EMPTY_ID_LIST;
+        }
+
+        @NonNull
+        @Implementation
+        protected CameraCharacteristics getCameraCharacteristics(@NonNull String cameraId) {
+            for (Callback cb : mCallbacks) {
+                cb.getCameraCharacteristics(cameraId);
+            }
+            return mCameraCharacteristics;
         }
 
         @Implementation
@@ -244,6 +264,9 @@ public final class CameraManagerCompatTest {
         interface Callback {
             @NonNull
             String[] getCameraIdList();
+
+            @NonNull
+            CameraCharacteristics getCameraCharacteristics(@NonNull String cameraId);
 
             void openCamera(@NonNull String cameraId,
                     @NonNull CameraDevice.StateCallback callback, @Nullable Handler handler);

@@ -19,7 +19,8 @@ package androidx.camera.core.impl;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraUnavailableException;
+import androidx.camera.core.InitializationException;
 
 import java.util.Set;
 
@@ -32,9 +33,16 @@ public interface CameraFactory {
      * Interface for deferring creation of a CameraFactory.
      */
     interface Provider {
-        /** Creates a new, initialized instance of a CameraFactory. */
+        /**
+         * Creates a new, initialized instance of a CameraFactory.
+         *
+         * @param context the android context
+         * @param threadConfig the thread config to run the camera operations
+         * @return the factory instance
+         * @throws InitializationException if it fails to create the factory.
+         */
         @NonNull CameraFactory newInstance(@NonNull Context context,
-                @NonNull CameraThreadConfig threadConfig);
+                @NonNull CameraThreadConfig threadConfig) throws InitializationException;
     }
 
     /**
@@ -42,21 +50,21 @@ public interface CameraFactory {
      *
      * @param cameraId the camera id to get camera with
      * @return the camera object with given camera id
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due
-     *                                        to insufficient permissions.
-     * @throws IllegalArgumentException       if the given camera id is not on the available
-     *                                        camera id list.
+     * @throws CameraUnavailableException if unable to access cameras, perhaps due
+     *                                    to insufficient permissions.
+     * @throws IllegalArgumentException   if the given camera id is not on the available
+     *                                    camera id list.
      */
     @NonNull
-    CameraInternal getCamera(@NonNull String cameraId) throws CameraInfoUnavailableException;
+    CameraInternal getCamera(@NonNull String cameraId) throws CameraUnavailableException;
 
     /**
      * Gets the ids of all available cameras.
      *
      * @return the list of available cameras
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due
-     *                                        to insufficient permissions.
+     * @throws CameraUnavailableException if unable to access cameras, perhaps due
+     *                                    to insufficient permissions.
      */
     @NonNull
-    Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException;
+    Set<String> getAvailableCameraIds() throws CameraUnavailableException;
 }

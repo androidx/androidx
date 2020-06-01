@@ -28,10 +28,12 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.InitializationException;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
@@ -93,7 +95,9 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * If no {@link CameraXConfig.Provider} is implemented, a default configuration will be used.
      *
      * @return A future which will contain the {@link ProcessCameraProvider}. Cancellation of
-     * this future is a no-op.
+     * this future is a no-op. This future may fail with an {@link InitializationException} and
+     * associated cause that can be retrieved by {@link Throwable#getCause()). The cause will be
+     * a {@link CameraUnavailableException} if it fails to access any camera during initialization.
      * @throws IllegalStateException if CameraX fails to initialize via a default provider or a
      *                               CameraXConfig.Provider.
      */

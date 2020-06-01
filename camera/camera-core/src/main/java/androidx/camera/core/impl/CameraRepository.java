@@ -21,6 +21,8 @@ import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.camera.core.CameraUnavailableException;
+import androidx.camera.core.InitializationException;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -57,7 +59,7 @@ public final class CameraRepository implements UseCaseMediator.StateChangeCallba
      *
      * <p>All cameras queried from the {@link CameraFactory} will be added to the repository.
      */
-    public void init(@NonNull CameraFactory cameraFactory) {
+    public void init(@NonNull CameraFactory cameraFactory) throws InitializationException {
         synchronized (mCamerasLock) {
             try {
                 Set<String> camerasList = cameraFactory.getAvailableCameraIds();
@@ -65,8 +67,8 @@ public final class CameraRepository implements UseCaseMediator.StateChangeCallba
                     Log.d(TAG, "Added camera: " + id);
                     mCameras.put(id, cameraFactory.getCamera(id));
                 }
-            } catch (Exception e) {
-                throw new IllegalStateException("Unable to enumerate cameras", e);
+            } catch (CameraUnavailableException e) {
+                throw new InitializationException(e);
             }
         }
     }

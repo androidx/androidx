@@ -46,6 +46,21 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraSelector.Builder requireLensFacing(int);
   }
 
+  public class CameraUnavailableException extends java.lang.Exception {
+    ctor public CameraUnavailableException(int);
+    ctor public CameraUnavailableException(int, String?);
+    ctor public CameraUnavailableException(int, String?, Throwable?);
+    ctor public CameraUnavailableException(int, Throwable?);
+    method public int getReason();
+    field public static final int CAMERA_DISABLED = 1; // 0x1
+    field public static final int CAMERA_DISCONNECTED = 2; // 0x2
+    field public static final int CAMERA_ERROR = 3; // 0x3
+    field public static final int CAMERA_IN_USE = 4; // 0x4
+    field public static final int CAMERA_MAX_IN_USE = 5; // 0x5
+    field public static final int CAMERA_UNAVAILABLE_DO_NOT_DISTURB = 6; // 0x6
+    field public static final int CAMERA_UNKNOWN_ERROR = 0; // 0x0
+  }
+
   public final class CameraXConfig {
   }
 
@@ -213,6 +228,12 @@ package androidx.camera.core {
     method public java.nio.ByteBuffer getBuffer();
     method public int getPixelStride();
     method public int getRowStride();
+  }
+
+  public class InitializationException extends java.lang.Exception {
+    ctor public InitializationException(String?);
+    ctor public InitializationException(String?, Throwable?);
+    ctor public InitializationException(Throwable?);
   }
 
   public class MeteringPoint {
