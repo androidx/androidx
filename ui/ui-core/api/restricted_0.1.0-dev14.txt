@@ -766,11 +766,9 @@ package androidx.ui.core {
     method public abstract int getParentWidth();
     method public final void place(androidx.ui.core.Placeable, androidx.ui.unit.IntPxPosition position);
     method public final void place(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
-    method public final void place-Guq6mTs(androidx.ui.core.Placeable, float x, float y);
     method public final void place-sXe7h04(androidx.ui.core.Placeable, int x, int y);
     method public final void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
     method public final void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntPxPosition position);
-    method public final void placeAbsolute-Guq6mTs(androidx.ui.core.Placeable, float x, float y);
     method public final void placeAbsolute-sXe7h04(androidx.ui.core.Placeable, int x, int y);
     property public abstract androidx.ui.core.LayoutDirection parentLayoutDirection;
     property public abstract int parentWidth;

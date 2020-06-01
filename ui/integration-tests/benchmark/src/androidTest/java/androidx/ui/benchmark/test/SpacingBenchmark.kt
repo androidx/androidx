@@ -43,7 +43,6 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.min
-import androidx.ui.unit.px
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -206,7 +205,7 @@ fun FillerContainer(modifier: Modifier = Modifier, children: @Composable () -> U
                 placeable?.height ?: 0.ipx
             }
         layout(width, height) {
-            placeable?.place(0.px, 0.px)
+            placeable?.place(0.ipx, 0.ipx)
         }
     }
 }

@@ -37,7 +37,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -207,9 +206,9 @@ class TextLayoutTest {
                             it.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
                         }
                         layout(constraints.maxWidth, constraints.maxHeight) {
-                            var top = 0.px
+                            var top = 0.ipx
                             placeables.forEach {
-                                it.place(0.px, top)
+                                it.place(0.ipx, top)
                                 top += it.height
                             }
                         }

@@ -956,7 +956,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
             val measurable = child.companionWidget
             if (measurable !is Measurable) continue
             // TODO(popam): check if measurer's rtl support should be used instead
-            placeables[measurable]?.place(IntPx(child.x), IntPx(child.y))
+            placeables[measurable]?.place(child.x.ipx, child.y.ipx)
         }
     }
 

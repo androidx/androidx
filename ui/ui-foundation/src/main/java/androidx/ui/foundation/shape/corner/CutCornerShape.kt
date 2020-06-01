@@ -22,7 +22,6 @@ import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.unit.Dp
-import androidx.ui.unit.Px
 import androidx.ui.unit.dp
 
 /**
@@ -97,7 +96,7 @@ class CutCornerShape(
 
 /**
  * Creates [CutCornerShape] with the same size applied for all four corners.
- * @param size Size in [Px] to apply.
+ * @param size Size in pixels to apply.
  */
 /*inline*/ fun CutCornerShape(size: Float) = CutCornerShape(CornerSize(size))
 

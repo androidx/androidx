@@ -56,7 +56,6 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.Dp
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.center
@@ -562,11 +561,11 @@ class ButtonTest {
 }
 
 fun assertWithinOnePixel(expected: PxPosition, actual: PxPosition) {
-    assertWithinOnePixel(expected.x, actual.x)
-    assertWithinOnePixel(expected.y, actual.y)
+    assertWithinOnePixel(expected.x.value, actual.x.value)
+    assertWithinOnePixel(expected.y.value, actual.y.value)
 }
 
-fun assertWithinOnePixel(expected: Px, actual: Px) {
-    val diff = abs(expected.value - actual.value)
+fun assertWithinOnePixel(expected: Float, actual: Float) {
+    val diff = abs(expected - actual)
     assertThat(diff).isLessThan(1.1f)
 }
