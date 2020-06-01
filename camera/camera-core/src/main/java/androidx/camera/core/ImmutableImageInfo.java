@@ -16,19 +16,21 @@
 
 package androidx.camera.core;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.camera.core.impl.TagBundle;
 
 import com.google.auto.value.AutoValue;
 
 @AutoValue
 abstract class ImmutableImageInfo implements ImageInfo {
-    public static ImageInfo create(@Nullable Object tag, long timestamp, int rotationDegrees) {
+    public static ImageInfo create(@NonNull TagBundle tag, long timestamp,
+            int rotationDegrees) {
         return new AutoValue_ImmutableImageInfo(tag, timestamp, rotationDegrees);
     }
 
     @Override
-    @Nullable
-    public abstract Object getTag();
+    @NonNull
+    public abstract TagBundle getTagBundle();
 
     @Override
     public abstract long getTimestamp();

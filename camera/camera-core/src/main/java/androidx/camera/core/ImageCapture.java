@@ -1226,6 +1226,8 @@ public final class ImageCapture extends UseCase {
 
         final List<ListenableFuture<Void>> futureList = new ArrayList<>();
         final List<CaptureConfig> captureConfigs = new ArrayList<>();
+        String tagBundleKey = null;
+
         CaptureBundle captureBundle;
         if (mProcessingImageReader != null) {
             // If the Processor is provided, check if we have valid CaptureBundle and update
@@ -1243,6 +1245,7 @@ public final class ImageCapture extends UseCase {
             }
 
             mProcessingImageReader.setCaptureBundle(captureBundle);
+            tagBundleKey = mProcessingImageReader.getTagBundleKey();
         } else {
             captureBundle = getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
             if (captureBundle.getCaptureStages().size() > 1) {
@@ -1271,7 +1274,11 @@ public final class ImageCapture extends UseCase {
             // Add the implementation options required by the CaptureStage
             builder.addImplementationOptions(
                     captureStage.getCaptureConfig().getImplementationOptions());
-            builder.setTag(captureStage.getCaptureConfig().getTag());
+
+            // Use CaptureBundle object as the key for TagBundle
+            if (tagBundleKey != null) {
+                builder.addTag(tagBundleKey, captureStage.getId());
+            }
             builder.addCameraCaptureCallback(mMetadataMatchingCaptureCallback);
 
             ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(
@@ -1972,7 +1979,7 @@ public final class ImageCapture extends UseCase {
 
             // Construct the ImageProxy with the updated rotation & crop for the output
             ImageInfo imageInfo = ImmutableImageInfo.create(
-                    image.getImageInfo().getTag(),
+                    image.getImageInfo().getTagBundle(),
                     image.getImageInfo().getTimestamp(), dispatchRotation);
 
             final ImageProxy dispatchedImageProxy = new SettableImageProxy(image,

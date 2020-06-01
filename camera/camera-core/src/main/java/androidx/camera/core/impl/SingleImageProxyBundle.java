@@ -34,29 +34,29 @@ public final class SingleImageProxyBundle implements ImageProxyBundle {
     private final ImageProxy mImageProxy;
 
     /**
-     * Create an {@link ImageProxyBundle} from a single {@link ImageProxy} using the tag from the
-     * ImageProxy as the captureId.
+     * Create an {@link ImageProxyBundle} from a single {@link ImageProxy} using a tag's value from
+     * the ImageProxy as the captureId.
+     *
+     * The tagBundleKey is used to query from a TagBundle. It needs to be one of the keys that are
+     * in the ImageInfo's TagBundle.
      *
      * @throws IllegalArgumentException if the ImageProxy doesn't contain a tag
      */
-    public SingleImageProxyBundle(@NonNull ImageProxy imageProxy) {
+    public SingleImageProxyBundle(@NonNull ImageProxy imageProxy,
+            @NonNull String tagBundleKey) {
         ImageInfo imageInfo = imageProxy.getImageInfo();
 
         if (imageInfo == null) {
             throw new IllegalArgumentException("ImageProxy has no associated ImageInfo");
         }
 
-        Object tag = imageInfo.getTag();
+        Integer tagValue = imageInfo.getTagBundle().getTag(tagBundleKey);
 
-        if (tag == null) {
+        if (tagValue == null) {
             throw new IllegalArgumentException("ImageProxy has no associated tag");
         }
 
-        if (!(tag instanceof Integer)) {
-            throw new IllegalArgumentException("ImageProxy has tag that isn't an integer");
-        }
-
-        mCaptureId = (Integer) tag;
+        mCaptureId = tagValue;
         mImageProxy = imageProxy;
     }
 

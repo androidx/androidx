@@ -23,6 +23,7 @@ import android.os.Build;
 
 import androidx.camera.camera2.internal.Camera2CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.TagBundle;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -41,8 +42,8 @@ public final class Camera2CameraCaptureResultConverterTest {
 
     @Test
     public void canRetrieveCaptureResult() {
-        CameraCaptureResult cameraCaptureResult = new Camera2CameraCaptureResult(null,
-                mCaptureResult);
+        CameraCaptureResult cameraCaptureResult =
+                new Camera2CameraCaptureResult(TagBundle.emptyBundle(), mCaptureResult);
 
         CaptureResult captureResult = Camera2CameraCaptureResultConverter.getCaptureResult(
                 cameraCaptureResult);

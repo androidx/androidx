@@ -44,18 +44,20 @@ public class AdaptingPreviewProcessorTest {
     private AdaptingPreviewProcessor mAdaptingPreviewProcessor;
     private PreviewImageProcessorImpl mImpl;
     private ImageProxyBundle mImageProxyBundle;
+    private String mTagBundleKey = "FakeTagBundleKey";
 
     @Before
     public void setup() {
         mImpl = mock(PreviewImageProcessorImpl.class);
 
         FakeImageInfo fakeImageInfo = new FakeImageInfo();
-        fakeImageInfo.setTag(1);
+        // Use the key which SingleImageProxyBundle is used to get tag.
+        fakeImageInfo.setTag(mTagBundleKey, 1);
 
         FakeImageProxy fakeImageProxy = new FakeImageProxy(fakeImageInfo);
         fakeImageProxy.setImage(mock(Image.class));
 
-        mImageProxyBundle = new SingleImageProxyBundle(fakeImageProxy);
+        mImageProxyBundle = new SingleImageProxyBundle(fakeImageProxy, mTagBundleKey);
         mAdaptingPreviewProcessor = new AdaptingPreviewProcessor(mImpl);
     }
 

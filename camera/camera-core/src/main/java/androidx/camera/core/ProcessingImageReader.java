@@ -132,10 +132,12 @@ class ProcessingImageReader implements ImageReaderProxy {
     @NonNull
     final CaptureProcessor mCaptureProcessor;
 
+    private String mTagBundleKey = new String();
+
     @GuardedBy("mLock")
     @NonNull
     SettableImageProxyBundle mSettableImageProxyBundle =
-            new SettableImageProxyBundle(Collections.emptyList());
+            new SettableImageProxyBundle(Collections.emptyList(), mTagBundleKey);
 
     private final List<Integer> mCaptureIdList = new ArrayList<>();
 
@@ -292,9 +294,17 @@ class ProcessingImageReader implements ImageReaderProxy {
                 }
             }
 
-            mSettableImageProxyBundle = new SettableImageProxyBundle(mCaptureIdList);
+            // Use the mCaptureBundle as the key for TagBundle
+            mTagBundleKey = Integer.toString(captureBundle.hashCode());
+            mSettableImageProxyBundle = new SettableImageProxyBundle(mCaptureIdList, mTagBundleKey);
             setupSettableImageProxyBundleCallbacks();
         }
+    }
+
+    /** Returns a TagBundleKey which is used in this processing image reader.*/
+    @NonNull
+    public String getTagBundleKey() {
+        return mTagBundleKey;
     }
 
     /** Returns necessary camera callbacks to retrieve metadata from camera result. */
@@ -333,9 +343,11 @@ class ProcessingImageReader implements ImageReaderProxy {
                 Log.e(TAG, "Failed to acquire latest image.", e);
             } finally {
                 if (image != null) {
-                    Integer tag = (Integer) image.getImageInfo().getTag();
-                    if (!mCaptureIdList.contains(tag)) {
-                        Log.w(TAG, "ImageProxyBundle does not contain this id: " + tag);
+                    // Currently use the same key which intends to get a captureStage id value.
+                    Integer tagValue = image.getImageInfo().getTagBundle().getTag(mTagBundleKey);
+
+                    if (!mCaptureIdList.contains(tagValue)) {
+                        Log.w(TAG, "ImageProxyBundle does not contain this id: " + tagValue);
                         image.close();
                     } else {
                         mSettableImageProxyBundle.addImageProxy(image);
