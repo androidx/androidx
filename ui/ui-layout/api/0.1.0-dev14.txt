@@ -97,9 +97,9 @@ package androidx.ui.layout {
     method public androidx.ui.layout.ConstrainScope.VerticalAnchorable getStart();
     method public androidx.ui.layout.ConstrainScope.HorizontalAnchorable getTop();
     method public androidx.ui.layout.Dimension getWidth();
-    method public void linkTo-MrnifDM(androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor start, androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor end, float startMargin = 0.dp, float endMargin = 0.dp, float bias = 0.5f);
-    method public void linkTo-h2XOreo(androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor top, androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor bottom, float topMargin = 0.dp, float bottomMargin = 0.dp, float bias = 0.5f);
-    method public void linkTo-tsa2a54(androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor start, androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor top, androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor end, androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor bottom, float startMargin = 0.dp, float topMargin = 0.dp, float endMargin = 0.dp, float bottomMargin = 0.dp, float horizontalBias = 0.5f, float verticalBias = 0.5f);
+    method public void linkTo-MrnifDM(androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor start, androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor end, float startMargin = 0.dp, float endMargin = 0.dp, @FloatRange(from=0.0, to=1.0) float bias = 0.5f);
+    method public void linkTo-h2XOreo(androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor top, androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor bottom, float topMargin = 0.dp, float bottomMargin = 0.dp, @FloatRange(from=0.0, to=1.0) float bias = 0.5f);
+    method public void linkTo-tsa2a54(androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor start, androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor top, androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor end, androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor bottom, float startMargin = 0.dp, float topMargin = 0.dp, float endMargin = 0.dp, float bottomMargin = 0.dp, @FloatRange(from=0.0, to=1.0) float horizontalBias = 0.5f, @FloatRange(from=0.0, to=1.0) float verticalBias = 0.5f);
     method public void setHeight(androidx.ui.layout.Dimension value);
     method public void setWidth(androidx.ui.layout.Dimension value);
     property public final androidx.ui.layout.ConstrainScope.BaselineAnchorable baseline;

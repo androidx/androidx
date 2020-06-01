@@ -20,6 +20,7 @@ package androidx.ui.layout
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.constraintlayout.core.state.ConstraintReference
@@ -606,7 +607,7 @@ class ConstrainScope internal constructor(internal val tag: Any) {
         end: ConstraintLayoutBaseScope.VerticalAnchor,
         startMargin: Dp = 0.dp,
         endMargin: Dp = 0.dp,
-        bias: Float = 0.5f
+        @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f
     ) {
         this@ConstrainScope.start.linkTo(start, startMargin)
         this@ConstrainScope.end.linkTo(end, endMargin)
@@ -624,7 +625,7 @@ class ConstrainScope internal constructor(internal val tag: Any) {
         bottom: ConstraintLayoutBaseScope.HorizontalAnchor,
         topMargin: Dp = 0.dp,
         bottomMargin: Dp = 0.dp,
-        bias: Float = 0.5f
+        @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f
     ) {
         this@ConstrainScope.top.linkTo(top, topMargin)
         this@ConstrainScope.bottom.linkTo(bottom, bottomMargin)
@@ -647,8 +648,8 @@ class ConstrainScope internal constructor(internal val tag: Any) {
         topMargin: Dp = 0.dp,
         endMargin: Dp = 0.dp,
         bottomMargin: Dp = 0.dp,
-        horizontalBias: Float = 0.5f,
-        verticalBias: Float = 0.5f
+        @FloatRange(from = 0.0, to = 1.0) horizontalBias: Float = 0.5f,
+        @FloatRange(from = 0.0, to = 1.0) verticalBias: Float = 0.5f
     ) {
         linkTo(start, end, startMargin, endMargin, horizontalBias)
         linkTo(top, bottom, topMargin, bottomMargin, verticalBias)
