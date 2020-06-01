@@ -45,8 +45,9 @@ import org.junit.runners.JUnit4
 @MediumTest
 @RunWith(JUnit4::class)
 class SendSwipeTest {
-
-    private val tag = "widget"
+    companion object {
+        private const val tag = "widget"
+    }
 
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)

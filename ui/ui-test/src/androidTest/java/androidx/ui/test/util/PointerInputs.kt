@@ -104,11 +104,3 @@ fun List<DataPoint>.isMonotonicBetween(start: PxPosition, end: PxPosition) {
     map { it.x.value }.isMonotonicBetween(start.x.value, end.x.value, 1e-3f)
     map { it.y.value }.isMonotonicBetween(start.y.value, end.y.value, 1e-3f)
 }
-
-/**
- * Verifies that all [DataPoint]s in the list are equal to the given position, with a tolerance
- * of 0.001
- */
-fun List<DataPoint>.areAlmostEqualTo(position: PxPosition) {
-    forEach { it.position.isAlmostEqualTo(position, 1e-3f) }
-}

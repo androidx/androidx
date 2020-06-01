@@ -34,8 +34,6 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-private val anyPosition = PxPosition.Origin
-
 /**
  * Tests if [AndroidInputDispatcher.delay] works by performing three gestures with a delay in
  * between them. By varying the gestures and the delay, we test for lingering state problems.
@@ -53,7 +51,7 @@ class DelayTest(private val config: TestConfig) {
 
     enum class Gesture(internal val function: (InputDispatcher) -> Unit) {
         Click({ it.sendClick(anyPosition) }),
-        Swipe({ it.sendSwipe(anyPosition, anyPosition, 100.milliseconds) }),
+        Swipe({ it.sendSwipe(anyPosition, anyPosition, 107.milliseconds) }),
         Partial({
             it.sendDown(anyPosition)
             it.sendMove(anyPosition)
@@ -62,12 +60,14 @@ class DelayTest(private val config: TestConfig) {
     }
 
     companion object {
+        private val anyPosition = PxPosition.Origin
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return mutableListOf<TestConfig>().apply {
-                for (delay1 in listOf(0, 10, 100)) {
-                    for (delay2 in listOf(0, 23, 47)) {
+                for (delay1 in listOf(0, 23)) {
+                    for (delay2 in listOf(0, 47)) {
                         for (gesture1 in Gesture.values()) {
                             for (gesture2 in Gesture.values()) {
                                 for (gesture3 in Gesture.values()) {
@@ -95,11 +95,11 @@ class DelayTest(private val config: TestConfig) {
     )
 
     private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::sendEvent)
+    private val subject = AndroidInputDispatcher(recorder::recordEvent)
 
     @After
     fun tearDown() {
-        recorder.clear()
+        recorder.disposeEvents()
     }
 
     @Test

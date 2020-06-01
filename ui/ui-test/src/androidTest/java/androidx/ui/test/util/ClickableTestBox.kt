@@ -28,7 +28,7 @@ import androidx.ui.test.util.ClickableTestBox.defaultSize
 import androidx.ui.test.util.ClickableTestBox.defaultTag
 
 object ClickableTestBox {
-    val defaultSize = 100.0f
+    const val defaultSize = 100.0f
     val defaultColor = Color.Yellow
     const val defaultTag = "ClickableTestBox"
 }
