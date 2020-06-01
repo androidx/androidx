@@ -174,9 +174,9 @@ public final class SavedStateHandle {
      *     String defaultValue = ...; // nullable
      *     LiveData<String> liveData;
      *     if (defaultValue != null) {
-     *         liveData = savedStateHandle.get(KEY, defaultValue);
+     *         liveData = savedStateHandle.getLiveData(KEY, defaultValue);
      *     } else {
-     *         liveData = savedStateHandle.get(KEY);
+     *         liveData = savedStateHandle.getLiveData(KEY);
      *     }
      * }</pre>
      *
