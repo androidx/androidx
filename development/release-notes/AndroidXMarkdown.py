@@ -53,10 +53,7 @@ class CommitMarkdownList:
 				markdownStringSection = markdownStringSection + commitString
 				if markdownStringSection[-1] != '\n':
 					markdownStringSection += '\n'
-		if markdownStringSection == "":
-			markdownStringSection = "\n%s\n\n%s" % (MarkdownComment(sectionHeader), markdownStringSection)
-		else:
-			markdownStringSection = "\n%s\n\n%s" % (sectionHeader, markdownStringSection)
+		markdownStringSection = "\n%s\n\n%s" % (sectionHeader, markdownStringSection)
 		return markdownStringSection
 
 	def __str__(self):
@@ -152,14 +149,16 @@ class LibraryReleaseNotes:
 			raise RuntimeError("Tried to create Library Release Notes Header without setting " +
 					"the groupId or version!")
 		if requiresSameVersion:
-			shortenedGroupId = groupId.replace("androidx.", "").capitalize()
-			self.header = LibraryHeader(shortenedGroupId, version)
+			formattedGroupId = groupId.replace("androidx.", "")
+			formattedGroupId = self.capitalizeTitle(formattedGroupId)
+			self.header = LibraryHeader(formattedGroupId, version)
 		else:
-			forrmattedArtifactIds = (" ".join(artifactIds) + " ").title()
-			artifactIdTag = ""
-			if len(artifactIds) == 1:
-				artifactIdTag = artifactIds[0] + "-"
-			self.header = LibraryHeader(forrmattedArtifactIds, version, artifactIdTag)
+			artifactIdTag = artifactIds[0] + "-" if len(artifactIds) == 1 else ""
+			formattedArtifactIds = (" ".join(artifactIds))
+			if len(artifactIds) > 3:
+				formattedArtifactIds = groupId.replace("androidx.", "")
+			formattedArtifactIds = self.capitalizeTitle(formattedArtifactIds)
+			self.header = LibraryHeader(formattedArtifactIds, version, artifactIdTag)
 		self.diffLogLink = getGitilesDiffLogLink(version, fromSHA, untilSHA, projectDir)
 
 	def getFormattedReleaseSummary(self):
@@ -171,14 +170,29 @@ class LibraryReleaseNotes:
 			elif numberArtifacts == 2:
 				if i == 0: self.summary = "`%s:%s:%s` and " % (self.groupId, currentArtifactId, self.version)
 				if i == 1: self.summary += "`%s:%s:%s` are released. " % (self.groupId, currentArtifactId, self.version)
-			else:
+			elif numberArtifacts == 3:
 				if (i < numberArtifacts - 1):
 					self.summary += "`%s:%s:%s`, " % (self.groupId, currentArtifactId, self.version)
 				else:
 					self.summary += "and `%s:%s:%s` are released. " % (self.groupId, currentArtifactId, self.version)
-
+			else:
+				commonArtifactIdSubstring = self.artifactIds[0].split('-')[0]
+				self.summary = "`%s:%s-*:%s` is released. " % (
+					self.groupId,
+					commonArtifactIdSubstring,
+					self.version
+				)
 		self.summary += "%s\n" % self.diffLogLink
 		return self.summary
+
+	def capitalizeTitle(self, artifactWord):
+		artifactWord = artifactWord.title()
+		keywords = ["Animated", "Animation", "Callback", "Compat", "Drawable", "File", "Layout",
+					"Pager", "Pane", "Parcelable", "Provider", "Refresh", "SQL", "State", "TV",
+					"Target", "View", "Inflater"]
+		for keyword in keywords:
+			artifactWord = artifactWord.replace(keyword.lower(), keyword)
+		return artifactWord
 
 	def addCommit(self, newCommit):
 		for bug in newCommit.bugs:

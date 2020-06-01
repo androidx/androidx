@@ -159,7 +159,7 @@ def mergeCommitListBIntoCommitListA(commitListA, commitListB):
 		if commitB.sha not in commitListAShaSet:
 			commitListA.append(commitB)
 
-def commonPathPrefix(pathA, pathB):
+def getCommonPathPrefix(pathA, pathB):
 	pathAList = pathA.split('/')
 	pathBList = pathB.split('/')
 
@@ -235,7 +235,7 @@ def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir
 			)
 			fromSHA = artifact["fromSHA"]
 			untilSHA = artifact["untilSHA"]
-			groupIdCommonDir = commonPathPrefix(groupIdCommonDir, artifact["path"])
+			groupIdCommonDir = getCommonPathPrefix(groupIdCommonDir, artifact["path"])
 		for commit in versionGroupCommitList:
 			if isExcludedAuthorEmail(commit.authorEmail):
 				versionGroupCommitList.remove(commit)
