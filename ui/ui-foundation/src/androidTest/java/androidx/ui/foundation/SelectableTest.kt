@@ -18,7 +18,8 @@ package androidx.ui.foundation
 
 import androidx.compose.state
 import androidx.test.filters.MediumTest
-import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.selection.selectable
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected
@@ -36,17 +37,18 @@ import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class MutuallyExclusiveSetItemTest {
+class SelectableTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
 
     @Test
-    fun mutuallyExclusiveItem_defaultSemantics() {
+    fun selectable_defaultSemantics() {
         composeTestRule.setContent {
-            MutuallyExclusiveSetItem(selected = true, onClick = {}) {
-                Text("Text in item")
-            }
+            Text(
+                "Text in item",
+                modifier = Modifier.selectable(selected = true, onClick = {})
+            )
         }
 
         findAll(isInMutuallyExclusiveGroup())
@@ -57,12 +59,16 @@ class MutuallyExclusiveSetItemTest {
     }
 
     @Test
-    fun mutuallyExclusiveItem_defaultClicks() {
+    fun selectable_defaultClicks() {
         composeTestRule.setContent {
             val (selected, onSelected) = state { false }
-            MutuallyExclusiveSetItem(selected, onClick = { onSelected(!selected) }) {
-                Text("Text in item")
-            }
+            Text(
+                "Text in item",
+                modifier = Modifier.selectable(
+                    selected = selected,
+                    onClick = { onSelected(!selected) }
+                )
+            )
         }
 
         find(isInMutuallyExclusiveGroup())
@@ -74,12 +80,15 @@ class MutuallyExclusiveSetItemTest {
     }
 
     @Test
-    fun mutuallyExclusiveItem_noClicksNoChanges() {
+    fun selectable_noClicksNoChanges() {
         composeTestRule.setContent {
             val (selected, _) = state { false }
-            MutuallyExclusiveSetItem(selected, onClick = {}) {
-                Text("Text in item")
-            }
+            Text(
+                "Text in item",
+                modifier = Modifier.selectable(
+                    selected = selected,
+                    onClick = {})
+            )
         }
 
         find(isInMutuallyExclusiveGroup())

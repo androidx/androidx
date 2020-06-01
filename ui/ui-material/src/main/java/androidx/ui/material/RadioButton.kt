@@ -25,10 +25,11 @@ import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
+import androidx.ui.foundation.selection.selectable
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.DrawScope
@@ -39,8 +40,7 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
-import androidx.ui.material.ripple.ripple
-import androidx.ui.semantics.Semantics
+import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 
@@ -135,15 +135,15 @@ class RadioGroupScope internal constructor() {
         modifier: Modifier = Modifier,
         content: @Composable () -> Unit
     ) {
-        Semantics(container = true, mergeAllDescendants = true) {
-            Box(modifier) {
-                MutuallyExclusiveSetItem(
+        Box(
+            modifier = modifier
+                .semantics(mergeAllDescendants = true)
+                .selectable(
                     selected = selected,
-                    onClick = { if (!selected) onSelect() }, children = content,
-                    modifier = Modifier.ripple()
-                )
-            }
-        }
+                    onClick = { if (!selected) onSelect() }
+                ),
+            children = content
+        )
     }
 
     /**
@@ -205,27 +205,28 @@ fun RadioButton(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.secondary
 ) {
-    Stack(modifier) {
-        MutuallyExclusiveSetItem(
-            selected = selected, onClick = { if (!selected) onSelect?.invoke() },
-            modifier = Modifier.ripple(bounded = false)
-        ) {
-            val unselectedColor =
-                MaterialTheme.colors.onSurface.copy(alpha = UnselectedOpacity)
-            val definition = remember(color, unselectedColor) {
-                generateTransitionDefinition(color, unselectedColor)
-            }
-            Transition(definition = definition, toState = selected) { state ->
-                val radioStroke = Stroke(RadioStrokeWidth.value * DensityAmbient.current.density)
-                Canvas(Modifier.padding(RadioButtonPadding).preferredSize(RadioButtonSize)) {
-                    drawRadio(
-                        state[ColorProp],
-                        state[OuterRadiusProp].toPx(),
-                        state[InnerRadiusProp].toPx(),
-                        state[GapProp].toPx(),
-                        radioStroke
-                    )
-                }
+    Stack(
+        modifier.selectable(
+            selected = selected,
+            onClick = { if (!selected) onSelect?.invoke() },
+            indication = RippleIndication(bounded = false)
+        )
+    ) {
+        val unselectedColor =
+            MaterialTheme.colors.onSurface.copy(alpha = UnselectedOpacity)
+        val definition = remember(color, unselectedColor) {
+            generateTransitionDefinition(color, unselectedColor)
+        }
+        Transition(definition = definition, toState = selected) { state ->
+            val radioStroke = Stroke(RadioStrokeWidth.value * DensityAmbient.current.density)
+            Canvas(Modifier.padding(RadioButtonPadding).preferredSize(RadioButtonSize)) {
+                drawRadio(
+                    state[ColorProp],
+                    state[OuterRadiusProp].toPx(),
+                    state[InnerRadiusProp].toPx(),
+                    state[GapProp].toPx(),
+                    radioStroke
+                )
             }
         }
     }

@@ -32,8 +32,6 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityAmbient
-import androidx.ui.text.FirstBaseline
-import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
@@ -47,7 +45,7 @@ import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.drawBackground
-import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
+import androidx.ui.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
@@ -56,8 +54,10 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredWidth
+import androidx.ui.material.TabRow.IndicatorTransition
 import androidx.ui.material.TabRow.TabPosition
-import androidx.ui.material.ripple.ripple
+import androidx.ui.text.FirstBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
@@ -519,13 +519,13 @@ fun Tab(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    MutuallyExclusiveSetItem(
-        selected = selected,
-        onClick = onSelected,
-        modifier = Modifier.ripple()
-    ) {
-        Box(modifier.fillMaxWidth(), gravity = ContentGravity.Center, children = content)
-    }
+    Box(
+        modifier = modifier
+            .selectable(selected = selected, onClick = onSelected)
+            .fillMaxWidth(),
+        gravity = ContentGravity.Center,
+        children = content
+    )
 }
 
 private val TabTintColor = ColorPropKey()
@@ -635,7 +635,8 @@ private fun TabBaselineLayout(
                     lastBaseline = requireNotNull(lastBaseline) { "No text baselines found" }
                 )
                 hasIconPlaceable -> placeIcon(iconPlaceable, tabHeight)
-                else -> {}
+                else -> {
+                }
             }
         }
     }
