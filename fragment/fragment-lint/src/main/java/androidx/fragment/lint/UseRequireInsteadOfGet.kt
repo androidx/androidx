@@ -161,11 +161,17 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                     // We're a double-bang expression (!!)
                     val parentSourceToReplace =
                         nearestNonQualifiedReferenceParent.asSourceString()
-                    val correctMethod = correctMethod(
+                    var correctMethod = correctMethod(
                         parentSourceToReplace,
                         "$targetExpression!!",
                         targetMethodName
                     )
+                    if (correctMethod == parentSourceToReplace) {
+                        correctMethod = parentSourceToReplace.replace(
+                            "$targetExpression?",
+                            "$targetExpression!!"
+                        ).replaceFirstOccurrenceAfter("!!", "", "$targetExpression!!")
+                    }
                     report(nearestNonQualifiedReferenceParent, parentSourceToReplace, correctMethod)
                 } else if (nearestNonQualifiedReferenceParent is UCallExpression) {
                     // See if we're in a "requireNotNull(...)" or similar expression
@@ -218,6 +224,13 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                     "require${targetMethodName.removePrefix("get").capitalize(Locale.US)}()"
                 )
             }
+
+            // Replaces the first occurrence of a substring after given String
+            private fun String.replaceFirstOccurrenceAfter(
+                oldValue: String,
+                newValue: String,
+                prefix: String
+            ): String = prefix + substringAfter(prefix).replaceFirst(oldValue, newValue)
 
             private fun report(node: UElement, targetExpression: String, correctMethod: String) {
                 context.report(
