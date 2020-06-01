@@ -24,7 +24,6 @@ import androidx.compose.Providers
 import androidx.compose.emptyContent
 import androidx.ui.animation.animate
 import androidx.ui.core.Constraints
-import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -36,7 +35,7 @@ import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.contentColor
-import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
+import androidx.ui.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Arrangement
@@ -44,7 +43,7 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
-import androidx.ui.material.ripple.ripple
+import androidx.ui.text.LastBaseline
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
@@ -141,22 +140,20 @@ fun BottomNavigationItem(
         val style = MaterialTheme.typography.caption.copy(textAlign = TextAlign.Center)
         ProvideTextStyle(style, children = text)
     }
-    MutuallyExclusiveSetItem(
-        selected = selected,
-        onClick = onSelected,
-        modifier = Modifier.ripple()
-    ) {
-        // TODO This composable has magic behavior within a Row; reconsider this behavior later
-        Box(with(RowScope) { modifier.weight(1f) }, gravity = ContentGravity.Center) {
-            BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
-                val animationProgress = if (alwaysShowLabels) 1f else progress
+    // TODO This composable has magic behavior within a Row; reconsider this behavior later
+    Box(with(RowScope) {
+        modifier
+            .selectable(selected = selected, onClick = onSelected)
+            .weight(1f)
+    }, gravity = ContentGravity.Center) {
+        BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
+            val animationProgress = if (alwaysShowLabels) 1f else progress
 
-                BottomNavigationItemBaselineLayout(
-                    icon = icon,
-                    text = styledText,
-                    iconPositionAnimationProgress = animationProgress
-                )
-            }
+            BottomNavigationItemBaselineLayout(
+                icon = icon,
+                text = styledText,
+                iconPositionAnimationProgress = animationProgress
+            )
         }
     }
 }
@@ -229,7 +226,8 @@ private fun BottomNavigationItemBaselineLayout(
 
         // If the text is empty, just place the icon.
         if (textPlaceable.width <= BottomNavigationItemHorizontalPadding.toIntPx() * 2 &&
-            textPlaceable.height == IntPx.Zero) {
+            textPlaceable.height == IntPx.Zero
+        ) {
             placeIcon(iconPlaceable, constraints)
         } else {
             placeTextAndIcon(
