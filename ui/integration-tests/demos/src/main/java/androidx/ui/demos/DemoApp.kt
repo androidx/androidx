@@ -33,6 +33,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.material.IconButton
@@ -68,7 +69,7 @@ fun DemoApp(
 
     var filterText by savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
 
-    Scaffold(topAppBar = {
+    Scaffold(topBar = {
         DemoAppBar(
             title = backStackTitle,
             navigationIcon = navigationIcon,
@@ -79,20 +80,22 @@ fun DemoApp(
             onStartFiltering = onStartFiltering,
             onEndFiltering = onEndFiltering
         )
-    }) {
-        DemoContent(currentDemo, isFiltering, filterText.text, onNavigateToDemo)
+    }) { innerPadding ->
+        val modifier = Modifier.padding(innerPadding)
+        DemoContent(modifier, currentDemo, isFiltering, filterText.text, onNavigateToDemo)
     }
 }
 
 @Composable
 private fun DemoContent(
+    modifier: Modifier,
     currentDemo: Demo,
     isFiltering: Boolean,
     filterText: String,
     onNavigate: (Demo) -> Unit
 ) {
     Crossfade(isFiltering to currentDemo) { (filtering, demo) ->
-        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
+        Surface(modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
             if (filtering) {
                 DemoFilter(
                     launchableDemos = AllDemosCategory.allLaunchableDemos(),

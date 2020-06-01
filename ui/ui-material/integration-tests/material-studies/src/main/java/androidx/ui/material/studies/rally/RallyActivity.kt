@@ -22,7 +22,10 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
+import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Box
+import androidx.ui.layout.padding
 import androidx.ui.material.Scaffold
 
 /**
@@ -44,15 +47,17 @@ fun RallyApp() {
         val allScreens = RallyScreenState.values().toList()
         var currentScreen by state { RallyScreenState.Overview }
         Scaffold(
-            topAppBar = {
+            topBar = {
                 RallyTopAppBar(
                     allScreens = allScreens,
                     onTabSelected = { screen -> currentScreen = screen },
                     currentScreen = currentScreen
                 )
             }
-        ) {
-            currentScreen.body()
+        ) { innerPadding ->
+            Box(Modifier.padding(innerPadding)) {
+                currentScreen.body()
+            }
         }
     }
 }

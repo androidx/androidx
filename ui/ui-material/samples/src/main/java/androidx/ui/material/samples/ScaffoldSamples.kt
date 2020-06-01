@@ -32,6 +32,7 @@ import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.material.BottomAppBar
 import androidx.ui.material.DrawerState
@@ -61,7 +62,7 @@ fun SimpleScaffoldWithTopBar() {
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = { Text("Drawer content") },
-        topAppBar = {
+        topBar = {
             TopAppBar(
                 title = { Text("Simple Scaffold Screen") },
                 navigationIcon = {
@@ -80,9 +81,9 @@ fun SimpleScaffoldWithTopBar() {
                 onClick = { /* fab click handler */ }
             )
         },
-        bodyContent = { modifier ->
+        bodyContent = { innerPadding ->
             VerticalScroller {
-                Column(modifier) {
+                Column(Modifier.padding(innerPadding)) {
                     repeat(100) {
                         Box(
                             Modifier.fillMaxWidth().preferredHeight(50.dp),
@@ -130,9 +131,9 @@ fun ScaffoldWithBottomBarAndCutout() {
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = { Text("Drawer content") },
-        topAppBar = { TopAppBar(title = { Text("Scaffold with bottom cutout") }) },
-        bottomAppBar = { fabConfiguration ->
-            BottomAppBar(fabConfiguration = fabConfiguration, cutoutShape = fabShape) {
+        topBar = { TopAppBar(title = { Text("Scaffold with bottom cutout") }) },
+        bottomBar = {
+            BottomAppBar(cutoutShape = fabShape) {
                 IconButton(onClick = {
                     scaffoldState.drawerState = DrawerState.Opened
                 }) {
@@ -147,10 +148,11 @@ fun ScaffoldWithBottomBarAndCutout() {
                 shape = fabShape
             )
         },
-        floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
-        bodyContent = { modifier ->
+        floatingActionButtonPosition = Scaffold.FabPosition.Center,
+        isFloatingActionButtonDocked = true,
+        bodyContent = { innerPadding ->
             VerticalScroller {
-                Column(modifier) {
+                Column(Modifier.padding(innerPadding)) {
                     repeat(100) {
                         Box(
                             Modifier.fillMaxWidth().preferredHeight(50.dp),
