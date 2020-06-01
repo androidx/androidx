@@ -18,6 +18,7 @@ package androidx.camera.view;
 
 import static androidx.camera.core.SurfaceRequest.Result;
 
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.util.Log;
 import android.view.Surface;
@@ -243,5 +244,17 @@ final class TextureViewImplementation extends PreviewViewImplementation {
                     return "textureViewImpl_waitForNextFrame";
                 }
         );
+    }
+
+    @Nullable
+    @Override
+    Bitmap getPreviewBitmap() {
+        // If textureView is still null or its SurfaceTexture isn't available yet, return null
+        if (mTextureView == null || !mTextureView.isAvailable()) {
+            return null;
+        }
+
+        // Get bitmap of the SurfaceTexture's display contents
+        return mTextureView.getBitmap();
     }
 }
