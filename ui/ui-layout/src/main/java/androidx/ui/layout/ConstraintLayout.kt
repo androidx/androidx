@@ -61,6 +61,9 @@ import androidx.ui.util.fastForEach
 
 /**
  * Layout that positions its children according to the constraints between them.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.DemoInlineDSL
  */
 @Composable
 fun ConstraintLayout(
@@ -108,6 +111,9 @@ fun ConstraintLayout(
 
 /**
  * Layout that positions its children according to the constraints between them.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.DemoConstraintSet
  */
 @Composable
 fun ConstraintLayout(
