@@ -32,7 +32,6 @@ import androidx.ui.test.doClick
 import androidx.ui.test.find
 import androidx.ui.test.isToggleable
 import androidx.ui.unit.dp
-import androidx.ui.unit.toPx
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -79,8 +78,8 @@ class IconButtonTest {
             val iconX = iconCoords.positionInParent.x
             val iconY = iconCoords.positionInParent.y
             // Icon should be centered inside the IconButton
-            Truth.assertThat(iconX).isEqualTo(12.dp.toIntPx().toPx())
-            Truth.assertThat(iconY).isEqualTo(12.dp.toIntPx().toPx())
+            Truth.assertThat(iconX).isEqualTo(12.dp.toIntPx().value.toFloat())
+            Truth.assertThat(iconY).isEqualTo(12.dp.toIntPx().value.toFloat())
         }
     }
 
@@ -104,8 +103,8 @@ class IconButtonTest {
             val iconX = iconCoords.positionInParent.x
             val iconY = iconCoords.positionInParent.y
 
-            val expectedX = ((48.dp - width) / 2).toIntPx().toPx()
-            val expectedY = ((48.dp - height) / 2).toIntPx().toPx()
+            val expectedX = ((48.dp - width) / 2).toIntPx().value.toFloat()
+            val expectedY = ((48.dp - height) / 2).toIntPx().value.toFloat()
             // Icon should be centered inside the IconButton
             Truth.assertThat(iconX).isEqualTo(expectedX)
             Truth.assertThat(iconY).isEqualTo(expectedY)
@@ -143,8 +142,8 @@ class IconButtonTest {
             val iconX = iconCoords.positionInParent.x
             val iconY = iconCoords.positionInParent.y
             // Icon should be centered inside the IconButton
-            Truth.assertThat(iconX).isEqualTo(12.dp.toIntPx().toPx())
-            Truth.assertThat(iconY).isEqualTo(12.dp.toIntPx().toPx())
+            Truth.assertThat(iconX).isEqualTo(12.dp.toIntPx().value.toFloat())
+            Truth.assertThat(iconY).isEqualTo(12.dp.toIntPx().value.toFloat())
         }
     }
 
@@ -167,8 +166,8 @@ class IconButtonTest {
             val iconX = iconCoords.positionInParent.x
             val iconY = iconCoords.positionInParent.y
 
-            val expectedX = ((48.dp - width) / 2).toIntPx().toPx()
-            val expectedY = ((48.dp - height) / 2).toIntPx().toPx()
+            val expectedX = ((48.dp - width) / 2).toIntPx().value.toFloat()
+            val expectedY = ((48.dp - height) / 2).toIntPx().value.toFloat()
             // Icon should be centered inside the IconButton
             Truth.assertThat(iconX).isEqualTo(expectedX)
             Truth.assertThat(iconY).isEqualTo(expectedY)

@@ -32,6 +32,7 @@ import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.util.fastForEach
 import kotlin.math.sign
@@ -740,7 +741,7 @@ class LayoutNode : Measurable {
             wrapper = wrapper.wrappedBy!!
         }
         pos = wrapper.toParentPosition(pos)
-        return if (line is HorizontalAlignmentLine) pos.y.round() else pos.x.round()
+        return if (line is HorizontalAlignmentLine) pos.y.px.round() else pos.x.px.round()
     }
 
     /**

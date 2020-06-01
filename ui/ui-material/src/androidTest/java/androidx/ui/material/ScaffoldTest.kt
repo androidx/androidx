@@ -132,7 +132,8 @@ class ScaffoldTest {
                 )
             }
         }
-        assertThat(appbarPosition.y + appbarSize.height).isEqualTo(contentPosition.y)
+        assertThat(appbarPosition.y + appbarSize.height.value.toFloat())
+            .isEqualTo(contentPosition.y)
     }
 
     @Test
@@ -166,8 +167,8 @@ class ScaffoldTest {
                 )
             }
         }
-        val appBarBottom = appbarPosition.y + appbarSize.height
-        val contentBottom = contentPosition.y + contentSize.height
+        val appBarBottom = appbarPosition.y + appbarSize.height.value
+        val contentBottom = contentPosition.y + contentSize.height.value
         assertThat(appBarBottom).isEqualTo(contentBottom)
     }
 
@@ -200,15 +201,15 @@ class ScaffoldTest {
                 }
             }
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
+        assertThat(drawerChildPosition.x).isLessThan(0f)
         findByTag(scaffoldTag).doGesture {
             sendSwipeRight()
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
+        assertThat(drawerChildPosition.x).isLessThan(0f)
         findByTag(scaffoldTag).doGesture {
             sendSwipeLeft()
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
+        assertThat(drawerChildPosition.x).isLessThan(0f)
 
         runOnUiThread {
             scaffoldState.isDrawerGesturesEnabled = true
@@ -217,11 +218,11 @@ class ScaffoldTest {
         findByTag(scaffoldTag).doGesture {
             sendSwipeRight()
         }
-        assertThat(drawerChildPosition.x).isEqualTo(0.px)
+        assertThat(drawerChildPosition.x).isEqualTo(0f)
         findByTag(scaffoldTag).doGesture {
             sendSwipeLeft()
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
+        assertThat(drawerChildPosition.x).isLessThan(0f)
     }
 
     @Test
@@ -253,15 +254,15 @@ class ScaffoldTest {
                 }
             }
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
+        assertThat(drawerChildPosition.x).isLessThan(0f)
         runOnUiThread {
             scaffoldState.drawerState = DrawerState.Opened
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
+        assertThat(drawerChildPosition.x).isLessThan(0f)
         runOnUiThread {
             scaffoldState.drawerState = DrawerState.Closed
         }
-        assertThat(drawerChildPosition.x).isLessThan(0.px)
+        assertThat(drawerChildPosition.x).isLessThan(0f)
     }
 
     @Test
@@ -298,7 +299,7 @@ class ScaffoldTest {
                 Text("body")
             }
         }
-        val expectedFabY = bottomBarPosition.y - fabSize.height / 2
+        val expectedFabY = bottomBarPosition.y - (fabSize.height / 2).value
         assertThat(fabPosition.y).isEqualTo(expectedFabY)
     }
 
@@ -337,7 +338,7 @@ class ScaffoldTest {
                 Text("body")
             }
         }
-        val expectedFabY = bottomBarPosition.y - fabSize.height / 2
+        val expectedFabY = bottomBarPosition.y - (fabSize.height / 2).value
         assertThat(fabPosition.y).isEqualTo(expectedFabY)
     }
 

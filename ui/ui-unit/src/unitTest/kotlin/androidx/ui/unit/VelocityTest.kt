@@ -24,30 +24,30 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class VelocityTest {
 
-    private val velocity1 = Velocity(pixelsPerSecond = PxPosition(3.px, -7.px))
-    private val velocity2 = Velocity(pixelsPerSecond = PxPosition(5.px, 13.px))
+    private val velocity1 = Velocity(pixelsPerSecond = PxPosition(3f, -7f))
+    private val velocity2 = Velocity(pixelsPerSecond = PxPosition(5f, 13f))
 
     @Test
     fun operatorUnaryMinus() {
         Truth.assertThat(-velocity1)
-            .isEqualTo(Velocity(pixelsPerSecond = PxPosition(-3.px, 7.px)))
+            .isEqualTo(Velocity(pixelsPerSecond = PxPosition(-3f, 7f)))
         Truth.assertThat(-velocity2)
-            .isEqualTo(Velocity(pixelsPerSecond = PxPosition(-5.px, (-13).px)))
+            .isEqualTo(Velocity(pixelsPerSecond = PxPosition(-5f, -13f)))
     }
 
     @Test
     fun operatorPlus() {
         Truth.assertThat(velocity2 + velocity1)
-            .isEqualTo(Velocity(pixelsPerSecond = PxPosition(8.px, 6.px)))
+            .isEqualTo(Velocity(pixelsPerSecond = PxPosition(8f, 6f)))
         Truth.assertThat(velocity1 + velocity2)
-            .isEqualTo(Velocity(pixelsPerSecond = PxPosition(8.px, 6.px)))
+            .isEqualTo(Velocity(pixelsPerSecond = PxPosition(8f, 6f)))
     }
 
     @Test
     fun operatorMinus() {
         Truth.assertThat(velocity1 - velocity2)
-            .isEqualTo(Velocity(pixelsPerSecond = PxPosition(-2.px, (-20).px)))
+            .isEqualTo(Velocity(pixelsPerSecond = PxPosition(-2f, -20f)))
         Truth.assertThat(velocity2 - velocity1)
-            .isEqualTo(Velocity(pixelsPerSecond = PxPosition(2.px, 20.px)))
+            .isEqualTo(Velocity(pixelsPerSecond = PxPosition(2f, 20f)))
     }
 }

@@ -55,7 +55,7 @@ fun FancyScrollingDemo() {
         val gesture = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
             override fun onDrag(dragDistance: PxPosition): PxPosition {
                 // Snap to new drag position
-                animScroll.snapTo(animScroll.value + dragDistance.x.value)
+                animScroll.snapTo(animScroll.value + dragDistance.x)
                 return dragDistance
             }
 
@@ -64,7 +64,7 @@ fun FancyScrollingDemo() {
                 // Uses default decay animation to calculate where the fling will settle,
                 // and adjust that position as needed. The target animation will be used for
                 // animating to the adjusted target.
-                animScroll.fling(velocity.x.value, adjustTarget = { target ->
+                animScroll.fling(velocity.x, adjustTarget = { target ->
                     // Adjust the target position to center align the item
                     val animation = PhysicsBuilder<Float>(dampingRatio = 2.0f, stiffness = 100f)
                     var rem = target % itemWidth.value

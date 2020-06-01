@@ -39,12 +39,10 @@ import androidx.ui.test.waitForIdle
 import androidx.ui.unit.Bounds
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Position
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import androidx.ui.util.lerp
 
 import org.junit.Assert.assertEquals
@@ -62,12 +60,12 @@ class SingleValueAnimationTest {
 
     @Test
     fun animate1DTest() {
-        val startVal: Int = 20
-        val endVal: Int = 250
+        val startVal = 20f
+        val endVal = 250f
 
-        var floatValue = startVal.toFloat()
+        var floatValue = startVal
         var dpValue = startVal.dp
-        var pxValue = startVal.px
+        var pxValue = startVal
 
         val animConfig: TweenBuilder<*>.() -> Unit = {
             easing = FastOutSlowInEasing
@@ -75,7 +73,7 @@ class SingleValueAnimationTest {
         }
         val children: @Composable() (Boolean) -> Unit = { enabled ->
             floatValue = animate(
-                if (enabled) endVal.toFloat() else startVal.toFloat(),
+                if (enabled) endVal else startVal,
                 TweenBuilder<Float>().apply(animConfig)
             )
 
@@ -85,8 +83,8 @@ class SingleValueAnimationTest {
             )
 
             pxValue = animate(
-                if (enabled) endVal.px else startVal.px,
-                TweenBuilder<Px>().apply(animConfig)
+                if (enabled) endVal else startVal,
+                TweenBuilder<Float>().apply(animConfig)
             )
         }
 
@@ -98,7 +96,7 @@ class SingleValueAnimationTest {
                 )
                 assertEquals(value, floatValue)
                 assertEquals(value.dp, dpValue)
-                assertEquals(value.px, pxValue)
+                assertEquals(value, pxValue)
                 composeTestRule.clockTestRule.advanceClock(50)
                 waitForIdle()
             }

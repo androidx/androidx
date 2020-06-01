@@ -28,7 +28,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
@@ -144,7 +143,7 @@ class RawPressStartGestureFilterTest {
     @Test
     fun onPointerInput_down_downPositionIsCorrect() {
         filter::onPointerInput.invokeOverAllPasses(down(0, x = 13f, y = 17f))
-        verify(filter.onPressStart).invoke(PxPosition(13.px, 17f.px))
+        verify(filter.onPressStart).invoke(PxPosition(13f, 17f))
     }
 
     // Verification of correct consumption behavior.

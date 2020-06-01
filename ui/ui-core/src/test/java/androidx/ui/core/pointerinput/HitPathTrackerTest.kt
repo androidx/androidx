@@ -35,7 +35,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -49,6 +48,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -569,7 +569,7 @@ class HitPathTrackerTest {
                             PointerEventPass.PreUp -> 64f
                             else -> 0f
                         }
-                    it.consumePositionChange(0.px, yConsume.px)
+                    it.consumePositionChange(0f, yConsume)
                 }
             })
         )
@@ -583,7 +583,7 @@ class HitPathTrackerTest {
                             PointerEventPass.PreUp -> 32f
                             else -> 0f
                         }
-                    it.consumePositionChange(0.px, yConsume.px)
+                    it.consumePositionChange(0f, yConsume)
                 }
             })
         )
@@ -597,7 +597,7 @@ class HitPathTrackerTest {
                             PointerEventPass.PreUp -> 16f
                             else -> 0f
                         }
-                    it.consumePositionChange(0.px, yConsume.px)
+                    it.consumePositionChange(0f, yConsume)
                 }
             })
         )
@@ -610,27 +610,27 @@ class HitPathTrackerTest {
             eq(listOf(change)), eq(PointerEventPass.InitialDown), any()
         )
         verify(pif2).onPointerInput(
-            eq(listOf(change.consumePositionChange(0.px, 2.px))),
+            eq(listOf(change.consumePositionChange(0f, 2f))),
             eq(PointerEventPass.InitialDown),
             any()
         )
         verify(pif3).onPointerInput(
-            eq(listOf(change.consumePositionChange(0.px, 6.px))), // 2 + 4
+            eq(listOf(change.consumePositionChange(0f, 6f))), // 2 + 4
             eq(PointerEventPass.InitialDown),
             any()
         )
         verify(pif3).onPointerInput(
-            eq(listOf(change.consumePositionChange(0.px, 14.px))), // 2 + 4 + 8
+            eq(listOf(change.consumePositionChange(0f, 14f))), // 2 + 4 + 8
             eq(PointerEventPass.PreUp),
             any()
         )
         verify(pif2).onPointerInput(
-            eq(listOf(change.consumePositionChange(0.px, 30.px))), // 2 + 4 + 8 + 16
+            eq(listOf(change.consumePositionChange(0f, 30f))), // 2 + 4 + 8 + 16
             eq(PointerEventPass.PreUp),
             any()
         )
         verify(pif1).onPointerInput(
-            eq(listOf(change.consumePositionChange(0.px, 62.px))), // 2 + 4 + 8 + 16 + 32
+            eq(listOf(change.consumePositionChange(0f, 62f))), // 2 + 4 + 8 + 16 + 32
             eq(PointerEventPass.PreUp),
             any()
         )
@@ -638,8 +638,8 @@ class HitPathTrackerTest {
             .isEqualTo(
                 listOf(
                     change.consumePositionChange(
-                        0.px,
-                        126.px
+                        0f,
+                        126f
                     )
                 )
             ) // 2 + 4 + 8 + 16 + 32 + 64
@@ -657,7 +657,7 @@ class HitPathTrackerTest {
                             PointerEventPass.PreUp -> 12f
                             else -> 0f
                         }
-                    it.consumePositionChange(0.px, yConsume.px)
+                    it.consumePositionChange(0f, yConsume)
                 }
             })
         )
@@ -671,7 +671,7 @@ class HitPathTrackerTest {
                             PointerEventPass.PreUp -> 6f
                             else -> 0f
                         }
-                    it.consumePositionChange(0.px, yConsume.px)
+                    it.consumePositionChange(0f, yConsume)
                 }
             })
         )
@@ -685,7 +685,7 @@ class HitPathTrackerTest {
                             PointerEventPass.PreUp -> -12f
                             else -> 0f
                         }
-                    it.consumePositionChange(0.px, yConsume.px)
+                    it.consumePositionChange(0f, yConsume)
                 }
             })
         )
@@ -699,7 +699,7 @@ class HitPathTrackerTest {
                             PointerEventPass.PreUp -> -6f
                             else -> 0f
                         }
-                    it.consumePositionChange(0.px, yConsume.px)
+                    it.consumePositionChange(0f, yConsume)
                 }
             })
         )
@@ -718,17 +718,17 @@ class HitPathTrackerTest {
             any()
         )
         verify(pif2).onPointerInput(
-            eq(listOf(event1.consumePositionChange(0.px, 2.px))),
+            eq(listOf(event1.consumePositionChange(0f, 2f))),
             eq(PointerEventPass.InitialDown),
             any()
         )
         verify(pif2).onPointerInput(
-            eq(listOf(event1.consumePositionChange(0.px, 5.px))),
+            eq(listOf(event1.consumePositionChange(0f, 5f))),
             eq(PointerEventPass.PreUp),
             any()
         )
         verify(pif1).onPointerInput(
-            eq(listOf(event1.consumePositionChange(0.px, 11.px))),
+            eq(listOf(event1.consumePositionChange(0f, 11f))),
             eq(PointerEventPass.PreUp),
             any()
         )
@@ -739,24 +739,24 @@ class HitPathTrackerTest {
             any()
         )
         verify(pif4).onPointerInput(
-            eq(listOf(event2.consumePositionChange(0.px, (-2).px))),
+            eq(listOf(event2.consumePositionChange(0f, -2f))),
             eq(PointerEventPass.InitialDown),
             any()
         )
         verify(pif4).onPointerInput(
-            eq(listOf(event2.consumePositionChange(0.px, (-5).px))),
+            eq(listOf(event2.consumePositionChange(0f, -5f))),
             eq(PointerEventPass.PreUp),
             any()
         )
         verify(pif3).onPointerInput(
-            eq(listOf(event2.consumePositionChange(0.px, (-11).px))),
+            eq(listOf(event2.consumePositionChange(0f, -11f))),
             eq(PointerEventPass.PreUp),
             any()
         )
 
         assertThat(result).hasSize(2)
-        assertThat(result).contains(event1.consumePositionChange(0.px, 23.px))
-        assertThat(result).contains(event2.consumePositionChange(0.px, (-23).px))
+        assertThat(result).contains(event1.consumePositionChange(0f, 23f))
+        assertThat(result).contains(event2.consumePositionChange(0f, -23f))
     }
 
     @Test
@@ -772,8 +772,8 @@ class HitPathTrackerTest {
                             else -> Int.MAX_VALUE
                         }
                     it.consumePositionChange(
-                        0.px,
-                        (it.positionChange().y.value.toInt() / yConsume).px
+                        0f,
+                        (it.positionChange().y.roundToInt() / yConsume).toFloat()
                     )
                 }
             })
@@ -789,8 +789,8 @@ class HitPathTrackerTest {
                             else -> Int.MAX_VALUE
                         }
                     it.consumePositionChange(
-                        0.px,
-                        (it.positionChange().y.value.toInt() / yConsume).px
+                        0f,
+                        (it.positionChange().y.roundToInt() / yConsume).toFloat()
                     )
                 }
             })
@@ -806,8 +806,8 @@ class HitPathTrackerTest {
                             else -> Int.MAX_VALUE
                         }
                     it.consumePositionChange(
-                        0.px,
-                        (it.positionChange().y.value.toInt() / yConsume).px
+                        0f,
+                        (it.positionChange().y.roundToInt() / yConsume).toFloat()
                     )
                 }
             })
@@ -827,30 +827,30 @@ class HitPathTrackerTest {
             any()
         )
         verify(child1).onPointerInput(
-            eq(listOf(event1.consumePositionChange(0.px, 500.px))),
+            eq(listOf(event1.consumePositionChange(0f, 500f))),
             eq(PointerEventPass.InitialDown),
             any()
         )
         verify(child2).onPointerInput(
-            eq(listOf(event2.consumePositionChange(0.px, (-500).px))),
+            eq(listOf(event2.consumePositionChange(0f, -500f))),
             eq(PointerEventPass.InitialDown),
             any()
         )
         verify(child1).onPointerInput(
-            eq(listOf(event1.consumePositionChange(0.px, 600.px))),
+            eq(listOf(event1.consumePositionChange(0f, 600f))),
             eq(PointerEventPass.PreUp),
             any()
         )
         verify(child2).onPointerInput(
-            eq(listOf(event2.consumePositionChange(0.px, (-545).px))),
+            eq(listOf(event2.consumePositionChange(0f, -545f))),
             eq(PointerEventPass.PreUp),
             any()
         )
         verify(parent).onPointerInput(
             eq(
                 listOf(
-                    event1.consumePositionChange(0.px, 657.px),
-                    event2.consumePositionChange(0.px, (-580).px)
+                    event1.consumePositionChange(0f, 657f),
+                    event2.consumePositionChange(0f, -580f)
                 )
             ),
             eq(PointerEventPass.PreUp),
@@ -858,8 +858,8 @@ class HitPathTrackerTest {
         )
 
         assertThat(result).hasSize(2)
-        assertThat(result).contains(event1.consumePositionChange(0.px, 771.px))
-        assertThat(result).contains(event2.consumePositionChange(0.px, (-720).px))
+        assertThat(result).contains(event1.consumePositionChange(0f, 771f))
+        assertThat(result).contains(event2.consumePositionChange(0f, -720f))
     }
 
     @Test
@@ -875,8 +875,8 @@ class HitPathTrackerTest {
                             else -> Int.MAX_VALUE
                         }
                     it.consumePositionChange(
-                        0.px,
-                        (it.positionChange().y.value.toInt() / yConsume).px
+                        0f,
+                        (it.positionChange().y.roundToInt() / yConsume).toFloat()
                     )
                 }
             })
@@ -892,8 +892,8 @@ class HitPathTrackerTest {
                             else -> Int.MAX_VALUE
                         }
                     it.consumePositionChange(
-                        0.px,
-                        (it.positionChange().y.value.toInt() / yConsume).px
+                        0f,
+                        (it.positionChange().y.roundToInt() / yConsume).toFloat()
                     )
                 }
             })
@@ -915,8 +915,8 @@ class HitPathTrackerTest {
         verify(child2).onPointerInput(
             eq(
                 listOf(
-                    event1.consumePositionChange(0.px, 500.px),
-                    event2.consumePositionChange(0.px, (-500).px)
+                    event1.consumePositionChange(0f, 500f),
+                    event2.consumePositionChange(0f, -500f)
                 )
             ),
             eq(PointerEventPass.InitialDown),
@@ -926,8 +926,8 @@ class HitPathTrackerTest {
         verify(child2).onPointerInput(
             eq(
                 listOf(
-                    event1.consumePositionChange(0.px, 600.px),
-                    event2.consumePositionChange(0.px, (-600).px)
+                    event1.consumePositionChange(0f, 600f),
+                    event2.consumePositionChange(0f, -600f)
                 )
             ),
             eq(PointerEventPass.PreUp),
@@ -936,8 +936,8 @@ class HitPathTrackerTest {
         verify(child1).onPointerInput(
             eq(
                 listOf(
-                    event1.consumePositionChange(0.px, 657.px),
-                    event2.consumePositionChange(0.px, (-657).px)
+                    event1.consumePositionChange(0f, 657f),
+                    event2.consumePositionChange(0f, -657f)
                 )
             ),
             eq(PointerEventPass.PreUp),
@@ -945,8 +945,8 @@ class HitPathTrackerTest {
         )
 
         assertThat(result).hasSize(2)
-        assertThat(result).contains(event1.consumePositionChange(0.px, 771.px))
-        assertThat(result).contains(event2.consumePositionChange(0.px, (-771).px))
+        assertThat(result).contains(event1.consumePositionChange(0f, 771f))
+        assertThat(result).contains(event2.consumePositionChange(0f, -771f))
     }
 
     @Test

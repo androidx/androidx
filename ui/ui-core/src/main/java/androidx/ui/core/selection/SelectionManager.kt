@@ -33,11 +33,10 @@ import androidx.ui.geometry.Rect
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.length
 import androidx.ui.text.subSequence
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.max
-import androidx.ui.unit.min
 import androidx.ui.unit.px
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * A bridge class between user interaction to the text composables for text selection.
@@ -310,16 +309,16 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             var startTop = localLayoutCoordinates.childToLocal(
                 startLayoutCoordinates,
                 PxPosition(
-                    Px.Zero,
-                    selection.start.selectable.getBoundingBox(selection.start.offset).top.px
+                    0f,
+                    selection.start.selectable.getBoundingBox(selection.start.offset).top
                 )
             )
 
             var endTop = localLayoutCoordinates.childToLocal(
                 endLayoutCoordinates,
                 PxPosition(
-                    Px.Zero,
-                    selection.end.selectable.getBoundingBox(selection.end.offset).top.px
+                    0.0f,
+                    selection.end.selectable.getBoundingBox(selection.end.offset).top
                 )
             )
 
@@ -327,13 +326,13 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             endTop = localLayoutCoordinates.localToRoot(endTop)
 
             val top = min(startTop.y, endTop.y)
-            val bottom = max(startOffset.y, endOffset.y) + (HANDLE_HEIGHT.value * 4.0).px
+            val bottom = max(startOffset.y, endOffset.y) + (HANDLE_HEIGHT.value * 4.0).px.value
 
             return Rect(
-                left.value,
-                top.value,
-                right.value,
-                bottom.value
+                left,
+                top,
+                right,
+                bottom
             )
         }
         return Rect.zero
@@ -344,8 +343,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         // Call mergeSelections with an out of boundary input to inform all text widgets to
         // cancel their individual selection.
         mergeSelections(
-            startPosition = PxPosition((-1).px, (-1).px),
-            endPosition = PxPosition((-1).px, (-1).px),
+            startPosition = PxPosition(-1f, -1f),
+            endPosition = PxPosition(-1f, -1f),
             previousSelection = selection
         )
         if (selection != null) onSelectionChange(null)
@@ -399,7 +398,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * hit current line, move up this y coordinates by 1 pixel.
      */
     private fun getAdjustedCoordinates(position: PxPosition): PxPosition {
-        return PxPosition(position.x, position.y - 1.px)
+        return PxPosition(position.x, position.y - 1f)
     }
 
     fun handleDragObserver(isStartHandle: Boolean): DragObserver {

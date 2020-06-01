@@ -45,7 +45,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
-import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 import androidx.ui.unit.toPxSize
 import org.junit.Assert
@@ -252,7 +251,7 @@ class LayoutPaddingTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(3)
         val childSize = Array(3) { IntPxSize(0.ipx, 0.ipx) }
-        val childPosition = Array(3) { PxPosition(0.px, 0.px) }
+        val childPosition = Array(3) { PxPosition(0f, 0f) }
 
         // ltr: P1 S P2 | S P3 | P1 S
         // rtl:    S P1 | P3 S | P2 S P1
@@ -263,7 +262,7 @@ class LayoutPaddingTest : LayoutTest() {
                         .preferredSize(sizeDp, sizeDp)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             childSize[0] = coordinates.size
-                            childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                 ) {
@@ -274,7 +273,7 @@ class LayoutPaddingTest : LayoutTest() {
                         .preferredSize(sizeDp, sizeDp)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             childSize[1] = coordinates.size
-                            childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                 ) {
@@ -285,7 +284,7 @@ class LayoutPaddingTest : LayoutTest() {
                         .preferredSize(sizeDp, sizeDp)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             childSize[2] = coordinates.size
-                            childPosition[2] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[2] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                 ) {
@@ -366,7 +365,7 @@ class LayoutPaddingTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(1)
         var childSize = IntPxSize(-1.ipx, -1.ipx)
-        var childPosition = PxPosition(-1.px, -1.px)
+        var childPosition = PxPosition(-1f, -1f)
         show {
             Stack(Modifier.fillMaxSize()) {
                 ConstrainedBox(
@@ -376,7 +375,7 @@ class LayoutPaddingTest : LayoutTest() {
                     val children = @Composable {
                         Container(Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize = coordinates.size
-                            childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }) {
                         }
@@ -395,7 +394,7 @@ class LayoutPaddingTest : LayoutTest() {
         val left = ((root.width.ipx - size) / 2) + paddingPx
         val top = ((root.height.ipx - size) / 2) + paddingPx
         assertEquals(
-            PxPosition(left.toPx(), top.toPx()),
+            PxPosition(left.toPx().value, top.toPx().value),
             childPosition
         )
     }
@@ -412,7 +411,7 @@ class LayoutPaddingTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(1)
         var childSize = IntPxSize(-1.ipx, -1.ipx)
-        var childPosition = PxPosition(-1.px, -1.px)
+        var childPosition = PxPosition(-1f, -1f)
         show {
             Stack(Modifier.fillMaxSize()) {
                 ConstrainedBox(
@@ -422,7 +421,7 @@ class LayoutPaddingTest : LayoutTest() {
                     val children = @Composable {
                         Container(Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize = coordinates.size
-                            childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }) {
                         }
@@ -450,7 +449,7 @@ class LayoutPaddingTest : LayoutTest() {
         val viewLeft = ((root.width.ipx - size) / 2) + paddingLeft
         val viewTop = ((root.height.ipx - size) / 2) + paddingTop
         assertEquals(
-            PxPosition(viewLeft.toPx(), viewTop.toPx()),
+            PxPosition(viewLeft.toPx().value, viewTop.toPx().value),
             childPosition
         )
     }
@@ -465,7 +464,7 @@ class LayoutPaddingTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(1)
         var childSize = IntPxSize(-1.ipx, -1.ipx)
-        var childPosition = PxPosition(-1.px, -1.px)
+        var childPosition = PxPosition(-1f, -1f)
         show {
             Stack(Modifier.fillMaxSize()) {
                 ConstrainedBox(
@@ -475,7 +474,7 @@ class LayoutPaddingTest : LayoutTest() {
                     paddingContainer {
                         Container(Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize = coordinates.size
-                            childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }) {
                         }
@@ -491,7 +490,7 @@ class LayoutPaddingTest : LayoutTest() {
         assertEquals(IntPxSize(0.ipx, 0.ipx), childSize)
         val left = ((root.width.ipx - size) / 2) + paddingPx
         val top = ((root.height.ipx - size) / 2) + paddingPx
-        assertEquals(PxPosition(left.toPx(), top.toPx()), childPosition)
+        assertEquals(PxPosition(left.toPx().value, top.toPx().value), childPosition)
     }
 
     /**

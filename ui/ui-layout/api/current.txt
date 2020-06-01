@@ -357,7 +357,7 @@ package androidx.ui.layout {
 
   public final class LayoutOffsetKt {
     method @androidx.compose.Stable public static androidx.ui.core.Modifier offset-qJOR85M(androidx.ui.core.Modifier, float x = 0.dp, float y = 0.dp);
-    method public static androidx.ui.core.Modifier offsetPx(androidx.ui.core.Modifier, androidx.compose.State<androidx.ui.unit.Px> x = mutableStateOf(Px.Zero), androidx.compose.State<androidx.ui.unit.Px> y = mutableStateOf(Px.Zero));
+    method public static androidx.ui.core.Modifier offsetPx(androidx.ui.core.Modifier, androidx.compose.State<java.lang.Float> x = mutableStateOf(0.0), androidx.compose.State<java.lang.Float> y = mutableStateOf(0.0));
   }
 
   public final class LayoutPaddingKt {

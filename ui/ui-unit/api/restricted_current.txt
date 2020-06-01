@@ -464,11 +464,12 @@ package androidx.ui.unit {
   }
 
   @androidx.compose.Immutable public final class PxBounds {
+    ctor public PxBounds(float left, float top, float right, float bottom);
     method public float component1();
     method public float component2();
     method public float component3();
     method public float component4();
-    method @androidx.compose.Immutable public androidx.ui.unit.PxBounds copy-wHlpFhg(float left, float top, float right, float bottom);
+    method @androidx.compose.Immutable public androidx.ui.unit.PxBounds copy(float left, float top, float right, float bottom);
     method public float getBottom();
     method public float getLeft();
     method public float getRight();
@@ -516,7 +517,6 @@ package androidx.ui.unit {
   public final class PxKt {
     method @androidx.compose.Stable public static inline androidx.ui.unit.PxBounds PxBounds(androidx.ui.unit.PxPosition topLeft, androidx.ui.unit.PxSize size);
     method @androidx.compose.Stable public static inline androidx.ui.unit.PxPosition PxPosition(float x, float y);
-    method @androidx.compose.Stable public static inline androidx.ui.unit.PxPosition PxPosition-qHcltEY(float x, float y);
     method @androidx.compose.Stable public static inline androidx.ui.unit.PxSize PxSize(float width, float height);
     method @androidx.compose.Stable public static inline androidx.ui.unit.PxSize PxSize-qHcltEY(float width, float height);
     method @androidx.compose.Stable public static inline float abs-NgWp0Z8(float x);

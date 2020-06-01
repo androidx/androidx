@@ -34,8 +34,8 @@ fun FloatSubject.isAlmostEqualTo(f: Float, tolerance: Float) {
  * tolerance is 0.001.
  */
 fun PxPosition.isAlmostEqualTo(position: PxPosition, tolerance: Float = 1e-3f) {
-    assertThat(x.value).isAlmostEqualTo(position.x.value, tolerance)
-    assertThat(y.value).isAlmostEqualTo(position.y.value, tolerance)
+    assertThat(x).isAlmostEqualTo(position.x, tolerance)
+    assertThat(y).isAlmostEqualTo(position.y, tolerance)
 }
 
 /**

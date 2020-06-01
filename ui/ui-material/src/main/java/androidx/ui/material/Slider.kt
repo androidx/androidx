@@ -127,7 +127,7 @@ fun Slider(
                 val pressed = state { false }
                 val press = Modifier.pressIndicatorGestureFilter(
                     onStart = { pos ->
-                        position.holder.snapTo(pos.x.value)
+                        position.holder.snapTo(pos.x)
                         pressed.value = true
                     },
                     onStop = {

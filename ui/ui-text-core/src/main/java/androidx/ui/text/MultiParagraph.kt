@@ -268,9 +268,9 @@ class MultiParagraph(
     /** Returns the character offset closest to the given graphical position. */
     fun getOffsetForPosition(position: PxPosition): Int {
         val paragraphIndex = when {
-            position.y.value <= 0f -> 0
-            position.y.value >= height -> paragraphInfoList.lastIndex
-            else -> findParagraphByY(paragraphInfoList, position.y.value)
+            position.y <= 0f -> 0
+            position.y >= height -> paragraphInfoList.lastIndex
+            else -> findParagraphByY(paragraphInfoList, position.y)
         }
         return with(paragraphInfoList[paragraphIndex]) {
             if (length == 0) {
@@ -698,7 +698,7 @@ internal data class ParagraphInfo(
      * relative to the [paragraph].
      */
     fun PxPosition.toLocal(): PxPosition {
-        return PxPosition(x = x.value, y = y.value - top)
+        return PxPosition(x = x, y = y - top)
     }
 
     /**

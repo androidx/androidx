@@ -16,7 +16,6 @@
 
 package androidx.ui.semantics
 
-import androidx.ui.unit.Px
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -70,7 +69,7 @@ class SemanticsActions {
 
         // action to scroll to a specified position
         val ScrollTo =
-            SemanticsPropertyKey<AccessibilityAction<(x: Px, y: Px) -> Boolean>>("ScrollTo")
+            SemanticsPropertyKey<AccessibilityAction<(x: Float, y: Float) -> Boolean>>("ScrollTo")
 
         // custom actions which are defined by app developers
         val CustomActions =
@@ -202,7 +201,10 @@ fun SemanticsPropertyReceiver.onClick(label: String? = null, action: () -> Boole
     this[SemanticsActions.OnClick] = AccessibilityAction(label, action)
 }
 
-fun SemanticsPropertyReceiver.ScrollTo(label: String? = null, action: (x: Px, y: Px) -> Boolean) {
+fun SemanticsPropertyReceiver.ScrollTo(
+    label: String? = null,
+    action: (x: Float, y: Float) -> Boolean
+) {
     this[SemanticsActions.ScrollTo] = AccessibilityAction(label, action)
 }
 

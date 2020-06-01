@@ -27,7 +27,6 @@ import androidx.ui.text.matchers.isZero
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -160,7 +159,7 @@ class TextLayoutResultIntegrationTest {
             val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
             val selection = layoutResult.getOffsetForPosition(
-                position = PxPosition((fontSize.toPx() * characterIndex + 1).px, 0.px)
+                position = PxPosition((fontSize.toPx() * characterIndex + 1), 0f)
             )
 
             assertThat(selection).isEqualTo(characterIndex)

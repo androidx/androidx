@@ -28,7 +28,6 @@ import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -665,9 +664,9 @@ class RawScaleGestureFilterTest {
         // Assert
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.positionChange)
-            .isEqualTo(PxPosition(-1.px, 0.px))
+            .isEqualTo(PxPosition(-1f, 0f))
         assertThat(result.first { it.id == PointerId(1) }.consumed.positionChange)
-            .isEqualTo(PxPosition(1.px, 0.px))
+            .isEqualTo(PxPosition(1f, 0f))
     }
 
     @Test
@@ -699,9 +698,9 @@ class RawScaleGestureFilterTest {
         // Assert
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.positionChange)
-            .isEqualTo(PxPosition(0.px, -1.px))
+            .isEqualTo(PxPosition(0f, -1f))
         assertThat(result.first { it.id == PointerId(1) }.consumed.positionChange)
-            .isEqualTo(PxPosition(0.px, 1.px))
+            .isEqualTo(PxPosition(0f, 1f))
     }
 
     @Test
@@ -717,9 +716,9 @@ class RawScaleGestureFilterTest {
         val result = filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.positionChange)
-            .isEqualTo(PxPosition(-1.px, -1.px))
+            .isEqualTo(PxPosition(-1f, -1f))
         assertThat(result.first { it.id == PointerId(1) }.consumed.positionChange)
-            .isEqualTo(PxPosition(1.px, 1.px))
+            .isEqualTo(PxPosition(1f, 1f))
     }
 
     @Test
@@ -751,9 +750,9 @@ class RawScaleGestureFilterTest {
         // Assert
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.positionChange)
-            .isEqualTo(PxPosition(1.px, 0.px))
+            .isEqualTo(PxPosition(1f, 0f))
         assertThat(result.first { it.id == PointerId(1) }.consumed.positionChange)
-            .isEqualTo(PxPosition(-1.px, 0.px))
+            .isEqualTo(PxPosition(-1f, 0f))
     }
 
     @Test
@@ -785,9 +784,9 @@ class RawScaleGestureFilterTest {
         // Assert
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.positionChange)
-            .isEqualTo(PxPosition(0.px, 1.px))
+            .isEqualTo(PxPosition(0f, 1f))
         assertThat(result.first { it.id == PointerId(1) }.consumed.positionChange)
-            .isEqualTo(PxPosition(0.px, -1.px))
+            .isEqualTo(PxPosition(0f, -1f))
     }
 
     @Test
@@ -802,8 +801,8 @@ class RawScaleGestureFilterTest {
         change2 = change2.moveTo(10.milliseconds, 6f, 6f)
         val result = filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
-        assertThat(result[0].consumed.positionChange).isEqualTo(PxPosition(2.px, 2.px))
-        assertThat(result[1].consumed.positionChange).isEqualTo(PxPosition(-2.px, -2.px))
+        assertThat(result[0].consumed.positionChange).isEqualTo(PxPosition(2f, 2f))
+        assertThat(result[1].consumed.positionChange).isEqualTo(PxPosition(-2f, -2f))
     }
 
     @Test
@@ -837,9 +836,9 @@ class RawScaleGestureFilterTest {
         // Assert
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.positionChange)
-            .isEqualTo(PxPosition(-1.px, 0.px))
+            .isEqualTo(PxPosition(-1f, 0f))
         assertThat(result.first { it.id == PointerId(1) }.consumed.positionChange)
-            .isEqualTo(PxPosition(1.px, 0.px))
+            .isEqualTo(PxPosition(1f, 0f))
     }
 
     @Test
@@ -871,9 +870,9 @@ class RawScaleGestureFilterTest {
         // Assert
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.positionChange)
-            .isEqualTo(PxPosition(0.px, -1.px))
+            .isEqualTo(PxPosition(0f, -1f))
         assertThat(result.first { it.id == PointerId(1) }.consumed.positionChange)
-            .isEqualTo(PxPosition(0.px, 1.px))
+            .isEqualTo(PxPosition(0f, 1f))
     }
 
     @Test
@@ -905,9 +904,9 @@ class RawScaleGestureFilterTest {
         // Assert
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.positionChange)
-            .isEqualTo(PxPosition(1.px, 0.px))
+            .isEqualTo(PxPosition(1f, 0f))
         assertThat(result.first { it.id == PointerId(1) }.consumed.positionChange)
-            .isEqualTo(PxPosition(-1.px, 0.px))
+            .isEqualTo(PxPosition(-1f, 0f))
     }
 
     @Test
@@ -939,9 +938,9 @@ class RawScaleGestureFilterTest {
         // Assert
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.positionChange)
-            .isEqualTo(PxPosition(0.px, 1.px))
+            .isEqualTo(PxPosition(0f, 1f))
         assertThat(result.first { it.id == PointerId(1) }.consumed.positionChange)
-            .isEqualTo(PxPosition(0.px, -1.px))
+            .isEqualTo(PxPosition(0f, -1f))
     }
 
     @Test
@@ -973,9 +972,9 @@ class RawScaleGestureFilterTest {
         // Assert
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.positionChange)
-            .isEqualTo(PxPosition(.5.px, -1.5.px))
+            .isEqualTo(PxPosition(.5f, -1.5f))
         assertThat(result.first { it.id == PointerId(1) }.consumed.positionChange)
-            .isEqualTo(PxPosition(-.5.px, 1.5.px))
+            .isEqualTo(PxPosition(-.5f, 1.5f))
     }
 
     @Test
@@ -1007,9 +1006,9 @@ class RawScaleGestureFilterTest {
         // Assert
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.positionChange)
-            .isEqualTo(PxPosition(2.px, -1.px))
+            .isEqualTo(PxPosition(2f, -1f))
         assertThat(result.first { it.id == PointerId(1) }.consumed.positionChange)
-            .isEqualTo(PxPosition(-2.px, 1.px))
+            .isEqualTo(PxPosition(-2f, 1f))
     }
 
     @Test

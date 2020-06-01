@@ -239,7 +239,7 @@ private object RippleTransition {
  * surface it belongs to.
  */
 internal fun getRippleStartRadius(size: PxSize) =
-    max(size.width.value, size.height.value) * 0.3f
+    max(size.width, size.height) * 0.3f
 
 /**
  * According to specs the ending radius
@@ -247,7 +247,8 @@ internal fun getRippleStartRadius(size: PxSize) =
  * - fits within the border of the surface it belongs to for unbounded ripples
  */
 internal fun Density.getRippleEndRadius(bounded: Boolean, size: PxSize): Float {
-    val radiusCoveringBounds = (PxPosition(size.width, size.height).getDistance() / 2f).value
+    val radiusCoveringBounds =
+        (PxPosition(size.width, size.height).getDistance() / 2f).value
     return if (bounded) {
         radiusCoveringBounds + BoundedRippleExtraRadius.toPx()
     } else {

@@ -33,7 +33,6 @@ import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.height
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import androidx.ui.unit.width
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -80,15 +79,15 @@ class DrawLayerTest {
 
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
         activity.runOnUiThread {
-            assertEquals(PxPosition(10.px, 10.px), layoutCoordinates.positionInRoot)
+            assertEquals(PxPosition(10f, 10f), layoutCoordinates.positionInRoot)
             val bounds = layoutCoordinates.boundsInRoot
-            assertEquals(PxBounds(10.px, 10.px, 40.px, 40.px), bounds)
+            assertEquals(PxBounds(10f, 10f, 40f, 40f), bounds)
             val global = layoutCoordinates.globalBounds
             val position = layoutCoordinates.globalPosition
             assertEquals(position.x, global.left)
             assertEquals(position.y, global.top)
-            assertEquals(30.px, global.width)
-            assertEquals(30.px, global.height)
+            assertEquals(30f, global.width)
+            assertEquals(30f, global.height)
         }
     }
 
@@ -109,8 +108,8 @@ class DrawLayerTest {
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
         activity.runOnUiThread {
             val bounds = layoutCoordinates.boundsInRoot
-            assertEquals(PxBounds(5.px, 0.px, 25.px, 30.px), bounds)
-            assertEquals(PxPosition(5.px, 0.px), layoutCoordinates.positionInRoot)
+            assertEquals(PxBounds(5f, 0f, 25f, 30f), bounds)
+            assertEquals(PxPosition(5f, 0f), layoutCoordinates.positionInRoot)
         }
     }
 
@@ -131,8 +130,8 @@ class DrawLayerTest {
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
         activity.runOnUiThread {
             val bounds = layoutCoordinates.boundsInRoot
-            assertEquals(PxBounds(0.px, 10.px, 30.px, 20.px), bounds)
-            assertEquals(PxPosition(30.px, 10.px), layoutCoordinates.positionInRoot)
+            assertEquals(PxBounds(0f, 10f, 30f, 20f), bounds)
+            assertEquals(PxPosition(30f, 10f), layoutCoordinates.positionInRoot)
         }
     }
 
@@ -154,8 +153,8 @@ class DrawLayerTest {
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
         activity.runOnUiThread {
             val bounds = layoutCoordinates.boundsInRoot
-            assertEquals(PxBounds(20.px, 10.px, 30.px, 20.px), bounds)
-            assertEquals(PxPosition(30.px, 10.px), layoutCoordinates.positionInRoot)
+            assertEquals(PxBounds(20f, 10f, 30f, 20f), bounds)
+            assertEquals(PxPosition(30f, 10f), layoutCoordinates.positionInRoot)
         }
     }
 
@@ -177,8 +176,8 @@ class DrawLayerTest {
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
         activity.runOnUiThread {
             val bounds = layoutCoordinates.boundsInRoot
-            assertEquals(PxBounds(15.px, 18.px, 25.px, 28.px), bounds)
-            assertEquals(PxPosition(15.px, 18.px), layoutCoordinates.positionInRoot)
+            assertEquals(PxBounds(15f, 18f, 25f, 28f), bounds)
+            assertEquals(PxPosition(15f, 18f), layoutCoordinates.positionInRoot)
         }
     }
 
@@ -201,9 +200,9 @@ class DrawLayerTest {
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
         activity.runOnUiThread {
             val bounds = layoutCoordinates.boundsInRoot
-            assertEquals(PxBounds(10.px, 10.px, 20.px, 20.px), bounds)
+            assertEquals(PxBounds(10f, 10f, 20f, 20f), bounds)
             // Positions aren't clipped
-            assertEquals(PxPosition(5.px, 10.px), layoutCoordinates.positionInRoot)
+            assertEquals(PxPosition(5f, 10f), layoutCoordinates.positionInRoot)
         }
     }
 
@@ -228,8 +227,8 @@ class DrawLayerTest {
         activity.runOnUiThread {
             val bounds = layoutCoordinates.boundsInRoot
             // should be completely clipped out
-            assertEquals(0.px, bounds.width)
-            assertEquals(0.px, bounds.height)
+            assertEquals(0f, bounds.width)
+            assertEquals(0f, bounds.height)
         }
     }
 }

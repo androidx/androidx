@@ -43,7 +43,6 @@ import androidx.ui.tooling.preview.animation.PreviewAnimationClock
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxBounds
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.toPx
 import androidx.ui.unit.toRect
 import kotlin.reflect.KClass
 
@@ -214,10 +213,10 @@ internal class ComposeViewAdapter : FrameLayout {
                 if (it.hasBounds()) {
                     canvas?.apply {
                         val pxBounds = PxBounds(
-                            it.bounds.left.toPx(),
-                            it.bounds.top.toPx(),
-                            it.bounds.right.toPx(),
-                            it.bounds.bottom.toPx()
+                            it.bounds.left.value.toFloat(),
+                            it.bounds.top.value.toFloat(),
+                            it.bounds.right.value.toFloat(),
+                            it.bounds.bottom.value.toFloat()
                         )
                         drawRect(pxBounds.toRect().toAndroidRect(), debugBoundsPaint)
                     }

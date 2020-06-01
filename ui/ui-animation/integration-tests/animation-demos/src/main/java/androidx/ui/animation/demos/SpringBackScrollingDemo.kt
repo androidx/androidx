@@ -55,13 +55,13 @@ fun SpringBackScrollingDemo() {
         val isFlinging = state { false }
         val gesture = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
             override fun onDrag(dragDistance: PxPosition): PxPosition {
-                animScroll.snapTo(animScroll.targetValue + dragDistance.x.value)
+                animScroll.snapTo(animScroll.targetValue + dragDistance.x)
                 return dragDistance
             }
 
             override fun onStop(velocity: PxPosition) {
                 isFlinging.value = true
-                animScroll.fling(velocity.x.value, onEnd = { _, _, _ ->
+                animScroll.fling(velocity.x, onEnd = { _, _, _ ->
                     isFlinging.value = false
                 })
             }

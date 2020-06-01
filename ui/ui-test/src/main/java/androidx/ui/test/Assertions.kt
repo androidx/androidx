@@ -315,12 +315,12 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
         return false
     }
 
-    return (globalRect.width > 0.px && globalRect.height > 0.px)
+    return (globalRect.width > 0f && globalRect.height > 0f)
 }
 
 private fun SemanticsNode.isInScreenBounds(): Boolean {
     val nodeBounds = globalBounds
-    if (nodeBounds.width == 0.px && nodeBounds.height == 0.px) {
+    if (nodeBounds.width == 0f && nodeBounds.height == 0f) {
         return false
     }
 

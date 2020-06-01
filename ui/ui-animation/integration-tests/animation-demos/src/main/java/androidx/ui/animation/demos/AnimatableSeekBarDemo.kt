@@ -99,13 +99,13 @@ fun MovingTargetExample(clock: ManualAnimationClock) {
 
     val dragObserver = object : DragObserver {
         override fun onDrag(dragDistance: PxPosition): PxPosition {
-            animValue.snapTo(animValue.targetValue + dragDistance.x.value)
+            animValue.snapTo(animValue.targetValue + dragDistance.x)
             return dragDistance
         }
     }
 
     val onPress: (PxPosition) -> Unit = { position ->
-        animValue.animateTo(position.x.value,
+        animValue.animateTo(position.x,
             TweenBuilder<Float>().apply {
                 duration = 400
             })

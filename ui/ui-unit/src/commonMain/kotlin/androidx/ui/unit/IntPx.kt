@@ -471,7 +471,8 @@ inline fun PxSize(width: IntPx, height: IntPx): PxSize =
  * Create a [PxPosition] from [IntPx] values.
  */
 @Stable
-inline fun PxPosition(x: IntPx, y: IntPx): PxPosition = PxPosition(x = x.toPx(), y = y.toPx())
+inline fun PxPosition(x: IntPx, y: IntPx): PxPosition =
+    PxPosition(x = x.toPx().value, y = y.toPx().value)
 
 /**
  * Convert a [IntPxPosition] to a [PxPosition]

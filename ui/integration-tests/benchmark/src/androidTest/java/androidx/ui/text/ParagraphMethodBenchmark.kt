@@ -21,7 +21,6 @@ import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import androidx.ui.integration.test.RandomTextGenerator
 import androidx.ui.integration.test.TextBenchmarkTestRule
@@ -165,7 +164,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
     fun getOffsetForPosition() {
         textBenchmarkRule.generator { generator ->
             val paragraph = paragraph(generator)
-            val centerPosition = PxPosition((paragraph.width / 2).px, (paragraph.height / 2).px)
+            val centerPosition = PxPosition((paragraph.width / 2), (paragraph.height / 2))
             benchmarkRule.measureRepeated {
                 paragraph.getOffsetForPosition(centerPosition)
             }

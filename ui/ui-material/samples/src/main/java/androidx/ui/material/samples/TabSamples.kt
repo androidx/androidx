@@ -298,8 +298,8 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
             transitionDefinition {
                 tabPositions.forEachIndexed { index, position ->
                     state(index) {
-                        this[indicatorStart] = position.left.toPx()
-                        this[indicatorEnd] = position.right.toPx()
+                        this[indicatorStart] = position.left.toPx().value
+                        this[indicatorEnd] = position.right.toPx().value
                         this[indicatorColor] = colors[index % colors.size]
                     }
                 }

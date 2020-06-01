@@ -21,7 +21,6 @@ import android.graphics.RectF
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 
 internal class LayerWrapper(
     wrapped: LayoutNodeWrapper,
@@ -110,8 +109,8 @@ internal class LayerWrapper(
      * and untransformed position.
      */
     private fun mapPointsFromMatrix(matrix: Matrix, position: PxPosition): PxPosition {
-        val x = position.x.value
-        val y = position.y.value
+        val x = position.x
+        val y = position.y
         val cache = positionCache
         val point = if (cache != null) {
             cache[0] = x
@@ -121,7 +120,7 @@ internal class LayerWrapper(
             floatArrayOf(x, y).also { positionCache = it }
         }
         matrix.mapPoints(point)
-        return PxPosition(point[0].px, point[1].px)
+        return PxPosition(point[0], point[1])
     }
 
     override fun rectInParent(bounds: RectF) {

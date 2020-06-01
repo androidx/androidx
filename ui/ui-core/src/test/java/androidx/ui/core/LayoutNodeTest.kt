@@ -22,8 +22,6 @@ import androidx.ui.core.pointerinput.resize
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
-import androidx.ui.unit.toPx
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.doReturn
@@ -345,10 +343,10 @@ class LayoutNodeTest {
         node0.place(x0, y0)
         node1.place(x1, y1)
 
-        val globalPosition = PxPosition(250.px, 300.px)
+        val globalPosition = PxPosition(250f, 300f)
 
-        val expectedX = globalPosition.x - x0.toPx() - x1.toPx()
-        val expectedY = globalPosition.y - y0.toPx() - y1.toPx()
+        val expectedX = globalPosition.x - x0.value.toFloat() - x1.value.toFloat()
+        val expectedY = globalPosition.y - y0.value.toFloat() - y1.value.toFloat()
         val expectedPosition = PxPosition(expectedX, expectedY)
 
         val result = node1.coordinates.globalToLocal(globalPosition)
@@ -370,10 +368,10 @@ class LayoutNodeTest {
         node0.place(x0, y0)
         node1.place(x1, y1)
 
-        val globalPosition = PxPosition(250.ipx, 300.ipx)
+        val globalPosition = PxPosition(250f, 300f)
 
-        val expectedX = globalPosition.x - x0 - x1
-        val expectedY = globalPosition.y - y0 - y1
+        val expectedX = globalPosition.x - x0.value.toFloat() - x1.value.toFloat()
+        val expectedY = globalPosition.y - y0.value.toFloat() - y1.value.toFloat()
         val expectedPosition = PxPosition(expectedX, expectedY)
 
         val result = node1.coordinates.globalToLocal(globalPosition)
@@ -395,10 +393,10 @@ class LayoutNodeTest {
         node0.place(x0, y0)
         node1.place(x1, y1)
 
-        val localPosition = PxPosition(5.px, 15.px)
+        val localPosition = PxPosition(5f, 15f)
 
-        val expectedX = localPosition.x + x0.toPx() + x1.toPx()
-        val expectedY = localPosition.y + y0.toPx() + y1.toPx()
+        val expectedX = localPosition.x + x0.value.toFloat() + x1.value.toFloat()
+        val expectedY = localPosition.y + y0.value.toFloat() + y1.value.toFloat()
         val expectedPosition = PxPosition(expectedX, expectedY)
 
         val result = node1.coordinates.localToGlobal(localPosition)
@@ -422,8 +420,8 @@ class LayoutNodeTest {
 
         val localPosition = PxPosition(5.ipx, 15.ipx)
 
-        val expectedX = localPosition.x + x0 + x1
-        val expectedY = localPosition.y + y0 + y1
+        val expectedX = localPosition.x + x0.value.toFloat() + x1.value.toFloat()
+        val expectedY = localPosition.y + y0.value.toFloat() + y1.value.toFloat()
         val expectedPosition = PxPosition(expectedX, expectedY)
 
         val result = node1.coordinates.localToGlobal(localPosition)
@@ -439,7 +437,7 @@ class LayoutNodeTest {
 
         val result = node.coordinates.localToGlobal(PxPosition.Origin)
 
-        assertEquals(PxPosition(120.px, 30.px), result)
+        assertEquals(PxPosition(120f, 30f), result)
     }
 
     @Test
@@ -465,10 +463,10 @@ class LayoutNodeTest {
         node0.place(100.ipx, 10.ipx)
         node1.place(x1, y1)
 
-        val localPosition = PxPosition(5.px, 15.px)
+        val localPosition = PxPosition(5f, 15f)
 
-        val expectedX = localPosition.x + x1.toPx()
-        val expectedY = localPosition.y + y1.toPx()
+        val expectedX = localPosition.x + x1.value.toFloat()
+        val expectedY = localPosition.y + y1.value.toFloat()
         val expectedPosition = PxPosition(expectedX, expectedY)
 
         val result = node0.coordinates.childToLocal(node1.coordinates, localPosition)
@@ -487,7 +485,7 @@ class LayoutNodeTest {
 
         thrown.expect(IllegalStateException::class.java)
 
-        node2.coordinates.childToLocal(node1.coordinates, PxPosition(5.px, 15.px))
+        node2.coordinates.childToLocal(node1.coordinates, PxPosition(5f, 15f))
     }
 
     @Test
@@ -500,14 +498,14 @@ class LayoutNodeTest {
 
         thrown.expect(IllegalStateException::class.java)
 
-        node1.coordinates.childToLocal(node0.coordinates, PxPosition(5.px, 15.px))
+        node1.coordinates.childToLocal(node0.coordinates, PxPosition(5f, 15f))
     }
 
     @Test
     fun testChildToLocalTheSameNode() {
         val node = LayoutNode()
         node.attach(mockOwner())
-        val position = PxPosition(5.px, 15.px)
+        val position = PxPosition(5f, 15f)
 
         val result = node.coordinates.childToLocal(node.coordinates, position)
 
@@ -552,7 +550,7 @@ class LayoutNodeTest {
 
         val actual = parent.coordinates.childToLocal(child.coordinates, PxPosition.Origin)
 
-        assertEquals(PxPosition(50.px, 80.px), actual)
+        assertEquals(PxPosition(50f, 80f), actual)
     }
 
     @Test
@@ -569,7 +567,7 @@ class LayoutNodeTest {
 
         val actual = grandParent.coordinates.childToLocal(child.coordinates, PxPosition.Origin)
 
-        assertEquals(PxPosition(20.px, -2.px), actual)
+        assertEquals(PxPosition(20f, -2f), actual)
     }
 
     // LayoutNode shouldn't allow adding beyond the count
@@ -791,9 +789,9 @@ class LayoutNodeTest {
             }
 
         val offset = when (numberOfChildrenHit) {
-            3 -> PxPosition(250.px, 250.px)
-            2 -> PxPosition(150.px, 150.px)
-            1 -> PxPosition(50.px, 50.px)
+            3 -> PxPosition(250f, 250f)
+            2 -> PxPosition(150f, 150f)
+            1 -> PxPosition(50f, 50f)
             else -> throw IllegalStateException()
         }
 
@@ -879,8 +877,8 @@ class LayoutNodeTest {
             attach(mockOwner())
         }
 
-        val offset1 = PxPosition(25.px, 25.px)
-        val offset2 = PxPosition(75.px, 75.px)
+        val offset1 = PxPosition(25f, 25f)
+        val offset2 = PxPosition(75f, 75f)
 
         val hit1 = mutableListOf<PointerInputFilter>()
         val hit2 = mutableListOf<PointerInputFilter>()
@@ -956,9 +954,9 @@ class LayoutNodeTest {
             attach(mockOwner())
         }
 
-        val offset1 = PxPosition(25.px, 25.px)
-        val offset2 = PxPosition(75.px, 75.px)
-        val offset3 = PxPosition(125.px, 125.px)
+        val offset1 = PxPosition(25f, 25f)
+        val offset2 = PxPosition(75f, 75f)
+        val offset3 = PxPosition(125f, 125f)
 
         val hit1 = mutableListOf<PointerInputFilter>()
         val hit2 = mutableListOf<PointerInputFilter>()
@@ -1018,9 +1016,9 @@ class LayoutNodeTest {
             attach(mockOwner())
         }
 
-        val offset1 = PxPosition(50.px, 25.px)
-        val offset2 = PxPosition(50.px, 75.px)
-        val offset3 = PxPosition(50.px, 125.px)
+        val offset1 = PxPosition(50f, 25f)
+        val offset2 = PxPosition(50f, 75f)
+        val offset3 = PxPosition(50f, 125f)
 
         val hit1 = mutableListOf<PointerInputFilter>()
         val hit2 = mutableListOf<PointerInputFilter>()
@@ -1080,9 +1078,9 @@ class LayoutNodeTest {
             attach(mockOwner())
         }
 
-        val offset1 = PxPosition(25.px, 50.px)
-        val offset2 = PxPosition(75.px, 50.px)
-        val offset3 = PxPosition(125.px, 50.px)
+        val offset1 = PxPosition(25f, 50f)
+        val offset2 = PxPosition(75f, 50f)
+        val offset3 = PxPosition(125f, 50f)
 
         val hit1 = mutableListOf<PointerInputFilter>()
         val hit2 = mutableListOf<PointerInputFilter>()
@@ -1166,21 +1164,21 @@ class LayoutNodeTest {
             attach(mockOwner())
         }
 
-        val offsetThatHits1 = PxPosition(1.px, 1.px)
-        val offsetThatHits2 = PxPosition(3.px, 1.px)
-        val offsetThatHits3 = PxPosition(1.px, 3.px)
-        val offsetThatHits4 = PxPosition(3.px, 3.px)
+        val offsetThatHits1 = PxPosition(1f, 1f)
+        val offsetThatHits2 = PxPosition(3f, 1f)
+        val offsetThatHits3 = PxPosition(1f, 3f)
+        val offsetThatHits4 = PxPosition(3f, 3f)
 
         val offsetsThatMiss =
             listOf(
-                PxPosition(1.px, 0.px),
-                PxPosition(3.px, 0.px),
-                PxPosition(0.px, 1.px),
-                PxPosition(4.px, 1.px),
-                PxPosition(0.px, 3.px),
-                PxPosition(4.px, 3.px),
-                PxPosition(1.px, 4.px),
-                PxPosition(3.px, 4.px)
+                PxPosition(1f, 0f),
+                PxPosition(3f, 0f),
+                PxPosition(0f, 1f),
+                PxPosition(4f, 1f),
+                PxPosition(0f, 3f),
+                PxPosition(4f, 3f),
+                PxPosition(1f, 4f),
+                PxPosition(3f, 4f)
             )
 
         val hit1 = mutableListOf<PointerInputFilter>()
@@ -1246,14 +1244,14 @@ class LayoutNodeTest {
             attach(mockOwner(IntPxPosition(1.ipx, 1.ipx)))
         }
 
-        val offsetThatHits1 = PxPosition(2.px, 2.px)
-        val offsetThatHits2 = PxPosition(2.px, 1.px)
-        val offsetThatHits3 = PxPosition(1.px, 2.px)
+        val offsetThatHits1 = PxPosition(2f, 2f)
+        val offsetThatHits2 = PxPosition(2f, 1f)
+        val offsetThatHits3 = PxPosition(1f, 2f)
         val offsetsThatMiss =
             listOf(
-                PxPosition(0.px, 0.px),
-                PxPosition(0.px, 1.px),
-                PxPosition(1.px, 0.px)
+                PxPosition(0f, 0f),
+                PxPosition(0f, 1f),
+                PxPosition(1f, 0f)
             )
 
         val hit1 = mutableListOf<PointerInputFilter>()
@@ -1305,7 +1303,7 @@ class LayoutNodeTest {
             attach(mockOwner())
         }
 
-        val offset1 = PxPosition(50.px, 75.px)
+        val offset1 = PxPosition(50f, 75f)
 
         val hit = mutableListOf<PointerInputFilter>()
 
@@ -1349,7 +1347,7 @@ class LayoutNodeTest {
         }.apply {
             attach(mockOwner())
         }
-        val offset1 = PxPosition(499.px, 499.px)
+        val offset1 = PxPosition(499f, 499f)
 
         val hit = mutableListOf<PointerInputFilter>()
 
@@ -1404,7 +1402,7 @@ class LayoutNodeTest {
             attach(mockOwner())
         }
 
-        val offset1 = PxPosition(499.px, 499.px)
+        val offset1 = PxPosition(499f, 499f)
 
         val hit = mutableListOf<PointerInputFilter>()
 
@@ -1449,7 +1447,7 @@ class LayoutNodeTest {
             attach(mockOwner())
         }
 
-        val offset = PxPosition(50.px, 50.px)
+        val offset = PxPosition(50f, 50f)
 
         val hit = mutableListOf<PointerInputFilter>()
 
@@ -1521,7 +1519,7 @@ class LayoutNodeTest {
 
         // Act.
 
-        parent.hitTest(PxPosition(1.px, 1.px), hit)
+        parent.hitTest(PxPosition(1f, 1f), hit)
 
         // Assert.
 

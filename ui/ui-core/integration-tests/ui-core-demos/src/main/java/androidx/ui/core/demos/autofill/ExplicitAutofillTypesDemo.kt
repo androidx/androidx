@@ -113,9 +113,9 @@ private fun Autofill(
 
 private fun LayoutCoordinates.boundingBox() = localToGlobal(PxPosition.Origin).run {
     Rect(
-        x.value.toInt(),
-        y.value.toInt(),
-        x.value.toInt() + size.width.value.toInt(),
-        y.value.toInt() + size.height.value.toInt()
+        x.toInt(),
+        y.toInt(),
+        x.toInt() + size.width.value,
+        y.toInt() + size.height.value
     )
 }

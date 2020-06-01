@@ -230,11 +230,11 @@ private data class BottomAppBarCutoutShape(
         val cutoutOffset = with(density) { BottomAppBarCutoutOffset.toPx() }
 
         val cutoutSize = Size(
-            width = fabBounds.width.value + (cutoutOffset * 2),
-            height = fabBounds.height.value + (cutoutOffset * 2)
+            width = fabBounds.width + (cutoutOffset * 2),
+            height = fabBounds.height + (cutoutOffset * 2)
         )
 
-        val cutoutStartX = fabBounds.left.value - cutoutOffset
+        val cutoutStartX = fabBounds.left - cutoutOffset
         val cutoutEndX = cutoutStartX + cutoutSize.width
 
         val cutoutRadius = cutoutSize.height / 2f

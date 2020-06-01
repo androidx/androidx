@@ -81,7 +81,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
-        val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
+        val childPosition = arrayOf(PxPosition(-1f, -1f), PxPosition(-1f, -1f))
         show {
             Container(alignment = Alignment.TopStart) {
                 Row {
@@ -90,7 +90,7 @@ class RowColumnTest : LayoutTest() {
                         height = sizeDp,
                         modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize[0] = coordinates.size
-                            childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                     ) {
@@ -101,7 +101,7 @@ class RowColumnTest : LayoutTest() {
                         height = (sizeDp * 2),
                         modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize[1] = coordinates.size
-                            childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                     ) {
@@ -119,8 +119,8 @@ class RowColumnTest : LayoutTest() {
             IntPxSize((sizeDp.toPx() * 2).roundToInt().ipx, (sizeDp.toPx() * 2).roundToInt().ipx),
             childSize[1]
         )
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(size.toPx(), 0.px), childPosition[1])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition(size.toPx().value, 0f), childPosition[1])
     }
 
     @Test
@@ -139,7 +139,7 @@ class RowColumnTest : LayoutTest() {
                         Modifier.weight(1f)
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 childSize[0] = coordinates.size
-                                childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                                 drawLatch.countDown()
                             },
                         width = width,
@@ -151,7 +151,7 @@ class RowColumnTest : LayoutTest() {
                         Modifier.weight(2f)
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 childSize[1] = coordinates.size
-                                childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                                 drawLatch.countDown()
                             },
                         width = width,
@@ -175,8 +175,8 @@ class RowColumnTest : LayoutTest() {
             IntPxSize((rootWidth * 2 / 3).round(), childrenHeight),
             childSize[1]
         )
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition((rootWidth / 3).round().toPx(), 0.px), childPosition[1])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition((rootWidth / 3).round().toPx().value, 0f), childPosition[1])
     }
 
     @Test
@@ -196,7 +196,7 @@ class RowColumnTest : LayoutTest() {
                         Modifier.weight(1f, fill = false)
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 childSize[0] = coordinates.size
-                                childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                                 drawLatch.countDown()
                             },
                         width = width,
@@ -208,7 +208,7 @@ class RowColumnTest : LayoutTest() {
                         Modifier.weight(2f, fill = false)
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 childSize[1] = coordinates.size
-                                childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                                 drawLatch.countDown()
                             },
                         width = width,
@@ -225,8 +225,8 @@ class RowColumnTest : LayoutTest() {
 
         assertEquals(IntPxSize(childrenWidth, childrenHeight), childSize[0])
         assertEquals(IntPxSize(childrenWidth, childrenHeight * 2), childSize[1])
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(childrenWidth.toPx(), 0.px), childPosition[1])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition(childrenWidth.toPx().value, 0f), childPosition[1])
     }
 
     @Test
@@ -236,7 +236,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
-        val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
+        val childPosition = arrayOf(PxPosition(-1f, -1f), PxPosition(-1f, -1f))
         show {
             Container(alignment = Alignment.TopStart) {
                 Column {
@@ -245,7 +245,7 @@ class RowColumnTest : LayoutTest() {
                         height = sizeDp,
                         modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize[0] = coordinates.size
-                            childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                     ) {
@@ -255,7 +255,7 @@ class RowColumnTest : LayoutTest() {
                         height = (sizeDp * 2),
                         modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize[1] = coordinates.size
-                            childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                     ) {
@@ -273,8 +273,8 @@ class RowColumnTest : LayoutTest() {
             IntPxSize((sizeDp.toPx() * 2).roundToInt().ipx, (sizeDp.toPx() * 2).roundToInt().ipx),
             childSize[1]
         )
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(0.px, size.toPx()), childPosition[1])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition(0f, size.toPx().value), childPosition[1])
     }
 
     @Test
@@ -293,7 +293,7 @@ class RowColumnTest : LayoutTest() {
                         Modifier.weight(1f)
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 childSize[0] = coordinates.size
-                                childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                                 drawLatch.countDown()
                             },
                         width = width,
@@ -305,7 +305,7 @@ class RowColumnTest : LayoutTest() {
                         Modifier.weight(2f)
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 childSize[1] = coordinates.size
-                                childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                                 drawLatch.countDown()
                             },
                         width = width,
@@ -327,8 +327,8 @@ class RowColumnTest : LayoutTest() {
         assertEquals(
             IntPxSize(childrenWidth, (rootHeight * 2 / 3).round()), childSize[1]
         )
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(0.px, (rootHeight / 3).round().toPx()), childPosition[1])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition(0f, (rootHeight / 3).round().toPx().value), childPosition[1])
     }
 
     @Test
@@ -348,7 +348,7 @@ class RowColumnTest : LayoutTest() {
                         Modifier.weight(1f, fill = false)
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 childSize[0] = coordinates.size
-                                childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                                 drawLatch.countDown()
                             },
                         width = width,
@@ -359,7 +359,7 @@ class RowColumnTest : LayoutTest() {
                         Modifier.weight(2f, fill = false)
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 childSize[1] = coordinates.size
-                                childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                                 drawLatch.countDown()
                             },
                         width = width,
@@ -378,8 +378,8 @@ class RowColumnTest : LayoutTest() {
         assertEquals(
             IntPxSize(childrenWidth, childrenHeight), childSize[1]
         )
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(0.px, childrenHeight.toPx()), childPosition[1])
+        assertEquals(PxPosition(0.0f, 0.0f), childPosition[0])
+        assertEquals(PxPosition(0.0f, childrenHeight.toPx().value), childPosition[1])
     }
 
     @Test
@@ -403,7 +403,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.weight(1f)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             width[0] = coordinates.size.width
-                            x[0] = coordinates.globalPosition.x
+                            x[0] = coordinates.globalPosition.x.px
                             latch.countDown()
                         }
                 ) {
@@ -412,7 +412,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.weight(1f)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             width[1] = coordinates.size.width
-                            x[1] = coordinates.globalPosition.x
+                            x[1] = coordinates.globalPosition.x.px
                             latch.countDown()
                         }
                 ) {
@@ -449,7 +449,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.weight(2f)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             width[0] = coordinates.size.width
-                            x[0] = coordinates.globalPosition.x
+                            x[0] = coordinates.globalPosition.x.px
                             latch.countDown()
                         }
                 ) {
@@ -458,7 +458,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.weight(2f)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             width[1] = coordinates.size.width
-                            x[1] = coordinates.globalPosition.x
+                            x[1] = coordinates.globalPosition.x.px
                             latch.countDown()
                         }
                 ) {
@@ -467,7 +467,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.weight(3f)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             width[2] = coordinates.size.width
-                            x[2] = coordinates.globalPosition.x
+                            x[2] = coordinates.globalPosition.x.px
                             latch.countDown()
                         }
                 ) {
@@ -505,7 +505,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.weight(1f)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             height[0] = coordinates.size.height
-                            y[0] = coordinates.globalPosition.y
+                            y[0] = coordinates.globalPosition.y.px
                             latch.countDown()
                         }
                 ) {
@@ -514,7 +514,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.weight(1f)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             height[1] = coordinates.size.height
-                            y[1] = coordinates.globalPosition.y
+                            y[1] = coordinates.globalPosition.y.px
                             latch.countDown()
                         }
                 ) {
@@ -523,7 +523,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.weight(1f)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             height[2] = coordinates.size.height
-                            y[2] = coordinates.globalPosition.y
+                            y[2] = coordinates.globalPosition.y.px
                             latch.countDown()
                         }
                 ) {
@@ -561,7 +561,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.weight(1f)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             height[0] = coordinates.size.height
-                            y[0] = coordinates.globalPosition.y
+                            y[0] = coordinates.globalPosition.y.px
                             latch.countDown()
                         }
                 ) {
@@ -570,7 +570,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.weight(1f)
                         .onPositioned { coordinates: LayoutCoordinates ->
                             height[1] = coordinates.size.height
-                            y[1] = coordinates.globalPosition.y
+                            y[1] = coordinates.globalPosition.y.px
                             latch.countDown()
                         }
                 ) {
@@ -596,7 +596,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
-        val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
+        val childPosition = arrayOf(PxPosition(-1f, -1f), PxPosition(-1f, -1f))
         show {
             Row {
                     Container(
@@ -605,7 +605,7 @@ class RowColumnTest : LayoutTest() {
                         modifier = Modifier.fillMaxHeight()
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 childSize[0] = coordinates.size
-                                childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                                 drawLatch.countDown()
                             }
                     ) {
@@ -617,7 +617,7 @@ class RowColumnTest : LayoutTest() {
                         modifier = Modifier.fillMaxHeight()
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 childSize[1] = coordinates.size
-                                childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                                 drawLatch.countDown()
                             }
                     ) {
@@ -634,8 +634,8 @@ class RowColumnTest : LayoutTest() {
             IntPxSize((sizeDp.toPx() * 2).roundToInt().ipx, root.height.ipx),
             childSize[1]
         )
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(size.toPx(), 0.px), childPosition[1])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition(size.toPx().value, 0f), childPosition[1])
     }
 
     @Test
@@ -689,16 +689,18 @@ class RowColumnTest : LayoutTest() {
         val rootHeight = root.height.px
 
         assertEquals(IntPxSize(size, size), childSize[0])
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
 
         assertEquals(IntPxSize(size, size), childSize[1])
         assertEquals(
-            PxPosition(size.toPx(), ((rootHeight - size.toPx()) / 2).round().toPx()),
+            PxPosition(size.toPx().value, ((rootHeight - size.toPx()) / 2).round().toPx().value),
             childPosition[1]
         )
 
         assertEquals(IntPxSize(size, size), childSize[2])
-        assertEquals(PxPosition(size.toPx() * 2, rootHeight - size.toPx()), childPosition[2])
+        assertEquals(PxPosition((size.toPx() * 2).value,
+            (rootHeight - size.toPx()).value),
+            childPosition[2])
     }
 
     @Test
@@ -753,16 +755,18 @@ class RowColumnTest : LayoutTest() {
         val rootHeight = root.height.px
 
         assertEquals(IntPxSize(size, size), childSize[0])
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
 
         assertEquals(IntPxSize(size, size), childSize[1])
         assertEquals(
-            PxPosition(size.toPx(), ((rootHeight - size.toPx()) / 2).round().toPx()),
+            PxPosition(size.toPx().value, ((rootHeight - size.toPx()) / 2).round().toPx().value),
             childPosition[1]
         )
 
         assertEquals(IntPxSize(size, size), childSize[2])
-        assertEquals(PxPosition(size.toPx() * 2, rootHeight - size.toPx()), childPosition[2])
+        assertEquals(
+            PxPosition((size.toPx() * 2).value, (rootHeight - size.toPx()).value),
+            childPosition[2])
     }
 
     @Test
@@ -830,23 +834,23 @@ class RowColumnTest : LayoutTest() {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(size, size), childSize[0])
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
 
         assertEquals(IntPxSize(size, size), childSize[1])
         assertEquals(
-            PxPosition(size.toPx(), (baseline1 - (size.toPx() / 2).round()).toPx()),
+            PxPosition(size.toPx().value, (baseline1 - (size.toPx() / 2).round()).toPx().value),
             childPosition[1]
         )
 
         assertEquals(IntPxSize(size, size), childSize[2])
         assertEquals(
-            PxPosition(size.toPx() * 2, (baseline1 - baseline2).toPx()),
+            PxPosition((size.toPx() * 2).value, (baseline1 - baseline2).toPx().value),
             childPosition[2]
         )
 
         assertEquals(IntPxSize(size, size), childSize[3])
         assertEquals(
-            PxPosition(size.toPx() * 3, 0.px),
+            PxPosition((size.toPx() * 3).value, 0f),
             childPosition[3]
         )
     }
@@ -891,10 +895,13 @@ class RowColumnTest : LayoutTest() {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(size, size), childSize[0])
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
 
         assertEquals(size, childSize[1]!!.height)
-        assertEquals(PxPosition(size.toPx(), (baseline - size / 2).toPx()), childPosition[1])
+        assertEquals(
+            PxPosition(size.toPx().value, (baseline - size / 2).toPx().value),
+            childPosition[1]
+        )
     }
     // endregion
 
@@ -906,7 +913,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
-        val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
+        val childPosition = arrayOf(PxPosition(-1f, -1f), PxPosition(-1f, -1f))
         show {
             Column {
                     Container(
@@ -915,7 +922,7 @@ class RowColumnTest : LayoutTest() {
                         modifier = Modifier.fillMaxWidth()
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 childSize[0] = coordinates.size
-                                childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                                 drawLatch.countDown()
                             }
                     ) {
@@ -927,7 +934,7 @@ class RowColumnTest : LayoutTest() {
                         modifier = Modifier.fillMaxWidth()
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 childSize[1] = coordinates.size
-                                childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                                 drawLatch.countDown()
                             }
                     ) {
@@ -944,8 +951,8 @@ class RowColumnTest : LayoutTest() {
             IntPxSize(root.width.ipx, (sizeDp * 2).toIntPx()),
             childSize[1]
         )
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(0.px, size.toPx()), childPosition[1])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition(0f, size.toPx().value), childPosition[1])
     }
 
     @Test
@@ -1000,16 +1007,22 @@ class RowColumnTest : LayoutTest() {
         val rootWidth = root.width.px
 
         assertEquals(IntPxSize(size, size), childSize[0])
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
 
         assertEquals(IntPxSize(size, size), childSize[1])
         assertEquals(
-            PxPosition(((rootWidth - size.toPx()) / 2).round().toPx(), size.toPx()),
+            PxPosition(
+                ((rootWidth - size.toPx()) / 2).round().toPx().value,
+                size.toPx().value
+            ),
             childPosition[1]
         )
 
         assertEquals(IntPxSize(size, size), childSize[2])
-        assertEquals(PxPosition(rootWidth - size.toPx(), size.toPx() * 2), childPosition[2])
+        assertEquals(
+            PxPosition((rootWidth - size.toPx()).value, size.toPx().value * 2),
+            childPosition[2]
+        )
     }
 
     @Test
@@ -1063,16 +1076,22 @@ class RowColumnTest : LayoutTest() {
         val rootWidth = root.width.px
 
         assertEquals(IntPxSize(size, size), childSize[0])
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
 
         assertEquals(IntPxSize(size, size), childSize[1])
         assertEquals(
-            PxPosition(((rootWidth - size.toPx()) / 2).round().toPx(), size.toPx()),
+            PxPosition(
+                ((rootWidth - size.toPx()) / 2).round().toPx().value,
+                size.toPx().value
+            ),
             childPosition[1]
         )
 
         assertEquals(IntPxSize(size, size), childSize[2])
-        assertEquals(PxPosition(rootWidth - size.toPx(), size.toPx() * 2), childPosition[2])
+        assertEquals(
+            PxPosition((rootWidth - size.toPx()).value, size.toPx().value * 2),
+            childPosition[2]
+        )
     }
 
     @Test
@@ -1138,20 +1157,26 @@ class RowColumnTest : LayoutTest() {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(size, size), childSize[0])
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
 
         assertEquals(IntPxSize(size, size), childSize[1])
-        assertEquals(PxPosition(size.toPx(), size.toPx()), childPosition[1])
+        assertEquals(PxPosition(size.toPx().value, size.toPx().value), childPosition[1])
 
         assertEquals(IntPxSize(size, size), childSize[2])
         assertEquals(
-            PxPosition((size - firstBaseline1Dp.toIntPx()).toPx(), size.toPx() * 2),
+            PxPosition(
+                (size - firstBaseline1Dp.toIntPx()).toPx().value,
+                size.toPx().value * 2
+            ),
             childPosition[2]
         )
 
         assertEquals(IntPxSize(size, size), childSize[3])
         assertEquals(
-            PxPosition((size - firstBaseline2Dp.toIntPx()).toPx(), size.toPx() * 3),
+            PxPosition(
+                (size - firstBaseline2Dp.toIntPx()).toPx().value,
+                size.toPx().value * 3
+            ),
             childPosition[3]
         )
     }
@@ -1196,10 +1221,13 @@ class RowColumnTest : LayoutTest() {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(size, size), childSize[0])
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
 
         assertEquals(size, childSize[1]!!.width)
-        assertEquals(PxPosition((baseline - (size / 2)).toPx(), size.toPx()), childPosition[1])
+        assertEquals(
+            PxPosition((baseline - (size / 2)).toPx().value, size.toPx().value),
+            childPosition[1]
+        )
     }
     // endregion
 
@@ -2108,7 +2136,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
-            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+            PxPosition(-1f, -1f), PxPosition(-1f, -1f), PxPosition(-1f, -1f)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
@@ -2141,9 +2169,9 @@ class RowColumnTest : LayoutTest() {
         val root = findOwnerView()
         waitForDraw(root)
 
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(size.toPx(), 0.px), childPosition[1])
-        assertEquals(PxPosition(size.toPx() * 2, 0.px), childPosition[2])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition(size.toPx().value, 0f), childPosition[1])
+        assertEquals(PxPosition(size.toPx().value * 2, 0f), childPosition[2])
     }
 
     @Test
@@ -2153,7 +2181,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
-            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+            PxPosition(-1f, -1f), PxPosition(-1f, -1f), PxPosition(-1f, -1f)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
@@ -2184,9 +2212,9 @@ class RowColumnTest : LayoutTest() {
         val root = findOwnerView()
         waitForDraw(root)
 
-        assertEquals(PxPosition(root.width.px - size.toPx() * 3, 0.px), childPosition[0])
-        assertEquals(PxPosition(root.width.px - size.toPx() * 2, 0.px), childPosition[1])
-        assertEquals(PxPosition(root.width.px - size.toPx(), 0.px), childPosition[2])
+        assertEquals(PxPosition((root.width.px - size.toPx() * 3).value, 0f), childPosition[0])
+        assertEquals(PxPosition((root.width.px - size.toPx() * 2).value, 0f), childPosition[1])
+        assertEquals(PxPosition((root.width.px - size.toPx()).value, 0f), childPosition[2])
     }
 
     @Test
@@ -2196,7 +2224,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
-            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+            PxPosition(-1f, -1f), PxPosition(-1f, -1f), PxPosition(-1f, -1f)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
@@ -2228,9 +2256,18 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
 
         val extraSpace = root.width.px.round() - size * 3
-        assertEquals(PxPosition((extraSpace / 2).toPx(), 0.px), childPosition[0])
-        assertEquals(PxPosition((extraSpace / 2).toPx() + size.toPx(), 0.px), childPosition[1])
-        assertEquals(PxPosition((extraSpace / 2).toPx() + size.toPx() * 2, 0.px), childPosition[2])
+        assertEquals(PxPosition((extraSpace / 2).toPx().value, 0f), childPosition[0])
+        assertEquals(
+            PxPosition(((extraSpace / 2).toPx() + size.toPx()).value, 0f),
+            childPosition[1]
+        )
+        assertEquals(
+            PxPosition(
+                ((extraSpace / 2).toPx() + size.toPx() * 2).value,
+                0f
+            ),
+            childPosition[2]
+        )
     }
 
     @Test
@@ -2240,7 +2277,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
-            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+            PxPosition(-1f, -1f), PxPosition(-1f, -1f), PxPosition(-1f, -1f)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
@@ -2272,9 +2309,15 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
 
         val gap = (root.width.px - size.toPx() * 3) / 4
-        assertEquals(PxPosition(gap.round().toPx(), 0.px), childPosition[0])
-        assertEquals(PxPosition((size.toPx() + gap * 2).round().toPx(), 0.px), childPosition[1])
-        assertEquals(PxPosition((size.toPx() * 2 + gap * 3).round().toPx(), 0.px), childPosition[2])
+        assertEquals(PxPosition(gap.round().toPx().value, 0f), childPosition[0])
+        assertEquals(
+            PxPosition((size.toPx() + gap * 2).round().toPx().value, 0f),
+            childPosition[1]
+        )
+        assertEquals(
+            PxPosition((size.toPx() * 2 + gap * 3).round().toPx().value, 0f),
+            childPosition[2]
+        )
     }
 
     @Test
@@ -2284,7 +2327,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
-            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+            PxPosition(-1f, -1f), PxPosition(-1f, -1f), PxPosition(-1f, -1f)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
@@ -2316,9 +2359,12 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
 
         val gap = (root.width.px - size.toPx() * 3) / 2
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition((gap + size.toPx()).round().toPx(), 0.px), childPosition[1])
-        assertEquals(PxPosition((gap * 2 + size.toPx() * 2).round().toPx(), 0.px), childPosition[2])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition((gap + size.toPx()).round().toPx().value, 0f), childPosition[1])
+        assertEquals(
+            PxPosition((gap * 2 + size.toPx() * 2).round().toPx().value, 0f),
+            childPosition[2]
+        )
     }
 
     @Test
@@ -2328,7 +2374,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
-            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+            PxPosition(-1f, -1f), PxPosition(-1f, -1f), PxPosition(-1f, -1f)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
@@ -2363,9 +2409,15 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
 
         val gap = (root.width.px.round() - size * 3) / 3
-        assertEquals(PxPosition((gap / 2).toPx(), 0.px), childPosition[0])
-        assertEquals(PxPosition((gap * 3 / 2).toPx() + size.toPx(), 0.px), childPosition[1])
-        assertEquals(PxPosition((gap * 5 / 2).toPx() + size.toPx() * 2, 0.px), childPosition[2])
+        assertEquals(PxPosition((gap / 2).toPx().value, 0f), childPosition[0])
+        assertEquals(
+            PxPosition(((gap * 3 / 2).toPx() + size.toPx()).value, 0f),
+            childPosition[1]
+        )
+        assertEquals(
+            PxPosition(((gap * 5 / 2).toPx() + size.toPx() * 2).value, 0f),
+            childPosition[2]
+        )
     }
 
     @Test
@@ -2407,10 +2459,13 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
 
         val step = (root.width.px - size.toPx() * 3) / 3
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition((step + size.toPx()).round().toPx(), 0.px), childPosition[1])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
         assertEquals(
-            PxPosition((step * 3 + size.toPx() * 2).round().toPx(), 0.px),
+            PxPosition((step + size.toPx()).round().toPx().value, 0f),
+            childPosition[1]
+        )
+        assertEquals(
+            PxPosition((step * 3 + size.toPx() * 2).round().toPx().value, 0f),
             childPosition[2]
         )
     }
@@ -2424,7 +2479,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
-            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+            PxPosition(-1f, -1f), PxPosition(-1f, -1f), PxPosition(-1f, -1f)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
@@ -2455,9 +2510,9 @@ class RowColumnTest : LayoutTest() {
         val root = findOwnerView()
         waitForDraw(root)
 
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(0.px, size.toPx()), childPosition[1])
-        assertEquals(PxPosition(0.px, size.toPx() * 2), childPosition[2])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition(0f, size.toPx().value), childPosition[1])
+        assertEquals(PxPosition(0f, size.toPx().value * 2), childPosition[2])
     }
 
     @Test
@@ -2467,7 +2522,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
-            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+            PxPosition(-1f, -1f), PxPosition(-1f, -1f), PxPosition(-1f, -1f)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
@@ -2498,9 +2553,9 @@ class RowColumnTest : LayoutTest() {
         val root = findOwnerView()
         waitForDraw(root)
 
-        assertEquals(PxPosition(0.px, root.height.px - size.toPx() * 3), childPosition[0])
-        assertEquals(PxPosition(0.px, root.height.px - size.toPx() * 2), childPosition[1])
-        assertEquals(PxPosition(0.px, root.height.px - size.toPx()), childPosition[2])
+        assertEquals(PxPosition(0f, (root.height.px - size.toPx() * 3).value), childPosition[0])
+        assertEquals(PxPosition(0f, (root.height.px - size.toPx() * 2).value), childPosition[1])
+        assertEquals(PxPosition(0f, (root.height.px - size.toPx()).value), childPosition[2])
     }
 
     @Test
@@ -2510,7 +2565,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
-            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+            PxPosition(-1f, -1f), PxPosition(-1f, -1f), PxPosition(-1f, -1f)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
@@ -2542,9 +2597,21 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
 
         val extraSpace = root.height.px.round() - size * 3
-        assertEquals(PxPosition(0.px, (extraSpace / 2).toPx()), childPosition[0])
-        assertEquals(PxPosition(0.px, (extraSpace / 2).toPx() + size.toPx()), childPosition[1])
-        assertEquals(PxPosition(0.px, (extraSpace / 2).toPx() + size.toPx() * 2), childPosition[2])
+        assertEquals(
+            PxPosition(0f, (extraSpace / 2).toPx().value),
+            childPosition[0]
+        )
+        assertEquals(
+            PxPosition(0f, ((extraSpace / 2).toPx() + size.toPx()).value),
+            childPosition[1]
+        )
+        assertEquals(
+            PxPosition(
+                0f,
+                ((extraSpace / 2).toPx() + size.toPx() * 2).value
+            ),
+            childPosition[2]
+        )
     }
 
     @Test
@@ -2554,7 +2621,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
-            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+            PxPosition(-1f, -1f), PxPosition(-1f, -1f), PxPosition(-1f, -1f)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
@@ -2586,9 +2653,12 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
 
         val gap = (root.height.px - size.toPx() * 3) / 4
-        assertEquals(PxPosition(0.px, gap.round().toPx()), childPosition[0])
-        assertEquals(PxPosition(0.px, (size.toPx() + gap * 2).round().toPx()), childPosition[1])
-        assertEquals(PxPosition(0.px, (size.toPx() * 2 + gap * 3).round().toPx()), childPosition[2])
+        assertEquals(PxPosition(0f, gap.round().toPx().value), childPosition[0])
+        assertEquals(PxPosition(0f, (size.toPx() + gap * 2).round().toPx().value), childPosition[1])
+        assertEquals(
+            PxPosition(0f, (size.toPx() * 2 + gap * 3).round().toPx().value),
+            childPosition[2]
+        )
     }
 
     private fun calculateChildPositions(
@@ -2598,7 +2668,7 @@ class RowColumnTest : LayoutTest() {
     ) {
         for (i in childPosition.indices) {
             childPosition[i] = parentLayoutCoordinates!!
-                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0f, 0f))
         }
     }
 
@@ -2609,7 +2679,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
-            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+            PxPosition(-1f, -1f), PxPosition(-1f, -1f), PxPosition(-1f, -1f)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
@@ -2641,9 +2711,12 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
 
         val gap = (root.height.px - size.toPx() * 3) / 2
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(0.px, (gap + size.toPx()).round().toPx()), childPosition[1])
-        assertEquals(PxPosition(0.px, (gap * 2 + size.toPx() * 2).round().toPx()), childPosition[2])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition(0f, (gap + size.toPx()).round().toPx().value), childPosition[1])
+        assertEquals(
+            PxPosition(0f, (gap * 2 + size.toPx() * 2).round().toPx().value),
+            childPosition[2]
+        )
     }
 
     @Test
@@ -2653,7 +2726,7 @@ class RowColumnTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
-            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+            PxPosition(-1f, -1f), PxPosition(-1f, -1f), PxPosition(-1f, -1f)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         var parentLayoutCoordinates: LayoutCoordinates? = null
@@ -2685,13 +2758,13 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
 
         val gap = (root.height.px - size.toPx() * 3) / 3
-        assertEquals(PxPosition(0.px, (gap / 2).round().toPx()), childPosition[0])
+        assertEquals(PxPosition(0f, (gap / 2).round().toPx().value), childPosition[0])
         assertEquals(
-            PxPosition(0.px, ((gap * 3 / 2) + size.toPx()).round().toPx()),
+            PxPosition(0f, ((gap * 3 / 2) + size.toPx()).round().toPx().value),
             childPosition[1]
         )
         assertEquals(
-            PxPosition(0.px, ((gap * 5 / 2) + size.toPx() * 2).round().toPx()),
+            PxPosition(0f, ((gap * 5 / 2) + size.toPx() * 2).round().toPx().value),
             childPosition[2]
         )
     }
@@ -2735,10 +2808,10 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
 
         val step = (root.height.px - size.toPx() * 3) / 3
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(0.px, (step + size.toPx()).round().toPx()), childPosition[1])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition(0f, (step + size.toPx()).round().toPx().value), childPosition[1])
         assertEquals(
-            PxPosition(0.px, (step * 3 + size.toPx() * 2).round().toPx()),
+            PxPosition(0f, (step * 3 + size.toPx() * 2).round().toPx().value),
             childPosition[2]
         )
     }
@@ -3429,7 +3502,7 @@ class RowColumnTest : LayoutTest() {
             Row(Modifier.fillMaxWidth().rtl) {
                 Container(
                     Modifier.preferredSize(sizeDp).onPositioned { coordinates: LayoutCoordinates ->
-                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                         drawLatch.countDown()
                     }
                 ) {
@@ -3438,7 +3511,7 @@ class RowColumnTest : LayoutTest() {
                 Container(
                     Modifier.preferredSize(sizeDp * 2)
                         .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                 ) {
@@ -3451,9 +3524,9 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
         val rootWidth = root.width.px
 
-        assertEquals(PxPosition(rootWidth - size.toPx(), 0.px), childPosition[0])
+        assertEquals(PxPosition((rootWidth - size.toPx()).value, 0f), childPosition[0])
         assertEquals(
-            PxPosition(rootWidth - (sizeDp.toPx() * 3).roundToInt().px, 0.px),
+            PxPosition((rootWidth - (sizeDp.toPx() * 3).roundToInt().px).value, 0f),
             childPosition[1]
         )
     }
@@ -3471,7 +3544,7 @@ class RowColumnTest : LayoutTest() {
             ) {
                 Container(
                     Modifier.preferredSize(sizeDp).onPositioned { coordinates: LayoutCoordinates ->
-                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                         drawLatch.countDown()
                     }
                 ) {
@@ -3480,7 +3553,7 @@ class RowColumnTest : LayoutTest() {
                 Container(
                     Modifier.preferredSize(sizeDp * 2)
                         .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                 ) {
@@ -3490,8 +3563,14 @@ class RowColumnTest : LayoutTest() {
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        assertEquals(PxPosition((sizeDp.toPx() * 2).roundToInt().px, 0.px), childPosition[0])
-        assertEquals(PxPosition(0.px, 0.px), childPosition[1])
+        assertEquals(
+            PxPosition(
+                (sizeDp.toPx() * 2).roundToInt().toFloat(),
+                0f
+            ),
+            childPosition[0]
+        )
+        assertEquals(PxPosition(0f, 0f), childPosition[1])
     }
 
     @Test
@@ -3509,7 +3588,7 @@ class RowColumnTest : LayoutTest() {
                     width = sizeDp,
                     height = sizeDp,
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                         drawLatch.countDown()
                     }
                 ) {
@@ -3519,7 +3598,7 @@ class RowColumnTest : LayoutTest() {
                     width = (sizeDp * 2),
                     height = (sizeDp * 2),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                        childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                         drawLatch.countDown()
                     }
                 ) {
@@ -3531,8 +3610,11 @@ class RowColumnTest : LayoutTest() {
         val root = findOwnerView()
         waitForDraw(root)
 
-        assertEquals(PxPosition((sizeDp.toPx() * 2).roundToInt().px, 0.px), childPosition[0])
-        assertEquals(PxPosition(0.px, 0.px), childPosition[1])
+        assertEquals(
+            PxPosition((sizeDp.toPx() * 2).roundToInt().toFloat(), 0f),
+            childPosition[0]
+        )
+        assertEquals(PxPosition(0f, 0f), childPosition[1])
     }
 
     @Test
@@ -3546,7 +3628,7 @@ class RowColumnTest : LayoutTest() {
             Column(Modifier.fillMaxWidth().rtl) {
                 Container(
                     Modifier.preferredSize(sizeDp).onPositioned { coordinates: LayoutCoordinates ->
-                        childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                         drawLatch.countDown()
                     }
                 ) {
@@ -3555,7 +3637,7 @@ class RowColumnTest : LayoutTest() {
                 Container(
                     Modifier.preferredSize(sizeDp * 2)
                         .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                 ) {
@@ -3568,9 +3650,12 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
         val rootWidth = root.width.px
 
-        assertEquals(PxPosition(rootWidth - size.toPx(), 0.px), childPosition[0])
+        assertEquals(PxPosition((rootWidth - size.toPx()).value, 0f), childPosition[0])
         assertEquals(
-            PxPosition((rootWidth.value - (sizeDp * 2).toPx()).roundToInt().px, size.toPx()),
+            PxPosition(
+                (rootWidth.value - (sizeDp * 2).toPx()).roundToInt().toFloat(),
+                size.toPx().value
+            ),
             childPosition[1]
         )
     }
@@ -3588,7 +3673,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.preferredSize(sizeDp)
                         .gravity(Alignment.End)
                         .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                 ) {
@@ -3598,7 +3683,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.preferredSize(sizeDp * 2)
                         .gravity(Alignment.End)
                         .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                 ) {
@@ -3608,8 +3693,8 @@ class RowColumnTest : LayoutTest() {
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(0.px, size.toPx()), childPosition[1])
+        assertEquals(PxPosition(0f, 0f), childPosition[0])
+        assertEquals(PxPosition(0f, size.toPx().value), childPosition[1])
     }
 
     @Test
@@ -3625,7 +3710,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.preferredSize(sizeDp)
                         .alignWithSiblings { it.width }
                         .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[0] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                 ) {
@@ -3635,7 +3720,7 @@ class RowColumnTest : LayoutTest() {
                     Modifier.preferredSize(sizeDp)
                         .alignWithSiblings { it.width / 2 }
                         .onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition[1] = coordinates.localToGlobal(PxPosition(0f, 0f))
                             drawLatch.countDown()
                         }
                 ) {
@@ -3648,9 +3733,9 @@ class RowColumnTest : LayoutTest() {
         waitForDraw(root)
         val rootWidth = root.width.px
 
-        assertEquals(PxPosition(rootWidth - size.toPx(), 0.px), childPosition[0])
+        assertEquals(PxPosition((rootWidth - size.toPx()).value, 0f), childPosition[0])
         assertEquals(
-            PxPosition((rootWidth - size.toPx() * 1.5f).round().toPx(), size.toPx()),
+            PxPosition((rootWidth - size.toPx() * 1.5f).round().toPx().value, size.toPx().value),
             childPosition[1]
         )
     }

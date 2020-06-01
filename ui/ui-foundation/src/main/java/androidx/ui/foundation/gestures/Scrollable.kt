@@ -34,7 +34,6 @@ import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 
 /**
  * Create [ScrollableState] for [scrollable] with default [FlingConfig] and
@@ -185,8 +184,8 @@ fun Modifier.scrollable(
                 scrollableState.value = scrollableState.value + consumed
                 val fractionConsumed = if (projected == 0f) 0f else consumed / projected
                 return PxPosition(
-                    dragDirection.xProjection(dragDistance.x.value).px * fractionConsumed,
-                    dragDirection.yProjection(dragDistance.y.value).px * fractionConsumed
+                    dragDirection.xProjection(dragDistance.x) * fractionConsumed,
+                    dragDirection.yProjection(dragDistance.y) * fractionConsumed
                 )
             }
 

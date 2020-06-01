@@ -44,8 +44,7 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
-import androidx.ui.unit.round
+import kotlin.math.roundToInt
 
 /**
  * Demonstration for how multiple DragGestureDetectors interact.
@@ -79,22 +78,22 @@ fun NestedScrollingDemo() {
  */
 @Composable
 private fun Draggable(children: @Composable () -> Unit) {
-    val offset = state { 0.px }
-    val maxOffset = state { 0.px }
+    val offset = state { 0f }
+    val maxOffset = state { 0f }
 
     val dragObserver = object : DragObserver {
         override fun onDrag(dragDistance: PxPosition): PxPosition {
             val resultingOffset = offset.value + dragDistance.y
             val dyToConsume =
-                if (resultingOffset > 0.px) {
-                    0.px - offset.value
+                if (resultingOffset > 0f) {
+                    0f - offset.value
                 } else if (resultingOffset < maxOffset.value) {
                     maxOffset.value - offset.value
                 } else {
                     dragDistance.y
                 }
             offset.value = offset.value + dyToConsume
-            return PxPosition(0.px, dyToConsume)
+            return PxPosition(0f, dyToConsume)
         }
     }
 
@@ -114,10 +113,10 @@ private fun Draggable(children: @Composable () -> Unit) {
                 measurables.first()
                     .measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))
 
-            maxOffset.value = constraints.maxHeight.value.px - placeable.height
+            maxOffset.value = (constraints.maxHeight.value - placeable.height.value).toFloat()
 
             layout(constraints.maxWidth, constraints.maxHeight) {
-                placeable.place(0.ipx, offset.value.round())
+                placeable.place(0.ipx, offset.value.roundToInt().ipx)
             }
         })
 }

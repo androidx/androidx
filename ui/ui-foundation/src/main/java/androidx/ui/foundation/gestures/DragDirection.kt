@@ -33,7 +33,7 @@ sealed class DragDirection {
         currentValue: Float
     ) -> Boolean
 
-    internal open fun project(pos: PxPosition) = xProjection(pos.x.value) + yProjection(pos.y.value)
+    internal open fun project(pos: PxPosition) = xProjection(pos.x) + yProjection(pos.y)
 
     /**
      * Horizontal direction of dragging in [draggable] or [scrollable].

@@ -28,6 +28,7 @@ import androidx.ui.util.unpackFloat2
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
@@ -500,15 +501,15 @@ data class PxSize @PublishedApi internal constructor(@PublishedApi internal val 
      * The horizontal aspect of the size in [Px].
      */
     @Stable
-    inline val width: Px
-        get() = unpackFloat1(value).px
+    inline val width: Float
+        get() = unpackFloat1(value)
 
     /**
      * The vertical aspect of the size in [Px].
      */
     @Stable
-    inline val height: Px
-        get() = unpackFloat2(value).px
+    inline val height: Float
+        get() = unpackFloat2(value)
 
     /**
      * Returns a PxSize scaled by multiplying [width] and [height] by [other]
@@ -558,13 +559,13 @@ data class PxSize @PublishedApi internal constructor(@PublishedApi internal val 
          * [PxSize] with zero values.
          */
         @Stable
-        val Zero = PxSize(0.px, 0.px)
+        val Zero = PxSize(0f, 0f)
 
         /**
          * Default value indicating no specified size
          */
         @Stable
-        val UnspecifiedSize = PxSize(Px.Infinity, Px.Infinity)
+        val UnspecifiedSize = PxSize(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
     }
 }
 
@@ -621,16 +622,14 @@ data class PxPosition @PublishedApi internal constructor(@PublishedApi internal 
     /**
      * The horizontal aspect of the position in [Px]
      */
-    @Stable
-    inline val x: Px
-        get() = unpackFloat1(value).px
+    inline val x: Float
+        get() = unpackFloat1(value)
 
     /**
      * The vertical aspect of the position in [Px]
      */
-    @Stable
-    inline val y: Px
-        get() = unpackFloat2(value).px
+    inline val y: Float
+        get() = unpackFloat2(value)
 
     /**
      * Subtract a [PxPosition] from another one.
@@ -651,14 +650,14 @@ data class PxPosition @PublishedApi internal constructor(@PublishedApi internal 
      */
     @Stable
     inline operator fun minus(other: IntPxPosition) =
-        PxPosition(x - other.x, y - other.y)
+        PxPosition(x - other.x.value, y - other.y.value)
 
     /**
      * Add a [IntPxPosition] to this [PxPosition].
      */
     @Stable
     inline operator fun plus(other: IntPxPosition) =
-        PxPosition(x + other.x, y + other.y)
+        PxPosition(x + other.x.value, y + other.y.value)
 
     /**
      * Returns a new PxPosition representing the negation of this point.
@@ -671,39 +670,33 @@ data class PxPosition @PublishedApi internal constructor(@PublishedApi internal 
 
     companion object {
         @Stable
-        val Origin = PxPosition(0.px, 0.px)
+        val Origin = PxPosition(0.0f, 0.0f)
     }
 }
 
 /**
- * Constructs a [PxPosition] from [x] and [y] position float values.
+ * Constructs a [PxPosition] from [x] and [y] position pixel values.
  */
 @Stable
 inline fun PxPosition(x: Float, y: Float): PxPosition = PxPosition(packFloats(x, y))
 
 /**
- * Constructs a [PxPosition] from [x] and [y] position [Px] values.
- */
-@Stable
-inline fun PxPosition(x: Px, y: Px): PxPosition = PxPosition(packFloats(x.value, y.value))
-
-/**
  * The magnitude of the offset represented by this [PxPosition].
  */
 @Stable
-fun PxPosition.getDistance(): Px = Px(sqrt(x.value * x.value + y.value * y.value))
+fun PxPosition.getDistance(): Px = Px(sqrt(x * x + y * y))
 
 /**
  * Convert a [PxPosition] to a [Offset].
  */
 @Stable
-inline fun PxPosition.toOffset(): Offset = Offset(x.value, y.value)
+inline fun PxPosition.toOffset(): Offset = Offset(x, y)
 
 /**
  * Round a [PxPosition] down to the nearest [Int] coordinates.
  */
 @Stable
-inline fun PxPosition.round(): IntPxPosition = IntPxPosition(x.round(), y.round())
+inline fun PxPosition.round(): IntPxPosition = IntPxPosition(x.roundToInt().ipx, y.roundToInt().ipx)
 
 /**
  * Linearly interpolate between two [PxPosition]s.
@@ -721,14 +714,14 @@ fun lerp(start: PxPosition, stop: PxPosition, fraction: Float): PxPosition =
     PxPosition(lerp(start.x, stop.x, fraction), lerp(start.y, stop.y, fraction))
 
 /**
- * A four dimensional bounds using [Px] for units
+ * A four dimensional bounds using pixels for units
  */
 @Immutable
 data class PxBounds(
-    val left: Px,
-    val top: Px,
-    val right: Px,
-    val bottom: Px
+    val left: Float,
+    val top: Float,
+    val right: Float,
+    val bottom: Float
 )
 
 @Stable
@@ -744,13 +737,13 @@ inline fun PxBounds(topLeft: PxPosition, size: PxSize) =
  * A width of this PxBounds in [Px].
  */
 @Stable
-inline val PxBounds.width: Px get() = right - left
+inline val PxBounds.width: Float get() = right - left
 
 /**
  * A height of this PxBounds in [Px].
  */
 @Stable
-inline val PxBounds.height: Px get() = bottom - top
+inline val PxBounds.height: Float get() = bottom - top
 
 /**
  * Returns the [PxPosition] of the center of the [PxBounds].
@@ -774,7 +767,7 @@ fun PxBounds.toSize(): PxSize {
  */
 @Stable
 fun PxSize.toBounds(): PxBounds {
-    return PxBounds(0.px, 0.px, width, height)
+    return PxBounds(0f, 0f, width, height)
 }
 
 /**
@@ -783,10 +776,10 @@ fun PxSize.toBounds(): PxBounds {
 @Stable
 fun PxBounds.toRect(): Rect {
     return Rect(
-        left.value,
-        top.value,
-        right.value,
-        bottom.value
+        left,
+        top,
+        right,
+        bottom
     )
 }
 
@@ -795,5 +788,5 @@ fun PxBounds.toRect(): Rect {
  */
 @Stable
 fun PxSize.toRect(): Rect {
-    return Rect(0f, 0f, width.value, height.value)
+    return Rect(0f, 0f, width, height)
 }

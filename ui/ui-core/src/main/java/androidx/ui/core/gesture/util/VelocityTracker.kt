@@ -21,7 +21,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.Uptime
 import androidx.ui.unit.Velocity
 import androidx.ui.unit.inMilliseconds
-import androidx.ui.unit.px
 import kotlin.math.absoluteValue
 
 private const val AssumePointerMoveStoppedMilliseconds: Int = 40
@@ -112,8 +111,8 @@ class VelocityTracker {
 
             oldestSample = sample
             val position: PxPosition = sample.point
-            x.add(position.x.value)
-            y.add(position.y.value)
+            x.add(position.x)
+            y.add(position.y)
             time.add(-age)
             index = (if (index == 0) HistorySize else index) - 1
 
@@ -133,8 +132,8 @@ class VelocityTracker {
                 return VelocityEstimate(
                     pixelsPerSecond = PxPosition(
                         // Convert from pixels/ms to pixels/s
-                        (xSlope * 1000).px,
-                        (ySlope * 1000).px
+                        (xSlope * 1000),
+                        (ySlope * 1000)
                     ),
                     confidence = xFit.confidence * yFit.confidence,
                     duration = newestSample.time - oldestSample.time,

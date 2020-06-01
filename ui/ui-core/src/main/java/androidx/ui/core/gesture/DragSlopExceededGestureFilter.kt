@@ -155,7 +155,7 @@ private fun getAveragePositionChange(changes: List<PointerInputChange>): Offset 
     val sizeAsFloat = changes.size.toFloat()
     // TODO(b/148980115): Once PxPosition is removed, sum will be an Offset, and this line can
     //  just be straight division.
-    return Offset(sum.x.value / sizeAsFloat, sum.y.value / sizeAsFloat)
+    return Offset(sum.x / sizeAsFloat, sum.y / sizeAsFloat)
 }
 
 /**

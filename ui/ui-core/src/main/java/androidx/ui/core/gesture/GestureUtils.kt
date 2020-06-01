@@ -35,10 +35,10 @@ import androidx.ui.util.fastAny
 fun List<PointerInputChange>.anyPointersInBounds(bounds: IntPxSize) =
     fastAny {
         it.current.down &&
-                it.current.position!!.x.value >= 0 &&
-                it.current.position.x < bounds.width &&
-                it.current.position.y.value >= 0 &&
-                it.current.position.y < bounds.height
+                it.current.position!!.x >= 0 &&
+                it.current.position.x < bounds.width.value &&
+                it.current.position.y >= 0 &&
+                it.current.position.y < bounds.height.value
     }
 
 internal class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :

@@ -35,7 +35,6 @@ import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.never
@@ -211,7 +210,7 @@ class AndroidPointerInputTest {
             // we expect it to first remeasure and only then process
             androidComposeView.dispatchTouchEvent(motionEvent)
 
-            assertThat(consumedDownPosition).isEqualTo(PxPosition(15.px, 15.px))
+            assertThat(consumedDownPosition).isEqualTo(PxPosition(15f, 15f))
         }
     }
 
@@ -294,7 +293,10 @@ private class ConsumeMovementGestureFilter(val consumeMovement: Boolean) : Point
         bounds: IntPxSize
     ) =
         if (consumeMovement) {
-            changes.map { it.consumePositionChange(it.positionChange().x, it.positionChange().y) }
+            changes.map { it.consumePositionChange(
+                it.positionChange().x,
+                it.positionChange().y)
+            }
         } else {
             changes
         }
