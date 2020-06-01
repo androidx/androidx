@@ -23,7 +23,9 @@ import androidx.ui.core.Ref
 import androidx.ui.core.tag
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInParent
 import androidx.ui.foundation.Box
+import androidx.ui.layout.ConstrainScope
 import androidx.ui.layout.ConstraintLayout
 import androidx.ui.layout.ConstraintSet2
 import androidx.ui.layout.Dimension
@@ -34,6 +36,7 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.rtl
+import androidx.ui.layout.size
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
@@ -41,6 +44,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,7 +69,7 @@ class ConstraintLayoutTest : LayoutTest() {
                 modifier = Modifier.wrapContentSize(Alignment.TopStart).fillMaxWidth()
             ) {
                 val (aspectRatioBox, divider) = createRefs()
-                val guideline = createGuidelineFromLeft(0.5f)
+                val guideline = createGuidelineFromAbsoluteLeft(0.5f)
 
                 Box(Modifier
                     .constrainAs(aspectRatioBox) {
@@ -123,7 +127,7 @@ class ConstraintLayoutTest : LayoutTest() {
                 modifier = Modifier.wrapContentSize(Alignment.TopStart).fillMaxWidth()
             ) {
                 val (aspectRatioBox, divider) = createRefs()
-                val guideline = createGuidelineFromLeft(0.5f)
+                val guideline = createGuidelineFromAbsoluteLeft(0.5f)
 
                 Box(Modifier
                     .constrainAs(aspectRatioBox) {
@@ -182,7 +186,7 @@ class ConstraintLayoutTest : LayoutTest() {
                 modifier = Modifier.wrapContentSize(Alignment.TopStart)
             ) {
                 val (aspectRatioBox, divider) = createRefs()
-                val guideline = createGuidelineFromLeft(0.5f)
+                val guideline = createGuidelineFromAbsoluteLeft(0.5f)
 
                 Box(Modifier
                     .constrainAs(aspectRatioBox) {
@@ -246,7 +250,7 @@ class ConstraintLayoutTest : LayoutTest() {
                 }
             ) {
                 val (aspectRatioBox, divider) = createRefs()
-                val guideline = createGuidelineFromLeft(0.5f)
+                val guideline = createGuidelineFromAbsoluteLeft(0.5f)
 
                 Box(Modifier
                     .constrainAs(aspectRatioBox) {
@@ -315,7 +319,7 @@ class ConstraintLayoutTest : LayoutTest() {
                         position[0].value = it.globalPosition
                     }
                 )
-                val half = createGuidelineFromLeft(percent = 0.5f)
+                val half = createGuidelineFromAbsoluteLeft(percent = 0.5f)
                 Box(Modifier
                     .constrainAs(box1) {
                         start.linkTo(half, margin = offset.toDp())
@@ -376,7 +380,7 @@ class ConstraintLayoutTest : LayoutTest() {
                         centerTo(parent)
                     }
 
-                    val half = createGuidelineFromLeft(percent = 0.5f)
+                    val half = createGuidelineFromAbsoluteLeft(percent = 0.5f)
                     constrain(box1) {
                         start.linkTo(half, margin = offset.toDp())
                         bottom.linkTo(box0.top)
@@ -437,7 +441,7 @@ class ConstraintLayoutTest : LayoutTest() {
                         position[0].value = it.globalPosition
                     }
                 )
-                val half = createGuidelineFromLeft(percent = 0.5f)
+                val half = createGuidelineFromAbsoluteLeft(percent = 0.5f)
                 Box(Modifier
                     .constrainAs(box1) {
                         start.linkTo(half, margin = offset.toDp())
@@ -480,6 +484,330 @@ class ConstraintLayoutTest : LayoutTest() {
                 PxPosition(displayWidth - offset - boxSize, displayHeight - boxSize - offset),
                 position[2].value
             )
+        }
+    }
+
+    @Test
+    fun testConstraintLayout_helpers_ltr() = with(density) {
+        val size = 200.ipx.toDp()
+        val offset = 50.ipx.toDp()
+
+        val position = Array(8) { 0f }
+        composeTestRule.setContent {
+            ConstraintLayout(Modifier.size(size)) {
+                val guidelines = arrayOf(
+                    createGuidelineFromStart(offset),
+                    createGuidelineFromAbsoluteLeft(offset),
+                    createGuidelineFromEnd(offset),
+                    createGuidelineFromAbsoluteRight(offset),
+                    createGuidelineFromStart(0.25f),
+                    createGuidelineFromAbsoluteLeft(0.25f),
+                    createGuidelineFromEnd(0.25f),
+                    createGuidelineFromAbsoluteRight(0.25f)
+                )
+
+                guidelines.forEachIndexed { index, guideline ->
+                    val ref = createRef()
+                    Box(Modifier.size(1.dp)
+                        .constrainAs(ref) {
+                            absoluteLeft.linkTo(guideline)
+                        }.onPositioned {
+                            position[index] = it.positionInParent.x
+                        }
+                    )
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            Assert.assertEquals(50f, position[0])
+            Assert.assertEquals(50f, position[1])
+            Assert.assertEquals(150f, position[2])
+            Assert.assertEquals(150f, position[3])
+            Assert.assertEquals(50f, position[4])
+            Assert.assertEquals(50f, position[5])
+            Assert.assertEquals(150f, position[6])
+            Assert.assertEquals(150f, position[7])
+        }
+    }
+
+    @Test
+    fun testConstraintLayout_helpers_rtl() = with(density) {
+        val size = 200.ipx.toDp()
+        val offset = 50.ipx.toDp()
+
+        val position = Array(8) { 0f }
+        composeTestRule.setContent {
+            ConstraintLayout(Modifier.size(size).rtl) {
+                val guidelines = arrayOf(
+                    createGuidelineFromStart(offset),
+                    createGuidelineFromAbsoluteLeft(offset),
+                    createGuidelineFromEnd(offset),
+                    createGuidelineFromAbsoluteRight(offset),
+                    createGuidelineFromStart(0.25f),
+                    createGuidelineFromAbsoluteLeft(0.25f),
+                    createGuidelineFromEnd(0.25f),
+                    createGuidelineFromAbsoluteRight(0.25f)
+                )
+
+                guidelines.forEachIndexed { index, guideline ->
+                    val ref = createRef()
+                    Box(Modifier.size(1.dp)
+                        .constrainAs(ref) {
+                            absoluteLeft.linkTo(guideline)
+                        }.onPositioned {
+                            position[index] = it.positionInParent.x
+                        }
+                    )
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            Assert.assertEquals(150f, position[0])
+            Assert.assertEquals(50f, position[1])
+            Assert.assertEquals(50f, position[2])
+            Assert.assertEquals(150f, position[3])
+            Assert.assertEquals(150f, position[4])
+            Assert.assertEquals(50f, position[5])
+            Assert.assertEquals(50f, position[6])
+            Assert.assertEquals(150f, position[7])
+        }
+    }
+
+    @Test
+    fun testConstraintLayout_barriers_ltr() = with(density) {
+        val size = 200.ipx.toDp()
+        val offset = 50.ipx.toDp()
+
+        val position = Array(4) { 0f }
+        composeTestRule.setContent {
+            ConstraintLayout(Modifier.size(size)) {
+                val (box1, box2) = createRefs()
+                val guideline1 = createGuidelineFromAbsoluteLeft(offset)
+                val guideline2 = createGuidelineFromAbsoluteRight(offset)
+                Box(Modifier.size(1.ipx.toDp())
+                    .constrainAs(box1) {
+                        absoluteLeft.linkTo(guideline1)
+                    }
+                )
+                Box(Modifier.size(1.ipx.toDp())
+                    .constrainAs(box2) {
+                        absoluteLeft.linkTo(guideline2)
+                    }
+                )
+
+                val barriers = arrayOf(
+                    createStartBarrier(box1, box2),
+                    createAbsoluteLeftBarrier(box1, box2),
+                    createEndBarrier(box1, box2),
+                    createAbsoluteRightBarrier(box1, box2)
+                )
+
+                barriers.forEachIndexed { index, barrier ->
+                    val ref = createRef()
+                    Box(Modifier.size(1.dp)
+                        .constrainAs(ref) {
+                            absoluteLeft.linkTo(barrier)
+                        }.onPositioned {
+                            position[index] = it.positionInParent.x
+                        }
+                    )
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            Assert.assertEquals(50f, position[0])
+            Assert.assertEquals(50f, position[1])
+            Assert.assertEquals(151f, position[2])
+            Assert.assertEquals(151f, position[3])
+        }
+    }
+
+    @Test
+    fun testConstraintLayout_barriers_rtl() = with(density) {
+        val size = 200.ipx.toDp()
+        val offset = 50.ipx.toDp()
+
+        val position = Array(4) { 0f }
+        composeTestRule.setContent {
+            ConstraintLayout(Modifier.size(size).rtl) {
+                val (box1, box2) = createRefs()
+                val guideline1 = createGuidelineFromAbsoluteLeft(offset)
+                val guideline2 = createGuidelineFromAbsoluteRight(offset)
+                Box(Modifier.size(1.ipx.toDp())
+                    .constrainAs(box1) {
+                        absoluteLeft.linkTo(guideline1)
+                    }
+                )
+                Box(Modifier.size(1.ipx.toDp())
+                    .constrainAs(box2) {
+                        absoluteLeft.linkTo(guideline2)
+                    }
+                )
+
+                val barriers = arrayOf(
+                    createStartBarrier(box1, box2),
+                    createAbsoluteLeftBarrier(box1, box2),
+                    createEndBarrier(box1, box2),
+                    createAbsoluteRightBarrier(box1, box2)
+                )
+
+                barriers.forEachIndexed { index, barrier ->
+                    val ref = createRef()
+                    Box(Modifier.size(1.dp)
+                        .constrainAs(ref) {
+                            absoluteLeft.linkTo(barrier)
+                        }.onPositioned {
+                            position[index] = it.positionInParent.x
+                        }
+                    )
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            Assert.assertEquals(151f, position[0])
+            Assert.assertEquals(50f, position[1])
+            Assert.assertEquals(50f, position[2])
+            Assert.assertEquals(151f, position[3])
+        }
+    }
+
+    @Test
+    fun testConstraintLayout_anchors_ltr() = with(density) {
+        val size = 200.ipx.toDp()
+        val offset = 50.ipx.toDp()
+
+        val position = Array(16) { 0f }
+        composeTestRule.setContent {
+            ConstraintLayout(Modifier.size(size)) {
+                val box = createRef()
+                val guideline = createGuidelineFromAbsoluteLeft(offset)
+                Box(Modifier.size(1.ipx.toDp())
+                    .constrainAs(box) {
+                        absoluteLeft.linkTo(guideline)
+                    }
+                )
+
+                val anchors = listOf<ConstrainScope.() -> Unit>(
+                    { start.linkTo(box.start) },
+                    { absoluteLeft.linkTo(box.start) },
+                    { start.linkTo(box.absoluteLeft) },
+                    { absoluteLeft.linkTo(box.absoluteLeft) },
+                    { end.linkTo(box.start) },
+                    { absoluteRight.linkTo(box.start) },
+                    { end.linkTo(box.absoluteLeft) },
+                    { absoluteRight.linkTo(box.absoluteLeft) },
+                    { start.linkTo(box.end) },
+                    { absoluteLeft.linkTo(box.end) },
+                    { start.linkTo(box.absoluteRight) },
+                    { absoluteLeft.linkTo(box.absoluteRight) },
+                    { end.linkTo(box.end) },
+                    { absoluteRight.linkTo(box.end) },
+                    { end.linkTo(box.absoluteRight) },
+                    { absoluteRight.linkTo(box.absoluteRight) }
+                )
+
+                anchors.forEachIndexed { index, anchor ->
+                    val ref = createRef()
+                    Box(Modifier.size(1.ipx.toDp())
+                        .constrainAs(ref) {
+                            anchor()
+                        }.onPositioned {
+                            position[index] = it.positionInParent.x
+                        }
+                    )
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            Assert.assertEquals(50f, position[0])
+            Assert.assertEquals(50f, position[1])
+            Assert.assertEquals(50f, position[2])
+            Assert.assertEquals(50f, position[3])
+            Assert.assertEquals(49f, position[4])
+            Assert.assertEquals(49f, position[5])
+            Assert.assertEquals(49f, position[6])
+            Assert.assertEquals(49f, position[7])
+            Assert.assertEquals(51f, position[8])
+            Assert.assertEquals(51f, position[9])
+            Assert.assertEquals(51f, position[10])
+            Assert.assertEquals(51f, position[11])
+            Assert.assertEquals(50f, position[12])
+            Assert.assertEquals(50f, position[13])
+            Assert.assertEquals(50f, position[14])
+            Assert.assertEquals(50f, position[15])
+        }
+    }
+
+    @Test
+    fun testConstraintLayout_anchors_rtl() = with(density) {
+        val size = 200.ipx.toDp()
+        val offset = 50.ipx.toDp()
+
+        val position = Array(16) { 0f }
+        composeTestRule.setContent {
+            ConstraintLayout(Modifier.size(size).rtl) {
+                val box = createRef()
+                val guideline = createGuidelineFromAbsoluteLeft(offset)
+                Box(Modifier.size(1.ipx.toDp())
+                    .constrainAs(box) {
+                        absoluteLeft.linkTo(guideline)
+                    }
+                )
+
+                val anchors = listOf<ConstrainScope.() -> Unit>(
+                    { start.linkTo(box.start) },
+                    { absoluteLeft.linkTo(box.start) },
+                    { start.linkTo(box.absoluteLeft) },
+                    { absoluteLeft.linkTo(box.absoluteLeft) },
+                    { end.linkTo(box.start) },
+                    { absoluteRight.linkTo(box.start) },
+                    { end.linkTo(box.absoluteLeft) },
+                    { absoluteRight.linkTo(box.absoluteLeft) },
+                    { start.linkTo(box.end) },
+                    { absoluteLeft.linkTo(box.end) },
+                    { start.linkTo(box.absoluteRight) },
+                    { absoluteLeft.linkTo(box.absoluteRight) },
+                    { end.linkTo(box.end) },
+                    { absoluteRight.linkTo(box.end) },
+                    { end.linkTo(box.absoluteRight) },
+                    { absoluteRight.linkTo(box.absoluteRight) }
+                )
+
+                anchors.forEachIndexed { index, anchor ->
+                    val ref = createRef()
+                    Box(Modifier.size(1.ipx.toDp())
+                        .constrainAs(ref) {
+                            anchor()
+                        }.onPositioned {
+                            position[index] = it.positionInParent.x
+                        }
+                    )
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            Assert.assertEquals(50f, position[0])
+            Assert.assertEquals(51f, position[1])
+            Assert.assertEquals(49f, position[2])
+            Assert.assertEquals(50f, position[3])
+            Assert.assertEquals(51f, position[4])
+            Assert.assertEquals(50f, position[5])
+            Assert.assertEquals(50f, position[6])
+            Assert.assertEquals(49f, position[7])
+            Assert.assertEquals(49f, position[8])
+            Assert.assertEquals(50f, position[9])
+            Assert.assertEquals(50f, position[10])
+            Assert.assertEquals(51f, position[11])
+            Assert.assertEquals(50f, position[12])
+            Assert.assertEquals(49f, position[13])
+            Assert.assertEquals(51f, position[14])
+            Assert.assertEquals(50f, position[15])
         }
     }
 }
