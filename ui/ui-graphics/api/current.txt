@@ -66,12 +66,6 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.Path asComposePath(android.graphics.Path);
   }
 
-  public final class AndroidPictureKt {
-    method public static android.graphics.Canvas beginNativeRecording(android.graphics.Picture, int width, int height);
-    method public static int getNativeHeight(android.graphics.Picture);
-    method public static int getNativeWidth(android.graphics.Picture);
-  }
-
   public final class AndroidShaderKt {
   }
 
@@ -146,7 +140,6 @@ package androidx.ui.graphics {
     method public default void drawOval(androidx.ui.geometry.Rect rect, androidx.ui.graphics.Paint paint);
     method public void drawOval(float left, float top, float right, float bottom, androidx.ui.graphics.Paint paint);
     method public void drawPath(androidx.ui.graphics.Path path, androidx.ui.graphics.Paint paint);
-    method public void drawPicture(androidx.ui.graphics.Picture picture);
     method public void drawPoints(androidx.ui.graphics.PointMode pointMode, java.util.List<androidx.ui.geometry.Offset> points, androidx.ui.graphics.Paint paint);
     method public void drawRawPoints(androidx.ui.graphics.PointMode pointMode, float[] points, androidx.ui.graphics.Paint paint);
     method public default void drawRect(androidx.ui.geometry.Rect rect, androidx.ui.graphics.Paint paint);
@@ -173,7 +166,6 @@ package androidx.ui.graphics {
 
   public final class CanvasKt {
     method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.ImageAsset image);
-    method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.PictureRecorder recorder, androidx.ui.geometry.Rect cullRect = Rect.largest);
     method public static void rotate(androidx.ui.graphics.Canvas, float degrees, float pivotX, float pivotY);
     method public static void rotateRad(androidx.ui.graphics.Canvas, float radians, float pivotX = 0.0f, float pivotY = 0.0f);
     method public static void scale(androidx.ui.graphics.Canvas, float sx, float sy = sx, float pivotX, float pivotY);
@@ -434,20 +426,6 @@ package androidx.ui.graphics {
     enum_constant public static final androidx.ui.graphics.PathOperation reverseDifference;
     enum_constant public static final androidx.ui.graphics.PathOperation union;
     enum_constant public static final androidx.ui.graphics.PathOperation xor;
-  }
-
-  public final class Picture {
-    ctor public Picture(android.graphics.Picture nativePicture);
-    method public androidx.ui.geometry.Rect cullRect();
-    method public void dispose();
-    method public android.graphics.Picture getNativePicture();
-  }
-
-  public final class PictureRecorder {
-    ctor public PictureRecorder();
-    method public androidx.ui.graphics.Picture endRecording();
-    method public boolean isRecording();
-    property public final boolean isRecording;
   }
 
   public final class PixelMap {

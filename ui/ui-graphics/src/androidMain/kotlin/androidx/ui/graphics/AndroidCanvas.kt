@@ -35,22 +35,6 @@ internal actual fun ActualCanvas(image: ImageAsset): Canvas =
         internalCanvas = android.graphics.Canvas(image.asAndroidBitmap())
     }
 
-/**
- * Create a new Canvas instance that targets its drawing commands to the provided
- * [PictureRecorder] in order to be replayed later
- */
-internal actual fun ActualCanvas(
-    recorder: PictureRecorder,
-    cullRect: Rect
-): Canvas {
-    return AndroidCanvas().apply {
-        internalCanvas = recorder.frameworkPicture.beginNativeRecording(
-            cullRect.width.toInt(),
-            cullRect.height.toInt()
-        )
-    }
-}
-
 fun Canvas(c: android.graphics.Canvas): Canvas =
     AndroidCanvas().apply { internalCanvas = c }
 
@@ -323,13 +307,6 @@ private val EmptyCanvas = android.graphics.Canvas()
             },
             paint.asFrameworkPaint()
         )
-    }
-
-    /**
-     * @see Canvas.drawPicture
-     */
-    override fun drawPicture(picture: Picture) {
-        internalCanvas.drawPicture(picture.nativePicture)
     }
 
     /**
