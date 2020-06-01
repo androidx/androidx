@@ -15,7 +15,6 @@
  */
 package androidx.transition
 
-import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -416,7 +415,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
 
-        val startGreenBounds = getBoundsOnScreen(startGreen)
+        val startGreenBounds = startGreen.boundsOnScreen
 
         val mapOut = object : SharedElementCallback() {
             override fun onMapSharedElements(
@@ -444,7 +443,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         fragment2.waitForTransition()
 
         val endBlue = activityRule.findBlue()
-        val endBlueBounds = getBoundsOnScreen(endBlue)
+        val endBlueBounds = endBlue.boundsOnScreen
 
         fragment2.sharedElementEnter.verifyAndClearTransition {
             epicenter = startGreenBounds
@@ -490,7 +489,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val fragment2 = TransitionFragment(R.layout.fragment_scene2)
 
         val startBlue = activityRule.findBlue()
-        val startBlueBounds = getBoundsOnScreen(startBlue)
+        val startBlueBounds = startBlue.boundsOnScreen
 
         val mapIn = object : SharedElementCallback() {
             override fun onMapSharedElements(
@@ -521,7 +520,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         val endGreen = activityRule.findGreen()
         val endBlue = activityRule.findBlue()
-        val endGreenBounds = getBoundsOnScreen(endGreen)
+        val endGreenBounds = endGreen.boundsOnScreen
 
         fragment2.sharedElementEnter.verifyAndClearTransition {
             epicenter = startBlueBounds
@@ -566,7 +565,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
-        val startBlueBounds = getBoundsOnScreen(startBlue)
+        val startBlueBounds = startBlue.boundsOnScreen
 
         fragmentManager.beginTransaction()
             .addSharedElement(startBlue, "blueSquare")
@@ -583,7 +582,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         val endBlue = activityRule.findBlue()
         val endGreen = activityRule.findGreen()
-        val endBlueBounds = getBoundsOnScreen(endBlue)
+        val endBlueBounds = endBlue.boundsOnScreen
 
         fragment2.sharedElementEnterTransition1.verifyAndClearTransition {
             epicenter = startBlueBounds
@@ -773,7 +772,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
-        val startBlueBounds = getBoundsOnScreen(startBlue)
+        val startBlueBounds = startBlue.boundsOnScreen
 
         fragmentManager.beginTransaction()
             .addSharedElement(startBlue, "fooSquare")
@@ -885,7 +884,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
-        val startBlueBounds = getBoundsOnScreen(startBlue)
+        val startBlueBounds = startBlue.boundsOnScreen
 
         val fragment2 = TransitionFragment(R.layout.fragment_scene2)
 
@@ -900,7 +899,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         fragment2.waitForTransition()
         val midGreen = activityRule.findGreen()
         val midBlue = activityRule.findBlue()
-        val midBlueBounds = getBoundsOnScreen(midBlue)
+        val midBlueBounds = midBlue.boundsOnScreen
         fragment1.exitTransition.verifyAndClearTransition {
             epicenter = startBlueBounds
             exitingViews += startGreen
@@ -966,7 +965,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
-        val startGreenBounds = getBoundsOnScreen(startGreen)
+        val startGreenBounds = startGreen.boundsOnScreen
 
         val fragment2 = TransitionFragment(R.layout.fragment_scene2)
 
@@ -1015,7 +1014,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
-        val startGreenBounds = getBoundsOnScreen(startGreen)
+        val startGreenBounds = startGreen.boundsOnScreen
 
         val fragment2 = TransitionFragment(R.layout.fragment_scene3)
 
@@ -1031,7 +1030,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val midGreen = activityRule.findGreen()
         val midBlue = activityRule.findBlue()
         val midRed = activityRule.findRed()
-        val midGreenBounds = getBoundsOnScreen(midGreen)
+        val midGreenBounds = midGreen.boundsOnScreen
         if (reorderingAllowed) {
             fragment2.sharedElementEnter.verifyAndClearTransition {
                 epicenter = startGreenBounds
@@ -1095,7 +1094,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val startGreen = activityRule.findGreen()
         val startRed = activityRule.findRed()
 
-        val startBlueRect = getBoundsOnScreen(startBlue)
+        val startBlueRect = startBlue.boundsOnScreen
 
         fragmentManager.beginTransaction()
             .setReorderingAllowed(reorderingAllowed)
@@ -1111,7 +1110,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val endGreen = activityRule.findGreen()
         val endBlue = activityRule.findBlue()
         val endRed = activityRule.findRed()
-        val endBlueRect = getBoundsOnScreen(endBlue)
+        val endBlueRect = endBlue.boundsOnScreen
 
         from.exitTransition.verifyAndClearTransition {
             epicenter = startBlueRect
@@ -1145,13 +1144,13 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         val fromExit1 = findViewById(from1, R.id.greenSquare)
         val fromShared1 = findViewById(from1, R.id.blueSquare)
-        val fromSharedRect1 = getBoundsOnScreen(fromShared1)
+        val fromSharedRect1 = fromShared1.boundsOnScreen
 
         val fromExitId2 = if (swapSource) R.id.blueSquare else R.id.greenSquare
         val fromSharedId2 = if (swapSource) R.id.greenSquare else R.id.blueSquare
         val fromExit2 = findViewById(from2, fromExitId2)
         val fromShared2 = findViewById(from2, fromSharedId2)
-        val fromSharedRect2 = getBoundsOnScreen(fromShared2)
+        val fromSharedRect2 = fromShared2.boundsOnScreen
 
         val sharedElementName = if (swapSource) "blueSquare" else "greenSquare"
 
@@ -1180,11 +1179,11 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         val toEnter1 = findViewById(to1, R.id.greenSquare)
         val toShared1 = findViewById(to1, R.id.blueSquare)
-        val toSharedRect1 = getBoundsOnScreen(toShared1)
+        val toSharedRect1 = toShared1.boundsOnScreen
 
         val toEnter2 = findViewById(to2, fromSharedId2)
         val toShared2 = findViewById(to2, fromExitId2)
-        val toSharedRect2 = getBoundsOnScreen(toShared2)
+        val toSharedRect2 = toShared2.boundsOnScreen
 
         from1.exitTransition.verifyAndClearTransition {
             epicenter = fromSharedRect1
@@ -1281,7 +1280,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
         val startRed = activityRule.findRed()
-        val startSharedRect = getBoundsOnScreen(startBlue)
+        val startSharedRect = startBlue.boundsOnScreen
 
         instrumentation.runOnMainSync {
             for (i in 0 until numPops) {
@@ -1295,7 +1294,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val endGreen = activityRule.findGreen()
         val endBlue = activityRule.findBlue()
         val endRed = activityRule.findRed()
-        val endSharedRect = getBoundsOnScreen(endBlue)
+        val endSharedRect = endBlue.boundsOnScreen
 
         from.returnTransition.verifyAndClearTransition {
             epicenter = startSharedRect
@@ -1382,12 +1381,6 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         @Parameterized.Parameters
         fun data(): Array<Boolean> {
             return arrayOf(false, true)
-        }
-
-        private fun getBoundsOnScreen(view: View): Rect {
-            val loc = IntArray(2)
-            view.getLocationOnScreen(loc)
-            return Rect(loc[0], loc[1], loc[0] + view.width, loc[1] + view.height)
         }
     }
 }
