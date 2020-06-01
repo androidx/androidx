@@ -24,11 +24,13 @@ import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.testapp.doubleTransitionBug.DoubleTransitionBugActivity
+import androidx.fragment.testapp.kittenfragmenttransitions.KittenTransitionMainActivity
 
 class TransitionTestsFragment : Fragment(R.layout.transition_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         addButton("Double Transition Bug", DoubleTransitionBugActivity::class.java)
+        addButton("Kitten Transition", KittenTransitionMainActivity::class.java)
     }
 }
 
