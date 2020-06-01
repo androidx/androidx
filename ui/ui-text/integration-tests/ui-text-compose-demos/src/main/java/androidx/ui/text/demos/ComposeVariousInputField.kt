@@ -44,7 +44,7 @@ import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
 import androidx.ui.text.toUpperCase
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
+import kotlin.math.roundToInt
 
 /**
  * The offset translator used for credit card input field.
@@ -339,8 +339,8 @@ private fun CustomCursorTextField(cursor: @Composable () -> Unit) {
                     )
                 // Place the custom cursor aligned with center of the original cursor.
                 val cursorX = (cursorRect.left + cursorRect.right) / 2 -
-                        (cursorPlacable.width.value / 2)
-                cursorPlacable.place(cursorX.px, cursorRect.top.px)
+                            (cursorPlacable.width.value / 2)
+                cursorPlacable.place(cursorX.roundToInt().ipx, cursorRect.top.roundToInt().ipx)
             }
         }
     }

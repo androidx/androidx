@@ -17,6 +17,7 @@
 package androidx.ui.material
 
 import androidx.animation.FastOutSlowInEasing
+import androidx.animation.FloatPropKey
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
@@ -27,7 +28,6 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
@@ -61,7 +61,6 @@ import androidx.ui.text.LastBaseline
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.Px
 import androidx.ui.unit.coerceAtLeast
 import androidx.ui.unit.dp
 import androidx.ui.unit.max
@@ -366,7 +365,7 @@ private class ScrollableTabData(
 }
 
 object TabRow {
-    private val IndicatorOffset = PxPropKey()
+    private val IndicatorOffset = FloatPropKey()
 
     /**
      * Data class that contains information about a tab's position on screen
@@ -424,7 +423,7 @@ object TabRow {
     internal fun IndicatorTransition(
         tabPositions: List<TabPosition>,
         selectedIndex: Int,
-        indicator: @Composable (indicatorOffset: Px) -> Unit
+        indicator: @Composable (indicatorOffset: Float) -> Unit
     ) {
         val transitionDefinition = remember(tabPositions) {
             transitionDefinition {
@@ -433,13 +432,13 @@ object TabRow {
                 // When this is supported by transitionDefinition, we should fix this to just set a
                 // default or similar.
                 state(selectedIndex) {
-                    this[IndicatorOffset] = tabPositions[selectedIndex].left.toPx()
+                    this[IndicatorOffset] = tabPositions[selectedIndex].left.toPx().value
                 }
 
                 tabPositions.forEachIndexed { index, position ->
                     if (index != selectedIndex) {
                         state(index) {
-                            this[IndicatorOffset] = position.left.toPx()
+                            this[IndicatorOffset] = position.left.toPx().value
                         }
                     }
                 }

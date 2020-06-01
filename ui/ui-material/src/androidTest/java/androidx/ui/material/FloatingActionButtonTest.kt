@@ -296,12 +296,12 @@ class FloatingActionButtonTest {
                 assertThat(iconBounds.width).isEqualTo(10.dp.toIntPx().toPx())
                 assertThat(iconBounds.height).isEqualTo(10.dp.toIntPx().toPx())
 
-                assertWithinOnePixel(buttonBounds.center().y, iconBounds.center().y)
-                assertWithinOnePixel(buttonBounds.center().y, textBounds.center().y)
+                assertWithinOnePixel(buttonBounds.center().y.value, iconBounds.center().y.value)
+                assertWithinOnePixel(buttonBounds.center().y.value, textBounds.center().y.value)
                 val halfPadding = 6.dp.toIntPx().toPx()
                 assertWithinOnePixel(
-                    iconBounds.center().x + iconBounds.width / 2 + halfPadding,
-                    textBounds.center().x - textBounds.width / 2 - halfPadding
+                    (iconBounds.center().x + iconBounds.width / 2 + halfPadding).value,
+                    (textBounds.center().x - textBounds.width / 2 - halfPadding).value
                 )
             }
         }
