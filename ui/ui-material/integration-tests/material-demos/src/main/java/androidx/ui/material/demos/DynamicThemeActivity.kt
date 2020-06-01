@@ -90,13 +90,14 @@ private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalett
             round((scrollerPosition.value / scrollerPosition.maxPosition) * 100) / 100
         remember(fraction) { scrollFraction.value = fraction }
         Scaffold(
-            topAppBar = { TopAppBar({ Text("Scroll down!") }) },
-            bottomAppBar = { BottomAppBar(fabConfiguration = it, cutoutShape = CircleShape) {} },
+            topBar = { TopAppBar({ Text("Scroll down!") }) },
+            bottomBar = { BottomAppBar(cutoutShape = CircleShape) {} },
             floatingActionButton = { Fab(scrollFraction) },
-            floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
-            bodyContent = { modifier ->
+            floatingActionButtonPosition = Scaffold.FabPosition.Center,
+            isFloatingActionButtonDocked = true,
+            bodyContent = { innerPadding ->
                 VerticalScroller(scrollerPosition) {
-                    Column(modifier) {
+                    Column(Modifier.padding(innerPadding)) {
                         repeat(20) { index ->
                             Card(index)
                         }

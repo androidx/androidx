@@ -17,6 +17,8 @@
 package androidx.ui.material
 
 import android.os.Build
+import androidx.compose.Composable
+import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.LayoutCoordinates
@@ -32,6 +34,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
@@ -44,6 +47,7 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
@@ -51,6 +55,9 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
+import androidx.ui.unit.toPxSize
+import androidx.ui.unit.toSize
+import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule
@@ -105,7 +112,7 @@ class ScaffoldTest {
         lateinit var contentPosition: PxPosition
         composeTestRule.setMaterialContent {
             Scaffold(
-                topAppBar = {
+                topBar = {
                     Box(Modifier
                         .onPositioned { positioned: LayoutCoordinates ->
                             appbarPosition = positioned.localToGlobal(PxPosition.Origin)
@@ -136,7 +143,7 @@ class ScaffoldTest {
         lateinit var contentSize: IntPxSize
         composeTestRule.setMaterialContent {
             Scaffold(
-                bottomAppBar = {
+                bottomBar = {
                     Box(Modifier
                         .onPositioned { positioned: LayoutCoordinates ->
                             appbarPosition = positioned.positionInParent
@@ -257,38 +264,6 @@ class ScaffoldTest {
         assertThat(drawerChildPosition.x).isLessThan(0.px)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun scaffold_centerDockedFab_withoutBottomAppBar_shouldCrash() {
-        composeTestRule.setContent {
-            Scaffold(
-                floatingActionButton = {
-                    FloatingActionButton(onClick = {}) {
-                        Icon(Icons.Filled.Favorite)
-                    }
-                },
-                floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked
-            ) {
-                Text("body")
-            }
-        }
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun scaffold_endDockedFab_withoutBottomAppBar_shouldCrash() {
-        composeTestRule.setContent {
-            Scaffold(
-                floatingActionButton = {
-                    FloatingActionButton(onClick = {}) {
-                        Icon(Icons.Filled.Favorite)
-                    }
-                },
-                floatingActionButtonPosition = Scaffold.FabPosition.EndDocked
-            ) {
-                Text("body")
-            }
-        }
-    }
-
     @Test
     fun scaffold_centerDockedFab_position() {
         lateinit var fabPosition: PxPosition
@@ -306,8 +281,9 @@ class ScaffoldTest {
                         Icon(Icons.Filled.Favorite)
                     }
                 },
-                floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
-                bottomAppBar = {
+                floatingActionButtonPosition = Scaffold.FabPosition.Center,
+                isFloatingActionButtonDocked = true,
+                bottomBar = {
                     Box(Modifier
                         .onPositioned { positioned: LayoutCoordinates ->
                             bottomBarPosition =
@@ -344,8 +320,9 @@ class ScaffoldTest {
                         Icon(Icons.Filled.Favorite)
                     }
                 },
-                floatingActionButtonPosition = Scaffold.FabPosition.EndDocked,
-                bottomAppBar = {
+                floatingActionButtonPosition = Scaffold.FabPosition.End,
+                isFloatingActionButtonDocked = true,
+                bottomBar = {
                     Box(Modifier
                         .onPositioned { positioned: LayoutCoordinates ->
                             bottomBarPosition =
@@ -368,13 +345,14 @@ class ScaffoldTest {
     @Test
     fun scaffold_topAppBarIsDrawnOnTopOfContent() {
         composeTestRule.setContent {
-            Stack(Modifier
-                .size(10.dp, 20.dp)
-                .semantics(mergeAllDescendants = true)
-                .testTag("Scaffold")
+            Stack(
+                Modifier
+                    .size(10.dp, 20.dp)
+                    .semantics(mergeAllDescendants = true)
+                    .testTag("Scaffold")
             ) {
                 Scaffold(
-                    topAppBar = {
+                    topBar = {
                         Box(
                             Modifier.size(10.dp)
                                 .drawShadow(4.dp)
@@ -398,5 +376,178 @@ class ScaffoldTest {
                 assertThat(Color(getPixel(width / 2, yPos))).isNotEqualTo(Color.White)
                 assertThat(Color(getPixel(width - 1, yPos))).isNotEqualTo(Color.White)
             }
+    }
+
+    @Test
+    fun scaffold_geometry_fabSize() {
+        lateinit var fabSize: IntPxSize
+        val showFab = mutableStateOf(true)
+        val scaffoldState = ScaffoldState()
+        composeTestRule.setContent {
+            val fab: @Composable (() -> Unit)? = if (showFab.value) {
+                @Composable {
+                    FloatingActionButton(
+                        modifier = Modifier.onPositioned { positioned: LayoutCoordinates ->
+                            fabSize = positioned.size
+                        },
+                        onClick = {}
+                    ) {
+                        Icon(Icons.Filled.Favorite)
+                    }
+                }
+            } else {
+                null
+            }
+            Scaffold(
+                scaffoldState = scaffoldState,
+                floatingActionButton = fab,
+                floatingActionButtonPosition = Scaffold.FabPosition.End
+            ) {
+                Text("body")
+            }
+        }
+        runOnIdleCompose {
+            assertThat(scaffoldState.floatingActionButtonSize).isEqualTo(fabSize.toPxSize())
+            showFab.value = false
+        }
+
+        runOnIdleCompose {
+            assertThat(scaffoldState.floatingActionButtonSize).isEqualTo(null)
+        }
+    }
+
+    @Test
+    fun scaffold_geometry_bottomBarSize() {
+        lateinit var bottomBarSize: IntPxSize
+        val showBottom = mutableStateOf(true)
+        val scaffoldState = ScaffoldState()
+        composeTestRule.setContent {
+            val bottom: @Composable (() -> Unit)? = if (showBottom.value) {
+                @Composable {
+                    Box(Modifier
+                        .onPositioned { positioned: LayoutCoordinates ->
+                            bottomBarSize = positioned.size
+                        }
+                        .fillMaxWidth()
+                        .preferredHeight(100.dp)
+                        .drawBackground(Color.Red)
+                    )
+                }
+            } else {
+                null
+            }
+            Scaffold(
+                scaffoldState = scaffoldState,
+                bottomBar = bottom
+            ) {
+                Text("body")
+            }
+        }
+        runOnIdleCompose {
+            assertThat(scaffoldState.bottomBarSize).isEqualTo(bottomBarSize.toPxSize())
+            showBottom.value = false
+        }
+
+        runOnIdleCompose {
+            assertThat(scaffoldState.bottomBarSize).isEqualTo(null)
+        }
+    }
+
+    @Test
+    fun scaffold_geometry_topBarSize() {
+        lateinit var topBarSize: IntPxSize
+        val showTop = mutableStateOf(true)
+        val scaffoldState = ScaffoldState()
+        composeTestRule.setContent {
+            val top: @Composable (() -> Unit)? = if (showTop.value) {
+                @Composable {
+                    Box(Modifier
+                        .onPositioned { positioned: LayoutCoordinates ->
+                            topBarSize = positioned.size
+                        }
+                        .fillMaxWidth()
+                        .preferredHeight(100.dp)
+                        .drawBackground(Color.Red)
+                    )
+                }
+            } else {
+                null
+            }
+            Scaffold(
+                scaffoldState = scaffoldState,
+                topBar = top
+            ) {
+                Text("body")
+            }
+        }
+        runOnIdleCompose {
+            assertThat(scaffoldState.topBarSize).isEqualTo(topBarSize.toPxSize())
+            showTop.value = false
+        }
+
+        runOnIdleCompose {
+            assertThat(scaffoldState.topBarSize).isEqualTo(null)
+        }
+    }
+
+    @Test
+    fun scaffold_innerPadding_lambdaParam() {
+        lateinit var bottomBarSize: IntPxSize
+        lateinit var innerPadding: InnerPadding
+
+        val scaffoldState = ScaffoldState()
+        composeTestRule.setContent {
+            Scaffold(
+                scaffoldState = scaffoldState,
+                bottomBar = {
+                    Box(Modifier
+                        .onPositioned { positioned: LayoutCoordinates ->
+                            bottomBarSize = positioned.size
+                        }
+                        .fillMaxWidth()
+                        .preferredHeight(100.dp)
+                        .drawBackground(Color.Red)
+                    )
+                }
+            ) {
+                innerPadding = it
+                Text("body")
+            }
+        }
+        runOnIdleCompose {
+            with(composeTestRule.density) {
+                assertThat(innerPadding.bottom).isEqualTo(bottomBarSize.toPxSize().height.toDp())
+            }
+        }
+    }
+
+    @Test
+    fun scaffold_bottomBar_geometryPropagation() {
+        lateinit var bottomBarSize: IntPxSize
+        lateinit var geometry: ScaffoldGeometry
+
+        val scaffoldState = ScaffoldState()
+        composeTestRule.setContent {
+            Scaffold(
+                scaffoldState = scaffoldState,
+                bottomBar = {
+                    geometry = ScaffoldGeometryAmbient.current
+                    Box(Modifier
+                        .onPositioned { positioned: LayoutCoordinates ->
+                            bottomBarSize = positioned.size
+                        }
+                        .fillMaxWidth()
+                        .preferredHeight(100.dp)
+                        .drawBackground(Color.Red)
+                    )
+                }
+            ) {
+                Text("body")
+            }
+        }
+        runOnIdleCompose {
+            assertThat(geometry.bottomBarBounds?.toSize()).isEqualTo(bottomBarSize.toPxSize())
+            assertThat(geometry.bottomBarBounds?.width).isNotEqualTo(0.px)
+        }
     }
 }

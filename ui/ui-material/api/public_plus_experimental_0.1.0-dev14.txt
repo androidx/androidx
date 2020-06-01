@@ -12,23 +12,9 @@ package androidx.ui.material {
   }
 
   public final class AppBarKt {
-    method @androidx.compose.Composable public static void BottomAppBar-GqrRtJg(androidx.ui.core.Modifier modifier = Modifier, long backgroundColor = MaterialTheme.colors.primarySurface, long contentColor = contentColorFor(backgroundColor), androidx.ui.material.BottomAppBar.FabConfiguration? fabConfiguration = null, androidx.ui.graphics.Shape? cutoutShape = null, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.Composable public static void BottomAppBar-RAvbXkg(androidx.ui.core.Modifier modifier = Modifier, long backgroundColor = MaterialTheme.colors.primarySurface, long contentColor = contentColorFor(backgroundColor), androidx.ui.graphics.Shape? cutoutShape = null, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> content);
     method @androidx.compose.Composable public static void TopAppBar-FikZsjU(kotlin.jvm.functions.Function0<kotlin.Unit> title, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = null, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> actions = {}, long backgroundColor = MaterialTheme.colors.primarySurface, long contentColor = contentColorFor(backgroundColor), float elevation = androidx.ui.material.AppBarKt.TopAppBarElevation);
     method @androidx.compose.Composable public static void TopAppBar-oP-1cd0(androidx.ui.core.Modifier modifier = Modifier, long backgroundColor = MaterialTheme.colors.primarySurface, long contentColor = contentColorFor(backgroundColor), float elevation = androidx.ui.material.AppBarKt.TopAppBarElevation, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> content);
-  }
-
-  public final class BottomAppBar {
-    field public static final androidx.ui.material.BottomAppBar! INSTANCE;
-  }
-
-  @androidx.compose.Immutable public static final class BottomAppBar.FabConfiguration {
-    ctor public BottomAppBar.FabConfiguration(internal androidx.ui.unit.IntPxSize fabSize, internal androidx.ui.unit.PxPosition fabTopLeftPosition, internal androidx.ui.material.BottomAppBar.FabDockedPosition fabDockedPosition);
-    method @androidx.compose.Immutable public androidx.ui.material.BottomAppBar.FabConfiguration copy(androidx.ui.unit.IntPxSize fabSize, androidx.ui.unit.PxPosition fabTopLeftPosition, androidx.ui.material.BottomAppBar.FabDockedPosition fabDockedPosition);
-  }
-
-  public enum BottomAppBar.FabDockedPosition {
-    enum_constant public static final androidx.ui.material.BottomAppBar.FabDockedPosition Center;
-    enum_constant public static final androidx.ui.material.BottomAppBar.FabDockedPosition End;
   }
 
   public final class BottomNavigationKt {
@@ -199,26 +185,30 @@ package androidx.ui.material {
 
   public enum Scaffold.FabPosition {
     enum_constant public static final androidx.ui.material.Scaffold.FabPosition Center;
-    enum_constant public static final androidx.ui.material.Scaffold.FabPosition CenterDocked;
     enum_constant public static final androidx.ui.material.Scaffold.FabPosition End;
-    enum_constant public static final androidx.ui.material.Scaffold.FabPosition EndDocked;
   }
 
   public final class ScaffoldKt {
-    method @androidx.compose.Composable public static void Scaffold(androidx.ui.material.ScaffoldState scaffoldState = remember({ 
+    method @androidx.compose.Composable public static void Scaffold-1z1vkZI(androidx.ui.material.ScaffoldState scaffoldState = remember({ 
     return <init>()
-}), kotlin.jvm.functions.Function0<kotlin.Unit>? topAppBar = null, kotlin.jvm.functions.Function1<? super androidx.ui.material.BottomAppBar.FabConfiguration,kotlin.Unit>? bottomAppBar = null, kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton = null, androidx.ui.material.Scaffold.FabPosition floatingActionButtonPosition = androidx.ui.material.Scaffold.FabPosition.End, kotlin.jvm.functions.Function0<kotlin.Unit>? drawerContent = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier,kotlin.Unit> bodyContent);
+}), kotlin.jvm.functions.Function0<kotlin.Unit>? topBar = null, kotlin.jvm.functions.Function0<kotlin.Unit>? bottomBar = null, kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton = null, androidx.ui.material.Scaffold.FabPosition floatingActionButtonPosition = androidx.ui.material.Scaffold.FabPosition.End, boolean isFloatingActionButtonDocked = false, kotlin.jvm.functions.Function0<kotlin.Unit>? drawerContent = null, androidx.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, long backgroundColor = MaterialTheme.colors.background, kotlin.jvm.functions.Function1<? super androidx.ui.layout.InnerPadding,kotlin.Unit> bodyContent);
   }
 
   @androidx.compose.Stable public final class ScaffoldState {
     ctor public ScaffoldState(androidx.ui.material.DrawerState drawerState, boolean isDrawerGesturesEnabled);
     ctor public ScaffoldState();
+    method public androidx.ui.unit.PxSize? getBottomBarSize();
     method public androidx.ui.material.DrawerState getDrawerState();
+    method public androidx.ui.unit.PxSize? getFloatingActionButtonSize();
+    method public androidx.ui.unit.PxSize? getTopBarSize();
     method public boolean isDrawerGesturesEnabled();
     method public void setDrawerGesturesEnabled(boolean p);
     method public void setDrawerState(androidx.ui.material.DrawerState p);
+    property public final androidx.ui.unit.PxSize? bottomBarSize;
     property public final androidx.ui.material.DrawerState drawerState;
+    property public final androidx.ui.unit.PxSize? floatingActionButtonSize;
     property public final boolean isDrawerGesturesEnabled;
+    property public final androidx.ui.unit.PxSize? topBarSize;
   }
 
   public final class Shapes {
