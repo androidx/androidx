@@ -24,7 +24,9 @@ import androidx.camera.camera2.internal.ImageAnalysisConfigProvider;
 import androidx.camera.camera2.internal.ImageCaptureConfigProvider;
 import androidx.camera.camera2.internal.PreviewConfigProvider;
 import androidx.camera.camera2.internal.VideoCaptureConfigProvider;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.InitializationException;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
@@ -52,8 +54,13 @@ public final class Camera2Config {
         CameraFactory.Provider cameraFactoryProvider = Camera2CameraFactory::new;
 
         // Create the DeviceSurfaceManager for Camera2
-        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
-                Camera2DeviceSurfaceManager::new;
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider = context -> {
+            try {
+                return new Camera2DeviceSurfaceManager(context);
+            } catch (CameraUnavailableException e) {
+                throw new InitializationException(e);
+            }
+        };
 
         // Create default configuration factory
         UseCaseConfigFactory.Provider configFactoryProvider = context -> {

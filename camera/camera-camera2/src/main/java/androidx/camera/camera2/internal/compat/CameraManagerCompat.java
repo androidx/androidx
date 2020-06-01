@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal.compat;
 
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.os.Build;
@@ -62,14 +63,31 @@ public final class CameraManagerCompat {
     @NonNull
     public static CameraManagerCompat from(@NonNull Context context,
             @NonNull Handler compatHandler) {
-        // Can use Executor directly on API 28+
-        if (Build.VERSION.SDK_INT >= 28) {
-            return new CameraManagerCompat(new CameraManagerCompatApi28Impl(context));
+        if (Build.VERSION.SDK_INT >= 29) {
+            return new CameraManagerCompat(new CameraManagerCompatApi29Impl(context));
+        } else if (Build.VERSION.SDK_INT >= 28) {
+            // Can use Executor directly on API 28+
+            return new CameraManagerCompat(CameraManagerCompatApi28Impl.create(context));
         }
 
         // Pass compat handler to implementation.
         return new CameraManagerCompat(CameraManagerCompatBaseImpl.create(context,
                 compatHandler));
+    }
+
+    /**
+     * Return the list of currently connected camera devices by identifier, including cameras that
+     * may be in use by other camera API clients.
+     *
+     * <p>The behavior of this method matches that of {@link CameraManager#getCameraIdList()},
+     * except that {@link CameraAccessExceptionCompat} is thrown in place of
+     * {@link CameraAccessException} for convenience.
+     *
+     * @return The list of currently connected camera devices.
+     */
+    @NonNull
+    public String[] getCameraIdList() throws CameraAccessExceptionCompat {
+        return mImpl.getCameraIdList();
     }
 
     /**
@@ -115,6 +133,29 @@ public final class CameraManagerCompat {
     }
 
     /**
+     * Query the capabilities of a camera device. These capabilities are immutable for a given
+     * camera.
+     *
+     * <p>The behavior of this method matches that of
+     * {@link CameraManager#getCameraCharacteristics(String)}.
+     *
+     * @param cameraId The id of the camera device to query. This could be either a standalone
+     * camera ID which can be directly opened by {@link #openCamera}, or a physical camera ID that
+     * can only used as part of a logical multi-camera.
+     * @return The properties of the given camera
+     *
+     * @throws IllegalArgumentException    if the cameraId does not match any known camera device.
+     * @throws CameraAccessExceptionCompat if the camera device has been disconnected or the
+     *                                     device is in Do Not Disturb mode with an early version
+     *                                     of Android P.
+     */
+    @NonNull
+    public CameraCharacteristics getCameraCharacteristics(@NonNull String cameraId)
+            throws CameraAccessExceptionCompat {
+        return mImpl.getCameraCharacteristics(cameraId);
+    }
+
+    /**
      * Open a connection to a camera with the given ID.
      *
      * <p>The behavior of this method matches that of
@@ -124,15 +165,15 @@ public final class CameraManagerCompat {
      * @param cameraId The unique identifier of the camera device to open
      * @param executor The executor which will be used when invoking the callback.
      * @param callback The callback which is invoked once the camera is opened
-     * @throws CameraAccessException    if the camera is disabled by device policy,
-     *                                  has been disconnected, or is being used by a
-     *                                  higher-priority camera API client.
-     * @throws IllegalArgumentException if cameraId, the callback or the executor was null,
-     *                                  or the cameraId does not match any currently or
-     *                                  previously available
-     *                                  camera device.
-     * @throws SecurityException        if the application does not have permission to
-     *                                  access the camera
+     * @throws CameraAccessExceptionCompat if the camera is disabled by device policy, has been
+     *                                     disconnected, is being used by a higher-priority
+     *                                     camera API client or the device is in Do Not Disturb
+     *                                     mode with an early version of Android P.
+     * @throws IllegalArgumentException    if cameraId, the callback or the executor was null,
+     *                                     or the cameraId does not match any currently or
+     *                                     previously available camera device.
+     * @throws SecurityException           if the application does not have permission to access
+     *                                     the camera
      * @see CameraManager#getCameraIdList
      * @see android.app.admin.DevicePolicyManager#setCameraDisabled
      */
@@ -140,7 +181,7 @@ public final class CameraManagerCompat {
     public void openCamera(@NonNull String cameraId,
             @NonNull /*@CallbackExecutor*/ Executor executor,
             @NonNull CameraDevice.StateCallback callback)
-            throws CameraAccessException {
+            throws CameraAccessExceptionCompat {
         mImpl.openCamera(cameraId, executor, callback);
     }
 
@@ -157,17 +198,23 @@ public final class CameraManagerCompat {
 
     interface CameraManagerCompatImpl {
 
+        String[] getCameraIdList() throws CameraAccessExceptionCompat;
+
         void registerAvailabilityCallback(
                 @NonNull /* @CallbackExecutor */ Executor executor,
                 @NonNull CameraManager.AvailabilityCallback callback);
 
         void unregisterAvailabilityCallback(@NonNull CameraManager.AvailabilityCallback callback);
 
+        @NonNull
+        CameraCharacteristics getCameraCharacteristics(@NonNull String cameraId)
+                throws CameraAccessExceptionCompat;
+
         @RequiresPermission(android.Manifest.permission.CAMERA)
         void openCamera(@NonNull String cameraId,
                 @NonNull /* @CallbackExecutor */ Executor executor,
                 @NonNull CameraDevice.StateCallback callback)
-                throws CameraAccessException;
+                throws CameraAccessExceptionCompat;
 
         @NonNull
         CameraManager getCameraManager();

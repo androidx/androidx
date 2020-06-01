@@ -20,9 +20,7 @@ import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.os.Build;
@@ -32,9 +30,13 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
+import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.AspectRatio;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
@@ -78,22 +80,34 @@ final class SupportedSurfaceCombination {
     private static final Rational ASPECT_RATIO_9_16 = new Rational(9, 16);
     private final List<SurfaceCombination> mSurfaceCombinations = new ArrayList<>();
     private final Map<Integer, Size> mMaxSizeCache = new HashMap<>();
-    private String mCameraId;
-    private CameraCharacteristics mCharacteristics;
-    private int mHardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
+    private final String mCameraId;
+    private final CamcorderProfileHelper mCamcorderProfileHelper;
+    private final CameraCharacteristics mCharacteristics;
+    private final int mHardwareLevel;
     private boolean mIsRawSupported = false;
     private boolean mIsBurstCaptureSupported = false;
     private SurfaceSizeDefinition mSurfaceSizeDefinition;
-    private CamcorderProfileHelper mCamcorderProfileHelper;
 
-    SupportedSurfaceCombination(
-            Context context, String cameraId, CamcorderProfileHelper camcorderProfileHelper) {
-        mCameraId = cameraId;
-        mCamcorderProfileHelper = camcorderProfileHelper;
-        init(context);
-    }
-
-    private SupportedSurfaceCombination() {
+    SupportedSurfaceCombination(@NonNull Context context, @NonNull String cameraId,
+            @NonNull CamcorderProfileHelper camcorderProfileHelper)
+            throws CameraUnavailableException {
+        mCameraId = Preconditions.checkNotNull(cameraId);
+        mCamcorderProfileHelper = Preconditions.checkNotNull(camcorderProfileHelper);
+        CameraManagerCompat cameraManager = CameraManagerCompat.from(context);
+        WindowManager windowManager =
+                (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        try {
+            mCharacteristics = cameraManager.getCameraCharacteristics(mCameraId);
+            Integer keyValue = mCharacteristics.get(
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+            mHardwareLevel = keyValue != null ? keyValue
+                    : CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
+        } catch (CameraAccessExceptionCompat e) {
+            throw CameraUnavailableExceptionHelper.createFrom(e);
+        }
+        generateSupportedCombinationList();
+        generateSurfaceSizeDefinition(windowManager);
+        checkCustomization();
     }
 
     String getCameraId() {
@@ -647,10 +661,6 @@ final class SupportedSurfaceCombination {
 
         // Try to retrieve supported resolutions if there is no customization.
         if (outputSizes == null) {
-            if (mCharacteristics == null) {
-                throw new IllegalStateException("CameraCharacteristics is null.");
-            }
-
             StreamConfigurationMap map =
                     mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
@@ -694,24 +704,6 @@ final class SupportedSurfaceCombination {
         Size[] outputSizes = getAllOutputSizesByFormat(imageFormat);
 
         return Collections.max(Arrays.asList(outputSizes), new CompareSizesByArea());
-    }
-
-    private void init(Context context) {
-        CameraManager cameraManager =
-                (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-        WindowManager windowManager =
-                (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-
-        try {
-            generateSupportedCombinationList(cameraManager);
-            generateSurfaceSizeDefinition(windowManager);
-        } catch (CameraAccessException e) {
-            throw new IllegalArgumentException(
-                    "Generate supported combination list and size definition fail - CameraId:"
-                            + mCameraId,
-                    e);
-        }
-        checkCustomization();
     }
 
     List<SurfaceCombination> getLegacySupportedCombinationList() {
@@ -1039,17 +1031,7 @@ final class SupportedSurfaceCombination {
         return combinationList;
     }
 
-    private void generateSupportedCombinationList(CameraManager cameraManager)
-            throws CameraAccessException {
-        mCharacteristics = cameraManager.getCameraCharacteristics(mCameraId);
-
-        Integer keyValue = mCharacteristics.get(
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
-
-        if (keyValue != null) {
-            mHardwareLevel = keyValue;
-        }
-
+    private void generateSupportedCombinationList() {
         mSurfaceCombinations.addAll(getLegacySupportedCombinationList());
 
         if (mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED

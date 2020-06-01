@@ -49,6 +49,7 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -148,7 +149,7 @@ public final class Camera2CameraImplTest {
     }
 
     @Before
-    public void setup() {
+    public void setup() throws CameraUnavailableException {
         assumeTrue(CameraUtil.deviceHasCamera());
         mMockOnImageAvailableListener = Mockito.mock(ImageReader.OnImageAvailableListener.class);
         mSessionStateCallback = new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();

@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal.compat;
 
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.os.Handler;
@@ -48,6 +49,15 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
             @NonNull Handler compatHandler) {
         return new CameraManagerCompatBaseImpl(context,
                 new CameraManagerCompatParamsApi21(compatHandler));
+    }
+
+    @Override
+    public String[] getCameraIdList() throws CameraAccessExceptionCompat {
+        try {
+            return mCameraManager.getCameraIdList();
+        } catch (CameraAccessException e) {
+            throw CameraAccessExceptionCompat.toCameraAccessExceptionCompat(e);
+        }
     }
 
     @Override
@@ -90,10 +100,21 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
         mCameraManager.unregisterAvailabilityCallback(wrapper);
     }
 
+    @Override
+    @NonNull
+    public CameraCharacteristics getCameraCharacteristics(@NonNull String cameraId)
+            throws CameraAccessExceptionCompat {
+        try {
+            return mCameraManager.getCameraCharacteristics(cameraId);
+        } catch (CameraAccessException e) {
+            throw CameraAccessExceptionCompat.toCameraAccessExceptionCompat(e);
+        }
+    }
+
     @RequiresPermission(android.Manifest.permission.CAMERA)
     @Override
     public void openCamera(@NonNull String cameraId, @NonNull Executor executor,
-            @NonNull CameraDevice.StateCallback callback) throws CameraAccessException {
+            @NonNull CameraDevice.StateCallback callback) throws CameraAccessExceptionCompat {
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(callback);
 
@@ -102,7 +123,11 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
                 new CameraDeviceCompat.StateCallbackExecutorWrapper(executor, callback);
 
         CameraManagerCompatParamsApi21 params = (CameraManagerCompatParamsApi21) mObject;
-        mCameraManager.openCamera(cameraId, cb, params.mCompatHandler);
+        try {
+            mCameraManager.openCamera(cameraId, cb, params.mCompatHandler);
+        } catch (CameraAccessException e) {
+            throw CameraAccessExceptionCompat.toCameraAccessExceptionCompat(e);
+        }
     }
 
     @NonNull
