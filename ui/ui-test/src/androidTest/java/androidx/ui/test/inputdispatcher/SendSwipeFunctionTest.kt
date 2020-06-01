@@ -109,11 +109,11 @@ class SwipeWithDurationTest(private val config: TestConfig) {
     )
 
     private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::sendEvent)
+    private val subject = AndroidInputDispatcher(recorder::recordEvent)
 
     @After
     fun tearDown() {
-        recorder.clear()
+        recorder.disposeEvents()
     }
 
     @Test
@@ -189,7 +189,7 @@ class SwipeWithKeyTimesTest(private val config: TestConfig) {
     )
 
     private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::sendEvent)
+    private val subject = AndroidInputDispatcher(recorder::recordEvent)
 
     @Before
     fun setUp() {
@@ -200,7 +200,7 @@ class SwipeWithKeyTimesTest(private val config: TestConfig) {
 
     @After
     fun tearDown() {
-        recorder.clear()
+        recorder.disposeEvents()
     }
 
     @Test
@@ -258,10 +258,10 @@ class SendSwipeWithKeyTimesAndEventPeriodTest(private val config: TestConfig) {
                 // pick a prime number for duration
                 val durationMs = 101L
                 // testing all possible keyTimes between 0 and 100 takes way too long,
-                // only test all possible keyTimes close to the middle instead
+                // only test several combinations keyTimes close to the middle instead
                 val firstKeyTime = (durationMs / 2) - eventPeriod
                 val lastKeyTime = (durationMs / 2) + eventPeriod
-                (firstKeyTime..lastKeyTime).flatMap { keyTime1 ->
+                (firstKeyTime..lastKeyTime step eventPeriod).flatMap { keyTime1 ->
                     (keyTime1..lastKeyTime).map { keyTime2 ->
                         TestConfig(
                             Duration(milliseconds = durationMs),
@@ -285,7 +285,7 @@ class SendSwipeWithKeyTimesAndEventPeriodTest(private val config: TestConfig) {
     private val eventPeriod = config.eventPeriod
 
     private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::sendEvent)
+    private val subject = AndroidInputDispatcher(recorder::recordEvent)
 
     @Before
     fun setUp() {
@@ -296,7 +296,7 @@ class SendSwipeWithKeyTimesAndEventPeriodTest(private val config: TestConfig) {
 
     @After
     fun tearDown() {
-        recorder.clear()
+        recorder.disposeEvents()
     }
 
     @Test
