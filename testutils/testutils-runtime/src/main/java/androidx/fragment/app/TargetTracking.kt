@@ -25,11 +25,11 @@ interface TargetTracking {
     /**
      * Return tracked exiting targets in a list
      */
-    val exitingTargets: List<View?>
+    val exitingTargets: List<View>
     /**
      * Return tracked entering targets in a list
      */
-    val enteringTargets: List<View?>
+    val enteringTargets: List<View>
 
     /**
      * Clear all tracked targets

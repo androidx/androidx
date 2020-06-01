@@ -15,6 +15,7 @@
  */
 package androidx.transition
 
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -990,13 +991,17 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
                 exitingViews += startGreen
             }
             val endGreen = activityRule.findGreen()
+            val endBlue = activityRule.findBlue()
             fragment2.enterTransition.verifyAndClearTransition {
                 epicenter = startGreenBounds
                 enteringViews += endGreen
             }
-            assertThat(fragment2.sharedElementEnter.enteringTargets.size).isEqualTo(1)
-            assertThat(fragment2.sharedElementEnter.exitingTargets.size).isEqualTo(1)
-            fragment2.sharedElementEnter.clearTargets()
+            fragment2.sharedElementEnter.verifyAndClearTransition {
+                // In this case, we can't find an epicenter
+                epicenter = Rect()
+                exitingViews += startBlue
+                enteringViews += endBlue
+            }
             verifyNoOtherTransitions(fragment1)
             verifyNoOtherTransitions(fragment2)
         } else {
