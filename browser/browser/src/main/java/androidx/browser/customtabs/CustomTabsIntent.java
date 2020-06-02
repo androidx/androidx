@@ -429,10 +429,23 @@ public final class CustomTabsIntent {
 
         /**
          * Enables the url bar to hide as the user scrolls down on the page.
+         * @deprecated Use {@link #setUrlBarHidingEnabled(boolean)} instead.
          */
+        @Deprecated
         @NonNull
         public Builder enableUrlBarHiding() {
             mIntent.putExtra(EXTRA_ENABLE_URLBAR_HIDING, true);
+            return this;
+        }
+
+        /**
+         * Set whether the url bar should hide as the user scrolls down on the page.
+         *
+         * @param enabled Whether url bar hiding is enabled.
+         */
+        @NonNull
+        public Builder setUrlBarHidingEnabled(boolean enabled) {
+            mIntent.putExtra(EXTRA_ENABLE_URLBAR_HIDING, enabled);
             return this;
         }
 
@@ -477,10 +490,23 @@ public final class CustomTabsIntent {
 
         /**
          * Adds a default share item to the menu.
+         * @deprecated Use {@link #setDefaultShareMenuItemEnabled(boolean)} instead.
          */
+        @Deprecated
         @NonNull
         public Builder addDefaultShareMenuItem() {
             mIntent.putExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM, true);
+            return this;
+        }
+
+        /**
+         * Set whether a default share item is added to the menu.
+         *
+         * @param enabled Whether default share item is added.
+         */
+        @NonNull
+        public Builder setDefaultShareMenuItemEnabled(boolean enabled) {
+            mIntent.putExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM, enabled);
             return this;
         }
 

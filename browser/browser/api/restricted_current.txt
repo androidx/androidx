@@ -149,16 +149,17 @@ package androidx.browser.customtabs {
   public static final class CustomTabsIntent.Builder {
     ctor public CustomTabsIntent.Builder();
     ctor public CustomTabsIntent.Builder(androidx.browser.customtabs.CustomTabsSession?);
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder addDefaultShareMenuItem();
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder addDefaultShareMenuItem();
     method public androidx.browser.customtabs.CustomTabsIntent.Builder addMenuItem(String, android.app.PendingIntent);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder addToolbarItem(int, android.graphics.Bitmap, String, android.app.PendingIntent) throws java.lang.IllegalStateException;
     method public androidx.browser.customtabs.CustomTabsIntent build();
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder enableUrlBarHiding();
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder enableUrlBarHiding();
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent, boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorScheme(int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorSchemeParams(int, androidx.browser.customtabs.CustomTabColorSchemeParams);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setDefaultShareMenuItemEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, @AnimRes int, @AnimRes int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setInstantAppsEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarColor(@ColorInt int);
@@ -168,6 +169,7 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setShowTitle(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setStartAnimations(android.content.Context, @AnimRes int, @AnimRes int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setToolbarColor(@ColorInt int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setUrlBarHidingEnabled(boolean);
   }
 
   public abstract class CustomTabsService extends android.app.Service {
