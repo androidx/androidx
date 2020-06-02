@@ -17,7 +17,6 @@
 package androidx.benchmark
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.os.Build
 import android.os.Bundle
 import android.os.Debug
@@ -537,16 +536,6 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         return status
     }
 
-    private fun reportResultsBundle(testName: String) {
-        val bundle = getFullStatusReport(key = testName, includeStats = !Arguments.dryRunMode)
-
-        // Before addResults() was added in the platform, we use sendStatus(). The constant '2'
-        // comes from IInstrumentationResultParser.StatusCodes.IN_PROGRESS, and signals the
-        // test infra that this is an "additional result" bundle, equivalent to addResults()
-        // NOTE: we should a version check to call addResults(), but don't yet due to b/155103514
-        InstrumentationRegistry.getInstrumentation().sendStatus(2, bundle)
-    }
-
     private fun sleepIfThermalThrottled(sleepSeconds: Long) = when {
         ThrottleDetector.isDeviceThermalThrottled() -> {
             Log.d(TAG, "THERMAL THROTTLE DETECTED, SLEEPING FOR $sleepSeconds SECONDS")
@@ -570,7 +559,9 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     ) {
         checkState() // this method is triggered externally
         val fullTestName = "$PREFIX$simpleClassName.$methodName"
-        reportResultsBundle(fullTestName)
+
+        val bundle = getFullStatusReport(key = fullTestName, includeStats = !Arguments.dryRunMode)
+        reportBundle(bundle)
 
         ResultWriter.appendReport(
             getReport(
@@ -676,10 +667,22 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
                 nanos = report.getStats("timeNs").min,
                 allocations = null
             )
-            InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
+            reportBundle(bundle)
 
             // Report values to file output
             ResultWriter.appendReport(report)
         }
+
+        /**
+         * Report results bundle to instrumentation
+         *
+         * Before addResults() was added in the platform, we use sendStatus(). The constant '2'
+         * comes from IInstrumentationResultParser.StatusCodes.IN_PROGRESS, and signals the
+         * test infra that this is an "additional result" bundle, equivalent to addResults()
+         * NOTE: we should a version check to call addResults(), but don't yet due to b/155103514
+         */
+        internal fun reportBundle(
+            bundle: Bundle
+        ) = InstrumentationRegistry.getInstrumentation().sendStatus(2, bundle)
     }
 }
