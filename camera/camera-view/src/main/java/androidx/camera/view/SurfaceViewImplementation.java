@@ -16,8 +16,11 @@
 
 package androidx.camera.view;
 
+import android.annotation.TargetApi;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.util.Size;
+import android.view.PixelCopy;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -100,6 +103,37 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             mOnSurfaceNotInUseListener = null;
         }
     }
+
+    /**
+     * Getting a Bitmap from a Surface is achieved using the `PixelCopy#request()` API, which
+     * would introduced in API level 24. PreviewView doesn't currently use a SurfaceView on API
+     * levels below 24.
+     */
+    @TargetApi(24)
+    @Nullable
+    @Override
+    Bitmap getPreviewBitmap() {
+        // If the preview surface isn't ready yet or isn't valid, return null
+        if (mSurfaceView == null || mSurfaceView.getHolder().getSurface() == null
+                || !mSurfaceView.getHolder().getSurface().isValid()) {
+            return null;
+        }
+
+        // Copy display contents of the surfaceView's surface into a Bitmap.
+        final Bitmap bitmap = Bitmap.createBitmap(mSurfaceView.getWidth(), mSurfaceView.getHeight(),
+                Bitmap.Config.ARGB_8888);
+        PixelCopy.request(mSurfaceView, bitmap, copyResult -> {
+            if (copyResult == PixelCopy.SUCCESS) {
+                Log.d(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() succeeded");
+            } else {
+                Log.e(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() failed with error "
+                        + copyResult);
+            }
+        }, mSurfaceView.getHandler());
+
+        return bitmap;
+    }
+
     /**
      * The {@link SurfaceHolder.Callback} on mSurfaceView.
      *

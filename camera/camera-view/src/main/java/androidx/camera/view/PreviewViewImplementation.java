@@ -16,6 +16,8 @@
 
 package androidx.camera.view;
 
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.util.Size;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -24,6 +26,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.view.preview.transform.PreviewTransform;
+import androidx.camera.view.preview.transform.transformation.Transformation;
+import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -112,6 +116,59 @@ abstract class PreviewViewImplementation {
      */
     @NonNull
     abstract ListenableFuture<Void> waitForNextFrame();
+
+    @Nullable
+    Bitmap getBitmap() {
+        final Bitmap bitmap = getPreviewBitmap();
+        if (bitmap == null) {
+            return bitmap;
+        }
+
+        // Get current preview transformation
+        Preconditions.checkNotNull(mPreviewTransform);
+        final Transformation transformation = mPreviewTransform.getCurrentTransformation();
+        if (transformation == null) {
+            return bitmap;
+        }
+
+        // Scale bitmap
+        final Matrix scale = new Matrix();
+        scale.setScale(transformation.getScaleX(), transformation.getScaleY());
+        scale.postRotate(transformation.getRotation());
+        final Bitmap scaled = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                bitmap.getHeight(), scale, true);
+
+        // If fit* scale type, return scaled bitmap, since the whole preview is displayed, no
+        // cropping is needed.
+        final PreviewView.ScaleType scaleType = mPreviewTransform.getScaleType();
+        if (scaleType == PreviewView.ScaleType.FIT_START
+                || scaleType == PreviewView.ScaleType.FIT_CENTER
+                || scaleType == PreviewView.ScaleType.FIT_END) {
+            return scaled;
+        }
+
+        // If fill* scale type, crop the scaled bitmap, then return it
+        Preconditions.checkNotNull(mParent);
+        int x = 0, y = 0;
+        switch (scaleType) {
+            case FILL_START:
+                x = 0;
+                y = 0;
+                break;
+            case FILL_CENTER:
+                x = (scaled.getWidth() - mParent.getWidth()) / 2;
+                y = (scaled.getHeight() - mParent.getHeight()) / 2;
+                break;
+            case FILL_END:
+                x = (scaled.getWidth() - mParent.getWidth());
+                y = (scaled.getHeight() - mParent.getHeight());
+                break;
+        }
+        return Bitmap.createBitmap(scaled, x, y, mParent.getWidth(), mParent.getHeight());
+    }
+
+    @Nullable
+    abstract Bitmap getPreviewBitmap();
 
     /**
      * Listener to be notified when the provided Surface is no longer in use or the request is
