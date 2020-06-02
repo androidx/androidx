@@ -121,7 +121,7 @@ package androidx.ui.graphics {
     method public default void drawArcRad(androidx.ui.geometry.Rect rect, float startAngleRad, float sweepAngleRad, boolean useCenter, androidx.ui.graphics.Paint paint);
     method public void drawCircle-NfwrgZA(long center, float radius, androidx.ui.graphics.Paint paint);
     method public void drawImage--AHD2Ng(androidx.ui.graphics.ImageAsset image, long topLeftOffset, androidx.ui.graphics.Paint paint);
-    method public void drawImageRect-btuv3no(androidx.ui.graphics.ImageAsset image, long srcOffset = Offset.zero, long srcSize = Size(image.width.toFloat(), image.height.toFloat()), long dstOffset, long dstSize, androidx.ui.graphics.Paint paint);
+    method public void drawImageRect-btuv3no(androidx.ui.graphics.ImageAsset image, long srcOffset = Offset.zero, long srcSize = null(image.width.toFloat(), image.height.toFloat()), long dstOffset, long dstSize, androidx.ui.graphics.Paint paint);
     method public void drawLine-d9kBv1M(long p1, long p2, androidx.ui.graphics.Paint paint);
     method public default void drawOval(androidx.ui.geometry.Rect rect, androidx.ui.graphics.Paint paint);
     method public void drawOval(float left, float top, float right, float bottom, androidx.ui.graphics.Paint paint);
@@ -159,7 +159,7 @@ package androidx.ui.graphics {
     enum_constant public static final androidx.ui.graphics.ClipOp intersect;
   }
 
-  public final inline class Color {
+  @androidx.compose.Immutable public final inline class Color {
     ctor public Color();
     method public static operator float component1-impl(long $this);
     method public static operator float component2-impl(long $this);
@@ -169,7 +169,7 @@ package androidx.ui.graphics {
     method public static long constructor-impl(long value);
     method public static long convert-impl(long $this, androidx.ui.graphics.colorspace.ColorSpace colorSpace);
     method public static long copy-impl(long $this, float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
-    method public static inline boolean equals-impl(long p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static float getAlpha-impl(long $this);
     method public static float getBlue-impl(long $this);
@@ -177,7 +177,7 @@ package androidx.ui.graphics {
     method public static float getGreen-impl(long $this);
     method public static float getRed-impl(long $this);
     method public long getValue();
-    method public static inline int hashCode-impl(long p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
     method public static String toString-impl(long $this);
     field public static final androidx.ui.graphics.Color.Companion! Companion;
   }
@@ -468,11 +468,11 @@ package androidx.ui.graphics {
     method public static android.graphics.Shader RadialGradientShader-nSjqbmE(long center, float radius, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
   }
 
-  public final class Shadow {
+  @androidx.compose.Immutable public final class Shadow {
     method public long component1();
     method public long component2();
     method public float component3();
-    method public androidx.ui.graphics.Shadow copy-1LPazZ4(long color, long offset, float blurRadius);
+    method @androidx.compose.Immutable public androidx.ui.graphics.Shadow copy-1LPazZ4(long color, long offset, float blurRadius);
     method public float getBlurRadius();
     method public long getColor();
     method public long getOffset();
@@ -732,7 +732,7 @@ package androidx.ui.graphics.painter {
     method public final kotlin.Unit? drawArc-eUb3Eo4(long color, float startAngle, float sweepAngle, boolean useCenter, long topLeft = Offset.zero, long size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.painter.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawCircle-0EImeI8(long color, float radius = size.minDimension / 2.0, long center = this.center, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.painter.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawCircle-uHGJFV8(androidx.ui.graphics.Brush brush, float radius = size.minDimension / 2.0, long center = this.center, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.painter.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
-    method public final kotlin.Unit? drawImage-IF_VeeU(androidx.ui.graphics.ImageAsset image, long srcOffset = Offset.zero, long srcSize = Size(image.width.toFloat(), image.height.toFloat()), long dstOffset = Offset.zero, long dstSize = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.painter.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
+    method public final kotlin.Unit? drawImage-IF_VeeU(androidx.ui.graphics.ImageAsset image, long srcOffset = Offset.zero, long srcSize = null(image.width.toFloat(), image.height.toFloat()), long dstOffset = Offset.zero, long dstSize = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.painter.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawImage-zcoU2q0(androidx.ui.graphics.ImageAsset image, long topLeft = Offset.zero, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.painter.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawLine-MfDnFlo(long color, long p1, long p2, androidx.ui.graphics.painter.Stroke stroke, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawLine-PWBr8KI(androidx.ui.graphics.Brush brush, long p1, long p2, androidx.ui.graphics.painter.Stroke stroke, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);

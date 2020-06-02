@@ -11,15 +11,14 @@ package androidx.ui.core {
 package androidx.ui.graphics {
 
   public final class AndroidCanvasKt {
-    method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.ImageAsset image);
+    method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.Image image);
     method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.PictureRecorder recorder, androidx.ui.geometry.Rect cullRect = Rect.largest);
     method public static androidx.ui.graphics.Canvas Canvas(android.graphics.Canvas c);
   }
 
-  public final class AndroidImageAssetKt {
-    method public static androidx.ui.graphics.ImageAsset ImageAsset(int width, int height, androidx.ui.graphics.ImageAssetConfig config = androidx.ui.graphics.ImageAssetConfig.Argb8888, boolean hasAlpha = true, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
-    method public static androidx.ui.graphics.ImageAsset asImageAsset(android.graphics.Bitmap);
-    method public static androidx.ui.graphics.ImageAsset imageFromResource(android.content.res.Resources res, int resId);
+  public final class AndroidImageKt {
+    method public static androidx.ui.graphics.Image Image(int width, int height, androidx.ui.graphics.ImageConfig config = androidx.ui.graphics.ImageConfig.Argb8888, boolean hasAlpha = true, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
+    method public static androidx.ui.graphics.Image imageFromResource(android.content.res.Resources res, int resId);
   }
 
   public enum BlendMode {
@@ -86,8 +85,8 @@ package androidx.ui.graphics {
     method public void drawArc(androidx.ui.geometry.Rect rect, float startAngle, float sweepAngle, boolean useCenter, androidx.ui.graphics.Paint paint);
     method public default void drawArcRad(androidx.ui.geometry.Rect rect, float startAngleRad, float sweepAngleRad, boolean useCenter, androidx.ui.graphics.Paint paint);
     method public void drawCircle(androidx.ui.geometry.Offset center, float radius, androidx.ui.graphics.Paint paint);
-    method public void drawImage(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Offset topLeftOffset, androidx.ui.graphics.Paint paint);
-    method public void drawImageRect(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Rect src, androidx.ui.geometry.Rect dst, androidx.ui.graphics.Paint paint);
+    method public void drawImage(androidx.ui.graphics.Image image, androidx.ui.geometry.Offset topLeftOffset, androidx.ui.graphics.Paint paint);
+    method public void drawImageRect(androidx.ui.graphics.Image image, androidx.ui.geometry.Rect src, androidx.ui.geometry.Rect dst, androidx.ui.graphics.Paint paint);
     method public void drawLine(androidx.ui.geometry.Offset p1, androidx.ui.geometry.Offset p2, androidx.ui.graphics.Paint paint);
     method public void drawOval(androidx.ui.geometry.Rect rect, androidx.ui.graphics.Paint paint);
     method public void drawPath(androidx.ui.graphics.Path path, androidx.ui.graphics.Paint paint);
@@ -121,7 +120,8 @@ package androidx.ui.graphics {
     enum_constant public static final androidx.ui.graphics.ClipOp intersect;
   }
 
-  public final class Color {
+  @androidx.compose.Immutable public final class Color {
+    ctor @kotlin.PublishedApi internal Color(long value, boolean unused);
     method public androidx.ui.graphics.Color convert(androidx.ui.graphics.colorspace.ColorSpace colorSpace);
     method public androidx.ui.graphics.Color copy(float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
     method public float getAlpha();
@@ -200,31 +200,31 @@ package androidx.ui.graphics {
     method public float scale(androidx.ui.unit.PxSize srcSize, androidx.ui.unit.PxSize dstSize);
   }
 
-  public interface ImageAsset {
+  public interface Image {
     method public androidx.ui.graphics.colorspace.ColorSpace getColorSpace();
-    method public androidx.ui.graphics.ImageAssetConfig getConfig();
+    method public androidx.ui.graphics.ImageConfig getConfig();
     method public boolean getHasAlpha();
     method public int getHeight();
     method public android.graphics.Bitmap getNativeImage();
     method public int getWidth();
     method public void prepareToDraw();
     property public abstract androidx.ui.graphics.colorspace.ColorSpace colorSpace;
-    property public abstract androidx.ui.graphics.ImageAssetConfig config;
+    property public abstract androidx.ui.graphics.ImageConfig config;
     property public abstract boolean hasAlpha;
     property public abstract int height;
     property public abstract android.graphics.Bitmap nativeImage;
     property public abstract int width;
   }
 
-  public enum ImageAssetConfig {
-    enum_constant public static final androidx.ui.graphics.ImageAssetConfig Alpha8;
-    enum_constant public static final androidx.ui.graphics.ImageAssetConfig Argb8888;
-    enum_constant public static final androidx.ui.graphics.ImageAssetConfig F16;
-    enum_constant public static final androidx.ui.graphics.ImageAssetConfig Gpu;
-    enum_constant public static final androidx.ui.graphics.ImageAssetConfig Rgb565;
+  public enum ImageConfig {
+    enum_constant public static final androidx.ui.graphics.ImageConfig Alpha8;
+    enum_constant public static final androidx.ui.graphics.ImageConfig Argb8888;
+    enum_constant public static final androidx.ui.graphics.ImageConfig F16;
+    enum_constant public static final androidx.ui.graphics.ImageConfig Gpu;
+    enum_constant public static final androidx.ui.graphics.ImageConfig Rgb565;
   }
 
-  public final class ImageAssetKt {
+  public final class ImageKt {
   }
 
   public final class LinearGradient extends androidx.ui.graphics.ShaderBrush {
@@ -447,18 +447,18 @@ package androidx.ui.graphics {
   }
 
   public final class ShaderKt {
-    method public static androidx.ui.graphics.Shader ImageShader(androidx.ui.graphics.ImageAsset image, androidx.ui.graphics.TileMode tileModeX = androidx.ui.graphics.TileMode.Clamp, androidx.ui.graphics.TileMode tileModeY = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.Shader ImageShader(androidx.ui.graphics.Image image, androidx.ui.graphics.TileMode tileModeX = androidx.ui.graphics.TileMode.Clamp, androidx.ui.graphics.TileMode tileModeY = androidx.ui.graphics.TileMode.Clamp);
     method public static androidx.ui.graphics.Shader LinearGradientShader(androidx.ui.geometry.Offset from, androidx.ui.geometry.Offset to, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
     method public static androidx.ui.graphics.Shader RadialGradientShader(androidx.ui.geometry.Offset center, float radius, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
   }
 
-  public final class Shadow {
+  @androidx.compose.Immutable public final class Shadow {
     ctor public Shadow(androidx.ui.graphics.Color color, androidx.ui.geometry.Offset offset, androidx.ui.unit.Px blurRadius);
     ctor public Shadow();
     method public androidx.ui.graphics.Color component1();
     method public androidx.ui.geometry.Offset component2();
     method public androidx.ui.unit.Px component3();
-    method public androidx.ui.graphics.Shadow copy(androidx.ui.graphics.Color color, androidx.ui.geometry.Offset offset, androidx.ui.unit.Px blurRadius);
+    method @androidx.compose.Immutable public androidx.ui.graphics.Shadow copy(androidx.ui.graphics.Color color, androidx.ui.geometry.Offset offset, androidx.ui.unit.Px blurRadius);
     method public androidx.ui.unit.Px getBlurRadius();
     method public androidx.ui.graphics.Color getColor();
     method public androidx.ui.geometry.Offset getOffset();
@@ -723,8 +723,8 @@ package androidx.ui.graphics.painter {
   }
 
   public final class ImagePainter extends androidx.ui.graphics.painter.Painter {
-    ctor public ImagePainter(androidx.ui.graphics.ImageAsset image);
-    method public androidx.ui.graphics.painter.ImagePainter copy(androidx.ui.graphics.ImageAsset image);
+    ctor public ImagePainter(androidx.ui.graphics.Image image);
+    method public androidx.ui.graphics.painter.ImagePainter copy(androidx.ui.graphics.Image image);
     method public androidx.ui.unit.PxSize getIntrinsicSize();
     method protected void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
     property public androidx.ui.unit.PxSize intrinsicSize;

@@ -57,14 +57,14 @@ package androidx.ui.core {
     method public static androidx.ui.unit.IntPx merge(androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx position1, androidx.ui.unit.IntPx position2);
   }
 
-  public final class Constraints {
+  @androidx.compose.Immutable public final class Constraints {
     ctor public Constraints(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
     ctor public Constraints();
     method public androidx.ui.unit.IntPx component1();
     method public androidx.ui.unit.IntPx component2();
     method public androidx.ui.unit.IntPx component3();
     method public androidx.ui.unit.IntPx component4();
-    method public androidx.ui.core.Constraints copy(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
+    method @androidx.compose.Immutable public androidx.ui.core.Constraints copy(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
     method public androidx.ui.unit.IntPx getMaxHeight();
     method public androidx.ui.unit.IntPx getMaxWidth();
     method public androidx.ui.unit.IntPx getMinHeight();
@@ -242,7 +242,7 @@ package androidx.ui.core {
   public final class MeasureScopeKt {
   }
 
-  public interface Modifier {
+  @androidx.compose.Stable public interface Modifier {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public default operator androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
@@ -358,7 +358,7 @@ package androidx.ui.core {
     method public static boolean positionChangedIgnoreConsumed(androidx.ui.core.PointerInputChange);
   }
 
-  public final class TransformOrigin {
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final class TransformOrigin {
     ctor public TransformOrigin(internal long value);
     method public float getPivotFractionX();
     method public float getPivotFractionY();

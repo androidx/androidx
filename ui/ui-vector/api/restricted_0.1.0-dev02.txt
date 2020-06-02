@@ -94,9 +94,9 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorComposeNonIRKt {
-    ctor public VectorComposeNonIRKt();
     method public static void composeVector(androidx.ui.graphics.vector.VectorComponent container, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> composable);
     method public static void disposeVector(androidx.ui.graphics.vector.VectorComponent container, androidx.compose.CompositionReference? parent = null);
+    field @kotlin.PublishedApi internal static final Object VectorGroupKey;
   }
 
   public final class VectorComposer extends androidx.compose.Composer<androidx.ui.graphics.vector.VNode> {
@@ -116,7 +116,6 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorKt {
-    ctor public VectorKt();
     method public static inline androidx.ui.graphics.vector.PathNode![] PathData(kotlin.jvm.functions.Function1<? super androidx.ui.graphics.vector.PathBuilder,kotlin.Unit> block);
     method public static androidx.ui.graphics.vector.PathNode![] addPathNodes(String? pathStr);
     method public static androidx.ui.graphics.StrokeCap getDefaultStrokeLineCap();

@@ -2,8 +2,8 @@
 package androidx.ui.test {
 
   public final class ActionsKt {
-    method public static <T extends kotlin.Function<? extends java.lang.Boolean>> void callSemanticsAction(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
-    method public static void callSemanticsAction(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> key);
+    method public static <T extends kotlin.Function<? extends kotlin.Unit>> void callSemanticsAction(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
+    method public static void callSemanticsAction(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> key);
     method public static androidx.ui.test.SemanticsNodeInteraction doClick(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction doGesture(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.test.GestureScope,kotlin.Unit> block);
     method public static androidx.ui.test.SemanticsNodeInteraction doPartialGesture(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.test.PartialGestureScope,kotlin.Unit> block);
@@ -53,8 +53,8 @@ package androidx.ui.test {
   public final class BitmapHelpersKt {
     method public static void assertPixelColor-9bBi3KA(android.graphics.Bitmap, long expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String> error = { color -> return "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
     method public static void assertPixels(android.graphics.Bitmap, androidx.ui.unit.IntPxSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntPxPosition,androidx.ui.graphics.Color> expectedColorProvider);
-    method public static void assertShape-2l1GYV8(android.graphics.Bitmap, androidx.ui.unit.Density density, float horizontalPadding, float verticalPadding, long backgroundColor, long shapeColor, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, float shapeOverlapPixelCount = 1.px);
-    method public static void assertShape-nbwoFSQ(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, long shapeColor, long backgroundColor, androidx.ui.graphics.Shape backgroundShape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, float sizeX = width.toFloat().px, float sizeY = height.toFloat().px, float shapeSizeX = sizeX, float shapeSizeY = sizeY, float centerX = width.px / 2.0, float centerY = height.px / 2.0, float shapeOverlapPixelCount = 1.px);
+    method public static void assertShape-2l1GYV8(android.graphics.Bitmap, androidx.ui.unit.Density density, float horizontalPadding, float verticalPadding, long backgroundColor, long shapeColor, androidx.ui.graphics.Shape shape = RectangleShape, float shapeOverlapPixelCount = 1.px);
+    method public static void assertShape-nbwoFSQ(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, long shapeColor, long backgroundColor, androidx.ui.graphics.Shape backgroundShape = RectangleShape, float sizeX = width.toFloat().px, float sizeY = height.toFloat().px, float shapeSizeX = sizeX, float shapeSizeY = sizeY, float centerX = width.px / 2.0, float centerY = height.px / 2.0, float shapeOverlapPixelCount = 1.px);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(android.view.View);
     method public static boolean contains-m3TnucA(androidx.ui.graphics.Path, long offset);
@@ -115,7 +115,7 @@ package androidx.ui.test {
   }
 
   public interface ComposeTestCase {
-    method public void emitContent();
+    method @androidx.compose.Composable public void emitContent();
   }
 
   public interface ComposeTestCaseSetup {
@@ -356,7 +356,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRuleKt {
-    method public static inline <reified T> androidx.ui.test.android.AndroidComposeTestRule<T>! AndroidComposeTestRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T>! AndroidComposeTestRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false);
   }
 
   public final class ComposeIdlingResourceKt {

@@ -2,10 +2,9 @@
 package androidx.ui {
 
   public final class MathHelpersKt {
-    ctor public MathHelpersKt();
     method public static float lerp(float start, float stop, float fraction);
     method public static int lerp(int start, int stop, float fraction);
-    method public static String toHexString(int);
+    method @kotlin.UseExperimental(markerClass=kotlin.ExperimentalUnsignedTypes::class) public static String toHexString(int);
     method public static String toStringAsFixed(float, int digits);
   }
 
@@ -87,17 +86,16 @@ package androidx.ui.core {
   }
 
   public final class AlignmentLineKt {
-    ctor public AlignmentLineKt();
     method public static androidx.ui.core.IntPx merge(androidx.ui.core.AlignmentLine, androidx.ui.core.IntPx position1, androidx.ui.core.IntPx position2);
   }
 
-  public final class Bounds {
+  @androidx.compose.Immutable public final class Bounds {
     ctor public Bounds(androidx.ui.core.Dp left, androidx.ui.core.Dp top, androidx.ui.core.Dp right, androidx.ui.core.Dp bottom);
     method public androidx.ui.core.Dp component1();
     method public androidx.ui.core.Dp component2();
     method public androidx.ui.core.Dp component3();
     method public androidx.ui.core.Dp component4();
-    method public androidx.ui.core.Bounds copy(androidx.ui.core.Dp left, androidx.ui.core.Dp top, androidx.ui.core.Dp right, androidx.ui.core.Dp bottom);
+    method @androidx.compose.Immutable public androidx.ui.core.Bounds copy(androidx.ui.core.Dp left, androidx.ui.core.Dp top, androidx.ui.core.Dp right, androidx.ui.core.Dp bottom);
     method public androidx.ui.core.Dp getBottom();
     method public androidx.ui.core.Dp getLeft();
     method public androidx.ui.core.Dp getRight();
@@ -126,7 +124,6 @@ package androidx.ui.core {
   }
 
   public final class ConstraintsKt {
-    ctor public ConstraintsKt();
     method public static androidx.ui.core.IntPxSize constrain(androidx.ui.core.Constraints, androidx.ui.core.IntPxSize size);
     method public static androidx.ui.core.Constraints enforce(androidx.ui.core.Constraints, androidx.ui.core.Constraints otherConstraints);
     method public static boolean getHasBoundedHeight(androidx.ui.core.Constraints);
@@ -164,7 +161,6 @@ package androidx.ui.core {
   }
 
   public final class DensityKt {
-    ctor public DensityKt();
     method public static androidx.ui.core.Density Density(android.content.Context context);
     method public static androidx.ui.core.DensityScope DensityScope(androidx.ui.core.Density density);
     method public static <R> R! withDensity(androidx.ui.core.Density density, kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityScope,? extends R> block);
@@ -198,11 +194,11 @@ package androidx.ui.core {
     enum_constant public static final androidx.ui.core.Direction UP;
   }
 
-  public final class Dp {
+  @androidx.compose.Immutable public final class Dp {
     ctor public Dp(float value);
     method public inline operator int compareTo(androidx.ui.core.Dp other);
     method public float component1();
-    method public androidx.ui.core.Dp copy(float value);
+    method @androidx.compose.Immutable public androidx.ui.core.Dp copy(float value);
     method public inline operator androidx.ui.core.Dp div(float other);
     method public inline operator androidx.ui.core.Dp div(int other);
     method public inline operator float div(androidx.ui.core.Dp other);
@@ -225,7 +221,7 @@ package androidx.ui.core {
     property public final androidx.ui.core.Dp Infinity;
   }
 
-  public final inline class DpCubed {
+  @androidx.compose.Immutable public final inline class DpCubed {
     ctor public DpCubed();
     method public static inline operator int compareTo-zqpl1kg(float $this, float other);
     method public static float constructor-impl(float value);
@@ -233,38 +229,37 @@ package androidx.ui.core {
     method public static inline operator float div-impl(float $this, float other);
     method public static inline operator float div-impl(float $this, androidx.ui.core.Dp other);
     method public static inline operator float div-zqpl1kg(float $this, float other);
-    method public static boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public static int hashCode-impl(float p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
     method public static inline operator float minus-zqpl1kg(float $this, float dimension);
     method public static inline operator float plus-zqpl1kg(float $this, float dimension);
     method public static inline operator float times-impl(float $this, float other);
-    method public static String toString-impl(float p);
+    method @androidx.compose.Immutable public static inline String! toString-impl(float p);
   }
 
-  public final inline class DpInverse {
+  @androidx.compose.Immutable public final inline class DpInverse {
     ctor public DpInverse();
     method public static inline operator int compareTo-ASDJgtI(float $this, float other);
     method public static float constructor-impl(float value);
     method public static inline operator float div-impl(float $this, float other);
-    method public static boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public static int hashCode-impl(float p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
     method public static inline operator float minus-ASDJgtI(float $this, float dimension);
     method public static inline operator float plus-ASDJgtI(float $this, float dimension);
     method public static inline operator androidx.ui.core.Dp times-KkBJKWw(float $this, float other);
     method public static inline operator float times-impl(float $this, float other);
     method public static inline operator float times-impl(float $this, androidx.ui.core.Dp other);
     method public static inline operator float times-zqpl1kg(float $this, float other);
-    method public static String toString-impl(float p);
+    method @androidx.compose.Immutable public static inline String! toString-impl(float p);
   }
 
   public final class DpKt {
-    ctor public DpKt();
-    method public static inline androidx.ui.core.Position Position(androidx.ui.core.Dp x, androidx.ui.core.Dp y);
-    method public static inline androidx.ui.core.Size Size(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
+    method @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline androidx.ui.core.Position Position(androidx.ui.core.Dp x, androidx.ui.core.Dp y);
+    method @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline androidx.ui.core.Size Size(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
     method public static androidx.ui.core.Position center(androidx.ui.core.Size);
     method public static inline androidx.ui.core.Dp coerceAtLeast(androidx.ui.core.Dp, androidx.ui.core.Dp minimumValue);
     method public static inline androidx.ui.core.Dp coerceAtMost(androidx.ui.core.Dp, androidx.ui.core.Dp maximumValue);
@@ -293,7 +288,7 @@ package androidx.ui.core {
     method public static inline androidx.ui.core.Size toSize(androidx.ui.core.Bounds);
   }
 
-  public final inline class DpSquared {
+  @androidx.compose.Immutable public final inline class DpSquared {
     ctor public DpSquared();
     method public static inline operator int compareTo-KkBJKWw(float $this, float other);
     method public static float constructor-impl(float value);
@@ -301,15 +296,15 @@ package androidx.ui.core {
     method public static inline operator float div-impl(float $this, float other);
     method public static inline operator androidx.ui.core.Dp div-impl(float $this, androidx.ui.core.Dp other);
     method public static inline operator float div-zqpl1kg(float $this, float other);
-    method public static boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public static int hashCode-impl(float p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
     method public static inline operator float minus-KkBJKWw(float $this, float other);
     method public static inline operator float plus-KkBJKWw(float $this, float other);
     method public static inline operator float times-impl(float $this, float other);
     method public static inline operator float times-impl(float $this, androidx.ui.core.Dp other);
-    method public static String toString-impl(float p);
+    method @androidx.compose.Immutable public static inline String! toString-impl(float p);
   }
 
   public interface DrawReceiver extends androidx.ui.core.DensityScope {
@@ -338,7 +333,6 @@ package androidx.ui.core {
   }
 
   public final class Durations {
-    ctor public Durations();
     method public static androidx.ui.core.Duration Duration(long days = 0, long hours = 0, long minutes = 0, long seconds = 0, long milliseconds = 0, long microseconds = 0, long nanoseconds = 0);
     method public static androidx.ui.core.Duration getDays(long);
     method public static androidx.ui.core.Duration getDays(int);
@@ -390,7 +384,6 @@ package androidx.ui.core {
   }
 
   public final class EmKt {
-    ctor public EmKt();
     method public static inline androidx.ui.core.Em coerceAtLeast(androidx.ui.core.Em, androidx.ui.core.Em minimumValue);
     method public static inline androidx.ui.core.Em coerceAtMost(androidx.ui.core.Em, androidx.ui.core.Em maximumValue);
     method public static inline androidx.ui.core.Em coerceIn(androidx.ui.core.Em, androidx.ui.core.Em minimumValue, androidx.ui.core.Em maximumValue);
@@ -411,7 +404,6 @@ package androidx.ui.core {
   }
 
   public final class InlineClassHelperKt {
-    ctor public InlineClassHelperKt();
     method public static inline long packFloats(float val1, float val2);
     method public static inline long packInts(int val1, int val2);
     method public static inline float unpackFloat1(long value);
@@ -420,12 +412,12 @@ package androidx.ui.core {
     method public static inline int unpackInt2(long value);
   }
 
-  public final class IntPx {
+  @androidx.compose.Immutable public final class IntPx {
     ctor public IntPx(int value);
     method public inline operator int compareTo(androidx.ui.core.IntPx other);
     method public inline operator int compareTo(androidx.ui.core.Px other);
     method public int component1();
-    method public androidx.ui.core.IntPx copy(int value);
+    method @androidx.compose.Immutable public androidx.ui.core.IntPx copy(int value);
     method public operator androidx.ui.core.IntPx div(float other);
     method public operator androidx.ui.core.IntPx div(double other);
     method public operator androidx.ui.core.IntPx div(int other);
@@ -461,9 +453,8 @@ package androidx.ui.core {
   }
 
   public final class IntPxKt {
-    ctor public IntPxKt();
-    method public static inline androidx.ui.core.IntPxPosition IntPxPosition(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
-    method public static inline androidx.ui.core.IntPxSize IntPxSize(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height);
+    method @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline androidx.ui.core.IntPxPosition IntPxPosition(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
+    method @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline androidx.ui.core.IntPxSize IntPxSize(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height);
     method public static inline androidx.ui.core.PxPosition PxPosition(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
     method public static inline androidx.ui.core.PxSize PxSize(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height);
     method public static androidx.ui.core.IntPxPosition center(androidx.ui.core.IntPxSize);
@@ -489,8 +480,8 @@ package androidx.ui.core {
     method public static inline androidx.ui.core.IntPxSize toSize(androidx.ui.core.IntPxBounds);
   }
 
-  public final class IntPxPosition {
-    method public androidx.ui.core.IntPxPosition copy(long value);
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final class IntPxPosition {
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public androidx.ui.core.IntPxPosition copy(long value);
     method public inline androidx.ui.core.IntPx getX();
     method public inline androidx.ui.core.IntPx getY();
     method public inline operator androidx.ui.core.IntPxPosition minus(androidx.ui.core.IntPxPosition other);
@@ -506,8 +497,8 @@ package androidx.ui.core {
     property public final androidx.ui.core.IntPxPosition Origin;
   }
 
-  public final class IntPxSize {
-    method public androidx.ui.core.IntPxSize copy(long value);
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final class IntPxSize {
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public androidx.ui.core.IntPxSize copy(long value);
     method public inline operator androidx.ui.core.IntPxSize div(int other);
     method public inline androidx.ui.core.IntPx getHeight();
     method public inline androidx.ui.core.IntPx getWidth();
@@ -526,7 +517,6 @@ package androidx.ui.core {
   }
 
   public final class IntrinsicMeasurableKt {
-    ctor public IntrinsicMeasurableKt();
   }
 
   public interface LayoutCoordinates {
@@ -545,7 +535,6 @@ package androidx.ui.core {
   }
 
   public final class LayoutCoordinatesKt {
-    ctor public LayoutCoordinatesKt();
     method public static inline androidx.ui.core.PxPosition getGlobalPosition(androidx.ui.core.LayoutCoordinates);
     method public static inline androidx.ui.core.PxPosition getPositionInRoot(androidx.ui.core.LayoutCoordinates);
   }
@@ -587,7 +576,6 @@ package androidx.ui.core {
   }
 
   public final class MeasureScopeKt {
-    ctor public MeasureScopeKt();
   }
 
   public interface Modifier {
@@ -662,7 +650,6 @@ package androidx.ui.core {
   }
 
   public final class PointerInputKt {
-    ctor public PointerInputKt();
     method public static boolean anyPositionChangeConsumed(androidx.ui.core.PointerInputChange);
     method public static boolean changedToDown(androidx.ui.core.PointerInputChange);
     method public static boolean changedToDownIgnoreConsumed(androidx.ui.core.PointerInputChange);
@@ -676,8 +663,8 @@ package androidx.ui.core {
     method public static boolean positionChangedIgnoreConsumed(androidx.ui.core.PointerInputChange);
   }
 
-  public final class Position {
-    method public androidx.ui.core.Position copy(long value);
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final class Position {
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public androidx.ui.core.Position copy(long value);
     method public inline androidx.ui.core.Dp getX();
     method public inline androidx.ui.core.Dp getY();
     method public inline operator androidx.ui.core.Position minus(androidx.ui.core.Position other);
@@ -686,12 +673,12 @@ package androidx.ui.core {
     property public final inline androidx.ui.core.Dp y;
   }
 
-  public final class Px {
+  @androidx.compose.Immutable public final class Px {
     ctor public Px(float value);
     method public inline operator int compareTo(androidx.ui.core.Px other);
     method public inline operator int compareTo(androidx.ui.core.IntPx other);
     method public float component1();
-    method public androidx.ui.core.Px copy(float value);
+    method @androidx.compose.Immutable public androidx.ui.core.Px copy(float value);
     method public inline operator androidx.ui.core.Px div(float other);
     method public inline operator androidx.ui.core.Px div(int other);
     method public inline operator float div(androidx.ui.core.Px other);
@@ -716,20 +703,20 @@ package androidx.ui.core {
     property public final androidx.ui.core.Px Zero;
   }
 
-  public final class PxBounds {
+  @androidx.compose.Immutable public final class PxBounds {
     ctor public PxBounds(androidx.ui.core.Px left, androidx.ui.core.Px top, androidx.ui.core.Px right, androidx.ui.core.Px bottom);
     method public androidx.ui.core.Px component1();
     method public androidx.ui.core.Px component2();
     method public androidx.ui.core.Px component3();
     method public androidx.ui.core.Px component4();
-    method public androidx.ui.core.PxBounds copy(androidx.ui.core.Px left, androidx.ui.core.Px top, androidx.ui.core.Px right, androidx.ui.core.Px bottom);
+    method @androidx.compose.Immutable public androidx.ui.core.PxBounds copy(androidx.ui.core.Px left, androidx.ui.core.Px top, androidx.ui.core.Px right, androidx.ui.core.Px bottom);
     method public androidx.ui.core.Px getBottom();
     method public androidx.ui.core.Px getLeft();
     method public androidx.ui.core.Px getRight();
     method public androidx.ui.core.Px getTop();
   }
 
-  public final inline class PxCubed {
+  @androidx.compose.Immutable public final inline class PxCubed {
     ctor public PxCubed();
     method public static inline operator int compareTo-syUR1PY(float $this, float other);
     method public static float constructor-impl(float value);
@@ -737,38 +724,37 @@ package androidx.ui.core {
     method public static inline operator float div-impl(float $this, androidx.ui.core.Px other);
     method public static inline operator androidx.ui.core.Px div-kVJEwbQ(float $this, float other);
     method public static inline operator float div-syUR1PY(float $this, float other);
-    method public static boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public static int hashCode-impl(float p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
     method public static inline operator float minus-syUR1PY(float $this, float dimension);
     method public static inline operator float plus-syUR1PY(float $this, float dimension);
     method public static inline operator float times-impl(float $this, float other);
-    method public static String toString-impl(float p);
+    method @androidx.compose.Immutable public static inline String! toString-impl(float p);
   }
 
-  public final inline class PxInverse {
+  @androidx.compose.Immutable public final inline class PxInverse {
     ctor public PxInverse();
     method public static inline operator int compareTo-MXEAIGs(float $this, float other);
     method public static float constructor-impl(float value);
     method public static inline operator float div-impl(float $this, float other);
-    method public static boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public static int hashCode-impl(float p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
     method public static inline operator float minus-MXEAIGs(float $this, float dimension);
     method public static inline operator float plus-MXEAIGs(float $this, float dimension);
     method public static inline operator float times-impl(float $this, float other);
     method public static inline operator float times-impl(float $this, androidx.ui.core.Px other);
     method public static inline operator androidx.ui.core.Px times-kVJEwbQ(float $this, float other);
     method public static inline operator float times-syUR1PY(float $this, float other);
-    method public static String toString-impl(float p);
+    method @androidx.compose.Immutable public static inline String! toString-impl(float p);
   }
 
   public final class PxKt {
-    ctor public PxKt();
-    method public static inline androidx.ui.core.PxPosition PxPosition(androidx.ui.core.Px x, androidx.ui.core.Px y);
-    method public static inline androidx.ui.core.PxSize PxSize(androidx.ui.core.Px width, androidx.ui.core.Px height);
+    method @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline androidx.ui.core.PxPosition PxPosition(androidx.ui.core.Px x, androidx.ui.core.Px y);
+    method @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public static inline androidx.ui.core.PxSize PxSize(androidx.ui.core.Px width, androidx.ui.core.Px height);
     method public static androidx.ui.core.PxPosition center(androidx.ui.core.PxSize);
     method public static inline androidx.ui.core.Px coerceAtLeast(androidx.ui.core.Px, androidx.ui.core.Px minimumValue);
     method public static inline androidx.ui.core.Px coerceAtMost(androidx.ui.core.Px, androidx.ui.core.Px maximumValue);
@@ -801,8 +787,8 @@ package androidx.ui.core {
     method public static androidx.ui.core.PxSize toSize(androidx.ui.core.PxBounds);
   }
 
-  public final class PxPosition {
-    method public androidx.ui.core.PxPosition copy(long value);
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final class PxPosition {
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public androidx.ui.core.PxPosition copy(long value);
     method public inline androidx.ui.core.Px getX();
     method public inline androidx.ui.core.Px getY();
     method public inline operator androidx.ui.core.PxPosition minus(androidx.ui.core.PxPosition other);
@@ -820,8 +806,8 @@ package androidx.ui.core {
     property public final androidx.ui.core.PxPosition Origin;
   }
 
-  public final class PxSize {
-    method public androidx.ui.core.PxSize copy(long value);
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final class PxSize {
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public androidx.ui.core.PxSize copy(long value);
     method public inline operator androidx.ui.core.PxSize div(int other);
     method public inline operator androidx.ui.core.PxSize div(float other);
     method public inline operator androidx.ui.core.PxSize div(double other);
@@ -840,7 +826,7 @@ package androidx.ui.core {
     property public final androidx.ui.core.PxSize Zero;
   }
 
-  public final inline class PxSquared {
+  @androidx.compose.Immutable public final inline class PxSquared {
     ctor public PxSquared();
     method public static inline operator int compareTo-kVJEwbQ(float $this, float other);
     method public static float constructor-impl(float value);
@@ -848,25 +834,24 @@ package androidx.ui.core {
     method public static inline operator androidx.ui.core.Px div-impl(float $this, androidx.ui.core.Px other);
     method public static inline operator float div-kVJEwbQ(float $this, float other);
     method public static inline operator float div-syUR1PY(float $this, float other);
-    method public static boolean equals-impl(float p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public static int hashCode-impl(float p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(float p);
     method public static inline operator float minus-kVJEwbQ(float $this, float other);
     method public static inline operator float plus-kVJEwbQ(float $this, float other);
     method public static inline operator float times-impl(float $this, float other);
     method public static inline operator float times-impl(float $this, androidx.ui.core.Px other);
-    method public static String toString-impl(float p);
+    method @androidx.compose.Immutable public static inline String! toString-impl(float p);
   }
 
   public final class RectHelperKt {
-    ctor public RectHelperKt();
     method public static android.graphics.Rect toFrameworkRect(androidx.ui.engine.geometry.Rect);
     method public static android.graphics.RectF toFrameworkRectF(androidx.ui.engine.geometry.Rect);
   }
 
-  public final class Size {
-    method public androidx.ui.core.Size copy(long value);
+  @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public final class Size {
+    method @androidx.compose.Immutable @kotlin.UseExperimental(markerClass=ExperimentalUnsignedTypes::class) public androidx.ui.core.Size copy(long value);
     method public inline operator androidx.ui.core.Size div(int other);
     method public inline operator androidx.ui.core.Size div(float other);
     method public inline operator androidx.ui.core.Size div(double other);
@@ -902,7 +887,6 @@ package androidx.ui.core {
   }
 
   public final class SpKt {
-    ctor public SpKt();
     method public static inline androidx.ui.core.Sp coerceAtLeast(androidx.ui.core.Sp, androidx.ui.core.Sp minimumValue);
     method public static inline androidx.ui.core.Sp coerceAtMost(androidx.ui.core.Sp, androidx.ui.core.Sp maximumValue);
     method public static inline androidx.ui.core.Sp coerceIn(androidx.ui.core.Sp, androidx.ui.core.Sp minimumValue, androidx.ui.core.Sp maximumValue);
@@ -929,7 +913,6 @@ package androidx.ui.core {
   }
 
   public final class Timestamps {
-    ctor public Timestamps();
     method public static androidx.ui.core.Timestamp millisecondsToTimestamp(long);
     method public static androidx.ui.core.Timestamp nanosecondsToTimestamp(long);
     method public static androidx.ui.core.Timestamp secondsToTimestamp(long);
@@ -950,7 +933,6 @@ package androidx.ui.core {
   }
 
   public final class VelocityKt {
-    ctor public VelocityKt();
     method public static operator androidx.ui.core.Velocity minus(androidx.ui.core.Velocity, androidx.ui.core.Velocity other);
     method public static operator androidx.ui.core.Velocity plus(androidx.ui.core.Velocity, androidx.ui.core.Velocity other);
   }
@@ -1009,7 +991,6 @@ package androidx.ui.engine.geometry {
   }
 
   public final class OffsetKt {
-    ctor public OffsetKt();
     method public static androidx.ui.core.PxPosition toPxPosition(androidx.ui.engine.geometry.Offset);
   }
 
@@ -1038,7 +1019,6 @@ package androidx.ui.engine.geometry {
   }
 
   public final class OutlineKt {
-    ctor public OutlineKt();
     method public static void addOutline(androidx.ui.graphics.Path, androidx.ui.engine.geometry.Outline outline);
     method public static void drawOutline(androidx.ui.graphics.Canvas, androidx.ui.engine.geometry.Outline outline, androidx.ui.graphics.Paint paint);
   }
@@ -1087,7 +1067,6 @@ package androidx.ui.engine.geometry {
   }
 
   public final class RRectKt {
-    ctor public RRectKt();
     method public static androidx.ui.engine.geometry.RRect RRect(float left, float top, float right, float bottom, float radiusX, float radiusY);
     method public static androidx.ui.engine.geometry.RRect RRect(float left, float top, float right, float bottom, androidx.ui.engine.geometry.Radius radius);
     method public static androidx.ui.engine.geometry.RRect RRect(androidx.ui.engine.geometry.Rect rect, float radiusX, float radiusY);
@@ -1144,7 +1123,6 @@ package androidx.ui.engine.geometry {
   }
 
   public final class RadiusKt {
-    ctor public RadiusKt();
     method public static androidx.ui.engine.geometry.Radius lerp(androidx.ui.engine.geometry.Radius start, androidx.ui.engine.geometry.Radius stop, float fraction);
   }
 
@@ -1204,7 +1182,6 @@ package androidx.ui.engine.geometry {
   }
 
   public final class RectKt {
-    ctor public RectKt();
     method public static androidx.ui.engine.geometry.Rect lerp(androidx.ui.engine.geometry.Rect start, androidx.ui.engine.geometry.Rect stop, float fraction);
   }
 
@@ -1262,14 +1239,12 @@ package androidx.ui.engine.geometry {
 package androidx.ui.graphics {
 
   public final class AndroidCanvasKt {
-    ctor public AndroidCanvasKt();
     method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.Image image);
     method public static androidx.ui.graphics.Canvas Canvas(androidx.ui.graphics.PictureRecorder recorder, androidx.ui.engine.geometry.Rect cullRect = Rect.largest);
     method public static androidx.ui.graphics.Canvas Canvas(android.graphics.Canvas c);
   }
 
   public final class AndroidImageKt {
-    ctor public AndroidImageKt();
     method public static androidx.ui.graphics.Image Image(int width, int height, androidx.ui.graphics.ImageConfig config = androidx.ui.graphics.ImageConfig.Argb8888, boolean hasAlpha = true, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
     method public static androidx.ui.graphics.Image imageFromResource(android.content.res.Resources res, int resId);
   }
@@ -1319,7 +1294,6 @@ package androidx.ui.graphics {
   }
 
   public final class BrushKt {
-    ctor public BrushKt();
     method public static androidx.ui.graphics.LinearGradient HorizontalGradient(java.util.List<androidx.ui.graphics.Color> colors, androidx.ui.core.Px startX, androidx.ui.core.Px endX, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
     method public static androidx.ui.graphics.Brush HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startX, androidx.ui.core.Px endX, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
     method public static androidx.ui.graphics.LinearGradient LinearGradient(java.util.List<androidx.ui.graphics.Color> colors, androidx.ui.core.Px startX, androidx.ui.core.Px startY, androidx.ui.core.Px endX, androidx.ui.core.Px endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
@@ -1364,7 +1338,6 @@ package androidx.ui.graphics {
   }
 
   public final class CanvasKt {
-    ctor public CanvasKt();
     method public static inline void withSave(androidx.ui.graphics.Canvas, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public static inline void withSaveLayer(androidx.ui.graphics.Canvas, androidx.ui.engine.geometry.Rect bounds, androidx.ui.graphics.Paint paint, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
@@ -1374,7 +1347,7 @@ package androidx.ui.graphics {
     enum_constant public static final androidx.ui.graphics.ClipOp intersect;
   }
 
-  public final class Color {
+  @androidx.compose.Immutable public final class Color {
     method public androidx.ui.graphics.Color convert(androidx.ui.graphics.colorspace.ColorSpace colorSpace);
     method public androidx.ui.graphics.Color copy(float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
     method public float getAlpha();
@@ -1428,7 +1401,6 @@ package androidx.ui.graphics {
   }
 
   public final class ColorKt {
-    ctor public ColorKt();
     method public static androidx.ui.graphics.Color Color(float red, float green, float blue, float alpha = 1f, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
     method public static androidx.ui.graphics.Color Color(@ColorInt int color);
     method public static androidx.ui.graphics.Color Color(long color);
@@ -1476,7 +1448,6 @@ package androidx.ui.graphics {
   }
 
   public final class ImageKt {
-    ctor public ImageKt();
   }
 
   public enum ImageRepeat {
@@ -1650,7 +1621,6 @@ package androidx.ui.graphics {
   }
 
   public final class ShaderKt {
-    ctor public ShaderKt();
     method public static androidx.ui.graphics.Shader ImageShader(androidx.ui.graphics.Image image, androidx.ui.graphics.TileMode tileModeX = androidx.ui.graphics.TileMode.Clamp, androidx.ui.graphics.TileMode tileModeY = androidx.ui.graphics.TileMode.Clamp);
     method public static androidx.ui.graphics.Shader LinearGradientShader(androidx.ui.engine.geometry.Offset from, androidx.ui.engine.geometry.Offset to, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
     method public static androidx.ui.graphics.Shader RadialGradientShader(androidx.ui.engine.geometry.Offset center, float radius, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
@@ -1669,7 +1639,6 @@ package androidx.ui.graphics {
   }
 
   public final class ShadowKt {
-    ctor public ShadowKt();
     method public static androidx.ui.graphics.Shadow lerp(androidx.ui.graphics.Shadow start, androidx.ui.graphics.Shadow stop, float fraction);
   }
 
@@ -1699,7 +1668,6 @@ package androidx.ui.graphics {
   }
 
   public final class TileModeKt {
-    ctor public TileModeKt();
     method public static android.graphics.Shader.TileMode NativeClampTileMode();
     method public static android.graphics.Shader.TileMode NativeMirrorTileMode();
     method public static android.graphics.Shader.TileMode NativeRepeatedTileMode();
@@ -1742,7 +1710,6 @@ package androidx.ui.graphics.colorspace {
   }
 
   public final class ColorSpaceKt {
-    ctor public ColorSpaceKt();
     method public static androidx.ui.graphics.colorspace.ColorSpace adapt(androidx.ui.graphics.colorspace.ColorSpace, androidx.ui.graphics.colorspace.WhitePoint whitePoint, androidx.ui.graphics.colorspace.Adaptation adaptation = androidx.ui.graphics.colorspace.Adaptation.Bradford);
     method public static androidx.ui.graphics.colorspace.ColorSpace adapt(androidx.ui.graphics.colorspace.ColorSpace, androidx.ui.graphics.colorspace.WhitePoint whitePoint);
     method public static androidx.ui.graphics.colorspace.Connector connect(androidx.ui.graphics.colorspace.ColorSpace, androidx.ui.graphics.colorspace.ColorSpace destination = ColorSpaces.Srgb, androidx.ui.graphics.colorspace.RenderIntent intent = androidx.ui.graphics.colorspace.RenderIntent.Perceptual);
@@ -1936,7 +1903,6 @@ package androidx.ui.graphics.vector {
   }
 
   public final class PathCommandKt {
-    ctor public PathCommandKt();
     method public static androidx.ui.graphics.vector.PathCommand toPathCommand(char);
   }
 
@@ -1950,7 +1916,6 @@ package androidx.ui.graphics.vector {
   }
 
   public final class PathNodeKt {
-    ctor public PathNodeKt();
     method public static operator StringBuilder plus(StringBuilder, androidx.ui.graphics.vector.PathNode node);
   }
 
@@ -1964,7 +1929,6 @@ package androidx.ui.graphics.vector {
   }
 
   public final class PathParserKt {
-    ctor public PathParserKt();
   }
 
 }
@@ -1997,7 +1961,6 @@ package androidx.ui.semantics {
 package androidx.ui.testutils {
 
   public final class PointerInputTestUtilKt {
-    ctor public PointerInputTestUtilKt();
     method public static androidx.ui.core.PointerInputChange consume(androidx.ui.core.PointerInputChange, float dx = 0f, float dy = 0f, boolean downChange = false);
     method public static androidx.ui.core.PointerInputChange down(int id = 0, androidx.ui.core.Timestamp timestamp = 0.millisecondsToTimestamp(), float x = 0f, float y = 0f);
     method public static java.util.List<androidx.ui.core.PointerInputChange> invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange pointerInputChanges, androidx.ui.core.IntPxSize size = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx));
@@ -2034,7 +1997,6 @@ package androidx.ui.text {
   }
 
   public final class TextRangeKt {
-    ctor public TextRangeKt();
     method public static String substring(CharSequence, androidx.ui.text.TextRange range);
   }
 
@@ -2112,7 +2074,6 @@ package androidx.ui.util {
   }
 
   public final class Float16Kt {
-    ctor public Float16Kt();
     method public static androidx.ui.util.Float16 max(androidx.ui.util.Float16 x, androidx.ui.util.Float16 y);
     method public static androidx.ui.util.Float16 min(androidx.ui.util.Float16 x, androidx.ui.util.Float16 y);
   }
@@ -2287,7 +2248,6 @@ package androidx.ui.vectormath64 {
   }
 
   public final class Matrix4Kt {
-    ctor public Matrix4Kt();
     method public static Float? getAsScale(androidx.ui.vectormath64.Matrix4);
     method public static androidx.ui.engine.geometry.Offset? getAsTranslation(androidx.ui.vectormath64.Matrix4);
     method public static androidx.ui.engine.geometry.Rect inverseTransformRect(androidx.ui.vectormath64.Matrix4 transform, androidx.ui.engine.geometry.Rect rect);
@@ -2305,7 +2265,6 @@ package androidx.ui.vectormath64 {
   }
 
   public final class MatrixExtensionsKt {
-    ctor public MatrixExtensionsKt();
     method public static androidx.ui.vectormath64.Matrix3 inverse(androidx.ui.vectormath64.Matrix3 m);
     method public static androidx.ui.vectormath64.Matrix4 inverse(androidx.ui.vectormath64.Matrix4 m);
     method public static androidx.ui.vectormath64.Matrix4 lookAt(androidx.ui.vectormath64.Vector3 eye, androidx.ui.vectormath64.Vector3 target, androidx.ui.vectormath64.Vector3 up = androidx.ui.vectormath64.Vector3(1.0));
@@ -2326,7 +2285,6 @@ package androidx.ui.vectormath64 {
   }
 
   public final class ScalarKt {
-    ctor public ScalarKt();
     method public static inline float degrees(float v);
     method public static inline float fract(float v);
     method public static inline float mix(float a, float b, float x);
@@ -2607,7 +2565,6 @@ package androidx.ui.vectormath64 {
   }
 
   public final class VectorExtensionsKt {
-    ctor public VectorExtensionsKt();
     method public static inline androidx.ui.vectormath64.Vector2 abs(androidx.ui.vectormath64.Vector2 v);
     method public static inline androidx.ui.vectormath64.Vector3 abs(androidx.ui.vectormath64.Vector3 v);
     method public static inline androidx.ui.vectormath64.Vector4 abs(androidx.ui.vectormath64.Vector4 v);

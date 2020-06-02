@@ -2,31 +2,26 @@
 package androidx.ui.layout {
 
   public final class AlignKt {
-    ctor public AlignKt();
-    method public static void Align(androidx.ui.core.Alignment alignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Center(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Align(androidx.ui.core.Alignment alignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Center(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class AlignmentLineKt {
-    ctor public AlignmentLineKt();
-    method public static void AlignmentLineOffset(androidx.ui.core.AlignmentLine alignmentLine, androidx.ui.core.Dp before = 0.dp, androidx.ui.core.Dp after = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void CenterAlignmentLine(androidx.ui.core.AlignmentLine alignmentLine, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void AlignmentLineOffset(androidx.ui.core.AlignmentLine alignmentLine, androidx.ui.core.Dp before = 0.dp, androidx.ui.core.Dp after = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void CenterAlignmentLine(androidx.ui.core.AlignmentLine alignmentLine, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class AspectRatioKt {
-    ctor public AspectRatioKt();
     method public static androidx.ui.core.LayoutModifier AspectRatio(float value);
-    method @Deprecated public static void AspectRatio(float aspectRatio, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated @androidx.compose.Composable public static void AspectRatio(float aspectRatio, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ConstrainedBoxKt {
-    ctor public ConstrainedBoxKt();
-    method public static void ConstrainedBox(androidx.ui.layout.DpConstraints constraints, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void ConstrainedBox(androidx.ui.layout.DpConstraints constraints, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ContainerKt {
-    ctor public ContainerKt();
-    method public static void Container(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.EdgeInsets padding = androidx.ui.layout.EdgeInsets(0.dp), androidx.ui.core.Alignment alignment = Alignment.Center, boolean expanded = false, androidx.ui.layout.DpConstraints constraints = androidx.ui.layout.DpConstraints(), androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Container(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.EdgeInsets padding = androidx.ui.layout.EdgeInsets(0.dp), androidx.ui.core.Alignment alignment = Alignment.Center, boolean expanded = false, androidx.ui.layout.DpConstraints constraints = androidx.ui.layout.DpConstraints(), androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class CrossAxisAlignment {
@@ -67,7 +62,6 @@ package androidx.ui.layout {
   }
 
   public final class DpConstraintsKt {
-    ctor public DpConstraintsKt();
     method public static androidx.ui.core.Constraints Constraints(androidx.ui.core.DensityScope, androidx.ui.layout.DpConstraints dpConstraints);
     method public static androidx.ui.layout.DpConstraints DpConstraints(androidx.ui.core.DensityScope, androidx.ui.core.Constraints constraints);
     method public static androidx.ui.layout.DpConstraints enforce(androidx.ui.layout.DpConstraints, androidx.ui.layout.DpConstraints otherConstraints);
@@ -102,7 +96,6 @@ package androidx.ui.layout {
   }
 
   public final class ExpandedModifierKt {
-    ctor public ExpandedModifierKt();
     method public static androidx.ui.core.LayoutModifier getExpanded();
     method public static androidx.ui.core.LayoutModifier getExpandedHeight();
     method public static androidx.ui.core.LayoutModifier getExpandedWidth();
@@ -115,11 +108,10 @@ package androidx.ui.layout {
   }
 
   public final class FlexKt {
-    ctor public FlexKt();
-    method public static void Column(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = androidx.ui.layout.LayoutSize.Wrap, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = androidx.ui.layout.LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexScope,kotlin.Unit> block);
-    method public static void FlexColumn(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = androidx.ui.layout.LayoutSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = androidx.ui.layout.LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
-    method public static void FlexRow(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = androidx.ui.layout.LayoutSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = androidx.ui.layout.LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
-    method public static void Row(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = androidx.ui.layout.LayoutSize.Wrap, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = androidx.ui.layout.LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexScope,kotlin.Unit> block);
+    method @androidx.compose.Composable public static void Column(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = androidx.ui.layout.LayoutSize.Wrap, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = androidx.ui.layout.LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexScope,kotlin.Unit> block);
+    method @androidx.compose.Composable public static void FlexColumn(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = androidx.ui.layout.LayoutSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = androidx.ui.layout.LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
+    method @androidx.compose.Composable public static void FlexRow(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = androidx.ui.layout.LayoutSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = androidx.ui.layout.LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
+    method @androidx.compose.Composable public static void Row(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = androidx.ui.layout.LayoutSize.Wrap, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = androidx.ui.layout.LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexScope,kotlin.Unit> block);
   }
 
   public final class FlexScope {
@@ -135,17 +127,15 @@ package androidx.ui.layout {
   }
 
   public final class FlowKt {
-    ctor public FlowKt();
-    method public static void FlowColumn(androidx.ui.layout.LayoutSize mainAxisSize = androidx.ui.layout.LayoutSize.Wrap, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.core.Dp mainAxisSpacing = 0.dp, androidx.ui.layout.FlowCrossAxisAlignment crossAxisAlignment = androidx.ui.layout.FlowCrossAxisAlignment.Start, androidx.ui.core.Dp crossAxisSpacing = 0.dp, androidx.ui.layout.MainAxisAlignment lastLineMainAxisAlignment = mainAxisAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void FlowRow(androidx.ui.layout.LayoutSize mainAxisSize = androidx.ui.layout.LayoutSize.Wrap, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.core.Dp mainAxisSpacing = 0.dp, androidx.ui.layout.FlowCrossAxisAlignment crossAxisAlignment = androidx.ui.layout.FlowCrossAxisAlignment.Start, androidx.ui.core.Dp crossAxisSpacing = 0.dp, androidx.ui.layout.MainAxisAlignment lastLineMainAxisAlignment = mainAxisAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void FlowColumn(androidx.ui.layout.LayoutSize mainAxisSize = androidx.ui.layout.LayoutSize.Wrap, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.core.Dp mainAxisSpacing = 0.dp, androidx.ui.layout.FlowCrossAxisAlignment crossAxisAlignment = androidx.ui.layout.FlowCrossAxisAlignment.Start, androidx.ui.core.Dp crossAxisSpacing = 0.dp, androidx.ui.layout.MainAxisAlignment lastLineMainAxisAlignment = mainAxisAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void FlowRow(androidx.ui.layout.LayoutSize mainAxisSize = androidx.ui.layout.LayoutSize.Wrap, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = androidx.ui.layout.MainAxisAlignment.Start, androidx.ui.core.Dp mainAxisSpacing = 0.dp, androidx.ui.layout.FlowCrossAxisAlignment crossAxisAlignment = androidx.ui.layout.FlowCrossAxisAlignment.Start, androidx.ui.core.Dp crossAxisSpacing = 0.dp, androidx.ui.layout.MainAxisAlignment lastLineMainAxisAlignment = mainAxisAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class IntrinsicKt {
-    ctor public IntrinsicKt();
-    method public static void MaxIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void MaxIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void MinIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void MinIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void MaxIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void MaxIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void MinIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void MinIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public enum LayoutSize {
@@ -163,17 +153,15 @@ package androidx.ui.layout {
   }
 
   public final class SpacerKt {
-    ctor public SpacerKt();
-    method public static void FixedSpacer(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
-    method public static void HeightSpacer(androidx.ui.core.Dp height);
-    method public static void WidthSpacer(androidx.ui.core.Dp width);
+    method @androidx.compose.Composable public static void FixedSpacer(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
+    method @androidx.compose.Composable public static void HeightSpacer(androidx.ui.core.Dp height);
+    method @androidx.compose.Composable public static void WidthSpacer(androidx.ui.core.Dp width);
   }
 
   public final class SpacingKt {
-    ctor public SpacingKt();
-    method public static void Padding(androidx.ui.layout.EdgeInsets padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Padding(androidx.ui.core.Dp left = 0.dp, androidx.ui.core.Dp top = 0.dp, androidx.ui.core.Dp right = 0.dp, androidx.ui.core.Dp bottom = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Padding(androidx.ui.core.Dp padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Padding(androidx.ui.layout.EdgeInsets padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Padding(androidx.ui.core.Dp left = 0.dp, androidx.ui.core.Dp top = 0.dp, androidx.ui.core.Dp right = 0.dp, androidx.ui.core.Dp bottom = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Padding(androidx.ui.core.Dp padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.core.LayoutModifier Spacing(androidx.ui.core.Dp left = 0.dp, androidx.ui.core.Dp top = 0.dp, androidx.ui.core.Dp right = 0.dp, androidx.ui.core.Dp bottom = 0.dp);
     method public static androidx.ui.core.LayoutModifier Spacing(androidx.ui.core.Dp all = 0.dp);
   }
@@ -186,8 +174,7 @@ package androidx.ui.layout {
   }
 
   public final class StackKt {
-    ctor public StackKt();
-    method public static void Stack(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.layout.StackChildren,kotlin.Unit> block);
+    method @androidx.compose.Composable public static void Stack(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.layout.StackChildren,kotlin.Unit> block);
   }
 
   public final class TableChildren {
@@ -260,8 +247,7 @@ package androidx.ui.layout {
   }
 
   public final class TableKt {
-    ctor public TableKt();
-    method public static void Table(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.core.Alignment> alignment = { Alignment.TopLeft }, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.layout.TableColumnWidth> columnWidth = { TableColumnWidth.<init>(1.0) }, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> block);
+    method @androidx.compose.Composable public static void Table(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.core.Alignment> alignment = { return Alignment.TopLeft }, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.layout.TableColumnWidth> columnWidth = { return TableColumnWidth.<init>(1.0) }, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> block);
   }
 
   public final class TableMeasurable {
@@ -275,8 +261,7 @@ package androidx.ui.layout {
   }
 
   public final class WrapKt {
-    ctor public WrapKt();
-    method public static void Wrap(androidx.ui.core.Alignment alignment = Alignment.TopLeft, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Wrap(androidx.ui.core.Alignment alignment = Alignment.TopLeft, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }

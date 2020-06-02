@@ -330,7 +330,7 @@ package androidx.animation {
 
   public final class TransitionDefinitionKt {
     method public static <T> androidx.animation.TransitionAnimation<T> createAnimation(androidx.animation.TransitionDefinition<T>, androidx.animation.AnimationClockObservable clock, T? initState = null);
-    method public static <T> androidx.animation.TransitionDefinition<T> transitionDefinition(kotlin.jvm.functions.Function1<? super androidx.animation.TransitionDefinition<T>,kotlin.Unit> init);
+    method public static <T> androidx.animation.TransitionDefinition<T> transitionDefinition(@kotlin.BuilderInference kotlin.jvm.functions.Function1<? super androidx.animation.TransitionDefinition<T>,kotlin.Unit> init);
   }
 
   public final class TransitionSpec<S> {

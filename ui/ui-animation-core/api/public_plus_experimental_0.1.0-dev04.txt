@@ -1,31 +1,31 @@
 // Signature format: 3.0
 package androidx.animation {
 
-  public abstract class AnimatedFloat extends androidx.animation.BaseAnimatedValue<java.lang.Float,androidx.animation.AnimationVector1D> {
-    ctor public AnimatedFloat(androidx.animation.AnimationClockObservable clock);
-    ctor @Deprecated public AnimatedFloat();
-    method public final float getMax();
-    method public final float getMin();
-    method public final float getVelocity();
-    method public final void setBounds(float min = Float.NEGATIVE_INFINITY, float max = Float.POSITIVE_INFINITY);
+  public final class AnimatedFloat extends androidx.animation.BaseAnimatedValue<java.lang.Float,androidx.animation.AnimationVector1D> {
+    ctor public AnimatedFloat(androidx.animation.ValueHolder<java.lang.Float> valueHolder, androidx.animation.AnimationClockObservable clock);
+    ctor public AnimatedFloat(float initVal, androidx.animation.AnimationClockObservable clock);
+    ctor @Deprecated public AnimatedFloat(androidx.animation.ValueHolder<java.lang.Float> valueHolder);
+    method public void doAnimationFrame$lintWithKotlin(long timeMillis);
+    method public float getVelocity();
+    method public void setBounds(float min = Float.NEGATIVE_INFINITY, float max = Float.POSITIVE_INFINITY);
     method public void snapTo(float targetValue);
-    property public final float max;
-    property public final float min;
     property public final float velocity;
   }
 
-  public abstract class AnimatedValue<T, V extends androidx.animation.AnimationVector> extends androidx.animation.BaseAnimatedValue<T,V> {
-    ctor public AnimatedValue(androidx.animation.TwoWayConverter<T,V> typeConverter, androidx.animation.AnimationClockObservable clock);
-    method public final V getVelocity();
+  public final class AnimatedValue<T, V extends androidx.animation.AnimationVector> extends androidx.animation.BaseAnimatedValue<T,V> {
+    ctor public AnimatedValue(androidx.animation.ValueHolder<T> valueHolder, androidx.animation.TwoWayConverter<T,V> typeConverter, androidx.animation.AnimationClockObservable clock);
+    method public V getVelocity();
     property public final V velocity;
   }
 
   public final class AnimatedValueKt {
-    method public static androidx.animation.AnimatedFloat AnimatedFloat(float initVal, androidx.animation.AnimationClockObservable clock);
-    method public static <T, V extends androidx.animation.AnimationVector> androidx.animation.AnimatedValue<T,V> AnimatedValue(T? initVal, androidx.animation.TwoWayConverter<T,V> typeConverter, androidx.animation.AnimationClockObservable clock);
-    method public static <V extends androidx.animation.AnimationVector> androidx.animation.AnimatedValue<V,V> AnimatedVector(V initVal, androidx.animation.AnimationClockObservable clock);
     method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.animation.DecayAnimation decay = androidx.animation.ExponentialDecay(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onEnd = null);
     method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.animation.DecayAnimation decay = androidx.animation.ExponentialDecay(), kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onEnd = null);
+  }
+
+  public final class AnimatedVectorValue<V extends androidx.animation.AnimationVector> extends androidx.animation.BaseAnimatedValue<V,V> {
+    ctor public AnimatedVectorValue(androidx.animation.ValueHolder<V> valueHolder, androidx.animation.AnimationClockObservable clock);
+    ctor public AnimatedVectorValue(V initVal, androidx.animation.AnimationClockObservable clock);
   }
 
   public abstract class AnimationBuilder<T> {
@@ -103,16 +103,14 @@ package androidx.animation {
     method public final void animateTo(T? targetValue, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super T,kotlin.Unit> onEnd);
     method public final void animateTo(T? targetValue, androidx.animation.AnimationBuilder<T> anim, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super T,kotlin.Unit> onEnd);
     method public final void animateTo(T? targetValue, androidx.animation.AnimationBuilder<T> anim);
-    method protected void checkFinished(long playtime);
     method public final T! getTargetValue();
-    method public abstract T! getValue();
+    method public final T! getValue();
     method public final boolean isRunning();
-    method protected abstract void setValue(T! p);
     method public void snapTo(T? targetValue);
     method public final void stop();
     property public final boolean isRunning;
     property public final T! targetValue;
-    property public abstract T! value;
+    property public final T! value;
   }
 
   public abstract sealed class BaseAnimationClock implements androidx.animation.AnimationClockObservable {
@@ -295,8 +293,9 @@ package androidx.animation {
   }
 
   public final class TransitionDefinitionKt {
+    method public static <T> androidx.animation.TransitionAnimation<T> createAnimation(androidx.animation.TransitionDefinition<T>);
     method public static <T> androidx.animation.TransitionAnimation<T> createAnimation(androidx.animation.TransitionDefinition<T>, androidx.animation.AnimationClockObservable clock, T? initState = null);
-    method public static <T> androidx.animation.TransitionDefinition<T> transitionDefinition(kotlin.jvm.functions.Function1<? super androidx.animation.TransitionDefinition<T>,kotlin.Unit> init);
+    method @kotlin.UseExperimental(markerClass=ExperimentalTypeInference::class) public static <T> androidx.animation.TransitionDefinition<T> transitionDefinition(@kotlin.BuilderInference kotlin.jvm.functions.Function1<? super androidx.animation.TransitionDefinition<T>,kotlin.Unit> init);
   }
 
   public final class TransitionSpec<S> {

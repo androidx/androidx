@@ -72,12 +72,12 @@ package androidx.ui.autofill {
 
 package androidx.ui.core {
 
-  public final class Alignment {
+  @androidx.compose.Immutable public final class Alignment {
     ctor public Alignment(float verticalBias, float horizontalBias);
     method public androidx.ui.unit.IntPxPosition align(androidx.ui.unit.IntPxSize size, androidx.ui.core.LayoutDirection layoutDirection = androidx.ui.core.LayoutDirection.Ltr);
     method public float component1();
     method public float component2();
-    method public androidx.ui.core.Alignment copy(float verticalBias, float horizontalBias);
+    method @androidx.compose.Immutable public androidx.ui.core.Alignment copy(float verticalBias, float horizontalBias);
     method public float getHorizontalBias();
     method public float getVerticalBias();
     field public static final androidx.ui.core.Alignment.Companion! Companion;
@@ -116,19 +116,19 @@ package androidx.ui.core {
     property public final androidx.ui.core.Alignment TopStart;
   }
 
-  public static final class Alignment.Horizontal {
+  @androidx.compose.Immutable public static final class Alignment.Horizontal {
     ctor public Alignment.Horizontal(float bias);
     method public int align-Ujlv2dA(int size, androidx.ui.core.LayoutDirection layoutDirection = androidx.ui.core.LayoutDirection.Ltr);
     method public float component1();
-    method public androidx.ui.core.Alignment.Horizontal copy(float bias);
+    method @androidx.compose.Immutable public androidx.ui.core.Alignment.Horizontal copy(float bias);
     method public float getBias();
   }
 
-  public static final class Alignment.Vertical {
+  @androidx.compose.Immutable public static final class Alignment.Vertical {
     ctor public Alignment.Vertical(float bias);
     method public int align-gshw56o(int size);
     method public float component1();
-    method public androidx.ui.core.Alignment.Vertical copy(float bias);
+    method @androidx.compose.Immutable public androidx.ui.core.Alignment.Vertical copy(float bias);
     method public float getBias();
   }
 
@@ -139,12 +139,12 @@ package androidx.ui.core {
     method public static int merge-CBRbNzc(androidx.ui.core.AlignmentLine, int position1, int position2);
   }
 
-  public final class Constraints {
+  @androidx.compose.Immutable public final class Constraints {
     method public int component1();
     method public int component2();
     method public int component3();
     method public int component4();
-    method public androidx.ui.core.Constraints copy-Q13GOEE(int minWidth, int maxWidth, int minHeight, int maxHeight);
+    method @androidx.compose.Immutable public androidx.ui.core.Constraints copy-Q13GOEE(int minWidth, int maxWidth, int minHeight, int maxHeight);
     method public int getMaxHeight();
     method public int getMaxWidth();
     method public int getMinHeight();
@@ -158,11 +158,11 @@ package androidx.ui.core {
     method public androidx.ui.core.Constraints fixedWidth-gshw56o(int width);
   }
 
-  public final inline class Constraints2 {
+  @androidx.compose.Immutable public final inline class Constraints2 {
     ctor public Constraints2();
     method public static long constructor-impl(internal long value);
     method public static long copy-impl(long $this, int minWidth = this.minWidth, int maxWidth = this.maxWidth, int minHeight = this.minHeight, int maxHeight = this.maxHeight);
-    method public static boolean equals-impl(long p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static boolean getHasBoundedHeight-impl(long $this);
     method public static boolean getHasBoundedWidth-impl(long $this);
@@ -170,8 +170,8 @@ package androidx.ui.core {
     method public static int getMaxWidth-impl(long $this);
     method public static int getMinHeight-impl(long $this);
     method public static int getMinWidth-impl(long $this);
-    method public static int hashCode-impl(long p);
-    method public static String toString-impl(long p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
+    method @androidx.compose.Immutable public static inline String! toString-impl(long p);
     field public static final androidx.ui.core.Constraints2.Companion! Companion;
     field public static final int Infinity = -1073741824; // 0xc0000000
   }
@@ -426,7 +426,7 @@ package androidx.ui.core {
     property public final int width;
   }
 
-  public interface Modifier {
+  @androidx.compose.Stable public interface Modifier {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public default operator androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
@@ -507,11 +507,11 @@ package androidx.ui.core {
   public final inline class PointerId {
     ctor public PointerId();
     method public static long constructor-impl(long value);
-    method public static boolean equals-impl(long p, Object? p1);
+    method public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public long getValue();
-    method public static int hashCode-impl(long p);
-    method public static String toString-impl(long p);
+    method public static inline int hashCode-impl(long p);
+    method public static inline String! toString-impl(long p);
   }
 
   public final class PointerInputChange {
@@ -578,15 +578,15 @@ package androidx.ui.core {
     property @Deprecated public final androidx.ui.core.FixedScale None;
   }
 
-  public final inline class TransformOrigin {
+  @androidx.compose.Immutable public final inline class TransformOrigin {
     ctor public TransformOrigin();
     method public static long constructor-impl(internal long value);
-    method public static boolean equals-impl(long p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static float getPivotFractionX-impl(long $this);
     method public static float getPivotFractionY-impl(long $this);
-    method public static int hashCode-impl(long p);
-    method public static String toString-impl(long p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
+    method @androidx.compose.Immutable public static inline String! toString-impl(long p);
     field public static final androidx.ui.core.TransformOrigin.Companion! Companion;
   }
 

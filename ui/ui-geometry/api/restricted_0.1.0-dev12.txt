@@ -1,19 +1,19 @@
 // Signature format: 3.0
 package androidx.ui.geometry {
 
-  public final inline class Offset {
+  @androidx.compose.Immutable public final inline class Offset {
     ctor public Offset();
     method public static infix androidx.ui.geometry.Rect and-b2zCL34(long $this, long other);
     method public static long constructor-impl(internal long packedValue);
     method public static operator long div-impl(long $this, float operand);
-    method public static inline boolean equals-impl(long p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static float getDirection-impl(long $this);
     method public static float getDistance-impl(long $this);
     method public static float getDistanceSquared-impl(long $this);
     method public static float getDx-impl(long $this);
     method public static float getDy-impl(long $this);
-    method public static inline int hashCode-impl(long p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
     method public static operator long minus-RIqb49o(long $this, long other);
     method public static operator long plus-RIqb49o(long $this, long other);
     method public static operator long rem-impl(long $this, float operand);
@@ -217,7 +217,7 @@ package androidx.ui.geometry {
     method public static androidx.ui.geometry.Rect lerp(androidx.ui.geometry.Rect start, androidx.ui.geometry.Rect stop, float fraction);
   }
 
-  public final inline class Size {
+  @androidx.compose.Immutable public final inline class Size {
     ctor public Size();
     method public static long bottomCenter-RIqb49o(long $this, long origin);
     method public static long bottomLeft-RIqb49o(long $this, long origin);
@@ -228,14 +228,14 @@ package androidx.ui.geometry {
     method public static long constructor-impl(internal long value);
     method public static boolean contains-RIqb49o(long $this, long offset);
     method public static operator long div-impl(long $this, float operand);
-    method public static inline boolean equals-impl(long p, Object? p1);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static long getFlipped-impl(long $this);
     method public static float getHeight-impl(long $this);
     method public static float getMaxDimension-impl(long $this);
     method public static float getMinDimension-impl(long $this);
     method public static float getWidth-impl(long $this);
-    method public static inline int hashCode-impl(long p);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
     method public static boolean isEmpty-impl(long $this);
     method public static operator long minus-RIqb49o(long $this, long other);
     method public static operator long minus-b2zCL34(long $this, long other);
