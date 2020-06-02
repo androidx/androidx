@@ -45,7 +45,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.CallSuper;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -65,11 +66,8 @@ import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.idling.CountingIdlingResource;
@@ -84,6 +82,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -99,10 +98,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * resumed and when the device is rotated. The complex interactions between the camera and these
  * lifecycle events are handled internally by CameraX.
  */
-public class CameraXActivity extends AppCompatActivity
-        implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class CameraXActivity extends AppCompatActivity {
     private static final String TAG = "CameraXActivity";
-    private static final int PERMISSIONS_REQUEST_CODE = 42;
     private static final String[] REQUIRED_PERMISSIONS =
             new String[]{
                     Manifest.permission.CAMERA,
@@ -117,8 +114,6 @@ public class CameraXActivity extends AppCompatActivity
             new CameraSelector.Builder().requireLensFacing(
                     CameraSelector.LENS_FACING_FRONT).build();
 
-    private boolean mPermissionsGranted = false;
-    private CallbackToFutureAdapter.Completer<Boolean> mPermissionsCompleter;
     private final AtomicLong mImageAnalysisFrameCount = new AtomicLong(0);
     private final AtomicLong mPreviewFrameCount = new AtomicLong(0);
     private final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
@@ -264,20 +259,17 @@ public class CameraXActivity extends AppCompatActivity
         enablePreview();
 
         button.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Button buttonView = (Button) view;
-                        if (mPreview != null) {
-                            // Remove the use case
-                            buttonView.setBackgroundColor(Color.RED);
-                            mCameraProvider.unbind(mPreview);
-                            mPreview = null;
-                        } else {
-                            // Add the use case
-                            buttonView.setBackgroundColor(Color.LTGRAY);
-                            enablePreview();
-                        }
+                view -> {
+                    Button buttonView = (Button) view;
+                    if (mPreview != null) {
+                        // Remove the use case
+                        buttonView.setBackgroundColor(Color.RED);
+                        mCameraProvider.unbind(mPreview);
+                        mPreview = null;
+                    } else {
+                        // Add the use case
+                        buttonView.setBackgroundColor(Color.LTGRAY);
+                        enablePreview();
                     }
                 });
 
@@ -310,20 +302,17 @@ public class CameraXActivity extends AppCompatActivity
         enableImageAnalysis();
 
         button.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Button buttonView = (Button) view;
-                        if (mImageAnalysis != null) {
-                            // Remove the use case
-                            buttonView.setBackgroundColor(Color.RED);
-                            mCameraProvider.unbind(mImageAnalysis);
-                            mImageAnalysis = null;
-                        } else {
-                            // Add the use case
-                            buttonView.setBackgroundColor(Color.LTGRAY);
-                            CameraXActivity.this.enableImageAnalysis();
-                        }
+                view -> {
+                    Button buttonView = (Button) view;
+                    if (mImageAnalysis != null) {
+                        // Remove the use case
+                        buttonView.setBackgroundColor(Color.RED);
+                        mCameraProvider.unbind(mImageAnalysis);
+                        mImageAnalysis = null;
+                    } else {
+                        // Add the use case
+                        buttonView.setBackgroundColor(Color.LTGRAY);
+                        CameraXActivity.this.enableImageAnalysis();
                     }
                 });
 
@@ -364,14 +353,11 @@ public class CameraXActivity extends AppCompatActivity
         );
         mImageAnalysisResult.observe(
                 this,
-                new Observer<String>() {
-                    @Override
-                    public void onChanged(String text) {
-                        if (mImageAnalysisFrameCount.getAndIncrement() % 30 == 0) {
-                            textView.setText(
-                                    "ImgCount: " + mImageAnalysisFrameCount.get() + " @ts: "
-                                            + text);
-                        }
+                text -> {
+                    if (mImageAnalysisFrameCount.getAndIncrement() % 30 == 0) {
+                        textView.setText(
+                                "ImgCount: " + mImageAnalysisFrameCount.get() + " @ts: "
+                                        + text);
                     }
                 });
     }
@@ -388,19 +374,16 @@ public class CameraXActivity extends AppCompatActivity
         enableImageCapture();
 
         button.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Button buttonView = (Button) view;
-                        if (mImageCapture != null) {
-                            // Remove the use case
-                            buttonView.setBackgroundColor(Color.RED);
-                            CameraXActivity.this.disableImageCapture();
-                        } else {
-                            // Add the use case
-                            buttonView.setBackgroundColor(Color.LTGRAY);
-                            CameraXActivity.this.enableImageCapture();
-                        }
+                view -> {
+                    Button buttonView = (Button) view;
+                    if (mImageCapture != null) {
+                        // Remove the use case
+                        buttonView.setBackgroundColor(Color.RED);
+                        CameraXActivity.this.disableImageCapture();
+                    } else {
+                        // Add the use case
+                        buttonView.setBackgroundColor(Color.LTGRAY);
+                        CameraXActivity.this.enableImageCapture();
                     }
                 });
 
@@ -458,17 +441,13 @@ public class CameraXActivity extends AppCompatActivity
 
                                         long duration =
                                                 SystemClock.elapsedRealtime() - mStartCaptureTime;
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(CameraXActivity.this,
-                                                        "Image captured in " + duration + " ms",
-                                                        Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
+                                        runOnUiThread(() -> Toast.makeText(CameraXActivity.this,
+                                                "Image captured in " + duration + " ms",
+                                                Toast.LENGTH_SHORT).show());
                                         if (mSessionImagesUriSet != null) {
                                             mSessionImagesUriSet.add(
-                                                    outputFileResults.getSavedUri());
+                                                    Objects.requireNonNull(
+                                                            outputFileResults.getSavedUri()));
                                         }
                                     }
 
@@ -493,14 +472,11 @@ public class CameraXActivity extends AppCompatActivity
         btnCaptureQuality.setVisibility(View.VISIBLE);
         btnCaptureQuality.setText(
                 mCaptureMode == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY ? "MAX" : "MIN");
-        btnCaptureQuality.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mCaptureMode = (mCaptureMode == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
-                        ? ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
-                        : ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY);
-                rebindUseCases();
-            }
+        btnCaptureQuality.setOnClickListener(view -> {
+            mCaptureMode = (mCaptureMode == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
+                    ? ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+                    : ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY);
+            rebindUseCases();
         });
     }
 
@@ -525,19 +501,16 @@ public class CameraXActivity extends AppCompatActivity
             CameraInfo cameraInfo = getCameraInfo();
             if (cameraInfo != null && cameraInfo.hasFlashUnit()) {
                 flashToggle.setVisibility(View.VISIBLE);
-                flashToggle.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        @ImageCapture.FlashMode int flashMode = mImageCapture.getFlashMode();
-                        if (flashMode == FLASH_MODE_ON) {
-                            mImageCapture.setFlashMode(FLASH_MODE_OFF);
-                        } else if (flashMode == FLASH_MODE_OFF) {
-                            mImageCapture.setFlashMode(FLASH_MODE_AUTO);
-                        } else if (flashMode == FLASH_MODE_AUTO) {
-                            mImageCapture.setFlashMode(FLASH_MODE_ON);
-                        }
-                        refreshFlashButtonIcon();
+                flashToggle.setOnClickListener(v -> {
+                    @ImageCapture.FlashMode int flashMode = mImageCapture.getFlashMode();
+                    if (flashMode == FLASH_MODE_ON) {
+                        mImageCapture.setFlashMode(FLASH_MODE_OFF);
+                    } else if (flashMode == FLASH_MODE_OFF) {
+                        mImageCapture.setFlashMode(FLASH_MODE_AUTO);
+                    } else if (flashMode == FLASH_MODE_AUTO) {
+                        mImageCapture.setFlashMode(FLASH_MODE_ON);
                     }
+                    refreshFlashButtonIcon();
                 });
                 refreshFlashButtonIcon();
             } else {
@@ -566,6 +539,7 @@ public class CameraXActivity extends AppCompatActivity
         }
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     private void refreshTorchButton() {
         ImageButton torchToggle = findViewById(R.id.torch_toggle);
         CameraInfo cameraInfo = getCameraInfo();
@@ -573,7 +547,7 @@ public class CameraXActivity extends AppCompatActivity
             torchToggle.setVisibility(View.VISIBLE);
             torchToggle.setOnClickListener(v -> {
                 Integer torchState = cameraInfo.getTorchState().getValue();
-                boolean toggledState = !(torchState == TorchState.ON);
+                boolean toggledState = !Objects.equals(torchState, TorchState.ON);
                 CameraControl cameraControl = getCameraControl();
                 if (cameraControl != null) {
                     Log.d(TAG, "Set camera torch: " + toggledState);
@@ -614,19 +588,16 @@ public class CameraXActivity extends AppCompatActivity
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM));
 
         button.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Button buttonView = (Button) view;
-                        if (mVideoCapture != null) {
-                            // Remove the use case
-                            buttonView.setBackgroundColor(Color.RED);
-                            CameraXActivity.this.disableVideoCapture();
-                        } else {
-                            // Add the use case
-                            buttonView.setBackgroundColor(Color.LTGRAY);
-                            CameraXActivity.this.enableVideoCapture();
-                        }
+                view -> {
+                    Button buttonView = (Button) view;
+                    if (mVideoCapture != null) {
+                        // Remove the use case
+                        buttonView.setBackgroundColor(Color.RED);
+                        CameraXActivity.this.disableVideoCapture();
+                    } else {
+                        // Add the use case
+                        buttonView.setBackgroundColor(Color.LTGRAY);
+                        CameraXActivity.this.enableVideoCapture();
                     }
                 });
 
@@ -743,7 +714,8 @@ public class CameraXActivity extends AppCompatActivity
             }
         };
 
-        DisplayManager dpyMgr = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
+        DisplayManager dpyMgr =
+                Objects.requireNonNull((DisplayManager) getSystemService(Context.DISPLAY_SERVICE));
         dpyMgr.registerDisplayListener(mDisplayListener, new Handler(Looper.getMainLooper()));
 
         previewRenderer.setFrameUpdateListener(ContextCompat.getMainExecutor(this), timestamp -> {
@@ -781,7 +753,7 @@ public class CameraXActivity extends AppCompatActivity
             mInitializationIdlingResource.decrement();
             if (cameraProviderResult.hasProvider()) {
                 mCameraProvider = cameraProviderResult.getProvider();
-                if (mPermissionsGranted) {
+                if (allPermissionsGranted()) {
                     setupCamera();
                 }
             } else {
@@ -792,44 +764,21 @@ public class CameraXActivity extends AppCompatActivity
             }
         });
 
-
-        Futures.addCallback(setupPermissions(), new FutureCallback<Boolean>() {
-            @Override
-            public void onSuccess(@Nullable Boolean permissionsGranted) {
-                mPermissionsGranted = Preconditions.checkNotNull(permissionsGranted);
-                if (mPermissionsGranted) {
-                    if (mCameraProvider != null) {
-                            setupCamera();
-                        }
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Camera permission denied.",
-                                Toast.LENGTH_SHORT)
-                                .show();
-                        finish();
-                    }
-                }
-
-            @Override
-            public void onFailure(@NonNull Throwable throwable) {
-                Toast.makeText(getApplicationContext(), "Unable to request camera "
-                        + "permission.", Toast.LENGTH_SHORT)
-                        .show();
-                finish();
-            }
-        }, ContextCompat.getMainExecutor(this));
+        setupPermissions();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        DisplayManager dpyMgr = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
+        DisplayManager dpyMgr =
+                Objects.requireNonNull((DisplayManager) getSystemService(Context.DISPLAY_SERVICE));
         dpyMgr.unregisterDisplayListener(mDisplayListener);
         mPreviewRenderer.shutdown();
     }
 
     void setupCamera() {
         // Only call setupCamera if permissions are granted
-        Preconditions.checkState(mPermissionsGranted);
+        Preconditions.checkState(allPermissionsGranted());
 
         Log.d(TAG, "Camera direction: " + mCurrentCameraDirection);
         if (mCurrentCameraDirection.equalsIgnoreCase("BACKWARD")) {
@@ -848,22 +797,19 @@ public class CameraXActivity extends AppCompatActivity
 
         ImageButton directionToggle = findViewById(R.id.direction_toggle);
         directionToggle.setVisibility(View.VISIBLE);
-        directionToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mCurrentCameraLensFacing == CameraSelector.LENS_FACING_BACK) {
-                    mCurrentCameraSelector = FRONT_SELECTOR;
-                    mCurrentCameraLensFacing = CameraSelector.LENS_FACING_FRONT;
-                } else if (mCurrentCameraLensFacing == CameraSelector.LENS_FACING_FRONT) {
-                    mCurrentCameraSelector = BACK_SELECTOR;
-                    mCurrentCameraLensFacing = CameraSelector.LENS_FACING_BACK;
-                }
-
-                Log.d(TAG, "Change camera direction: " + mCurrentCameraSelector);
-                rebindUseCases();
-                refreshTorchButton();
-
+        directionToggle.setOnClickListener(v -> {
+            if (mCurrentCameraLensFacing == CameraSelector.LENS_FACING_BACK) {
+                mCurrentCameraSelector = FRONT_SELECTOR;
+                mCurrentCameraLensFacing = CameraSelector.LENS_FACING_FRONT;
+            } else if (mCurrentCameraLensFacing == CameraSelector.LENS_FACING_FRONT) {
+                mCurrentCameraSelector = BACK_SELECTOR;
+                mCurrentCameraLensFacing = CameraSelector.LENS_FACING_BACK;
             }
+
+            Log.d(TAG, "Change camera direction: " + mCurrentCameraSelector);
+            rebindUseCases();
+            refreshTorchButton();
+
         });
     }
 
@@ -884,21 +830,34 @@ public class CameraXActivity extends AppCompatActivity
         }
     }
 
-    private ListenableFuture<Boolean> setupPermissions() {
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            mPermissionsCompleter = completer;
-            if (!allPermissionsGranted()) {
-                makePermissionRequest();
-            } else {
-                mPermissionsCompleter.set(true);
-            }
+    private void setupPermissions() {
+        if (!allPermissionsGranted()) {
+            ActivityResultLauncher<String[]> permissionLauncher =
+                    registerForActivityResult(
+                            new ActivityResultContracts.RequestMultiplePermissions(),
+                            result -> {
+                                for (String permission : REQUIRED_PERMISSIONS) {
+                                    if (!Objects.requireNonNull(result.get(permission))) {
+                                        Toast.makeText(getApplicationContext(),
+                                                "Camera permission denied.",
+                                                Toast.LENGTH_SHORT)
+                                                .show();
+                                        finish();
+                                        return;
+                                    }
+                                }
 
-            return "get_permissions";
-        });
-    }
+                                // All permissions granted.
+                                if (mCameraProvider != null) {
+                                    setupCamera();
+                                }
+                            });
 
-    private void makePermissionRequest() {
-        ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE);
+            permissionLauncher.launch(REQUIRED_PERMISSIONS);
+        } else if (mCameraProvider != null) {
+            // Permissions already granted. Start camera.
+            setupCamera();
+        }
     }
 
     /** Returns true if all the necessary permissions have been granted already. */
@@ -916,31 +875,10 @@ public class CameraXActivity extends AppCompatActivity
         File pictureFolder = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
         if (!pictureFolder.exists()) {
-            pictureFolder.mkdir();
-        }
-    }
-
-    @CallSuper
-    @Override
-    public void onRequestPermissionsResult(
-            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "Permissions Granted.");
-                    mPermissionsCompleter.set(true);
-                } else {
-                    Log.d(TAG, "Permissions Denied.");
-                    mPermissionsCompleter.set(false);
-                }
-                return;
+            if (!pictureFolder.mkdir()) {
+                Log.e(TAG, "Failed to create directory: " + pictureFolder);
             }
-            default:
-                // No-op
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Nullable
@@ -950,7 +888,7 @@ public class CameraXActivity extends AppCompatActivity
                     useCase);
             return mCamera;
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, "bindToLifecycle() failed.", e);
             Toast.makeText(getApplicationContext(), "Bind too many use cases.", Toast.LENGTH_SHORT)
                     .show();
             Button button = this.findViewById(buttonViewId);
