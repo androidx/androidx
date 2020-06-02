@@ -127,14 +127,15 @@ internal class ModifiedFocusNode(
     /**
      * This function clears focus from this node.
      *
-     * Note: This function is private, and should only be called by a parent [ModifiedFocusNode] to
-     * clear focus from one of its child [ModifiedFocusNode]s.
+     * Note: This function should only be called by a parent [ModifiedFocusNode] to
+     * clear focus from one of its child [ModifiedFocusNode]s. It does not change the state of
+     * the parent.
      */
-    private fun clearFocus(): Boolean {
+    internal fun clearFocus(forcedClear: Boolean = false): Boolean {
         return when (modifier.focusDetailedState) {
             Active -> {
-                modifier.focusDetailedState = Inactive
                 findParentFocusNode()?.modifier?.focusedChild = null
+                modifier.focusDetailedState = Inactive
                 true
             }
             /**
@@ -142,34 +143,30 @@ internal class ModifiedFocusNode(
              * first, before clearing focus of this node.
              */
             ActiveParent -> {
-                if (clearFocusFromChildren()) {
-                    modifier.focusDetailedState = Active
-                    clearFocus()
-                } else {
-                    false
+                val focusedChild = modifier.focusedChild
+                requireNotNull(focusedChild)
+                val success = focusedChild.clearFocus(forcedClear)
+                if (success) {
+                    findParentFocusNode()?.modifier?.focusedChild = null
+                    modifier.focusDetailedState = Inactive
                 }
+                success
             }
             /**
-             * If the node is [Captured], deny requests to clear focus.
+             * If the node is [Captured], deny requests to clear focus, except for a forced clear.
              */
-            Captured -> false
+            Captured -> {
+                if (forcedClear) {
+                    modifier.focusDetailedState = Inactive
+                    findParentFocusNode()?.modifier?.focusedChild = null
+                }
+                forcedClear
+            }
             /**
-             * Nothing to do if the node is not focused. Even though the node ends up in a
-             * cleared state, we return false to indicate that we didn't change any state (This
-             * return value is used to trigger a recomposition, so returning false will not
-             * trigger any recomposition).
+             * Nothing to do if the node is not focused.
              */
-            Inactive, Disabled -> false
+            Inactive, Disabled -> true
         }
-    }
-
-    private fun clearFocusFromChildren(): Boolean {
-        require(modifier.focusDetailedState == ActiveParent)
-
-        val focusedChild = modifier.focusedChild
-        requireNotNull(focusedChild)
-
-        return focusedChild.clearFocus()
     }
 
     /**
