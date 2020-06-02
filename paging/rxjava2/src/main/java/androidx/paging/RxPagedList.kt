@@ -91,7 +91,7 @@ private fun <Key : Any, Value : Any> createRxPagedListBuilder(
         ).observable""",
         "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
-        "androidx.paging.observable",
+        "androidx.paging.rxjava2.getObservable",
         "kotlinx.coroutines.rx2.asCoroutineDispatcher",
         "kotlinx.coroutines.Dispatchers"
     )
@@ -143,7 +143,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
         ).observable""",
         "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
-        "androidx.paging.observable",
+        "androidx.paging.rxjava2.getObservable",
         "kotlinx.coroutines.rx2.asCoroutineDispatcher",
         "kotlinx.coroutines.Dispatchers"
     )
@@ -202,7 +202,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
         ).flowable""",
         "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
-        "androidx.paging.flowable",
+        "androidx.paging.rxjava2.getFlowable",
         "kotlinx.coroutines.rx2.asCoroutineDispatcher",
         "kotlinx.coroutines.Dispatchers"
     )
@@ -256,7 +256,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
         ).flowable""",
         "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
-        "androidx.paging.flowable",
+        "androidx.paging.rxjava2.getFlowable",
         "kotlinx.coroutines.rx2.asCoroutineDispatcher",
         "kotlinx.coroutines.Dispatchers"
     )
@@ -315,7 +315,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
         ).observable""",
         "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
-        "androidx.paging.observable",
+        "androidx.paging.rxjava2.getObservable",
         "kotlinx.coroutines.rx2.asCoroutineDispatcher",
         "kotlinx.coroutines.Dispatchers"
     )
@@ -367,7 +367,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
         ).observable""",
         "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
-        "androidx.paging.observable"
+        "androidx.paging.rxjava2.getObservable"
     )
 )
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
@@ -424,7 +424,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
         ).flowable""",
         "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
-        "androidx.paging.flowable"
+        "androidx.paging.rxjava2.getFlowable"
     )
 )
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
@@ -476,7 +476,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
         ).flowable""",
         "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
-        "androidx.paging.flowable"
+        "androidx.paging.rxjava2.getFlowable"
     )
 )
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(

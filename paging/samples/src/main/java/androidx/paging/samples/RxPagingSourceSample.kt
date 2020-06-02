@@ -19,7 +19,7 @@
 package androidx.paging.samples
 
 import androidx.annotation.Sampled
-import androidx.paging.RxPagingSource
+import androidx.paging.rxjava2.RxPagingSource
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import retrofit2.HttpException
