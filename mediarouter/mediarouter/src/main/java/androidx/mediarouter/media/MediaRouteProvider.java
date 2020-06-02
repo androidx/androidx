@@ -258,13 +258,6 @@ public abstract class MediaRouteProvider {
         }
     }
 
-    void deliverDynamicGroupRouteControllerCreatedWithoutRequest(
-            DynamicGroupRouteController controller, String routeId) {
-        if (mCallback != null) {
-            mCallback.onDynamicGroupRouteControllerCreatedWithoutRequest(this, controller, routeId);
-        }
-    }
-
     /**
      * Called by the media router to obtain a route controller for a particular route.
      * <p>
@@ -836,21 +829,6 @@ public abstract class MediaRouteProvider {
          */
         public void onDescriptorChanged(@NonNull MediaRouteProvider provider,
                 @Nullable MediaRouteProviderDescriptor descriptor) {
-        }
-
-        /**
-         * Called when a dynamic route controller is created without any request.
-         *
-         * @param provider The media route provider that created this controller, never null.
-         * @param controller the newly created controller
-         * @param routeId the non-unique ID of the route which is sent from the provider.
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        public void onDynamicGroupRouteControllerCreatedWithoutRequest(
-                @NonNull MediaRouteProvider provider,
-                @NonNull DynamicGroupRouteController controller,
-                @NonNull String routeId) {
         }
     }
 

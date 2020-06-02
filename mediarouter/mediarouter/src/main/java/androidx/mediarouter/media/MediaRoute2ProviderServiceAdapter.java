@@ -533,7 +533,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         }
 
         @Override
-        public void onUnselect(int reason) {
+        public void onUnselect(@MediaRouter.UnselectReason int reason) {
             mRouteController.onUnselect(reason);
         }
 
