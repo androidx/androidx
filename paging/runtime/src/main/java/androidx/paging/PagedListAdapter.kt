@@ -243,7 +243,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * As new PagedLists are submitted and displayed, the listener will be notified to reflect
      * current [LoadType.REFRESH], [LoadType.PREPEND], and [LoadType.APPEND] states.
      *
-     * @param listener [LoadStateListener] to receive updates.
+     * @param listener Listener to receive [LoadState] updates.
      *
      * @see removeLoadStateListener
      */
