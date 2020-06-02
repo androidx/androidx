@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.MergeAdapter
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -151,6 +152,16 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     override fun getItemCount() = differ.itemCount
 
     /**
+     * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
+     * current [PagingData] changes.
+     *
+     * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and
+     * immediately delivers the current load states on collection.
+     */
+    @OptIn(FlowPreview::class)
+    val loadStateFlow: Flow<CombinedLoadStates> = differ.loadStateFlow
+
+    /**
      * Add a [CombinedLoadStates] listener to observe the loading state of the current [PagingData].
      *
      * As new [PagingData] generations are submitted and displayed, the listener will be notified to
@@ -222,8 +233,8 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         footer: LoadStateAdapter<*>
     ): MergeAdapter {
         addLoadStateListener { loadStates ->
-                header.loadState = loadStates.prepend
-                footer.loadState = loadStates.append
+            header.loadState = loadStates.prepend
+            footer.loadState = loadStates.append
         }
         return MergeAdapter(header, this, footer)
     }

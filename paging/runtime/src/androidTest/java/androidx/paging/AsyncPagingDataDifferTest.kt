@@ -160,6 +160,70 @@ class AsyncPagingDataDifferTest {
     }
 
     @Test
+    fun performDiff_fastPathLoadStatesFlow() = testScope.runBlockingTest {
+        val loadEvents = mutableListOf<CombinedLoadStates>()
+        val loadEventJob = launch {
+            differ.loadStateFlow.collect { loadEvents.add(it) }
+        }
+
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 2,
+                prefetchDistance = 1,
+                enablePlaceholders = true,
+                initialLoadSize = 2
+            ),
+            initialKey = 50
+        ) {
+            TestPagingSource()
+        }
+
+        val job = launch {
+            pager.flow.collect {
+                differ.submitData(it)
+            }
+        }
+
+        advanceUntilIdle()
+
+        // Assert that all load state updates are sent, even when differ enters fast path for
+        // empty previous list.
+        assertEvents(
+            listOf(
+                REFRESH to Loading,
+                REFRESH to NotLoading(endOfPaginationReached = false)
+            ).toCombinedLoadStatesLocal(),
+            loadEvents
+        )
+        loadEvents.clear()
+
+        job.cancel()
+
+        differ.submitData(TestLifecycleOwner().lifecycle, PagingData.empty())
+        advanceUntilIdle()
+
+        // Assert that all load state updates are sent, even when differ enters fast path for
+        // empty next list.
+        assertEvents(
+            expected = listOf(
+                localLoadStatesOf(
+                    refreshLocal = NotLoading(endOfPaginationReached = false),
+                    prependLocal = NotLoading(endOfPaginationReached = true),
+                    appendLocal = NotLoading(endOfPaginationReached = false)
+                ),
+                localLoadStatesOf(
+                    refreshLocal = NotLoading(endOfPaginationReached = false),
+                    prependLocal = NotLoading(endOfPaginationReached = true),
+                    appendLocal = NotLoading(endOfPaginationReached = true)
+                )
+            ),
+            actual = loadEvents
+        )
+
+        loadEventJob.cancel()
+    }
+
+    @Test
     fun lastAccessedIndex() = testScope.runBlockingTest {
         pauseDispatcher {
             var currentPagedSource: TestPagingSource? = null
