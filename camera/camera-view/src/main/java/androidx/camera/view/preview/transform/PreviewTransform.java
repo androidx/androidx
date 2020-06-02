@@ -22,6 +22,7 @@ import android.util.Size;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.view.PreviewView;
@@ -46,6 +47,9 @@ public final class PreviewTransform {
     @NonNull
     private PreviewView.ScaleType mScaleType = DEFAULT_SCALE_TYPE;
 
+    @Nullable
+    private Transformation mCurrentTransformation;
+
     private boolean mSensorDimensionFlipNeeded = true;
 
     private int mDeviceRotation = RotationTransform.ROTATION_AUTOMATIC;
@@ -59,6 +63,15 @@ public final class PreviewTransform {
     /** Sets the {@link PreviewView.ScaleType} to be applied to the preview. */
     public void setScaleType(@NonNull PreviewView.ScaleType scaleType) {
         mScaleType = scaleType;
+    }
+
+    /**
+     * Returns the current {@link Transformation} applied to the preview, or {@code null} if the
+     * preview hasn't started yet.
+     */
+    @Nullable
+    public Transformation getCurrentTransformation() {
+        return mCurrentTransformation;
     }
 
     /** Returns whether the device sensor x and y dimensions need to be flipped. */
@@ -130,5 +143,7 @@ public final class PreviewTransform {
         view.setTranslationX(transformation.getTransX());
         view.setTranslationY(transformation.getTransY());
         view.setRotation(transformation.getRotation());
+
+        mCurrentTransformation = transformation;
     }
 }

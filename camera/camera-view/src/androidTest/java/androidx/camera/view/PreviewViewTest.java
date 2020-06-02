@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 
 import android.Manifest;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -463,6 +464,12 @@ public class PreviewViewTest {
         @NonNull
         ListenableFuture<Void> waitForNextFrame() {
             return Futures.immediateFuture(null);
+        }
+
+        @Nullable
+        @Override
+        Bitmap getPreviewBitmap() {
+            return null;
         }
     }
 }
