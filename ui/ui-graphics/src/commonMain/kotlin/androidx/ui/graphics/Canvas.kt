@@ -22,57 +22,11 @@ import androidx.ui.geometry.Size
 import androidx.ui.graphics.vectormath.Matrix4
 import androidx.ui.graphics.vectormath.degrees
 
-// TODO(mount/njawad): Separate the platform-independent API from the platform-dependent.
-// TODO(njawad): Copy the class here
-/**
- * An interface for recording graphical operations.
- *
- * A canvas has a current transformation matrix which is applied to all
- * operations. Initially, the transformation matrix is the identity transform.
- * It can be modified using the [Canvas.translate], [Canvas.scale], [Canvas.rotate], [Canvas.skew] methods.
- *
- * A canvas also has a current clip region which is applied to all operations.
- * Initially, the clip region is infinite. It can be modified using the
- * [Canvas.clipRect], and [Canvas.clipPath] methods.
- *
- * The current transform and clip can be saved and restored using the stack
- * managed by the [Canvas.save], [Canvas.saveLayer], and [Canvas.restore] methods.
-
- * Creates a canvas for recording graphical operations into the
- * given picture recorder.
- *
- * Graphical operations that affect pixels entirely outside the given
- * `cullRect` might be discarded by the implementation. However, the
- * implementation might draw outside these bounds if, for example, a command
- * draws partially inside and outside the `cullRect`. To ensure that pixels
- * outside a given region are discarded, consider using a [Canvas.clipRect]. The
- * `cullRect` is optional; by default, all operations are kept.
- *
- * To end the recording, call [PictureRecorder.endRecording] on the
- * given recorder.
- */
-
 /**
  * Create a new Canvas instance that targets its drawing commands
  * to the provided [ImageAsset]
  */
 fun Canvas(image: ImageAsset): Canvas = ActualCanvas(image)
-
-/**
- * Create a new Canvas instance that targets its drawing commands to the provided
- * [PictureRecorder] in order to be replayed later
- */
-fun Canvas(
-    recorder: PictureRecorder,
-    cullRect: Rect = Rect.largest
-): Canvas = ActualCanvas(recorder, cullRect)
-
-// We do that, as metalava does not remember default arguments of expect functions yet,
-// so we had to make sure functions with default arguments are not expect/actual at the moment.
-internal expect fun ActualCanvas(
-    recorder: PictureRecorder,
-    cullRect: Rect = Rect.largest
-): Canvas
 
 internal expect fun ActualCanvas(image: ImageAsset): Canvas
 
@@ -612,12 +566,6 @@ interface Canvas {
         dstSize: Size,
         paint: Paint
     )
-
-    /**
-     * Draw the given picture onto the canvas. To create a picture, see
-     * [PictureRecorder].
-     */
-    fun drawPicture(picture: Picture)
 
     /**
      * Draws a sequence of points according to the given [PointMode].
