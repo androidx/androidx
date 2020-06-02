@@ -459,39 +459,37 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                             )
                         }
                 }
-            }
 
-            // TODO: remove if/else!
-            if (remoteMediatorAccessor == null) {
-                stateLock.withLock {
-                    // Update load state to success if this is the final load result for this
-                    // load hint, and only if we didn't error out.
-                    if (loadKey == null && state.failedHintsByLoadType[loadType] == null) {
-                        state.loadStates.set(
-                            type = loadType,
-                            remote = false,
-                            state = NotLoading.instance(endOfPaginationReached, false)
-                        )
-                    }
-                }
-            } else {
-                val pagingState = stateLock.withLock { state.currentPagingState(lastHint) }
-
-                if (params is LoadParams.Prepend && result.prevKey == null) {
-                    remoteMediatorAccessor.doBoundaryCall(scope, PREPEND, pagingState)
+                // Update load state to success if this is the final load result for this
+                // load hint, and only if we didn't error out.
+                if (loadKey == null && state.failedHintsByLoadType[loadType] == null) {
+                    state.loadStates.set(
+                        type = loadType,
+                        remote = false,
+                        state = NotLoading.instance(endOfPaginationReached, false)
+                    )
                 }
 
-                if (params is LoadParams.Append && result.nextKey == null) {
-                    remoteMediatorAccessor.doBoundaryCall(scope, APPEND, pagingState)
-                }
-            }
-
-            // Send page event for successful insert, now that PagerState has been updated.
-            stateLock.withLock {
+                // Send page event for successful insert, now that PagerState has been updated.
                 val pageEvent = with(state) {
                     result.toPageEvent(loadType, config.enablePlaceholders)
                 }
+
                 pageEventCh.send(pageEvent)
+            }
+
+            val endsPrepend = params is LoadParams.Prepend && result.prevKey == null
+            val endsAppend = params is LoadParams.Append && result.nextKey == null
+            if (remoteMediatorAccessor != null && (endsPrepend || endsAppend)) {
+                val pagingState = stateLock.withLock { state.currentPagingState(lastHint) }
+
+                if (endsPrepend) {
+                    remoteMediatorAccessor.doBoundaryCall(scope, PREPEND, pagingState)
+                }
+
+                if (endsAppend) {
+                    remoteMediatorAccessor.doBoundaryCall(scope, APPEND, pagingState)
+                }
             }
         }
     }
