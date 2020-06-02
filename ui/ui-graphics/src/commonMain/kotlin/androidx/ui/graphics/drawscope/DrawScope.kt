@@ -545,7 +545,7 @@ abstract class DrawScope : Density {
         topLeft: Offset = Offset.zero,
         size: Size = this.size,
         radiusX: Float = 0.0f,
-        radiusY: Float = radiusX,
+        radiusY: Float = 0.0f,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
