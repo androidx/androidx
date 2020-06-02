@@ -20,7 +20,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.work.Worker;
+import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
 
 /**
@@ -30,7 +30,7 @@ import androidx.work.WorkerParameters;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public interface WorkerAssistedFactory<T extends Worker> {
+public interface WorkerAssistedFactory<T extends ListenableWorker> {
     /**
      * Create the Worker.
      *

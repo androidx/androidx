@@ -44,12 +44,12 @@ class WorkerInjectStepTest {
         """.toJFO("androidx.hilt.work.work.MyWorker")
 
         val compilation = compiler()
-            .compile(myWorker, Sources.WORKER, Sources.WORKER_PARAMETERS)
+            .compile(myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS)
         assertThat(compilation).apply {
             failed()
             hadErrorCount(1)
             hadErrorContainingMatch("@WorkerInject is only supported on types that subclass " +
-                        "androidx.work.Worker.")
+                        "androidx.work.ListenableWorker.")
         }
     }
 
@@ -79,7 +79,7 @@ class WorkerInjectStepTest {
         """.toJFO("androidx.hilt.work.test.MyWorker")
 
         val compilation = compiler()
-            .compile(myWorker, Sources.WORKER, Sources.WORKER_PARAMETERS)
+            .compile(myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS)
         assertThat(compilation).apply {
             failed()
             hadErrorCount(1)
@@ -107,7 +107,7 @@ class WorkerInjectStepTest {
         """.toJFO("androidx.hilt.work.test.MyWorker")
 
         val compilation = compiler()
-            .compile(myWorker, Sources.WORKER, Sources.WORKER_PARAMETERS)
+            .compile(myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS)
         assertThat(compilation).apply {
             failed()
             hadErrorCount(1)
@@ -138,7 +138,7 @@ class WorkerInjectStepTest {
         """.toJFO("androidx.hilt.work.test.Outer")
 
         val compilation = compiler()
-            .compile(myWorker, Sources.WORKER, Sources.WORKER_PARAMETERS)
+            .compile(myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS)
         assertThat(compilation).apply {
             failed()
             hadErrorCount(1)

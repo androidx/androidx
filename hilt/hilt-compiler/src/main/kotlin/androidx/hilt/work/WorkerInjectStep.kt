@@ -74,9 +74,9 @@ class WorkerInjectStep(
         }
 
         if (!types.isSubtype(typeElement.asType(),
-                elements.getTypeElement(ClassNames.WORKER.toString()).asType())) {
+                elements.getTypeElement(ClassNames.LISTENABLE_WORKER.toString()).asType())) {
             error("@WorkerInject is only supported on types that subclass " +
-                    "${ClassNames.WORKER}.")
+                    "${ClassNames.LISTENABLE_WORKER}.")
             valid = false
         }
 
