@@ -920,6 +920,10 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             lp.height = useIntrinsicSize ? Math.round(d.getIntrinsicHeight() / density) :
                     mImageSize;
             iv.setLayoutParams(lp);
+            if (mSliceStyle != null && mSliceStyle.getRowStyle() != null) {
+                int styleIconSize = mSliceStyle.getRowStyle().getIconSize();
+                mIconSize = styleIconSize > 0 ? styleIconSize : mIconSize;
+            }
             int p = isIcon ? mIconSize / 2 : 0;
             iv.setPadding(p, p, p, p);
             addedView = iv;

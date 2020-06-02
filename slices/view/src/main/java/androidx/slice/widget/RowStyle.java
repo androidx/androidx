@@ -49,6 +49,7 @@ public class RowStyle {
     private int mProgressBarInlineWidth;
     private int mProgressBarStartPadding;
     private int mProgressBarEndPadding;
+    private int mIconSize;
 
     public RowStyle(Context context, int resId) {
         TypedArray a = context.getTheme().obtainStyledAttributes(resId, R.styleable.RowStyle);
@@ -87,6 +88,8 @@ public class RowStyle {
                     R.styleable.RowStyle_progressBarStartPadding, UNBOUNDED);
             mProgressBarEndPadding = (int) a.getDimension(
                     R.styleable.RowStyle_progressBarEndPadding, UNBOUNDED);
+            mIconSize = (int) a.getDimension(
+                    R.styleable.RowStyle_iconSize, UNBOUNDED);
         } finally {
             a.recycle();
         }
@@ -158,5 +161,9 @@ public class RowStyle {
 
     public int getProgressBarEndPadding() {
         return mProgressBarEndPadding;
+    }
+
+    public int getIconSize() {
+        return mIconSize;
     }
 }

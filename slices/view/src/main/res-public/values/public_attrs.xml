@@ -53,4 +53,5 @@
     <public type="attr" name="progressBarInlineWidth" />
     <public type="attr" name="progressBarStartPadding" />
     <public type="attr" name="progressBarEndPadding" />
+    <public type="attr" name="iconSize" />
 </resources>
