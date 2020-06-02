@@ -600,7 +600,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             else -> 50
         }
 
-        internal const val REPEAT_COUNT_ALLOCATION = 10
+        internal const val REPEAT_COUNT_ALLOCATION = 5
 
         private val OVERRIDE_ITERATIONS = if (
             Arguments.dryRunMode ||
