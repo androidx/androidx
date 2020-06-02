@@ -19,9 +19,9 @@ package androidx.ui.foundation
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
-import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.selection.TriStateToggleable
+import androidx.ui.foundation.selection.toggleable
+import androidx.ui.foundation.selection.triStateToggleable
 import androidx.ui.foundation.semantics.FoundationSemanticsProperties
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
@@ -56,32 +56,30 @@ class ToggleableTest {
     fun toggleableTest_defaultSemantics() {
         composeTestRule.setContent {
             Column {
-                TriStateToggleable(
-                    modifier = Modifier.testTag("checkedToggleable"),
-                    state = ToggleableState.On,
-                    onClick = {}
-                ) {
-                    Text("ToggleableText")
-                }
-                TriStateToggleable(
-                    modifier = Modifier.testTag("unCheckedToggleable"),
-                    state = ToggleableState.Off,
-                    onClick = {}
-                ) {
-                    Text("ToggleableText")
-                }
-                TriStateToggleable(
-                    modifier = Modifier.testTag("indeterminateToggleable"),
-                    state = ToggleableState.Indeterminate,
-                    onClick = {}
-                ) {
-                    Text("ToggleableText")
-                }
+                Box(Modifier
+                    .triStateToggleable(state = ToggleableState.On, onClick = {})
+                    .testTag("checkedToggleable"),
+                    children = {
+                        Text("ToggleableText")
+                    })
+                Box(Modifier
+                    .triStateToggleable(state = ToggleableState.Off, onClick = {})
+                    .testTag("unCheckedToggleable"),
+                    children = {
+                        Text("ToggleableText")
+                    })
+                Box(Modifier
+                    .triStateToggleable(state = ToggleableState.Indeterminate, onClick = {})
+                    .testTag("indeterminateToggleable"),
+                    children = {
+                        Text("ToggleableText")
+                    })
             }
         }
 
         fun hasIndeterminateState(): SemanticsMatcher = SemanticsMatcher.expectValue(
-            FoundationSemanticsProperties.ToggleableState, ToggleableState.Indeterminate)
+            FoundationSemanticsProperties.ToggleableState, ToggleableState.Indeterminate
+        )
 
         findByTag("checkedToggleable")
             .assertIsEnabled()
@@ -101,20 +99,18 @@ class ToggleableTest {
     fun toggleableTest_booleanOverload_defaultSemantics() {
         composeTestRule.setContent {
             Column {
-                Toggleable(
-                    modifier = Modifier.testTag("checkedToggleable"),
-                    value = true,
-                    onValueChange = {}
-                ) {
-                    Text("ToggleableText")
-                }
-                Toggleable(
-                    modifier = Modifier.testTag("unCheckedToggleable"),
-                    value = false,
-                    onValueChange = {}
-                ) {
-                    Text("ToggleableText")
-                }
+                Box(Modifier
+                    .toggleable(value = true, onValueChange = {})
+                    .testTag("checkedToggleable"),
+                    children = {
+                        Text("ToggleableText")
+                    })
+                Box(Modifier
+                    .toggleable(value = false, onValueChange = {})
+                    .testTag("unCheckedToggleable"),
+                    children = {
+                        Text("ToggleableText")
+                    })
             }
         }
 
@@ -132,9 +128,14 @@ class ToggleableTest {
     fun toggleableTest_disabledSemantics() {
         composeTestRule.setContent {
             Stack {
-                TriStateToggleable(state = ToggleableState.On, enabled = false, onClick = {}) {
-                    Text("ToggleableText")
-                }
+                Box(
+                    Modifier.triStateToggleable(
+                        state = ToggleableState.On,
+                        onClick = {},
+                        enabled = false
+                    ), children = {
+                        Text("ToggleableText")
+                    })
             }
         }
 
@@ -150,9 +151,12 @@ class ToggleableTest {
 
         composeTestRule.setContent {
             Stack {
-                Toggleable(value = checked, onValueChange = onCheckedChange) {
-                    Text("ToggleableText")
-                }
+                Box(
+                    Modifier.toggleable(value = checked, onValueChange = onCheckedChange),
+                    children = {
+                        Text("ToggleableText")
+                    }
+                )
             }
         }
 

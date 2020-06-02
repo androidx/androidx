@@ -24,11 +24,12 @@ import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.selection.TriStateToggleable
+import androidx.ui.foundation.selection.triStateToggleable
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Radius
@@ -43,8 +44,7 @@ import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
-import androidx.ui.material.ripple.ripple
-import androidx.ui.semantics.Semantics
+import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.dp
 
 /**
@@ -106,21 +106,22 @@ fun TriStateCheckbox(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.secondary
 ) {
-    Semantics(container = true, mergeAllDescendants = true) {
-        Box(modifier, gravity = ContentGravity.Center) {
-            TriStateToggleable(
+    Box(
+        modifier = modifier
+            .semantics(mergeAllDescendants = true)
+            .triStateToggleable(
                 state = state,
                 onClick = onClick,
                 enabled = enabled,
-                modifier = Modifier.ripple(bounded = false, enabled = enabled)
-            ) {
-                DrawCheckbox(
-                    value = state,
-                    activeColor = color,
-                    modifier = CheckboxDefaultPadding
-                )
-            }
-        }
+                indication = RippleIndication(bounded = false)
+            ),
+        gravity = ContentGravity.Center
+    ) {
+        DrawCheckbox(
+            value = state,
+            activeColor = color,
+            modifier = CheckboxDefaultPadding
+        )
     }
 }
 

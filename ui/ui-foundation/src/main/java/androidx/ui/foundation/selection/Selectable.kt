@@ -110,11 +110,11 @@ fun MutuallyExclusiveSetItem(
 @Composable
 fun Modifier.selectable(
     selected: Boolean,
-    onClick: () -> Unit,
     enabled: Boolean = true,
     inMutuallyExclusiveGroup: Boolean = true,
     interactionState: InteractionState = remember { InteractionState() },
-    indication: Indication? = IndicationAmbient.current()
+    indication: Indication? = IndicationAmbient.current(),
+    onClick: () -> Unit
 ) = composed {
     Modifier.clickable(
         enabled = enabled,
