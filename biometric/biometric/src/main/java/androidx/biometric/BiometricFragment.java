@@ -93,8 +93,9 @@ public class BiometricFragment extends Fragment {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mCanceledFrom = USER_CANCELED_FROM_NONE;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    boolean mStartRespectingCancel;
+    @VisibleForTesting boolean mAwaitingResult;
+
+    private boolean mConfirmingDeviceCredential;
 
     // This flag is used to control the instant dismissal of the dialog fragment. In the case where
     // the user is already locked out this dialog will not appear. In the case where the user is
@@ -111,7 +112,8 @@ public class BiometricFragment extends Fragment {
     private @Nullable android.hardware.biometrics.BiometricPrompt mBiometricPrompt;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    @Nullable FingerprintDialogFragment mFingerprintDialog;
+    @Nullable
+    FingerprintDialogFragment mFingerprintDialog;
 
     // Do not rely on the application's executor when calling into the framework's code.
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -260,9 +262,7 @@ public class BiometricFragment extends Fragment {
             return;
         }
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q && isDeviceCredentialAllowed()) {
-            // Ignore the first onPause if isDeviceCredentialAllowed is true, since implementations
-            // prior to R launch ConfirmDeviceCredentialActivity, putting the client app onPause.
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && isDeviceCredentialAllowed()) {
             if (!mPausedOnce) {
                 mPausedOnce = true;
             } else {
@@ -277,6 +277,7 @@ public class BiometricFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CONFIRM_CREDENTIAL) {
+            mConfirmingDeviceCredential = false;
             handleConfirmCredentialResult(resultCode);
         }
     }
@@ -313,6 +314,7 @@ public class BiometricFragment extends Fragment {
                 && activity != null
                 && BiometricManager.from(activity).canAuthenticate()
                         != BiometricManager.BIOMETRIC_SUCCESS) {
+            mAwaitingResult = true;
             launchConfirmCredentialActivity();
             return;
         }
@@ -342,21 +344,27 @@ public class BiometricFragment extends Fragment {
         fragmentManager.executePendingTransactions();
 
         if (!mShowing) {
+            mShowing = true;
+            mAwaitingResult = true;
             if (!isUsingFingerprintDialog()) {
                 showBiometricPromptForAuthentication();
             } else {
                 showFingerprintDialogForAuthentication();
             }
-            mShowing = true;
         }
     }
 
     void cancel(int canceledFrom) {
-        if (!isUsingFingerprintDialog()) {
-            cancelBiometricPrompt();
-        } else {
-            cancelFingerprintDialog(canceledFrom);
+        if (isUsingFingerprintDialog()) {
+            mCanceledFrom = canceledFrom;
+            if (canceledFrom == USER_CANCELED_FROM_USER) {
+                final int errorCode = BiometricPrompt.ERROR_USER_CANCELED;
+                sendErrorToClient(errorCode,
+                        Utils.getFingerprintErrorString(getContext(), errorCode));
+            }
         }
+        mCancellationSignalProvider.cancel();
+        dismiss();
     }
 
     void onNegativeButtonPressed(DialogInterface dialog, int which) {
@@ -417,9 +425,11 @@ public class BiometricFragment extends Fragment {
             return;
         }
 
+        mConfirmingDeviceCredential = true;
+
         // Dismiss the fingerprint dialog before launching the activity.
         if (isUsingFingerprintDialog()) {
-            cancelFingerprintDialog(USER_CANCELED_FROM_NONE);
+            dismissFingerprintDialog();
         }
 
         // Launch a new instance of the confirm device credential Settings activity.
@@ -482,17 +492,6 @@ public class BiometricFragment extends Fragment {
             builder.setDeviceCredentialAllowed(allowDeviceCredential);
         }
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q && allowDeviceCredential) {
-            mStartRespectingCancel = false;
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    // Ignore cancel signal if it's within the first quarter second.
-                    mStartRespectingCancel = true;
-                }
-            }, 250 /* ms */);
-        }
-
         mBiometricPrompt = builder.build();
         final android.os.CancellationSignal cancellationSignal =
                 mCancellationSignalProvider.getBiometricCancellationSignal();
@@ -553,42 +552,21 @@ public class BiometricFragment extends Fragment {
     }
 
     /**
-     * Cancel the authentication.
-     */
-    private void cancelBiometricPrompt() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && isDeviceCredentialAllowed()) {
-            if (!mStartRespectingCancel) {
-                Log.w(TAG, "Ignoring fast cancel signal");
-                return;
-            }
-        }
-        mCancellationSignalProvider.cancel();
-        dismiss();
-    }
-
-    private void cancelFingerprintDialog(int canceledFrom) {
-        mCanceledFrom = canceledFrom;
-        if (canceledFrom == USER_CANCELED_FROM_USER) {
-            final int errorCode = BiometricPrompt.ERROR_USER_CANCELED;
-            sendErrorToClient(errorCode, Utils.getFingerprintErrorString(getContext(), errorCode));
-        }
-        mCancellationSignalProvider.cancel();
-        dismiss();
-    }
-
-    /**
      * Remove the fragment so that resources can be freed.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void dismiss() {
+        mShowing = false;
+        dismissFingerprintDialog();
+        if (isAdded()) {
+            getParentFragmentManager().beginTransaction().detach(this).commitAllowingStateLoss();
+        }
+    }
+
+    private void dismissFingerprintDialog() {
         if (mFingerprintDialog != null) {
             mFingerprintDialog.dismissSafely();
             mFingerprintDialog = null;
-        }
-
-        mShowing = false;
-        if (isAdded()) {
-            getParentFragmentManager().beginTransaction().detach(this).commitAllowingStateLoss();
         }
 
         FragmentManager fragmentManager = getClientFragmentManager();
@@ -615,7 +593,13 @@ public class BiometricFragment extends Fragment {
     }
 
     private void sendSuccessToClient(@NonNull final BiometricPrompt.AuthenticationResult result) {
+        if (!mAwaitingResult) {
+            Log.w(TAG, "Success not sent to client. Client is not awaiting a result.");
+            return;
+        }
+
         if (mClientExecutor != null && mClientCallback != null) {
+            mAwaitingResult = false;
             mClientExecutor.execute(
                     new Runnable() {
                         @Override
@@ -630,7 +614,18 @@ public class BiometricFragment extends Fragment {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void sendErrorToClient(final int errorCode, @NonNull final CharSequence errorString) {
+        if (mConfirmingDeviceCredential) {
+            Log.v(TAG, "Error not sent to client. User is confirming their device credential.");
+            return;
+        }
+
+        if (!mAwaitingResult) {
+            Log.w(TAG, "Error not sent to client. Client is not awaiting a result.");
+            return;
+        }
+
         if (mClientExecutor != null && mClientCallback != null) {
+            mAwaitingResult = false;
             mClientExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -644,6 +639,11 @@ public class BiometricFragment extends Fragment {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void sendFailureToClient() {
+        if (!mAwaitingResult) {
+            Log.w(TAG, "Failure not sent to client. Client is not awaiting a result.");
+            return;
+        }
+
         if (mClientExecutor != null && mClientCallback != null) {
             mClientExecutor.execute(new Runnable() {
                 @Override
