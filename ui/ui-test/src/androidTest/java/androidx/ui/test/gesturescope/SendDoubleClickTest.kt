@@ -37,44 +37,9 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @MediumTest
-class SendDoubleClickWithoutArgumentsTest {
-
-    @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
-
-    @get:Rule
-    val inputDispatcherRule: TestRule = AndroidInputDispatcher.TestRule(
-        disableDispatchInRealTime = true
-    )
-
-    private val recordedDoubleClicks = mutableListOf<PxPosition>()
-    private val expectedClickPosition = PxPosition(defaultSize / 2, defaultSize / 2)
-
-    private fun recordDoubleClick(position: PxPosition) {
-        recordedDoubleClicks.add(position)
-    }
-
-    @Test
-    fun testDoubleClick() {
-        // Given some content
-        composeTestRule.setContent {
-            ClickableTestBox(Modifier.doubleTapGestureFilter(this::recordDoubleClick))
-        }
-
-        // When we inject a double click
-        findByTag(defaultTag).doGesture { sendDoubleClick() }
-
-        runOnIdleCompose {
-            // Then we record 1 double click at the expected position
-            assertThat(recordedDoubleClicks).isEqualTo(listOf(expectedClickPosition))
-        }
-    }
-}
-
-@MediumTest
 @RunWith(Parameterized::class)
-class SendDoubleClickWithArgumentsTest(private val config: TestConfig) {
-    data class TestConfig(val position: PxPosition)
+class SendDoubleClickTest(private val config: TestConfig) {
+    data class TestConfig(val position: PxPosition?)
 
     companion object {
         @JvmStatic
@@ -86,6 +51,7 @@ class SendDoubleClickWithArgumentsTest(private val config: TestConfig) {
                         add(TestConfig(PxPosition(x, y)))
                     }
                 }
+                add(TestConfig(null))
             }
         }
     }
@@ -99,21 +65,28 @@ class SendDoubleClickWithArgumentsTest(private val config: TestConfig) {
     )
 
     private val recordedDoubleClicks = mutableListOf<PxPosition>()
-    private val expectedClickPosition = config.position
+    private val expectedClickPosition =
+        config.position ?: PxPosition(defaultSize / 2, defaultSize / 2)
 
     private fun recordDoubleClick(position: PxPosition) {
         recordedDoubleClicks.add(position)
     }
 
     @Test
-    fun testDoubleClickOnPosition() {
+    fun testDoubleClick() {
         // Given some content
         composeTestRule.setContent {
             ClickableTestBox(Modifier.doubleTapGestureFilter(this::recordDoubleClick))
         }
 
         // When we inject a double click
-        findByTag(defaultTag).doGesture { sendDoubleClick(config.position) }
+        findByTag(defaultTag).doGesture {
+            if (config.position != null) {
+                sendDoubleClick(config.position)
+            } else {
+                sendDoubleClick()
+            }
+        }
 
         runOnIdleCompose {
             // Then we record 1 double click at the expected position

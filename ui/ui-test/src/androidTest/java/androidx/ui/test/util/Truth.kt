@@ -17,6 +17,7 @@
 package androidx.ui.test.util
 
 import androidx.ui.unit.PxPosition
+import com.google.common.collect.Ordering
 import com.google.common.truth.FloatSubject
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.sign
@@ -55,6 +56,13 @@ fun List<Float>.isMonotonicBetween(a: Float, b: Float, tolerance: Float = 1e-3f)
     }
 }
 
+fun List<Float>.assertSame(tolerance: Float = 0f) {
+    if (size <= 1) {
+        return
+    }
+    assertThat(min()!!).isWithin(2 * tolerance).of(max()!!)
+}
+
 /**
  * Checks that the float value is between [a] and [b], allowing a [tolerance] on either side.
  * The order of [a] and [b] doesn't matter, the float value must be _between_ them. The default
@@ -68,4 +76,12 @@ fun FloatSubject.isAlmostBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {
         isAtLeast(b - tolerance)
         isAtMost(a + tolerance)
     }
+}
+
+fun <E : Comparable<E>> List<E>.assertIncreasing() {
+    assertThat(this).isInOrder(Ordering.natural<E>())
+}
+
+fun <E : Comparable<E>> List<E>.assertDecreasing() {
+    assertThat(this).isInOrder(Ordering.natural<E>().reverse<E>())
 }
