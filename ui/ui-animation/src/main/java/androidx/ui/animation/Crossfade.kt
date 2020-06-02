@@ -86,7 +86,8 @@ fun <T> Crossfade(
 }
 
 private class CrossfadeState<T> {
-    var current: T? = null
+    // we use Any here as something which will not be equals to the real initial value
+    var current: Any? = Any()
     var items = mutableListOf<CrossfadeAnimationItem<T>>()
     var invalidate: () -> Unit = { }
 }
