@@ -239,8 +239,8 @@ class NavControllerTest {
         } catch (e: IllegalArgumentException) {
             assertThat(e)
                 .hasMessageThat().contains(
-                    "navigation destination that matches request $deepLinkRequest is unknown to " +
-                            "this NavController"
+                    "Navigation destination that matches request $deepLinkRequest cannot be " +
+                            "found in the navigation graph ${navController.graph}"
                 )
         }
     }
