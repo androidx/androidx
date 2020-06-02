@@ -28,15 +28,6 @@ plugins {
     id("kotlin-android")
 }
 
-android {
-    buildTypes {
-        debug {
-            // Breaks Kotlin compiler
-            testCoverageEnabled = false
-        }
-    }
-}
-
 dependencies {
     api project(':tracing:tracing')
     api(KOTLIN_STDLIB)

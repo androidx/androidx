@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-import androidx.build.AndroidXExtension
-
 import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -29,15 +23,6 @@ plugins {
 }
 
 project.ext.noDocs = true
-
-android {
-    buildTypes {
-        debug {
-            // Breaks Kotlin compiler
-            testCoverageEnabled = false
-        }
-    }
-}
 
 dependencies {
     api(KOTLIN_STDLIB)

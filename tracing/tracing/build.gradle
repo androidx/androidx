@@ -28,15 +28,6 @@ plugins {
     id("kotlin-android")
 }
 
-android {
-    buildTypes {
-        debug {
-            // Breaks Kotlin compiler
-            testCoverageEnabled = false
-        }
-    }
-}
-
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     androidTestImplementation(KOTLIN_STDLIB)
