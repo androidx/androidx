@@ -30,6 +30,7 @@ plugins {
 
 kotlin {
     android()
+
     sourceSets {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)

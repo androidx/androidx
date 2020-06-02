@@ -216,3 +216,25 @@ enum class ImageAssetConfig {
      */
     Gpu
 }
+
+internal expect fun ActualImageAsset(
+    width: Int,
+    height: Int,
+    config: ImageAssetConfig,
+    hasAlpha: Boolean,
+    colorSpace: ColorSpace
+): ImageAsset
+
+fun ImageAsset(
+    width: Int,
+    height: Int,
+    config: ImageAssetConfig = ImageAssetConfig.Argb8888,
+    hasAlpha: Boolean = true,
+    colorSpace: ColorSpace = ColorSpaces.Srgb
+): ImageAsset = ActualImageAsset(
+    width,
+    height,
+    config,
+    hasAlpha,
+    colorSpace
+)

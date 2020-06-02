@@ -18,7 +18,6 @@ package androidx.ui.graphics {
   }
 
   public final class AndroidImageAssetKt {
-    method public static androidx.ui.graphics.ImageAsset ImageAsset(int width, int height, androidx.ui.graphics.ImageAssetConfig config = androidx.ui.graphics.ImageAssetConfig.Argb8888, boolean hasAlpha = true, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
     method public static android.graphics.Bitmap asAndroidBitmap(androidx.ui.graphics.ImageAsset);
     method public static androidx.ui.graphics.ImageAsset asImageAsset(android.graphics.Bitmap);
     method public static androidx.ui.graphics.ImageAsset imageFromResource(android.content.res.Resources res, int resId);
@@ -291,6 +290,7 @@ package androidx.ui.graphics {
   }
 
   public final class ImageAssetKt {
+    method public static androidx.ui.graphics.ImageAsset ImageAsset(int width, int height, androidx.ui.graphics.ImageAssetConfig config = androidx.ui.graphics.ImageAssetConfig.Argb8888, boolean hasAlpha = true, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
     method public static androidx.ui.graphics.PixelMap toPixelMap(androidx.ui.graphics.ImageAsset, int startX = 0, int startY = 0, int width = this.width, int height = this.height, int[] buffer = null(width * height), int bufferOffset = 0, int stride = width);
   }
 
