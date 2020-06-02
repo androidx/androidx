@@ -26,7 +26,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
@@ -42,8 +41,9 @@ class DialogFragmentNavigatorTest {
         private const val INITIAL_FRAGMENT = 1
     }
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(EmptyActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(EmptyActivity::class.java)
 
     private lateinit var emptyActivity: EmptyActivity
     private lateinit var fragmentManager: FragmentManager

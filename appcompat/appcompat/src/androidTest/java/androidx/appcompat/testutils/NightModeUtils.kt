@@ -27,7 +27,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.NightMode
 import androidx.lifecycle.Lifecycle
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.LifecycleOwnerUtils
 import org.junit.Assert.assertEquals
 
@@ -67,7 +66,7 @@ object NightModeUtils {
     }
 
     fun <T : AppCompatActivity> setNightModeAndWait(
-        activityRule: ActivityTestRule<T>,
+        @Suppress("DEPRECATION") activityRule: androidx.test.rule.ActivityTestRule<T>,
         @NightMode nightMode: Int,
         setMode: NightSetMode
     ) {
@@ -76,7 +75,7 @@ object NightModeUtils {
 
     fun <T : AppCompatActivity> setNightModeAndWait(
         activity: AppCompatActivity?,
-        activityRule: ActivityTestRule<T>,
+        @Suppress("DEPRECATION") activityRule: androidx.test.rule.ActivityTestRule<T>,
         @NightMode nightMode: Int,
         setMode: NightSetMode
     ) {
@@ -92,7 +91,7 @@ object NightModeUtils {
     }
 
     fun <T : AppCompatActivity> setNightModeAndWaitForRecreate(
-        activityRule: ActivityTestRule<T>,
+        @Suppress("DEPRECATION") activityRule: androidx.test.rule.ActivityTestRule<T>,
         @NightMode nightMode: Int,
         setMode: NightSetMode
     ): T = setNightModeAndWaitForRecreate(activityRule.activity, nightMode, setMode)

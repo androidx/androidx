@@ -32,7 +32,6 @@ import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -41,8 +40,11 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class DialogFragmentTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
+    val activityTestRule = androidx.test.rule.ActivityTestRule(
+        EmptyFragmentTestActivity::class.java
+    )
 
     @Test
     fun testDialogFragmentShows() {

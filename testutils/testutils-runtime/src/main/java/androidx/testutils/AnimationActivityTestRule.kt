@@ -20,7 +20,6 @@ import android.app.Activity
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.os.Build
-import androidx.test.rule.ActivityTestRule
 import androidx.test.runner.intercepting.SingleActivityFactory
 
 import org.junit.runner.Description
@@ -35,7 +34,8 @@ import java.lang.RuntimeException
  * Activity (launchActivity = false).
  */
 
-open class AnimationActivityTestRule<T : Activity> : ActivityTestRule<T> {
+@Suppress("DEPRECATION")
+open class AnimationActivityTestRule<T : Activity> : androidx.test.rule.ActivityTestRule<T> {
 
     private enum class TestType {
         NORMAL, // Test without the @AnimationTest

@@ -25,7 +25,6 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,8 +35,9 @@ class ViewInflationBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(AppCompatActivity::class.java)
+    val activityRule = androidx.test.rule.ActivityTestRule(AppCompatActivity::class.java)
 
     @Test
     fun testTwelveKeyInflate() {

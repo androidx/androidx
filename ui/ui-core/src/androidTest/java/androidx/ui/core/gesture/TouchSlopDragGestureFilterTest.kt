@@ -19,7 +19,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
@@ -45,8 +44,11 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 @RunWith(JUnit4::class)
 class TouchSlopDragGestureFilterTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
+        TestActivity::class.java
+    )
     private lateinit var dragObserver: DragObserver
     private lateinit var view: View
     private var touchSlop: Float = Float.NEGATIVE_INFINITY

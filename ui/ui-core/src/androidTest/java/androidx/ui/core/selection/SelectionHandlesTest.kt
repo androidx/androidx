@@ -19,7 +19,6 @@ package androidx.ui.core.selection
 import android.os.Build
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.setContent
 import androidx.ui.core.test.runOnUiThreadIR
 import androidx.ui.core.test.waitAndScreenShot
@@ -39,8 +38,9 @@ import java.util.concurrent.TimeUnit
 @SmallTest
 @RunWith(JUnit4::class)
 class SelectionHandlesTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var activity: TestActivity
 
     private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())

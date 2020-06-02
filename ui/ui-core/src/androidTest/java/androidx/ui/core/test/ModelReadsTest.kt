@@ -20,7 +20,6 @@ import androidx.compose.FrameManager
 import androidx.compose.MutableState
 import androidx.compose.mutableStateOf
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
@@ -42,8 +41,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class ModelReadsTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     @get:Rule
     val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
     private lateinit var activity: TestActivity

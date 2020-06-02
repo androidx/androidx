@@ -19,7 +19,6 @@ package androidx.ui.test.gesturescope
 import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.changedToUp
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
@@ -87,9 +86,10 @@ class SendClickTest(private val config: TestConfig) {
         }
     }
 
+    @Suppress("DEPRECATION")
     @get:Rule
     val composeTestRule = AndroidComposeTestRule(
-        ActivityTestRule(config.activityClass),
+        androidx.test.rule.ActivityTestRule(config.activityClass),
         disableTransitions = true
     )
 

@@ -23,7 +23,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.savedstate.SavedStateRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.RecreatedActivity
 import androidx.testutils.recreate
 import com.google.common.truth.Truth.assertThat
@@ -35,8 +34,9 @@ import org.junit.runner.RunWith
 @LargeTest
 class FragmentSavedStateRegistryTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(FragmentSavedStateActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(FragmentSavedStateActivity::class.java)
 
     private fun initializeSavedState(testFragment: Fragment = Fragment()) {
         activityRule.runOnUiThread {

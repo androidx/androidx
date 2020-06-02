@@ -31,7 +31,6 @@ import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
@@ -75,8 +74,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class WithConstraintsTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val rule = ActivityTestRule<TestActivity>(
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
     @get:Rule

@@ -22,7 +22,6 @@ import androidx.navigation.dynamicfeatures.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.withActivity
 import org.junit.Assert.assertNotEquals
 import org.junit.Rule
@@ -33,8 +32,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DynamicNavHostFragmentTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule(NavigationActivity::class.java)
+    val activityTestRule = androidx.test.rule.ActivityTestRule(NavigationActivity::class.java)
 
     @Test
     fun createSplitInstallManager() {

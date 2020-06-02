@@ -19,7 +19,6 @@ package androidx.ui.unit
 import android.app.Activity
 import android.util.TypedValue
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -30,8 +29,11 @@ import org.junit.runners.JUnit4
 @SmallTest
 @RunWith(JUnit4::class)
 class SpDeviceTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
+        TestActivity::class.java
+    )
 
     private lateinit var activity: Activity
 

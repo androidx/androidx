@@ -29,7 +29,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -53,8 +52,9 @@ class SurfaceViewImplementationTest {
     private lateinit var mSurfaceRequest: SurfaceRequest
 
     // Shows the view in activity so that SurfaceView can work normally
+    @Suppress("DEPRECATION")
     @get:Rule
-    var mActivityRule = ActivityTestRule(
+    var mActivityRule = androidx.test.rule.ActivityTestRule(
         FakeActivity::class.java
     )
 

@@ -21,7 +21,6 @@ import android.os.Build
 import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
@@ -53,8 +52,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class VectorTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
 

@@ -18,7 +18,6 @@ package androidx.ui.tooling
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.tooling.preview.ComposeViewAdapter
 import androidx.ui.tooling.preview.ViewInfo
 import androidx.ui.tooling.test.R
@@ -30,8 +29,11 @@ import org.junit.Rule
 import org.junit.Test
 
 class ComposeViewAdapterTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
+        TestActivity::class.java
+    )
 
     private lateinit var composeViewAdapter: ComposeViewAdapter
 

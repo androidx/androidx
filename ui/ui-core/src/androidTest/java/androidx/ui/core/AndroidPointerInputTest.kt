@@ -29,7 +29,6 @@ import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
@@ -51,8 +50,9 @@ import java.util.concurrent.TimeUnit
 @SmallTest
 @RunWith(JUnit4::class)
 class AndroidPointerInputTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val rule = ActivityTestRule<AndroidPointerInputTestActivity>(
+    val rule = androidx.test.rule.ActivityTestRule<AndroidPointerInputTestActivity>(
         AndroidPointerInputTestActivity::class.java
     )
 

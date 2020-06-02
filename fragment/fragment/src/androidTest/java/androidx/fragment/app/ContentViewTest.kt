@@ -19,7 +19,6 @@ package androidx.fragment.app
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,8 +27,13 @@ import org.junit.runner.RunWith
 @MediumTest
 class ContentViewTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(ContentViewActivity::class.java, false, false)
+    var activityRule = androidx.test.rule.ActivityTestRule(
+        ContentViewActivity::class.java,
+        false,
+        false
+    )
 
     @Test
     fun testContentViewWithInflatedFragment() {

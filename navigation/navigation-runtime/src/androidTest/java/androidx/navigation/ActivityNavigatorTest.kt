@@ -29,7 +29,6 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -63,8 +62,9 @@ class ActivityNavigatorTest {
         const val TARGET_LABEL = "test_label"
     }
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(ActivityNavigatorActivity::class.java)
+    val activityRule = androidx.test.rule.ActivityTestRule(ActivityNavigatorActivity::class.java)
 
     private lateinit var activityNavigator: ActivityNavigator
 

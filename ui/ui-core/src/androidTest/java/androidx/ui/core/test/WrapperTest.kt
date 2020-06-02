@@ -28,7 +28,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.LifecycleOwnerAmbient
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
@@ -49,8 +48,9 @@ import java.util.concurrent.TimeUnit
 @SmallTest
 @RunWith(JUnit4::class)
 class WrapperTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(
+    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
     private lateinit var activity: TestActivity

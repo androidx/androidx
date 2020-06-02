@@ -16,7 +16,6 @@
 
 package androidx.ui.tooling.preview
 
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.material.ColorPalette
 import androidx.ui.material.darkColorPalette
 import androidx.ui.material.lightColorPalette
@@ -30,8 +29,10 @@ import org.junit.Rule
 import org.junit.Test
 
 class PreviewParameterTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<ComposeViewAdapterTest.Companion.TestActivity>(
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule<ComposeViewAdapterTest.Companion.TestActivity>(
         ComposeViewAdapterTest.Companion.TestActivity::class.java
     )
 

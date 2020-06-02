@@ -20,7 +20,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.Recomposer
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
@@ -48,8 +47,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class RootNodeLayoutTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var activity: TestActivity
 
     @Before
