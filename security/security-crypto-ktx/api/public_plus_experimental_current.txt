@@ -1,1 +1,17 @@
 // Signature format: 3.0
+package androidx.security.crypto {
+
+  public final class EncryptedFileKt {
+    method public static androidx.security.crypto.EncryptedFile EncryptedFile(android.content.Context context, java.io.File file, androidx.security.crypto.MasterKey masterKey, androidx.security.crypto.EncryptedFile.FileEncryptionScheme fileEncryptionScheme = androidx.security.crypto.EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB, String? keysetPrefName = null, String? keysetAlias = null);
+  }
+
+  public final class EncryptedSharedPreferencesKt {
+    method public static android.content.SharedPreferences EncryptedSharedPreferences(android.content.Context context, String fileName, androidx.security.crypto.MasterKey masterKey, androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme prefKeyEncryptionScheme = androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV, androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme prefValueEncryptionScheme = androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+  }
+
+  public final class MasterKeyKt {
+    method public static androidx.security.crypto.MasterKey MasterKey(android.content.Context context, String keyAlias = "_androidx_security_master_key_", androidx.security.crypto.MasterKey.KeyScheme keyScheme = androidx.security.crypto.MasterKey.KeyScheme.AES256_GCM, boolean authenticationRequired = false, int userAuthenticationValidityDurationSeconds = MasterKey.getDefaultAuthenticationValidityDurationSeconds(), boolean requestStrongBoxBacked = false);
+  }
+
+}
+
