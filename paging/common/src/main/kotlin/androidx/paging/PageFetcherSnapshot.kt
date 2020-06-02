@@ -511,26 +511,41 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 }
             }
             is RemoteMediator.MediatorResult.Success -> {
-                if (loadType != REFRESH) {
-                    stateLock.withLock {
-                        this@PageFetcherSnapshot.state.loadStates.set(
-                            loadType, true, NotLoading.instance(
-                                endOfPaginationReached = mediatorResult.endOfPaginationReached,
-                                fromMediator = true
-                            )
+                stateLock.withLock {
+                    this@PageFetcherSnapshot.state.loadStates.set(
+                        loadType, true, NotLoading.instance(
+                            endOfPaginationReached = mediatorResult.endOfPaginationReached &&
+                                    loadType != REFRESH,
+                            fromMediator = true
                         )
+                    )
 
-                        val page = Page<Key, Value>(listOf(), null, null)
+                    // Remote REFRESH doesn't send state update immediately, and instead lets local
+                    // REFRESH eventually send the update. This prevents the UI from displaying that
+                    // remote refresh has completed just because the write has completed, even
+                    // though the read has not.
+                    //
+                    // Ideally, we would send this signal anyway, and have the UI intentionally
+                    // ignore it, when desired.
+                    if (loadType != REFRESH) {
+                        // Inserting an empty page to update load state to NotLoading.
+                        val emptyPage = Page<Key, Value>(listOf(), null, null)
                         var loadId = when (loadType) {
-                            REFRESH -> 0
+                            REFRESH -> throw IllegalStateException(
+                                "Attempt to insert an extra REFRESH page due to " +
+                                        "RemoteMediator, which is an invalid operation."
+                            )
                             PREPEND -> state.prependLoadId
                             APPEND -> state.appendLoadId
                         }
 
                         // Keep trying to insert with latest loadId until we succeed.
-                        while (!state.insert(loadId, loadType, page)) {
+                        while (!state.insert(loadId, loadType, emptyPage)) {
                             loadId = when (loadType) {
-                                REFRESH -> 0
+                                REFRESH -> throw IllegalStateException(
+                                    "Attempt to insert an extra REFRESH page due to " +
+                                            "RemoteMediator, which is an invalid operation."
+                                )
                                 PREPEND -> state.prependLoadId
                                 APPEND -> state.appendLoadId
                             }
@@ -538,7 +553,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
                         // Push an empty insert event to update LoadState.
                         val pageEvent = with(state) {
-                            page.toPageEvent(loadType, config.enablePlaceholders)
+                            emptyPage.toPageEvent(loadType, config.enablePlaceholders)
                         }
 
                         pageEventCh.send(pageEvent)
