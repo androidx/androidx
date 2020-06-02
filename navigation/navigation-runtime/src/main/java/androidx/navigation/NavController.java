@@ -1087,8 +1087,9 @@ public class NavController {
             mBackStack.add(newBackStackEntry);
         } else if (navOptions != null && navOptions.shouldLaunchSingleTop()) {
             launchSingleTop = true;
-            if (mBackStack.peekLast() != null && args != null) {
-                mBackStack.peekLast().getArguments().putAll(args);
+            NavBackStackEntry singleTopBackStackEntry = mBackStack.peekLast();
+            if (singleTopBackStackEntry != null) {
+                singleTopBackStackEntry.replaceArguments(args);
             }
         }
         updateOnBackPressedCallbackEnabled();

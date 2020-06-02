@@ -21,7 +21,6 @@
             app:startDestination="@+id/start_test">
 
     <test android:id="@+id/start_test">
-        <argument android:name="arg1" app:argType="string" />
         <action android:id="@+id/second" app:destination="@+id/second_test" />
     </test>
 
