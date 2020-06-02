@@ -38,7 +38,6 @@ import androidx.ui.test.findAll
 import androidx.ui.test.findByText
 import androidx.ui.test.isInMutuallyExclusiveGroup
 import androidx.ui.unit.dp
-import androidx.ui.unit.toPx
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -145,22 +144,23 @@ class BottomNavigationTest {
             val textBaseline = 12.dp.toIntPx().value.toFloat()
 
             // Relative position of the baseline to the top of text
-            val relativeTextBaseline = textCoords[LastBaseline]!!.toPx().value
+            val relativeTextBaseline = textCoords[LastBaseline]!!.value.toFloat()
             // Absolute y position of the text baseline
             val absoluteTextBaseline = textCoords.globalPosition.y + relativeTextBaseline
 
-            val itemBottom = itemCoords.size.height.toPx().value + itemCoords.globalPosition.y
+            val itemBottom = itemCoords.size.height.value.toFloat() + itemCoords.globalPosition.y
             // Text baseline should be 12.dp from the bottom of the item
             Truth.assertThat(absoluteTextBaseline).isEqualTo(itemBottom - textBaseline)
 
             // The icon should be centered in the item
-            val iconExpectedX = (itemCoords.size.width.toPx() - iconCoords.size.width.toPx()) / 2
+            val iconExpectedX = (itemCoords.size.width.value.toFloat() - iconCoords.size.width
+                .value.toFloat()) / 2
             // The bottom of the icon is 12.dp above the text baseline
             val iconExpectedY =
                 absoluteTextBaseline - 12.dp.toIntPx().value.toFloat() -
                         iconCoords.size.height.value
 
-            Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(iconExpectedX.value)
+            Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(iconExpectedX)
             Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY)
         }
     }
@@ -204,11 +204,13 @@ class BottomNavigationTest {
 
         composeTestRule.runOnIdleComposeWithDensity {
             // The icon should be centered in the item
-            val iconExpectedX = (itemCoords.size.width.toPx() - iconCoords.size.width.toPx()) / 2
-            val iconExpectedY = (itemCoords.size.height - iconCoords.size.height) / 2
+            val iconExpectedX = (itemCoords.size.width.value.toFloat() -
+                    iconCoords.size.width.value.toFloat()) / 2
+            val iconExpectedY = ((itemCoords.size.height - iconCoords.size.height) / 2)
+                .value.toFloat()
 
-            Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(iconExpectedX.value)
-            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY.toPx().value)
+            Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(iconExpectedX)
+            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY)
         }
     }
 
@@ -238,11 +240,12 @@ class BottomNavigationTest {
 
         composeTestRule.runOnIdleComposeWithDensity {
             // The icon should be centered in the item, as there is no text placeable provided
-            val iconExpectedX = (itemCoords.size.width.toPx() - iconCoords.size.width.toPx()) / 2
-            val iconExpectedY = (itemCoords.size.height.toPx() - iconCoords.size.height.toPx()) / 2
+            val iconExpectedX = (itemCoords.size.width - iconCoords.size.width) / 2
+            val iconExpectedY = (itemCoords.size.height - iconCoords.size.height) / 2
 
-            Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(iconExpectedX.value)
-            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY.value)
+            Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(
+                iconExpectedX.value.toFloat())
+            Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY.value.toFloat())
         }
     }
 

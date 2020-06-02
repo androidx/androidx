@@ -39,8 +39,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
-import androidx.ui.unit.px
-import androidx.ui.unit.round
 import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
@@ -86,7 +84,7 @@ class DrawerTest {
         }
         val width = composeTestRule.displayMetrics.widthPixels
         runOnIdleCompose {
-            assertThat(position!!.x.px.round().value).isEqualTo(-width)
+            assertThat(position!!.x.roundToInt()).isEqualTo(-width)
         }
     }
 
@@ -124,7 +122,7 @@ class DrawerTest {
         // temporary calculation of landscape screen
         val expectedHeight = if (width > height) 0 else (height / 2f).roundToInt()
         runOnIdleCompose {
-            assertThat(position!!.y.px.round().value).isEqualTo(expectedHeight)
+            assertThat(position!!.y.roundToInt()).isEqualTo(expectedHeight)
         }
     }
 
@@ -140,7 +138,7 @@ class DrawerTest {
         }
         val height = composeTestRule.displayMetrics.heightPixels
         runOnIdleCompose {
-            assertThat(position!!.y.px.round().value).isEqualTo(height)
+            assertThat(position!!.y.roundToInt()).isEqualTo(height)
         }
     }
 
@@ -160,7 +158,7 @@ class DrawerTest {
                             if (pos.x == 0.0f) {
                                 // If fully opened, mark the openedLatch if present
                                 openedLatch?.countDown()
-                            } else if (-pos.x.px.round() == contentWidth) {
+                            } else if (-pos.x.roundToInt() == contentWidth?.value) {
                                 // If fully closed, mark the closedLatch if present
                                 closedLatch?.countDown()
                             }
@@ -251,10 +249,10 @@ class DrawerTest {
                 drawerContent = {
                     Box(Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
                         val pos = info.localToGlobal(PxPosition.Origin)
-                        if (pos.y.px.round() == openedHeight) {
+                        if (pos.y.roundToInt() == openedHeight?.value) {
                             // If fully opened, mark the openedLatch if present
                             openedLatch?.countDown()
-                        } else if (pos.y.px.round() == contentHeight) {
+                        } else if (pos.y.roundToInt() == contentHeight?.value) {
                             // If fully closed, mark the closedLatch if present
                             closedLatch?.countDown()
                         }

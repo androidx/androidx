@@ -34,7 +34,6 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.unit.Density
-import androidx.ui.unit.px
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,10 +54,10 @@ class DrawBackgroundTest {
         composeTestRule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.preferredSize(40.px.toDp()).drawBackground(Color.Magenta),
+                    Modifier.preferredSize(40f.toDp()).drawBackground(Color.Magenta),
                     gravity = ContentGravity.Center
                 ) {
-                    Box(Modifier.preferredSize(20.px.toDp()).drawBackground(Color.White))
+                    Box(Modifier.preferredSize(20f.toDp()).drawBackground(Color.White))
                 }
             }
         }
@@ -78,11 +77,11 @@ class DrawBackgroundTest {
         composeTestRule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.preferredSize(40.px.toDp()).drawBackground(Color.Magenta),
+                    Modifier.preferredSize(40f.toDp()).drawBackground(Color.Magenta),
                     gravity = ContentGravity.Center
                 ) {
                     Box(
-                        Modifier.preferredSize(20.px.toDp())
+                        Modifier.preferredSize(20f.toDp())
                             .drawBackground(SolidColor(Color.White))
                     )
                 }
@@ -104,7 +103,7 @@ class DrawBackgroundTest {
         composeTestRule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.preferredSize(40.px.toDp())
+                    Modifier.preferredSize(40f.toDp())
                         .drawBackground(Color.Magenta)
                         .drawBackground(color = Color.White, shape = CircleShape)
                 )
@@ -125,7 +124,7 @@ class DrawBackgroundTest {
         composeTestRule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.preferredSize(40.px.toDp())
+                    Modifier.preferredSize(40f.toDp())
                         .drawBackground(Color.Magenta)
                         .drawBackground(
                             brush = SolidColor(Color.White),

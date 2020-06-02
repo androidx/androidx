@@ -37,10 +37,8 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
-import androidx.ui.unit.px
-import androidx.ui.unit.round
-import androidx.ui.unit.toPx
 import androidx.ui.util.fastForEach
+import kotlin.math.roundToInt
 import kotlin.math.sign
 
 /**
@@ -120,13 +118,13 @@ internal fun RowColumnImpl(
         }
 
         val weightUnitSpace = if (totalWeight > 0) {
-            (targetSpace.toPx() - fixedSpace) / totalWeight
+            (targetSpace.value.toFloat() - fixedSpace.value.toFloat()) / totalWeight
         } else {
-            0.px
+            0f
         }
 
         var remainder = targetSpace - fixedSpace - measurables.sumBy {
-            (weightUnitSpace * it.weight).round().value
+            (weightUnitSpace * it.weight).roundToInt()
         }.ipx
 
         var weightedSpace = IntPx.Zero
@@ -139,7 +137,7 @@ internal fun RowColumnImpl(
                 remainder -= remainderUnit
                 val childMainAxisSize = max(
                     IntPx.Zero,
-                    (weightUnitSpace * child.weight).round() + remainderUnit
+                    (weightUnitSpace * child.weight).roundToInt().ipx + remainderUnit
                 )
                 val placeable = child.measure(
                     OrientationIndependentConstraints(
@@ -387,10 +385,10 @@ interface Arrangement {
         ): List<IntPx> {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
             val positions = mutableListOf<IntPx>()
-            var current = (totalSize - consumedSize).toPx() / 2
+            var current = (totalSize - consumedSize).value.toFloat() / 2
             size.fastForEach {
-                positions.add(current.round())
-                current += it
+                positions.add(current.roundToInt().ipx)
+                current += it.value.toFloat()
             }
             return positions
         }
@@ -407,12 +405,12 @@ interface Arrangement {
             layoutDirection: LayoutDirection
         ): List<IntPx> {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
-            val gapSize = (totalSize - consumedSize).toPx() / (size.size + 1)
+            val gapSize = (totalSize - consumedSize).value.toFloat() / (size.size + 1)
             val positions = mutableListOf<IntPx>()
             var current = gapSize
             size.fastForEach {
-                positions.add(current.round())
-                current += it.toPx() + gapSize
+                positions.add(current.roundToInt().ipx)
+                current += it.value.toFloat() + gapSize
             }
             return positions
         }
@@ -430,15 +428,15 @@ interface Arrangement {
         ): List<IntPx> {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
             val gapSize = if (size.size > 1) {
-                (totalSize - consumedSize).toPx() / (size.size - 1)
+                (totalSize - consumedSize).value.toFloat() / (size.size - 1)
             } else {
-                0.px
+                0f
             }
             val positions = mutableListOf<IntPx>()
-            var current = 0.px
+            var current = 0f
             size.fastForEach {
-                positions.add(current.round())
-                current += it.toPx() + gapSize
+                positions.add(current.roundToInt().ipx)
+                current += it.value.toFloat() + gapSize
             }
             return positions
         }
@@ -457,15 +455,15 @@ interface Arrangement {
         ): List<IntPx> {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
             val gapSize = if (size.isNotEmpty()) {
-                (totalSize - consumedSize).toPx() / size.size
+                (totalSize - consumedSize).value.toFloat() / size.size
             } else {
-                0.px
+                0f
             }
             val positions = mutableListOf<IntPx>()
             var current = gapSize / 2
             size.fastForEach {
-                positions.add(current.round())
-                current += it.toPx() + gapSize
+                positions.add(current.roundToInt().ipx)
+                current += it.value.toFloat() + gapSize
             }
             return positions
         }

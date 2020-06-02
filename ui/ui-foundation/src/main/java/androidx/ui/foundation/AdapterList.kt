@@ -43,10 +43,9 @@ import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
-import androidx.ui.unit.round
 import kotlin.math.abs
 import kotlin.math.round
+import kotlin.math.roundToInt
 
 private inline class ScrollDirection(val isForward: Boolean)
 
@@ -358,7 +357,7 @@ private class ListState<T> {
             return measureScope.layout(width = width.ipx, height = height.ipx) {
                 var currentY = round(-firstItemScrollOffset)
                 rootNode.children.forEach {
-                    it.place(x = IntPx.Zero, y = currentY.px.round())
+                    it.place(x = IntPx.Zero, y = currentY.roundToInt().ipx)
                     currentY += it.height.value
                 }
             }

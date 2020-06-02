@@ -56,7 +56,6 @@ import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import androidx.ui.util.lerp
 import kotlin.math.abs
 
@@ -172,7 +171,7 @@ private fun SliderImpl(
     modifier: Modifier
 ) {
     val widthDp = with(DensityAmbient.current) {
-        width.px.toDp()
+        width.toDp()
     }
     Stack(modifier + DefaultSliderConstraints) {
         val thumbSize = ThumbRadius * 2

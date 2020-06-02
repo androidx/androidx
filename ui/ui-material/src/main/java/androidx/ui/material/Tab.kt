@@ -65,7 +65,6 @@ import androidx.ui.unit.coerceAtLeast
 import androidx.ui.unit.dp
 import androidx.ui.unit.max
 import androidx.ui.unit.sp
-import androidx.ui.unit.toPx
 import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.fastForEach
 import androidx.ui.util.fastForEachIndexed
@@ -360,7 +359,7 @@ private class ScrollableTabData(
         // How much space we have to scroll. If the visible width is <= to the total width, then
         // we have no space to scroll as everything is always visible.
         val availableSpace = (totalTabRowWidth - visibleWidth).coerceAtLeast(IntPx.Zero)
-        return centeredTabOffset.coerceIn(IntPx.Zero, availableSpace).toPx().value
+        return centeredTabOffset.coerceIn(IntPx.Zero, availableSpace).value.toFloat()
     }
 }
 
@@ -432,13 +431,13 @@ object TabRow {
                 // When this is supported by transitionDefinition, we should fix this to just set a
                 // default or similar.
                 state(selectedIndex) {
-                    this[IndicatorOffset] = tabPositions[selectedIndex].left.toPx().value
+                    this[IndicatorOffset] = tabPositions[selectedIndex].left.value.toFloat()
                 }
 
                 tabPositions.forEachIndexed { index, position ->
                     if (index != selectedIndex) {
                         state(index) {
-                            this[IndicatorOffset] = position.left.toPx().value
+                            this[IndicatorOffset] = position.left.value.toFloat()
                         }
                     }
                 }

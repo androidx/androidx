@@ -25,252 +25,14 @@ import androidx.ui.util.lerp
 import androidx.ui.util.packFloats
 import androidx.ui.util.unpackFloat1
 import androidx.ui.util.unpackFloat2
-import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
- * Dimension value represented in pixels (px). Component APIs specify their
- * dimensions such as line thickness in DP with Dp objects, while drawing and layout are done
- * in pixel dimensions. When specific pixel dimensions are required, create a Px and convert
- * it to Dp using [Density.toDp]. Px are normally defined using [px], which can be applied to
- * [Int], [Double], and [Float].
- *     val leftMargin = 10.px
- *     val rightMargin = 10f.px
- *     val topMargin = 20.0.px
- *     val bottomMargin = 10.px
- */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
-@Immutable
-inline class Px(val value: Float) : Comparable<Px> {
-    /**
-     * Add two [Px]s together.
-     */
-    @Stable
-    inline operator fun plus(other: Px) =
-        Px(value = this.value + other.value)
-
-    /**
-     * Subtract a Px from another one.
-     */
-    @Stable
-    inline operator fun minus(other: Px) =
-        Px(value = this.value - other.value)
-
-    /**
-     * This is the same as multiplying the Px by -1.0.
-     */
-    @Stable
-    inline operator fun unaryMinus() = Px(-value)
-
-    /**
-     * Divide a Px by a scalar.
-     */
-    @Stable
-    inline operator fun div(other: Float): Px =
-        Px(value = value / other)
-
-    @Stable
-    inline operator fun div(other: Int): Px =
-        Px(value = value / other)
-
-    /**
-     * Divide by another Px to get a scalar.
-     */
-    @Stable
-    inline operator fun div(other: Px): Float = value / other.value
-
-    /**
-     * Divide by [PxSquared] to get a [PxInverse].
-     */
-    @Stable
-    inline operator fun div(other: PxSquared): PxInverse =
-        PxInverse(value = value / other.value)
-
-    /**
-     * Multiply a Px by a scalar.
-     */
-    @Stable
-    inline operator fun times(other: Float): Px =
-        Px(value = value * other)
-
-    @Stable
-    inline operator fun times(other: Int): Px =
-        Px(value = value * other)
-
-    /**
-     * Multiply by a Px to get a [PxSquared] result.
-     */
-    @Stable
-    inline operator fun times(other: Px): PxSquared =
-        PxSquared(value = value * other.value)
-
-    /**
-     * Multiply by a Px to get a [PxSquared] result.
-     */
-    @Stable
-    inline operator fun times(other: PxSquared): PxCubed =
-        PxCubed(value = value * other.value)
-
-    /**
-     * Compare [Px] with another [Px].
-     */
-    @Stable
-    override /* TODO: inline */ operator fun compareTo(other: Px) = value.compareTo(other.value)
-
-    /**
-     * Compares this [Px] to another [IntPx]
-     */
-    @Stable
-    inline operator fun compareTo(other: IntPx): Int = value.compareTo(other.value)
-
-    /**
-     * Add an [IntPx] to this [Px].
-     */
-    @Stable
-    inline operator fun plus(other: IntPx) =
-        Px(value = this.value + other.value)
-
-    /**
-     * Subtract an [IntPx] from this [Px].
-     */
-    @Stable
-    inline operator fun minus(other: IntPx) =
-        Px(value = this.value - other.value)
-
-    @Stable
-    override fun toString() = "$value.px"
-
-    companion object {
-        /**
-         * Infinite px dimension.
-         */
-        @Stable
-        val Infinity = Px(value = Float.POSITIVE_INFINITY)
-
-        /**
-         * Zero px dimension
-         */
-        @Stable
-        val Zero = Px(0.0f)
-    }
-}
-
-/**
- * Create a [Px] using an [Int]:
- *     val left = 10
- *     val x = left.px
- *     // -- or --
- *     val y = 10.px
- */
-@Stable
-inline val Int.px: Px get() = Px(value = this.toFloat())
-
-/**
- * Create a [Px] using a [Double]:
- *     val left = 10.0
- *     val x = left.px
- *     // -- or --
- *     val y = 10.0.px
- */
-@Stable
-inline val Double.px: Px get() = Px(value = this.toFloat())
-
-/**
- * Create a [Px] using a [Float]:
- *     val left = 10f
- *     val x = left.px
- *     // -- or --
- *     val y = 10f.px
- */
-@Stable
-inline val Float.px: Px get() = Px(value = this)
-
-@Stable
-inline operator fun Float.div(other: Px) =
-    PxInverse(this / other.value)
-
-@Stable
-inline operator fun Double.div(other: Px) =
-    PxInverse(this.toFloat() / other.value)
-
-@Stable
-inline operator fun Int.div(other: Px) =
-    PxInverse(this / other.value)
-
-@Stable
-inline operator fun Float.times(other: Px) =
-    Px(this * other.value)
-
-@Stable
-inline operator fun Double.times(other: Px) =
-    Px(this.toFloat() * other.value)
-
-@Stable
-inline operator fun Int.times(other: Px) =
-    Px(this * other.value)
-
-@Stable
-inline fun min(a: Px, b: Px): Px = Px(value = min(a.value, b.value))
-
-@Stable
-inline fun max(a: Px, b: Px): Px = Px(value = max(a.value, b.value))
-
-@Stable
-inline fun abs(x: Px): Px = Px(abs(x.value))
-
-/**
- * Ensures that this value lies in the specified range [minimumValue]..[maximumValue].
- *
- * @return this value if it's in the range, or [minimumValue] if this value is less than
- * [minimumValue], or [maximumValue] if this value is greater than [maximumValue].
- */
-@Stable
-inline fun Px.coerceIn(minimumValue: Px, maximumValue: Px): Px =
-    Px(value = value.coerceIn(minimumValue.value, maximumValue.value))
-
-/**
- * Ensures that this value is not less than the specified [minimumValue].
- *
- * @return this value if it's greater than or equal to the [minimumValue] or the
- * [minimumValue] otherwise.
- */
-@Stable
-inline fun Px.coerceAtLeast(minimumValue: Px): Px =
-    Px(value = value.coerceAtLeast(minimumValue.value))
-
-/**
- * Ensures that this value is not greater than the specified [maximumValue].
- *
- * @return this value if it's less than or equal to the [maximumValue] or the
- * [maximumValue] otherwise.
- */
-@Stable
-inline fun Px.coerceAtMost(maximumValue: Px): Px =
-    Px(value = value.coerceAtMost(maximumValue.value))
-
-/**
- * Linearly interpolate between two [Px]s.
- *
- * The [fraction] argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning [start] (or something
- * equivalent to [start]), 1.0 meaning that the interpolation has finished,
- * returning [stop] (or something equivalent to [stop]), and values in between
- * meaning that the interpolation is at the relevant point on the timeline
- * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
- * 1.0, so negative values and values greater than 1.0 are valid.
- */
-@Stable
-fun lerp(start: Px, stop: Px, fraction: Float): Px {
-    return Px(lerp(start.value, stop.value, fraction))
-}
-
-/**
  * Holds a unit of squared dimensions, such as `1.value * 2.px`. [PxSquared], [PxCubed],
- * and [PxInverse] are used primarily for [Px] calculations to ensure resulting
- * units are as expected. Many times, [Px] calculations use scalars to determine the final
+ * and [PxInverse] are used primarily for pixel calculations to ensure resulting
+ * units are as expected. Many times, pixel calculations use scalars to determine the final
  * dimension during calculation:
  *     val width = oldWidth * stretchAmount
  * Other times, it is useful to do intermediate calculations with Dimensions directly:
@@ -301,13 +63,6 @@ inline class PxSquared(val value: Float) : Comparable<PxSquared> {
         PxSquared(value = value / other)
 
     /**
-     * Divide by a [Px] to get a [Px] result.
-     */
-    @Stable
-    inline operator fun div(other: Px): Px =
-        Px(value = value / other.value)
-
-    /**
      * Divide by a PxSquared to get a scalar result.
      */
     @Stable
@@ -328,13 +83,6 @@ inline class PxSquared(val value: Float) : Comparable<PxSquared> {
         PxSquared(value = value * other)
 
     /**
-     * Multiply by a scalar to get a PxSquared result.
-     */
-    @Stable
-    inline operator fun times(other: Px): PxCubed =
-        PxCubed(value = value * other.value)
-
-    /**
      * Support comparing PxSquared with comparison operators.
      */
     @Stable
@@ -347,8 +95,8 @@ inline class PxSquared(val value: Float) : Comparable<PxSquared> {
 
 /**
  * Holds a unit of cubed dimensions, such as `1.value * 2.value * 3.px`. [PxSquared],
- * [PxCubed], and [PxInverse] are used primarily for [Px] calculations to
- * ensure resulting units are as expected. Many times, [Px] calculations use scalars to
+ * [PxCubed], and [PxInverse] are used primarily for pixel calculations to
+ * ensure resulting units are as expected. Many times, pixel calculations use scalars to
  * determine the final dimension during calculation:
  *     val width = oldWidth * stretchAmount
  * Other times, it is useful to do intermediate calculations with Dimensions directly:
@@ -379,20 +127,6 @@ inline class PxCubed(val value: Float) : Comparable<PxCubed> {
         PxCubed(value = value / other)
 
     /**
-     * Divide by a [Px] to get a [PxSquared] result.
-     */
-    @Stable
-    inline operator fun div(other: Px): PxSquared =
-        PxSquared(value = value / other.value)
-
-    /**
-     * Divide by a [PxSquared] to get a [Px] result.
-     */
-    @Stable
-    inline operator fun div(other: PxSquared): Px =
-        Px(value = value / other.value)
-
-    /**
      * Divide by a PxCubed to get a scalar result.
      */
     @Stable
@@ -418,8 +152,8 @@ inline class PxCubed(val value: Float) : Comparable<PxCubed> {
 
 /**
  * Holds a unit of an inverse dimensions, such as `1.px / (2.value * 3.px)`. [PxSquared],
- * [PxCubed], and [PxInverse] are used primarily for [Px] calculations to
- * ensure resulting units are as expected. Many times, [Px] calculations use scalars to
+ * [PxCubed], and [PxInverse] are used primarily for pixel calculations to
+ * ensure resulting units are as expected. Many times, pixel calculations use scalars to
  * determine the final dimension during calculation:
  *     val width = oldWidth * stretchAmount
  * Other times, it is useful to do intermediate calculations with Dimensions directly:
@@ -457,19 +191,6 @@ inline class PxInverse(val value: Float) : Comparable<PxInverse> {
         PxInverse(value = value * other)
 
     /**
-     * Multiply by a [Px] to get a scalar result.
-     */
-    @Stable
-    inline operator fun times(other: Px): Float = value * other.value
-
-    /**
-     * Multiply by a [PxSquared] to get a [Px] result.
-     */
-    @Stable
-    inline operator fun times(other: PxSquared): Px =
-        Px(value = value * other.value)
-
-    /**
      * Multiply by a [PxCubed] to get a [PxSquared] result.
      */
     @Stable
@@ -492,20 +213,20 @@ inline class PxInverse(val value: Float) : Comparable<PxInverse> {
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 /**
- * A two dimensional size using [Px] for units
+ * A two dimensional size using pixels for units
  */
 @Immutable
 data class PxSize @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
 
     /**
-     * The horizontal aspect of the size in [Px].
+     * The horizontal aspect of the size in pixels.
      */
     @Stable
     inline val width: Float
         get() = unpackFloat1(value)
 
     /**
-     * The vertical aspect of the size in [Px].
+     * The vertical aspect of the size in pixels.
      */
     @Stable
     inline val height: Float
@@ -576,12 +297,6 @@ data class PxSize @PublishedApi internal constructor(@PublishedApi internal val 
 inline fun PxSize(width: Float, height: Float): PxSize = PxSize(packFloats(width, height))
 
 /**
- * Constructs a [PxSize] from width and height [Px] values.
- */
-@Stable
-inline fun PxSize(width: Px, height: Px): PxSize = PxSize(packFloats(width.value, height.value))
-
-/**
  * Returns a [PxSize] with [size]'s [PxSize.width] and [PxSize.height] multiplied by [this]
  */
 @Stable
@@ -615,18 +330,18 @@ fun PxSize.center(): PxPosition {
 val PxSize.minDimension get() = min(width, height)
 
 /**
- * A two-dimensional position using [Px] for units
+ * A two-dimensional position using pixels for units
  */
 @Immutable
 data class PxPosition @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
     /**
-     * The horizontal aspect of the position in [Px]
+     * The horizontal aspect of the position in pixels
      */
     inline val x: Float
         get() = unpackFloat1(value)
 
     /**
-     * The vertical aspect of the position in [Px]
+     * The vertical aspect of the position in pixels
      */
     inline val y: Float
         get() = unpackFloat2(value)
@@ -684,7 +399,7 @@ inline fun PxPosition(x: Float, y: Float): PxPosition = PxPosition(packFloats(x,
  * The magnitude of the offset represented by this [PxPosition].
  */
 @Stable
-fun PxPosition.getDistance(): Px = Px(sqrt(x * x + y * y))
+fun PxPosition.getDistance(): Float = sqrt(x * x + y * y)
 
 /**
  * Convert a [PxPosition] to a [Offset].
@@ -734,13 +449,13 @@ inline fun PxBounds(topLeft: PxPosition, size: PxSize) =
     )
 
 /**
- * A width of this PxBounds in [Px].
+ * A width of this PxBounds in pixels.
  */
 @Stable
 inline val PxBounds.width: Float get() = right - left
 
 /**
- * A height of this PxBounds in [Px].
+ * A height of this PxBounds in pixels.
  */
 @Stable
 inline val PxBounds.height: Float get() = bottom - top

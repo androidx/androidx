@@ -39,8 +39,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
-import androidx.ui.unit.round
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -289,10 +287,10 @@ class TextFieldDelegateTest {
     @Test
     fun layout() {
         val constraints = Constraints(
-            minWidth = 0.px.round(),
-            maxWidth = 1280.px.round(),
-            minHeight = 0.px.round(),
-            maxHeight = 2048.px.round()
+            minWidth = 0.ipx,
+            maxWidth = 1280.ipx,
+            minHeight = 0.ipx,
+            maxHeight = 2048.ipx
         )
 
         val dummyText = AnnotatedString(text = "Hello, World")
@@ -308,8 +306,8 @@ class TextFieldDelegateTest {
             constraints,
             layoutDirection
         )
-        assertEquals(1024.px.round(), width)
-        assertEquals(512.px.round(), height)
+        assertEquals(1024f, width.value.toFloat())
+        assertEquals(512f, height.value.toFloat())
         assertEquals(layoutResult, textLayoutResult)
     }
 

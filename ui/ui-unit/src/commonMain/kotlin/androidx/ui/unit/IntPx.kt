@@ -117,12 +117,6 @@ inline class IntPx(val value: Int) : Comparable<IntPx> {
     @Stable
     override /* TODO: inline */ operator fun compareTo(other: IntPx) = value.compareTo(other.value)
 
-    /**
-     * Compares this [IntPx] to another [Px]
-     */
-    @Stable
-    inline operator fun compareTo(other: Px) = value.compareTo(other.value)
-
     @Stable
     override fun toString() = "$value.ipx"
 
@@ -258,22 +252,6 @@ inline fun IntPx.coerceAtMost(maximumValue: IntPx): IntPx =
 fun lerp(start: IntPx, stop: IntPx, fraction: Float): IntPx {
     return start.keepInfinity(stop, IntPx(lerp(start.value, stop.value, fraction)))
 }
-
-/**
- * Rounds a [Px] size to the nearest Int pixel value.
- */
-@Stable
-inline fun Px.round(): IntPx =
-    if (value.isInfinite()) Infinity else IntPx(value.roundToInt())
-
-/**
- * Rounds up a [Px] to the smallest integer value that is not less than the original value.
- */
-@Stable
-inline fun Px.ceil(): IntPx =
-    if (value.isInfinite()) Infinity else IntPx(kotlin.math.ceil(value).toInt())
-
-inline fun IntPx.toPx(): Px = value.px
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Structures using IntPx
@@ -465,14 +443,14 @@ inline fun IntPxBounds.toSize(): IntPxSize {
  */
 @Stable
 inline fun PxSize(width: IntPx, height: IntPx): PxSize =
-    PxSize(width = width.toPx(), height = height.toPx())
+    PxSize(width = width.value.toFloat(), height = height.value.toFloat())
 
 /**
  * Create a [PxPosition] from [IntPx] values.
  */
 @Stable
 inline fun PxPosition(x: IntPx, y: IntPx): PxPosition =
-    PxPosition(x = x.toPx().value, y = y.toPx().value)
+    PxPosition(x = x.value.toFloat(), y = y.value.toFloat())
 
 /**
  * Convert a [IntPxPosition] to a [PxPosition]

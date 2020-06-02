@@ -25,7 +25,6 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.toPx
 import kotlin.math.max
 
 internal class TextSelectionDelegate(
@@ -138,8 +137,8 @@ internal fun getTextSelectionInfo(
     val bounds = Rect(
         0.0f,
         0.0f,
-        textLayoutResult.size.width.toPx().value,
-        textLayoutResult.size.height.toPx().value
+        textLayoutResult.size.width.value.toFloat(),
+        textLayoutResult.size.height.value.toFloat()
     )
 
     val lastOffset = textLayoutResult.layoutInput.text.text.length

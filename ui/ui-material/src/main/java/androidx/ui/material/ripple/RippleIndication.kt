@@ -37,7 +37,6 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.center
-import androidx.ui.unit.px
 import androidx.ui.util.fastForEach
 
 /**
@@ -162,7 +161,7 @@ private class RippleIndicationInstance internal constructor(
 
     private fun ContentDrawScope.startRippleEffect(pressPosition: PxPosition) {
         currentEffect?.finish(false)
-        val pxSize = PxSize(size.width.px, size.height.px)
+        val pxSize = PxSize(size.width, size.height)
         val position = if (bounded) pressPosition else pxSize.center()
         val effect =
             factory.create(pxSize, position, this, radius, bounded, clock) { effect ->

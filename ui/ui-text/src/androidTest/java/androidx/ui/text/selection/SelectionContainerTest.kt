@@ -42,7 +42,6 @@ import androidx.ui.text.font.ResourceFont
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.font.test.R
 import androidx.ui.text.style.TextOverflow
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
@@ -115,14 +114,14 @@ class SelectionContainerTest {
     fun press_to_cancel() {
         // Setup. Long press to create a selection.
         // A reasonable number.
-        val position = 50.px
-        longPress(x = position.value, y = position.value)
+        val position = 50f
+        longPress(x = position, y = position)
         runOnIdleCompose {
             assertThat(selection.value).isNotNull()
         }
 
         // Act.
-        press(x = position.value, y = position.value)
+        press(x = position, y = position)
 
         // Assert.
         runOnIdleCompose {

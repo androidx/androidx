@@ -39,10 +39,10 @@ import androidx.ui.material.internal.StateDraggable
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import androidx.ui.unit.min
-import androidx.ui.unit.px
-import androidx.ui.unit.round
 import androidx.ui.util.lerp
+import kotlin.math.roundToInt
 
 /**
  * Possible states of the drawer
@@ -325,9 +325,9 @@ private fun WithOffset(
             height = min(placeable.height, constraints.maxHeight)
         }
         layout(width, height) {
-            val offX = xOffset?.value?.px ?: 0.px
-            val offY = yOffset?.value?.px ?: 0.px
-            placeable?.place(offX.round(), offY.round())
+            val offX = (xOffset?.value ?: 0f).roundToInt().ipx
+            val offY = (yOffset?.value ?: 0f).roundToInt().ipx
+            placeable?.place(offX, offY)
         }
     }
 }
