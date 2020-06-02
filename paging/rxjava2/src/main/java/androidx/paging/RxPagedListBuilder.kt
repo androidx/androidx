@@ -50,6 +50,7 @@ import kotlinx.coroutines.withContext
  * @param Value Item type being presented.
  *
  */
+@Deprecated("PagedList is deprecated and has been replaced by PagingData")
 class RxPagedListBuilder<Key : Any, Value : Any> {
     private val pagingSourceFactory: (() -> PagingSource<Key, Value>)?
     private val dataSourceFactory: DataSource.Factory<Key, Value>?

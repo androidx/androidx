@@ -1,17 +1,17 @@
 // Signature format: 3.0
 package androidx.paging {
 
-  public final class RxPagedListBuilder<Key, Value> {
+  @Deprecated public final class RxPagedListBuilder<Key, Value> {
     ctor @Deprecated public RxPagedListBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory, androidx.paging.PagedList.Config config);
     ctor @Deprecated public RxPagedListBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory, int pageSize);
     ctor @Deprecated public RxPagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, androidx.paging.PagedList.Config config);
     ctor @Deprecated public RxPagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, int pageSize);
-    method public io.reactivex.Flowable<androidx.paging.PagedList<Value>> buildFlowable(io.reactivex.BackpressureStrategy backpressureStrategy);
-    method public io.reactivex.Observable<androidx.paging.PagedList<Value>> buildObservable();
-    method public androidx.paging.RxPagedListBuilder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
-    method public androidx.paging.RxPagedListBuilder<Key,Value> setFetchScheduler(io.reactivex.Scheduler scheduler);
-    method public androidx.paging.RxPagedListBuilder<Key,Value> setInitialLoadKey(Key? key);
-    method public androidx.paging.RxPagedListBuilder<Key,Value> setNotifyScheduler(io.reactivex.Scheduler scheduler);
+    method @Deprecated public io.reactivex.Flowable<androidx.paging.PagedList<Value>> buildFlowable(io.reactivex.BackpressureStrategy backpressureStrategy);
+    method @Deprecated public io.reactivex.Observable<androidx.paging.PagedList<Value>> buildObservable();
+    method @Deprecated public androidx.paging.RxPagedListBuilder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
+    method @Deprecated public androidx.paging.RxPagedListBuilder<Key,Value> setFetchScheduler(io.reactivex.Scheduler scheduler);
+    method @Deprecated public androidx.paging.RxPagedListBuilder<Key,Value> setInitialLoadKey(Key? key);
+    method @Deprecated public androidx.paging.RxPagedListBuilder<Key,Value> setNotifyScheduler(io.reactivex.Scheduler scheduler);
   }
 
   public final class RxPagedListKt {
