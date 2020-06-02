@@ -15,7 +15,7 @@ package androidx.fragment.app {
   }
 
   public final class FragmentViewModelLazyKt {
-    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> viewModels(androidx.fragment.app.Fragment, androidx.lifecycle.ViewModelProvider.Factory? factory = null);
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM>! viewModels(androidx.fragment.app.Fragment, androidx.lifecycle.ViewModelProvider.Factory? factory = null);
   }
 
 }

@@ -1,7 +1,7 @@
 // Signature format: 3.0
 package androidx.media2.common {
 
-  public class CallbackMediaItem extends androidx.media2.common.MediaItem {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class CallbackMediaItem extends androidx.media2.common.MediaItem {
     method public androidx.media2.common.DataSourceCallback getDataSourceCallback();
   }
 
@@ -19,7 +19,7 @@ package androidx.media2.common {
     method public abstract int readAt(long, byte[], int, int) throws java.io.IOException;
   }
 
-  public class FileMediaItem extends androidx.media2.common.MediaItem {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class FileMediaItem extends androidx.media2.common.MediaItem {
     method public long getFileDescriptorLength();
     method public long getFileDescriptorOffset();
     method public android.os.ParcelFileDescriptor getParcelFileDescriptor();
@@ -36,7 +36,7 @@ package androidx.media2.common {
     method public androidx.media2.common.FileMediaItem.Builder setStartPosition(long);
   }
 
-  public class MediaItem extends androidx.versionedparcelable.CustomVersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class MediaItem extends androidx.versionedparcelable.CustomVersionedParcelable {
     method public long getEndPosition();
     method public androidx.media2.common.MediaMetadata? getMetadata();
     method public long getStartPosition();
@@ -52,7 +52,7 @@ package androidx.media2.common {
     method public androidx.media2.common.MediaItem.Builder setStartPosition(long);
   }
 
-  public final class MediaMetadata extends androidx.versionedparcelable.CustomVersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public final class MediaMetadata extends androidx.versionedparcelable.CustomVersionedParcelable {
     method public boolean containsKey(String);
     method public android.graphics.Bitmap? getBitmap(String);
     method public android.os.Bundle? getExtras();
@@ -213,7 +213,7 @@ package androidx.media2.common {
     field public static final int RESULT_SUCCESS = 0; // 0x0
   }
 
-  public class UriMediaItem extends androidx.media2.common.MediaItem {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class UriMediaItem extends androidx.media2.common.MediaItem {
     method public android.net.Uri getUri();
     method public java.util.List<java.net.HttpCookie!>? getUriCookies();
     method public java.util.Map<java.lang.String!,java.lang.String!>? getUriHeaders();
