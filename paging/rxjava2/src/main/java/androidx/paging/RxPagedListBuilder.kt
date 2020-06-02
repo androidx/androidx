@@ -88,7 +88,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
             ).flowable""",
             "androidx.paging.PagingConfig",
             "androidx.paging.Pager",
-            "androidx.paging.flowable"
+            "androidx.paging.rxjava2.getFlowable"
         )
     )
     constructor(
@@ -125,7 +125,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
             ).flowable""",
             "androidx.paging.PagingConfig",
             "androidx.paging.Pager",
-            "androidx.paging.flowable"
+            "androidx.paging.rxjava2.getFlowable"
         )
     )
     constructor(pagingSourceFactory: () -> PagingSource<Key, Value>, pageSize: Int) : this(
@@ -151,11 +151,11 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                     config.maxSize
                 ),
                 initialKey = null,
-                this.asPagingSourceFactory(Dispatchers.IO)
+                pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)
             ).flowable""",
             "androidx.paging.PagingConfig",
             "androidx.paging.Pager",
-            "androidx.paging.flowable",
+            "androidx.paging.rxjava2.getFlowable",
             "kotlinx.coroutines.Dispatchers"
         )
     )
@@ -189,11 +189,11 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
             """Pager(
                 config = PagingConfig(pageSize),
                 initialKey = null,
-                this.asPagingSourceFactory(Dispatchers.IO)
+                pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)
             ).flowable""",
             "androidx.paging.PagingConfig",
             "androidx.paging.Pager",
-            "androidx.paging.flowable",
+            "androidx.paging.rxjava2.getFlowable",
             "kotlinx.coroutines.Dispatchers"
         )
     )

@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.rxjava2.RxPagingSource
 import io.reactivex.Single
 import kotlinx.coroutines.runBlocking
 import org.junit.Test

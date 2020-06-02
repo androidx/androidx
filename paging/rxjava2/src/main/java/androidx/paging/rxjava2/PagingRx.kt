@@ -16,8 +16,11 @@
 
 @file:JvmName("PagingRx")
 
-package androidx.paging
+package androidx.paging.rxjava2
 
+import androidx.paging.Pager
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
