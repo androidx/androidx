@@ -320,6 +320,10 @@ public abstract class UserDao {
     @Query("UPDATE user SET mName = :name, mLastName = :name WHERE mId = :userId")
     public abstract void setSameNames(String name, int userId);
 
+    @Query("SELECT us.mName, us.mLastName  FROM User as us WHERE mName = :name UNION "
+            + "SELECT us.mName, us.mLastName  FROM User as us WHERE mName = :name")
+    public abstract List<NameAndLastName> selectByName_withTablePrefixAndUnion(String name);
+
     @Query("SELECT mName FROM User")
     public abstract List<NameAndUsers> getNameAndUsers();
 }
