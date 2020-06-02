@@ -21,10 +21,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.clickable
-import androidx.ui.foundation.selection.Toggleable
+import androidx.ui.foundation.selection.toggleable
 import androidx.ui.layout.preferredSize
 import androidx.ui.material.ripple.RippleIndication
-import androidx.ui.material.ripple.ripple
 import androidx.ui.unit.dp
 
 /**
@@ -86,18 +85,16 @@ fun IconToggleButton(
     modifier: Modifier = Modifier,
     icon: @Composable () -> Unit
 ) {
-    Toggleable(
-        value = checked,
-        onValueChange = onCheckedChange,
-        enabled = enabled,
-        modifier = Modifier.ripple(bounded = false, radius = RippleRadius, enabled = enabled)
-    ) {
-        Box(
-            modifier = modifier + IconButtonSizeModifier,
-            gravity = ContentGravity.Center,
-            children = icon
-        )
-    }
+    Box(
+        modifier = modifier.toggleable(
+            value = checked,
+            onValueChange = onCheckedChange,
+            enabled = enabled,
+            indication = RippleIndication(bounded = false, radius = RippleRadius)
+        ).plus(IconButtonSizeModifier),
+        gravity = ContentGravity.Center,
+        children = icon
+    )
 }
 
 // Default radius of an unbounded ripple in an IconButton

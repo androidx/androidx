@@ -21,36 +21,35 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.selection.TriStateToggleable
+import androidx.ui.foundation.selection.toggleable
+import androidx.ui.foundation.selection.triStateToggleable
 
 @Sampled
 @Composable
 fun ToggleableSample() {
     var checked by state { false }
-    Toggleable(value = checked, onValueChange = { checked = it }) {
-        // content that you want to make toggleable
-        Text(text = checked.toString())
-    }
+    // content that you want to make toggleable
+    Text(
+        modifier = Modifier.toggleable(value = checked, onValueChange = { checked = it }),
+        text = checked.toString()
+    )
 }
 
 @Sampled
 @Composable
 fun TriStateToggleableSample() {
     var checked by state { ToggleableState.Indeterminate }
-    TriStateToggleable(
-        state = checked,
-        onClick = {
-            checked =
-                if (checked == ToggleableState.On) {
-                    ToggleableState.Off
-                } else {
-                    ToggleableState.On
-                }
-        }) {
-        // content that you want to make toggleable
-        Text(text = checked.toString())
-    }
+    // content that you want to make toggleable
+    Text(
+        modifier = Modifier.triStateToggleable(
+            state = checked,
+            onClick = {
+                checked =
+                    if (checked == ToggleableState.On) ToggleableState.Off else ToggleableState.On
+            }
+        ),
+        text = checked.toString())
 }
