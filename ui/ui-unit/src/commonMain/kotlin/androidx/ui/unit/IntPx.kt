@@ -20,6 +20,7 @@ package androidx.ui.unit
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.unit.IntPx.Companion.Infinity
 import androidx.ui.util.lerp
 import androidx.ui.util.packInts
@@ -454,11 +455,11 @@ inline fun IntPxBounds.toSize(): IntPxSize {
 }
 
 /**
- * Create a [PxSize] from [IntPx] values.
+ * Create a [Size] from [IntPx] values.
  */
 @Stable
-inline fun PxSize(width: IntPx, height: IntPx): PxSize =
-    PxSize(width = width.value.toFloat(), height = height.value.toFloat())
+inline fun Size(width: IntPx, height: IntPx): Size =
+    Size(width = width.value.toFloat(), height = height.value.toFloat())
 
 /**
  * Create a [Offset] from [IntPx] values.
@@ -475,7 +476,7 @@ inline fun IntPxPosition.toOffset(): Offset =
     Offset(x.value.toFloat(), y.value.toFloat())
 
 /**
- * Convert a [IntPxSize] to a [PxSize]
+ * Convert a [IntPxSize] to a [Size]
  */
 @Stable
-inline fun IntPxSize.toPxSize(): PxSize = PxSize(this.width, this.height)
+inline fun IntPxSize.toSize(): Size = Size(this.width.value.toFloat(), this.height.value.toFloat())

@@ -57,7 +57,7 @@ import androidx.ui.test.findByText
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.Dp
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.PxSize
+import androidx.ui.geometry.Size
 import androidx.ui.unit.center
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
@@ -210,7 +210,7 @@ class ButtonTest {
 
     @Test
     fun ButtonWithLargeFontSizeIsLargerThenMinHeight() {
-        val realSize: PxSize = composeTestRule.setMaterialContentAndGetPixelSize {
+        val realSize: Size = composeTestRule.setMaterialContentAndGetPixelSize {
             Button(onClick = {}) {
                 Text(
                     text = "Test button",

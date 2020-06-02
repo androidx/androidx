@@ -54,7 +54,6 @@ import androidx.ui.test.sendSwipeRight
 import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
-import androidx.ui.unit.toPxSize
 import androidx.ui.unit.toSize
 import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
@@ -407,7 +406,7 @@ class ScaffoldTest {
             }
         }
         runOnIdleCompose {
-            assertThat(scaffoldState.floatingActionButtonSize).isEqualTo(fabSize.toPxSize())
+            assertThat(scaffoldState.floatingActionButtonSize).isEqualTo(fabSize.toSize())
             showFab.value = false
         }
 
@@ -444,7 +443,7 @@ class ScaffoldTest {
             }
         }
         runOnIdleCompose {
-            assertThat(scaffoldState.bottomBarSize).isEqualTo(bottomBarSize.toPxSize())
+            assertThat(scaffoldState.bottomBarSize).isEqualTo(bottomBarSize.toSize())
             showBottom.value = false
         }
 
@@ -481,7 +480,7 @@ class ScaffoldTest {
             }
         }
         runOnIdleCompose {
-            assertThat(scaffoldState.topBarSize).isEqualTo(topBarSize.toPxSize())
+            assertThat(scaffoldState.topBarSize).isEqualTo(topBarSize.toSize())
             showTop.value = false
         }
 
@@ -516,7 +515,7 @@ class ScaffoldTest {
         }
         runOnIdleCompose {
             with(composeTestRule.density) {
-                assertThat(innerPadding.bottom).isEqualTo(bottomBarSize.toPxSize().height.toDp())
+                assertThat(innerPadding.bottom).isEqualTo(bottomBarSize.toSize().height.toDp())
             }
         }
     }
@@ -546,7 +545,7 @@ class ScaffoldTest {
             }
         }
         runOnIdleCompose {
-            assertThat(geometry.bottomBarBounds?.toSize()).isEqualTo(bottomBarSize.toPxSize())
+            assertThat(geometry.bottomBarBounds?.toSize()).isEqualTo(bottomBarSize.toSize())
             assertThat(geometry.bottomBarBounds?.width).isNotEqualTo(0f)
         }
     }

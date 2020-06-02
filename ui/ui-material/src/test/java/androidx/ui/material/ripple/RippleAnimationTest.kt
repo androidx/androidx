@@ -15,8 +15,8 @@
  */
 package androidx.ui.material.ripple
 
+import androidx.ui.geometry.Size
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -29,7 +29,7 @@ class RippleAnimationTest {
 
     @Test
     fun testStartRadius() {
-        val size = PxSize(10f, 30f)
+        val size = Size(10f, 30f)
         val expectedRadius = 9.0f // 30% of 30
 
         // Top-level functions are not resolved properly in IR modules
@@ -41,7 +41,7 @@ class RippleAnimationTest {
     fun testEndRadiusBounded() {
         val width = 100f
         val height = 160f
-        val size = PxSize(width, height)
+        val size = Size(width, height)
         val density = Density(2f)
         val expectedRadius = with(density) {
             // 10 is an extra offset from spec
@@ -55,7 +55,7 @@ class RippleAnimationTest {
     fun testEndRadiusUnbounded() {
         val width = 140f
         val height = 100f
-        val size = PxSize(width, height)
+        val size = Size(width, height)
         val expectedRadius = halfDistance(width, height)
         val result = with(Density(1f)) { getRippleEndRadius(false, size) }
         assertThat(result).isEqualTo(expectedRadius)

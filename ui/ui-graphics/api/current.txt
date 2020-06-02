@@ -134,7 +134,7 @@ package androidx.ui.graphics {
     method public default void drawArcRad(androidx.ui.geometry.Rect rect, float startAngleRad, float sweepAngleRad, boolean useCenter, androidx.ui.graphics.Paint paint);
     method public void drawCircle(androidx.ui.geometry.Offset center, float radius, androidx.ui.graphics.Paint paint);
     method public void drawImage(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Offset topLeftOffset, androidx.ui.graphics.Paint paint);
-    method public void drawImageRect-btuv3no(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Offset srcOffset = Offset.Zero, long srcSize = Size(image.width.toFloat(), image.height.toFloat()), androidx.ui.geometry.Offset dstOffset, long dstSize, androidx.ui.graphics.Paint paint);
+    method public void drawImageRect(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Offset srcOffset = Offset.Zero, androidx.ui.geometry.Size srcSize = Size(image.width.toFloat(), image.height.toFloat()), androidx.ui.geometry.Offset dstOffset, androidx.ui.geometry.Size dstSize, androidx.ui.graphics.Paint paint);
     method public void drawLine(androidx.ui.geometry.Offset p1, androidx.ui.geometry.Offset p2, androidx.ui.graphics.Paint paint);
     method public default void drawOval(androidx.ui.geometry.Rect rect, androidx.ui.graphics.Paint paint);
     method public void drawOval(float left, float top, float right, float bottom, androidx.ui.graphics.Paint paint);
@@ -494,7 +494,7 @@ package androidx.ui.graphics {
   }
 
   @androidx.compose.Immutable public interface Shape {
-    method public androidx.ui.graphics.Outline createOutline-SwJi8iY(long size, androidx.ui.unit.Density density);
+    method public androidx.ui.graphics.Outline createOutline(androidx.ui.geometry.Size size, androidx.ui.unit.Density density);
   }
 
   public final class SolidColor extends androidx.ui.graphics.Brush {
@@ -726,42 +726,42 @@ package androidx.ui.graphics.drawscope {
     method public void clipPath(androidx.ui.graphics.Path path, androidx.ui.graphics.ClipOp clipOp = androidx.ui.graphics.ClipOp.intersect);
     method public void clipRect(float left = 0.0f, float top = 0.0f, float right = size.width, float bottom = size.height, androidx.ui.graphics.ClipOp clipOp = androidx.ui.graphics.ClipOp.intersect);
     method public default androidx.ui.geometry.Offset getCenter();
-    method public long getSize();
+    method public androidx.ui.geometry.Size getSize();
     method public void inset(float left, float top, float right, float bottom);
     method public void rotate(float degrees, float pivotX = center.x, float pivotY = center.y);
     method public void scale(float scaleX, float scaleY = scaleX, float pivotX = center.x, float pivotY = center.y);
     method public void translate(float left = 0.0f, float top = 0.0f);
     property public default androidx.ui.geometry.Offset center;
-    property public abstract long size;
+    property public abstract androidx.ui.geometry.Size size;
   }
 
   @androidx.ui.graphics.drawscope.DrawScopeMarker public abstract class DrawScope implements androidx.ui.unit.Density {
     ctor public DrawScope();
-    method public final void draw-mEaFHtM(androidx.ui.graphics.Canvas canvas, long size, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
-    method public final kotlin.Unit? drawArc-MKXvu20(androidx.ui.graphics.Brush brush, float startAngle, float sweepAngle, boolean useCenter, androidx.ui.geometry.Offset topLeft = Offset.Zero, long size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
-    method public final kotlin.Unit? drawArc-w9iw49s(long color, float startAngle, float sweepAngle, boolean useCenter, androidx.ui.geometry.Offset topLeft = Offset.Zero, long size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
+    method public final void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.geometry.Size size, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method public final kotlin.Unit? drawArc(androidx.ui.graphics.Brush brush, float startAngle, float sweepAngle, boolean useCenter, androidx.ui.geometry.Offset topLeft = Offset.Zero, androidx.ui.geometry.Size size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
+    method public final kotlin.Unit? drawArc-w9iw49s(long color, float startAngle, float sweepAngle, boolean useCenter, androidx.ui.geometry.Offset topLeft = Offset.Zero, androidx.ui.geometry.Size size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawCircle(androidx.ui.graphics.Brush brush, float radius = size.minDimension / 2.0, androidx.ui.geometry.Offset center = this.center, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawCircle-UNeD5NE(long color, float radius = size.minDimension / 2.0, androidx.ui.geometry.Offset center = this.center, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawImage(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Offset topLeft = Offset.Zero, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
-    method public final kotlin.Unit? drawImage-SM7YF0Q(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Offset srcOffset = Offset.Zero, long srcSize = Size(image.width.toFloat(), image.height.toFloat()), androidx.ui.geometry.Offset dstOffset = Offset.Zero, long dstSize = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
+    method public final kotlin.Unit? drawImage(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Offset srcOffset = Offset.Zero, androidx.ui.geometry.Size srcSize = Size(image.width.toFloat(), image.height.toFloat()), androidx.ui.geometry.Offset dstOffset = Offset.Zero, androidx.ui.geometry.Size dstSize = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawLine(androidx.ui.graphics.Brush brush, androidx.ui.geometry.Offset p1, androidx.ui.geometry.Offset p2, androidx.ui.graphics.drawscope.Stroke stroke, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawLine-SuN1Ejc(long color, androidx.ui.geometry.Offset p1, androidx.ui.geometry.Offset p2, androidx.ui.graphics.drawscope.Stroke stroke, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
-    method public final kotlin.Unit? drawOval-5gW23P0(long color, androidx.ui.geometry.Offset topLeft = Offset.Zero, long size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
-    method public final kotlin.Unit? drawOval-m7aN-JY(androidx.ui.graphics.Brush brush, androidx.ui.geometry.Offset topLeft = Offset.Zero, long size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
+    method public final kotlin.Unit? drawOval(androidx.ui.graphics.Brush brush, androidx.ui.geometry.Offset topLeft = Offset.Zero, androidx.ui.geometry.Size size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
+    method public final kotlin.Unit? drawOval-5gW23P0(long color, androidx.ui.geometry.Offset topLeft = Offset.Zero, androidx.ui.geometry.Size size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawPath(androidx.ui.graphics.Path path, androidx.ui.graphics.Brush brush, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawPath-u5ZPEDk(androidx.ui.graphics.Path path, long color, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawPoints(java.util.List<androidx.ui.geometry.Offset> points, androidx.ui.graphics.PointMode pointMode, androidx.ui.graphics.Brush brush, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final kotlin.Unit? drawPoints-kayC28I(java.util.List<androidx.ui.geometry.Offset> points, androidx.ui.graphics.PointMode pointMode, long color, androidx.ui.graphics.drawscope.Stroke stroke, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
-    method public final kotlin.Unit? drawRect-5gW23P0(long color, androidx.ui.geometry.Offset topLeft = Offset.Zero, long size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
-    method public final kotlin.Unit? drawRect-m7aN-JY(androidx.ui.graphics.Brush brush, androidx.ui.geometry.Offset topLeft = Offset.Zero, long size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
-    method public final kotlin.Unit? drawRoundRect-J_jAawI(long color, androidx.ui.geometry.Offset topLeft = Offset.Zero, long size = this.size, long radius = Radius.Zero, androidx.ui.graphics.drawscope.DrawStyle style = Fill, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
-    method public final kotlin.Unit? drawRoundRect-TLscAYA(androidx.ui.graphics.Brush brush, androidx.ui.geometry.Offset topLeft = Offset.Zero, long size = this.size, long radius = Radius.Zero, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
+    method public final kotlin.Unit? drawRect(androidx.ui.graphics.Brush brush, androidx.ui.geometry.Offset topLeft = Offset.Zero, androidx.ui.geometry.Size size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
+    method public final kotlin.Unit? drawRect-5gW23P0(long color, androidx.ui.geometry.Offset topLeft = Offset.Zero, androidx.ui.geometry.Size size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
+    method public final kotlin.Unit? drawRoundRect-J_jAawI(long color, androidx.ui.geometry.Offset topLeft = Offset.Zero, androidx.ui.geometry.Size size = this.size, long radius = Radius.Zero, androidx.ui.graphics.drawscope.DrawStyle style = Fill, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
+    method public final kotlin.Unit? drawRoundRect-TLscAYA(androidx.ui.graphics.Brush brush, androidx.ui.geometry.Offset topLeft = Offset.Zero, androidx.ui.geometry.Size size = this.size, long radius = Radius.Zero, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public final androidx.ui.geometry.Offset getCenter();
     method public abstract androidx.ui.core.LayoutDirection getLayoutDirection();
-    method public final long getSize();
+    method public final androidx.ui.geometry.Size getSize();
     property public final androidx.ui.geometry.Offset center;
     property public abstract androidx.ui.core.LayoutDirection layoutDirection;
-    property public final long size;
+    property public final androidx.ui.geometry.Size size;
     field public static final androidx.ui.graphics.drawscope.DrawScope.Companion! Companion;
     field public static final float DefaultAlpha = 1.0f;
   }
@@ -823,16 +823,17 @@ package androidx.ui.graphics.painter {
     method public long component1();
     method public androidx.ui.graphics.painter.ColorPainter copy-QEYXlZo(long color);
     method public long getColor();
-    method public long getIntrinsicSize();
+    method public androidx.ui.geometry.Size getIntrinsicSize();
     method protected void onDraw(androidx.ui.graphics.drawscope.DrawScope);
-    property public long intrinsicSize;
+    property public androidx.ui.geometry.Size intrinsicSize;
   }
 
   public final class ImagePainter extends androidx.ui.graphics.painter.Painter {
-    method public androidx.ui.graphics.painter.ImagePainter copy-gqgapXI(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Offset srcOffset, long srcSize);
-    method public long getIntrinsicSize();
+    ctor public ImagePainter(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Offset srcOffset, androidx.ui.geometry.Size srcSize);
+    method public androidx.ui.graphics.painter.ImagePainter copy(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Offset srcOffset, androidx.ui.geometry.Size srcSize);
+    method public androidx.ui.geometry.Size getIntrinsicSize();
     method protected void onDraw(androidx.ui.graphics.drawscope.DrawScope);
-    property public long intrinsicSize;
+    property public androidx.ui.geometry.Size intrinsicSize;
   }
 
   public abstract class Painter {
@@ -840,10 +841,10 @@ package androidx.ui.graphics.painter {
     method protected boolean applyAlpha(float alpha);
     method protected boolean applyColorFilter(androidx.ui.graphics.ColorFilter? colorFilter);
     method protected boolean applyLayoutDirection(androidx.ui.core.LayoutDirection layoutDirection);
-    method public final void draw-fjVI2_8(androidx.ui.graphics.drawscope.DrawScope, long size, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
-    method public abstract long getIntrinsicSize();
+    method public final void draw(androidx.ui.graphics.drawscope.DrawScope, androidx.ui.geometry.Size size, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
+    method public abstract androidx.ui.geometry.Size getIntrinsicSize();
     method protected abstract void onDraw(androidx.ui.graphics.drawscope.DrawScope);
-    property public abstract long intrinsicSize;
+    property public abstract androidx.ui.geometry.Size intrinsicSize;
   }
 
 }

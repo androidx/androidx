@@ -25,9 +25,9 @@ import androidx.ui.layout.preferredSizeIn
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxSize
+import androidx.ui.geometry.Size
 import androidx.ui.unit.dp
-import androidx.ui.unit.toPxSize
+import androidx.ui.unit.toSize
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -49,13 +49,13 @@ fun ComposeTestRule.setContentAndGetPixelSize(
     // TODO : figure out better way to make it flexible
     performSetContent: (@Composable () -> Unit) -> Unit = { setContent(it) },
     children: @Composable () -> Unit
-): PxSize {
-    var realSize: PxSize? = null
+): Size {
+    var realSize: Size? = null
     performSetContent {
         Stack {
             Stack(
                 Modifier.preferredSizeIn(parentConstraints)
-                    .onChildPositioned { coordinates -> realSize = coordinates.size.toPxSize() }
+                    .onChildPositioned { coordinates -> realSize = coordinates.size.toSize() }
             ) {
                 children()
             }
@@ -80,12 +80,12 @@ fun ComposeTestRule.setContentAndCollectSizes(
 }
 
 /**
- * Small utility class to provide convenient assertion for width and height for some [PxSize].
+ * Small utility class to provide convenient assertion for width and height for some [Size].
  * It also provides [Density] while asserting.
  *
  * @see ComposeTestRule.setContentAndCollectSizes
  */
-class CollectedSizes(private val size: PxSize, private val density: Density) {
+class CollectedSizes(private val size: Size, private val density: Density) {
     fun assertHeightEqualsTo(expectedHeight: Dp) =
         assertHeightEqualsTo { expectedHeight.toIntPx() }
 

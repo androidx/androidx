@@ -47,10 +47,9 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.center
+import androidx.ui.geometry.Size
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toPxSize
+import androidx.ui.unit.toSize
 import androidx.ui.util.fastForEach
 
 /**
@@ -128,7 +127,7 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
         radius: Dp?,
         clock: AnimationClockObservable
     ) {
-        val position = if (bounded) touchPosition else size.toPxSize().center()
+        val position = if (bounded) touchPosition else size.toSize().center()
         val onAnimationFinished = { effect: RippleAnimation ->
             effects.remove(effect)
             if (currentEffect == effect) {
@@ -136,11 +135,14 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
             }
         }
         val targetRadius = with(density) {
-            radius?.toPx() ?: getRippleEndRadius(bounded, PxSize(size.width, size.height))
+            radius?.toPx() ?: getRippleEndRadius(
+                bounded,
+                Size(size.width.value.toFloat(), size.height.value.toFloat())
+            )
         }
 
         val effect = RippleAnimation(
-            size.toPxSize(),
+            size.toSize(),
             position,
             targetRadius,
             bounded,

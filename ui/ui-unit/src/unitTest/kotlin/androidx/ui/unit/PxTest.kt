@@ -17,7 +17,9 @@
 package androidx.ui.unit
 
 import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.geometry.lerp
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -53,7 +55,7 @@ class PxTest {
 
     @Test
     fun sizeCenter() {
-        val size = PxSize(width = 10f, height = 20f)
+        val size = Size(width = 10f, height = 20f)
         assertEquals(Offset(5f, 10f), size.center())
     }
 
@@ -115,49 +117,16 @@ class PxTest {
     }
 
     @Test
-    fun toSize() {
-        val size = PxSize(15f, 10f)
-        val bounds = PxBounds(10f, 5f, 25f, 15f)
-        assertEquals(size, bounds.toSize())
-    }
-
-    @Test
     fun toBounds() {
-        val size = PxSize(15f, 10f)
+        val size = Size(15f, 10f)
         val bounds = PxBounds(0f, 0f, 15f, 10f)
         assertEquals(bounds, size.toBounds())
     }
 
     @Test
-    fun sizeTimesInt() {
-        assertEquals(PxSize(10f, 10f), PxSize(2.5f, 2.5f) * 4)
-        assertEquals(PxSize(10f, 10f), 4 * PxSize(2.5f, 2.5f))
-    }
-
-    @Test
-    fun sizeDivInt() {
-        assertEquals(PxSize(10f, 10f), PxSize(40f, 40f) / 4)
-    }
-
-    @Test
-    fun sizeTimesFloat() {
-        assertEquals(PxSize(10f, 10f), PxSize(4f, 4f) * 2.5f)
-        assertEquals(PxSize(10f, 10f), 2.5f * PxSize(4f, 4f))
-    }
-
-    @Test
-    fun sizeDivFloat() {
-        assertEquals(PxSize(10f, 10f), PxSize(40f, 40f) / 4f)
-    }
-
-    @Test
-    fun sizeTimesDouble() {
-        assertEquals(PxSize(10f, 10f), PxSize(4f, 4f) * 2.5)
-        assertEquals(PxSize(10f, 10f), 2.5 * PxSize(4f, 4f))
-    }
-
-    @Test
-    fun sizeDivDouble() {
-        assertEquals(PxSize(10f, 10f), PxSize(40f, 40f) / 4.0)
+    fun toSize() {
+        val size = Size(15f, 10f)
+        val bounds = PxBounds(10f, 5f, 25f, 15f)
+        Assert.assertEquals(size, bounds.toSize())
     }
 }
