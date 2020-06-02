@@ -37,6 +37,8 @@ dependencies {
     }
     compileOnly KOTLIN_STDLIB
 
+    compileOnly LINT_CORE
+
     testImplementation KOTLIN_STDLIB
     testImplementation LINT_CORE
     testImplementation LINT_TESTS

@@ -16,6 +16,7 @@
 
 package androidx.lifecycle.lint
 
+import com.android.tools.lint.checks.DataFlowAnalyzer
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -38,8 +39,10 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UReferenceExpression
+import org.jetbrains.uast.getParentOfType
 import org.jetbrains.uast.getUastParentOfType
 import org.jetbrains.uast.isNullLiteral
+import org.jetbrains.uast.kotlin.KotlinUField
 import org.jetbrains.uast.kotlin.KotlinUSimpleReferenceExpression
 import org.jetbrains.uast.resolveToUElement
 
@@ -77,16 +80,38 @@ class NonNullableMutableLiveDataDetector : Detector(), SourceCodeScanner {
         if (!isKotlin(node.sourcePsi) || !context.evaluator.isMemberInSubClassOf(method,
                 "androidx.lifecycle.LiveData", false)) return
 
+        val fieldTypes = mutableListOf<KtTypeReference>()
+
+        val analyzer = node.getParentOfType<UClass>(UClass::class.java, true) ?: return
+        analyzer.accept(object : DataFlowAnalyzer(listOf(node)) {
+            override fun visitClass(node: UClass): Boolean {
+                for (element in node.uastDeclarations) {
+                    if (element is KotlinUField) {
+                        (element.sourcePsi?.children?.get(0) as? KtCallExpression)
+                            ?.typeArguments?.singleOrNull()?.typeReference?.let {
+                            fieldTypes.add(it)
+                        }
+                    }
+                }
+                return super.visitClass(node)
+            }
+        })
+
         val receiverType = node.receiverType as PsiClassType
-        val liveDataType = if (receiverType.hasParameters()) {
-            val receiver = (node.receiver as? KotlinUSimpleReferenceExpression)?.resolve() ?: return
-            val assignment = UastLintUtils.findLastAssignment(receiver as PsiVariable, node)
-                ?: return
-            val constructorExpression = assignment.sourcePsi as? KtCallExpression
-            constructorExpression?.typeArguments?.singleOrNull()?.typeReference
+        val liveDataType = if (fieldTypes.isNullOrEmpty()) {
+            if (receiverType.hasParameters()) {
+                val receiver =
+                    (node.receiver as? KotlinUSimpleReferenceExpression)?.resolve() ?: return
+                val assignment = UastLintUtils.findLastAssignment(receiver as PsiVariable, node)
+                    ?: return
+                val constructorExpression = assignment.sourcePsi as? KtCallExpression
+                constructorExpression?.typeArguments?.singleOrNull()?.typeReference
+            } else {
+                getTypeArg(receiverType)
+            } ?: return
         } else {
-            getTypeArg(receiverType)
-        } ?: return
+            fieldTypes[0]
+        }
 
         if (liveDataType.typeElement !is KtNullableType) {
             val fixes = mutableListOf<LintFix>()
