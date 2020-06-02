@@ -52,7 +52,7 @@ public final class NavBackStackEntry implements
         SavedStateRegistryOwner {
     private final Context mContext;
     private final NavDestination mDestination;
-    private final Bundle mArgs;
+    private Bundle mArgs;
     private final LifecycleRegistry mLifecycle = new LifecycleRegistry(this);
     private final SavedStateRegistryController mSavedStateRegistryController =
             SavedStateRegistryController.create(this);
@@ -107,6 +107,10 @@ public final class NavBackStackEntry implements
     @Nullable
     public Bundle getArguments() {
         return mArgs;
+    }
+
+    void replaceArguments(@Nullable Bundle newArgs) {
+        mArgs = newArgs;
     }
 
     /**

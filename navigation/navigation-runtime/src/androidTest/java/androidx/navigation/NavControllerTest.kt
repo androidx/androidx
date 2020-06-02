@@ -952,6 +952,40 @@ class NavControllerTest {
     }
 
     @Test
+    fun testNavigateOptionSingleTopReplaceNullArgs() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+        assertThat(navigator.current.second).isNull()
+
+        val args = Bundle()
+        val testKey = "testKey"
+        val testValue = "testValue"
+        args.putString(testKey, testValue)
+
+        var destinationListenerExecuted = false
+
+        navController.navigate(R.id.start_test, args, navOptions {
+            launchSingleTop = true
+        })
+
+        navController.addOnDestinationChangedListener { _, destination, arguments ->
+            destinationListenerExecuted = true
+            assertThat(destination.id).isEqualTo(R.id.start_test)
+            assertThat(arguments?.getString(testKey)).isEqualTo(testValue)
+        }
+
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val returnedArgs = navigator.current.second
+        assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
+        assertThat(destinationListenerExecuted).isTrue()
+    }
+
+    @Test
     fun testNavigateOptionSingleTopNewArgsIgnore() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
