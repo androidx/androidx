@@ -579,7 +579,9 @@ internal class AndroidComposeView constructor(
 
     private val textInputServiceAndroid = TextInputServiceAndroid(this)
 
-    override val textInputService = textInputServiceFactory(textInputServiceAndroid)
+    override val textInputService =
+        @Suppress("DEPRECATION_ERROR")
+        textInputServiceFactory(textInputServiceAndroid)
 
     override val fontLoader: Font.ResourceLoader = AndroidFontResourceLoader(context)
 
