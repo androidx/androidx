@@ -275,14 +275,19 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 sharedElementTransition = transitionImpl.cloneTransition(
                         transitionInfo.getSharedElementTransition());
                 Fragment sharedElementFragment = transitionInfo.getOperation().getFragment();
-                // A pop means returning from the target names to the source names
-                // so we have to swap the source/target sets
-                ArrayList<String> enteringNames = isPop
-                        ? sharedElementFragment.getSharedElementTargetNames()
-                        : sharedElementFragment.getSharedElementSourceNames();
-                ArrayList<String> exitingNames = isPop
-                        ? sharedElementFragment.getSharedElementSourceNames()
-                        : sharedElementFragment.getSharedElementTargetNames();
+                ArrayList<String> exitingNames;
+                ArrayList<String> enteringNames;
+                if (!isPop) {
+                    // Forward transitions have the source shared elements exiting
+                    // and the target shared elements entering
+                    exitingNames = sharedElementFragment.getSharedElementSourceNames();
+                    enteringNames = sharedElementFragment.getSharedElementTargetNames();
+                } else {
+                    // A pop is the reverse: the target elements are now the ones exiting
+                    // and the source shared elements are entering
+                    exitingNames = sharedElementFragment.getSharedElementTargetNames();
+                    enteringNames = sharedElementFragment.getSharedElementSourceNames();
+                }
                 if (firstOut != null) {
                     // Capture all of the Views from the firstOut fragment that are
                     // part of the shared element transition
