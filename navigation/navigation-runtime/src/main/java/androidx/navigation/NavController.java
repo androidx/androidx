@@ -605,8 +605,12 @@ public class NavController {
                 NavBackStackEntryState state = (NavBackStackEntryState) parcelable;
                 NavDestination node = findDestination(state.getDestinationId());
                 if (node == null) {
-                    throw new IllegalStateException("unknown destination during restore: "
-                            + mContext.getResources().getResourceName(state.getDestinationId()));
+                    final String dest = NavDestination.getDisplayName(mContext,
+                            state.getDestinationId());
+                    throw new IllegalStateException("Restoring the Navigation back stack failed:"
+                            + " destination " + dest
+                            + " cannot be found from the current destination "
+                            + getCurrentDestination());
                 }
                 Bundle args = state.getArgs();
                 if (args != null) {
@@ -712,8 +716,11 @@ public class NavController {
                 int destinationId = deepLink[index++];
                 NavDestination node = findDestination(destinationId);
                 if (node == null) {
-                    throw new IllegalStateException("unknown destination during deep link: "
-                            + NavDestination.getDisplayName(mContext, destinationId));
+                    final String dest = NavDestination.getDisplayName(mContext, destinationId);
+                    throw new IllegalStateException("Deep Linking failed:"
+                            + " destination " + dest
+                            + " cannot be found from the current destination "
+                            + getCurrentDestination());
                 }
                 navigate(node, bundle,
                         new NavOptions.Builder().setEnterAnim(0).setExitAnim(0).build(), null);
@@ -726,8 +733,10 @@ public class NavController {
             int destinationId = deepLink[i];
             NavDestination node = i == 0 ? mGraph : graph.findNode(destinationId);
             if (node == null) {
-                throw new IllegalStateException("unknown destination during deep link: "
-                        + NavDestination.getDisplayName(mContext, destinationId));
+                final String dest = NavDestination.getDisplayName(mContext, destinationId);
+                throw new IllegalStateException("Deep Linking failed:"
+                        + " destination " + dest
+                        + " cannot be found in graph " + graph);
             }
             if (i != deepLink.length - 1) {
                 // We're not at the final NavDestination yet, so keep going through the chain
@@ -913,11 +922,15 @@ public class NavController {
         NavDestination node = findDestination(destId);
         if (node == null) {
             final String dest = NavDestination.getDisplayName(mContext, destId);
-            throw new IllegalArgumentException("navigation destination " + dest
-                    + (navAction != null
-                    ? " referenced from action " + NavDestination.getDisplayName(mContext, resId)
-                    : "")
-                    + " is unknown to this NavController");
+            if (navAction != null) {
+                throw new IllegalArgumentException("Navigation destination " + dest
+                        + " referenced from action "
+                        + NavDestination.getDisplayName(mContext, resId)
+                        + " cannot be found from the current destination " + currentNode);
+            } else {
+                throw new IllegalArgumentException("Navigation action/destination " + dest
+                        + " cannot be found from the current destination " + currentNode);
+            }
         }
         navigate(node, combinedArgs, navOptions, navigatorExtras);
     }
@@ -1015,8 +1028,8 @@ public class NavController {
             NavDestination node = deepLinkMatch.getDestination();
             navigate(node, args, navOptions, navigatorExtras);
         } else {
-            throw new IllegalArgumentException("navigation destination that matches request "
-                    + request + " is unknown to this NavController");
+            throw new IllegalArgumentException("Navigation destination that matches request "
+                    + request + " cannot be found in the navigation graph " + mGraph);
         }
     }
 
