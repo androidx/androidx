@@ -81,7 +81,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -136,31 +135,6 @@ public class CameraXActivity extends AppCompatActivity {
     private Camera mCamera;
     @ImageCapture.CaptureMode
     private int mCaptureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY;
-
-    /**
-     * Intent Extra string for choosing which type of render surface to use to display Preview.
-     */
-    public static final String INTENT_EXTRA_RENDER_SURFACE_TYPE = "render_surface_type";
-    /**
-     * TextureView render surface for {@link #INTENT_EXTRA_RENDER_SURFACE_TYPE}. This is the
-     * default render surface.
-     */
-    public static final String RENDER_SURFACE_TYPE_TEXTUREVIEW = "textureview";
-    /**
-     * SurfaceView render surface for {@link #INTENT_EXTRA_RENDER_SURFACE_TYPE}. This type will
-     * block the main thread while detaching it's {@link android.view.Surface} from the OpenGL
-     * renderer to avoid compatibility issues on some devices.
-     */
-    public static final String RENDER_SURFACE_TYPE_SURFACEVIEW = "surfaceview";
-    /**
-     * SurfaceView render surface (in non-blocking mode) for
-     * {@link #INTENT_EXTRA_RENDER_SURFACE_TYPE}. This type will NOT
-     * block the main thread while detaching it's {@link android.view.Surface} from the OpenGL
-     * renderer, but some devices may crash due to their OpenGL/EGL implementation not being
-     * thread-safe.
-     */
-    public static final String RENDER_SURFACE_TYPE_SURFACEVIEW_NONBLOCKING =
-            "surfaceview_nonblocking";
 
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
@@ -655,43 +629,14 @@ public class CameraXActivity extends AppCompatActivity {
         createVideoCapture();
     }
 
-    private View chooseViewFinder(@NonNull ViewStub viewFinderStub,
-            @NonNull OpenGLRenderer renderer) {
-        Bundle bundle = getIntent().getExtras();
-        // By default we choose TextureView to maximize compatibility.
-        String renderSurfaceType = RENDER_SURFACE_TYPE_TEXTUREVIEW;
-        if (bundle != null) {
-            renderSurfaceType = bundle.getString(INTENT_EXTRA_RENDER_SURFACE_TYPE,
-                    RENDER_SURFACE_TYPE_TEXTUREVIEW);
-        }
-
-        switch (renderSurfaceType) {
-            case RENDER_SURFACE_TYPE_TEXTUREVIEW:
-                Log.d(TAG, "Using TextureView render surface.");
-                return TextureViewRenderSurface.inflateWith(viewFinderStub, renderer);
-            case RENDER_SURFACE_TYPE_SURFACEVIEW:
-                Log.d(TAG, "Using SurfaceView render surface.");
-                return SurfaceViewRenderSurface.inflateWith(viewFinderStub, renderer);
-            case RENDER_SURFACE_TYPE_SURFACEVIEW_NONBLOCKING:
-                Log.d(TAG, "Using SurfaceView (non-blocking) render surface.");
-                return SurfaceViewRenderSurface.inflateNonBlockingWith(viewFinderStub, renderer);
-            default:
-                throw new IllegalArgumentException(String.format(Locale.US, "Unknown render "
-                        + "surface type: %s. Supported surface types include: [%s, %s, %s]",
-                        renderSurfaceType, RENDER_SURFACE_TYPE_TEXTUREVIEW,
-                        RENDER_SURFACE_TYPE_SURFACEVIEW,
-                        RENDER_SURFACE_TYPE_SURFACEVIEW_NONBLOCKING));
-        }
-    }
-
-    @SuppressWarnings("UnstableApiUsage")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_xmain);
         OpenGLRenderer previewRenderer = mPreviewRenderer = new OpenGLRenderer();
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
-        View viewFinder = chooseViewFinder(viewFinderStub, previewRenderer);
+        View viewFinder = OpenGLActivity.chooseViewFinder(getIntent().getExtras(), viewFinderStub,
+                previewRenderer);
 
         mDisplayListener = new DisplayManager.DisplayListener() {
             @Override
