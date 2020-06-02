@@ -145,7 +145,8 @@ public final class TrustedWebActivityServiceConnectionPool {
             try {
                 // We can pass newConnection to bindService here on a background thread because
                 // bindService assures us it will use newConnection on the UI thread.
-                if (mAppContext.bindService(mIntent, mConnection, Context.BIND_AUTO_CREATE)) {
+                if (mAppContext.bindService(mIntent, mConnection, Context.BIND_AUTO_CREATE
+                        | Context.BIND_INCLUDE_CAPABILITIES)) {
                     return null;
                 }
 
