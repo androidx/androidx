@@ -58,7 +58,10 @@ internal fun MotionEvent.verify(
     expectedAction: Int,
     expectedRelativeTime: Long
 ) {
-    verify(curve(expectedRelativeTime), expectedAction, expectedRelativeTime)
+    verifyEvent(1, expectedAction, 0, expectedRelativeTime)
+    // x and y can just be taken from the function. We're not testing the function, we're
+    // testing if the MotionEvent sampled the function at the correct point
+    verifyPointer(0, curve(expectedRelativeTime))
 }
 
 internal fun MotionEvent.verify(
@@ -66,12 +69,36 @@ internal fun MotionEvent.verify(
     expectedAction: Int,
     expectedRelativeTime: Long
 ) {
-    assertThat(action).isEqualTo(expectedAction)
+    verifyEvent(1, expectedAction, 0, expectedRelativeTime)
+    verifyPointer(0, expectedPosition)
+}
+
+internal fun MotionEvent.verifyEvent(
+    expectedPointerCount: Int,
+    expectedAction: Int,
+    expectedActionIndex: Int,
+    expectedRelativeTime: Long
+) {
+    assertThat(pointerCount).isEqualTo(expectedPointerCount)
+    assertThat(actionMasked).isEqualTo(expectedAction)
+    assertThat(actionIndex).isEqualTo(expectedActionIndex)
     assertThat(relativeTime).isEqualTo(expectedRelativeTime)
-    // x and y can just be taken from the function. We're not testing the function, we're
-    // testing if the MotionEvent sampled the function at the correct point
-    assertThat(x).isEqualTo(expectedPosition.x)
-    assertThat(y).isEqualTo(expectedPosition.y)
+}
+
+internal fun MotionEvent.verifyPointer(
+    expectedPointerId: Int,
+    expectedPosition: PxPosition
+) {
+    var index = -1
+    for (i in 0 until pointerCount) {
+        if (getPointerId(i) == expectedPointerId) {
+            index = i
+            break
+        }
+    }
+    assertThat(index).isAtLeast(0)
+    assertThat(getX(index)).isEqualTo(expectedPosition.x)
+    assertThat(getY(index)).isEqualTo(expectedPosition.y)
 }
 
 /**

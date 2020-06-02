@@ -16,46 +16,41 @@
 
 package androidx.ui.test.partialgesturescope
 
+import android.os.SystemClock.sleep
 import androidx.test.filters.MediumTest
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doPartialGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.movePointerTo
+import androidx.ui.test.partialgesturescope.Common.partialGesture
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.sendCancel
 import androidx.ui.test.sendDown
+import androidx.ui.test.sendMove
 import androidx.ui.test.sendMoveTo
+import androidx.ui.test.sendUp
 import androidx.ui.test.util.ClickableTestBox
-import androidx.ui.test.util.PointerInputRecorder
+import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
+import androidx.ui.test.util.expectError
+import androidx.ui.test.util.verify
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
+/**
+ * Tests if [sendMoveTo] and [movePointerTo] work
+ */
 @MediumTest
-@RunWith(Parameterized::class)
-class SendMoveToTest(private val config: TestConfig) {
-    data class TestConfig(val moveToPosition: PxPosition) {
-        val downPosition = PxPosition(1f, 1f)
-    }
-
+class SendMoveToTest() {
     companion object {
-        private const val tag = "widget"
-
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun createTestSet(): List<TestConfig> {
-            return mutableListOf<TestConfig>().apply {
-                for (x in listOf(2f, 99f)) {
-                    for (y in listOf(3f, 53f)) {
-                        add(TestConfig(PxPosition(x, y)))
-                    }
-                }
-            }
-        }
+        private val downPosition1 = PxPosition(10f, 10f)
+        private val downPosition2 = PxPosition(20f, 20f)
+        private val moveToPosition1 = PxPosition(11f, 11f)
+        private val moveToPosition2 = PxPosition(21f, 21f)
     }
 
     @get:Rule
@@ -65,28 +60,161 @@ class SendMoveToTest(private val config: TestConfig) {
     val inputDispatcherRule: TestRule =
         AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
 
-    private val recorder = PointerInputRecorder()
-    private val expectedEndPosition = config.moveToPosition
+    private val recorder = MultiPointerInputRecorder()
 
-    @Test
-    fun testSendMoveTo() {
+    @Before
+    fun setUp() {
         // Given some content
         composeTestRule.setContent {
-            ClickableTestBox(recorder, tag = tag)
+            ClickableTestBox(recorder)
         }
+    }
 
+    @Test
+    fun onePointer() {
         // When we inject a down event followed by a move event
-        findByTag(tag).doPartialGesture { sendDown(config.downPosition) }
-        findByTag(tag).doPartialGesture { sendMoveTo(config.moveToPosition) }
+        partialGesture { sendDown(downPosition1) }
+        sleep(20) // (with some time in between)
+        partialGesture { sendMoveTo(moveToPosition1) }
 
         runOnIdleCompose {
             recorder.run {
                 // Then we have recorded 1 down event and 1 move event
                 assertTimestampsAreIncreasing()
                 assertThat(events).hasSize(2)
-                assertThat(events[1].down).isTrue()
-                assertThat(events[1].position).isEqualTo(expectedEndPosition)
+
+                var t = events[0].getPointer(0).timestamp
+                val pointerId = events[0].getPointer(0).id
+
+                t += 10.milliseconds
+                assertThat(events[1].pointerCount).isEqualTo(1)
+                events[1].getPointer(0).verify(t, pointerId, true, moveToPosition1)
             }
+        }
+    }
+
+    @Test
+    fun twoPointers_separateMoveEvents() {
+        // When we inject two down events followed by two move events
+        partialGesture { sendDown(1, downPosition1) }
+        partialGesture { sendDown(2, downPosition2) }
+        partialGesture { sendMoveTo(1, moveToPosition1) }
+        partialGesture { sendMoveTo(2, moveToPosition2) }
+
+        runOnIdleCompose {
+            recorder.run {
+                // Then we have recorded two down events and two move events
+                assertTimestampsAreIncreasing()
+                assertThat(events).hasSize(4)
+
+                var t = events[0].getPointer(0).timestamp
+                val pointerId1 = events[0].getPointer(0).id
+                val pointerId2 = events[1].getPointer(1).id
+
+                t += 10.milliseconds
+                assertThat(events[2].pointerCount).isEqualTo(2)
+                events[2].getPointer(0).verify(t, pointerId1, true, moveToPosition1)
+                events[2].getPointer(1).verify(t, pointerId2, true, downPosition2)
+
+                t += 10.milliseconds
+                assertThat(events[3].pointerCount).isEqualTo(2)
+                events[3].getPointer(0).verify(t, pointerId1, true, moveToPosition1)
+                events[3].getPointer(1).verify(t, pointerId2, true, moveToPosition2)
+            }
+        }
+    }
+
+    @Test
+    fun twoPointers_oneMoveEvent() {
+        // When we inject two down events followed by one move events
+        partialGesture { sendDown(1, downPosition1) }
+        partialGesture { sendDown(2, downPosition2) }
+        sleep(20) // (with some time in between)
+        partialGesture { movePointerTo(1, moveToPosition1) }
+        partialGesture { movePointerTo(2, moveToPosition2) }
+        partialGesture { sendMove() }
+
+        runOnIdleCompose {
+            recorder.run {
+                // Then we have recorded two down events and one move events
+                assertTimestampsAreIncreasing()
+                assertThat(events).hasSize(3)
+
+                var t = events[0].getPointer(0).timestamp
+                val pointerId1 = events[0].getPointer(0).id
+                val pointerId2 = events[1].getPointer(1).id
+
+                t += 10.milliseconds
+                assertThat(events[2].pointerCount).isEqualTo(2)
+                events[2].getPointer(0).verify(t, pointerId1, true, moveToPosition1)
+                events[2].getPointer(1).verify(t, pointerId2, true, moveToPosition2)
+            }
+        }
+    }
+
+    @Test
+    fun moveToWithoutDown() {
+        expectError<IllegalStateException> {
+            partialGesture { sendMoveTo(moveToPosition1) }
+        }
+    }
+
+    @Test
+    fun moveToWrongPointerId() {
+        partialGesture { sendDown(1, downPosition1) }
+        expectError<IllegalArgumentException> {
+            partialGesture { sendMoveTo(2, moveToPosition1) }
+        }
+    }
+
+    @Test
+    fun moveToAfterUp() {
+        partialGesture { sendDown(downPosition1) }
+        partialGesture { sendUp() }
+        expectError<IllegalStateException> {
+            partialGesture { sendMoveTo(moveToPosition1) }
+        }
+    }
+
+    @Test
+    fun moveToAfterCancel() {
+        partialGesture { sendDown(downPosition1) }
+        partialGesture { sendCancel() }
+        expectError<IllegalStateException> {
+            partialGesture { sendMoveTo(moveToPosition1) }
+        }
+    }
+
+    @Test
+    fun movePointerToWithoutDown() {
+        expectError<IllegalStateException> {
+            partialGesture { movePointerTo(1, moveToPosition1) }
+        }
+    }
+
+    @Test
+    fun movePointerToWrongPointerId() {
+        partialGesture { sendDown(1, downPosition1) }
+        expectError<IllegalArgumentException> {
+            partialGesture { movePointerTo(2, moveToPosition1) }
+        }
+    }
+
+    @Test
+    fun movePointerToAfterUp() {
+        partialGesture { sendDown(1, downPosition1) }
+        partialGesture { sendUp(1) }
+        expectError<IllegalStateException> {
+            partialGesture { movePointerTo(1, moveToPosition1) }
+        }
+    }
+
+    @Test
+    fun movePointerToAfterCancel() {
+        partialGesture { sendDown(1, downPosition1) }
+        partialGesture { sendCancel() }
+        expectError<IllegalStateException> {
+            partialGesture { movePointerTo(1, moveToPosition1) }
         }
     }
 }
