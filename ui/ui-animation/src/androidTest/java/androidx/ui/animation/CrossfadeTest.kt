@@ -120,6 +120,33 @@ class CrossfadeTest {
         }
     }
 
+    @Test
+    fun nullInitialValue() {
+        composeTestRule.clockTestRule.pauseClock()
+        var current by mutableStateOf<String?>(null)
+
+        composeTestRule.setContent {
+            Crossfade(current) { value ->
+                Text(if (value == null) First else Second)
+            }
+        }
+        composeTestRule.clockTestRule.advanceClock(DefaultDuration.toLong())
+
+        findByText(First).assertExists()
+        findByText(Second).assertDoesNotExist()
+
+        runOnIdleCompose {
+            current = "other"
+        }
+
+        waitForIdle()
+
+        composeTestRule.clockTestRule.advanceClock(DefaultDuration.toLong())
+
+        findByText(First).assertDoesNotExist()
+        findByText(Second).assertExists()
+    }
+
     companion object {
         private const val First = "first"
         private const val Second = "second"
