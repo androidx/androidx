@@ -47,8 +47,8 @@ public class Transformations {
      * {@code LiveData} containing their full name as a {@code String}.
      *
      * <pre>
-     * LiveData<User> userLiveData = ...;
-     * LiveData<String> userFullNameLiveData =
+     * LiveData&lt;User&gt; userLiveData = ...;
+     * LiveData&lt;String&gt; userFullNameLiveData =
      *     Transformations.map(
      *         userLiveData,
      *         user -> user.firstName + user.lastName);
@@ -106,9 +106,9 @@ public class Transformations {
      *
      * <pre>
      * class UserViewModel extends AndroidViewModel {
-     *     MutableLiveData<String> nameQueryLiveData = ...
+     *     MutableLiveData&lt;String&gt; nameQueryLiveData = ...
      *
-     *     LiveData<List<String>> getUsersWithNameLiveData() {
+     *     LiveData&lt;List&lt;String&gt;&gt; getUsersWithNameLiveData() {
      *         return Transformations.switchMap(
      *             nameQueryLiveData,
      *                 name -> myDataSource.getUsersWithNameLiveData(name));
