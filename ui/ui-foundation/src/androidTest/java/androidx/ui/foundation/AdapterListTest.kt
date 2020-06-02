@@ -19,6 +19,7 @@ package androidx.ui.foundation
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onCommit
+import androidx.compose.onDispose
 import androidx.compose.setValue
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
@@ -26,6 +27,7 @@ import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.height
 import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.size
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.testTag
 import androidx.ui.test.assertCountEquals
@@ -158,6 +160,46 @@ class AdapterListTest {
         assertWithMessage(
             "Not enough compositions were disposed after scrolling, compositions were leaked"
         ).that(disposals).isEqualTo(data1.size)
+    }
+
+    @Test
+    fun compositionsAreDisposed_whenAdapterListIsDisposed() {
+        var emitAdapterList by mutableStateOf(true)
+        var disposeCalledOnFirstItem = false
+        var disposeCalledOnSecondItem = false
+
+        composeTestRule.setContent {
+            if (emitAdapterList) {
+                AdapterList(
+                    data = listOf(0, 1),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Box(Modifier.size(100.dp))
+                    onDispose {
+                        if (it == 1) {
+                            disposeCalledOnFirstItem = true
+                        } else {
+                            disposeCalledOnSecondItem = true
+                        }
+                    }
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            assertWithMessage("First item is not immediately disposed")
+                .that(disposeCalledOnFirstItem).isFalse()
+            assertWithMessage("Second item is not immediately disposed")
+                .that(disposeCalledOnFirstItem).isFalse()
+            emitAdapterList = false
+        }
+
+        runOnIdleCompose {
+            assertWithMessage("First item is correctly disposed")
+                .that(disposeCalledOnFirstItem).isTrue()
+            assertWithMessage("Second item is correctly disposed")
+                .that(disposeCalledOnSecondItem).isTrue()
+        }
     }
 
     @Test

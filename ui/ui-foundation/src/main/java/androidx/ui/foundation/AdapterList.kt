@@ -25,6 +25,7 @@ import androidx.compose.Recomposer
 import androidx.compose.Untracked
 import androidx.compose.compositionReference
 import androidx.compose.currentComposer
+import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
@@ -382,6 +383,10 @@ private class ListState<T> {
         }
     }
 
+    fun disposeAllChildren() {
+        removeAndDisposeChildren(LayoutIndex(0), rootNode.children.size)
+    }
+
     fun recomposeIfAttached() {
         if (rootNode.owner != null) {
             // TODO: run this in an `onPreCommit` callback for multithreaded/deferred composition
@@ -542,4 +547,7 @@ fun <T> AdapterList(
         measureBlocks = state.measureBlocks
     )
     state.recomposeIfAttached()
+    onDispose {
+        state.disposeAllChildren()
+    }
 }
