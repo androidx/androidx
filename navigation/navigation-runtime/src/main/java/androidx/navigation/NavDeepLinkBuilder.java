@@ -177,8 +177,8 @@ public final class NavDeepLinkBuilder {
         }
         if (node == null) {
             final String dest = NavDestination.getDisplayName(mContext, mDestId);
-            throw new IllegalArgumentException("navigation destination " + dest
-                    + " is unknown to this NavController");
+            throw new IllegalArgumentException("Navigation destination " + dest
+                    + " cannot be found in the navigation graph " + mGraph);
         }
         mIntent.putExtra(NavController.KEY_DEEP_LINK_IDS, node.buildDeepLinkIds());
     }
