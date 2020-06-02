@@ -249,7 +249,7 @@ public class IconCompat extends CustomVersionedParcelable {
                 throw new IllegalArgumentException("Icon resource cannot be found");
             }
         } else {
-            rep.mObj1 = "";
+            rep.mObj1 = pkg;
         }
         rep.mString1 = pkg;
         return rep;
