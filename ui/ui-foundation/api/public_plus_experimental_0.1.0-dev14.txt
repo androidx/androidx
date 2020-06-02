@@ -302,6 +302,18 @@ package androidx.ui.foundation.gestures {
     property public final boolean isAnimating;
   }
 
+  public final class ZoomableKt {
+    method @androidx.compose.Composable public static androidx.ui.foundation.gestures.ZoomableState ZoomableState(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onZoomDelta);
+    method @androidx.compose.Composable public static androidx.ui.core.Modifier zoomable(androidx.ui.core.Modifier, androidx.ui.foundation.gestures.ZoomableState zoomableState, kotlin.jvm.functions.Function0<kotlin.Unit>? onZoomStopped = null);
+    method @androidx.compose.Composable public static androidx.ui.core.Modifier zoomable(androidx.ui.core.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>? onZoomStopped = null, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onZoomDelta);
+  }
+
+  public final class ZoomableState {
+    ctor public ZoomableState(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onZoomDelta, androidx.animation.AnimationClockObservable animationClock);
+    method public kotlin.jvm.functions.Function1<java.lang.Float,kotlin.Unit> getOnZoomDelta();
+    method public void smoothScaleBy(float value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit>? onEnd = null);
+  }
+
 }
 
 package androidx.ui.foundation.selection {
