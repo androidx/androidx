@@ -1718,6 +1718,74 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
+    fun remoteMediator_initialRefreshSuccess() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
+        val remoteMediator = object : RemoteMediatorMock() {
+            override suspend fun initialize(): InitializeAction {
+                super.initialize()
+                return InitializeAction.LAUNCH_INITIAL_REFRESH
+            }
+
+            override suspend fun load(
+                loadType: LoadType,
+                state: PagingState<Int, Int>
+            ): MediatorResult {
+                super.load(loadType, state)
+                return MediatorResult.Success(endOfPaginationReached = true)
+            }
+        }
+
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 1,
+            maxSize = 5
+        )
+        val pager = PageFetcherSnapshot(
+            initialKey = 50,
+            pagingSource = pagingSourceFactory(),
+            config = config,
+            retryFlow = retryCh.asFlow(),
+            triggerRemoteRefresh = true,
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
+        )
+
+        collectPagerData(pager) { pageEvents, _ ->
+            advanceUntilIdle()
+
+            assertThat(pageEvents)
+                .isEqualTo(
+                    listOf<PageEvent<Int>>(
+                        LoadStateUpdate(
+                            loadType = REFRESH,
+                            fromMediator = true,
+                            loadState = Loading
+                        ),
+                        LoadStateUpdate(
+                            loadType = REFRESH,
+                            fromMediator = false,
+                            loadState = Loading
+                        ),
+                        Refresh(
+                            pages = listOf(
+                                TransformablePage(
+                                    originalPageOffset = 0,
+                                    data = listOf(50),
+                                    originalPageSize = 1,
+                                    originalIndices = null
+                                )
+                            ),
+                            placeholdersBefore = 50,
+                            placeholdersAfter = 49,
+                            combinedLoadStates = remoteLoadStatesOf()
+                        )
+                    )
+                )
+        }
+    }
+
+    @Test
     fun jump() = testScope.runBlockingTest {
         pauseDispatcher {
             val config = PagingConfig(
