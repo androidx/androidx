@@ -57,6 +57,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -311,6 +312,15 @@ public class InlineSuggestionTest {
     public void testContent_invalidSlice() {
         Slice slice = new Slice.Builder(Uri.parse("inline.slice"),
                 new SliceSpec("random_version", 1)).build();
+        InlineSuggestionUi.Content content = new InlineSuggestionUi.Content(slice);
+        assertFalse(content.isValid());
+    }
+
+    @Test
+    public void testContent_invalidSlice_noException() {
+        Slice slice = new Slice.Builder(Uri.parse("inline.slice"),
+                new SliceSpec("random_version", 1)).addText("title", null,
+                Collections.singletonList("RANDOM_HINT")).build();
         InlineSuggestionUi.Content content = new InlineSuggestionUi.Content(slice);
         assertFalse(content.isValid());
     }
