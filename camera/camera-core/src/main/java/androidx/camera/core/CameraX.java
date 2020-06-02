@@ -39,7 +39,6 @@ import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.core.impl.UseCaseMediator;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -55,13 +54,10 @@ import androidx.lifecycle.LifecycleOwner;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -169,9 +165,10 @@ public final class CameraX {
 
     final CameraRepository mCameraRepository = new CameraRepository();
     private final Object mInitializeLock = new Object();
-    private final UseCaseMediatorRepository
-            mUseCaseMediatorRepository = new UseCaseMediatorRepository();
+
     private final CameraXConfig mCameraXConfig;
+    private final LifecycleCameraRepository
+            mLifecycleCameraRepository = new LifecycleCameraRepository();
     private final Executor mCameraExecutor;
     private final Handler mSchedulerHandler;
     @Nullable
@@ -291,8 +288,6 @@ public final class CameraX {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
         // TODO(b/153096869): override UseCase's target rotation.
-        cameraX.checkUseCaseAlreadyBoundToDifferentLifecycle(lifecycleOwner, useCases);
-
         // TODO(b/154939118) The filter appending should be removed after extensions are moved to
         //  the CheckedCameraInternal
         CameraSelector.Builder selectorBuilder =
@@ -307,54 +302,22 @@ public final class CameraX {
             }
         }
 
-        // Try to get the camera before binding to the use case, and throw IllegalArgumentException
-        // if the camera not found.
-        CameraInternal camera = CameraX.getCameraWithCameraSelector(selectorBuilder.build());
+        CameraSelector modifiedSelector = selectorBuilder.build();
 
-        if (useCases.length == 0) {
-            return camera;
-        }
+        LinkedHashSet<CameraInternal> cameraInternals =
+                modifiedSelector.filter(cameraX.mCameraRepository.getCameras());
+        CameraUseCaseAdapter.CameraId cameraId =
+                CameraUseCaseAdapter.generateCameraId(cameraInternals);
 
-        CameraUseCaseAdapter cameraUseCaseAdaptor =
-                cameraX.mCameraRepository.getCameraUseCaseAdaptor(
-                        camera.getCameraInfoInternal().getCameraId());
+        LifecycleCamera lifecycleCameraToBind =
+                cameraX.mLifecycleCameraRepository.getLifecycleCamera(lifecycleOwner, cameraId);
 
-        try {
-            cameraUseCaseAdaptor.setViewPort(viewPort);
-            cameraUseCaseAdaptor.attachUseCases(Arrays.asList(useCases));
-        } catch (CameraUseCaseAdapter.CameraException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
-
-        UseCaseMediatorLifecycleController useCaseMediatorLifecycleController =
-                cameraX.getOrCreateUseCaseMediator(lifecycleOwner, cameraUseCaseAdaptor);
-
-        // At this point the binding will succeed since all the calculations are done
-        // Do all binding related work
-        UseCaseMediator useCaseMediator = useCaseMediatorLifecycleController.getUseCaseMediator();
+        Collection<LifecycleCamera> lifecycleCameras =
+                cameraX.mLifecycleCameraRepository.getLifecycleCameras();
         for (UseCase useCase : useCases) {
-            useCaseMediator.addUseCase(useCase);
-        }
-        useCaseMediatorLifecycleController.notifyState();
-
-        return camera;
-    }
-
-    void checkUseCaseAlreadyBoundToDifferentLifecycle(@NonNull LifecycleOwner lifecycleOwner,
-            @NonNull UseCase... useCases) {
-        UseCaseMediatorLifecycleController useCaseMediatorLifecycleController =
-                mUseCaseMediatorRepository.getUseCaseMediator(lifecycleOwner);
-
-        UseCaseMediator useCaseMediatorToBind = null;
-        if (useCaseMediatorLifecycleController != null) {
-            useCaseMediatorToBind = useCaseMediatorLifecycleController.getUseCaseMediator();
-        }
-        Collection<UseCaseMediatorLifecycleController> controllers =
-                mUseCaseMediatorRepository.getUseCaseMediators();
-        for (UseCase useCase : useCases) {
-            for (UseCaseMediatorLifecycleController controller : controllers) {
-                UseCaseMediator useCaseMediator = controller.getUseCaseMediator();
-                if (useCaseMediator.contains(useCase) && useCaseMediator != useCaseMediatorToBind) {
+            for (LifecycleCamera lifecycleCamera : lifecycleCameras) {
+                if (lifecycleCamera.isBound(useCase)
+                        && lifecycleCamera != lifecycleCameraToBind) {
                     throw new IllegalStateException(
                             String.format(
                                     "Use case %s already bound to a different lifecycle.",
@@ -362,8 +325,31 @@ public final class CameraX {
                 }
             }
         }
-    }
 
+        // Try to get the camera before binding to the use case, and throw IllegalArgumentException
+        // if the camera not found.
+        if (lifecycleCameraToBind == null) {
+            lifecycleCameraToBind =
+                    cameraX.mLifecycleCameraRepository.createLifecycleCamera(lifecycleOwner,
+                            new CameraUseCaseAdapter(cameraInternals.iterator().next(),
+                                    cameraInternals,
+                                    cameraX.getCameraDeviceSurfaceManager()));
+        }
+
+
+        if (useCases.length == 0) {
+            return lifecycleCameraToBind;
+        }
+
+        try {
+            lifecycleCameraToBind.getCameraUseCaseAdapter().setViewPort(viewPort);
+            lifecycleCameraToBind.bind(Arrays.asList(useCases));
+        } catch (CameraUseCaseAdapter.CameraException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+
+        return lifecycleCameraToBind;
+    }
 
     /**
      * Returns true if the {@link UseCase} is bound to a lifecycle. Otherwise returns false.
@@ -378,12 +364,9 @@ public final class CameraX {
     public static boolean isBound(@NonNull UseCase useCase) {
         CameraX cameraX = checkInitialized();
 
-        Collection<UseCaseMediatorLifecycleController> controllers =
-                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
-
-        for (UseCaseMediatorLifecycleController controller : controllers) {
-            UseCaseMediator useCaseMediator = controller.getUseCaseMediator();
-            if (useCaseMediator.contains(useCase)) {
+        for (LifecycleCamera lifecycleCamera :
+                cameraX.mLifecycleCameraRepository.getLifecycleCameras()) {
+            if (lifecycleCamera.isBound(useCase)) {
                 return true;
             }
         }
@@ -411,34 +394,9 @@ public final class CameraX {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
 
-        Collection<UseCaseMediatorLifecycleController> useCaseMediators =
-                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
-        Set<UseCaseMediatorLifecycleController> useCaseMediatorLifecycleControllersToRemove =
-                new HashSet<>();
-        for (UseCase useCase : useCases) {
-            // Remove the UseCase from the mediator.
-            for (UseCaseMediatorLifecycleController useCaseMediatorLifecycleController :
-                    useCaseMediators) {
-                UseCaseMediator useCaseMediator =
-                        useCaseMediatorLifecycleController.getUseCaseMediator();
-                if (useCaseMediator.removeUseCase(useCase)) {
-                    CameraUseCaseAdapter attachedCamera =
-                            cameraX.getCameraRepository().getCameraUseCaseAdaptor(
-                                    useCase.getCamera().getCameraInfoInternal().getCameraId());
-                    attachedCamera.detachUseCases(Collections.singletonList(useCase));
-                    if (useCaseMediator.getUseCases().isEmpty()) {
-                        useCaseMediator.destroy();
-                        useCaseMediatorLifecycleControllersToRemove.add(
-                                useCaseMediatorLifecycleController);
-                    }
-                }
-            }
-        }
-
-        for (UseCaseMediatorLifecycleController useCaseMediatorLifecycleController :
-                useCaseMediatorLifecycleControllersToRemove) {
-            cameraX.mUseCaseMediatorRepository.releaseUseCaseMediator(
-                    useCaseMediatorLifecycleController);
+        for (LifecycleCamera lifecycleCamera :
+                cameraX.mLifecycleCameraRepository.getLifecycleCameras()) {
+            lifecycleCamera.unbind(Arrays.asList(useCases));
         }
     }
 
@@ -455,19 +413,9 @@ public final class CameraX {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
 
-        Collection<UseCaseMediatorLifecycleController> useCaseMediators =
-                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
-
-        List<UseCase> useCases = new ArrayList<>();
-        for (UseCaseMediatorLifecycleController useCaseMediatorLifecycleController :
-                useCaseMediators) {
-            UseCaseMediator useCaseMediator =
-                    useCaseMediatorLifecycleController.getUseCaseMediator();
-            useCases.addAll(useCaseMediator.getUseCases());
-        }
-
-        if (!useCases.isEmpty()) {
-            unbind(useCases.toArray(new UseCase[0]));
+        for (LifecycleCamera lifecycleCamera :
+                cameraX.mLifecycleCameraRepository.getLifecycleCameras()) {
+            lifecycleCamera.unbindAll();
         }
     }
 
@@ -484,7 +432,7 @@ public final class CameraX {
         CameraX cameraX = checkInitialized();
 
         try {
-            cameraSelector.select(cameraX.getCameraRepository().getCameraInternals());
+            cameraSelector.select(cameraX.getCameraRepository().getCameras());
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -506,7 +454,7 @@ public final class CameraX {
             @NonNull CameraSelector cameraSelector) {
         CameraX cameraX = checkInitialized();
 
-        return cameraSelector.select(cameraX.getCameraRepository().getCameraInternals());
+        return cameraSelector.select(cameraX.getCameraRepository().getCameras());
     }
 
     /**
@@ -551,8 +499,7 @@ public final class CameraX {
     public static CameraInfoInternal getCameraInfo(@NonNull String cameraId) {
         CameraX cameraX = checkInitialized();
 
-        return cameraX.getCameraRepository().getCameraUseCaseAdaptor(
-                cameraId).getCameraInfoInternal();
+        return cameraX.getCameraRepository().getCamera(cameraId).getCameraInfoInternal();
     }
 
     /**
@@ -757,12 +704,12 @@ public final class CameraX {
 
         Collection<UseCase> activeUseCases = null;
 
-        Collection<UseCaseMediatorLifecycleController> controllers =
-                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
+        Collection<LifecycleCamera> lifecycleCameras =
+                cameraX.mLifecycleCameraRepository.getLifecycleCameras();
 
-        for (UseCaseMediatorLifecycleController controller : controllers) {
-            if (controller.getUseCaseMediator().isActive()) {
-                activeUseCases = controller.getUseCaseMediator().getUseCases();
+        for (LifecycleCamera lifecycleCamera : lifecycleCameras) {
+            if (lifecycleCamera.isActive()) {
+                activeUseCases = lifecycleCamera.getUseCases();
                 break;
             }
         }
@@ -994,7 +941,7 @@ public final class CameraX {
                                     executor.init(mCameraFactory);
                                 }
 
-                                mCameraRepository.init(mCameraFactory, mSurfaceManager);
+                                mCameraRepository.init(mCameraFactory);
                             } catch (InitializationException e) {
                                 initException = e;
                             } catch (RuntimeException e) {
@@ -1066,12 +1013,6 @@ public final class CameraX {
         synchronized (mInitializeLock) {
             return mInitState == InternalInitState.INITIALIZED;
         }
-    }
-
-    private UseCaseMediatorLifecycleController getOrCreateUseCaseMediator(
-            LifecycleOwner lifecycleOwner, CameraUseCaseAdapter cameraUseCaseAdaptor) {
-        return mUseCaseMediatorRepository.getOrCreateUseCaseMediator(lifecycleOwner,
-                cameraUseCaseAdaptor);
     }
 
     private CameraRepository getCameraRepository() {

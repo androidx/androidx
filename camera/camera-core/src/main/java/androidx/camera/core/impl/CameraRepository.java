@@ -25,7 +25,6 @@ import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
@@ -42,46 +41,33 @@ import java.util.Set;
  */
 public final class CameraRepository {
     private static final String TAG = "CameraRepository";
-
     private final Object mCamerasLock = new Object();
-
     @GuardedBy("mCamerasLock")
-    private final Map<String, CameraUseCaseAdapter> mCameras = new LinkedHashMap<>();
+    private final Map<String, CameraInternal> mCameras = new LinkedHashMap<>();
     @GuardedBy("mCamerasLock")
-    private final Set<CameraInternal> mCameraInternals = new LinkedHashSet<>();
-    @GuardedBy("mCamerasLock")
-    private final Set<CameraUseCaseAdapter> mReleasingCameras = new HashSet<>();
+    private final Set<CameraInternal> mReleasingCameras = new HashSet<>();
     @GuardedBy("mCamerasLock")
     private ListenableFuture<Void> mDeinitFuture;
     @GuardedBy("mCamerasLock")
     private CallbackToFutureAdapter.Completer<Void> mDeinitCompleter;
-
     /**
      * Initializes the repository from a {@link Context}.
      *
      * <p>All cameras queried from the {@link CameraFactory} will be added to the repository.
      */
-    public void init(@NonNull CameraFactory cameraFactory,
-            @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager)
-            throws InitializationException {
+    public void init(@NonNull CameraFactory cameraFactory) throws InitializationException {
         synchronized (mCamerasLock) {
             try {
                 Set<String> camerasList = cameraFactory.getAvailableCameraIds();
                 for (String id : camerasList) {
                     Log.d(TAG, "Added camera: " + id);
-                    mCameras.put(id, new CameraUseCaseAdapter(cameraFactory.getCamera(id),
-                            cameraDeviceSurfaceManager));
-                }
-
-                for (CameraUseCaseAdapter cameraUseCaseAdaptor : mCameras.values()) {
-                    mCameraInternals.add(cameraUseCaseAdaptor.getCameraInternal());
+                    mCameras.put(id, cameraFactory.getCamera(id));
                 }
             } catch (CameraUnavailableException e) {
                 throw new InitializationException(e);
             }
         }
     }
-
     /**
      * Clear and release all cameras from the repository.
      */
@@ -94,7 +80,6 @@ public final class CameraRepository {
             if (mCameras.isEmpty()) {
                 return mDeinitFuture == null ? Futures.immediateFuture(null) : mDeinitFuture;
             }
-
             ListenableFuture<Void> currentFuture = mDeinitFuture;
             if (currentFuture == null) {
                 // Create a single future that will be used to track closing of all cameras.
@@ -110,21 +95,19 @@ public final class CameraRepository {
                 });
                 mDeinitFuture = currentFuture;
             }
-
             // Ensure all of the cameras have been added here before we start releasing so that
             // if the first camera release finishes inline it won't complete the future prematurely.
             mReleasingCameras.addAll(mCameras.values());
-            for (final CameraUseCaseAdapter cameraUseCaseAdaptor : mCameras.values()) {
+            for (final CameraInternal cameraInternal : mCameras.values()) {
                 // Release the camera and wait for it to complete. We keep track of which cameras
                 // are still releasing with mReleasingCameras.
-                CameraInternal cameraInternal = cameraUseCaseAdaptor.getCameraInternal();
                 cameraInternal.release().addListener(() -> {
                     synchronized (mCamerasLock) {
                         // When the camera has completed releasing, we can now remove it from
                         // mReleasingCameras. Any time a camera finishes releasing, we need to
                         // check if all cameras a finished so we can finish the future which is
                         // waiting for all cameras to release.
-                        mReleasingCameras.remove(cameraUseCaseAdaptor);
+                        mReleasingCameras.remove(cameraInternal);
                         if (mReleasingCameras.isEmpty()) {
                             Preconditions.checkNotNull(mDeinitCompleter);
                             // Every camera has been released. Signal successful completion of
@@ -136,15 +119,12 @@ public final class CameraRepository {
                     }
                 }, CameraXExecutors.directExecutor());
             }
-
             // Ensure all cameras are removed from the active "mCameras" map. This map can be
             // repopulated by #init().
             mCameras.clear();
-
             return currentFuture;
         }
     }
-
     /**
      * Gets a {@link CameraInternal} for the given id.
      *
@@ -153,31 +133,26 @@ public final class CameraRepository {
      * @throws IllegalArgumentException if there is no camera paired with the id
      */
     @NonNull
-    public CameraUseCaseAdapter getCameraUseCaseAdaptor(@NonNull String cameraId) {
+    public CameraInternal getCamera(@NonNull String cameraId) {
         synchronized (mCamerasLock) {
-            CameraUseCaseAdapter camera = mCameras.get(cameraId);
-
-            if (camera == null) {
+            CameraInternal cameraInternal = mCameras.get(cameraId);
+            if (cameraInternal == null) {
                 throw new IllegalArgumentException("Invalid camera: " + cameraId);
             }
-
-            return camera;
+            return cameraInternal;
         }
     }
-
     /**
-     * Gets the set of all {@link CameraInternal}
+     * Gets the set of all cameras.
      *
-     * @return set of all CameraInternal
+     * @return set of all cameras
      */
     @NonNull
-    public LinkedHashSet<CameraInternal> getCameraInternals() {
+    public LinkedHashSet<CameraInternal> getCameras() {
         synchronized (mCamerasLock) {
-            // Make a copy
-            return new LinkedHashSet<>(mCameraInternals);
+            return new LinkedHashSet<>(mCameras.values());
         }
     }
-
     /**
      * Gets the set of all camera ids.
      *

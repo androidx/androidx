@@ -18,6 +18,8 @@ package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.app.Instrumentation;
 import android.content.Context;
 import android.os.Handler;

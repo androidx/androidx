@@ -26,13 +26,14 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.util.Size;
 
-import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraControl;
+import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -44,6 +45,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -64,8 +67,17 @@ public class ImageCaptureTest {
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.initialize(context, cameraXConfig).get();
 
-        mCameraUseCaseAdapter = new CameraUseCaseAdapter(new FakeCamera(),
-                mock(CameraDeviceSurfaceManager.class));
+        FakeCamera fakeCamera = new FakeCamera("fakeCameraId");
+
+        FakeCameraDeviceSurfaceManager fakeCameraDeviceSurfaceManager =
+                new FakeCameraDeviceSurfaceManager();
+        fakeCameraDeviceSurfaceManager.setSuggestedResolution("fakeCameraId",
+                ImageCaptureConfig.class,
+                new Size(640, 480));
+
+        mCameraUseCaseAdapter = new CameraUseCaseAdapter(fakeCamera,
+                new LinkedHashSet<>(Collections.singleton(fakeCamera)),
+                fakeCameraDeviceSurfaceManager);
     }
 
     @After
@@ -77,7 +89,12 @@ public class ImageCaptureTest {
     public void onCaptureCancelled_onErrorCAMERA_CLOSED() {
         ImageCapture imageCapture = createImageCapture();
 
-        mInstrumentation.runOnMainSync(() -> bind(imageCapture));
+        mInstrumentation.runOnMainSync(() -> {
+            try {
+                mCameraUseCaseAdapter.addUseCases(Collections.singleton(imageCapture));
+            } catch (CameraUseCaseAdapter.CameraException ignore) {
+            }
+        });
 
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
@@ -103,7 +120,12 @@ public class ImageCaptureTest {
     public void onRequestFailed_OnErrorCAPTURE_FAILED() {
         ImageCapture imageCapture = createImageCapture();
 
-        mInstrumentation.runOnMainSync(() -> bind(imageCapture));
+        mInstrumentation.runOnMainSync(() -> {
+            try {
+                mCameraUseCaseAdapter.addUseCases(Collections.singleton(imageCapture));
+            } catch (CameraUseCaseAdapter.CameraException ignore) {
+            }
+        });
 
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
@@ -131,7 +153,12 @@ public class ImageCaptureTest {
     public void captureWithMinLatency_jpegQualityIs95() throws InterruptedException {
         // Arrange.
         ImageCapture imageCapture = createImageCapture();
-        mInstrumentation.runOnMainSync(() -> bind(imageCapture));
+        mInstrumentation.runOnMainSync(() -> {
+            try {
+                mCameraUseCaseAdapter.addUseCases(Collections.singleton(imageCapture));
+            } catch (CameraUseCaseAdapter.CameraException ignore) {
+            }
+        });
         FakeCameraControl fakeCameraControl =
                 ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControlInternal());
 
@@ -171,12 +198,5 @@ public class ImageCaptureTest {
                 .setSessionOptionUnpacker((config, builder) -> {
                 })
                 .build();
-    }
-
-    // TODO(b/147698557) Should be removed when the binding of UseCase to Camera is simplified.
-    private void bind(UseCase useCase) {
-        // Sets bound camera to use case.
-        useCase.onAttach(mCameraUseCaseAdapter.getCameraInternal());
-        useCase.updateSuggestedResolution(new Size(640, 480));
     }
 }

@@ -19,6 +19,7 @@ package androidx.camera.camera2;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doAnswer;
@@ -163,11 +164,6 @@ public final class ImageCaptureTest {
         mLifecycleOwner = new FakeLifecycleOwner();
         mMainExecutor = ContextCompat.getMainExecutor(context);
         mContentResolver = ApplicationProvider.getApplicationContext().getContentResolver();
-
-        // Get the camera ID
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR);
-        });
     }
 
     @After

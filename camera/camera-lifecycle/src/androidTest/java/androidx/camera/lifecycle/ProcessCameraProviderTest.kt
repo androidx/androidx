@@ -167,7 +167,7 @@ class ProcessCameraProviderTest {
             provider = ProcessCameraProvider.getInstance(context).await()
 
             val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            
+
             provider!!.bindToLifecycle(
                 lifecycleOwner0,
                 CameraSelector.DEFAULT_BACK_CAMERA,
@@ -178,6 +178,49 @@ class ProcessCameraProviderTest {
 
             assertThat(provider!!.isBound(useCase)).isFalse()
         }
+    }
 
+    @Test
+    fun unbindFirstUseCase_secondUseCaseStillBound() {
+        ProcessCameraProvider.configureInstance(FakeAppConfig.create())
+
+        runBlocking(MainScope().coroutineContext) {
+            provider = ProcessCameraProvider.getInstance(context).await()
+
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+
+            provider!!.bindToLifecycle(
+                lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA,
+                useCase0, useCase1
+            )
+
+            provider!!.unbind(useCase0)
+
+            assertThat(useCase0.camera).isNull()
+            assertThat(provider!!.isBound(useCase0)).isFalse()
+            assertThat(useCase1.camera).isNotNull()
+            assertThat(provider!!.isBound(useCase1)).isTrue()
+        }
+    }
+
+    @Test
+    fun unbindAll_unbindsAllUseCasesFromCameras() {
+        ProcessCameraProvider.configureInstance(FakeAppConfig.create())
+
+        runBlocking(MainScope().coroutineContext) {
+            provider = ProcessCameraProvider.getInstance(context).await()
+
+            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+
+            provider!!.bindToLifecycle(
+                lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA, useCase
+            )
+
+            provider!!.unbindAll()
+
+            assertThat(useCase.camera).isNull()
+            assertThat(provider!!.isBound(useCase)).isFalse()
+        }
     }
 }
