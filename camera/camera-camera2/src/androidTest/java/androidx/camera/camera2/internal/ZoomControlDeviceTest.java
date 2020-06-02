@@ -124,7 +124,7 @@ public final class ZoomControlDeviceTest {
     @UiThreadTest
     public void setZoomRatio_getValueIsCorrect_InUIThread() {
         final float newZoomRatio = 2.0f;
-        assumeTrue(newZoomRatio <= mZoomControl.getZoomState().getValue().getZoomRatio());
+        assumeTrue(newZoomRatio <= mZoomControl.getZoomState().getValue().getMaxZoomRatio());
 
         // We can only ensure new value is reflected immediately on getZoomRatio on UI thread
         // because of the nature of LiveData.
@@ -135,6 +135,7 @@ public final class ZoomControlDeviceTest {
     @Test
     @UiThreadTest
     public void setZoomRatio_largerThanMax_zoomUnmodified() {
+        assumeTrue(2.0f <= mZoomControl.getZoomState().getValue().getMaxZoomRatio());
         mZoomControl.setZoomRatio(2.0f);
         float maxZoomRatio = mZoomControl.getZoomState().getValue().getMaxZoomRatio();
         mZoomControl.setZoomRatio(maxZoomRatio + 1.0f);
@@ -164,6 +165,7 @@ public final class ZoomControlDeviceTest {
     @Test
     @UiThreadTest
     public void setZoomRatio_smallerThanMin_zoomUnmodified() {
+        assumeTrue(2.0f <= mZoomControl.getZoomState().getValue().getMaxZoomRatio());
         mZoomControl.setZoomRatio(2.0f);
         float minZoomRatio = mZoomControl.getZoomState().getValue().getMinZoomRatio();
         mZoomControl.setZoomRatio(minZoomRatio - 1.0f);
