@@ -33,8 +33,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
-import androidx.ui.unit.px
-import androidx.ui.unit.toPx
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,10 +47,10 @@ class AlignmentLineTest : LayoutTest() {
     fun testRelativePaddingFrom_vertical() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = VerticalAlignmentLine(::min)
-        val beforeDp = 20.px.toDp()
-        val afterDp = 40.px.toDp()
-        val childDp = 30.px.toDp()
-        val lineDp = 10.px.toDp()
+        val beforeDp = 20f.toDp()
+        val afterDp = 40f.toDp()
+        val childDp = 30f.toDp()
+        val lineDp = 10f.toDp()
 
         val parentSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -88,7 +86,7 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertEquals(childSize.value!!.height, parentSize.value!!.height)
         Assert.assertNotNull(childPosition.value)
         Assert.assertEquals(
-            (beforeDp.toIntPx().toPx() - lineDp.toIntPx().toPx()).value,
+            (beforeDp.toIntPx().value - lineDp.toIntPx().value).toFloat(),
             childPosition.value!!.x
         )
         Assert.assertEquals(0f, childPosition.value!!.y)
@@ -98,10 +96,10 @@ class AlignmentLineTest : LayoutTest() {
     fun testRelativePaddingFrom_horizontal() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = HorizontalAlignmentLine(::min)
-        val beforeDp = 20.px.toDp()
-        val afterDp = 40.px.toDp()
-        val childDp = 30.px.toDp()
-        val lineDp = 10.px.toDp()
+        val beforeDp = 20f.toDp()
+        val afterDp = 40f.toDp()
+        val childDp = 30f.toDp()
+        val lineDp = 10f.toDp()
 
         val parentSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -136,7 +134,7 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertNotNull(childPosition.value)
         Assert.assertEquals(0f, childPosition.value!!.x)
         Assert.assertEquals(
-            (beforeDp.toIntPx().toPx() - lineDp.toIntPx().toPx()).value,
+            (beforeDp.toIntPx().value - lineDp.toIntPx().value).toFloat(),
             childPosition.value!!.y
         )
     }
@@ -145,10 +143,10 @@ class AlignmentLineTest : LayoutTest() {
     fun testRelativePaddingFrom_vertical_withSmallOffsets() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = VerticalAlignmentLine(::min)
-        val beforeDp = 5.px.toDp()
-        val afterDp = 5.px.toDp()
-        val childDp = 30.px.toDp()
-        val lineDp = 10.px.toDp()
+        val beforeDp = 5f.toDp()
+        val afterDp = 5f.toDp()
+        val childDp = 30f.toDp()
+        val lineDp = 10f.toDp()
 
         val parentSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -179,10 +177,10 @@ class AlignmentLineTest : LayoutTest() {
     fun testRelativePaddingFrom_horizontal_withSmallOffsets() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = HorizontalAlignmentLine(::min)
-        val beforeDp = 5.px.toDp()
-        val afterDp = 5.px.toDp()
-        val childDp = 30.px.toDp()
-        val lineDp = 10.px.toDp()
+        val beforeDp = 5f.toDp()
+        val afterDp = 5f.toDp()
+        val childDp = 30f.toDp()
+        val lineDp = 10f.toDp()
 
         val parentSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -213,11 +211,11 @@ class AlignmentLineTest : LayoutTest() {
     fun testRelativePaddingFrom_vertical_withInsufficientSpace() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = VerticalAlignmentLine(::min)
-        val maxWidth = 30.px.toDp()
-        val beforeDp = 20.px.toDp()
-        val afterDp = 20.px.toDp()
-        val childDp = 25.px.toDp()
-        val lineDp = 10.px.toDp()
+        val maxWidth = 30f.toDp()
+        val beforeDp = 20f.toDp()
+        val afterDp = 20f.toDp()
+        val childDp = 25f.toDp()
+        val lineDp = 10f.toDp()
 
         val parentSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
@@ -254,11 +252,11 @@ class AlignmentLineTest : LayoutTest() {
     fun testRelativePaddingFrom_horizontal_withInsufficientSpace() = with(density) {
         val layoutLatch = CountDownLatch(2)
         val testLine = HorizontalAlignmentLine(::min)
-        val maxHeight = 30.px.toDp()
-        val beforeDp = 20.px.toDp()
-        val afterDp = 20.px.toDp()
-        val childDp = 25.px.toDp()
-        val lineDp = 10.px.toDp()
+        val maxHeight = 30f.toDp()
+        val beforeDp = 20f.toDp()
+        val afterDp = 20f.toDp()
+        val childDp = 25f.toDp()
+        val lineDp = 10f.toDp()
 
         val parentSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()

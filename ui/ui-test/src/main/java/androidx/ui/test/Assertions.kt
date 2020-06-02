@@ -24,10 +24,7 @@ import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.height
-import androidx.ui.unit.px
 import androidx.ui.unit.width
 
 /**
@@ -326,8 +323,10 @@ private fun SemanticsNode.isInScreenBounds(): Boolean {
 
     val displayMetrics = (componentNode.owner as AndroidOwner).view.resources.displayMetrics
     val screenBounds = PxBounds(
-        PxPosition.Origin,
-        PxSize(displayMetrics.widthPixels.px, displayMetrics.heightPixels.px)
+        left = 0f,
+        top = 0f,
+        right = displayMetrics.widthPixels.toFloat(),
+        bottom = displayMetrics.heightPixels.toFloat()
     )
 
     return nodeBounds.top >= screenBounds.top &&

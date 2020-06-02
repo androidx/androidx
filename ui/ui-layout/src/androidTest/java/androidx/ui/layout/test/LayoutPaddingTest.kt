@@ -45,7 +45,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
-import androidx.ui.unit.toPx
 import androidx.ui.unit.toPxSize
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -394,7 +393,7 @@ class LayoutPaddingTest : LayoutTest() {
         val left = ((root.width.ipx - size) / 2) + paddingPx
         val top = ((root.height.ipx - size) / 2) + paddingPx
         assertEquals(
-            PxPosition(left.toPx().value, top.toPx().value),
+            PxPosition(left.value.toFloat(), top.value.toFloat()),
             childPosition
         )
     }
@@ -449,7 +448,7 @@ class LayoutPaddingTest : LayoutTest() {
         val viewLeft = ((root.width.ipx - size) / 2) + paddingLeft
         val viewTop = ((root.height.ipx - size) / 2) + paddingTop
         assertEquals(
-            PxPosition(viewLeft.toPx().value, viewTop.toPx().value),
+            PxPosition(viewLeft.value.toFloat(), viewTop.value.toFloat()),
             childPosition
         )
     }
@@ -490,7 +489,7 @@ class LayoutPaddingTest : LayoutTest() {
         assertEquals(IntPxSize(0.ipx, 0.ipx), childSize)
         val left = ((root.width.ipx - size) / 2) + paddingPx
         val top = ((root.height.ipx - size) / 2) + paddingPx
-        assertEquals(PxPosition(left.toPx().value, top.toPx().value), childPosition)
+        assertEquals(PxPosition(left.value.toFloat(), top.value.toFloat()), childPosition)
     }
 
     /**

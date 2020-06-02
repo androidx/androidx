@@ -215,14 +215,6 @@ class IntPxTest {
     }
 
     @Test
-    fun round() {
-        assertEquals(0, 0.px.round().value)
-        assertEquals(0, 0.25.px.round().value)
-        assertEquals(1, 0.5.px.round().value)
-        assertEquals(99, 99.49.px.round().value)
-    }
-
-    @Test
     fun createSize() {
         assertEquals(PxSize(10f, 20f), PxSize(10.ipx, 20.ipx))
     }

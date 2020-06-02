@@ -164,7 +164,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
     fun getOffsetForPosition() {
         textBenchmarkRule.generator { generator ->
             val paragraph = paragraph(generator)
-            val centerPosition = PxPosition((paragraph.width / 2), (paragraph.height / 2))
+            val centerPosition = PxPosition(paragraph.width / 2, paragraph.height / 2)
             benchmarkRule.measureRepeated {
                 paragraph.getOffsetForPosition(centerPosition)
             }

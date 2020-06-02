@@ -18,7 +18,6 @@ package androidx.ui.material.ripple
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,7 +29,7 @@ class DefaultRippleEffectTest {
 
     @Test
     fun testStartRadius() {
-        val size = PxSize(10.px, 30.px)
+        val size = PxSize(10f, 30f)
         val expectedRadius = 9.0f // 30% of 30
 
         // Top-level functions are not resolved properly in IR modules
@@ -42,7 +41,7 @@ class DefaultRippleEffectTest {
     fun testEndRadiusBounded() {
         val width = 100f
         val height = 160f
-        val size = PxSize(width.px, height.px)
+        val size = PxSize(width, height)
         val density = Density(2f)
         val expectedRadius = with(density) {
             // 10 is an extra offset from spec
@@ -56,7 +55,7 @@ class DefaultRippleEffectTest {
     fun testEndRadiusUnbounded() {
         val width = 140f
         val height = 100f
-        val size = PxSize(width.px, height.px)
+        val size = PxSize(width, height)
         val expectedRadius = halfDistance(width, height)
         val result = with(Density(1f)) { getRippleEndRadius(false, size) }
         assertThat(result).isEqualTo(expectedRadius)

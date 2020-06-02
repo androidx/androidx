@@ -54,7 +54,6 @@ import androidx.ui.test.sendSwipeRight
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
 import androidx.ui.unit.toPxSize
 import androidx.ui.unit.toSize
 import androidx.ui.unit.width
@@ -548,7 +547,7 @@ class ScaffoldTest {
         }
         runOnIdleCompose {
             assertThat(geometry.bottomBarBounds?.toSize()).isEqualTo(bottomBarSize.toPxSize())
-            assertThat(geometry.bottomBarBounds?.width).isNotEqualTo(0.px)
+            assertThat(geometry.bottomBarBounds?.width).isNotEqualTo(0f)
         }
     }
 }

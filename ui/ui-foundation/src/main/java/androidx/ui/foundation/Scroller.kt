@@ -47,7 +47,6 @@ import androidx.ui.semantics.Semantics
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
-import androidx.ui.unit.toPx
 import kotlin.math.roundToInt
 
 /**
@@ -325,14 +324,14 @@ private fun ScrollerLayout(
             val placeable = measurables.first().measure(childConstraints)
             val width = min(placeable.width, constraints.maxWidth)
             val height = min(placeable.height, constraints.maxHeight)
-            val scrollHeight = placeable.height.toPx() - height.toPx()
-            val scrollWidth = placeable.width.toPx() - width.toPx()
+            val scrollHeight = placeable.height.value.toFloat() - height.value.toFloat()
+            val scrollWidth = placeable.width.value.toFloat() - width.value.toFloat()
             val side = if (isVertical) scrollHeight else scrollWidth
             layout(width, height) {
-                scrollerPosition.updateMaxPosition(side.value)
-                val scroll = scrollerPosition.value.coerceIn(0f, side.value)
+                scrollerPosition.updateMaxPosition(side)
+                val scroll = scrollerPosition.value.coerceIn(0f, side)
                 val absScroll =
-                    if (scrollerPosition.isReversed) scroll - side.value else -scroll
+                    if (scrollerPosition.isReversed) scroll - side else -scroll
                 val xOffset = if (isVertical) 0 else absScroll.roundToInt()
                 val yOffset = if (isVertical) absScroll.roundToInt() else 0
                 placeable.place(xOffset.ipx, yOffset.ipx)

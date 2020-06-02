@@ -53,9 +53,6 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
-import androidx.ui.unit.px
-import androidx.ui.unit.round
-import androidx.ui.unit.toPx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -64,6 +61,7 @@ import org.junit.Before
 import org.junit.Rule
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 open class LayoutTest {
     @get:Rule
@@ -309,17 +307,17 @@ open class LayoutTest {
             layoutDirection: LayoutDirection
         ): List<IntPx> {
             val positions = mutableListOf<IntPx>()
-            var current = 0.px
+            var current = 0f
             val usedSpace = size.fold(0.ipx) { sum, e -> sum + e }
             val step = if (size.size < 2) {
-                0.px
+                0f
             } else {
-                (totalSize - usedSpace).toPx() * 2 / (size.lastIndex * size.size)
+                (totalSize - usedSpace).value.toFloat() * 2 / (size.lastIndex * size.size)
             }
             size.forEachIndexed { i, childSize ->
                 current += step * i
-                positions.add(current.round())
-                current += childSize.toPx()
+                positions.add(current.roundToInt().ipx)
+                current += childSize.value.toFloat()
             }
             return positions
         }
@@ -332,23 +330,23 @@ open class LayoutTest {
             layoutDirection: LayoutDirection
         ): List<IntPx> {
             val positions = mutableListOf<IntPx>()
-            var current = 0.px
+            var current = 0f
             if (layoutDirection == LayoutDirection.Rtl) {
                 size.forEach {
-                    positions.add(current.round())
-                    current += it
+                    positions.add(current.roundToInt().ipx)
+                    current += it.value.toFloat()
                 }
             } else {
                 val usedSpace = size.fold(0.ipx) { sum, e -> sum + e }
                 val step = if (size.size < 2) {
-                    0.px
+                    0f
                 } else {
-                    (totalSize - usedSpace).toPx() * 2 / (size.lastIndex * size.size)
+                    (totalSize - usedSpace).value.toFloat() * 2 / (size.lastIndex * size.size)
                 }
                 size.forEachIndexed { i, childSize ->
                     current += step * i
-                    positions.add(current.round())
-                    current += childSize.toPx()
+                    positions.add(current.roundToInt().ipx)
+                    current += childSize.value.toFloat()
                 }
             }
             return positions

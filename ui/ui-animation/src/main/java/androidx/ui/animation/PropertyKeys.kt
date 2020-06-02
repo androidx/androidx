@@ -38,7 +38,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import kotlin.math.roundToInt
 
 /**
@@ -192,7 +191,7 @@ val PxPositionToVectorConverter: TwoWayConverter<PxPosition, AnimationVector2D> 
 val PxSizeToVectorConverter: TwoWayConverter<PxSize, AnimationVector2D> =
     TwoWayConverter(
         convertToVector = { AnimationVector2D(it.width, it.height) },
-        convertFromVector = { PxSize(it.v1.px, it.v2.px) }
+        convertFromVector = { PxSize(it.v1, it.v2) }
     )
 
 /**

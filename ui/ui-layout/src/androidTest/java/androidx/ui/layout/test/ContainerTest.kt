@@ -37,8 +37,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.round
-import androidx.ui.unit.toPx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -46,6 +44,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -209,8 +208,10 @@ class ContainerTest : LayoutTest() {
         assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(
             PxPosition(
-                (containerSize.value!!.width.toPx() / 2 - size.toPx() / 2).round(),
-                (containerSize.value!!.height.toPx() / 2 - size.toPx() / 2).round()
+                (containerSize.value!!.width.value.toFloat() / 2 - size.value.toFloat() / 2)
+                    .roundToInt().toFloat(),
+                (containerSize.value!!.height.value.toFloat() / 2 - size.value.toFloat() / 2)
+                    .roundToInt().toFloat()
             ),
             childPosition.value
         )
