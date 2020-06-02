@@ -21,21 +21,6 @@ plugins {
     id("com.android.application")
 }
 
-android {
-    defaultConfig {
-        applicationId "androidx.lifecycle.testapp"
-    }
-    buildTypes {
-        // test coverage does not work w/ jack
-        debug {
-            testCoverageEnabled = false
-        }
-        release {
-            testCoverageEnabled = false
-        }
-    }
-}
-
 dependencies {
     implementation("androidx.fragment:fragment:1.1.0")
     implementation(project(":lifecycle:lifecycle-process"))

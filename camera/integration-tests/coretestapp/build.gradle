@@ -50,7 +50,6 @@ android {
 
     buildTypes {
         debug {
-            testCoverageEnabled true
             pseudoLocalesEnabled true
         }
 
