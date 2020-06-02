@@ -192,7 +192,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
         useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
 
         Size sizeEnvelope = imageProperties.get().size;
         // Some devices may not be able to fit the requested resolution within the image
@@ -245,7 +245,7 @@ public final class ImageCaptureTest {
             OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
             useCase.takePicture(mMainExecutor, callback);
             // Wait for the signal that the image has been captured.
-            verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
+            verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
 
             // Check the captured image exactly matches 640x480 size. This test can also check
             // whether the guaranteed resolution 640x480 is really supported for JPEG format on the
@@ -278,7 +278,7 @@ public final class ImageCaptureTest {
         }
 
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(15000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(50000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
     }
 
     @Test
@@ -299,7 +299,7 @@ public final class ImageCaptureTest {
             useCase.takePicture(mMainExecutor, callback);
         }
 
-        verify(callback, timeout(20000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(50000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
     }
 
     @Test
@@ -339,7 +339,7 @@ public final class ImageCaptureTest {
                 mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved(any());
+        verify(callback, timeout(10000)).onImageSaved(any());
     }
 
     @Test
@@ -367,7 +367,7 @@ public final class ImageCaptureTest {
         // Assert: Wait for the signal that the image has been saved.
         ArgumentCaptor<ImageCapture.OutputFileResults> outputFileResultsArgumentCaptor =
                 ArgumentCaptor.forClass(ImageCapture.OutputFileResults.class);
-        verify(callback, timeout(3000)).onImageSaved(outputFileResultsArgumentCaptor.capture());
+        verify(callback, timeout(10000)).onImageSaved(outputFileResultsArgumentCaptor.capture());
 
         // Verify save location Uri is available.
         Uri saveLocationUri = outputFileResultsArgumentCaptor.getValue().getSavedUri();
@@ -397,7 +397,7 @@ public final class ImageCaptureTest {
                     outputStream).build(), mMainExecutor, callback);
 
             // Assert: Wait for the signal that the image has been saved.
-            verify(callback, timeout(3000)).onImageSaved(any());
+            verify(callback, timeout(10000)).onImageSaved(any());
         }
     }
 
@@ -423,7 +423,7 @@ public final class ImageCaptureTest {
                 saveLocation).build(), mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved(any());
+        verify(callback, timeout(10000)).onImageSaved(any());
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -436,7 +436,7 @@ public final class ImageCaptureTest {
                 saveLocationRotated90).build(), mMainExecutor, callbackRotated90);
 
         // Wait for the signal that the image has been saved.
-        verify(callbackRotated90, timeout(3000)).onImageSaved(any());
+        verify(callbackRotated90, timeout(10000)).onImageSaved(any());
 
         // Retrieve the exif from the image
         Exif exifRotated90 = Exif.createFromFile(saveLocationRotated90);
@@ -488,7 +488,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(outputFileOptions, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved(any());
+        verify(callback, timeout(10000)).onImageSaved(any());
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -520,7 +520,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(outputFileOptions, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved(any());
+        verify(callback, timeout(10000)).onImageSaved(any());
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -549,7 +549,7 @@ public final class ImageCaptureTest {
         useCase.takePicture(outputFileOptions, mMainExecutor, callback);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onImageSaved(any());
+        verify(callback, timeout(10000)).onImageSaved(any());
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -578,7 +578,7 @@ public final class ImageCaptureTest {
         }
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(15000).times(numImages)).onImageSaved(any());
+        verify(callback, timeout(50000).times(numImages)).onImageSaved(any());
     }
 
     @Test
@@ -602,7 +602,7 @@ public final class ImageCaptureTest {
                 ArgumentCaptor.forClass(ImageCaptureException.class);
 
         // Wait for the signal that the image has been saved.
-        verify(callback, timeout(3000)).onError(exceptionCaptor.capture());
+        verify(callback, timeout(10000)).onError(exceptionCaptor.capture());
         assertThat(exceptionCaptor.getValue().getImageCaptureError()).isEqualTo(
                 ImageCapture.ERROR_FILE_IO);
     }
@@ -625,7 +625,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
 
         // Note: preview callbacks also fire on interop listener.
         ArgumentMatcher<CaptureRequest> matcher = new ArgumentMatcher<CaptureRequest>() {
@@ -670,7 +670,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
         useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
 
         assertThat(imageProperties.get().format).isEqualTo(ImageFormat.RAW10);
     }
@@ -714,7 +714,7 @@ public final class ImageCaptureTest {
 
         final ArgumentCaptor<ImageCaptureException> exceptionCaptor =
                 ArgumentCaptor.forClass(ImageCaptureException.class);
-        verify(callback, timeout(3000)).onError(exceptionCaptor.capture());
+        verify(callback, timeout(10000)).onError(exceptionCaptor.capture());
         assertThat(exceptionCaptor.getValue().getCause()).isInstanceOf(
                 IllegalArgumentException.class);
     }
@@ -758,7 +758,7 @@ public final class ImageCaptureTest {
         // It should get onError() callback twice.
         final ArgumentCaptor<ImageCaptureException> exceptionCaptor = ArgumentCaptor.forClass(
                 ImageCaptureException.class);
-        verify(callback, timeout(3000).times(2)).onError(exceptionCaptor.capture());
+        verify(callback, timeout(10000).times(2)).onError(exceptionCaptor.capture());
         assertThat(exceptionCaptor.getValue().getCause()).isInstanceOf(
                 IllegalArgumentException.class);
 
@@ -821,7 +821,7 @@ public final class ImageCaptureTest {
 
         final ArgumentCaptor<ImageCaptureException> exceptionCaptor = ArgumentCaptor.forClass(
                 ImageCaptureException.class);
-        verify(callback, timeout(500)).onError(exceptionCaptor.capture());
+        verify(callback, timeout(10000)).onError(exceptionCaptor.capture());
         assertThat(exceptionCaptor.getValue().getImageCaptureError()).isEqualTo(
                 ImageCapture.ERROR_INVALID_CAMERA);
     }
@@ -938,7 +938,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
         useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
 
         // After target rotation is updated, the result cropping aspect ratio should still the
         // same as original one.
@@ -985,7 +985,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
         useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
 
         // After target rotation is updated, the result cropping aspect ratio should still the
         // same as original one.
@@ -1036,7 +1036,7 @@ public final class ImageCaptureTest {
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
         useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
-        verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
 
         // After target rotation is updated, the result cropping aspect ratio should still the
         // same as original one.
