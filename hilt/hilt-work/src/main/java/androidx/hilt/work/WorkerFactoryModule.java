@@ -18,7 +18,7 @@ package androidx.hilt.work;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.work.Worker;
+import androidx.work.ListenableWorker;
 
 import java.util.Map;
 
@@ -42,12 +42,12 @@ public abstract class WorkerFactoryModule {
 
     @NonNull
     @Multibinds
-    abstract Map<String, WorkerAssistedFactory<? extends Worker>> workerFactoriesMap();
+    abstract Map<String, WorkerAssistedFactory<? extends ListenableWorker>> workerFactoriesMap();
 
     @NonNull
     @Provides
     static HiltWorkerFactory provideFactory(@NonNull Map<String,
-            Provider<WorkerAssistedFactory<? extends Worker>>> workerFactories) {
+            Provider<WorkerAssistedFactory<? extends ListenableWorker>>> workerFactories) {
         return new HiltWorkerFactory(workerFactories);
     }
 }

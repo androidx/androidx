@@ -25,7 +25,13 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        testInstrumentationRunner "androidx.hilt.integration.workerapp.TestRunner"
+    }
     buildTypes {
+        debug {
+            testCoverageEnabled = false
+        }
         release {
             minifyEnabled true
             shrinkResources true
@@ -35,10 +41,18 @@ android {
 
 dependencies {
     implementation(project(":activity:activity"))
-    implementation project(':work:work-runtime')
+    implementation project(":work:work-runtime-ktx")
     implementation(project(":hilt:hilt-work"))
     kapt(project(":hilt:hilt-compiler"))
     implementation(KOTLIN_STDLIB)
     implementation(HILT_ANDROID)
     kapt(HILT_ANDROID_COMPILER)
+
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(project(":work:work-testing"))
+    androidTestImplementation(HILT_ANDROID_TESTING)
+    kaptAndroidTest(HILT_ANDROID_COMPILER)
 }

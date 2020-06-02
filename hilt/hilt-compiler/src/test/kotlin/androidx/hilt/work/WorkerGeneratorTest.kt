@@ -94,7 +94,8 @@ class WorkerGeneratorTest {
         """.toJFO("androidx.hilt.work.test.MyWorker_AssistedFactory")
 
         val compilation = compiler()
-            .compile(foo, myWorker, Sources.WORKER, Sources.WORKER_PARAMETERS)
+            .compile(foo, myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER,
+                Sources.WORKER_PARAMETERS)
         assertThat(compilation).apply {
             succeeded()
             generatedSourceFile("androidx.hilt.work.test.MyWorker_AssistedFactory")
@@ -125,7 +126,7 @@ class WorkerGeneratorTest {
         package androidx.hilt.work.test;
 
         import androidx.hilt.work.WorkerAssistedFactory;
-        import androidx.work.Worker;
+        import androidx.work.ListenableWorker;
         import dagger.Binds;
         import dagger.Module;
         import dagger.hilt.InstallIn;
@@ -143,12 +144,12 @@ class WorkerGeneratorTest {
             @Binds
             @IntoMap
             @StringKey("androidx.hilt.work.test.MyWorker")
-            WorkerAssistedFactory<? extends Worker> bind(MyWorker_AssistedFactory factory)
+            WorkerAssistedFactory<? extends ListenableWorker> bind(MyWorker_AssistedFactory factory)
         }
         """.toJFO("androidx.hilt.work.test.MyWorker_HiltModule")
 
         val compilation = compiler()
-            .compile(myWorker, Sources.WORKER, Sources.WORKER_PARAMETERS)
+            .compile(myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS)
         assertThat(compilation).apply {
             succeeded()
             generatedSourceFile("androidx.hilt.work.test.MyWorker_HiltModule")

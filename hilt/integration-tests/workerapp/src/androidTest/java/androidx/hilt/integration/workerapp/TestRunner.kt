@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.work;
+package androidx.hilt.integration.workerapp
 
-import android.content.Context;
+import android.app.Application
+import android.content.Context
+import androidx.test.runner.AndroidJUnitRunner
+import dagger.hilt.android.testing.HiltTestApplication
 
-public abstract class Worker extends ListenableWorker {
-
-    public Worker(Context context, WorkerParameters workerParams) {
-        super(context, workerParams);
+class TestRunner : AndroidJUnitRunner() {
+    override fun newApplication(
+        cl: ClassLoader?,
+        className: String?,
+        context: Context?
+    ): Application {
+        return super.newApplication(cl, HiltTestApplication::class.java.name, context)
     }
 }
