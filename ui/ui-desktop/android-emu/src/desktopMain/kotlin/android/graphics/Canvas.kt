@@ -30,6 +30,10 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas?) {
         skijaCanvas!!.translate(x, y)
     }
 
+    fun rotate(degrees: Float) {
+        skijaCanvas!!.rotate(degrees)
+    }
+
     fun drawLine(
         startX: Float,
         startY: Float,
