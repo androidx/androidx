@@ -36,44 +36,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.junit.runners.Parameterized
-
-/**
- * Tests [sendLongClick] without arguments. Verifies that the click is in the middle
- * of the component, that the gesture has a duration of 600 milliseconds and that all input
- * events were on the same location.
- */
-@MediumTest
-@RunWith(JUnit4::class)
-class SendLongClickWithoutArgumentsTest {
-
-    @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
-
-    private val recordedLongClicks = mutableListOf<PxPosition>()
-    private val expectedPosition = PxPosition(defaultSize / 2, defaultSize / 2)
-
-    private fun recordLongPress(position: PxPosition) {
-        recordedLongClicks.add(position)
-    }
-
-    @Test
-    fun testLongClick() {
-        // Given some content
-        composeTestRule.setContent {
-            Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
-                ClickableTestBox(Modifier.longPressGestureFilter(::recordLongPress))
-            }
-        }
-
-        // When we inject a long click
-        findByTag(defaultTag).doGesture { sendLongClick() }
-
-        // Then we record 1 long click at the expected position
-        assertThat(recordedLongClicks).isEqualTo(listOf(expectedPosition))
-    }
-}
 
 /**
  * Tests [sendLongClick] with arguments. Verifies that the click is in the middle
@@ -82,10 +45,8 @@ class SendLongClickWithoutArgumentsTest {
  */
 @MediumTest
 @RunWith(Parameterized::class)
-class SendLongClickWithArgumentsTest(private val config: TestConfig) {
-    data class TestConfig(
-        val position: PxPosition
-    )
+class SendLongClickTest(private val config: TestConfig) {
+    data class TestConfig(val position: PxPosition?)
 
     companion object {
         @JvmStatic
@@ -97,6 +58,7 @@ class SendLongClickWithArgumentsTest(private val config: TestConfig) {
                         add(TestConfig(PxPosition(x, y)))
                     }
                 }
+                add(TestConfig(null))
             }
         }
     }
@@ -105,6 +67,8 @@ class SendLongClickWithArgumentsTest(private val config: TestConfig) {
     val composeTestRule = createComposeRule(disableTransitions = true)
 
     private val recordedLongClicks = mutableListOf<PxPosition>()
+    private val expectedClickPosition =
+        config.position ?: PxPosition(defaultSize / 2, defaultSize / 2)
 
     private fun recordLongPress(position: PxPosition) {
         recordedLongClicks.add(position)
@@ -120,10 +84,16 @@ class SendLongClickWithArgumentsTest(private val config: TestConfig) {
         }
 
         // When we inject a long click
-        findByTag(defaultTag).doGesture { sendLongClick(config.position) }
+        findByTag(defaultTag).doGesture {
+            if (config.position != null) {
+                sendLongClick(config.position)
+            } else {
+                sendLongClick()
+            }
+        }
 
         // Then we record 1 long click at the expected position
         assertThat(recordedLongClicks).hasSize(1)
-        recordedLongClicks[0].isAlmostEqualTo(config.position)
+        recordedLongClicks[0].isAlmostEqualTo(expectedClickPosition)
     }
 }

@@ -33,9 +33,11 @@ import androidx.ui.test.sendSwipeRight
 import androidx.ui.test.sendSwipeUp
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.SinglePointerInputRecorder
+import androidx.ui.test.util.assertDecreasing
+import androidx.ui.test.util.assertIncreasing
 import androidx.ui.test.util.assertOnlyLastEventIsUp
+import androidx.ui.test.util.assertSame
 import androidx.ui.test.util.assertTimestampsAreIncreasing
-import com.google.common.collect.Ordering
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -112,61 +114,44 @@ class SendSwipeTest {
             }
         }
     }
-}
 
-private fun SinglePointerInputRecorder.assertSwipeIsUp() {
-    // Must have at least two events to have a direction
-    assertThat(events.size).isAtLeast(2)
-    // Last event must be above first event
-    assertThat(events.last().position.y).isLessThan(events.first().position.y)
-    // All events in between only move up
-    events.map { it.position.x }.assertSame(tolerance = 0.001f)
-    events.map { it.position.y }.assertDecreasing()
-}
-
-private fun SinglePointerInputRecorder.assertSwipeIsDown() {
-    // Must have at least two events to have a direction
-    assertThat(events.size).isAtLeast(2)
-    // Last event must be below first event
-    assertThat(events.last().position.y).isGreaterThan(events.first().position.y)
-    // All events in between only move down
-    events.map { it.position.x }.assertSame(tolerance = 0.001f)
-    events.map { it.position.y }.assertIncreasing()
-}
-
-private fun SinglePointerInputRecorder.assertSwipeIsLeft() {
-    // Must have at least two events to have a direction
-    assertThat(events.size).isAtLeast(2)
-    // Last event must be to the left of first event
-    assertThat(events.last().position.x).isLessThan(events.first().position.x)
-    // All events in between only move to the left
-    events.map { it.position.x }.assertDecreasing()
-    events.map { it.position.y }.assertSame(tolerance = 0.001f)
-}
-
-private fun SinglePointerInputRecorder.assertSwipeIsRight() {
-    // Must have at least two events to have a direction
-    assertThat(events.size).isAtLeast(2)
-    // Last event must be to the right of first event
-    assertThat(events.last().position.x).isGreaterThan(events.first().position.x)
-    // All events in between only move to the right
-    events.map { it.position.x }.assertIncreasing()
-    events.map { it.position.y }.assertSame(tolerance = 0.001f)
-}
-
-private fun List<Float>.assertSame(tolerance: Float = 0f) {
-    if (size <= 1) {
-        return
+    private fun SinglePointerInputRecorder.assertSwipeIsUp() {
+        // Must have at least two events to have a direction
+        assertThat(events.size).isAtLeast(2)
+        // Last event must be above first event
+        assertThat(events.last().position.y).isLessThan(events.first().position.y)
+        // All events in between only move up
+        events.map { it.position.x }.assertSame(tolerance = 0.001f)
+        events.map { it.position.y }.assertDecreasing()
     }
-    val baseValue = first()
-    assertThat(min()).isWithin(tolerance).of(baseValue)
-    assertThat(max()).isWithin(tolerance).of(baseValue)
-}
 
-private fun <E : Comparable<E>> List<E>.assertIncreasing() {
-    assertThat(this).isInOrder(Ordering.natural<E>())
-}
+    private fun SinglePointerInputRecorder.assertSwipeIsDown() {
+        // Must have at least two events to have a direction
+        assertThat(events.size).isAtLeast(2)
+        // Last event must be below first event
+        assertThat(events.last().position.y).isGreaterThan(events.first().position.y)
+        // All events in between only move down
+        events.map { it.position.x }.assertSame(tolerance = 0.001f)
+        events.map { it.position.y }.assertIncreasing()
+    }
 
-private fun <E : Comparable<E>> List<E>.assertDecreasing() {
-    assertThat(this).isInOrder(Ordering.natural<E>().reverse<E>())
+    private fun SinglePointerInputRecorder.assertSwipeIsLeft() {
+        // Must have at least two events to have a direction
+        assertThat(events.size).isAtLeast(2)
+        // Last event must be to the left of first event
+        assertThat(events.last().position.x).isLessThan(events.first().position.x)
+        // All events in between only move to the left
+        events.map { it.position.x }.assertDecreasing()
+        events.map { it.position.y }.assertSame(tolerance = 0.001f)
+    }
+
+    private fun SinglePointerInputRecorder.assertSwipeIsRight() {
+        // Must have at least two events to have a direction
+        assertThat(events.size).isAtLeast(2)
+        // Last event must be to the right of first event
+        assertThat(events.last().position.x).isGreaterThan(events.first().position.x)
+        // All events in between only move to the right
+        events.map { it.position.x }.assertIncreasing()
+        events.map { it.position.y }.assertSame(tolerance = 0.001f)
+    }
 }

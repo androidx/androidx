@@ -40,15 +40,14 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 
-private const val nonIdleDuration = 1000L
-
-private const val animateFromX = 0f
-private const val animateToX = 50f
-
-private val rectSize = Size(50.0f, 50.0f)
-
 @LargeTest
-class AnimationSynchronizationTest {
+class ComposeIdlingResourceTest {
+    companion object {
+        private const val nonIdleDuration = 1000L
+        private const val animateFromX = 0f
+        private const val animateToX = 50f
+        private val rectSize = Size(50.0f, 50.0f)
+    }
 
     private val handler = Handler(Looper.getMainLooper())
 
