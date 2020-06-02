@@ -30,7 +30,6 @@ import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.android.AndroidComposeTestRule
-import androidx.ui.test.gesturescope.ActivityWithActionBar
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
