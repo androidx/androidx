@@ -27,7 +27,7 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendPinch
 import androidx.ui.test.util.ClickableTestBox
-import androidx.ui.test.util.PointerInputRecorder
+import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.isMonotonicBetween
 import androidx.ui.unit.PxPosition
@@ -38,7 +38,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.math.max
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -51,7 +50,7 @@ class SendPinchTest {
     val composeTestRule = createComposeRule(disableTransitions = true)
 
     private val eventPeriod = AndroidInputDispatcher.TestRule().eventPeriod
-    private val recorder = PointerInputRecorder()
+    private val recorder = MultiPointerInputRecorder()
 
     @Test
     fun pinch() {
@@ -75,23 +74,26 @@ class SendPinchTest {
             recorder.run {
                 assertTimestampsAreIncreasing()
 
-                val expectedMoveEvents = 2 * max(1, duration.inMilliseconds() / eventPeriod).toInt()
+                val expectedMoveEvents = duration.inMilliseconds() / eventPeriod
                 // expect up and down events for each pointer as well as the move events
-                assertThat(events.size).isAtLeast(4 + expectedMoveEvents)
+                assertThat(events.size).isEqualTo(4 + expectedMoveEvents)
 
-                val pointerIds = events.map { it.id }.toSet()
-                val pointerUpEvents = events.filter { !it.down }
+                val pointerChanges = events.flatMap { it.pointers }
+
+                val pointerIds = pointerChanges.map { it.id }.distinct()
+                val pointerUpChanges = pointerChanges.filter { !it.down }
 
                 assertThat(pointerIds).hasSize(2)
 
                 // Assert each pointer went back up
-                assertThat(pointerUpEvents.map { it.id }).containsExactlyElementsIn(pointerIds)
+                assertThat(pointerUpChanges.map { it.id }).containsExactlyElementsIn(pointerIds)
 
                 // Assert the up events are at the end
-                assertThat(events.takeLastWhile { !it.down }).hasSize(2)
+                @Suppress("NestedLambdaShadowedImplicitParameter")
+                assertThat(events.takeLastWhile { it.pointers.any { !it.down } }).hasSize(2)
 
-                events.filter { it.id.value == 0L }.isMonotonicBetween(start0, end0)
-                events.filter { it.id.value == 1L }.isMonotonicBetween(start1, end1)
+                pointerChanges.filter { it.id.value == 0L }.isMonotonicBetween(start0, end0)
+                pointerChanges.filter { it.id.value == 1L }.isMonotonicBetween(start1, end1)
             }
         }
     }

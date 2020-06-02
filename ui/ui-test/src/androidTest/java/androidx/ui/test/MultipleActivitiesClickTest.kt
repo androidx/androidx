@@ -28,7 +28,7 @@ import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.android.AndroidComposeTestRule
-import androidx.ui.test.util.PointerInputRecorder
+import androidx.ui.test.util.SinglePointerInputRecorder
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -65,7 +65,7 @@ class MultipleActivitiesClickTest {
     class Activity2 : ClickRecordingActivity("activity2")
 
     open class ClickRecordingActivity(private val tag: String) : ComponentActivity() {
-        val recorder = PointerInputRecorder()
+        val recorder = SinglePointerInputRecorder()
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)

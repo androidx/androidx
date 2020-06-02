@@ -62,9 +62,11 @@ private class ClickRecorder(
     private val componentIndex: Int,
     private val recordedClicks: MutableList<ClickData>
 ) : PointerInputModifier {
-    override val pointerInputFilter: PointerInputFilter = RecordingFilter {
-        if (it.changedToUp()) {
-            recordedClicks.add(ClickData(componentIndex, it.current.position!!))
+    override val pointerInputFilter: PointerInputFilter = RecordingFilter { changes ->
+        changes.forEach {
+            if (it.changedToUp()) {
+                recordedClicks.add(ClickData(componentIndex, it.current.position!!))
+            }
         }
     }
 }

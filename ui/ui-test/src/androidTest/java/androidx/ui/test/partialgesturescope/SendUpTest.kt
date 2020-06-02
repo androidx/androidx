@@ -16,47 +16,36 @@
 
 package androidx.ui.test.partialgesturescope
 
+import android.os.SystemClock.sleep
 import androidx.test.filters.MediumTest
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doPartialGesture
-import androidx.ui.test.findByTag
+import androidx.ui.test.inputdispatcher.verifyNoGestureInProgress
+import androidx.ui.test.partialgesturescope.Common.partialGesture
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.sendCancel
 import androidx.ui.test.sendDown
 import androidx.ui.test.sendUp
 import androidx.ui.test.util.ClickableTestBox
-import androidx.ui.test.util.PointerInputRecorder
+import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
+import androidx.ui.test.util.expectError
+import androidx.ui.test.util.verify
 import androidx.ui.unit.PxPosition
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
+/**
+ * Tests if [sendUp] works
+ */
 @MediumTest
-@RunWith(Parameterized::class)
-class SendUpTest(private val config: TestConfig) {
-    data class TestConfig(val upPosition: PxPosition?) {
-        val downPosition = PxPosition(1f, 1f)
-    }
-
+class SendUpTest {
     companion object {
-        private const val tag = "widget"
-
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun createTestSet(): List<TestConfig> {
-            return mutableListOf<TestConfig>().apply {
-                for (x in listOf(2f, 99f)) {
-                    for (y in listOf(3f, 53f)) {
-                        add(TestConfig(PxPosition(x, y)))
-                    }
-                }
-                add(TestConfig(null))
-            }
-        }
+        private val downPosition1 = PxPosition(10f, 10f)
+        private val downPosition2 = PxPosition(20f, 20f)
     }
 
     @get:Rule
@@ -66,28 +55,102 @@ class SendUpTest(private val config: TestConfig) {
     val inputDispatcherRule: TestRule =
         AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
 
-    private val recorder = PointerInputRecorder()
-    private val expectedEndPosition = config.upPosition ?: config.downPosition
+    private val recorder = MultiPointerInputRecorder()
 
-    @Test
-    fun testSendUp() {
+    @Before
+    fun setUp() {
         // Given some content
         composeTestRule.setContent {
-            ClickableTestBox(recorder, tag = tag)
+            ClickableTestBox(recorder)
         }
+    }
 
+    @Test
+    fun onePointer() {
         // When we inject a down event followed by an up event
-        findByTag(tag).doPartialGesture { sendDown(config.downPosition) }
-        findByTag(tag).doPartialGesture { sendUp(config.upPosition) }
+        partialGesture { sendDown(downPosition1) }
+        sleep(20) // (with some time in between)
+        partialGesture { sendUp() }
 
         runOnIdleCompose {
             recorder.run {
                 // Then we have recorded 1 down event and 1 up event
                 assertTimestampsAreIncreasing()
                 assertThat(events).hasSize(2)
-                assertThat(events[1].down).isFalse()
-                assertThat(events[1].position).isEqualTo(expectedEndPosition)
+
+                val t = events[0].getPointer(0).timestamp
+                val pointerId = events[0].getPointer(0).id
+
+                assertThat(events[1].pointerCount).isEqualTo(1)
+                events[1].getPointer(0).verify(t, pointerId, false, downPosition1)
             }
+        }
+
+        // And no gesture is in progress
+        partialGesture { inputDispatcher.verifyNoGestureInProgress() }
+    }
+
+    @Test
+    fun twoPointers() {
+        // When we inject two down events followed by two up events
+        partialGesture { sendDown(1, downPosition1) }
+        partialGesture { sendDown(2, downPosition2) }
+        partialGesture { sendUp(1) }
+        partialGesture { sendUp(2) }
+
+        runOnIdleCompose {
+            recorder.run {
+                // Then we have recorded two down events and two up events
+                assertTimestampsAreIncreasing()
+                assertThat(events).hasSize(4)
+
+                val t = events[0].getPointer(0).timestamp
+                val pointerId1 = events[0].getPointer(0).id
+                val pointerId2 = events[1].getPointer(1).id
+
+                assertThat(events[2].pointerCount).isEqualTo(2)
+                events[2].getPointer(0).verify(t, pointerId1, false, downPosition1)
+                events[2].getPointer(1).verify(t, pointerId2, true, downPosition2)
+
+                assertThat(events[3].pointerCount).isEqualTo(1)
+                events[3].getPointer(0).verify(t, pointerId2, false, downPosition2)
+            }
+        }
+
+        // And no gesture is in progress
+        partialGesture { inputDispatcher.verifyNoGestureInProgress() }
+    }
+
+    @Test
+    fun upWithoutDown() {
+        expectError<IllegalStateException> {
+            partialGesture { sendUp() }
+        }
+    }
+
+    @Test
+    fun upWrongPointerId() {
+        partialGesture { sendDown(1, downPosition1) }
+        expectError<IllegalArgumentException> {
+            partialGesture { sendUp(2) }
+        }
+    }
+
+    @Test
+    fun upAfterUp() {
+        partialGesture { sendDown(downPosition1) }
+        partialGesture { sendUp() }
+        expectError<IllegalStateException> {
+            partialGesture { sendUp() }
+        }
+    }
+
+    @Test
+    fun upAfterCancel() {
+        partialGesture { sendDown(downPosition1) }
+        partialGesture { sendCancel() }
+        expectError<IllegalStateException> {
+            partialGesture { sendUp() }
         }
     }
 }
