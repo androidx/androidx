@@ -24,9 +24,13 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
@@ -255,6 +259,24 @@ class AsyncPagingDataDiffer<T : Any>(
     internal val combinedLoadStates = MutableLoadStateCollection(
         hasRemoteState = false
     )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _loadStateCh = ConflatedBroadcastChannel(combinedLoadStates.snapshot())
+
+    /**
+     * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
+     * current [PagingData] changes.
+     *
+     * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and
+     * immediately delivers the current load states on collection.
+     */
+    @OptIn(FlowPreview::class)
+    val loadStateFlow: Flow<CombinedLoadStates> = _loadStateCh.asFlow()
+
+    init {
+        @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
+        addLoadStateListener { _loadStateCh.offer(combinedLoadStates.snapshot()) }
+    }
 
     /**
      * Add a [CombinedLoadStates] listener to observe the loading state of the current [PagingData].
