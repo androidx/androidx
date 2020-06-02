@@ -77,6 +77,9 @@ class SkiaWindow(
     companion object {
         init {
             JNI.loadLibrary("/", "skija")
+            // Until https://github.com/Kotlin/kotlinx.coroutines/issues/2039 is resolved
+            // we have to set this property manually for coroutines to work.
+            System.getProperties().setProperty("kotlinx.coroutines.fast.service.loader", "false")
         }
     }
 

@@ -64,6 +64,7 @@ includeProject(":ui:ui-core:samples", "ui-core/samples")
 if (startParameter.projectProperties.containsKey('compose.desktop')) {
     includeProject(":ui:ui-desktop", "ui-desktop")
     includeProject(":ui:ui-desktop:android-emu", "ui-desktop/android-emu")
+    includeProject(":ui:ui-desktop:samples", "ui-desktop/samples")
 }
 includeProject(":ui:ui-foundation", "ui-foundation")
 includeProject(":ui:ui-foundation:integration-tests:ui-foundation-demos", "ui-foundation/integration-tests/foundation-demos")
