@@ -24,6 +24,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.camera.camera2.pipe.CameraId
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -34,12 +36,45 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraGraphImplTest {
-    @Test
-    fun createCameraGraphImpl() {
+    private lateinit var impl: CameraGraphImpl
+
+    @Before
+    fun setUp() {
         val config = CameraGraph.Config(CameraId("0"), listOf())
         val context = ApplicationProvider.getApplicationContext() as Context
+        impl = CameraGraphImpl(context, config)
+    }
 
-        val impl = CameraGraphImpl(context, config)
+    @Test
+    fun createCameraGraphImpl() {
         assertThat(impl).isNotNull()
+    }
+
+    @Test
+    fun testAcquireSession() = runBlocking<Unit> {
+        val session = impl.acquireSession()
+        assertThat(session).isNotNull()
+    }
+
+    @Test
+    fun testAcquireSessionOrNull() {
+        val session = impl.acquireSessionOrNull()
+        assertThat(session).isNotNull()
+    }
+
+    @Test
+    fun testAcquireSessionOrNullAfterAcquireSession() = runBlocking<Unit> {
+        val session = impl.acquireSession()
+        assertThat(session).isNotNull()
+
+        // Since a session is already active, an attempt to acquire another session will fail.
+        val session1 = impl.acquireSessionOrNull()
+        assertThat(session1).isNull()
+
+        // Closing an active session should allow a new session instance to be created.
+        session.close()
+
+        val session2 = impl.acquireSessionOrNull()
+        assertThat(session2).isNotNull()
     }
 }
