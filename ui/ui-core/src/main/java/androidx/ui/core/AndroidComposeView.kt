@@ -19,10 +19,12 @@ import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Parcelable
+import android.util.Log
 import android.util.SparseArray
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
@@ -50,6 +52,7 @@ import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
 import androidx.ui.core.clipboard.AndroidClipboardManager
 import androidx.ui.core.clipboard.ClipboardManager
+import androidx.ui.core.focus.FOCUS_TAG
 import androidx.ui.core.focus.FocusModifierImpl
 import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
@@ -174,18 +177,32 @@ internal class AndroidComposeView constructor(
     // Used as an ambient for performing autofill.
     override val autofill: Autofill? get() = _autofill
 
-    override fun dispatchWindowFocusChanged(hasFocus: Boolean) {
-        if (hasFocus) {
-            focusModifier.focusDetailedState = Active
-            // TODO(b/152535715): propagate focus to children based on child focusability.
+    override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
+        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
+        Log.d(FOCUS_TAG, "Owner FocusChanged($gainFocus)")
+        if (gainFocus) {
+            // If the focus state is not Inactive, it indicates that the focus state is already
+            // set (possibly by dispatchWindowFocusChanged). So we don't update the state.
+            if (focusModifier.focusDetailedState == Inactive) {
+                focusModifier.focusDetailedState = Active
+                // TODO(b/152535715): propagate focus to children based on child focusability.
+            }
         } else {
-            // If this view lost focus, clear focus from the children. For now we clear focus
-            // from the children by requesting focus on the parent.
-            // TODO(b/151335411): use clearFocus() instead.
-            focusModifier.apply {
-                requestFocus()
+            // If this view lost focus, clear focus from the children.
+            with(focusModifier) {
+                focusNode?.clearFocus(forcedClear = true)
                 focusDetailedState = Inactive
             }
+        }
+    }
+
+    override fun dispatchWindowFocusChanged(hasFocus: Boolean) {
+        Log.d(FOCUS_TAG, "Owner WindowFocusChanged($hasFocus)")
+        // If the focus state is not Inactive, it indicates that this is not the first time that
+        // this Window got focus. So we maintain the previous focus state.
+        if (hasFocus && focusModifier.focusDetailedState == Inactive) {
+            focusModifier.focusDetailedState = Active
+            // TODO(b/152535715): propagate focus to children based on child focusability.
         }
     }
 
