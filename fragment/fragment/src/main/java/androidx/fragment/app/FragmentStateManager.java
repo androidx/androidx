@@ -501,7 +501,24 @@ class FragmentStateManager {
             if (mFragment.mHidden) {
                 mFragment.mView.setVisibility(View.GONE);
             }
-            ViewCompat.requestApplyInsets(mFragment.mView);
+            // How I wish we could use doOnAttach
+            if (ViewCompat.isAttachedToWindow(mFragment.mView)) {
+                ViewCompat.requestApplyInsets(mFragment.mView);
+            } else {
+                final View fragmentView = mFragment.mView;
+                fragmentView.addOnAttachStateChangeListener(
+                        new View.OnAttachStateChangeListener() {
+                            @Override
+                            public void onViewAttachedToWindow(View v) {
+                                fragmentView.removeOnAttachStateChangeListener(this);
+                                ViewCompat.requestApplyInsets(fragmentView);
+                            }
+
+                            @Override
+                            public void onViewDetachedFromWindow(View v) {
+                            }
+                        });
+            }
             mFragment.onViewCreated(mFragment.mView, mFragment.mSavedFragmentState);
             mDispatcher.dispatchOnFragmentViewCreated(
                     mFragment, mFragment.mView, mFragment.mSavedFragmentState, false);
