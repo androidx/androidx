@@ -48,7 +48,7 @@ kotlin {
         androidMain.dependencies {
             api "androidx.annotation:annotation:1.1.0"
             implementation "androidx.collection:collection:1.1.0"
-            implementation "androidx.core:core:1.0.2"
+            implementation "androidx.core:core:1.5.0-alpha01"
             implementation project(":ui:ui-text-android")
         }
 
