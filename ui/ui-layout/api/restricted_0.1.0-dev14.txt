@@ -150,10 +150,10 @@ package androidx.ui.layout {
   public abstract class ConstraintLayoutBaseScope {
     ctor public ConstraintLayoutBaseScope();
     method public final void applyTo(androidx.ui.layout.State state);
-    method public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor createAbsoluteLeftBarrier(androidx.ui.layout.ConstrainedLayoutReference... elements);
-    method public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor createAbsoluteRightBarrier(androidx.ui.layout.ConstrainedLayoutReference... elements);
-    method public final androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor createBottomBarrier(androidx.ui.layout.ConstrainedLayoutReference... elements);
-    method public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor createEndBarrier(androidx.ui.layout.ConstrainedLayoutReference... elements);
+    method public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor createAbsoluteLeftBarrier-AuEMxJ0(androidx.ui.layout.ConstrainedLayoutReference![] elements, float margin = 0.dp);
+    method public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor createAbsoluteRightBarrier-AuEMxJ0(androidx.ui.layout.ConstrainedLayoutReference![] elements, float margin = 0.dp);
+    method public final androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor createBottomBarrier-AuEMxJ0(androidx.ui.layout.ConstrainedLayoutReference![] elements, float margin = 0.dp);
+    method public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor createEndBarrier-AuEMxJ0(androidx.ui.layout.ConstrainedLayoutReference![] elements, float margin = 0.dp);
     method public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor createGuidelineFromAbsoluteLeft(float percent);
     method public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor createGuidelineFromAbsoluteLeft-ipo6vVg(float offset);
     method public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor createGuidelineFromAbsoluteRight(float percent);
@@ -167,8 +167,8 @@ package androidx.ui.layout {
     method public final androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor createGuidelineFromTop(float percent);
     method public final androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor createGuidelineFromTop-ipo6vVg(float offset);
     method public final void createHorizontalChain(androidx.ui.layout.ConstrainedLayoutReference![] elements, androidx.ui.layout.ChainStyle chainStyle = ChainStyle.Spread);
-    method public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor createStartBarrier(androidx.ui.layout.ConstrainedLayoutReference... elements);
-    method public final androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor createTopBarrier(androidx.ui.layout.ConstrainedLayoutReference... elements);
+    method public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor createStartBarrier-AuEMxJ0(androidx.ui.layout.ConstrainedLayoutReference![] elements, float margin = 0.dp);
+    method public final androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor createTopBarrier-AuEMxJ0(androidx.ui.layout.ConstrainedLayoutReference![] elements, float margin = 0.dp);
     method public final void createVerticalChain(androidx.ui.layout.ConstrainedLayoutReference![] elements, androidx.ui.layout.ChainStyle chainStyle = ChainStyle.Spread);
     method protected final java.util.List<kotlin.jvm.functions.Function1<androidx.ui.layout.State,kotlin.Unit>> getTasks();
     method public final void reset();

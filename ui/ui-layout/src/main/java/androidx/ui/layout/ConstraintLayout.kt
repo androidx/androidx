@@ -332,7 +332,8 @@ abstract class ConstraintLayoutBaseScope {
      * Creates and returns a start barrier, containing the specified elements.
      */
     fun createStartBarrier(
-        vararg elements: ConstrainedLayoutReference
+        vararg elements: ConstrainedLayoutReference,
+        margin: Dp = 0.dp
     ): VerticalAnchor {
         val tag = createTag()
         tasks.add { state ->
@@ -343,7 +344,7 @@ abstract class ConstraintLayoutBaseScope {
             }
             state.barrier(tag, direction).apply {
                 add(*(elements.map { it.tag }.toTypedArray()))
-            }
+            }.margin(state.convertDimension(margin))
         }
         return VerticalAnchor(tag, 0)
     }
@@ -352,13 +353,14 @@ abstract class ConstraintLayoutBaseScope {
      * Creates and returns a left barrier, containing the specified elements.
      */
     fun createAbsoluteLeftBarrier(
-        vararg elements: ConstrainedLayoutReference
+        vararg elements: ConstrainedLayoutReference,
+        margin: Dp = 0.dp
     ): VerticalAnchor {
         val tag = createTag()
         tasks.add { state ->
             state.barrier(tag, SolverDirection.LEFT).apply {
                 add(*(elements.map { it.tag }.toTypedArray()))
-            }
+            }.margin(state.convertDimension(margin))
         }
         return VerticalAnchor(tag, 0)
     }
@@ -367,13 +369,14 @@ abstract class ConstraintLayoutBaseScope {
      * Creates and returns a top barrier, containing the specified elements.
      */
     fun createTopBarrier(
-        vararg elements: ConstrainedLayoutReference
+        vararg elements: ConstrainedLayoutReference,
+        margin: Dp = 0.dp
     ): HorizontalAnchor {
         val tag = createTag()
         tasks.add { state ->
             state.barrier(tag, SolverDirection.TOP).apply {
                 add(*(elements.map { it.tag }.toTypedArray()))
-            }
+            }.margin(state.convertDimension(margin))
         }
         return HorizontalAnchor(tag, 0)
     }
@@ -382,7 +385,8 @@ abstract class ConstraintLayoutBaseScope {
      * Creates and returns an end barrier, containing the specified elements.
      */
     fun createEndBarrier(
-        vararg elements: ConstrainedLayoutReference
+        vararg elements: ConstrainedLayoutReference,
+        margin: Dp = 0.dp
     ): VerticalAnchor {
         val tag = createTag()
         tasks.add { state ->
@@ -393,7 +397,7 @@ abstract class ConstraintLayoutBaseScope {
             }
             state.barrier(tag, direction).apply {
                 add(*(elements.map { it.tag }.toTypedArray()))
-            }
+            }.margin(state.convertDimension(margin))
         }
         return VerticalAnchor(tag, 0)
     }
@@ -402,13 +406,14 @@ abstract class ConstraintLayoutBaseScope {
      * Creates and returns a right barrier, containing the specified elements.
      */
     fun createAbsoluteRightBarrier(
-        vararg elements: ConstrainedLayoutReference
+        vararg elements: ConstrainedLayoutReference,
+        margin: Dp = 0.dp
     ): VerticalAnchor {
         val tag = createTag()
         tasks.add { state ->
             state.barrier(tag, SolverDirection.RIGHT).apply {
                 add(*(elements.map { it.tag }.toTypedArray()))
-            }
+            }.margin(state.convertDimension(margin))
         }
         return VerticalAnchor(tag, 0)
     }
@@ -417,13 +422,14 @@ abstract class ConstraintLayoutBaseScope {
      * Creates and returns a bottom barrier, containing the specified elements.
      */
     fun createBottomBarrier(
-        vararg elements: ConstrainedLayoutReference
+        vararg elements: ConstrainedLayoutReference,
+        margin: Dp = 0.dp
     ): HorizontalAnchor {
         val tag = createTag()
         tasks.add { state ->
             state.barrier(tag, SolverDirection.BOTTOM).apply {
                 add(*(elements.map { it.tag }.toTypedArray()))
-            }
+            }.margin(state.convertDimension(margin))
         }
         return HorizontalAnchor(tag, 0)
     }

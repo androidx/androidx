@@ -810,4 +810,53 @@ class ConstraintLayoutTest : LayoutTest() {
             Assert.assertEquals(50f, position[15])
         }
     }
+
+    @Test
+    fun testConstraintLayout_barriers_margins() = with(density) {
+        val size = 200.ipx.toDp()
+        val offset = 50.ipx.toDp()
+
+        val position = Array(2) { PxPosition(0f, 0f) }
+        composeTestRule.setContent {
+            ConstraintLayout(Modifier.size(size)) {
+                val box = createRef()
+                val guideline1 = createGuidelineFromAbsoluteLeft(offset)
+                val guideline2 = createGuidelineFromTop(offset)
+                Box(Modifier.size(1.ipx.toDp())
+                    .constrainAs(box) {
+                        absoluteLeft.linkTo(guideline1)
+                        top.linkTo(guideline2)
+                    }
+                )
+
+                val leftBarrier = createAbsoluteLeftBarrier(box, margin = 10.ipx.toDp())
+                val topBarrier = createTopBarrier(box, margin = 10.ipx.toDp())
+                val rightBarrier = createAbsoluteRightBarrier(box, margin = 10.ipx.toDp())
+                val bottomBarrier = createBottomBarrier(box, margin = 10.ipx.toDp())
+
+                Box(Modifier.size(1.dp)
+                    .constrainAs(createRef()) {
+                        absoluteLeft.linkTo(leftBarrier)
+                        top.linkTo(topBarrier)
+                    }.onPositioned {
+                        position[0] = it.positionInParent
+                    }
+                )
+
+                Box(Modifier.size(1.dp)
+                    .constrainAs(createRef()) {
+                        absoluteLeft.linkTo(rightBarrier)
+                        top.linkTo(bottomBarrier)
+                    }.onPositioned {
+                        position[1] = it.positionInParent
+                    }
+                )
+            }
+        }
+
+        runOnIdleCompose {
+            Assert.assertEquals(PxPosition(60f, 60f), position[0])
+            Assert.assertEquals(PxPosition(61f, 61f), position[1])
+        }
+    }
 }
