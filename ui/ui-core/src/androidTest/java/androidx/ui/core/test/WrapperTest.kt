@@ -16,9 +16,10 @@
 package androidx.ui.core.test
 
 import android.widget.FrameLayout
+import androidx.compose.Composable
 import androidx.compose.Composition
-import androidx.compose.Recompose
 import androidx.compose.Recomposer
+import androidx.compose.invalidate
 import androidx.compose.onActive
 import androidx.compose.onCommit
 import androidx.compose.onDispose
@@ -41,6 +42,9 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+
+@Composable private fun Recompose(body: @Composable (recompose: () -> Unit) -> Unit) =
+    body(invalidate)
 
 @SmallTest
 @RunWith(JUnit4::class)
