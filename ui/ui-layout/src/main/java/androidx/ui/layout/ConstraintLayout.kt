@@ -553,9 +553,27 @@ class ChainStyle internal constructor(
     internal val bias: Float? = null
 ) {
     companion object {
+        /**
+         * A chain style that evenly distributes the contained layouts.
+         */
         val Spread = ChainStyle(SolverChain.SPREAD)
+
+        /**
+         * A chain style where the first and last layouts are affixed to the constraints
+         * on each end of the chain and the rest are evenly distributed.
+         */
         val SpreadInside = ChainStyle(SolverChain.SPREAD_INSIDE)
+
+        /**
+         * A chain style where the contained layouts are packed together and placed to the
+         * center of the available space.
+         */
         val Packed = Packed(0.5f)
+
+        /**
+         * A chain style where the contained layouts are packed together and placed in
+         * the available space according to a given [bias].
+         */
         fun Packed(bias: Float) = ChainStyle(SolverChain.PACKED, bias)
     }
 }
