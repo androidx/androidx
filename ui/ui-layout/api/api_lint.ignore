@@ -1,3 +1,9 @@
 // Baseline format: 1.0
+ArrayReturn: androidx.ui.layout.ConstraintLayoutBaseScope#createHorizontalChain(androidx.ui.layout.ConstrainedLayoutReference[], androidx.ui.layout.ChainStyle) parameter #0:
+    Method parameter should be Collection<ConstrainedLayoutReference> (or subclass) instead of raw array; was `androidx.ui.layout.ConstrainedLayoutReference[]`
+ArrayReturn: androidx.ui.layout.ConstraintLayoutBaseScope#createVerticalChain(androidx.ui.layout.ConstrainedLayoutReference[], androidx.ui.layout.ChainStyle) parameter #0:
+    Method parameter should be Collection<ConstrainedLayoutReference> (or subclass) instead of raw array; was `androidx.ui.layout.ConstrainedLayoutReference[]`
+
+
 HiddenTypeParameter: androidx.ui.layout.Arrangement#Companion:
     Field Arrangement.Companion references hidden type androidx.ui.layout.Arrangement.Companion.
