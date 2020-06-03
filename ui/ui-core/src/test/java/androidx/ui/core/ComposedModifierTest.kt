@@ -21,6 +21,8 @@ import androidx.compose.ApplyAdapter
 import androidx.compose.Composable
 import androidx.compose.Composer
 import androidx.compose.CompositionFrameClock
+import androidx.compose.ExperimentalComposeApi
+import androidx.compose.InternalComposeApi
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.currentComposer
@@ -44,6 +46,7 @@ fun <T> Modifier.getTestTag(name: String, default: T): T = foldIn(default) { acc
     if (element is TestTagModifier<*> && element.name == name) element.value as T else acc
 }
 
+@OptIn(InternalComposeApi::class)
 class ComposedModifierTest {
 
     private val composer: Composer<*> get() = error("should not be called")
@@ -198,6 +201,7 @@ class ComposedModifierTest {
     }
 }
 
+@OptIn(InternalComposeApi::class)
 private fun compose(
     recomposer: Recomposer,
     block: @Composable () -> Unit
@@ -210,6 +214,7 @@ private fun compose(
 /**
  * This ApplyAdapter does nothing. These tests only confirm modifier materialization.
  */
+@OptIn(ExperimentalComposeApi::class)
 private object UnitApplierAdapter : ApplyAdapter<Unit> {
     override fun Unit.start(instance: Unit) {}
     override fun Unit.insertAt(index: Int, instance: Unit) {}
@@ -229,6 +234,7 @@ private class TestFrameClock : CompositionFrameClock {
     override suspend fun <R> awaitFrameNanos(onFrame: (Long) -> R): R = onFrame(frameCh.receive())
 }
 
+@OptIn(ExperimentalComposeApi::class)
 private class UnitComposer(recomposer: Recomposer) : Composer<Unit>(
     SlotTable(),
     Applier(Unit, UnitApplierAdapter),

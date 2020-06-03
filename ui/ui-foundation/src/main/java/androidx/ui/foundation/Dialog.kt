@@ -23,6 +23,7 @@ import android.view.Window
 import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Composition
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
 import androidx.compose.currentComposer
 import androidx.compose.onActive
@@ -51,6 +52,7 @@ import androidx.ui.semantics.Semantics
 fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
     val context = ContextAmbient.current
 
+    @OptIn(ExperimentalComposeApi::class)
     val recomposer = currentComposer.recomposer
     // The recomposer can't change.
     val dialog = remember(context) { DialogWrapper(context, recomposer) }

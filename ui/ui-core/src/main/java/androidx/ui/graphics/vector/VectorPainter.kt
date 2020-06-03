@@ -17,6 +17,7 @@
 package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.compositionReference
 import androidx.compose.currentComposer
 import androidx.compose.onPreCommit
@@ -144,6 +145,8 @@ private fun createVector(
 
     val composition = composeVector(
         vector,
+        // TODO(lmr): refactor these APIs so that recomposer isn't necessary
+        @OptIn(ExperimentalComposeApi::class)
         currentComposer.recomposer,
         compositionReference(),
         children
