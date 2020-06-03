@@ -22,7 +22,9 @@ import androidx.animation.FloatPropKey
 import androidx.animation.TransitionState
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
-import androidx.compose.Recompose
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
@@ -74,21 +76,18 @@ private val handler = Handler(Looper.getMainLooper())
 
 @Composable
 private fun ColorRect() {
-    var toState = OverlayState.Closed
-    Recompose { recompose ->
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                if ((0..1).random() == 0) {
-                    toState = OverlayState.Open
-                } else {
-                    toState = OverlayState.Closed
-                }
-                recompose()
+    var toState by mutableStateOf(OverlayState.Closed)
+    handler.postDelayed(object : Runnable {
+        override fun run() {
+            if ((0..1).random() == 0) {
+                toState = OverlayState.Open
+            } else {
+                toState = OverlayState.Closed
             }
-        }, (200..800).random().toLong())
-        Transition(definition = definition, toState = toState) { state ->
-            ColorRectState(state = state)
         }
+    }, (200..800).random().toLong())
+    Transition(definition = definition, toState = toState) { state ->
+        ColorRectState(state = state)
     }
 }
 
