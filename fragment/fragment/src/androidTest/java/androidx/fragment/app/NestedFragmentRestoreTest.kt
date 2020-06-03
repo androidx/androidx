@@ -21,11 +21,11 @@ import android.os.Bundle
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.app.test.FragmentTestActivity.ParentFragment
 import androidx.fragment.test.R
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
@@ -35,67 +35,68 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class NestedFragmentRestoreTest {
 
-    @get:Rule
-    val activityRule = ActivityTestRule(FragmentTestActivity::class.java)
-
     @Test
     fun recreateActivity() {
-        val activity = activityRule.activity
-        activityRule.runOnUiThread {
-            val parent = ParentFragment()
-            parent.retainChildInstance = true
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val activity = withActivity {
+                val parent = ParentFragment()
+                parent.retainChildInstance = true
 
-            activity.supportFragmentManager.beginTransaction()
-                .add(parent, "parent")
-                .commitNow()
+                supportFragmentManager.beginTransaction()
+                    .add(parent, "parent")
+                    .commitNow()
+
+                this
+            }
+
+            val fm = withActivity { supportFragmentManager }
+            val parent = fm.findFragmentByTag("parent") as ParentFragment
+            val child = parent.childFragment
+
+            var attachedTo: Context? = null
+            val latch = CountDownLatch(1)
+            child.onAttachListener = { context ->
+                attachedTo = context
+                latch.countDown()
+            }
+
+            recreate()
+
+            assertWithMessage("timeout waiting for recreate")
+                .that(latch.await(10, TimeUnit.SECONDS))
+                .isTrue()
+
+            assertWithMessage("attached as part of recreate").that(attachedTo).isNotNull()
+            assertWithMessage("attached to new context")
+                .that(attachedTo)
+                .isNotSameInstanceAs(activity)
+            assertWithMessage("attached to new parent fragment")
+                .that(child)
+                .isNotSameInstanceAs(parent)
         }
-
-        val fm = activity.supportFragmentManager
-        val parent = fm.findFragmentByTag("parent") as ParentFragment
-        val child = parent.childFragment
-
-        var attachedTo: Context? = null
-        val latch = CountDownLatch(1)
-        child.onAttachListener = { context ->
-            attachedTo = context
-            latch.countDown()
-        }
-
-        activityRule.runOnUiThread { activity.recreate() }
-
-        assertWithMessage("timeout waiting for recreate")
-            .that(latch.await(10, TimeUnit.SECONDS))
-            .isTrue()
-
-        assertWithMessage("attached as part of recreate").that(attachedTo).isNotNull()
-        assertWithMessage("attached to new context")
-            .that(attachedTo)
-            .isNotSameInstanceAs(activity)
-        assertWithMessage("attached to new parent fragment")
-            .that(child)
-            .isNotSameInstanceAs(parent)
     }
 
     @Test
     fun restoreViewStateTest() {
-        val activity = activityRule.activity
-        activityRule.runOnUiThread {
-            val parent = RestoreViewParentFragment()
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            withActivity {
+                val parent = RestoreViewParentFragment()
 
-            activity.supportFragmentManager.beginTransaction()
-                .add(parent, "parent")
-                .commitNow()
+                supportFragmentManager.beginTransaction()
+                    .add(parent, "parent")
+                    .commitNow()
+            }
+
+            recreate()
+
+            val fm = withActivity { supportFragmentManager }
+            val parent = fm.findFragmentByTag("parent") as RestoreViewParentFragment
+            val child = parent.childFragment
+
+            assertWithMessage("parent view was restored before child")
+                .that(child.viewRestoredAfterParent)
+                .isTrue()
         }
-
-        activityRule.runOnUiThread { activity.recreate() }
-
-        val fm = activity.supportFragmentManager
-        val parent = fm.findFragmentByTag("parent") as RestoreViewParentFragment
-        val child = parent.childFragment
-
-        assertWithMessage("parent view was restored before child")
-            .that(child.viewRestoredAfterParent)
-            .isTrue()
     }
 }
 
