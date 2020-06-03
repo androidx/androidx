@@ -275,8 +275,8 @@ internal class AndroidComposeView constructor(
     }
 
     override fun addAndroidView(view: View, layoutNode: LayoutNode) {
-        androidViewsHandler.addView(view)
         androidViewsHandler.layoutNode[view] = layoutNode
+        androidViewsHandler.addView(view)
     }
 
     override fun removeAndroidView(view: View) {
