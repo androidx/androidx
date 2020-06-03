@@ -404,6 +404,7 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
         downPass: PointerEventPass,
         upPass: PointerEventPass?
     ): Boolean {
+
         // Filter for changes that are associated with pointer ids that are relevant to this node.
         val relevantChanges =
             pointerInputChanges.filterTo(mutableMapOf()) { entry ->
@@ -415,28 +416,34 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
             return false
         }
 
-        // For each relevant change:
-        //  1. subtract the offset
-        //  2. dispatch the change on the down pass,
-        //  3. update it in relevantChanges.
-        relevantChanges.let {
-            // TODO(shepshapard): would be nice if we didn't have to subtract and then add
-            //  offsets.  This is currently done because the calculated offsets are currently
-            //  global, not relative to eachother.
-            it.subtractOffset(pointerInputFilter.position)
-            it.dispatchToPointerInputFilter(pointerInputFilter, downPass, pointerInputFilter.size)
-            it.addOffset(pointerInputFilter.position)
+        // TODO(b/158243568): For this attached check, and all of the following checks like this, we
+        //  should ideally be dispatching cancel to the sub tree with this node as it's root, and
+        //  we should remove the same sub tree from the tracker.  This will currently happen on
+        //  the next dispatch of events, but we shouldn't have to wait for another event.
+        if (pointerInputFilter.isAttached) {
+            relevantChanges.let {
+                // TODO(shepshapard): would be nice if we didn't have to subtract and then add
+                //  offsets. This is currently done because the calculated offsets are currently
+                //  global, not relative to each other.
+                it.subtractOffset(pointerInputFilter.position)
+                it.dispatchToPointerInputFilter(
+                    pointerInputFilter,
+                    downPass,
+                    pointerInputFilter.size
+                )
+                it.addOffset(pointerInputFilter.position)
+            }
         }
 
-        // Call children recursively with the relevant changes.
-        children.forEach { it.dispatchChanges(relevantChanges, downPass, upPass) }
+        if (pointerInputFilter.isAttached) {
+            children.forEach { it.dispatchChanges(relevantChanges, downPass, upPass) }
+        }
 
-        // For each relevant change:
-        //  1. dispatch the change on the up pass,
-        //  2. add the offset,
-        //  3. update it in  relevant changes.
-        if (upPass != null) {
+        if (pointerInputFilter.isAttached && upPass != null) {
             relevantChanges.let {
+                // TODO(shepshapard): would be nice if we didn't have to subtract and then add
+                //  offsets.  This is currently done because the calculated offsets are currently
+                //  global, not relative to each other.
                 it.subtractOffset(pointerInputFilter.position)
                 it.dispatchToPointerInputFilter(pointerInputFilter, upPass, pointerInputFilter.size)
                 it.addOffset(pointerInputFilter.position)
@@ -445,7 +452,6 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
 
         // Mutate the pointerInputChanges with the ones we modified.
         pointerInputChanges.putAll(relevantChanges)
-
         return true
     }
 
@@ -473,16 +479,22 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
             return
         }
 
-        if (this != dispatchingNode) {
+        // TODO(b/158243568): For this attached check, and all of the following checks like this, we
+        //  should ideally be dispatching cancel to the sub tree with this node as it's root, and
+        //  we should remove the same sub tree from the tracker.  This will currently happen on
+        //  the next dispatch of events, but we shouldn't have to wait for another event.
+        if (pointerInputFilter.isAttached && this != dispatchingNode) {
             pointerInputFilter.onCustomEvent(event, downPass)
         }
 
-        // Call children recursively with the relevant changes.
-        children.forEach {
-            it.dispatchCustomEvent(event, relevantPointers, downPass, upPass, dispatchingNode)
+        if (pointerInputFilter.isAttached) {
+            // Call children recursively with the relevant changes.
+            children.forEach {
+                it.dispatchCustomEvent(event, relevantPointers, downPass, upPass, dispatchingNode)
+            }
         }
 
-        if (upPass != null && this != dispatchingNode) {
+        if (pointerInputFilter.isAttached && upPass != null && this != dispatchingNode) {
             pointerInputFilter.onCustomEvent(event, upPass)
         }
     }
