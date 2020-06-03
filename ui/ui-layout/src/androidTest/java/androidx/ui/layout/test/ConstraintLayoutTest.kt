@@ -319,7 +319,7 @@ class ConstraintLayoutTest : LayoutTest() {
                         position[0].value = it.globalPosition
                     }
                 )
-                val half = createGuidelineFromAbsoluteLeft(percent = 0.5f)
+                val half = createGuidelineFromAbsoluteLeft(fraction = 0.5f)
                 Box(Modifier
                     .constrainAs(box1) {
                         start.linkTo(half, margin = offset.toDp())
@@ -380,7 +380,7 @@ class ConstraintLayoutTest : LayoutTest() {
                         centerTo(parent)
                     }
 
-                    val half = createGuidelineFromAbsoluteLeft(percent = 0.5f)
+                    val half = createGuidelineFromAbsoluteLeft(fraction = 0.5f)
                     constrain(box1) {
                         start.linkTo(half, margin = offset.toDp())
                         bottom.linkTo(box0.top)
@@ -441,7 +441,7 @@ class ConstraintLayoutTest : LayoutTest() {
                         position[0].value = it.globalPosition
                     }
                 )
-                val half = createGuidelineFromAbsoluteLeft(percent = 0.5f)
+                val half = createGuidelineFromAbsoluteLeft(fraction = 0.5f)
                 Box(Modifier
                     .constrainAs(box1) {
                         start.linkTo(half, margin = offset.toDp())

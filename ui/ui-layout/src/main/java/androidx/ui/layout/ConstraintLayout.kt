@@ -233,15 +233,17 @@ abstract class ConstraintLayoutBaseScope {
 
     /**
      * Creates a guideline at a specific offset from the start of the [ConstraintLayout].
+     * A [fraction] of 0f will correspond to the start of the [ConstraintLayout], while 1f will
+     * correspond to the end.
      */
-    fun createGuidelineFromStart(percent: Float): VerticalAnchor {
+    fun createGuidelineFromStart(fraction: Float): VerticalAnchor {
         val tag = createTag()
         tasks.add { state ->
             state.verticalGuideline(tag).apply {
                 if (state.layoutDirection == LayoutDirection.Ltr) {
-                    percent(percent)
+                    percent(fraction)
                 } else {
-                    percent(1f - percent)
+                    percent(1f - fraction)
                 }
             }
         }
@@ -249,12 +251,14 @@ abstract class ConstraintLayoutBaseScope {
     }
 
     /**
-     * Creates a guideline at a width percentage from the left of the [ConstraintLayout].
+     * Creates a guideline at a width fraction from the left of the [ConstraintLayout].
+     * A [fraction] of 0f will correspond to the left of the [ConstraintLayout], while 1f will
+     * correspond to the right.
      */
     // TODO(popam, b/157781990): this is not really percentage
-    fun createGuidelineFromAbsoluteLeft(percent: Float): VerticalAnchor {
+    fun createGuidelineFromAbsoluteLeft(fraction: Float): VerticalAnchor {
         val tag = createTag()
-        tasks.add { state -> state.verticalGuideline(tag).apply { percent(percent) } }
+        tasks.add { state -> state.verticalGuideline(tag).apply { percent(fraction) } }
         return VerticalAnchor(tag, 0)
     }
 
@@ -282,16 +286,20 @@ abstract class ConstraintLayoutBaseScope {
 
     /**
      * Creates a guideline at a width percentage from the end of the [ConstraintLayout].
+     * A [fraction] of 0f will correspond to the end of the [ConstraintLayout], while 1f will
+     * correspond to the start.
      */
-    fun createGuidelineFromEnd(percent: Float): VerticalAnchor {
-        return createGuidelineFromStart(1f - percent)
+    fun createGuidelineFromEnd(fraction: Float): VerticalAnchor {
+        return createGuidelineFromStart(1f - fraction)
     }
 
     /**
      * Creates a guideline at a width percentage from the right of the [ConstraintLayout].
+     * A [fraction] of 0f will correspond to the right of the [ConstraintLayout], while 1f will
+     * correspond to the left.
      */
-    fun createGuidelineFromAbsoluteRight(percent: Float): VerticalAnchor {
-        return createGuidelineFromAbsoluteLeft(1f - percent)
+    fun createGuidelineFromAbsoluteRight(fraction: Float): VerticalAnchor {
+        return createGuidelineFromAbsoluteLeft(1f - fraction)
     }
 
     /**
@@ -305,10 +313,12 @@ abstract class ConstraintLayoutBaseScope {
 
     /**
      * Creates a guideline at a height percentage from the top of the [ConstraintLayout].
+     * A [fraction] of 0f will correspond to the top of the [ConstraintLayout], while 1f will
+     * correspond to the bottom.
      */
-    fun createGuidelineFromTop(percent: Float): HorizontalAnchor {
+    fun createGuidelineFromTop(fraction: Float): HorizontalAnchor {
         val tag = createTag()
-        tasks.add { state -> state.horizontalGuideline(tag).apply { percent(percent) } }
+        tasks.add { state -> state.horizontalGuideline(tag).apply { percent(fraction) } }
         return HorizontalAnchor(tag, 0)
     }
 
@@ -323,9 +333,11 @@ abstract class ConstraintLayoutBaseScope {
 
     /**
      * Creates a guideline at a height percentage from the bottom of the [ConstraintLayout].
+     * A [fraction] of 0f will correspond to the bottom of the [ConstraintLayout], while 1f will
+     * correspond to the top.
      */
-    fun createGuidelineFromBottom(percent: Float): HorizontalAnchor {
-        return createGuidelineFromTop(1f - percent)
+    fun createGuidelineFromBottom(fraction: Float): HorizontalAnchor {
+        return createGuidelineFromTop(1f - fraction)
     }
 
     /**
