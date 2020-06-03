@@ -33,7 +33,8 @@ dependencies {
 
     api("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
     api("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
-    api("androidx.recyclerview:recyclerview:1.2.0-alpha03")
+    // TODO revert back to artifact coordinates after RecyclerView ConcatAdapter ships
+    api(project(":recyclerview:recyclerview"))
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_ANDROID)
     implementation("androidx.core:core-ktx:1.2.0")

@@ -4981,7 +4981,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * method may not match your adapter contents. You can use
      * #{@link ViewHolder#getBindingAdapterPosition()} to get the current adapter position
      * of a ViewHolder. If the {@link Adapter} that is assigned to the RecyclerView is an adapter
-     * that combines other adapters (e.g. {@link MergeAdapter}), you can use the
+     * that combines other adapters (e.g. {@link ConcatAdapter}), you can use the
      * {@link ViewHolder#getBindingAdapter()}) to find the position relative to the {@link Adapter}
      * that bound the {@link ViewHolder}.
      * <p>
@@ -11393,7 +11393,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * next layout pass, the return value of this method will be {@link #NO_POSITION}.
          * <p>
          * If the {@link Adapter} that bound this {@link ViewHolder} is inside another
-         * {@link Adapter} (e.g. {@link MergeAdapter}), this position might be different than
+         * {@link Adapter} (e.g. {@link ConcatAdapter}), this position might be different than
          * {@link #getAbsoluteAdapterPosition()}. If you would like to know the position that
          * {@link RecyclerView} considers (e.g. for saved state), you should use
          * {@link #getAbsoluteAdapterPosition()}.
@@ -11427,9 +11427,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         /**
          * Returns the Adapter position of the item represented by this ViewHolder with respect to
          * the {@link RecyclerView}'s {@link Adapter}. If the {@link Adapter} that bound this
-         * {@link ViewHolder} is inside another adapter (e.g. {@link MergeAdapter}), this
+         * {@link ViewHolder} is inside another adapter (e.g. {@link ConcatAdapter}), this
          * position might be different and will include
-         * the offsets caused by other adapters in the {@link MergeAdapter}.
+         * the offsets caused by other adapters in the {@link ConcatAdapter}.
          * <p>
          * Note that this might be different than the {@link #getLayoutPosition()} if there are
          * pending adapter updates but a new layout pass has not happened yet.

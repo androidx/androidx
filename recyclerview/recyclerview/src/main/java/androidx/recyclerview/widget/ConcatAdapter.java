@@ -16,7 +16,7 @@
 
 package androidx.recyclerview.widget;
 
-import static androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.NO_STABLE_IDS;
+import static androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode.NO_STABLE_IDS;
 
 import android.view.ViewGroup;
 
@@ -34,11 +34,12 @@ import java.util.List;
  * <pre>
  * MyAdapter adapter1 = ...;
  * AnotherAdapter adapter2 = ...;
- * MergeAdapter merged = new MergeAdapter(adapter1, adapter2);
- * recyclerView.setAdapter(mergedAdapter);
+ * ConcatAdapter concatenated = new ConcatAdapter(adapter1, adapter2);
+ * recyclerView.setAdapter(concatenated);
  * </pre>
  * <p>
- * By default, {@link MergeAdapter} isolates view types of nested adapters from each other such that
+ * By default, {@link ConcatAdapter} isolates view types of nested adapters from each other such
+ * that
  * it will change the view type before reporting it back to the {@link RecyclerView} to avoid any
  * conflicts between the view types of added adapters. This also means each added adapter will have
  * its own isolated pool of {@link ViewHolder}s, with no re-use in between added adapters.
@@ -48,17 +49,17 @@ import java.util.List;
  * {@link Config#isolateViewTypes} to {@code false}. A common usage pattern for this is to return
  * the {@code R.layout.<layout_name>} from the {@link Adapter#getItemViewType(int)} method.
  * <p>
- * When an added adapter calls one of the {@code notify} methods, {@link MergeAdapter} properly
+ * When an added adapter calls one of the {@code notify} methods, {@link ConcatAdapter} properly
  * offsets values before reporting it back to the {@link RecyclerView}.
- * If an adapter calls {@link Adapter#notifyDataSetChanged()}, {@link MergeAdapter} also calls
+ * If an adapter calls {@link Adapter#notifyDataSetChanged()}, {@link ConcatAdapter} also calls
  * {@link Adapter#notifyDataSetChanged()} as calling
  * {@link Adapter#notifyItemRangeChanged(int, int)} will confuse the {@link RecyclerView}.
  * You are highly encouraged to to use {@link SortedList} or {@link ListAdapter} to avoid
  * calling {@link Adapter#notifyDataSetChanged()}.
  * <p>
- * Whether {@link MergeAdapter} should support stable ids is defined in the {@link Config}
+ * Whether {@link ConcatAdapter} should support stable ids is defined in the {@link Config}
  * object. Calling {@link Adapter#setHasStableIds(boolean)} has no effect. See documentation
- * for {@link Config.StableIdMode} for details on how to configure {@link MergeAdapter} to use
+ * for {@link Config.StableIdMode} for details on how to configure {@link ConcatAdapter} to use
  * stable ids. By default, it will not use stable ids and sub adapter stable ids will be ignored.
  * Similar to the case above, you are highly encouraged to use {@link ListAdapter}, which will
  * automatically calculate the changes in the data set for you so you won't need stable ids.
@@ -70,57 +71,59 @@ import java.util.List;
  * bound that {@link ViewHolder}.
  */
 @SuppressWarnings("unchecked")
-public final class MergeAdapter extends Adapter<ViewHolder> {
-    static final String TAG = "MergeAdapter";
+public final class ConcatAdapter extends Adapter<ViewHolder> {
+    static final String TAG = "ConcatAdapter";
     /**
      * Bulk of the logic is in the controller to keep this class isolated to the public API.
      */
-    private final MergeAdapterController mController;
+    private final ConcatAdapterController mController;
 
     /**
-     * Creates a MergeAdapter with {@link Config#DEFAULT} and the given adapters in the given order.
+     * Creates a ConcatAdapter with {@link Config#DEFAULT} and the given adapters in the given
+     * order.
      *
      * @param adapters The list of adapters to add
      */
     @SafeVarargs
-    public MergeAdapter(@NonNull Adapter<? extends ViewHolder>... adapters) {
+    public ConcatAdapter(@NonNull Adapter<? extends ViewHolder>... adapters) {
         this(Config.DEFAULT, adapters);
     }
 
     /**
-     * Creates a MergeAdapter with the given config and the given adapters in the given order.
+     * Creates a ConcatAdapter with the given config and the given adapters in the given order.
      *
-     * @param config   The configuration for this MergeAdapter
+     * @param config   The configuration for this ConcatAdapter
      * @param adapters The list of adapters to add
      * @see Config.Builder
      */
     @SafeVarargs
-    public MergeAdapter(
+    public ConcatAdapter(
             @NonNull Config config,
             @NonNull Adapter<? extends ViewHolder>... adapters) {
         this(config, Arrays.asList(adapters));
     }
 
     /**
-     * Creates a MergeAdapter with {@link Config#DEFAULT} and the given adapters in the given order.
+     * Creates a ConcatAdapter with {@link Config#DEFAULT} and the given adapters in the given
+     * order.
      *
      * @param adapters The list of adapters to add
      */
-    public MergeAdapter(@NonNull List<Adapter<? extends ViewHolder>> adapters) {
+    public ConcatAdapter(@NonNull List<Adapter<? extends ViewHolder>> adapters) {
         this(Config.DEFAULT, adapters);
     }
 
     /**
-     * Creates a MergeAdapter with the given config and the given adapters in the given order.
+     * Creates a ConcatAdapter with the given config and the given adapters in the given order.
      *
-     * @param config   The configuration for this MergeAdapter
+     * @param config   The configuration for this ConcatAdapter
      * @param adapters The list of adapters to add
      * @see Config.Builder
      */
-    public MergeAdapter(
+    public ConcatAdapter(
             @NonNull Config config,
             @NonNull List<Adapter<? extends ViewHolder>> adapters) {
-        mController = new MergeAdapterController(this, config);
+        mController = new ConcatAdapterController(this, config);
         for (Adapter<? extends ViewHolder> adapter : adapters) {
             addAdapter(adapter);
         }
@@ -130,7 +133,7 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
 
     /**
      * Appends the given adapter to the existing list of adapters and notifies the observers of
-     * this {@link MergeAdapter}.
+     * this {@link ConcatAdapter}.
      *
      * @param adapter The new adapter to add
      * @return {@code true} if the adapter is successfully added because it did not already exist,
@@ -145,7 +148,7 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
     /**
      * Adds the given adapter to the given index among other adapters that are already added.
      *
-     * @param index   The index into which to insert the adapter. MergeAdapter will throw an
+     * @param index   The index into which to insert the adapter. ConcatAdapter will throw an
      *                {@link IndexOutOfBoundsException} if the index is not between 0 and current
      *                adapter count (inclusive).
      * @param adapter The new adapter to add to the adapters list.
@@ -162,7 +165,7 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
      * Removes the given adapter from the adapters list if it exists
      *
      * @param adapter The adapter to remove
-     * @return {@code true} if the adapter was previously added to this {@code MergeAdapter} and
+     * @return {@code true} if the adapter was previously added to this {@code ConcatAdapter} and
      * now removed or {@code false} if it couldn't be found.
      */
     public boolean removeAdapter(@NonNull Adapter<? extends ViewHolder> adapter) {
@@ -187,7 +190,7 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
 
     /**
      * Calling this method is an error and will result in an {@link UnsupportedOperationException}.
-     * You should use the {@link Config} object passed into the MergeAdapter to configure this
+     * You should use the {@link Config} object passed into the ConcatAdapter to configure this
      * behavior.
      *
      * @param hasStableIds Whether items in data set have unique identifiers or not.
@@ -195,7 +198,7 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
     @Override
     public void setHasStableIds(boolean hasStableIds) {
         throw new UnsupportedOperationException(
-                "Calling setHasStableIds is not allowed on the MergeAdapter. "
+                "Calling setHasStableIds is not allowed on the ConcatAdapter. "
                         + "Use the Config object passed in the constructor to control this "
                         + "behavior");
     }
@@ -203,18 +206,19 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
     /**
      * Calling this method is an error and will result in an {@link UnsupportedOperationException}.
      *
-     * MergeAdapter infers this value from added {@link Adapter}s.
+     * ConcatAdapter infers this value from added {@link Adapter}s.
      *
      * @param strategy The saved state restoration strategy for this Adapter such that
-     * {@link MergeAdapter} will allow state restoration only if all added adapters allow it or
+     *                 {@link ConcatAdapter} will allow state restoration only if all added
+     *                 adapters allow it or
      *                 there are no adapters.
      */
     @Override
     public void setStateRestorationPolicy(@NonNull StateRestorationPolicy strategy) {
         // do nothing
         throw new UnsupportedOperationException(
-                "Calling setStateRestorationPolicy is not allowed on the MergeAdapter."
-                + " This value is inferred from added adapters");
+                "Calling setStateRestorationPolicy is not allowed on the ConcatAdapter."
+                        + " This value is inferred from added adapters");
     }
 
     @Override
@@ -223,7 +227,7 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
     }
 
     /**
-     * Internal method called by the MergeAdapterController.
+     * Internal method called by the ConcatAdapterController.
      */
     void internalSetStateRestorationPolicy(@NonNull StateRestorationPolicy strategy) {
         super.setStateRestorationPolicy(strategy);
@@ -265,11 +269,11 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
     }
 
     /**
-     * Returns an unmodifiable copy of the list of adapters in this {@link MergeAdapter}.
-     * Note that this is a copy hence future changes in the MergeAdapter are not reflected in
+     * Returns an unmodifiable copy of the list of adapters in this {@link ConcatAdapter}.
+     * Note that this is a copy hence future changes in the ConcatAdapter are not reflected in
      * this list.
      *
-     * @return A copy of the list of adapters in this MergeAdapter.
+     * @return A copy of the list of adapters in this ConcatAdapter.
      */
     @NonNull
     public List<Adapter<? extends ViewHolder>> getAdapters() {
@@ -279,14 +283,14 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
     /**
      * Returns the position of the given {@link ViewHolder} in the given {@link Adapter}.
      *
-     * If the given {@link Adapter} is not part of this {@link MergeAdapter},
+     * If the given {@link Adapter} is not part of this {@link ConcatAdapter},
      * {@link RecyclerView#NO_POSITION} is returned.
      *
-     * @param adapter    The adapter which is a sub adapter of this MergeAdapter or itself.
+     * @param adapter    The adapter which is a sub adapter of this ConcatAdapter or itself.
      * @param viewHolder The view holder whose local position in the given adapter will be returned.
      * @return The local position of the given {@link ViewHolder} in the given {@link Adapter} or
      * {@link RecyclerView#NO_POSITION} if the {@link ViewHolder} is not bound to an item or the
-     * given {@link Adapter} is not part of this MergeAdapter.
+     * given {@link Adapter} is not part of this ConcatAdapter.
      */
     @Override
     public int findRelativeAdapterPositionIn(
@@ -297,11 +301,11 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
     }
 
     /**
-     * The configuration object for a {@link MergeAdapter}.
+     * The configuration object for a {@link ConcatAdapter}.
      */
     public static class Config {
         /**
-         * If {@code false}, {@link MergeAdapter} assumes all assigned adapters share a global
+         * If {@code false}, {@link ConcatAdapter} assumes all assigned adapters share a global
          * view type pool such that they use the same view types to refer to the same
          * {@link ViewHolder}s.
          * <p>
@@ -310,33 +314,34 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
          * ({@link Adapter#getItemViewType(int)}) such that two different adapters return the same
          * view type for different {@link ViewHolder}s.
          *
-         * By default, it is set to {@code true} which means {@link MergeAdapter} will isolate
+         * By default, it is set to {@code true} which means {@link ConcatAdapter} will isolate
          * view types across adapters, preventing them from using the same {@link ViewHolder}s.
          */
         public final boolean isolateViewTypes;
 
         /**
-         * Defines whether the {@link MergeAdapter} should support stable ids or not
+         * Defines whether the {@link ConcatAdapter} should support stable ids or not
          * ({@link Adapter#hasStableIds()}.
          * <p>
          * There are 3 possible options:
          *
-         * {@link StableIdMode#NO_STABLE_IDS}: In this mode, {@link MergeAdapter} ignores the stable
+         * {@link StableIdMode#NO_STABLE_IDS}: In this mode, {@link ConcatAdapter} ignores the
+         * stable
          * ids reported by sub adapters. This is the default mode.
          *
-         * {@link StableIdMode#ISOLATED_STABLE_IDS}: In this mode, {@link MergeAdapter} will return
-         * {@code true} from {@link MergeAdapter#hasStableIds()} and will <b>require</b> all added
+         * {@link StableIdMode#ISOLATED_STABLE_IDS}: In this mode, {@link ConcatAdapter} will return
+         * {@code true} from {@link ConcatAdapter#hasStableIds()} and will <b>require</b> all added
          * {@link Adapter}s to have stable ids. As two different adapters may return same stable ids
-         * because they are unaware of each-other, {@link MergeAdapter} will isolate each
+         * because they are unaware of each-other, {@link ConcatAdapter} will isolate each
          * {@link Adapter}'s id pool from each other such that it will overwrite the reported stable
          * id before reporting back to the {@link RecyclerView}. In this mode, the value returned
          * from {@link ViewHolder#getItemId()} might differ from the value returned from
          * {@link Adapter#getItemId(int)}.
          *
-         * {@link StableIdMode#SHARED_STABLE_IDS}: In this mode, {@link MergeAdapter} will return
-         * {@code true} from {@link MergeAdapter#hasStableIds()} and will <b>require</b> all added
+         * {@link StableIdMode#SHARED_STABLE_IDS}: In this mode, {@link ConcatAdapter} will return
+         * {@code true} from {@link ConcatAdapter#hasStableIds()} and will <b>require</b> all added
          * {@link Adapter}s to have stable ids. Unlike {@link StableIdMode#ISOLATED_STABLE_IDS},
-         * {@link MergeAdapter} will not override the returned item ids. In this mode,
+         * {@link ConcatAdapter} will not override the returned item ids. In this mode,
          * child {@link Adapter}s must be aware of each-other and never return the same id unless
          * an item is moved between {@link Adapter}s.
          *
@@ -355,21 +360,21 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
         }
 
         /**
-         * Defines how {@link MergeAdapter} handle stable ids ({@link Adapter#hasStableIds()}).
+         * Defines how {@link ConcatAdapter} handle stable ids ({@link Adapter#hasStableIds()}).
          */
         public enum StableIdMode {
             /**
-             * In this mode, {@link MergeAdapter} ignores the stable
+             * In this mode, {@link ConcatAdapter} ignores the stable
              * ids reported by sub adapters. This is the default mode.
              * Adding an {@link Adapter} with stable ids will result in a warning as it will be
              * ignored.
              */
             NO_STABLE_IDS,
             /**
-             * In this mode, {@link MergeAdapter} will return {@code true} from
-             * {@link MergeAdapter#hasStableIds()} and will <b>require</b> all added
+             * In this mode, {@link ConcatAdapter} will return {@code true} from
+             * {@link ConcatAdapter#hasStableIds()} and will <b>require</b> all added
              * {@link Adapter}s to have stable ids. As two different adapters may return
-             * same stable ids because they are unaware of each-other, {@link MergeAdapter} will
+             * same stable ids because they are unaware of each-other, {@link ConcatAdapter} will
              * isolate each {@link Adapter}'s id pool from each other such that it will overwrite
              * the reported stable id before reporting back to the {@link RecyclerView}. In this
              * mode, the value returned from {@link ViewHolder#getItemId()} might differ from the
@@ -380,10 +385,10 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
              */
             ISOLATED_STABLE_IDS,
             /**
-             * In this mode, {@link MergeAdapter} will return {@code true} from
-             * {@link MergeAdapter#hasStableIds()} and will <b>require</b> all added
+             * In this mode, {@link ConcatAdapter} will return {@code true} from
+             * {@link ConcatAdapter#hasStableIds()} and will <b>require</b> all added
              * {@link Adapter}s to have stable ids. Unlike {@link StableIdMode#ISOLATED_STABLE_IDS},
-             * {@link MergeAdapter} will not override the returned item ids. In this mode,
+             * {@link ConcatAdapter} will not override the returned item ids. In this mode,
              * child {@link Adapter}s must be aware of each-other and never return the same id
              * unless and item is moved between {@link Adapter}s.
              * Adding an adapter without stable ids will result in an
@@ -400,10 +405,10 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
             private StableIdMode mStableIdMode = NO_STABLE_IDS;
 
             /**
-             * Sets whether {@link MergeAdapter} should isolate view types of nested adapters from
+             * Sets whether {@link ConcatAdapter} should isolate view types of nested adapters from
              * each other.
              *
-             * @param isolateViewTypes {@code true} if {@link MergeAdapter} should override view
+             * @param isolateViewTypes {@code true} if {@link ConcatAdapter} should override view
              *                         types of nested adapters to avoid view type
              *                         conflicts, {@code false} otherwise.
              *                         Defaults to true.
@@ -417,11 +422,11 @@ public final class MergeAdapter extends Adapter<ViewHolder> {
             }
 
             /**
-             * Sets how the {@link MergeAdapter} should handle stable ids
+             * Sets how the {@link ConcatAdapter} should handle stable ids
              * ({@link Adapter#hasStableIds()}). See documentation in {@link Config#stableIdMode}
              * for details.
              *
-             * @param stableIdMode The stable id mode for the {@link MergeAdapter}. Defaults to
+             * @param stableIdMode The stable id mode for the {@link ConcatAdapter}. Defaults to
              *                     {@link StableIdMode#NO_STABLE_IDS}.
              * @return this
              * @see Config#stableIdMode

@@ -20,17 +20,17 @@ import android.content.Context
 import android.view.View
 import android.view.View.MeasureSpec.AT_MOST
 import android.view.ViewGroup
-import androidx.recyclerview.widget.MergeAdapter.Config.Builder
-import androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS
-import androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.NO_STABLE_IDS
-import androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.SHARED_STABLE_IDS
-import androidx.recyclerview.widget.MergeAdapterSubject.Companion.assertThat
-import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.Changed
-import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.DataSetChanged
-import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.Inserted
-import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.Moved
-import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.Removed
-import androidx.recyclerview.widget.MergeAdapterTest.LoggingAdapterObserver.Event.StateRestorationPolicy
+import androidx.recyclerview.widget.ConcatAdapter.Config.Builder
+import androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS
+import androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode.NO_STABLE_IDS
+import androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode.SHARED_STABLE_IDS
+import androidx.recyclerview.widget.ConcatAdapterSubject.Companion.assertThat
+import androidx.recyclerview.widget.ConcatAdapterTest.LoggingAdapterObserver.Event.Changed
+import androidx.recyclerview.widget.ConcatAdapterTest.LoggingAdapterObserver.Event.DataSetChanged
+import androidx.recyclerview.widget.ConcatAdapterTest.LoggingAdapterObserver.Event.Inserted
+import androidx.recyclerview.widget.ConcatAdapterTest.LoggingAdapterObserver.Event.Moved
+import androidx.recyclerview.widget.ConcatAdapterTest.LoggingAdapterObserver.Event.Removed
+import androidx.recyclerview.widget.ConcatAdapterTest.LoggingAdapterObserver.Event.StateRestorationPolicy
 import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.ALLOW
 import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT
 import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
@@ -52,7 +52,7 @@ import java.lang.reflect.Modifier
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class MergeAdapterTest {
+class ConcatAdapterTest {
     private lateinit var recyclerView: RecyclerView
 
     @Before
@@ -68,26 +68,26 @@ class MergeAdapterTest {
 
     @Test(expected = UnsupportedOperationException::class)
     fun cannotCallSetStableIds_true() {
-        val merge = MergeAdapter()
-        merge.setHasStableIds(true)
+        val concatenated = ConcatAdapter()
+        concatenated.setHasStableIds(true)
     }
 
     @Test(expected = UnsupportedOperationException::class)
     fun cannotCallSetStableIds_false() {
-        val merge = MergeAdapter()
-        merge.setHasStableIds(false)
+        val concatenated = ConcatAdapter()
+        concatenated.setHasStableIds(false)
     }
 
     @UiThreadTest
     @Test
     fun attachAndDetachAll() {
-        val merge = MergeAdapter()
+        val concatenated = ConcatAdapter()
         val adapter1 = NestedTestAdapter(10,
             getLayoutParams = {
                 LayoutParams(MATCH_PARENT, 3)
             })
-        merge.addAdapter(adapter1)
-        recyclerView.adapter = merge
+        concatenated.addAdapter(adapter1)
+        recyclerView.adapter = concatenated
         measureAndLayout(100, 50)
         assertThat(recyclerView.childCount).isEqualTo(10)
         assertThat(adapter1.attachedViewHolders()).hasSize(10)
@@ -99,13 +99,13 @@ class MergeAdapterTest {
             getLayoutParams = {
                 LayoutParams(MATCH_PARENT, 3)
             })
-        merge.addAdapter(adapter2)
+        concatenated.addAdapter(adapter2)
         assertThat(recyclerView.isLayoutRequested).isTrue()
         measureAndLayout(100, 200)
         assertThat(recyclerView.childCount).isEqualTo(15)
         assertThat(adapter1.attachedViewHolders()).hasSize(10)
         assertThat(adapter2.attachedViewHolders()).hasSize(5)
-        merge.removeAdapter(adapter1)
+        concatenated.removeAdapter(adapter1)
         assertThat(recyclerView.isLayoutRequested).isTrue()
         measureAndLayout(100, 200)
         assertThat(recyclerView.childCount).isEqualTo(5)
@@ -117,14 +117,14 @@ class MergeAdapterTest {
 
     @Test
     @UiThreadTest
-    fun mergeInsideMerge() {
-        val merge = MergeAdapter()
+    fun concatInsideConcat() {
+        val concatenated = ConcatAdapter()
         val adapter1 = NestedTestAdapter(10)
-        merge.addAdapter(adapter1)
-        recyclerView.adapter = merge
+        concatenated.addAdapter(adapter1)
+        recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(10)
-        merge.removeAdapter(adapter1)
+        concatenated.removeAdapter(adapter1)
         assertThat(recyclerView.isLayoutRequested).isTrue()
         measureAndLayout(100, 100)
         assertThat(adapter1.attachedViewHolders()).isEmpty()
@@ -133,10 +133,10 @@ class MergeAdapterTest {
     @UiThreadTest
     @Test
     fun recycleOnRemoval() {
-        val merge = MergeAdapter()
+        val concatenated = ConcatAdapter()
         val adapter1 = NestedTestAdapter(10)
-        merge.addAdapter(adapter1)
-        recyclerView.adapter = merge
+        concatenated.addAdapter(adapter1)
+        recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(10)
         adapter1.removeItems(3, 2)
@@ -150,10 +150,10 @@ class MergeAdapterTest {
     @UiThreadTest
     @Test
     fun checkAttachDetach_adapterAdditions() {
-        val merge = MergeAdapter()
+        val concatenated = ConcatAdapter()
         val adapter1 = NestedTestAdapter(0)
-        merge.addAdapter(adapter1)
-        recyclerView.adapter = merge
+        concatenated.addAdapter(adapter1)
+        recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         adapter1.addItems(0, 3)
         assertThat(recyclerView.isLayoutRequested).isTrue()
@@ -168,8 +168,9 @@ class MergeAdapterTest {
     fun failedToRecycleTest() {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(5)
-        val merge = MergeAdapter(adapter1, adapter2)
-        recyclerView.adapter = merge
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
+        recyclerView.adapter = concatenated
         measureAndLayout(100, 200)
         val viewHolder = recyclerView.findViewHolderForAdapterPosition(12)
         check(viewHolder != null) {
@@ -194,8 +195,12 @@ class MergeAdapterTest {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(4)
         val adapter3 = NestedTestAdapter(8)
-        val merge = MergeAdapter(adapter1, adapter2, adapter3)
-        recyclerView.adapter = merge
+        val concatenated = ConcatAdapter(
+            adapter1,
+            adapter2,
+            adapter3
+        )
+        recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(22)
         (0 until 22).forEach {
@@ -230,12 +235,15 @@ class MergeAdapterTest {
     fun localAdapterPositions_nested() {
         val adapter1_1 = NestedTestAdapter(10)
         val adapter1_2 = NestedTestAdapter(5)
-        val adapter1 = MergeAdapter(adapter1_1, adapter1_2)
+        val adapter1 =
+            ConcatAdapter(adapter1_1, adapter1_2)
         val adapter2_1 = NestedTestAdapter(3)
         val adapter2_2 = NestedTestAdapter(6)
-        val adapter2 = MergeAdapter(adapter2_1, adapter2_2)
-        val merge = MergeAdapter(adapter1, adapter2)
-        recyclerView.adapter = merge
+        val adapter2 =
+            ConcatAdapter(adapter2_1, adapter2_2)
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
+        recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(24)
         (0 until 24).forEach {
@@ -269,8 +277,8 @@ class MergeAdapterTest {
     @Test
     fun localAdapterPositions_notIncluded() {
         val adapter1 = NestedTestAdapter(10)
-        val merge = MergeAdapter(adapter1)
-        recyclerView.adapter = merge
+        val concatenated = ConcatAdapter(adapter1)
+        recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(10)
         val vh = checkNotNull(recyclerView.findViewHolderForAdapterPosition(3))
@@ -295,14 +303,15 @@ class MergeAdapterTest {
     fun attachDetachTest() {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(5)
-        val merge = MergeAdapter(adapter1, adapter2)
-        recyclerView.adapter = merge
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
+        recyclerView.adapter = concatenated
         assertThat(adapter1.attachedRecyclerViews()).containsExactly(recyclerView)
         assertThat(adapter2.attachedRecyclerViews()).containsExactly(recyclerView)
         val adapter3 = NestedTestAdapter(3)
-        merge.addAdapter(adapter3)
+        concatenated.addAdapter(adapter3)
         assertThat(adapter3.attachedRecyclerViews()).containsExactly(recyclerView)
-        merge.removeAdapter(adapter3)
+        concatenated.removeAdapter(adapter3)
         assertThat(adapter3.attachedRecyclerViews()).isEmpty()
         recyclerView.adapter = null
         assertThat(adapter1.attachedRecyclerViews()).isEmpty()
@@ -315,15 +324,16 @@ class MergeAdapterTest {
         val recyclerView2 = RecyclerView(ApplicationProvider.getApplicationContext())
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(5)
-        val merge = MergeAdapter(adapter1, adapter2)
-        recyclerView.adapter = merge
-        recyclerView2.adapter = merge
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
+        recyclerView.adapter = concatenated
+        recyclerView2.adapter = concatenated
         assertThat(adapter1.attachedRecyclerViews()).containsExactly(recyclerView, recyclerView2)
         assertThat(adapter2.attachedRecyclerViews()).containsExactly(recyclerView, recyclerView2)
         val adapter3 = NestedTestAdapter(3)
-        merge.addAdapter(adapter3)
+        concatenated.addAdapter(adapter3)
         assertThat(adapter3.attachedRecyclerViews()).containsExactly(recyclerView, recyclerView2)
-        merge.removeAdapter(adapter3)
+        concatenated.removeAdapter(adapter3)
         assertThat(adapter3.attachedRecyclerViews()).isEmpty()
         recyclerView.adapter = null
         assertThat(adapter1.attachedRecyclerViews()).containsExactly(recyclerView2)
@@ -339,15 +349,16 @@ class MergeAdapterTest {
     fun adapterRemoval() {
         val adapter1 = NestedTestAdapter(3)
         val adapter2 = NestedTestAdapter(5)
-        val merge = MergeAdapter(adapter1, adapter2)
-        recyclerView.adapter = merge
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
+        recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(8)
-        assertThat(merge.removeAdapter(adapter1)).isTrue()
+        assertThat(concatenated.removeAdapter(adapter1)).isTrue()
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(5)
-        assertThat(merge.removeAdapter(adapter1)).isFalse()
-        assertThat(merge.removeAdapter(adapter2)).isTrue()
+        assertThat(concatenated.removeAdapter(adapter1)).isFalse()
+        assertThat(concatenated.removeAdapter(adapter2)).isTrue()
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(0)
     }
@@ -357,8 +368,9 @@ class MergeAdapterTest {
     fun boundAdapter() {
         val adapter1 = NestedTestAdapter(3)
         val adapter2 = NestedTestAdapter(5)
-        val merge = MergeAdapter(adapter1, adapter2)
-        recyclerView.adapter = merge
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
+        recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(8)
         val adapter1ViewHolders = (0 until 3).map {
@@ -373,7 +385,7 @@ class MergeAdapterTest {
         adapter2ViewHolders.forEach {
             assertThat(it.bindingAdapter).isSameInstanceAs(adapter2)
         }
-        assertThat(merge.removeAdapter(adapter1)).isTrue()
+        assertThat(concatenated.removeAdapter(adapter1)).isTrue()
         // even when position is invalid, we should still be able to find the bound adapter
         adapter1ViewHolders.forEach {
             assertThat(it.bindingAdapter).isSameInstanceAs(adapter1)
@@ -383,8 +395,8 @@ class MergeAdapterTest {
         adapter1ViewHolders.forEach {
             assertThat(it.bindingAdapter).isNull()
         }
-        assertThat(merge.removeAdapter(adapter1)).isFalse()
-        assertThat(merge.removeAdapter(adapter2)).isTrue()
+        assertThat(concatenated.removeAdapter(adapter1)).isFalse()
+        assertThat(concatenated.removeAdapter(adapter2)).isTrue()
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(0)
         adapter2ViewHolders.forEach {
@@ -407,17 +419,17 @@ class MergeAdapterTest {
 
     @Test
     fun size() {
-        val merge = MergeAdapter()
-        val observer = LoggingAdapterObserver(merge)
-        assertThat(merge).hasItemCount(0)
-        merge.addAdapter(NestedTestAdapter(0))
+        val concatenated = ConcatAdapter()
+        val observer = LoggingAdapterObserver(concatenated)
+        assertThat(concatenated).hasItemCount(0)
+        concatenated.addAdapter(NestedTestAdapter(0))
         observer.assertEventsAndClear(
             "Empty adapter shouldn't cause notify"
         )
 
         val adapter1 = NestedTestAdapter(3)
-        merge.addAdapter(adapter1)
-        assertThat(merge).hasItemCount(3)
+        concatenated.addAdapter(adapter1)
+        assertThat(concatenated).hasItemCount(3)
         observer.assertEventsAndClear(
             "adapter with count should trigger notify",
             Inserted(
@@ -427,8 +439,8 @@ class MergeAdapterTest {
         )
 
         val adapter2 = NestedTestAdapter(5)
-        merge.addAdapter(adapter2)
-        assertThat(merge).hasItemCount(8)
+        concatenated.addAdapter(adapter2)
+        assertThat(concatenated).hasItemCount(8)
         observer.assertEventsAndClear(
             "appended non-empty adapter should trigger insert event",
             Inserted(
@@ -438,8 +450,8 @@ class MergeAdapterTest {
         )
 
         val adapter3 = NestedTestAdapter(2)
-        merge.addAdapter(2, adapter3)
-        assertThat(merge).hasItemCount(10)
+        concatenated.addAdapter(2, adapter3)
+        assertThat(concatenated).hasItemCount(10)
         observer.assertEventsAndClear(
             "appended non-empty adapter should trigger insert event in right index",
             Inserted(
@@ -448,8 +460,8 @@ class MergeAdapterTest {
             )
         )
 
-        merge.addAdapter(NestedTestAdapter(0))
-        assertThat(merge).hasItemCount(10)
+        concatenated.addAdapter(NestedTestAdapter(0))
+        assertThat(concatenated).hasItemCount(10)
         observer.assertEventsAndClear(
             "empty new adapter shouldn't trigger events"
         )
@@ -457,11 +469,11 @@ class MergeAdapterTest {
 
     @Test
     fun nested_addition() {
-        val merge = MergeAdapter()
-        val observer = LoggingAdapterObserver(merge)
+        val concatenated = ConcatAdapter()
+        val observer = LoggingAdapterObserver(concatenated)
 
         val adapter1 = NestedTestAdapter(0)
-        merge.addAdapter(adapter1)
+        concatenated.addAdapter(adapter1)
         observer.assertEventsAndClear("empty adapter triggers no events")
 
         adapter1.addItems(positionStart = 0, itemCount = 3)
@@ -472,7 +484,7 @@ class MergeAdapterTest {
                 itemCount = 3
             )
         )
-        assertThat(merge).hasItemCount(3)
+        assertThat(concatenated).hasItemCount(3)
         adapter1.addItems(positionStart = 1, itemCount = 2)
         observer.assertEventsAndClear(
             "inner adapter change should trigger an event",
@@ -481,9 +493,9 @@ class MergeAdapterTest {
                 itemCount = 2
             )
         )
-        assertThat(merge).hasItemCount(5)
+        assertThat(concatenated).hasItemCount(5)
         val adapter2 = NestedTestAdapter(2)
-        merge.addAdapter(adapter2)
+        concatenated.addAdapter(adapter2)
         observer.assertEventsAndClear(
             "added adapter should trigger an event",
             Inserted(
@@ -491,7 +503,7 @@ class MergeAdapterTest {
                 itemCount = 2
             )
         )
-        assertThat(merge).hasItemCount(7)
+        assertThat(concatenated).hasItemCount(7)
 
         adapter2.addItems(positionStart = 0, itemCount = 3)
         observer.assertEventsAndClear(
@@ -501,7 +513,7 @@ class MergeAdapterTest {
                 itemCount = 3
             )
         )
-        assertThat(merge).hasItemCount(10)
+        assertThat(concatenated).hasItemCount(10)
 
         adapter2.addItems(positionStart = 2, itemCount = 4)
         observer.assertEventsAndClear(
@@ -511,7 +523,7 @@ class MergeAdapterTest {
                 itemCount = 4
             )
         )
-        assertThat(merge).hasItemCount(14)
+        assertThat(concatenated).hasItemCount(14)
     }
 
     @Test
@@ -520,9 +532,13 @@ class MergeAdapterTest {
         val adapter2 = NestedTestAdapter(15)
         val adapter3 = NestedTestAdapter(20)
 
-        val merge = MergeAdapter(adapter1, adapter2, adapter3)
-        val observer = LoggingAdapterObserver(merge)
-        assertThat(merge).hasItemCount(45)
+        val concatenated = ConcatAdapter(
+            adapter1,
+            adapter2,
+            adapter3
+        )
+        val observer = LoggingAdapterObserver(concatenated)
+        assertThat(concatenated).hasItemCount(45)
 
         adapter1.removeItems(positionStart = 0, itemCount = 2)
         observer.assertEventsAndClear(
@@ -532,7 +548,7 @@ class MergeAdapterTest {
                 itemCount = 2
             )
         )
-        assertThat(merge).hasItemCount(43)
+        assertThat(concatenated).hasItemCount(43)
         adapter1.removeItems(positionStart = 2, itemCount = 1)
         observer.assertEventsAndClear(
             "removal from first adapter inner",
@@ -541,7 +557,7 @@ class MergeAdapterTest {
                 itemCount = 1
             )
         )
-        assertThat(merge).hasItemCount(42)
+        assertThat(concatenated).hasItemCount(42)
         // now first adapter has size 7
         adapter2.removeItems(positionStart = 0, itemCount = 3)
         observer.assertEventsAndClear(
@@ -551,7 +567,7 @@ class MergeAdapterTest {
                 itemCount = 3
             )
         )
-        assertThat(merge).hasItemCount(39)
+        assertThat(concatenated).hasItemCount(39)
         adapter2.removeItems(positionStart = 6, itemCount = 4)
         observer.assertEventsAndClear(
             "inner item removal from middle adapter should be offset",
@@ -560,7 +576,7 @@ class MergeAdapterTest {
                 itemCount = 4
             )
         )
-        assertThat(merge).hasItemCount(35)
+        assertThat(concatenated).hasItemCount(35)
 
         adapter3.removeItems(positionStart = 0, itemCount = 3)
         observer.assertEventsAndClear(
@@ -580,7 +596,7 @@ class MergeAdapterTest {
             )
         )
 
-        merge.removeAdapter(adapter2)
+        concatenated.removeAdapter(adapter2)
         observer.assertEventsAndClear(
             "removing an adapter should trigger removal",
             Removed(
@@ -588,8 +604,8 @@ class MergeAdapterTest {
                 itemCount = adapter2.itemCount
             )
         )
-        assertThat(merge).hasItemCount(adapter1.itemCount + adapter3.itemCount)
-        merge.removeAdapter(adapter1)
+        assertThat(concatenated).hasItemCount(adapter1.itemCount + adapter3.itemCount)
+        concatenated.removeAdapter(adapter1)
         observer.assertEventsAndClear(
             "removing first adapter should trigger removal",
             Removed(
@@ -597,8 +613,8 @@ class MergeAdapterTest {
                 itemCount = adapter1.itemCount
             )
         )
-        assertThat(merge).hasItemCount(adapter3.itemCount)
-        merge.removeAdapter(adapter3)
+        assertThat(concatenated).hasItemCount(adapter3.itemCount)
+        concatenated.removeAdapter(adapter3)
         observer.assertEventsAndClear(
             "removing last adapter should trigger a removal",
             Removed(
@@ -606,7 +622,7 @@ class MergeAdapterTest {
                 itemCount = adapter3.itemCount
             )
         )
-        assertThat(merge).hasItemCount(0)
+        assertThat(concatenated).hasItemCount(0)
     }
 
     @Test
@@ -614,8 +630,12 @@ class MergeAdapterTest {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(15)
         val adapter3 = NestedTestAdapter(20)
-        val merge = MergeAdapter(adapter1, adapter2, adapter3)
-        val observer = LoggingAdapterObserver(merge)
+        val concatenated = ConcatAdapter(
+            adapter1,
+            adapter2,
+            adapter3
+        )
+        val observer = LoggingAdapterObserver(concatenated)
         adapter1.moveItem(fromPosition = 3, toPosition = 5)
         observer.assertEventsAndClear(
             "move from first adapter should come as is",
@@ -624,7 +644,7 @@ class MergeAdapterTest {
                 toPosition = 5
             )
         )
-        assertThat(merge).hasItemCount(45)
+        assertThat(concatenated).hasItemCount(45)
         adapter2.moveItem(fromPosition = 2, toPosition = 4)
         observer.assertEventsAndClear(
             "move in adapter 2 should be offset",
@@ -641,7 +661,7 @@ class MergeAdapterTest {
                 toPosition = adapter1.itemCount + adapter2.itemCount + 2
             )
         )
-        assertThat(merge).hasItemCount(45)
+        assertThat(concatenated).hasItemCount(45)
     }
 
     @Test
@@ -654,8 +674,12 @@ class MergeAdapterTest {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(15)
         val adapter3 = NestedTestAdapter(20)
-        val merge = MergeAdapter(adapter1, adapter2, adapter3)
-        val observer = LoggingAdapterObserver(merge)
+        val concatenated = ConcatAdapter(
+            adapter1,
+            adapter2,
+            adapter3
+        )
+        val observer = LoggingAdapterObserver(concatenated)
 
         adapter1.changeItems(positionStart = 3, itemCount = 5, payload = payload)
         observer.assertEventsAndClear(
@@ -666,7 +690,7 @@ class MergeAdapterTest {
                 payload = payload
             )
         )
-        assertThat(merge).hasItemCount(45)
+        assertThat(concatenated).hasItemCount(45)
         adapter2.changeItems(positionStart = 2, itemCount = 4, payload = payload)
         observer.assertEventsAndClear(
             "change in adapter 2 should be offset",
@@ -685,7 +709,7 @@ class MergeAdapterTest {
                 payload = payload
             )
         )
-        assertThat(merge).hasItemCount(45)
+        assertThat(concatenated).hasItemCount(45)
     }
 
     @Test
@@ -696,21 +720,25 @@ class MergeAdapterTest {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(15)
         val adapter3 = NestedTestAdapter(20)
-        val merge = MergeAdapter(adapter1, adapter2, adapter3)
-        val observer = LoggingAdapterObserver(merge)
+        val concatenated = ConcatAdapter(
+            adapter1,
+            adapter2,
+            adapter3
+        )
+        val observer = LoggingAdapterObserver(concatenated)
 
         adapter1.changeDataSet(3)
         observer.assertEventsAndClear(
             "data set change should come as is",
             DataSetChanged
         )
-        assertThat(merge).hasItemCount(38)
+        assertThat(concatenated).hasItemCount(38)
         adapter2.changeDataSet(20)
         observer.assertEventsAndClear(
             "data set change in adapter 2 should become full data set change",
             DataSetChanged
         )
-        assertThat(merge).hasItemCount(43)
+        assertThat(concatenated).hasItemCount(43)
         adapter3.changeDataSet(newSize = 0)
         observer.assertEventsAndClear(
             """when an adapter changes size to 0, it should still come as 0 as we cannot
@@ -720,7 +748,7 @@ class MergeAdapterTest {
             """.trimMargin(),
             DataSetChanged
         )
-        assertThat(merge).hasItemCount(23)
+        assertThat(concatenated).hasItemCount(23)
     }
 
     @Test
@@ -728,15 +756,15 @@ class MergeAdapterTest {
         val adapter1 = NestedTestAdapter(10) { _, position ->
             position
         }
-        val merge = MergeAdapter(adapter1)
+        val concatenated = ConcatAdapter(adapter1)
         val adapter1ViewTypes = (0 until 10).map {
-            merge.getItemViewType(it)
+            concatenated.getItemViewType(it)
         }.toSet()
 
         assertWithMessage("all items have unique types")
             .that(adapter1ViewTypes).hasSize(10)
         repeat(adapter1.itemCount) {
-            assertThat(merge).bindView(recyclerView, it).verifyBoundTo(
+            assertThat(concatenated).bindView(recyclerView, it).verifyBoundTo(
                 adapter = adapter1,
                 localPosition = it
             )
@@ -744,17 +772,17 @@ class MergeAdapterTest {
         val adapter2 = NestedTestAdapter(5) { _, position ->
             position
         }
-        merge.addAdapter(adapter2)
+        concatenated.addAdapter(adapter2)
         repeat(adapter2.itemCount) {
-            assertThat(merge).bindView(recyclerView, adapter1.itemCount + it).verifyBoundTo(
+            assertThat(concatenated).bindView(recyclerView, adapter1.itemCount + it).verifyBoundTo(
                 adapter = adapter2,
                 localPosition = it
             )
         }
 
-        merge.removeAdapter(adapter1)
+        concatenated.removeAdapter(adapter1)
         repeat(adapter2.itemCount) {
-            assertThat(merge).bindView(recyclerView, it).verifyBoundTo(
+            assertThat(concatenated).bindView(recyclerView, it).verifyBoundTo(
                 adapter = adapter2,
                 localPosition = it
             )
@@ -769,20 +797,21 @@ class MergeAdapterTest {
         val adapter2 = NestedTestAdapter(20) { item, _ ->
             item.id % 4
         }
-        val merge = MergeAdapter(adapter1, adapter2)
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
         val adapter1Types = (0 until adapter1.itemCount).map {
-            merge.getItemViewType(it)
+            concatenated.getItemViewType(it)
         }.toSet()
         assertThat(adapter1Types).hasSize(3)
         val adapter2Types = (adapter1.itemCount until adapter2.itemCount).map {
-            merge.getItemViewType(it)
+            concatenated.getItemViewType(it)
         }.toSet()
         assertThat(adapter2Types).hasSize(4)
         adapter2Types.forEach {
             assertThat(adapter1Types).doesNotContain(it)
         }
         (0 until adapter1.itemCount).forEach {
-            assertThat(merge).bindView(recyclerView, it)
+            assertThat(concatenated).bindView(recyclerView, it)
                 .verifyBoundTo(
                     adapter = adapter1,
                     localPosition = it
@@ -790,16 +819,16 @@ class MergeAdapterTest {
         }
 
         (0 until adapter2.itemCount).forEach {
-            assertThat(merge).bindView(recyclerView, adapter1.itemCount + it)
+            assertThat(concatenated).bindView(recyclerView, adapter1.itemCount + it)
                 .verifyBoundTo(
                     adapter = adapter2,
                     localPosition = it
                 )
         }
 
-        merge.removeAdapter(adapter1)
+        concatenated.removeAdapter(adapter1)
         repeat(adapter2.itemCount) {
-            assertThat(merge).bindView(recyclerView, it).verifyBoundTo(
+            assertThat(concatenated).bindView(recyclerView, it).verifyBoundTo(
                 adapter = adapter2,
                 localPosition = it
             )
@@ -807,9 +836,9 @@ class MergeAdapterTest {
     }
 
     @Test(expected = java.lang.UnsupportedOperationException::class)
-    fun stateRestorationTest_callingOnTheMergeAdapterIsNotAllowed() {
-        val merge = MergeAdapter()
-        merge.stateRestorationPolicy = PREVENT
+    fun stateRestorationTest_callingOnTheConcatAdapterIsNotAllowed() {
+        val concatenated = ConcatAdapter()
+        concatenated.stateRestorationPolicy = PREVENT
     }
 
     @Test
@@ -820,12 +849,13 @@ class MergeAdapterTest {
         val adapter2 = NestedTestAdapter(0).also {
             it.stateRestorationPolicy = PREVENT_WHEN_EMPTY
         }
-        val merge = MergeAdapter(adapter1, adapter2)
-        assertThat(merge).cannotRestoreState()
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
+        assertThat(concatenated).cannotRestoreState()
         adapter2.addItems(0, 1)
-        assertThat(merge).canRestoreState()
+        assertThat(concatenated).canRestoreState()
         adapter2.removeItems(0, 1)
-        assertThat(merge).cannotRestoreState()
+        assertThat(concatenated).cannotRestoreState()
     }
 
     @Test
@@ -836,12 +866,13 @@ class MergeAdapterTest {
         val adapter2 = NestedTestAdapter(0).also {
             it.stateRestorationPolicy = PREVENT_WHEN_EMPTY
         }
-        val merge = MergeAdapter(adapter1, adapter2)
-        assertThat(merge).cannotRestoreState()
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
+        assertThat(concatenated).cannotRestoreState()
         adapter2.changeDataSet(1)
-        assertThat(merge).canRestoreState()
+        assertThat(concatenated).canRestoreState()
         adapter2.changeDataSet(0)
-        assertThat(merge).cannotRestoreState()
+        assertThat(concatenated).cannotRestoreState()
     }
 
     @Test
@@ -849,49 +880,54 @@ class MergeAdapterTest {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(5)
         val adapter3 = NestedTestAdapter(20)
-        val merge = MergeAdapter(adapter1, adapter2, adapter3)
-        assertThat(merge).hasStateRestorationPolicy(ALLOW)
+        val concatenated = ConcatAdapter(
+            adapter1,
+            adapter2,
+            adapter3
+        )
+        assertThat(concatenated).hasStateRestorationPolicy(ALLOW)
         adapter2.stateRestorationPolicy = PREVENT
-        assertThat(merge).hasStateRestorationPolicy(PREVENT)
+        assertThat(concatenated).hasStateRestorationPolicy(PREVENT)
 
         adapter3.stateRestorationPolicy = PREVENT_WHEN_EMPTY
-        assertThat(merge).hasStateRestorationPolicy(PREVENT)
+        assertThat(concatenated).hasStateRestorationPolicy(PREVENT)
 
         adapter2.stateRestorationPolicy = ALLOW
-        assertThat(merge).hasStateRestorationPolicy(ALLOW)
+        assertThat(concatenated).hasStateRestorationPolicy(ALLOW)
 
-        merge.removeAdapter(adapter3)
-        assertThat(merge).hasStateRestorationPolicy(ALLOW)
+        concatenated.removeAdapter(adapter3)
+        assertThat(concatenated).hasStateRestorationPolicy(ALLOW)
 
         val adapter4 = NestedTestAdapter(3).also {
             it.stateRestorationPolicy = PREVENT
-            merge.addAdapter(it)
+            concatenated.addAdapter(it)
         }
-        assertThat(merge).hasStateRestorationPolicy(PREVENT)
+        assertThat(concatenated).hasStateRestorationPolicy(PREVENT)
         adapter4.stateRestorationPolicy = PREVENT_WHEN_EMPTY
-        assertThat(merge).hasStateRestorationPolicy(ALLOW)
-        merge.removeAdapter(adapter1)
-        assertThat(merge).hasStateRestorationPolicy(ALLOW)
+        assertThat(concatenated).hasStateRestorationPolicy(ALLOW)
+        concatenated.removeAdapter(adapter1)
+        assertThat(concatenated).hasStateRestorationPolicy(ALLOW)
         adapter4.stateRestorationPolicy = ALLOW
-        assertThat(merge).hasStateRestorationPolicy(ALLOW)
+        assertThat(concatenated).hasStateRestorationPolicy(ALLOW)
     }
 
     @Test
     fun disposal() {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(5)
-        val merge = MergeAdapter(adapter1, adapter2)
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
         assertThat(adapter1.observerCount()).isEqualTo(1)
         assertThat(adapter2.observerCount()).isEqualTo(1)
-        merge.removeAdapter(adapter1)
+        concatenated.removeAdapter(adapter1)
         assertThat(adapter1.observerCount()).isEqualTo(0)
         assertThat(adapter2.observerCount()).isEqualTo(1)
 
         val adapter3 = NestedTestAdapter(2)
-        merge.addAdapter(adapter3)
+        concatenated.addAdapter(adapter3)
         assertThat(adapter3.observerCount()).isEqualTo(1)
-        merge.adapters.forEach {
-            merge.removeAdapter(it)
+        concatenated.adapters.forEach {
+            concatenated.removeAdapter(it)
         }
         listOf(adapter1, adapter2, adapter3).forEachIndexed { index, adapter ->
             assertWithMessage("adapter ${index + 1}").apply {
@@ -931,25 +967,26 @@ class MergeAdapterTest {
         }.filterNot {
             excludedMethods.contains(it)
         }
-        val mergeAdapterMethods = MergeAdapter::class.java.declaredMethods.map {
+        val concatenatedAdapterMethods = ConcatAdapter::class.java.declaredMethods.map {
             it.describe()
         }
         assertWithMessage(
             """
-            MergeAdapter should override all methods in RecyclerView.Adapter for future 
+            ConcatAdapter should override all methods in RecyclerView.Adapter for future 
             compatibility. If you want to exclude a method, update the test.
         """.trimIndent()
-        ).that(mergeAdapterMethods).containsAtLeastElementsIn(adapterMethods)
+        ).that(concatenatedAdapterMethods).containsAtLeastElementsIn(adapterMethods)
     }
 
     @Test
     fun getAdapters() {
         val adapter1 = NestedTestAdapter(1)
         val adapter2 = NestedTestAdapter(2)
-        val merge = MergeAdapter(adapter1, adapter2)
-        assertThat(merge.adapters).isEqualTo(listOf(adapter1, adapter2))
-        merge.removeAdapter(adapter1)
-        assertThat(merge.adapters).isEqualTo(listOf(adapter2))
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
+        assertThat(concatenated.adapters).isEqualTo(listOf(adapter1, adapter2))
+        concatenated.removeAdapter(adapter1)
+        assertThat(concatenated.adapters).isEqualTo(listOf(adapter2))
     }
 
     @Test
@@ -960,24 +997,24 @@ class MergeAdapterTest {
         val adapter2 = NestedTestAdapter(3) { _, pos ->
             pos % 3
         }
-        val merge = MergeAdapter(
+        val concatenated = ConcatAdapter(
             Builder()
                 .setIsolateViewTypes(false)
                 .build(), adapter1, adapter2
         )
-        assertThat(merge).bindView(recyclerView, 2)
+        assertThat(concatenated).bindView(recyclerView, 2)
             .verifyBoundTo(adapter1, 2)
-        assertThat(merge).bindView(recyclerView, 3)
+        assertThat(concatenated).bindView(recyclerView, 3)
             .verifyBoundTo(adapter2, 0)
-        assertThat(merge.getItemViewType(0)).isEqualTo(0)
-        assertThat(merge.getItemViewType(1)).isEqualTo(1)
-        assertThat(merge.getItemViewType(2)).isEqualTo(0)
+        assertThat(concatenated.getItemViewType(0)).isEqualTo(0)
+        assertThat(concatenated.getItemViewType(1)).isEqualTo(1)
+        assertThat(concatenated.getItemViewType(2)).isEqualTo(0)
         // notice that it resets to 0 because type is based on position
-        assertThat(merge.getItemViewType(3)).isEqualTo(0)
-        assertThat(merge.getItemViewType(4)).isEqualTo(1)
-        assertThat(merge.getItemViewType(5)).isEqualTo(2)
+        assertThat(concatenated.getItemViewType(3)).isEqualTo(0)
+        assertThat(concatenated.getItemViewType(4)).isEqualTo(1)
+        assertThat(concatenated.getItemViewType(5)).isEqualTo(2)
         // ensure we bind via the correct adapter when a type is limited to a specific adapter
-        assertThat(merge).bindView(recyclerView, 5)
+        assertThat(concatenated).bindView(recyclerView, 5)
             .verifyBoundTo(adapter2, 2)
     }
 
@@ -989,42 +1026,42 @@ class MergeAdapterTest {
         val adapter2 = NestedTestAdapter(3) { item, _ ->
             item.id
         }
-        val merge = MergeAdapter(
+        val concatenated = ConcatAdapter(
             Builder()
                 .setIsolateViewTypes(false)
                 .build(), adapter1, adapter2
         )
-        assertThat(merge).bindView(recyclerView, 0)
+        assertThat(concatenated).bindView(recyclerView, 0)
             .verifyBoundTo(adapter1, 0)
-        assertThat(merge).bindView(recyclerView, 1)
+        assertThat(concatenated).bindView(recyclerView, 1)
             .verifyBoundTo(adapter1, 1)
-        assertThat(merge).bindView(recyclerView, 2)
+        assertThat(concatenated).bindView(recyclerView, 2)
             .verifyBoundTo(adapter1, 2)
-        assertThat(merge).bindView(recyclerView, 3)
+        assertThat(concatenated).bindView(recyclerView, 3)
             .verifyBoundTo(adapter2, 0)
-        assertThat(merge).bindView(recyclerView, 4)
+        assertThat(concatenated).bindView(recyclerView, 4)
             .verifyBoundTo(adapter2, 1)
-        assertThat(merge).bindView(recyclerView, 5)
+        assertThat(concatenated).bindView(recyclerView, 5)
             .verifyBoundTo(adapter2, 2)
     }
 
     @Test
     fun stableIds_noStableId() {
-        val mergeAdapter = MergeAdapter(
+        val concatenatedAdapter = ConcatAdapter(
             Builder().setStableIdMode(NO_STABLE_IDS).build()
         )
-        assertThat(mergeAdapter).doesNotHaveStableIds()
+        assertThat(concatenatedAdapter).doesNotHaveStableIds()
         // accept adapters with stable ids
-        assertThat(mergeAdapter.addAdapter(PositionAsIdsNestedTestAdapter(10))).isTrue()
+        assertThat(concatenatedAdapter.addAdapter(PositionAsIdsNestedTestAdapter(10))).isTrue()
     }
 
     @Test
     fun stableIds_isolated_addAdapterWithoutStableId() {
-        val mergeAdapter = MergeAdapter(
+        val concatenatedAdapter = ConcatAdapter(
             Builder().setStableIdMode(ISOLATED_STABLE_IDS).build()
         )
-        assertThat(mergeAdapter).hasStableIds()
-        assertThat(mergeAdapter).throwsException {
+        assertThat(concatenatedAdapter).hasStableIds()
+        assertThat(concatenatedAdapter).throwsException {
             it.addAdapter(NestedTestAdapter(10).also { nested ->
                 nested.setHasStableIds(false)
             })
@@ -1036,11 +1073,11 @@ class MergeAdapterTest {
 
     @Test
     fun stableIds_shared_addAdapterWithoutStableId() {
-        val mergeAdapter = MergeAdapter(
+        val concatenatedAdapter = ConcatAdapter(
             Builder().setStableIdMode(SHARED_STABLE_IDS).build()
         )
-        assertThat(mergeAdapter).hasStableIds()
-        assertThat(mergeAdapter).throwsException {
+        assertThat(concatenatedAdapter).hasStableIds()
+        assertThat(concatenatedAdapter).throwsException {
             it.addAdapter(NestedTestAdapter(10).also { nested ->
                 nested.setHasStableIds(false)
             })
@@ -1052,56 +1089,56 @@ class MergeAdapterTest {
 
     @Test
     fun stableIds_isolated() {
-        val mergeAdapter = MergeAdapter(
+        val concatenatedAdapter = ConcatAdapter(
             Builder().setStableIdMode(ISOLATED_STABLE_IDS).build()
         )
-        assertThat(mergeAdapter).hasStableIds()
+        assertThat(concatenatedAdapter).hasStableIds()
         val adapter1 = PositionAsIdsNestedTestAdapter(10)
         val adapter2 = PositionAsIdsNestedTestAdapter(10)
-        mergeAdapter.addAdapter(adapter1)
-        mergeAdapter.addAdapter(adapter2)
-        assertThat(mergeAdapter).hasItemIds((0..19))
+        concatenatedAdapter.addAdapter(adapter1)
+        concatenatedAdapter.addAdapter(adapter2)
+        assertThat(concatenatedAdapter).hasItemIds((0..19))
         // call again, ensure we are not popping up new ids
-        assertThat(mergeAdapter).hasItemIds((0..19))
-        mergeAdapter.removeAdapter(adapter1)
-        assertThat(mergeAdapter).hasItemIds((10..19))
+        assertThat(concatenatedAdapter).hasItemIds((0..19))
+        concatenatedAdapter.removeAdapter(adapter1)
+        assertThat(concatenatedAdapter).hasItemIds((10..19))
 
         val adapter3 = PositionAsIdsNestedTestAdapter(5)
-        mergeAdapter.addAdapter(adapter3)
-        assertThat(mergeAdapter).hasItemIds((10..24))
+        concatenatedAdapter.addAdapter(adapter3)
+        assertThat(concatenatedAdapter).hasItemIds((10..24))
 
         // add in between
         val adapter4 = PositionAsIdsNestedTestAdapter(5)
-        mergeAdapter.addAdapter(1, adapter4)
-        assertThat(mergeAdapter).hasItemIds(
+        concatenatedAdapter.addAdapter(1, adapter4)
+        assertThat(concatenatedAdapter).hasItemIds(
             (10..19) + (25..29) + (20..24)
         )
     }
 
     @Test
     fun stableIds_shared() {
-        val mergeAdapter = MergeAdapter(
+        val concatenatedAdapter = ConcatAdapter(
             Builder().setStableIdMode(SHARED_STABLE_IDS).build()
         )
-        assertThat(mergeAdapter).hasStableIds()
+        assertThat(concatenatedAdapter).hasStableIds()
         val adapter1 = UniqueItemIdsNestedTestAdapter(10)
         val adapter2 = UniqueItemIdsNestedTestAdapter(10)
-        mergeAdapter.addAdapter(adapter1)
-        mergeAdapter.addAdapter(adapter2)
-        assertThat(mergeAdapter).hasItemIds(adapter1.itemIds() + adapter2.itemIds())
+        concatenatedAdapter.addAdapter(adapter1)
+        concatenatedAdapter.addAdapter(adapter2)
+        assertThat(concatenatedAdapter).hasItemIds(adapter1.itemIds() + adapter2.itemIds())
         // call again, ensure we are not popping up new ids
-        assertThat(mergeAdapter).hasItemIds(adapter1.itemIds() + adapter2.itemIds())
-        mergeAdapter.removeAdapter(adapter1)
-        assertThat(mergeAdapter).hasItemIds(adapter2.itemIds())
+        assertThat(concatenatedAdapter).hasItemIds(adapter1.itemIds() + adapter2.itemIds())
+        concatenatedAdapter.removeAdapter(adapter1)
+        assertThat(concatenatedAdapter).hasItemIds(adapter2.itemIds())
 
         val adapter3 = UniqueItemIdsNestedTestAdapter(5)
-        mergeAdapter.addAdapter(adapter3)
-        assertThat(mergeAdapter).hasItemIds(adapter2.itemIds() + adapter3.itemIds())
+        concatenatedAdapter.addAdapter(adapter3)
+        assertThat(concatenatedAdapter).hasItemIds(adapter2.itemIds() + adapter3.itemIds())
 
         // add in between
         val adapter4 = UniqueItemIdsNestedTestAdapter(5)
-        mergeAdapter.addAdapter(1, adapter4)
-        assertThat(mergeAdapter).hasItemIds(
+        concatenatedAdapter.addAdapter(1, adapter4)
+        assertThat(concatenatedAdapter).hasItemIds(
             adapter2.itemIds() + adapter4.itemIds() + adapter3.itemIds()
         )
     }
@@ -1137,12 +1174,12 @@ class MergeAdapterTest {
 
     internal open inner class NestedTestAdapter(
         count: Int = 0,
-        val getLayoutParams: ((MergeAdapterViewHolder) -> LayoutParams)? = null,
+        val getLayoutParams: ((ConcatAdapterViewHolder) -> LayoutParams)? = null,
         val itemTypeLookup: ((TestItem, position: Int) -> Int)? = null
-    ) : RecyclerView.Adapter<MergeAdapterViewHolder>() {
-        private val attachedViewHolders = mutableListOf<MergeAdapterViewHolder>()
-        private val recycledViewHolders = mutableListOf<MergeAdapterViewHolder>()
-        private val failedToRecycleViewHolders = mutableListOf<MergeAdapterViewHolder>()
+    ) : RecyclerView.Adapter<ConcatAdapterViewHolder>() {
+        private val attachedViewHolders = mutableListOf<ConcatAdapterViewHolder>()
+        private val recycledViewHolders = mutableListOf<ConcatAdapterViewHolder>()
+        private val failedToRecycleViewHolders = mutableListOf<ConcatAdapterViewHolder>()
         private var attachedRecyclerViews = mutableListOf<RecyclerView>()
         private var observers = mutableListOf<RecyclerView.AdapterDataObserver>()
 
@@ -1152,14 +1189,14 @@ class MergeAdapterTest {
             }
         }
 
-        fun attachedViewHolders(): List<MergeAdapterViewHolder> = attachedViewHolders
+        fun attachedViewHolders(): List<ConcatAdapterViewHolder> = attachedViewHolders
 
-        override fun onViewAttachedToWindow(holder: MergeAdapterViewHolder) {
+        override fun onViewAttachedToWindow(holder: ConcatAdapterViewHolder) {
             assertThat(attachedViewHolders).doesNotContain(holder)
             attachedViewHolders.add(holder)
         }
 
-        override fun onViewDetachedFromWindow(holder: MergeAdapterViewHolder) {
+        override fun onViewDetachedFromWindow(holder: ConcatAdapterViewHolder) {
             assertThat(attachedViewHolders).contains(holder)
             attachedViewHolders.remove(holder)
         }
@@ -1249,37 +1286,37 @@ class MergeAdapterTest {
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MergeAdapterViewHolder {
-            return MergeAdapterViewHolder(parent.context, viewType).also { holder ->
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConcatAdapterViewHolder {
+            return ConcatAdapterViewHolder(parent.context, viewType).also { holder ->
                 getLayoutParams?.invoke(holder)?.let {
                     holder.itemView.layoutParams = it
                 }
             }
         }
 
-        override fun onBindViewHolder(holder: MergeAdapterViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: ConcatAdapterViewHolder, position: Int) {
             assertThat(getItemViewType(position)).isEqualTo(holder.localViewType)
             holder.bindTo(this, items[position], position)
         }
 
-        override fun onViewRecycled(holder: MergeAdapterViewHolder) {
+        override fun onViewRecycled(holder: ConcatAdapterViewHolder) {
             recycledViewHolders.add(holder)
             holder.onRecycled()
         }
 
         override fun getItemCount() = items.size
 
-        override fun onFailedToRecycleView(holder: MergeAdapterViewHolder): Boolean {
+        override fun onFailedToRecycleView(holder: ConcatAdapterViewHolder): Boolean {
             failedToRecycleViewHolders.add(holder)
             return super.onFailedToRecycleView(holder)
         }
 
         fun getItemAt(localPosition: Int) = items[localPosition]
-        fun recycledViewHolders(): List<MergeAdapterViewHolder> = recycledViewHolders
-        fun failedToRecycleViewHolders(): List<MergeAdapterViewHolder> = failedToRecycleViewHolders
+        fun recycledViewHolders(): List<ConcatAdapterViewHolder> = recycledViewHolders
+        fun failedToRecycleViewHolders(): List<ConcatAdapterViewHolder> = failedToRecycleViewHolders
     }
 
-    class MergeAdapterViewHolder(
+    class ConcatAdapterViewHolder(
         context: Context,
         val localViewType: Int
     ) : RecyclerView.ViewHolder(View(context)) {
