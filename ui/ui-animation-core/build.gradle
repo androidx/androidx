@@ -25,25 +25,39 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-android-extensions")
+    id("kotlin-multiplatform")
 }
 
 dependencies {
-    implementation(KOTLIN_STDLIB)
+    kotlinPlugin project(path: ":compose:compose-compiler")
+}
 
-    api "androidx.annotation:annotation:1.1.0"
-    implementation project(":ui:ui-util")
+kotlin {
+    android()
+    sourceSets {
+        commonMain.dependencies {
+            implementation project(":ui:ui-util")
+            implementation (KOTLIN_STDLIB_COMMON)
+        }
+        androidMain.dependencies {
+            api "androidx.annotation:annotation:1.1.0"
+            implementation (KOTLIN_STDLIB)
+        }
 
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation(KOTLIN_COROUTINES_CORE)
+        androidTest.dependencies {
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(JUNIT)
+            implementation(TRUTH)
+            implementation(KOTLIN_COROUTINES_CORE)
+        }
 
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(JUNIT)
+        androidAndroidTest.dependencies {
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(JUNIT)
+        }
+    }
 }
 
 androidx {
@@ -57,6 +71,8 @@ androidx {
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental"]
+        freeCompilerArgs += [
+            "-Xuse-experimental=kotlin.Experimental"
+        ]
     }
 }

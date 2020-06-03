@@ -16,7 +16,7 @@
 
 package androidx.animation
 
-import androidx.annotation.FloatRange
+import androidx.ui.util.annotation.FloatRange
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
@@ -89,8 +89,18 @@ private const val ExponentialDecayFriction = -4.2f
  * the animation will travel with the same starting condition.
  */
 class ExponentialDecay(
-    @FloatRange(from = 0.0, fromInclusive = false) frictionMultiplier: Float = 1f,
-    @FloatRange(from = 0.0, fromInclusive = false) absVelocityThreshold: Float = 0.1f
+    @FloatRange(
+        from = 0.0,
+        // TODO(b/158069385): use POSITIVE_INFINITY constant once it's possible to do in MPP code.
+        to = 3.4e38, // POSITIVE_INFINITY,
+        fromInclusive = false
+    ) frictionMultiplier: Float = 1f,
+    @FloatRange(
+        from = 0.0,
+        // TODO(b/158069385): use POSITIVE_INFINITY constant once it's possible to do in MPP code.
+        to = 3.4e38, // POSITIVE_INFINITY,
+        fromInclusive = false
+    ) absVelocityThreshold: Float = 0.1f
 ) : DecayAnimation {
 
     override val absVelocityThreshold: Float = max(0.0000001f, abs(absVelocityThreshold))

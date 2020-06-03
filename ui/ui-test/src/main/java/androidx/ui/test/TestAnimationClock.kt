@@ -121,6 +121,7 @@ class AnimationClockTestRule : TestRule {
         return AnimationClockStatement(base)
     }
 
+    @OptIn(androidx.animation.InternalAnimationApi::class)
     private inner class AnimationClockStatement(private val base: Statement) : Statement() {
         override fun evaluate() {
             val oldFactory = rootAnimationClockFactory
