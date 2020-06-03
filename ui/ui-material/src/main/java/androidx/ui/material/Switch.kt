@@ -16,9 +16,10 @@
 
 package androidx.ui.material
 
-import androidx.animation.AnimatedFloat
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
+import androidx.compose.State
+import androidx.compose.state
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
@@ -33,7 +34,7 @@ import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
-import androidx.ui.material.internal.StateDraggable
+import androidx.ui.material.internal.stateDraggable
 import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.dp
 
@@ -57,43 +58,34 @@ fun Switch(
     enabled: Boolean = true,
     color: Color = MaterialTheme.colors.secondaryVariant
 ) {
-    Box(
-        modifier.semantics(mergeAllDescendants = true).toggleable(
-            value = checked,
-            onValueChange = onCheckedChange,
-            enabled = enabled,
-            indication = RippleIndication(bounded = false)
-        )
-    ) {
-        SwitchImpl(
-            checked, onCheckedChange, color, Modifier.padding(DefaultSwitchPadding)
-        )
-    }
-}
-
-@Composable
-private fun SwitchImpl(
-    checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)?,
-    color: Color,
-    modifier: Modifier
-) {
     val minBound = 0f
     val maxBound = with(DensityAmbient.current) { ThumbPathLength.toPx() }
-    StateDraggable(
-        state = checked,
-        onStateChange = onCheckedChange ?: {},
-        anchorsToState = listOf(minBound to false, maxBound to true),
-        animationBuilder = AnimationBuilder,
-        dragDirection = DragDirection.Horizontal,
-        minValue = minBound,
-        maxValue = maxBound
-    ) { model ->
+    val thumbPosition = state { if (checked) maxBound else minBound }
+    Box(
+        modifier
+            .semantics(mergeAllDescendants = true)
+            .toggleable(
+                value = checked,
+                onValueChange = onCheckedChange,
+                enabled = enabled,
+                indication = RippleIndication(bounded = false)
+            )
+            .stateDraggable(
+                state = checked,
+                onStateChange = onCheckedChange,
+                anchorsToState = listOf(minBound to false, maxBound to true),
+                animationBuilder = AnimationBuilder,
+                dragDirection = DragDirection.Horizontal,
+                minValue = minBound,
+                maxValue = maxBound,
+                onNewValue = { thumbPosition.value = it }
+            )
+            .padding(DefaultSwitchPadding)
+    ) {
         DrawSwitch(
             checked = checked,
             checkedThumbColor = color,
-            thumbValue = model,
-            modifier = modifier
+            thumbValue = thumbPosition
         )
     }
 }
@@ -102,8 +94,7 @@ private fun SwitchImpl(
 private fun DrawSwitch(
     checked: Boolean,
     checkedThumbColor: Color,
-    thumbValue: AnimatedFloat,
-    modifier: Modifier
+    thumbValue: State<Float>
 ) {
     val thumbColor = if (checked) checkedThumbColor else MaterialTheme.colors.surface
     val trackColor = if (checked) {
@@ -116,7 +107,7 @@ private fun DrawSwitch(
     with(DensityAmbient.current) {
         trackStroke = Stroke(width = TrackStrokeWidth.toPx(), cap = StrokeCap.round)
     }
-    Canvas(modifier.preferredSize(SwitchWidth, SwitchHeight)) {
+    Canvas(Modifier.preferredSize(SwitchWidth, SwitchHeight)) {
         drawTrack(trackColor, TrackWidth.toPx(), trackStroke)
         drawThumb(thumbValue.value, ThumbDiameter.toPx(), thumbColor)
     }
