@@ -206,14 +206,18 @@ internal class AndroidComposeView constructor(
         }
     }
 
+    override fun processKeyInput(keyEvent: KeyEvent): Boolean {
+        return keyInputModifier.processKeyInput(keyEvent)
+    }
+
     override fun onKeyUp(keyCode: Int, event: AndroidKeyEvent): Boolean {
         val keyEvent = KeyEvent(Key(event.keyCode), KeyUp)
-        return keyInputModifier.processKeyInput(keyEvent)
+        return processKeyInput(keyEvent)
     }
 
     override fun onKeyDown(keyCode: Int, event: AndroidKeyEvent): Boolean {
         val keyEvent = KeyEvent(Key(event.keyCode), KeyDown)
-        return keyInputModifier.processKeyInput(keyEvent)
+        return processKeyInput(keyEvent)
     }
 
     private val modelObserver = ModelObserver { command ->
