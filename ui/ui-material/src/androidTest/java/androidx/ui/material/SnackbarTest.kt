@@ -42,7 +42,7 @@ import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
@@ -164,7 +164,7 @@ class SnackbarTest {
         ) {
             with(composeTestRule.density) {
                 val buttonTextPos =
-                    localSnackCoords.childToLocal(localButtonTextCoords, PxPosition.Origin)
+                    localSnackCoords.childToLocal(localButtonTextCoords, Offset.Zero)
                 assertThat(localTextCoords[FirstBaseline]).isNotEqualTo(IntPx.Zero)
                 assertThat(localButtonTextCoords[FirstBaseline]).isNotEqualTo(IntPx.Zero)
                 assertThat(
@@ -246,7 +246,7 @@ class SnackbarTest {
         if (localTextCoords != null && localButtonCoords != null && localSnackCoords != null) {
             with(composeTestRule.density) {
                 val buttonPositionInSnack =
-                    localSnackCoords.childToLocal(localButtonCoords, PxPosition.Origin)
+                    localSnackCoords.childToLocal(localButtonCoords, Offset.Zero)
                 val buttonCenter =
                     buttonPositionInSnack.y.roundToInt() +
                             (localButtonCoords.size.height / 2).value.toFloat()
@@ -303,9 +303,9 @@ class SnackbarTest {
         if (localTextCoords != null && localButtonCoords != null && localSnackCoords != null) {
             with(composeTestRule.density) {
                 val buttonPositionInSnack =
-                    localSnackCoords.childToLocal(localButtonCoords, PxPosition.Origin)
+                    localSnackCoords.childToLocal(localButtonCoords, Offset.Zero)
                 val textPositionInSnack =
-                    localSnackCoords.childToLocal(localTextCoords, PxPosition.Origin)
+                    localSnackCoords.childToLocal(localTextCoords, Offset.Zero)
 
                 assertThat(
                     textPositionInSnack.y.roundToInt().ipx + localTextCoords[FirstBaseline]!!

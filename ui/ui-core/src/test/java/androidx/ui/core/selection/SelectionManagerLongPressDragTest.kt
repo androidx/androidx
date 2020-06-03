@@ -21,7 +21,7 @@ import androidx.compose.frames.open
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.text.style.TextDirection
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
@@ -109,7 +109,7 @@ class SelectionManagerLongPressDragTest {
 
     @Test
     fun longPressDragObserver_onLongPress_calls_getSelection_change_selection() {
-        val position = PxPosition(100f, 100f)
+        val position = Offset(100f, 100f)
 
         selectionManager.longPressDragObserver.onLongPress(position)
 
@@ -129,10 +129,10 @@ class SelectionManagerLongPressDragTest {
     @Test
     fun longPressDragObserver_onDragStart_reset_dragTotalDistance() {
         // Setup. Make sure selectionManager.dragTotalDistance is not 0.
-        val dragDistance1 = PxPosition(15f, 10f)
-        val beginPosition1 = PxPosition(30f, 20f)
-        val dragDistance2 = PxPosition(100f, 300f)
-        val beginPosition2 = PxPosition(300f, 200f)
+        val dragDistance1 = Offset(15f, 10f)
+        val beginPosition1 = Offset(30f, 20f)
+        val dragDistance2 = Offset(100f, 300f)
+        val beginPosition2 = Offset(300f, 200f)
         selectionManager.longPressDragObserver.onLongPress(beginPosition1)
         selectionManager.longPressDragObserver.onDragStart()
         selectionManager.longPressDragObserver.onDrag(dragDistance1)
@@ -162,8 +162,8 @@ class SelectionManagerLongPressDragTest {
 
     @Test
     fun longPressDragObserver_onDrag_calls_getSelection_change_selection() {
-        val dragDistance = PxPosition(15f, 10f)
-        val beginPosition = PxPosition(30f, 20f)
+        val dragDistance = Offset(15f, 10f)
+        val beginPosition = Offset(30f, 20f)
         selectionManager.longPressDragObserver.onLongPress(beginPosition)
         selectionManager.selection = fakeInitialSelection
         selection = fakeInitialSelection
@@ -186,13 +186,13 @@ class SelectionManagerLongPressDragTest {
 
     @Test
     fun longPressDragObserver_onDrag_directly_not_call_getSelection_not_change_selection() {
-        val dragDistance = PxPosition(15f, 10f)
-        val beginPosition = PxPosition(30f, 20f)
+        val dragDistance = Offset(15f, 10f)
+        val beginPosition = Offset(30f, 20f)
 
         selection = fakeInitialSelection
         val result = selectionManager.longPressDragObserver.onDrag(dragDistance)
 
-        assertThat(result).isEqualTo(PxPosition.Origin)
+        assertThat(result).isEqualTo(Offset.Zero)
         verify(selectable, times(0))
             .getSelection(
                 startPosition = beginPosition,

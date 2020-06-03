@@ -188,10 +188,10 @@ private val EmptyCanvas = android.graphics.Canvas()
      */
     override fun drawLine(p1: Offset, p2: Offset, paint: Paint) {
         internalCanvas.drawLine(
-            p1.dx,
-            p1.dy,
-            p2.dx,
-            p2.dy,
+            p1.x,
+            p1.y,
+            p2.x,
+            p2.y,
             paint.asFrameworkPaint()
         )
     }
@@ -229,8 +229,8 @@ private val EmptyCanvas = android.graphics.Canvas()
      */
     override fun drawCircle(center: Offset, radius: Float, paint: Paint) {
         internalCanvas.drawCircle(
-            center.dx,
-            center.dy,
+            center.x,
+            center.y,
             radius,
             paint.asFrameworkPaint()
         )
@@ -271,8 +271,8 @@ private val EmptyCanvas = android.graphics.Canvas()
     override fun drawImage(image: ImageAsset, topLeftOffset: Offset, paint: Paint) {
         internalCanvas.drawBitmap(
             image.asAndroidBitmap(),
-            topLeftOffset.dx,
-            topLeftOffset.dy,
+            topLeftOffset.x,
+            topLeftOffset.y,
             paint.asFrameworkPaint()
         )
     }
@@ -294,16 +294,16 @@ private val EmptyCanvas = android.graphics.Canvas()
         internalCanvas.drawBitmap(
             image.asAndroidBitmap(),
             srcRect.apply {
-                left = srcOffset.dx.toInt()
-                top = srcOffset.dy.toInt()
-                right = (srcOffset.dx + srcSize.width).toInt()
-                bottom = (srcOffset.dy + srcSize.height).toInt()
+                left = srcOffset.x.toInt()
+                top = srcOffset.y.toInt()
+                right = (srcOffset.x + srcSize.width).toInt()
+                bottom = (srcOffset.y + srcSize.height).toInt()
             },
             dstRect.apply {
-                left = dstOffset.dx.toInt()
-                top = dstOffset.dy.toInt()
-                right = (dstOffset.dx + dstSize.width).toInt()
-                bottom = (dstOffset.dy + dstSize.height).toInt()
+                left = dstOffset.x.toInt()
+                top = dstOffset.y.toInt()
+                right = (dstOffset.x + dstSize.width).toInt()
+                bottom = (dstOffset.y + dstSize.height).toInt()
             },
             paint.asFrameworkPaint()
         )
@@ -337,8 +337,8 @@ private val EmptyCanvas = android.graphics.Canvas()
     private fun drawPoints(points: List<Offset>, paint: Paint) {
         points.fastForEach { point ->
             internalCanvas.drawPoint(
-                point.dx,
-                point.dy,
+                point.x,
+                point.y,
                 paint.asFrameworkPaint()
             )
         }
@@ -362,10 +362,10 @@ private val EmptyCanvas = android.graphics.Canvas()
                 val p1 = points[i]
                 val p2 = points[i + 1]
                 internalCanvas.drawLine(
-                    p1.dx,
-                    p1.dy,
-                    p2.dx,
-                    p2.dy,
+                    p1.x,
+                    p1.y,
+                    p2.x,
+                    p2.y,
                     paint.asFrameworkPaint()
                 )
             }

@@ -27,7 +27,7 @@ import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verifyEvent
 import androidx.ui.test.util.verifyPointer
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule
@@ -45,8 +45,8 @@ class SendUpTest {
         private const val pointer2 = 22
 
         // positions (used with corresponding pointerId: pointerX with positionX_Y)
-        private val position1_1 = PxPosition(11f, 11f)
-        private val position2_1 = PxPosition(21f, 21f)
+        private val position1_1 = Offset(11f, 11f)
+        private val position2_1 = Offset(21f, 21f)
     }
 
     @get:Rule

@@ -34,7 +34,7 @@ import androidx.ui.core.gesture.customevents.LongPressFiredEvent
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.util.fastAny
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
@@ -50,7 +50,7 @@ import kotlin.coroutines.CoroutineContext
  * (double tap, triple tap) and tap.
  */
 fun Modifier.longPressGestureFilter(
-    onLongPress: (PxPosition) -> Unit
+    onLongPress: (Offset) -> Unit
 ): Modifier = composed {
     @Suppress("DEPRECATION")
     val coroutineContext = CoroutineContextAmbient.current
@@ -62,7 +62,7 @@ fun Modifier.longPressGestureFilter(
 internal class LongPressGestureFilter(
     private val coroutineContext: CoroutineContext
 ) : PointerInputFilter() {
-    lateinit var onLongPress: (PxPosition) -> Unit
+    lateinit var onLongPress: (Offset) -> Unit
 
     var longPressTimeout = LongPressTimeout
 
@@ -71,7 +71,7 @@ internal class LongPressGestureFilter(
     }
 
     private var state = State.Idle
-    private val pointerPositions = linkedMapOf<PointerId, PxPosition>()
+    private val pointerPositions = linkedMapOf<PointerId, Offset>()
     private var job: Job? = null
     private lateinit var customEventDispatcher: CustomEventDispatcher
 

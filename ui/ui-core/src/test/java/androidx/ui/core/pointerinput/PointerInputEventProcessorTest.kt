@@ -29,9 +29,10 @@ import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.consumePositionChange
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.Uptime
 import androidx.ui.unit.ipx
+import androidx.ui.unit.minus
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -103,8 +104,8 @@ class PointerInputEventProcessorTest {
 
         root.insertAt(0, layoutNode)
 
-        val offset = PxPosition(100f, 200f)
-        val offset2 = PxPosition(300f, 400f)
+        val offset = Offset(100f, 200f)
+        val offset2 = Offset(300f, 400f)
 
         val events = arrayOf(
             PointerInputEvent(8712, Uptime.Boot + 3.milliseconds, offset, true),
@@ -164,7 +165,7 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
-        val childOffset = PxPosition(100f, 200f)
+        val childOffset = Offset(100f, 200f)
         val pointerInputFilter: PointerInputFilter = spy()
         val layoutNode = LayoutNode(
             100, 200, 301, 401,
@@ -176,10 +177,10 @@ class PointerInputEventProcessorTest {
         root.insertAt(0, layoutNode)
 
         val offsets = arrayOf(
-            PxPosition(100f, 200f),
-            PxPosition(300f, 200f),
-            PxPosition(100f, 400f),
-            PxPosition(300f, 400f)
+            Offset(100f, 200f),
+            Offset(300f, 200f),
+            Offset(100f, 400f),
+            Offset(300f, 400f)
         )
 
         val events = Array(4) { index ->
@@ -239,14 +240,14 @@ class PointerInputEventProcessorTest {
         root.insertAt(0, layoutNode)
 
         val offsets = arrayOf(
-            PxPosition(99f, 200f),
-            PxPosition(99f, 400f),
-            PxPosition(100f, 199f),
-            PxPosition(100f, 401f),
-            PxPosition(300f, 199f),
-            PxPosition(300f, 401f),
-            PxPosition(301f, 200f),
-            PxPosition(301f, 400f)
+            Offset(99f, 200f),
+            Offset(99f, 400f),
+            Offset(100f, 199f),
+            Offset(100f, 401f),
+            Offset(300f, 199f),
+            Offset(300f, 401f),
+            Offset(301f, 200f),
+            Offset(301f, 400f)
         )
 
         val events = Array(8) { index ->
@@ -314,9 +315,9 @@ class PointerInputEventProcessorTest {
         root.insertAt(0, parentLayoutNode)
 
         val offset = when (numberOfChildrenHit) {
-            3 -> PxPosition(250f, 250f)
-            2 -> PxPosition(150f, 150f)
-            1 -> PxPosition(50f, 50f)
+            3 -> Offset(250f, 250f)
+            2 -> Offset(150f, 150f)
+            1 -> Offset(50f, 50f)
             else -> throw IllegalStateException()
         }
 
@@ -393,21 +394,21 @@ class PointerInputEventProcessorTest {
             id = PointerId(0),
             current = PointerInputData(
                 Uptime.Boot + 5.milliseconds,
-                PxPosition(100f, 0f),
+                Offset(100f, 0f),
                 true
             ),
-            previous = PointerInputData(Uptime.Boot + 3.milliseconds, PxPosition(0f, 0f), true),
-            consumed = ConsumedData(positionChange = PxPosition(0f, 0f))
+            previous = PointerInputData(Uptime.Boot + 3.milliseconds, Offset(0f, 0f), true),
+            consumed = ConsumedData(positionChange = Offset(0f, 0f))
         )
         val output = PointerInputChange(
             id = PointerId(0),
             current = PointerInputData(
                 Uptime.Boot + 5.milliseconds,
-                PxPosition(100f, 0f),
+                Offset(100f, 0f),
                 true
             ),
-            previous = PointerInputData(Uptime.Boot + 3.milliseconds, PxPosition(0f, 0f), true),
-            consumed = ConsumedData(positionChange = PxPosition(13f, 0f))
+            previous = PointerInputData(Uptime.Boot + 3.milliseconds, Offset(0f, 0f), true),
+            consumed = ConsumedData(positionChange = Offset(13f, 0f))
         )
 
         val pointerInputFilter: PointerInputFilter =
@@ -435,13 +436,13 @@ class PointerInputEventProcessorTest {
         val down = PointerInputEvent(
             0,
             Uptime.Boot + 3.milliseconds,
-            PxPosition(0f, 0f),
+            Offset(0f, 0f),
             true
         )
         val move = PointerInputEvent(
             0,
             Uptime.Boot + 5.milliseconds,
-            PxPosition(100f, 0f),
+            Offset(100f, 0f),
             true
         )
 
@@ -518,14 +519,14 @@ class PointerInputEventProcessorTest {
         val middlePointerInputFilter: PointerInputFilter = spy()
         val parentPointerInputFilter: PointerInputFilter = spy()
 
-        val childOffset = PxPosition(cX1.toFloat(), cY1.toFloat())
+        val childOffset = Offset(cX1.toFloat(), cY1.toFloat())
         val childLayoutNode = LayoutNode(
             cX1, cY1, cX2, cY2,
             PointerInputModifierImpl(
                 childPointerInputFilter
             )
         )
-        val middleOffset = PxPosition(mX1.toFloat(), mY1.toFloat())
+        val middleOffset = Offset(mX1.toFloat(), mY1.toFloat())
         val middleLayoutNode: LayoutNode = LayoutNode(
             mX1, mY1, mX2, mY2,
             PointerInputModifierImpl(
@@ -549,7 +550,7 @@ class PointerInputEventProcessorTest {
 
         val additionalOffset = IntPxPosition(aOX.ipx, aOY.ipx)
 
-        val offset = PxPosition(pointerX.toFloat(), pointerY.toFloat())
+        val offset = Offset(pointerX.toFloat(), pointerY.toFloat())
 
         val down = PointerInputEvent(0, Uptime.Boot + 7.milliseconds, offset, true)
 
@@ -669,8 +670,8 @@ class PointerInputEventProcessorTest {
             insertAt(0, childLayoutNode2)
         }
 
-        val offset1 = PxPosition(25f, 25f)
-        val offset2 = PxPosition(75f, 75f)
+        val offset1 = Offset(25f, 25f)
+        val offset2 = Offset(75f, 75f)
 
         val down = PointerInputEvent(
             Uptime.Boot + 5.milliseconds,
@@ -690,7 +691,7 @@ class PointerInputEventProcessorTest {
             id = PointerId(1),
             current = PointerInputData(
                 Uptime.Boot + 5.milliseconds,
-                offset2 - PxPosition(50f, 50f),
+                offset2 - Offset(50f, 50f),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -780,9 +781,9 @@ class PointerInputEventProcessorTest {
             insertAt(2, childLayoutNode3)
         }
 
-        val offset1 = PxPosition(25f, 25f)
-        val offset2 = PxPosition(75f, 75f)
-        val offset3 = PxPosition(125f, 125f)
+        val offset1 = Offset(25f, 25f)
+        val offset2 = Offset(75f, 75f)
+        val offset3 = Offset(125f, 125f)
 
         val down = PointerInputEvent(
             Uptime.Boot + 5.milliseconds,
@@ -803,7 +804,7 @@ class PointerInputEventProcessorTest {
             id = PointerId(1),
             current = PointerInputData(
                 Uptime.Boot + 5.milliseconds,
-                offset2 - PxPosition(50f, 50f),
+                offset2 - Offset(50f, 50f),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -813,7 +814,7 @@ class PointerInputEventProcessorTest {
             id = PointerId(2),
             current = PointerInputData(
                 Uptime.Boot + 5.milliseconds,
-                offset3 - PxPosition(100f, 100f),
+                offset3 - Offset(100f, 100f),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -902,9 +903,9 @@ class PointerInputEventProcessorTest {
             insertAt(1, childLayoutNode2)
         }
 
-        val offset1 = PxPosition(50f, 25f)
-        val offset2 = PxPosition(50f, 75f)
-        val offset3 = PxPosition(50f, 125f)
+        val offset1 = Offset(50f, 25f)
+        val offset2 = Offset(50f, 75f)
+        val offset3 = Offset(50f, 125f)
 
         val down = PointerInputEvent(
             Uptime.Boot + 7.milliseconds,
@@ -925,7 +926,7 @@ class PointerInputEventProcessorTest {
             id = PointerId(1),
             current = PointerInputData(
                 Uptime.Boot + 7.milliseconds,
-                offset2 - PxPosition(25f, 50f),
+                offset2 - Offset(25f, 50f),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -1007,9 +1008,9 @@ class PointerInputEventProcessorTest {
             insertAt(1, childLayoutNode2)
         }
 
-        val offset1 = PxPosition(25f, 50f)
-        val offset2 = PxPosition(75f, 50f)
-        val offset3 = PxPosition(125f, 50f)
+        val offset1 = Offset(25f, 50f)
+        val offset2 = Offset(75f, 50f)
+        val offset3 = Offset(125f, 50f)
 
         val down = PointerInputEvent(
             Uptime.Boot + 11.milliseconds,
@@ -1030,7 +1031,7 @@ class PointerInputEventProcessorTest {
             id = PointerId(1),
             current = PointerInputData(
                 Uptime.Boot + 11.milliseconds,
-                offset2 - PxPosition(50f, 25f),
+                offset2 - Offset(50f, 25f),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -1140,21 +1141,21 @@ class PointerInputEventProcessorTest {
         }
         val offsetsThatHit =
             listOf(
-                PxPosition(1f, 1f),
-                PxPosition(3f, 1f),
-                PxPosition(1f, 3f),
-                PxPosition(3f, 3f)
+                Offset(1f, 1f),
+                Offset(3f, 1f),
+                Offset(1f, 3f),
+                Offset(3f, 3f)
             )
         val offsetsThatMiss =
             listOf(
-                PxPosition(1f, 0f),
-                PxPosition(3f, 0f),
-                PxPosition(0f, 1f),
-                PxPosition(4f, 1f),
-                PxPosition(0f, 3f),
-                PxPosition(4f, 3f),
-                PxPosition(1f, 4f),
-                PxPosition(3f, 4f)
+                Offset(1f, 0f),
+                Offset(3f, 0f),
+                Offset(0f, 1f),
+                Offset(4f, 1f),
+                Offset(0f, 3f),
+                Offset(4f, 3f),
+                Offset(1f, 4f),
+                Offset(3f, 4f)
             )
         val allOffsets = offsetsThatHit + offsetsThatMiss
         val pointerInputEvent =
@@ -1177,7 +1178,7 @@ class PointerInputEventProcessorTest {
                     id = PointerId(it.toLong()),
                     current = PointerInputData(
                         Uptime.Boot + 11.milliseconds,
-                        PxPosition(
+                        Offset(
                             if (offsetsThatHit[it].x == 1f) 1f else 0f,
                             if (offsetsThatHit[it].y == 1f) 1f else 0f
                         ),
@@ -1267,15 +1268,15 @@ class PointerInputEventProcessorTest {
         }
         val offsetsThatHit =
             listOf(
-                PxPosition(2f, 2f),
-                PxPosition(2f, 1f),
-                PxPosition(1f, 2f)
+                Offset(2f, 2f),
+                Offset(2f, 1f),
+                Offset(1f, 2f)
             )
         val offsetsThatMiss =
             listOf(
-                PxPosition(0f, 0f),
-                PxPosition(0f, 1f),
-                PxPosition(1f, 0f)
+                Offset(0f, 0f),
+                Offset(0f, 1f),
+                Offset(1f, 0f)
             )
         val allOffsets = offsetsThatHit + offsetsThatMiss
         val pointerInputEvent =
@@ -1299,7 +1300,7 @@ class PointerInputEventProcessorTest {
                     id = PointerId(it.toLong()),
                     current = PointerInputData(
                         Uptime.Boot + 11.milliseconds,
-                        offsetsThatHit[it] - PxPosition(1f, 1f),
+                        offsetsThatHit[it] - Offset(1f, 1f),
                         true
                     ),
                     previous = PointerInputData(null, null, false),
@@ -1341,7 +1342,7 @@ class PointerInputEventProcessorTest {
             insertAt(0, layoutNode)
         }
 
-        val offset1 = PxPosition(50f, 75f)
+        val offset1 = Offset(50f, 75f)
 
         val down = PointerInputEvent(
             Uptime.Boot + 7.milliseconds,
@@ -1354,7 +1355,7 @@ class PointerInputEventProcessorTest {
             id = PointerId(0),
             current = PointerInputData(
                 Uptime.Boot + 7.milliseconds,
-                offset1 - PxPosition(25f, 50f),
+                offset1 - Offset(25f, 50f),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -1421,7 +1422,7 @@ class PointerInputEventProcessorTest {
             insertAt(0, layoutNode4)
         }
 
-        val offset1 = PxPosition(499f, 499f)
+        val offset1 = Offset(499f, 499f)
 
         val downEvent = PointerInputEvent(
             Uptime.Boot + 7.milliseconds,
@@ -1434,7 +1435,7 @@ class PointerInputEventProcessorTest {
             id = PointerId(0),
             current = PointerInputData(
                 Uptime.Boot + 7.milliseconds,
-                offset1 - PxPosition(1f + 2f + 3f + 4f, 5f + 6f + 7f + 8f),
+                offset1 - Offset(1f + 2f + 3f + 4f, 5f + 6f + 7f + 8f),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -1500,7 +1501,7 @@ class PointerInputEventProcessorTest {
             insertAt(0, layoutNode5)
         }
 
-        val offset1 = PxPosition(499f, 499f)
+        val offset1 = Offset(499f, 499f)
 
         val downEvent = PointerInputEvent(
             Uptime.Boot + 3.milliseconds,
@@ -1513,7 +1514,7 @@ class PointerInputEventProcessorTest {
             id = PointerId(0),
             current = PointerInputData(
                 Uptime.Boot + 3.milliseconds,
-                offset1 - PxPosition(
+                offset1 - Offset(
                     1f + 2f + 3f + 4f + 5f,
                     6f + 7f + 8f + 9f + 10f
                 ),
@@ -1527,7 +1528,7 @@ class PointerInputEventProcessorTest {
             id = PointerId(0),
             current = PointerInputData(
                 Uptime.Boot + 3.milliseconds,
-                offset1 - PxPosition(3f + 4f + 5f, 8f + 9f + 10f),
+                offset1 - Offset(3f + 4f + 5f, 8f + 9f + 10f),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -1605,7 +1606,7 @@ class PointerInputEventProcessorTest {
         }
 
         val down = PointerInputEvent(
-            1, Uptime.Boot + 0.milliseconds, PxPosition(50f, 50f), true
+            1, Uptime.Boot + 0.milliseconds, Offset(50f, 50f), true
         )
 
         // Act
@@ -1632,7 +1633,7 @@ class PointerInputEventProcessorTest {
         }
 
         val down = PointerInputEvent(
-            1, Uptime.Boot + 0.milliseconds, PxPosition(0f, 0f), true
+            1, Uptime.Boot + 0.milliseconds, Offset(0f, 0f), true
         )
 
         // Act
@@ -1667,7 +1668,7 @@ class PointerInputEventProcessorTest {
             PointerInputEvent(
                 7,
                 Uptime.Boot + 5.milliseconds,
-                PxPosition(250f, 250f),
+                Offset(250f, 250f),
                 true
             )
 
@@ -1676,7 +1677,7 @@ class PointerInputEventProcessorTest {
                 id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
-                    PxPosition(250f, 250f),
+                    Offset(250f, 250f),
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -1727,7 +1728,7 @@ class PointerInputEventProcessorTest {
             PointerInputEvent(
                 7,
                 Uptime.Boot + 5.milliseconds,
-                PxPosition(200f, 200f),
+                Offset(200f, 200f),
                 true
             )
 
@@ -1738,13 +1739,13 @@ class PointerInputEventProcessorTest {
                     PointerInputEventData(
                         7,
                         Uptime.Boot + 10.milliseconds,
-                        PxPosition(200f, 200f),
+                        Offset(200f, 200f),
                         true
                     ),
                     PointerInputEventData(
                         9,
                         Uptime.Boot + 10.milliseconds,
-                        PxPosition(300f, 300f),
+                        Offset(300f, 300f),
                         true
                     )
                 )
@@ -1756,7 +1757,7 @@ class PointerInputEventProcessorTest {
                     id = PointerId(7),
                     current = PointerInputData(
                         Uptime.Boot + 5.milliseconds,
-                        PxPosition(200f, 200f),
+                        Offset(200f, 200f),
                         true
                     ),
                     previous = PointerInputData(null, null, false),
@@ -1770,12 +1771,12 @@ class PointerInputEventProcessorTest {
                     id = PointerId(7),
                     current = PointerInputData(
                         Uptime.Boot + 10.milliseconds,
-                        PxPosition(200f, 200f),
+                        Offset(200f, 200f),
                         true
                     ),
                     previous = PointerInputData(
                         Uptime.Boot + 5.milliseconds,
-                        PxPosition(200f, 200f),
+                        Offset(200f, 200f),
                         true
                     ),
                     consumed = ConsumedData()
@@ -1784,7 +1785,7 @@ class PointerInputEventProcessorTest {
                     id = PointerId(9),
                     current = PointerInputData(
                         Uptime.Boot + 10.milliseconds,
-                        PxPosition(300f, 300f),
+                        Offset(300f, 300f),
                         true
                     ),
                     previous = PointerInputData(null, null, false),
@@ -1848,7 +1849,7 @@ class PointerInputEventProcessorTest {
             PointerInputEventData(
                 7,
                 Uptime.Boot + 5.milliseconds,
-                PxPosition(100f, 100f),
+                Offset(100f, 100f),
                 true
             )
 
@@ -1856,7 +1857,7 @@ class PointerInputEventProcessorTest {
             PointerInputEventData(
                 9,
                 Uptime.Boot + 5.milliseconds,
-                PxPosition(300f, 300f),
+                Offset(300f, 300f),
                 true
             )
 
@@ -1870,7 +1871,7 @@ class PointerInputEventProcessorTest {
                 id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
-                    PxPosition(100f, 100f),
+                    Offset(100f, 100f),
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -1882,7 +1883,7 @@ class PointerInputEventProcessorTest {
                 id = PointerId(9),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
-                    PxPosition(100f, 100f),
+                    Offset(100f, 100f),
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -1942,7 +1943,7 @@ class PointerInputEventProcessorTest {
             PointerInputEvent(
                 7,
                 Uptime.Boot + 5.milliseconds,
-                PxPosition(200f, 200f),
+                Offset(200f, 200f),
                 true
             )
 
@@ -1950,7 +1951,7 @@ class PointerInputEventProcessorTest {
             PointerInputEvent(
                 7,
                 Uptime.Boot + 10.milliseconds,
-                PxPosition(300f, 300f),
+                Offset(300f, 300f),
                 true
             )
 
@@ -1959,7 +1960,7 @@ class PointerInputEventProcessorTest {
                 id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
-                    PxPosition(200f, 200f),
+                    Offset(200f, 200f),
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -1971,12 +1972,12 @@ class PointerInputEventProcessorTest {
                 id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 10.milliseconds,
-                    PxPosition(300f, 300f),
+                    Offset(300f, 300f),
                     true
                 ),
                 previous = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
-                    PxPosition(200f, 200f),
+                    Offset(200f, 200f),
                     true
                 ),
                 consumed = ConsumedData()
@@ -2031,7 +2032,7 @@ class PointerInputEventProcessorTest {
             PointerInputEvent(
                 7,
                 Uptime.Boot + 5.milliseconds,
-                PxPosition(200f, 200f),
+                Offset(200f, 200f),
                 true
             )
 
@@ -2040,7 +2041,7 @@ class PointerInputEventProcessorTest {
                 id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
-                    PxPosition(200f, 200f),
+                    Offset(200f, 200f),
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2090,7 +2091,7 @@ class PointerInputEventProcessorTest {
             PointerInputEvent(
                 7,
                 Uptime.Boot + 5.milliseconds,
-                PxPosition(200f, 200f),
+                Offset(200f, 200f),
                 true
             )
 
@@ -2098,7 +2099,7 @@ class PointerInputEventProcessorTest {
             PointerInputEvent(
                 7,
                 Uptime.Boot + 10.milliseconds,
-                PxPosition(200f, 200f),
+                Offset(200f, 200f),
                 true
             )
 
@@ -2107,7 +2108,7 @@ class PointerInputEventProcessorTest {
                 id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 5.milliseconds,
-                    PxPosition(200f, 200f),
+                    Offset(200f, 200f),
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2119,7 +2120,7 @@ class PointerInputEventProcessorTest {
                 id = PointerId(7),
                 current = PointerInputData(
                     Uptime.Boot + 10.milliseconds,
-                    PxPosition(200f, 200f),
+                    Offset(200f, 200f),
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -2179,7 +2180,7 @@ class PointerInputEventProcessorTest {
 
         root.insertAt(0, parentLayoutNode)
 
-        val offset = PxPosition(50f, 50f)
+        val offset = Offset(50f, 50f)
 
         val down = PointerInputEvent(0, Uptime.Boot + 7.milliseconds, offset, true)
         val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
@@ -2245,7 +2246,7 @@ class PointerInputEventProcessorTest {
         root.insertAt(0, parentLayoutNode)
 
         val down =
-            PointerInputEvent(0, Uptime.Boot + 7.milliseconds, PxPosition(50f, 50f), true)
+            PointerInputEvent(0, Uptime.Boot + 7.milliseconds, Offset(50f, 50f), true)
 
         val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
 
@@ -2285,7 +2286,7 @@ class PointerInputEventProcessorTest {
 
         root.insertAt(0, parentLayoutNode)
 
-        val offset = PxPosition(50f, 50f)
+        val offset = Offset(50f, 50f)
 
         val down = PointerInputEvent(0, Uptime.Boot + 7.milliseconds, offset, true)
         val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
@@ -2351,7 +2352,7 @@ class PointerInputEventProcessorTest {
         root.insertAt(0, parentLayoutNode)
 
         val down =
-            PointerInputEvent(0, Uptime.Boot + 7.milliseconds, PxPosition(50f, 50f), true)
+            PointerInputEvent(0, Uptime.Boot + 7.milliseconds, Offset(50f, 50f), true)
 
         val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
 
@@ -2369,7 +2370,7 @@ class PointerInputEventProcessorTest {
     @Test
     fun process_downNoPointerInputModifiers_nothingInteractedWithAndNoMovementConsumed() {
         val pointerInputEvent =
-            PointerInputEvent(0, Uptime.Boot + 7.milliseconds, PxPosition(0f, 0f), true)
+            PointerInputEvent(0, Uptime.Boot + 7.milliseconds, Offset(0f, 0f), true)
 
         val result: ProcessResult = pointerInputEventProcessor.process(pointerInputEvent)
 
@@ -2401,10 +2402,10 @@ class PointerInputEventProcessorTest {
 
         val offsets =
             listOf(
-                PxPosition(-1f, 0f),
-                PxPosition(0f, -1f),
-                PxPosition(1f, 0f),
-                PxPosition(0f, 1f)
+                Offset(-1f, 0f),
+                Offset(0f, -1f),
+                Offset(1f, 0f),
+                Offset(0f, 1f)
             )
         val pointerInputEvent =
             PointerInputEvent(
@@ -2442,7 +2443,7 @@ class PointerInputEventProcessorTest {
         )
         root.apply { insertAt(0, layoutNode) }
         val pointerInputEvent =
-            PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(0f, 0f), true)
+            PointerInputEvent(0, Uptime.Boot + 11.milliseconds, Offset(0f, 0f), true)
 
         // Act
 
@@ -2471,9 +2472,9 @@ class PointerInputEventProcessorTest {
             )
         )
         root.apply { insertAt(0, layoutNode) }
-        val down = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(0f, 0f), true)
+        val down = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, Offset(0f, 0f), true)
         pointerInputEventProcessor.process(down)
-        val move = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(1f, 0f), true)
+        val move = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, Offset(1f, 0f), true)
 
         // Act
 
@@ -2503,9 +2504,9 @@ class PointerInputEventProcessorTest {
             )
         )
         root.apply { insertAt(0, layoutNode) }
-        val down = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(0f, 0f), true)
+        val down = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, Offset(0f, 0f), true)
         pointerInputEventProcessor.process(down)
-        val move = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(1f, 0f), true)
+        val move = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, Offset(1f, 0f), true)
 
         // Act
 
@@ -2544,9 +2545,9 @@ class PointerInputEventProcessorTest {
             )
         )
         root.apply { insertAt(0, layoutNode) }
-        val down = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(0f, 0f), true)
+        val down = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, Offset(0f, 0f), true)
         pointerInputEventProcessor.process(down)
-        val move = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(1f, 0f), true)
+        val move = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, Offset(1f, 0f), true)
 
         // Act
 

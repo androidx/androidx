@@ -21,7 +21,7 @@ import androidx.compose.frames.open
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.text.style.TextDirection
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
@@ -46,7 +46,7 @@ class SelectionManagerDragTest {
     private val containerLayoutCoordinates = mock<LayoutCoordinates> {
         on { isAttached } doReturn true
     }
-    private val childToLocal_result = PxPosition(300f, 400f)
+    private val childToLocal_result = Offset(300f, 400f)
 
     private val startSelectable = mock<Selectable>()
     private val endSelectable = mock<Selectable>()
@@ -107,8 +107,8 @@ class SelectionManagerDragTest {
         whenever(startSelectable.getLayoutCoordinates()).thenReturn(startLayoutCoordinates)
         whenever(endSelectable.getLayoutCoordinates()).thenReturn(endLayoutCoordinates)
 
-        whenever(startSelectable.getHandlePosition(any(), any())).thenReturn(PxPosition.Origin)
-        whenever(endSelectable.getHandlePosition(any(), any())).thenReturn(PxPosition.Origin)
+        whenever(startSelectable.getHandlePosition(any(), any())).thenReturn(Offset.Zero)
+        whenever(endSelectable.getHandlePosition(any(), any())).thenReturn(Offset.Zero)
 
         selectionManager.containerLayoutCoordinates = containerLayoutCoordinates
         selectionManager.onSelectionChange = spyLambda
@@ -123,12 +123,12 @@ class SelectionManagerDragTest {
 
     @Test
     fun handleDragObserver_onStart_startHandle_enable_draggingHandle_get_startHandle_info() {
-        selectionManager.handleDragObserver(isStartHandle = true).onStart(PxPosition.Origin)
+        selectionManager.handleDragObserver(isStartHandle = true).onStart(Offset.Zero)
 
         verify(containerLayoutCoordinates, times(1))
             .childToLocal(
                 child = startLayoutCoordinates,
-                childLocal = getAdjustedCoordinates(PxPosition.Origin)
+                childLocal = getAdjustedCoordinates(Offset.Zero)
             )
         verify_draggingHandle(expectedDraggingHandleValue = true)
         verify(spyLambda, times(0)).invoke(fakeResultSelection)
@@ -136,12 +136,12 @@ class SelectionManagerDragTest {
 
     @Test
     fun handleDragObserver_onStart_endHandle_enable_draggingHandle_get_endHandle_info() {
-        selectionManager.handleDragObserver(isStartHandle = false).onStart(PxPosition.Origin)
+        selectionManager.handleDragObserver(isStartHandle = false).onStart(Offset.Zero)
 
         verify(containerLayoutCoordinates, times(1))
             .childToLocal(
                 child = endLayoutCoordinates,
-                childLocal = getAdjustedCoordinates(PxPosition.Origin)
+                childLocal = getAdjustedCoordinates(Offset.Zero)
             )
         verify_draggingHandle(expectedDraggingHandleValue = true)
         verify(spyLambda, times(0)).invoke(fakeResultSelection)
@@ -150,15 +150,15 @@ class SelectionManagerDragTest {
     @Test
     fun handleDragObserver_onDrag_startHandle_reuse_endHandle_calls_getSelection_change_selection
                 () {
-        val dragDistance = PxPosition(100f, 100f)
-        selectionManager.handleDragObserver(isStartHandle = true).onStart(PxPosition.Origin)
+        val dragDistance = Offset(100f, 100f)
+        selectionManager.handleDragObserver(isStartHandle = true).onStart(Offset.Zero)
 
         val result = selectionManager.handleDragObserver(isStartHandle = true).onDrag(dragDistance)
 
         verify(containerLayoutCoordinates, times(1))
             .childToLocal(
                 child = endLayoutCoordinates,
-                childLocal = getAdjustedCoordinates(PxPosition.Origin)
+                childLocal = getAdjustedCoordinates(Offset.Zero)
             )
         verify(selectable, times(1))
             .getSelection(
@@ -177,15 +177,15 @@ class SelectionManagerDragTest {
     @Test
     fun handleDragObserver_onDrag_endHandle_resue_startHandle_calls_getSelection_change_selection
                 () {
-        val dragDistance = PxPosition(100f, 100f)
-        selectionManager.handleDragObserver(isStartHandle = false).onStart(PxPosition.Origin)
+        val dragDistance = Offset(100f, 100f)
+        selectionManager.handleDragObserver(isStartHandle = false).onStart(Offset.Zero)
 
         val result = selectionManager.handleDragObserver(isStartHandle = false).onDrag(dragDistance)
 
         verify(containerLayoutCoordinates, times(1))
             .childToLocal(
                 child = startLayoutCoordinates,
-                childLocal = getAdjustedCoordinates(PxPosition.Origin)
+                childLocal = getAdjustedCoordinates(Offset.Zero)
             )
         verify(selectable, times(1))
             .getSelection(
@@ -203,21 +203,21 @@ class SelectionManagerDragTest {
 
     @Test
     fun handleDragObserver_onStop_disable_draggingHandle() {
-        selectionManager.handleDragObserver(false).onStart(PxPosition.Origin)
-        selectionManager.handleDragObserver(false).onDrag(PxPosition.Origin)
+        selectionManager.handleDragObserver(false).onStart(Offset.Zero)
+        selectionManager.handleDragObserver(false).onDrag(Offset.Zero)
 
-        selectionManager.handleDragObserver(false).onStop(PxPosition.Origin)
+        selectionManager.handleDragObserver(false).onStop(Offset.Zero)
 
         verify_draggingHandle(expectedDraggingHandleValue = false)
     }
 
-    private fun getAdjustedCoordinates(position: PxPosition): PxPosition {
-        return PxPosition(position.x, position.y - 1f)
+    private fun getAdjustedCoordinates(position: Offset): Offset {
+        return Offset(position.x, position.y - 1f)
     }
 
     private fun verify_draggingHandle(expectedDraggingHandleValue: Boolean) {
         // Verify draggingHandle is true, by verifying LongPress does nothing. Vice Versa.
-        val position = PxPosition(100f, 100f)
+        val position = Offset(100f, 100f)
         selectionManager.longPressDragObserver.onLongPress(position)
         verify(selectable, times(if (expectedDraggingHandleValue) 0 else 1))
             .getSelection(

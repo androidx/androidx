@@ -56,7 +56,7 @@ import androidx.ui.test.sendClick
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.sp
@@ -160,7 +160,7 @@ class FilledTextFieldTest {
 
         // Click on (2, 2) which is Surface area and outside input area
         findByTag("textField").doGesture {
-            sendClick(PxPosition(2.ipx, 2.ipx))
+            sendClick(Offset(2f, 2f))
         }
 
         testRule.runOnIdleComposeWithDensity {
@@ -171,7 +171,7 @@ class FilledTextFieldTest {
     @Test
     fun testLabelPosition_initial_withDefaultHeight() {
         val labelSize = Ref<IntPxSize>()
-        val labelPosition = Ref<PxPosition>()
+        val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
             Box {
                 FilledTextField(
@@ -211,7 +211,7 @@ class FilledTextFieldTest {
     fun testLabelPosition_initial_withCustomHeight() {
         val height = 80.dp
         val labelSize = Ref<IntPxSize>()
-        val labelPosition = Ref<PxPosition>()
+        val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
             Box {
                 FilledTextField(
@@ -246,7 +246,7 @@ class FilledTextFieldTest {
     @Test
     fun testLabelPosition_whenFocused() {
         val labelSize = Ref<IntPxSize>()
-        val labelPosition = Ref<PxPosition>()
+        val labelPosition = Ref<Offset>()
         val baseline = Ref<Float>()
         testRule.setMaterialContent {
             Box {
@@ -287,7 +287,7 @@ class FilledTextFieldTest {
     @Test
     fun testLabelPosition_whenInput() {
         val labelSize = Ref<IntPxSize>()
-        val labelPosition = Ref<PxPosition>()
+        val labelPosition = Ref<Offset>()
         val baseline = Ref<Float>()
         testRule.setMaterialContent {
             Box {
@@ -324,7 +324,7 @@ class FilledTextFieldTest {
     @Test
     fun testPlaceholderPosition_withLabel() {
         val placeholderSize = Ref<IntPxSize>()
-        val placeholderPosition = Ref<PxPosition>()
+        val placeholderPosition = Ref<Offset>()
         val placeholderBaseline = Ref<Float>()
         testRule.setMaterialContent {
             Box {
@@ -366,7 +366,7 @@ class FilledTextFieldTest {
     @Test
     fun testPlaceholderPosition_whenNoLabel() {
         val placeholderSize = Ref<IntPxSize>()
-        val placeholderPosition = Ref<PxPosition>()
+        val placeholderPosition = Ref<Offset>()
         val placeholderBaseline = Ref<Float>()
         val height = 60.dp
         testRule.setMaterialContent {
@@ -409,7 +409,7 @@ class FilledTextFieldTest {
     @Test
     fun testNoPlaceholder_whenInputNotEmpty() {
         val placeholderSize = Ref<IntPxSize>()
-        val placeholderPosition = Ref<PxPosition>()
+        val placeholderPosition = Ref<Offset>()
         testRule.setMaterialContent {
             Box {
                 FilledTextField(
@@ -462,9 +462,9 @@ class FilledTextFieldTest {
         val textFieldHeight = 60.dp
         val textFieldWidth = 300.dp
         val size = 30.dp
-        val leadingPosition = Ref<PxPosition>()
+        val leadingPosition = Ref<Offset>()
         val leadingSize = Ref<IntPxSize>()
-        val trailingPosition = Ref<PxPosition>()
+        val trailingPosition = Ref<Offset>()
         val trailingSize = Ref<IntPxSize>()
 
         testRule.setMaterialContent {
@@ -511,7 +511,7 @@ class FilledTextFieldTest {
     fun testLabelPositionX_initial_withTrailingAndLeading() {
         val height = 60.dp
         val iconSize = 30.dp
-        val labelPosition = Ref<PxPosition>()
+        val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
             Box {
                 FilledTextField(
@@ -540,7 +540,7 @@ class FilledTextFieldTest {
     @Test
     fun testLabelPositionX_initial_withEmptyTrailingAndLeading() {
         val height = 60.dp
-        val labelPosition = Ref<PxPosition>()
+        val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
             Box {
                 FilledTextField(

@@ -31,7 +31,7 @@ import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.ClickableTestBox.defaultSize
 import androidx.ui.test.util.ClickableTestBox.defaultTag
 import androidx.ui.test.util.isAlmostEqualTo
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -46,7 +46,7 @@ import org.junit.runners.Parameterized
 @MediumTest
 @RunWith(Parameterized::class)
 class SendLongClickTest(private val config: TestConfig) {
-    data class TestConfig(val position: PxPosition?)
+    data class TestConfig(val position: Offset?)
 
     companion object {
         @JvmStatic
@@ -55,7 +55,7 @@ class SendLongClickTest(private val config: TestConfig) {
             return mutableListOf<TestConfig>().apply {
                 for (x in listOf(1.0f, defaultSize / 4)) {
                     for (y in listOf(1.0f, defaultSize / 3)) {
-                        add(TestConfig(PxPosition(x, y)))
+                        add(TestConfig(Offset(x, y)))
                     }
                 }
                 add(TestConfig(null))
@@ -66,11 +66,11 @@ class SendLongClickTest(private val config: TestConfig) {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
-    private val recordedLongClicks = mutableListOf<PxPosition>()
+    private val recordedLongClicks = mutableListOf<Offset>()
     private val expectedClickPosition =
-        config.position ?: PxPosition(defaultSize / 2, defaultSize / 2)
+        config.position ?: Offset(defaultSize / 2, defaultSize / 2)
 
-    private fun recordLongPress(position: PxPosition) {
+    private fun recordLongPress(position: Offset) {
         recordedLongClicks.add(position)
     }
 

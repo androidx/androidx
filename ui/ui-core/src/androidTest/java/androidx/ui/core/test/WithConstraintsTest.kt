@@ -58,7 +58,7 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
@@ -648,7 +648,7 @@ class WithConstraintsTest {
                 ) { m, c, _ ->
                     val p = m.first().measure(c)
                     layout(0.ipx, 0.ipx) {
-                        p.place(PxPosition.Origin)
+                        p.place(Offset.Zero)
                         latch.countDown()
                     }
                 }
@@ -678,7 +678,7 @@ class WithConstraintsTest {
                 ) { m, c, _ ->
                     val p = m.first().measure(c)
                     layout(0.ipx, 0.ipx) {
-                        p.place(PxPosition.Origin)
+                        p.place(Offset.Zero)
                         latch.countDown()
                     }
                 }
@@ -776,7 +776,7 @@ class WithConstraintsTest {
                     }
                 ) { m, _, _ ->
                     layout(0.ipx, 0.ipx) {
-                        m.first().measure(Constraints(dpConstraints)).place(PxPosition.Origin)
+                        m.first().measure(Constraints(dpConstraints)).place(Offset.Zero)
                     }
                 }
             }

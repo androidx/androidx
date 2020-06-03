@@ -136,7 +136,7 @@ class VectorComponent(
             root.draw(Canvas(targetImage))
             isDirty = false
         }
-        canvas.drawImage(targetImage, Offset.zero, obtainVectorPaint(alpha, colorFilter))
+        canvas.drawImage(targetImage, Offset.Zero, obtainVectorPaint(alpha, colorFilter))
     }
 
     override fun draw(canvas: Canvas) {

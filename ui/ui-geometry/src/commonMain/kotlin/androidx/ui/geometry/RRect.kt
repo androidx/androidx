@@ -119,7 +119,7 @@ data class RRect(
      * recreating the object each time.
      */
     fun contains(point: Offset): Boolean {
-        if (point.dx < left || point.dx >= right || point.dy < top || point.dy >= bottom) {
+        if (point.x < left || point.x >= right || point.y < top || point.y >= bottom) {
             return false; // outside bounding box
         }
 
@@ -131,32 +131,32 @@ data class RRect(
         val radiusY: Float
         // check whether point is in one of the rounded corner areas
         // x, y -> translate to ellipse center
-        if (point.dx < left + scaled.topLeftRadiusX &&
-            point.dy < top + scaled.topLeftRadiusY
+        if (point.x < left + scaled.topLeftRadiusX &&
+            point.y < top + scaled.topLeftRadiusY
         ) {
-            x = point.dx - left - scaled.topLeftRadiusX
-            y = point.dy - top - scaled.topLeftRadiusY
+            x = point.x - left - scaled.topLeftRadiusX
+            y = point.y - top - scaled.topLeftRadiusY
             radiusX = scaled.topLeftRadiusX
             radiusY = scaled.topLeftRadiusY
-        } else if (point.dx > right - scaled.topRightRadiusX &&
-            point.dy < top + scaled.topRightRadiusY
+        } else if (point.x > right - scaled.topRightRadiusX &&
+            point.y < top + scaled.topRightRadiusY
         ) {
-            x = point.dx - right + scaled.topRightRadiusX
-            y = point.dy - top - scaled.topRightRadiusY
+            x = point.x - right + scaled.topRightRadiusX
+            y = point.y - top - scaled.topRightRadiusY
             radiusX = scaled.topRightRadiusX
             radiusY = scaled.topRightRadiusY
-        } else if (point.dx > right - scaled.bottomRightRadiusX &&
-            point.dy > bottom - scaled.bottomRightRadiusY
+        } else if (point.x > right - scaled.bottomRightRadiusX &&
+            point.y > bottom - scaled.bottomRightRadiusY
         ) {
-            x = point.dx - right + scaled.bottomRightRadiusX
-            y = point.dy - bottom + scaled.bottomRightRadiusY
+            x = point.x - right + scaled.bottomRightRadiusX
+            y = point.y - bottom + scaled.bottomRightRadiusY
             radiusX = scaled.bottomRightRadiusX
             radiusY = scaled.bottomRightRadiusY
-        } else if (point.dx < left + scaled.bottomLeftRadiusX &&
-            point.dy > bottom - scaled.bottomLeftRadiusY
+        } else if (point.x < left + scaled.bottomLeftRadiusX &&
+            point.y > bottom - scaled.bottomLeftRadiusY
         ) {
-            x = point.dx - left - scaled.bottomLeftRadiusX
-            y = point.dy - bottom + scaled.bottomLeftRadiusY
+            x = point.x - left - scaled.bottomLeftRadiusX
+            y = point.y - bottom + scaled.bottomLeftRadiusY
             radiusX = scaled.bottomLeftRadiusX
             radiusY = scaled.bottomLeftRadiusY
         } else {
@@ -369,10 +369,10 @@ fun RRect.bottomLeftRadius(): Radius = Radius.elliptical(bottomLeftRadiusX, bott
 
 /** Returns a new [RRect] translated by the given offset. */
 fun RRect.shift(offset: Offset): RRect = RRect(
-    left = left + offset.dx,
-    top = top + offset.dy,
-    right = right + offset.dx,
-    bottom = bottom + offset.dy,
+    left = left + offset.x,
+    top = top + offset.y,
+    right = right + offset.x,
+    bottom = bottom + offset.y,
     topLeft = Radius.elliptical(topLeftRadiusX, topLeftRadiusY),
     topRight = Radius.elliptical(topRightRadiusX, topRightRadiusY),
     bottomRight = Radius.elliptical(bottomRightRadiusX, bottomRightRadiusY),

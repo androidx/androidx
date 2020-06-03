@@ -61,9 +61,9 @@ class Vertices(
             val pointIndex = i / 2
             val point = points[pointIndex]
             if (i % 2 == 0) {
-                point.dx
+                point.x
             } else {
-                point.dy
+                point.y
             }
         }
     }

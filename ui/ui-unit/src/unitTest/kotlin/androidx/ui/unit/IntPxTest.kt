@@ -16,6 +16,7 @@
 
 package androidx.ui.unit
 
+import androidx.ui.geometry.Offset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -221,7 +222,7 @@ class IntPxTest {
 
     @Test
     fun createPosition() {
-        assertEquals(PxPosition(10f, 20f), PxPosition(10.ipx, 20.ipx))
+        assertEquals(Offset(10f, 20f), Offset(10.ipx, 20.ipx))
     }
 
     @Test

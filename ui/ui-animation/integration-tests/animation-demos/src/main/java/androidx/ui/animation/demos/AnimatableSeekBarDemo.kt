@@ -42,7 +42,6 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 
@@ -98,13 +97,13 @@ fun MovingTargetExample(clock: ManualAnimationClock) {
     val animValue = animatedFloat(0f)
 
     val dragObserver = object : DragObserver {
-        override fun onDrag(dragDistance: PxPosition): PxPosition {
+        override fun onDrag(dragDistance: Offset): Offset {
             animValue.snapTo(animValue.targetValue + dragDistance.x)
             return dragDistance
         }
     }
 
-    val onPress: (PxPosition) -> Unit = { position ->
+    val onPress: (Offset) -> Unit = { position ->
         animValue.animateTo(position.x,
             TweenBuilder<Float>().apply {
                 duration = 400
@@ -127,7 +126,7 @@ fun DrawSeekBar(modifier: Modifier = Modifier, x: Float, clock: ManualAnimationC
         clock.clockTimeMillis = (400 * (x / size.width)).toLong().coerceIn(0, 399)
         // draw bar
         val barHeight = 10.0f
-        val offset = Offset(0.0f, center.dy - 5)
+        val offset = Offset(0.0f, center.y - 5)
         drawRect(
             Color.Gray,
             topLeft = offset,
@@ -142,7 +141,7 @@ fun DrawSeekBar(modifier: Modifier = Modifier, x: Float, clock: ManualAnimationC
         // draw ticker
         drawCircle(
             Color.Magenta,
-            center = Offset(xConstraint, center.dy),
+            center = Offset(xConstraint, center.y),
             radius = 40f
         )
     }

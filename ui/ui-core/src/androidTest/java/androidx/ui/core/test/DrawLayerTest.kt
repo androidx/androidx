@@ -30,7 +30,7 @@ import androidx.ui.core.positionInRoot
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.height
 import androidx.ui.unit.ipx
 import androidx.ui.unit.width
@@ -79,7 +79,7 @@ class DrawLayerTest {
 
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
         activity.runOnUiThread {
-            assertEquals(PxPosition(10f, 10f), layoutCoordinates.positionInRoot)
+            assertEquals(Offset(10f, 10f), layoutCoordinates.positionInRoot)
             val bounds = layoutCoordinates.boundsInRoot
             assertEquals(PxBounds(10f, 10f, 40f, 40f), bounds)
             val global = layoutCoordinates.globalBounds
@@ -109,7 +109,7 @@ class DrawLayerTest {
         activity.runOnUiThread {
             val bounds = layoutCoordinates.boundsInRoot
             assertEquals(PxBounds(5f, 0f, 25f, 30f), bounds)
-            assertEquals(PxPosition(5f, 0f), layoutCoordinates.positionInRoot)
+            assertEquals(Offset(5f, 0f), layoutCoordinates.positionInRoot)
         }
     }
 
@@ -131,7 +131,7 @@ class DrawLayerTest {
         activity.runOnUiThread {
             val bounds = layoutCoordinates.boundsInRoot
             assertEquals(PxBounds(0f, 10f, 30f, 20f), bounds)
-            assertEquals(PxPosition(30f, 10f), layoutCoordinates.positionInRoot)
+            assertEquals(Offset(30f, 10f), layoutCoordinates.positionInRoot)
         }
     }
 
@@ -154,7 +154,7 @@ class DrawLayerTest {
         activity.runOnUiThread {
             val bounds = layoutCoordinates.boundsInRoot
             assertEquals(PxBounds(20f, 10f, 30f, 20f), bounds)
-            assertEquals(PxPosition(30f, 10f), layoutCoordinates.positionInRoot)
+            assertEquals(Offset(30f, 10f), layoutCoordinates.positionInRoot)
         }
     }
 
@@ -177,7 +177,7 @@ class DrawLayerTest {
         activity.runOnUiThread {
             val bounds = layoutCoordinates.boundsInRoot
             assertEquals(PxBounds(15f, 18f, 25f, 28f), bounds)
-            assertEquals(PxPosition(15f, 18f), layoutCoordinates.positionInRoot)
+            assertEquals(Offset(15f, 18f), layoutCoordinates.positionInRoot)
         }
     }
 
@@ -202,7 +202,7 @@ class DrawLayerTest {
             val bounds = layoutCoordinates.boundsInRoot
             assertEquals(PxBounds(10f, 10f, 20f, 20f), bounds)
             // Positions aren't clipped
-            assertEquals(PxPosition(5f, 10f), layoutCoordinates.positionInRoot)
+            assertEquals(Offset(5f, 10f), layoutCoordinates.positionInRoot)
         }
     }
 

@@ -33,7 +33,7 @@ import androidx.ui.core.gesture.customevents.DelayUpMessage
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.util.fastAny
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
@@ -54,7 +54,7 @@ import kotlin.coroutines.CoroutineContext
  * Also, given that this gesture detector is so temporary, opting to not write substantial tests.
  */
 fun Modifier.doubleTapGestureFilter(
-    onDoubleTap: (PxPosition) -> Unit
+    onDoubleTap: (Offset) -> Unit
 ): Modifier = composed {
     @Suppress("DEPRECATION")
     val coroutineContext = CoroutineContextAmbient.current
@@ -68,7 +68,7 @@ internal class DoubleTapGestureFilter(
     val coroutineContext: CoroutineContext
 ) : PointerInputFilter() {
 
-    lateinit var onDoubleTap: (PxPosition) -> Unit
+    lateinit var onDoubleTap: (Offset) -> Unit
 
     private enum class State {
         Idle, Down, Up, SecondDown

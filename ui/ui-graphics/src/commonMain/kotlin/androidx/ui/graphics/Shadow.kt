@@ -19,6 +19,7 @@ package androidx.ui.graphics
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.geometry.Offset
+import androidx.ui.geometry.lerp
 import androidx.ui.util.lerp
 
 /**
@@ -29,7 +30,7 @@ data class Shadow(
     @Stable
     val color: Color = Color(0xFF000000),
     @Stable
-    val offset: Offset = Offset.zero,
+    val offset: Offset = Offset.Zero,
     @Stable
     val blurRadius: Float = 0.0f
 ) {
@@ -49,7 +50,7 @@ data class Shadow(
 fun lerp(start: Shadow, stop: Shadow, fraction: Float): Shadow {
     return Shadow(
         lerp(start.color, stop.color, fraction),
-        Offset.lerp(start.offset, stop.offset, fraction),
+        lerp(start.offset, stop.offset, fraction),
         lerp(start.blurRadius, stop.blurRadius, fraction)
     )
 }

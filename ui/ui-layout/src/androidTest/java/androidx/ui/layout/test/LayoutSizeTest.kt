@@ -52,7 +52,7 @@ import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
@@ -75,7 +75,7 @@ class LayoutSizeTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(6)
         val size = MutableList(6) { Ref<IntPxSize>() }
-        val position = MutableList(6) { Ref<PxPosition>() }
+        val position = MutableList(6) { Ref<Offset>() }
         show {
             Stack {
                 Column {
@@ -122,22 +122,22 @@ class LayoutSizeTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
-        assertEquals(PxPosition.Origin, position[0].value)
+        assertEquals(Offset.Zero, position[0].value)
 
         assertEquals(IntPxSize(0.ipx, sizeIpx), size[1].value)
-        assertEquals(PxPosition(0.ipx, sizeIpx), position[1].value)
+        assertEquals(Offset(0f, sizeIpx.value.toFloat()), position[1].value)
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[2].value)
-        assertEquals(PxPosition(0.ipx, sizeIpx * 2), position[2].value)
+        assertEquals(Offset(0f, (sizeIpx * 2).value.toFloat()), position[2].value)
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[3].value)
-        assertEquals(PxPosition(0.ipx, sizeIpx * 3), position[3].value)
+        assertEquals(Offset(0f, (sizeIpx * 3).value.toFloat()), position[3].value)
 
         assertEquals(IntPxSize((sizeDp * 2).toIntPx(), sizeIpx), size[4].value)
-        assertEquals(PxPosition(0.ipx, sizeIpx * 4), position[4].value)
+        assertEquals(Offset(0f, (sizeIpx * 4).value.toFloat()), position[4].value)
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[5].value)
-        assertEquals(PxPosition(0.ipx, sizeIpx * 5), position[5].value)
+        assertEquals(Offset(0f, (sizeIpx * 5).value.toFloat()), position[5].value)
     }
 
     @Test
@@ -147,7 +147,7 @@ class LayoutSizeTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(6)
         val size = MutableList(6) { Ref<IntPxSize>() }
-        val position = MutableList(6) { Ref<PxPosition>() }
+        val position = MutableList(6) { Ref<Offset>() }
         show {
             Stack {
                 Row {
@@ -194,22 +194,22 @@ class LayoutSizeTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
-        assertEquals(PxPosition.Origin, position[0].value)
+        assertEquals(Offset.Zero, position[0].value)
 
         assertEquals(IntPxSize(sizeIpx, 0.ipx), size[1].value)
-        assertEquals(PxPosition(sizeIpx, 0.ipx), position[1].value)
+        assertEquals(Offset(sizeIpx.value.toFloat(), 0f), position[1].value)
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[2].value)
-        assertEquals(PxPosition(sizeIpx * 2, 0.ipx), position[2].value)
+        assertEquals(Offset((sizeIpx * 2).value.toFloat(), 0f), position[2].value)
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[3].value)
-        assertEquals(PxPosition(sizeIpx * 3, 0.ipx), position[3].value)
+        assertEquals(Offset((sizeIpx * 3).value.toFloat(), 0f), position[3].value)
 
         assertEquals(IntPxSize(sizeIpx, (sizeDp * 2).toIntPx()), size[4].value)
-        assertEquals(PxPosition(sizeIpx * 4, 0.ipx), position[4].value)
+        assertEquals(Offset((sizeIpx * 4).value.toFloat(), 0f), position[4].value)
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[5].value)
-        assertEquals(PxPosition(sizeIpx * 5, 0.ipx), position[5].value)
+        assertEquals(Offset((sizeIpx * 5).value.toFloat(), 0f), position[5].value)
     }
 
     @Test
@@ -219,7 +219,7 @@ class LayoutSizeTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(5)
         val size = MutableList(5) { Ref<IntPxSize>() }
-        val position = MutableList(5) { Ref<PxPosition>() }
+        val position = MutableList(5) { Ref<Offset>() }
         show {
             Stack {
                 Row {
@@ -261,19 +261,19 @@ class LayoutSizeTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[0].value)
-        assertEquals(PxPosition.Origin, position[0].value)
+        assertEquals(Offset.Zero, position[0].value)
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[1].value)
-        assertEquals(PxPosition(sizeIpx, 0.ipx), position[1].value)
+        assertEquals(Offset(sizeIpx.value.toFloat(), 0f), position[1].value)
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[2].value)
-        assertEquals(PxPosition(sizeIpx * 2, 0.ipx), position[2].value)
+        assertEquals(Offset((sizeIpx * 2).value.toFloat(), 0f), position[2].value)
 
         assertEquals(IntPxSize((sizeDp * 2).toIntPx(), (sizeDp * 2).toIntPx()), size[3].value)
-        assertEquals(PxPosition(sizeIpx * 3, 0.ipx), position[3].value)
+        assertEquals(Offset((sizeIpx * 3).value.toFloat(), 0f), position[3].value)
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[4].value)
-        assertEquals(PxPosition((sizeDp * 5).toIntPx(), 0.ipx), position[4].value)
+        assertEquals(Offset((sizeDp * 5).toIntPx().value.toFloat(), 0f), position[4].value)
     }
 
     @Test
@@ -284,7 +284,7 @@ class LayoutSizeTest : LayoutTest() {
         val positionedLatch = CountDownLatch(2)
         val constrainedBoxSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Stack {
                 Container(width = sizeDp, height = sizeDp) {
@@ -312,7 +312,7 @@ class LayoutSizeTest : LayoutTest() {
 
         assertEquals(IntPxSize(size, size), constrainedBoxSize.value)
         assertEquals(IntPxSize(size, size), childSize.value)
-        assertEquals(PxPosition.Origin, childPosition.value)
+        assertEquals(Offset.Zero, childPosition.value)
     }
 
     @Test
@@ -322,7 +322,7 @@ class LayoutSizeTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(4)
         val size = MutableList(4) { Ref<IntPxSize>() }
-        val position = MutableList(4) { Ref<PxPosition>() }
+        val position = MutableList(4) { Ref<Offset>() }
         show {
             Stack {
                 Row {
@@ -386,7 +386,7 @@ class LayoutSizeTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(1)
         val boxSize = Ref<IntPxSize>()
-        val boxPosition = Ref<PxPosition>()
+        val boxPosition = Ref<Offset>()
         show {
             Box(Modifier.wrapContentSize(Alignment.TopStart)
                 .size(sizeDp * 2)
@@ -397,7 +397,12 @@ class LayoutSizeTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(sizeIpx, sizeIpx), boxSize.value)
-        assertEquals(PxPosition(sizeIpx / 2, sizeIpx / 2), boxPosition.value)
+        assertEquals(
+            Offset(
+                (sizeIpx / 2).value.toFloat(),
+                (sizeIpx / 2).value.toFloat()),
+            boxPosition.value
+        )
     }
 
     @Test
@@ -407,7 +412,7 @@ class LayoutSizeTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(1)
         val boxSize = Ref<IntPxSize>()
-        val boxPosition = Ref<PxPosition>()
+        val boxPosition = Ref<Offset>()
         show {
             Box(Modifier.wrapContentSize(Alignment.TopStart)
                 .size(sizeDp)
@@ -418,7 +423,10 @@ class LayoutSizeTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(sizeIpx * 2, sizeIpx * 2), boxSize.value)
-        assertEquals(PxPosition(-sizeIpx / 2, -sizeIpx / 2), boxPosition.value)
+        assertEquals(
+            Offset((-sizeIpx / 2).value.toFloat(), (-sizeIpx / 2).value.toFloat()),
+            boxPosition.value
+        )
     }
 
     @Test
@@ -1014,7 +1022,7 @@ class LayoutSizeTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(1)
         val size = Ref<IntPxSize>()
-        val position = Ref<PxPosition>()
+        val position = Ref<Offset>()
         show {
             Layout(@Composable {
                 Stack {

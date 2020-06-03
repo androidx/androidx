@@ -25,11 +25,11 @@ import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.relativePaddingFrom
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
@@ -54,7 +54,7 @@ class AlignmentLineTest : LayoutTest() {
 
         val parentSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Stack(
                 Modifier.onPositioned {
@@ -103,7 +103,7 @@ class AlignmentLineTest : LayoutTest() {
 
         val parentSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Stack(
                 modifier = Modifier.onPositioned {
@@ -150,7 +150,7 @@ class AlignmentLineTest : LayoutTest() {
 
         val parentSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Stack(modifier = Modifier.saveLayoutInfo(parentSize, Ref(), layoutLatch)) {
                 Layout(
@@ -184,7 +184,7 @@ class AlignmentLineTest : LayoutTest() {
 
         val parentSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Stack(Modifier.saveLayoutInfo(parentSize, Ref(), layoutLatch)) {
                 Layout(
@@ -219,7 +219,7 @@ class AlignmentLineTest : LayoutTest() {
 
         val parentSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Stack(Modifier.saveLayoutInfo(parentSize, Ref(), layoutLatch)) {
                 Layout(
@@ -260,7 +260,7 @@ class AlignmentLineTest : LayoutTest() {
 
         val parentSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Stack(Modifier.saveLayoutInfo(parentSize, Ref(), layoutLatch)) {
                 Layout(

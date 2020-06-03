@@ -33,7 +33,7 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -168,7 +168,7 @@ class AndroidPointerInputTest {
     fun dispatchTouchEvent_notMeasuredLayoutsAreMeasuredFirst() {
         val size = mutableStateOf(10)
         val latch = CountDownLatch(1)
-        var consumedDownPosition: PxPosition? = null
+        var consumedDownPosition: Offset? = null
         rule.runOnUiThread {
             container.setContent(Recomposer.current()) {
                 Layout(
@@ -210,7 +210,7 @@ class AndroidPointerInputTest {
             // we expect it to first remeasure and only then process
             androidComposeView.dispatchTouchEvent(motionEvent)
 
-            assertThat(consumedDownPosition).isEqualTo(PxPosition(15f, 15f))
+            assertThat(consumedDownPosition).isEqualTo(Offset(15f, 15f))
         }
     }
 
@@ -277,7 +277,7 @@ fun Modifier.consumeMovementGestureFilter(consumeMovement: Boolean = false): Mod
     PointerInputModifierImpl(filter)
 }
 
-fun Modifier.consumeDownGestureFilter(onDown: (PxPosition) -> Unit): Modifier = composed {
+fun Modifier.consumeDownGestureFilter(onDown: (Offset) -> Unit): Modifier = composed {
     val filter = remember { ConsumeDownChangeFilter() }
     filter.onDown = onDown
     this + PointerInputModifierImpl(filter)
@@ -305,7 +305,7 @@ private class ConsumeMovementGestureFilter(val consumeMovement: Boolean) : Point
 }
 
 private class ConsumeDownChangeFilter : PointerInputFilter() {
-    var onDown by mutableStateOf<(PxPosition) -> Unit>({})
+    var onDown by mutableStateOf<(Offset) -> Unit>({})
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,

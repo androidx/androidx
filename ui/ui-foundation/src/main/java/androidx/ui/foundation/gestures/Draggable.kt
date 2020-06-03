@@ -25,7 +25,7 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.Interaction
 import androidx.ui.foundation.InteractionState
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 /**
  * Configure touch dragging for the UI element in a single [DragDirection]. The drag distance is
@@ -60,7 +60,7 @@ import androidx.ui.unit.PxPosition
  */
 fun Modifier.draggable(
     dragDirection: DragDirection,
-    onDragStarted: (startedPosition: PxPosition) -> Unit = {},
+    onDragStarted: (startedPosition: Offset) -> Unit = {},
     onDragStopped: (velocity: Float) -> Unit = {},
     enabled: Boolean = true,
     interactionState: InteractionState? = null,
@@ -74,20 +74,20 @@ fun Modifier.draggable(
     dragGestureFilter(
         dragObserver = object : DragObserver {
 
-            override fun onStart(downPosition: PxPosition) {
+            override fun onStart(downPosition: Offset) {
                 if (enabled) {
                     interactionState?.addInteraction(Interaction.Dragged)
                     onDragStarted(downPosition)
                 }
             }
 
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
+            override fun onDrag(dragDistance: Offset): Offset {
                 if (!enabled) return dragDistance
                 val projected = dragDirection.project(dragDistance)
                 val consumed = onDragDeltaConsumptionRequested(projected)
                 dragState.value = dragState.value + consumed
                 val fractionConsumed = if (projected == 0f) 0f else consumed / projected
-                return PxPosition(
+                return Offset(
                     dragDirection.xProjection(dragDistance.x) * fractionConsumed,
                     dragDirection.yProjection(dragDistance.y) * fractionConsumed
                 )
@@ -100,7 +100,7 @@ fun Modifier.draggable(
                 }
             }
 
-            override fun onStop(velocity: PxPosition) {
+            override fun onStop(velocity: Offset) {
                 if (enabled) {
                     interactionState?.removeInteraction(Interaction.Dragged)
                     onDragStopped(dragDirection.project(velocity))

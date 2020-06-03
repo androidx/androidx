@@ -19,7 +19,7 @@ package androidx.ui.core
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.Uptime
 
 /**
@@ -74,7 +74,7 @@ data class PointerInputData(
     @Stable
     val uptime: Uptime? = null,
     @Stable
-    val position: PxPosition? = null,
+    val position: Offset? = null,
     @Stable
     val down: Boolean = false
 )
@@ -87,7 +87,7 @@ data class PointerInputData(
  */
 @Immutable
 data class ConsumedData(
-    val positionChange: PxPosition = PxPosition.Origin,
+    val positionChange: Offset = Offset.Zero,
     val downChange: Boolean = false
 )
 
@@ -185,14 +185,14 @@ fun PointerInputChange.changedToUpIgnoreConsumed() = previous.down && !current.d
  * True if this [PointerInputChange] represents a pointer moving on the screen and some of that
  * movement has not been consumed.
  */
-fun PointerInputChange.positionChanged() = this.positionChangeInternal(false) != PxPosition.Origin
+fun PointerInputChange.positionChanged() = this.positionChangeInternal(false) != Offset.Zero
 
 /**
  * True if this [PointerInputChange] represents a pointer moving on the screen ignoring how much
  * of that movement may have been consumed.
  */
 fun PointerInputChange.positionChangedIgnoreConsumed() =
-    this.positionChangeInternal(true) != PxPosition.Origin
+    this.positionChangeInternal(true) != Offset.Zero
 
 /**
  * The distance that the pointer has moved on the screen minus any distance that has been consumed.
@@ -205,13 +205,13 @@ fun PointerInputChange.positionChange() = this.positionChangeInternal(false)
  */
 fun PointerInputChange.positionChangeIgnoreConsumed() = this.positionChangeInternal(true)
 
-private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = false): PxPosition {
+private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = false): Offset {
     val previousPosition = previous.position
     val currentPosition = current.position
 
     val offset =
         if (previousPosition == null || currentPosition == null) {
-            PxPosition(0.0f, 0.0f)
+            Offset(0.0f, 0.0f)
         } else {
             currentPosition - previousPosition
         }
@@ -269,7 +269,7 @@ fun PointerInputChange.consumePositionChange(
     //  less than the total change.
     return copy(
         consumed = this.consumed.copy(
-            positionChange = PxPosition(
+            positionChange = Offset(
                 newConsumedDx,
                 newConsumedDy
             )

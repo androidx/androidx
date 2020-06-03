@@ -46,7 +46,7 @@ import androidx.ui.graphics.useOrElse
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.center
 import androidx.ui.unit.ipx
@@ -122,7 +122,7 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
     }
 
     fun handleStart(
-        touchPosition: PxPosition,
+        touchPosition: Offset,
         density: Density,
         bounded: Boolean,
         radius: Dp?,

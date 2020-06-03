@@ -24,6 +24,7 @@ import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.plus
 
 /**
  * Organizes pointers and the [PointerInputFilter]s that they hit into a hierarchy such that

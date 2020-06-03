@@ -30,7 +30,7 @@ import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.offset
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 /**
@@ -38,10 +38,10 @@ import androidx.ui.unit.dp
  */
 @Composable
 fun RawDragGestureFilterDemo() {
-    val offset = state { PxPosition.Origin }
+    val offset = state { Offset.Zero }
 
     val dragObserver = object : DragObserver {
-        override fun onDrag(dragDistance: PxPosition): PxPosition {
+        override fun onDrag(dragDistance: Offset): Offset {
             offset.value += dragDistance
             return dragDistance
         }

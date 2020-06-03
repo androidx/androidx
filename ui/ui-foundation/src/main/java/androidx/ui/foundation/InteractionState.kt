@@ -21,7 +21,7 @@ import androidx.compose.State
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 /**
  * InteractionState represents a [Set] of [Interaction]s present on a given component. This
@@ -40,7 +40,7 @@ import androidx.ui.unit.PxPosition
 @Stable
 class InteractionState : State<Set<Interaction>> {
 
-    private var map: Map<Interaction, PxPosition?> by mutableStateOf(emptyMap())
+    private var map: Map<Interaction, Offset?> by mutableStateOf(emptyMap())
 
     override val value: Set<Interaction>
         get() = map.keys
@@ -55,7 +55,7 @@ class InteractionState : State<Set<Interaction>> {
      * [Interaction.Pressed], this will be the position of the pointer input that triggered the
      * pressed state.
      */
-    fun addInteraction(interaction: Interaction, position: PxPosition? = null) {
+    fun addInteraction(interaction: Interaction, position: Offset? = null) {
         if (interaction !in this) map = map + (interaction to position)
     }
 
@@ -73,7 +73,7 @@ class InteractionState : State<Set<Interaction>> {
      * @return position associated with the interaction, or `null` if the interaction is not
      * present in this state, or there is no associated position with the given interaction.
      */
-    fun interactionPositionFor(interaction: Interaction): PxPosition? = map[interaction]
+    fun interactionPositionFor(interaction: Interaction): Offset? = map[interaction]
 
     /**
      * @return whether the provided [interaction] exists inside this InteractionState.

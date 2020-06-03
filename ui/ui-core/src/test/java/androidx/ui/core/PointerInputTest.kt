@@ -17,7 +17,7 @@
 package androidx.ui.core
 
 import androidx.test.filters.SmallTest
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.Uptime
 import androidx.ui.unit.milliseconds
 import org.hamcrest.CoreMatchers.`is`
@@ -185,7 +185,7 @@ class PointerInputTest {
             createPointerInputChange(11f, 13f, true, 11f, 13f, true, 0f, 0f, false)
         assertThat(
             pointerInputChange.positionChange(),
-            `is`(equalTo(PxPosition.Origin))
+            `is`(equalTo(Offset.Zero))
         )
     }
 
@@ -195,7 +195,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
         assertThat(
             pointerInputChange.positionChange(),
-            `is`(equalTo(PxPosition(6f, 12f)))
+            `is`(equalTo(Offset(6f, 12f)))
         )
     }
 
@@ -205,7 +205,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 5f, 9f, false)
         assertThat(
             pointerInputChange.positionChange(),
-            `is`(equalTo(PxPosition(1f, 3f)))
+            `is`(equalTo(Offset(1f, 3f)))
         )
     }
 
@@ -215,7 +215,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 6f, 12f, false)
         assertThat(
             pointerInputChange.positionChange(),
-            `is`(equalTo(PxPosition.Origin))
+            `is`(equalTo(Offset.Zero))
         )
     }
 
@@ -225,7 +225,7 @@ class PointerInputTest {
             createPointerInputChange(11f, 13f, true, 11f, 13f, true, 0f, 0f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(PxPosition.Origin))
+            `is`(equalTo(Offset.Zero))
         )
     }
 
@@ -235,7 +235,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(PxPosition(6f, 12f)))
+            `is`(equalTo(Offset(6f, 12f)))
         )
     }
 
@@ -245,7 +245,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 5f, 9f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(PxPosition(6f, 12f)))
+            `is`(equalTo(Offset(6f, 12f)))
         )
     }
 
@@ -255,7 +255,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 6f, 12f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(PxPosition(6f, 12f)))
+            `is`(equalTo(Offset(6f, 12f)))
         )
     }
 
@@ -583,15 +583,15 @@ class PointerInputTest {
             PointerId(0),
             PointerInputData(
                 Uptime.Boot + 100.milliseconds,
-                PxPosition(currentX, currentY),
+                Offset(currentX, currentY),
                 currentDown
             ),
             PointerInputData(
                 Uptime.Boot + 0.milliseconds,
-                PxPosition(previousX, previousY),
+                Offset(previousX, previousY),
                 previousDown
             ),
-            ConsumedData(PxPosition(consumedX, consumedY), consumedDown)
+            ConsumedData(Offset(consumedX, consumedY), consumedDown)
         )
     }
 }

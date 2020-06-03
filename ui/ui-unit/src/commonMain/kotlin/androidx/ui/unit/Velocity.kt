@@ -17,12 +17,13 @@
 package androidx.ui.unit
 
 import androidx.compose.Immutable
+import androidx.ui.geometry.Offset
 
 /** A velocity in two dimensions. */
 @Immutable
 data class Velocity(
     /** The number of pixels per second of velocity in the x and y directions. */
-    val pixelsPerSecond: PxPosition
+    val pixelsPerSecond: Offset
 ) {
     /** Return the negation of a velocity. */
     operator fun unaryMinus() =
@@ -32,7 +33,7 @@ data class Velocity(
         /**
          * Velocity of 0 pixels per second in both x and y.
          */
-        val Zero = Velocity(PxPosition(0f, 0f))
+        val Zero = Velocity(Offset(0f, 0f))
     }
 }
 

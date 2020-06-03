@@ -22,7 +22,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 
 /**
@@ -52,7 +52,7 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
     }
 
     override fun hitTest(
-        pointerPositionRelativeToScreen: PxPosition,
+        pointerPositionRelativeToScreen: Offset,
         hitPointerInputFilters: MutableList<PointerInputFilter>
     ): Boolean {
         if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {

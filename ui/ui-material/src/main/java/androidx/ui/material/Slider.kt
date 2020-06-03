@@ -43,6 +43,7 @@ import androidx.ui.foundation.gestures.draggable
 import androidx.ui.foundation.indication
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
+import androidx.ui.geometry.lerp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
@@ -233,8 +234,8 @@ private fun Track(
     val activeTickColor = MaterialTheme.colors.onPrimary.copy(alpha = TickColorAlpha)
     val inactiveTickColor = color.copy(alpha = TickColorAlpha)
     Canvas(modifier) {
-        val sliderStart = Offset(thumbPx, center.dy)
-        val sliderMax = Offset(size.width - thumbPx, center.dy)
+        val sliderStart = Offset(thumbPx, center.y)
+        val sliderMax = Offset(size.width - thumbPx, center.y)
         drawLine(
             color.copy(alpha = InactiveTrackColorAlpha),
             sliderStart,
@@ -242,15 +243,15 @@ private fun Track(
             trackStroke
         )
         val sliderValue = Offset(
-            sliderStart.dx + (sliderMax.dx - sliderStart.dx) * positionFraction,
-            center.dy
+            sliderStart.x + (sliderMax.x - sliderStart.x) * positionFraction,
+            center.y
         )
 
         drawLine(color, sliderStart, sliderValue, trackStroke)
         tickFractions.groupBy { it > positionFraction }.forEach { (afterFraction, list) ->
             drawPoints(
                 list.map {
-                    Offset(Offset.lerp(sliderStart, sliderMax, it).dx, center.dy)
+                    Offset(lerp(sliderStart, sliderMax, it).x, center.y)
                 },
                 PointMode.points,
                 if (afterFraction) inactiveTickColor else activeTickColor,

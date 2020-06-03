@@ -339,7 +339,7 @@ package androidx.ui.text {
     method public float getMaxIntrinsicWidth();
     method public int getMaxLines();
     method public float getMinIntrinsicWidth();
-    method public int getOffsetForPosition(androidx.ui.unit.PxPosition position);
+    method public int getOffsetForPosition(androidx.ui.geometry.Offset position);
     method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
     method public androidx.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.ui.geometry.Rect> getPlaceholderRects();
@@ -396,7 +396,7 @@ package androidx.ui.text {
     method public float getLineWidth(int lineIndex);
     method public float getMaxIntrinsicWidth();
     method public float getMinIntrinsicWidth();
-    method public int getOffsetForPosition(androidx.ui.unit.PxPosition position);
+    method public int getOffsetForPosition(androidx.ui.geometry.Offset position);
     method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
     method public androidx.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.ui.geometry.Rect> getPlaceholderRects();
@@ -578,7 +578,7 @@ package androidx.ui.text {
     method public int getLineForOffset(int offset);
     method public int getLineStart(int lineIndex);
     method public float getLineTop(int lineIndex);
-    method public int getOffsetForPosition(androidx.ui.unit.PxPosition position);
+    method public int getOffsetForPosition(androidx.ui.geometry.Offset position);
     method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
     method public androidx.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.ui.geometry.Rect> getPlaceholderRects();

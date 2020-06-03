@@ -41,7 +41,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doPartialGesture
 import androidx.ui.test.findByTag
 import androidx.ui.test.sendDown
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
@@ -67,7 +67,7 @@ class LayerTouchTransformTest {
         var latch: CountDownLatch? = null
         rule.setContent {
             val pressed = state { false }
-            val onStart: (PxPosition) -> Unit = {
+            val onStart: (Offset) -> Unit = {
                 pressed.value = true
             }
 
@@ -122,7 +122,7 @@ class LayerTouchTransformTest {
         // however, after transformations, this point will be within
         // its bounds
 
-        val mappedPosition = PxPosition(342.0f, 168.0f)
+        val mappedPosition = Offset(342.0f, 168.0f)
         val node = findByTag(testTag).doPartialGesture { sendDown(mappedPosition) }
 
         latch = CountDownLatch(1).apply {

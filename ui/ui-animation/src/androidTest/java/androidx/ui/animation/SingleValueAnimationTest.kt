@@ -40,7 +40,7 @@ import androidx.ui.unit.Bounds
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Position
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.util.lerp
@@ -148,7 +148,7 @@ class SingleValueAnimationTest {
                     PxPositionToVectorConverter.convertFromVector(endVal)
                 else
                     PxPositionToVectorConverter.convertFromVector(startVal),
-                TweenBuilder<PxPosition>().apply(animConfig)
+                TweenBuilder<Offset>().apply(animConfig)
             )
 
             pxSizeValue = animate(

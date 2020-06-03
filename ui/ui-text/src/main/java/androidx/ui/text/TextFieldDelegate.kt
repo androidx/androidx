@@ -40,7 +40,7 @@ import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -182,7 +182,7 @@ class TextFieldDelegate {
                 )
                 Rect(0f, 0f, 1.0f, lineHeightForEmptyText.value.toFloat())
             }
-            val globalLT = layoutCoordinates.localToRoot(PxPosition(bbox.left, bbox.top))
+            val globalLT = layoutCoordinates.localToRoot(Offset(bbox.left, bbox.top))
 
             textInputService.notifyFocusedRect(
                 token,
@@ -225,7 +225,7 @@ class TextFieldDelegate {
          */
         @JvmStatic
         fun onRelease(
-            position: PxPosition,
+            position: Offset,
             textLayoutResult: TextLayoutResult,
             editProcessor: EditProcessor,
             offsetMap: OffsetMap,

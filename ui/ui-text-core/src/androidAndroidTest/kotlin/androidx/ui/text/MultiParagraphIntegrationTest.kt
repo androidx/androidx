@@ -29,7 +29,7 @@ import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.em
 import androidx.ui.unit.sp
@@ -224,7 +224,7 @@ class MultiParagraphIntegrationTest {
                 val x = fontSizeInPx * col
 
                 val actualOffset = paragraph.getOffsetForPosition(
-                    PxPosition(x.toFloat(), y.toFloat())
+                    Offset(x.toFloat(), y.toFloat())
                 )
                 assertWithMessage("getOffsetForPosition($x, $y) failed")
                     .that(actualOffset).isEqualTo(i)

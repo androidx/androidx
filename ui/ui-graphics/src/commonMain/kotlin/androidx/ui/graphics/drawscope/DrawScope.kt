@@ -111,8 +111,8 @@ inline fun DrawScope.translate(
  */
 inline fun DrawScope.rotate(
     degrees: Float,
-    pivotX: Float = center.dx,
-    pivotY: Float = center.dy,
+    pivotX: Float = center.x,
+    pivotY: Float = center.y,
     block: DrawScope.() -> Unit
 ) = withTransform({ rotate(degrees, pivotX, pivotY) }, block)
 
@@ -130,8 +130,8 @@ inline fun DrawScope.rotate(
  */
 inline fun DrawScope.rotateRad(
     radians: Float,
-    pivotX: Float = center.dx,
-    pivotY: Float = center.dy,
+    pivotX: Float = center.x,
+    pivotY: Float = center.y,
     block: DrawScope.() -> Unit
 ) = withTransform({ rotate(degrees(radians), pivotX, pivotY) }, block)
 
@@ -155,8 +155,8 @@ inline fun DrawScope.rotateRad(
 inline fun DrawScope.scale(
     scaleX: Float,
     scaleY: Float = scaleX,
-    pivotX: Float = center.dx,
-    pivotY: Float = center.dy,
+    pivotX: Float = center.x,
+    pivotY: Float = center.y,
     block: DrawScope.() -> Unit
 ) = withTransform({ scale(scaleX, scaleY, pivotX, pivotY) }, block)
 
@@ -413,17 +413,17 @@ abstract class DrawScope : Density {
      */
     fun drawRect(
         brush: Brush,
-        topLeft: Offset = Offset.zero,
+        topLeft: Offset = Offset.Zero,
         size: Size = this.size,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     ) = canvas?.drawRect(
-            left = topLeft.dx,
-            top = topLeft.dy,
-            right = topLeft.dx + size.width,
-            bottom = topLeft.dy + size.height,
+            left = topLeft.x,
+            top = topLeft.y,
+            right = topLeft.x + size.width,
+            bottom = topLeft.y + size.height,
             paint = configurePaint(brush, style, alpha, colorFilter, blendMode)
         )
 
@@ -443,17 +443,17 @@ abstract class DrawScope : Density {
      */
     fun drawRect(
         color: Color,
-        topLeft: Offset = Offset.zero,
+        topLeft: Offset = Offset.Zero,
         size: Size = this.size,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     ) = canvas?.drawRect(
-            left = topLeft.dx,
-            top = topLeft.dy,
-            right = topLeft.dx + size.width,
-            bottom = topLeft.dy + size.height,
+            left = topLeft.x,
+            top = topLeft.y,
+            right = topLeft.x + size.width,
+            bottom = topLeft.y + size.height,
             paint = configurePaint(color, style, alpha, colorFilter, blendMode)
         )
 
@@ -471,7 +471,7 @@ abstract class DrawScope : Density {
      */
     fun drawImage(
         image: ImageAsset,
-        topLeft: Offset = Offset.zero,
+        topLeft: Offset = Offset.Zero,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
@@ -507,9 +507,9 @@ abstract class DrawScope : Density {
      */
     fun drawImage(
         image: ImageAsset,
-        srcOffset: Offset = Offset.zero,
+        srcOffset: Offset = Offset.Zero,
         srcSize: Size = Size(image.width.toFloat(), image.height.toFloat()),
-        dstOffset: Offset = Offset.zero,
+        dstOffset: Offset = Offset.Zero,
         dstSize: Size = this.size,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
@@ -542,7 +542,7 @@ abstract class DrawScope : Density {
      */
     fun drawRoundRect(
         brush: Brush,
-        topLeft: Offset = Offset.zero,
+        topLeft: Offset = Offset.Zero,
         size: Size = this.size,
         radiusX: Float = 0.0f,
         radiusY: Float = 0.0f,
@@ -551,10 +551,10 @@ abstract class DrawScope : Density {
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     ) = canvas?.drawRoundRect(
-            topLeft.dx,
-            topLeft.dy,
-            topLeft.dx + size.width,
-            topLeft.dy + size.height,
+            topLeft.x,
+            topLeft.y,
+            topLeft.x + size.width,
+            topLeft.y + size.height,
             radiusX,
             radiusY,
             configurePaint(brush, style, alpha, colorFilter, blendMode)
@@ -577,7 +577,7 @@ abstract class DrawScope : Density {
      */
     fun drawRoundRect(
         color: Color,
-        topLeft: Offset = Offset.zero,
+        topLeft: Offset = Offset.Zero,
         size: Size = this.size,
         radiusX: Float = 0.0f,
         radiusY: Float = 0.0f,
@@ -586,10 +586,10 @@ abstract class DrawScope : Density {
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     ) = canvas?.drawRoundRect(
-            topLeft.dx,
-            topLeft.dy,
-            topLeft.dx + size.width,
-            topLeft.dy + size.height,
+            topLeft.x,
+            topLeft.y,
+            topLeft.x + size.width,
+            topLeft.y + size.height,
             radiusX,
             radiusY,
             configurePaint(color, style, alpha, colorFilter, blendMode)
@@ -665,17 +665,17 @@ abstract class DrawScope : Density {
      */
     fun drawOval(
         brush: Brush,
-        topLeft: Offset = Offset.zero,
+        topLeft: Offset = Offset.Zero,
         size: Size = this.size,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     ) = canvas?.drawOval(
-            left = topLeft.dx,
-            top = topLeft.dy,
-            right = topLeft.dx + size.width,
-            bottom = topLeft.dy + size.height,
+            left = topLeft.x,
+            top = topLeft.y,
+            right = topLeft.x + size.width,
+            bottom = topLeft.y + size.height,
             paint = configurePaint(brush, style, alpha, colorFilter, blendMode)
         )
 
@@ -695,17 +695,17 @@ abstract class DrawScope : Density {
      */
     fun drawOval(
         color: Color,
-        topLeft: Offset = Offset.zero,
+        topLeft: Offset = Offset.Zero,
         size: Size = this.size,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     ) = canvas?.drawOval(
-            left = topLeft.dx,
-            top = topLeft.dy,
-            right = topLeft.dx + size.width,
-            bottom = topLeft.dy + size.height,
+            left = topLeft.x,
+            top = topLeft.y,
+            right = topLeft.x + size.width,
+            bottom = topLeft.y + size.height,
             paint = configurePaint(color, style, alpha, colorFilter, blendMode)
         )
 
@@ -737,17 +737,17 @@ abstract class DrawScope : Density {
         startAngle: Float,
         sweepAngle: Float,
         useCenter: Boolean,
-        topLeft: Offset = Offset.zero,
+        topLeft: Offset = Offset.Zero,
         size: Size = this.size,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     ) = canvas?.drawArc(
-            left = topLeft.dx,
-            top = topLeft.dy,
-            right = topLeft.dx + size.width,
-            bottom = topLeft.dy + size.height,
+            left = topLeft.x,
+            top = topLeft.y,
+            right = topLeft.x + size.width,
+            bottom = topLeft.y + size.height,
             startAngle = startAngle,
             sweepAngle = sweepAngle,
             useCenter = useCenter,
@@ -782,17 +782,17 @@ abstract class DrawScope : Density {
         startAngle: Float,
         sweepAngle: Float,
         useCenter: Boolean,
-        topLeft: Offset = Offset.zero,
+        topLeft: Offset = Offset.Zero,
         size: Size = this.size,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
     ) = canvas?.drawArc(
-        left = topLeft.dx,
-        top = topLeft.dy,
-        right = topLeft.dx + size.width,
-        bottom = topLeft.dy + size.height,
+        left = topLeft.x,
+        top = topLeft.y,
+        right = topLeft.x + size.width,
+        bottom = topLeft.y + size.height,
         startAngle = startAngle,
         sweepAngle = sweepAngle,
         useCenter = useCenter,

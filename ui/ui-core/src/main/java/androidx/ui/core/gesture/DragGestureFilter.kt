@@ -21,7 +21,7 @@ import androidx.ui.core.Direction
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.composed
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 // TODO(b/146133703): Likely rename to PanGestureDetector as per b/146133703
 /**
@@ -91,24 +91,24 @@ private class TouchSlopDragGestureDetectorGlue {
         enabled = true
     }
 
-    fun startDrag(downPosition: PxPosition) {
+    fun startDrag(downPosition: Offset) {
         started = true
         touchSlopDragObserver.onStart(downPosition)
     }
 
     val rawDragObserver: DragObserver =
         object : DragObserver {
-            override fun onStart(downPosition: PxPosition) {
+            override fun onStart(downPosition: Offset) {
                 if (!started) {
                     touchSlopDragObserver.onStart(downPosition)
                 }
             }
 
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
+            override fun onDrag(dragDistance: Offset): Offset {
                 return touchSlopDragObserver.onDrag(dragDistance)
             }
 
-            override fun onStop(velocity: PxPosition) {
+            override fun onStop(velocity: Offset) {
                 started = false
                 enabled = false
                 touchSlopDragObserver.onStop(velocity)

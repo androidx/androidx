@@ -33,7 +33,7 @@ import androidx.ui.testutils.moveTo
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -3008,19 +3008,19 @@ class LayoutCoordinatesStub(
     override val parentCoordinates: LayoutCoordinates?
         get() = TODO("not implemented")
 
-    override fun globalToLocal(global: PxPosition): PxPosition {
+    override fun globalToLocal(global: Offset): Offset {
         TODO("not implemented")
     }
 
-    override fun localToGlobal(local: PxPosition): PxPosition {
+    override fun localToGlobal(local: Offset): Offset {
         return local
     }
 
-    override fun localToRoot(local: PxPosition): PxPosition {
+    override fun localToRoot(local: Offset): Offset {
         TODO("not implemented")
     }
 
-    override fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition {
+    override fun childToLocal(child: LayoutCoordinates, childLocal: Offset): Offset {
         TODO("not implemented")
     }
 

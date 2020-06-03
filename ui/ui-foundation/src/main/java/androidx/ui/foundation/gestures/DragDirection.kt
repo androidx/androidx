@@ -17,7 +17,7 @@
 package androidx.ui.foundation.gestures
 
 import androidx.ui.core.Direction
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 /**
  * Draggable Direction specifies the direction in which you can drag an [draggable] or [scrollable].
@@ -33,7 +33,7 @@ sealed class DragDirection {
         currentValue: Float
     ) -> Boolean
 
-    internal open fun project(pos: PxPosition) = xProjection(pos.x) + yProjection(pos.y)
+    internal open fun project(pos: Offset) = xProjection(pos.x) + yProjection(pos.y)
 
     /**
      * Horizontal direction of dragging in [draggable] or [scrollable].

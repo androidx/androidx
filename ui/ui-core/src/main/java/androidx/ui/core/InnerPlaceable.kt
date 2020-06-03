@@ -26,7 +26,7 @@ import androidx.ui.graphics.PaintingStyle
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.util.fastAny
 import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.fastForEach
@@ -149,7 +149,7 @@ internal class InnerPlaceable(
     }
 
     override fun hitTest(
-        pointerPositionRelativeToScreen: PxPosition,
+        pointerPositionRelativeToScreen: Offset,
         hitPointerInputFilters: MutableList<PointerInputFilter>
     ): Boolean {
         if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
@@ -181,7 +181,7 @@ internal class InnerPlaceable(
 
         private fun callHitTest(
             node: LayoutNode,
-            globalPoint: PxPosition,
+            globalPoint: Offset,
             hitPointerInputFilters: MutableList<PointerInputFilter>
         ): Boolean {
             return node.hitTest(globalPoint, hitPointerInputFilters)

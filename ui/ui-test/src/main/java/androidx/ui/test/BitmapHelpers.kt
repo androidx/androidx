@@ -129,10 +129,10 @@ fun Bitmap.assertPixelColor(
 fun Path.contains(offset: Offset): Boolean {
     val path = android.graphics.Path()
     path.addRect(
-        offset.dx - 0.01f,
-        offset.dy - 0.01f,
-        offset.dx + 0.01f,
-        offset.dy + 0.01f,
+        offset.x - 0.01f,
+        offset.y - 0.01f,
+        offset.x + 0.01f,
+        offset.y + 0.01f,
         android.graphics.Path.Direction.CW
     )
     if (path.op(asAndroidPath(), android.graphics.Path.Op.INTERSECT)) {
@@ -281,14 +281,14 @@ private fun pixelCloserToCenter(offset: Offset, shapeSizeX: Float, shapeSizeY: F
     val centerY = shapeSizeY / 2f
     val d = delta
     val x = when {
-        offset.dx > centerX -> offset.dx - d
-        offset.dx < centerX -> offset.dx + d
-        else -> offset.dx
+        offset.x > centerX -> offset.x - d
+        offset.x < centerX -> offset.x + d
+        else -> offset.x
     }
     val y = when {
-        offset.dy > centerY -> offset.dy - d
-        offset.dy < centerY -> offset.dy + d
-        else -> offset.dy
+        offset.y > centerY -> offset.y - d
+        offset.y < centerY -> offset.y + d
+        else -> offset.y
     }
     return Offset(x, y)
 }
@@ -303,14 +303,14 @@ private fun pixelFartherFromCenter(
     val centerY = shapeSizeY / 2f
     val d = delta
     val x = when {
-        offset.dx > centerX -> offset.dx + d
-        offset.dx < centerX -> offset.dx - d
-        else -> offset.dx
+        offset.x > centerX -> offset.x + d
+        offset.x < centerX -> offset.x - d
+        else -> offset.x
     }
     val y = when {
-        offset.dy > centerY -> offset.dy + d
-        offset.dy < centerY -> offset.dy - d
-        else -> offset.dy
+        offset.y > centerY -> offset.y + d
+        offset.y < centerY -> offset.y - d
+        else -> offset.y
     }
     return Offset(x, y)
 }

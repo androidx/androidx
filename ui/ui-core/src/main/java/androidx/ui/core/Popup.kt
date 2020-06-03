@@ -41,7 +41,7 @@ import androidx.ui.semantics.popup
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.round
@@ -186,7 +186,7 @@ fun Popup(
     Layout(children = emptyContent(), modifier = Modifier.onPositioned { childCoordinates ->
         val coordinates = childCoordinates.parentCoordinates!!
         // Get the global position of the parent
-        val layoutPosition = coordinates.localToGlobal(PxPosition.Origin).round()
+        val layoutPosition = coordinates.localToGlobal(Offset.Zero).round()
         val layoutSize = coordinates.size
 
         popupLayout.popupPositionProperties.parentPosition = layoutPosition

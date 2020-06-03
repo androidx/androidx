@@ -29,7 +29,7 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.length
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.subSequence
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
@@ -60,8 +60,8 @@ class SelectionManagerTest {
     private val middleSelectable = mock<Selectable>()
     private val lastSelectable = mock<Selectable>()
 
-    private val startCoordinates = PxPosition(3f, 30f)
-    private val endCoordinates = PxPosition(3f, 600f)
+    private val startCoordinates = Offset(3f, 30f)
+    private val endCoordinates = Offset(3f, 600f)
 
     private val fakeSelection =
         Selection(
@@ -99,7 +99,7 @@ class SelectionManagerTest {
     @Test
     fun mergeSelections_sorting() {
         whenever((containerLayoutCoordinates.childToLocal(any(), any())))
-            .thenReturn(PxPosition.Origin)
+            .thenReturn(Offset.Zero)
 
         selectionManager.mergeSelections(
             startPosition = startCoordinates,
@@ -141,7 +141,7 @@ class SelectionManagerTest {
         val selectable_another = mock<Selectable>()
         selectionRegistrar.subscribe(selectable_another)
         whenever((containerLayoutCoordinates.childToLocal(any(), any())))
-            .thenReturn(PxPosition.Origin)
+            .thenReturn(Offset.Zero)
 
         selectionManager.mergeSelections(
             startPosition = startCoordinates,
@@ -416,8 +416,8 @@ class SelectionManagerTest {
 
         verify(selectable, times(1))
             .getSelection(
-                startPosition = PxPosition(-1f, -1f),
-                endPosition = PxPosition(-1f, -1f),
+                startPosition = Offset(-1f, -1f),
+                endPosition = Offset(-1f, -1f),
                 containerLayoutCoordinates = selectionManager.requireContainerCoordinates(),
                 longPress = false,
                 previousSelection = fakeSelection

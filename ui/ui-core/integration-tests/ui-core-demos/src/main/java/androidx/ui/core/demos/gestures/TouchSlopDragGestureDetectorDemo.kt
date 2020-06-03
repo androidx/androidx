@@ -32,7 +32,7 @@ import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.offset
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 /**
@@ -44,32 +44,32 @@ fun DragGestureFilterDemo() {
     val verticalColor = Color(0xfff44336)
     val horizontalColor = Color(0xff2196f3)
 
-    val offset = state { PxPosition.Origin }
+    val offset = state { Offset.Zero }
     val canStartVertically = state { true }
 
     val dragObserver =
         if (canStartVertically.value) {
             object : DragObserver {
-                override fun onDrag(dragDistance: PxPosition): PxPosition {
+                override fun onDrag(dragDistance: Offset): Offset {
                     offset.value =
-                        PxPosition(x = offset.value.x, y = offset.value.y + dragDistance.y)
+                        Offset(x = offset.value.x, y = offset.value.y + dragDistance.y)
                     return dragDistance
                 }
 
-                override fun onStop(velocity: PxPosition) {
+                override fun onStop(velocity: Offset) {
                     canStartVertically.value = !canStartVertically.value
                     super.onStop(velocity)
                 }
             }
         } else {
             object : DragObserver {
-                override fun onDrag(dragDistance: PxPosition): PxPosition {
+                override fun onDrag(dragDistance: Offset): Offset {
                     offset.value =
-                        PxPosition(x = offset.value.x + dragDistance.x, y = offset.value.y)
+                        Offset(x = offset.value.x + dragDistance.x, y = offset.value.y)
                     return dragDistance
                 }
 
-                override fun onStop(velocity: PxPosition) {
+                override fun onStop(velocity: Offset) {
                     canStartVertically.value = !canStartVertically.value
                     super.onStop(velocity)
                 }

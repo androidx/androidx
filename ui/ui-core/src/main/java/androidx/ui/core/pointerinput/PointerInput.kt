@@ -24,7 +24,7 @@ import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.round
 
 /**
@@ -96,7 +96,7 @@ abstract class PointerInputFilter {
     internal val size: IntPxSize
         get() = layoutCoordinates.size
     internal val position: IntPxPosition
-        get() = layoutCoordinates.localToGlobal(PxPosition.Origin).round()
+        get() = layoutCoordinates.localToGlobal(Offset.Zero).round()
     internal val isAttached: Boolean
         get() = layoutCoordinates.isAttached
 }

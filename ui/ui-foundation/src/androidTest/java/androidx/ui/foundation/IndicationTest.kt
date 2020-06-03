@@ -29,7 +29,7 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendDown
 import androidx.ui.test.sendUp
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
@@ -123,7 +123,7 @@ class IndicationTest {
     @Test
     @Ignore("b/155466122: multitouch is not supported yet")
     fun indication_multiplyPress_firstWins() {
-        var lastPosition: PxPosition? = null
+        var lastPosition: Offset? = null
         val indication = makeIndication {
             it.value // value read
             lastPosition = it.interactionPositionFor(Interaction.Pressed)
@@ -136,11 +136,11 @@ class IndicationTest {
             )
         }
         assertThat(lastPosition).isNull()
-        var position1: PxPosition? = null
+        var position1: Offset? = null
         findByTag(testTag)
             .assertExists()
             .doPartialGesture {
-                position1 = PxPosition(center.x, center.y + 20f)
+                position1 = Offset(center.x, center.y + 20f)
                 // pointer 1, when we have multitouch
                 sendDown(position1!!)
             }
@@ -150,7 +150,7 @@ class IndicationTest {
         findByTag(testTag)
             .assertExists()
             .doPartialGesture {
-                val position2 = PxPosition(center.x + 20f, center.y)
+                val position2 = Offset(center.x + 20f, center.y)
                 // pointer 2, when we have multitouch
                 sendDown(position2)
             }

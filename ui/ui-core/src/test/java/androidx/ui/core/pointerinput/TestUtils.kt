@@ -29,7 +29,7 @@ import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.Uptime
 import androidx.ui.unit.ipx
 
@@ -78,7 +78,7 @@ internal fun LayoutNode.resize(width: IntPx, height: IntPx) {
 internal fun PointerInputEventData(
     id: Int,
     uptime: Uptime,
-    position: PxPosition?,
+    position: Offset?,
     down: Boolean
 ): PointerInputEventData {
     val pointerInputData = PointerInputData(uptime, position, down)
@@ -88,7 +88,7 @@ internal fun PointerInputEventData(
 internal fun PointerInputEvent(
     id: Int,
     uptime: Uptime,
-    position: PxPosition?,
+    position: Offset?,
     down: Boolean
 ): PointerInputEvent {
     return PointerInputEvent(

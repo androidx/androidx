@@ -36,7 +36,7 @@ import androidx.ui.layout.Spacer
 import androidx.ui.layout.preferredHeight
 import androidx.ui.material.MaterialTheme
 import androidx.ui.foundation.TextFieldValue
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 @Composable
@@ -111,7 +111,7 @@ private fun Autofill(
     }
 }
 
-private fun LayoutCoordinates.boundingBox() = localToGlobal(PxPosition.Origin).run {
+private fun LayoutCoordinates.boundingBox() = localToGlobal(Offset.Zero).run {
     Rect(
         x.toInt(),
         y.toInt(),

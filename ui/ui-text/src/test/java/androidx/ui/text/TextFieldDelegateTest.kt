@@ -37,7 +37,7 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -110,7 +110,7 @@ class TextFieldDelegateTest {
 
     @Test
     fun test_on_release() {
-        val position = PxPosition(100f, 200f)
+        val position = Offset(100f, 200f)
         val offset = 10
         val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(1, 1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
@@ -145,7 +145,7 @@ class TextFieldDelegateTest {
 
     @Test
     fun test_on_release_do_not_place_cursor_if_focus_is_out() {
-        val position = PxPosition(100f, 200f)
+        val position = Offset(100f, 200f)
         val offset = 10
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
 
@@ -229,7 +229,7 @@ class TextFieldDelegateTest {
     fun notify_focused_rect() {
         val dummyRect = Rect(0f, 1f, 2f, 3f)
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
-        val dummyPoint = PxPosition(5f, 6f)
+        val dummyPoint = Offset(5f, 6f)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
         val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(1, 1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
@@ -267,7 +267,7 @@ class TextFieldDelegateTest {
     fun notify_rect_tail() {
         val dummyRect = Rect(0f, 1f, 2f, 3f)
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
-        val dummyPoint = PxPosition(5f, 6f)
+        val dummyPoint = Offset(5f, 6f)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
         val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(12, 12))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
@@ -314,7 +314,7 @@ class TextFieldDelegateTest {
     @Test
     fun check_notify_rect_uses_offset_map() {
         val dummyRect = Rect(0f, 1f, 2f, 3f)
-        val dummyPoint = PxPosition(5f, 6f)
+        val dummyPoint = Offset(5f, 6f)
         val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(1, 3))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
@@ -336,7 +336,7 @@ class TextFieldDelegateTest {
 
     @Test
     fun check_on_release_uses_offset_map() {
-        val position = PxPosition(100f, 200f)
+        val position = Offset(100f, 200f)
         val offset = 10
         val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(1, 1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.

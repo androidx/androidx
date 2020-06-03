@@ -44,7 +44,7 @@ import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
@@ -209,7 +209,7 @@ fun CoreText(
                             maxHeight = floor(it.height).toInt().ipx
                         )
                     ),
-                    PxPosition(it.left, it.top)
+                    Offset(it.left, it.top)
                 )
             }
         }
@@ -299,7 +299,7 @@ private class TextState(
     /** The latest TextLayoutResult calculated in the measure block */
     var layoutResult: TextLayoutResult? = null
     /** The global position calculated during the last onPositioned callback */
-    var previousGlobalPosition: PxPosition = PxPosition.Origin
+    var previousGlobalPosition: Offset = Offset.Zero
     /** The paint used to draw highlight background for selected text. */
     val selectionPaint: Paint = Paint().apply {
         isAntiAlias = true

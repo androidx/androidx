@@ -28,7 +28,7 @@ import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 /**
@@ -65,7 +65,7 @@ private fun LongPressableContainer(
     val currentColor = state { defaultColor }
     val pressed = state { false }
 
-    val onLongPress: (PxPosition) -> Unit = {
+    val onLongPress: (Offset) -> Unit = {
         currentColor.value = currentColor.value.next()
     }
 

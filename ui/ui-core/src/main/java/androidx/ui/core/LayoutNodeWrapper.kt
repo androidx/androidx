@@ -27,9 +27,11 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.geometry.Offset
+import androidx.ui.unit.plus
+import androidx.ui.unit.minus
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
-import androidx.ui.unit.toPxPosition
+import androidx.ui.unit.toOffset
 
 /**
  * Measurable and Placeable type that has a position.
@@ -90,7 +92,7 @@ internal abstract class LayoutNodeWrapper(
      * Whether a pointer that is relative to the device screen is in the bounds of this
      * LayoutNodeWrapper.
      */
-    fun isGlobalPointerInBounds(globalPointerPosition: PxPosition): Boolean {
+    fun isGlobalPointerInBounds(globalPointerPosition: Offset): Boolean {
         // TODO(shepshapard): Right now globalToLocal has to traverse the tree all the way back up
         //  so calling this is expensive.  Would be nice to cache data such that this is cheap.
         val localPointerPosition = globalToLocal(globalPointerPosition)
@@ -144,11 +146,11 @@ internal abstract class LayoutNodeWrapper(
      * [hitPointerInputFilters].
      */
     abstract fun hitTest(
-        pointerPositionRelativeToScreen: PxPosition,
+        pointerPositionRelativeToScreen: Offset,
         hitPointerInputFilters: MutableList<PointerInputFilter>
     ): Boolean
 
-    override fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition {
+    override fun childToLocal(child: LayoutCoordinates, childLocal: Offset): Offset {
         check(isAttached) { ExpectAttachedLayoutCoordinates }
         check(child.isAttached) { "Child $child is not attached!" }
         var wrapper = child as LayoutNodeWrapper
@@ -165,19 +167,19 @@ internal abstract class LayoutNodeWrapper(
         return position
     }
 
-    override fun globalToLocal(global: PxPosition): PxPosition {
+    override fun globalToLocal(global: Offset): Offset {
         check(isAttached) { ExpectAttachedLayoutCoordinates }
         val wrapper = wrappedBy ?: return fromParentPosition(
-            global - layoutNode.requireOwner().calculatePosition().toPxPosition()
+            global - layoutNode.requireOwner().calculatePosition().toOffset()
         )
         return fromParentPosition(wrapper.globalToLocal(global))
     }
 
-    override fun localToGlobal(local: PxPosition): PxPosition {
+    override fun localToGlobal(local: Offset): Offset {
         return localToRoot(local) + layoutNode.requireOwner().calculatePosition()
     }
 
-    override fun localToRoot(local: PxPosition): PxPosition {
+    override fun localToRoot(local: Offset): Offset {
         check(isAttached) { ExpectAttachedLayoutCoordinates }
         var wrapper: LayoutNodeWrapper? = this
         var position = local
@@ -197,16 +199,16 @@ internal abstract class LayoutNodeWrapper(
     }
 
     /**
-     * Converts [position] in the local coordinate system to a [PxPosition] in the
+     * Converts [position] in the local coordinate system to a [Offset] in the
      * [parentCoordinates] coordinate system.
      */
-    open fun toParentPosition(position: PxPosition): PxPosition = position + this.position
+    open fun toParentPosition(position: Offset): Offset = position + this.position
 
     /**
-     * Converts [position] in the [parentCoordinates] coordinate system to a [PxPosition] in the
+     * Converts [position] in the [parentCoordinates] coordinate system to a [Offset] in the
      * local coordinate system.
      */
-    open fun fromParentPosition(position: PxPosition): PxPosition = position - this.position
+    open fun fromParentPosition(position: Offset): Offset = position - this.position
 
     protected fun drawBorder(canvas: Canvas, paint: Paint) {
         val rect = Rect(

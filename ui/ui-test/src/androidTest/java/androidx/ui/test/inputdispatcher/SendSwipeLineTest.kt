@@ -25,8 +25,8 @@ import androidx.ui.test.util.isMonotonicBetween
 import androidx.ui.test.util.moveEvents
 import androidx.ui.test.util.splitsDurationEquallyInto
 import androidx.ui.test.util.verify
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.milliseconds
+import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule
@@ -49,8 +49,8 @@ class SendSwipeLineTest(private val config: TestConfig) {
     )
 
     companion object {
-        private val start = PxPosition(5f, 7f)
-        private val end = PxPosition(23f, 29f)
+        private val start = Offset(5f, 7f)
+        private val end = Offset(23f, 29f)
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")

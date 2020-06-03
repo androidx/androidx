@@ -18,8 +18,8 @@ package androidx.ui.core
 
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
 
 /**
  * A holder of the measured bounds for the layout (MeasureBox).
@@ -49,22 +49,22 @@ interface LayoutCoordinates {
     /**
      * Converts a global position into a local position within this layout.
      */
-    fun globalToLocal(global: PxPosition): PxPosition
+    fun globalToLocal(global: Offset): Offset
 
     /**
      * Converts a local position within this layout into a global one.
      */
-    fun localToGlobal(local: PxPosition): PxPosition
+    fun localToGlobal(local: Offset): Offset
 
     /**
      * Converts a local position within this layout into an offset from the root composable.
      */
-    fun localToRoot(local: PxPosition): PxPosition
+    fun localToRoot(local: Offset): Offset
 
     /**
      * Converts a child layout position into a local position within this layout.
      */
-    fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition
+    fun childToLocal(child: LayoutCoordinates, childLocal: Offset): Offset
 
     /**
      * Returns the child bounding box, discarding clipped rectangles, in local coordinates.
@@ -81,12 +81,12 @@ interface LayoutCoordinates {
 /**
  * The global position of this layout.
  */
-inline val LayoutCoordinates.globalPosition: PxPosition get() = localToGlobal(PxPosition.Origin)
+inline val LayoutCoordinates.globalPosition: Offset get() = localToGlobal(Offset.Zero)
 
 /**
  * The position of this layout inside the root composable.
  */
-inline val LayoutCoordinates.positionInRoot: PxPosition get() = localToRoot(PxPosition.Origin)
+inline val LayoutCoordinates.positionInRoot: Offset get() = localToRoot(Offset.Zero)
 
 /**
  * The boundaries of this layout inside the root composable.
@@ -100,8 +100,8 @@ val LayoutCoordinates.boundsInRoot: PxBounds
  * Returns the position of the top-left in the parent's content area or (0, 0)
  * for the root.
  */
-val LayoutCoordinates.positionInParent: PxPosition
-    get() = parentCoordinates?.childToLocal(this, PxPosition.Origin) ?: PxPosition.Origin
+val LayoutCoordinates.positionInParent: Offset
+    get() = parentCoordinates?.childToLocal(this, Offset.Zero) ?: Offset.Zero
 
 /**
  * Returns the bounding box of the child in the parent's content area, including any clipping
@@ -118,7 +118,7 @@ val LayoutCoordinates.boundsInParent: PxBounds
 val LayoutCoordinates.globalBounds: PxBounds
     get() {
         val root = findRoot(this)
-        val rootPosition = root.localToGlobal(PxPosition.Origin)
+        val rootPosition = root.localToGlobal(Offset.Zero)
         val bounds = root.childBoundingBox(this)
         return PxBounds(
             left = bounds.left + rootPosition.x,

@@ -33,14 +33,12 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.center
 import androidx.ui.unit.dp
-import androidx.ui.unit.getDistance
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
-import androidx.ui.unit.toOffset
 import kotlin.math.max
 
 /**
@@ -67,7 +65,7 @@ import kotlin.math.max
  */
 internal class RippleAnimation(
     size: PxSize,
-    startPosition: PxPosition,
+    startPosition: Offset,
     radius: Float,
     private val clipped: Boolean,
     clock: AnimationClockObservable,
@@ -120,7 +118,7 @@ internal class RippleAnimation(
             animation[RippleTransition.Alpha]
         }
 
-        val centerOffset = animation[RippleTransition.Center].toOffset()
+        val centerOffset = animation[RippleTransition.Center]
         val radius = animation[RippleTransition.Radius]
 
         val modulatedColor = color.copy(alpha = color.alpha * alpha)
@@ -159,8 +157,8 @@ private object RippleTransition {
     fun definition(
         startRadius: Float,
         endRadius: Float,
-        startCenter: PxPosition,
-        endCenter: PxPosition
+        startCenter: Offset,
+        endCenter: Offset
     ) = transitionDefinition {
         state(State.Initial) {
             this[Alpha] = 0f
@@ -220,7 +218,7 @@ internal fun getRippleStartRadius(size: PxSize) =
  */
 internal fun Density.getRippleEndRadius(bounded: Boolean, size: PxSize): Float {
     val radiusCoveringBounds =
-        (PxPosition(size.width, size.height).getDistance() / 2f)
+        (Offset(size.width, size.height).getDistance() / 2f)
     return if (bounded) {
         radiusCoveringBounds + BoundedRippleExtraRadius.toPx()
     } else {

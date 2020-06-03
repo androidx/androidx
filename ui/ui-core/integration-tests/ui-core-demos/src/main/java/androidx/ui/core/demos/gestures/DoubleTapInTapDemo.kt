@@ -29,7 +29,7 @@ import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 @Composable
@@ -39,11 +39,11 @@ fun DoubleTapInTapDemo() {
     val innerColor = state { defaultColor }
     val outerColor = state { defaultColor }
 
-    val onTap: (PxPosition) -> Unit = {
+    val onTap: (Offset) -> Unit = {
         outerColor.value = outerColor.value.next()
     }
 
-    val onDoubleTap: (PxPosition) -> Unit = { _ ->
+    val onDoubleTap: (Offset) -> Unit = { _ ->
         innerColor.value = innerColor.value.prev()
     }
 

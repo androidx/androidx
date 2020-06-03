@@ -69,7 +69,6 @@ import androidx.ui.material.Surface
 import androidx.ui.material.TopAppBar
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import java.util.Locale
 
@@ -97,7 +96,7 @@ private fun ColorPicker(onColorChange: (Color) -> Unit) {
             .aspectRatio(1f)
     ) {
         val diameter = constraints.maxWidth.value
-        var position by state { PxPosition.Origin }
+        var position by state { Offset.Zero }
         val colorWheel = remember(diameter) { ColorWheel(diameter) }
 
         var isDragging by state { false }
@@ -136,17 +135,17 @@ private fun ColorPicker(onColorChange: (Color) -> Unit) {
  */
 @Composable
 private fun SimplePointerInput(
-    position: PxPosition,
-    onPositionChange: (PxPosition) -> Unit,
+    position: Offset,
+    onPositionChange: (Offset) -> Unit,
     onDragStateChange: (Boolean) -> Unit
 ): Modifier {
     val observer = object : DragObserver {
-        override fun onStart(downPosition: PxPosition) {
+        override fun onStart(downPosition: Offset) {
             onDragStateChange(true)
             onPositionChange(downPosition)
         }
 
-        override fun onDrag(dragDistance: PxPosition): PxPosition {
+        override fun onDrag(dragDistance: Offset): Offset {
             onPositionChange(position + dragDistance)
             return dragDistance
         }
@@ -155,7 +154,7 @@ private fun SimplePointerInput(
             onDragStateChange(false)
         }
 
-        override fun onStop(velocity: PxPosition) {
+        override fun onStop(velocity: Offset) {
             onDragStateChange(false)
         }
     }
@@ -167,7 +166,7 @@ private fun SimplePointerInput(
  * Magnifier displayed on top of [position] with the currently selected [color].
  */
 @Composable
-private fun Magnifier(visible: Boolean, position: PxPosition, color: Color) {
+private fun Magnifier(visible: Boolean, position: Offset, color: Color) {
     val offset = with(DensityAmbient.current) {
         Modifier.offset(
             position.x.toDp() - MagnifierWidth / 2,
@@ -340,7 +339,7 @@ private class ColorWheel(diameter: Int) {
  * @return the matching color for [position] inside [ColorWheel], or `null` if there is no color
  * or the color is partially transparent.
  */
-private fun ColorWheel.colorForPosition(position: PxPosition): Color {
+private fun ColorWheel.colorForPosition(position: Offset): Color {
     val x = position.x.toInt().coerceAtLeast(0)
     val y = position.y.toInt().coerceAtLeast(0)
     with(image.toPixelMap()) {

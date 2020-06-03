@@ -16,7 +16,7 @@
 
 package androidx.ui.text
 
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,38 +28,38 @@ class DragEventTrackerTest {
     fun test_not_moving() {
         val tracker = DragEventTracker()
 
-        tracker.init(PxPosition(10f, 20f))
-        assertEquals(PxPosition(10f, 20f), tracker.getPosition())
+        tracker.init(Offset(10f, 20f))
+        assertEquals(Offset(10f, 20f), tracker.getPosition())
     }
 
     @Test
     fun test_drag_one_distance() {
         val tracker = DragEventTracker()
 
-        tracker.init(PxPosition(10f, 20f))
-        tracker.onDrag(PxPosition(30f, 40f))
-        assertEquals(PxPosition(40f, 60f), tracker.getPosition())
+        tracker.init(Offset(10f, 20f))
+        tracker.onDrag(Offset(30f, 40f))
+        assertEquals(Offset(40f, 60f), tracker.getPosition())
     }
 
     @Test
     fun test_drag_two_distance() {
         val tracker = DragEventTracker()
 
-        tracker.init(PxPosition(10f, 20f))
-        tracker.onDrag(PxPosition(30f, 40f))
-        tracker.onDrag(PxPosition(50f, 60f))
-        assertEquals(PxPosition(60f, 80f), tracker.getPosition())
+        tracker.init(Offset(10f, 20f))
+        tracker.onDrag(Offset(30f, 40f))
+        tracker.onDrag(Offset(50f, 60f))
+        assertEquals(Offset(60f, 80f), tracker.getPosition())
     }
 
     @Test
     fun test_drag_twice() {
         val tracker = DragEventTracker()
 
-        tracker.init(PxPosition(10f, 20f))
-        tracker.onDrag(PxPosition(30f, 40f))
+        tracker.init(Offset(10f, 20f))
+        tracker.onDrag(Offset(30f, 40f))
 
-        tracker.init(PxPosition(50f, 60f))
-        tracker.onDrag(PxPosition(70f, 80f))
-        assertEquals(PxPosition(120f, 140f), tracker.getPosition())
+        tracker.init(Offset(50f, 60f))
+        tracker.onDrag(Offset(70f, 80f))
+        assertEquals(Offset(120f, 140f), tracker.getPosition())
     }
 }

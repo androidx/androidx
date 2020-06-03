@@ -28,7 +28,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 /**
@@ -38,7 +38,7 @@ import androidx.ui.unit.dp
 fun LongPressGestureDetectorDemo() {
     val color = state { Colors.random() }
 
-    val onLongPress = { _: PxPosition ->
+    val onLongPress = { _: Offset ->
         color.value = color.value.anotherRandomColor()
     }
 

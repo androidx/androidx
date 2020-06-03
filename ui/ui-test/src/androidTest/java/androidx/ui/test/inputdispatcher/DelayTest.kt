@@ -23,7 +23,7 @@ import androidx.ui.test.InputDispatcher
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.unit.Duration
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -55,7 +55,7 @@ class DelayTest(private val config: TestConfig) {
     }
 
     companion object {
-        private val anyPosition = PxPosition.Origin
+        private val anyPosition = Offset.Zero
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")

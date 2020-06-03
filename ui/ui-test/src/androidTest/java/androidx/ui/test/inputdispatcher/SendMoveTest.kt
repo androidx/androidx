@@ -28,7 +28,7 @@ import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verifyEvent
 import androidx.ui.test.util.verifyPointer
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule
@@ -47,14 +47,14 @@ class SendMoveTest {
         private const val pointer3 = 33
 
         // positions (used with corresponding pointerId: pointerX with positionX_Y)
-        private val position1_1 = PxPosition(11f, 11f)
-        private val position2_1 = PxPosition(21f, 21f)
-        private val position3_1 = PxPosition(31f, 31f)
+        private val position1_1 = Offset(11f, 11f)
+        private val position2_1 = Offset(21f, 21f)
+        private val position3_1 = Offset(31f, 31f)
 
-        private val position1_2 = PxPosition(12f, 12f)
-        private val position2_2 = PxPosition(22f, 22f)
+        private val position1_2 = Offset(12f, 12f)
+        private val position2_2 = Offset(22f, 22f)
 
-        private val position1_3 = PxPosition(13f, 13f)
+        private val position1_3 = Offset(13f, 13f)
     }
 
     private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)

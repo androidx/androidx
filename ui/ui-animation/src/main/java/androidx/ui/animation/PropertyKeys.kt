@@ -34,7 +34,7 @@ import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Position
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -59,13 +59,13 @@ class DpPropKey(override val label: String = "DpPropKey") : PropKey<Dp, Animatio
 }
 
 /**
- * Built-in property key for [PxPosition] properties.
+ * Built-in property key for [Offset] properties.
  *
  * @param label Label for distinguishing different prop keys in Android Studio.
  */
 class PxPositionPropKey(
     override val label: String = "PxPositionPropKey"
-) : PropKey<PxPosition, AnimationVector2D> {
+) : PropKey<Offset, AnimationVector2D> {
     override val typeConverter = PxPositionToVectorConverter
 }
 
@@ -177,12 +177,12 @@ val PxToVectorConverter: TwoWayConverter<Float, AnimationVector1D> = TwoWayConve
 )
 
 /**
- * A type converter that converts a [PxPosition] to a [AnimationVector2D], and vice versa.
+ * A type converter that converts a [Offset] to a [AnimationVector2D], and vice versa.
  */
-val PxPositionToVectorConverter: TwoWayConverter<PxPosition, AnimationVector2D> =
+val PxPositionToVectorConverter: TwoWayConverter<Offset, AnimationVector2D> =
     TwoWayConverter(
         convertToVector = { AnimationVector2D(it.x, it.y) },
-        convertFromVector = { PxPosition(it.v1, it.v2) }
+        convertFromVector = { Offset(it.v1, it.v2) }
     )
 
 /**

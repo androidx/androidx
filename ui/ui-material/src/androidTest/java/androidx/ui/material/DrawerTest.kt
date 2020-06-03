@@ -36,7 +36,7 @@ import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
 import androidx.ui.unit.width
@@ -59,11 +59,11 @@ class DrawerTest {
 
     @Test
     fun modalDrawer_testOffset_whenOpened() {
-        var position: PxPosition? = null
+        var position: Offset? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
                 Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
-                    position = coords.localToGlobal(PxPosition.Origin)
+                    position = coords.localToGlobal(Offset.Zero)
                 })
             }, bodyContent = emptyContent())
         }
@@ -74,11 +74,11 @@ class DrawerTest {
 
     @Test
     fun modalDrawer_testOffset_whenClosed() {
-        var position: PxPosition? = null
+        var position: Offset? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Closed, {}, drawerContent = {
                 Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
-                    position = coords.localToGlobal(PxPosition.Origin)
+                    position = coords.localToGlobal(Offset.Zero)
                 })
             }, bodyContent = emptyContent())
         }
@@ -108,11 +108,11 @@ class DrawerTest {
 
     @Test
     fun bottomDrawer_testOffset_whenOpened() {
-        var position: PxPosition? = null
+        var position: Offset? = null
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(DrawerState.Opened, {}, drawerContent = {
                 Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
-                    position = coords.localToGlobal(PxPosition.Origin)
+                    position = coords.localToGlobal(Offset.Zero)
                 })
             }, bodyContent = emptyContent())
         }
@@ -128,11 +128,11 @@ class DrawerTest {
 
     @Test
     fun bottomDrawer_testOffset_whenClosed() {
-        var position: PxPosition? = null
+        var position: Offset? = null
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(DrawerState.Closed, {}, drawerContent = {
                 Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
-                    position = coords.localToGlobal(PxPosition.Origin)
+                    position = coords.localToGlobal(Offset.Zero)
                 })
             }, bodyContent = emptyContent())
         }
@@ -154,7 +154,7 @@ class DrawerTest {
                 drawerContent = {
                     Box(
                         Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
-                            val pos = info.localToGlobal(PxPosition.Origin)
+                            val pos = info.localToGlobal(Offset.Zero)
                             if (pos.x == 0.0f) {
                                 // If fully opened, mark the openedLatch if present
                                 openedLatch?.countDown()
@@ -227,7 +227,7 @@ class DrawerTest {
         findByTag("Drawer").doGesture {
             val left = 1.0f
             val centerY = (globalBounds.height / 2)
-            sendClick(PxPosition(left, centerY))
+            sendClick(Offset(left, centerY))
         }
 
         runOnIdleCompose {
@@ -248,7 +248,7 @@ class DrawerTest {
             BottomDrawerLayout(drawerState.value, { drawerState.value = it },
                 drawerContent = {
                     Box(Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
-                        val pos = info.localToGlobal(PxPosition.Origin)
+                        val pos = info.localToGlobal(Offset.Zero)
                         if (pos.y.roundToInt() == openedHeight?.value) {
                             // If fully opened, mark the openedLatch if present
                             openedLatch?.countDown()
@@ -326,7 +326,7 @@ class DrawerTest {
             val bounds = globalBounds
             val centerX = bounds.width / 2
             val bottom = bounds.height - 1.0f
-            sendClick(PxPosition(centerX, bottom))
+            sendClick(Offset(centerX, bottom))
         }
 
         assertThat(drawerClicks).isEqualTo(1)

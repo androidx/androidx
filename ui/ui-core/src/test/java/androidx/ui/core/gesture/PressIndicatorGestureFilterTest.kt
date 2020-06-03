@@ -26,7 +26,7 @@ import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
 import com.nhaarman.mockitokotlin2.any
@@ -448,7 +448,7 @@ class PressIndicatorGestureFilterTest {
     fun onPointerInput_down_downPositionIsCorrect() {
         filter::onPointerInput
             .invokeOverAllPasses(down(0, 0.milliseconds, x = 13f, y = 17f))
-        verify(filter.onStart!!).invoke(PxPosition(13f, 17f))
+        verify(filter.onStart!!).invoke(Offset(13f, 17f))
     }
 
     // Verification of correct consumption behavior.

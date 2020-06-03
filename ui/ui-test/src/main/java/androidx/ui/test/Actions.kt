@@ -20,7 +20,7 @@ import androidx.ui.core.semantics.findClosestParentNode
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsPropertyKey
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 /**
  * Performs a click action on the given component.
@@ -66,7 +66,7 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
             "No Layout Node found!"
         )
 
-    val position = layoutNode.coordinates.localToGlobal(PxPosition(0.0f, 0.0f))
+    val position = layoutNode.coordinates.localToGlobal(Offset(0.0f, 0.0f))
 
     runOnUiThread {
         scrollableSemanticsNode.config[SemanticsActions.ScrollTo].action(
@@ -113,7 +113,7 @@ fun SemanticsNodeInteraction.doGesture(
  *
  * Example usage:
  * ```
- * val position = PxPosition(10.px, 10.px)
+ * val position = Offset(10f, 10f)
  * findByTag("myWidget")
  *    .doPartialGesture { sendDown(position) }
  *    .assertHasClickAction()
