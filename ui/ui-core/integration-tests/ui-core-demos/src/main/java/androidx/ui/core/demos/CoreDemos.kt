@@ -34,6 +34,7 @@ import androidx.ui.core.demos.gestures.RawDragGestureFilterDemo
 import androidx.ui.core.demos.gestures.ScaleGestureFilterDemo
 import androidx.ui.core.demos.gestures.DragGestureFilterDemo
 import androidx.ui.core.demos.gestures.LongPressDragGestureFilterDemo
+import androidx.ui.core.demos.gestures.PointerInputDuringSubComp
 import androidx.ui.core.demos.keyinput.KeyInputDemo
 import androidx.ui.core.demos.viewinterop.ViewInComposeDemo
 import androidx.ui.demos.common.ComposableDemo
@@ -61,7 +62,8 @@ private val GestureDemos = DemoCategory("Gestures", listOf(
             ComposableDemo("Drag and Scale") { DragAndScaleGestureDetectorDemo() },
             ComposableDemo("Popup Drag") { PopupDragDemo() },
             ComposableDemo("Double Tap in Tap") { DoubleTapInTapDemo() },
-            ComposableDemo("Nested Long Press") { NestedLongPressDemo() }
+            ComposableDemo("Nested Long Press") { NestedLongPressDemo() },
+            ComposableDemo("Pointer Input During Sub Comp") { PointerInputDuringSubComp() }
         ))
 ))
 
