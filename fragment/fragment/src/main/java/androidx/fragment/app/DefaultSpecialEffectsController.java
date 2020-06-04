@@ -381,7 +381,11 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         transitioningViews.removeAll(sharedElementLastInViews);
                     }
                 }
-                transitionImpl.addTargets(transition, transitioningViews);
+                if (transitioningViews.isEmpty()) {
+                    transitionImpl.addTarget(transition, nonExistentView);
+                } else {
+                    transitionImpl.addTargets(transition, transitioningViews);
+                }
                 if (transitionInfo.getOperation().getType().equals(Operation.Type.ADD)) {
                     enteringViews.addAll(transitioningViews);
                     if (hasLastInEpicenter) {
