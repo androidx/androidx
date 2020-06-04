@@ -17,14 +17,6 @@
 package androidx.ui.layout.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.Modifier
-import androidx.ui.core.tag
-import androidx.ui.foundation.Text
-import androidx.ui.layout.ConstraintLayout
-import androidx.ui.layout.ConstraintSet2
-import androidx.ui.layout.Dimension
-import androidx.ui.layout.atMost
-import androidx.ui.unit.dp
 
 /**
  * Simple ConstraintLayout demo
@@ -37,48 +29,10 @@ fun ConstraintLayoutDemo() {
 
 @Composable
 fun DemoInlineDSL() {
-    ConstraintLayout {
-        val (text1, text2, text3) = createRefs()
-
-        Text("Text1", Modifier.constrainAs(text1) {
-            start.linkTo(text2.end, margin = 20.dp)
-        })
-        Text("Text2", Modifier.constrainAs(text2) {
-            centerTo(parent)
-        })
-
-        val barrier = createBottomBarrier(text1, text2)
-        Text("This is a very long text", Modifier.constrainAs(text3) {
-            top.linkTo(barrier, margin = 20.dp)
-            centerHorizontallyTo(parent)
-            width = Dimension.preferredWrapContent.atMost(40.dp)
-        })
-    }
+    androidx.ui.layout.samples.DemoInlineDSL()
 }
 
 @Composable
 fun DemoConstraintSet() {
-    ConstraintLayout(ConstraintSet2 {
-        val text1 = createRefFor("text1")
-        val text2 = createRefFor("text2")
-        val text3 = createRefFor("text3")
-
-        constrain(text1) {
-            start.linkTo(text2.end, margin = 20.dp)
-        }
-        constrain(text2) {
-            centerTo(parent)
-        }
-
-        val barrier = createBottomBarrier(text1, text2)
-        constrain(text3) {
-            top.linkTo(barrier, margin = 20.dp)
-            centerHorizontallyTo(parent)
-            width = Dimension.preferredWrapContent.atMost(40.dp)
-        }
-    }) {
-        Text("Text1", Modifier.tag("text1"))
-        Text("Text2", Modifier.tag("text2"))
-        Text("This is a very long text", Modifier.tag("text3"))
-    }
+    androidx.ui.layout.samples.DemoConstraintSet()
 }
