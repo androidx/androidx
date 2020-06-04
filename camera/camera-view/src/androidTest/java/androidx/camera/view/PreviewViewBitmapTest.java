@@ -125,7 +125,7 @@ public class PreviewViewBitmapTest {
     }
 
     @Test
-    public void bitmapNotNull_whenPreviewIsDisplaying_surfaceViewView() throws Throwable {
+    public void bitmapNotNull_whenPreviewIsDisplaying_surfaceView() throws Throwable {
         // Arrange
         final PreviewView previewView = setUpPreviewView(ImplementationMode.SURFACE_VIEW);
 
