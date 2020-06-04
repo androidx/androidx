@@ -210,7 +210,7 @@ package androidx.ui.geometry {
   }
 
   @androidx.compose.Immutable public final class Size {
-    ctor public Size(internal long value);
+    ctor public Size(internal long packedValue);
     method @androidx.compose.Stable public androidx.ui.geometry.Offset bottomCenter(androidx.ui.geometry.Offset origin);
     method @androidx.compose.Stable public androidx.ui.geometry.Offset bottomLeft(androidx.ui.geometry.Offset origin);
     method @androidx.compose.Stable public androidx.ui.geometry.Offset bottomRight(androidx.ui.geometry.Offset origin);
@@ -218,7 +218,7 @@ package androidx.ui.geometry {
     method @androidx.compose.Stable public androidx.ui.geometry.Offset centerLeft(androidx.ui.geometry.Offset origin);
     method @androidx.compose.Stable public androidx.ui.geometry.Offset centerRight(androidx.ui.geometry.Offset origin);
     method @androidx.compose.Stable public boolean contains(androidx.ui.geometry.Offset offset);
-    method @androidx.compose.Immutable public androidx.ui.geometry.Size copy(long value);
+    method @androidx.compose.Immutable public androidx.ui.geometry.Size copy(long packedValue);
     method @androidx.compose.Stable public operator androidx.ui.geometry.Size div(float operand);
     method @androidx.compose.Stable public androidx.ui.geometry.Size getFlipped();
     method public float getHeight();

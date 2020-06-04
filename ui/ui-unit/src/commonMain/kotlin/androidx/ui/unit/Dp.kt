@@ -486,20 +486,20 @@ inline class DpInverse(val value: Float) : Comparable<DpInverse> {
 @OptIn(ExperimentalUnsignedTypes::class)
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class Position(@PublishedApi internal val value: Long) {
+inline class Position(@PublishedApi internal val packedValue: Long) {
     /**
      * The horizontal aspect of the position in [Dp]
      */
     @Stable
     /*inline*/ val x: Dp
-        get() = unpackFloat1(value).dp
+        get() = unpackFloat1(packedValue).dp
 
     /**
      * The vertical aspect of the position in [Dp]
      */
     @Stable
     /*inline*/ val y: Dp
-        get() = unpackFloat2(value).dp
+        get() = unpackFloat2(packedValue).dp
 
     /**
      * Subtract a [Position] from another one.
