@@ -286,15 +286,21 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     exitingNames = sharedElementFragment.getSharedElementTargetNames();
                     enteringNames = sharedElementFragment.getSharedElementSourceNames();
                 }
-                // Capture all of the Views from the firstOut fragment that are
+                // Find all of the Views from the firstOut fragment that are
                 // part of the shared element transition
                 ArrayMap<String, View> firstOutViews = new ArrayMap<>();
                 findNamedViews(firstOutViews, firstOut.getFragment().mView);
                 // TODO call through to onMapSharedElements
                 firstOutViews.retainAll(exitingNames);
 
-                // Find all views under the shared element views and add them
-                // to the shared element transition
+                // Find all of the Views from the lastIn fragment that are
+                // part of the shared element transition
+                ArrayMap<String, View> lastInViews = new ArrayMap<>();
+                findNamedViews(lastInViews, lastIn.getFragment().mView);
+                // TODO call through to onMapSharedElements
+                lastInViews.retainAll(enteringNames);
+
+                // Capture all views from the firstOut Fragment under the shared element views
                 for (View sharedElementView : firstOutViews.values()) {
                     captureTransitioningViews(sharedElementFirstOutViews,
                             sharedElementView);
@@ -307,21 +313,14 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     transitionImpl.setEpicenter(sharedElementTransition,
                             firstOutEpicenterView);
                 }
-                // Capture all of the Views from the lastIn fragment that are
-                // part of the shared element transition
-                ArrayMap<String, View> lastInViews = new ArrayMap<>();
-                findNamedViews(lastInViews, lastIn.getFragment().mView);
-                // TODO call through to onMapSharedElements
-                lastInViews.retainAll(enteringNames);
 
-                // Find all views under the shared element views and add them
-                // to the shared element transition
+                // Capture all views from the lastIn Fragment under the shared element views
                 for (View sharedElementView : lastInViews.values()) {
                     captureTransitioningViews(sharedElementLastInViews,
                             sharedElementView);
                 }
 
-                // Compute the epicenter of the firstOut transition
+                // Compute the epicenter of the lastIn transition
                 if (!enteringNames.isEmpty()) {
                     String epicenterViewName = enteringNames.get(0);
                     final View lastInEpicenterView = lastInViews.get(epicenterViewName);
