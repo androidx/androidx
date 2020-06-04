@@ -800,7 +800,7 @@ public final class Camera2CameraImplTest {
 
         // we need to set Camera2OptionUnpacker to the Config to enable the camera2 callback hookup.
         @Override
-        protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(
+        public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(
                 @Nullable CameraInfo cameraInfo) {
             return new FakeUseCaseConfig.Builder()
                     .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());

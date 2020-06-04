@@ -18,12 +18,16 @@ package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import androidx.camera.core.FakeOtherUseCase;
 import androidx.camera.core.FakeOtherUseCaseConfig;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -32,16 +36,19 @@ import androidx.test.filters.SmallTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
+
+import java.util.Collections;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class UseCaseMediatorTest {
     private final UseCaseMediator.StateChangeCallback mMockCallback =
-            Mockito.mock(UseCaseMediator.StateChangeCallback.class);
+            mock(UseCaseMediator.StateChangeCallback.class);
     private UseCaseMediator mUseCaseMediator;
     private FakeUseCase mFakeUseCase;
     private FakeOtherUseCase mFakeOtherUseCase;
+    private CameraUseCaseAdapter mCameraUseCaseAdapter;
+    private CameraInternal mMockCamera = mock(CameraInternal.class);
 
     @Before
     public void setUp() {
@@ -52,6 +59,8 @@ public final class UseCaseMediatorTest {
                 new FakeOtherUseCaseConfig.Builder()
                         .setTargetName("fakeOtherUseCaseConfig")
                         .getUseCaseConfig();
+        mCameraUseCaseAdapter = new CameraUseCaseAdapter(new FakeCamera(),
+                new FakeCameraDeviceSurfaceManager());
         mUseCaseMediator = new UseCaseMediator();
         mFakeUseCase = new FakeUseCase(fakeUseCaseConfig);
         mFakeOtherUseCase = new FakeOtherUseCase(fakeOtherUseCaseConfig);
@@ -77,16 +86,22 @@ public final class UseCaseMediatorTest {
     }
 
     @Test
-    public void mediatorBecomesEmpty_afterMediatorIsCleared() {
+    public void mediatorBecomesEmpty_afterMediatorIsCleared()
+            throws CameraUseCaseAdapter.CameraException {
         mUseCaseMediator.addUseCase(mFakeUseCase);
+        mCameraUseCaseAdapter.attachUseCases(Collections.singleton(mFakeUseCase));
+
         mUseCaseMediator.destroy();
 
         assertThat(mUseCaseMediator.getUseCases()).isEmpty();
     }
 
     @Test
-    public void useCaseIsCleared_afterMediatorIsCleared() {
+    public void useCaseIsCleared_afterMediatorIsCleared()
+            throws CameraUseCaseAdapter.CameraException {
         mUseCaseMediator.addUseCase(mFakeUseCase);
+        mCameraUseCaseAdapter.attachUseCases(Collections.singleton(mFakeUseCase));
+
         assertThat(mFakeUseCase.isCleared()).isFalse();
 
         mUseCaseMediator.destroy();

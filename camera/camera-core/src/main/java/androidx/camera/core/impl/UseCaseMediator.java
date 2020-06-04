@@ -131,7 +131,7 @@ public final class UseCaseMediator {
 
         for (UseCase useCase : useCasesToClear) {
             Log.d(TAG, "Destroying use case: " + useCase.getName());
-            useCase.onDetach();
+            useCase.onDetach(useCase.getCamera());
             useCase.onDestroy();
         }
     }
