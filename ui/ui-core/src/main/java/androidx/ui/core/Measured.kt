@@ -21,7 +21,7 @@ import androidx.ui.unit.IntPx
 /**
  * Read-only wrapper over [Placeable] that exposes the measurement result with no placing ability.
  */
-/*inline*/ class Measured(internal val placeable: Placeable) {
+inline class Measured(internal val placeable: Placeable) {
     /**
      * The measured width of the layout.
      */

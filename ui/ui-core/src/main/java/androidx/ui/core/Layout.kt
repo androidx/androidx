@@ -37,6 +37,8 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
 import androidx.ui.util.fastForEach
+import androidx.ui.util.fastMap
+import androidx.ui.util.fastMaxBy
 
 /**
  * [Layout] is the main core component for layout. It can be used to measure and position
@@ -196,9 +198,9 @@ fun PassThroughLayout(
 ) {
     val measureBlocks = remember {
         val measureBlock: MeasureBlock = { measurables, constraints, _ ->
-            val placeables = measurables.map { it.measure(constraints) }
-            val width = placeables.maxBy { it.width }?.width ?: constraints.minWidth
-            val height = placeables.maxBy { it.height }?.height ?: constraints.minHeight
+            val placeables = measurables.fastMap { it.measure(constraints) }
+            val width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth
+            val height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
             layout(width, height) {
                 placeables.fastForEach { it.place(IntPx.Zero, IntPx.Zero) }
             }
@@ -219,9 +221,10 @@ fun PassThroughLayout(
  * Used to return a fixed sized item for intrinsics measurements in [Layout]
  */
 private class DummyPlaceable(width: IntPx, height: IntPx) : Placeable() {
+    init {
+        measuredSize = IntPxSize(width, height)
+    }
     override fun get(line: AlignmentLine): IntPx? = null
-    override val measurementConstraints = Constraints()
-    override val measuredSize = IntPxSize(width, height)
     override fun place(position: IntPxPosition) { }
 }
 

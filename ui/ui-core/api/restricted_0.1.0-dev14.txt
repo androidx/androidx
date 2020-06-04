@@ -600,13 +600,16 @@ package androidx.ui.core {
   public final class MeasureScopeKt {
   }
 
-  public final class Measured {
-    ctor public Measured(internal androidx.ui.core.Placeable placeable);
-    method public operator androidx.ui.unit.IntPx? get(androidx.ui.core.AlignmentLine alignmentLine);
-    method public int getHeight();
-    method public int getWidth();
-    property public final int height;
-    property public final int width;
+  public final inline class Measured {
+    ctor public Measured();
+    method public static androidx.ui.core.Placeable! constructor-impl(internal androidx.ui.core.Placeable placeable);
+    method public static inline boolean equals-impl(androidx.ui.core.Placeable! p, Object? p1);
+    method public static boolean equals-impl0(androidx.ui.core.Placeable p1, androidx.ui.core.Placeable p2);
+    method public static operator androidx.ui.unit.IntPx? get-impl(androidx.ui.core.Placeable $this, androidx.ui.core.AlignmentLine alignmentLine);
+    method public static int getHeight-impl(androidx.ui.core.Placeable! $this);
+    method public static int getWidth-impl(androidx.ui.core.Placeable! $this);
+    method public static inline int hashCode-impl(androidx.ui.core.Placeable! p);
+    method public static inline String! toString-impl(androidx.ui.core.Placeable! p);
   }
 
   public final class ModelObserver {
@@ -747,14 +750,16 @@ package androidx.ui.core {
     method public abstract operator androidx.ui.unit.IntPx? get(androidx.ui.core.AlignmentLine line);
     method protected final androidx.ui.unit.IntPxPosition getApparentToRealOffset();
     method public final int getHeight();
-    method protected abstract androidx.ui.unit.IntPxSize getMeasuredSize();
-    method protected abstract androidx.ui.core.Constraints getMeasurementConstraints();
+    method protected final androidx.ui.unit.IntPxSize getMeasuredSize();
+    method protected final androidx.ui.core.Constraints getMeasurementConstraints();
     method public final int getWidth();
     method protected abstract void place(androidx.ui.unit.IntPxPosition position);
+    method protected final void setMeasuredSize(androidx.ui.unit.IntPxSize value);
+    method protected final void setMeasurementConstraints(androidx.ui.core.Constraints p);
     property protected final androidx.ui.unit.IntPxPosition apparentToRealOffset;
     property public final int height;
-    property protected abstract androidx.ui.unit.IntPxSize measuredSize;
-    property protected abstract androidx.ui.core.Constraints measurementConstraints;
+    property protected final androidx.ui.unit.IntPxSize measuredSize;
+    property protected final androidx.ui.core.Constraints measurementConstraints;
     property public final int width;
   }
 

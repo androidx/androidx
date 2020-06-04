@@ -29,6 +29,20 @@ ContextFirst: androidx.ui.core.WrapperKt#subcomposeInto(androidx.ui.core.LayoutN
     Context is distinct, so it must be the first argument (method `subcomposeInto`)
 
 
+MissingNullability: androidx.ui.core.Measured#constructor-impl(androidx.ui.core.Placeable):
+    Missing nullability on method `constructor-impl` return
+MissingNullability: androidx.ui.core.Measured#equals-impl(androidx.ui.core.Placeable, Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals-impl`
+MissingNullability: androidx.ui.core.Measured#getHeight-impl(androidx.ui.core.Placeable) parameter #0:
+    Missing nullability on parameter `$this` in method `getHeight-impl`
+MissingNullability: androidx.ui.core.Measured#getWidth-impl(androidx.ui.core.Placeable) parameter #0:
+    Missing nullability on parameter `$this` in method `getWidth-impl`
+MissingNullability: androidx.ui.core.Measured#hashCode-impl(androidx.ui.core.Placeable) parameter #0:
+    Missing nullability on parameter `p` in method `hashCode-impl`
+MissingNullability: androidx.ui.core.Measured#toString-impl(androidx.ui.core.Placeable):
+    Missing nullability on method `toString-impl` return
+MissingNullability: androidx.ui.core.Measured#toString-impl(androidx.ui.core.Placeable) parameter #0:
+    Missing nullability on parameter `p` in method `toString-impl`
 MissingNullability: androidx.ui.core.PointerId#toString-impl(long):
     Missing nullability on method `toString-impl` return
 MissingNullability: androidx.ui.core.TransformOrigin#toString-impl(long):

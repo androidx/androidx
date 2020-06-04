@@ -242,9 +242,10 @@ private object MeasuringIntrinsics {
     ) : MeasureScope(), Density by density
 
     private class DummyPlaceable(width: IntPx, height: IntPx) : Placeable() {
+        init {
+            measuredSize = IntPxSize(width, height)
+        }
         override fun get(line: AlignmentLine): IntPx? = null
-        override val measurementConstraints = Constraints()
-        override val measuredSize = IntPxSize(width, height)
         override fun place(position: IntPxPosition) { }
     }
 
