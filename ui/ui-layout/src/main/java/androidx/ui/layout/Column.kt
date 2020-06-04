@@ -71,7 +71,7 @@ fun Column(
         orientation = LayoutOrientation.Vertical,
         modifier = modifier,
         arrangement = verticalArrangement,
-        crossAxisAlignment = horizontalGravity,
+        crossAxisAlignment = CrossAxisAlignment.horizontal(horizontalGravity),
         crossAxisSize = SizeMode.Wrap,
         children = { ColumnScope.children() }
     )
@@ -90,7 +90,7 @@ object ColumnScope {
      * @sample androidx.ui.layout.samples.SimpleGravityInColumn
      */
     @Stable
-    fun Modifier.gravity(align: Alignment.Horizontal) = this + GravityModifier(align)
+    fun Modifier.gravity(align: Alignment.Horizontal) = this + HorizontalGravityModifier(align)
 
     /**
      * Position the element horizontally such that its [alignmentLine] aligns with sibling elements

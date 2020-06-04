@@ -47,13 +47,8 @@ internal abstract class LayoutNodeWrapper(
      */
     abstract val measureScope: MeasureScope
 
-    // TODO(popam): avoid allocation here
-    final override val measuredSize: IntPxSize
-        get() = IntPxSize(measureResult.width, measureResult.height)
     // Size exposed to LayoutCoordinates.
     final override val size: IntPxSize get() = measuredSize
-
-    final override var measurementConstraints = Constraints()
 
     open val invalidateLayerOnBoundsChange = true
 
@@ -67,6 +62,7 @@ internal abstract class LayoutNodeWrapper(
                 findLayer()?.invalidate()
             }
             _measureResult = value
+            measuredSize = IntPxSize(measureResult.width, measureResult.height)
         }
 
     var position: IntPxPosition = IntPxPosition.Origin
