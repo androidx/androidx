@@ -33,7 +33,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.center
@@ -45,35 +44,12 @@ import androidx.ui.unit.toOffset
 import kotlin.math.max
 
 /**
- * Used to specify this type of [RippleEffect] for [ripple].
- */
-object DefaultRippleEffectFactory : RippleEffectFactory {
-
-    override fun create(
-        size: PxSize,
-        startPosition: PxPosition,
-        density: Density,
-        radius: Dp?,
-        clipped: Boolean,
-        clock: AnimationClockObservable,
-        onAnimationFinished: ((RippleEffect) -> Unit)
-    ): RippleEffect {
-        return DefaultRippleEffect(
-            size,
-            startPosition,
-            density,
-            radius,
-            clipped,
-            clock,
-            onAnimationFinished
-        )
-    }
-}
-
-/**
- * [RippleEffect]s are drawn as part of [ripple] as a visual indicator for a pressed state.
+ * [RippleAnimation]s are drawn as part of [RippleIndication] as a visual indicator for an
+ * [androidx.ui.foundation.Interaction.Pressed] state.
  *
- * Use [ripple] to add an animation for your component.
+ * Use [androidx.ui.foundation.clickable] or [androidx.ui.foundation.indication] to add a
+ * [RippleIndication] to your component, which contains a RippleAnimation for pressed states, and
+ * a state layer for other states.
  *
  * This is a default implementation based on the Material Design specification.
  *
@@ -84,21 +60,19 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
  *
  * @param size The size of the target layout.
  * @param startPosition The position the animation will start from.
- * @param density The [Density] object to convert the dimensions.
  * @param radius Effects grow up to this size.
  * @param clipped If true the effect should be clipped by the target layout bounds.
  * @param clock The animation clock observable that will drive this ripple effect
  * @param onAnimationFinished Call when the effect animation has been finished.
  */
-private class DefaultRippleEffect(
+internal class RippleAnimation(
     size: PxSize,
     startPosition: PxPosition,
-    density: Density,
-    radius: Dp? = null,
+    radius: Float,
     private val clipped: Boolean,
     clock: AnimationClockObservable,
-    private val onAnimationFinished: ((RippleEffect) -> Unit)
-) : RippleEffect {
+    private val onAnimationFinished: (RippleAnimation) -> Unit
+) {
 
     private val animation: TransitionAnimation<RippleTransition.State>
     private var transitionState = RippleTransition.State.Initial
@@ -108,9 +82,7 @@ private class DefaultRippleEffect(
     init {
         val surfaceSize = size
         val startRadius = getRippleStartRadius(surfaceSize)
-        val targetRadius = with(density) {
-            radius?.toPx() ?: getRippleEndRadius(clipped, surfaceSize)
-        }
+        val targetRadius = radius
 
         val center = size.center()
         animation = RippleTransition.definition(
@@ -133,12 +105,12 @@ private class DefaultRippleEffect(
         animation.toState(RippleTransition.State.Revealed)
     }
 
-    override fun finish(canceled: Boolean) {
+    fun finish() {
         finishRequested = true
         animation.toState(RippleTransition.State.Finished)
     }
 
-    override fun DrawScope.draw(color: Color) {
+    fun DrawScope.draw(color: Color) {
         animationPulse // model read so we will be redrawn with the next animation values
 
         val alpha = if (transitionState == RippleTransition.State.Initial && finishRequested) {

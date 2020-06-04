@@ -175,7 +175,8 @@ fun ListItem(
 
     if (onClick != null) {
         val indication = RippleIndication(
-            color = MaterialTheme.colors.onSurface.copy(alpha = RippleOpacity)
+            // TODO: should this be defined here? Should we just use the default here instead?
+            color = MaterialTheme.colors.onSurface
         )
         Box(Modifier
             .semantics(mergeAllDescendants = true)
@@ -483,6 +484,3 @@ private fun applyTextStyle(
         }
     }
 }
-
-// Material spec values.
-private const val RippleOpacity = 0.16f

@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4
 import kotlin.math.sqrt
 
 @RunWith(JUnit4::class)
-class DefaultRippleEffectTest {
+class RippleAnimationTest {
 
     @Test
     fun testStartRadius() {
