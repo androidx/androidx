@@ -63,7 +63,7 @@ fun Fragment.clearFragmentResult(
  */
 inline fun Fragment.setFragmentResultListener(
     requestKey: String,
-    crossinline listener: ((resultKey: String, bundle: Bundle) -> Unit)
+    crossinline listener: ((requestKey: String, bundle: Bundle) -> Unit)
 ) {
     parentFragmentManager.setFragmentResultListener(requestKey, this, listener)
 }
