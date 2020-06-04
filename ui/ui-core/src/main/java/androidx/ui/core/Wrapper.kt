@@ -17,6 +17,7 @@ package androidx.ui.core
 
 import android.app.Activity
 import android.content.Context
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -27,12 +28,16 @@ import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
+import androidx.compose.SlotTable
 import androidx.compose.compositionFor
+import androidx.compose.currentComposer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.node.UiComposer
+import java.util.Collections
+import java.util.WeakHashMap
 
 /**
  * Composes the children of the view with the passed in [composable].
@@ -190,6 +195,10 @@ private fun doSetContent(
     recomposer: Recomposer,
     content: @Composable () -> Unit
 ): Composition {
+    if (inspectionWanted(owner)) {
+        owner.view.setTag(R.id.inspection_slot_table_set,
+                Collections.newSetFromMap(WeakHashMap<SlotTable, Boolean>()))
+    }
     val original = compositionFor(context, owner.root, recomposer)
     val wrapped = owner.view.getTag(R.id.wrapped_composition_tag)
             as? WrappedComposition
@@ -217,6 +226,13 @@ private class WrappedComposition(
             }
             if (owner.savedStateRegistry != null) {
                 original.setContent {
+                    @Suppress("UNCHECKED_CAST")
+                    (owner.view.getTag(R.id.inspection_slot_table_set) as? MutableSet<SlotTable>)
+                            ?.let {
+                                val composer = currentComposer
+                                composer.collectKeySourceInformation()
+                                it.add(composer.slotTable)
+                            }
                     ProvideAndroidAmbients(owner) {
                         WrapWithSelectionContainer(content)
                     }
@@ -273,3 +289,17 @@ private val DefaultLayoutParams = ViewGroup.LayoutParams(
     ViewGroup.LayoutParams.WRAP_CONTENT,
     ViewGroup.LayoutParams.WRAP_CONTENT
 )
+
+/**
+ * Determines if inspection is wanted for the Layout Inspector.
+ *
+ * When DEBUG_VIEW_ATTRIBUTES an/or DEBUG_VIEW_ATTRIBUTES_APPLICATION_PACKAGE is turned on for the
+ * current application the Layout Inspector is inspecting. An application cannot directly access
+ * these global settings, nor is the static field: View.sDebugViewAttributes available.
+ *
+ *
+ * Instead check if the attributeSourceResourceMap is not empty.
+ */
+private fun inspectionWanted(owner: AndroidOwner): Boolean =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            owner.view.attributeSourceResourceMap.isNotEmpty()
