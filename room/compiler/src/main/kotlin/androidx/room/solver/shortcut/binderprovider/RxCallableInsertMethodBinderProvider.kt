@@ -64,7 +64,10 @@ open class RxCallableInsertMethodBinderProvider internal constructor(
         fun getAll(context: Context) = listOf(
             RxCallableInsertMethodBinderProvider(context, RxType.RX2_SINGLE),
             RxCallableInsertMethodBinderProvider(context, RxType.RX2_MAYBE),
-            RxCompletableInsertMethodBinderProvider(context, RxType.RX2_COMPLETABLE)
+            RxCompletableInsertMethodBinderProvider(context, RxType.RX2_COMPLETABLE),
+            RxCallableInsertMethodBinderProvider(context, RxType.RX3_SINGLE),
+            RxCallableInsertMethodBinderProvider(context, RxType.RX3_MAYBE),
+            RxCompletableInsertMethodBinderProvider(context, RxType.RX3_COMPLETABLE)
         )
     }
 }

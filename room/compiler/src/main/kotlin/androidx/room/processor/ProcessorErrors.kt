@@ -30,7 +30,6 @@ import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CustomTypeConverter
 import androidx.room.vo.Field
 import com.squareup.javapoet.TypeName
-import java.lang.StringBuilder
 import javax.lang.model.element.ElementKind
 
 object ProcessorErrors {
@@ -566,6 +565,9 @@ object ProcessorErrors {
 
     val MISSING_ROOM_RXJAVA2_ARTIFACT = "To use RxJava2 features, you must add `rxjava2`" +
             " artifact from Room as a dependency. androidx.room:room-rxjava2:<version>"
+
+    val MISSING_ROOM_RXJAVA3_ARTIFACT = "To use RxJava3 features, you must add `rxjava3`" +
+            " artifact from Room as a dependency. androidx.room:room-rxjava3:<version>"
 
     val MISSING_ROOM_COROUTINE_ARTIFACT = "To use Coroutine features, you must add `ktx`" +
             " artifact from Room as a dependency. androidx.room:room-ktx:<version>"
