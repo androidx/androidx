@@ -98,6 +98,7 @@ public class SampleSliceProvider extends SliceProvider {
             "gallery",
             "indeterminaterange",
             "indeterminaterange2",
+            "indeterminaterange3",
             "weather",
             "reservation",
             "loadlist",
@@ -167,6 +168,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createIndeterminateProgressRange(sliceUri);
             case "/indeterminaterange2":
                 return createIndeterminateProgressRange2(sliceUri);
+            case "/indeterminaterange3":
+                return createIndeterminateProgressRange3(sliceUri);
             case "/ride":
                 return createRideSlice(sliceUri);
             case "/toggle":
@@ -892,6 +895,41 @@ public class SampleSliceProvider extends SliceProvider {
                         .setMode(ListBuilder.RANGE_MODE_INDETERMINATE)
                         .setTitle("Indeterminate progress")
                         .setPrimaryAction(primaryAction))
+                .build();
+    }
+
+    private Slice createIndeterminateProgressRange3(Uri sliceUri) {
+        IconCompat thumbIcon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+        IconCompat titleIcon = IconCompat.createWithResource(getContext(), R.drawable.ic_car);
+        IconCompat checkBoxIcon = IconCompat.createWithResource(getContext(),
+                R.drawable.toggle_check);
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "open rich star rating"), thumbIcon, ICON_IMAGE,
+                "Rate");
+        IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+        SliceAction progressPrimaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "open download"), icon, ICON_IMAGE,
+                "Download");
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
+                .setAccentColor(0xff4285f4)
+                .addInputRange(new InputRangeBuilder()
+                        .setTitleItem(titleIcon, ListBuilder.ICON_IMAGE)
+                        .addEndItem(SliceAction.createToggle(
+                                getBroadcastIntent(ACTION_TOAST, "click checkbox"), checkBoxIcon,
+                                "checkbox", false))
+                        .setTitle("Rich star rating")
+                        .setMin(5)
+                        .setThumb(thumbIcon)
+                        .setInputAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
+                        .setMax(100)
+                        .setValue(sStarRating)
+                        .setPrimaryAction(primaryAction)
+                        .setContentDescription("Slider for star ratings"))
+                .addRange(new RangeBuilder()
+                        .setTitleItem(icon, ListBuilder.ICON_IMAGE)
+                        .setMode(ListBuilder.RANGE_MODE_INDETERMINATE)
+                        .setTitle("Indeterminate progress")
+                        .setPrimaryAction(progressPrimaryAction))
                 .build();
     }
 
