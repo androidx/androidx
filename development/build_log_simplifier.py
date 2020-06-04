@@ -25,27 +25,20 @@ def usage():
     """)
     exit(1)
 
-try:
-    build_log_loc = sys.argv[1]
-
-    infile = open(build_log_loc)
-
+def select_failing_task_output(lines):
     tasks_of_interest = []
-
     # first, find tasks of interest
-    for line in infile:
+    for line in lines:
         if line.startswith("Execution failed for task"):
             tasks_of_interest.append(line.split("task '")[1][:-3])
 
-    infile.close()
-    infile = open(build_log_loc)
 
-    print("Tasks of interest: " + str(tasks_of_interest))
+    print("Detected these failing tasks: " + str(tasks_of_interest))
 
     # next, save all excerpts between start(interesting task) and end(interesting task)
     current_interesting_tasks = []
     retained_lines = []
-    for line in infile:
+    for line in lines:
         if line.startswith("Task ") and line.split(" ")[1] in tasks_of_interest:
             if line.split(" ")[-1].strip() == "Starting":
                 current_interesting_tasks.append(line.split(" ")[1])
@@ -53,8 +46,21 @@ try:
                 current_interesting_tasks.remove(line.split(" ")[1])
                 retained_lines.append(line)
         if current_interesting_tasks: retained_lines.append(line)
+    if retained_lines:
+        return retained_lines
+    # if no output was created by any failing tasks, then maybe there could be useful output from
+    # somewhere else
+    return lines
 
-
+try:
+    build_log_loc = sys.argv[1]
+    
+    infile = open(build_log_loc)
+    lines = infile.readlines()
+    infile.close()
+    
+    retained_lines = select_failing_task_output(lines)
+    
     print(len(retained_lines))
     print(''.join(retained_lines))
 except Exception as e:
