@@ -658,9 +658,7 @@ class ListItemTest {
         baseline: Ref<Float> = Ref()
     ): Modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
         coords.value = coordinates.localToGlobal(Offset.Zero)
-        baseline.value = coordinates[FirstBaseline]?.toFloat()?.let {
-            it + coords.value!!.y
-        }
+        baseline.value = coordinates[FirstBaseline].toFloat() + coords.value!!.y
         size.value = coordinates.size
     }
 }

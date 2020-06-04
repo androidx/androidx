@@ -74,7 +74,7 @@ interface LayoutCoordinates {
      * Returns the position of an [alignment line][AlignmentLine],
      * or `null` if the line is not provided.
      */
-    operator fun get(line: AlignmentLine): Int?
+    operator fun get(line: AlignmentLine): Int
 }
 
 /**

@@ -34,5 +34,5 @@ inline class Measured(internal val placeable: Placeable) {
      * Returns the position of an [alignment line][AlignmentLine],
      * or `null` if the line is not provided.
      */
-    operator fun get(alignmentLine: AlignmentLine): Int? = placeable[alignmentLine]
+    operator fun get(alignmentLine: AlignmentLine): Int = placeable[alignmentLine]
 }

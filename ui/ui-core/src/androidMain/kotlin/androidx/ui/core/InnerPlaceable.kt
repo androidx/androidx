@@ -128,8 +128,8 @@ internal class InnerPlaceable(
         layoutNode.layoutChildren()
     }
 
-    override operator fun get(line: AlignmentLine): Int? {
-        return layoutNode.calculateAlignmentLines()[line]
+    override operator fun get(line: AlignmentLine): Int {
+        return layoutNode.calculateAlignmentLines()[line] ?: AlignmentLine.Unspecified
     }
 
     override fun draw(canvas: Canvas) {

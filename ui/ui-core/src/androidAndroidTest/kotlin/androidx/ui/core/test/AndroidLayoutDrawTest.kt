@@ -40,6 +40,7 @@ import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawLayerModifier
@@ -85,7 +86,6 @@ import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -822,7 +822,7 @@ class AndroidLayoutDrawTest {
                 Layout(inner) { measurables, constraints, _ ->
                     val placeable = measurables.first().measure(constraints)
                     assertEquals(10, placeable[TestLine1])
-                    assertNull(placeable[TestLine2])
+                    assertEquals(AlignmentLine.Unspecified, placeable[TestLine2])
                     layout(placeable.width, placeable.height) {
                         placeable.place(0, 0)
                         layoutLatch.countDown()

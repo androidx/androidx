@@ -56,7 +56,7 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         wrapped.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
     }
 
-    override fun get(line: AlignmentLine): Int? = wrapped[line]
+    override fun get(line: AlignmentLine): Int = wrapped[line]
 
     override fun place(position: IntOffset) {
         this.position = position

@@ -18,6 +18,7 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.core.AlignmentLine
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
@@ -103,8 +104,10 @@ private fun TextOnlySnackbar(text: @Composable () -> Unit) {
             "text for Snackbar expected to have exactly only one child"
         }
         val textPlaceable = measurables.first().measure(constraints)
-        val firstBaseline = requireNotNull(textPlaceable[FirstBaseline]) { "No baselines for text" }
-        val lastBaseline = requireNotNull(textPlaceable[LastBaseline]) { "No baselines for text" }
+        val firstBaseline = textPlaceable[FirstBaseline]
+        val lastBaseline = textPlaceable[LastBaseline]
+        require(firstBaseline != AlignmentLine.Unspecified) { "No baselines for text" }
+        require(lastBaseline != AlignmentLine.Unspecified) { "No baselines for text" }
 
         val minHeight = if (firstBaseline == lastBaseline) MinHeightOneLine else MinHeightTwoLines
         layout(constraints.maxWidth, max(minHeight.toIntPx(), textPlaceable.height)) {
@@ -160,10 +163,10 @@ private fun OneRowSnackbar(
             constraints.copy(minHeight = 0, maxWidth = textMaxWidth)
         )
 
-        val firstTextBaseline =
-            requireNotNull(textPlaceable[FirstBaseline]) { "No baselines for text" }
-        val lastTextBaseline =
-            requireNotNull(textPlaceable[LastBaseline]) { "No baselines for text" }
+        val firstTextBaseline = textPlaceable[FirstBaseline]
+        require(firstTextBaseline != AlignmentLine.Unspecified) { "No baselines for text" }
+        val lastTextBaseline = textPlaceable[LastBaseline]
+        require(lastTextBaseline != AlignmentLine.Unspecified) { "No baselines for text" }
         val baselineOffset = HeightToFirstLine.toIntPx()
         val isOneLine = firstTextBaseline == lastTextBaseline
         val textPlaceY = baselineOffset - firstTextBaseline
@@ -176,8 +179,13 @@ private fun OneRowSnackbar(
             val contentHeight = buttonPlaceable.height + SingleTextYPadding.toIntPx() * 2
             containerHeight = max(minContainerHeight, contentHeight)
             val buttonBaseline = buttonPlaceable[FirstBaseline]
-            buttonPlaceY =
-                buttonBaseline?.let { baselineOffset - it } ?: SingleTextYPadding.toIntPx()
+            buttonPlaceY = buttonBaseline.let {
+                if (it != AlignmentLine.Unspecified) {
+                    baselineOffset - it
+                } else {
+                    SingleTextYPadding.toIntPx()
+                }
+            }
         } else {
             val minContainerHeight = MinHeightTwoLines.toIntPx()
             val contentHeight = textPlaceY + textPlaceable.height

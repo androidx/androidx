@@ -44,12 +44,18 @@ import androidx.compose.Immutable
  * @see HorizontalAlignmentLine
  *
  * @param merger Defines the position of an alignment line inherited from more than one child.
- * @param horizontal Whether the alignment line is horizontal or vertical.
  */
 @Immutable
 sealed class AlignmentLine(
     internal val merger: (Int, Int) -> Int
-)
+) {
+    companion object {
+        /**
+         * Constant representing that an [AlignmentLine] has not been provided.
+         */
+        const val Unspecified = Int.MIN_VALUE
+    }
+}
 
 /**
  * Merges two values of the current [alignment line][AlignmentLine].
