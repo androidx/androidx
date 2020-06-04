@@ -52,17 +52,35 @@ def select_failing_task_output(lines):
     # somewhere else
     return lines
 
+def shorten_uninteresting_stack_frames(lines):
+    result = []
+    prev_line_is_boring = False
+    for line in lines:
+        if line.startswith("\tat org.gradle"):
+            if not prev_line_is_boring:
+                result.append("\tat org.gradle...\n")
+            prev_line_is_boring = True
+        elif line.startswith("\tat java.base"):
+            if not prev_line_is_boring:
+                result.append("\tat java.base...")
+            prev_line_is_boring = True
+        else:
+            result.append(line)
+            prev_line_is_boring = False
+    return result
+
 try:
     build_log_loc = sys.argv[1]
-    
+
     infile = open(build_log_loc)
     lines = infile.readlines()
     infile.close()
-    
-    retained_lines = select_failing_task_output(lines)
-    
-    print(len(retained_lines))
-    print(''.join(retained_lines))
+
+    lines = select_failing_task_output(lines)
+    lines = shorten_uninteresting_stack_frames(lines)
+
+    print(len(lines))
+    print(''.join(lines))
 except Exception as e:
     print("An error occurred! "+str(e))
     usage()
