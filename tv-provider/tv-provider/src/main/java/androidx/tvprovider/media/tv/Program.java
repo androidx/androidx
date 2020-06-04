@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.tvprovider.media.tv.TvContractCompat.Programs;
 import androidx.tvprovider.media.tv.TvContractCompat.Programs.Genres.Genre;
@@ -78,6 +79,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String[] PROJECTION = getProjection();
 
+    private static final int INVALID_INTEGER_VALUE = -1;
     private static final long INVALID_LONG_VALUE = -1;
     private static final int IS_RECORDING_PROHIBITED = 1;
 
@@ -124,6 +126,26 @@ public final class Program extends BaseProgram implements Comparable<Program> {
         return i != null && i == IS_RECORDING_PROHIBITED;
     }
 
+    /**
+     * Returns the value of {@link Programs#COLUMN_EVENT_ID} for the program.
+     *
+     * <p>No-op on devices prior to {@link android.os.Build.VERSION_CODES#R}.
+     */
+    public int getEventId() {
+        Integer i = mValues.getAsInteger(Programs.COLUMN_EVENT_ID);
+        return i == null ? INVALID_INTEGER_VALUE : i;
+    }
+
+    /**
+     * Returns the value of {@link Programs#COLUMN_GLOBAL_CONTENT_ID} for the program.
+     *
+     * <p>No-op on devices prior to {@link android.os.Build.VERSION_CODES#R}.
+     */
+    @Nullable
+    public String getGlobalContentId() {
+        return mValues.getAsString(Programs.COLUMN_GLOBAL_CONTENT_ID);
+    }
+
     @Override
     public int hashCode() {
         return mValues.hashCode();
@@ -162,6 +184,10 @@ public final class Program extends BaseProgram implements Comparable<Program> {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             values.remove(Programs.COLUMN_RECORDING_PROHIBITED);
         }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            values.remove(Programs.COLUMN_EVENT_ID);
+            values.remove(Programs.COLUMN_GLOBAL_CONTENT_ID);
+        }
         return values;
     }
 
@@ -199,6 +225,16 @@ public final class Program extends BaseProgram implements Comparable<Program> {
                 builder.setRecordingProhibited(cursor.getInt(index) == IS_RECORDING_PROHIBITED);
             }
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_EVENT_ID)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setEventId(cursor.getInt(index));
+            }
+            if ((index = cursor.getColumnIndex(Programs.COLUMN_GLOBAL_CONTENT_ID)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setGlobalContentId(cursor.getString(index));
+            }
+        }
         return builder.build();
     }
 
@@ -212,7 +248,14 @@ public final class Program extends BaseProgram implements Comparable<Program> {
         String[] nougatColumns = new String[] {
                 Programs.COLUMN_RECORDING_PROHIBITED
         };
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        String[] rReleaseColumns = new String[] {
+                Programs.COLUMN_EVENT_ID,
+                Programs.COLUMN_GLOBAL_CONTENT_ID,
+        };
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return CollectionUtils.concatAll(BaseProgram.PROJECTION, baseColumns, nougatColumns,
+                    rReleaseColumns);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return CollectionUtils.concatAll(BaseProgram.PROJECTION, baseColumns, nougatColumns);
         } else {
             return CollectionUtils.concatAll(BaseProgram.PROJECTION, baseColumns);
@@ -296,6 +339,35 @@ public final class Program extends BaseProgram implements Comparable<Program> {
         public Builder setRecordingProhibited(boolean prohibited) {
             mValues.put(Programs.COLUMN_RECORDING_PROHIBITED,
                     prohibited ? IS_RECORDING_PROHIBITED : 0);
+            return this;
+        }
+
+        /**
+         * Sets the event ID for this program.
+         *
+         * <p>No-op on devices prior to {@link android.os.Build.VERSION_CODES#R}.
+         *
+         * @param eventId The value of {@link Programs#COLUMN_EVENT_ID} for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        @NonNull
+        public Builder setEventId(int eventId) {
+            mValues.put(Programs.COLUMN_EVENT_ID, eventId);
+            return this;
+        }
+
+        /**
+         * Sets the global content ID for this program.
+         *
+         * <p>No-op on devices prior to {@link android.os.Build.VERSION_CODES#R}.
+         *
+         * @param globalContentId The value of {@link Programs#COLUMN_GLOBAL_CONTENT_ID} for the
+         *                    program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        @NonNull
+        public Builder setGlobalContentId(@Nullable String globalContentId) {
+            mValues.put(Programs.COLUMN_GLOBAL_CONTENT_ID, globalContentId);
             return this;
         }
 

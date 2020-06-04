@@ -300,6 +300,8 @@ package androidx.tvprovider.media.tv {
     method public long getEndTimeUtcMillis();
     method public String! getEpisodeNumber();
     method public String! getEpisodeTitle();
+    method public int getEventId();
+    method public String? getGlobalContentId();
     method public long getId();
     method public byte[]! getInternalProviderDataByteArray();
     method public Long! getInternalProviderFlag1();
@@ -338,6 +340,8 @@ package androidx.tvprovider.media.tv {
     method public androidx.tvprovider.media.tv.Program.Builder! setEpisodeNumber(int);
     method public androidx.tvprovider.media.tv.Program.Builder! setEpisodeNumber(String!, int);
     method public androidx.tvprovider.media.tv.Program.Builder! setEpisodeTitle(String!);
+    method public androidx.tvprovider.media.tv.Program.Builder setEventId(int);
+    method public androidx.tvprovider.media.tv.Program.Builder setGlobalContentId(String?);
     method public androidx.tvprovider.media.tv.Program.Builder! setId(long);
     method public androidx.tvprovider.media.tv.Program.Builder! setInternalProviderData(byte[]!);
     method public androidx.tvprovider.media.tv.Program.Builder! setInternalProviderFlag1(long);
@@ -618,6 +622,8 @@ package androidx.tvprovider.media.tv {
     field public static final String COLUMN_EPISODE_DISPLAY_NUMBER = "episode_display_number";
     field @Deprecated public static final String COLUMN_EPISODE_NUMBER = "episode_number";
     field public static final String COLUMN_EPISODE_TITLE = "episode_title";
+    field public static final String COLUMN_EVENT_ID = "event_id";
+    field public static final String COLUMN_GLOBAL_CONTENT_ID = "global_content_id";
     field public static final String COLUMN_INTERNAL_PROVIDER_DATA = "internal_provider_data";
     field public static final String COLUMN_INTERNAL_PROVIDER_FLAG1 = "internal_provider_flag1";
     field public static final String COLUMN_INTERNAL_PROVIDER_FLAG2 = "internal_provider_flag2";
