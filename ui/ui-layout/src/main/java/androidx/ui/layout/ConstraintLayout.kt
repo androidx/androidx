@@ -1725,6 +1725,13 @@ class State(val density: Density) : SolverState() {
             super.convertDimension(value)
         }
     }
+
+    override fun reset() {
+        // TODO(b/158197001): this should likely be done by the solver
+        mReferences.clear()
+        mReferences[PARENT] = mParent
+        super.reset()
+    }
 }
 
 private class Measurer internal constructor() : BasicMeasure.Measurer {

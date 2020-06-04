@@ -16,6 +16,7 @@
 
 package androidx.ui.layout.test
 
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
@@ -40,6 +41,7 @@ import androidx.ui.layout.size
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.waitForIdle
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -858,5 +860,45 @@ class ConstraintLayoutTest : LayoutTest() {
             Assert.assertEquals(PxPosition(60f, 60f), position[0])
             Assert.assertEquals(PxPosition(61f, 61f), position[1])
         }
+    }
+
+    @Test
+    fun testConstraintLayout_inlineDSL_recompositionDoesNotCrash() = with(density) {
+        val first = mutableStateOf(true)
+        composeTestRule.setContent {
+            ConstraintLayout {
+                val box = createRef()
+                if (first.value) {
+                    Box(Modifier.constrainAs(box) { })
+                } else {
+                    Box(Modifier.constrainAs(box) { })
+                }
+            }
+        }
+        runOnIdleCompose {
+            first.value = false
+        }
+        waitForIdle()
+    }
+
+    @Test
+    fun testConstraintLayout_ConstraintSetDSL_recompositionDoesNotCrash() = with(density) {
+        val first = mutableStateOf(true)
+        composeTestRule.setContent {
+            ConstraintLayout(ConstraintSet2 {
+                val box = createRefFor("box")
+                constrain(box) { }
+            }) {
+                if (first.value) {
+                    Box(Modifier.tag("box"))
+                } else {
+                    Box(Modifier.tag("box"))
+                }
+            }
+        }
+        runOnIdleCompose {
+            first.value = false
+        }
+        waitForIdle()
     }
 }
