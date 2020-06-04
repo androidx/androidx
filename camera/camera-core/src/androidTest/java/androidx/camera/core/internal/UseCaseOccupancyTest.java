@@ -24,7 +24,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -67,9 +66,8 @@ public final class UseCaseOccupancyTest {
 
     @Test
     public void failedWhenBindTooManyVideoCapture() {
-        VideoCaptureConfig config = new VideoCaptureConfig.Builder().getUseCaseConfig();
-        VideoCapture useCase1 = new VideoCapture(config);
-        VideoCapture useCase2 = new VideoCapture(config);
+        VideoCapture useCase1 = new VideoCapture.Builder().build();
+        VideoCapture useCase2 = new VideoCapture.Builder().build();
 
         assertThat(UseCaseOccupancy.checkUseCaseLimitNotExceeded(
                 Arrays.asList(useCase1, useCase2))).isFalse();
@@ -78,7 +76,7 @@ public final class UseCaseOccupancyTest {
     @Test
     public void passWhenNotBindTooManyImageVideoCapture() {
         ImageCapture imageCapture = createImageCapture();
-        VideoCapture videoCapture = new VideoCaptureConfig.Builder().build();
+        VideoCapture videoCapture = new VideoCapture.Builder().build();
 
         assertThat(UseCaseOccupancy.checkUseCaseLimitNotExceeded(
                 Arrays.asList(imageCapture, videoCapture))).isTrue();

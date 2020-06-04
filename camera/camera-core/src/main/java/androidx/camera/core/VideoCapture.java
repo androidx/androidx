@@ -16,6 +16,32 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
+import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_BIT_RATE;
+import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_CHANNEL_COUNT;
+import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_MIN_BUFFER_SIZE;
+import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_RECORD_SOURCE;
+import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_SAMPLE_RATE;
+import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_BIT_RATE;
+import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_INTRA_FRAME_INTERVAL;
+import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_VIDEO_FRAME_RATE;
+import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS;
+import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
+import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
+import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+
 import android.location.Location;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -30,6 +56,8 @@ import android.media.MediaRecorder.AudioSource;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.util.Pair;
+import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -42,15 +70,20 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.ImmediateSurface;
+import androidx.camera.core.impl.MutableConfig;
+import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 
 import java.io.File;
@@ -58,6 +91,8 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -170,7 +205,7 @@ public class VideoCapture extends UseCase {
      *
      * @param config for this use case instance
      */
-    public VideoCapture(VideoCaptureConfig config) {
+    VideoCapture(@NonNull VideoCaptureConfig config) {
         super(config);
 
         // video thread start
@@ -208,7 +243,7 @@ public class VideoCapture extends UseCase {
         VideoCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(VideoCaptureConfig.class,
                 cameraInfo);
         if (defaults != null) {
-            return VideoCaptureConfig.Builder.fromConfig(defaults);
+            return Builder.fromConfig(defaults);
         }
 
         return null;
@@ -443,7 +478,7 @@ public class VideoCapture extends UseCase {
      */
     public void setTargetRotation(@RotationValue int rotation) {
         VideoCaptureConfig oldConfig = (VideoCaptureConfig) getUseCaseConfig();
-        VideoCaptureConfig.Builder builder = VideoCaptureConfig.Builder.fromConfig(oldConfig);
+        Builder builder = Builder.fromConfig(oldConfig);
         int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
             UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, rotation);
@@ -917,18 +952,17 @@ public class VideoCapture extends UseCase {
         private static final VideoCaptureConfig DEFAULT_CONFIG;
 
         static {
-            VideoCaptureConfig.Builder builder =
-                    new VideoCaptureConfig.Builder()
-                            .setVideoFrameRate(DEFAULT_VIDEO_FRAME_RATE)
-                            .setBitRate(DEFAULT_BIT_RATE)
-                            .setIFrameInterval(DEFAULT_INTRA_FRAME_INTERVAL)
-                            .setAudioBitRate(DEFAULT_AUDIO_BIT_RATE)
-                            .setAudioSampleRate(DEFAULT_AUDIO_SAMPLE_RATE)
-                            .setAudioChannelCount(DEFAULT_AUDIO_CHANNEL_COUNT)
-                            .setAudioRecordSource(DEFAULT_AUDIO_RECORD_SOURCE)
-                            .setAudioMinBufferSize(DEFAULT_AUDIO_MIN_BUFFER_SIZE)
-                            .setMaxResolution(DEFAULT_MAX_RESOLUTION)
-                            .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
+            Builder builder = new Builder()
+                    .setVideoFrameRate(DEFAULT_VIDEO_FRAME_RATE)
+                    .setBitRate(DEFAULT_BIT_RATE)
+                    .setIFrameInterval(DEFAULT_INTRA_FRAME_INTERVAL)
+                    .setAudioBitRate(DEFAULT_AUDIO_BIT_RATE)
+                    .setAudioSampleRate(DEFAULT_AUDIO_SAMPLE_RATE)
+                    .setAudioChannelCount(DEFAULT_AUDIO_CHANNEL_COUNT)
+                    .setAudioRecordSource(DEFAULT_AUDIO_RECORD_SOURCE)
+                    .setAudioMinBufferSize(DEFAULT_AUDIO_MIN_BUFFER_SIZE)
+                    .setMaxResolution(DEFAULT_MAX_RESOLUTION)
+                    .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -980,5 +1014,488 @@ public class VideoCapture extends UseCase {
             }
         }
 
+    }
+
+    /** Builder for a {@link VideoCapture}. */
+    public static final class Builder
+            implements
+            UseCaseConfig.Builder<VideoCapture, VideoCaptureConfig, Builder>,
+            ImageOutputConfig.Builder<Builder>,
+            ThreadConfig.Builder<Builder> {
+
+        private final MutableOptionsBundle mMutableConfig;
+
+        /** Creates a new Builder object. */
+        public Builder() {
+            this(MutableOptionsBundle.create());
+        }
+
+        private Builder(@NonNull MutableOptionsBundle mutableConfig) {
+            mMutableConfig = mutableConfig;
+
+            Class<?> oldConfigClass =
+                    mutableConfig.retrieveOption(OPTION_TARGET_CLASS, null);
+            if (oldConfigClass != null && !oldConfigClass.equals(VideoCapture.class)) {
+                throw new IllegalArgumentException(
+                        "Invalid target class configuration for "
+                                + Builder.this
+                                + ": "
+                                + oldConfigClass);
+            }
+
+            setTargetClass(VideoCapture.class);
+        }
+
+        /**
+         * Generates a Builder from another Config object
+         *
+         * @param configuration An immutable configuration to pre-populate this builder.
+         * @return The new Builder.
+         */
+        @NonNull
+        public static Builder fromConfig(@NonNull VideoCaptureConfig configuration) {
+            return new Builder(MutableOptionsBundle.from(configuration));
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public MutableConfig getMutableConfig() {
+            return mMutableConfig;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public VideoCaptureConfig getUseCaseConfig() {
+            return new VideoCaptureConfig(OptionsBundle.from(mMutableConfig));
+        }
+
+        /**
+         * Builds an immutable {@link VideoCaptureConfig} from the current state.
+         *
+         * @return A {@link VideoCaptureConfig} populated with the current state.
+         */
+        @Override
+        @NonNull
+        public VideoCapture build() {
+            // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
+            // the same config.
+            if (getMutableConfig().retrieveOption(OPTION_TARGET_ASPECT_RATIO, null) != null
+                    && getMutableConfig().retrieveOption(OPTION_TARGET_RESOLUTION, null) != null) {
+                throw new IllegalArgumentException(
+                        "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
+                                + "config.");
+            }
+            return new VideoCapture(getUseCaseConfig());
+        }
+
+        /**
+         * Sets the recording frames per second.
+         *
+         * @param videoFrameRate The requested interval in seconds.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setVideoFrameRate(int videoFrameRate) {
+            getMutableConfig().insertOption(OPTION_VIDEO_FRAME_RATE, videoFrameRate);
+            return this;
+        }
+
+        /**
+         * Sets the encoding bit rate.
+         *
+         * @param bitRate The requested bit rate in bits per second.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setBitRate(int bitRate) {
+            getMutableConfig().insertOption(OPTION_BIT_RATE, bitRate);
+            return this;
+        }
+
+        /**
+         * Sets number of seconds between each key frame in seconds.
+         *
+         * @param interval The requested interval in seconds.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setIFrameInterval(int interval) {
+            getMutableConfig().insertOption(OPTION_INTRA_FRAME_INTERVAL, interval);
+            return this;
+        }
+
+        /**
+         * Sets the bit rate of the audio stream.
+         *
+         * @param bitRate The requested bit rate in bits/s.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setAudioBitRate(int bitRate) {
+            getMutableConfig().insertOption(OPTION_AUDIO_BIT_RATE, bitRate);
+            return this;
+        }
+
+        /**
+         * Sets the sample rate of the audio stream.
+         *
+         * @param sampleRate The requested sample rate in bits/s.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setAudioSampleRate(int sampleRate) {
+            getMutableConfig().insertOption(OPTION_AUDIO_SAMPLE_RATE, sampleRate);
+            return this;
+        }
+
+        /**
+         * Sets the number of audio channels.
+         *
+         * @param channelCount The requested number of audio channels.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setAudioChannelCount(int channelCount) {
+            getMutableConfig().insertOption(OPTION_AUDIO_CHANNEL_COUNT, channelCount);
+            return this;
+        }
+
+        /**
+         * Sets the audio source.
+         *
+         * @param source The audio source. Currently only AudioSource.MIC is supported.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setAudioRecordSource(int source) {
+            getMutableConfig().insertOption(OPTION_AUDIO_RECORD_SOURCE, source);
+            return this;
+        }
+
+        /**
+         * Sets the audio min buffer size.
+         *
+         * @param minBufferSize The requested audio minimum buffer size, in bytes.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setAudioMinBufferSize(int minBufferSize) {
+            getMutableConfig().insertOption(OPTION_AUDIO_MIN_BUFFER_SIZE, minBufferSize);
+            return this;
+        }
+
+        // Implementations of TargetConfig.Builder default methods
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setTargetClass(@NonNull Class<VideoCapture> targetClass) {
+            getMutableConfig().insertOption(OPTION_TARGET_CLASS, targetClass);
+
+            // If no name is set yet, then generate a unique name
+            if (null == getMutableConfig().retrieveOption(OPTION_TARGET_NAME, null)) {
+                String targetName = targetClass.getCanonicalName() + "-" + UUID.randomUUID();
+                setTargetName(targetName);
+            }
+
+            return this;
+        }
+
+        /**
+         * Sets the name of the target object being configured, used only for debug logging.
+         *
+         * <p>The name should be a value that can uniquely identify an instance of the object being
+         * configured.
+         *
+         * <p>If not set, the target name will default to an unique name automatically generated
+         * with the class canonical name and random UUID.
+         *
+         * @param targetName A unique string identifier for the instance of the class being
+         *                   configured.
+         * @return the current Builder.
+         */
+        @Override
+        @NonNull
+        public Builder setTargetName(@NonNull String targetName) {
+            getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
+            return this;
+        }
+
+        // Implementations of ImageOutputConfig.Builder default methods
+
+        /**
+         * Sets the aspect ratio of the intended target for images from this configuration.
+         *
+         * <p>This is the ratio of the target's width to the image's height, where the numerator of
+         * the provided {@link Rational} corresponds to the width, and the denominator corresponds
+         * to the height.
+         *
+         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
+         * ratio which may differ from the request, possibly due to device constraints.
+         * Application code should check the resulting output's resolution.
+         *
+         * <p>This method can be used to request an aspect ratio that is not from the standard set
+         * of aspect ratios defined in the {@link AspectRatio}.
+         *
+         * <p>This method will remove any value set by setTargetAspectRatio().
+         *
+         * <p>For VideoCapture the output is the output video file.
+         *
+         * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
+         *                    height.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
+            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, aspectRatio);
+            getMutableConfig().removeOption(OPTION_TARGET_ASPECT_RATIO);
+            return this;
+        }
+
+        /**
+         * Sets the aspect ratio of the intended target for images from this configuration.
+         *
+         * <p>It is not allowed to set both target aspect ratio and target resolution on the same
+         * use case.
+         *
+         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
+         * ratio which may differ from the request, possibly due to device constraints.
+         * Application code should check the resulting output's resolution.
+         *
+         * <p>If not set, resolutions with aspect ratio 4:3 will be considered in higher
+         * priority.
+         *
+         * @param aspectRatio A {@link AspectRatio} representing the ratio of the
+         *                    target's width and height.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setTargetAspectRatio(@AspectRatio.Ratio int aspectRatio) {
+            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
+            return this;
+        }
+
+        /**
+         * Sets the rotation of the intended target for images from this configuration.
+         *
+         * <p>This is one of four valid values: {@link Surface#ROTATION_0}, {@link
+         * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
+         * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
+         *
+         * <p>If not set, the target rotation will default to the value of
+         * {@link Display#getRotation()} of the default display at the time the use case is created.
+         *
+         * @param rotation The rotation of the intended target.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setTargetRotation(@RotationValue int rotation) {
+            getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
+            return this;
+        }
+
+        /**
+         * Sets the resolution of the intended target from this configuration.
+         *
+         * <p>The target resolution attempts to establish a minimum bound for the image resolution.
+         * The actual image resolution will be the closest available resolution in size that is not
+         * smaller than the target resolution, as determined by the Camera implementation. However,
+         * if no resolution exists that is equal to or larger than the target resolution, the
+         * nearest available resolution smaller than the target resolution will be chosen.
+         *
+         * <p>It is not allowed to set both target aspect ratio and target resolution on the same
+         * use case.
+         *
+         * <p>The target aspect ratio will also be set the same as the aspect ratio of the provided
+         * {@link Size}. Make sure to set the target resolution with the correct orientation.
+         *
+         * @param resolution The target resolution to choose from supported output sizes list.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setTargetResolution(@NonNull Size resolution) {
+            getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION, resolution);
+            if (resolution != null) {
+                getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM,
+                        new Rational(resolution.getWidth(), resolution.getHeight()));
+            }
+            return this;
+        }
+
+        /**
+         * Sets the default resolution of the intended target from this configuration.
+         *
+         * @param resolution The default resolution to choose from supported output sizes list.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setDefaultResolution(@NonNull Size resolution) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_RESOLUTION, resolution);
+            return null;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setMaxResolution(@NonNull Size resolution) {
+            getMutableConfig().insertOption(OPTION_MAX_RESOLUTION, resolution);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setSupportedResolutions(@NonNull List<Pair<Integer, Size[]>> resolutions) {
+            getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS, resolutions);
+            return this;
+        }
+
+        // Implementations of ThreadConfig.Builder default methods
+
+        /**
+         * Sets the default executor that will be used for background tasks.
+         *
+         * <p>If not set, the background executor will default to an automatically generated
+         * {@link Executor}.
+         *
+         * @param executor The executor which will be used for background tasks.
+         * @return the current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setBackgroundExecutor(@NonNull Executor executor) {
+            getMutableConfig().insertOption(OPTION_BACKGROUND_EXECUTOR, executor);
+            return this;
+        }
+
+        // Implementations of UseCaseConfig.Builder default methods
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setDefaultSessionConfig(@NonNull SessionConfig sessionConfig) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionConfig);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setDefaultCaptureConfig(@NonNull CaptureConfig captureConfig) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_CAPTURE_CONFIG, captureConfig);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setSessionOptionUnpacker(
+                @NonNull SessionConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_SESSION_CONFIG_UNPACKER, optionUnpacker);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setCaptureOptionUnpacker(
+                @NonNull CaptureConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_CONFIG_UNPACKER, optionUnpacker);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setSurfaceOccupancyPriority(int priority) {
+            getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY)
+        @Override
+        @NonNull
+        public Builder setCameraSelector(@NonNull CameraSelector cameraSelector) {
+            getMutableConfig().insertOption(OPTION_CAMERA_SELECTOR, cameraSelector);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setUseCaseEventCallback(
+                @NonNull UseCase.EventCallback useCaseEventCallback) {
+            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
+            return this;
+        }
     }
 }
