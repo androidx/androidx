@@ -1159,12 +1159,12 @@ class PostponedTransitionTest {
     }
 
     private fun assertNoTargets(fragment: TransitionFragment) {
-        assertThat(fragment.enterTransition.targets.isEmpty()).isTrue()
-        assertThat(fragment.reenterTransition.targets.isEmpty()).isTrue()
-        assertThat(fragment.exitTransition.targets.isEmpty()).isTrue()
-        assertThat(fragment.returnTransition.targets.isEmpty()).isTrue()
-        assertThat(fragment.sharedElementEnter.targets.isEmpty()).isTrue()
-        assertThat(fragment.sharedElementReturn.targets.isEmpty()).isTrue()
+        assertThat(fragment.enterTransition.targets).isEmpty()
+        assertThat(fragment.reenterTransition.targets).isEmpty()
+        assertThat(fragment.exitTransition.targets).isEmpty()
+        assertThat(fragment.returnTransition.targets).isEmpty()
+        assertThat(fragment.sharedElementEnter.targets).isEmpty()
+        assertThat(fragment.sharedElementReturn.targets).isEmpty()
     }
 
     open class PostponedFragment1 : TransitionFragment(R.layout.scene1) {

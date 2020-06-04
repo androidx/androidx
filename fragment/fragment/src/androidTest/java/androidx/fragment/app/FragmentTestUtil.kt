@@ -135,20 +135,20 @@ fun TargetTracking.verifyAndClearTransition(block: TransitionVerificationInfo.()
 }
 
 fun verifyNoOtherTransitions(fragment: TransitionFragment) {
-    assertThat(fragment.enterTransition.enteringTargets.size).isEqualTo(0)
-    assertThat(fragment.enterTransition.exitingTargets.size).isEqualTo(0)
-    assertThat(fragment.exitTransition.enteringTargets.size).isEqualTo(0)
-    assertThat(fragment.exitTransition.exitingTargets.size).isEqualTo(0)
+    assertThat(fragment.enterTransition.enteringTargets).isEmpty()
+    assertThat(fragment.enterTransition.exitingTargets).isEmpty()
+    assertThat(fragment.exitTransition.enteringTargets).isEmpty()
+    assertThat(fragment.exitTransition.exitingTargets).isEmpty()
 
-    assertThat(fragment.reenterTransition.enteringTargets.size).isEqualTo(0)
-    assertThat(fragment.reenterTransition.exitingTargets.size).isEqualTo(0)
-    assertThat(fragment.returnTransition.enteringTargets.size).isEqualTo(0)
-    assertThat(fragment.returnTransition.exitingTargets.size).isEqualTo(0)
+    assertThat(fragment.reenterTransition.enteringTargets).isEmpty()
+    assertThat(fragment.reenterTransition.exitingTargets).isEmpty()
+    assertThat(fragment.returnTransition.enteringTargets).isEmpty()
+    assertThat(fragment.returnTransition.exitingTargets).isEmpty()
 
-    assertThat(fragment.sharedElementEnter.enteringTargets.size).isEqualTo(0)
-    assertThat(fragment.sharedElementEnter.exitingTargets.size).isEqualTo(0)
-    assertThat(fragment.sharedElementReturn.enteringTargets.size).isEqualTo(0)
-    assertThat(fragment.sharedElementReturn.exitingTargets.size).isEqualTo(0)
+    assertThat(fragment.sharedElementEnter.enteringTargets).isEmpty()
+    assertThat(fragment.sharedElementEnter.exitingTargets).isEmpty()
+    assertThat(fragment.sharedElementReturn.enteringTargets).isEmpty()
+    assertThat(fragment.sharedElementReturn.exitingTargets).isEmpty()
 }
 // Transition test methods end
 
