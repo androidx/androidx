@@ -34,6 +34,7 @@ import androidx.ui.demos.common.DemoCategory
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.clickable
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
@@ -47,7 +48,6 @@ import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.material.ripple.ripple
 import androidx.ui.unit.dp
 
 val ComposeInAndroidDemos = DemoCategory(
@@ -198,20 +198,16 @@ open class ComposeTapInAndroidScroll : ComponentActivity() {
 
             val currentColor = state { Color.LightGray }
 
-            val tap =
-                Modifier.tapGestureFilter {
-                    currentColor.value =
-                        if (currentColor.value == Color.Blue) Color.Yellow else Color.Blue
-                }
-
             Box(
                 Modifier
                     .drawBackground(Color.Gray, RectangleShape)
                     .fillMaxWidth()
                     .preferredHeight(456.dp)
                     .wrapContentSize()
-                    .ripple()
-                    .plus(tap)
+                    .clickable {
+                        currentColor.value =
+                            if (currentColor.value == Color.Blue) Color.Yellow else Color.Blue
+                    }
                     .drawBackground(currentColor.value, RectangleShape)
                     .preferredSize(192.dp)
             )

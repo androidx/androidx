@@ -40,12 +40,14 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
+import androidx.ui.foundation.Interaction
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.center
 import androidx.ui.unit.ipx
 import androidx.ui.unit.toPxSize
@@ -54,10 +56,7 @@ import androidx.ui.util.fastForEach
 /**
  * Ripple is a [Modifier] which draws the visual indicator for a pressed state.
  *
- * Ripple responds to a tap by starting a new [RippleEffect] animation.
- * For creating an effect it uses the [RippleTheme.factory].
- *
- * @sample androidx.ui.material.samples.RippleSample
+ * Ripple responds to a tap by starting a new ripple animation.
  *
  * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded
  * ripples always animate from the target layout center, bounded ripples animate from the touch
@@ -70,6 +69,10 @@ import androidx.ui.util.fastForEach
  * @param clock The animation clock observable that will drive this ripple effect
  * @param enabled The ripple effect will not start if false is provided.
  */
+@Deprecated("Use Modifier.clickable to handle click events and show a ripple, or use " +
+        "Modifier.indication directly with RippleIndication just to show a ripple. If you already" +
+        " have a clickable / toggleable in this modifier chain, you can directly delete this " +
+        "ripple without replacement.")
 fun Modifier.ripple(
     bounded: Boolean = true,
     radius: Dp? = null,
@@ -82,16 +85,18 @@ fun Modifier.ripple(
     val density = DensityAmbient.current
     val rippleModifier = remember { RippleModifier() }
     val theme = RippleThemeAmbient.current
-    rippleModifier.color = (color.useOrElse { theme.defaultColor() }).copy(alpha = theme.opacity())
+    val rippleColor = color.useOrElse { theme.defaultColor() }
+    val rippleAlpha = theme.rippleOpacity().opacityForInteraction(Interaction.Pressed)
+    rippleModifier.color = rippleColor.copy(alpha = rippleAlpha)
 
     val pressIndicator = Modifier.pressIndicatorGestureFilter(
         onStart = { position ->
             if (enabled && transitionsEnabled) {
-                rippleModifier.handleStart(position, theme.factory, density, bounded, radius, clock)
+                rippleModifier.handleStart(position, density, bounded, radius, clock)
             }
         },
-        onStop = { rippleModifier.handleFinish(false) },
-        onCancel = { rippleModifier.handleFinish(true) }
+        onStop = { rippleModifier.handleFinish() },
+        onCancel = { rippleModifier.handleFinish() }
     )
     pressIndicator + rippleModifier
 }
@@ -101,8 +106,8 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
     var color: Color by mutableStateOf(Color.Transparent, StructurallyEqual)
 
     private var size: IntPxSize = IntPxSize(0.ipx, 0.ipx)
-    private var effects = modelListOf<RippleEffect>()
-    private var currentEffect: RippleEffect? = null
+    private var effects = modelListOf<RippleAnimation>()
+    private var currentEffect: RippleAnimation? = null
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -118,24 +123,26 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
 
     fun handleStart(
         touchPosition: PxPosition,
-        factory: RippleEffectFactory,
         density: Density,
         bounded: Boolean,
         radius: Dp?,
         clock: AnimationClockObservable
     ) {
         val position = if (bounded) touchPosition else size.toPxSize().center()
-        val onAnimationFinished = { effect: RippleEffect ->
+        val onAnimationFinished = { effect: RippleAnimation ->
             effects.remove(effect)
             if (currentEffect == effect) {
                 currentEffect = null
             }
         }
-        val effect = factory.create(
+        val targetRadius = with(density) {
+            radius?.toPx() ?: getRippleEndRadius(bounded, PxSize(size.width, size.height))
+        }
+
+        val effect = RippleAnimation(
             size.toPxSize(),
             position,
-            density,
-            radius,
+            targetRadius,
             bounded,
             clock,
             onAnimationFinished
@@ -145,8 +152,8 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
         currentEffect = effect
     }
 
-    fun handleFinish(canceled: Boolean) {
-        currentEffect?.finish(canceled)
+    fun handleFinish() {
+        currentEffect?.finish()
         currentEffect = null
     }
 
@@ -164,7 +171,6 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
     }
 
     override fun onLeave() {
-        effects.fastForEach { it.dispose() }
         effects.clear()
         currentEffect = null
     }
