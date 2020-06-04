@@ -725,6 +725,13 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             } else {
                 progressBar = (ProgressBar) LayoutInflater.from(getContext()).inflate(
                         R.layout.abc_slice_progress_inline_view, this, false);
+                if (mSliceStyle != null && mSliceStyle.getRowStyle() != null) {
+                    setViewWidth(progressBar,
+                            mSliceStyle.getRowStyle().getProgressBarInlineWidth());
+                    setViewSidePaddings(progressBar,
+                            mSliceStyle.getRowStyle().getProgressBarStartPadding(),
+                            mSliceStyle.getRowStyle().getProgressBarEndPadding());
+                }
             }
             if (isIndeterminate) {
                 progressBar.setIndeterminate(true);
@@ -913,6 +920,10 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             lp.height = useIntrinsicSize ? Math.round(d.getIntrinsicHeight() / density) :
                     mImageSize;
             iv.setLayoutParams(lp);
+            if (mSliceStyle != null && mSliceStyle.getRowStyle() != null) {
+                int styleIconSize = mSliceStyle.getRowStyle().getIconSize();
+                mIconSize = styleIconSize > 0 ? styleIconSize : mIconSize;
+            }
             int p = isIcon ? mIconSize / 2 : 0;
             iv.setPadding(p, p, p, p);
             addedView = iv;

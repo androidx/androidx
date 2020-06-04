@@ -107,5 +107,15 @@
 
         <!-- Width to use for inline SeekBar in the row. -->
         <attr name="seekBarInlineWidth" format="dimension"/>
+
+        <!-- Width to use for inline progress bar in the row. -->
+        <attr name="progressBarInlineWidth" format="dimension"/>
+        <!-- Padding to the start edge of the progress bar in the row. -->
+        <attr name="progressBarStartPadding" format="dimension" />
+        <!-- Padding to the end edge of the progress bar in the row. -->
+        <attr name="progressBarEndPadding" format="dimension" />
+
+        <!-- Size of icon. -->
+        <attr name="iconSize" format="dimension" />
     </declare-styleable>
 </resources>
