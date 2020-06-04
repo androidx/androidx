@@ -55,14 +55,28 @@ import org.hamcrest.CoreMatchers.not
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(JUnit4::class)
-class IsDisplayedTest {
+@RunWith(Parameterized::class)
+class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
+    data class TestConfig(
+        val activityClass: Class<out ComponentActivity>
+    )
 
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun createTestSet(): List<BitmapCapturingTest.TestConfig> = listOf(
+            BitmapCapturingTest.TestConfig(ComponentActivity::class.java),
+            BitmapCapturingTest.TestConfig(ActivityWithActionBar::class.java)
+        )
+    }
+
+    @Suppress("DEPRECATION")
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<ComponentActivity>(disableTransitions = true)
+    val composeTestRule = AndroidComposeTestRule(
+        androidx.test.rule.ActivityTestRule(config.activityClass))
 
     private val colors = listOf(Color.Red, Color.Green, Color.Blue)
 
