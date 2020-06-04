@@ -496,8 +496,7 @@ public class FocusMeteringControlTest {
     @Test
     public void withAFPoints_AFIsTriggered() {
         mFocusMeteringControl.startFocusAndMetering(new FocusMeteringAction.Builder(mPoint1,
-                FLAG_AF | FLAG_AE | FLAG_AWB).build(),
-                PREVIEW_ASPECT_RATIO_4_X_3);
+                        FLAG_AF | FLAG_AE | FLAG_AWB).build(), PREVIEW_ASPECT_RATIO_4_X_3);
 
         verify(mFocusMeteringControl).triggerAf(any());
         Mockito.reset(mFocusMeteringControl);
@@ -670,15 +669,14 @@ public class FocusMeteringControlTest {
         captureResultListener.onCaptureResult(result);
     }
 
-    private static <T> void assertFutureFailedWithOperationCancelation(ListenableFuture<T> future) {
+    private static <T> void assertFutureFailedWithOperationCancelation(ListenableFuture<T> future)
+            throws Exception {
         try {
             future.get();
         } catch (ExecutionException e) {
             assertThat(e.getCause()).isInstanceOf(CameraControl.OperationCanceledException.class);
             return;
-        } catch (Exception e) {
         }
-
         fail("Should fail with CameraControl.OperationCanceledException.");
     }
 
@@ -888,7 +886,7 @@ public class FocusMeteringControlTest {
 
     @Test
     public void startThenCancelThenStart_previous2FuturesFailsWithOperationCancelled()
-            throws ExecutionException, InterruptedException, TimeoutException {
+            throws Exception {
         FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1)
                 .build();
 
@@ -918,8 +916,7 @@ public class FocusMeteringControlTest {
     }
 
     @Test
-    public void startMultipleActions_cancelNonLatest()
-            throws ExecutionException, InterruptedException, TimeoutException {
+    public void startMultipleActions_cancelNonLatest() throws Exception {
         FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1)
                 .build();
 
@@ -1070,7 +1067,7 @@ public class FocusMeteringControlTest {
     }
 
     @Test
-    public void cancelFocusMetering_actionIsCancelledAndfutureCompletes() {
+    public void cancelFocusMetering_actionIsCancelledAndfutureCompletes() throws Exception {
         FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1).build();
         ListenableFuture<FocusMeteringResult> actionResult =
                 mFocusMeteringControl.startFocusAndMetering(action,
@@ -1150,7 +1147,7 @@ public class FocusMeteringControlTest {
     }
 
     @Test
-    public void startFocusMeteringAFAEAWB_noPointsAreSupported_failFuture() {
+    public void startFocusMeteringAFAEAWB_noPointsAreSupported_failFuture() throws Exception {
         FocusMeteringControl focusMeteringControl = initFocusMeteringControl(CAMERA3_ID);
         FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1,
                 FLAG_AF | FLAG_AE | FLAG_AWB).build();
@@ -1164,14 +1161,13 @@ public class FocusMeteringControlTest {
         } catch (ExecutionException e) {
             assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
             return;
-        } catch (Exception e) {
         }
 
         fail("Future should fail with IllegalArgumentException.");
     }
 
     @Test
-    public void startFocusMeteringAEAWB_noPointsAreSupported_failFuture() {
+    public void startFocusMeteringAEAWB_noPointsAreSupported_failFuture() throws Exception {
         FocusMeteringControl focusMeteringControl = initFocusMeteringControl(CAMERA3_ID);
         FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1,
                 FLAG_AE | FLAG_AWB).build();
@@ -1185,14 +1181,13 @@ public class FocusMeteringControlTest {
         } catch (ExecutionException e) {
             assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
             return;
-        } catch (Exception e) {
         }
 
         fail("Future should fail with IllegalArgumentException.");
     }
 
     @Test
-    public void startFocusMeteringAFAWB_noPointsAreSupported_failFuture() {
+    public void startFocusMeteringAFAWB_noPointsAreSupported_failFuture() throws Exception {
         FocusMeteringControl focusMeteringControl = initFocusMeteringControl(CAMERA3_ID);
         FocusMeteringAction action = new FocusMeteringAction.Builder(mPoint1,
                 FLAG_AF | FLAG_AWB).build();
@@ -1205,7 +1200,6 @@ public class FocusMeteringControlTest {
         } catch (ExecutionException e) {
             assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
             return;
-        } catch (Exception e) {
         }
 
         fail("Future should fail with IllegalArgumentException.");
@@ -1218,8 +1212,8 @@ public class FocusMeteringControlTest {
         // regions.  it should still complete the future.
         FocusMeteringAction action =
                 new FocusMeteringAction.Builder(mPoint1, FLAG_AE | FLAG_AWB)
-                .addPoint(mPoint2, FLAG_AWB)
-                .build();
+                        .addPoint(mPoint2, FLAG_AWB)
+                        .build();
 
         ListenableFuture<FocusMeteringResult> future =
                 mFocusMeteringControl.startFocusAndMetering(action,
@@ -1237,4 +1231,32 @@ public class FocusMeteringControlTest {
 
         assertFutureFocusCompleted(future, false);
     }
+
+    @Test
+    public void startFocusMetering_noPointsAreValid_failFuture() throws Exception {
+        FocusMeteringControl focusMeteringControl = initFocusMeteringControl(CAMERA0_ID);
+
+        // These will generate MeteringRectangles (width == 0 or height ==0)
+        final MeteringPoint invalidPt1 = mPointFactory.createPoint(2.0f, 2.0f);
+        final MeteringPoint invalidPt2 = mPointFactory.createPoint(2.0f, 0.5f);
+        final MeteringPoint invalidPt3 = mPointFactory.createPoint(-1.0f, -1.0f);
+
+        FocusMeteringAction action =
+                new FocusMeteringAction.Builder(invalidPt1, FLAG_AF)
+                        .addPoint(invalidPt2, FLAG_AE)
+                        .addPoint(invalidPt3, FLAG_AWB).build();
+
+        ListenableFuture<FocusMeteringResult> future =
+                focusMeteringControl.startFocusAndMetering(action,
+                        PREVIEW_ASPECT_RATIO_4_X_3);
+        try {
+            future.get(500, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException e) {
+            assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
+            return;
+        }
+
+        fail("Future should fail with IllegalArgumentException.");
+    }
+
 }
