@@ -162,7 +162,7 @@ class ClipTest {
     fun roundedUniformRectClip() {
         val shape = object : Shape {
             override fun createOutline(size: Size, density: Density): Outline =
-                    Outline.Rounded(RRect(size.toRect(), Radius.circular(12f)))
+                    Outline.Rounded(RRect(size.toRect(), Radius(12f)))
         }
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -197,10 +197,10 @@ class ClipTest {
             override fun createOutline(size: Size, density: Density): Outline =
                 Outline.Rounded(
                     RRect(size.toRect(),
-                        Radius.zero,
-                        Radius.circular(12f),
-                        Radius.circular(12f),
-                        Radius.circular(12f))
+                        Radius.Zero,
+                        Radius(12f),
+                        Radius(12f),
+                        Radius(12f))
                 )
         }
         rule.runOnUiThreadIR {
@@ -296,7 +296,7 @@ class ClipTest {
         rule.runOnUiThreadIR {
             model.value = object : Shape {
                 override fun createOutline(size: Size, density: Density): Outline =
-                    Outline.Rounded(RRect(size.toRect(), Radius.circular(12f)))
+                    Outline.Rounded(RRect(size.toRect(), Radius(12f)))
             }
         }
 

@@ -302,17 +302,17 @@ fun RRect(
  * Construct a rounded rectangle from its left, top, right, and bottom edges,
  * and topLeft, topRight, bottomRight, and bottomLeft radii.
  *
- * The corner radii default to [Radius.zero], i.e. right-angled corners.
+ * The corner radii default to [Radius.Zero], i.e. right-angled corners.
  */
 fun RRect(
     left: Float,
     top: Float,
     right: Float,
     bottom: Float,
-    topLeft: Radius = Radius.zero,
-    topRight: Radius = Radius.zero,
-    bottomRight: Radius = Radius.zero,
-    bottomLeft: Radius = Radius.zero
+    topLeft: Radius = Radius.Zero,
+    topRight: Radius = Radius.Zero,
+    bottomRight: Radius = Radius.Zero,
+    bottomLeft: Radius = Radius.Zero
 ): RRect = RRect(
     left = left,
     top = top,
@@ -332,14 +332,14 @@ fun RRect(
  * Construct a rounded rectangle from its bounding box and and topLeft,
  * topRight, bottomRight, and bottomLeft radii.
  *
- * The corner radii default to [Radius.zero], i.e. right-angled corners
+ * The corner radii default to [Radius.Zero], i.e. right-angled corners
  */
 fun RRect(
     rect: Rect,
-    topLeft: Radius = Radius.zero,
-    topRight: Radius = Radius.zero,
-    bottomRight: Radius = Radius.zero,
-    bottomLeft: Radius = Radius.zero
+    topLeft: Radius = Radius.Zero,
+    topRight: Radius = Radius.Zero,
+    bottomRight: Radius = Radius.Zero,
+    bottomLeft: Radius = Radius.Zero
 ): RRect = RRect(
     left = rect.left,
     top = rect.top,
@@ -356,16 +356,16 @@ fun RRect(
 )
 
 /** The top-left [Radius]. */
-fun RRect.topLeftRadius(): Radius = Radius.elliptical(topLeftRadiusX, topLeftRadiusY)
+fun RRect.topLeftRadius(): Radius = Radius(topLeftRadiusX, topLeftRadiusY)
 
 /**  The top-right [Radius]. */
-fun RRect.topRightRadius(): Radius = Radius.elliptical(topRightRadiusX, topRightRadiusY)
+fun RRect.topRightRadius(): Radius = Radius(topRightRadiusX, topRightRadiusY)
 
 /**  The bottom-right [Radius]. */
-fun RRect.bottomRightRadius(): Radius = Radius.elliptical(bottomRightRadiusX, bottomRightRadiusY)
+fun RRect.bottomRightRadius(): Radius = Radius(bottomRightRadiusX, bottomRightRadiusY)
 
 /** The bottom-left [Radius]. */
-fun RRect.bottomLeftRadius(): Radius = Radius.elliptical(bottomLeftRadiusX, bottomLeftRadiusY)
+fun RRect.bottomLeftRadius(): Radius = Radius(bottomLeftRadiusX, bottomLeftRadiusY)
 
 /** Returns a new [RRect] translated by the given offset. */
 fun RRect.shift(offset: Offset): RRect = RRect(
@@ -373,10 +373,10 @@ fun RRect.shift(offset: Offset): RRect = RRect(
     top = top + offset.y,
     right = right + offset.x,
     bottom = bottom + offset.y,
-    topLeft = Radius.elliptical(topLeftRadiusX, topLeftRadiusY),
-    topRight = Radius.elliptical(topRightRadiusX, topRightRadiusY),
-    bottomRight = Radius.elliptical(bottomRightRadiusX, bottomRightRadiusY),
-    bottomLeft = Radius.elliptical(bottomLeftRadiusX, bottomLeftRadiusY)
+    topLeft = Radius(topLeftRadiusX, topLeftRadiusY),
+    topRight = Radius(topRightRadiusX, topRightRadiusY),
+    bottomRight = Radius(bottomRightRadiusX, bottomRightRadiusY),
+    bottomLeft = Radius(bottomLeftRadiusX, bottomLeftRadiusY)
 )
 
 /**
@@ -388,10 +388,10 @@ fun RRect.grow(delta: Float): RRect = RRect(
     top = top - delta,
     right = right + delta,
     bottom = bottom + delta,
-    topLeft = Radius.elliptical(topLeftRadiusX + delta, topLeftRadiusY + delta),
-    topRight = Radius.elliptical(topRightRadiusX + delta, topRightRadiusY + delta),
-    bottomRight = Radius.elliptical(bottomRightRadiusX + delta, bottomRightRadiusY + delta),
-    bottomLeft = Radius.elliptical(bottomLeftRadiusX + delta, bottomLeftRadiusY + delta)
+    topLeft = Radius(topLeftRadiusX + delta, topLeftRadiusY + delta),
+    topRight = Radius(topRightRadiusX + delta, topRightRadiusY + delta),
+    bottomRight = Radius(bottomRightRadiusX + delta, bottomRightRadiusY + delta),
+    bottomLeft = Radius(bottomLeftRadiusX + delta, bottomLeftRadiusY + delta)
 )
 
 fun RRect.withRadius(radius: Radius): RRect = RRect(

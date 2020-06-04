@@ -78,7 +78,7 @@ class RoundedCornerShape(
                 "$bottomRight, bottomLeft = $bottomLeft)"
     }
 
-    private /*inline*/ fun Float.toRadius() = Radius.circular(this)
+    private /*inline*/ fun Float.toRadius() = Radius(this)
 }
 
 /**

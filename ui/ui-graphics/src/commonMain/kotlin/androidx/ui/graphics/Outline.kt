@@ -19,6 +19,7 @@ package androidx.ui.graphics
 import androidx.ui.util.annotation.FloatRange
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
+import androidx.ui.geometry.Radius
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.drawscope.DrawScope
@@ -103,8 +104,7 @@ fun DrawScope.drawOutline(
                 color = color,
                 topLeft = rrect.topLeft(),
                 size = rrect.size(),
-                radiusX = radius,
-                radiusY = radius,
+                radius = Radius(radius),
                 alpha = alpha,
                 style = style,
                 colorFilter = colorFilter,
@@ -143,8 +143,7 @@ fun DrawScope.drawOutline(
                 brush = brush,
                 topLeft = rrect.topLeft(),
                 size = rrect.size(),
-                radiusX = radius,
-                radiusY = radius,
+                radius = Radius(radius),
                 alpha = alpha,
                 style = style,
                 colorFilter = colorFilter,
