@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+  android:width="24dp"
+  android:height="24dp"
+  android:tint="@color/button_icon_color"
+  android:viewportHeight="24.0"
+  android:viewportWidth="24.0">
+    <path
+      android:fillColor="@android:color/white"
+      android:pathData="M12,21c5,0 9,-4 9,-9s-4,-9 -9,-9c-5,0 -9,4 -9,9S7,21 12,21zM12,5c3.9,0 7,3.1 7,7s-3.1,7 -7,7s-7,-3.1 -7,-7S8.1,5 12,5z" />
+    <path
+      android:fillColor="@android:color/white"
+      android:pathData="M22.2,9H24v6h-1.8V9z" />
+</vector>
