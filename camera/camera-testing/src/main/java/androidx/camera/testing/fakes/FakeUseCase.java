@@ -47,7 +47,7 @@ public class FakeUseCase extends UseCase {
 
     @Override
     @Nullable
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
+    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
         return new FakeUseCaseConfig.Builder()
                 .setSessionOptionUnpacker(new SessionConfig.OptionUnpacker() {
                     @Override

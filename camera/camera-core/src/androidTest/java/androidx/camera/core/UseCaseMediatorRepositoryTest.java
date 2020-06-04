@@ -18,6 +18,9 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.lifecycle.LifecycleOwner;
@@ -28,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.Map;
 
 @SmallTest
@@ -37,12 +41,15 @@ public final class UseCaseMediatorRepositoryTest {
     private FakeLifecycleOwner mLifecycle;
     private UseCaseMediatorRepository mRepository;
     private Map<LifecycleOwner, UseCaseMediatorLifecycleController> mUseCasesMap;
+    private CameraUseCaseAdapter mCameraUseCaseAdapter;
 
     @Before
     public void setUp() {
         mLifecycle = new FakeLifecycleOwner();
         mRepository = new UseCaseMediatorRepository();
         mUseCasesMap = mRepository.getUseCasesMap();
+        mCameraUseCaseAdapter = new CameraUseCaseAdapter(new FakeCamera(),
+                new FakeCameraDeviceSurfaceManager());
     }
 
     @Test
@@ -99,11 +106,14 @@ public final class UseCaseMediatorRepositoryTest {
     }
 
     @Test
-    public void useCaseIsCleared_whenLifecycleIsDestroyed() {
+    public void useCaseIsCleared_whenLifecycleIsDestroyed()
+            throws CameraUseCaseAdapter.CameraException {
         UseCaseMediatorLifecycleController mediator = mRepository.getOrCreateUseCaseMediator(
                 mLifecycle);
         FakeUseCase useCase = new FakeUseCase();
         mediator.getUseCaseMediator().addUseCase(useCase);
+
+        mCameraUseCaseAdapter.attachUseCases(Collections.singleton(useCase));
 
         assertThat(useCase.isCleared()).isFalse();
 

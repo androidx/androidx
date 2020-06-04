@@ -341,8 +341,9 @@ public final class CameraX {
         }
 
         // Only do resolution calculation if UseCases were attached
-        if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(originalUseCases,
-                Arrays.asList(useCases))) {
+        List<UseCase> totalUseCases = new ArrayList<>(originalUseCases);
+        totalUseCases.addAll(Arrays.asList(useCases));
+        if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(totalUseCases)) {
             throw new IllegalArgumentException("Attempting to bind too many ImageCapture or "
                     + "VideoCapture instances");
         }
@@ -443,8 +444,9 @@ public final class CameraX {
             }
 
             // Unbind the UseCase from the currently bound camera if it is bound
-            if (wasUnbound) {
-                useCase.onDetach();
+            CameraInternal attachedCamera = useCase.getCamera();
+            if (wasUnbound && attachedCamera != null) {
+                useCase.onDetach(attachedCamera);
                 useCase.onDestroy();
             }
         }

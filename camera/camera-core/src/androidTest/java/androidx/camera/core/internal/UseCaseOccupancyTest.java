@@ -35,7 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 /** JUnit test cases for {@link UseCaseOccupancy} class. */
@@ -62,8 +62,7 @@ public final class UseCaseOccupancyTest {
         ImageCapture useCase2 = createImageCapture();
 
         assertThat(UseCaseOccupancy.checkUseCaseLimitNotExceeded(
-                Collections.singletonList(useCase1),
-                Collections.singletonList(useCase2))).isFalse();
+                Arrays.asList(useCase1, useCase2))).isFalse();
     }
 
     @Test
@@ -73,8 +72,7 @@ public final class UseCaseOccupancyTest {
         VideoCapture useCase2 = new VideoCapture(config);
 
         assertThat(UseCaseOccupancy.checkUseCaseLimitNotExceeded(
-                Collections.singletonList(useCase1),
-                Collections.singletonList(useCase2))).isFalse();
+                Arrays.asList(useCase1, useCase2))).isFalse();
     }
 
     @Test
@@ -83,8 +81,7 @@ public final class UseCaseOccupancyTest {
         VideoCapture videoCapture = new VideoCaptureConfig.Builder().build();
 
         assertThat(UseCaseOccupancy.checkUseCaseLimitNotExceeded(
-                Collections.singletonList(imageCapture),
-                Collections.singletonList(videoCapture))).isTrue();
+                Arrays.asList(imageCapture, videoCapture))).isTrue();
     }
 
     // TODO remove when UseCase does not require
