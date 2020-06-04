@@ -571,11 +571,14 @@ public class MediaSessionCompat {
             setCallback(new Callback() {}, handler);
             mImpl.setMediaButtonReceiver(mbrIntent);
         } else if (android.os.Build.VERSION.SDK_INT >= 19) {
-            mImpl = new MediaSessionImplApi19(context, tag, mbrComponent, mbrIntent, sessionInfo);
+            mImpl = new MediaSessionImplApi19(context, tag, mbrComponent, mbrIntent,
+                    session2Token, sessionInfo);
         } else if (android.os.Build.VERSION.SDK_INT >= 18) {
-            mImpl = new MediaSessionImplApi18(context, tag, mbrComponent, mbrIntent, sessionInfo);
+            mImpl = new MediaSessionImplApi18(context, tag, mbrComponent, mbrIntent,
+                    session2Token, sessionInfo);
         } else {
-            mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent, sessionInfo);
+            mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent, session2Token,
+                    sessionInfo);
         }
         mController = new MediaControllerCompat(context, this);
 
@@ -2408,7 +2411,7 @@ public class MediaSessionCompat {
         };
 
         public MediaSessionImplBase(Context context, String tag, ComponentName mbrComponent,
-                PendingIntent mbrIntent, Bundle sessionInfo) {
+                PendingIntent mbrIntent, VersionedParcelable session2Token, Bundle sessionInfo) {
             if (mbrComponent == null) {
                 throw new IllegalArgumentException(
                         "MediaButtonReceiver component may not be null");
@@ -2421,7 +2424,7 @@ public class MediaSessionCompat {
             mMediaButtonReceiverComponentName = mbrComponent;
             mMediaButtonReceiverIntent = mbrIntent;
             mStub = new MediaSessionStub();
-            mToken = new Token(mStub);
+            mToken = new Token(mStub, /* extraBinder= */ null, session2Token);
 
             mRatingType = RatingCompat.RATING_NONE;
             mVolumeType = MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL;
@@ -3599,8 +3602,8 @@ public class MediaSessionCompat {
         private static boolean sIsMbrPendingIntentSupported = true;
 
         MediaSessionImplApi18(Context context, String tag, ComponentName mbrComponent,
-                PendingIntent mbrIntent, Bundle sessionInfo) {
-            super(context, tag, mbrComponent, mbrIntent, sessionInfo);
+                PendingIntent mbrIntent, VersionedParcelable session2Token, Bundle sessionInfo) {
+            super(context, tag, mbrComponent, mbrIntent, session2Token, sessionInfo);
         }
 
         @Override
@@ -3683,8 +3686,8 @@ public class MediaSessionCompat {
     @RequiresApi(19)
     static class MediaSessionImplApi19 extends MediaSessionImplApi18 {
         MediaSessionImplApi19(Context context, String tag, ComponentName mbrComponent,
-                PendingIntent mbrIntent, Bundle sessionInfo) {
-            super(context, tag, mbrComponent, mbrIntent, sessionInfo);
+                PendingIntent mbrIntent, VersionedParcelable session2Token, Bundle sessionInfo) {
+            super(context, tag, mbrComponent, mbrIntent, session2Token, sessionInfo);
         }
 
         @Override
