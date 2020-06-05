@@ -20,9 +20,13 @@ import androidx.animation.FloatPropKey
 import androidx.animation.TransitionSpec
 import androidx.animation.TweenBuilder
 import androidx.animation.transitionDefinition
+import androidx.annotation.VisibleForTesting
 import androidx.compose.Composable
 import androidx.compose.Providers
+import androidx.compose.Stable
+import androidx.compose.StructurallyEqual
 import androidx.compose.getValue
+import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
@@ -40,6 +44,7 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.Ref
+import androidx.ui.core.clipToBounds
 import androidx.ui.core.drawBehind
 import androidx.ui.core.offset
 import androidx.ui.core.tag
@@ -54,6 +59,9 @@ import androidx.ui.foundation.TextField
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.clickable
 import androidx.ui.foundation.currentTextStyle
+import androidx.ui.foundation.gestures.DragDirection
+import androidx.ui.foundation.gestures.ScrollableState
+import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.foundation.shape.corner.ZeroCornerSize
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
@@ -65,8 +73,8 @@ import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.RippleIndication
+import androidx.ui.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.semantics.Semantics
-import androidx.ui.text.FirstBaseline
 import androidx.ui.text.LastBaseline
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextRange
@@ -78,6 +86,8 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
+import androidx.ui.unit.min
+import kotlin.math.roundToInt
 
 /**
  * Material Design implementation of the
@@ -384,24 +394,29 @@ private fun FilledTextFieldImpl(
             typography = MaterialTheme.typography.subtitle1,
             emphasis = EmphasisAmbient.current.high
         ) {
-            TextField(
-                value = value,
-                modifier = tagModifier + focusModifier,
-                textStyle = textStyle,
-                onValueChange = onValueChange,
-                onFocusChange = onFocusChange,
-                cursorColor = if (isErrorValue) errorColor else activeColor,
-                visualTransformation = visualTransformation,
-                keyboardType = keyboardType,
-                imeAction = imeAction,
-                onImeActionPerformed = {
-                    onImeActionPerformed(it, keyboardController.value)
-                },
-                onTextInputStarted = {
-                    keyboardController.value = it
-                    onTextInputStarted(it)
-                }
-            )
+            TextFieldScroller(
+                scrollerPosition = rememberSavedInstanceState { TextFieldScrollerPosition() },
+                modifier = tagModifier
+            ) {
+                TextField(
+                    value = value,
+                    modifier = tagModifier + focusModifier,
+                    textStyle = textStyle,
+                    onValueChange = onValueChange,
+                    onFocusChange = onFocusChange,
+                    cursorColor = if (isErrorValue) errorColor else activeColor,
+                    visualTransformation = visualTransformation,
+                    keyboardType = keyboardType,
+                    imeAction = imeAction,
+                    onImeActionPerformed = {
+                        onImeActionPerformed(it, keyboardController.value)
+                    },
+                    onTextInputStarted = {
+                        keyboardController.value = it
+                        onTextInputStarted(it)
+                    }
+                )
+            }
         }
     }
 
@@ -483,6 +498,59 @@ private fun FilledTextFieldImpl(
 }
 
 /**
+ * Similar to [androidx.ui.foundation.VerticalScroller] but does not lose the minWidth constraints.
+ */
+@VisibleForTesting
+@Composable
+internal fun TextFieldScroller(
+    scrollerPosition: TextFieldScrollerPosition,
+    modifier: Modifier = Modifier,
+    textField: @Composable () -> Unit
+) {
+    Layout(
+        modifier = modifier
+            .clipToBounds()
+            .scrollable(
+                scrollableState = ScrollableState { delta ->
+                    val newPosition = scrollerPosition.current + delta
+                    val consumedDelta = when {
+                        newPosition > scrollerPosition.maximum ->
+                            scrollerPosition.maximum - scrollerPosition.current // too much down
+                        newPosition < 0f -> -scrollerPosition.current // scrolled too much up
+                        else -> delta
+                    }
+                    scrollerPosition.current += consumedDelta
+                    consumedDelta
+                },
+                dragDirection = DragDirection.Vertical,
+                enabled = scrollerPosition.maximum != 0f
+            ),
+        children = textField,
+        measureBlock = { measurables, constraints, _ ->
+            val childConstraints = constraints.copy(maxHeight = IntPx.Infinity)
+            val placeable = measurables.first().measure(childConstraints)
+            val height = min(placeable.height, constraints.maxHeight)
+            val diff = placeable.height.value.toFloat() - height.value.toFloat()
+            layout(placeable.width, height) {
+                // update current and maximum positions to correctly calculate delta in scrollable
+                scrollerPosition.maximum = diff
+                if (scrollerPosition.current > diff) scrollerPosition.current = diff
+
+                val yOffset = scrollerPosition.current - diff
+                placeable.place(0.ipx, yOffset.roundToInt().ipx)
+            }
+        }
+    )
+}
+
+@VisibleForTesting
+@Stable
+internal class TextFieldScrollerPosition {
+    var current by mutableStateOf(0f, StructurallyEqual)
+    var maximum by mutableStateOf(Float.POSITIVE_INFINITY, StructurallyEqual)
+}
+
+/**
  * Set alpha if the color is not translucent
  */
 private fun Color.applyAlpha(alpha: Float): Color {
@@ -547,17 +615,13 @@ private fun TextFieldLayout(
         val textfieldPlaceable = measurables
             .first { it.tag == TextFieldTag }
             .measure(textFieldConstraints)
-        val textfieldFirstBaseline = requireNotNull(textfieldPlaceable[FirstBaseline]) {
-            "No text first baseline."
-        }
         val textfieldLastBaseline = requireNotNull(textfieldPlaceable[LastBaseline]) {
             "No text last baseline."
         }
-        val textfieldPositionY = effectiveLabelBaseline + baseLineOffset - textfieldFirstBaseline
 
         val width = max(textfieldPlaceable.width, constraints.minWidth)
         val height = max(
-            textfieldPositionY + textfieldLastBaseline + LastBaselineOffset.toIntPx(),
+            effectiveLabelBaseline + textfieldPlaceable.height + LastBaselineOffset.toIntPx(),
             constraints.minHeight
         )
 
@@ -565,6 +629,9 @@ private fun TextFieldLayout(
             // Text field and label are placed with respect to the baseline offsets.
             // But if label is empty, then the text field should be centered vertically.
             if (labelPlaceable.width != IntPx.Zero) {
+                // only respects the offset from the last baseline to the bottom of the text field
+                val textfieldPositionY = height - LastBaselineOffset.toIntPx() -
+                        min(textfieldLastBaseline, textfieldPlaceable.height)
                 placeLabelAndTextfield(
                     width,
                     height,
