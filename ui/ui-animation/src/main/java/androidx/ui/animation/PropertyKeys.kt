@@ -35,7 +35,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Position
 import androidx.ui.unit.PxBounds
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import kotlin.math.roundToInt
@@ -183,15 +182,6 @@ val PxPositionToVectorConverter: TwoWayConverter<Offset, AnimationVector2D> =
     TwoWayConverter(
         convertToVector = { AnimationVector2D(it.x, it.y) },
         convertFromVector = { Offset(it.v1, it.v2) }
-    )
-
-/**
- * A type converter that converts a [PxSize] to a [AnimationVector2D], and vice versa.
- */
-val PxSizeToVectorConverter: TwoWayConverter<PxSize, AnimationVector2D> =
-    TwoWayConverter(
-        convertToVector = { AnimationVector2D(it.width, it.height) },
-        convertFromVector = { PxSize(it.v1, it.v2) }
     )
 
 /**

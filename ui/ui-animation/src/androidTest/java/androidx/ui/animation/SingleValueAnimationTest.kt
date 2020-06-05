@@ -41,7 +41,6 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.Position
 import androidx.ui.unit.PxBounds
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.util.lerp
 
@@ -115,7 +114,6 @@ class SingleValueAnimationTest {
         var positionValue = PositionToVectorConverter.convertFromVector(startVal)
         var sizeValue = SizeToVectorConverter.convertFromVector(startVal)
         var pxPositionValue = PxPositionToVectorConverter.convertFromVector(startVal)
-        var pxSizeValue = PxSizeToVectorConverter.convertFromVector(startVal)
 
         val animConfig: TweenBuilder<*>.() -> Unit = {
             easing = LinearEasing
@@ -150,14 +148,6 @@ class SingleValueAnimationTest {
                     PxPositionToVectorConverter.convertFromVector(startVal),
                 TweenBuilder<Offset>().apply(animConfig)
             )
-
-            pxSizeValue = animate(
-                if (enabled)
-                    PxSizeToVectorConverter.convertFromVector(endVal)
-                else
-                    PxSizeToVectorConverter.convertFromVector(startVal),
-                TweenBuilder<PxSize>().apply(animConfig)
-            )
         }
 
         val verify: () -> Unit = {
@@ -170,7 +160,6 @@ class SingleValueAnimationTest {
                 assertEquals(expect, vectorValue)
                 assertEquals(SizeToVectorConverter.convertFromVector(expect), sizeValue)
                 assertEquals(PositionToVectorConverter.convertFromVector(expect), positionValue)
-                assertEquals(PxSizeToVectorConverter.convertFromVector(expect), pxSizeValue)
                 assertEquals(PxPositionToVectorConverter.convertFromVector(expect), pxPositionValue)
                 composeTestRule.clockTestRule.advanceClock(50)
                 waitForIdle()

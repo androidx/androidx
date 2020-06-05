@@ -61,7 +61,7 @@ package androidx.ui.test {
   }
 
   public final class CollectedSizes {
-    ctor public CollectedSizes(androidx.ui.unit.PxSize size, androidx.ui.unit.Density density);
+    ctor public CollectedSizes(androidx.ui.geometry.Size size, androidx.ui.unit.Density density);
     method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,androidx.ui.unit.IntPx> expectedHeightPx);
     method public androidx.ui.test.CollectedSizes assertHeightEqualsTo-ipo6vVg(float expectedHeight);
     method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,androidx.ui.unit.IntPx> expectedSquarePx);
@@ -297,7 +297,7 @@ package androidx.ui.test {
   public final class SizesTestingKt {
     method public static androidx.ui.layout.DpConstraints getBigTestConstraints();
     method public static androidx.ui.test.CollectedSizes setContentAndCollectSizes(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static androidx.ui.unit.PxSize setContentAndGetPixelSize(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> performSetContent = { setContent(it) }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.geometry.Size setContentAndGetPixelSize(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> performSetContent = { setContent(it) }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class StateRestorationTester {

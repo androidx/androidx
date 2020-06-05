@@ -65,7 +65,6 @@ package androidx.ui.animation {
     method public static androidx.animation.TwoWayConverter<androidx.ui.unit.Position,androidx.animation.AnimationVector2D> getPositionToVectorConverter();
     method public static androidx.animation.TwoWayConverter<androidx.ui.unit.PxBounds,androidx.animation.AnimationVector4D> getPxBoundsToVectorConverter();
     method public static androidx.animation.TwoWayConverter<androidx.ui.geometry.Offset,androidx.animation.AnimationVector2D> getPxPositionToVectorConverter();
-    method public static androidx.animation.TwoWayConverter<androidx.ui.unit.PxSize,androidx.animation.AnimationVector2D> getPxSizeToVectorConverter();
     method public static androidx.animation.TwoWayConverter<java.lang.Float,androidx.animation.AnimationVector1D> getPxToVectorConverter();
     method public static androidx.animation.TwoWayConverter<androidx.ui.geometry.Rect,androidx.animation.AnimationVector4D> getRectToVectorConverter();
     method public static androidx.animation.TwoWayConverter<androidx.ui.geometry.Size,androidx.animation.AnimationVector2D> getSizeToVectorConverter();
@@ -99,15 +98,15 @@ package androidx.ui.animation {
     method @androidx.compose.Composable public static float animate(float target, androidx.animation.AnimationBuilder<java.lang.Float> animBuilder = remember({ 
     return <init>()
 }), float visibilityThreshold = 0.01f, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? endListener = null);
+    method @androidx.compose.Composable public static androidx.ui.geometry.Size animate(androidx.ui.geometry.Size target, androidx.animation.AnimationBuilder<androidx.ui.geometry.Size> animBuilder = remember({ 
+    return <init>()
+}), kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Size,kotlin.Unit>? endListener = null);
     method @androidx.compose.Composable public static androidx.ui.unit.Bounds animate(androidx.ui.unit.Bounds target, androidx.animation.AnimationBuilder<androidx.ui.unit.Bounds> animBuilder = remember({ 
     return <init>()
 }), kotlin.jvm.functions.Function1<? super androidx.ui.unit.Bounds,kotlin.Unit>? endListener = null);
     method @androidx.compose.Composable public static float animate(float target, androidx.animation.AnimationBuilder<java.lang.Float> animBuilder = remember({ 
     return <init>()
 }), kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? endListener = null);
-    method @androidx.compose.Composable public static androidx.ui.unit.PxSize animate(androidx.ui.unit.PxSize target, androidx.animation.AnimationBuilder<androidx.ui.unit.PxSize> animBuilder = remember({ 
-    return <init>()
-}), kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxSize,kotlin.Unit>? endListener = null);
     method @androidx.compose.Composable public static androidx.ui.geometry.Offset animate(androidx.ui.geometry.Offset target, androidx.animation.AnimationBuilder<androidx.ui.geometry.Offset> animBuilder = remember({ 
     return <init>()
 }), kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit>? endListener = null);
@@ -129,9 +128,6 @@ package androidx.ui.animation {
     method @androidx.compose.Composable public static <T, V extends androidx.animation.AnimationVector> T! animate(T? target, androidx.animation.TwoWayConverter<T,V> converter, androidx.animation.AnimationBuilder<T> animBuilder = remember({ 
     return <init>()
 }), V? visibilityThreshold = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? endListener = null);
-    method @androidx.compose.Composable public static long animate-4Ketza8(long target, androidx.animation.AnimationBuilder<androidx.ui.geometry.Size> animBuilder = remember({ 
-    return <init>()
-}), kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Size,kotlin.Unit>? endListener = null);
     method @androidx.compose.Composable public static long animate-90dr43Y(long target, androidx.animation.AnimationBuilder<androidx.ui.graphics.Color> animBuilder = remember({ 
     return <init>()
 }), kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,kotlin.Unit>? endListener = null);

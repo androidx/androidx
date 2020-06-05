@@ -45,7 +45,7 @@ import androidx.ui.material.Scaffold.FabPosition
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxSize
+import androidx.ui.geometry.Size
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
 import androidx.ui.unit.toSize
@@ -81,21 +81,21 @@ class ScaffoldState(
      * Get current size of the topBar in [Scaffold], if known. `null` if this unknown or topBar
      * parameter in scaffold is not set
      */
-    val topBarSize: PxSize?
+    val topBarSize: Size?
         get() = scaffoldGeometry.topBarBounds?.toSize()
 
     /**
      * Get current size of the bottomBar in [Scaffold], if known. `null` if this unknown or
      * bottomBar parameter in scaffold is not set
      */
-    val bottomBarSize: PxSize?
+    val bottomBarSize: Size?
         get() = scaffoldGeometry.bottomBarBounds?.toSize()
 
     /**
      * Get current size of the floatingActionButton in [Scaffold], if known. `null` if this unknown
      * or floatingActionButton parameter in scaffold is not set
      */
-    val floatingActionButtonSize: PxSize?
+    val floatingActionButtonSize: Size?
         get() = scaffoldGeometry.fabBounds?.toSize()
 
     internal val scaffoldGeometry = ScaffoldGeometry()

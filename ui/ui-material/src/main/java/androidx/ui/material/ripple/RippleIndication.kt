@@ -42,8 +42,7 @@ import androidx.ui.graphics.useOrElse
 import androidx.ui.material.MaterialTheme
 import androidx.ui.unit.Dp
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.center
+import androidx.ui.geometry.Size
 import androidx.ui.util.fastForEach
 
 /**
@@ -155,7 +154,7 @@ private class RippleIndicationInstance internal constructor(
 
     override fun ContentDrawScope.drawIndication(interactionState: InteractionState) {
         val targetRadius =
-            radius?.toPx() ?: getRippleEndRadius(bounded, PxSize(size.width, size.height))
+            radius?.toPx() ?: getRippleEndRadius(bounded, size)
         drawContent()
         with(stateLayer) {
             drawStateLayer(interactionState, targetRadius, color.value)
@@ -175,7 +174,7 @@ private class RippleIndicationInstance internal constructor(
 
     private fun ContentDrawScope.addRipple(targetRadius: Float, pressPosition: Offset) {
         currentRipple?.finish()
-        val pxSize = PxSize(size.width, size.height)
+        val pxSize = Size(size.width, size.height)
         val position = if (bounded) pressPosition else pxSize.center()
         val ripple = RippleAnimation(pxSize, position, targetRadius, bounded, clock) { ripple ->
             ripples.remove(ripple)

@@ -216,11 +216,6 @@ class IntPxTest {
     }
 
     @Test
-    fun createSize() {
-        assertEquals(PxSize(10f, 20f), PxSize(10.ipx, 20.ipx))
-    }
-
-    @Test
     fun createPosition() {
         assertEquals(Offset(10f, 20f), Offset(10.ipx, 20.ipx))
     }

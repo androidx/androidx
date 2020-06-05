@@ -25,7 +25,7 @@ import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.setContentAndGetPixelSize
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
+import androidx.ui.geometry.Size
 
 fun ComposeTestRule.setMaterialContent(
     modifier: Modifier = Modifier,
@@ -55,7 +55,7 @@ fun ComposeTestRule.setMaterialContentAndGetPixelSize(
     modifier: Modifier = Modifier,
     parentConstraints: DpConstraints = BigTestConstraints,
     children: @Composable () -> Unit
-): PxSize = setContentAndGetPixelSize(
+): Size = setContentAndGetPixelSize(
     parentConstraints,
     { setMaterialContent(composable = it) }
 ) {
