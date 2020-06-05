@@ -26,6 +26,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import toJFO
+import javax.lang.model.element.ElementKind
 import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
@@ -38,7 +39,7 @@ class JvmDescriptorUtilsTest {
         import java.lang.annotation.ElementType;
         import java.lang.annotation.Target;
 
-        @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
+        @Target({ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR})
         public @interface Describe { }
         """.toJFO("androidx.room.test.Describe")
 
@@ -57,6 +58,97 @@ class JvmDescriptorUtilsTest {
         ) { descriptors ->
             assertThat(descriptors.first())
                 .isEqualTo("emptyMethod()V")
+        }
+    }
+
+    @Test
+    fun descriptor_field() {
+        singleRun(
+            """
+            package androidx.room.test;
+
+            import java.util.List;
+
+            class DummyClass<T> {
+                @Describe
+                int field1;
+
+                @Describe
+                String field2;
+
+                @Describe
+                T field3;
+
+                @Describe
+                List<String> field4;
+            }
+            """.toJFO("androidx.room.test.DummyClass")
+        ) { descriptors ->
+            assertThat(descriptors).isEqualTo(
+                setOf(
+                    "field1:I",
+                    "field2:Ljava/lang/String;",
+                    "field3:Ljava/lang/Object;",
+                    "field4:Ljava/util/List;"
+                )
+            )
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun descriptor_method_erasured() {
+        singleRun(
+            """
+            package androidx.room.test;
+
+            import java.util.ArrayList;
+            import java.util.Collection;
+            import java.util.List;
+            import java.util.Map;
+
+            class DummyClass<T> {
+                @Describe
+                void method1(T something) { }
+
+                @Describe
+                T method2() { return null; }
+
+                @Describe
+                List<? extends String> method3() { return null; }
+
+                @Describe
+                Map<T, String> method4() { return null; }
+
+                @Describe
+                ArrayList<Map<T, String>> method5() { return null; }
+
+                @Describe
+                static <I, O extends I> O method6(I input) { return null; }
+
+                @Describe
+                static <I, O extends String> O method7(I input) { return null; }
+
+                @Describe
+                static <P extends Collection & Comparable> P method8() { return null; }
+
+                @Describe
+                static <P extends String & List<Character>> P method9() { return null; }
+            }
+            """.toJFO("androidx.room.test.DummyClass")
+        ) { descriptors ->
+            assertThat(descriptors).isEqualTo(
+                setOf(
+                    "method1(Ljava/lang/Object;)V",
+                    "method2()Ljava/lang/Object;",
+                    "method3()Ljava/util/List;",
+                    "method4()Ljava/util/Map;",
+                    "method5()Ljava/util/ArrayList;",
+                    "method6(Ljava/lang/Object;)Ljava/lang/Object;",
+                    "method7(Ljava/lang/Object;)Ljava/lang/String;",
+                    "method8()Ljava/util/Collection;",
+                    "method9()Ljava/lang/String;"
+                )
+            )
         }.compilesWithoutError()
     }
 
@@ -94,6 +186,7 @@ class JvmDescriptorUtilsTest {
 
             import java.util.ArrayList;
             import java.util.List;
+            import java.util.Map;
 
             class DummyClass {
                 @Describe
@@ -104,6 +197,9 @@ class JvmDescriptorUtilsTest {
 
                 @Describe
                 List<String> method3(ArrayList<Integer> list) { return null; }
+
+                @Describe
+                Map<String, Object> method4() { return null; }
             }
             """.toJFO("androidx.room.test.DummyClass")
         ) { descriptors ->
@@ -111,7 +207,8 @@ class JvmDescriptorUtilsTest {
                 setOf(
                     "method1(Ljava/lang/Object;)V",
                     "method2()Ljava/lang/Object;",
-                    "method3(Ljava/util/ArrayList;)Ljava/util/List;"
+                    "method3(Ljava/util/ArrayList;)Ljava/util/List;",
+                    "method4()Ljava/util/Map;"
                 )
             )
         }.compilesWithoutError()
@@ -243,7 +340,13 @@ class JvmDescriptorUtilsTest {
         .processedWith(TestProcessor.builder()
             .nextRunHandler {
                 it.roundEnv.getElementsAnnotatedWith(it.annotations.first()).map { element ->
-                    MoreElements.asExecutable(element).descriptor(it.processingEnv.typeUtils)
+                    when (element.kind) {
+                        ElementKind.FIELD ->
+                            MoreElements.asVariable(element).descriptor()
+                        ElementKind.CONSTRUCTOR, ElementKind.METHOD ->
+                            MoreElements.asExecutable(element).descriptor()
+                        else -> error("Unsupported element to describe.")
+                    }
                 }.toSet().let(handler)
                 true
             }
