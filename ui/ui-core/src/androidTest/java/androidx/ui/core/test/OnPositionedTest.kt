@@ -32,7 +32,7 @@ import androidx.ui.core.positionInParent
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -146,7 +146,7 @@ class OnPositionedTest {
     @Test
     fun callbackCalledForChildWhenParentMoved() {
         var position by mutableStateOf(0.ipx)
-        var childGlobalPosition = PxPosition(0f, 0f)
+        var childGlobalPosition = Offset(0f, 0f)
         var latch = CountDownLatch(1)
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -183,7 +183,7 @@ class OnPositionedTest {
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(PxPosition(10f, 0f), childGlobalPosition)
+        assertEquals(Offset(10f, 0f), childGlobalPosition)
     }
 
     @Test
@@ -257,14 +257,14 @@ class OnPositionedTest {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         rule.runOnUiThread {
-            assertEquals(PxPosition(5f, 5f), coordinates!!.positionInParent)
+            assertEquals(Offset(5f, 5f), coordinates!!.positionInParent)
 
             var root = coordinates!!
             while (root.parentCoordinates != null) {
                 root = root.parentCoordinates!!
             }
 
-            assertEquals(PxPosition.Origin, root.positionInParent)
+            assertEquals(Offset.Zero, root.positionInParent)
         }
     }
 

@@ -38,7 +38,7 @@ import androidx.ui.graphics.drawscope.DrawScope
  */
 data class ImagePainter(
     private val image: ImageAsset,
-    private val srcOffset: Offset = Offset.zero,
+    private val srcOffset: Offset = Offset.Zero,
     private val srcSize: Size = Size(image.width.toFloat(), image.height.toFloat())
 ) : Painter() {
 
@@ -75,8 +75,8 @@ data class ImagePainter(
 
     private fun validateSize(srcOffset: Offset, srcSize: Size): Size {
         require(
-            srcOffset.dx >= 0 &&
-            srcOffset.dy >= 0 &&
+            srcOffset.x >= 0 &&
+            srcOffset.y >= 0 &&
             srcSize.width >= 0 &&
             srcSize.height >= 0 &&
             srcSize.width <= image.width &&

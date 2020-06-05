@@ -56,7 +56,7 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.Dp
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.center
 import androidx.ui.unit.dp
@@ -549,8 +549,8 @@ class ButtonTest {
         }
 
         runOnIdleCompose {
-            val topLeft = childCoordinates!!.localToGlobal(PxPosition.Origin).x -
-                    parentCoordinates!!.localToGlobal(PxPosition.Origin).x
+            val topLeft = childCoordinates!!.localToGlobal(Offset.Zero).x -
+                    parentCoordinates!!.localToGlobal(Offset.Zero).x
             val currentPadding = with(composeTestRule.density) {
                 padding.toIntPx().value.toFloat()
             }
@@ -559,7 +559,7 @@ class ButtonTest {
     }
 }
 
-fun assertWithinOnePixel(expected: PxPosition, actual: PxPosition) {
+fun assertWithinOnePixel(expected: Offset, actual: Offset) {
     assertWithinOnePixel(expected.x, actual.x)
     assertWithinOnePixel(expected.y, actual.y)
 }

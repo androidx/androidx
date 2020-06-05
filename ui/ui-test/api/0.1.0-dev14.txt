@@ -57,7 +57,7 @@ package androidx.ui.test {
     method public static void assertShape-t2RoSCg(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, long shapeColor, long backgroundColor, androidx.ui.graphics.Shape backgroundShape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, float sizeX = width.toFloat(), float sizeY = height.toFloat(), float shapeSizeX = sizeX, float shapeSizeY = sizeY, float centerX = width / 2.0, float centerY = height / 2.0, float shapeOverlapPixelCount = 1.0f);
     method public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
     method public static android.graphics.Bitmap captureToBitmap(android.view.View);
-    method public static boolean contains-m3TnucA(androidx.ui.graphics.Path, long offset);
+    method public static boolean contains(androidx.ui.graphics.Path, androidx.ui.geometry.Offset offset);
   }
 
   public final class CollectedSizes {
@@ -199,30 +199,30 @@ package androidx.ui.test {
   }
 
   public final class GestureScopeKt {
-    method public static androidx.ui.unit.PxPosition getCenter(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.geometry.Offset getCenter(androidx.ui.test.BaseGestureScope);
     method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.test.BaseGestureScope);
     method public static androidx.ui.unit.IntPxSize getSize(androidx.ui.test.BaseGestureScope);
-    method public static androidx.ui.unit.PxPosition localToGlobal(androidx.ui.test.BaseGestureScope, androidx.ui.unit.PxPosition position);
-    method public static void movePointerBy(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.unit.PxPosition delta);
-    method public static void movePointerTo(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.unit.PxPosition position);
+    method public static androidx.ui.geometry.Offset localToGlobal(androidx.ui.test.BaseGestureScope, androidx.ui.geometry.Offset position);
+    method public static void movePointerBy(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset delta);
+    method public static void movePointerTo(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset position);
     method public static void sendCancel(androidx.ui.test.PartialGestureScope);
-    method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position = center);
-    method public static void sendDoubleClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position = center);
-    method public static void sendDown(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.unit.PxPosition position);
-    method public static void sendDown(androidx.ui.test.PartialGestureScope, androidx.ui.unit.PxPosition position);
-    method public static void sendLongClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position = center);
+    method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center);
+    method public static void sendDoubleClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center);
+    method public static void sendDown(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset position);
+    method public static void sendDown(androidx.ui.test.PartialGestureScope, androidx.ui.geometry.Offset position);
+    method public static void sendLongClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center);
     method public static void sendMove(androidx.ui.test.PartialGestureScope);
-    method public static void sendMoveBy(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.unit.PxPosition delta);
-    method public static void sendMoveBy(androidx.ui.test.PartialGestureScope, androidx.ui.unit.PxPosition delta);
-    method public static void sendMoveTo(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.unit.PxPosition position);
-    method public static void sendMoveTo(androidx.ui.test.PartialGestureScope, androidx.ui.unit.PxPosition position);
-    method public static void sendPinch(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start0, androidx.ui.unit.PxPosition end0, androidx.ui.unit.PxPosition start1, androidx.ui.unit.PxPosition end1, androidx.ui.unit.Duration duration = 400.milliseconds);
-    method public static void sendSwipe(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition end, androidx.ui.unit.Duration duration = 200.milliseconds);
+    method public static void sendMoveBy(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset delta);
+    method public static void sendMoveBy(androidx.ui.test.PartialGestureScope, androidx.ui.geometry.Offset delta);
+    method public static void sendMoveTo(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset position);
+    method public static void sendMoveTo(androidx.ui.test.PartialGestureScope, androidx.ui.geometry.Offset position);
+    method public static void sendPinch(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset start0, androidx.ui.geometry.Offset end0, androidx.ui.geometry.Offset start1, androidx.ui.geometry.Offset end1, androidx.ui.unit.Duration duration = 400.milliseconds);
+    method public static void sendSwipe(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset start, androidx.ui.geometry.Offset end, androidx.ui.unit.Duration duration = 200.milliseconds);
     method public static void sendSwipeDown(androidx.ui.test.GestureScope);
     method public static void sendSwipeLeft(androidx.ui.test.GestureScope);
     method public static void sendSwipeRight(androidx.ui.test.GestureScope);
     method public static void sendSwipeUp(androidx.ui.test.GestureScope);
-    method public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition end, @FloatRange(from=0.0) float endVelocity, androidx.ui.unit.Duration duration = 200.milliseconds);
+    method public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset start, androidx.ui.geometry.Offset end, @FloatRange(from=0.0) float endVelocity, androidx.ui.unit.Duration duration = 200.milliseconds);
     method public static void sendUp(androidx.ui.test.PartialGestureScope, int pointerId = 0);
   }
 

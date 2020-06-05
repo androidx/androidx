@@ -34,7 +34,7 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
@@ -80,7 +80,7 @@ class ContainerTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(2)
         val containerSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Stack {
                 Container(
@@ -92,7 +92,7 @@ class ContainerTest : LayoutTest() {
                 ) {
                     EmptyBox(width = sizeDp, height = sizeDp,
                         modifier = Modifier.onPositioned { coordinates ->
-                            childPosition.value = coordinates.localToGlobal(PxPosition(0f, 0f))
+                            childPosition.value = coordinates.localToGlobal(Offset(0f, 0f))
                             positionedLatch.countDown()
                         }
                     )
@@ -106,7 +106,7 @@ class ContainerTest : LayoutTest() {
             IntPxSize(size + totalPadding, size + totalPadding),
             containerSize.value
         )
-        assertEquals(PxPosition(padding, padding), childPosition.value)
+        assertEquals(Offset(padding.value.toFloat(), padding.value.toFloat()), childPosition.value)
     }
 
     @Test
@@ -175,7 +175,7 @@ class ContainerTest : LayoutTest() {
         val alignSize = Ref<IntPxSize>()
         val containerSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Container(
                 alignment = Alignment.TopStart,
@@ -196,7 +196,7 @@ class ContainerTest : LayoutTest() {
                         height = sizeDp,
                         modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize.value = coordinates.size
-                            childPosition.value = coordinates.localToGlobal(PxPosition(0f, 0f))
+                            childPosition.value = coordinates.localToGlobal(Offset(0f, 0f))
                             positionedLatch.countDown()
                         })
                 }
@@ -207,7 +207,7 @@ class ContainerTest : LayoutTest() {
         assertEquals(alignSize.value, containerSize.value)
         assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(
-            PxPosition(
+            Offset(
                 (containerSize.value!!.width.value.toFloat() / 2 - size.value.toFloat() / 2)
                     .roundToInt().toFloat(),
                 (containerSize.value!!.height.value.toFloat() / 2 - size.value.toFloat() / 2)
@@ -228,7 +228,7 @@ class ContainerTest : LayoutTest() {
         val positionedLatch = CountDownLatch(2)
         val containerSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Stack {
                 val constraints = DpConstraints(minWidth = sizeDp * 2, minHeight = sizeDp * 2)
@@ -244,7 +244,7 @@ class ContainerTest : LayoutTest() {
                             modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                                 childSize.value = coordinates.size
                                 childPosition.value =
-                                    coordinates.localToGlobal(PxPosition(0f, 0f))
+                                    coordinates.localToGlobal(Offset(0f, 0f))
                                 positionedLatch.countDown()
                             })
                     }
@@ -258,7 +258,7 @@ class ContainerTest : LayoutTest() {
             containerSize.value
         )
         assertEquals(IntPxSize(size, size), childSize.value)
-        assertEquals(PxPosition(size, size), childPosition.value)
+        assertEquals(Offset(size.value.toFloat(), size.value.toFloat()), childPosition.value)
     }
 
     @Test
@@ -348,9 +348,12 @@ class ContainerTest : LayoutTest() {
                 (containerSize.toIntPx() - padding.toIntPx() * 2 - childSize.toIntPx()) / 2
         val childPosition = childCoordinates!!.parentCoordinates!!.childToLocal(
             childCoordinates!!,
-            PxPosition.Origin
+            Offset.Zero
         )
-        assertEquals(PxPosition(centeringOffset, centeringOffset), childPosition)
+        assertEquals(
+            Offset(centeringOffset.value.toFloat(), centeringOffset.value.toFloat()),
+            childPosition
+        )
         assertEquals(IntPxSize(childSize.toIntPx(), childSize.toIntPx()), childCoordinates!!.size)
     }
 

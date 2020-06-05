@@ -46,7 +46,7 @@ import androidx.ui.text.platform.style.PlaceholderSpan
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import java.util.Locale as JavaLocale
 
 /**
@@ -207,7 +207,7 @@ internal class AndroidParagraph constructor(
     internal val textPaint: TextPaint
         get() = paragraphIntrinsics.textPaint
 
-    override fun getOffsetForPosition(position: PxPosition): Int {
+    override fun getOffsetForPosition(position: Offset): Int {
         val line = layout.getLineForVertical(position.y.toInt())
         return layout.getOffsetForHorizontal(line, position.x)
     }

@@ -26,7 +26,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.layout.Stack
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.inOrder
@@ -130,7 +130,7 @@ class TouchSlopDragGestureFilterTest {
         }
 
         dragObserver.inOrder {
-            verify().onStart(PxPosition(50.ipx, 50.ipx))
+            verify().onStart(Offset(50f, 50f))
             // Twice because RawDragGestureDetector calls the callback on both postUp and postDown
             // and nothing consumes the drag distance.
             verify(dragObserver, times(2)).onDrag(any())
@@ -177,7 +177,7 @@ class TouchSlopDragGestureFilterTest {
         }
 
         dragObserver.inOrder {
-            verify().onStart(PxPosition(50.ipx, 50.ipx))
+            verify().onStart(Offset(50f, 50f))
             // Twice because RawDragGestureDetector calls the callback on both postUp and postDown
             // and nothing consumes the drag distance.
             verify(dragObserver, times(2)).onDrag(any())
@@ -204,7 +204,7 @@ class TouchSlopDragGestureFilterTest {
         }
 
         dragObserver.inOrder {
-            verify().onStart(PxPosition(50.ipx, 50.ipx))
+            verify().onStart(Offset(50f, 50f))
         }
         verifyNoMoreInteractions(dragObserver)
     }
@@ -238,7 +238,7 @@ class TouchSlopDragGestureFilterTest {
             view.dispatchTouchEvent(move)
         }
 
-        verify(dragObserver, times(2)).onDrag(PxPosition(movement.toFloat(), 0.0f))
+        verify(dragObserver, times(2)).onDrag(Offset(movement.toFloat(), 0.0f))
     }
 
     private fun setup(startDragImmediately: Boolean) {
@@ -275,15 +275,15 @@ class TouchSlopDragGestureFilterTest {
 
 @Suppress("RedundantOverride")
 open class MyDragObserver : DragObserver {
-    override fun onStart(downPosition: PxPosition) {
+    override fun onStart(downPosition: Offset) {
         super.onStart(downPosition)
     }
 
-    override fun onDrag(dragDistance: PxPosition): PxPosition {
+    override fun onDrag(dragDistance: Offset): Offset {
         return super.onDrag(dragDistance)
     }
 
-    override fun onStop(velocity: PxPosition) {
+    override fun onStop(velocity: Offset) {
         super.onStop(velocity)
     }
 }

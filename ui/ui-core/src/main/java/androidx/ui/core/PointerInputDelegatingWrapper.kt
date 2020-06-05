@@ -18,7 +18,7 @@ package androidx.ui.core
 
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 internal class PointerInputDelegatingWrapper(
     wrapped: LayoutNodeWrapper,
@@ -30,7 +30,7 @@ internal class PointerInputDelegatingWrapper(
     }
 
     override fun hitTest(
-        pointerPositionRelativeToScreen: PxPosition,
+        pointerPositionRelativeToScreen: Offset,
         hitPointerInputFilters: MutableList<PointerInputFilter>
     ): Boolean {
         if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {

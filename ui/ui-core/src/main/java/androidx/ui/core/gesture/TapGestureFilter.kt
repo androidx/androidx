@@ -32,7 +32,7 @@ import androidx.ui.core.gesture.customevents.DelayUpEvent
 import androidx.ui.core.gesture.customevents.DelayUpMessage
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.util.fastAny
 
 /**
@@ -60,7 +60,7 @@ import androidx.ui.util.fastAny
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
 
 fun Modifier.tapGestureFilter(
-    onTap: (PxPosition) -> Unit
+    onTap: (Offset) -> Unit
 ): Modifier = composed {
     val filter = remember { TapGestureFilter() }
     filter.onTap = onTap
@@ -73,7 +73,7 @@ internal class TapGestureFilter : PointerInputFilter() {
      *
      * This should be used to fire a state changing event as if a button was pressed.
      */
-    lateinit var onTap: (PxPosition) -> Unit
+    lateinit var onTap: (Offset) -> Unit
 
     /**
      * True when we are primed to call [onTap] and may be consuming all down changes.
@@ -82,7 +82,7 @@ internal class TapGestureFilter : PointerInputFilter() {
 
     private var downPointers: MutableSet<PointerId> = mutableSetOf()
     private var upBlockedPointers: MutableSet<PointerId> = mutableSetOf()
-    private var lastPxPosition: PxPosition? = null
+    private var lastPxPosition: Offset? = null
 
     override fun onPointerInput(
         changes: List<PointerInputChange>,
@@ -95,7 +95,7 @@ internal class TapGestureFilter : PointerInputFilter() {
             if (primed &&
                 changes.all { it.changedToUp() }
             ) {
-                val pointerPxPosition: PxPosition = changes[0].previous.position!!
+                val pointerPxPosition: Offset = changes[0].previous.position!!
                 if (changes.fastAny { !upBlockedPointers.contains(it.id) }) {
                     // If we are primed, all pointers went up, and at least one of the pointers is
                     // not blocked, we can fire, reset, and consume all of the up events.

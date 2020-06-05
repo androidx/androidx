@@ -30,7 +30,7 @@ import androidx.ui.test.InputDispatcher
 import androidx.ui.test.InputDispatcherState
 import androidx.ui.test.PartialGesture
 import androidx.ui.unit.Duration
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import androidx.ui.util.lerp
@@ -118,11 +118,11 @@ internal class AndroidInputDispatcher(
         sleepUntil(nextDownTime)
     }
 
-    override fun getCurrentPosition(pointerId: Int): PxPosition? {
+    override fun getCurrentPosition(pointerId: Int): Offset? {
         return partialGesture?.lastPositions?.get(pointerId)
     }
 
-    override fun sendDown(pointerId: Int, position: PxPosition) {
+    override fun sendDown(pointerId: Int, position: Offset) {
         var gesture = partialGesture
 
         // Check if this pointer is not already down
@@ -149,7 +149,7 @@ internal class AndroidInputDispatcher(
     }
 
     // Move 1 pointer and don't send a move event
-    override fun movePointer(pointerId: Int, position: PxPosition) {
+    override fun movePointer(pointerId: Int, position: Offset) {
         val gesture = partialGesture
 
         // Check if this pointer is in the gesture
@@ -258,7 +258,7 @@ internal class AndroidInputDispatcher(
     }
 
     override fun sendSwipes(
-        curves: List<(Long) -> PxPosition>,
+        curves: List<(Long) -> Offset>,
         duration: Duration,
         keyTimes: List<Long>
     ) {
@@ -314,7 +314,7 @@ internal class AndroidInputDispatcher(
      * @param tN The end time of this segment of the swipe, in milliseconds relative to downTime
      */
     private fun sendPartialSwipes(
-        fs: List<(Long) -> PxPosition>,
+        fs: List<(Long) -> Offset>,
         t0: Long,
         tN: Long
     ) {
@@ -343,7 +343,7 @@ internal class AndroidInputDispatcher(
         eventTime: Long,
         action: Int,
         actionIndex: Int,
-        coordinates: List<PxPosition>,
+        coordinates: List<Offset>,
         pointerIds: List<Int>
     ) {
         sleepUntil(eventTime)

@@ -79,7 +79,7 @@ class CanvasTest {
                 .wrapContentSize(Alignment.Center)) {
                     Canvas(modifier = Modifier.preferredSize(minWidth, minHeight)) {
                         drawLine(
-                            p1 = Offset.zero,
+                            p1 = Offset.Zero,
                             p2 = Offset(size.width, size.height),
                             color = Color.Red,
                             stroke = Stroke(width = strokeWidth)

@@ -38,7 +38,7 @@ import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.util.fastAny
 
 /**
@@ -181,7 +181,7 @@ fun Modifier.clickable(
  */
 @Composable
 private fun Modifier.noConsumptionIndicatorGestureFilter(
-    onStart: (PxPosition) -> Unit,
+    onStart: (Offset) -> Unit,
     onStop: () -> Unit,
     onCancel: () -> Unit
 ): Modifier = this + remember { NoConsumptionIndicatorGestureFilter(onStart, onStop, onCancel) }
@@ -190,7 +190,7 @@ private fun Modifier.noConsumptionIndicatorGestureFilter(
  * Temporary, see [noConsumptionIndicatorGestureFilter]
  */
 private class NoConsumptionIndicatorGestureFilter(
-    val onStart: (PxPosition) -> Unit,
+    val onStart: (Offset) -> Unit,
     val onStop: () -> Unit,
     // Rename to avoid clashing with onCancel() function
     val onCancelCallback: () -> Unit

@@ -34,7 +34,7 @@ fun CanvasSample() {
         drawRect(Color.Magenta)
         inset(10.0f) {
             drawLine(
-                p1 = Offset.zero,
+                p1 = Offset.Zero,
                 p2 = Offset(size.width, size.height),
                 stroke = Stroke(width = 5.0f),
                 color = Color.Red

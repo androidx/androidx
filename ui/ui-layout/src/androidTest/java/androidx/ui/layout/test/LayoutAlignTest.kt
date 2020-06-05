@@ -38,7 +38,7 @@ import androidx.ui.layout.wrapContentWidth
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
@@ -59,9 +59,9 @@ class LayoutAlignTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(2)
         val alignSize = Ref<IntPxSize>()
-        val alignPosition = Ref<PxPosition>()
+        val alignPosition = Ref<Offset>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Container(Modifier.saveLayoutInfo(alignSize, alignPosition, positionedLatch)) {
                 Container(
@@ -79,10 +79,10 @@ class LayoutAlignTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
-        assertEquals(PxPosition(0f, 0f), alignPosition.value)
+        assertEquals(Offset(0f, 0f), alignPosition.value)
         assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(
-            PxPosition(root.width - size.value.toFloat(), root.height - size.value.toFloat()),
+            Offset(root.width - size.value.toFloat(), root.height - size.value.toFloat()),
             childPosition.value
         )
     }
@@ -94,9 +94,9 @@ class LayoutAlignTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(2)
         val alignSize = Ref<IntPxSize>()
-        val alignPosition = Ref<PxPosition>()
+        val alignPosition = Ref<Offset>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Container(
                 Modifier.saveLayoutInfo(
@@ -120,9 +120,9 @@ class LayoutAlignTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(IntPxSize(root.width.ipx, root.height.ipx), alignSize.value)
-        assertEquals(PxPosition(0f, 0f), alignPosition.value)
+        assertEquals(Offset(0f, 0f), alignPosition.value)
         assertEquals(IntPxSize(size, root.height.ipx), childSize.value)
-        assertEquals(PxPosition(root.width - size.value.toFloat(), 0f), childPosition.value)
+        assertEquals(Offset(root.width - size.value.toFloat(), 0f), childPosition.value)
     }
 
     @Test
@@ -132,7 +132,7 @@ class LayoutAlignTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(3)
         val childSize = Array(3) { Ref<IntPxSize>() }
-        val childPosition = Array(3) { Ref<PxPosition>() }
+        val childPosition = Array(3) { Ref<Offset>() }
         show {
             Stack(Modifier.rtl) {
                 Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.TopStart)) {
@@ -164,15 +164,18 @@ class LayoutAlignTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(
-            PxPosition(root.width.ipx - size, 0.ipx),
+            Offset((root.width.ipx - size).value.toFloat(), 0f),
             childPosition[0].value
         )
         assertEquals(
-            PxPosition(root.width.ipx - size, (root.height.ipx - size) / 2),
+            Offset(
+                (root.width.ipx - size).value.toFloat(),
+                ((root.height.ipx - size) / 2).value.toFloat()
+            ),
             childPosition[1].value
         )
         assertEquals(
-            PxPosition(0.ipx, root.height.ipx - size),
+            Offset(0f, (root.height.ipx - size).value.toFloat()),
             childPosition[2].value
         )
     }
@@ -204,9 +207,9 @@ class LayoutAlignTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(2)
         val alignSize = Ref<IntPxSize>()
-        val alignPosition = Ref<PxPosition>()
+        val alignPosition = Ref<Offset>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Layout(
                 children = {
@@ -235,9 +238,9 @@ class LayoutAlignTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(IntPxSize(size, size), alignSize.value)
-        assertEquals(PxPosition(0f, 0f), alignPosition.value)
+        assertEquals(Offset(0f, 0f), alignPosition.value)
         assertEquals(IntPxSize(size, size), childSize.value)
-        assertEquals(PxPosition(0f, 0f), childPosition.value)
+        assertEquals(Offset(0f, 0f), childPosition.value)
     }
 
     @Test
@@ -250,7 +253,7 @@ class LayoutAlignTest : LayoutTest() {
         val positionedLatch = CountDownLatch(2)
         val wrapSize = Ref<IntPxSize>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Container(Modifier.wrapContentSize(Alignment.TopStart)) {
                 Layout(
@@ -274,7 +277,7 @@ class LayoutAlignTest : LayoutTest() {
                         ).enforce(incomingConstraints)
                         val placeable = measurable.measure(constraints)
                         layout(placeable.width, placeable.height) {
-                            placeable.place(PxPosition.Origin)
+                            placeable.place(Offset.Zero)
                         }
                     }
                 )
@@ -285,7 +288,10 @@ class LayoutAlignTest : LayoutTest() {
         assertEquals(IntPxSize(doubleSize, doubleSize), wrapSize.value)
         assertEquals(IntPxSize(size, size), childSize.value)
         assertEquals(
-            PxPosition((doubleSize - size) / 2, (doubleSize - size) / 2),
+            Offset(
+                ((doubleSize - size) / 2).value.toFloat(),
+                ((doubleSize - size) / 2).value.toFloat()
+            ),
             childPosition.value
         )
     }
@@ -391,9 +397,9 @@ class LayoutAlignTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(2)
         val alignSize = Ref<IntPxSize>()
-        val alignPosition = Ref<PxPosition>()
+        val alignPosition = Ref<Offset>()
         val childSize = Ref<IntPxSize>()
-        val childPosition = Ref<PxPosition>()
+        val childPosition = Ref<Offset>()
         show {
             Layout(
                 children = {
@@ -424,9 +430,9 @@ class LayoutAlignTest : LayoutTest() {
 
         assertEquals(IntPxSize(childSizeIpx, childSizeIpx), childSize.value)
         assertEquals(
-            PxPosition(
-                alignSize.value!!.width - childSizeIpx,
-                alignSize.value!!.height - childSizeIpx
+            Offset(
+                (alignSize.value!!.width - childSizeIpx).value.toFloat(),
+                (alignSize.value!!.height - childSizeIpx).value.toFloat()
             ),
             childPosition.value
         )

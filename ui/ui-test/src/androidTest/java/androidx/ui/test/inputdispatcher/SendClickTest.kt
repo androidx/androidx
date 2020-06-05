@@ -22,7 +22,7 @@ import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.verify
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule
@@ -60,7 +60,7 @@ class SendClickTest(config: TestConfig) {
     @get:Rule
     val inputDispatcherRule: TestRule = dispatcherRule
 
-    private val position = PxPosition(config.x, config.y)
+    private val position = Offset(config.x, config.y)
 
     private val recorder = MotionEventRecorder()
     private val subject = AndroidInputDispatcher(recorder::recordEvent)

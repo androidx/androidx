@@ -33,7 +33,7 @@ import androidx.ui.layout.rtl
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
@@ -43,6 +43,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -55,9 +56,9 @@ class StackTest : LayoutTest() {
         val positionedLatch = CountDownLatch(3)
         val stackSize = Ref<IntPxSize>()
         val alignedChildSize = Ref<IntPxSize>()
-        val alignedChildPosition = Ref<PxPosition>()
+        val alignedChildPosition = Ref<Offset>()
         val positionedChildSize = Ref<IntPxSize>()
-        val positionedChildPosition = Ref<PxPosition>()
+        val positionedChildPosition = Ref<Offset>()
         show {
             Container(alignment = Alignment.TopStart) {
                 Stack {
@@ -90,9 +91,12 @@ class StackTest : LayoutTest() {
 
         assertEquals(IntPxSize(size, size), stackSize.value)
         assertEquals(IntPxSize(size, size), alignedChildSize.value)
-        assertEquals(PxPosition(0f, 0f), alignedChildPosition.value)
+        assertEquals(Offset(0f, 0f), alignedChildPosition.value)
         assertEquals(IntPxSize(30.dp.toIntPx(), 30.dp.toIntPx()), positionedChildSize.value)
-        assertEquals(PxPosition(10.dp.toIntPx(), 10.dp.toIntPx()), positionedChildPosition.value)
+        assertEquals(
+            Offset(10.dp.toPx().roundToInt().toFloat(), 10.dp.toPx().roundToInt().toFloat()),
+            positionedChildPosition.value
+        )
     }
 
     @Test
@@ -105,7 +109,7 @@ class StackTest : LayoutTest() {
         val positionedLatch = CountDownLatch(3)
         val stackSize = Ref<IntPxSize>()
         val childSize = arrayOf(Ref<IntPxSize>(), Ref<IntPxSize>())
-        val childPosition = arrayOf(Ref<PxPosition>(), Ref<PxPosition>())
+        val childPosition = arrayOf(Ref<Offset>(), Ref<Offset>())
         show {
             Container(alignment = Alignment.TopStart) {
                 Stack(Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -141,9 +145,12 @@ class StackTest : LayoutTest() {
 
         assertEquals(IntPxSize(doubleSize, doubleSize), stackSize.value)
         assertEquals(IntPxSize(size, size), childSize[0].value)
-        assertEquals(PxPosition(size, size), childPosition[0].value)
+        assertEquals(
+            Offset(size.value.toFloat(), size.value.toFloat()),
+            childPosition[0].value
+        )
         assertEquals(IntPxSize(doubleSize, doubleSize), childSize[1].value)
-        assertEquals(PxPosition(0f, 0f), childPosition[1].value)
+        assertEquals(Offset(0f, 0f), childPosition[1].value)
     }
 
     @Test
@@ -157,7 +164,7 @@ class StackTest : LayoutTest() {
         val positionedLatch = CountDownLatch(6)
         val stackSize = Ref<IntPxSize>()
         val childSize = Array(5) { Ref<IntPxSize>() }
-        val childPosition = Array(5) { Ref<PxPosition>() }
+        val childPosition = Array(5) { Ref<Offset>() }
         show {
             Container(alignment = Alignment.TopStart) {
                 Stack(Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -213,15 +220,15 @@ class StackTest : LayoutTest() {
 
         assertEquals(IntPxSize(size, size), stackSize.value)
         assertEquals(IntPxSize(size, size), childSize[0].value)
-        assertEquals(PxPosition(0f, 0f), childPosition[0].value)
+        assertEquals(Offset(0f, 0f), childPosition[0].value)
         assertEquals(IntPxSize(size - inset, size - inset), childSize[1].value)
-        assertEquals(PxPosition(inset, inset), childPosition[1].value)
+        assertEquals(Offset(inset.value.toFloat(), inset.value.toFloat()), childPosition[1].value)
         assertEquals(IntPxSize(size - inset, size - inset), childSize[2].value)
-        assertEquals(PxPosition(0f, 0f), childPosition[2].value)
+        assertEquals(Offset(0f, 0f), childPosition[2].value)
         assertEquals(IntPxSize(size - inset * 2, size), childSize[3].value)
-        assertEquals(PxPosition(inset, 0.ipx), childPosition[3].value)
+        assertEquals(Offset(inset.value.toFloat(), 0f), childPosition[3].value)
         assertEquals(IntPxSize(size, size - inset * 2), childSize[4].value)
-        assertEquals(PxPosition(0.ipx, inset), childPosition[4].value)
+        assertEquals(Offset(0f, inset.value.toFloat()), childPosition[4].value)
     }
 
     @Test
@@ -234,7 +241,7 @@ class StackTest : LayoutTest() {
         val positionedLatch = CountDownLatch(10)
         val stackSize = Ref<IntPxSize>()
         val childSize = Array(9) { Ref<IntPxSize>() }
-        val childPosition = Array(9) { Ref<PxPosition>() }
+        val childPosition = Array(9) { Ref<Offset>() }
         show {
             Stack(Modifier.wrapContentSize(Alignment.TopStart)) {
                 Stack(
@@ -305,27 +312,30 @@ class StackTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(IntPxSize(tripleSize, tripleSize), stackSize.value)
-        assertEquals(PxPosition((size * 2).value.toFloat(), 0f), childPosition[0].value)
-        assertEquals(PxPosition(size, 0.ipx), childPosition[1].value)
-        assertEquals(PxPosition(0.ipx, 0.ipx), childPosition[2].value)
+        assertEquals(Offset((size * 2).value.toFloat(), 0f), childPosition[0].value)
+        assertEquals(Offset(size.value.toFloat(), 0f), childPosition[1].value)
+        assertEquals(Offset(0f, 0f), childPosition[2].value)
         assertEquals(
-            PxPosition(
+            Offset(
                 (size * 2).value.toFloat(),
                 size.value.toFloat()
             ),
             childPosition[3].value
         )
-        assertEquals(PxPosition(size, size), childPosition[4].value)
-        assertEquals(PxPosition(0.ipx, size), childPosition[5].value)
+        assertEquals(Offset(size.value.toFloat(), size.value.toFloat()), childPosition[4].value)
+        assertEquals(Offset(0f, size.value.toFloat()), childPosition[5].value)
         assertEquals(
-            PxPosition(
+            Offset(
                 (size * 2).value.toFloat(),
                 (size * 2).value.toFloat()
             ),
             childPosition[6].value
         )
-        assertEquals(PxPosition(size, size * 2), childPosition[7].value)
-        assertEquals(PxPosition(0.ipx, size * 2), childPosition[8].value)
+        assertEquals(
+            Offset(size.value.toFloat(), (size * 2).value.toFloat()),
+            childPosition[7].value
+        )
+        assertEquals(Offset(0f, (size * 2).value.toFloat()), childPosition[8].value)
     }
 
     @Test
@@ -338,7 +348,7 @@ class StackTest : LayoutTest() {
         val positionedLatch = CountDownLatch(3)
         val stackSize = Ref<IntPxSize>()
         val childSize = Array(2) { Ref<IntPxSize>() }
-        val childPosition = Array(2) { Ref<PxPosition>() }
+        val childPosition = Array(2) { Ref<Offset>() }
         show {
             Container(alignment = Alignment.TopStart) {
                 Container(
@@ -370,9 +380,15 @@ class StackTest : LayoutTest() {
 
         assertEquals(IntPxSize(size, size), stackSize.value)
         assertEquals(IntPxSize(size, size), childSize[0].value)
-        assertEquals(PxPosition(0f, 0f), childPosition[0].value)
+        assertEquals(Offset(0f, 0f), childPosition[0].value)
         assertEquals(IntPxSize(halfSize, halfSize), childSize[1].value)
-        assertEquals(PxPosition(size - halfSize, size - halfSize), childPosition[1].value)
+        assertEquals(
+            Offset(
+                (size - halfSize).value.toFloat(),
+                (size - halfSize).value.toFloat()
+            ),
+            childPosition[1].value
+        )
     }
 
     @Test

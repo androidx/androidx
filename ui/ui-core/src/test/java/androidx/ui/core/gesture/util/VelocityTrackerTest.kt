@@ -17,7 +17,7 @@
 package androidx.ui.core.gesture.util
 
 import androidx.ui.core.PointerInputData
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.Uptime
 import androidx.ui.unit.Velocity
 import androidx.ui.unit.milliseconds
@@ -119,7 +119,7 @@ class VelocityTrackerTest {
  * This extracts the inline PxPosition to a separate function so that velocityEventData
  * creation doesn't make the function too long for dex.
  */
-private fun createPxPosition(width: Float, height: Float) = PxPosition(width, height)
+private fun createPxPosition(width: Float, height: Float) = Offset(width, height)
 
 val velocityEventData: List<PointerInputData> = listOf(
     PointerInputData(

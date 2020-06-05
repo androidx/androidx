@@ -117,8 +117,8 @@ private fun DrawScope.drawTrack(trackColor: Color, trackWidth: Float, stroke: St
     val strokeRadius = stroke.width / 2
     drawLine(
         trackColor,
-        Offset(strokeRadius, center.dy),
-        Offset(trackWidth - strokeRadius, center.dy),
+        Offset(strokeRadius, center.y),
+        Offset(trackWidth - strokeRadius, center.y),
         stroke
     )
 }
@@ -126,7 +126,7 @@ private fun DrawScope.drawTrack(trackColor: Color, trackWidth: Float, stroke: St
 private fun DrawScope.drawThumb(position: Float, thumbDiameter: Float, thumbColor: Color) {
     val thumbRadius = thumbDiameter / 2
     val x = position + thumbRadius
-    drawCircle(thumbColor, thumbRadius, Offset(x, center.dy))
+    drawCircle(thumbColor, thumbRadius, Offset(x, center.y))
 }
 
 private const val CheckedTrackOpacity = 0.54f

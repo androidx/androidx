@@ -26,7 +26,7 @@ import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 /**
  * Reacts if the first pointer input change it sees is an unconsumed down change, and if it reacts,
@@ -42,7 +42,7 @@ import androidx.ui.unit.PxPosition
  * The theory is that this GestureDetector can be reused in PressIndicatorGestureDetector, and there
  * could be a corresponding RawPressReleasedGestureDetector.
  *
- * @param onPressStart Called when the first pointer "presses" on the GestureDetector.  [PxPosition]
+ * @param onPressStart Called when the first pointer "presses" on the GestureDetector.  [Offset]
  * is the position of that first pointer on press.
  * @param enabled If false, this GestureDetector will effectively act as if it is not in the
  * hierarchy.
@@ -50,7 +50,7 @@ import androidx.ui.unit.PxPosition
  * react to and consume down changes.  Defaults to [PointerEventPass.PostUp].
  */
 fun Modifier.rawPressStartGestureFilter(
-    onPressStart: (PxPosition) -> Unit,
+    onPressStart: (Offset) -> Unit,
     enabled: Boolean = false,
     executionPass: PointerEventPass = PointerEventPass.PostUp
 ): Modifier = composed {
@@ -63,7 +63,7 @@ fun Modifier.rawPressStartGestureFilter(
 
 internal class RawPressStartGestureFilter : PointerInputFilter() {
 
-    lateinit var onPressStart: (PxPosition) -> Unit
+    lateinit var onPressStart: (Offset) -> Unit
     private var enabled: Boolean = true
     private var executionPass = PointerEventPass.InitialDown
 

@@ -34,7 +34,7 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendSwipe
 import androidx.ui.test.sendSwipeWithVelocity
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -67,7 +67,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100f, this.center.y),
+                end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -78,7 +78,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x, this.center.y + 100f),
+                end = Offset(this.center.x, this.center.y + 100f),
                 duration = 100.milliseconds
             )
         }
@@ -88,7 +88,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x - 100f, this.center.y),
+                end = Offset(this.center.x - 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -112,7 +112,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x, this.center.y + 100f),
+                end = Offset(this.center.x, this.center.y + 100f),
                 duration = 100.milliseconds
             )
         }
@@ -123,7 +123,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100f, this.center.y),
+                end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -133,7 +133,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x, this.center.y - 100f),
+                end = Offset(this.center.x, this.center.y - 100f),
                 duration = 100.milliseconds
             )
         }
@@ -167,7 +167,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100f, this.center.y),
+                end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -194,7 +194,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100f, this.center.y),
+                end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -206,7 +206,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100f, this.center.y),
+                end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -232,7 +232,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipeWithVelocity(
                 start = this.center,
-                end = PxPosition(this.center.x + 100f, this.center.y),
+                end = Offset(this.center.x + 100f, this.center.y),
                 endVelocity = 112f,
                 duration = 100.milliseconds
 
@@ -259,7 +259,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100f, this.center.y),
+                end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -289,7 +289,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 100f, this.center.y),
+                end = Offset(this.center.x + 100f, this.center.y),
                 duration = 100.milliseconds
             )
         }
@@ -332,7 +332,7 @@ class DraggableTest {
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(
                 start = this.center,
-                end = PxPosition(this.center.x + 200f, this.center.y),
+                end = Offset(this.center.x + 200f, this.center.y),
                 duration = 300.milliseconds
             )
         }

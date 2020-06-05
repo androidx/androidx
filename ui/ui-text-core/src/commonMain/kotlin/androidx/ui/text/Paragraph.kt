@@ -22,7 +22,7 @@ import androidx.ui.text.font.Font
 import androidx.ui.text.platform.ActualParagraph
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 internal const val DefaultMaxLines = Int.MAX_VALUE
 
@@ -202,7 +202,7 @@ interface Paragraph {
     fun getBidiRunDirection(offset: Int): TextDirection
 
     /** Returns the character offset closest to the given graphical position. */
-    fun getOffsetForPosition(position: PxPosition): Int
+    fun getOffsetForPosition(position: Offset): Int
 
     /**
      * Returns the bounding box as Rect of the character for given character offset. Rect

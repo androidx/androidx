@@ -37,7 +37,6 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import kotlin.math.roundToInt
@@ -53,13 +52,13 @@ fun FancyScrollingDemo() {
         val animScroll = animatedFloat(0f)
         val itemWidth = state { 0f }
         val gesture = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
+            override fun onDrag(dragDistance: Offset): Offset {
                 // Snap to new drag position
                 animScroll.snapTo(animScroll.value + dragDistance.x)
                 return dragDistance
             }
 
-            override fun onStop(velocity: PxPosition) {
+            override fun onStop(velocity: Offset) {
 
                 // Uses default decay animation to calculate where the fling will settle,
                 // and adjust that position as needed. The target animation will be used for

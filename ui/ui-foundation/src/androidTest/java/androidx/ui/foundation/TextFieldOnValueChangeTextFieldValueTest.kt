@@ -36,7 +36,7 @@ import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
 import androidx.ui.text.TextRange
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -94,7 +94,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
 
         // Perform click to focus in.
         find(hasInputMethodsSupport())
-            .doGesture { sendClick(PxPosition(1f, 1f)) }
+            .doGesture { sendClick(Offset(1f, 1f)) }
 
         runOnIdleCompose {
             // Verify startInput is called and capture the callback.

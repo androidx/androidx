@@ -34,7 +34,6 @@ import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
 @Composable
@@ -49,7 +48,7 @@ private fun RippleRect() {
     val radius = with(DensityAmbient.current) { TargetRadius.toPx() }
     val toState = state { ButtonStatus.Initial }
     val rippleTransDef = remember { createTransDef(radius) }
-    val onPress: (PxPosition) -> Unit = { position ->
+    val onPress: (Offset) -> Unit = { position ->
         down.x = position.x
         down.y = position.y
         toState.value = ButtonStatus.Pressed

@@ -32,7 +32,7 @@ import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.positionChange
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.util.fastAny
 import androidx.ui.util.fastForEach
 
@@ -50,7 +50,7 @@ interface DragObserver {
      * @see onDrag
      * @see onStop
      */
-    fun onStart(downPosition: PxPosition) {}
+    fun onStart(downPosition: Offset) {}
 
     /**
      * Override to be notified when a distance has been dragged.
@@ -67,7 +67,7 @@ interface DragObserver {
      * @param dragDistance The distance that has been dragged.  Reflects the average drag distance
      * of all pointers.
      */
-    fun onDrag(dragDistance: PxPosition) = PxPosition.Origin
+    fun onDrag(dragDistance: Offset) = Offset.Zero
 
     /**
      * Override to be notified when a drag has stopped.
@@ -76,7 +76,7 @@ interface DragObserver {
      *
      * Only called if the last call between [onStart] and [onStop] was [onStart].
      */
-    fun onStop(velocity: PxPosition) {}
+    fun onStop(velocity: Offset) {}
 
     /**
      * Override to be notified when the drag has been cancelled.
@@ -134,7 +134,7 @@ fun Modifier.rawDragGestureFilter(
 
 internal class RawDragGestureFilter : PointerInputFilter() {
     private val velocityTrackers: MutableMap<PointerId, VelocityTracker> = mutableMapOf()
-    private val downPositions: MutableMap<PointerId, PxPosition> = mutableMapOf()
+    private val downPositions: MutableMap<PointerId, Offset> = mutableMapOf()
     private var started = false
     var canStartDragging: (() -> Boolean)? = null
     lateinit var dragObserver: DragObserver
@@ -190,7 +190,7 @@ internal class RawDragGestureFilter : PointerInputFilter() {
                         // velocityTracker at this point, that means at least one of the up events
                         // was not consumed so we should send velocity for flinging.
                         if (started) {
-                            val velocity: PxPosition? =
+                            val velocity: Offset? =
                                 if (velocityTracker != null) {
                                     changesToReturn = changesToReturn.map {
                                         it.consumeDownChange()
@@ -200,7 +200,7 @@ internal class RawDragGestureFilter : PointerInputFilter() {
                                     null
                                 }
                             started = false
-                            dragObserver.onStop(velocity ?: PxPosition.Origin)
+                            dragObserver.onStop(velocity ?: Offset.Zero)
                         }
                     }
                 }
@@ -282,7 +282,7 @@ internal class RawDragGestureFilter : PointerInputFilter() {
                         if (started) {
 
                             val consumed = dragObserver.onDrag(
-                                PxPosition(
+                                Offset(
                                     totalDx / changesToReturn.size,
                                     totalDy / changesToReturn.size
                                 )
@@ -311,12 +311,12 @@ internal class RawDragGestureFilter : PointerInputFilter() {
     }
 }
 
-private fun Iterable<PxPosition>.averagePosition(): PxPosition {
+private fun Iterable<Offset>.averagePosition(): Offset {
     var x = 0f
     var y = 0f
     forEach {
         x += it.x
         y += it.y
     }
-    return PxPosition(x / count(), y / count())
+    return Offset(x / count(), y / count())
 }

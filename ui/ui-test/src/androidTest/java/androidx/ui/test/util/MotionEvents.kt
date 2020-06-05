@@ -17,7 +17,7 @@
 package androidx.ui.test.util
 
 import android.view.MotionEvent
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 
@@ -54,7 +54,7 @@ internal fun MotionEventRecorder.assertHasValidEventTimes() {
 }
 
 internal fun MotionEvent.verify(
-    curve: (Long) -> PxPosition,
+    curve: (Long) -> Offset,
     expectedAction: Int,
     expectedRelativeTime: Long
 ) {
@@ -65,7 +65,7 @@ internal fun MotionEvent.verify(
 }
 
 internal fun MotionEvent.verify(
-    expectedPosition: PxPosition,
+    expectedPosition: Offset,
     expectedAction: Int,
     expectedRelativeTime: Long
 ) {
@@ -87,7 +87,7 @@ internal fun MotionEvent.verifyEvent(
 
 internal fun MotionEvent.verifyPointer(
     expectedPointerId: Int,
-    expectedPosition: PxPosition
+    expectedPosition: Offset
 ) {
     var index = -1
     for (i in 0 until pointerCount) {
@@ -111,7 +111,7 @@ fun List<MotionEvent>.between(t0: Long, t1: Long): List<MotionEvent> {
 /**
  * Checks that the coordinates are progressing in a monotonous direction
  */
-fun List<MotionEvent>.isMonotonicBetween(start: PxPosition, end: PxPosition) {
+fun List<MotionEvent>.isMonotonicBetween(start: Offset, end: Offset) {
     map { it.x }.isMonotonicBetween(start.x, end.x, 1e-6f)
     map { it.y }.isMonotonicBetween(start.y, end.y, 1e-6f)
 }

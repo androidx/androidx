@@ -36,6 +36,7 @@ import androidx.ui.foundation.Interaction
 import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.indication
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.fillMaxSize
@@ -53,7 +54,6 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Rule
@@ -526,7 +526,7 @@ class RippleIndicationTest {
         }
 
         runOnUiThread {
-            interactionState.addInteraction(Interaction.Pressed, PxPosition(10f, 10f))
+            interactionState.addInteraction(Interaction.Pressed, Offset(10f, 10f))
         }
 
         with(findByTag(Tag)) {
@@ -582,7 +582,7 @@ class RippleIndicationTest {
         // Start ripple
         runOnUiThread {
             if (interaction is Interaction.Pressed) {
-                interactionState.addInteraction(interaction, PxPosition(10f, 10f))
+                interactionState.addInteraction(interaction, Offset(10f, 10f))
             } else {
                 interactionState.addInteraction(interaction)
             }

@@ -42,9 +42,8 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -83,7 +82,7 @@ class BoxTest {
     @Test
     fun box_testPadding_separate() {
         var childSize: IntPxSize? = null
-        var childPosition: PxPosition? = null
+        var childPosition: Offset? = null
         val size = 100.dp
         val start = 17.dp
         val top = 2.dp
@@ -100,7 +99,7 @@ class BoxTest {
                 ) {
                     Box(Modifier.fillMaxSize().onPositioned {
                         childSize = it.size
-                        childPosition = it.localToGlobal(PxPosition.Origin)
+                        childPosition = it.localToGlobal(Offset.Zero)
                     })
                 }
             }
@@ -112,14 +111,14 @@ class BoxTest {
             Truth.assertThat(childSize!!.height)
                 .isEqualTo(size.toIntPx() - top.toIntPx() - bottom.toIntPx())
             Truth.assertThat(childPosition!!)
-                .isEqualTo(PxPosition(start.toIntPx(), top.toIntPx()))
+                .isEqualTo(Offset(start.toIntPx().value.toFloat(), top.toIntPx().value.toFloat()))
         }
     }
 
     @Test
     fun box_testPadding_rtl() {
         var childSize: IntPxSize? = null
-        var childPosition: PxPosition? = null
+        var childPosition: Offset? = null
         val size = 100.dp
         val start = 17.dp
         val top = 2.dp
@@ -136,7 +135,7 @@ class BoxTest {
                 ) {
                     Box(Modifier.fillMaxSize().onPositioned {
                         childSize = it.size
-                        childPosition = it.localToGlobal(PxPosition.Origin)
+                        childPosition = it.localToGlobal(Offset.Zero)
                     })
                 }
             }
@@ -148,7 +147,7 @@ class BoxTest {
             Truth.assertThat(childSize!!.height)
                 .isEqualTo(size.toIntPx() - top.toIntPx() - bottom.toIntPx())
             Truth.assertThat(childPosition!!)
-                .isEqualTo(PxPosition(end.toIntPx(), top.toIntPx()))
+                .isEqualTo(Offset(end.toIntPx().value.toFloat(), top.toIntPx().value.toFloat()))
         }
     }
 
@@ -186,9 +185,9 @@ class BoxTest {
     fun box_testLayout_multipleChildren() {
         val size = 100.dp
         val childSize = 20.dp
-        var childPosition1: PxPosition? = null
-        var childPosition2: PxPosition? = null
-        var childPosition3: PxPosition? = null
+        var childPosition1: Offset? = null
+        var childPosition2: Offset? = null
+        var childPosition3: Offset? = null
         composeTestRule.setContent {
             SemanticsParent {
                 Box(
@@ -209,21 +208,21 @@ class BoxTest {
         }
         with(composeTestRule.density) {
             Truth.assertThat(childPosition1).isEqualTo(
-                PxPosition(
-                    (size.toIntPx() - childSize.toIntPx()) / 2,
-                    0.ipx
+                Offset(
+                    (size.toIntPx() - childSize.toIntPx()).value / 2f,
+                    0f
                 )
             )
             Truth.assertThat(childPosition2).isEqualTo(
-                PxPosition(
-                    (size.toIntPx() - childSize.toIntPx()) / 2,
-                    childSize.toIntPx()
+                Offset(
+                    (size.toIntPx() - childSize.toIntPx()).value / 2f,
+                    childSize.toIntPx().value.toFloat()
                 )
             )
             Truth.assertThat(childPosition3).isEqualTo(
-                PxPosition(
-                    (size.toIntPx() - childSize.toIntPx()) / 2,
-                    childSize.toIntPx() * 2
+                Offset(
+                    (size.toIntPx() - childSize.toIntPx()).value / 2f,
+                    childSize.toIntPx().value.toFloat() * 2
                 )
             )
         }
@@ -233,7 +232,7 @@ class BoxTest {
     fun box_testLayout_absoluteAlignment() {
         val size = 100.dp
         val childSize = 20.dp
-        var childPosition: PxPosition? = null
+        var childPosition: Offset? = null
         composeTestRule.setContent {
             SemanticsParent {
                 Box(
@@ -246,7 +245,7 @@ class BoxTest {
                 }
             }
         }
-        Truth.assertThat(childPosition).isEqualTo(PxPosition(0.ipx, 0.ipx))
+        Truth.assertThat(childPosition).isEqualTo(Offset(0f, 0f))
     }
 
     @Test

@@ -16,7 +16,7 @@
 
 package androidx.ui.test.util
 
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import com.google.common.collect.Ordering
 import com.google.common.truth.FloatSubject
 import com.google.common.truth.Truth.assertThat
@@ -31,10 +31,10 @@ fun FloatSubject.isAlmostEqualTo(f: Float, tolerance: Float) {
 }
 
 /**
- * Verifies that the [PxPosition] is equal to the given position with some tolerance. The default
+ * Verifies that the [Offset] is equal to the given position with some tolerance. The default
  * tolerance is 0.001.
  */
-fun PxPosition.isAlmostEqualTo(position: PxPosition, tolerance: Float = 1e-3f) {
+fun Offset.isAlmostEqualTo(position: Offset, tolerance: Float = 1e-3f) {
     assertThat(x).isAlmostEqualTo(position.x, tolerance)
     assertThat(y).isAlmostEqualTo(position.y, tolerance)
 }

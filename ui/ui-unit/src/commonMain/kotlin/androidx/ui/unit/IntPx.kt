@@ -19,6 +19,7 @@ package androidx.ui.unit
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntPx.Companion.Infinity
 import androidx.ui.util.lerp
 import androidx.ui.util.packInts
@@ -328,6 +329,20 @@ fun IntPxSize.center(): IntPxPosition {
 }
 
 /**
+ * Subtract a [IntPxPosition] from this [Offset].
+ */
+@Stable
+inline operator fun Offset.minus(other: IntPxPosition) =
+    Offset(x - other.x.value, y - other.y.value)
+
+/**
+ * Add a [IntPxPosition] to this [Offset].
+ */
+@Stable
+inline operator fun Offset.plus(other: IntPxPosition) =
+    Offset(x + other.x.value, y + other.y.value)
+
+/**
  * A two-dimensional position using [IntPx] for units
  */
 @OptIn(ExperimentalUnsignedTypes::class)
@@ -446,17 +461,18 @@ inline fun PxSize(width: IntPx, height: IntPx): PxSize =
     PxSize(width = width.value.toFloat(), height = height.value.toFloat())
 
 /**
- * Create a [PxPosition] from [IntPx] values.
+ * Create a [Offset] from [IntPx] values.
  */
 @Stable
-inline fun PxPosition(x: IntPx, y: IntPx): PxPosition =
-    PxPosition(x = x.value.toFloat(), y = y.value.toFloat())
+inline fun Offset(x: IntPx, y: IntPx): Offset =
+    Offset(x.value.toFloat(), y.value.toFloat())
 
 /**
- * Convert a [IntPxPosition] to a [PxPosition]
+ * Convert a [IntPxPosition] to a [Offset]
  */
 @Stable
-inline fun IntPxPosition.toPxPosition(): PxPosition = PxPosition(this.x, this.y)
+inline fun IntPxPosition.toOffset(): Offset =
+    Offset(x.value.toFloat(), y.value.toFloat())
 
 /**
  * Convert a [IntPxSize] to a [PxSize]

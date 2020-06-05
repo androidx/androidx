@@ -52,7 +52,7 @@ import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.toPxSize
 import androidx.ui.unit.toSize
@@ -88,8 +88,8 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_onlyContent_stackSlot() {
-        lateinit var child1: PxPosition
-        lateinit var child2: PxPosition
+        var child1: Offset = Offset.Zero
+        var child2: Offset = Offset.Zero
         composeTestRule.setMaterialContent {
             Scaffold {
                 Text("One",
@@ -106,15 +106,15 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_AppbarAndContent_inColumn() {
-        lateinit var appbarPosition: PxPosition
+        var appbarPosition: Offset = Offset.Zero
         lateinit var appbarSize: IntPxSize
-        lateinit var contentPosition: PxPosition
+        var contentPosition: Offset = Offset.Zero
         composeTestRule.setMaterialContent {
             Scaffold(
                 topBar = {
                     Box(Modifier
                         .onPositioned { positioned: LayoutCoordinates ->
-                            appbarPosition = positioned.localToGlobal(PxPosition.Origin)
+                            appbarPosition = positioned.localToGlobal(Offset.Zero)
                             appbarSize = positioned.size
                         }
                         .fillMaxWidth()
@@ -124,7 +124,7 @@ class ScaffoldTest {
                 }
             ) {
                 Box(Modifier
-                    .onPositioned { contentPosition = it.localToGlobal(PxPosition.Origin) }
+                    .onPositioned { contentPosition = it.localToGlobal(Offset.Zero) }
                     .fillMaxWidth()
                     .preferredHeight(50.dp)
                     .drawBackground(Color.Blue)
@@ -137,9 +137,9 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_bottomBarAndContent_inStack() {
-        lateinit var appbarPosition: PxPosition
+        var appbarPosition: Offset = Offset.Zero
         lateinit var appbarSize: IntPxSize
-        lateinit var contentPosition: PxPosition
+        var contentPosition: Offset = Offset.Zero
         lateinit var contentSize: IntPxSize
         composeTestRule.setMaterialContent {
             Scaffold(
@@ -174,7 +174,7 @@ class ScaffoldTest {
     @Test
     @Ignore("unignore once animation sync is ready (b/147291885)")
     fun scaffold_drawer_gestures() {
-        lateinit var drawerChildPosition: PxPosition
+        var drawerChildPosition: Offset = Offset.Zero
         val scaffoldState = ScaffoldState(isDrawerGesturesEnabled = false)
         composeTestRule.setMaterialContent {
             Semantics(properties = { testTag = scaffoldTag }) {
@@ -227,7 +227,7 @@ class ScaffoldTest {
     @Test
     @Ignore("unignore once animation sync is ready (b/147291885)")
     fun scaffold_drawer_manualControl() {
-        lateinit var drawerChildPosition: PxPosition
+        var drawerChildPosition: Offset = Offset.Zero
         val scaffoldState = ScaffoldState()
         composeTestRule.setMaterialContent {
             Semantics(properties = { testTag = scaffoldTag }) {
@@ -266,9 +266,9 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_centerDockedFab_position() {
-        lateinit var fabPosition: PxPosition
+        var fabPosition: Offset = Offset.Zero
         lateinit var fabSize: IntPxSize
-        lateinit var bottomBarPosition: PxPosition
+        var bottomBarPosition: Offset = Offset.Zero
         composeTestRule.setContent {
             Scaffold(
                 floatingActionButton = {
@@ -304,9 +304,9 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_endDockedFab_position() {
-        lateinit var fabPosition: PxPosition
+        var fabPosition: Offset = Offset.Zero
         lateinit var fabSize: IntPxSize
-        lateinit var bottomBarPosition: PxPosition
+        var bottomBarPosition: Offset = Offset.Zero
         composeTestRule.setContent {
             Scaffold(
                 floatingActionButton = {

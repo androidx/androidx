@@ -26,7 +26,7 @@ import androidx.ui.test.sendMove
 import androidx.ui.test.sendUp
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.expectError
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -38,7 +38,7 @@ import org.junit.rules.TestRule
 @MediumTest
 class SendMoveTest() {
     companion object {
-        private val downPosition1 = PxPosition(10f, 10f)
+        private val downPosition1 = Offset(10f, 10f)
     }
 
     @get:Rule

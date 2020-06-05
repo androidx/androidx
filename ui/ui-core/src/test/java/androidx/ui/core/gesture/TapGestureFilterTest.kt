@@ -28,7 +28,7 @@ import androidx.ui.testutils.invokeOverPasses
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
 import com.nhaarman.mockitokotlin2.any
@@ -193,7 +193,7 @@ class TapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(down)
         filter::onPointerInput.invokeOverAllPasses(up)
 
-        verify(filter.onTap).invoke(PxPosition(123f, 456f))
+        verify(filter.onTap).invoke(Offset(123f, 456f))
     }
 
     @Test
@@ -206,7 +206,7 @@ class TapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move)
         filter::onPointerInput.invokeOverAllPasses(up)
 
-        verify(filter.onTap).invoke(PxPosition(321f, 654f))
+        verify(filter.onTap).invoke(Offset(321f, 654f))
     }
 
     @Test
@@ -226,7 +226,7 @@ class TapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(upA, moveB)
         filter::onPointerInput.invokeOverAllPasses(upB)
 
-        verify(filter.onTap).invoke(PxPosition(321f, 654f))
+        verify(filter.onTap).invoke(Offset(321f, 654f))
     }
 
     @Test
@@ -246,7 +246,7 @@ class TapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(moveA2, upB)
         filter::onPointerInput.invokeOverAllPasses(upA)
 
-        verify(filter.onTap).invoke(PxPosition(123f, 456f))
+        verify(filter.onTap).invoke(Offset(123f, 456f))
     }
 
     @Test
@@ -262,7 +262,7 @@ class TapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(up)
         filter::onCustomEvent.invokeOverAllPasses(delayUpNotConsumed)
 
-        verify(filter.onTap).invoke(PxPosition(123f, 456f))
+        verify(filter.onTap).invoke(Offset(123f, 456f))
     }
 
     @Test
@@ -285,7 +285,7 @@ class TapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(upA, moveB)
         filter::onPointerInput.invokeOverAllPasses(upB)
 
-        verify(filter.onTap).invoke(PxPosition(321f, 654f))
+        verify(filter.onTap).invoke(Offset(321f, 654f))
     }
 
     @Test
@@ -312,7 +312,7 @@ class TapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(upB)
         filter::onCustomEvent.invokeOverAllPasses(delayUpNotConsumed)
 
-        verify(filter.onTap).invoke(PxPosition(321f, 654f))
+        verify(filter.onTap).invoke(Offset(321f, 654f))
     }
 
     // Verification that the down changes should not be consumed.

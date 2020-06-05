@@ -25,7 +25,7 @@ import androidx.ui.core.Ref
 import androidx.ui.layout.aspectRatio
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
@@ -91,7 +91,7 @@ class LayoutAspectRatioTest : LayoutTest() {
     private fun getSize(aspectRatio: Float, childContraints: Constraints): IntPxSize {
         val positionedLatch = CountDownLatch(1)
         val size = Ref<IntPxSize>()
-        val position = Ref<PxPosition>()
+        val position = Ref<Offset>()
         show {
             Layout(@Composable {
                 Container(

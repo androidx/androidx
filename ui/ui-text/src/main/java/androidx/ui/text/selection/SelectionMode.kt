@@ -17,7 +17,7 @@
 package androidx.ui.text.selection
 
 import androidx.ui.geometry.Rect
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 /**
  * The enum class allows user to decide the selection mode.
@@ -31,8 +31,8 @@ internal enum class SelectionMode {
     Vertical {
         override fun isSelected(
             bounds: Rect,
-            start: PxPosition,
-            end: PxPosition
+            start: Offset,
+            end: Offset
         ): Boolean {
             // When the end of the selection is above the top of the composable, the composable is outside
             // of the selection range.
@@ -55,8 +55,8 @@ internal enum class SelectionMode {
 
         override fun areHandlesCrossed(
             bounds: Rect,
-            start: PxPosition,
-            end: PxPosition
+            start: Offset,
+            end: Offset
         ): Boolean {
             if (start.y >= bounds.top && start.y < bounds.bottom &&
                 end.y >= bounds.top && end.y < bounds.bottom
@@ -80,8 +80,8 @@ internal enum class SelectionMode {
     Horizontal {
         override fun isSelected(
             bounds: Rect,
-            start: PxPosition,
-            end: PxPosition
+            start: Offset,
+            end: Offset
         ): Boolean {
             // When the end of the selection is on the left of the composable, the composable is outside of
             // the selection range.
@@ -104,8 +104,8 @@ internal enum class SelectionMode {
 
         override fun areHandlesCrossed(
             bounds: Rect,
-            start: PxPosition,
-            end: PxPosition
+            start: Offset,
+            end: Offset
         ): Boolean {
             if (start.x >= bounds.left && start.x < bounds.right &&
                 end.x >= bounds.left && end.x < bounds.right
@@ -131,8 +131,8 @@ internal enum class SelectionMode {
      */
     internal abstract fun isSelected(
         bounds: Rect,
-        start: PxPosition,
-        end: PxPosition
+        start: Offset,
+        end: Offset
     ): Boolean
 
     /**
@@ -146,7 +146,7 @@ internal enum class SelectionMode {
      */
     internal abstract fun areHandlesCrossed(
         bounds: Rect,
-        start: PxPosition,
-        end: PxPosition
+        start: Offset,
+        end: Offset
     ): Boolean
 }

@@ -29,7 +29,7 @@ import androidx.ui.graphics.ImageAsset
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
@@ -187,9 +187,9 @@ class ListItemTest {
         val expectedLeftPadding = 16.dp
         val expectedRightPadding = 16.dp
 
-        val textPosition = Ref<PxPosition>()
+        val textPosition = Ref<Offset>()
         val textSize = Ref<IntPxSize>()
-        val trailingPosition = Ref<PxPosition>()
+        val trailingPosition = Ref<Offset>()
         val trailingSize = Ref<IntPxSize>()
         composeTestRule.setMaterialContent {
             Box {
@@ -224,9 +224,9 @@ class ListItemTest {
         val expectedLeftPadding = 16.dp
         val expectedTextLeftPadding = 32.dp
 
-        val textPosition = Ref<PxPosition>()
+        val textPosition = Ref<Offset>()
         val textSize = Ref<IntPxSize>()
-        val iconPosition = Ref<PxPosition>()
+        val iconPosition = Ref<Offset>()
         val iconSize = Ref<IntPxSize>()
         composeTestRule.setMaterialContent {
             Box {
@@ -261,13 +261,13 @@ class ListItemTest {
         val expectedTextBaseline = 28.dp
         val expectedSecondaryTextBaselineOffset = 20.dp
 
-        val textPosition = Ref<PxPosition>()
+        val textPosition = Ref<Offset>()
         val textBaseline = Ref<Float>()
         val textSize = Ref<IntPxSize>()
-        val secondaryTextPosition = Ref<PxPosition>()
+        val secondaryTextPosition = Ref<Offset>()
         val secondaryTextBaseline = Ref<Float>()
         val secondaryTextSize = Ref<IntPxSize>()
-        val trailingPosition = Ref<PxPosition>()
+        val trailingPosition = Ref<Offset>()
         val trailingBaseline = Ref<Float>()
         val trailingSize = Ref<IntPxSize>()
         composeTestRule.setMaterialContent {
@@ -325,13 +325,13 @@ class ListItemTest {
         val expectedTextBaseline = 32.dp
         val expectedSecondaryTextBaselineOffset = 20.dp
 
-        val textPosition = Ref<PxPosition>()
+        val textPosition = Ref<Offset>()
         val textBaseline = Ref<Float>()
         val textSize = Ref<IntPxSize>()
-        val secondaryTextPosition = Ref<PxPosition>()
+        val secondaryTextPosition = Ref<Offset>()
         val secondaryTextBaseline = Ref<Float>()
         val secondaryTextSize = Ref<IntPxSize>()
-        val iconPosition = Ref<PxPosition>()
+        val iconPosition = Ref<Offset>()
         val iconSize = Ref<IntPxSize>()
         composeTestRule.setMaterialContent {
             Box {
@@ -391,15 +391,15 @@ class ListItemTest {
         val expectedSecondaryTextBaselineOffset = 20.dp
         val expectedRightPadding = 16.dp
 
-        val textPosition = Ref<PxPosition>()
+        val textPosition = Ref<Offset>()
         val textBaseline = Ref<Float>()
         val textSize = Ref<IntPxSize>()
-        val secondaryTextPosition = Ref<PxPosition>()
+        val secondaryTextPosition = Ref<Offset>()
         val secondaryTextBaseline = Ref<Float>()
         val secondaryTextSize = Ref<IntPxSize>()
-        val iconPosition = Ref<PxPosition>()
+        val iconPosition = Ref<Offset>()
         val iconSize = Ref<IntPxSize>()
-        val trailingPosition = Ref<PxPosition>()
+        val trailingPosition = Ref<Offset>()
         val trailingSize = Ref<IntPxSize>()
         composeTestRule.setMaterialContent {
             Box {
@@ -469,15 +469,15 @@ class ListItemTest {
         val expectedSecondaryTextBaselineOffset = 20.dp
         val expectedRightPadding = 16.dp
 
-        val textPosition = Ref<PxPosition>()
+        val textPosition = Ref<Offset>()
         val textBaseline = Ref<Float>()
         val textSize = Ref<IntPxSize>()
-        val secondaryTextPosition = Ref<PxPosition>()
+        val secondaryTextPosition = Ref<Offset>()
         val secondaryTextBaseline = Ref<Float>()
         val secondaryTextSize = Ref<IntPxSize>()
-        val iconPosition = Ref<PxPosition>()
+        val iconPosition = Ref<Offset>()
         val iconSize = Ref<IntPxSize>()
-        val trailingPosition = Ref<PxPosition>()
+        val trailingPosition = Ref<Offset>()
         val trailingSize = Ref<IntPxSize>()
         composeTestRule.setMaterialContent {
             Box {
@@ -547,18 +547,18 @@ class ListItemTest {
         val expectedSecondaryTextBaselineOffset = 20.dp
         val expectedRightPadding = 16.dp
 
-        val textPosition = Ref<PxPosition>()
+        val textPosition = Ref<Offset>()
         val textBaseline = Ref<Float>()
         val textSize = Ref<IntPxSize>()
-        val overlineTextPosition = Ref<PxPosition>()
+        val overlineTextPosition = Ref<Offset>()
         val overlineTextBaseline = Ref<Float>()
         val overlineTextSize = Ref<IntPxSize>()
-        val secondaryTextPosition = Ref<PxPosition>()
+        val secondaryTextPosition = Ref<Offset>()
         val secondaryTextBaseline = Ref<Float>()
         val secondaryTextSize = Ref<IntPxSize>()
-        val iconPosition = Ref<PxPosition>()
+        val iconPosition = Ref<Offset>()
         val iconSize = Ref<IntPxSize>()
-        val trailingPosition = Ref<PxPosition>()
+        val trailingPosition = Ref<Offset>()
         val trailingSize = Ref<IntPxSize>()
         val trailingBaseline = Ref<Float>()
         composeTestRule.setMaterialContent {
@@ -654,11 +654,11 @@ class ListItemTest {
     private fun Dp.toIntPx() = (this.value * composeTestRule.density.density).roundToInt()
 
     private fun saveLayout(
-        coords: Ref<PxPosition>,
+        coords: Ref<Offset>,
         size: Ref<IntPxSize>,
         baseline: Ref<Float> = Ref()
     ): Modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-        coords.value = coordinates.localToGlobal(PxPosition.Origin)
+        coords.value = coordinates.localToGlobal(Offset.Zero)
         baseline.value = coordinates[FirstBaseline]?.value?.toFloat()?.let {
             it + coords.value!!.y
         }

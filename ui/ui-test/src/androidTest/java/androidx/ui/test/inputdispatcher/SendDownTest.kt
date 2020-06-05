@@ -21,13 +21,13 @@ import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import androidx.test.filters.SmallTest
+import androidx.ui.geometry.Offset
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verifyEvent
 import androidx.ui.test.util.verifyPointer
-import androidx.ui.unit.PxPosition
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule
@@ -47,13 +47,13 @@ class SendDownTest {
         private const val pointer4 = 44
 
         // Positions (mostly used with corresponding pointerId: pointerX with positionX)
-        private val position1 = PxPosition(1f, 1f)
-        private val position2 = PxPosition(2f, 2f)
-        private val position3 = PxPosition(3f, 3f)
-        private val position4 = PxPosition(4f, 4f)
+        private val position1 = Offset(1f, 1f)
+        private val position2 = Offset(2f, 2f)
+        private val position3 = Offset(3f, 3f)
+        private val position4 = Offset(4f, 4f)
 
         // Single alternative for pointer1
-        private val position1_2 = PxPosition(12f, 12f)
+        private val position1_2 = Offset(12f, 12f)
     }
 
     private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)

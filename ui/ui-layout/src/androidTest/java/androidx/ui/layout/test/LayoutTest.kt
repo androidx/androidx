@@ -48,7 +48,7 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -140,11 +140,11 @@ open class LayoutTest {
 
     internal fun Modifier.saveLayoutInfo(
         size: Ref<IntPxSize>,
-        position: Ref<PxPosition>,
+        position: Ref<Offset>,
         positionedLatch: CountDownLatch
     ): Modifier = this.onPositioned { coordinates ->
         size.value = IntPxSize(coordinates.size.width, coordinates.size.height)
-        position.value = coordinates.localToGlobal(PxPosition(0f, 0f))
+        position.value = coordinates.localToGlobal(Offset(0f, 0f))
         positionedLatch.countDown()
     }
 
@@ -266,11 +266,11 @@ open class LayoutTest {
         }
     }
 
-    internal fun assertEquals(expected: PxPosition?, actual: PxPosition?) {
+    internal fun assertEquals(expected: Offset?, actual: Offset?) {
         assertNotNull("Null expected position", expected)
-        expected as PxPosition
+        expected as Offset
         assertNotNull("Null actual position", actual)
-        actual as PxPosition
+        actual as Offset
 
         assertEquals(
             "Expected x ${expected.x} but obtained ${actual.x}",

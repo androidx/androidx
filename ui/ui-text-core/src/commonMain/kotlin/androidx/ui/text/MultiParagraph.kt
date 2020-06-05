@@ -16,14 +16,13 @@
 
 package androidx.ui.text
 
-import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.util.fastForEach
 import kotlin.math.max
 
@@ -266,7 +265,7 @@ class MultiParagraph(
     }
 
     /** Returns the character offset closest to the given graphical position. */
-    fun getOffsetForPosition(position: PxPosition): Int {
+    fun getOffsetForPosition(position: Offset): Int {
         val paragraphIndex = when {
             position.y <= 0f -> 0
             position.y >= height -> paragraphInfoList.lastIndex
@@ -694,11 +693,11 @@ internal data class ParagraphInfo(
     }
 
     /**
-     * Convert a [PxPosition] relative to the parent [MultiParagraph] to the local [PxPosition]
+     * Convert a [Offset] relative to the parent [MultiParagraph] to the local [Offset]
      * relative to the [paragraph].
      */
-    fun PxPosition.toLocal(): PxPosition {
-        return PxPosition(x = x, y = y - top)
+    fun Offset.toLocal(): Offset {
+        return Offset(x, y - top)
     }
 
     /**
@@ -706,7 +705,7 @@ internal data class ParagraphInfo(
      * [MultiParagraph].
      */
     fun Rect.toGlobal(): Rect {
-        return shift(Offset(dx = 0f, dy = this@ParagraphInfo.top))
+        return shift(Offset(0f, this@ParagraphInfo.top))
     }
 
     /**
@@ -716,7 +715,7 @@ internal data class ParagraphInfo(
      * Notice that this function changes the input value.
      */
     fun Path.toGlobal(): Path {
-        shift(Offset(dx = 0f, dy = top))
+        shift(Offset(0f, top))
         return this
     }
 

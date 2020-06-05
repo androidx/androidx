@@ -27,7 +27,7 @@ import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -48,7 +48,7 @@ class LongPressGestureFilterTest {
     private val LongPressTimeoutMillis = 100.milliseconds
     @Suppress("DEPRECATION")
     private val testContext = kotlinx.coroutines.test.TestCoroutineContext()
-    private val onLongPress: (PxPosition) -> Unit = mock()
+    private val onLongPress: (Offset) -> Unit = mock()
     private val customEventDispatcher: CustomEventDispatcher = mock()
     private lateinit var filter: LongPressGestureFilter
 
@@ -276,7 +276,7 @@ class LongPressGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(down)
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition(13f, 17f))
+        verify(onLongPress).invoke(Offset(13f, 17f))
     }
 
     @Test
@@ -289,7 +289,7 @@ class LongPressGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move)
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition(7f, 5f))
+        verify(onLongPress).invoke(Offset(7f, 5f))
     }
 
     @Test
@@ -304,7 +304,7 @@ class LongPressGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move0, down1)
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition(13f, 17f))
+        verify(onLongPress).invoke(Offset(13f, 17f))
     }
 
     @Test
@@ -324,7 +324,7 @@ class LongPressGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(up0, move1)
         testContext.advanceTimeBy(25, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition(11f, 19f))
+        verify(onLongPress).invoke(Offset(11f, 19f))
     }
 
     @Test
@@ -339,7 +339,7 @@ class LongPressGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move0, down1)
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition(27f, 29f))
+        verify(onLongPress).invoke(Offset(27f, 29f))
     }
 
     @Test
@@ -359,7 +359,7 @@ class LongPressGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(up0, move1)
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition(27f, 23f))
+        verify(onLongPress).invoke(Offset(27f, 23f))
     }
 
     // Tests that verify that consumption behavior

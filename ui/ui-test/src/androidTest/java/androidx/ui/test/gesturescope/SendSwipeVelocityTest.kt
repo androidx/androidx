@@ -37,8 +37,7 @@ import androidx.ui.test.util.isAlmostEqualTo
 import androidx.ui.test.util.isMonotonicBetween
 import androidx.ui.test.util.recordedDuration
 import androidx.ui.unit.Duration
-import androidx.ui.unit.PxPosition
-import androidx.ui.unit.getDistance
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.inMilliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -61,11 +60,11 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
         val eventPeriod: Long
     )
 
-    enum class Direction(val from: PxPosition, val to: PxPosition) {
-        LeftToRight(PxPosition(boxStart, boxMiddle), PxPosition(boxEnd, boxMiddle)),
-        RightToLeft(PxPosition(boxEnd, boxMiddle), PxPosition(boxStart, boxMiddle)),
-        TopToBottom(PxPosition(boxMiddle, boxStart), PxPosition(boxMiddle, boxEnd)),
-        BottomToTop(PxPosition(boxMiddle, boxEnd), PxPosition(boxMiddle, boxStart))
+    enum class Direction(val from: Offset, val to: Offset) {
+        LeftToRight(Offset(boxStart, boxMiddle), Offset(boxEnd, boxMiddle)),
+        RightToLeft(Offset(boxEnd, boxMiddle), Offset(boxStart, boxMiddle)),
+        TopToBottom(Offset(boxMiddle, boxStart), Offset(boxMiddle, boxEnd)),
+        BottomToTop(Offset(boxMiddle, boxEnd), Offset(boxMiddle, boxStart))
     }
 
     companion object {

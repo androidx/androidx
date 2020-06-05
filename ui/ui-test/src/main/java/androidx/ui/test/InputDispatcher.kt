@@ -22,7 +22,8 @@ import androidx.ui.core.Owner
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.android.AndroidOwnerRegistry
 import androidx.ui.unit.Duration
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.lerp
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.lerp
 import java.util.WeakHashMap
@@ -86,7 +87,7 @@ internal interface InputDispatcher {
      *
      * @param position The coordinate of the click
      */
-    fun sendClick(position: PxPosition) {
+    fun sendClick(position: Offset) {
         sendDown(0, position)
         sendMove()
         sendUp(0)
@@ -100,7 +101,7 @@ internal interface InputDispatcher {
      * @param end The end position of the gesture
      * @param duration The duration of the gesture
      */
-    fun sendSwipe(start: PxPosition, end: PxPosition, duration: Duration) {
+    fun sendSwipe(start: Offset, end: Offset, duration: Duration) {
         val durationFloat = duration.inMilliseconds().toFloat()
         sendSwipe(
             curve = { lerp(start, end, it / durationFloat) },
@@ -120,7 +121,7 @@ internal interface InputDispatcher {
      * be sampled
      */
     fun sendSwipe(
-        curve: (Long) -> PxPosition,
+        curve: (Long) -> Offset,
         duration: Duration,
         keyTimes: List<Long> = emptyList()
     ) {
@@ -140,7 +141,7 @@ internal interface InputDispatcher {
      * be sampled
      */
     fun sendSwipes(
-        curves: List<(Long) -> PxPosition>,
+        curves: List<(Long) -> Offset>,
         duration: Duration,
         keyTimes: List<Long> = emptyList()
     )
@@ -167,7 +168,7 @@ internal interface InputDispatcher {
      * @return The current position of the pointer with the given [pointerId], or `null` if the
      * pointer is not currently in use
      */
-    fun getCurrentPosition(pointerId: Int): PxPosition?
+    fun getCurrentPosition(pointerId: Int): Offset?
 
     /**
      * Sends a down event at [position] for the pointer with the given [pointerId], starting a
@@ -202,7 +203,7 @@ internal interface InputDispatcher {
      * @see sendUp
      * @see sendCancel
      */
-    fun sendDown(pointerId: Int, position: PxPosition)
+    fun sendDown(pointerId: Int, position: Offset)
 
     /**
      * Updates the position of the pointer with the given [pointerId] to the given [position],
@@ -221,7 +222,7 @@ internal interface InputDispatcher {
      * @see sendUp
      * @see sendCancel
      */
-    fun movePointer(pointerId: Int, position: PxPosition)
+    fun movePointer(pointerId: Int, position: Offset)
 
     /**
      * Sends a move event 10 milliseconds after the previous injected event of this gesture,
@@ -288,8 +289,8 @@ internal data class InputDispatcherState(
     val partialGesture: PartialGesture?
 )
 
-internal class PartialGesture(val downTime: Long, startPosition: PxPosition, pointerId: Int) {
+internal class PartialGesture(val downTime: Long, startPosition: Offset, pointerId: Int) {
     var lastEventTime: Long = downTime
-    val lastPositions = SparseArrayCompat<PxPosition>().apply { put(pointerId, startPosition) }
+    val lastPositions = SparseArrayCompat<Offset>().apply { put(pointerId, startPosition) }
     var hasPointerUpdates: Boolean = false
 }

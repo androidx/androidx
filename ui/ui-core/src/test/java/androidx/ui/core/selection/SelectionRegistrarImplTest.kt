@@ -18,7 +18,7 @@ package androidx.ui.core.selection
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -75,19 +75,19 @@ class SelectionRegistrarImplTest {
         whenever(handler3.getLayoutCoordinates()).thenReturn(layoutCoordinates3)
 
         // The order of the 4 handlers should be 1, 0, 3, 2.
-        val relativeCoordinates0 = PxPosition(20f, 12f)
-        val relativeCoordinates1 = PxPosition(5f, 12f)
-        val relativeCoordinates2 = PxPosition(20f, 24f)
-        val relativeCoordinates3 = PxPosition(5f, 24f)
+        val relativeCoordinates0 = Offset(20f, 12f)
+        val relativeCoordinates1 = Offset(5f, 12f)
+        val relativeCoordinates2 = Offset(20f, 24f)
+        val relativeCoordinates3 = Offset(5f, 24f)
 
         val containerLayoutCoordinates = mock<LayoutCoordinates>()
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, PxPosition.Origin))
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, Offset.Zero))
             .thenReturn(relativeCoordinates0)
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates1, PxPosition.Origin))
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates1, Offset.Zero))
             .thenReturn(relativeCoordinates1)
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates2, PxPosition.Origin))
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates2, Offset.Zero))
             .thenReturn(relativeCoordinates2)
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates3, PxPosition.Origin))
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates3, Offset.Zero))
             .thenReturn(relativeCoordinates3)
 
         val selectionRegistrar = SelectionRegistrarImpl()
@@ -126,19 +126,19 @@ class SelectionRegistrarImplTest {
         whenever(handler3.getLayoutCoordinates()).thenReturn(layoutCoordinates3)
 
         // The order of the 4 handlers should be 1, 0, 3, 2.
-        val relativeCoordinates0 = PxPosition(20f, 12f)
-        val relativeCoordinates1 = PxPosition(5f, 12f)
-        val relativeCoordinates2 = PxPosition(20f, 24f)
-        val relativeCoordinates3 = PxPosition(5f, 24f)
+        val relativeCoordinates0 = Offset(20f, 12f)
+        val relativeCoordinates1 = Offset(5f, 12f)
+        val relativeCoordinates2 = Offset(20f, 24f)
+        val relativeCoordinates3 = Offset(5f, 24f)
 
         val containerLayoutCoordinates = mock<LayoutCoordinates>()
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, PxPosition.Origin))
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, Offset.Zero))
             .thenReturn(relativeCoordinates0)
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates1, PxPosition.Origin))
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates1, Offset.Zero))
             .thenReturn(relativeCoordinates1)
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates2, PxPosition.Origin))
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates2, Offset.Zero))
             .thenReturn(relativeCoordinates2)
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates3, PxPosition.Origin))
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates3, Offset.Zero))
             .thenReturn(relativeCoordinates3)
 
         val selectionRegistrar = SelectionRegistrarImpl()
@@ -165,8 +165,8 @@ class SelectionRegistrarImplTest {
         val layoutCoordinates0 = mock<LayoutCoordinates>()
         whenever(handler0.getLayoutCoordinates()).thenReturn(layoutCoordinates0)
         val containerLayoutCoordinates = mock<LayoutCoordinates>()
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, PxPosition.Origin))
-            .thenReturn(PxPosition.Origin)
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, Offset.Zero))
+            .thenReturn(Offset.Zero)
 
         val selectionRegistrar = SelectionRegistrarImpl()
         selectionRegistrar.subscribe(handler0)
@@ -187,8 +187,8 @@ class SelectionRegistrarImplTest {
         val layoutCoordinates0 = mock<LayoutCoordinates>()
         whenever(handler0.getLayoutCoordinates()).thenReturn(layoutCoordinates0)
         val containerLayoutCoordinates = mock<LayoutCoordinates>()
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, PxPosition.Origin))
-            .thenReturn(PxPosition.Origin)
+        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, Offset.Zero))
+            .thenReturn(Offset.Zero)
 
         val selectionRegistrar = SelectionRegistrarImpl()
         selectionRegistrar.subscribe(handler0)

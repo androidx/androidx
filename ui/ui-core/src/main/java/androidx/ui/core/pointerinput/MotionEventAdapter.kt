@@ -26,7 +26,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputData
 import androidx.ui.unit.NanosecondsPerMillisecond
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.Uptime
 
 /**
@@ -144,7 +144,7 @@ internal class MotionEventAdapter {
     ): PointerInputData {
         val pointerCoords = MotionEvent.PointerCoords()
         motionEvent.getPointerCoords(index, pointerCoords)
-        val offset = PxPosition(pointerCoords.x, pointerCoords.y)
+        val offset = Offset(pointerCoords.x, pointerCoords.y)
 
         return PointerInputData(
             timestamp,
