@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import android.app.Activity
+import android.content.Context
 import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -24,6 +25,7 @@ import androidx.compose.Composable
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.emptyContent
+import androidx.compose.escapeCompose
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
@@ -31,15 +33,19 @@ import androidx.compose.setValue
 import androidx.test.filters.SmallTest
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
+import androidx.ui.testutils.down
 import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
+import androidx.ui.unit.milliseconds
+import androidx.ui.viewinterop.AndroidView
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -214,6 +220,75 @@ class AndroidPointerInputTest {
         }
     }
 
+    // Currently ignored because it fails when run via command line.  Runs successfully in Android
+    // Studio.
+    @Test
+    // TODO(b/158099918): For some reason, this test fails when run from command line but passes
+    //  when run from Android Studio.  This seems to be caused by b/158099918.  Once that is
+    //  fixed, @Ignore can be removed.
+    @Ignore
+    fun dispatchTouchEvent_throughLayersOfAndroidAndCompose_hitsChildPointerInputFilter() {
+
+        // Arrange
+
+        val context = rule.activity
+
+        val log = mutableListOf<List<PointerInputChange>>()
+
+        countDown { latch ->
+            rule.runOnUiThread {
+                container.setContent(Recomposer.current()) {
+                    AndroidWithCompose(context, 1) {
+                        AndroidWithCompose(context, 10) {
+                            AndroidWithCompose(context, 100) {
+                                Layout(
+                                    {},
+                                    Modifier
+                                        .logEventsGestureFilter(log)
+                                        .onPositioned {
+                                            latch.countDown()
+                                        }
+                                ) { _, _, _ ->
+                                    layout(5.ipx, 5.ipx) {}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+
+            androidComposeView = container.getChildAt(0) as AndroidComposeView
+
+            val locationInWindow = IntArray(2).also {
+                androidComposeView.getLocationInWindow(it)
+            }
+
+            val motionEvent = MotionEvent(
+                0,
+                MotionEvent.ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(
+                    PointerCoords(
+                        locationInWindow[0].toFloat() + 1 + 10 + 100,
+                        locationInWindow[1].toFloat() + 1 + 10 + 100
+                    )
+                )
+            )
+
+            // Act
+            androidComposeView.dispatchTouchEvent(motionEvent)
+
+            // Assert
+            assertThat(log).hasSize(1)
+            assertThat(log[0]).isEqualTo(listOf(down(0, 0.milliseconds, 0f, 0f)))
+        }
+    }
+
     private fun dispatchTouchEvent_movementConsumptionInCompose(
         consumeMovement: Boolean,
         callsRequestDisallowInterceptTouchEvent: Boolean
@@ -272,6 +347,18 @@ class AndroidPointerInputTest {
     }
 }
 
+@Composable
+fun AndroidWithCompose(context: Context, androidPadding: Int, children: @Composable () -> Unit) {
+    val anotherLayout =
+        escapeCompose { FrameLayout(context) }.also { view ->
+            view.setContent(Recomposer.current()) {
+                children()
+            }
+            view.setPadding(androidPadding, androidPadding, androidPadding, androidPadding)
+        }
+    AndroidView(anotherLayout)
+}
+
 fun Modifier.consumeMovementGestureFilter(consumeMovement: Boolean = false): Modifier = composed {
     val filter = remember(consumeMovement) { ConsumeMovementGestureFilter(consumeMovement) }
     PointerInputModifierImpl(filter)
@@ -282,6 +369,12 @@ fun Modifier.consumeDownGestureFilter(onDown: (Offset) -> Unit): Modifier = comp
     filter.onDown = onDown
     this + PointerInputModifierImpl(filter)
 }
+
+fun Modifier.logEventsGestureFilter(log: MutableList<List<PointerInputChange>>): Modifier =
+    composed {
+        val filter = remember { LogEventsGestureFilter(log) }
+        this + PointerInputModifierImpl(filter)
+    }
 
 private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
     PointerInputModifier
@@ -317,6 +410,23 @@ private class ConsumeDownChangeFilter : PointerInputFilter() {
         } else {
             it
         }
+    }
+
+    override fun onCancel() {}
+}
+
+private class LogEventsGestureFilter(val log: MutableList<List<PointerInputChange>>) :
+    PointerInputFilter() {
+
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
+        if (pass == PointerEventPass.InitialDown) {
+            log.add(changes.map { it.copy() })
+        }
+        return changes
     }
 
     override fun onCancel() {}

@@ -17,11 +17,14 @@
 package androidx.ui.node
 
 import android.view.MotionEvent
+import android.view.View
 import androidx.test.filters.SmallTest
 import androidx.ui.core.PointerInputChange
 import androidx.ui.testutils.down
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -35,7 +38,7 @@ class PointerInteropUtilsTest {
     @Test(expected = IllegalStateException::class)
     fun toMotionEventScope_emptyList_throws() {
         val list = listOf<PointerInputChange>()
-        list.toMotionEventScope {}
+        list.toMotionEventScope(IntPxPosition.Origin) {}
     }
 
     @Test
@@ -52,7 +55,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope {
+        list.toMotionEventScope(IntPxPosition.Origin) {
             actual = it
         }
 
@@ -73,7 +76,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope {
+        list.toMotionEventScope(IntPxPosition.Origin) {
             actual = it
         }
 
@@ -97,7 +100,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope {
+        list.toMotionEventScope(IntPxPosition.Origin) {
             actual = it
         }
 
@@ -121,7 +124,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope {
+        list.toMotionEventScope(IntPxPosition.Origin) {
             actual = it
         }
 
@@ -145,7 +148,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope {
+        list.toMotionEventScope(IntPxPosition.Origin) {
             actual = it
         }
 
@@ -169,7 +172,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope {
+        list.toMotionEventScope(IntPxPosition.Origin) {
             actual = it
         }
 
@@ -192,7 +195,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope {
+        list.toMotionEventScope(IntPxPosition.Origin) {
             actual = it
         }
 
@@ -216,7 +219,54 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope {
+        list.toMotionEventScope(IntPxPosition.Origin) {
+            actual = it
+        }
+
+        assertEquals(actual, expected)
+    }
+
+    @Test
+    fun toMotionEventScope_globalOffsetsSet1Pointer_motionEventIsCorrect() {
+        val pointer1 = down(1, 2.milliseconds, 3f, 4f)
+
+        val list = listOf(pointer1)
+        val expected =
+            MotionEvent(
+                2,
+                MotionEvent.ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(1)),
+                arrayOf(PointerCoords(13f, 104f))
+            ).apply { offsetLocation(-10f, -100f) }
+        lateinit var actual: MotionEvent
+
+        list.toMotionEventScope(IntPxPosition(10.ipx, 100.ipx)) {
+            actual = it
+        }
+
+        assertEquals(actual, expected)
+    }
+
+    @Test
+    fun toMotionEventScope_globalOffsetsSet2Pointers_motionEventIsCorrect() {
+        val pointer1 = down(1, 2.milliseconds, 3f, 4f).moveTo(7.milliseconds, 3f, 4f)
+        val pointer2 = down(8, 7.milliseconds, 10f, 11f)
+
+        val list = listOf(pointer2, pointer1)
+        val expected =
+            MotionEvent(
+                7,
+                MotionEvent.ACTION_POINTER_DOWN,
+                2,
+                0,
+                arrayOf(PointerProperties(8), PointerProperties(1)),
+                arrayOf(PointerCoords(110f, 1011f), PointerCoords(103f, 1004f))
+            ).apply { offsetLocation(-100f, -1000f) }
+        lateinit var actual: MotionEvent
+
+        list.toMotionEventScope(IntPxPosition(100.ipx, 1000.ipx)) {
             actual = it
         }
 
@@ -226,7 +276,7 @@ class PointerInteropUtilsTest {
     @Test(expected = IllegalStateException::class)
     fun toCancelMotionEventScope_emptyList_throws() {
         val list = listOf<PointerInputChange>()
-        list.toCancelMotionEventScope {}
+        list.toCancelMotionEventScope(IntPxPosition.Origin) {}
     }
 
     @Test
@@ -245,7 +295,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toCancelMotionEventScope {
+        list.toCancelMotionEventScope(IntPxPosition.Origin) {
             actual = it
         }
 
@@ -269,7 +319,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toCancelMotionEventScope {
+        list.toCancelMotionEventScope(IntPxPosition.Origin) {
             actual = it
         }
 
@@ -293,7 +343,54 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toCancelMotionEventScope {
+        list.toCancelMotionEventScope(IntPxPosition.Origin) {
+            actual = it
+        }
+
+        assertEquals(actual, expected)
+    }
+
+    @Test
+    fun toCancelMotionEventScope_globalOffsetsSet1Pointer_motionEventIsCorrect() {
+        val pointer1 = down(1, 2.milliseconds, 3f, 4f)
+
+        val list = listOf(pointer1)
+        val expected =
+            MotionEvent(
+                2,
+                MotionEvent.ACTION_CANCEL,
+                1,
+                0,
+                arrayOf(PointerProperties(1)),
+                arrayOf(PointerCoords(13f, 104f))
+            ).apply { offsetLocation(-10f, -100f) }
+        lateinit var actual: MotionEvent
+
+        list.toCancelMotionEventScope(IntPxPosition(10.ipx, 100.ipx)) {
+            actual = it
+        }
+
+        assertEquals(actual, expected)
+    }
+
+    @Test
+    fun toCancelMotionEventScope_globalOffsetsSet2Pointers_motionEventIsCorrect() {
+        val pointer1 = down(1, 2.milliseconds, 3f, 4f).moveTo(7.milliseconds, 3f, 4f)
+        val pointer2 = down(8, 7.milliseconds, 10f, 11f)
+
+        val list = listOf(pointer2, pointer1)
+        val expected =
+            MotionEvent(
+                7,
+                MotionEvent.ACTION_CANCEL,
+                2,
+                0,
+                arrayOf(PointerProperties(8), PointerProperties(1)),
+                arrayOf(PointerCoords(110f, 1011f), PointerCoords(103f, 1004f))
+            ).apply { offsetLocation(-100f, -1000f) }
+        lateinit var actual: MotionEvent
+
+        list.toCancelMotionEventScope(IntPxPosition(100.ipx, 1000.ipx)) {
             actual = it
         }
 
@@ -374,6 +471,20 @@ private fun assertEquals(actual: MotionEvent, expected: MotionEvent) {
         Truth.assertThat(actualPointerProperties).isEqualTo(expectedPointerProperties)
     }
 
+    // Equal pointer coords relative to local region.
+    assertEqualPointerCoords(actual, expected)
+
+    // Equal pointer coords relative to screen.
+    assertEqualPointerCoords(
+        actual.asOffsetToScreen(),
+        expected.asOffsetToScreen()
+    )
+}
+
+/**
+ * Asserts that 2 [MotionEvent]s' [PointerCoords] are the same.
+ */
+private fun assertEqualPointerCoords(actual: MotionEvent, expected: MotionEvent) {
     val actualPointerCoords = MotionEvent.PointerCoords()
     val expectedPointerCoords = MotionEvent.PointerCoords()
     repeat(expected.pointerCount) { index ->
@@ -383,3 +494,12 @@ private fun assertEquals(actual: MotionEvent, expected: MotionEvent) {
         Truth.assertThat(actualPointerCoords.y).isEqualTo(expectedPointerCoords.y)
     }
 }
+
+/**
+ * Creates a new [MotionEvent] that is offset to the screen instead of the [View] it was
+ * dispatched to.
+ */
+private fun MotionEvent.asOffsetToScreen() =
+    MotionEvent.obtain(this).also { motionEvent ->
+        motionEvent.offsetLocation(rawX - x, rawY - y)
+    }
