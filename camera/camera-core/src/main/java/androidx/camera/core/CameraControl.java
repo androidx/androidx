@@ -77,8 +77,8 @@ public interface CameraControl {
      * supported on current device, only the first point and then in order up to the number of
      * points supported by the device will be enabled.
      *
-     * <p>If none of the points with either AF/AE/AWB can be supported on the device,
-     * the returned {@link ListenableFuture} in
+     * <p>If none of the points with either AF/AE/AWB can be supported on the device or none of
+     * the points generates valid metering rectangles, the returned {@link ListenableFuture} in
      * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} will fail immediately.
      *
      * @see FocusMeteringAction

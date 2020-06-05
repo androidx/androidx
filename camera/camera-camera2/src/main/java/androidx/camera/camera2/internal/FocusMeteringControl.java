@@ -310,10 +310,6 @@ class FocusMeteringControl {
             cancelFocusAndMeteringWithoutAsyncResult();
         }
 
-        disableAutoCancel();
-        mCurrentFocusMeteringAction = action;
-        mRunningActionCompleter = completer;
-
         Rect cropSensorRegion = mCameraControl.getCropSensorRegion();
         Rational cropRegionAspectRatio = new Rational(cropSensorRegion.width(),
                 cropSensorRegion.height());
@@ -331,6 +327,9 @@ class FocusMeteringControl {
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
                     cropSensorRegion);
+            if (meteringRectangle.getWidth() == 0 || meteringRectangle.getHeight() == 0) {
+                continue;
+            }
             meteringRectanglesListAF.add(meteringRectangle);
         }
 
@@ -339,6 +338,9 @@ class FocusMeteringControl {
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
                     cropSensorRegion);
+            if (meteringRectangle.getWidth() == 0 || meteringRectangle.getHeight() == 0) {
+                continue;
+            }
             meteringRectanglesListAE.add(meteringRectangle);
         }
 
@@ -347,8 +349,24 @@ class FocusMeteringControl {
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
                     cropSensorRegion);
+            if (meteringRectangle.getWidth() == 0 || meteringRectangle.getHeight() == 0) {
+                continue;
+            }
             meteringRectanglesListAWB.add(meteringRectangle);
         }
+
+        if (meteringRectanglesListAF.isEmpty()
+                && meteringRectanglesListAE.isEmpty()
+                && meteringRectanglesListAWB.isEmpty()) {
+            completer.setException(
+                    new IllegalArgumentException("None of the specified AF/AE/AWB MeteringPoints "
+                            + "are valid."));
+            return;
+        }
+
+        disableAutoCancel();
+        mCurrentFocusMeteringAction = action;
+        mRunningActionCompleter = completer;
 
         executeMeteringAction(
                 meteringRectanglesListAF.toArray(new MeteringRectangle[0]),
