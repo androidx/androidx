@@ -129,8 +129,6 @@ internal class AndroidComposeView constructor(
 
     override val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
-        it.layoutDirection =
-            context.applicationContext.resources.configuration.localeLayoutDirection
         it.modifier = Modifier.drawLayer() + semanticsModifier + focusModifier + keyInputModifier
     }
 
@@ -312,23 +310,28 @@ internal class AndroidComposeView constructor(
         }
 
     private fun scheduleMeasureAndLayout() {
-        if (root.needsRemeasure) {
-            requestLayout()
-        } else {
-            measureAndLayoutHandler.removeMessages(0)
-            measureAndLayoutHandler.sendEmptyMessage(0)
-        }
+        measureAndLayoutHandler.removeMessages(0)
+        measureAndLayoutHandler.sendEmptyMessage(0)
     }
 
     override val measureIteration: Long get() = measureAndLayoutDelegate.measureIteration
 
     override fun measureAndLayout() {
-        measureAndLayoutDelegate.measureAndLayout()
+        val rootNodeResized = measureAndLayoutDelegate.measureAndLayout()
+        if (rootNodeResized) {
+            requestLayout()
+        }
         measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
     }
 
     override fun onRequestMeasure(layoutNode: LayoutNode) {
         if (measureAndLayoutDelegate.requestRemeasure(layoutNode)) {
+            scheduleMeasureAndLayout()
+        }
+    }
+
+    override fun onRequestRelayout(layoutNode: LayoutNode) {
+        if (measureAndLayoutDelegate.requestRelayout(layoutNode)) {
             scheduleMeasureAndLayout()
         }
     }
@@ -339,8 +342,10 @@ internal class AndroidComposeView constructor(
             val (minWidth, maxWidth) = convertMeasureSpec(widthMeasureSpec)
             val (minHeight, maxHeight) = convertMeasureSpec(heightMeasureSpec)
 
-            measureAndLayoutDelegate.rootConstraints =
-                Constraints(minWidth, maxWidth, minHeight, maxHeight)
+            measureAndLayoutDelegate.updateRootParams(
+                Constraints(minWidth, maxWidth, minHeight, maxHeight),
+                resources.configuration.localeLayoutDirection
+            )
             measureAndLayoutDelegate.measureAndLayout()
             setMeasuredDimension(root.width.value, root.height.value)
         }

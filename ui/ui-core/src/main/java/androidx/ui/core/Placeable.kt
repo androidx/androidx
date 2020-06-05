@@ -58,7 +58,7 @@ abstract class Placeable {
     /**
      * The measured size of this Placeable. This might not respect [measurementConstraints].
      */
-    protected var measuredSize: IntPxSize = IntPxSize(0.ipx, 0.ipx)
+    protected var measuredSize: IntPxSize = IntPxSize.Zero
         set(value) {
             field = value
             width = value.width.coerceIn(

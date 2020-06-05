@@ -22,6 +22,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
+import androidx.ui.core.LayoutNode.LayoutState.NeedsRemeasure
 
 /**
  * Used by [AndroidComposeView] to handle the Android [View]s attached to its hierarchy.
@@ -73,7 +74,9 @@ internal class AndroidViewsHandler(context: Context) : ViewGroup(context) {
         // their corresponding layout node.
         for (i in 0 until childCount) {
             val child = getChildAt(i)
-            if (child.isLayoutRequested && layoutNode[child]?.needsRemeasure == false) {
+            val node = layoutNode[child]
+            if (child.isLayoutRequested && node != null &&
+                node.layoutState != NeedsRemeasure) {
                 layoutNode[child]!!.requestRemeasure()
             }
         }
