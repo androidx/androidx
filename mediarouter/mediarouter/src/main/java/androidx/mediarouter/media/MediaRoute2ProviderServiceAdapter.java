@@ -147,8 +147,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         String sessionId = assignSessionId(controller);
         controller.onSelect();
 
-        //TODO: Set the client package name of the selected route.
-
+        //TODO: Handle a static group
         RoutingSessionInfo.Builder builder =
                 new RoutingSessionInfo.Builder(sessionId, packageName)
                         .addSelectedRoute(routeId)
@@ -177,6 +176,9 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         if (sessionInfo == null) {
             return;
         }
+        // Release member controllers
+        updateMemberRouteControllers(null, sessionInfo, null);
+
         DynamicGroupRouteController controller;
         synchronized (mLock) {
             controller = mControllers.remove(sessionId);
@@ -304,6 +306,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
     }
 
     public void setDynamicRouteDescriptor(DynamicGroupRouteController controller,
+            MediaRouteDescriptor groupRoute,
             Collection<DynamicRouteDescriptor> descriptors) {
         String sessionId = null;
         synchronized (mLock) {
@@ -330,14 +333,18 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                 .clearDeselectableRoutes()
                 .clearTransferableRoutes();
 
-        boolean hasSelectedRoute = false;
+        if (groupRoute != null) {
+            builder.setName(groupRoute.getName())
+                    .setVolume(groupRoute.getVolume())
+                    .setVolumeMax(groupRoute.getVolumeMax())
+                    .setVolumeHandling(groupRoute.getVolumeHandling());
+        }
 
         for (DynamicRouteDescriptor descriptor : descriptors) {
             String routeId = descriptor.getRouteDescriptor().getId();
             if (descriptor.mSelectionState == DynamicRouteDescriptor.SELECTING
                     || descriptor.mSelectionState == DynamicRouteDescriptor.SELECTED) {
                 builder.addSelectedRoute(routeId);
-                hasSelectedRoute = true;
             }
             if (descriptor.isGroupable()) {
                 builder.addSelectableRoute(routeId);
@@ -350,14 +357,9 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             }
         }
 
-        // This can happen when a new dynamic route controller is just created.
-        if (!hasSelectedRoute) {
-            List<String> selectedRoutes = sessionInfo.getSelectedRoutes();
-            for (String routeId : selectedRoutes) {
-                builder.addSelectedRoute(routeId);
-            }
-        }
-        notifySessionUpdated(builder.build());
+        RoutingSessionInfo newSessionInfo = builder.build();
+        updateMemberRouteControllers(groupRoute.getId(), sessionInfo, newSessionInfo);
+        notifySessionUpdated(newSessionInfo);
     }
 
     //TODO: Remove this
@@ -428,6 +430,27 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         };
 
         controller.onControlRequest(intent, callback);
+    }
+
+    void updateMemberRouteControllers(String groupId, RoutingSessionInfo oldSession,
+            RoutingSessionInfo newSession) {
+        List<String> oldRouteIds = (oldSession == null) ? Collections.emptyList() :
+                oldSession.getSelectedRoutes();
+        List<String> newRouteIds = (newSession == null) ? Collections.emptyList() :
+                newSession.getSelectedRoutes();
+
+        for (String routeId : newRouteIds) {
+            RouteController controller = mServiceImpl.getControllerForRouteId(routeId);
+            if (controller == null) {
+                controller = mServiceImpl.createRouteControllerWithoutClient(routeId, groupId);
+                controller.onSelect();
+            }
+        }
+        for (String routeId : oldRouteIds) {
+            if (!newRouteIds.contains(routeId)) {
+                mServiceImpl.releaseRouteControllerForRouteId(routeId);
+            }
+        }
     }
 
     void addRouteController(RouteController routeController,

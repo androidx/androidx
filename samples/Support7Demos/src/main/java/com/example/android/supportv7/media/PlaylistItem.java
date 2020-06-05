@@ -40,6 +40,21 @@ final class PlaylistItem {
     private long mTimestamp;
     private String mRemoteItemId;
 
+    PlaylistItem(PlaylistItem item) {
+        mSessionId = item.mSessionId;
+        mItemId = item.mItemId;
+        mTitle = item.mTitle;
+        mUri = item.mUri;
+        mMime = item.mMime;
+        mUpdateReceiver = null;
+
+        mPlaybackState = item.mPlaybackState;
+        mContentPosition = item.mContentPosition;
+        mContentDuration = item.mContentDuration;
+        mTimestamp = item.mTimestamp;
+        mRemoteItemId = item.mRemoteItemId;
+    }
+
     public PlaylistItem(String qid, String iid, String title, Uri uri, String mime,
             PendingIntent pi) {
         mSessionId = qid;

@@ -273,6 +273,22 @@ class MediaRoute2Provider extends MediaRouteProvider {
         }
 
         @Override
+        public void onSetVolume(int volume) {
+            if (mRoutingController == null) {
+                return;
+            }
+            mRoutingController.setVolume(volume);
+        }
+
+        @Override
+        public void onUpdateVolume(int delta) {
+            if (mRoutingController == null) {
+                return;
+            }
+            mRoutingController.setVolume(mRoutingController.getVolume() + delta);
+        }
+
+        @Override
         public boolean onControlRequest(Intent intent, @Nullable ControlRequestCallback callback) {
             if (mRoutingController == null || mRoutingController.isReleased()
                     || mServiceMessenger == null) {

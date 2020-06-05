@@ -246,7 +246,8 @@ package androidx.mediarouter.media {
     ctor public MediaRouteProvider.DynamicGroupRouteController();
     method public String? getGroupableSelectionTitle();
     method public String? getTransferableSectionTitle();
-    method public final void notifyDynamicRoutesChanged(java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor!>!);
+    method @Deprecated public final void notifyDynamicRoutesChanged(java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor!>!);
+    method public final void notifyDynamicRoutesChanged(androidx.mediarouter.media.MediaRouteDescriptor, java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor!>);
     method public abstract void onAddMemberRoute(String);
     method public abstract void onRemoveMemberRoute(String!);
     method public abstract void onUpdateMemberRoutes(java.util.List<java.lang.String!>?);
