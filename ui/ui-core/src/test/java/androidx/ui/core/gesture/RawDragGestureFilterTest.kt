@@ -28,7 +28,7 @@ import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -219,8 +219,8 @@ class RawDragGestureFilterTest {
         assertThat(onDragLog).hasSize(2)
         // OnDrags get's called twice each time because RawDragGestureDetector calls it on both
         // PostUp and PostDown and the distance is not consumed by PostUp.
-        assertThat(onDragLog[0].pxPosition).isEqualTo(PxPosition(5f, -2f))
-        assertThat(onDragLog[1].pxPosition).isEqualTo(PxPosition(5f, -2f))
+        assertThat(onDragLog[0].pxPosition).isEqualTo(Offset(5f, -2f))
+        assertThat(onDragLog[1].pxPosition).isEqualTo(Offset(5f, -2f))
     }
 
     @Test
@@ -251,14 +251,14 @@ class RawDragGestureFilterTest {
         assertThat(onDragLog).hasSize(8)
         // OnDrags get's called twice each time because RawDragGestureDetector calls it on both
         // PostUp and PostDown and the distance is not consumed by PostUp.
-        assertThat(onDragLog[0].pxPosition).isEqualTo(PxPosition(3f, -5f))
-        assertThat(onDragLog[1].pxPosition).isEqualTo(PxPosition(3f, -5f))
-        assertThat(onDragLog[2].pxPosition).isEqualTo(PxPosition(-3f, 7f))
-        assertThat(onDragLog[3].pxPosition).isEqualTo(PxPosition(-3f, 7f))
-        assertThat(onDragLog[4].pxPosition).isEqualTo(PxPosition(6f, 10f))
-        assertThat(onDragLog[5].pxPosition).isEqualTo(PxPosition(6f, 10f))
-        assertThat(onDragLog[6].pxPosition).isEqualTo(PxPosition(-10f, -6f))
-        assertThat(onDragLog[7].pxPosition).isEqualTo(PxPosition(-10f, -6f))
+        assertThat(onDragLog[0].pxPosition).isEqualTo(Offset(3f, -5f))
+        assertThat(onDragLog[1].pxPosition).isEqualTo(Offset(3f, -5f))
+        assertThat(onDragLog[2].pxPosition).isEqualTo(Offset(-3f, 7f))
+        assertThat(onDragLog[3].pxPosition).isEqualTo(Offset(-3f, 7f))
+        assertThat(onDragLog[4].pxPosition).isEqualTo(Offset(6f, 10f))
+        assertThat(onDragLog[5].pxPosition).isEqualTo(Offset(6f, 10f))
+        assertThat(onDragLog[6].pxPosition).isEqualTo(Offset(-10f, -6f))
+        assertThat(onDragLog[7].pxPosition).isEqualTo(Offset(-10f, -6f))
     }
 
     @Test
@@ -287,10 +287,10 @@ class RawDragGestureFilterTest {
         // 2 onDrags because RawDragGestureDetector calls onDrag on both PostUp and PostDown and the
         // distance is never consumed.
         assertThat(onDragLog[0].pxPosition).isEqualTo(
-            PxPosition(3f, -4f)
+            Offset(3f, -4f)
         )
         assertThat(onDragLog[1].pxPosition).isEqualTo(
-            PxPosition(3f, -4f)
+            Offset(3f, -4f)
         )
     }
 
@@ -439,7 +439,7 @@ class RawDragGestureFilterTest {
             1f,
             0f
         )
-        dragObserver.dragConsume = PxPosition(7.ipx, (-11).ipx)
+        dragObserver.dragConsume = Offset(7f, -11f)
         var result = filter::onPointerInput.invokeOverPasses(
             change,
             PointerEventPass.InitialDown,
@@ -447,7 +447,7 @@ class RawDragGestureFilterTest {
             PointerEventPass.PreDown,
             PointerEventPass.PostUp
         )
-        dragObserver.dragConsume = PxPosition.Origin
+        dragObserver.dragConsume = Offset.Zero
         result = filter::onPointerInput.invokeOverPasses(
             result,
             PointerEventPass.InitialDown,
@@ -461,7 +461,7 @@ class RawDragGestureFilterTest {
 
     @Test
     fun onPointerInput_unblockedDownMoveCallBackDoesNotConsume_distanceChangeNotConsumed() {
-        dragObserver.dragConsume = PxPosition.Origin
+        dragObserver.dragConsume = Offset.Zero
 
         var change = down(0, 0.milliseconds)
         filter::onPointerInput.invokeOverAllPasses(change)
@@ -506,7 +506,7 @@ class RawDragGestureFilterTest {
             3f,
             -5f
         )
-        dragObserver.dragConsume = PxPosition(7.ipx, (-11).ipx)
+        dragObserver.dragConsume = Offset(7f, -11f)
         var result = filter::onPointerInput.invokeOverPasses(
             change,
             PointerEventPass.InitialDown,
@@ -514,7 +514,7 @@ class RawDragGestureFilterTest {
             PointerEventPass.PreDown,
             PointerEventPass.PostUp
         )
-        dragObserver.dragConsume = PxPosition.Origin
+        dragObserver.dragConsume = Offset.Zero
         result = filter::onPointerInput.invokeOverPasses(
             result,
             PointerEventPass.PostDown
@@ -552,7 +552,7 @@ class RawDragGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move)
 
         assertThat(log.first { it.methodName == "onStart" }.pxPosition)
-            .isEqualTo(PxPosition(3f, 4f))
+            .isEqualTo(Offset(3f, 4f))
     }
 
     @Test
@@ -573,7 +573,7 @@ class RawDragGestureFilterTest {
 
         assertThat(log.first { it.methodName == "onStart" }.pxPosition)
             // average position
-            .isEqualTo(PxPosition(3f, 4f))
+            .isEqualTo(Offset(3f, 4f))
     }
 
     // Tests that verify when onCancel should not be called.
@@ -630,7 +630,7 @@ class RawDragGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move)
 
         assertThat(log.first { it.methodName == "onStart" }.pxPosition)
-            .isEqualTo(PxPosition(7f, 11f))
+            .isEqualTo(Offset(7f, 11f))
     }
 
     @Test
@@ -679,25 +679,25 @@ class RawDragGestureFilterTest {
 
     data class LogItem(
         val methodName: String,
-        val pxPosition: PxPosition? = null
+        val pxPosition: Offset? = null
     )
 
     class MockDragObserver(
         private val log: MutableList<LogItem>,
-        var dragConsume: PxPosition? = null
+        var dragConsume: Offset? = null
     ) : DragObserver {
 
-        override fun onStart(downPosition: PxPosition) {
+        override fun onStart(downPosition: Offset) {
             log.add(LogItem("onStart", pxPosition = downPosition))
             super.onStart(downPosition)
         }
 
-        override fun onDrag(dragDistance: PxPosition): PxPosition {
+        override fun onDrag(dragDistance: Offset): Offset {
             log.add(LogItem("onDrag", pxPosition = dragDistance))
             return dragConsume ?: super.onDrag(dragDistance)
         }
 
-        override fun onStop(velocity: PxPosition) {
+        override fun onStop(velocity: Offset) {
             log.add(LogItem("onStop", pxPosition = velocity))
             super.onStop(velocity)
         }

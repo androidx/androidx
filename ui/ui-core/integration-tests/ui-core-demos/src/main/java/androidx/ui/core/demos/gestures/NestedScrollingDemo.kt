@@ -41,7 +41,7 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import kotlin.math.roundToInt
@@ -82,7 +82,7 @@ private fun Draggable(children: @Composable () -> Unit) {
     val maxOffset = state { 0f }
 
     val dragObserver = object : DragObserver {
-        override fun onDrag(dragDistance: PxPosition): PxPosition {
+        override fun onDrag(dragDistance: Offset): Offset {
             val resultingOffset = offset.value + dragDistance.y
             val dyToConsume =
                 if (resultingOffset > 0f) {
@@ -93,7 +93,7 @@ private fun Draggable(children: @Composable () -> Unit) {
                     dragDistance.y
                 }
             offset.value = offset.value + dyToConsume
-            return PxPosition(0f, dyToConsume)
+            return Offset(0f, dyToConsume)
         }
     }
 
@@ -143,7 +143,7 @@ private fun Pressable(
     val color = state { defaultColor }
     val showPressed = state { false }
 
-    val onPress: (PxPosition) -> Unit = {
+    val onPress: (Offset) -> Unit = {
         showPressed.value = true
     }
 
@@ -151,15 +151,15 @@ private fun Pressable(
         showPressed.value = false
     }
 
-    val onTap: (PxPosition) -> Unit = {
+    val onTap: (Offset) -> Unit = {
         color.value = color.value.next()
     }
 
-    val onDoubleTap: (PxPosition) -> Unit = {
+    val onDoubleTap: (Offset) -> Unit = {
         color.value = color.value.prev().prev()
     }
 
-    val onLongPress = { _: PxPosition ->
+    val onLongPress = { _: Offset ->
         color.value = defaultColor
         showPressed.value = false
     }

@@ -207,7 +207,7 @@ expect class NativePathEffect
      * after the matrix is translated by the given offset. The matrix is a 4x4
      * matrix stored in column major order.
      */
-    fun addPath(path: Path, offset: Offset = Offset.zero)
+    fun addPath(path: Path, offset: Offset = Offset.Zero)
 
     /**
      * Closes the last subpath, as if a straight line had been drawn

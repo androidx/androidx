@@ -31,7 +31,7 @@ import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import androidx.ui.util.fastForEach
 import kotlin.math.roundToInt
@@ -722,7 +722,7 @@ class LayoutNode : Measurable {
      * [hitPointerInputFilters].
      */
     fun hitTest(
-        pointerPositionRelativeToScreen: PxPosition,
+        pointerPositionRelativeToScreen: Offset,
         hitPointerInputFilters: MutableList<PointerInputFilter>
     ): Boolean {
         return layoutNodeWrapper.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
@@ -734,7 +734,7 @@ class LayoutNode : Measurable {
      */
     fun getAlignmentLine(line: AlignmentLine): IntPx? {
         val linePos = alignmentLines[line] ?: return null
-        var pos = PxPosition(linePos, linePos)
+        var pos = Offset(linePos.value.toFloat(), linePos.value.toFloat())
         var wrapper = innerLayoutNodeWrapper
         while (wrapper != layoutNodeWrapper) {
             pos = wrapper.toParentPosition(pos)

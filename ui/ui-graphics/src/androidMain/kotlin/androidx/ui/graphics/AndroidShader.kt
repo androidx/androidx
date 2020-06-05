@@ -33,10 +33,10 @@ internal actual fun ActualLinearGradientShader(
     validateColorStops(colors, colorStops)
     return Shader(
         LinearGradient(
-            from.dx,
-            from.dy,
-            to.dx,
-            to.dy,
+            from.x,
+            from.y,
+            to.x,
+            to.y,
             colors.toIntArray(),
             colorStops?.toFloatArray(),
             tileMode.toNativeTileMode()
@@ -54,8 +54,8 @@ internal actual fun ActualRadialGradientShader(
     validateColorStops(colors, colorStops)
     return Shader(
         RadialGradient(
-            center.dx,
-            center.dy,
+            center.x,
+            center.y,
             radius,
             colors.toIntArray(),
             colorStops?.toFloatArray(),

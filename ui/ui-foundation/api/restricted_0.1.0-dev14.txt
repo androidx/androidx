@@ -115,10 +115,10 @@ package androidx.ui.foundation {
 
   @androidx.compose.Stable public final class InteractionState implements androidx.compose.State<java.util.Set<? extends androidx.ui.foundation.Interaction>> {
     ctor public InteractionState();
-    method public void addInteraction(androidx.ui.foundation.Interaction interaction, androidx.ui.unit.PxPosition? position = null);
+    method public void addInteraction(androidx.ui.foundation.Interaction interaction, androidx.ui.geometry.Offset? position = null);
     method public operator boolean contains(androidx.ui.foundation.Interaction interaction);
     method public java.util.Set<androidx.ui.foundation.Interaction> getValue();
-    method public androidx.ui.unit.PxPosition? interactionPositionFor(androidx.ui.foundation.Interaction interaction);
+    method public androidx.ui.geometry.Offset? interactionPositionFor(androidx.ui.foundation.Interaction interaction);
     method public void removeInteraction(androidx.ui.foundation.Interaction interaction);
     property public java.util.Set<androidx.ui.foundation.Interaction> value;
   }
@@ -284,12 +284,12 @@ package androidx.ui.foundation.gestures {
   }
 
   public final class DraggableKt {
-    method public static androidx.ui.core.Modifier draggable(androidx.ui.core.Modifier, androidx.ui.foundation.gestures.DragDirection dragDirection, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, boolean enabled = true, androidx.ui.foundation.InteractionState? interactionState = null, boolean startDragImmediately = false, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onDragDeltaConsumptionRequested);
+    method public static androidx.ui.core.Modifier draggable(androidx.ui.core.Modifier, androidx.ui.foundation.gestures.DragDirection dragDirection, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, boolean enabled = true, androidx.ui.foundation.InteractionState? interactionState = null, boolean startDragImmediately = false, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onDragDeltaConsumptionRequested);
   }
 
   public final class ScrollableKt {
     method @androidx.compose.Composable public static androidx.ui.foundation.gestures.ScrollableState ScrollableState(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onScrollDeltaConsumptionRequested);
-    method public static androidx.ui.core.Modifier scrollable(androidx.ui.core.Modifier, androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.gestures.ScrollableState scrollableState, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {}, boolean enabled = true);
+    method public static androidx.ui.core.Modifier scrollable(androidx.ui.core.Modifier, androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.gestures.ScrollableState scrollableState, kotlin.jvm.functions.Function1<? super androidx.ui.geometry.Offset,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {}, boolean enabled = true);
   }
 
   public final class ScrollableState {

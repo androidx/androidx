@@ -45,7 +45,7 @@ import androidx.ui.test.doClick
 import androidx.ui.test.findAll
 import androidx.ui.test.isInMutuallyExclusiveGroup
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -145,11 +145,11 @@ class TabTest {
             val tabRowWidth = tabRowCoords.size.width
             val tabRowHeight = tabRowCoords.size.height
 
-            val indicatorPositionX = indicatorCoords.localToGlobal(PxPosition.Origin).x
+            val indicatorPositionX = indicatorCoords.localToGlobal(Offset.Zero).x
             val expectedPositionX = 0.dp.toPx()
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
-            val indicatorPositionY = indicatorCoords.localToGlobal(PxPosition.Origin).y
+            val indicatorPositionY = indicatorCoords.localToGlobal(Offset.Zero).y
             val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).value.toFloat()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
 
@@ -163,11 +163,11 @@ class TabTest {
         // should be in the middle of the TabRow
         runOnIdleCompose {
             with(composeTestRule.density) {
-                val indicatorPositionX = indicatorCoords.localToGlobal(PxPosition.Origin).x
+                val indicatorPositionX = indicatorCoords.localToGlobal(Offset.Zero).x
                 val expectedPositionX = (tabRowWidth / 2).value.toFloat()
                 assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
-                val indicatorPositionY = indicatorCoords.localToGlobal(PxPosition.Origin).y
+                val indicatorPositionY = indicatorCoords.localToGlobal(Offset.Zero).y
                 val expectedPositionY =
                     (tabRowHeight - indicatorHeight.toIntPx()).value.toFloat()
                 assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
@@ -213,7 +213,7 @@ class TabTest {
 
             val tabRowHeight = tabRowCoords.size.height
 
-            val textPositionY = textCoords.localToGlobal(PxPosition.Origin).y
+            val textPositionY = textCoords.localToGlobal(Offset.Zero).y
             val baselinePositionY = textPositionY + textBaseline
             val expectedPositionY = (tabRowHeight.value.toFloat() - expectedBaselineDistance)
             assertThat(baselinePositionY).isEqualTo(expectedPositionY)
@@ -259,7 +259,7 @@ class TabTest {
 
             val tabRowHeight = tabRowCoords.size.height
 
-            val textPositionY = textCoords.localToGlobal(PxPosition.Origin).y
+            val textPositionY = textCoords.localToGlobal(Offset.Zero).y
             val baselinePositionY = textPositionY + textBaseline
             val expectedPositionY = (tabRowHeight.value.toFloat() - expectedBaselineDistance)
             assertThat(baselinePositionY).isEqualTo(expectedPositionY)
@@ -304,7 +304,7 @@ class TabTest {
 
             val tabRowHeight = tabRowCoords.size.height
 
-            val textPositionY = textCoords.localToGlobal(PxPosition.Origin).y
+            val textPositionY = textCoords.localToGlobal(Offset.Zero).y
             val baselinePositionY = textPositionY + textBaseline
             val expectedPositionY = (tabRowHeight.value.toFloat() - expectedBaselineDistance)
             assertThat(baselinePositionY).isEqualTo(expectedPositionY)
@@ -355,12 +355,12 @@ class TabTest {
             val tabRowHeight = tabRowCoords.size.height
 
             // Indicator should be placed in the bottom left of the first tab
-            val indicatorPositionX = indicatorCoords.localToGlobal(PxPosition.Origin).x
+            val indicatorPositionX = indicatorCoords.localToGlobal(Offset.Zero).x
             // Tabs in a scrollable tab row are offset 52.dp from each end
             val expectedPositionX = scrollableTabRowOffset.toIntPx().value.toFloat()
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
-            val indicatorPositionY = indicatorCoords.localToGlobal(PxPosition.Origin).y
+            val indicatorPositionY = indicatorCoords.localToGlobal(Offset.Zero).y
             val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).value.toFloat()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
 
@@ -373,12 +373,12 @@ class TabTest {
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
         composeTestRule.runOnIdleComposeWithDensity {
-            val indicatorPositionX = indicatorCoords.localToGlobal(PxPosition.Origin).x
+            val indicatorPositionX = indicatorCoords.localToGlobal(Offset.Zero).x
             val expectedPositionX =
                 (scrollableTabRowOffset + minimumTabWidth).toIntPx().value.toFloat()
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
-            val indicatorPositionY = indicatorCoords.localToGlobal(PxPosition.Origin).y
+            val indicatorPositionY = indicatorCoords.localToGlobal(Offset.Zero).y
             val expectedPositionY =
                 (tabRowHeight - indicatorHeight.toIntPx()).value.toFloat()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)

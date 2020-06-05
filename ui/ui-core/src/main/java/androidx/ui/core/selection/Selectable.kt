@@ -19,7 +19,7 @@ package androidx.ui.core.selection
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.geometry.Rect
 import androidx.ui.text.AnnotatedString
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 /**
  * Provides [Selection] information for a composable to SelectionContainer. Composables who can
@@ -42,8 +42,8 @@ interface Selectable {
      *  if selection is applied to this composable.
      */
     fun getSelection(
-        startPosition: PxPosition,
-        endPosition: PxPosition,
+        startPosition: Offset,
+        endPosition: Offset,
         containerLayoutCoordinates: LayoutCoordinates,
         longPress: Boolean,
         previousSelection: Selection? = null,
@@ -51,14 +51,14 @@ interface Selectable {
     ): Selection?
 
     /**
-     * Return the [PxPosition] of a [SelectionHandle].
+     * Return the [Offset] of a [SelectionHandle].
      *
      * @param selection [Selection] contains the [SelectionHandle]
      * @param isStartHandle true if it's the start handle, false if it's the end handle.
      *
-     * @return [PxPosition] of this handle, based on which the [SelectionHandle] will be drawn.
+     * @return [Offset] of this handle, based on which the [SelectionHandle] will be drawn.
      */
-    fun getHandlePosition(selection: Selection, isStartHandle: Boolean): PxPosition
+    fun getHandlePosition(selection: Selection, isStartHandle: Boolean): Offset
 
     /**
      * Return the [LayoutCoordinates] of the [Selectable].

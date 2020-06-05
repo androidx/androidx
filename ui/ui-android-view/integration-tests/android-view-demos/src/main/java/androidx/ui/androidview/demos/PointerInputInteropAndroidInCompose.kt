@@ -37,7 +37,7 @@ import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 
@@ -90,7 +90,7 @@ private fun FourAndroidTapInCompose() {
 private fun AndroidTapInComposeTap() {
     var theView: View? = null
 
-    val onTap: (PxPosition) -> Unit = {
+    val onTap: (Offset) -> Unit = {
         theView?.setBackgroundColor(Color.BLUE)
     }
 

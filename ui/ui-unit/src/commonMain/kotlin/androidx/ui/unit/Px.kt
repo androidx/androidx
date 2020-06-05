@@ -21,13 +21,11 @@ import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
-import androidx.ui.util.lerp
 import androidx.ui.util.packFloats
 import androidx.ui.util.unpackFloat1
 import androidx.ui.util.unpackFloat2
 import kotlin.math.min
 import kotlin.math.roundToInt
-import kotlin.math.sqrt
 
 /**
  * Holds a unit of squared dimensions, such as `1.value * 2.px`. [PxSquared], [PxCubed],
@@ -315,12 +313,12 @@ inline operator fun Float.times(size: PxSize) = size * this
 inline operator fun Double.times(size: PxSize) = size * this
 
 /**
- * Returns the [PxPosition] of the center of the rect from the point of [0, 0]
+ * Returns the [Offset] of the center of the rect from the point of [0, 0]
  * with this [PxSize].
  */
 @Stable
-fun PxSize.center(): PxPosition {
-    return PxPosition(width / 2f, height / 2f)
+fun PxSize.center(): Offset {
+    return Offset(width / 2f, height / 2f)
 }
 
 /**
@@ -330,103 +328,10 @@ fun PxSize.center(): PxPosition {
 val PxSize.minDimension get() = min(width, height)
 
 /**
- * A two-dimensional position using pixels for units
- */
-@Immutable
-data class PxPosition @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
-    /**
-     * The horizontal aspect of the position in pixels
-     */
-    inline val x: Float
-        get() = unpackFloat1(value)
-
-    /**
-     * The vertical aspect of the position in pixels
-     */
-    inline val y: Float
-        get() = unpackFloat2(value)
-
-    /**
-     * Subtract a [PxPosition] from another one.
-     */
-    @Stable
-    inline operator fun minus(other: PxPosition) =
-        PxPosition(x - other.x, y - other.y)
-
-    /**
-     * Add a [PxPosition] to another one.
-     */
-    @Stable
-    inline operator fun plus(other: PxPosition) =
-        PxPosition(x + other.x, y + other.y)
-
-    /**
-     * Subtract a [IntPxPosition] from this [PxPosition].
-     */
-    @Stable
-    inline operator fun minus(other: IntPxPosition) =
-        PxPosition(x - other.x.value, y - other.y.value)
-
-    /**
-     * Add a [IntPxPosition] to this [PxPosition].
-     */
-    @Stable
-    inline operator fun plus(other: IntPxPosition) =
-        PxPosition(x + other.x.value, y + other.y.value)
-
-    /**
-     * Returns a new PxPosition representing the negation of this point.
-     */
-    @Stable
-    inline operator fun unaryMinus() = PxPosition(-x, -y)
-
-    @Stable
-    override fun toString(): String = "($x, $y)"
-
-    companion object {
-        @Stable
-        val Origin = PxPosition(0.0f, 0.0f)
-    }
-}
-
-/**
- * Constructs a [PxPosition] from [x] and [y] position pixel values.
+ * Round a [Offset] down to the nearest [Int] coordinates.
  */
 @Stable
-inline fun PxPosition(x: Float, y: Float): PxPosition = PxPosition(packFloats(x, y))
-
-/**
- * The magnitude of the offset represented by this [PxPosition].
- */
-@Stable
-fun PxPosition.getDistance(): Float = sqrt(x * x + y * y)
-
-/**
- * Convert a [PxPosition] to a [Offset].
- */
-@Stable
-inline fun PxPosition.toOffset(): Offset = Offset(x, y)
-
-/**
- * Round a [PxPosition] down to the nearest [Int] coordinates.
- */
-@Stable
-inline fun PxPosition.round(): IntPxPosition = IntPxPosition(x.roundToInt().ipx, y.roundToInt().ipx)
-
-/**
- * Linearly interpolate between two [PxPosition]s.
- *
- * The [fraction] argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning [start] (or something
- * equivalent to [start]), 1.0 meaning that the interpolation has finished,
- * returning [stop] (or something equivalent to [stop]), and values in between
- * meaning that the interpolation is at the relevant point on the timeline
- * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
- * 1.0, so negative values and values greater than 1.0 are valid.
- */
-@Stable
-fun lerp(start: PxPosition, stop: PxPosition, fraction: Float): PxPosition =
-    PxPosition(lerp(start.x, stop.x, fraction), lerp(start.y, stop.y, fraction))
+inline fun Offset.round(): IntPxPosition = IntPxPosition(x.roundToInt().ipx, y.roundToInt().ipx)
 
 /**
  * A four dimensional bounds using pixels for units
@@ -440,7 +345,7 @@ data class PxBounds(
 )
 
 @Stable
-inline fun PxBounds(topLeft: PxPosition, size: PxSize) =
+inline fun PxBounds(topLeft: Offset, size: PxSize) =
     PxBounds(
         left = topLeft.x,
         top = topLeft.y,
@@ -461,11 +366,11 @@ inline val PxBounds.width: Float get() = right - left
 inline val PxBounds.height: Float get() = bottom - top
 
 /**
- * Returns the [PxPosition] of the center of the [PxBounds].
+ * Returns the [Offset] of the center of the [PxBounds].
  */
 @Stable
-inline fun PxBounds.center(): PxPosition {
-    return PxPosition(left + width / 2f, top + height / 2f)
+inline fun PxBounds.center(): Offset {
+    return Offset(left + width / 2f, top + height / 2f)
 }
 
 /**

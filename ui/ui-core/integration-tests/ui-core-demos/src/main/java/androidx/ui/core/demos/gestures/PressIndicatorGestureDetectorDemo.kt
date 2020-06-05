@@ -29,7 +29,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 /**
@@ -39,7 +39,7 @@ import androidx.ui.unit.dp
 fun PressIndicatorGestureFilterDemo() {
     val pressed = state { false }
 
-    val onStart: (PxPosition) -> Unit = {
+    val onStart: (Offset) -> Unit = {
         pressed.value = true
     }
 

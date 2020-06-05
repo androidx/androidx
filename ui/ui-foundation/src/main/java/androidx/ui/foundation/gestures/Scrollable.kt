@@ -33,7 +33,7 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 /**
  * Create [ScrollableState] for [scrollable] with default [FlingConfig] and
@@ -160,7 +160,7 @@ class ScrollableState(
 fun Modifier.scrollable(
     dragDirection: DragDirection,
     scrollableState: ScrollableState,
-    onScrollStarted: (startedPosition: PxPosition) -> Unit = {},
+    onScrollStarted: (startedPosition: Offset) -> Unit = {},
     onScrollStopped: (velocity: Float) -> Unit = {},
     enabled: Boolean = true
 ): Modifier = composed {
@@ -170,20 +170,20 @@ fun Modifier.scrollable(
     dragGestureFilter(
         dragObserver = object : DragObserver {
 
-            override fun onStart(downPosition: PxPosition) {
+            override fun onStart(downPosition: Offset) {
                 if (enabled) {
                     scrollableState.stopAnimation()
                     onScrollStarted(downPosition)
                 }
             }
 
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
-                if (!enabled) return PxPosition.Origin
+            override fun onDrag(dragDistance: Offset): Offset {
+                if (!enabled) return Offset.Zero
                 val projected = dragDirection.project(dragDistance)
                 val consumed = scrollableState.onScrollDeltaConsumptionRequested(projected)
                 scrollableState.value = scrollableState.value + consumed
                 val fractionConsumed = if (projected == 0f) 0f else consumed / projected
-                return PxPosition(
+                return Offset(
                     dragDirection.xProjection(dragDistance.x) * fractionConsumed,
                     dragDirection.yProjection(dragDistance.y) * fractionConsumed
                 )
@@ -194,7 +194,7 @@ fun Modifier.scrollable(
                 if (enabled) onScrollStopped(0f)
             }
 
-            override fun onStop(velocity: PxPosition) {
+            override fun onStop(velocity: Offset) {
                 if (enabled) {
                     scrollableState.fling(dragDirection.project(velocity), onScrollStopped)
                 }

@@ -44,7 +44,7 @@ import androidx.ui.layout.size
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Assert
@@ -68,7 +68,7 @@ class RtlLayoutTest {
     private lateinit var activity: androidx.ui.framework.test.TestActivity
     internal lateinit var density: Density
     internal lateinit var countDownLatch: CountDownLatch
-    internal lateinit var position: Array<Ref<PxPosition>>
+    internal lateinit var position: Array<Ref<Offset>>
     private val size = 100.ipx
 
     @Before
@@ -76,7 +76,7 @@ class RtlLayoutTest {
         activity = activityTestRule.activity
         density = Density(activity)
         activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
-        position = Array(3) { Ref<PxPosition>() }
+        position = Array(3) { Ref<Offset>() }
         countDownLatch = CountDownLatch(3)
     }
 
@@ -89,10 +89,13 @@ class RtlLayoutTest {
         }
 
         countDownLatch.await(1, TimeUnit.SECONDS)
-        Assert.assertEquals(PxPosition(0.ipx, 0.ipx), position[0].value)
-        Assert.assertEquals(PxPosition(size, size), position[1].value)
+        Assert.assertEquals(Offset(0f, 0f), position[0].value)
+        Assert.assertEquals(Offset(size.value.toFloat(), size.value.toFloat()), position[1].value)
         Assert.assertEquals(
-            PxPosition(size * 2, size * 2),
+            Offset(
+                (size * 2).value.toFloat(),
+                (size * 2).value.toFloat()
+            ),
             position[2].value
         )
     }
@@ -106,10 +109,22 @@ class RtlLayoutTest {
         }
 
         countDownLatch.await(1, TimeUnit.SECONDS)
-        Assert.assertEquals(PxPosition(0.ipx, 0.ipx), position[0].value)
-        Assert.assertEquals(PxPosition(size, size), position[1].value)
         Assert.assertEquals(
-            PxPosition(size * 2, size * 2),
+            Offset(0f, 0f),
+            position[0].value
+        )
+        Assert.assertEquals(
+            Offset(
+                size.value.toFloat(),
+                size.value.toFloat()
+            ),
+            position[1].value
+        )
+        Assert.assertEquals(
+            Offset(
+                (size * 2).value.toFloat(),
+                (size * 2).value.toFloat()
+            ),
             position[2].value
         )
     }
@@ -123,10 +138,13 @@ class RtlLayoutTest {
         }
 
         countDownLatch.await(1, TimeUnit.SECONDS)
-        Assert.assertEquals(PxPosition(0.ipx, 0.ipx), position[0].value)
-        Assert.assertEquals(PxPosition(size, size), position[1].value)
+        Assert.assertEquals(Offset(0f, 0f), position[0].value)
+        Assert.assertEquals(Offset(size.value.toFloat(), size.value.toFloat()), position[1].value)
         Assert.assertEquals(
-            PxPosition(size * 2, size * 2),
+            Offset(
+                (size * 2).value.toFloat(),
+                (size * 2).value.toFloat()
+            ),
             position[2].value
         )
     }
@@ -142,9 +160,18 @@ class RtlLayoutTest {
         countDownLatch.await(1, TimeUnit.SECONDS)
 
         countDownLatch.await(1, TimeUnit.SECONDS)
-        Assert.assertEquals(PxPosition(size * 2, 0.ipx), position[0].value)
-        Assert.assertEquals(PxPosition(size, size), position[1].value)
-        Assert.assertEquals(PxPosition(0.ipx, size * 2), position[2].value)
+        Assert.assertEquals(
+            Offset(
+                (size * 2).value.toFloat(),
+                0f
+            ),
+            position[0].value
+        )
+        Assert.assertEquals(
+            Offset(size.value.toFloat(), size.value.toFloat()),
+            position[1].value
+        )
+        Assert.assertEquals(Offset(0f, (size * 2).value.toFloat()), position[2].value)
     }
 
     @Test
@@ -332,16 +359,16 @@ class RtlLayoutTest {
             val width = placeables.fold(0.ipx) { sum, p -> sum + p.width }
             val height = placeables.fold(0.ipx) { sum, p -> sum + p.height }
             layout(width, height) {
-                var x = 0.ipx
-                var y = 0.ipx
+                var x = 0f
+                var y = 0f
                 for (placeable in placeables) {
                     if (absolutePositioning) {
-                        placeable.placeAbsolute(PxPosition(x, y))
+                        placeable.placeAbsolute(Offset(x, y))
                     } else {
-                        placeable.place(PxPosition(x, y))
+                        placeable.place(Offset(x, y))
                     }
-                    x += placeable.width
-                    y += placeable.height
+                    x += placeable.width.value.toFloat()
+                    y += placeable.height.value.toFloat()
                 }
             }
         }
@@ -403,10 +430,10 @@ class RtlLayoutTest {
 
     @Composable
     private fun saveLayoutInfo(
-        position: Ref<PxPosition>,
+        position: Ref<Offset>,
         countDownLatch: CountDownLatch
     ): Modifier = Modifier.onPositioned {
-        position.value = it.localToGlobal(PxPosition(0.ipx, 0.ipx))
+        position.value = it.localToGlobal(Offset(0f, 0f))
         countDownLatch.countDown()
     }
 }

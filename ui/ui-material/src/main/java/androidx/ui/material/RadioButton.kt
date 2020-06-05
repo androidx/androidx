@@ -240,8 +240,8 @@ private fun DrawScope.drawRadio(
     radioStroke: Stroke
 ) {
     // TODO(malkov): currently Radio gravity is always CENTER but we need to be flexible
-    val centerW = center.dx
-    val centerH = center.dy
+    val centerW = center.x
+    val centerH = center.y
 
     val center = Offset(centerW, centerH)
     if (gapWidth == 0.0f) {

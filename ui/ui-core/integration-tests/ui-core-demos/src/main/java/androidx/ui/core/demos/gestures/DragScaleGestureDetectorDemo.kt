@@ -33,7 +33,7 @@ import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.offset
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 /**
@@ -43,7 +43,7 @@ import androidx.ui.unit.dp
 @Composable
 fun DragAndScaleGestureDetectorDemo() {
     val size = state { 200.dp }
-    val offset = state { PxPosition.Origin }
+    val offset = state { Offset.Zero }
     val dragInScale = state { false }
 
     val scaleObserver = object : ScaleObserver {
@@ -53,13 +53,13 @@ fun DragAndScaleGestureDetectorDemo() {
     }
 
     val dragObserver = object : DragObserver {
-        override fun onDrag(dragDistance: PxPosition): PxPosition {
+        override fun onDrag(dragDistance: Offset): Offset {
             offset.value += dragDistance
             return dragDistance
         }
     }
 
-    val onRelease: (PxPosition) -> Unit = {
+    val onRelease: (Offset) -> Unit = {
         dragInScale.value = !dragInScale.value
     }
 

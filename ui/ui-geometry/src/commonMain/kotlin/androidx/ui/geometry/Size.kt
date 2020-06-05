@@ -161,14 +161,14 @@ inline class Size(@PublishedApi internal val value: Long) {
      * Subtracting an [Offset] from a [Size] returns the [Size] that is smaller than
      * the [Size] operand by the difference given by the [Offset] operand. In other
      * words, the returned [Size] has a [width] consisting of the [width] of the
-     * left-hand-side operand minus the [Offset.dx] dimension of the
+     * left-hand-side operand minus the [Offset.x] dimension of the
      * right-hand-side operand, and a [height] consisting of the [height] of the
-     * left-hand-side operand minus the [Offset.dy] dimension of the
+     * left-hand-side operand minus the [Offset.y] dimension of the
      * right-hand-side operand.
      */
     @Stable
     operator fun minus(other: Offset): Size {
-        return Size(width - other.dx, height - other.dy)
+        return Size(width - other.x, height - other.y)
     }
 
     @Stable
@@ -180,13 +180,13 @@ inline class Size(@PublishedApi internal val value: Long) {
      * Binary addition operator for adding an [Offset] to a [Size].
      *
      * Returns a [Size] whose [width] is the sum of the [width] of the
-     * left-hand-side operand, a [Size], and the [Offset.dx] dimension of the
+     * left-hand-side operand, a [Size], and the [Offset.x] dimension of the
      * right-hand-side operand, an [Offset], and whose [height] is the sum of the
-     * [height] of the left-hand-side operand and the [Offset.dy] dimension of
+     * [height] of the left-hand-side operand and the [Offset.y] dimension of
      * the right-hand-side operand.
      */
     @Stable
-    operator fun plus(other: Offset) = Size(width + other.dx, height + other.dy)
+    operator fun plus(other: Offset) = Size(width + other.x, height + other.y)
 
     /**
      * Multiplication operator.
@@ -263,7 +263,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * See also [Rect.topCenter].
      */
     @Stable
-    fun topCenter(origin: Offset): Offset = Offset(origin.dx + width / 2.0f, origin.dy)
+    fun topCenter(origin: Offset): Offset = Offset(origin.x + width / 2.0f, origin.y)
 
     /**
      * The offset to the intersection of the top and right edges of the rectangle
@@ -273,7 +273,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * See also [Rect.topRight].
      */
     @Stable
-    fun topRight(origin: Offset): Offset = Offset(origin.dx + width, origin.dy)
+    fun topRight(origin: Offset): Offset = Offset(origin.x + width, origin.y)
 
     /**
      * The offset to the center of the left edge of the rectangle described by the
@@ -282,7 +282,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * See also [Rect.centerLeft].
      */
     @Stable
-    fun centerLeft(origin: Offset): Offset = Offset(origin.dx, origin.dy + height / 2.0f)
+    fun centerLeft(origin: Offset): Offset = Offset(origin.x, origin.y + height / 2.0f)
 
     /**
      * The offset to the point halfway between the left and right and the top and
@@ -292,7 +292,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * See also [Rect.center].
      */
     @Stable
-    fun center(origin: Offset = Offset.zero): Offset = Offset(origin.dx + width / 2.0f, origin.dy +
+    fun center(origin: Offset = Offset.Zero): Offset = Offset(origin.x + width / 2.0f, origin.y +
             height / 2.0f)
 
     /**
@@ -302,7 +302,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * See also [Rect.centerLeft].
      */
     @Stable
-    fun centerRight(origin: Offset): Offset = Offset(origin.dx + width, origin.dy + height / 2.0f)
+    fun centerRight(origin: Offset): Offset = Offset(origin.x + width, origin.y + height / 2.0f)
 
     /**
      * The offset to the intersection of the bottom and left edges of the
@@ -312,7 +312,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * See also [Rect.bottomLeft].
      */
     @Stable
-    fun bottomLeft(origin: Offset): Offset = Offset(origin.dx, origin.dy + height)
+    fun bottomLeft(origin: Offset): Offset = Offset(origin.x, origin.y + height)
 
     /**
      * The offset to the center of the bottom edge of the rectangle described by
@@ -322,7 +322,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * See also [Rect.bottomLeft].
      */
     @Stable
-    fun bottomCenter(origin: Offset): Offset = Offset(origin.dx + width / 2.0f, origin.dy + height)
+    fun bottomCenter(origin: Offset): Offset = Offset(origin.x + width / 2.0f, origin.y + height)
 
     /**
      * The offset to the intersection of the bottom and right edges of the
@@ -332,7 +332,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      * See also [Rect.bottomRight].
      */
     @Stable
-    fun bottomRight(origin: Offset): Offset = Offset(origin.dx + width, origin.dy + height)
+    fun bottomRight(origin: Offset): Offset = Offset(origin.x + width, origin.y + height)
 
     /**
      * Whether the point specified by the given offset (which is assumed to be
@@ -344,7 +344,7 @@ inline class Size(@PublishedApi internal val value: Long) {
      */
     @Stable
     fun contains(offset: Offset): Boolean {
-        return offset.dx >= 0.0f && offset.dx < width && offset.dy >= 0.0f && offset.dy < height
+        return offset.x >= 0.0f && offset.x < width && offset.y >= 0.0f && offset.y < height
     }
 
     /**

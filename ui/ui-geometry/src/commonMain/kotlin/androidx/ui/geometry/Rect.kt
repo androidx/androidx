@@ -79,10 +79,10 @@ data class Rect(
         @Stable
         fun fromCircle(center: Offset, radius: Float): Rect {
             return Rect(
-                center.dx - radius,
-                center.dy - radius,
-                center.dx + radius,
-                center.dy + radius
+                center.x - radius,
+                center.y - radius,
+                center.x + radius,
+                center.y + radius
             )
         }
 
@@ -93,10 +93,10 @@ data class Rect(
         @Stable
         fun fromPoints(a: Offset, b: Offset): Rect {
             return Rect(
-                min(a.dx, b.dx),
-                min(a.dy, b.dy),
-                max(a.dx, b.dx),
-                max(a.dy, b.dy)
+                min(a.x, b.x),
+                min(a.y, b.y),
+                max(a.x, b.x),
+                max(a.y, b.y)
             )
         }
 
@@ -177,7 +177,7 @@ data class Rect(
      */
     @Stable
     fun shift(offset: Offset): Rect {
-        return fromLTRB(left + offset.dx, top + offset.dy, right + offset.dx, bottom + offset.dy)
+        return fromLTRB(left + offset.x, top + offset.y, right + offset.x, bottom + offset.y)
     }
 
     /**
@@ -344,7 +344,7 @@ data class Rect(
      * right edges.
      */
     fun contains(offset: Offset): Boolean {
-        return offset.dx >= left && offset.dx < right && offset.dy >= top && offset.dy < bottom
+        return offset.x >= left && offset.x < right && offset.y >= top && offset.y < bottom
     }
 
     override fun toString() = "Rect.fromLTRB(" +

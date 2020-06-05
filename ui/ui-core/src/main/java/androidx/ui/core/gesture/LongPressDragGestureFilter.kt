@@ -25,7 +25,7 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 interface LongPressDragObserver {
 
@@ -42,7 +42,7 @@ interface LongPressDragObserver {
      * @see onDrag
      * @see onStop
      */
-    fun onLongPress(pxPosition: PxPosition) {}
+    fun onLongPress(pxPosition: Offset) {}
 
     /**
      * Override to be notified when dragging has actually begun.
@@ -76,7 +76,7 @@ interface LongPressDragObserver {
      * @param dragDistance The distance that has been dragged.  Reflects the average drag distance
      * of all pointers.
      */
-    fun onDrag(dragDistance: PxPosition) = PxPosition.Origin
+    fun onDrag(dragDistance: Offset) = Offset.Zero
 
     /**
      * Override to be notified when a drag has stopped.
@@ -84,7 +84,7 @@ interface LongPressDragObserver {
      * This is called once all pointers have stopped interacting with this DragGestureDetector and
      * [onLongPress] was previously called.
      */
-    fun onStop(velocity: PxPosition) {}
+    fun onStop(velocity: Offset) {}
 
     /**
      * Override to be notified when the drag has been cancelled.
@@ -141,16 +141,16 @@ private class LongPressDragGestureDetectorGlue : PointerInputFilter() {
 
         object : DragObserver {
 
-            override fun onStart(downPosition: PxPosition) {
+            override fun onStart(downPosition: Offset) {
                 longPressDragObserver.onDragStart()
                 dragStarted = true
             }
 
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
+            override fun onDrag(dragDistance: Offset): Offset {
                 return longPressDragObserver.onDrag(dragDistance)
             }
 
-            override fun onStop(velocity: PxPosition) {
+            override fun onStop(velocity: Offset) {
                 dragEnabled = false
                 dragStarted = false
                 longPressDragObserver.onStop(velocity)
@@ -177,7 +177,7 @@ private class LongPressDragGestureDetectorGlue : PointerInputFilter() {
             changes.all { it.changedToUpIgnoreConsumed() }
         ) {
             dragEnabled = false
-            longPressDragObserver.onStop(PxPosition.Origin)
+            longPressDragObserver.onStop(Offset.Zero)
         }
         return changes
     }
@@ -191,7 +191,7 @@ private class LongPressDragGestureDetectorGlue : PointerInputFilter() {
         }
     }
 
-    val onLongPress = { pxPosition: PxPosition ->
+    val onLongPress = { pxPosition: Offset ->
         dragEnabled = true
         longPressDragObserver.onLongPress(pxPosition)
     }

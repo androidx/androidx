@@ -33,7 +33,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.text.style.TextAlign
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.round
 
@@ -41,12 +41,12 @@ import androidx.ui.unit.round
 fun PopupDragDemo() {
     // TODO fix this demo in RTL (check when draggable handles RTL)
     val offset = state {
-        PxPosition.Origin
+        Offset.Zero
     }
 
     val observer = remember {
         object : DragObserver {
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
+            override fun onDrag(dragDistance: Offset): Offset {
                 offset.value = offset.value + dragDistance
                 return dragDistance
             }

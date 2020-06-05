@@ -37,7 +37,7 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
 import androidx.ui.unit.Dp
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
@@ -144,10 +144,10 @@ class OnPositionedTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         // global position
-        val gPos = childCoordinates!!.localToGlobal(PxPosition.Origin).x
+        val gPos = childCoordinates!!.localToGlobal(Offset.Zero).x
         assertThat(gPos).isEqualTo((firstPaddingPx + secondPaddingPx + thirdPaddingPx))
         // Position in grandparent Px(value=50.0)
-        val gpPos = gpCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin).x
+        val gpPos = gpCoordinates!!.childToLocal(childCoordinates!!, Offset.Zero).x
         assertThat(gpPos).isEqualTo((secondPaddingPx + thirdPaddingPx))
         // local position
         assertThat(childCoordinates!!.positionInParent.x).isEqualTo(thirdPaddingPx)
@@ -183,10 +183,10 @@ class OnPositionedTest : LayoutTest() {
     @Test
     fun globalCoordinatesAreInActivityCoordinates() = with(density) {
         val padding = 30
-        val localPosition = PxPosition.Origin
-        val globalPosition = PxPosition(padding.ipx, padding.ipx)
-        var realGlobalPosition: PxPosition? = null
-        var realLocalPosition: PxPosition? = null
+        val localPosition = Offset.Zero
+        val globalPosition = Offset(padding.toFloat(), padding.toFloat())
+        var realGlobalPosition: Offset? = null
+        var realLocalPosition: Offset? = null
 
         val positionedLatch = CountDownLatch(1)
         activityTestRule.runOnUiThread(object : Runnable {

@@ -331,7 +331,7 @@ package androidx.ui.unit {
   public final class IntPxKt {
     method public static inline androidx.ui.unit.IntPxPosition IntPxPosition-rRMsBxU(int x, int y);
     method @androidx.compose.Stable public static inline androidx.ui.unit.IntPxSize IntPxSize-rRMsBxU(int width, int height);
-    method @androidx.compose.Stable public static inline androidx.ui.unit.PxPosition PxPosition-rRMsBxU(int x, int y);
+    method @androidx.compose.Stable public static inline androidx.ui.geometry.Offset Offset-rRMsBxU(int x, int y);
     method @androidx.compose.Stable public static inline androidx.ui.unit.PxSize PxSize-rRMsBxU(int width, int height);
     method @androidx.compose.Stable public static androidx.ui.unit.IntPxPosition center(androidx.ui.unit.IntPxSize);
     method @androidx.compose.Stable public static inline androidx.ui.unit.IntPxPosition center(androidx.ui.unit.IntPxBounds);
@@ -348,11 +348,13 @@ package androidx.ui.unit {
     method @androidx.compose.Stable public static int lerp-9BbVZj8(int start, int stop, float fraction);
     method @androidx.compose.Stable public static inline int max-rRMsBxU(int a, int b);
     method @androidx.compose.Stable public static inline int min-rRMsBxU(int a, int b);
+    method @androidx.compose.Stable public static inline operator androidx.ui.geometry.Offset minus(androidx.ui.geometry.Offset, androidx.ui.unit.IntPxPosition other);
+    method @androidx.compose.Stable public static inline operator androidx.ui.geometry.Offset plus(androidx.ui.geometry.Offset, androidx.ui.unit.IntPxPosition other);
     method @androidx.compose.Stable public static inline operator androidx.ui.unit.IntPxSize times(int, androidx.ui.unit.IntPxSize size);
     method @androidx.compose.Stable public static inline operator int times--Vi_IPY(float, int other);
     method @androidx.compose.Stable public static inline operator int times-9kGzznM(int, int other);
     method @androidx.compose.Stable public static inline operator int times-tHVXE4c(double, int other);
-    method @androidx.compose.Stable public static inline androidx.ui.unit.PxPosition toPxPosition(androidx.ui.unit.IntPxPosition);
+    method @androidx.compose.Stable public static inline androidx.ui.geometry.Offset toOffset(androidx.ui.unit.IntPxPosition);
     method @androidx.compose.Stable public static inline androidx.ui.unit.PxSize toPxSize(androidx.ui.unit.IntPxSize);
     method @androidx.compose.Stable public static inline androidx.ui.unit.IntPxSize toSize(androidx.ui.unit.IntPxBounds);
   }
@@ -471,45 +473,21 @@ package androidx.ui.unit {
   }
 
   public final class PxKt {
-    method @androidx.compose.Stable public static inline androidx.ui.unit.PxBounds PxBounds(androidx.ui.unit.PxPosition topLeft, androidx.ui.unit.PxSize size);
-    method @androidx.compose.Stable public static inline androidx.ui.unit.PxPosition PxPosition(float x, float y);
+    method @androidx.compose.Stable public static inline androidx.ui.unit.PxBounds PxBounds(androidx.ui.geometry.Offset topLeft, androidx.ui.unit.PxSize size);
     method @androidx.compose.Stable public static inline androidx.ui.unit.PxSize PxSize(float width, float height);
-    method @androidx.compose.Stable public static androidx.ui.unit.PxPosition center(androidx.ui.unit.PxSize);
-    method @androidx.compose.Stable public static inline androidx.ui.unit.PxPosition center(androidx.ui.unit.PxBounds);
-    method @androidx.compose.Stable public static float getDistance(androidx.ui.unit.PxPosition);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Offset center(androidx.ui.unit.PxSize);
+    method @androidx.compose.Stable public static inline androidx.ui.geometry.Offset center(androidx.ui.unit.PxBounds);
     method public static inline float getHeight(androidx.ui.unit.PxBounds);
     method public static float getMinDimension(androidx.ui.unit.PxSize);
     method public static inline float getWidth(androidx.ui.unit.PxBounds);
-    method @androidx.compose.Stable public static androidx.ui.unit.PxPosition lerp(androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition stop, float fraction);
-    method @androidx.compose.Stable public static inline androidx.ui.unit.IntPxPosition round(androidx.ui.unit.PxPosition);
+    method @androidx.compose.Stable public static inline androidx.ui.unit.IntPxPosition round(androidx.ui.geometry.Offset);
     method @androidx.compose.Stable public static inline operator androidx.ui.unit.PxSize times(int, androidx.ui.unit.PxSize size);
     method @androidx.compose.Stable public static inline operator androidx.ui.unit.PxSize times(float, androidx.ui.unit.PxSize size);
     method @androidx.compose.Stable public static inline operator androidx.ui.unit.PxSize times(double, androidx.ui.unit.PxSize size);
     method @androidx.compose.Stable public static androidx.ui.unit.PxBounds toBounds(androidx.ui.unit.PxSize);
-    method @androidx.compose.Stable public static inline long toOffset(androidx.ui.unit.PxPosition);
     method @androidx.compose.Stable public static androidx.ui.geometry.Rect toRect(androidx.ui.unit.PxBounds);
     method @androidx.compose.Stable public static androidx.ui.geometry.Rect toRect(androidx.ui.unit.PxSize);
     method @androidx.compose.Stable public static androidx.ui.unit.PxSize toSize(androidx.ui.unit.PxBounds);
-  }
-
-  @androidx.compose.Immutable public final class PxPosition {
-    ctor @kotlin.PublishedApi internal PxPosition(internal long value);
-    method @androidx.compose.Immutable public androidx.ui.unit.PxPosition copy(long value);
-    method public inline float getX();
-    method public inline float getY();
-    method @androidx.compose.Stable public inline operator androidx.ui.unit.PxPosition minus(androidx.ui.unit.PxPosition other);
-    method @androidx.compose.Stable public inline operator androidx.ui.unit.PxPosition minus(androidx.ui.unit.IntPxPosition other);
-    method @androidx.compose.Stable public inline operator androidx.ui.unit.PxPosition plus(androidx.ui.unit.PxPosition other);
-    method @androidx.compose.Stable public inline operator androidx.ui.unit.PxPosition plus(androidx.ui.unit.IntPxPosition other);
-    method @androidx.compose.Stable public inline operator androidx.ui.unit.PxPosition unaryMinus();
-    property public final inline float x;
-    property public final inline float y;
-    field public static final androidx.ui.unit.PxPosition.Companion! Companion;
-  }
-
-  public static final class PxPosition.Companion {
-    method public androidx.ui.unit.PxPosition getOrigin();
-    property public final androidx.ui.unit.PxPosition Origin;
   }
 
   @androidx.compose.Immutable public final class PxSize {
@@ -641,10 +619,10 @@ package androidx.ui.unit {
   }
 
   @androidx.compose.Immutable public final class Velocity {
-    ctor public Velocity(androidx.ui.unit.PxPosition pixelsPerSecond);
-    method public androidx.ui.unit.PxPosition component1();
-    method @androidx.compose.Immutable public androidx.ui.unit.Velocity copy(androidx.ui.unit.PxPosition pixelsPerSecond);
-    method public androidx.ui.unit.PxPosition getPixelsPerSecond();
+    ctor public Velocity(androidx.ui.geometry.Offset pixelsPerSecond);
+    method public androidx.ui.geometry.Offset component1();
+    method @androidx.compose.Immutable public androidx.ui.unit.Velocity copy(androidx.ui.geometry.Offset pixelsPerSecond);
+    method public androidx.ui.geometry.Offset getPixelsPerSecond();
     method public operator androidx.ui.unit.Velocity unaryMinus();
     field public static final androidx.ui.unit.Velocity.Companion! Companion;
   }

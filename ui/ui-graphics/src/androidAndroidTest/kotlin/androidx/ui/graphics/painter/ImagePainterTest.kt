@@ -134,7 +134,7 @@ class ImagePainterTest {
         val canvas = Canvas(dst)
 
         val topLeftPainter = ImagePainter(srcImage,
-            srcOffset = Offset.zero,
+            srcOffset = Offset.Zero,
             srcSize = Size(50.0f, 50.0f)
         )
 

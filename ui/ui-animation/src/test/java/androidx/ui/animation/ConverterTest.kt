@@ -22,7 +22,7 @@ import androidx.animation.AnimationVector4D
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.colorspace.ColorSpaces
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
@@ -72,9 +72,9 @@ class ConverterTest {
     fun testPxPositionConverter() {
         val x = Random.nextFloat()
         val y = Random.nextFloat()
-        assertEquals(PxPosition(x, y),
+        assertEquals(Offset(x, y),
             PxPositionToVectorConverter.convertFromVector(AnimationVector2D(x, y)))
         assertEquals(AnimationVector2D(x, y),
-            PxPositionToVectorConverter.convertToVector(PxPosition(x, y)))
+            PxPositionToVectorConverter.convertToVector(Offset(x, y)))
     }
 }

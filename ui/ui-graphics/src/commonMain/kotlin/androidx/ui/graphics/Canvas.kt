@@ -560,7 +560,7 @@ interface Canvas {
      */
     fun drawImageRect(
         image: ImageAsset,
-        srcOffset: Offset = Offset.zero,
+        srcOffset: Offset = Offset.Zero,
         srcSize: Size = Size(image.width.toFloat(), image.height.toFloat()),
         dstOffset: Offset,
         dstSize: Size,

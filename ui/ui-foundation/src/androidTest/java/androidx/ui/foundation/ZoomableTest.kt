@@ -22,6 +22,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.gestures.ZoomableState
 import androidx.ui.foundation.gestures.zoomable
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.center
@@ -32,7 +33,6 @@ import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendPinch
 import androidx.ui.test.size
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.toPxSize
 import com.google.common.truth.Truth.assertWithMessage
@@ -71,10 +71,10 @@ class ZoomableTest {
             val rightEndX = size.toPxSize().width * (1 - EDGE_FUZZ_FACTOR)
 
             sendPinch(
-                PxPosition(leftStartX, center.y),
-                PxPosition(leftEndX, center.y),
-                PxPosition(rightStartX, center.y),
-                PxPosition(rightEndX, center.y)
+                Offset(leftStartX, center.y),
+                Offset(leftEndX, center.y),
+                Offset(rightStartX, center.y),
+                Offset(rightEndX, center.y)
             )
         }
 
@@ -102,10 +102,10 @@ class ZoomableTest {
             val rightEndX = center.x + 10
 
             sendPinch(
-                PxPosition(leftStartX, center.y),
-                PxPosition(leftEndX, center.y),
-                PxPosition(rightStartX, center.y),
-                PxPosition(rightEndX, center.y)
+                Offset(leftStartX, center.y),
+                Offset(leftEndX, center.y),
+                Offset(rightStartX, center.y),
+                Offset(rightEndX, center.y)
             )
         }
 

@@ -30,7 +30,7 @@ import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.isMonotonicBetween
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -60,10 +60,10 @@ class SendPinchTest {
             }
         }
 
-        val start0 = PxPosition(40f, 50f)
-        val end0 = PxPosition(8f, 50f)
-        val start1 = PxPosition(60f, 50f)
-        val end1 = PxPosition(92f, 50f)
+        val start0 = Offset(40f, 50f)
+        val end0 = Offset(8f, 50f)
+        val start1 = Offset(60f, 50f)
+        val end1 = Offset(92f, 50f)
         val duration = 400.milliseconds
 
         findByTag(TAG).doGesture {

@@ -16,17 +16,17 @@
 
 package androidx.ui.test.inputdispatcher
 
+import androidx.ui.geometry.Offset
 import androidx.ui.test.InputDispatcher
 import androidx.ui.test.android.AndroidInputDispatcher
-import androidx.ui.unit.PxPosition
 import com.google.common.truth.Truth.assertThat
 
-internal fun AndroidInputDispatcher.sendDownAndCheck(pointerId: Int, position: PxPosition) {
+internal fun AndroidInputDispatcher.sendDownAndCheck(pointerId: Int, position: Offset) {
     sendDown(pointerId, position)
     assertThat(getCurrentPosition(pointerId)).isEqualTo(position)
 }
 
-internal fun AndroidInputDispatcher.movePointerAndCheck(pointerId: Int, position: PxPosition) {
+internal fun AndroidInputDispatcher.movePointerAndCheck(pointerId: Int, position: Offset) {
     movePointer(pointerId, position)
     assertThat(getCurrentPosition(pointerId)).isEqualTo(position)
 }

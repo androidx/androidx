@@ -75,7 +75,7 @@ private fun ScaledColorRect(modifier: Modifier = Modifier, scale: Float, color: 
     Canvas(modifier.fillMaxSize()) {
         drawRect(
             color,
-            topLeft = Offset(center.dx - halfSize * scale, center.dy - halfSize * scale),
+            topLeft = Offset(center.x - halfSize * scale, center.y - halfSize * scale),
             size = Size(halfSize * 2 * scale, halfSize * 2 * scale)
         )
     }

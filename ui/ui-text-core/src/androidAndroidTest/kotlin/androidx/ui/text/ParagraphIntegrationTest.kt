@@ -18,7 +18,6 @@ package androidx.ui.text
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -41,7 +40,7 @@ import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.em
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
@@ -226,7 +225,7 @@ class ParagraphIntegrationTest {
 
             // test positions that are 1, fontSize+1, 2fontSize+1 which maps to chars 0, 1, 2 ...
             for (i in 0..text.length) {
-                val position = PxPosition((i * fontSizeInPx + 1), (fontSizeInPx / 2))
+                val position = Offset((i * fontSizeInPx + 1), (fontSizeInPx / 2))
                 val offset = paragraph.getOffsetForPosition(position)
                 assertWithMessage("offset at index $i, position $position does not match")
                     .that(offset).isEqualTo(i)
@@ -248,7 +247,7 @@ class ParagraphIntegrationTest {
 
             // test positions that are 1, fontSize+1, 2fontSize+1 which maps to chars .., 2, 1, 0
             for (i in 0..text.length) {
-                val position = PxPosition((i * fontSizeInPx + 1), (fontSizeInPx / 2))
+                val position = Offset((i * fontSizeInPx + 1), (fontSizeInPx / 2))
                 val offset = paragraph.getOffsetForPosition(position)
                 assertWithMessage("offset at index $i, position $position does not match")
                     .that(offset).isEqualTo(text.length - i)
@@ -273,7 +272,7 @@ class ParagraphIntegrationTest {
             // test positions are 1, fontSize+1, 2fontSize+1 and always on the second line
             // which maps to chars 3, 4, 5
             for (i in 0..secondLine.length) {
-                val position = PxPosition((i * fontSizeInPx + 1), (fontSizeInPx * 1.5f))
+                val position = Offset((i * fontSizeInPx + 1), (fontSizeInPx * 1.5f))
                 val offset = paragraph.getOffsetForPosition(position)
                 assertWithMessage(
                     "offset at index $i, position $position, second line does not match"
@@ -299,7 +298,7 @@ class ParagraphIntegrationTest {
             // test positions are 1, fontSize+1, 2fontSize+1 and always on the second line
             // which maps to chars 5, 4, 3
             for (i in 0..secondLine.length) {
-                val position = PxPosition((i * fontSizeInPx + 1), (fontSizeInPx * 1.5f))
+                val position = Offset((i * fontSizeInPx + 1), (fontSizeInPx * 1.5f))
                 val offset = paragraph.getOffsetForPosition(position)
                 assertWithMessage(
                     "offset at index $i, position $position, second line does not match"
@@ -321,12 +320,12 @@ class ParagraphIntegrationTest {
             )
 
             // greater than width
-            var position = PxPosition((fontSizeInPx * text.length * 2), (fontSizeInPx / 2))
+            var position = Offset((fontSizeInPx * text.length * 2), (fontSizeInPx / 2))
             var offset = paragraph.getOffsetForPosition(position)
             assertThat(offset).isEqualTo(text.length)
 
             // negative
-            position = PxPosition((-1 * fontSizeInPx), (fontSizeInPx / 2))
+            position = Offset((-1 * fontSizeInPx), (fontSizeInPx / 2))
             offset = paragraph.getOffsetForPosition(position)
             assertThat(offset).isZero()
         }
@@ -345,12 +344,12 @@ class ParagraphIntegrationTest {
             )
 
             // greater than height
-            var position = PxPosition((fontSizeInPx / 2), (fontSizeInPx * text.length * 2))
+            var position = Offset((fontSizeInPx / 2), (fontSizeInPx * text.length * 2))
             var offset = paragraph.getOffsetForPosition(position)
             assertThat(offset).isZero()
 
             // negative
-            position = PxPosition((fontSizeInPx / 2), (-1 * fontSizeInPx))
+            position = Offset((fontSizeInPx / 2), (-1 * fontSizeInPx))
             offset = paragraph.getOffsetForPosition(position)
             assertThat(offset).isZero()
         }
@@ -2208,7 +2207,7 @@ class ParagraphIntegrationTest {
             )
 
             // The position of the last character in display order.
-            val position = PxPosition(("a.".length * fontSizeInPx + 1), (fontSizeInPx / 2))
+            val position = Offset(("a.".length * fontSizeInPx + 1), (fontSizeInPx / 2))
             val charIndex = paragraph.getOffsetForPosition(position)
             assertThat(charIndex).isEqualTo(2)
         }
@@ -2232,7 +2231,7 @@ class ParagraphIntegrationTest {
             )
 
             // The position of the first character in display order.
-            val position = PxPosition((fontSizeInPx / 2 + 1), (fontSizeInPx / 2))
+            val position = Offset((fontSizeInPx / 2 + 1), (fontSizeInPx / 2))
             val charIndex = paragraph.getOffsetForPosition(position)
             assertThat(charIndex).isEqualTo(2)
         }
@@ -2254,7 +2253,7 @@ class ParagraphIntegrationTest {
 
             for (i in 0..text.length) {
                 // The position of the i-th character in display order.
-                val position = PxPosition((i * fontSizeInPx + 1), (fontSizeInPx / 2))
+                val position = Offset((i * fontSizeInPx + 1), (fontSizeInPx / 2))
                 val charIndex = paragraph.getOffsetForPosition(position)
                 assertThat(charIndex).isEqualTo(i)
             }
@@ -2277,7 +2276,7 @@ class ParagraphIntegrationTest {
 
             for (i in text.indices) {
                 // The position of the i-th character in display order.
-                val position = PxPosition((i * fontSizeInPx + 1), (fontSizeInPx / 2))
+                val position = Offset((i * fontSizeInPx + 1), (fontSizeInPx / 2))
                 val charIndex = paragraph.getOffsetForPosition(position)
                 assertThat(charIndex).isEqualTo(i)
             }
@@ -2299,7 +2298,7 @@ class ParagraphIntegrationTest {
             )
 
             // The first character in display order should be '.'
-            val position = PxPosition((fontSizeInPx / 2 + 1), (fontSizeInPx / 2))
+            val position = Offset((fontSizeInPx / 2 + 1), (fontSizeInPx / 2))
             val index = paragraph.getOffsetForPosition(position)
             assertThat(index).isEqualTo(2)
         }
@@ -3117,7 +3116,7 @@ class ParagraphIntegrationTest {
 
             // This position should point to the first character 'a' if indent is applied.
             // Otherwise this position will point to the second character 'b'.
-            val position = PxPosition((indentInPx + 1), (fontSizeInPx / 2))
+            val position = Offset((indentInPx + 1), (fontSizeInPx / 2))
             // The offset corresponding to the position should be the first char 'a'.
             assertThat(paragraph.getOffsetForPosition(position)).isZero()
         }

@@ -25,7 +25,6 @@ import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.verify
 import androidx.ui.unit.Duration
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -55,7 +54,7 @@ class SendSwipeWithKeyTimesTest(private val config: TestConfig) {
 
     companion object {
         private val curve = { t: Long ->
-            PxPosition(t.toFloat(), (-t).toFloat())
+            androidx.ui.geometry.Offset(t.toFloat(), (-t).toFloat())
         }
 
         @JvmStatic

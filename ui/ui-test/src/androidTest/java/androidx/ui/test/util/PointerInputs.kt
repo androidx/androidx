@@ -23,9 +23,9 @@ import androidx.ui.core.PointerInputData
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.Uptime
 import com.google.common.truth.Truth.assertThat
 
@@ -125,7 +125,7 @@ fun DataPoint.verify(
     expectedTimestamp: Uptime?,
     expectedId: PointerId?,
     expectedDown: Boolean,
-    expectedPosition: PxPosition
+    expectedPosition: Offset
 ) {
     if (expectedTimestamp != null) {
         assertThat(timestamp).isEqualTo(expectedTimestamp)
@@ -140,7 +140,7 @@ fun DataPoint.verify(
 /**
  * Checks that the coordinates are progressing in a monotonous direction
  */
-fun List<DataPoint>.isMonotonicBetween(start: PxPosition, end: PxPosition) {
+fun List<DataPoint>.isMonotonicBetween(start: Offset, end: Offset) {
     map { it.x }.isMonotonicBetween(start.x, end.x, 1e-3f)
     map { it.y }.isMonotonicBetween(start.y, end.y, 1e-3f)
 }

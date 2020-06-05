@@ -22,7 +22,8 @@ import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.lerp
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import androidx.ui.util.lerp
@@ -80,9 +81,9 @@ val BaseGestureScope.size: IntPxSize
  * Returns the center of the component we're interacting with, in the component's local
  * coordinate system, where (0.px, 0.px) is the top left corner of the component.
  */
-val BaseGestureScope.center: PxPosition
+val BaseGestureScope.center: Offset
     get() {
-        return PxPosition(size.width / 2, size.height / 2)
+        return Offset(size.width.value / 2f, size.height.value / 2f)
     }
 
 /**
@@ -96,9 +97,9 @@ val BaseGestureScope.globalBounds: PxBounds
  *
  * @param position A position in local coordinates
  */
-fun BaseGestureScope.localToGlobal(position: PxPosition): PxPosition {
+fun BaseGestureScope.localToGlobal(position: Offset): Offset {
     val bounds = globalBounds
-    return position + PxPosition(bounds.left, bounds.top)
+    return position + Offset(bounds.left, bounds.top)
 }
 
 /**
@@ -130,7 +131,7 @@ class GestureScope internal constructor(
  * @param position The position where to click, in the component's local coordinate system. If
  * omitted, the center position will be used.
  */
-fun GestureScope.sendClick(position: PxPosition = center) {
+fun GestureScope.sendClick(position: Offset = center) {
     inputDispatcher.sendClick(localToGlobal(position))
 }
 
@@ -145,7 +146,7 @@ fun GestureScope.sendClick(position: PxPosition = center) {
  * @param position The position of the long click, in the component's local coordinate system. If
  * omitted, the center position will be used.
  */
-fun GestureScope.sendLongClick(position: PxPosition = center) {
+fun GestureScope.sendLongClick(position: Offset = center) {
     // Keep down for 100ms more than needed, to allow the long press logic to trigger
     sendSwipe(position, position, LongPressTimeout + 100.milliseconds)
 }
@@ -160,7 +161,7 @@ fun GestureScope.sendLongClick(position: PxPosition = center) {
  * @param position The position of the double click, in the component's local coordinate system.
  * If omitted, the center position will be used.
  */
-fun GestureScope.sendDoubleClick(position: PxPosition = center) {
+fun GestureScope.sendDoubleClick(position: Offset = center) {
     val globalPosition = localToGlobal(position)
     inputDispatcher.sendClick(globalPosition)
     inputDispatcher.delay(doubleClickDelay)
@@ -180,8 +181,8 @@ fun GestureScope.sendDoubleClick(position: PxPosition = center) {
  * @param duration The duration of the gesture
  */
 fun GestureScope.sendSwipe(
-    start: PxPosition,
-    end: PxPosition,
+    start: Offset,
+    end: Offset,
     duration: Duration = 200.milliseconds
 ) {
     val globalStart = localToGlobal(start)
@@ -192,7 +193,7 @@ fun GestureScope.sendSwipe(
 /**
  * Performs a pinch gesture on the associated component.
  *
- * For each pair of start and end [PxPosition]s, the motion events are linearly interpolated. The
+ * For each pair of start and end [Offset]s, the motion events are linearly interpolated. The
  * coordinates are in the component's local coordinate system where (0.px, 0.px) is the top left
  * corner of the component. The default duration is 400 milliseconds.
  *
@@ -203,10 +204,10 @@ fun GestureScope.sendSwipe(
  * @param duration the duration of the gesture
  */
 fun GestureScope.sendPinch(
-    start0: PxPosition,
-    end0: PxPosition,
-    start1: PxPosition,
-    end1: PxPosition,
+    start0: Offset,
+    end0: Offset,
+    start1: Offset,
+    end1: Offset,
     duration: Duration = 400.milliseconds
 ) {
     val globalStart0 = localToGlobal(start0)
@@ -216,9 +217,9 @@ fun GestureScope.sendPinch(
     val durationFloat = duration.inMilliseconds().toFloat()
 
     inputDispatcher.sendSwipes(
-        listOf<(Long) -> PxPosition>(
-            { androidx.ui.unit.lerp(globalStart0, globalEnd0, it / durationFloat) },
-            { androidx.ui.unit.lerp(globalStart1, globalEnd1, it / durationFloat) }
+        listOf<(Long) -> Offset>(
+            { lerp(globalStart0, globalEnd0, it / durationFloat) },
+            { lerp(globalStart1, globalEnd1, it / durationFloat) }
         ),
         duration
     )
@@ -243,8 +244,8 @@ fun GestureScope.sendPinch(
  * are generated, which happens with a duration of 25ms or more.
  */
 fun GestureScope.sendSwipeWithVelocity(
-    start: PxPosition,
-    end: PxPosition,
+    start: Offset,
+    end: Offset,
     @FloatRange(from = 0.0) endVelocity: Float,
     duration: Duration = 200.milliseconds
 ) {
@@ -280,7 +281,7 @@ fun GestureScope.sendSwipeWithVelocity(
     val fx = createFunctionForVelocity(durationMs, globalStart.x, globalEnd.x, vx)
     val fy = createFunctionForVelocity(durationMs, globalStart.y, globalEnd.y, vy)
 
-    inputDispatcher.sendSwipe({ t -> PxPosition(fx(t), fy(t)) }, duration)
+    inputDispatcher.sendSwipe({ t -> Offset(fx(t), fy(t)) }, duration)
 }
 
 /**
@@ -293,8 +294,8 @@ fun GestureScope.sendSwipeUp() {
     val x = center.x
     val y0 = (size.height * (1 - edgeFuzzFactor)).value.toFloat()
     val y1 = 0.0f
-    val start = PxPosition(x, y0)
-    val end = PxPosition(x, y1)
+    val start = Offset(x, y0)
+    val end = Offset(x, y1)
     sendSwipe(start, end, 200.milliseconds)
 }
 
@@ -308,8 +309,8 @@ fun GestureScope.sendSwipeDown() {
     val x = center.x
     val y0 = (size.height * edgeFuzzFactor).value.toFloat()
     val y1 = size.height.value.toFloat()
-    val start = PxPosition(x, y0)
-    val end = PxPosition(x, y1)
+    val start = Offset(x, y0)
+    val end = Offset(x, y1)
     sendSwipe(start, end, 200.milliseconds)
 }
 
@@ -323,8 +324,8 @@ fun GestureScope.sendSwipeLeft() {
     val x0 = (size.width * (1 - edgeFuzzFactor)).value.toFloat()
     val x1 = 0.0f
     val y = center.y
-    val start = PxPosition(x0, y)
-    val end = PxPosition(x1, y)
+    val start = Offset(x0, y)
+    val end = Offset(x1, y)
     sendSwipe(start, end, 200.milliseconds)
 }
 
@@ -338,8 +339,8 @@ fun GestureScope.sendSwipeRight() {
     val x0 = (size.width * edgeFuzzFactor).value.toFloat()
     val x1 = size.width.value.toFloat()
     val y = center.y
-    val start = PxPosition(x0, y)
-    val end = PxPosition(x1, y)
+    val start = Offset(x0, y)
+    val end = Offset(x1, y)
     sendSwipe(start, end, 200.milliseconds)
 }
 
@@ -413,7 +414,7 @@ private fun createFunctionForVelocity(
  *
  * Example usage:
  * ```
- * val position = PxPosition(10.px, 10.px)
+ * val position = Offset(10.px, 10.px)
  * findByTag("myWidget")
  *    .doPartialGesture { sendDown(position) }
  *    .assertIsDisplayed()
@@ -459,7 +460,7 @@ class PartialGestureScope internal constructor(
  * @param pointerId The id of the pointer, can be any number not yet in use by another pointer
  * @param position The position of the down event, in the component's local coordinate system
  */
-fun PartialGestureScope.sendDown(pointerId: Int, position: PxPosition) {
+fun PartialGestureScope.sendDown(pointerId: Int, position: Offset) {
     val globalPosition = localToGlobal(position)
     inputDispatcher.sendDown(pointerId, globalPosition)
 }
@@ -475,7 +476,7 @@ fun PartialGestureScope.sendDown(pointerId: Int, position: PxPosition) {
  *
  * @param position The position of the down event, in the component's local coordinate system
  */
-fun PartialGestureScope.sendDown(position: PxPosition) {
+fun PartialGestureScope.sendDown(position: Offset) {
     sendDown(0, position)
 }
 
@@ -489,7 +490,7 @@ fun PartialGestureScope.sendDown(position: PxPosition) {
  * @param pointerId The id of the pointer to move, as supplied in [sendDown]
  * @param position The new position of the pointer, in the component's local coordinate system
  */
-fun PartialGestureScope.sendMoveTo(pointerId: Int, position: PxPosition) {
+fun PartialGestureScope.sendMoveTo(pointerId: Int, position: Offset) {
     movePointerTo(pointerId, position)
     sendMove()
 }
@@ -503,7 +504,7 @@ fun PartialGestureScope.sendMoveTo(pointerId: Int, position: PxPosition) {
  *
  * @param position The new position of the pointer, in the component's local coordinate system
  */
-fun PartialGestureScope.sendMoveTo(position: PxPosition) {
+fun PartialGestureScope.sendMoveTo(position: Offset) {
     sendMoveTo(0, position)
 }
 
@@ -518,7 +519,7 @@ fun PartialGestureScope.sendMoveTo(position: PxPosition) {
  * @param pointerId The id of the pointer to move, as supplied in [sendDown]
  * @param position The new position of the pointer, in the component's local coordinate system
  */
-fun PartialGestureScope.movePointerTo(pointerId: Int, position: PxPosition) {
+fun PartialGestureScope.movePointerTo(pointerId: Int, position: Offset) {
     val globalPosition = localToGlobal(position)
     inputDispatcher.movePointer(pointerId, globalPosition)
 }
@@ -531,10 +532,10 @@ fun PartialGestureScope.movePointerTo(pointerId: Int, position: PxPosition) {
  *
  * @param pointerId The id of the pointer to move, as supplied in [sendDown]
  * @param delta The position for this move event, relative to the last sent position of the
- * pointer. For example, `delta = PxPosition(10.px, -10.px) will add 10.px to the pointer's last
+ * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's last
  * x-position, and subtract 10.px from the pointer's last y-position.
  */
-fun PartialGestureScope.sendMoveBy(pointerId: Int, delta: PxPosition) {
+fun PartialGestureScope.sendMoveBy(pointerId: Int, delta: Offset) {
     movePointerBy(pointerId, delta)
     sendMove()
 }
@@ -546,10 +547,10 @@ fun PartialGestureScope.sendMoveBy(pointerId: Int, delta: PxPosition) {
  * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
  *
  * @param delta The position for this move event, relative to the last sent position of the
- * pointer. For example, `delta = PxPosition(10.px, -10.px) will add 10.px to the pointer's last
+ * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's last
  * x-position, and subtract 10.px from the pointer's last y-position.
  */
-fun PartialGestureScope.sendMoveBy(delta: PxPosition) {
+fun PartialGestureScope.sendMoveBy(delta: Offset) {
     sendMoveBy(0, delta)
 }
 
@@ -561,13 +562,13 @@ fun PartialGestureScope.sendMoveBy(delta: PxPosition) {
  *
  * @param pointerId The id of the pointer to move, as supplied in [sendDown]
  * @param delta The position for this move event, relative to the last sent position of the
- * pointer. For example, `delta = PxPosition(10.px, -10.px) will add 10.px to the pointer's last
+ * pointer. For example, `delta = Offset(10.px, -10.px) will add 10.px to the pointer's last
  * x-position, and subtract 10.px from the pointer's last y-position.
  */
-fun PartialGestureScope.movePointerBy(pointerId: Int, delta: PxPosition) {
+fun PartialGestureScope.movePointerBy(pointerId: Int, delta: Offset) {
     // Ignore currentPosition of null here, let movePointer generate the error
     val globalPosition =
-        (inputDispatcher.getCurrentPosition(pointerId) ?: PxPosition.Origin) + delta
+        (inputDispatcher.getCurrentPosition(pointerId) ?: Offset.Zero) + delta
     inputDispatcher.movePointer(pointerId, globalPosition)
 }
 

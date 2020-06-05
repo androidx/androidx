@@ -26,9 +26,8 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.util.fastAny
 
 /**
@@ -49,7 +48,7 @@ import androidx.ui.util.fastAny
  */
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
 fun Modifier.pressIndicatorGestureFilter(
-    onStart: ((PxPosition) -> Unit)? = null,
+    onStart: ((Offset) -> Unit)? = null,
     onStop: (() -> Unit)? = null,
     onCancel: (() -> Unit)? = null,
     enabled: Boolean = true
@@ -70,7 +69,7 @@ internal class PressIndicatorGestureFilter : PointerInputFilter() {
      * This callback should be used to indicate that the press state should be shown.  An [Offset]
      * is provided to indicate where the first pointer made contact with this gesrure detector.
      */
-    var onStart: ((PxPosition) -> Unit)? = null
+    var onStart: ((Offset) -> Unit)? = null
 
     /**
      * Called if onStart was attempted to be called (it may have been null), no pointer movement

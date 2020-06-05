@@ -1,38 +1,30 @@
 // Signature format: 3.0
 package androidx.ui.geometry {
 
-  @androidx.compose.Immutable public final inline class Offset {
-    ctor public Offset();
-    method public static infix androidx.ui.geometry.Rect and-b2zCL34(long $this, long other);
-    method public static long constructor-impl(internal long packedValue);
-    method @androidx.compose.Stable public static operator long div-impl(long $this, float operand);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
-    method public static boolean equals-impl0(long p1, long p2);
-    method public static float getDirection-impl(long $this);
-    method @androidx.compose.Stable public static float getDistance-impl(long $this);
-    method @androidx.compose.Stable public static float getDistanceSquared-impl(long $this);
-    method public static float getDx-impl(long $this);
-    method public static float getDy-impl(long $this);
-    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
-    method @androidx.compose.Stable public static operator long minus-RIqb49o(long $this, long other);
-    method @androidx.compose.Stable public static operator long plus-RIqb49o(long $this, long other);
-    method @androidx.compose.Stable public static operator long rem-impl(long $this, float operand);
-    method @androidx.compose.Stable public static long scale-impl(long $this, float scaleX, float scaleY);
-    method @androidx.compose.Stable public static operator long times-impl(long $this, float operand);
-    method public static String toString-impl(long $this);
-    method @androidx.compose.Stable public static long translate-impl(long $this, float translateX, float translateY);
-    method public static long truncDiv-impl(long $this, float operand);
-    method @androidx.compose.Stable public static operator long unaryMinus-impl(long $this);
+  @androidx.compose.Immutable public final class Offset {
+    ctor public Offset(internal long packedValue);
+    method @androidx.compose.Immutable public androidx.ui.geometry.Offset copy(long packedValue);
+    method @androidx.compose.Stable public operator androidx.ui.geometry.Offset div(float operand);
+    method @androidx.compose.Stable public float getDistance();
+    method @androidx.compose.Stable public float getDistanceSquared();
+    method public float getX();
+    method public float getY();
+    method @androidx.compose.Stable public boolean isValid();
+    method @androidx.compose.Stable public operator androidx.ui.geometry.Offset minus(androidx.ui.geometry.Offset other);
+    method @androidx.compose.Stable public operator androidx.ui.geometry.Offset plus(androidx.ui.geometry.Offset other);
+    method @androidx.compose.Stable public operator androidx.ui.geometry.Offset rem(float operand);
+    method @androidx.compose.Stable public operator androidx.ui.geometry.Offset times(float operand);
+    method @androidx.compose.Stable public operator androidx.ui.geometry.Offset unaryMinus();
+    property public final float x;
+    property public final float y;
     field public static final androidx.ui.geometry.Offset.Companion! Companion;
   }
 
   public static final class Offset.Companion {
-    method public long getInfinite();
-    method public long getZero();
-    method @androidx.compose.Stable public boolean isValid-RIqb49o(long offset);
-    method @androidx.compose.Stable public long lerp-nqy8KaQ(long start, long stop, float fraction);
-    property public final long infinite;
-    property public final long zero;
+    method public androidx.ui.geometry.Offset getInfinite();
+    method public androidx.ui.geometry.Offset getZero();
+    property public final androidx.ui.geometry.Offset Infinite;
+    property public final androidx.ui.geometry.Offset Zero;
   }
 
   public interface OffsetBase {
@@ -49,7 +41,8 @@ package androidx.ui.geometry {
   }
 
   public final class OffsetKt {
-    method public static long Offset(float dx, float dy);
+    method @androidx.compose.Stable public static inline androidx.ui.geometry.Offset Offset(float x, float y);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Offset lerp(androidx.ui.geometry.Offset start, androidx.ui.geometry.Offset stop, float fraction);
   }
 
   public final class RRect {
@@ -66,7 +59,7 @@ package androidx.ui.geometry {
     method public float component7();
     method public float component8();
     method public float component9();
-    method public boolean contains-RIqb49o(long point);
+    method public boolean contains(androidx.ui.geometry.Offset point);
     method public androidx.ui.geometry.RRect copy(float left, float top, float right, float bottom, float topLeftRadiusX, float topLeftRadiusY, float topRightRadiusX, float topRightRadiusY, float bottomRightRadiusX, float bottomRightRadiusY, float bottomLeftRadiusX, float bottomLeftRadiusY);
     method @Deprecated public androidx.ui.geometry.RRect deflate(float delta);
     method public float getBottom();
@@ -104,7 +97,7 @@ package androidx.ui.geometry {
     method public static androidx.ui.geometry.RRect RRect(androidx.ui.geometry.Rect rect, androidx.ui.geometry.Radius topLeft = Radius.zero, androidx.ui.geometry.Radius topRight = Radius.zero, androidx.ui.geometry.Radius bottomRight = Radius.zero, androidx.ui.geometry.Radius bottomLeft = Radius.zero);
     method public static androidx.ui.geometry.Radius bottomLeftRadius(androidx.ui.geometry.RRect);
     method public static androidx.ui.geometry.Radius bottomRightRadius(androidx.ui.geometry.RRect);
-    method public static long center(androidx.ui.geometry.RRect);
+    method public static androidx.ui.geometry.Offset center(androidx.ui.geometry.RRect);
     method public static float getLongestSide(androidx.ui.geometry.RRect);
     method public static float getShortestSide(androidx.ui.geometry.RRect);
     method public static androidx.ui.geometry.RRect grow(androidx.ui.geometry.RRect, float delta);
@@ -119,7 +112,7 @@ package androidx.ui.geometry {
     method public static androidx.ui.geometry.Rect middleRect(androidx.ui.geometry.RRect);
     method public static androidx.ui.geometry.Rect outerRect(androidx.ui.geometry.RRect);
     method public static androidx.ui.geometry.Rect safeInnerRect(androidx.ui.geometry.RRect);
-    method public static androidx.ui.geometry.RRect shift-q6ZkaaM(androidx.ui.geometry.RRect, long offset);
+    method public static androidx.ui.geometry.RRect shift(androidx.ui.geometry.RRect, androidx.ui.geometry.Offset offset);
     method public static androidx.ui.geometry.RRect shrink(androidx.ui.geometry.RRect, float delta);
     method public static androidx.ui.geometry.Rect tallMiddleRect(androidx.ui.geometry.RRect);
     method public static androidx.ui.geometry.Radius topLeftRadius(androidx.ui.geometry.RRect);
@@ -162,17 +155,17 @@ package androidx.ui.geometry {
     method public float component2();
     method public float component3();
     method public float component4();
-    method public boolean contains-RIqb49o(long offset);
+    method public boolean contains(androidx.ui.geometry.Offset offset);
     method @androidx.compose.Immutable public androidx.ui.geometry.Rect copy(float left, float top, float right, float bottom);
     method @androidx.compose.Stable public androidx.ui.geometry.Rect deflate(float delta);
     method public androidx.ui.geometry.Rect expandToInclude(androidx.ui.geometry.Rect other);
     method public float getBottom();
-    method public long getBottomCenter();
-    method public long getBottomLeft();
-    method public long getBottomRight();
-    method public long getCenter();
-    method public long getCenterLeft();
-    method public long getCenterRight();
+    method public androidx.ui.geometry.Offset getBottomCenter();
+    method public androidx.ui.geometry.Offset getBottomLeft();
+    method public androidx.ui.geometry.Offset getBottomRight();
+    method public androidx.ui.geometry.Offset getCenter();
+    method public androidx.ui.geometry.Offset getCenterLeft();
+    method public androidx.ui.geometry.Offset getCenterRight();
     method public float getHeight();
     method public float getLeft();
     method public float getMaxDimension();
@@ -180,9 +173,9 @@ package androidx.ui.geometry {
     method public float getRight();
     method public long getSize();
     method public float getTop();
-    method public long getTopCenter();
-    method public long getTopLeft();
-    method public long getTopRight();
+    method public androidx.ui.geometry.Offset getTopCenter();
+    method public androidx.ui.geometry.Offset getTopLeft();
+    method public androidx.ui.geometry.Offset getTopRight();
     method public float getWidth();
     method @androidx.compose.Stable public androidx.ui.geometry.Rect inflate(float delta);
     method @androidx.compose.Stable public androidx.ui.geometry.Rect intersect(androidx.ui.geometry.Rect other);
@@ -191,7 +184,7 @@ package androidx.ui.geometry {
     method @androidx.compose.Stable public boolean isInfinite();
     method public androidx.ui.geometry.Rect join(androidx.ui.geometry.Rect other);
     method public boolean overlaps(androidx.ui.geometry.Rect other);
-    method @androidx.compose.Stable public androidx.ui.geometry.Rect shift-RIqb49o(long offset);
+    method @androidx.compose.Stable public androidx.ui.geometry.Rect shift(androidx.ui.geometry.Offset offset);
     method @androidx.compose.Stable public androidx.ui.geometry.Rect translate(float translateX, float translateY);
     property public final float height;
     property public final float maxDimension;
@@ -201,10 +194,10 @@ package androidx.ui.geometry {
   }
 
   public static final class Rect.Companion {
-    method @androidx.compose.Stable public androidx.ui.geometry.Rect fromCircle-hSKLB2U(long center, float radius);
+    method @androidx.compose.Stable public androidx.ui.geometry.Rect fromCircle(androidx.ui.geometry.Offset center, float radius);
     method @androidx.compose.Stable public androidx.ui.geometry.Rect fromLTRB(float left, float top, float right, float bottom);
     method @androidx.compose.Stable public androidx.ui.geometry.Rect fromLTWH(float left, float top, float width, float height);
-    method @androidx.compose.Stable public androidx.ui.geometry.Rect fromPoints-cs1Rg_A(long a, long b);
+    method @androidx.compose.Stable public androidx.ui.geometry.Rect fromPoints(androidx.ui.geometry.Offset a, androidx.ui.geometry.Offset b);
     method public androidx.ui.geometry.Rect getLargest();
     method public androidx.ui.geometry.Rect getZero();
     method public float get_giantScalar();
@@ -219,14 +212,14 @@ package androidx.ui.geometry {
 
   @androidx.compose.Immutable public final inline class Size {
     ctor public Size();
-    method @androidx.compose.Stable public static long bottomCenter-RIqb49o(long $this, long origin);
-    method @androidx.compose.Stable public static long bottomLeft-RIqb49o(long $this, long origin);
-    method @androidx.compose.Stable public static long bottomRight-RIqb49o(long $this, long origin);
-    method @androidx.compose.Stable public static long center-RIqb49o(long $this, long origin = Offset.zero);
-    method @androidx.compose.Stable public static long centerLeft-RIqb49o(long $this, long origin);
-    method @androidx.compose.Stable public static long centerRight-RIqb49o(long $this, long origin);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Offset bottomCenter-impl(long $this, androidx.ui.geometry.Offset origin);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Offset bottomLeft-impl(long $this, androidx.ui.geometry.Offset origin);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Offset bottomRight-impl(long $this, androidx.ui.geometry.Offset origin);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Offset center-impl(long $this, androidx.ui.geometry.Offset origin = Offset.Zero);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Offset centerLeft-impl(long $this, androidx.ui.geometry.Offset origin);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Offset centerRight-impl(long $this, androidx.ui.geometry.Offset origin);
     method public static long constructor-impl(internal long value);
-    method @androidx.compose.Stable public static boolean contains-RIqb49o(long $this, long offset);
+    method @androidx.compose.Stable public static boolean contains-impl(long $this, androidx.ui.geometry.Offset offset);
     method @androidx.compose.Stable public static operator long div-impl(long $this, float operand);
     method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
@@ -237,15 +230,15 @@ package androidx.ui.geometry {
     method public static float getWidth-impl(long $this);
     method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
     method @androidx.compose.Stable public static boolean isEmpty-impl(long $this);
-    method @androidx.compose.Stable public static operator long minus-RIqb49o(long $this, long other);
-    method @androidx.compose.Stable public static operator long minus-b2zCL34(long $this, long other);
-    method @androidx.compose.Stable public static operator long plus-RIqb49o(long $this, long other);
+    method @androidx.compose.Stable public static operator androidx.ui.geometry.Offset minus-b2zCL34(long $this, long other);
+    method @androidx.compose.Stable public static operator long minus-impl(long $this, androidx.ui.geometry.Offset other);
+    method @androidx.compose.Stable public static operator long plus-impl(long $this, androidx.ui.geometry.Offset other);
     method @androidx.compose.Stable public static operator long rem-impl(long $this, float operand);
     method @androidx.compose.Stable public static operator long times-impl(long $this, float operand);
     method public static String toString-impl(long $this);
-    method @androidx.compose.Stable public static long topCenter-RIqb49o(long $this, long origin);
-    method @androidx.compose.Stable public static long topLeft-RIqb49o(long $this, long origin);
-    method @androidx.compose.Stable public static long topRight-RIqb49o(long $this, long origin);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Offset topCenter-impl(long $this, androidx.ui.geometry.Offset origin);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Offset topLeft-impl(long $this, androidx.ui.geometry.Offset origin);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Offset topRight-impl(long $this, androidx.ui.geometry.Offset origin);
     method @androidx.compose.Stable public static long truncDiv-impl(long $this, float operand);
     field public static final androidx.ui.geometry.Size.Companion! Companion;
   }

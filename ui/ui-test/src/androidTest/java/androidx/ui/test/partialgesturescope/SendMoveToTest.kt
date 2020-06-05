@@ -33,7 +33,7 @@ import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verify
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -47,10 +47,10 @@ import org.junit.rules.TestRule
 @MediumTest
 class SendMoveToTest() {
     companion object {
-        private val downPosition1 = PxPosition(10f, 10f)
-        private val downPosition2 = PxPosition(20f, 20f)
-        private val moveToPosition1 = PxPosition(11f, 11f)
-        private val moveToPosition2 = PxPosition(21f, 21f)
+        private val downPosition1 = Offset(10f, 10f)
+        private val downPosition2 = Offset(20f, 20f)
+        private val moveToPosition1 = Offset(11f, 11f)
+        private val moveToPosition2 = Offset(21f, 21f)
     }
 
     @get:Rule

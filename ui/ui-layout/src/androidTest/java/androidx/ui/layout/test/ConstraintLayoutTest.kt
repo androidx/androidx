@@ -43,7 +43,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.waitForIdle
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Assert
@@ -307,7 +307,7 @@ class ConstraintLayoutTest : LayoutTest() {
         val boxSize = 100.ipx
         val offset = 150.ipx
 
-        val position = Array(3) { Ref<PxPosition>() }
+        val position = Array(3) { Ref<Offset>() }
 
         composeTestRule.setContent {
             ConstraintLayout(Modifier.fillMaxSize()) {
@@ -350,15 +350,23 @@ class ConstraintLayoutTest : LayoutTest() {
 
         runOnIdleCompose {
             assertEquals(
-                PxPosition((displayWidth - boxSize) / 2, (displayHeight - boxSize) / 2),
+                Offset(
+                    ((displayWidth - boxSize) / 2).value.toFloat(),
+                    ((displayHeight - boxSize) / 2).value.toFloat()),
                 position[0].value
             )
             assertEquals(
-                PxPosition(displayWidth / 2 + offset, (displayHeight - boxSize) / 2 - boxSize),
+                Offset(
+                    (displayWidth / 2 + offset).value.toFloat(),
+                    ((displayHeight - boxSize) / 2 - boxSize).value.toFloat()
+                ),
                 position[1].value
             )
             assertEquals(
-                PxPosition(offset, displayHeight - boxSize - offset),
+                Offset(
+                    offset.value.toFloat(),
+                    (displayHeight - boxSize - offset).value.toFloat()
+                ),
                 position[2].value
             )
         }
@@ -369,7 +377,7 @@ class ConstraintLayoutTest : LayoutTest() {
         val boxSize = 100.ipx
         val offset = 150.ipx
 
-        val position = Array(3) { Ref<PxPosition>() }
+        val position = Array(3) { Ref<Offset>() }
 
         composeTestRule.setContent {
             ConstraintLayout(
@@ -410,15 +418,24 @@ class ConstraintLayoutTest : LayoutTest() {
 
         runOnIdleCompose {
             assertEquals(
-                PxPosition((displayWidth - boxSize) / 2, (displayHeight - boxSize) / 2),
+                Offset(
+                    (displayWidth - boxSize).value / 2f,
+                    (displayHeight - boxSize).value / 2f
+                ),
                 position[0].value
             )
             assertEquals(
-                PxPosition(displayWidth / 2 + offset, (displayHeight - boxSize) / 2 - boxSize),
+                Offset(
+                    (displayWidth / 2f + offset).value.toFloat(),
+                    ((displayHeight - boxSize) / 2 - boxSize).value.toFloat()
+                ),
                 position[1].value
             )
             assertEquals(
-                PxPosition(offset, displayHeight - boxSize - offset),
+                Offset(
+                    offset.value.toFloat(),
+                    (displayHeight - boxSize - offset).value.toFloat()
+                ),
                 position[2].value
             )
         }
@@ -429,7 +446,7 @@ class ConstraintLayoutTest : LayoutTest() {
         val boxSize = 100.ipx
         val offset = 150.ipx
 
-        val position = Array(3) { Ref<PxPosition>() }
+        val position = Array(3) { Ref<Offset>() }
 
         composeTestRule.setContent {
             ConstraintLayout(Modifier.rtl.fillMaxSize()) {
@@ -472,18 +489,24 @@ class ConstraintLayoutTest : LayoutTest() {
 
         runOnIdleCompose {
             assertEquals(
-                PxPosition((displayWidth - boxSize) / 2, (displayHeight - boxSize) / 2),
+                Offset(
+                    (displayWidth - boxSize).value / 2f,
+                    (displayHeight - boxSize).value / 2f
+                ),
                 position[0].value
             )
             assertEquals(
-                PxPosition(
-                    displayWidth / 2 - offset - boxSize,
-                    (displayHeight - boxSize) / 2 - boxSize
+                Offset(
+                    (displayWidth / 2 - offset - boxSize).value.toFloat(),
+                    ((displayHeight - boxSize) / 2 - boxSize).value.toFloat()
                 ),
                 position[1].value
             )
             assertEquals(
-                PxPosition(displayWidth - offset - boxSize, displayHeight - boxSize - offset),
+                Offset(
+                    (displayWidth - offset - boxSize).value.toFloat(),
+                    (displayHeight - boxSize - offset).value.toFloat()
+                ),
                 position[2].value
             )
         }
@@ -818,7 +841,7 @@ class ConstraintLayoutTest : LayoutTest() {
         val size = 200.ipx.toDp()
         val offset = 50.ipx.toDp()
 
-        val position = Array(2) { PxPosition(0f, 0f) }
+        val position = Array(2) { Offset(0f, 0f) }
         composeTestRule.setContent {
             ConstraintLayout(Modifier.size(size)) {
                 val box = createRef()
@@ -857,8 +880,8 @@ class ConstraintLayoutTest : LayoutTest() {
         }
 
         runOnIdleCompose {
-            Assert.assertEquals(PxPosition(60f, 60f), position[0])
-            Assert.assertEquals(PxPosition(61f, 61f), position[1])
+            Assert.assertEquals(Offset(60f, 60f), position[0])
+            Assert.assertEquals(Offset(61f, 61f), position[1])
         }
     }
 

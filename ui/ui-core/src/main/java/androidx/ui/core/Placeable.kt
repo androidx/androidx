@@ -19,7 +19,7 @@ package androidx.ui.core
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.coerceIn
 import androidx.ui.unit.ipx
 import androidx.ui.unit.round
@@ -141,7 +141,7 @@ abstract class Placeable {
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
          * given [position], similar to the [placeAbsolute] method.
          */
-        fun Placeable.place(position: PxPosition) = placeAutoMirrored(position.round())
+        fun Placeable.place(position: Offset) = placeAutoMirrored(position.round())
 
         /**
          * Place a [Placeable] at [x], [y] in its parent's coordinate system.
@@ -159,7 +159,7 @@ abstract class Placeable {
          * Unlike [place], the given [position] will not implicitly react in RTL layout direction
          * contexts.
          */
-        fun Placeable.placeAbsolute(position: PxPosition) = placeAbsolute(position.round())
+        fun Placeable.placeAbsolute(position: Offset) = placeAbsolute(position.round())
 
         /**
          * Place a [Placeable] at [x], [y] in its parent's coordinate system.

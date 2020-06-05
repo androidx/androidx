@@ -26,9 +26,8 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.positionChange
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 /**
  * This gesture filter detects when the average distance change of all pointers surpasses touch
@@ -76,8 +75,8 @@ internal class DragSlopExceededGestureFilter(
         ) {
             // Get current average change.
             val averagePositionChange = getAveragePositionChange(changes)
-            val dx = averagePositionChange.dx
-            val dy = averagePositionChange.dy
+            val dx = averagePositionChange.x
+            val dy = averagePositionChange.y
 
             // Track changes during postUp and during postDown.  This allows for fancy dragging
             // due to a parent being dragged and will likely be removed.
@@ -149,7 +148,7 @@ internal class DragSlopExceededGestureFilter(
  * Get's the average distance change of all pointers as an Offset.
  */
 private fun getAveragePositionChange(changes: List<PointerInputChange>): Offset {
-    val sum = changes.fold(PxPosition.Origin) { sum, change ->
+    val sum = changes.fold(Offset.Zero) { sum, change ->
         sum + change.positionChange()
     }
     val sizeAsFloat = changes.size.toFloat()
@@ -163,8 +162,8 @@ private fun getAveragePositionChange(changes: List<PointerInputChange>): Offset 
  */
 private fun Offset.horizontalDirection() =
     when {
-        this.dx < 0f -> Direction.LEFT
-        this.dx > 0f -> Direction.RIGHT
+        this.x < 0f -> Direction.LEFT
+        this.x > 0f -> Direction.RIGHT
         else -> null
     }
 
@@ -173,7 +172,7 @@ private fun Offset.horizontalDirection() =
  */
 private fun Offset.verticalDirection() =
     when {
-        this.dy < 0f -> Direction.UP
-        this.dy > 0f -> Direction.DOWN
+        this.y < 0f -> Direction.UP
+        this.y > 0f -> Direction.DOWN
         else -> null
     }

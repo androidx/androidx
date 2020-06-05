@@ -19,12 +19,11 @@ package androidx.ui.text.selection
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.Selection
-import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import kotlin.math.max
 
 internal class TextSelectionDelegate(
@@ -33,8 +32,8 @@ internal class TextSelectionDelegate(
     private val layoutResultCallback: () -> TextLayoutResult?
 ) : Selectable {
     override fun getSelection(
-        startPosition: PxPosition,
-        endPosition: PxPosition,
+        startPosition: Offset,
+        endPosition: Offset,
         containerLayoutCoordinates: LayoutCoordinates,
         longPress: Boolean,
         previousSelection: Selection?,
@@ -44,7 +43,7 @@ internal class TextSelectionDelegate(
         val textLayoutResult = layoutResultCallback() ?: return null
 
         val relativePosition = containerLayoutCoordinates.childToLocal(
-            layoutCoordinates, PxPosition.Origin
+            layoutCoordinates, Offset.Zero
         )
         val startPx = startPosition - relativePosition
         val endPx = endPosition - relativePosition
@@ -67,16 +66,16 @@ internal class TextSelectionDelegate(
         }
     }
 
-    override fun getHandlePosition(selection: Selection, isStartHandle: Boolean): PxPosition {
+    override fun getHandlePosition(selection: Selection, isStartHandle: Boolean): Offset {
         // Check if the selection handles's selectable is the current selectable.
         if (isStartHandle && selection.start.selectable != this ||
             !isStartHandle && selection.end.selectable != this) {
-            return PxPosition.Origin
+            return Offset.Zero
         }
 
-        if (getLayoutCoordinates() == null) return PxPosition.Origin
+        if (getLayoutCoordinates() == null) return Offset.Zero
 
-        val textLayoutResult = layoutResultCallback() ?: return PxPosition.Origin
+        val textLayoutResult = layoutResultCallback() ?: return Offset.Zero
         return getSelectionHandleCoordinates(
             textLayoutResult = textLayoutResult,
             offset = if (isStartHandle) selection.start.offset else selection.end.offset,
@@ -125,7 +124,7 @@ internal class TextSelectionDelegate(
  */
 internal fun getTextSelectionInfo(
     textLayoutResult: TextLayoutResult,
-    selectionCoordinates: Pair<PxPosition, PxPosition>,
+    selectionCoordinates: Pair<Offset, Offset>,
     selectable: Selectable,
     wordBasedSelection: Boolean,
     previousSelection: Selection? = null,
@@ -211,8 +210,8 @@ private fun getRefinedSelectionInfo(
     rawEndOffset: Int,
     containsWholeSelectionStart: Boolean,
     containsWholeSelectionEnd: Boolean,
-    startPosition: PxPosition,
-    endPosition: PxPosition,
+    startPosition: Offset,
+    endPosition: Offset,
     bounds: Rect,
     textLayoutResult: TextLayoutResult,
     lastOffset: Int,
@@ -365,8 +364,8 @@ private fun processAsSingleComposable(
  * crossed each other.
  */
 private fun processCrossComposable(
-    startPosition: PxPosition,
-    endPosition: PxPosition,
+    startPosition: Offset,
+    endPosition: Offset,
     rawStartOffset: Int,
     rawEndOffset: Int,
     lastOffset: Int,
@@ -511,7 +510,7 @@ private fun getSelectionHandleCoordinates(
     offset: Int,
     isStart: Boolean,
     areHandlesCrossed: Boolean
-): PxPosition {
+): Offset {
     val line = textLayoutResult.getLineForOffset(offset)
     val offsetToCheck =
         if (isStart && !areHandlesCrossed || !isStart && areHandlesCrossed) offset
@@ -525,5 +524,5 @@ private fun getSelectionHandleCoordinates(
     )
     val y = textLayoutResult.getLineBottom(line)
 
-    return PxPosition(x, y)
+    return Offset(x, y)
 }

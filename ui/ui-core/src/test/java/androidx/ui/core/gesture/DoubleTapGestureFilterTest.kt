@@ -27,7 +27,7 @@ import androidx.ui.testutils.invokeOverAllPasses
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -55,7 +55,7 @@ class DoubleTapGestureFilterTest {
     private val DoubleTapTimeoutMillis = 100.milliseconds
     @Suppress("DEPRECATION")
     private val testContext = kotlinx.coroutines.test.TestCoroutineContext()
-    private val onDoubleTap: (PxPosition) -> Unit = mock()
+    private val onDoubleTap: (Offset) -> Unit = mock()
     private val customEventDispatcher: CustomEventDispatcher = mock()
     private lateinit var filter: DoubleTapGestureFilter
 
@@ -524,7 +524,7 @@ class DoubleTapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(down2)
         filter::onPointerInput.invokeOverAllPasses(up2)
 
-        verify(onDoubleTap).invoke(PxPosition.Origin)
+        verify(onDoubleTap).invoke(Offset.Zero)
     }
 
     @Test
@@ -542,7 +542,7 @@ class DoubleTapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move2)
         filter::onPointerInput.invokeOverAllPasses(up2)
 
-        verify(onDoubleTap).invoke(PxPosition(3f, 5f))
+        verify(onDoubleTap).invoke(Offset(3f, 5f))
     }
 
     @Test
@@ -565,7 +565,7 @@ class DoubleTapGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(up2A, move2B2)
         filter::onPointerInput.invokeOverAllPasses(up2B)
 
-        verify(onDoubleTap).invoke(PxPosition(7f, 11f))
+        verify(onDoubleTap).invoke(Offset(7f, 11f))
     }
 
     // Tests that verify correct consumption behavior

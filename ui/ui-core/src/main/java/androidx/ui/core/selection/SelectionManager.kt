@@ -33,7 +33,7 @@ import androidx.ui.geometry.Rect
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.length
 import androidx.ui.text.subSequence
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import kotlin.math.max
 import kotlin.math.min
 
@@ -87,13 +87,13 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
      * recalculated.
      */
-    private var dragBeginPosition = PxPosition.Origin
+    private var dragBeginPosition = Offset.Zero
 
     /**
      * The total distance being dragged of the drag gesture. Every time a new drag gesture starts,
      * it will be zeroed out.
      */
-    private var dragTotalDistance = PxPosition.Origin
+    private var dragTotalDistance = Offset.Zero
 
     /**
      * A flag to check if the selection start or end handle is being dragged.
@@ -109,7 +109,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * It is a [State] so reading it during the composition will cause recomposition every time
      * the position has been changed.
      */
-    var startHandlePosition by mutableStateOf<PxPosition?>(null, areEquivalent = StructurallyEqual)
+    var startHandlePosition by mutableStateOf<Offset?>(null, areEquivalent = StructurallyEqual)
         private set
 
     /**
@@ -118,7 +118,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * It is a [State] so reading it during the composition will cause recomposition every time
      * the position has been changed.
      */
-    var endHandlePosition by mutableStateOf<PxPosition?>(null, areEquivalent = StructurallyEqual)
+    var endHandlePosition by mutableStateOf<Offset?>(null, areEquivalent = StructurallyEqual)
         private set
 
     init {
@@ -171,8 +171,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * Iterates over the handlers, gets the selection for each Composable, and merges all the
      * returned [Selection]s.
      *
-     * @param startPosition [PxPosition] for the start of the selection
-     * @param endPosition [PxPosition] for the end of the selection
+     * @param startPosition [Offset] for the start of the selection
+     * @param endPosition [Offset] for the end of the selection
      * @param longPress the selection is a result of long press
      * @param previousSelection previous selection
      *
@@ -181,8 +181,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      */
     // This function is internal for testing purposes.
     internal fun mergeSelections(
-        startPosition: PxPosition,
-        endPosition: PxPosition,
+        startPosition: Offset,
+        endPosition: Offset,
         longPress: Boolean = false,
         previousSelection: Selection? = null,
         isStartHandle: Boolean = true
@@ -307,7 +307,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
             var startTop = localLayoutCoordinates.childToLocal(
                 startLayoutCoordinates,
-                PxPosition(
+                Offset(
                     0f,
                     selection.start.selectable.getBoundingBox(selection.start.offset).top
                 )
@@ -315,7 +315,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
             var endTop = localLayoutCoordinates.childToLocal(
                 endLayoutCoordinates,
-                PxPosition(
+                Offset(
                     0.0f,
                     selection.end.selectable.getBoundingBox(selection.end.offset).top
                 )
@@ -342,15 +342,15 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         // Call mergeSelections with an out of boundary input to inform all text widgets to
         // cancel their individual selection.
         mergeSelections(
-            startPosition = PxPosition(-1f, -1f),
-            endPosition = PxPosition(-1f, -1f),
+            startPosition = Offset(-1f, -1f),
+            endPosition = Offset(-1f, -1f),
             previousSelection = selection
         )
         if (selection != null) onSelectionChange(null)
     }
 
     val longPressDragObserver = object : LongPressDragObserver {
-        override fun onLongPress(pxPosition: PxPosition) {
+        override fun onLongPress(pxPosition: Offset) {
             if (draggingHandle) return
             val coordinates = containerLayoutCoordinates
             if (coordinates == null || !coordinates.isAttached) return
@@ -369,12 +369,12 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             // selection never started
             if (selection == null) return
             // Zero out the total distance that being dragged.
-            dragTotalDistance = PxPosition.Origin
+            dragTotalDistance = Offset.Zero
         }
 
-        override fun onDrag(dragDistance: PxPosition): PxPosition {
+        override fun onDrag(dragDistance: Offset): Offset {
             // selection never started, did not consume any drag
-            if (selection == null) return PxPosition.Origin
+            if (selection == null) return Offset.Zero
 
             dragTotalDistance += dragDistance
             val newSelection = mergeSelections(
@@ -396,13 +396,13 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * line's top offset, which is not included in current line's hit area. To be able to
      * hit current line, move up this y coordinates by 1 pixel.
      */
-    private fun getAdjustedCoordinates(position: PxPosition): PxPosition {
-        return PxPosition(position.x, position.y - 1f)
+    private fun getAdjustedCoordinates(position: Offset): Offset {
+        return Offset(position.x, position.y - 1f)
     }
 
     fun handleDragObserver(isStartHandle: Boolean): DragObserver {
         return object : DragObserver {
-            override fun onStart(downPosition: PxPosition) {
+            override fun onStart(downPosition: Offset) {
                 val selection = selection!!
                 // The LayoutCoordinates of the composable where the drag gesture should begin. This
                 // is used to convert the position of the beginning of the drag gesture from the
@@ -433,11 +433,11 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 )
 
                 // Zero out the total distance that being dragged.
-                dragTotalDistance = PxPosition.Origin
+                dragTotalDistance = Offset.Zero
                 draggingHandle = true
             }
 
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
+            override fun onDrag(dragDistance: Offset): Offset {
                 val selection = selection!!
                 dragTotalDistance += dragDistance
 
@@ -479,7 +479,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 return dragDistance
             }
 
-            override fun onStop(velocity: PxPosition) {
+            override fun onStop(velocity: Offset) {
                 super.onStop(velocity)
                 draggingHandle = false
             }

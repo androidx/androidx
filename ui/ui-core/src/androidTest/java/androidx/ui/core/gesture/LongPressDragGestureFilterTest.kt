@@ -26,7 +26,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.layout.Stack
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.inOrder
@@ -371,15 +371,15 @@ class LongPressDragGestureFilterTest {
 
 @Suppress("RedundantOverride")
 open class MyLongPressDragObserver(val onLongPress: () -> Unit) : LongPressDragObserver {
-    override fun onLongPress(pxPosition: PxPosition) {
+    override fun onLongPress(pxPosition: Offset) {
         onLongPress()
     }
 
     override fun onDragStart() {}
 
-    override fun onDrag(dragDistance: PxPosition): PxPosition {
+    override fun onDrag(dragDistance: Offset): Offset {
         return super.onDrag(dragDistance)
     }
 
-    override fun onStop(velocity: PxPosition) {}
+    override fun onStop(velocity: Offset) {}
 }

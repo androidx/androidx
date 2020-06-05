@@ -25,7 +25,7 @@ import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 /**
  * The data class which holds the set of parameters of the text layout computation.
@@ -235,7 +235,7 @@ data class TextLayoutResult internal constructor(
      *  @param position a graphical position in this text layout
      *  @return a character offset that is closest to the given graphical position.
      */
-    fun getOffsetForPosition(position: PxPosition): Int =
+    fun getOffsetForPosition(position: Offset): Int =
         multiParagraph.getOffsetForPosition(position)
 
     /**

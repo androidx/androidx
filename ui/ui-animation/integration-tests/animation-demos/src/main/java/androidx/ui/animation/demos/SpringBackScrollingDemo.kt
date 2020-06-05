@@ -37,7 +37,6 @@ import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
-import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import kotlin.math.roundToInt
@@ -54,12 +53,12 @@ fun SpringBackScrollingDemo() {
         val itemWidth = state { 0f }
         val isFlinging = state { false }
         val gesture = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
+            override fun onDrag(dragDistance: Offset): Offset {
                 animScroll.snapTo(animScroll.targetValue + dragDistance.x)
                 return dragDistance
             }
 
-            override fun onStop(velocity: PxPosition) {
+            override fun onStop(velocity: Offset) {
                 isFlinging.value = true
                 animScroll.fling(velocity.x, onEnd = { _, _, _ ->
                     isFlinging.value = false

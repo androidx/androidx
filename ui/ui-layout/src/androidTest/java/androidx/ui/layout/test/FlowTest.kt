@@ -31,7 +31,7 @@ import androidx.ui.layout.SizeMode
 import androidx.ui.layout.Stack
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -55,7 +55,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -95,7 +95,7 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i % 5), y = size * (i / 5)),
+                Offset(x = (size * (i % 5)).value.toFloat(), y = (size * (i / 5)).value.toFloat()),
                 childPosition[i].value
             )
         }
@@ -111,7 +111,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -150,7 +150,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i % 5), y = size * (i / 5)),
+                Offset(
+                    x = (size * (i % 5)).value.toFloat(),
+                    y = (size * (i / 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -166,7 +169,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -207,7 +210,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i % 5), y = size * (i / 5)),
+                Offset(
+                    x = (size * (i % 5)).value.toFloat(),
+                    y = (size * (i / 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -223,7 +229,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -267,7 +273,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = (flowWidth - size * 5) / 2 + size * (i % 5), y = size * (i / 5)),
+                Offset(
+                    x = ((flowWidth - size * 5) / 2 + size * (i % 5)).value.toFloat(),
+                    y = (size * (i / 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -283,7 +292,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -326,7 +335,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i % 5), y = size * (i / 5)),
+                Offset(
+                    x = (size * (i % 5)).value.toFloat(),
+                    y = (size * (i / 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -342,7 +354,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -386,7 +398,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = flowWidth - size * 5 + size * (i % 5), y = size * (i / 5)),
+                Offset(
+                    x = (flowWidth - size * 5 + size * (i % 5)).value.toFloat(),
+                    y = (size * (i / 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -402,7 +417,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -445,10 +460,11 @@ class FlowTest : LayoutTest() {
                 IntPxSize(width = size, height = size),
                 childSize[i].value
             )
+            val x = (flowWidth - size * 5) * (i % 5 + 1) / 6 + size * (i % 5)
             assertEquals(
-                PxPosition(
-                    x = (flowWidth - size * 5) * (i % 5 + 1) / 6 + size * (i % 5),
-                    y = size * (i / 5)
+                Offset(
+                    x = x.value.toFloat(),
+                    y = (size * (i / 5)).value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -465,7 +481,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -509,9 +525,9 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
-                    x = (flowWidth - size * 5) * (i % 5) / 4 + size * (i % 5),
-                    y = size * (i / 5)
+                Offset(
+                    x = ((flowWidth - size * 5) * (i % 5) / 4 + size * (i % 5)).value.toFloat(),
+                    y = (size * (i / 5)).value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -528,7 +544,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -572,9 +588,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
-                    x = (flowWidth - size * 5) * (i % 5 + 0.5f) / 5 + size * (i % 5),
-                    y = size * (i / 5)
+                Offset(
+                    x = ((flowWidth - size * 5) * (i % 5 + 0.5f) / 5 + size * (i % 5))
+                        .value.toFloat(),
+                    y = (size * (i / 5)).value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -591,7 +608,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -636,13 +653,13 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
+                Offset(
                     x = if (i < 10) {
-                        (flowWidth - size * 5) * (i % 5) / 4 + size * (i % 5)
+                        ((flowWidth - size * 5) * (i % 5) / 4 + size * (i % 5)).value.toFloat()
                     } else {
-                        (flowWidth - size * 5) / 2 + size * (i % 5)
+                        ((flowWidth - size * 5) / 2 + size * (i % 5)).value.toFloat()
                     },
-                    y = size * (i / 5)
+                    y = (size * (i / 5)).value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -659,7 +676,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -704,13 +721,13 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
+                Offset(
                     x = if (i < 10) {
-                        (flowWidth - size * 5) * (i % 5) / 4 + size * (i % 5)
+                        ((flowWidth - size * 5) * (i % 5) / 4 + size * (i % 5)).value.toFloat()
                     } else {
-                        size * (i % 5)
+                        (size * (i % 5)).value.toFloat()
                     },
-                    y = size * (i / 5)
+                    y = (size * (i / 5)).value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -727,7 +744,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -772,13 +789,13 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
+                Offset(
                     x = if (i < 10) {
-                        (flowWidth - size * 5) * (i % 5) / 4 + size * (i % 5)
+                        ((flowWidth - size * 5) * (i % 5) / 4 + size * (i % 5)).value.toFloat()
                     } else {
-                        (flowWidth - size * 5) + size * (i % 5)
+                        ((flowWidth - size * 5) + size * (i % 5)).value.toFloat()
                     },
-                    y = size * (i / 5)
+                    y = (size * (i / 5)).value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -797,7 +814,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -838,7 +855,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = (size + spacing) * (i % 3), y = size * (i / 3)),
+                Offset(
+                    x = ((size + spacing) * (i % 3)).value.toFloat(),
+                    y = (size * (i / 3)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -854,7 +874,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -899,9 +919,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
-                    x = size * (i % 5),
-                    y = size * 2 * (i / 5) + if (i % 2 == 0) size / 2 else IntPx.Zero
+                Offset(
+                    x = (size * (i % 5)).value.toFloat(),
+                    y = (size * 2 * (i / 5) + if (i % 2 == 0) size / 2 else IntPx.Zero)
+                        .value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -918,7 +939,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -963,7 +984,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i % 5), y = size * 2 * (i / 5)),
+                Offset(
+                    x = (size * (i % 5)).value.toFloat(),
+                    y = (size * 2 * (i / 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -979,7 +1003,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1024,9 +1048,9 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
-                    x = size * (i % 5),
-                    y = size * 2 * (i / 5) + if (i % 2 == 0) size else IntPx.Zero
+                Offset(
+                    x = (size * (i % 5)).value.toFloat(),
+                    y = (size * 2 * (i / 5) + if (i % 2 == 0) size else IntPx.Zero).value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -1045,7 +1069,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1086,7 +1110,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i % 5), y = (size + spacing) * (i / 5)),
+                Offset(
+                    x = (size * (i % 5)).value.toFloat(),
+                    y = ((size + spacing) * (i / 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -1102,7 +1129,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1141,7 +1168,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i / 5), y = size * (i % 5)),
+                Offset(
+                    x = (size * (i / 5)).value.toFloat(),
+                    y = (size * (i % 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -1157,7 +1187,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1196,7 +1226,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i / 5), y = size * (i % 5)),
+                Offset(
+                    x = (size * (i / 5)).value.toFloat(),
+                    y = (size * (i % 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -1212,7 +1245,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1251,7 +1284,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i / 5), y = size * (i % 5)),
+                Offset(
+                    x = (size * (i / 5)).value.toFloat(),
+                    y = (size * (i % 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -1267,7 +1303,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1309,7 +1345,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i / 5), y = (flowHeight - size * 5) / 2 + size * (i % 5)),
+                Offset(
+                    x = (size * (i / 5)).value.toFloat(),
+                    y = ((flowHeight - size * 5) / 2 + size * (i % 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -1325,7 +1364,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1367,7 +1406,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i / 5), y = size * (i % 5)),
+                Offset(
+                    x = (size * (i / 5)).value.toFloat(),
+                    y = (size * (i % 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -1383,7 +1425,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1427,7 +1469,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i / 5), y = flowHeight - size * 5 + size * (i % 5)),
+                Offset(
+                    x = (size * (i / 5)).value.toFloat(),
+                    y = (flowHeight - size * 5 + size * (i % 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -1443,7 +1488,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1484,10 +1529,11 @@ class FlowTest : LayoutTest() {
                 IntPxSize(width = size, height = size),
                 childSize[i].value
             )
+            val y = (flowHeight - size * 5) * (i % 5 + 1) / 6 + size * (i % 5)
             assertEquals(
-                PxPosition(
-                    x = size * (i / 5),
-                    y = (flowHeight - size * 5) * (i % 5 + 1) / 6 + size * (i % 5)
+                Offset(
+                    x = (size * (i / 5)).value.toFloat(),
+                    y = y.value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -1504,7 +1550,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1546,9 +1592,9 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
-                    x = size * (i / 5),
-                    y = (flowHeight - size * 5) * (i % 5) / 4 + size * (i % 5)
+                Offset(
+                    x = (size * (i / 5)).value.toFloat(),
+                    y = ((flowHeight - size * 5) * (i % 5) / 4 + size * (i % 5)).value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -1565,7 +1611,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1607,9 +1653,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
-                    x = size * (i / 5),
-                    y = (flowHeight - size * 5) * (i % 5 + 0.5f) / 5 + size * (i % 5)
+                Offset(
+                    x = (size * (i / 5)).value.toFloat(),
+                    y = ((flowHeight - size * 5) * (i % 5 + 0.5f) / 5 + size * (i % 5))
+                            .value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -1626,7 +1673,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1669,12 +1716,12 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
-                    x = size * (i / 5),
+                Offset(
+                    x = (size * (i / 5)).value.toFloat(),
                     y = if (i < 10) {
-                        (flowHeight - size * 5) * (i % 5) / 4 + size * (i % 5)
+                        ((flowHeight - size * 5) * (i % 5) / 4 + size * (i % 5)).value.toFloat()
                     } else {
-                        (flowHeight - size * 5) / 2 + size * (i % 5)
+                        ((flowHeight - size * 5) / 2 + size * (i % 5)).value.toFloat()
                     }
                 ),
                 childPosition[i].value
@@ -1692,7 +1739,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1735,12 +1782,12 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
-                    x = size * (i / 5),
+                Offset(
+                    x = (size * (i / 5)).value.toFloat(),
                     y = if (i < 10) {
-                        (flowHeight - size * 5) * (i % 5) / 4 + size * (i % 5)
+                        ((flowHeight - size * 5) * (i % 5) / 4 + size * (i % 5)).value.toFloat()
                     } else {
-                        size * (i % 5)
+                        (size * (i % 5)).value.toFloat()
                     }
                 ),
                 childPosition[i].value
@@ -1758,7 +1805,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1801,12 +1848,12 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
-                    x = size * (i / 5),
+                Offset(
+                    x = (size * (i / 5)).value.toFloat(),
                     y = if (i < 10) {
-                        (flowHeight - size * 5) * (i % 5) / 4 + size * (i % 5)
+                        ((flowHeight - size * 5) * (i % 5) / 4 + size * (i % 5)).value.toFloat()
                     } else {
-                        (flowHeight - size * 5) + size * (i % 5)
+                        ((flowHeight - size * 5) + size * (i % 5)).value.toFloat()
                     }
                 ),
                 childPosition[i].value
@@ -1826,7 +1873,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1865,7 +1912,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * (i / 3), y = (size + spacing) * (i % 3)),
+                Offset(
+                    x = (size * (i / 3)).value.toFloat(),
+                    y = ((size + spacing) * (i % 3)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -1881,7 +1931,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1925,9 +1975,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(
-                    x = size * 2 * (i / 5) + if (i % 2 == 0) size / 2 else IntPx.Zero,
-                    y = size * (i % 5)
+                Offset(
+                    x = (size * 2 * (i / 5) + if (i % 2 == 0) size / 2 else IntPx.Zero)
+                            .value.toFloat(),
+                    y = (size * (i % 5)).value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -1944,7 +1995,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -1985,7 +2036,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = size * 2 * (i / 5), y = size * (i % 5)),
+                Offset(
+                    x = (size * 2 * (i / 5)).value.toFloat(),
+                    y = (size * (i % 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }
@@ -2001,7 +2055,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -2044,10 +2098,11 @@ class FlowTest : LayoutTest() {
                 ),
                 childSize[i].value
             )
+            val x = (size * 2 * (i / 5) + if (i % 2 == 0) size else IntPx.Zero)
             assertEquals(
-                PxPosition(
-                    x = size * 2 * (i / 5) + if (i % 2 == 0) size else IntPx.Zero,
-                    y = size * (i % 5)
+                Offset(
+                    x = x.value.toFloat(),
+                    y = (size * (i % 5)).value.toFloat()
                 ),
                 childPosition[i].value
             )
@@ -2066,7 +2121,7 @@ class FlowTest : LayoutTest() {
 
         val flowSize = Ref<IntPxSize>()
         val childSize = Array(numberOfSquares) { Ref<IntPxSize>() }
-        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val childPosition = Array(numberOfSquares) { Ref<Offset>() }
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
@@ -2105,7 +2160,10 @@ class FlowTest : LayoutTest() {
                 childSize[i].value
             )
             assertEquals(
-                PxPosition(x = (size + spacing) * (i / 5), y = size * (i % 5)),
+                Offset(
+                    x = ((size + spacing) * (i / 5)).value.toFloat(),
+                    y = (size * (i % 5)).value.toFloat()
+                ),
                 childPosition[i].value
             )
         }

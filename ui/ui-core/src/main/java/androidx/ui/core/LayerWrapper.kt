@@ -20,7 +20,7 @@ import android.graphics.Matrix
 import android.graphics.RectF
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 internal class LayerWrapper(
     wrapped: LayoutNodeWrapper,
@@ -80,7 +80,7 @@ internal class LayerWrapper(
         return layer
     }
 
-    override fun fromParentPosition(position: PxPosition): PxPosition {
+    override fun fromParentPosition(position: Offset): Offset {
         val matrix = layer.getMatrix()
         val targetPosition =
             if (!matrix.isIdentity) {
@@ -93,7 +93,7 @@ internal class LayerWrapper(
         return super.fromParentPosition(targetPosition)
     }
 
-    override fun toParentPosition(position: PxPosition): PxPosition {
+    override fun toParentPosition(position: Offset): Offset {
         val matrix = layer.getMatrix()
         val targetPosition =
             if (!matrix.isIdentity) {
@@ -105,10 +105,10 @@ internal class LayerWrapper(
     }
 
     /**
-     * Return a transformed [PxPosition] based off of the provided matrix transformation
+     * Return a transformed [Offset] based off of the provided matrix transformation
      * and untransformed position.
      */
-    private fun mapPointsFromMatrix(matrix: Matrix, position: PxPosition): PxPosition {
+    private fun mapPointsFromMatrix(matrix: Matrix, position: Offset): Offset {
         val x = position.x
         val y = position.y
         val cache = positionCache
@@ -120,7 +120,7 @@ internal class LayerWrapper(
             floatArrayOf(x, y).also { positionCache = it }
         }
         matrix.mapPoints(point)
-        return PxPosition(point[0], point[1])
+        return Offset(point[0], point[1])
     }
 
     override fun rectInParent(bounds: RectF) {

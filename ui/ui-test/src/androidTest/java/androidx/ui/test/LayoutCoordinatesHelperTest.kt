@@ -27,7 +27,7 @@ import androidx.ui.foundation.ContentGravity
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
@@ -69,8 +69,8 @@ class LayoutCoordinatesHelperTest {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(
-            PxPosition.Origin,
-            parentCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin)
+            Offset.Zero,
+            parentCoordinates!!.childToLocal(childCoordinates!!, Offset.Zero)
         )
     }
 
@@ -104,8 +104,8 @@ class LayoutCoordinatesHelperTest {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(
-            PxPosition(5f, 0f),
-            parentCoordinates!!.childToLocal(childCoordinates!!, PxPosition.Origin)
+            Offset(5f, 0f),
+            parentCoordinates!!.childToLocal(childCoordinates!!, Offset.Zero)
         )
     }
 }

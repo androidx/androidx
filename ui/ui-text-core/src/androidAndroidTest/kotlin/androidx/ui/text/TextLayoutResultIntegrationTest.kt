@@ -25,7 +25,7 @@ import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.isZero
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
@@ -133,7 +133,7 @@ class TextLayoutResultIntegrationTest {
         )
         val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
-        val selection = layoutResult.getOffsetForPosition(PxPosition.Origin)
+        val selection = layoutResult.getOffsetForPosition(Offset.Zero)
 
         assertThat(selection).isZero()
     }
@@ -159,7 +159,7 @@ class TextLayoutResultIntegrationTest {
             val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
             val selection = layoutResult.getOffsetForPosition(
-                position = PxPosition((fontSize.toPx() * characterIndex + 1), 0f)
+                position = Offset((fontSize.toPx() * characterIndex + 1), 0f)
             )
 
             assertThat(selection).isEqualTo(characterIndex)

@@ -47,8 +47,8 @@ inline fun CanvasTransform.inset(dx: Float = 0.0f, dy: Float = 0.0f) = inset(dx,
 @Suppress("NOTHING_TO_INLINE")
 inline fun CanvasTransform.rotateRad(
     radians: Float,
-    pivotX: Float = center.dx,
-    pivotY: Float = center.dy
+    pivotX: Float = center.x,
+    pivotY: Float = center.y
 ) = rotate(degrees(radians), pivotX, pivotY)
 
 /**
@@ -131,7 +131,7 @@ interface CanvasTransform {
      *  @param pivotY The y-coordinate for the pivot point, defaults to the center of the
      *  coordinate space vertically
      */
-    fun rotate(degrees: Float, pivotX: Float = center.dx, pivotY: Float = center.dy)
+    fun rotate(degrees: Float, pivotX: Float = center.x, pivotY: Float = center.y)
 
     /**
      * Add an axis-aligned scale to the current transform, scaling by the first
@@ -152,7 +152,7 @@ interface CanvasTransform {
     fun scale(
         scaleX: Float,
         scaleY: Float = scaleX,
-        pivotX: Float = center.dx,
-        pivotY: Float = center.dy
+        pivotX: Float = center.x,
+        pivotY: Float = center.y
     )
 }

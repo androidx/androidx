@@ -26,7 +26,7 @@ import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsPropertyKey
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.util.fastForEach
 
 /**
@@ -104,7 +104,7 @@ class SemanticsNode internal constructor(
             return layoutNode.coordinates.globalBounds
         }
 
-    val globalPosition: PxPosition
+    val globalPosition: Offset
         get() {
             return layoutNode.coordinates.globalPosition
         }

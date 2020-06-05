@@ -17,7 +17,7 @@
 package androidx.ui.core.selection
 
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 
 internal class SelectionRegistrarImpl : SelectionRegistrar {
     /**
@@ -67,15 +67,15 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
                 val positionA =
                     if (layoutCoordinatesA != null) containerLayoutCoordinates.childToLocal(
                         layoutCoordinatesA,
-                        PxPosition.Origin
+                        Offset.Zero
                     )
-                    else PxPosition.Origin
+                    else Offset.Zero
                 val positionB =
                     if (layoutCoordinatesB != null) containerLayoutCoordinates.childToLocal(
                         layoutCoordinatesB,
-                        PxPosition.Origin
+                        Offset.Zero
                     )
-                    else PxPosition.Origin
+                    else Offset.Zero
 
                 if (positionA.y == positionB.y) compareValues(positionA.x, positionB.x)
                 else compareValues(positionA.y, positionB.y)

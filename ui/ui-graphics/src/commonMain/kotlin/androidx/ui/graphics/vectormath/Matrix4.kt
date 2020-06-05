@@ -612,7 +612,7 @@ fun Matrix4.isIdentity(): Boolean {
  * z-coordinate of the result is ignored.
  */
 fun Matrix4.transformPoint(point: Offset): Offset {
-    val position3 = Vector3(point.dx, point.dy, 0.0f)
+    val position3 = Vector3(point.x, point.y, 0.0f)
     val transformed3 = perspectiveTransform(position3)
     return Offset(transformed3.x, transformed3.y)
 }
@@ -631,10 +631,10 @@ fun Matrix4.transformRect(rect: Rect): Rect {
     val point3 = transformPoint(rect.getBottomLeft())
     val point4 = transformPoint(rect.getBottomRight())
     return Rect.fromLTRB(
-        min4(point1.dx, point2.dx, point3.dx, point4.dx),
-        min4(point1.dy, point2.dy, point3.dy, point4.dy),
-        max4(point1.dx, point2.dx, point3.dx, point4.dx),
-        max4(point1.dy, point2.dy, point3.dy, point4.dy)
+        min4(point1.x, point2.x, point3.x, point4.x),
+        min4(point1.y, point2.y, point3.y, point4.y),
+        max4(point1.x, point2.x, point3.x, point4.x),
+        max4(point1.y, point2.y, point3.y, point4.y)
     )
 }
 

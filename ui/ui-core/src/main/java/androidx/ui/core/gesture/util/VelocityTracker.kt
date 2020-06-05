@@ -17,7 +17,7 @@
 package androidx.ui.core.gesture.util
 
 import androidx.ui.unit.Duration
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.Uptime
 import androidx.ui.unit.Velocity
 import androidx.ui.unit.inMilliseconds
@@ -56,7 +56,7 @@ class VelocityTracker {
     // TODO(shepshapard): VelocityTracker needs to be updated to be passed vectors instead of
     //   positions. For velocity tracking, the only thing that is important is the change in
     //   position over time.
-    fun addPosition(uptime: Uptime, position: PxPosition) {
+    fun addPosition(uptime: Uptime, position: Offset) {
         index = (index + 1) % HistorySize
         samples[index] = PointAtTime(position, uptime)
     }
@@ -110,7 +110,7 @@ class VelocityTracker {
             }
 
             oldestSample = sample
-            val position: PxPosition = sample.point
+            val position: Offset = sample.point
             x.add(position.x)
             y.add(position.y)
             time.add(-age)
@@ -130,7 +130,7 @@ class VelocityTracker {
                 val xSlope = xFit.coefficients[1]
                 val ySlope = yFit.coefficients[1]
                 return VelocityEstimate(
-                    pixelsPerSecond = PxPosition(
+                    pixelsPerSecond = Offset(
                         // Convert from pixels/ms to pixels/s
                         (xSlope * 1000),
                         (ySlope * 1000)
@@ -148,7 +148,7 @@ class VelocityTracker {
         // We're unable to make a velocity estimate but we did have at least one
         // valid pointer position.
         return VelocityEstimate(
-            pixelsPerSecond = PxPosition.Origin,
+            pixelsPerSecond = Offset.Zero,
             confidence = 1.0f,
             duration = newestSample.time - oldestSample.time,
             offset = newestSample.point - oldestSample.point
@@ -156,7 +156,7 @@ class VelocityTracker {
     }
 }
 
-private data class PointAtTime(val point: PxPosition, val time: Uptime)
+private data class PointAtTime(val point: Offset, val time: Uptime)
 
 /**
  * A two dimensional velocity estimate.
@@ -175,7 +175,7 @@ private data class PointAtTime(val point: PxPosition, val time: Uptime)
  */
 private data class VelocityEstimate(
     /** The number of pixels per second of velocity in the x and y directions. */
-    val pixelsPerSecond: PxPosition,
+    val pixelsPerSecond: Offset,
     /**
      * A value between 0.0 and 1.0 that indicates how well [VelocityTracker]
      * was able to fit a straight line to its position data.
@@ -192,9 +192,9 @@ private data class VelocityEstimate(
      * The difference between the first and last position sample used
      * to compute [pixelsPerSecond].
      */
-    val offset: PxPosition
+    val offset: Offset
 ) {
     companion object {
-        val None = VelocityEstimate(PxPosition.Origin, 1f, Duration(0), PxPosition.Origin)
+        val None = VelocityEstimate(Offset.Zero, 1f, Duration(0), Offset.Zero)
     }
 }

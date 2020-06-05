@@ -48,7 +48,7 @@ import androidx.ui.input.NO_SESSION
 import androidx.ui.input.VisualTransformation
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.onClick
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.ipx
 import kotlin.math.roundToInt
 
@@ -269,8 +269,8 @@ private class TextFieldState(
  */
 @Composable
 private fun TextInputEventObserver(
-    onPress: (PxPosition) -> Unit,
-    onRelease: (PxPosition) -> Unit,
+    onPress: (Offset) -> Unit,
+    onRelease: (Offset) -> Unit,
     onFocus: () -> Unit,
     onBlur: (hasNextClient: Boolean) -> Unit,
     focusModifier: FocusModifier,
@@ -333,15 +333,15 @@ private fun TextInputEventObserver(
  * Helper class for tracking dragging event.
  */
 internal class DragEventTracker {
-    private var origin = PxPosition.Origin
-    private var distance = PxPosition.Origin
+    private var origin = Offset.Zero
+    private var distance = Offset.Zero
 
     /**
      * Restart the tracking from given origin.
      *
      * @param origin The origin of the drag gesture.
      */
-    fun init(origin: PxPosition) {
+    fun init(origin: Offset) {
         this.origin = origin
     }
 
@@ -350,7 +350,7 @@ internal class DragEventTracker {
      *
      * @param distance The distance from the origin of the drag origin.
      */
-    fun onDrag(distance: PxPosition) {
+    fun onDrag(distance: Offset) {
         this.distance = distance
     }
 
@@ -359,7 +359,7 @@ internal class DragEventTracker {
      *
      * @return The position of the current drag point.
      */
-    fun getPosition(): PxPosition {
+    fun getPosition(): Offset {
         return origin + distance
     }
 }
@@ -369,8 +369,8 @@ internal class DragEventTracker {
  */
 @Composable
 private fun Modifier.dragPositionGestureFilter(
-    onPress: (PxPosition) -> Unit,
-    onRelease: (PxPosition) -> Unit
+    onPress: (Offset) -> Unit,
+    onRelease: (Offset) -> Unit
 ): Modifier {
     val tracker = state { DragEventTracker() }
     // TODO(shepshapard): PressIndicator doesn't seem to be the right thing to use here.  It
@@ -387,9 +387,9 @@ private fun Modifier.dragPositionGestureFilter(
             })
         .dragGestureFilter(dragObserver = object :
             DragObserver {
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
+            override fun onDrag(dragDistance: Offset): Offset {
                 tracker.value.onDrag(dragDistance)
-                return PxPosition.Origin
+                return Offset.Zero
             }
         })
 }

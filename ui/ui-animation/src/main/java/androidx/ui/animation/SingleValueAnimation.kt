@@ -38,7 +38,7 @@ import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Position
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.PxPosition
+import androidx.ui.geometry.Offset
 import androidx.ui.unit.PxSize
 
 private const val DpVisibilityThreshold = 0.1f
@@ -294,15 +294,15 @@ fun animate(
 }
 
 /**
- * Fire-and-forget animation [Composable] for [PxPosition]. Once such an animation is created, it
+ * Fire-and-forget animation [Composable] for [Offset]. Once such an animation is created, it
  * will be positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
  * course of the animation, simply supply a different [target] to the [Composable].
  *
  * Note, [animate] is for simple animations that cannot be canceled. For cancellable animations
  * see [animatedValue].
  *
- *    val position : PxPosition = animate(
- *        if (selected) PxPosition(0.px, 0.px) else PxPosition(20.px, 20.px))
+ *    val position : Offset = animate(
+ *        if (selected) Offset(0.px, 0.px) else Offset(20.px, 20.px))
  *
  * @param target Target value of the animation
  * @param animBuilder The animation that will be used to change the value through time. Physics
@@ -311,10 +311,10 @@ fun animate(
  */
 @Composable
 fun animate(
-    target: PxPosition,
-    animBuilder: AnimationBuilder<PxPosition> = remember { PhysicsBuilder() },
-    endListener: ((PxPosition) -> Unit)? = null
-): PxPosition {
+    target: Offset,
+    animBuilder: AnimationBuilder<Offset> = remember { PhysicsBuilder() },
+    endListener: ((Offset) -> Unit)? = null
+): Offset {
     return animate(
         target, PxPositionToVectorConverter, animBuilder, PxVisibilityThreshold2D, endListener)
 }
