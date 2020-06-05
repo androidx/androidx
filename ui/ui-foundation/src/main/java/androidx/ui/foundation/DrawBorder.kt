@@ -23,6 +23,7 @@ import androidx.ui.core.DrawModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Radius
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
 import androidx.ui.geometry.isSimple
@@ -205,8 +206,7 @@ class DrawBorder internal constructor(
             brush,
             topLeft = Offset(rect.left + delta, rect.top + delta),
             size = Size(rect.width - 2 * delta, rect.height - 2 * delta),
-            radiusX = radius,
-            radiusY = radius,
+            radius = Radius(radius),
             style = style
         )
     }

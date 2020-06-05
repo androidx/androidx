@@ -19,6 +19,7 @@ package androidx.ui.graphics.drawscope
 import androidx.ui.util.annotation.FloatRange
 import androidx.ui.core.LayoutDirection
 import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Radius
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
@@ -532,8 +533,7 @@ abstract class DrawScope : Density {
      * @param brush The color or fill to be applied to the rounded rectangle
      * @param topLeft Offset from the local origin of 0, 0 relative to the current translation
      * @param size Dimensions of the rectangle to draw
-     * @param radiusX Corner radius of the rounded rectangle along the x-axis
-     * @param radiusY Corner radius of the rounded rectangle along the y-axis
+     * @param radius Corner radius of the rounded rectangle
      * @param alpha Opacity to be applied to rounded rectangle from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
      * @param style Specifies whether the rounded rectangle is stroked or filled in
@@ -544,8 +544,7 @@ abstract class DrawScope : Density {
         brush: Brush,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size,
-        radiusX: Float = 0.0f,
-        radiusY: Float = 0.0f,
+        radius: Radius = Radius.Zero,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
@@ -555,8 +554,8 @@ abstract class DrawScope : Density {
             topLeft.y,
             topLeft.x + size.width,
             topLeft.y + size.height,
-            radiusX,
-            radiusY,
+            radius.x,
+            radius.y,
             configurePaint(brush, style, alpha, colorFilter, blendMode)
         )
 
@@ -567,8 +566,7 @@ abstract class DrawScope : Density {
      * @param color The color to be applied to the rounded rectangle
      * @param topLeft Offset from the local origin of 0, 0 relative to the current translation
      * @param size Dimensions of the rectangle to draw
-     * @param radiusX Corner radius of the rounded rectangle along the x-axis
-     * @param radiusY Corner radius of the rounded rectangle along the y-axis
+     * @param radius Corner radius of the rounded rectangle
      * @param alpha Opacity to be applied to rounded rectangle from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
      * @param style Specifies whether the rounded rectangle is stroked or filled in
@@ -579,8 +577,7 @@ abstract class DrawScope : Density {
         color: Color,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size,
-        radiusX: Float = 0.0f,
-        radiusY: Float = 0.0f,
+        radius: Radius = Radius.Zero,
         style: DrawStyle = Fill,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         colorFilter: ColorFilter? = null,
@@ -590,8 +587,8 @@ abstract class DrawScope : Density {
             topLeft.y,
             topLeft.x + size.width,
             topLeft.y + size.height,
-            radiusX,
-            radiusY,
+            radius.x,
+            radius.y,
             configurePaint(color, style, alpha, colorFilter, blendMode)
         )
 

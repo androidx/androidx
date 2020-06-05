@@ -42,7 +42,7 @@ class RoundedCornerShapeTest {
     fun roundedUniformCorners() {
         val rounded = RoundedCornerShape(25)
 
-        val expectedRadius = Radius.circular(25f)
+        val expectedRadius = Radius(25f)
         val outline = rounded.toOutline() as Outline.Rounded
         assertThat(outline.rrect).isEqualTo(
             RRect(
@@ -63,10 +63,10 @@ class RoundedCornerShapeTest {
         assertThat(outline.rrect).isEqualTo(
             RRect(
                 size.toRect(),
-                Radius.circular(radius1),
-                Radius.circular(radius2),
-                Radius.circular(radius3),
-                Radius.circular(radius4)
+                Radius(radius1),
+                Radius(radius2),
+                Radius(radius3),
+                Radius(radius4)
             )
         )
     }
