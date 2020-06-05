@@ -22,7 +22,6 @@ dependencies {
     implementation project(":ui:ui-animation")
     implementation project(":ui:ui-foundation")
     implementation project(":ui:ui-material")
-    implementation project(":ui:ui-vector")
     implementation project(":ui:ui-livedata")
 }
 

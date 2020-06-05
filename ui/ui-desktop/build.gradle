@@ -153,8 +153,7 @@ def uiComponents = [
         "ui-text-android",
         "ui-text-core",
         "ui-unit",
-        "ui-util",
-        "ui-vector"
+        "ui-util"
 ]
 
 def androidxComponents = [
