@@ -197,10 +197,10 @@ fun DefaultMinSizeConstraintsSample() {
             backgroundColor = Color.Blue
         )
     }
-    // This will be a 10.dp x 10.dp blue box. Because we are not providing any min constraints
+    // This will be a 100.dp x 100.dp blue box. Because we are not providing any min constraints
     // to the DefaultMinBox, defaultMinSizeConstraints will apply its min constraints.
     DefaultMinBox()
-    // This will be a 5.dp x 5.dp blue box. Because we are providing min constraints
+    // This will be a 50.dp x 50.dp blue box. Because we are providing min constraints
     // to the DefaultMinBox, defaultMinSizeConstraints will not apply its min constraints.
     DefaultMinBox(Modifier.sizeIn(minWidth = 50.dp, minHeight = 50.dp))
     // Note that if DefaultMinBox used sizeIn or preferredSizeIn rather than
