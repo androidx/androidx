@@ -346,6 +346,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
             clearKeysIfNeeded();
             mEditor.apply();
             notifyListeners();
+            mKeysChanged.clear();
         }
 
         private void clearKeysIfNeeded() {
