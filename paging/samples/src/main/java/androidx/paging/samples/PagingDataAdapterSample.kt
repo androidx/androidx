@@ -34,8 +34,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 data class User(
@@ -121,12 +125,62 @@ fun refreshSample() {
     }
 }
 
+open class FakeView {
+    var isVisible: Boolean = false
+}
+
+class FakeSwipeRefreshLayout : FakeView() {
+    var isRefreshing: Boolean = false
+}
+
+private var retryButton = FakeView()
+private var swipeRefreshLayout = FakeSwipeRefreshLayout()
+private var emptyState = FakeView()
+
 @Sampled
+fun addLoadStateListenerSample() {
+    val adapter = UserPagingAdapter()
+    adapter.addLoadStateListener {
+        // show a retry button outside the list when refresh hits an error
+        retryButton.isVisible = it.refresh is LoadState.Error
+
+        // swipeRefreshLayout displays whether refresh is occurring
+        swipeRefreshLayout.isRefreshing = it.refresh is LoadState.Loading
+
+        // show an empty state over the list when loading initially, before items are loaded
+        emptyState.isVisible = it.refresh is LoadState.Loading && adapter.itemCount == 0
+    }
+}
+
+internal val lifecycleScope = CoroutineScope(Dispatchers.Default)
+
+@Sampled
+@OptIn(ExperimentalCoroutinesApi::class)
+fun loadStateFlowSample() {
+    val adapter = UserPagingAdapter()
+    lifecycleScope.launch {
+        adapter.loadStateFlow
+            .map { it.refresh }
+            .distinctUntilChanged()
+            .collectLatest {
+                // show a retry button outside the list when refresh hits an error
+                retryButton.isVisible = it is LoadState.Error
+
+                // swipeRefreshLayout displays whether refresh is occurring
+                swipeRefreshLayout.isRefreshing = it is LoadState.Loading
+
+                // show an empty state over the list when loading initially, before items are loaded
+                emptyState.isVisible = it is LoadState.Loading && adapter.itemCount == 0
+            }
+    }
+}
+
+@Sampled
+@OptIn(ExperimentalCoroutinesApi::class)
 fun submitDataFlowSample() {
     class MyFlowActivity : AppCompatActivity() {
         val pagingAdapter = UserPagingAdapter()
 
-        @OptIn(ExperimentalCoroutinesApi::class)
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             val viewModel by viewModels<UserListViewModel>()

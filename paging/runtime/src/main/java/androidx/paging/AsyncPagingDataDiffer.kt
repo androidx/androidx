@@ -269,6 +269,8 @@ class AsyncPagingDataDiffer<T : Any>(
      *
      * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and
      * immediately delivers the current load states on collection.
+     *
+     * @sample androidx.paging.samples.loadStateFlowSample
      */
     @OptIn(FlowPreview::class)
     val loadStateFlow: Flow<CombinedLoadStates> = _loadStateCh.asFlow()
@@ -287,6 +289,8 @@ class AsyncPagingDataDiffer<T : Any>(
      * @param listener [LoadStates] listener to receive updates.
      *
      * @see removeLoadStateListener
+     *
+     * @sample androidx.paging.samples.addLoadStateListenerSample
      */
     fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         // Note: Important to add the listener first before sending off events, in case the
