@@ -16,22 +16,14 @@
 
 package androidx.ui.core.pointerinput
 
-import androidx.ui.core.AlignmentLine
-import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutNode
-import androidx.ui.core.LayoutNodeWrapper
-import androidx.ui.core.MeasureScope
-import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.Uptime
-import androidx.ui.unit.ipx
 
 /**
  * This class enables Mockito to spy.
@@ -49,30 +41,6 @@ open class StubPointerInputHandler(
     ): List<PointerInputChange> {
         return modifyBlock?.invoke(p1, p2, p3) ?: p1
     }
-}
-
-internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier) =
-    LayoutNode().apply {
-        this.modifier = modifier
-        layoutDirection = LayoutDirection.Ltr
-        resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
-        var wrapper: LayoutNodeWrapper? = layoutNodeWrapper
-        while (wrapper != null) {
-            wrapper.measureResult = innerLayoutNodeWrapper.measureResult
-            wrapper = (wrapper as? LayoutNodeWrapper)?.wrapped
-        }
-        place(x.ipx, y.ipx)
-    }
-
-internal fun LayoutNode.resize(width: IntPx, height: IntPx) {
-    handleMeasureResult(
-        object : MeasureScope.MeasureResult {
-            override val width: IntPx = width
-            override val height: IntPx = height
-            override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
-            override fun placeChildren(layoutDirection: LayoutDirection) {}
-        }
-    )
 }
 
 internal fun PointerInputEventData(

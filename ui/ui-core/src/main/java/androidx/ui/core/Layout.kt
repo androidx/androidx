@@ -28,6 +28,7 @@ import androidx.compose.compositionReference
 import androidx.compose.currentComposer
 import androidx.compose.onDispose
 import androidx.compose.remember
+import androidx.ui.core.LayoutNode.LayoutState
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
@@ -482,7 +483,7 @@ fun WithConstraints(
     // if owner is null this means we are not yet attached. once attached the remeasuring
     // will be scheduled which would cause subcomposition
     val layoutNode = state.nodeRef.value!!
-    if (!layoutNode.needsRemeasure && layoutNode.owner != null) {
+    if (layoutNode.layoutState == LayoutState.Ready && layoutNode.owner != null) {
         state.subcompose()
     }
     onDispose {

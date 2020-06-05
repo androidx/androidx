@@ -25,7 +25,7 @@ internal fun LayoutNode.focusableChildren(): List<ModifiedFocusNode> {
     val focusableChildren = mutableListOf<ModifiedFocusNode>()
     // TODO(b/152529395): Write a test for LayoutNode.focusableChildren(). We were calling the wrong
     //  function on [LayoutNodeWrapper] but no test caught this.
-    layoutNodeWrapper.findNextFocusWrapper()?.let { focusableChildren.add(it) }
+    this.outerLayoutNodeWrapper.findNextFocusWrapper()?.let { focusableChildren.add(it) }
         ?: children.fastForEach { layout -> focusableChildren.addAll(layout.focusableChildren()) }
     return focusableChildren
 }

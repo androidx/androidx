@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import androidx.ui.core.LayoutNode.LayoutState.Ready
 import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
@@ -125,7 +126,7 @@ internal class InnerPlaceable(
         if (wrappedBy?.isShallowPlacing == true) return
 
         layoutNode.isPlaced = true
-        layoutNode.layout()
+        layoutNode.layoutChildren()
     }
 
     override operator fun get(line: AlignmentLine): IntPx? {
@@ -137,8 +138,9 @@ internal class InnerPlaceable(
             val owner = layoutNode.requireOwner()
             layoutNode.zIndexSortedChildren.fastForEach { child ->
                 if (child.isPlaced) {
-                    require(!child.needsRemeasure) { "$child is not measured, draw requested" }
-                    require(!child.needsRelayout) { "$child is not laid out, draw requested" }
+                    require(child.layoutState == Ready) {
+                        "$child is not ready. layoutState is ${child.layoutState}"
+                    }
                     child.draw(canvas)
                 }
             }

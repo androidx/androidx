@@ -1097,7 +1097,7 @@ class AndroidLayoutDrawTest {
         layoutLatch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR { offset.value = 20.ipx }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
-        assertEquals(2, measure)
+        assertEquals(1, measure)
         assertEquals(2, layout)
         assertEquals(20.ipx, linePosition)
     }

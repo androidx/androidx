@@ -16,7 +16,16 @@
 
 package androidx.ui.core
 
+import androidx.ui.core.LayoutNode.LayoutState.LayingOut
+import androidx.ui.core.LayoutNode.LayoutState.Measuring
+import androidx.ui.core.LayoutNode.LayoutState.NeedsRelayout
+import androidx.ui.core.LayoutNode.LayoutState.NeedsRemeasure
+import androidx.ui.core.LayoutNode.LayoutState.Ready
+import androidx.ui.core.LayoutNode.UsageByParent.InLayoutBlock
+import androidx.ui.core.LayoutNode.UsageByParent.InMeasureBlock
+import androidx.ui.core.LayoutNode.UsageByParent.NotUsed
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.ipx
 import androidx.ui.util.fastForEach
 import androidx.ui.util.trace
 
@@ -28,8 +37,6 @@ import androidx.ui.util.trace
  * Use [measureAndLayout] to perform scheduled actions and [dispatchOnPositionedCallbacks] to
  * dispatch [OnPositionedModifier] callbacks for the nodes affected by the previous
  * [measureAndLayout] execution.
- *
- * @param root Root [LayoutNode]
  */
 internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
 
@@ -44,7 +51,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     private var duringMeasureLayout = false
 
     /**
-     *
+     * Dispatches on positioned callbacks.
      */
     private val onPositionedDispatcher = OnPositionedDispatcher()
 
@@ -69,22 +76,27 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      */
     private val postponedMeasureRequests = mutableListOf<LayoutNode>()
 
+    private var rootConstraints = Constraints.fixed(width = IntPx.Zero, height = IntPx.Zero)
+    private var rootLayoutDirection = LayoutDirection.Ltr
+
     /**
-     * The constraints used to measure the root [LayoutNode].
+     * @param constraints The constraints to measure the root [LayoutNode] with
+     * @param layoutDirection The layout direction to measure the root [LayoutNode] with
      */
-    var rootConstraints = Constraints.fixed(width = IntPx.Zero, height = IntPx.Zero)
-        set(value) {
-            if (value != field) {
-                field = value
-                requestRemeasure(root)
-            }
+    fun updateRootParams(constraints: Constraints, layoutDirection: LayoutDirection) {
+        if (rootConstraints != constraints || rootLayoutDirection != layoutDirection) {
+            require(!duringMeasureLayout)
+            rootConstraints = constraints
+            rootLayoutDirection = layoutDirection
+            root.layoutState = NeedsRemeasure
+            relayoutNodes.add(root)
         }
+    }
 
     private val consistencyChecker: LayoutTreeConsistencyChecker? =
         if (Owner.enableExtraAssertions) {
             LayoutTreeConsistencyChecker(
                 root,
-                { duringMeasureLayout },
                 relayoutNodes,
                 postponedMeasureRequests
             )
@@ -98,58 +110,31 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      * @return returns true if the [measureAndLayout] execution should be scheduled as a result
      * of the request.
      */
-    fun requestRemeasure(layoutNode: LayoutNode): Boolean {
-        return trace("AndroidOwner:onRequestMeasure") {
-            layoutNode.requireOwner()
-            if (layoutNode.isMeasuring) {
-                // we're already measuring it, let's swallow. example when it happens: we compose
-                // DataNode inside WithConstraints, this calls onRequestMeasure on DataNode's
-                // parent, but this parent is WithConstraints which is currently measuring.
-                return false
-            }
-            if (layoutNode.needsRemeasure) {
-                // requestMeasure has already been called for this node
-                return false
-            }
-            if (layoutNode.isLayingOut) {
-                // requestMeasure is currently laying out and it is incorrect to request remeasure
-                // now, let's postpone it.
-                layoutNode.markRemeasureRequested()
+    fun requestRemeasure(layoutNode: LayoutNode): Boolean = when (layoutNode.layoutState) {
+        Measuring, NeedsRemeasure -> {
+            // requestMeasure has already been called for this node or
+            // we're currently measuring it, let's swallow. example when it happens: we compose
+            // DataNode inside WithConstraints, this calls onRequestMeasure on DataNode's
+            // parent, but this parent is WithConstraints which is currently measuring.
+            false
+        }
+        LayingOut -> {
+            // requestMeasure is currently laying out and it is incorrect to request remeasure
+            // now, let's postpone it.
+            postponedMeasureRequests.add(layoutNode)
+            consistencyChecker?.assertConsistent()
+            false
+        }
+        NeedsRelayout, Ready -> {
+            if (duringMeasureLayout && layoutNode.wasMeasuredDuringThisIteration) {
                 postponedMeasureRequests.add(layoutNode)
-                consistencyChecker?.assertConsistent()
-                return false
-            }
-
-            // find root of layout request:
-            var layout = layoutNode
-            while (layout.affectsParentSize && layout.parent != null) {
-                val parent = layout.parent!!
-                if (parent.isMeasuring || parent.isLayingOut) {
-                    if (!layout.needsRemeasure) {
-                        layout.markRemeasureRequested()
-                        // parent is currently measuring and we set needsRemeasure to true so if
-                        // the parent didn't yet try to measure the node it will remeasure it.
-                        // if the parent didn't plan to measure during this pass then needsRemeasure
-                        // stay 'true' and we will manually call 'onRequestMeasure' for all
-                        // the not-measured nodes in 'postponedMeasureRequests'.
-                        postponedMeasureRequests.add(layout)
-                    }
-                    consistencyChecker?.assertConsistent()
-                    return false
-                } else {
-                    layout.markRemeasureRequested()
-                    if (parent.needsRemeasure) {
-                        // don't need to do anything else since the parent is already scheduled
-                        // for a remeasuring
-                        consistencyChecker?.assertConsistent()
-                        return false
-                    }
-                    layout = parent
+            } else {
+                layoutNode.layoutState = NeedsRemeasure
+                if (layoutNode.isPlaced || layoutNode.canAffectPlacedParent) {
+                    relayoutNodes.add(layoutNode)
                 }
             }
-            layout.markRemeasureRequested()
-
-            requestRelayout(layout.parent ?: layout)
+            !duringMeasureLayout
         }
     }
 
@@ -159,105 +144,93 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      * @return returns true if the [measureAndLayout] execution should be scheduled as a result
      * of the request.
      */
-    fun requestRelayout(layoutNode: LayoutNode): Boolean {
-        if (layoutNode.needsRelayout || (layoutNode.needsRemeasure && layoutNode !== root) ||
-            layoutNode.isLayingOut || layoutNode.isMeasuring
-        ) {
+    fun requestRelayout(layoutNode: LayoutNode): Boolean = when (layoutNode.layoutState) {
+        Measuring, NeedsRemeasure, NeedsRelayout, LayingOut -> {
             // don't need to do anything else since the parent is already scheduled
             // for a relayout (measure will trigger relayout), or is laying out right now
             consistencyChecker?.assertConsistent()
-            return false
+            false
         }
-        layoutNode.requireOwner()
-        var nodeToRelayout = layoutNode
-
-        // mark alignments as dirty first
-        if (!layoutNode.alignmentLinesRequired) {
-            // Mark parents alignment lines as dirty, for cases when we needed alignment lines
-            // at some point, but currently they are not queried anymore. If they are actively
-            // queried, they will be made dirty below in this method.
-            var layout: LayoutNode? = layoutNode
-            while (layout != null && !layout.dirtyAlignmentLines) {
-                layout.dirtyAlignmentLines = true
-                layout = layout.parent
+        Ready -> {
+            layoutNode.layoutState = NeedsRelayout
+            if (layoutNode.isPlaced) {
+                relayoutNodes.add(layoutNode)
             }
+            !duringMeasureLayout
+        }
+    }
+
+    private fun doRemeasure(layoutNode: LayoutNode): Boolean {
+        val sizeChanged = if (layoutNode === root) {
+            layoutNode.remeasure(rootConstraints, rootLayoutDirection)
         } else {
-            var layout = layoutNode
-            while (layout != layoutNode.alignmentLinesQueryOwner &&
-                // and relayout or remeasure(includes relayout) is not scheduled already
-                !(layout.needsRelayout || layout.needsRemeasure || layoutNode.isLayingOut ||
-                        layoutNode.isMeasuring)
-            ) {
-                layout.markRelayoutRequested()
-                layout.dirtyAlignmentLines = true
-                val parent = layout.parent
-                if (parent == null) break
-                layout = parent
+            layoutNode.remeasure()
+        }
+        val parent = layoutNode.parent
+        if (sizeChanged) {
+            if (parent == null) {
+                return true
+            } else if (layoutNode.measuredByParent == InMeasureBlock) {
+                requestRemeasure(parent)
+            } else {
+                require(layoutNode.measuredByParent == InLayoutBlock)
+                requestRelayout(parent)
             }
-            layout.dirtyAlignmentLines = true
-            nodeToRelayout = layout
         }
-
-        nodeToRelayout.markRelayoutRequested()
-        relayoutNodes.add(nodeToRelayout)
-        consistencyChecker?.assertConsistent()
-        return !duringMeasureLayout
-    }
-
-    private fun LayoutNode.markRemeasureRequested() {
-        needsRemeasure = true
-        if (needsRelayout) {
-            // cancel needsRelayout as remeasure includes relayout
-            needsRelayout = false
-        }
-    }
-
-    private fun LayoutNode.markRelayoutRequested() {
-        // remeasure includes relayout so we are ok
-        if (!needsRemeasure) {
-            needsRelayout = true
-        }
+        return false
     }
 
     /**
      * Iterates through all LayoutNodes that have requested layout and measures and lays them out
      */
-    fun measureAndLayout() {
+    fun measureAndLayout(): Boolean {
+        require(!duringMeasureLayout)
+        // we don't need to measure any children unless we have the correct root constraints
+        if (rootConstraints.isZero) {
+            return false
+        }
+        var rootNodeResized = false
         trace("AndroidOwner:measureAndLayout") {
             if (relayoutNodes.isNotEmpty()) {
                 duringMeasureLayout = true
                 relayoutNodes.popEach { layoutNode ->
-                    measureIteration++
-                    if (layoutNode === root) {
-                        // it is the root node - the only top node from relayoutNodes
-                        // which needs to be remeasured.
-                        layoutNode.measure(rootConstraints, layoutNode.layoutDirection)
-                    }
-                    require(!layoutNode.needsRemeasure) {
-                        "$layoutNode shouldn't require remeasure. relayoutNodes " +
-                                "consists of the top nodes of the affected subtrees"
-                    }
-                    if (layoutNode.needsRelayout) {
-                        layoutNode.layout()
-                        onPositionedDispatcher.onNodePositioned(layoutNode)
-                        consistencyChecker?.assertConsistent()
-                    }
-                    // execute postponed `onRequestMeasure`
-                    if (postponedMeasureRequests.isNotEmpty()) {
-                        postponedMeasureRequests.fastForEach {
-                            // if it was detached or already measured by the parent then skip it
-                            if (it.isAttached() && it.needsRemeasure) {
-                                it.needsRemeasure = false
-                                requestRemeasure(it)
+                    val alignmentLinesOwner = layoutNode.alignmentLinesQueryOwner
+                    if (layoutNode.isPlaced ||
+                        layoutNode.canAffectPlacedParent ||
+                        (alignmentLinesOwner != null && alignmentLinesOwner
+                            .alignmentUsageByParent != NotUsed)
+                    ) {
+                        if (layoutNode.layoutState == NeedsRemeasure) {
+                            if (doRemeasure(layoutNode)) {
+                                rootNodeResized = true
                             }
                         }
-                        postponedMeasureRequests.clear()
+                        if (layoutNode.layoutState == NeedsRelayout && layoutNode.isPlaced) {
+                            if (layoutNode === root) {
+                                layoutNode.place(0.ipx, 0.ipx)
+                            } else {
+                                layoutNode.replace()
+                            }
+                            onPositionedDispatcher.onNodePositioned(layoutNode)
+                            consistencyChecker?.assertConsistent()
+                        }
+                        measureIteration++
+                        // execute postponed `onRequestMeasure`
+                        if (postponedMeasureRequests.isNotEmpty()) {
+                            postponedMeasureRequests.fastForEach {
+                                if (it.isAttached()) {
+                                    requestRemeasure(it)
+                                }
+                            }
+                            postponedMeasureRequests.clear()
+                        }
                     }
                 }
                 duringMeasureLayout = false
                 consistencyChecker?.assertConsistent()
             }
         }
+        return rootNodeResized
     }
 
     /**
@@ -275,4 +248,8 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     fun onNodeDetached(node: LayoutNode) {
         relayoutNodes.remove(node)
     }
+
+    private val LayoutNode.canAffectPlacedParent
+        get() = layoutState == NeedsRemeasure && parent?.isPlaced == true &&
+                (measuredByParent == InMeasureBlock || alignmentLinesQueryOwner != null)
 }
