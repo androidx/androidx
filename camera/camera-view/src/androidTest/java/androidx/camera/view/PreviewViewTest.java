@@ -46,6 +46,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.MeteringPoint;
+import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -209,10 +211,58 @@ public class PreviewViewTest {
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void throwsException_whenCreatingMeteringPointFactory_beforeCreatingSurfaceProvider() {
+    @Test
+    @UiThreadTest
+    public void canCreateMeteringPointFactory() {
+        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+
         final PreviewView previewView = new PreviewView(mContext);
-        previewView.createMeteringPointFactory(CameraSelector.DEFAULT_BACK_CAMERA);
+        setContentView(previewView);
+
+        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        mSurfaceRequest = createSurfaceRequest(cameraInfo);
+        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        MeteringPointFactory factory =
+                previewView.createMeteringPointFactory(CameraSelector.DEFAULT_BACK_CAMERA);
+
+        MeteringPoint point = factory.createPoint(100, 100);
+        assertThat(point.getX() >= 0f || point.getX() <= 1.0f);
+        assertThat(point.getY() >= 0f || point.getY() <= 1.0f);
+    }
+
+    @Test
+    @UiThreadTest
+    public void createMeteringPointFactory_previewViewWidthOrHeightIs0() {
+        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+
+        final PreviewView previewView = new PreviewView(mContext);
+        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        mSurfaceRequest = createSurfaceRequest(cameraInfo);
+        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+
+        MeteringPointFactory factory =
+                previewView.createMeteringPointFactory(CameraSelector.DEFAULT_BACK_CAMERA);
+
+        //Width and height is 0,  but surface is requested,
+        //verifying the factory only creates invalid points.
+        MeteringPoint point = factory.createPoint(100, 100);
+        assertThat(point.getX() < 0f || point.getX() > 1.0f);
+        assertThat(point.getY() < 0f || point.getY() > 1.0f);
+    }
+
+    @Test
+    @UiThreadTest
+    public void createMeteringPointFactory_beforeCreatingSurfaceProvider() {
+        final PreviewView previewView = new PreviewView(mContext);
+        // make PreviewView.getWidth() getHeight not 0.
+        setContentView(previewView);
+        MeteringPointFactory factory =
+                previewView.createMeteringPointFactory(CameraSelector.DEFAULT_BACK_CAMERA);
+
+        //verifying the factory only creates invalid points.
+        MeteringPoint point = factory.createPoint(100, 100);
+        assertThat(point.getX() < 0f || point.getX() > 1.0f);
+        assertThat(point.getY() < 0f || point.getY() > 1.0f);
     }
 
     @Test
