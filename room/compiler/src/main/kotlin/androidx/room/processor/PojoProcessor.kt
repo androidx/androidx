@@ -389,7 +389,7 @@ class PojoProcessor private constructor(
                 val primaryConstructor =
                     kotlinMetadata?.findPrimaryConstructorSignature()?.let { signature ->
                         goodConstructors.firstOrNull {
-                            it.element.descriptor(context.processingEnv.typeUtils) == signature
+                            it.element.descriptor() == signature
                     }
                 }
                 if (primaryConstructor != null) {

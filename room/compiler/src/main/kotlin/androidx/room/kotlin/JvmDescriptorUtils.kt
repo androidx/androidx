@@ -21,27 +21,35 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.NestingKind
 import javax.lang.model.element.QualifiedNameable
 import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.ErrorType
 import javax.lang.model.type.ExecutableType
+import javax.lang.model.type.IntersectionType
 import javax.lang.model.type.NoType
 import javax.lang.model.type.NullType
 import javax.lang.model.type.PrimitiveType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.TypeVariable
+import javax.lang.model.type.UnionType
 import javax.lang.model.type.WildcardType
-import javax.lang.model.util.AbstractTypeVisitor6
-import javax.lang.model.util.Types
+import javax.lang.model.util.AbstractTypeVisitor8
+
+/**
+ * Returns the method descriptor of this [ExecutableElement].
+ *
+ * For reference, see the [JVM specification, section 4.3.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.2)
+ */
+fun VariableElement.descriptor() = "$simpleName:${asType().descriptor()}"
 
 /**
  * Returns the method descriptor of this [ExecutableElement].
  *
  * For reference, see the [JVM specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.3)
  */
-fun ExecutableElement.descriptor(typeUtils: Types) =
-    "$simpleName${asType().descriptor(typeUtils)}"
+fun ExecutableElement.descriptor() = "$simpleName${asType().descriptor()}"
 
 /**
  * Returns the name of this [TypeElement] in its "internal form".
@@ -84,22 +92,25 @@ internal val PrimitiveType.descriptor: String
         else -> error("Unknown primitive type $this")
     }
 
-fun TypeMirror.descriptor(typeUtils: Types): String =
-    accept(JvmDescriptorTypeVisitor, typeUtils)
+fun TypeMirror.descriptor(): String = accept(JvmDescriptorTypeVisitor, Unit)
 
-internal fun WildcardType.descriptor(typeUtils: Types): String =
-    typeUtils.erasure(this).descriptor(typeUtils)
+internal fun WildcardType.descriptor(): String = ""
 
-internal fun TypeVariable.descriptor(typeUtils: Types): String =
-    typeUtils.erasure(this).descriptor(typeUtils)
+// The erasure of a type variable is the erasure of its leftmost bound. - JVM Spec Sec 4.6
+internal fun TypeVariable.descriptor(): String = this.upperBound.descriptor()
 
-internal fun ArrayType.descriptor(typeUtils: Types): String =
-    "[" + componentType.descriptor(typeUtils)
+// For a type variable with multiple bounds: "the erasure of a type variable is determined by
+// the first type in its bound" - JVM Spec Sec 4.4
+internal fun IntersectionType.descriptor(): String =
+    this.bounds[0].descriptor()
 
-internal fun ExecutableType.descriptor(typeUtils: Types): String {
+internal fun ArrayType.descriptor(): String =
+    "[" + componentType.descriptor()
+
+internal fun ExecutableType.descriptor(): String {
     val parameterDescriptors =
-        parameterTypes.joinToString(separator = "") { it.descriptor(typeUtils) }
-    val returnDescriptor = returnType.descriptor(typeUtils)
+        parameterTypes.joinToString(separator = "") { it.descriptor() }
+    val returnDescriptor = returnType.descriptor()
     return "($parameterDescriptors)$returnDescriptor"
 }
 
@@ -108,34 +119,34 @@ internal fun ExecutableType.descriptor(typeUtils: Types): String {
  * + a "field descriptor", for example: `Ljava/lang/Object;`
  * + a "method descriptor", for example: `(Ljava/lang/Object;)Z`
  *
- * The easiest way to use this is through [TypeMirror.descriptor][JvmDescriptorUtils.descriptor] in [JvmDescriptorUtils].
+ * The easiest way to use this is through [TypeMirror.descriptor]
  *
  * For reference, see the [JVM specification, section 4.3](http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3).
  */
 @Suppress("DEPRECATION")
-internal object JvmDescriptorTypeVisitor : AbstractTypeVisitor6<String, Types>() {
-    override fun visitNoType(t: NoType, typeUtils: Types): String = t.descriptor
+internal object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, Unit>() {
 
-    override fun visitDeclared(t: DeclaredType, typeUtils: Types): String = t.descriptor
+    override fun visitNoType(t: NoType, u: Unit): String = t.descriptor
 
-    override fun visitPrimitive(t: PrimitiveType, typeUtils: Types): String = t.descriptor
+    override fun visitDeclared(t: DeclaredType, u: Unit): String = t.descriptor
 
-    override fun visitArray(t: ArrayType, typeUtils: Types): String = t.descriptor(typeUtils)
+    override fun visitPrimitive(t: PrimitiveType, u: Unit): String = t.descriptor
 
-    override fun visitWildcard(t: WildcardType, typeUtils: Types): String = t.descriptor(typeUtils)
+    override fun visitArray(t: ArrayType, u: Unit): String = t.descriptor()
 
-    override fun visitExecutable(t: ExecutableType, typeUtils: Types): String =
-        t.descriptor(typeUtils)
+    override fun visitWildcard(t: WildcardType, u: Unit): String = t.descriptor()
 
-    override fun visitTypeVariable(t: TypeVariable, typeUtils: Types): String =
-        t.descriptor(typeUtils)
+    override fun visitExecutable(t: ExecutableType, u: Unit): String = t.descriptor()
 
-    override fun visitNull(t: NullType, typeUtils: Types): String =
-        visitUnknown(t, typeUtils)
+    override fun visitTypeVariable(t: TypeVariable, u: Unit): String = t.descriptor()
 
-    override fun visitError(t: ErrorType, typeUtils: Types): String =
-        visitUnknown(t, typeUtils)
+    override fun visitNull(t: NullType, u: Unit): String = visitUnknown(t, u)
 
-    override fun visitUnknown(t: TypeMirror, typeUtils: Types): String =
-        error("Unsupported type $t")
+    override fun visitError(t: ErrorType, u: Unit): String = visitUnknown(t, u)
+
+    override fun visitIntersection(t: IntersectionType, u: Unit) = t.descriptor()
+
+    override fun visitUnion(t: UnionType, u: Unit) = visitUnknown(t, u)
+
+    override fun visitUnknown(t: TypeMirror, u: Unit): String = error("Unsupported type $t")
 }
