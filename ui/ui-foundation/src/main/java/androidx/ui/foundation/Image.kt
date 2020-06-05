@@ -19,23 +19,18 @@ package androidx.ui.foundation
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.paint
-import androidx.ui.graphics.BlendMode
-import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.core.ContentScale
-import androidx.ui.graphics.isUnset
 import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.preferredSize
 
 /**
  * A composable that lays out and draws a given [ImageAsset]. This will attempt to
@@ -163,42 +158,4 @@ fun Image(
             colorFilter = colorFilter
         )
     )
-}
-
-/**
- * Fits an image into the container with sizes equals to the image size, while maintaining
- * the image aspect ratio.
- * The image will be clipped if the aspect ratios of the image and the parent don't match.
- *
- * This component has the same behavior as ImageView.ScaleType.CENTER_CROP currently.
- *
- * @param image The image to draw.
- * @param tint The tint color to apply for the image.
- *
- * @deprecated use [Image] instead
- */
-// TODO(Andrey) Temporary. Should be replaced with our proper Image component when it available
-// TODO(Andrey, Matvei, Nader): Support other scale types b/141741141
-@Deprecated("SimpleImage has limited functionality and was a placeholder API until" +
-        "the preferred API for laying out and drawing an ImageAsset was finalized.",
-    ReplaceWith("Image(image)")
-)
-@Composable
-fun SimpleImage(
-    image: ImageAsset,
-    tint: Color = Color.Unset
-) {
-    with(DensityAmbient.current) {
-        Box(
-            Modifier.preferredSize(image.width.toDp(), image.height.toDp())
-                .clipToBounds()
-                .paint(
-                    ImagePainter(image),
-                    contentScale = ContentScale.Crop,
-                    colorFilter = if (tint.isUnset) null else {
-                        ColorFilter(tint, BlendMode.srcIn)
-                    }
-                )
-        )
-    }
 }

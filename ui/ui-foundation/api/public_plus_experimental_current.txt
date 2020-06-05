@@ -57,7 +57,6 @@ package androidx.ui.foundation {
   }
 
   public final class DrawBackgroundKt {
-    method @Deprecated public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Paint paint, androidx.ui.graphics.Shape shape);
     method public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DrawScope.DefaultBlendMode);
     method public static androidx.ui.core.Modifier drawBackground-a_xWPtA(androidx.ui.core.Modifier, long color, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.drawscope.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DrawScope.DefaultBlendMode);
   }
@@ -85,7 +84,6 @@ package androidx.ui.foundation {
     method @androidx.compose.Composable public static inline void Image(androidx.ui.graphics.ImageAsset asset, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
     method @androidx.compose.Composable public static inline void Image(androidx.ui.graphics.vector.VectorAsset asset, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
     method @androidx.compose.Composable public static void Image(androidx.ui.graphics.painter.Painter painter, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null);
-    method @Deprecated @androidx.compose.Composable public static void SimpleImage--SSR55g(androidx.ui.graphics.ImageAsset image, long tint = Color.Unset);
   }
 
   @androidx.compose.Stable public interface Indication {
@@ -378,10 +376,6 @@ package androidx.ui.foundation.shape {
     ctor public GenericShape(kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Path,? super androidx.ui.geometry.Size,kotlin.Unit> builder);
     method public androidx.ui.foundation.shape.GenericShape copy(kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Path,? super androidx.ui.geometry.Size,kotlin.Unit> builder);
     method public androidx.ui.graphics.Outline createOutline(androidx.ui.geometry.Size size, androidx.ui.unit.Density density);
-  }
-
-  public final class RectangleShapeKt {
-    method @Deprecated public static androidx.ui.graphics.Shape getRectangleShape();
   }
 
 }

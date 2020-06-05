@@ -16,8 +16,6 @@
 
 package androidx.ui.core
 
-import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
@@ -31,59 +29,6 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
- * Create a [DrawModifier] from this [Painter]. This modifier is memoized and re-used across
- * subsequent compositions
- *
- * @param sizeToIntrinsics: Flag to indicate whether this PainterModifier should be involved with
- * appropriately sizing the component it is associated with. True if the intrinsic size should
- * influence the size of the component, false otherwise. A value of false here is equivalent to
- * the underlying Painter having no intrinsic size, that is [Painter.intrinsicSize] returns
- * [androidx.ui.geometry.Size.UnspecifiedSize]
- *
- * @param alignment: Specifies the rule used to place the contents of the Painter within the
- * specified bounds, the default of [Alignment.Center] centers the content within the specified
- * rendering bounds
- *
- * @param contentScale: Specifies the rule used to scale the content of the Painter within the
- * specified bounds, the default of [ContentScale.Inside] scales the content to be as large as
- * possible within the specified bounds while still maintaining the aspect ratio of its intrinsic
- * size
- *
- * @param alpha: Specifies the opacity to render the contents of the underlying [Painter]
- *
- * @param colorFilter: Specifies an optional tint to apply to the contents of the [Painter] when
- * drawn in the specified area
- *
- * @param rtl: Flag to indicate contents of the [Painter] should render for right to left languages
- *
- * @sample androidx.ui.core.samples.PainterModifierSample
- */
-@Deprecated(
-    "Use Modifier.paint",
-    replaceWith = ReplaceWith(
-        "Modifier.paint(this, sizeToIntrinsics, alignment, contentScale, alpha, colorFilter, rtl)",
-        "androidx.ui.core.Modifier",
-        "androidx.ui.core.paint"
-    )
-)
-@Suppress("UNUSED_PARAMETER")
-@Composable
-fun Painter.asModifier(
-    sizeToIntrinsics: Boolean = true,
-    alignment: Alignment = Alignment.Center,
-    contentScale: ContentScale = ContentScale.Inside,
-    alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null,
-    rtl: Boolean = false
-): DrawModifier {
-    // TODO potentially create thread-safe PainterModifier pool to allow for re-use
-    //  of PainterModifier instances and avoid gc overhead
-    return remember(this, sizeToIntrinsics, alignment, contentScale, alpha, colorFilter) {
-        PainterModifier(this, sizeToIntrinsics, alignment, contentScale, alpha, colorFilter)
-    }
-}
-
-/**
  * Paint the content using [painter].
  *
  * @param sizeToIntrinsics `true` to size the element relative to [Painter.intrinsicSize]
@@ -91,6 +36,8 @@ fun Painter.asModifier(
  * @param contentScale strategy for scaling [painter] if its size does not match the content size
  * @param alpha opacity of [painter]
  * @param colorFilter optional [ColorFilter] to apply to [painter]
+ *
+ * @sample androidx.ui.core.samples.PainterModifierSample
  */
 fun Modifier.paint(
     painter: Painter,

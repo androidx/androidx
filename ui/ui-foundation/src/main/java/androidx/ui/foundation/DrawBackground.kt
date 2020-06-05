@@ -26,37 +26,12 @@ import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.drawOutline
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.DrawStyle
 import androidx.ui.graphics.drawscope.Fill
-import androidx.ui.graphics.drawscope.drawCanvas
-
-/**
- * Draws [shape] with [paint] behind the content.
- */
-@Deprecated("Prefer usage of drawBackground(color, shape) or " +
-        "drawBackground(brush, shape)",
-    ReplaceWith("Modifier.drawBackground(color, shape)"))
-fun Modifier.drawBackground(
-    paint: Paint,
-    shape: Shape
-) = this + DrawBackground(
-                shape,
-                {
-                    drawCanvas { canvas, size ->
-                        canvas.drawRect(0.0f, 0.0f, size.width, size.height, paint)
-                    }
-                },
-                { outline ->
-                    drawCanvas { canvas, _ ->
-                        canvas.drawOutline(outline, paint)
-                    }
-                }
-            )
 
 /**
  * Draws [shape] with a solid [color] behind the content.
