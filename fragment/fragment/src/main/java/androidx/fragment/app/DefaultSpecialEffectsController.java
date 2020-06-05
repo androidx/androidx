@@ -266,12 +266,15 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         final Rect lastInEpicenterRect = new Rect();
         ArrayList<View> sharedElementFirstOutViews = new ArrayList<>();
         ArrayList<View> sharedElementLastInViews = new ArrayList<>();
+        ArrayMap<String, String> sharedElementNameMapping = new ArrayMap<>();
         for (final TransitionInfo transitionInfo : transitionInfos) {
             boolean hasSharedElementTransition = transitionInfo.hasSharedElementTransition();
             // Compute the shared element transition between the firstOut and lastIn Fragments
             if (hasSharedElementTransition && firstOut != null && lastIn != null) {
-                sharedElementTransition = transitionImpl.cloneTransition(
-                        transitionInfo.getSharedElementTransition());
+                // swapSharedElementTargets requires wrapping this in a TransitionSet
+                sharedElementTransition = transitionImpl.wrapTransitionInSet(
+                        transitionImpl.cloneTransition(
+                                transitionInfo.getSharedElementTransition()));
                 Fragment sharedElementFragment = transitionInfo.getOperation().getFragment();
                 ArrayList<String> exitingNames;
                 ArrayList<String> enteringNames;
@@ -286,66 +289,88 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     exitingNames = sharedElementFragment.getSharedElementTargetNames();
                     enteringNames = sharedElementFragment.getSharedElementSourceNames();
                 }
-                // Capture all of the Views from the firstOut fragment that are
+                int numSharedElements = exitingNames.size();
+                for (int i = 0; i < numSharedElements; i++) {
+                    String exitingName = exitingNames.get(i);
+                    String enteringName = enteringNames.get(i);
+                    sharedElementNameMapping.put(exitingName, enteringName);
+                }
+
+                // Find all of the Views from the firstOut fragment that are
                 // part of the shared element transition
                 ArrayMap<String, View> firstOutViews = new ArrayMap<>();
                 findNamedViews(firstOutViews, firstOut.getFragment().mView);
                 // TODO call through to onMapSharedElements
                 firstOutViews.retainAll(exitingNames);
+                // Only keep the mapping of elements that were found in the firstOut Fragment
+                sharedElementNameMapping.retainAll(firstOutViews.keySet());
 
-                // Find all views under the shared element views and add them
-                // to the shared element transition
-                for (View sharedElementView : firstOutViews.values()) {
-                    captureTransitioningViews(sharedElementFirstOutViews,
-                            sharedElementView);
-                }
-
-                // Compute the epicenter of the firstOut transition
-                if (!exitingNames.isEmpty()) {
-                    String epicenterViewName = exitingNames.get(0);
-                    firstOutEpicenterView = firstOutViews.get(epicenterViewName);
-                    transitionImpl.setEpicenter(sharedElementTransition,
-                            firstOutEpicenterView);
-                }
-                // Capture all of the Views from the lastIn fragment that are
+                // Find all of the Views from the lastIn fragment that are
                 // part of the shared element transition
                 ArrayMap<String, View> lastInViews = new ArrayMap<>();
                 findNamedViews(lastInViews, lastIn.getFragment().mView);
                 // TODO call through to onMapSharedElements
                 lastInViews.retainAll(enteringNames);
+                // Only keep the mapping of elements that were found in the lastIn Fragment
+                FragmentTransition.retainValues(sharedElementNameMapping, lastInViews);
 
-                // Find all views under the shared element views and add them
-                // to the shared element transition
-                for (View sharedElementView : lastInViews.values()) {
-                    captureTransitioningViews(sharedElementLastInViews,
-                            sharedElementView);
-                }
+                // Now make a final pass through the Views list to ensure they
+                // don't still have elements that were removed from the mapping
+                firstOutViews.retainAll(sharedElementNameMapping.keySet());
+                lastInViews.retainAll(sharedElementNameMapping.values());
 
-                // Compute the epicenter of the firstOut transition
-                if (!enteringNames.isEmpty()) {
-                    String epicenterViewName = enteringNames.get(0);
-                    final View lastInEpicenterView = lastInViews.get(epicenterViewName);
-                    if (lastInEpicenterView != null) {
-                        hasLastInEpicenter = true;
-                        // We can't set the epicenter here directly since the View might
-                        // not have been laid out as of yet, so instead we set a Rect as
-                        // the epicenter and compute the bounds one frame later
-                        final FragmentTransitionImpl impl = transitionImpl;
-                        OneShotPreDrawListener.add(getContainer(), new Runnable() {
-                            @Override
-                            public void run() {
-                                impl.getBoundsOnScreen(lastInEpicenterView,
-                                        lastInEpicenterRect);
-                            }
-                        });
+                if (sharedElementNameMapping.isEmpty()) {
+                    // We couldn't find any valid shared element mappings, so clear out
+                    // the shared element transition information entirely
+                    sharedElementTransition = null;
+                    sharedElementFirstOutViews.clear();
+                    sharedElementLastInViews.clear();
+                } else {
+                    // Capture all views from the firstOut Fragment under the shared element views
+                    for (View sharedElementView : firstOutViews.values()) {
+                        captureTransitioningViews(sharedElementFirstOutViews,
+                                sharedElementView);
                     }
+
+                    // Compute the epicenter of the firstOut transition
+                    if (!exitingNames.isEmpty()) {
+                        String epicenterViewName = exitingNames.get(0);
+                        firstOutEpicenterView = firstOutViews.get(epicenterViewName);
+                        transitionImpl.setEpicenter(sharedElementTransition,
+                                firstOutEpicenterView);
+                    }
+
+                    // Capture all views from the lastIn Fragment under the shared element views
+                    for (View sharedElementView : lastInViews.values()) {
+                        captureTransitioningViews(sharedElementLastInViews,
+                                sharedElementView);
+                    }
+
+                    // Compute the epicenter of the lastIn transition
+                    if (!enteringNames.isEmpty()) {
+                        String epicenterViewName = enteringNames.get(0);
+                        final View lastInEpicenterView = lastInViews.get(epicenterViewName);
+                        if (lastInEpicenterView != null) {
+                            hasLastInEpicenter = true;
+                            // We can't set the epicenter here directly since the View might
+                            // not have been laid out as of yet, so instead we set a Rect as
+                            // the epicenter and compute the bounds one frame later
+                            final FragmentTransitionImpl impl = transitionImpl;
+                            OneShotPreDrawListener.add(getContainer(), new Runnable() {
+                                @Override
+                                public void run() {
+                                    impl.getBoundsOnScreen(lastInEpicenterView,
+                                            lastInEpicenterRect);
+                                }
+                            });
+                        }
+                    }
+
+                    // Now set the transition's targets to only the firstOut Fragment's views
+                    // It'll be swapped to the lastIn Fragment's views after the
+                    // transition is started
+                    transitionImpl.addTargets(sharedElementTransition, sharedElementFirstOutViews);
                 }
-                // Now set the transition's targets
-                ArrayList<View> sharedElementTargets = new ArrayList<>();
-                sharedElementTargets.add(nonExistentView);
-                sharedElementTargets.addAll(sharedElementFirstOutViews);
-                sharedElementTargets.addAll(sharedElementLastInViews);
-                transitionImpl.addTargets(sharedElementTransition, sharedElementTargets);
             }
         }
         ArrayList<View> enteringViews = new ArrayList<>();
@@ -433,11 +458,17 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         // First, hide all of the entering views so they're in
         // the correct initial state
         FragmentTransition.setViewVisibility(enteringViews, View.INVISIBLE);
+        ArrayList<String> inNames =
+                transitionImpl.prepareSetNameOverridesReordered(sharedElementLastInViews);
         // Now actually start the transition
         transitionImpl.beginDelayedTransition(getContainer(), mergedTransition);
+        transitionImpl.setNameOverridesReordered(getContainer(), sharedElementFirstOutViews,
+                sharedElementLastInViews, inNames, sharedElementNameMapping);
         // Then, show all of the entering views, putting them into
         // the correct final state
         FragmentTransition.setViewVisibility(enteringViews, View.VISIBLE);
+        transitionImpl.swapSharedElementTargets(sharedElementTransition,
+                sharedElementFirstOutViews, sharedElementLastInViews);
     }
 
     /**

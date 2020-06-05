@@ -1002,8 +1002,8 @@ class FragmentTransition {
      * that has a key in {@code namedViews}. This is a useful equivalent to
      * {@link ArrayMap#retainAll(Collection)} for values.
      */
-    private static void retainValues(ArrayMap<String, String> nameOverrides,
-            ArrayMap<String, View> namedViews) {
+    static void retainValues(@NonNull ArrayMap<String, String> nameOverrides,
+            @NonNull ArrayMap<String, View> namedViews) {
         for (int i = nameOverrides.size() - 1; i >= 0; i--) {
             final String targetName = nameOverrides.valueAt(i);
             if (!namedViews.containsKey(targetName)) {
