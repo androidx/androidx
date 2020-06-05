@@ -753,7 +753,7 @@
             </intent-filter>
         </activity>
 
-        <meta-data android:name="androidx.mediarouter.MEDIA_ROUTER_FEATURE"
+        <meta-data android:name="androidx.mediarouter.FEATURE"
             android:value="seamless_transfer" />
     </application>
 
