@@ -28,11 +28,26 @@
         <p>The values defined here correspond to the base layout attribute
         class {@landroidx.wearwear.widget.BoxInsetLayout.LayoutParams}. -->
     <declare-styleable name="BoxInsetLayout_Layout">
+        <!-- Deprecated. Use {@link #layout_boxedEdges} instead. -->
+        <attr name="boxedEdges">
+            <!-- Default boxing setting. There are no insets forced on the child views. -->
+            <flag name="none" value="0x00" />
+            <!-- The view will force an inset on the left edge of the children. -->
+            <flag name="left" value="0x01" />
+            <!-- The view will force an inset on the top edge of the children. -->
+            <flag name="top" value="0x02" />
+            <!-- The view will force an inset on the right edge of the children. -->
+            <flag name="right" value="0x04" />
+            <!-- The view will force an inset on the bottom edge of the children. -->
+            <flag name="bottom" value="0x08" />
+            <!-- The view will force an inset on all of the edges of the children. -->
+            <flag name="all" value="0x0F" />
+        </attr>
         <!-- The types of insets this view can force on its children. The view will respect the
              defined values of other child attributes such as ones provided by
              {@link android.view.ViewGroup.MarginLayoutParams}, but it will add an additional inset
               as requested -->
-        <attr name="boxedEdges">
+        <attr name="layout_boxedEdges">
             <!-- Default boxing setting. There are no insets forced on the child views. -->
             <flag name="none" value="0x00" />
             <!-- The view will force an inset on the left edge of the children. -->
