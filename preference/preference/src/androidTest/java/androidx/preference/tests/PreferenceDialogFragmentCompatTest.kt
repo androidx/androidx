@@ -31,7 +31,6 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.test.R
 import androidx.preference.tests.helpers.PreferenceTestHelperActivity
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -53,8 +52,11 @@ class PreferenceDialogFragmentCompatTest(private val xmlLayoutId: Int) {
         }
     }
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule(PreferenceTestHelperActivity::class.java)
+    val activityTestRule = androidx.test.rule.ActivityTestRule(
+        PreferenceTestHelperActivity::class.java
+    )
 
     @Test
     fun testInflatedChildDialogFragment() {

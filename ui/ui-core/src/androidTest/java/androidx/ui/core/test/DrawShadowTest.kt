@@ -23,7 +23,6 @@ import androidx.compose.State
 import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.ui.core.drawLayer
@@ -55,8 +54,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class DrawShadowTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
 

@@ -23,7 +23,6 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.runOnUiThreadRethrow
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
@@ -31,7 +30,8 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.WeakReference
 import java.util.ArrayList
 
-fun ActivityTestRule<out FragmentActivity>.executePendingTransactions(
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.executePendingTransactions(
     fm: FragmentManager = activity.supportFragmentManager
 ): Boolean {
     var ret = false
@@ -45,7 +45,8 @@ inline fun <reified A : FragmentActivity> ActivityScenario<A>.executePendingTran
     onActivity { fm.executePendingTransactions() }
 }
 
-fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(): Boolean {
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.popBackStackImmediate(): Boolean {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     var ret = false
     instrumentation.runOnMainSync {
@@ -54,7 +55,8 @@ fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(): Boolean {
     return ret
 }
 
-fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
     id: Int,
     flags: Int = 0
 ): Boolean {
@@ -66,7 +68,8 @@ fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
     return ret
 }
 
-fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
     name: String,
     flags: Int = 0
 ): Boolean {
@@ -78,7 +81,10 @@ fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
     return ret
 }
 
-fun ActivityTestRule<out FragmentActivity>.setContentView(@LayoutRes layoutId: Int) {
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.setContentView(
+    @LayoutRes layoutId: Int
+) {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     instrumentation.runOnMainSync { activity.setContentView(layoutId) }
 }
@@ -95,16 +101,19 @@ fun assertChildren(container: ViewGroup, vararg fragments: Fragment) {
     }
 }
 
+@Suppress("DEPRECATION")
 // Transition test methods start
-fun ActivityTestRule<out FragmentActivity>.findGreen(): View {
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.findGreen(): View {
     return activity.findViewById(R.id.greenSquare)
 }
 
-fun ActivityTestRule<out FragmentActivity>.findBlue(): View {
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.findBlue(): View {
     return activity.findViewById(R.id.blueSquare)
 }
 
-fun ActivityTestRule<out FragmentActivity>.findRed(): View? {
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.findRed(): View? {
     return activity.findViewById(R.id.redSquare)
 }
 

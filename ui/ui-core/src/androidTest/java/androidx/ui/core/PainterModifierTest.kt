@@ -21,7 +21,6 @@ import android.os.Build
 import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.test.AlignTopLeft
 import androidx.ui.core.test.AtLeastSize
 import androidx.ui.core.test.FixedSize
@@ -61,8 +60,9 @@ class PainterModifierTest {
     val containerWidth = 100.0f
     val containerHeight = 100.0f
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
 

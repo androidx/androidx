@@ -27,7 +27,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,8 +44,9 @@ class ScrollBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(RecyclerViewActivity::class.java)
+    val activityRule = androidx.test.rule.ActivityTestRule(RecyclerViewActivity::class.java)
 
     @Before
     fun setup() {

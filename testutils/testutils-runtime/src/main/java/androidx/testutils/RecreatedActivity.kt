@@ -19,7 +19,6 @@ package androidx.testutils
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.FragmentActivity
-import androidx.test.rule.ActivityTestRule
 import org.junit.Assert
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -70,8 +69,8 @@ open class RecreatedActivity(
  *
  * @return The newly-restarted [RecreatedActivity]
  */
-@Suppress("UNCHECKED_CAST")
-fun <T : RecreatedActivity> ActivityTestRule<T>.recreate(): T {
+@Suppress("UNCHECKED_CAST", "DEPRECATION")
+fun <T : RecreatedActivity> androidx.test.rule.ActivityTestRule<T>.recreate(): T {
     // Now switch the orientation
     RecreatedActivity.resumedLatch = CountDownLatch(1)
     RecreatedActivity.destroyedLatch = CountDownLatch(1)

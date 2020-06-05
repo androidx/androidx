@@ -19,7 +19,6 @@ package androidx.ui.benchmark
 import androidx.activity.ComponentActivity
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.test.ComposeBenchmarkScope
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.DisableTransitions
@@ -37,8 +36,9 @@ class ComposeBenchmarkRule(
     private val enableTransitions: Boolean = false
 ) : TestRule {
 
+    @Suppress("DEPRECATION")
     private val activityTestRule =
-        ActivityTestRule<ComponentActivity>(ComponentActivity::class.java)
+        androidx.test.rule.ActivityTestRule<ComponentActivity>(ComponentActivity::class.java)
 
     val benchmarkRule = BenchmarkRule()
 

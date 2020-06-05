@@ -19,7 +19,6 @@ package androidx.ui.tooling
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.Composable
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
@@ -31,8 +30,9 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 open class ToolingTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(
+    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
     lateinit var activity: TestActivity
@@ -68,7 +68,8 @@ open class ToolingTest {
 
 // Kotlin IR compiler doesn't seem too happy with auto-conversion from
 // lambda to Runnable, so separate it here
-fun ActivityTestRule<TestActivity>.onUiThread(block: () -> Unit) {
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<TestActivity>.onUiThread(block: () -> Unit) {
     val runnable: Runnable = object : Runnable {
         override fun run() {
             block()

@@ -24,7 +24,6 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.compose.Composable
 import androidx.compose.Recomposer
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.AndroidOwner
@@ -65,8 +64,9 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 open class LayoutTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(
+    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
     lateinit var activity: TestActivity

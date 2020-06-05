@@ -40,7 +40,6 @@ import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawLayerModifier
@@ -108,8 +107,9 @@ import java.util.concurrent.TimeUnit
 @SmallTest
 @RunWith(JUnit4::class)
 class AndroidLayoutDrawTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(
+    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
     @get:Rule
@@ -2633,7 +2633,8 @@ fun Bitmap.assertRect(
     }
 }
 
-fun ActivityTestRule<*>.validateSquareColors(
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<*>.validateSquareColors(
     drawLatch: CountDownLatch,
     outerColor: Color,
     innerColor: Color,
@@ -3016,8 +3017,9 @@ class SquareModel(
     var innerColor: Color by mutableStateOf(innerColor)
 }
 
+@Suppress("DEPRECATION")
 // We only need this because IR compiler doesn't like converting lambdas to Runnables
-fun ActivityTestRule<*>.runOnUiThreadIR(block: () -> Unit) {
+fun androidx.test.rule.ActivityTestRule<*>.runOnUiThreadIR(block: () -> Unit) {
     val runnable: Runnable = object : Runnable {
         override fun run() {
             block()
@@ -3026,7 +3028,8 @@ fun ActivityTestRule<*>.runOnUiThreadIR(block: () -> Unit) {
     runOnUiThread(runnable)
 }
 
-fun ActivityTestRule<*>.findAndroidComposeView(): ViewGroup {
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<*>.findAndroidComposeView(): ViewGroup {
     val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
     return findAndroidComposeView(contentViewGroup)!!
 }
@@ -3048,8 +3051,11 @@ fun findAndroidComposeView(parent: ViewGroup): ViewGroup? {
     return null
 }
 
+@Suppress("DEPRECATION")
 @RequiresApi(Build.VERSION_CODES.O)
-fun ActivityTestRule<*>.waitAndScreenShot(forceInvalidate: Boolean = true): Bitmap {
+fun androidx.test.rule.ActivityTestRule<*>.waitAndScreenShot(
+    forceInvalidate: Boolean = true
+): Bitmap {
     val view = findAndroidComposeView()
     val flushListener = DrawCounterListener(view)
     val offset = intArrayOf(0, 0)

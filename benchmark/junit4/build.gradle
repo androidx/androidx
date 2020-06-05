@@ -38,8 +38,8 @@ dependencies {
     api(JUNIT)
     api(KOTLIN_STDLIB)
 
-    implementation(ANDROIDX_TEST_RULES)
-    implementation(ANDROIDX_TEST_RUNNER)
+    implementation("androidx.test:rules:1.2.0")
+    implementation("androidx.test:runner:1.2.0")
     api("androidx.annotation:annotation:1.1.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

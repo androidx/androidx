@@ -19,7 +19,6 @@ package androidx.ui.benchmark
 import androidx.activity.ComponentActivity
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.benchmark.android.AndroidTestCase
 import androidx.ui.benchmark.android.AndroidTestCaseRunner
@@ -32,8 +31,9 @@ import org.junit.runners.model.Statement
  */
 class AndroidBenchmarkRule : TestRule {
 
+    @Suppress("DEPRECATION")
     private val activityTestRule =
-        ActivityTestRule<ComponentActivity>(
+        androidx.test.rule.ActivityTestRule<ComponentActivity>(
             ComponentActivity::class.java
         )
 

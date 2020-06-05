@@ -28,7 +28,6 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -95,7 +94,8 @@ public class LifecycleOwnerUtils {
      */
     @NonNull
     public static <T extends Activity & LifecycleOwner> T waitForRecreation(
-            @NonNull final ActivityTestRule<T> activityRule
+            @SuppressWarnings("deprecation")
+            @NonNull final androidx.test.rule.ActivityTestRule<T> activityRule
     ) throws Throwable {
         return waitForRecreation(activityRule.getActivity());
     }

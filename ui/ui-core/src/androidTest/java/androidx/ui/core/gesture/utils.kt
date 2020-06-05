@@ -17,10 +17,10 @@
 package androidx.ui.core.gesture
 
 import android.view.MotionEvent
-import androidx.test.rule.ActivityTestRule
 
 // We only need this because IR compiler doesn't like converting lambdas to Runnables
-internal fun ActivityTestRule<*>.runOnUiThreadIR(block: () -> Unit) {
+@Suppress("DEPRECATION")
+internal fun androidx.test.rule.ActivityTestRule<*>.runOnUiThreadIR(block: () -> Unit) {
     val runnable: Runnable = object : Runnable {
         override fun run() {
             block()

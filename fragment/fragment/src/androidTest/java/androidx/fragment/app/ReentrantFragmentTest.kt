@@ -21,7 +21,6 @@ import android.os.Parcelable
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.lifecycle.ViewModelStore
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Rule
@@ -50,8 +49,9 @@ class ReentrantFragmentTest(
         }
     }
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
 
     // Make sure that executing transactions during activity lifecycle events
     // is properly prevented.

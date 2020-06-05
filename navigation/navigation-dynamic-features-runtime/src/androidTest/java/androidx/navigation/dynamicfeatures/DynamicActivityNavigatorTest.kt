@@ -22,7 +22,6 @@ import androidx.navigation.NavigatorProvider
 import androidx.navigation.NoOpNavigator
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -43,8 +42,9 @@ class DynamicActivityNavigatorTest {
     private lateinit var noOpNavigator: NoOpNavigator
     private lateinit var dynamicDestination: DynamicActivityNavigator.Destination
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule(NavigationActivity::class.java)
+    val activityTestRule = androidx.test.rule.ActivityTestRule(NavigationActivity::class.java)
 
     @Before
     fun setup() {

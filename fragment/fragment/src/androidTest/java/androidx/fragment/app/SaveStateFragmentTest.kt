@@ -25,7 +25,6 @@ import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
@@ -36,8 +35,9 @@ import org.junit.runner.RunWith
 @MediumTest
 class SaveStateFragmentTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
 
     @Test
     @UiThreadTest

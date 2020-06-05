@@ -27,7 +27,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.geometry.Rect
 import androidx.ui.test.captureToBitmap
 import org.junit.Assert.assertEquals
@@ -43,8 +42,9 @@ import java.util.concurrent.TimeUnit
 @MediumTest
 @RunWith(JUnit4::class)
 class AndroidCanvasTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(
+    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
 

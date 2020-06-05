@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class NestedFragmentRestoreTest {
 
+    @Suppress("DEPRECATION")
     @Test
     fun recreateActivity() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {

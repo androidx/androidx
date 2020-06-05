@@ -25,7 +25,6 @@ import android.widget.FrameLayout
 import androidx.core.view.NestedScrollingParent3
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.closeTo
 import org.junit.Before
@@ -52,9 +51,10 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
     private lateinit var mNestedScrollingParent: NestedScrollingParent
     private lateinit var mNestedScrollView: NestedScrollViewUnderTest
 
+    @Suppress("DEPRECATION")
     @Rule
     @JvmField
-    var mActivityRule = ActivityTestRule(TestContentViewActivity::class.java)
+    var mActivityRule = androidx.test.rule.ActivityTestRule(TestContentViewActivity::class.java)
 
     @Before
     @Throws(Throwable::class)

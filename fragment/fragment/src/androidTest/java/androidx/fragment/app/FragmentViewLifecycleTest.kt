@@ -34,7 +34,6 @@ import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
@@ -51,8 +50,9 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 class FragmentViewLifecycleTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(FragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
     @Test
     @UiThreadTest
