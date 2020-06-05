@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 buildscript {
     apply from: '../buildSrc/build_dependencies.gradle'
 
@@ -39,6 +41,17 @@ allprojects {
                 mavenPom()
                 artifact()
             }
+        }
+    }
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs += [
+                    "-Werror",
+                    "-Xskip-runtime-version-check",
+                    // Allow `@OptIn` and `@UseExperimental`
+                    "-Xopt-in=kotlin.RequiresOptIn"
+            ]
         }
     }
 }
