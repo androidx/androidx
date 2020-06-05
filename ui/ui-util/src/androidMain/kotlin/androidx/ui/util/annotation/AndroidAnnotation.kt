@@ -22,3 +22,4 @@ actual typealias IntRange = androidx.annotation.IntRange
 actual typealias Size = androidx.annotation.Size
 actual typealias GuardedBy = androidx.annotation.GuardedBy
 actual typealias VisibleForTesting = androidx.annotation.VisibleForTesting
+actual typealias CallSuper = androidx.annotation.CallSuper

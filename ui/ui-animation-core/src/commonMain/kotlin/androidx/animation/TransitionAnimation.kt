@@ -16,9 +16,7 @@
 
 package androidx.animation
 
-import android.util.Log
 import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
-import androidx.annotation.RestrictTo
 
 /**
  * [TransitionAnimation] is the underlying animation used in [androidx.ui.animation.Transition] for
@@ -40,6 +38,7 @@ import androidx.annotation.RestrictTo
  *
  * @see [androidx.ui.animation.Transition]
  */
+@OptIn(InternalAnimationApi::class)
 class TransitionAnimation<T>(
     internal val def: TransitionDefinition<T>,
     private val clock: AnimationClockObservable,
@@ -71,10 +70,9 @@ class TransitionAnimation<T>(
     private var startVelocityMap: MutableMap<PropKey<Any, AnimationVector>, Any> = mutableMapOf()
 
     // Named class for animation clock observer to help with tools' reflection.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @InternalAnimationApi
     inner class TransitionAnimationClockObserver : AnimationClockObserver {
-        // This API is intended for tools' use only. Hence the @RestrictTo.
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // This API is intended for tools' use only. Hence the @InternalAnimationApi.
         val animation: TransitionAnimation<T> = this@TransitionAnimation
         override fun onAnimationFrame(frameTimeMillis: Long) {
             doAnimationFrame(frameTimeMillis)
@@ -128,9 +126,6 @@ class TransitionAnimation<T>(
 
         fromState = AnimationState(currentState, toState.name)
         toState = newState
-        if (DEBUG) {
-            Log.w("TransAnim", "Animating to new state: ${toState.name}")
-        }
 
         // Start animation should be called after all the setup has been done
         startAnimation()

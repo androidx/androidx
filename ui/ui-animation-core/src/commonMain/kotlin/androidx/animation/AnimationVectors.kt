@@ -16,6 +16,8 @@
 
 package androidx.animation
 
+import androidx.ui.util.identityHashCode
+
 /**
  * [AnimationVector] class that is the base class of [AnimationVector1D], [AnimationVector2D],
  * [AnimationVector3D] and [AnimationVector4D]. In order to animate any arbitrary type, it is
@@ -120,7 +122,7 @@ class AnimationVector1D(initVal: Float) : AnimationVector() {
     override fun equals(other: Any?): Boolean =
         other is AnimationVector1D && other.value == value
 
-    override fun hashCode(): Int = System.identityHashCode(this)
+    override fun hashCode(): Int = identityHashCode()
 }
 
 /**
@@ -172,7 +174,7 @@ class AnimationVector2D(v1: Float, v2: Float) : AnimationVector() {
     override fun equals(other: Any?): Boolean =
         other is AnimationVector2D && other.v1 == v1 && other.v2 == v2
 
-    override fun hashCode(): Int = System.identityHashCode(this)
+    override fun hashCode(): Int = identityHashCode()
 }
 
 /**
@@ -235,7 +237,7 @@ class AnimationVector3D(v1: Float, v2: Float, v3: Float) : AnimationVector() {
     override fun equals(other: Any?): Boolean =
         other is AnimationVector3D && other.v1 == v1 && other.v2 == v2 && other.v3 == v3
 
-    override fun hashCode(): Int = System.identityHashCode(this)
+    override fun hashCode(): Int = identityHashCode()
 }
 
 /**
@@ -310,5 +312,5 @@ class AnimationVector4D(v1: Float, v2: Float, v3: Float, v4: Float) : AnimationV
                 other.v3 == v3 &&
                 other.v4 == v4
 
-    override fun hashCode(): Int = System.identityHashCode(this)
+    override fun hashCode(): Int = identityHashCode()
 }

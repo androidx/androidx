@@ -138,7 +138,8 @@ package androidx.animation {
     property public abstract T! value;
   }
 
-  public abstract sealed class BaseAnimationClock implements androidx.animation.AnimationClockObservable {
+  public abstract class BaseAnimationClock implements androidx.animation.AnimationClockObservable {
+    ctor public BaseAnimationClock();
     method public void subscribe(androidx.animation.AnimationClockObserver observer);
     method public void unsubscribe(androidx.animation.AnimationClockObserver observer);
     field @Deprecated public static final androidx.animation.BaseAnimationClock.Companion! Companion;
@@ -188,7 +189,7 @@ package androidx.animation {
   }
 
   public final class ExponentialDecay implements androidx.animation.DecayAnimation {
-    ctor public ExponentialDecay(@FloatRange(from=null, fromInclusive=null) float frictionMultiplier, @FloatRange(from=null, fromInclusive=null) float absVelocityThreshold);
+    ctor public ExponentialDecay(@FloatRange(from=null, to=null, fromInclusive=null) float frictionMultiplier, @FloatRange(from=null, to=null, fromInclusive=null) float absVelocityThreshold);
     ctor public ExponentialDecay();
     method public float getAbsVelocityThreshold();
     method public long getDurationMillis(float start, float startVelocity);
@@ -210,6 +211,9 @@ package androidx.animation {
     ctor public IntPropKey();
     method public androidx.animation.TwoWayConverter<java.lang.Integer,androidx.animation.AnimationVector1D> getTypeConverter();
     property public androidx.animation.TwoWayConverter<java.lang.Integer,androidx.animation.AnimationVector1D> typeConverter;
+  }
+
+  @kotlin.RequiresOptIn(message="This API is internal to library.") @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY}) public @interface InternalAnimationApi {
   }
 
   public enum InterruptionHandling {
@@ -276,6 +280,14 @@ package androidx.animation {
     property public final Integer? iterations;
   }
 
+  @androidx.animation.InternalAnimationApi public final class SeekableAnimation<T> {
+    ctor public SeekableAnimation(androidx.animation.TransitionDefinition<T> def, T! fromState, T! toState);
+    method public java.util.Map<androidx.animation.PropKey<java.lang.Object,androidx.animation.AnimationVector>,java.lang.Object> getAnimValuesAt(long playTime);
+    method public androidx.animation.TransitionDefinition<T> getDef();
+    method public long getDuration();
+    property public final long duration;
+  }
+
   public final class SnapBuilder<T> extends androidx.animation.AnimationBuilder<T> {
     ctor public SnapBuilder();
     method public <V extends androidx.animation.AnimationVector> androidx.animation.Animation<V> build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V> converter);
@@ -295,6 +307,9 @@ package androidx.animation {
   }
 
   public final class SpringEstimationKt {
+    method @VisibleForTesting(otherwise=3) public static long estimateAnimationDurationMillis(float stiffness, float dampingRatio, float initialVelocity, float initialDisplacement, float delta);
+    method @VisibleForTesting(otherwise=3) public static long estimateAnimationDurationMillis(double stiffness, double dampingRatio, double initialVelocity, double initialDisplacement, double delta);
+    method @VisibleForTesting(otherwise=3) public static long estimateAnimationDurationMillis(double springConstant, double dampingCoefficient, double mass, double initialVelocity, double initialDisplacement, double delta);
   }
 
   public final class SpringSimulationKt {
@@ -310,6 +325,8 @@ package androidx.animation {
   }
 
   public final class ToolingGlueKt {
+    method @androidx.animation.InternalAnimationApi public static <T> androidx.animation.SeekableAnimation<T> createSeekableAnimation(androidx.animation.TransitionAnimation<T>, T? fromState, T? toState);
+    method @androidx.animation.InternalAnimationApi public static <T> java.util.Set<T> getStates(androidx.animation.TransitionAnimation<T>);
   }
 
   public final class TransitionAnimation<T> implements androidx.animation.TransitionState {
@@ -324,6 +341,13 @@ package androidx.animation {
     property public final boolean isRunning;
     property public final kotlin.jvm.functions.Function1<T,kotlin.Unit>? onStateChangeFinished;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onUpdate;
+  }
+
+  @androidx.animation.InternalAnimationApi public final class TransitionAnimation.TransitionAnimationClockObserver implements androidx.animation.AnimationClockObserver {
+    ctor public TransitionAnimation.TransitionAnimationClockObserver();
+    method public androidx.animation.TransitionAnimation<T> getAnimation();
+    method public void onAnimationFrame(long frameTimeMillis);
+    property public final androidx.animation.TransitionAnimation<T> animation;
   }
 
   public final class TransitionAnimationKt {

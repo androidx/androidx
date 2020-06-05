@@ -24,6 +24,7 @@ import org.junit.runners.JUnit4
 import java.lang.Long.max
 
 @RunWith(JUnit4::class)
+@OptIn(InternalAnimationApi::class)
 class ToolingGlueTest {
     @Test
     fun testSeekableAnimation() {

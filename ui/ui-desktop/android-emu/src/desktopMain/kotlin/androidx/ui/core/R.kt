@@ -85,6 +85,8 @@ class R {
             val accessibility_custom_action_30 = 30
             @JvmField
             val accessibility_custom_action_31 = 31
+            @JvmField
+            var inspection_slot_table_set = 0
         }
     }
 }

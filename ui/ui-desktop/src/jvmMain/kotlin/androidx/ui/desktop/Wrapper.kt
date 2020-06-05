@@ -33,6 +33,7 @@ import javax.swing.SwingUtilities
 
 import org.jetbrains.skija.Canvas
 
+@OptIn(androidx.animation.InternalAnimationApi::class)
 fun SkiaWindow.setContent(content: @Composable () -> Unit) {
     SwingUtilities.invokeLater {
         val fps = 60
