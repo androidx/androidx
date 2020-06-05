@@ -75,6 +75,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
                 mContext,
                 mWorkManagerImpl,
                 mMockWorkConstraintsTracker);
+        mGreedyScheduler.mIsMainProcess = true;
         mDelayedWorkTracker = mock(DelayedWorkTracker.class);
         mGreedyScheduler.setDelayedWorkTracker(mDelayedWorkTracker);
     }
@@ -192,7 +193,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @SmallTest
     public void testGreedyScheduler_ignoresRequestsInADifferentProcess() {
         // Context.getSystemService() returns null so no work should be executed.
-        when(mContext.getPackageName()).thenReturn("packageName");
+        mGreedyScheduler.mIsMainProcess = false;
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec = getWorkSpec(work);
         mGreedyScheduler.schedule(workSpec);
