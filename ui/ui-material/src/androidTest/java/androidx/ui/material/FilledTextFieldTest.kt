@@ -18,6 +18,7 @@ package androidx.ui.material
 
 import android.os.Build
 import androidx.compose.Providers
+import androidx.compose.remember
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -29,6 +30,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.TextField
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.currentTextStyle
@@ -42,8 +44,10 @@ import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
+import androidx.ui.test.assertPixels
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
@@ -53,6 +57,8 @@ import androidx.ui.test.doSendImeAction
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendClick
+import androidx.ui.test.sendSwipeDown
+import androidx.ui.test.sendSwipeUp
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.unit.IntPxSize
@@ -81,7 +87,14 @@ class FilledTextFieldTest {
     private val ExpectedPadding = 16.dp
     private val IconPadding = 12.dp
     private val ExpectedBaselineOffset = 20.dp
+    private val ExpectedLastBaselineOffset = 16.dp
     private val IconColorAlpha = 0.54f
+
+    private val LONG_TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do " +
+            "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam," +
+            " quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
+            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu " +
+            "fugiat nulla pariatur."
 
     @get:Rule
     val testRule = createComposeRule().also {
@@ -95,7 +108,8 @@ class FilledTextFieldTest {
                 FilledTextField(
                     value = "input",
                     onValueChange = {},
-                    label = {}
+                    label = {},
+                    modifier = Modifier.preferredHeight(20.dp)
                 )
             }
             .assertHeightEqualsTo(ExpectedMinimumTextFieldHeight)
@@ -181,12 +195,14 @@ class FilledTextFieldTest {
                         Text(
                             text = "label",
                             fontSize = 10.sp,
-                            modifier = Modifier.onPositioned {
-                                labelPosition.value = it.globalPosition
-                                labelSize.value = it.size
-                            }
+                            modifier = Modifier
+                                .onPositioned {
+                                    labelPosition.value = it.globalPosition
+                                    labelSize.value = it.size
+                                }
                         )
-                    }
+                    },
+                    modifier = Modifier.preferredHeight(56.dp)
                 )
             }
         }
@@ -329,7 +345,9 @@ class FilledTextFieldTest {
         testRule.setMaterialContent {
             Box {
                 FilledTextField(
-                    modifier = Modifier.testTag("textField"),
+                    modifier = Modifier
+                        .preferredHeight(60.dp)
+                        .testTag("textField"),
                     value = "",
                     onValueChange = {},
                     label = { Text("label") },
@@ -357,9 +375,11 @@ class FilledTextFieldTest {
             assertThat(placeholderPosition.value?.x).isEqualTo(
                 ExpectedPadding.toIntPx().value.toFloat()
             )
-            assertThat(placeholderBaseline.value).isEqualTo(
-                ExpectedBaselineOffset.toIntPx().value.toFloat() * 2
-            )
+            assertThat(placeholderBaseline.value)
+                .isEqualTo(
+                    60.dp.toIntPx().value.toFloat() -
+                            ExpectedLastBaselineOffset.toIntPx().value.toFloat()
+                )
         }
     }
 
@@ -762,6 +782,127 @@ class FilledTextFieldTest {
 
         runOnIdleCompose {
             assertThat(controller).isNotNull()
+        }
+    }
+
+    @Test
+    fun textField_scrollable_withLongInput() {
+        val scrollerPosition = TextFieldScrollerPosition()
+        testRule.setContent {
+            Stack {
+                TextFieldScroller(
+                    remember { scrollerPosition },
+                    Modifier.fillMaxWidth().preferredHeight(40.dp)
+                ) {
+                    TextField(
+                        value = TextFieldValue(LONG_TEXT),
+                        onValueChange = {}
+                    )
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            assertThat(scrollerPosition.maximum).isLessThan(Float.POSITIVE_INFINITY)
+            assertThat(scrollerPosition.maximum).isGreaterThan(0f)
+        }
+    }
+
+    @Test
+    fun textField_notScrollable_withShortInput() {
+        val text = "text"
+        val scrollerPosition = TextFieldScrollerPosition()
+        testRule.setContent {
+            Stack {
+                TextFieldScroller(
+                    remember { scrollerPosition },
+                    Modifier.fillMaxWidth().preferredHeight(100.dp)
+                ) {
+                    TextField(
+                        value = TextFieldValue(text),
+                        onValueChange = {}
+                    )
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            assertThat(scrollerPosition.maximum).isEqualTo(0f)
+        }
+    }
+
+    @Test
+    fun textField_scrolledAndClipped() {
+        val tag = "testTag"
+        val scrollerPosition = TextFieldScrollerPosition()
+
+        val parentSize = 200.ipx
+        val textFieldSize = 50.ipx
+
+        with(testRule.density) {
+            testRule.setContent {
+                Stack(Modifier
+                    .preferredSize(parentSize.toDp())
+                    .drawBackground(Color.White)
+                    .testTag(tag)
+                ) {
+                    TextFieldScroller(
+                        remember { scrollerPosition },
+                        Modifier.preferredSize(textFieldSize.toDp())
+                    ) {
+                        TextField(
+                            value = TextFieldValue(LONG_TEXT),
+                            onValueChange = {}
+                        )
+                    }
+                }
+            }
+        }
+
+        runOnIdleCompose {}
+
+        findByTag(tag)
+            .captureToBitmap()
+            .assertPixels(expectedSize = IntPxSize(parentSize, parentSize)) { position ->
+                if (position.x > textFieldSize && position.y > textFieldSize) Color.White else null
+            }
+    }
+
+    @Test
+    fun textField_swipe_whenLongInput() {
+        val tag = "testTag"
+        val scrollerPosition = TextFieldScrollerPosition()
+
+        testRule.setContent {
+            Stack {
+                TextFieldScroller(
+                    remember { scrollerPosition },
+                    Modifier.fillMaxWidth().preferredHeight(40.dp).testTag(tag)
+                ) {
+                    TextField(
+                        value = TextFieldValue(LONG_TEXT),
+                        onValueChange = {}
+                    )
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            assertThat(scrollerPosition.current).isEqualTo(0f)
+        }
+
+        findByTag(tag)
+            .doGesture { sendSwipeDown() }
+
+        val firstSwipePosition = runOnIdleCompose {
+            scrollerPosition.current
+        }
+        assertThat(firstSwipePosition).isGreaterThan(0f)
+
+        findByTag(tag)
+            .doGesture { sendSwipeUp() }
+        runOnIdleCompose {
+            assertThat(scrollerPosition.current).isLessThan(firstSwipePosition)
         }
     }
 
