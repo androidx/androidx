@@ -20,6 +20,7 @@ import static android.content.Context.ACTIVITY_SERVICE;
 import static android.os.Build.VERSION.SDK_INT;
 
 import android.app.ActivityManager;
+import android.app.Application;
 import android.content.Context;
 import android.os.Process;
 import android.text.TextUtils;
@@ -39,6 +40,7 @@ import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +66,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     private final Object mLock;
 
     // Internal State
-    private Boolean mIsMainProcess;
+    Boolean mIsMainProcess;
 
     public GreedyScheduler(
             @NonNull Context context,
@@ -237,6 +239,37 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
 
     @Nullable
     private String getProcessName() {
+        if (SDK_INT >= 28) {
+            return Application.getProcessName();
+        }
+
+        // Try using ActivityThread to determine the current process name.
+        try {
+            Class<?> activityThread = Class.forName(
+                    "android.app.ActivityThread",
+                    false,
+                    GreedyScheduler.class.getClassLoader());
+            final Object packageName;
+            if (SDK_INT >= 18) {
+                Method currentProcessName = activityThread.getDeclaredMethod("currentProcessName");
+                currentProcessName.setAccessible(true);
+                packageName = currentProcessName.invoke(null);
+            } else {
+                Method getActivityThread = activityThread.getDeclaredMethod(
+                        "currentActivityThread");
+                getActivityThread.setAccessible(true);
+                Method getProcessName = activityThread.getDeclaredMethod("getProcessName");
+                getProcessName.setAccessible(true);
+                packageName = getProcessName.invoke(getActivityThread.invoke(null));
+            }
+            if (packageName instanceof String) {
+                return (String) packageName;
+            }
+        } catch (Throwable exception) {
+            Logger.get().debug(TAG, "Unable to check ActivityThread for processName", exception);
+        }
+
+        // Fallback to the most expensive way
         int pid = Process.myPid();
         ActivityManager am =
                 (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
