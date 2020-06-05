@@ -18,12 +18,12 @@ package androidx.ui.animation
 
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationClockObserver
+import androidx.compose.AtomicReference
 import androidx.compose.Composable
 import androidx.compose.onCommit
 import androidx.compose.remember
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentSetOf
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Return a new [AnimationClockObservable] wrapping this one that will auto-unsubscribe all

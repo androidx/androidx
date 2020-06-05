@@ -2642,7 +2642,7 @@ fun androidx.test.rule.ActivityTestRule<*>.validateSquareColors(
     offset: Int = 0,
     totalSize: Int = size * 3
 ) {
-    assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+    assertTrue("drawLatch timed out", drawLatch.await(1, TimeUnit.SECONDS))
     val bitmap = waitAndScreenShot()
     assertEquals(totalSize, bitmap.width)
     assertEquals(totalSize, bitmap.height)
@@ -3070,7 +3070,7 @@ fun androidx.test.rule.ActivityTestRule<*>.waitAndScreenShot(
     }
 
     if (forceInvalidate) {
-        assertTrue(flushListener.latch.await(1, TimeUnit.SECONDS))
+        assertTrue("Drawing latch timed out", flushListener.latch.await(1, TimeUnit.SECONDS))
     }
     val width = view.width
     val height = view.height
@@ -3088,7 +3088,7 @@ fun androidx.test.rule.ActivityTestRule<*>.waitAndScreenShot(
         }
     }
     PixelCopy.request(activity.window, srcRect, dest, onCopyFinished, handler!!)
-    assertTrue(latch.await(1, TimeUnit.SECONDS))
+    assertTrue("Pixel copy latch timed out", latch.await(1, TimeUnit.SECONDS))
     assertEquals(PixelCopy.SUCCESS, copyResult)
     return dest
 }

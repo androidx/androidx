@@ -16,7 +16,6 @@
 
 package androidx.ui.test.android
 
-import android.R
 import android.annotation.TargetApi
 import android.app.Activity
 import android.graphics.Bitmap
@@ -31,6 +30,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.compose.Composition
+import androidx.compose.CompositionFrameClock
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.frames.currentFrame
@@ -40,6 +40,11 @@ import androidx.ui.core.setContent
 import androidx.ui.test.ComposeBenchmarkScope
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.setupContent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Factory method to provide implementation of [ComposeBenchmarkScope].
@@ -76,7 +81,17 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     private val capture = if (supportsRenderNode) RenderNodeCapture() else PictureCapture()
     private var canvas: Canvas? = null
 
-    private var recomposer: Recomposer? = null
+    private class AutoFrameClock(
+        private val singleFrameTimeNanos: Long = 16_000_000
+    ) : CompositionFrameClock {
+        private val lastFrameTime = AtomicLong(0L)
+
+        override suspend fun <R> awaitFrameNanos(onFrame: (Long) -> R): R =
+            onFrame(lastFrameTime.getAndAdd(singleFrameTimeNanos))
+    }
+
+    private val frameClock = AutoFrameClock()
+    private val recomposer: Recomposer = Recomposer()
 
     private var simulationState: SimulationState = SimulationState.Initialized
 
@@ -106,8 +121,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
             "Need to call onPreEmitContent before emitContent!"
         }
 
-        recomposer = Recomposer.current()
-        composition = activity.setContent { testCase!!.emitContent() }
+        composition = activity.setContent(recomposer) { testCase!!.emitContent() }
         val ownerView = findAndroidOwner(activity)!!.view
         // AndroidOwner is postponing the composition till the saved state will be restored.
         // We will emulate the restoration of the empty state to trigger the real composition.
@@ -119,8 +133,6 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
     // TODO: This method may advance the current frame and should be just a getter
     override fun hasPendingChanges(): Boolean {
-        val recomposer = recomposer ?: return false
-
         if (recomposer.hasPendingChanges() || hasPendingChangesInFrame()) {
             FrameManager.nextFrame()
         }
@@ -197,11 +209,17 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     override fun recompose() {
         if (hasPendingChanges()) {
             didLastRecomposeHaveChanges = true
-            recomposer!!.recomposeSync()
+            runBlocking {
+                recomposer.recomposeAndApplyChanges(this, frameClock, 1)
+            }
         } else {
             didLastRecomposeHaveChanges = false
         }
         simulationState = SimulationState.RecomposeDone
+    }
+
+    override fun launchRecomposeIn(coroutineScope: CoroutineScope): Job = coroutineScope.launch {
+        recomposer.runRecomposeAndApplyChanges(frameClock)
     }
 
     override fun doFrame() {
@@ -229,7 +247,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         composition?.dispose()
 
         // Clear the view
-        val rootView = activity.findViewById(R.id.content) as ViewGroup
+        val rootView = activity.findViewById(android.R.id.content) as ViewGroup
         rootView.removeAllViews()
         // Important so we can set the content again.
         view = null

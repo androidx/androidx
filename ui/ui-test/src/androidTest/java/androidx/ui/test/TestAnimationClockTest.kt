@@ -23,6 +23,7 @@ import androidx.compose.Composable
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.State
+import androidx.compose.currentComposer
 import androidx.compose.mutableStateOf
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.MediumTest
@@ -37,6 +38,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.android.ComposeIdlingResource
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 
@@ -116,9 +118,13 @@ class TestAnimationClockTest {
      * is reported correctly when doing that.
      */
     @Test
-    fun testAnimation_manuallyAdvanceClock_resumed() {
+    fun testAnimation_manuallyAdvanceClock_resumed() = runBlocking {
         val animationState = mutableStateOf(AnimationStates.From)
-        composeTestRule.setContent { Ui(animationState) }
+        lateinit var recomposer: Recomposer
+        composeTestRule.setContent {
+            recomposer = currentComposer.recomposer
+            Ui(animationState)
+        }
 
         // Before we kick off the animation, the test clock should be idle
         assertThat(clockTestRule.clock.isIdle).isTrue()
@@ -135,11 +141,12 @@ class TestAnimationClockTest {
 
             // Force model changes down the pipeline
             FrameManager.nextFrame()
-            Recomposer.current().recomposeSync()
-
-            // After we kicked off the animation, the test clock should be non-idle
-            assertThat(clockTestRule.clock.isIdle).isFalse()
         }
+
+        recomposer.awaitIdle()
+
+        // After we kicked off the animation, the test clock should be non-idle
+        assertThat(clockTestRule.clock.isIdle).isFalse()
 
         // Animation is running, fast-forward it because we don't want to wait on it
         clockTestRule.advanceClock(1000)
@@ -149,8 +156,9 @@ class TestAnimationClockTest {
         // know it if advanceClock didn't work.
         runOnUiThread {
             FrameManager.nextFrame()
-            Recomposer.current().recomposeSync()
         }
+
+        recomposer.awaitIdle()
 
         // After the animation is finished, ...
         assertThat(animationRunning).isFalse()
