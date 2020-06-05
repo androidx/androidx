@@ -50,4 +50,5 @@
     <item name="accessibility_custom_action_30" type="id"/>
     <item name="accessibility_custom_action_31" type="id"/>
     <item name="wrapped_composition_tag" type="id" />
+    <item name="inspection_slot_table_set" type="id" />
 </resources>
