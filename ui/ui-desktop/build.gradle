@@ -147,11 +147,9 @@ def uiComponents = [
         "ui-livedata",
         "ui-material",
         "ui-saved-instance-state",
-        "ui-test",
         "ui-text",
         "ui-text-android",
         "ui-text-core",
-        "ui-tooling",
         "ui-unit",
         "ui-util",
         "ui-vector"

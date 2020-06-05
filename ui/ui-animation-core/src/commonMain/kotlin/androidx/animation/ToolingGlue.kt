@@ -16,7 +16,9 @@
 
 package androidx.animation
 
-import androidx.annotation.RestrictTo
+@RequiresOptIn(message = "This API is internal to library.")
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
+annotation class InternalAnimationApi
 
 /**
  * Seekable animation class provides utilities to create an animation using a state pair, and
@@ -24,9 +26,9 @@ import androidx.annotation.RestrictTo
  * entirely stateless in terms of animation lifecycle. This design makes it easy for higher level
  * stateful construct to be built on top of it.
  *
- * This API is intended for tools' use only. Hence the @RestrictTo.
+ * This API is intended for tools' use only. Hence the @InternalAnimationApi.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalAnimationApi
 class SeekableAnimation<T>(
     val def: TransitionDefinition<T>,
     fromState: T,
@@ -81,19 +83,19 @@ class SeekableAnimation<T>(
  * Creates a [SeekableAnimation] using the same [TransitionDefinition] that the
  * [TransitionAnimation] is created from.
  *
- * Note: This API is intended for tools' use only. Hence the @RestrictTo.
+ * Note: This API is intended for tools' use only. Hence the @InternalAnimationApi.
  *
  * @param fromState The state that a [SeekableAnimation] will start from.
  * @param toState The state that a [SeekableAnimation] will end in.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalAnimationApi
 fun <T> TransitionAnimation<T>.createSeekableAnimation(fromState: T, toState: T) =
     SeekableAnimation<T>(def, fromState, toState)
 
 /**
  * Returns the all states available in a [TransitionDefinition].
  *
- * This API is intended for tools' use only. Hence the @RestrictTo.
+ * This API is intended for tools' use only. Hence the @InternalAnimationApi.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalAnimationApi
 fun <T> TransitionAnimation<T>.getStates(): Set<T> = def.states.keys

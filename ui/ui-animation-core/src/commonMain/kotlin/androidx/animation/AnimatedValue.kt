@@ -16,7 +16,6 @@
 
 package androidx.animation
 
-import android.util.Log
 import androidx.animation.AnimationEndReason.BoundReached
 import androidx.animation.AnimationEndReason.Interrupted
 import androidx.animation.AnimationEndReason.TargetReached
@@ -107,11 +106,12 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
     // end of the animation.
     private var lastFrameTime: Long = Unset
 
-    private var animationClockObserver = object : AnimationClockObserver {
-        override fun onAnimationFrame(frameTimeMillis: Long) {
-            doAnimationFrame(frameTimeMillis)
+    private var animationClockObserver: AnimationClockObserver =
+        object : AnimationClockObserver {
+            override fun onAnimationFrame(frameTimeMillis: Long) {
+                doAnimationFrame(frameTimeMillis)
+            }
         }
-    }
 
     private fun defaultPhysicsBuilder(): PhysicsBuilder<T> {
         return visibilityThreshold?.let {
@@ -146,12 +146,6 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
             value, velocityVector, targetValue, anim.build(typeConverter), typeConverter
         )
 
-        if (DEBUG) {
-            Log.w(
-                "AnimValue", "To value called: start value: $value," +
-                        "end value: $targetValue, velocity: $velocityVector"
-            )
-        }
         this.onEnd = onEnd
         startAnimation(animationWrapper)
     }
@@ -202,13 +196,6 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
 
     protected open fun checkFinished(playtime: Long) {
         val animationFinished = anim.isFinished(playtime)
-        if (DEBUG) {
-            val debugLogMessage = if (animationFinished)
-                "value = $value, playtime = $playtime, animation finished"
-            else
-                "value = $value, playtime = $playtime, velocity: $velocityVector"
-            Log.w("AnimValue", debugLogMessage)
-        }
         if (animationFinished) endAnimation()
     }
 
@@ -229,9 +216,6 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
             isRunning = true
             clock.subscribe(animationClockObserver)
         }
-        if (DEBUG) {
-            Log.w("AnimValue", "start animation")
-        }
     }
 
     internal fun endAnimation(endReason: AnimationEndReason = TargetReached) {
@@ -239,9 +223,6 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
         isRunning = false
         startTime = Unset
         lastFrameTime = Unset
-        if (DEBUG) {
-            Log.w("AnimValue", "end animation with reason $endReason")
-        }
         notifyEnded(endReason, value)
         // reset velocity after notifyFinish as we might need to return it in onFinished callback
         // depending on whether or not velocity was involved in the animation
@@ -412,17 +393,8 @@ fun AnimatedFloat.fling(
     }
 
     // start from current value with the given velocity
-    if (DEBUG) {
-        Log.w("AnimFloat", "Calculating target. Value: $value, velocity: $startVelocity")
-    }
     targetValue = decay.getTarget(value, startVelocity)
     val targetAnimation = adjustTarget(targetValue)
-    if (DEBUG) {
-        Log.w(
-            "AnimFloat", "original targetValue: $targetValue, new target:" +
-                    " ${targetAnimation?.target}"
-        )
-    }
     if (targetAnimation == null) {
         val animWrapper = DecayAnimationWrapper(value, startVelocity, decay)
         startAnimation(animWrapper)

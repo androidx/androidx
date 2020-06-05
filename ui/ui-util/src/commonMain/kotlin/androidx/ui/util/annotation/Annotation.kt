@@ -53,3 +53,7 @@ expect annotation class GuardedBy(
 expect annotation class VisibleForTesting(
     val otherwise: Int = 2
 )
+
+@OptionalExpectation
+@ExperimentalMultiplatform
+expect annotation class CallSuper()

@@ -16,81 +16,15 @@
 
 package androidx.animation
 
-import android.os.Handler
-import android.os.Looper
-import android.view.Choreographer
-import androidx.annotation.CallSuper
-import androidx.annotation.RestrictTo
-import org.jetbrains.annotations.TestOnly
-import java.util.concurrent.CountDownLatch
+import androidx.ui.util.annotation.CallSuper
+
+expect class DefaultAnimationClock() : BaseAnimationClock
 
 /** @suppress */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalAnimationApi
 var rootAnimationClockFactory: () -> AnimationClockObservable = { DefaultAnimationClock() }
-    @TestOnly
+    // @TestOnly
     set
-
-/**
- * Default Choreographer based clock that pushes a new frame to all subscribers on each
- * Choreographer tick, until all subscribers have unsubscribed. An instance of this clock will be
- * provided through [AnimationClockAmbient][androidx.ui.core.AnimationClockAmbient] at the root
- * of the composition tree.
- *
- * If initialized from any other thread but the main thread, part of the initialization is done
- * synchronously on the main thread. If this poses a problem, consider initializing this clock on
- * the main thread itself.
- */
-class DefaultAnimationClock : BaseAnimationClock() {
-
-    private val mainChoreographer: Choreographer
-
-    init {
-        /**
-         * If not initializing on the main thread, a message will be posted on the main thread to
-         * fetch the Choreographer, and initialization blocks until that fetch is completed.
-         */
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            mainChoreographer = Choreographer.getInstance()
-        } else {
-            val latch = CountDownLatch(1)
-            var choreographer: Choreographer? = null
-            Handler(Looper.getMainLooper()).postAtFrontOfQueue {
-                try {
-                    choreographer = Choreographer.getInstance()
-                } finally {
-                    latch.countDown()
-                }
-            }
-            latch.await()
-            mainChoreographer = choreographer!!
-        }
-    }
-
-    @Volatile
-    private var subscribedToChoreographer = false
-
-    private val frameCallback = Choreographer.FrameCallback {
-        dispatchTime(it / 1000000)
-    }
-
-    override fun subscribe(observer: AnimationClockObserver) {
-        if (!subscribedToChoreographer) {
-            mainChoreographer.postFrameCallback(frameCallback)
-            subscribedToChoreographer = true
-        }
-        super.subscribe(observer)
-    }
-
-    override fun dispatchTime(frameTimeMillis: Long) {
-        super.dispatchTime(frameTimeMillis)
-        subscribedToChoreographer = if (hasObservers()) {
-            mainChoreographer.postFrameCallback(frameCallback)
-            true
-        } else {
-            false
-        }
-    }
-}
 
 /**
  * A custom clock whose frame time can be manually updated via mutating [clockTimeMillis].
@@ -132,7 +66,7 @@ class ManualAnimationClock(
  * Base implementation for the AnimationClockObservable that handles the subscribing and
  * unsubscribing logic that would be common for all custom animation clocks.
  */
-sealed class BaseAnimationClock : AnimationClockObservable {
+abstract class BaseAnimationClock : AnimationClockObservable {
     // Using LinkedHashSet to increase removal performance
     private val observers: MutableSet<AnimationClockObserver> = LinkedHashSet()
 

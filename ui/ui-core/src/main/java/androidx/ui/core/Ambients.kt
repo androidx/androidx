@@ -103,6 +103,7 @@ val TextToolbarAmbient = staticAmbientOf<TextToolbar>()
 val UriHandlerAmbient = staticAmbientOf<UriHandler>()
 
 @Composable
+@OptIn(androidx.animation.InternalAnimationApi::class)
 internal fun ProvideCommonAmbients(
     owner: Owner,
     uriHandler: UriHandler,
