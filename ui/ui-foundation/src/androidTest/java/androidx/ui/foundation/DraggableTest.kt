@@ -30,10 +30,15 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
+import androidx.ui.test.doPartialGesture
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.sendDown
+import androidx.ui.test.sendMoveBy
 import androidx.ui.test.sendSwipe
 import androidx.ui.test.sendSwipeWithVelocity
+import androidx.ui.test.sendUp
+import androidx.ui.test.size
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.milliseconds
@@ -349,26 +354,30 @@ class DraggableTest {
         val interactionState = InteractionState()
 
         setDraggableContent {
-            Modifier.draggable(DragDirection.Horizontal, interactionState = interactionState) { 0f }
+            Modifier.draggable(
+                DragDirection.Horizontal,
+                interactionState = interactionState
+            ) { 0f }
         }
 
         runOnIdleCompose {
             assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
         }
 
-        // TODO: b/154498119 simulate drag event, replace with gesture injection when supported
-        runOnIdleCompose {
-            interactionState.addInteraction(Interaction.Dragged)
-        }
+        findByTag(draggableBoxTag)
+            .doPartialGesture {
+                sendDown(Offset(size.width.value / 4f, size.height.value / 2f))
+                sendMoveBy(Offset(size.width.value / 2f, 0f))
+            }
 
         runOnIdleCompose {
             assertThat(interactionState.value).contains(Interaction.Dragged)
         }
 
-        // TODO: b/154498119 simulate drag event, replace with gesture injection when supported
-        runOnIdleCompose {
-            interactionState.removeInteraction(Interaction.Dragged)
-        }
+        findByTag(draggableBoxTag)
+            .doPartialGesture {
+                sendUp()
+            }
 
         runOnIdleCompose {
             assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
@@ -399,10 +408,11 @@ class DraggableTest {
             assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
         }
 
-        // TODO: b/154498119 simulate drag event, replace with gesture injection when supported
-        runOnIdleCompose {
-            interactionState.addInteraction(Interaction.Dragged)
-        }
+        findByTag(draggableBoxTag)
+            .doPartialGesture {
+                sendDown(Offset(size.width.value / 4f, size.height.value / 2f))
+                sendMoveBy(Offset(size.width.value / 2f, 0f))
+            }
 
         runOnIdleCompose {
             assertThat(interactionState.value).contains(Interaction.Dragged)

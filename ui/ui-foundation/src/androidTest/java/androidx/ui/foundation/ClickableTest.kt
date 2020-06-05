@@ -27,14 +27,18 @@ import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertIsNotEnabled
+import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.doGesture
+import androidx.ui.test.doPartialGesture
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendClick
 import androidx.ui.test.sendDoubleClick
+import androidx.ui.test.sendDown
 import androidx.ui.test.sendLongClick
+import androidx.ui.test.sendUp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -333,19 +337,15 @@ class ClickableTest {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
-        // TODO: b/154498119 simulate press event, replace with gesture injection when supported
-        runOnIdleCompose {
-            interactionState.addInteraction(Interaction.Pressed)
-        }
+        findByTag("myClickable")
+            .doPartialGesture { sendDown(center) }
 
         runOnIdleCompose {
             assertThat(interactionState.value).contains(Interaction.Pressed)
         }
 
-        // TODO: b/154498119 simulate press event, replace with gesture injection when supported
-        runOnIdleCompose {
-            interactionState.removeInteraction(Interaction.Pressed)
-        }
+        findByTag("myClickable")
+            .doPartialGesture { sendUp() }
 
         runOnIdleCompose {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
@@ -374,10 +374,8 @@ class ClickableTest {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
 
-        // TODO: b/154498119 simulate press event, replace with gesture injection when supported
-        runOnIdleCompose {
-            interactionState.addInteraction(Interaction.Pressed)
-        }
+        findByTag("myClickable")
+            .doPartialGesture { sendDown(center) }
 
         runOnIdleCompose {
             assertThat(interactionState.value).contains(Interaction.Pressed)

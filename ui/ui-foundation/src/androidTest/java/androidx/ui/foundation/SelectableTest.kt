@@ -16,20 +16,31 @@
 
 package androidx.ui.foundation
 
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.selection.selectable
+import androidx.ui.layout.Stack
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertIsUnselected
+import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
+import androidx.ui.test.doPartialGesture
 import androidx.ui.test.find
 import androidx.ui.test.findAll
+import androidx.ui.test.findByText
 import androidx.ui.test.first
 import androidx.ui.test.isInMutuallyExclusiveGroup
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.sendDown
+import androidx.ui.test.sendUp
+import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -95,5 +106,80 @@ class SelectableTest {
             .assertIsUnselected()
             .doClick()
             .assertIsUnselected()
+    }
+
+    @Test
+    fun selectableTest_interactionState() {
+        val interactionState = InteractionState()
+
+        composeTestRule.setContent {
+            Stack {
+                Box(Modifier.selectable(
+                    selected = true,
+                    interactionState = interactionState,
+                    onClick = {}
+                )) {
+                    Text("SelectableText")
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            Truth.assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
+        }
+
+        findByText("SelectableText")
+            .doPartialGesture { sendDown(center) }
+
+        runOnIdleCompose {
+            Truth.assertThat(interactionState.value).contains(Interaction.Pressed)
+        }
+
+        findByText("SelectableText")
+            .doPartialGesture { sendUp() }
+
+        runOnIdleCompose {
+            Truth.assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
+        }
+    }
+
+    @Test
+    fun selectableTest_interactionState_resetWhenDisposed() {
+        val interactionState = InteractionState()
+        var emitSelectableText by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Stack {
+                if (emitSelectableText) {
+                    Box(Modifier.selectable(
+                        selected = true,
+                        interactionState = interactionState,
+                        onClick = {}
+                    )) {
+                        Text("SelectableText")
+                    }
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            Truth.assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
+        }
+
+        findByText("SelectableText")
+            .doPartialGesture { sendDown(center) }
+
+        runOnIdleCompose {
+            Truth.assertThat(interactionState.value).contains(Interaction.Pressed)
+        }
+
+        // Dispose selectable
+        runOnIdleCompose {
+            emitSelectableText = false
+        }
+
+        runOnIdleCompose {
+            Truth.assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
+        }
     }
 }
