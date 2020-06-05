@@ -33,10 +33,10 @@ class RRectTest {
     fun `RRect_contains()`() {
         val rrect = RRect(
                 Rect.fromLTRB(1.0f, 1.0f, 2.0f, 2.0f),
-                topLeft = Radius.circular(0.5f),
-                topRight = Radius.circular(0.25f),
-                bottomRight = Radius.elliptical(0.25f, 0.75f),
-                bottomLeft = Radius.zero
+                topLeft = Radius(0.5f),
+                topRight = Radius(0.25f),
+                bottomRight = Radius(0.25f, 0.75f),
+                bottomLeft = Radius.Zero
         )
 
         assertFalse(rrect.contains(Offset(1.0f, 1.0f)))
@@ -53,10 +53,10 @@ class RRectTest {
     fun `RRect_contains() large radii`() {
         val rrect = RRect(
                 Rect.fromLTRB(1.0f, 1.0f, 2.0f, 2.0f),
-                topLeft = Radius.circular(5000.0f),
-                topRight = Radius.circular(2500.0f),
-                bottomRight = Radius.elliptical(2500.0f, 7500.0f),
-                bottomLeft = Radius.zero
+                topLeft = Radius(5000.0f),
+                topRight = Radius(2500.0f),
+                bottomRight = Radius(2500.0f, 7500.0f),
+                bottomLeft = Radius.Zero
         )
 
         assertFalse(rrect.contains(Offset(1.0f, 1.0f)))

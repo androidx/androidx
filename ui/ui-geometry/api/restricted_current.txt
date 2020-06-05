@@ -90,13 +90,13 @@ package androidx.ui.geometry {
 
   public final class RRectKt {
     method public static androidx.ui.geometry.RRect RRect(float left, float top, float right, float bottom, float radiusX, float radiusY);
-    method public static androidx.ui.geometry.RRect RRect(float left, float top, float right, float bottom, androidx.ui.geometry.Radius radius);
     method public static androidx.ui.geometry.RRect RRect(androidx.ui.geometry.Rect rect, float radiusX, float radiusY);
-    method public static androidx.ui.geometry.RRect RRect(androidx.ui.geometry.Rect rect, androidx.ui.geometry.Radius radius);
-    method public static androidx.ui.geometry.RRect RRect(float left, float top, float right, float bottom, androidx.ui.geometry.Radius topLeft = Radius.zero, androidx.ui.geometry.Radius topRight = Radius.zero, androidx.ui.geometry.Radius bottomRight = Radius.zero, androidx.ui.geometry.Radius bottomLeft = Radius.zero);
-    method public static androidx.ui.geometry.RRect RRect(androidx.ui.geometry.Rect rect, androidx.ui.geometry.Radius topLeft = Radius.zero, androidx.ui.geometry.Radius topRight = Radius.zero, androidx.ui.geometry.Radius bottomRight = Radius.zero, androidx.ui.geometry.Radius bottomLeft = Radius.zero);
-    method public static androidx.ui.geometry.Radius bottomLeftRadius(androidx.ui.geometry.RRect);
-    method public static androidx.ui.geometry.Radius bottomRightRadius(androidx.ui.geometry.RRect);
+    method public static androidx.ui.geometry.RRect RRect-SonKKtE(androidx.ui.geometry.Rect rect, long radius);
+    method public static androidx.ui.geometry.RRect RRect-a8KmX9Q(androidx.ui.geometry.Rect rect, long topLeft = Radius.Zero, long topRight = Radius.Zero, long bottomRight = Radius.Zero, long bottomLeft = Radius.Zero);
+    method public static androidx.ui.geometry.RRect RRect-iLOfVQs(float left, float top, float right, float bottom, long radius);
+    method public static androidx.ui.geometry.RRect RRect-kGjprzs(float left, float top, float right, float bottom, long topLeft = Radius.Zero, long topRight = Radius.Zero, long bottomRight = Radius.Zero, long bottomLeft = Radius.Zero);
+    method public static long bottomLeftRadius(androidx.ui.geometry.RRect);
+    method public static long bottomRightRadius(androidx.ui.geometry.RRect);
     method public static androidx.ui.geometry.Offset center(androidx.ui.geometry.RRect);
     method public static float getLongestSide(androidx.ui.geometry.RRect);
     method public static float getShortestSide(androidx.ui.geometry.RRect);
@@ -115,38 +115,39 @@ package androidx.ui.geometry {
     method public static androidx.ui.geometry.RRect shift(androidx.ui.geometry.RRect, androidx.ui.geometry.Offset offset);
     method public static androidx.ui.geometry.RRect shrink(androidx.ui.geometry.RRect, float delta);
     method public static androidx.ui.geometry.Rect tallMiddleRect(androidx.ui.geometry.RRect);
-    method public static androidx.ui.geometry.Radius topLeftRadius(androidx.ui.geometry.RRect);
-    method public static androidx.ui.geometry.Radius topRightRadius(androidx.ui.geometry.RRect);
+    method public static long topLeftRadius(androidx.ui.geometry.RRect);
+    method public static long topRightRadius(androidx.ui.geometry.RRect);
     method public static androidx.ui.geometry.Rect wideMiddleRect(androidx.ui.geometry.RRect);
-    method public static androidx.ui.geometry.RRect withRadius(androidx.ui.geometry.RRect, androidx.ui.geometry.Radius radius);
+    method public static androidx.ui.geometry.RRect withRadius-ql9n_fM(androidx.ui.geometry.RRect, long radius);
   }
 
-  @androidx.compose.Immutable public final class Radius {
-    ctor public Radius(float x, float y);
-    method public float component1();
-    method public float component2();
-    method @androidx.compose.Immutable public androidx.ui.geometry.Radius copy(float x, float y);
-    method @androidx.compose.Stable public operator androidx.ui.geometry.Radius div(float operand);
-    method public float getX();
-    method public float getY();
-    method @androidx.compose.Stable public operator androidx.ui.geometry.Radius minus(androidx.ui.geometry.Radius other);
-    method @androidx.compose.Stable public operator androidx.ui.geometry.Radius plus(androidx.ui.geometry.Radius other);
-    method @androidx.compose.Stable public operator androidx.ui.geometry.Radius rem(float operand);
-    method @androidx.compose.Stable public operator androidx.ui.geometry.Radius times(float operand);
-    method public androidx.ui.geometry.Radius truncDiv(float operand);
-    method @androidx.compose.Stable public operator androidx.ui.geometry.Radius unaryMinus();
+  @androidx.compose.Immutable public final inline class Radius {
+    ctor public Radius();
+    method public static long constructor-impl(internal long packedValue);
+    method @androidx.compose.Stable public static operator long div-impl(long $this, float operand);
+    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
+    method public static float getX-impl(long $this);
+    method public static float getY-impl(long $this);
+    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
+    method @androidx.compose.Stable public static operator long minus-ASmZJvU(long $this, long other);
+    method @androidx.compose.Stable public static operator long plus-ASmZJvU(long $this, long other);
+    method @androidx.compose.Stable public static operator long rem-impl(long $this, float operand);
+    method @androidx.compose.Stable public static operator long times-impl(long $this, float operand);
+    method public static String toString-impl(long $this);
+    method public static long truncDiv-impl(long $this, float operand);
+    method @androidx.compose.Stable public static operator long unaryMinus-impl(long $this);
     field public static final androidx.ui.geometry.Radius.Companion! Companion;
   }
 
   public static final class Radius.Companion {
-    method @androidx.compose.Stable public androidx.ui.geometry.Radius circular(float radius);
-    method @androidx.compose.Stable public androidx.ui.geometry.Radius elliptical(float x, float y);
-    method public androidx.ui.geometry.Radius getZero();
-    property public final androidx.ui.geometry.Radius zero;
+    method public long getZero();
+    property public final long Zero;
   }
 
   public final class RadiusKt {
-    method @androidx.compose.Stable public static androidx.ui.geometry.Radius lerp(androidx.ui.geometry.Radius start, androidx.ui.geometry.Radius stop, float fraction);
+    method @androidx.compose.Stable public static inline long Radius(float x, float y = x);
+    method @androidx.compose.Stable public static long lerp-LIZBhPY(long start, long stop, float fraction);
   }
 
   @androidx.compose.Immutable public final class Rect {

@@ -164,7 +164,7 @@ private fun DrawScope.drawBox(
         halfStrokeWidth,
         checkboxSize - halfStrokeWidth,
         checkboxSize - halfStrokeWidth,
-        Radius.circular(radius)
+        Radius(radius)
     )
 
     // Determine whether or not we need to offset the inset by a pixel
@@ -188,8 +188,7 @@ private fun DrawScope.drawBox(
                 color,
                 Offset(outer.left, outer.top),
                 Size(outer.width, outer.height),
-                radius,
-                radius,
+                radius = Radius(radius),
                 style = stroke
             )
         }
@@ -209,8 +208,7 @@ private fun DrawScope.drawBox(
             color,
             topLeft = Offset(outer.left, outer.top),
             size = Size(outer.width, outer.height),
-            radiusX = radius,
-            radiusY = radius,
+            radius = Radius(radius),
             style = stroke
         )
     }
