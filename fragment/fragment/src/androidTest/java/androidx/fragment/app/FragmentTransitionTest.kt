@@ -361,11 +361,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
             names.capture(), views.capture(),
             snapshots.capture()
         )
-        assertThat(names.value.size).isEqualTo(1)
-        assertThat(views.value.size).isEqualTo(1)
+        assertThat(names.value).containsExactly("blueSquare")
+        assertThat(views.value).containsExactly(startBlue)
         assertThat(snapshots.value).isNull()
-        assertThat(names.value[0]).isEqualTo("blueSquare")
-        assertThat(views.value[0]).isEqualTo(startBlue)
 
         val endBlue = activityRule.findBlue()
 
@@ -373,11 +371,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
             names.capture(), views.capture(),
             snapshots.capture()
         )
-        assertThat(names.value.size).isEqualTo(1)
-        assertThat(views.value.size).isEqualTo(1)
+        assertThat(names.value).containsExactly("blueSquare")
+        assertThat(views.value).containsExactly(endBlue)
         assertThat(snapshots.value).isNull()
-        assertThat(names.value[0]).isEqualTo("blueSquare")
-        assertThat(views.value[0]).isEqualTo(endBlue)
 
         // Now pop the back stack
         reset(enterCallback)
@@ -387,11 +383,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
             names.capture(), views.capture(),
             snapshots.capture()
         )
-        assertThat(names.value.size).isEqualTo(1)
-        assertThat(views.value.size).isEqualTo(1)
+        assertThat(names.value).containsExactly("blueSquare")
+        assertThat(views.value).containsExactly(endBlue)
         assertThat(snapshots.value).isNull()
-        assertThat(names.value[0]).isEqualTo("blueSquare")
-        assertThat(views.value[0]).isEqualTo(endBlue)
 
         val reenterBlue = activityRule.findBlue()
 
@@ -399,11 +393,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
             names.capture(), views.capture(),
             snapshots.capture()
         )
-        assertThat(names.value.size).isEqualTo(1)
-        assertThat(views.value.size).isEqualTo(1)
+        assertThat(names.value).containsExactly("blueSquare")
+        assertThat(views.value).containsExactly(reenterBlue)
         assertThat(snapshots.value).isNull()
-        assertThat(names.value[0]).isEqualTo("blueSquare")
-        assertThat(views.value[0]).isEqualTo(reenterBlue)
     }
 
     // Make sure that onMapSharedElement works to change the shared element going out
@@ -424,10 +416,8 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
                 names: List<String>,
                 sharedElements: MutableMap<String, View>
             ) {
-                assertThat(names.size).isEqualTo(1)
-                assertThat(names[0]).isEqualTo("blueSquare")
-                assertThat(sharedElements.size).isEqualTo(1)
-                assertThat(sharedElements["blueSquare"]).isEqualTo(startBlue)
+                assertThat(names).containsExactly("blueSquare")
+                assertThat(sharedElements).containsExactly("blueSquare", startBlue)
                 sharedElements["blueSquare"] = startGreen
             }
         }
@@ -458,11 +448,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
                 names: List<String>,
                 sharedElements: MutableMap<String, View>
             ) {
-                assertThat(names.size).isEqualTo(1)
-                assertThat(names[0]).isEqualTo("blueSquare")
-                assertThat(sharedElements.size).isEqualTo(1)
+                assertThat(names).containsExactly("blueSquare")
                 val expectedBlue = findViewById(fragment1, R.id.blueSquare)
-                assertThat(sharedElements["blueSquare"]).isEqualTo(expectedBlue)
+                assertThat(sharedElements).containsExactly("blueSquare", expectedBlue)
                 val greenSquare = findViewById(fragment1, R.id.greenSquare)
                 sharedElements["blueSquare"] = greenSquare
             }
@@ -498,11 +486,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
                 names: List<String>,
                 sharedElements: MutableMap<String, View>
             ) {
-                assertThat(names.size).isEqualTo(1)
-                assertThat(names[0]).isEqualTo("blueSquare")
-                assertThat(sharedElements.size).isEqualTo(1)
+                assertThat(names).containsExactly("blueSquare")
                 val blueSquare = findViewById(fragment2, R.id.blueSquare)
-                assertThat(sharedElements["blueSquare"]).isEqualTo(blueSquare)
+                assertThat(sharedElements).containsExactly("blueSquare", blueSquare)
                 val greenSquare = findViewById(fragment2, R.id.greenSquare)
                 sharedElements["blueSquare"] = greenSquare
             }
@@ -535,10 +521,8 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
                 names: List<String>,
                 sharedElements: MutableMap<String, View>
             ) {
-                assertThat(names.size).isEqualTo(1)
-                assertThat(names[0]).isEqualTo("blueSquare")
-                assertThat(sharedElements.size).isEqualTo(1)
-                assertThat(sharedElements["blueSquare"]).isEqualTo(endBlue)
+                assertThat(names).containsExactly("blueSquare")
+                assertThat(sharedElements).containsExactly("blueSquare", endBlue)
                 sharedElements["blueSquare"] = endGreen
             }
         }
