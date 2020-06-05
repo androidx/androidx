@@ -22,6 +22,7 @@ import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
+import androidx.room.kotlin.KotlinMetadataElement
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_BAD_RETURN_TYPE
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
@@ -68,8 +69,10 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
                 .filterValues { it.size > 1 }
                 .values.forEach {
                     it.forEach { converter ->
-                        context.logger.e(converter.method, ProcessorErrors
-                                .duplicateTypeConverters(it.minus(converter)))
+                        context.logger.e(
+                            converter.method, ProcessorErrors
+                                .duplicateTypeConverters(it.minus(converter))
+                        )
                     }
                 }
         }
@@ -78,7 +81,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
     fun process(): List<CustomTypeConverter> {
         // using element utils instead of MoreElements to include statics.
         val methods = ElementFilter
-                .methodsIn(context.processingEnv.elementUtils.getAllMembers(element))
+            .methodsIn(context.processingEnv.elementUtils.getAllMembers(element))
         val declaredType = MoreTypes.asDeclared(element.asType())
         val converterMethods = methods.filter {
             it.hasAnnotation(TypeConverter::class)
@@ -86,30 +89,47 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
         context.checker.check(converterMethods.isNotEmpty(), element, TYPE_CONVERTER_EMPTY_CLASS)
         val allStatic = converterMethods.all { it.modifiers.contains(Modifier.STATIC) }
         val constructors = ElementFilter.constructorsIn(
-                context.processingEnv.elementUtils.getAllMembers(element))
-        context.checker.check(allStatic || constructors.isEmpty() || constructors.any {
-            it.parameters.isEmpty()
-        }, element, TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR)
-        return converterMethods.mapNotNull { processMethod(declaredType, it) }
+            context.processingEnv.elementUtils.getAllMembers(element)
+        )
+        val kotlinMetadata = KotlinMetadataElement.createFor(context, element)
+        val isKotlinObjectDeclaration = kotlinMetadata?.isObject() == true
+        context.checker.check(
+            isKotlinObjectDeclaration || allStatic || constructors.isEmpty() ||
+                    constructors.any {
+                        it.parameters.isEmpty()
+                    }, element, TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
+        )
+        return converterMethods.mapNotNull {
+            processMethod(
+                container = declaredType,
+                isContainerKotlinObject = isKotlinObjectDeclaration,
+                methodElement = it
+            )
+        }
     }
 
     private fun processMethod(
         container: DeclaredType,
-        methodElement: ExecutableElement
+        methodElement: ExecutableElement,
+        isContainerKotlinObject: Boolean
     ): CustomTypeConverter? {
         val asMember = context.processingEnv.typeUtils.asMemberOf(container, methodElement)
         val executableType = MoreTypes.asExecutable(asMember)
         val returnType = executableType.returnType
         val invalidReturnType = INVALID_RETURN_TYPES.contains(returnType.kind)
-        context.checker.check(methodElement.hasAnyOf(Modifier.PUBLIC), methodElement,
-                TYPE_CONVERTER_MUST_BE_PUBLIC)
+        context.checker.check(
+            methodElement.hasAnyOf(Modifier.PUBLIC), methodElement,
+            TYPE_CONVERTER_MUST_BE_PUBLIC
+        )
         if (invalidReturnType) {
             context.logger.e(methodElement, TYPE_CONVERTER_BAD_RETURN_TYPE)
             return null
         }
         val returnTypeName = returnType.typeName()
-        context.checker.notUnbound(returnTypeName, methodElement,
-                TYPE_CONVERTER_UNBOUND_GENERIC)
+        context.checker.notUnbound(
+            returnTypeName, methodElement,
+            TYPE_CONVERTER_UNBOUND_GENERIC
+        )
         val params = methodElement.parameters
         if (params.size != 1) {
             context.logger.e(methodElement, TYPE_CONVERTER_MUST_RECEIVE_1_PARAM)
@@ -119,7 +139,13 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
             MoreTypes.asMemberOf(context.processingEnv.typeUtils, container, it)
         }.first()
         context.checker.notUnbound(param.typeName(), params[0], TYPE_CONVERTER_UNBOUND_GENERIC)
-        return CustomTypeConverter(container, methodElement, param, returnType)
+        return CustomTypeConverter(
+            enclosingClass = container,
+            isEnclosingClassKotlinObject = isContainerKotlinObject,
+            method = methodElement,
+            from = param,
+            to = returnType
+        )
     }
 
     /**
@@ -130,6 +156,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
         val converters: List<CustomTypeConverterWrapper>
     ) {
         object EMPTY : ProcessResult(LinkedHashSet(), emptyList())
+
         operator fun plus(other: ProcessResult): ProcessResult {
             val newClasses = LinkedHashSet<TypeMirror>()
             newClasses.addAll(classes)
