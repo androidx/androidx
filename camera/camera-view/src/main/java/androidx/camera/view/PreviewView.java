@@ -37,6 +37,7 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
@@ -45,7 +46,6 @@ import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.view.preview.transform.PreviewTransform;
 import androidx.core.content.ContextCompat;
-import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -218,7 +218,7 @@ public class PreviewView extends FrameLayout {
             camera.getCameraState().addObserver(
                     ContextCompat.getMainExecutor(getContext()), streamStateObserver);
 
-            mImplementation.onSurfaceRequested(surfaceRequest, ()-> {
+            mImplementation.onSurfaceRequested(surfaceRequest, () -> {
                 // We've no longer needed this observer, if there is no new StreamStateObserver
                 // (another SurfaceRequest), reset the streamState to IDLE.
                 // This is needed for the case when unbinding preview while other use cases are
@@ -308,20 +308,26 @@ public class PreviewView extends FrameLayout {
 
     /**
      * Creates a {@link MeteringPointFactory} by a given {@link CameraSelector}
-     * <p>
-     * This {@link MeteringPointFactory} is capable of creating a {@link MeteringPoint} by a
-     * (x, y) in the {@link PreviewView}. It converts the points by current scaleType.
+     *
+     * <p>The returned {@link MeteringPointFactory} is capable of creating {@link MeteringPoint}s
+     * from (x, y) coordinates in the {@link PreviewView}. This conversion takes into account its
+     * {@link ScaleType}. It is recommended to call this method to create a new factory every
+     * time you start a focus and metering action, instead of caching the factory instance.
+     *
+     * <p>When the PreviewView has a width and/or height equal to zero, or when a preview
+     * {@link Surface} is not yet requested, the returned factory will always create invalid
+     * {@link MeteringPoint}s which could lead to the failure of
+     * {@link androidx.camera.core.CameraControl#startFocusAndMetering(FocusMeteringAction)} but it
+     * won't cause any crash.
      *
      * @param cameraSelector the CameraSelector which the {@link Preview} is bound to.
      * @return a {@link MeteringPointFactory}
      */
     @NonNull
     public MeteringPointFactory createMeteringPointFactory(@NonNull CameraSelector cameraSelector) {
-        Preconditions.checkNotNull(mImplementation,
-                "Must set the Preview's surfaceProvider and bind it to a lifecycle first");
         return new PreviewViewMeteringPointFactory(getDisplay(), cameraSelector,
-                mImplementation.getResolution(), mPreviewTransform.getScaleType(), getWidth(),
-                getHeight());
+                mImplementation == null ? null : mImplementation.getResolution(),
+                mPreviewTransform.getScaleType(), getWidth(), getHeight());
     }
 
     /**
