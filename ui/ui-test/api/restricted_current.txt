@@ -95,6 +95,7 @@ package androidx.ui.test {
     method public int getMeasuredHeight();
     method public int getMeasuredWidth();
     method public boolean hasPendingChanges();
+    method public kotlinx.coroutines.Job launchRecomposeIn(kotlinx.coroutines.CoroutineScope coroutineScope);
     method public void layout();
     method public void measure();
     method public void recompose();
