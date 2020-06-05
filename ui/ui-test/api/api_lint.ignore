@@ -1,3 +1,7 @@
 // Baseline format: 1.0
 MissingNullability: androidx.ui.test.android.AndroidComposeTestRuleKt#AndroidComposeTestRule(androidx.compose.Recomposer, boolean):
     Missing nullability on method `AndroidComposeTestRule` return
+
+
+ReferencesDeprecated: androidx.ui.test.android.AndroidComposeTestRule#getActivityTestRule():
+    Return type of deprecated type androidx.test.rule.ActivityTestRule<T> in androidx.ui.test.android.AndroidComposeTestRule.getActivityTestRule(): this method should also be deprecated

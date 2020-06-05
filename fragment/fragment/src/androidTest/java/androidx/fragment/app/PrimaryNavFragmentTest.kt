@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.runOnUiThreadRethrow
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
@@ -35,8 +34,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class PrimaryNavFragmentTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
 
     @Test
     fun delegateBackToPrimaryNav() {
@@ -346,7 +346,9 @@ class PrimaryNavFragmentTest {
         activityRule.runOnUiThread { fm.executePendingTransactions() }
     }
 
-    private fun ActivityTestRule<out Activity>.onBackPressed() = runOnUiThreadRethrow {
+    @Suppress("DEPRECATION")
+    private fun androidx.test.rule.ActivityTestRule<out Activity>.onBackPressed() =
+        runOnUiThreadRethrow {
         activity.onBackPressed()
     }
 

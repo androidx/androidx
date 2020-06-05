@@ -32,7 +32,6 @@ import androidx.navigation.get
 import androidx.navigation.plusAssign
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.TestNavigator
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -51,8 +50,13 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         private const val TEST_DEEP_LINK_ACTION = "deep_link"
     }
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(activityClass, false, false)
+    var activityRule = androidx.test.rule.ActivityTestRule(
+        activityClass,
+        false,
+        false
+    )
 
     private lateinit var instrumentation: Instrumentation
 

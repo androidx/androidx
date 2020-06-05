@@ -21,7 +21,6 @@ import androidx.compose.Composable
 import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureScope
@@ -61,8 +60,10 @@ import java.util.concurrent.TimeUnit
 @SmallTest
 @RunWith(JUnit4::class)
 class RtlLayoutTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<androidx.ui.framework.test.TestActivity>(
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule<androidx.ui.framework.test.TestActivity>(
         androidx.ui.framework.test.TestActivity::class.java
     )
     private lateinit var activity: androidx.ui.framework.test.TestActivity

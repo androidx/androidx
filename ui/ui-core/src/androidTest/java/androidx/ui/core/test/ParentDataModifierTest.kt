@@ -18,7 +18,6 @@ package androidx.ui.core.test
 import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.Modifier
@@ -43,8 +42,9 @@ import java.util.concurrent.TimeUnit
 @SmallTest
 @RunWith(JUnit4::class)
 class ParentDataModifierTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(
+    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
     private lateinit var activity: TestActivity

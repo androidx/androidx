@@ -21,7 +21,6 @@ import android.os.Build
 import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.clip
@@ -56,8 +55,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class ClipTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
 

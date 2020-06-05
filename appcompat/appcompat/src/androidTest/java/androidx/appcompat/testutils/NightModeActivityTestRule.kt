@@ -18,13 +18,13 @@ package androidx.appcompat.testutils
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.test.rule.ActivityTestRule
 
+@Suppress("DEPRECATION")
 class NightModeActivityTestRule<T : AppCompatActivity>(
     activityClazz: Class<T>,
     initialTouchMode: Boolean = false,
     launchActivity: Boolean = true
-) : ActivityTestRule<T>(activityClazz, initialTouchMode, launchActivity) {
+) : androidx.test.rule.ActivityTestRule<T>(activityClazz, initialTouchMode, launchActivity) {
     override fun beforeActivityLaunched() {
         // By default we'll set the night mode to NO, which allows us to make better
         // assumptions in the test below

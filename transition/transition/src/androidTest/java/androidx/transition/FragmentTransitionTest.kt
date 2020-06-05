@@ -26,7 +26,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.waitForExecution
 import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
@@ -50,8 +49,11 @@ import java.util.concurrent.TimeUnit
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(FragmentTransitionTestActivity::class.java)
+    val activityRule = androidx.test.rule.ActivityTestRule(
+        FragmentTransitionTestActivity::class.java
+    )
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private lateinit var fragmentManager: FragmentManager

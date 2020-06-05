@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.emptyContent
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
@@ -48,8 +47,11 @@ import kotlin.math.ceil
 @LargeTest
 @RunWith(JUnit4::class)
 class ScaleGestureFilterTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
+        TestActivity::class.java
+    )
     private lateinit var scaleObserver: ScaleObserver
     private lateinit var view: View
     private var touchSlop: Float = Float.NEGATIVE_INFINITY

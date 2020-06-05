@@ -29,7 +29,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.rule.ActivityTestRule
 import androidx.viewpager2.integration.testapp.R
 import androidx.viewpager2.integration.testapp.test.util.ViewPagerIdleWatcher
 import androidx.viewpager2.integration.testapp.test.util.onCurrentPage
@@ -56,9 +55,10 @@ import java.util.Locale
  * @see TabLayoutTest
  */
 abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
+    @Suppress("DEPRECATION")
     @Rule
     @JvmField
-    var activityTestRule = ActivityTestRule(clazz)
+    var activityTestRule = androidx.test.rule.ActivityTestRule(clazz)
 
     @get:LayoutRes
     abstract val layoutId: Int

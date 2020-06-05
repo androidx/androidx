@@ -20,7 +20,6 @@ import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
@@ -53,8 +52,11 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 @SmallTest
 class TextLayoutTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    internal val activityTestRule = ActivityTestRule(ComponentActivity::class.java)
+    internal val activityTestRule = androidx.test.rule.ActivityTestRule(
+        ComponentActivity::class.java
+    )
     private lateinit var activity: ComponentActivity
     private lateinit var density: Density
 

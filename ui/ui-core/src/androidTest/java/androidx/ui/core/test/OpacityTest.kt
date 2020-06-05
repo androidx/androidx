@@ -24,7 +24,6 @@ import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
@@ -48,8 +47,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class OpacityTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
     private val unlatch = Modifier.drawBehind { drawLatch.countDown() }

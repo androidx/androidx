@@ -27,7 +27,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.rule.ActivityTestRule
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -40,8 +39,13 @@ import org.junit.runner.RunWith
 @MediumTest
 @SdkSuppress(minSdkVersion = 29)
 class AppCompatAttributeTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(AppCompatActivity::class.java, true, false)
+    val activityRule = androidx.test.rule.ActivityTestRule(
+        AppCompatActivity::class.java,
+        true,
+        false
+    )
 
     @Before
     fun setup() {

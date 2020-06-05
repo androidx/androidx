@@ -71,5 +71,6 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(TRUTH)
+    debugImplementation(ANDROIDX_TEST_CORE)
     debugImplementation("androidx.fragment:fragment-testing:1.2.3")
 }

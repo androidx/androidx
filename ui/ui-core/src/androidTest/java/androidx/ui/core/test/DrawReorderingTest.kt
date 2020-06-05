@@ -26,7 +26,6 @@ import androidx.compose.emptyContent
 import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Constraints
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.Layout
@@ -53,8 +52,9 @@ import java.util.concurrent.TimeUnit
 @SmallTest
 @RunWith(JUnit4::class)
 class DrawReorderingTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val rule = ActivityTestRule<TestActivity>(
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
     @get:Rule
