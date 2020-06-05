@@ -335,6 +335,17 @@ public class EncryptedSharedPreferencesTest {
         Assert.assertEquals("Data should not exist", null,
                 sharedPreferences.getString(twiceKey, null));
 
+        editor.clear();
+        editor.commit();
+
+        // test clear after put with apply
+        editor.putString("New Data", "New");
+        editor.apply();
+        editor.clear();
+        editor.apply();
+
+        Assert.assertEquals("Get all size should be equal", 0,
+                sharedPreferences.getAll().size());
     }
 
     @Test
