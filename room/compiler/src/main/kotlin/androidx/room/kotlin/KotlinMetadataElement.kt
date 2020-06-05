@@ -61,6 +61,8 @@ class KotlinMetadataElement(
         it.descriptor == method.descriptor
     }?.isSuspend() ?: false
 
+    fun isObject(): Boolean = classMetadata.isObject()
+
     companion object {
 
         /**

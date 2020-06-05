@@ -27,12 +27,13 @@ import javax.lang.model.type.TypeMirror
  * Generated when we parse a method annotated with TypeConverter.
  */
 data class CustomTypeConverter(
-    val type: TypeMirror,
+    val enclosingClass: TypeMirror,
+    val isEnclosingClassKotlinObject: Boolean,
     val method: ExecutableElement,
     val from: TypeMirror,
     val to: TypeMirror
 ) {
-    val typeName: TypeName by lazy { type.typeName() }
+    val typeName: TypeName by lazy { enclosingClass.typeName() }
     val fromTypeName: TypeName by lazy { from.typeName() }
     val toTypeName: TypeName by lazy { to.typeName() }
     val methodName by lazy { method.simpleName.toString() }
