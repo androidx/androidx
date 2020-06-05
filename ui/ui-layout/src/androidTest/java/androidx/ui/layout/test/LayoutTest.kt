@@ -47,7 +47,7 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.PxSize
+import androidx.ui.geometry.Size
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
@@ -239,11 +239,11 @@ open class LayoutTest {
         }
     }
 
-    internal fun assertEquals(expected: PxSize?, actual: PxSize?) {
+    internal fun assertEquals(expected: Size?, actual: Size?) {
         assertNotNull("Null expected size", expected)
-        expected as PxSize
+        expected as Size
         assertNotNull("Null actual size", actual)
-        actual as PxSize
+        actual as Size
 
         assertEquals(
             "Expected width ${expected.width} but obtained ${actual.width}",

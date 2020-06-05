@@ -34,8 +34,7 @@ import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.unit.Density
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.center
+import androidx.ui.geometry.Size
 import androidx.ui.unit.dp
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
@@ -64,7 +63,7 @@ import kotlin.math.max
  * @param onAnimationFinished Call when the effect animation has been finished.
  */
 internal class RippleAnimation(
-    size: PxSize,
+    size: Size,
     startPosition: Offset,
     radius: Float,
     private val clipped: Boolean,
@@ -208,7 +207,7 @@ private object RippleTransition {
  * According to specs the starting radius is equal to 60% of the largest dimension of the
  * surface it belongs to.
  */
-internal fun getRippleStartRadius(size: PxSize) =
+internal fun getRippleStartRadius(size: Size) =
     max(size.width, size.height) * 0.3f
 
 /**
@@ -216,7 +215,7 @@ internal fun getRippleStartRadius(size: PxSize) =
  * - expands to 10dp beyond the border of the surface it belongs to for bounded ripples
  * - fits within the border of the surface it belongs to for unbounded ripples
  */
-internal fun Density.getRippleEndRadius(bounded: Boolean, size: PxSize): Float {
+internal fun Density.getRippleEndRadius(bounded: Boolean, size: Size): Float {
     val radiusCoveringBounds =
         (Offset(size.width, size.height).getDistance() / 2f)
     return if (bounded) {

@@ -25,7 +25,6 @@ import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.drawscope.withTransform
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import kotlin.math.ceil
 import kotlin.math.max
@@ -39,7 +38,7 @@ import kotlin.math.roundToInt
  * appropriately sizing the component it is associated with. True if the intrinsic size should
  * influence the size of the component, false otherwise. A value of false here is equivalent to
  * the underlying Painter having no intrinsic size, that is [Painter.intrinsicSize] returns
- * [PxSize.UnspecifiedSize]
+ * [androidx.ui.geometry.Size.UnspecifiedSize]
  *
  * @param alignment: Specifies the rule used to place the contents of the Painter within the
  * specified bounds, the default of [Alignment.Center] centers the content within the specified

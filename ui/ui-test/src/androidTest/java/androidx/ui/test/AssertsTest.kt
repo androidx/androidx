@@ -28,7 +28,7 @@ import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.hidden
 import androidx.ui.semantics.testTag
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
+import androidx.ui.geometry.Size
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Rule
@@ -231,7 +231,7 @@ class AssertsTest {
 
     @Test
     fun assertSizesTest_testPixelAssertion() {
-        val size = PxSize(50.ipx, 31.ipx)
+        val size = Size(50f, 31f)
         val spec = CollectedSizes(size, Density(0f))
         spec.assertWidthEqualsTo { 50.ipx }
         spec.assertHeightEqualsTo { 31.ipx }
@@ -239,7 +239,7 @@ class AssertsTest {
 
     @Test
     fun assertSizesTest_testDpAssertion() {
-        val size = PxSize(50.ipx, 30.ipx)
+        val size = Size(50f, 30f)
         val spec = CollectedSizes(size, Density(2f))
         spec.assertWidthEqualsTo(25.dp)
         spec.assertHeightEqualsTo(15.dp)
@@ -247,7 +247,7 @@ class AssertsTest {
 
     @Test
     fun assertSizesTest_testSquare() {
-        val size = PxSize(50.ipx, 50.ipx)
+        val size = Size(50f, 50f)
         val spec = CollectedSizes(size, Density(2f))
         spec.assertIsSquareWithSize(25.dp)
         spec.assertIsSquareWithSize { 50.ipx }

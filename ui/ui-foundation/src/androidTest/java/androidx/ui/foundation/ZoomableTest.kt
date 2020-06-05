@@ -34,7 +34,7 @@ import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendPinch
 import androidx.ui.test.size
 import androidx.ui.unit.dp
-import androidx.ui.unit.toPxSize
+import androidx.ui.unit.toSize
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -66,9 +66,9 @@ class ZoomableTest {
 
         findByTag(TEST_TAG).doGesture {
             val leftStartX = center.x - 10
-            val leftEndX = size.toPxSize().width * EDGE_FUZZ_FACTOR
+            val leftEndX = size.toSize().width * EDGE_FUZZ_FACTOR
             val rightStartX = center.x + 10
-            val rightEndX = size.toPxSize().width * (1 - EDGE_FUZZ_FACTOR)
+            val rightEndX = size.toSize().width * (1 - EDGE_FUZZ_FACTOR)
 
             sendPinch(
                 Offset(leftStartX, center.y),
@@ -96,9 +96,9 @@ class ZoomableTest {
         setZoomableContent { Modifier.zoomable(state) }
 
         findByTag(TEST_TAG).doGesture {
-            val leftStartX = size.toPxSize().width * EDGE_FUZZ_FACTOR
+            val leftStartX = size.toSize().width * EDGE_FUZZ_FACTOR
             val leftEndX = center.x - 10
-            val rightStartX = size.toPxSize().width * (1 - EDGE_FUZZ_FACTOR)
+            val rightStartX = size.toSize().width * (1 - EDGE_FUZZ_FACTOR)
             val rightEndX = center.x + 10
 
             sendPinch(

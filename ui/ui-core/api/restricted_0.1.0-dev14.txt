@@ -248,7 +248,7 @@ package androidx.ui.core {
   }
 
   @androidx.compose.Stable public interface ContentScale {
-    method public float scale-8JNMT64(long srcSize, long dstSize);
+    method public float scale(androidx.ui.geometry.Size srcSize, androidx.ui.geometry.Size dstSize);
     field public static final androidx.ui.core.ContentScale.Companion! Companion;
   }
 
@@ -361,7 +361,7 @@ package androidx.ui.core {
     method public float component1();
     method @androidx.compose.Immutable public androidx.ui.core.FixedScale copy(float value);
     method public float getValue();
-    method public float scale-8JNMT64(long srcSize, long dstSize);
+    method public float scale(androidx.ui.geometry.Size srcSize, androidx.ui.geometry.Size dstSize);
   }
 
   public final class HorizontalAlignmentLine extends androidx.ui.core.AlignmentLine {
@@ -2019,9 +2019,9 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorPainter extends androidx.ui.graphics.painter.Painter {
-    method public long getIntrinsicSize();
+    method public androidx.ui.geometry.Size getIntrinsicSize();
     method protected void onDraw(androidx.ui.graphics.drawscope.DrawScope);
-    property public long intrinsicSize;
+    property public androidx.ui.geometry.Size intrinsicSize;
   }
 
   public final class VectorPainterKt {

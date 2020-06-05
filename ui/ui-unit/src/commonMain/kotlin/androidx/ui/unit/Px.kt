@@ -21,10 +21,7 @@ import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
-import androidx.ui.util.packFloats
-import androidx.ui.util.unpackFloat1
-import androidx.ui.util.unpackFloat2
-import kotlin.math.min
+import androidx.ui.geometry.Size
 import kotlin.math.roundToInt
 
 /**
@@ -211,121 +208,13 @@ inline class PxInverse(val value: Float) : Comparable<PxInverse> {
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 /**
- * A two dimensional size using pixels for units
- */
-@Immutable
-data class PxSize @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
-
-    /**
-     * The horizontal aspect of the size in pixels.
-     */
-    @Stable
-    inline val width: Float
-        get() = unpackFloat1(value)
-
-    /**
-     * The vertical aspect of the size in pixels.
-     */
-    @Stable
-    inline val height: Float
-        get() = unpackFloat2(value)
-
-    /**
-     * Returns a PxSize scaled by multiplying [width] and [height] by [other]
-     */
-    @Stable
-    inline operator fun times(other: Int): PxSize =
-        PxSize(width = width * other, height = height * other)
-
-    /**
-     * Returns a PxSize scaled  by multiplying [width] and [height] by [other]
-     */
-    @Stable
-    inline operator fun times(other: Float): PxSize =
-        PxSize(width = width * other, height = height * other)
-
-    /**
-     * Returns a PxSize scaled  by multiplying [width] and [height] by [other]
-     */
-    @Stable
-    inline operator fun times(other: Double): PxSize = times(other.toFloat())
-
-    /**
-     * Returns a PxSize scaled  by dividing [width] and [height] by [other]
-     */
-    @Stable
-    inline operator fun div(other: Int): PxSize =
-        PxSize(width = width / other, height = height / other)
-
-    /**
-     * Returns a PxSize scaled  by dividing [width] and [height] by [other]
-     */
-    @Stable
-    inline operator fun div(other: Float): PxSize =
-        PxSize(width = width / other, height = height / other)
-
-    /**
-     * Returns a PxSize scaled  by dividing [width] and [height] by [other]
-     */
-    @Stable
-    inline operator fun div(other: Double): PxSize = div(other.toFloat())
-
-    @Stable
-    override fun toString(): String = "$width x $height"
-
-    companion object {
-        /**
-         * [PxSize] with zero values.
-         */
-        @Stable
-        val Zero = PxSize(0f, 0f)
-
-        /**
-         * Default value indicating no specified size
-         */
-        @Stable
-        val UnspecifiedSize = PxSize(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-    }
-}
-
-/**
- * Constructs a [PxSize] from width and height Float values.
- */
-@Stable
-inline fun PxSize(width: Float, height: Float): PxSize = PxSize(packFloats(width, height))
-
-/**
- * Returns a [PxSize] with [size]'s [PxSize.width] and [PxSize.height] multiplied by [this]
- */
-@Stable
-inline operator fun Int.times(size: PxSize) = size * this
-
-/**
- * Returns a [PxSize] with [size]'s [PxSize.width] and [PxSize.height] multiplied by [this]
- */
-@Stable
-inline operator fun Float.times(size: PxSize) = size * this
-
-/**
- * Returns a [PxSize] with [size]'s [PxSize.width] and [PxSize.height] multiplied by [this]
- */
-@Stable
-inline operator fun Double.times(size: PxSize) = size * this
-
-/**
  * Returns the [Offset] of the center of the rect from the point of [0, 0]
- * with this [PxSize].
+ * with this [Size].
  */
 @Stable
-fun PxSize.center(): Offset {
+fun Size.center(): Offset {
     return Offset(width / 2f, height / 2f)
 }
-
-/**
- * Returns the smallest dimension size.
- */
-@Stable
-val PxSize.minDimension get() = min(width, height)
 
 /**
  * Round a [Offset] down to the nearest [Int] coordinates.
@@ -345,7 +234,7 @@ data class PxBounds(
 )
 
 @Stable
-inline fun PxBounds(topLeft: Offset, size: PxSize) =
+inline fun PxBounds(topLeft: Offset, size: Size) =
     PxBounds(
         left = topLeft.x,
         top = topLeft.y,
@@ -374,19 +263,19 @@ inline fun PxBounds.center(): Offset {
 }
 
 /**
- * Convert a [PxBounds] to a [PxSize].
+ * Convert a [PxBounds] to a [Size].
  */
 @Stable
-fun PxBounds.toSize(): PxSize {
-    return PxSize(width, height)
+fun PxBounds.toSize(): Size {
+    return Size(width, height)
 }
 
 /**
- * Convert a [PxSize] to a [PxBounds]. The left and top are 0.px and the right and bottom
+ * Convert a [Size] to a [PxBounds]. The left and top are 0.px and the right and bottom
  * are the width and height, respectively.
  */
 @Stable
-fun PxSize.toBounds(): PxBounds {
+fun Size.toBounds(): PxBounds {
     return PxBounds(0f, 0f, width, height)
 }
 
@@ -404,9 +293,9 @@ fun PxBounds.toRect(): Rect {
 }
 
 /**
- * Convert a [PxSize] to a [Rect].
+ * Convert a [Size] to a [Rect].
  */
 @Stable
-fun PxSize.toRect(): Rect {
+fun Size.toRect(): Rect {
     return Rect(0f, 0f, width, height)
 }

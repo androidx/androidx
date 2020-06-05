@@ -45,7 +45,7 @@ import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
-import androidx.ui.unit.toPxSize
+import androidx.ui.unit.toSize
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -348,8 +348,8 @@ class LayoutPaddingTest : LayoutTest() {
         val rootWidth = root.width.ipx
 
         assertEquals(
-            IntPxSize(size - padding, size).toPxSize(),
-            resultSize.value?.toPxSize()
+            IntPxSize(size - padding, size).toSize(),
+            resultSize.value?.toSize()
         )
         assertEquals(
             Offset((rootWidth - size + padding).value.toFloat(), 0f),
