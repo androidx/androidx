@@ -26,7 +26,9 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeAllChanges
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
+import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
 import androidx.ui.util.fastAny
 import androidx.ui.viewinterop.AndroidViewHolder
@@ -77,6 +79,9 @@ internal class PointerInteropFilter(
      */
     val view: AndroidViewHolder
 ) : PointerInputModifier {
+
+    // Reusable to avoid extra allocations.
+    private val reusableLocationInWindow by lazy { IntArray(2) }
 
     /**
      * The 3 possible states
@@ -186,18 +191,28 @@ internal class PointerInteropFilter(
                 @Suppress("NAME_SHADOWING")
                 var changes = changes
 
+                // TODO(b/158034713): This should likely not be the view's location in window, but
+                //  instead should take the global position of this PointerInteropFilter.
+                //  Depending on future work, this may or may not be the case.
+                val globalToLocalOffset =
+                    reusableLocationInWindow.run {
+                        view.getLocationInWindow(this)
+                        IntPxPosition(this[0].ipx, this[1].ipx)
+                    }
+
                 if (changes.fastAny { it.anyChangeConsumed() }) {
                     // We should no longer dispatch to the Android View.
                     if (state === DispatchToViewState.Dispatching) {
                         // If we were dipatching, send ACTION_CANCEL.
-                        changes.toCancelMotionEventScope { motionEvent ->
+                        changes.toCancelMotionEventScope(globalToLocalOffset) { motionEvent ->
                             view.dispatchTouchEvent(motionEvent)
                         }
                     }
                     state = DispatchToViewState.NotDispatching
                 } else {
                     // Dispatch and update our state with the result.
-                    changes.toMotionEventScope { motionEvent ->
+
+                    changes.toMotionEventScope(globalToLocalOffset) { motionEvent ->
                         state = if (view.dispatchTouchEvent(motionEvent)) {
                             DispatchToViewState.Dispatching
                         } else {
