@@ -60,6 +60,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -294,6 +295,21 @@ public final class CameraView extends FrameLayout {
         dpyMgr.unregisterDisplayListener(mDisplayListener);
     }
 
+    /**
+     * Gets the {@link LiveData} of the underlying {@link PreviewView}'s
+     * {@link PreviewView.StreamState}.
+     *
+     * @return A {@link LiveData} containing the {@link PreviewView.StreamState}. Apps can either
+     * get current value by {@link LiveData#getValue()} or register a observer by
+     * {@link LiveData#observe}.
+     * @see PreviewView#getPreviewStreamState()
+     */
+    @NonNull
+    public LiveData<PreviewView.StreamState> getPreviewStreamState() {
+        return mPreviewView.getPreviewStreamState();
+    }
+
+    @NonNull
     PreviewView getPreviewView() {
         return mPreviewView;
     }
