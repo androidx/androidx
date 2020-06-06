@@ -61,8 +61,8 @@ public final class WindowManager {
                     + "instead.");
         }
         mContext = context;
-        mWindowBackend = windowBackend != null
-                ? windowBackend : ExtensionWindowBackend.getInstance(context);
+        mWindowBackend = new InitialValueWindowBackendDecorator(windowBackend != null
+                ? windowBackend : ExtensionWindowBackend.getInstance(context));
     }
 
     /**
