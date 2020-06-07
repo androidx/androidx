@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+@file:OptIn(InternalComposeApi::class)
 package androidx.ui.tooling
 
+import androidx.compose.InternalComposeApi
 import androidx.compose.SlotReader
 import androidx.compose.SlotTable
 import androidx.compose.isJoinedKey

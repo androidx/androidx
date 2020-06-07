@@ -26,6 +26,7 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Composition
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.ambientOf
@@ -199,6 +200,8 @@ fun Popup(
         layout(0.ipx, 0.ipx) {}
     }
 
+    // TODO(lmr): refactor these APIs so that recomposer isn't necessary
+    @OptIn(ExperimentalComposeApi::class)
     val recomposer = currentComposer.recomposer
     onCommit {
         composition = popupLayout.setContent(recomposer) {

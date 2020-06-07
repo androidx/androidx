@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalComposeApi::class, ComposeCompilerApi::class)
 package androidx.ui.node
 
 import android.content.Context
@@ -21,8 +22,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Applier
 import androidx.compose.ApplyAdapter
+import androidx.compose.ComposeCompilerApi
 import androidx.compose.Composer
 import androidx.compose.ComposerUpdater
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable

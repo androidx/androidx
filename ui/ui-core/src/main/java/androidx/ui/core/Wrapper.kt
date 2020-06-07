@@ -27,6 +27,7 @@ import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
+import androidx.compose.InternalComposeApi
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.compositionFor
@@ -230,6 +231,7 @@ private class WrappedComposition(
                     (owner.view.getTag(R.id.inspection_slot_table_set) as? MutableSet<SlotTable>)
                             ?.let {
                                 val composer = currentComposer
+                                @OptIn(InternalComposeApi::class)
                                 composer.collectKeySourceInformation()
                                 it.add(composer.slotTable)
                             }

@@ -17,6 +17,7 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
+import androidx.compose.ComposeCompilerApi
 import androidx.compose.Composer
 
 /**
@@ -41,6 +42,7 @@ private data class ComposedModifier(
  * Call right before setting the returned modifier on an emitted node.
  * You almost certainly do not need to call this function directly.
  */
+@OptIn(ComposeCompilerApi::class)
 fun Composer<*>.materialize(modifier: Modifier): Modifier {
     if (modifier.all { it !is ComposedModifier }) return modifier
 

@@ -18,6 +18,7 @@ package androidx.ui.savedinstancestate
 
 import androidx.compose.Composable
 import androidx.compose.CompositionLifecycleObserver
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.MutableState
 import androidx.compose.currentComposer
 import androidx.compose.remember
@@ -49,6 +50,7 @@ import androidx.compose.remember
  * in the composition tree
  * @param init A factory function to create the initial value of this state
  */
+@OptIn(ExperimentalComposeApi::class)
 @Composable
 fun <T : Any> rememberSavedInstanceState(
     vararg inputs: Any?,
