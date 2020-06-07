@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.Stable
@@ -466,6 +467,8 @@ fun WithConstraints(
     val state = remember { WithConstrainsState() }
     state.children = children
     state.context = ContextAmbient.current
+    // TODO(lmr): refactor these APIs so that recomposer isn't necessary
+    @OptIn(ExperimentalComposeApi::class)
     state.recomposer = currentComposer.recomposer
     state.compositionRef = compositionReference()
     // if this code was executed subcomposition must be triggered as well
@@ -588,6 +591,7 @@ private class WithConstrainsState {
         }
     }
 
+    @OptIn(ExperimentalComposeApi::class)
     fun subcompose() {
         // TODO(b/150390669): Review use of @Untracked
         composition =

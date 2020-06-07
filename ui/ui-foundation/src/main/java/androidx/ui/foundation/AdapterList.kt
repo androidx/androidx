@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.Untracked
@@ -475,6 +476,7 @@ private class ListState<T> {
             node = rootNode.children[layoutIndex.value]
         }
         // TODO(b/150390669): Review use of @Untracked
+        @OptIn(ExperimentalComposeApi::class)
         val composition = subcomposeInto(context!!, node, recomposer, compositionRef) @Untracked {
             itemCallback(data[dataIndex.value])
         }
@@ -523,6 +525,7 @@ fun <T> AdapterList(
     itemCallback: @Composable (T) -> Unit
 ) {
     val state = remember { ListState<T>() }
+    @OptIn(ExperimentalComposeApi::class)
     state.recomposer = currentComposer.recomposer
     state.itemCallback = itemCallback
     state.data = data

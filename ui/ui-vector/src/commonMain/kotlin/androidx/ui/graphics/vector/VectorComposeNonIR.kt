@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+@file:OptIn(ExperimentalComposeApi::class)
 package androidx.ui.graphics.vector
 
 import androidx.compose.Applier
@@ -23,6 +23,8 @@ import androidx.compose.Composer
 import androidx.compose.ComposerUpdater
 import androidx.compose.CompositionReference
 import androidx.compose.Composition
+import androidx.compose.ExperimentalComposeApi
+import androidx.compose.ComposeCompilerApi
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.compositionFor
@@ -62,6 +64,7 @@ fun composeVector(
     composable: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): Composition = composeVector(container, Recomposer.current(), parent, composable)
 
+@OptIn(ComposeCompilerApi::class)
 class VectorComposer(
     val root: VNode,
     slotTable: SlotTable,

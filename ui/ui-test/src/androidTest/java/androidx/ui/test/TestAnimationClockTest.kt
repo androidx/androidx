@@ -20,6 +20,7 @@ import androidx.animation.FloatPropKey
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.State
@@ -122,6 +123,7 @@ class TestAnimationClockTest {
         val animationState = mutableStateOf(AnimationStates.From)
         lateinit var recomposer: Recomposer
         composeTestRule.setContent {
+            @OptIn(ExperimentalComposeApi::class)
             recomposer = currentComposer.recomposer
             Ui(animationState)
         }
