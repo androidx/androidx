@@ -23,7 +23,7 @@ package androidx.ui.core.keyinput
  * @param key the key that was pressed.
  * @param type the [type][KeyEventType] of key event.
  */
-class KeyEvent(val key: Key, val type: KeyEventType)
+data class KeyEvent(val key: Key, val type: KeyEventType)
 
 /**
  * The type of Key Event.

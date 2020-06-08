@@ -16,9 +16,15 @@
 
 package androidx.ui.core.keyinput
 
+import androidx.compose.Composable
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Modifier
+import androidx.ui.core.Owner
+import androidx.ui.core.OwnerAmbient
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.setFocusableContent
+import androidx.ui.core.keyinput.Key.Companion.A
+import androidx.ui.core.keyinput.KeyEventType.KeyUp
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
@@ -38,32 +44,30 @@ class ProcessKeyInputTest {
     @Test(expected = IllegalStateException::class)
     fun noRootFocusModifier_throwsException() {
         // Arrange.
-        lateinit var modifier: KeyInputModifier
+        lateinit var owner: Owner
         composeTestRule.setContent {
-            modifier = KeyInputModifier(null, null)
-            Box(modifier = modifier)
+            owner = getOwner()
+            Box(modifier = KeyInputModifier(null, null))
         }
-        val keyEvent = KeyEvent(Key.A, KeyEventType.KeyUp)
 
         // Act.
         runOnIdleCompose {
-            modifier.processKeyInput(keyEvent)
+            owner.processKeyInput(KeyEvent(A, KeyUp))
         }
     }
 
     @Test(expected = IllegalStateException::class)
     fun noFocusModifier_throwsException() {
         // Arrange.
-        lateinit var modifier: KeyInputModifier
+        lateinit var owner: Owner
         composeTestRule.setFocusableContent {
-            modifier = KeyInputModifier(null, null)
-            Box(modifier = modifier)
+            owner = getOwner()
+            Box(modifier = KeyInputModifier(null, null))
         }
-        val keyEvent = KeyEvent(Key.A, KeyEventType.KeyUp)
 
         // Act.
         runOnIdleCompose {
-            modifier.processKeyInput(keyEvent)
+            owner.processKeyInput(KeyEvent(A, KeyUp))
         }
     }
 
@@ -71,16 +75,15 @@ class ProcessKeyInputTest {
     fun focusModifierNotFocused_throwsException() {
 
         // Arrange.
-        lateinit var modifier: KeyInputModifier
+        lateinit var owner: Owner
         composeTestRule.setFocusableContent {
-            modifier = KeyInputModifier(null, null)
-            Box(modifier = FocusModifier() + modifier)
+            owner = getOwner()
+            Box(modifier = FocusModifier() + KeyInputModifier(null, null))
         }
-        val keyEvent = KeyEvent(Key.A, KeyEventType.KeyUp)
 
         // Act.
         runOnIdleCompose {
-            modifier.processKeyInput(keyEvent)
+            owner.processKeyInput(KeyEvent(A, KeyUp))
         }
     }
 
@@ -88,21 +91,20 @@ class ProcessKeyInputTest {
     fun noKeyEventCallback_doesNotConsumeKey() {
 
         // Arrange.
-        lateinit var modifier: KeyInputModifier
         lateinit var focusModifier: FocusModifier
+        lateinit var owner: Owner
         composeTestRule.setFocusableContent {
+            owner = getOwner()
             focusModifier = FocusModifier()
-            modifier = KeyInputModifier(null, null)
-            Box(modifier = focusModifier + modifier)
+            Box(modifier = focusModifier + KeyInputModifier(null, null))
         }
-        val keyEvent = KeyEvent(Key.A, KeyEventType.KeyUp)
         runOnIdleCompose {
             focusModifier.requestFocus()
         }
 
         // Act.
         val keyConsumed = runOnIdleCompose {
-            modifier.processKeyInput(keyEvent)
+            owner.processKeyInput(KeyEvent(A, KeyUp))
         }
 
         // Assert.
@@ -114,30 +116,31 @@ class ProcessKeyInputTest {
     @Test
     fun onKeyEvent_triggered() {
         // Arrange.
-        lateinit var modifier: KeyInputModifier
+        lateinit var owner: Owner
         lateinit var focusModifier: FocusModifier
-        var onKeyEventTriggered = false
+        lateinit var receivedKeyEvent: KeyEvent
         composeTestRule.setFocusableContent {
+            owner = getOwner()
             focusModifier = FocusModifier()
-            modifier = KeyInputModifier(
-                onKeyEvent = { onKeyEventTriggered = true; true },
-                onPreviewKeyEvent = null
+            Box(
+                modifier = focusModifier.keyInputFilter {
+                    receivedKeyEvent = it
+                    true
+                }
             )
-            Box(modifier = focusModifier + modifier)
         }
-        val keyEvent = KeyEvent(Key.A, KeyEventType.KeyUp)
         runOnIdleCompose {
             focusModifier.requestFocus()
         }
 
         // Act.
         val keyConsumed = runOnIdleCompose {
-            modifier.processKeyInput(keyEvent)
+            owner.processKeyInput(KeyEvent(A, KeyUp))
         }
 
         // Assert.
         runOnIdleCompose {
-            assertThat(onKeyEventTriggered).isTrue()
+            assertThat(receivedKeyEvent).isEqualTo(KeyEvent(A, KeyUp))
             assertThat(keyConsumed).isTrue()
         }
     }
@@ -145,30 +148,31 @@ class ProcessKeyInputTest {
     @Test
     fun onPreviewKeyEvent_triggered() {
         // Arrange.
-        lateinit var modifier: KeyInputModifier
+        lateinit var owner: Owner
         lateinit var focusModifier: FocusModifier
-        var onPreviewKeyEventTriggered = false
+        lateinit var receivedKeyEvent: KeyEvent
         composeTestRule.setFocusableContent {
+            owner = getOwner()
             focusModifier = FocusModifier()
-            modifier = KeyInputModifier(
-                onKeyEvent = null,
-                onPreviewKeyEvent = { onPreviewKeyEventTriggered = true; true }
+            Box(
+                modifier = focusModifier.previewKeyInputFilter {
+                    receivedKeyEvent = it
+                    true
+                }
             )
-            Box(modifier = focusModifier + modifier)
         }
-        val keyEvent = KeyEvent(Key.A, KeyEventType.KeyUp)
         runOnIdleCompose {
             focusModifier.requestFocus()
         }
 
         // Act.
         val keyConsumed = runOnIdleCompose {
-            modifier.processKeyInput(keyEvent)
+            owner.processKeyInput(KeyEvent(A, KeyUp))
         }
 
         // Assert.
         runOnIdleCompose {
-            assertThat(onPreviewKeyEventTriggered).isTrue()
+            assertThat(receivedKeyEvent).isEqualTo(KeyEvent(A, KeyUp))
             assertThat(keyConsumed).isTrue()
         }
     }
@@ -176,59 +180,71 @@ class ProcessKeyInputTest {
     @Test
     fun onKeyEventNotTriggered_ifOnPreviewKeyEventConsumesEvent() {
         // Arrange.
-        lateinit var modifier: KeyInputModifier
+        lateinit var owner: Owner
         lateinit var focusModifier: FocusModifier
-        var onKeyEventTriggered = false
-        var onPreviewKeyEventTriggered = false
+        lateinit var receivedPreviewKeyEvent: KeyEvent
+        var receivedKeyEvent: KeyEvent? = null
         composeTestRule.setFocusableContent {
+            owner = getOwner()
             focusModifier = FocusModifier()
-            modifier = KeyInputModifier(
-                onKeyEvent = { onKeyEventTriggered = true; true },
-                onPreviewKeyEvent = { onPreviewKeyEventTriggered = true; true }
+            Box(
+                modifier = focusModifier
+                    .keyInputFilter {
+                        receivedKeyEvent = it
+                        true
+                    }
+                    .previewKeyInputFilter {
+                        receivedPreviewKeyEvent = it
+                        true
+                    }
             )
-            Box(modifier = focusModifier + modifier)
         }
-        val keyEvent = KeyEvent(Key.A, KeyEventType.KeyUp)
         runOnIdleCompose {
             focusModifier.requestFocus()
         }
 
         // Act.
         runOnIdleCompose {
-            modifier.processKeyInput(keyEvent)
+            owner.processKeyInput(KeyEvent(A, KeyUp))
         }
 
         // Assert.
         runOnIdleCompose {
-            assertThat(onPreviewKeyEventTriggered).isTrue()
-            assertThat(onKeyEventTriggered).isFalse()
+            assertThat(receivedPreviewKeyEvent).isEqualTo(KeyEvent(A, KeyUp))
+            assertThat(receivedKeyEvent).isNull()
         }
     }
 
     @Test
     fun onKeyEvent_triggeredAfter_onPreviewKeyEvent() {
         // Arrange.
-        lateinit var modifier: KeyInputModifier
+        lateinit var owner: Owner
         lateinit var focusModifier: FocusModifier
         var triggerIndex = 1
         var onKeyEventTrigger = 0
         var onPreviewKeyEventTrigger = 0
         composeTestRule.setFocusableContent {
+            owner = getOwner()
             focusModifier = FocusModifier()
-            modifier = KeyInputModifier(
-                onKeyEvent = { onKeyEventTrigger = triggerIndex++; true },
-                onPreviewKeyEvent = { onPreviewKeyEventTrigger = triggerIndex++; false }
+            Box(
+                modifier = focusModifier
+                    .keyInputFilter {
+                        onKeyEventTrigger = triggerIndex++
+                        true
+                    }
+                    .previewKeyInputFilter {
+                        onPreviewKeyEventTrigger = triggerIndex++
+                        false
+                    }
             )
-            Box(modifier = focusModifier + modifier)
         }
-        val keyEvent = KeyEvent(Key.A, KeyEventType.KeyUp)
         runOnIdleCompose {
             focusModifier.requestFocus()
         }
 
         // Act.
         runOnIdleCompose {
-            modifier.processKeyInput(keyEvent)
+            owner.processKeyInput(KeyEvent(A, KeyUp))
         }
 
         // Assert.
@@ -241,7 +257,7 @@ class ProcessKeyInputTest {
     @Test
     fun parent_child() {
         // Arrange.
-        lateinit var parentModifier: KeyInputModifier
+        lateinit var owner: Owner
         lateinit var childFocusModifier: FocusModifier
         var triggerIndex = 1
         var parentOnKeyEventTrigger = 0
@@ -249,30 +265,39 @@ class ProcessKeyInputTest {
         var childOnKeyEventTrigger = 0
         var childOnPreviewKeyEventTrigger = 0
         composeTestRule.setFocusableContent {
+            owner = getOwner()
             childFocusModifier = FocusModifier()
-            parentModifier = KeyInputModifier(
-                onKeyEvent = { parentOnKeyEventTrigger = triggerIndex++; false },
-                onPreviewKeyEvent = { parentOnPreviewKeyEventTrigger = triggerIndex++; false }
-            )
-            Box(modifier = FocusModifier() + parentModifier) {
+            Box(
+                modifier = FocusModifier()
+                    .keyInputFilter {
+                        parentOnKeyEventTrigger = triggerIndex++
+                        false
+                    }
+                    .previewKeyInputFilter {
+                        parentOnPreviewKeyEventTrigger = triggerIndex++
+                        false
+                    }
+            ) {
                 Box(
-                    modifier = childFocusModifier + KeyInputModifier(
-                        onKeyEvent = { childOnKeyEventTrigger = triggerIndex++; false },
-                        onPreviewKeyEvent = {
-                            childOnPreviewKeyEventTrigger = triggerIndex++; false
+                    modifier = childFocusModifier
+                        .keyInputFilter {
+                            childOnKeyEventTrigger = triggerIndex++
+                            false
                         }
-                    )
+                        .previewKeyInputFilter {
+                            childOnPreviewKeyEventTrigger = triggerIndex++
+                            false
+                        }
                 )
             }
         }
-        val keyEvent = KeyEvent(Key.A, KeyEventType.KeyUp)
         runOnIdleCompose {
             childFocusModifier.requestFocus()
         }
 
         // Act.
         runOnIdleCompose {
-            parentModifier.processKeyInput(keyEvent)
+            owner.processKeyInput(KeyEvent(A, KeyUp))
         }
 
         // Assert.
@@ -287,7 +312,7 @@ class ProcessKeyInputTest {
     @Test
     fun parent_child_noFocusModifierForParent() {
         // Arrange.
-        lateinit var parentModifier: KeyInputModifier
+        lateinit var owner: Owner
         lateinit var childFocusModifier: FocusModifier
         var triggerIndex = 1
         var parentOnKeyEventTrigger = 0
@@ -295,30 +320,39 @@ class ProcessKeyInputTest {
         var childOnKeyEventTrigger = 0
         var childOnPreviewKeyEventTrigger = 0
         composeTestRule.setFocusableContent {
+            owner = getOwner()
             childFocusModifier = FocusModifier()
-            parentModifier = KeyInputModifier(
-                onKeyEvent = { parentOnKeyEventTrigger = triggerIndex++; false },
-                onPreviewKeyEvent = { parentOnPreviewKeyEventTrigger = triggerIndex++; false }
-            )
-            Box(modifier = parentModifier) {
+            Box(
+                modifier = Modifier
+                    .keyInputFilter {
+                        parentOnKeyEventTrigger = triggerIndex++
+                        false
+                    }
+                    .previewKeyInputFilter {
+                        parentOnPreviewKeyEventTrigger = triggerIndex++
+                        false
+                    }
+            ) {
                 Box(
-                    modifier = childFocusModifier + KeyInputModifier(
-                        onKeyEvent = { childOnKeyEventTrigger = triggerIndex++; false },
-                        onPreviewKeyEvent = {
-                            childOnPreviewKeyEventTrigger = triggerIndex++; false
+                    modifier = childFocusModifier
+                        .keyInputFilter {
+                            childOnKeyEventTrigger = triggerIndex++
+                            false
                         }
-                    )
+                        .previewKeyInputFilter {
+                            childOnPreviewKeyEventTrigger = triggerIndex++
+                            false
+                        }
                 )
             }
         }
-        val keyEvent = KeyEvent(Key.A, KeyEventType.KeyUp)
         runOnIdleCompose {
             childFocusModifier.requestFocus()
         }
 
         // Act.
         runOnIdleCompose {
-            parentModifier.processKeyInput(keyEvent)
+            owner.processKeyInput(KeyEvent(A, KeyUp))
         }
 
         // Assert.
@@ -333,7 +367,7 @@ class ProcessKeyInputTest {
     @Test
     fun grandParent_parent_child() {
         // Arrange.
-        lateinit var grandParentModifier: KeyInputModifier
+        lateinit var owner: Owner
         lateinit var childFocusModifier: FocusModifier
         var triggerIndex = 1
         var grandParentOnKeyEventTrigger = 0
@@ -343,39 +377,51 @@ class ProcessKeyInputTest {
         var childOnKeyEventTrigger = 0
         var childOnPreviewKeyEventTrigger = 0
         composeTestRule.setFocusableContent {
+            owner = getOwner()
             childFocusModifier = FocusModifier()
-            grandParentModifier = KeyInputModifier(
-                onKeyEvent = { grandParentOnKeyEventTrigger = triggerIndex++; false },
-                onPreviewKeyEvent = { grandParentOnPreviewKeyEventTrigger = triggerIndex++; false }
-            )
-            Box(modifier = FocusModifier() + grandParentModifier) {
+            Box(
+                modifier = FocusModifier()
+                    .keyInputFilter {
+                        grandParentOnKeyEventTrigger = triggerIndex++
+                        false
+                    }
+                    .previewKeyInputFilter {
+                        grandParentOnPreviewKeyEventTrigger = triggerIndex++
+                        false
+                    }
+            ) {
                 Box(
-                    modifier = FocusModifier() + KeyInputModifier(
-                        onKeyEvent = { parentOnKeyEventTrigger = triggerIndex++; false },
-                        onPreviewKeyEvent = {
-                            parentOnPreviewKeyEventTrigger = triggerIndex++; false
+                    modifier = FocusModifier()
+                        .keyInputFilter {
+                            parentOnKeyEventTrigger = triggerIndex++
+                            false
                         }
-                    )
+                        .previewKeyInputFilter {
+                            parentOnPreviewKeyEventTrigger = triggerIndex++
+                            false
+                        }
                 ) {
                     Box(
-                        modifier = childFocusModifier + KeyInputModifier(
-                            onKeyEvent = { childOnKeyEventTrigger = triggerIndex++; false },
-                            onPreviewKeyEvent = {
-                                childOnPreviewKeyEventTrigger = triggerIndex++; false
+                        modifier = childFocusModifier
+                            .keyInputFilter {
+                                childOnKeyEventTrigger = triggerIndex++
+                                false
                             }
-                        )
+                            .previewKeyInputFilter {
+                                childOnPreviewKeyEventTrigger = triggerIndex++
+                                false
+                            }
                     )
                 }
             }
         }
-        val keyEvent = KeyEvent(Key.A, KeyEventType.KeyUp)
         runOnIdleCompose {
             childFocusModifier.requestFocus()
         }
 
         // Act.
         runOnIdleCompose {
-            grandParentModifier.processKeyInput(keyEvent)
+            owner.processKeyInput(KeyEvent(A, KeyUp))
         }
 
         // Assert.
@@ -388,4 +434,8 @@ class ProcessKeyInputTest {
             assertThat(grandParentOnKeyEventTrigger).isEqualTo(6)
         }
     }
+
+    @Suppress("DEPRECATION")
+    @Composable
+    private fun getOwner() = OwnerAmbient.current
 }
