@@ -51,4 +51,10 @@ public class UtilsTest {
         assertThat(Utils.isUnknownError(-1)).isTrue();
         assertThat(Utils.isUnknownError(1337)).isTrue();
     }
+
+    @Test
+    public void testGetFingerprintErrorString_ReturnsEmpty_ForNullContext() {
+        assertThat(Utils.getFingerprintErrorString(
+                null /* context */, BiometricPrompt.ERROR_CANCELED)).isEmpty();
+    }
 }
