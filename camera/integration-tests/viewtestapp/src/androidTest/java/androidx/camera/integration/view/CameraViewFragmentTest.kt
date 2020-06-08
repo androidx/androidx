@@ -20,10 +20,13 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.view.CameraView
 import androidx.camera.view.PreviewView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.asFlow
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -55,17 +58,71 @@ class CameraViewFragmentTest {
     }
 
     @Test
-    fun cameraView_canStream() = runBlocking {
-        with(launchFragmentInContainer<CameraViewFragment>()) {
-            val streamState = withFragment {
-                (view?.findViewById<CameraView>(R.id.camera)?.previewStreamState)!!
-            }.asFlow().first {
-                it == PreviewView.StreamState.STREAMING
-            }
-
-            assertThat(streamState).isEqualTo(PreviewView.StreamState.STREAMING)
-        }
+    fun cameraView_canStream_defaultLifecycle() = runBlocking {
+        with(launchFragmentInContainer<CameraViewFragment>()) { assertStreaming() }
     }
+
+    @Test
+    fun cameraView_canStream_withActivityLifecycle() = runBlocking {
+        with(
+            launchFragmentInContainer<CameraViewFragment>(
+                fragmentArgs = bundleOf(
+                    CameraViewFragment.ARG_LIFECYCLE_TYPE to
+                            CameraViewFragment.LIFECYCLE_TYPE_ACTIVITY
+                )
+            )
+        ) { assertStreaming() }
+    }
+
+    @Test
+    fun cameraView_canStream_withFragmentLifecycle() = runBlocking {
+        with(
+            launchFragmentInContainer<CameraViewFragment>(
+                fragmentArgs = bundleOf(
+                    CameraViewFragment.ARG_LIFECYCLE_TYPE to
+                            CameraViewFragment.LIFECYCLE_TYPE_FRAGMENT
+                )
+            )
+        ) { assertStreaming() }
+    }
+
+    @Test
+    fun cameraView_canStream_withFragmentViewLifecycle() = runBlocking {
+        with(
+            launchFragmentInContainer<CameraViewFragment>(
+                fragmentArgs = bundleOf(
+                    CameraViewFragment.ARG_LIFECYCLE_TYPE to
+                            CameraViewFragment.LIFECYCLE_TYPE_FRAGMENT_VIEW
+                )
+            )
+        ) { assertStreaming() }
+    }
+
+    @Test
+    fun cameraView_ignoresLifecycleInDestroyedState() {
+        // Since launchFragmentInContainer waits for onResume() to complete, CameraView should
+        // have measured its view and bound to the lifecycle by this time. This would crash with
+        // an IllegalArgumentException prior to applying fix for b/157949175
+        launchFragmentInContainer(
+            fragmentArgs = bundleOf(
+                CameraViewFragment.ARG_LIFECYCLE_TYPE to CameraViewFragment.LIFECYCLE_TYPE_DEBUG
+            ),
+            instantiate = {
+                CameraViewFragment().apply {
+                    setDebugLifecycleOwner(TestLifecycleOwner(Lifecycle.State.DESTROYED))
+                }
+            })
+    }
+}
+
+private suspend inline fun FragmentScenario<CameraViewFragment>.assertStreaming() {
+    val streamState = withFragment {
+        (view?.findViewById<CameraView>(R.id.camera)?.previewStreamState)!!
+    }.asFlow().first {
+        it == PreviewView.StreamState.STREAMING
+    }
+
+    assertThat(streamState).isEqualTo(PreviewView.StreamState.STREAMING)
 }
 
 // Adapted from ActivityScenario.withActivity extension function
