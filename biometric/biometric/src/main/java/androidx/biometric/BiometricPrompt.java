@@ -16,8 +16,6 @@
 
 package androidx.biometric;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -29,8 +27,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.security.Signature;
 import java.util.concurrent.Executor;
 
@@ -57,7 +57,7 @@ import javax.crypto.Mac;
 public class BiometricPrompt implements BiometricConstants {
     private static final String TAG = "BiometricPromptCompat";
 
-    static final String BIOMETRIC_FRAGMENT_TAG = "BiometricFragment";
+    static final String BIOMETRIC_FRAGMENT_TAG = "androidx.biometric.BiometricFragment";
 
     static final String KEY_TITLE = "title";
     static final String KEY_SUBTITLE = "subtitle";
@@ -66,22 +66,23 @@ public class BiometricPrompt implements BiometricConstants {
     static final String KEY_REQUIRE_CONFIRMATION = "require_confirmation";
     static final String KEY_ALLOW_DEVICE_CREDENTIAL = "allow_device_credential";
 
-    @Retention(SOURCE)
-    @IntDef({ERROR_HW_UNAVAILABLE,
-            ERROR_UNABLE_TO_PROCESS,
-            ERROR_TIMEOUT,
-            ERROR_NO_SPACE,
-            ERROR_CANCELED,
-            ERROR_LOCKOUT,
-            ERROR_VENDOR,
-            ERROR_LOCKOUT_PERMANENT,
-            ERROR_USER_CANCELED,
-            ERROR_NO_BIOMETRICS,
-            ERROR_HW_NOT_PRESENT,
-            ERROR_NEGATIVE_BUTTON,
-            ERROR_NO_DEVICE_CREDENTIAL})
-    private @interface BiometricError {
-    }
+    @IntDef({
+        ERROR_HW_UNAVAILABLE,
+        ERROR_UNABLE_TO_PROCESS,
+        ERROR_TIMEOUT,
+        ERROR_NO_SPACE,
+        ERROR_CANCELED,
+        ERROR_LOCKOUT,
+        ERROR_VENDOR,
+        ERROR_LOCKOUT_PERMANENT,
+        ERROR_USER_CANCELED,
+        ERROR_NO_BIOMETRICS,
+        ERROR_HW_NOT_PRESENT,
+        ERROR_NEGATIVE_BUTTON,
+        ERROR_NO_DEVICE_CREDENTIAL
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface BiometricError {}
 
     /**
      * A wrapper class for the crypto objects supported by BiometricPrompt. Currently the
@@ -382,8 +383,7 @@ public class BiometricPrompt implements BiometricConstants {
         }
     }
 
-    // Fragment attached to the client activity that coordinates logic for the prompt.
-    private BiometricFragment mBiometricFragment;
+    @Nullable private FragmentManager mClientFragmentManager;
 
     /**
      * Constructs a {@link BiometricPrompt} which can be used to prompt the user for
@@ -416,9 +416,7 @@ public class BiometricPrompt implements BiometricConstants {
             throw new IllegalArgumentException("AuthenticationCallback must not be null");
         }
 
-        mBiometricFragment = getBiometricFragment(fragmentActivity.getSupportFragmentManager());
-        mBiometricFragment.setClientActivity(fragmentActivity);
-        mBiometricFragment.setClientCallback(executor, callback);
+        init(fragmentActivity, fragmentActivity.getSupportFragmentManager(), executor, callback);
     }
 
     /**
@@ -443,7 +441,7 @@ public class BiometricPrompt implements BiometricConstants {
             @NonNull AuthenticationCallback callback) {
 
         if (fragment == null) {
-            throw new IllegalArgumentException("FragmentActivity must not be null");
+            throw new IllegalArgumentException("Fragment must not be null");
         }
         if (executor == null) {
             throw new IllegalArgumentException("Executor must not be null");
@@ -452,9 +450,23 @@ public class BiometricPrompt implements BiometricConstants {
             throw new IllegalArgumentException("AuthenticationCallback must not be null");
         }
 
-        mBiometricFragment = getBiometricFragment(fragment.getChildFragmentManager());
-        mBiometricFragment.setClientFragment(fragment);
-        mBiometricFragment.setClientCallback(executor, callback);
+        init(fragment.getActivity(), fragment.getChildFragmentManager(), executor, callback);
+    }
+
+    private void init(
+            @Nullable FragmentActivity activity,
+            @Nullable FragmentManager fragmentManager,
+            @NonNull Executor executor,
+            @NonNull AuthenticationCallback callback) {
+
+        mClientFragmentManager = fragmentManager;
+
+        if (activity != null) {
+            final BiometricViewModel viewModel =
+                    new ViewModelProvider(activity).get(BiometricViewModel.class);
+            viewModel.setClientExecutor(executor);
+            viewModel.setClientCallback(callback);
+        }
     }
 
     /**
@@ -468,18 +480,16 @@ public class BiometricPrompt implements BiometricConstants {
     @SuppressWarnings("ConstantConditions")
     public void authenticate(@NonNull PromptInfo info, @NonNull CryptoObject crypto) {
         if (info == null) {
-            throw new IllegalArgumentException("PromptInfo can not be null");
-        } else if (crypto == null) {
-            throw new IllegalArgumentException("CryptoObject can not be null");
-        } else if (info.getBundle().getBoolean(KEY_ALLOW_DEVICE_CREDENTIAL)) {
-            throw new IllegalArgumentException("Device credential not supported with crypto");
+            throw new IllegalArgumentException("PromptInfo cannot be null.");
+        }
+        if (crypto == null) {
+            throw new IllegalArgumentException("CryptoObject cannot be null.");
+        }
+        if (info.getBundle().getBoolean(KEY_ALLOW_DEVICE_CREDENTIAL)) {
+            throw new IllegalArgumentException("Device credential not supported with crypto.");
         }
 
-        if (mBiometricFragment == null) {
-            Log.e(TAG, "Unable to authenticate; BiometricFragment was null");
-        } else {
-            mBiometricFragment.authenticate(info, crypto);
-        }
+        authenticateInternal(info, crypto);
     }
 
     /**
@@ -492,14 +502,25 @@ public class BiometricPrompt implements BiometricConstants {
     @SuppressWarnings("ConstantConditions")
     public void authenticate(@NonNull PromptInfo info) {
         if (info == null) {
-            throw new IllegalArgumentException("PromptInfo can not be null");
+            throw new IllegalArgumentException("PromptInfo cannot be null.");
         }
 
-        if (mBiometricFragment == null) {
-            Log.e(TAG, "Unable to authenticate; BiometricFragment was null");
-        } else {
-            mBiometricFragment.authenticate(info, null /* crypto */);
+        authenticateInternal(info, null /* crypto */);
+    }
+
+    private void authenticateInternal(@NonNull PromptInfo info, @Nullable CryptoObject crypto) {
+        if (mClientFragmentManager == null) {
+            Log.e(TAG, "Unable to start authentication. Client fragment manager was null.");
+            return;
         }
+        if (mClientFragmentManager.isStateSaved()) {
+            Log.e(TAG, "Unable to start authentication. Called after onSaveInstanceState().");
+            return;
+        }
+
+        final BiometricFragment biometricFragment =
+                findOrAddBiometricFragment(mClientFragmentManager);
+        biometricFragment.authenticate(info, crypto);
     }
 
     /**
@@ -511,17 +532,45 @@ public class BiometricPrompt implements BiometricConstants {
      * details.
      */
     public void cancelAuthentication() {
-        if (mBiometricFragment == null) {
-            Log.e(TAG, "Unable to cancel authentication; BiometricFragment was null");
-        } else {
-            mBiometricFragment.cancel(BiometricFragment.USER_CANCELED_FROM_NONE);
+        if (mClientFragmentManager == null) {
+            Log.e(TAG, "Unable to start authentication. Client fragment manager was null.");
+            return;
         }
+
+        final BiometricFragment biometricFragment = findBiometricFragment(mClientFragmentManager);
+        if (biometricFragment == null) {
+            Log.e(TAG, "Unable to cancel authentication. BiometricFragment not found.");
+            return;
+        }
+
+        biometricFragment.cancelAuthentication(BiometricFragment.CANCELED_FROM_NONE);
+    }
+
+    @Nullable
+    private static BiometricFragment findBiometricFragment(
+            @NonNull FragmentManager fragmentManager) {
+        return (BiometricFragment) fragmentManager.findFragmentByTag(
+                BiometricPrompt.BIOMETRIC_FRAGMENT_TAG);
     }
 
     @NonNull
-    private static BiometricFragment getBiometricFragment(FragmentManager fragmentManager) {
-        final BiometricFragment biometricFragment =
-                (BiometricFragment) fragmentManager.findFragmentByTag(BIOMETRIC_FRAGMENT_TAG);
-        return biometricFragment != null ? biometricFragment : BiometricFragment.newInstance();
+    private static BiometricFragment findOrAddBiometricFragment(
+            @NonNull FragmentManager fragmentManager) {
+
+        BiometricFragment biometricFragment = findBiometricFragment(fragmentManager);
+
+        // If the fragment hasn't been added before, add it.
+        if (biometricFragment == null) {
+            biometricFragment = BiometricFragment.newInstance();
+            fragmentManager.beginTransaction()
+                    .add(biometricFragment, BiometricPrompt.BIOMETRIC_FRAGMENT_TAG)
+                    .commitAllowingStateLoss();
+
+            // For the case when onResume() is being called right after authenticate,
+            // we need to make sure that all fragment transactions have been committed.
+            fragmentManager.executePendingTransactions();
+        }
+
+        return biometricFragment;
     }
 }
