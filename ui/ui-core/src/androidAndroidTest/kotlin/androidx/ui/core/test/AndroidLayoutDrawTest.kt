@@ -64,9 +64,10 @@ import androidx.ui.core.constrainWidth
 import androidx.ui.core.drawBehind
 import androidx.ui.core.drawLayer
 import androidx.ui.core.drawWithContent
+import androidx.ui.core.id
+import androidx.ui.core.layoutId
 import androidx.ui.core.offset
 import androidx.ui.core.setContent
-import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
@@ -403,17 +404,17 @@ class AndroidLayoutDrawTest {
                     Layout(measureBlock = { _, constraints, _ ->
                         assertEquals(childConstraints[0], constraints)
                         layout(0, 0) {}
-                    }, children = emptyContent(), modifier = Modifier.tag("header"))
+                    }, children = emptyContent(), modifier = Modifier.layoutId("header"))
                 }
                 val footer = @Composable {
                     Layout(measureBlock = { _, constraints, _ ->
                         assertEquals(childConstraints[1], constraints)
                         layout(0, 0) {}
-                    }, children = emptyContent(), modifier = Modifier.tag("footer"))
+                    }, children = emptyContent(), modifier = Modifier.layoutId("footer"))
                     Layout(measureBlock = { _, constraints, _ ->
                         assertEquals(childConstraints[2], constraints)
                         layout(0, 0) {}
-                    }, children = emptyContent(), modifier = Modifier.tag("footer"))
+                    }, children = emptyContent(), modifier = Modifier.layoutId("footer"))
                 }
 
                 Layout({ header(); footer() }) { measurables, _, _ ->
@@ -421,8 +422,8 @@ class AndroidLayoutDrawTest {
                     measurables.forEachIndexed { index, measurable ->
                         measurable.measure(childConstraints[index])
                     }
-                    val measurablesHeader = measurables.filter { it.tag == "header" }
-                    val measurablesFooter = measurables.filter { it.tag == "footer" }
+                    val measurablesHeader = measurables.filter { it.id == "header" }
+                    val measurablesFooter = measurables.filter { it.id == "footer" }
                     assertEquals(headerChildrenCount, measurablesHeader.size)
                     assertSame(measurables[0], measurablesHeader[0])
                     assertEquals(footerChildrenCount, measurablesFooter.size)
@@ -2331,10 +2332,10 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 Layout({
                     PassThroughLayout {
-                        FixedSize(50, Modifier.tag("1"))
+                        FixedSize(50, Modifier.layoutId("1"))
                     }
                 }) { measurables, constraints, _ ->
-                    assertEquals("1", measurables[0].tag)
+                    assertEquals("1", measurables[0].id)
                     val placeable = measurables[0].measure(constraints)
                     assertEquals(50, placeable.width)
                     latch.countDown()

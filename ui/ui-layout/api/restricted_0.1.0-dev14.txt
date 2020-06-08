@@ -129,14 +129,14 @@ package androidx.ui.layout {
   }
 
   public final class ConstrainedLayoutReference {
-    ctor public ConstrainedLayoutReference(Object tag);
+    ctor public ConstrainedLayoutReference(Object id);
     method public androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor getAbsoluteLeft();
     method public androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor getAbsoluteRight();
     method public androidx.ui.layout.ConstraintLayoutBaseScope.BaselineAnchor getBaseline();
     method public androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor getBottom();
     method public androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor getEnd();
+    method public Object getId();
     method public androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor getStart();
-    method public Object getTag();
     method public androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor getTop();
     property public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor absoluteLeft;
     property public final androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor absoluteRight;
@@ -176,15 +176,15 @@ package androidx.ui.layout {
   }
 
   public static final class ConstraintLayoutBaseScope.BaselineAnchor {
-    method public androidx.ui.layout.ConstraintLayoutBaseScope.BaselineAnchor copy(Object tag);
+    method public androidx.ui.layout.ConstraintLayoutBaseScope.BaselineAnchor copy(Object id);
   }
 
   public static final class ConstraintLayoutBaseScope.HorizontalAnchor {
-    method public androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor copy(Object tag, int index);
+    method public androidx.ui.layout.ConstraintLayoutBaseScope.HorizontalAnchor copy(Object id, int index);
   }
 
   public static final class ConstraintLayoutBaseScope.VerticalAnchor {
-    method public androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor copy(Object tag, int index);
+    method public androidx.ui.layout.ConstraintLayoutBaseScope.VerticalAnchor copy(Object id, int index);
   }
 
   public final class ConstraintLayoutKt {
@@ -415,7 +415,7 @@ package androidx.ui.layout {
 
   @androidx.ui.layout.LayoutScopeMarker public final class ConstraintSetScope extends androidx.ui.layout.ConstraintLayoutBaseScope {
     method public androidx.ui.layout.ConstrainScope constrain(androidx.ui.layout.ConstrainedLayoutReference ref, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ConstrainScope,kotlin.Unit> constrainBlock);
-    method public androidx.ui.layout.ConstrainedLayoutReference createRefFor(Object tag);
+    method public androidx.ui.layout.ConstrainedLayoutReference createRefFor(Object id);
   }
 
   @androidx.compose.Immutable public abstract sealed class CrossAxisAlignment {

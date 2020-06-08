@@ -21,8 +21,8 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.core.tag
 import androidx.ui.core.globalPosition
+import androidx.ui.core.layoutId
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInParent
 import androidx.ui.foundation.Box
@@ -409,7 +409,7 @@ class ConstraintLayoutTest : LayoutTest() {
                 Modifier.fillMaxSize()
             ) {
                 for (i in 0..2) {
-                    Box(Modifier.tag("box$i").preferredSize(boxSize.toDp(), boxSize.toDp())
+                    Box(Modifier.layoutId("box$i").preferredSize(boxSize.toDp(), boxSize.toDp())
                         .onPositioned {
                             position[i].value = it.globalPosition
                         }
@@ -918,9 +918,9 @@ class ConstraintLayoutTest : LayoutTest() {
                 constrain(box) { }
             }) {
                 if (first.value) {
-                    Box(Modifier.tag("box"))
+                    Box(Modifier.layoutId("box"))
                 } else {
-                    Box(Modifier.tag("box"))
+                    Box(Modifier.layoutId("box"))
                 }
             }
         }

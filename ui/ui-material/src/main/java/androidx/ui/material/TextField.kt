@@ -51,9 +51,10 @@ import androidx.ui.core.drawBehind
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
+import androidx.ui.core.id
+import androidx.ui.core.layoutId
 import androidx.ui.core.offset
 import androidx.ui.core.semantics.semantics
-import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
@@ -1016,22 +1017,22 @@ private object FilledTextField {
         Layout(
             children = {
                 if (placeholder != null) {
-                    Box(modifier = Modifier.tag(PlaceholderTag), children = placeholder)
+                    Box(modifier = Modifier.layoutId(PlaceholderId), children = placeholder)
                 }
-                Box(modifier = Modifier.tag(LabelTag), children = label)
-                textField(Modifier.tag(TextFieldTag))
+                Box(modifier = Modifier.layoutId(LabelId), children = label)
+                textField(Modifier.layoutId(TextFieldId))
             },
             modifier = modifier
         ) { measurables, constraints, _ ->
             val placeholderPlaceable =
-                measurables.find { it.tag == PlaceholderTag }?.measure(constraints)
+                measurables.find { it.id == PlaceholderId }?.measure(constraints)
 
             val baseLineOffset = FirstBaselineOffset.toIntPx()
 
             val labelConstraints = constraints
                 .offset(vertical = -LastBaselineOffset.toIntPx())
                 .copy(minWidth = 0, minHeight = 0)
-            val labelPlaceable = measurables.first { it.tag == LabelTag }.measure(labelConstraints)
+            val labelPlaceable = measurables.first { it.id == LabelId }.measure(labelConstraints)
             val labelBaseline = labelPlaceable[LastBaseline].let {
                 if (it != AlignmentLine.Unspecified) it else labelPlaceable.height
             }
@@ -1042,7 +1043,7 @@ private object FilledTextField {
                 .offset(vertical = -LastBaselineOffset.toIntPx() - effectiveLabelBaseline)
                 .copy(minHeight = 0)
             val textFieldPlaceable = measurables
-                .first { it.tag == TextFieldTag }
+                .first { it.id == TextFieldId }
                 .measure(textFieldConstraints)
             val textFieldLastBaseline = textFieldPlaceable[LastBaseline]
             require(textFieldLastBaseline != AlignmentLine.Unspecified) { "No text last baseline." }
@@ -1095,12 +1096,12 @@ private object FilledTextField {
         Layout(
             children = {
                 if (leading != null) {
-                    Box(Modifier.tag("leading").iconPadding(start = HorizontalIconPadding)) {
+                    Box(Modifier.layoutId("leading").iconPadding(start = HorizontalIconPadding)) {
                         Decoration(contentColor = leadingColor, children = leading)
                     }
                 }
                 if (trailing != null) {
-                    Box(Modifier.tag("trailing").iconPadding(end = HorizontalIconPadding)) {
+                    Box(Modifier.layoutId("trailing").iconPadding(end = HorizontalIconPadding)) {
                         Decoration(contentColor = trailingColor, children = trailing)
                     }
                 }
@@ -1112,16 +1113,16 @@ private object FilledTextField {
                 incomingConstraints.copy(minWidth = 0, minHeight = 0)
             var occupiedSpace = 0
 
-            val leadingPlaceable = measurables.find { it.tag == "leading" }?.measure(constraints)
+            val leadingPlaceable = measurables.find { it.id == "leading" }?.measure(constraints)
             occupiedSpace += widthOrZero(leadingPlaceable)
 
-            val trailingPlaceable = measurables.find { it.tag == "trailing" }
+            val trailingPlaceable = measurables.find { it.id == "trailing" }
                 ?.measure(constraints.offset(horizontal = -occupiedSpace))
             occupiedSpace += widthOrZero(trailingPlaceable)
 
             // represents the layout that holds textfield, label and placeholder
             val textFieldPlaceable = measurables.first {
-                it.tag != "leading" && it.tag != "trailing"
+                it.id != "leading" && it.id != "trailing"
             }.measure(incomingConstraints.offset(horizontal = -occupiedSpace))
             occupiedSpace += textFieldPlaceable.width
 
@@ -1225,19 +1226,19 @@ private object OutlinedTextField {
         Layout(
             children = {
                 if (leading != null) {
-                    Box(Modifier.tag("leading").iconPadding(start = HorizontalIconPadding)) {
+                    Box(Modifier.layoutId("leading").iconPadding(start = HorizontalIconPadding)) {
                         Decoration(contentColor = leadingColor, children = leading)
                     }
                 }
                 if (trailing != null) {
-                    Box(Modifier.tag("trailing").iconPadding(end = HorizontalIconPadding)) {
+                    Box(Modifier.layoutId("trailing").iconPadding(end = HorizontalIconPadding)) {
                         Decoration(contentColor = trailingColor, children = trailing)
                     }
                 }
                 if (placeholder != null) {
                     Box(
                         modifier = Modifier
-                            .tag(PlaceholderTag)
+                            .layoutId(PlaceholderId)
                             .padding(horizontal = TextFieldPadding),
                         children = placeholder
                     )
@@ -1245,11 +1246,11 @@ private object OutlinedTextField {
 
                 textField(
                     Modifier
-                        .tag(TextFieldTag)
+                        .layoutId(TextFieldId)
                         .padding(horizontal = TextFieldPadding)
                 )
 
-                Box(modifier = Modifier.tag(LabelTag), children = label)
+                Box(modifier = Modifier.layoutId(LabelId), children = label)
             },
             modifier = modifier
         ) { measurables, incomingConstraints, _ ->
@@ -1260,11 +1261,11 @@ private object OutlinedTextField {
             // measure leading icon
             val constraints =
                 incomingConstraints.copy(minWidth = 0, minHeight = 0)
-            val leadingPlaceable = measurables.find { it.tag == "leading" }?.measure(constraints)
+            val leadingPlaceable = measurables.find { it.id == "leading" }?.measure(constraints)
             occupiedSpaceHorizontally += widthOrZero(leadingPlaceable)
 
             // measure trailing icon
-            val trailingPlaceable = measurables.find { it.tag == "trailing" }
+            val trailingPlaceable = measurables.find { it.id == "trailing" }
                 ?.measure(constraints.offset(horizontal = -occupiedSpaceHorizontally))
             occupiedSpaceHorizontally += widthOrZero(trailingPlaceable)
 
@@ -1274,7 +1275,7 @@ private object OutlinedTextField {
                 vertical = -bottomPadding
             )
             val labelPlaceable =
-                measurables.first { it.tag == LabelTag }.measure(labelConstraints)
+                measurables.first { it.id == LabelId }.measure(labelConstraints)
             onLabelMeasured(labelPlaceable.width)
 
             // measure text field
@@ -1286,12 +1287,12 @@ private object OutlinedTextField {
                 vertical = -bottomPadding - topPadding
             ).copy(minHeight = 0)
             val textFieldPlaceable =
-                measurables.first { it.tag == TextFieldTag }.measure(textContraints)
+                measurables.first { it.id == TextFieldId }.measure(textContraints)
 
             // measure placeholder
             val placeholderConstraints = textContraints.copy(minWidth = 0)
             val placeholderPlaceable =
-                measurables.find { it.tag == PlaceholderTag }?.measure(placeholderConstraints)
+                measurables.find { it.id == PlaceholderId }?.measure(placeholderConstraints)
 
             val width = calculateWidth(
                 leadingPlaceable,
@@ -1657,9 +1658,9 @@ private enum class InputPhase {
     UnfocusedNotEmpty
 }
 
-private const val TextFieldTag = "TextField"
-private const val PlaceholderTag = "Hint"
-private const val LabelTag = "Label"
+private const val TextFieldId = "TextField"
+private const val PlaceholderId = "Hint"
+private const val LabelId = "Label"
 
 private const val AnimationDuration = 150
 private val IndicatorUnfocusedWidth = 1.dp

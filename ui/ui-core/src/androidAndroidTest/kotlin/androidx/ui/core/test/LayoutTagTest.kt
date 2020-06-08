@@ -21,7 +21,8 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
-import androidx.ui.core.tag
+import androidx.ui.core.id
+import androidx.ui.core.layoutId
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.layout.Stack
 import org.junit.Assert.assertEquals
@@ -54,22 +55,22 @@ class LayoutTagTest {
             activity.setContent {
                 Layout(
                     {
-                        AtLeastSize(0, Modifier.tag("first"), children = emptyContent())
-                        Stack(Modifier.tag("second")) {
+                        AtLeastSize(0, Modifier.layoutId("first"), children = emptyContent())
+                        Stack(Modifier.layoutId("second")) {
                             AtLeastSize(
                                 0,
                                 children = emptyContent()
                             )
                         }
-                        Stack(Modifier.tag("third")) {
+                        Stack(Modifier.layoutId("third")) {
                             AtLeastSize(0, children = emptyContent())
                         }
                     }
                 ) { measurables, _, _ ->
                     assertEquals(3, measurables.size)
-                    assertEquals("first", measurables[0].tag)
-                    assertEquals("second", measurables[1].tag)
-                    assertEquals("third", measurables[2].tag)
+                    assertEquals("first", measurables[0].id)
+                    assertEquals("second", measurables[1].id)
+                    assertEquals("third", measurables[2].id)
                     latch.countDown()
                     layout(0, 0) {}
                 }
