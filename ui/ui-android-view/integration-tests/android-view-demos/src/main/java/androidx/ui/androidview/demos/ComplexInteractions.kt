@@ -30,6 +30,8 @@ import androidx.ui.layout.Column
 import androidx.ui.material.Button
 import androidx.ui.viewinterop.AndroidView
 
+// TODO(b/158099918): Add this demo to AndroidViewDemos.kt once b/158099918 has been resolved.
+@Suppress("unused")
 val ComplexTouchInterop = DemoCategory("Complex Touch Interop", listOf(
     ComposableDemo("ReproOffsetIssue") { ComposeInAndroidInComposeEtcTargetingDemo() }
 ))
