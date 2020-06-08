@@ -20,6 +20,7 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 class Utils {
     // Private constructor to prevent instantiation.
@@ -58,7 +59,11 @@ class Utils {
      * in FingerprintManager
      */
     @NonNull
-    static String getFingerprintErrorString(@NonNull Context context, int errorCode) {
+    static String getFingerprintErrorString(@Nullable Context context, int errorCode) {
+        if (context == null) {
+            return "";
+        }
+
         switch (errorCode) {
             case BiometricPrompt.ERROR_HW_NOT_PRESENT:
                 return context.getString(R.string.fingerprint_error_hw_not_present);
