@@ -231,7 +231,7 @@ private class TestFrameClock : CompositionFrameClock {
         frameCh.send(frameTimeNanos)
     }
 
-    override suspend fun <R> awaitFrameNanos(onFrame: (Long) -> R): R = onFrame(frameCh.receive())
+    override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R = onFrame(frameCh.receive())
 }
 
 @OptIn(ExperimentalComposeApi::class)

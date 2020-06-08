@@ -86,7 +86,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     ) : CompositionFrameClock {
         private val lastFrameTime = AtomicLong(0L)
 
-        override suspend fun <R> awaitFrameNanos(onFrame: (Long) -> R): R =
+        override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R =
             onFrame(lastFrameTime.getAndAdd(singleFrameTimeNanos))
     }
 
