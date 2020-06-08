@@ -497,6 +497,7 @@ public abstract class MediaRouteProvider {
         /**
          * Called when a user selects a new set of routes s/he wants the session to be played.
          */
+        // TODO: How about making this to onTransfer(@NonNull String routeId)?
         public abstract void onUpdateMemberRoutes(@Nullable List<String> routeIds);
 
         /**
@@ -507,6 +508,7 @@ public abstract class MediaRouteProvider {
         /**
          * Called when a user removes a route from casting session.
          */
+        // TODO: Add @NonNull in the argument (needs current.txt change)
         public abstract void onRemoveMemberRoute(String routeId);
 
         /**
