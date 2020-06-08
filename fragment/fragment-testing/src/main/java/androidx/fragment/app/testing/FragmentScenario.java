@@ -295,27 +295,23 @@ public final class FragmentScenario<F extends Fragment> {
                         .putExtra(EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY, themeResId);
         FragmentScenario<F> scenario = new FragmentScenario<>(
                 fragmentClass,
-                ActivityScenario.<EmptyFragmentActivity>launch(startActivityIntent));
-        scenario.mActivityScenario.onActivity(
-                new ActivityScenario.ActivityAction<EmptyFragmentActivity>() {
-                    @Override
-                    public void perform(EmptyFragmentActivity activity) {
-                        if (factory != null) {
-                            FragmentFactoryHolderViewModel.getInstance(activity)
-                                    .setFragmentFactory(factory);
-                            activity.getSupportFragmentManager().setFragmentFactory(factory);
-                        }
-                        Fragment fragment = activity.getSupportFragmentManager()
-                                .getFragmentFactory().instantiate(
-                                        Preconditions.checkNotNull(fragmentClass.getClassLoader()),
-                                        fragmentClass.getName());
-                        fragment.setArguments(fragmentArgs);
-                        activity.getSupportFragmentManager()
-                                .beginTransaction()
-                                .add(containerViewId, fragment, FRAGMENT_TAG)
-                                .commitNow();
-                    }
-                });
+                ActivityScenario.launch(startActivityIntent));
+        scenario.mActivityScenario.onActivity(activity -> {
+            if (factory != null) {
+                FragmentFactoryHolderViewModel.getInstance(activity)
+                        .setFragmentFactory(factory);
+                activity.getSupportFragmentManager().setFragmentFactory(factory);
+            }
+            Fragment fragment = activity.getSupportFragmentManager()
+                    .getFragmentFactory().instantiate(
+                            Preconditions.checkNotNull(fragmentClass.getClassLoader()),
+                            fragmentClass.getName());
+            fragment.setArguments(fragmentArgs);
+            activity.getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(containerViewId, fragment, FRAGMENT_TAG)
+                    .commitNow();
+        });
         return scenario;
     }
 
@@ -330,39 +326,31 @@ public final class FragmentScenario<F extends Fragment> {
     @NonNull
     public FragmentScenario<F> moveToState(@NonNull State newState) {
         if (newState == State.DESTROYED) {
-            mActivityScenario.onActivity(
-                    new ActivityScenario.ActivityAction<EmptyFragmentActivity>() {
-                        @Override
-                        public void perform(EmptyFragmentActivity activity) {
-                            Fragment fragment =
-                                    activity.getSupportFragmentManager().findFragmentByTag(
-                                            FRAGMENT_TAG);
-                            // Null means the fragment has been destroyed already.
-                            if (fragment != null) {
-                                activity
-                                        .getSupportFragmentManager()
-                                        .beginTransaction()
-                                        .remove(fragment)
-                                        .commitNow();
-                            }
-                        }
-                    });
+            mActivityScenario.onActivity(activity -> {
+                Fragment fragment =
+                        activity.getSupportFragmentManager().findFragmentByTag(
+                                FRAGMENT_TAG);
+                // Null means the fragment has been destroyed already.
+                if (fragment != null) {
+                    activity
+                            .getSupportFragmentManager()
+                            .beginTransaction()
+                            .remove(fragment)
+                            .commitNow();
+                }
+            });
         } else {
-            mActivityScenario.onActivity(
-                    new ActivityScenario.ActivityAction<EmptyFragmentActivity>() {
-                        @Override
-                        public void perform(EmptyFragmentActivity activity) {
-                            Fragment fragment =
-                                    activity.getSupportFragmentManager().findFragmentByTag(
-                                            FRAGMENT_TAG);
-                            checkNotNull(fragment,
-                                    "The fragment has been removed from FragmentManager already.");
-                            activity.getSupportFragmentManager()
-                                    .beginTransaction()
-                                    .setMaxLifecycle(fragment, newState)
-                                    .commitNow();
-                        }
-                    });
+            mActivityScenario.onActivity(activity -> {
+                Fragment fragment =
+                        activity.getSupportFragmentManager().findFragmentByTag(
+                                FRAGMENT_TAG);
+                checkNotNull(fragment,
+                        "The fragment has been removed from FragmentManager already.");
+                activity.getSupportFragmentManager()
+                        .beginTransaction()
+                        .setMaxLifecycle(fragment, newState)
+                        .commitNow();
+            });
         }
         return this;
     }
@@ -411,18 +399,14 @@ public final class FragmentScenario<F extends Fragment> {
      */
     @NonNull
     public FragmentScenario<F> onFragment(@NonNull final FragmentAction<F> action) {
-        mActivityScenario.onActivity(
-                new ActivityScenario.ActivityAction<EmptyFragmentActivity>() {
-                    @Override
-                    public void perform(EmptyFragmentActivity activity) {
-                        Fragment fragment = activity.getSupportFragmentManager().findFragmentByTag(
-                                FRAGMENT_TAG);
-                        checkNotNull(fragment,
-                                "The fragment has been removed from FragmentManager already.");
-                        checkState(mFragmentClass.isInstance(fragment));
-                        action.perform(Preconditions.checkNotNull(mFragmentClass.cast(fragment)));
-                    }
-                });
+        mActivityScenario.onActivity(activity -> {
+            Fragment fragment = activity.getSupportFragmentManager().findFragmentByTag(
+                    FRAGMENT_TAG);
+            checkNotNull(fragment,
+                    "The fragment has been removed from FragmentManager already.");
+            checkState(mFragmentClass.isInstance(fragment));
+            action.perform(Preconditions.checkNotNull(mFragmentClass.cast(fragment)));
+        });
         return this;
     }
 }
