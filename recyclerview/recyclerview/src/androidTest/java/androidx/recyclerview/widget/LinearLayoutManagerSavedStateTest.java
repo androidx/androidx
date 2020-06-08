@@ -24,7 +24,6 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
@@ -270,12 +269,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
         return params;
     }
 
-    // TODO(b/142682722): This test is currently causing process crashes on CuttleFish API 29
-    //  devices that are currently assumed to not be an issue with RecyclerView or this test.
-    //  Therefore we are temporarily suppressing the test on all sdk versions 29 and above until
-    //  the issue is resolved so that RecyclerView CLs are not blocked.
     @Test
-    @SdkSuppress(maxSdkVersion = 28)
     public void savedStateTest()
             throws Throwable {
         if (DEBUG) {
