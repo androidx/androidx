@@ -106,7 +106,6 @@ final class CameraXModule {
                 public void onDestroy(LifecycleOwner owner) {
                     if (owner == mCurrentLifecycle) {
                         clearCurrentLifecycle();
-                        mPreview.setSurfaceProvider(null);
                     }
                 }
             };
@@ -165,12 +164,15 @@ final class CameraXModule {
         }
 
         clearCurrentLifecycle();
+        if (mNewLifecycle.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
+            // Lifecycle is already in a destroyed state. Since it may have been a valid
+            // lifecycle when bound, but became destroyed while waiting for layout, treat this as
+            // a no-op now that we have cleared the previous lifecycle.
+            mNewLifecycle = null;
+            return;
+        }
         mCurrentLifecycle = mNewLifecycle;
         mNewLifecycle = null;
-        if (mCurrentLifecycle.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
-            mCurrentLifecycle = null;
-            throw new IllegalArgumentException("Cannot bind to lifecycle in a destroyed state.");
-        }
 
         if (mCameraProvider == null) {
             // try again once the camera provider is no longer null
@@ -493,6 +495,11 @@ final class CameraXModule {
 
             if (!toUnbind.isEmpty()) {
                 mCameraProvider.unbind(toUnbind.toArray((new UseCase[0])));
+            }
+
+            // Remove surface provider once unbound.
+            if (mPreview != null) {
+                mPreview.setSurfaceProvider(null);
             }
         }
         mCamera = null;
