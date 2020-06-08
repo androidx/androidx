@@ -67,6 +67,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.Handler;
@@ -255,7 +256,11 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             Intent service = new Intent(MediaRouteProviderProtocol.SERVICE_INTERFACE);
             service.setComponent(mComponentName);
             try {
-                mBound = getContext().bindService(service, this, Context.BIND_AUTO_CREATE);
+                int flags = Context.BIND_AUTO_CREATE;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    flags |= Context.BIND_INCLUDE_CAPABILITIES;
+                }
+                mBound = getContext().bindService(service, this, flags);
                 if (!mBound && DEBUG) {
                     Log.d(TAG, this + ": Bind failed");
                 }
