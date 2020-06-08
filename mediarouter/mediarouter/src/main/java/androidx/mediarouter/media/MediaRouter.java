@@ -97,8 +97,9 @@ import java.util.Set;
  *          appropriate for adding/removing routes from a group. This constant includes the
  *          <code>default</code> feature above.</li>
  *     <li><code>seamless_transfer</code>: Routes selection/controls can be done via System UI.
- *          Also, the transfer of media can be done seamlessly. Includes the
- *          <code>dynamic_group</code> feature above.</li>
+ *          Also, the transfer of media can be done seamlessly. Enabling this feature will make the
+ *          users be able to control the routing even outside of your app's activity.
+ *          Includes the <code>dynamic_group</code> feature above.</li>
  * </ol>
  * For example:
  * <pre class="prettyprint">{@code
@@ -881,7 +882,9 @@ public final class MediaRouter {
     }
 
     /**
-     * Returns whether the transfer is enabled.
+     * Returns whether the seamless transfer feature is enabled.
+     *
+     * @see MediaRouter
      */
     static boolean isTransferEnabled() {
         if (sGlobal == null) {
