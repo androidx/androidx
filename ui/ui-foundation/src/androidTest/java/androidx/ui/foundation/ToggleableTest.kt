@@ -16,6 +16,9 @@
 
 package androidx.ui.foundation
 
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
@@ -33,12 +36,17 @@ import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertIsNotEnabled
 import androidx.ui.test.assertIsOff
 import androidx.ui.test.assertIsOn
+import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
+import androidx.ui.test.doPartialGesture
 import androidx.ui.test.find
 import androidx.ui.test.findByTag
+import androidx.ui.test.findByText
 import androidx.ui.test.isToggleable
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.sendDown
+import androidx.ui.test.sendUp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -165,6 +173,81 @@ class ToggleableTest {
 
         runOnIdleCompose {
             assertThat(checked).isEqualTo(false)
+        }
+    }
+
+    @Test
+    fun toggleableTest_interactionState() {
+        val interactionState = InteractionState()
+
+        composeTestRule.setContent {
+            Stack {
+                Box(Modifier.toggleable(
+                    value = true,
+                    interactionState = interactionState,
+                    onValueChange = {}
+                )) {
+                    Text("ToggleableText")
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
+        }
+
+        findByText("ToggleableText")
+            .doPartialGesture { sendDown(center) }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).contains(Interaction.Pressed)
+        }
+
+        findByText("ToggleableText")
+            .doPartialGesture { sendUp() }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
+        }
+    }
+
+    @Test
+    fun toggleableTest_interactionState_resetWhenDisposed() {
+        val interactionState = InteractionState()
+        var emitToggleableText by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Stack {
+                if (emitToggleableText) {
+                    Box(Modifier.toggleable(
+                        value = true,
+                        interactionState = interactionState,
+                        onValueChange = {}
+                    )) {
+                        Text("ToggleableText")
+                    }
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
+        }
+
+        findByText("ToggleableText")
+            .doPartialGesture { sendDown(center) }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).contains(Interaction.Pressed)
+        }
+
+        // Dispose toggleable
+        runOnIdleCompose {
+            emitToggleableText = false
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
     }
 }
