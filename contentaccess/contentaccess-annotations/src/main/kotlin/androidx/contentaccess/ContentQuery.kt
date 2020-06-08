@@ -38,7 +38,7 @@ import kotlin.reflect.KClass
 annotation class ContentQuery(
     val query: String = "",
     val selection: String = "",
-    val orderBy: Array<String> = arrayOf(),
+    val orderBy: String = "",
     val uri: String = "",
     val contentEntity: KClass<*> = Void::class
 )

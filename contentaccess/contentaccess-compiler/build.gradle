@@ -41,7 +41,10 @@ dependencies {
     compileOnly(GRADLE_INCAP_HELPER)
     kapt(GRADLE_INCAP_HELPER_PROCESSOR)
     implementation(AUTO_COMMON)
-    implementation(JAVAPOET)
+    implementation(KOTLINPOET)
+    implementation(KOTLINPOET_METADATA)
+    implementation(KOTLINPOET_METADATA_SPECS)
+    implementation(KOTLINPOET_CLASSINSPECTOR_ELEMENTS)
 
     testImplementation(JUNIT)
     testImplementation(TRUTH)

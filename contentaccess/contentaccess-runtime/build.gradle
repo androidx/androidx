@@ -27,7 +27,7 @@ plugins {
 }
 
 dependencies {
-    
+    implementation(KOTLIN_STDLIB)
 }
 
 
