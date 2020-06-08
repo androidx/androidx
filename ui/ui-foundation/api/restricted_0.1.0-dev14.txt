@@ -380,10 +380,6 @@ package androidx.ui.foundation.shape {
     method public androidx.ui.graphics.Outline createOutline(androidx.ui.geometry.Size size, androidx.ui.unit.Density density);
   }
 
-  public final class RectangleShapeKt {
-    method @Deprecated public static androidx.ui.graphics.Shape getRectangleShape();
-  }
-
 }
 
 package androidx.ui.foundation.shape.corner {
