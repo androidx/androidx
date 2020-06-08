@@ -16,7 +16,6 @@
 
 package androidx.fragment.app.testing
 
-import android.os.Build
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -25,8 +24,8 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.hamcrest.CoreMatchers.not
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,19 +66,13 @@ class FragmentScenarioDialogFragmentTest {
             moveToState(State.CREATED)
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.CREATED)
-                assertThat(fragment.dialog).isNotNull()
-                if (Build.VERSION.SDK_INT >= 29) {
-                    assertThat(fragment.requireDialog().isShowing).isFalse()
-                } else {
-                    // Dialog#isShowing should've returned false but it returns true due to a
-                    // bug which was fixed by aosp/637304.
-                    assertThat(fragment.requireDialog().isShowing).isTrue()
-                }
+                assertWithMessage("The dialog should not exist when the Fragment is only CREATED")
+                    .that(fragment.dialog)
+                    .isNull()
             }
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun fromResumedToStarted() {
         with(launchFragment<SimpleDialogFragment>()) {
@@ -118,19 +111,13 @@ class FragmentScenarioDialogFragmentTest {
             moveToState(State.CREATED)
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.CREATED)
-                assertThat(fragment.dialog).isNotNull()
-                if (Build.VERSION.SDK_INT >= 29) {
-                    assertThat(fragment.requireDialog().isShowing).isFalse()
-                } else {
-                    // Dialog#isShowing should've returned false but it returns true due to a
-                    // bug which was fixed by aosp/637304.
-                    assertThat(fragment.requireDialog().isShowing).isTrue()
-                }
+                assertWithMessage("The dialog should not exist when the Fragment is only CREATED")
+                    .that(fragment.dialog)
+                    .isNull()
             }
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun fromCreatedToStarted() {
         with(launchFragment<SimpleDialogFragment>()) {
@@ -165,7 +152,6 @@ class FragmentScenarioDialogFragmentTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun fromStartedToCreated() {
         with(launchFragment<SimpleDialogFragment>()) {
@@ -173,19 +159,13 @@ class FragmentScenarioDialogFragmentTest {
             moveToState(State.CREATED)
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.CREATED)
-                assertThat(fragment.dialog).isNotNull()
-                if (Build.VERSION.SDK_INT >= 29) {
-                    assertThat(fragment.requireDialog().isShowing).isFalse()
-                } else {
-                    // Dialog#isShowing should've returned false but it returns true due to a
-                    // bug which was fixed by aosp/637304.
-                    assertThat(fragment.requireDialog().isShowing).isTrue()
-                }
+                assertWithMessage("The dialog should not exist when the Fragment is only CREATED")
+                    .that(fragment.dialog)
+                    .isNull()
             }
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun fromStartedToStarted() {
         with(launchFragment<SimpleDialogFragment>()) {
@@ -199,7 +179,6 @@ class FragmentScenarioDialogFragmentTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun fromStartedToResumed() {
         with(launchFragment<SimpleDialogFragment>()) {
@@ -213,7 +192,6 @@ class FragmentScenarioDialogFragmentTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun fromStartedToDestroyed() {
         with(launchFragment<SimpleDialogFragment>()) {
@@ -243,19 +221,13 @@ class FragmentScenarioDialogFragmentTest {
             assertThat(numOfInstantiation).isEqualTo(2)
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.CREATED)
-                assertThat(fragment.dialog).isNotNull()
-                if (Build.VERSION.SDK_INT >= 29) {
-                    assertThat(fragment.requireDialog().isShowing).isFalse()
-                } else {
-                    // Dialog#isShowing should've returned false but it returns true due to a
-                    // bug which was fixed by aosp/637304.
-                    assertThat(fragment.requireDialog().isShowing).isTrue()
-                }
+                assertWithMessage("The dialog should not exist when the Fragment is only CREATED")
+                    .that(fragment.dialog)
+                    .isNull()
             }
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // Moving to STARTED is not supported on pre-N devices.
     @Test
     fun recreateStartedFragment() {
         var numOfInstantiation = 0
