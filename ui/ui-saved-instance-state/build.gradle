@@ -25,35 +25,51 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-multiplatform")
 }
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
+}
 
-    implementation(KOTLIN_STDLIB)
+kotlin {
+    android()
+    sourceSets {
+        commonMain.dependencies {
+            implementation(KOTLIN_STDLIB_COMMON)
 
-    api "androidx.annotation:annotation:1.1.0"
+            api project(":compose:compose-runtime")
+            implementation project(":ui:ui-util")
 
-    api project(":compose:compose-runtime")
-    implementation project(":ui:ui-util")
+        }
 
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
+        androidMain.dependencies {
+            implementation(KOTLIN_STDLIB)
+            api "androidx.annotation:annotation:1.1.0"
+        }
 
-    androidTestImplementation project(':ui:ui-test')
-    androidTestImplementation project(':ui:ui-core')
-    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+
+        androidTest.dependencies {
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(JUNIT)
+            implementation(TRUTH)
+        }
+
+        androidAndroidTest.dependencies {
+            implementation project(':ui:ui-test')
+            implementation project(':ui:ui-core')
+            implementation(ANDROIDX_TEST_UIAUTOMATOR)
+            implementation(ANDROIDX_TEST_CORE)
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(ESPRESSO_CORE)
+            implementation(JUNIT)
+            implementation(TRUTH)
+            implementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+            implementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+        }
+    }
 }
 
 androidx {
