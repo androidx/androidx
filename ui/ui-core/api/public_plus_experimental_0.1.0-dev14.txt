@@ -657,7 +657,6 @@ package androidx.ui.core {
     method public void onRequestRelayout(androidx.ui.core.LayoutNode layoutNode);
     method public void onSemanticsChange();
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method public boolean processKeyInput(androidx.ui.core.keyinput.KeyEvent keyEvent);
     method public boolean requestFocus();
     method public void setOnSavedStateRegistryAvailable(kotlin.jvm.functions.Function1<? super androidx.ui.savedinstancestate.UiSavedStateRegistry,kotlin.Unit> callback);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @org.jetbrains.annotations.TestOnly public void setShowLayoutBounds(boolean p);
@@ -1689,9 +1688,6 @@ package androidx.ui.core.keyinput {
   }
 
   public final class KeyEvent {
-    method public int component1();
-    method public androidx.ui.core.keyinput.KeyEventType component2();
-    method public androidx.ui.core.keyinput.KeyEvent copy-x3VrOOY(int key, androidx.ui.core.keyinput.KeyEventType type);
     method public int getKey();
     method public androidx.ui.core.keyinput.KeyEventType getType();
   }
