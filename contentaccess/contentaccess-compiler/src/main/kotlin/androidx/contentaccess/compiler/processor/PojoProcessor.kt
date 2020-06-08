@@ -16,19 +16,12 @@
 
 package androidx.contentaccess.compiler.processor
 
-import androidx.contentaccess.ext.getAllFieldsIncludingPrivateSupers
-import asTypeElement
+import getOrderedConstructorParams
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeMirror
 
 class PojoProcessor(val typeMirror: TypeMirror, val processingEnv: ProcessingEnvironment) {
-    fun process(): Map<String, TypeMirror> {
-        val pojoFields = HashMap<String, TypeMirror>()
-        // TODO(obenabde): change this to only consider the constructor params
-        typeMirror.asTypeElement().getAllFieldsIncludingPrivateSupers(processingEnv).forEach {
-            field ->
-            pojoFields.put(field.simpleName.toString(), field.asType())
-        }
-        return pojoFields
+    fun process(): List<Pair<String, TypeMirror>> {
+        return typeMirror.getOrderedConstructorParams()
     }
 }
