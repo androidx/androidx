@@ -17,8 +17,8 @@
 package androidx.ui.foundation
 
 import android.app.Dialog
-import android.content.Context
 import android.view.MotionEvent
+import android.view.View
 import android.view.Window
 import android.widget.FrameLayout
 import androidx.compose.Composable
@@ -29,7 +29,8 @@ import androidx.compose.currentComposer
 import androidx.compose.onActive
 import androidx.compose.onCommit
 import androidx.compose.remember
-import androidx.ui.core.ContextAmbient
+import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.ui.core.ViewAmbient
 import androidx.ui.core.setContent
 import androidx.ui.foundation.semantics.dialog
 import androidx.ui.semantics.Semantics
@@ -50,12 +51,12 @@ import androidx.ui.semantics.Semantics
  */
 @Composable
 fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
-    val context = ContextAmbient.current
+    val view = ViewAmbient.current
 
     @OptIn(ExperimentalComposeApi::class)
     val recomposer = currentComposer.recomposer
     // The recomposer can't change.
-    val dialog = remember(context) { DialogWrapper(context, recomposer) }
+    val dialog = remember(view) { DialogWrapper(view, recomposer) }
     dialog.onCloseRequest = onCloseRequest
 
     onActive {
@@ -75,9 +76,9 @@ fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
 }
 
 private class DialogWrapper(
-    context: Context,
+    composeView: View,
     private val recomposer: Recomposer
-) : Dialog(context) {
+) : Dialog(composeView.context) {
     lateinit var onCloseRequest: () -> Unit
 
     private val frameLayout = FrameLayout(context)
@@ -87,6 +88,7 @@ private class DialogWrapper(
         window!!.requestFeature(Window.FEATURE_NO_TITLE)
         window!!.setBackgroundDrawableResource(android.R.color.transparent)
         setContentView(frameLayout)
+        ViewTreeLifecycleOwner.set(frameLayout, ViewTreeLifecycleOwner.get(composeView))
     }
 
     fun setContent(children: @Composable () -> Unit) {

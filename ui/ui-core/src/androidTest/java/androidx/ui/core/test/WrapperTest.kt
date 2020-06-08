@@ -28,11 +28,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.test.filters.SmallTest
-import androidx.ui.core.LifecycleOwnerAmbient
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -81,40 +79,6 @@ class WrapperTest {
         assertTrue(commitLatch.await(1, TimeUnit.SECONDS))
         assertEquals(1, composeWrapperCount)
         assertEquals(2, innerCount)
-    }
-
-    @Test
-    fun lifecycleOwnerIsAvailableInComponentActivity() {
-        val latch = CountDownLatch(1)
-        var owner: LifecycleOwner? = null
-
-        activityTestRule.runOnUiThread {
-            activity.setContent {
-                owner = LifecycleOwnerAmbient.current
-                latch.countDown()
-            }
-        }
-
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertNotNull(owner)
-    }
-
-    @Test
-    fun lifecycleOwnerIsAvailableWhenComposedIntoViewGroup() {
-        val latch = CountDownLatch(1)
-        var owner: LifecycleOwner? = null
-
-        activityTestRule.runOnUiThread {
-            val view = FrameLayout(activity)
-            activity.setContentView(view)
-            view.setContent(Recomposer.current()) {
-                owner = LifecycleOwnerAmbient.current
-                latch.countDown()
-            }
-        }
-
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertNotNull(owner)
     }
 
     @Test

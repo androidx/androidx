@@ -17,6 +17,8 @@
 package androidx.ui.tooling
 
 import androidx.compose.Composable
+import androidx.lifecycle.Lifecycle
+import androidx.ui.core.LifecycleOwnerAmbient
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.material.Surface
@@ -62,6 +64,16 @@ fun DefaultParametersPreview3(a: () -> Int = { 4 }, b: Int = 3, c: Data = Data()
     if (b != 3) throw IllegalArgumentException("Unexpected default value")
     if (c.name != "123") throw IllegalArgumentException("Unexpected default value")
     Text("Default parameter  ${a()} $b ${c.name}")
+}
+
+@Preview
+@Composable
+private fun LifecyclePreview() {
+    val lifecycleState = LifecycleOwnerAmbient.current.lifecycle.currentState
+    if (lifecycleState != Lifecycle.State.RESUMED) throw IllegalArgumentException(
+        "Lifecycle state is not resumed. $lifecycleState"
+    )
+    Text("Lifecycle is $lifecycleState")
 }
 
 class TestGroup {

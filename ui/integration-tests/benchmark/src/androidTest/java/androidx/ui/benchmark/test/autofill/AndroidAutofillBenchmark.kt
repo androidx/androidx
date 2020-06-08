@@ -18,7 +18,7 @@ package androidx.ui.benchmark.test.autofill
 
 import android.graphics.Rect
 import android.util.SparseArray
-import android.view.ViewGroup
+import android.view.View
 import android.view.autofill.AutofillValue
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
@@ -26,9 +26,10 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
 import androidx.ui.autofill.AutofillNode
 import androidx.test.filters.SdkSuppress
+import androidx.ui.autofill.AutofillTree
 import androidx.ui.autofill.AutofillType
-import androidx.ui.core.Owner
-import androidx.ui.core.OwnerAmbient
+import androidx.ui.core.AutofillTreeAmbient
+import androidx.ui.core.ViewAmbient
 import androidx.ui.test.createComposeRule
 import org.junit.Before
 import org.junit.Rule
@@ -46,15 +47,14 @@ class AndroidAutofillBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
-    private lateinit var owner: Owner
-    private lateinit var composeView: ViewGroup
+    private lateinit var autofillTree: AutofillTree
+    private lateinit var composeView: View
 
     @Before
     fun setup() {
         composeTestRule.setContent {
-            @Suppress("DEPRECATION") // Owner Ambient will be removed by b/139866476.
-            owner = OwnerAmbient.current
-            composeView = owner as ViewGroup
+            autofillTree = AutofillTreeAmbient.current
+            composeView = ViewAmbient.current
         }
     }
 
@@ -72,7 +72,7 @@ class AndroidAutofillBenchmark {
         val autofillValues = SparseArray<AutofillValue>().apply {
             append(autofillNode.id, AutofillValue.forText("Name"))
         }
-        owner.autofillTree += autofillNode
+        autofillTree += autofillNode
 
         // Assess.
         benchmarkRule.measureRepeated {

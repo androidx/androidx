@@ -39,9 +39,7 @@ import android.view.inputmethod.InputConnection
 import androidx.core.os.HandlerCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.ui.autofill.AndroidAutofill
 import androidx.ui.autofill.Autofill
@@ -50,6 +48,7 @@ import androidx.ui.autofill.performAutofill
 import androidx.ui.autofill.populateViewStructure
 import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
+import androidx.ui.core.AndroidOwner.ViewTreeOwners
 import androidx.ui.core.clipboard.AndroidClipboardManager
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.focus.FOCUS_TAG
@@ -107,7 +106,7 @@ fun AndroidOwner(
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 internal class AndroidComposeView constructor(
     context: Context,
-    lifecycleOwner: LifecycleOwner?
+    initialLifecycleOwner: LifecycleOwner?
 ) : ViewGroup(context), AndroidOwner {
 
     override val view: View = this
@@ -527,24 +526,24 @@ internal class AndroidComposeView constructor(
         }
     }
 
-    override var lifecycleOwner: LifecycleOwner? = lifecycleOwner
+    override var viewTreeOwners: ViewTreeOwners? =
+        if (initialLifecycleOwner != null) {
+            ViewTreeOwners(initialLifecycleOwner)
+        } else {
+            null
+        }
         private set
 
-    private var onLifecycleAvailable: ((LifecycleOwner) -> Unit)? = null
-
-    override fun setOnLifecycleOwnerAvailable(callback: (LifecycleOwner) -> Unit) {
-        require(lifecycleOwner == null) { "LifecycleOwner is already available" }
-        onLifecycleAvailable = callback
+    override fun setOnViewTreeOwnersAvailable(callback: (ViewTreeOwners) -> Unit) {
+        val viewTreeOwners = viewTreeOwners
+        if (viewTreeOwners != null) {
+            callback(viewTreeOwners)
+        } else {
+            onViewTreeOwnersAvailable = callback
+        }
     }
 
-    // Workaround for the cases when we don't have a real LifecycleOwner, this happens when
-    // ViewTreeLifecycleOwner.get(this) returned null:
-    // 1) we are in AppCompatActivity and there is a bug for(should be fixed soon)
-    // 2) we are in a regular Activity. once we fix bug in AppCompatActivity we stop support it.
-    private val viewLifecycleOwner = object : LifecycleOwner {
-        val lifecycleRegistry = LifecycleRegistry(this)
-        override fun getLifecycle() = lifecycleRegistry
-    }
+    private var onViewTreeOwnersAvailable: ((ViewTreeOwners) -> Unit)? = null
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -552,12 +551,17 @@ internal class AndroidComposeView constructor(
         modelObserver.enableModelUpdatesObserving(true)
         ifDebug { if (autofillSupported()) _autofill?.registerCallback() }
         root.attach(this)
-        if (lifecycleOwner == null) {
-            lifecycleOwner = ViewTreeLifecycleOwner.get(this) ?: viewLifecycleOwner
+
+        if (viewTreeOwners == null) {
+            val lifecycleOwner = ViewTreeLifecycleOwner.get(this) ?: throw IllegalStateException(
+                "Composed into the View which doesn't propagate ViewTreeLifecycleOwner!"
+            )
+            val viewTreeOwners = ViewTreeOwners(
+                lifecycleOwner = lifecycleOwner
+            )
+            this.viewTreeOwners = viewTreeOwners
+            onViewTreeOwnersAvailable?.invoke(viewTreeOwners)
         }
-        onLifecycleAvailable?.invoke(lifecycleOwner!!)
-        onLifecycleAvailable = null
-        viewLifecycleOwner.lifecycleRegistry.currentState = Lifecycle.State.RESUMED
     }
 
     override fun onDetachedFromWindow() {
@@ -565,7 +569,6 @@ internal class AndroidComposeView constructor(
         modelObserver.enableModelUpdatesObserving(false)
         ifDebug { if (autofillSupported()) _autofill?.unregisterCallback() }
         root.detach()
-        viewLifecycleOwner.lifecycleRegistry.currentState = Lifecycle.State.CREATED
     }
 
     override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {

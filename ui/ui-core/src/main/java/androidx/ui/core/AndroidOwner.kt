@@ -50,15 +50,16 @@ interface AndroidOwner : Owner {
     var configurationChangeObserver: () -> Unit
 
     /**
-     * The [LifecycleOwner] associated with this owner. If it's null you can wait for it to became
-     * available using [setOnLifecycleOwnerAvailable].
+     * Current [ViewTreeOwners]. Use [setOnViewTreeOwnersAvailable] if you want to
+     * execute your code when the object will be created.
      */
-    val lifecycleOwner: LifecycleOwner?
+    val viewTreeOwners: ViewTreeOwners?
 
     /**
-     * Allows other components to be notified when the [lifecycleOwner] became available.
+     * The callback to be executed when [viewTreeOwners] is created and not-null anymore.
+     * Note that this callback will be fired inline when it is already available
      */
-    fun setOnLifecycleOwnerAvailable(callback: (LifecycleOwner) -> Unit)
+    fun setOnViewTreeOwnersAvailable(callback: (ViewTreeOwners) -> Unit)
 
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -72,4 +73,17 @@ interface AndroidOwner : Owner {
             @TestOnly
             set
     }
+
+    /**
+     * Combines objects populated via ViewTree*Owner
+     */
+    class ViewTreeOwners(
+        /**
+         * The [LifecycleOwner] associated with this owner.
+         */
+        val lifecycleOwner: LifecycleOwner
+        // TODO: Add these two items here as well
+        // val savedStateRegistry: UiSavedStateRegistry,
+        // val viewModelStoreOwner: ViewTreeViewModelStoreOwner
+    )
 }
