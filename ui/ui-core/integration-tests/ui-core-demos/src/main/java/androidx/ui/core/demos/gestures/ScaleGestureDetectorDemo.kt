@@ -50,8 +50,8 @@ fun ScaleGestureFilterDemo() {
         Box(
             Modifier.fillMaxSize()
                 .wrapContentSize(Alignment.Center)
-                .scaleGestureFilter(scaleObserver)
-                .preferredSize(size.value),
+                .preferredSize(size.value)
+                .scaleGestureFilter(scaleObserver),
             backgroundColor = Color(0xFF9e9e9e.toInt())
         )
     }

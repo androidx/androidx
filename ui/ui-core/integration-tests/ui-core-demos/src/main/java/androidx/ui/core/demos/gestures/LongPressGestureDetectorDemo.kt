@@ -47,8 +47,8 @@ fun LongPressGestureDetectorDemo() {
         Box(
             Modifier.fillMaxSize()
                 .wrapContentSize(Alignment.Center)
-                .longPressGestureFilter(onLongPress)
-                .preferredSize(192.dp),
+                .preferredSize(192.dp)
+                .longPressGestureFilter(onLongPress),
             backgroundColor = color.value,
             border = Border(2.dp, BorderColor)
         )

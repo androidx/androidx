@@ -141,14 +141,11 @@ internal abstract class LayoutNodeWrapper(
      * the device screen.
      * @param hitPointerInputFilters The collection that the hit [PointerInputFilter]s will be
      * added to if hit.
-     *
-     * @return True if any [PointerInputFilter]s were hit and thus added to
-     * [hitPointerInputFilters].
      */
     abstract fun hitTest(
         pointerPositionRelativeToScreen: Offset,
         hitPointerInputFilters: MutableList<PointerInputFilter>
-    ): Boolean
+    )
 
     override fun childToLocal(child: LayoutCoordinates, childLocal: Offset): Offset {
         check(isAttached) { ExpectAttachedLayoutCoordinates }

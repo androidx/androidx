@@ -650,18 +650,12 @@ class LayoutNode : Measurable {
      * the device screen.
      * @param hitPointerInputFilters The collection that the hit [PointerInputFilter]s will be
      * added to if hit.
-     *
-     * @return True if any [PointerInputFilter]s were hit and thus added to
-     * [hitPointerInputFilters].
      */
     fun hitTest(
         pointerPositionRelativeToScreen: Offset,
         hitPointerInputFilters: MutableList<PointerInputFilter>
-    ): Boolean {
-        return outerLayoutNodeWrapper.hitTest(
-            pointerPositionRelativeToScreen,
-            hitPointerInputFilters
-        )
+    ) {
+        outerLayoutNodeWrapper.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
     }
 
     /**

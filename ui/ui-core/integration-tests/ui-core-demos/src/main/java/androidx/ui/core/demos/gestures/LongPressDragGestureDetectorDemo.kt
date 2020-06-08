@@ -74,8 +74,8 @@ fun LongPressDragGestureFilterDemo() {
             Modifier.offset(offsetX, offsetY)
                 .fillMaxSize()
                 .wrapContentSize(Alignment.Center)
-                .longPressDragGestureFilter(longPressDragObserver)
-                .preferredSize(96.dp),
+                .preferredSize(192.dp)
+                .longPressDragGestureFilter(longPressDragObserver),
             backgroundColor = color.value
         )
     }

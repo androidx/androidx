@@ -59,8 +59,8 @@ fun PressIndicatorGestureFilterDemo() {
         Box(
             Modifier.fillMaxSize()
                 .wrapContentSize(Alignment.Center)
-                .pressIndicatorGestureFilter(onStart, onStop, onStop)
-                .preferredSize(192.dp),
+                .preferredSize(192.dp)
+                .pressIndicatorGestureFilter(onStart, onStop, onStop),
             backgroundColor = color,
             border = Border(2.dp, BorderColor)
         )

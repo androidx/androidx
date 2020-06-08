@@ -18,6 +18,8 @@ package androidx.ui.core
 
 import android.graphics.Matrix
 import android.graphics.RectF
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.geometry.Offset
@@ -132,5 +134,31 @@ internal class LayerWrapper(
         val matrix = layer.getMatrix()
         matrix.mapRect(bounds)
         return super.rectInParent(bounds)
+    }
+
+    override fun hitTest(
+        pointerPositionRelativeToScreen: Offset,
+        hitPointerInputFilters: MutableList<PointerInputFilter>
+    ) {
+        if (modifier.clip) {
+            val l = globalPosition.x
+            val t = globalPosition.y
+            val r = l + width.value
+            val b = t + height.value
+
+            val localBoundsRelativeToScreen = Rect(l, t, r, b)
+            if (!localBoundsRelativeToScreen.contains(pointerPositionRelativeToScreen)) {
+                // If we should clip pointer input hit testing to our bounds, and the pointer is
+                // not in our bounds, then return false now.
+                return
+            }
+        }
+
+        // If we are here, either we aren't clipping to bounds or we are and the pointer was in
+        // bounds.
+        super.hitTest(
+            pointerPositionRelativeToScreen,
+            hitPointerInputFilters
+        )
     }
 }
