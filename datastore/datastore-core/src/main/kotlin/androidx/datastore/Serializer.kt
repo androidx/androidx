@@ -16,8 +16,6 @@
 
 package androidx.datastore
 
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -28,27 +26,17 @@ import java.io.OutputStream
  * The type T MUST be immutable. Mutable types will result in broken DataStore functionality.
  *
  * TODO(b/151635324): consider changing InputStream to File.
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
 interface Serializer<T> {
 
-    /** Unmarshal object from stream. */
+    /**
+     * Unmarshal object from stream. This must be able to handle an empty input stream - which is
+     * passed in as a default value.
+     */
     fun readFrom(input: InputStream): T
 
     /** Marshal object to a stream. */
     fun writeTo(t: T, output: OutputStream)
-
-    /**
-     * The initial value of the serialized object. This value be returned if the file does
-     * not yet exist on disk.
-     */
-    val defaultValue: T
-
-    /**
-     * The extension required for files that this serializer can act on.
-     */
-    val fileExtension: String
 }
 
 /**

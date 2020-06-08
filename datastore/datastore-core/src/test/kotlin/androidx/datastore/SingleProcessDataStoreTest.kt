@@ -62,7 +62,7 @@ class SingleProcessDataStoreTest {
     @Before
     fun setUp() {
         serializer = TestingSerializer()
-        testFile = tempFolder.newFile("test_file." + serializer.fileExtension)
+        testFile = tempFolder.newFile()
         dataStoreScope = TestCoroutineScope(TestCoroutineDispatcher() + Job())
         store =
             SingleProcessDataStore<Byte>({ testFile }, serializer, scope = dataStoreScope)
@@ -175,7 +175,7 @@ class SingleProcessDataStoreTest {
     @Test
     fun testWriteToNonExistentDir() = runBlockingTest {
         val fileInNonExistentDir =
-            File(tempFolder.newFolder(), "/this/does/not/exist/foo." + serializer.fileExtension)
+            File(tempFolder.newFolder(), "/this/does/not/exist/foo.tst")
         var newStore = newDataStore(fileInNonExistentDir)
 
         newStore.updateData { 1 }
@@ -187,26 +187,21 @@ class SingleProcessDataStoreTest {
     }
 
     @Test
+    fun testReadFromNonExistentFile() = runBlockingTest {
+        assertThat(testFile.delete()).isTrue()
+        val newStore = newDataStore(testFile)
+        assertThat(newStore.data.first()).isEqualTo(0)
+    }
+
+    @Test
     fun testWriteToDirFails() = runBlockingTest {
         val directoryFile =
-            File(tempFolder.newFolder(), "/this/is/a/directory." + serializer.fileExtension)
+            File(tempFolder.newFolder(), "/this/is/a/directory")
         directoryFile.mkdirs()
         assertThat(directoryFile.isDirectory)
 
         val newStore = newDataStore(directoryFile)
         assertThrows<IOException> { newStore.data.first() }
-    }
-
-    @Test
-    fun testIncorrectFileExtension() = runBlockingTest {
-        val badExtensionFile =
-            File(tempFolder.newFile().absolutePath + "/file/with.incorrect_extension")
-
-        val newStore = newDataStore(badExtensionFile)
-        assertThrows<IllegalStateException> { newStore.data.first() }.hasMessageThat()
-            .contains("does not match required extension for serializer")
-        assertThrows<IllegalStateException> { newStore.updateData { 1 } }.hasMessageThat()
-            .contains("does not match required extension for serializer")
     }
 
     @Test

@@ -27,15 +27,13 @@ import java.io.OutputStream
 /** Serializer for using DataStore with protos. */
 internal class ProtoSerializer<T : MessageLite>(
     /** The default proto of this type, obtained via {@code T.getDefaultInstance()} */
-    override val defaultValue: T,
+    private val defaultValue: T,
     /**
      *  Set the extensionRegistryLite to use when deserializing T. If no extension registry is
      *  necessary, use {@code ExtensionRegistryLite.getEmptyRegistry()}.
      */
     private val extensionRegistryLite: ExtensionRegistryLite
 ) : Serializer<T> {
-
-    override val fileExtension = "pb"
 
     @Suppress("UNCHECKED_CAST")
     override fun readFrom(input: InputStream): T {
