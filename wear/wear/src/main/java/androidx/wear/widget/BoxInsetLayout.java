@@ -428,7 +428,11 @@ public class BoxInsetLayout extends ViewGroup {
             super(context, attrs);
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.BoxInsetLayout_Layout,
                     0, 0);
-            boxedEdges = a.getInt(R.styleable.BoxInsetLayout_Layout_boxedEdges, BOX_NONE);
+            int boxedEdgesResourceKey = R.styleable.BoxInsetLayout_Layout_layout_boxedEdges;
+            if (!a.hasValueOrEmpty(R.styleable.BoxInsetLayout_Layout_layout_boxedEdges)){
+                boxedEdgesResourceKey = R.styleable.BoxInsetLayout_Layout_boxedEdges;
+            }
+            boxedEdges = a.getInt(boxedEdgesResourceKey, BOX_NONE);
             a.recycle();
         }
 
