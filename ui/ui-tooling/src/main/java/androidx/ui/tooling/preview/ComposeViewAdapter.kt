@@ -29,6 +29,10 @@ import androidx.compose.Composition
 import androidx.compose.Providers
 import androidx.compose.Recomposer
 import androidx.compose.currentComposer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.setContent
@@ -269,6 +273,7 @@ internal class ComposeViewAdapter : FrameLayout {
         debugViewInfos: Boolean = false,
         animationClockStartTime: Long = -1
     ) {
+        ViewTreeLifecycleOwner.set(this, FakeLifecycleOwner)
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
 
@@ -360,5 +365,13 @@ internal class ComposeViewAdapter : FrameLayout {
             ),
             animationClockStartTime = animationClockStartTime
         )
+    }
+
+    private val FakeLifecycleOwner = object : LifecycleOwner {
+        val lifecycleRegistry = LifecycleRegistry(this).apply {
+            currentState = Lifecycle.State.RESUMED
+        }
+
+        override fun getLifecycle() = lifecycleRegistry
     }
 }

@@ -157,18 +157,14 @@ fun Popup(
     onDismissRequest: (() -> Unit)? = null,
     children: @Composable () -> Unit
 ) {
-    val context = ContextAmbient.current
-    // TODO(b/139866476): Decide if we want to expose the AndroidComposeView
-    @Suppress("DEPRECATION")
-    val owner = OwnerAmbient.current
+    val view = ViewAmbient.current
     val providedTestTag = PopupTestTagAmbient.current
 
     val popupPositionProperties = remember { PopupPositionProperties() }
     val popupLayout = remember(isFocusable) {
         escapeCompose {
             PopupLayout(
-                context = context,
-                composeView = owner as View,
+                composeView = view,
                 popupIsFocusable = isFocusable,
                 onDismissRequest = onDismissRequest,
                 popupPositionProperties = popupPositionProperties,
@@ -261,7 +257,6 @@ private inline fun SimpleStack(modifier: Modifier, noinline children: @Composabl
 /**
  * The layout the popup uses to display its content.
  *
- * @param context The application context.
  * @param composeView The parent view of the popup which is the AndroidComposeView.
  * @param popupIsFocusable Indicates if the popup can grab the focus.
  * @param onDismissRequest Executed when the popup tries to dismiss itself.
@@ -269,21 +264,22 @@ private inline fun SimpleStack(modifier: Modifier, noinline children: @Composabl
  */
 @SuppressLint("ViewConstructor")
 private class PopupLayout(
-    context: Context,
     val composeView: View,
     val popupIsFocusable: Boolean,
     val onDismissRequest: (() -> Unit)? = null,
     var popupPositionProperties: PopupPositionProperties,
     var popupPositionProvider: PopupPositionProvider,
     var testTag: String
-) : FrameLayout(context) {
-    val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+) : FrameLayout(composeView.context) {
+    val windowManager =
+        composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     val params = createLayoutParams()
     var viewAdded: Boolean = false
 
     init {
         id = android.R.id.content
         updateLayoutParams()
+        ViewTreeLifecycleOwner.set(this, ViewTreeLifecycleOwner.get(composeView))
     }
 
     /**
@@ -303,7 +299,6 @@ private class PopupLayout(
 
         if (!viewAdded) {
             windowManager.addView(this, params)
-            ViewTreeLifecycleOwner.set(this, ViewTreeLifecycleOwner.get(composeView))
             viewAdded = true
         } else {
             windowManager.updateViewLayout(this, params)

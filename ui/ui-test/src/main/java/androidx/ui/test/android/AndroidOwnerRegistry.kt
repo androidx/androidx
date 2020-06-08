@@ -68,11 +68,7 @@ internal object AndroidOwnerRegistry {
      */
     fun getOwners(): Set<AndroidOwner> {
         return owners.filterTo(mutableSetOf()) {
-            // lifecycleOwner can only be null if it.view is not yet attached, and since owners
-            // are only in the registry when they're attached we don't care about the
-            // lifecycleOwner being null.
-            val lifecycleOwner = it.lifecycleOwner ?: return@filterTo false
-            lifecycleOwner.lifecycle.currentState == Lifecycle.State.RESUMED
+            it.viewTreeOwners?.lifecycleOwner?.lifecycle?.currentState == Lifecycle.State.RESUMED
         }
     }
 

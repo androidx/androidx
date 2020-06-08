@@ -16,8 +16,8 @@
 
 package androidx.ui.tooling
 
+import android.app.Activity
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.ui.tooling.preview.ComposeViewAdapter
 import androidx.ui.tooling.preview.ViewInfo
 import androidx.ui.tooling.test.R
@@ -168,8 +168,16 @@ class ComposeViewAdapterTest {
         )
     }
 
+    @Test
+    fun lifecycleUsedInsidePreview() {
+        assertRendersCorrectly(
+            "androidx.ui.tooling.SimpleComposablePreviewKt",
+            "LifecyclePreview"
+        )
+    }
+
     companion object {
-        class TestActivity : ComponentActivity() {
+        class TestActivity : Activity() {
             override fun onCreate(savedInstanceState: Bundle?) {
                 super.onCreate(savedInstanceState)
                 setContentView(R.layout.compose_adapter_test)

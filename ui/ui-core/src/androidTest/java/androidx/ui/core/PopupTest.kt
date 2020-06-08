@@ -79,8 +79,7 @@ class PopupTest {
 
             composeTestRule.setContent {
                 // Get the compose view position on screen
-                @Suppress("DEPRECATION")
-                val composeView = OwnerAmbient.current as View
+                val composeView = ViewAmbient.current
                 val positionArray = IntArray(2)
                 composeView.getLocationOnScreen(positionArray)
                 composeViewAbsolutePosition = IntPxPosition(

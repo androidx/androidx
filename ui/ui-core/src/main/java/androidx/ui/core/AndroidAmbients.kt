@@ -18,6 +18,7 @@ package androidx.ui.core
 
 import android.content.Context
 import android.content.res.Configuration
+import android.view.View
 import androidx.compose.Composable
 import androidx.compose.NeverEqual
 import androidx.compose.Providers
@@ -48,12 +49,9 @@ val ContextAmbient = staticAmbientOf<Context>()
 val LifecycleOwnerAmbient = staticAmbientOf<LifecycleOwner>()
 
 /**
- * Don't use this
- * @suppress
+ * The ambient containing the current Compose [View].
  */
-// TODO(b/139866476): The Owner should not be exposed via ambient
-@Deprecated(message = "This will be removed as of b/139866476")
-val OwnerAmbient = staticAmbientOf<Owner>()
+val ViewAmbient = staticAmbientOf<View>()
 
 @Composable
 internal fun ProvideAndroidAmbients(owner: AndroidOwner, content: @Composable () -> Unit) {
@@ -71,13 +69,15 @@ internal fun ProvideAndroidAmbients(owner: AndroidOwner, content: @Composable ()
     }
 
     val uriHandler = remember { AndroidUriHandler(context) }
+    val viewTreeOwners = owner.viewTreeOwners ?: throw IllegalStateException(
+        "Called when the ViewTreeOwnersAvailability is not yet in Available state"
+    )
 
     Providers(
         ConfigurationAmbient provides configuration,
         ContextAmbient provides context,
-        LifecycleOwnerAmbient provides requireNotNull(owner.lifecycleOwner),
-        @Suppress("DEPRECATION")
-        OwnerAmbient provides owner
+        LifecycleOwnerAmbient provides viewTreeOwners.lifecycleOwner,
+        ViewAmbient provides owner.view
     ) {
         ProvideCommonAmbients(
             owner = owner,
