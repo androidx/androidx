@@ -21,10 +21,12 @@ import androidx.ui.core.AndroidOwner
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Rect
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.unit.PxBounds
 import androidx.ui.unit.height
+import androidx.ui.unit.toRect
 import androidx.ui.unit.width
 
 /**
@@ -315,22 +317,32 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
     return (globalRect.width > 0f && globalRect.height > 0f)
 }
 
+private fun SemanticsNode.nodeBoundsInWindow(): Rect {
+    val composeView = (componentNode.owner as AndroidOwner).view
+    val rootLocationInWindow = intArrayOf(0, 0).let {
+        composeView.getLocationInWindow(it)
+        Offset(it[0].toFloat(), it[1].toFloat())
+    }
+    return boundsInRoot.toRect().shift(rootLocationInWindow)
+}
+
 private fun SemanticsNode.isInScreenBounds(): Boolean {
-    val nodeBounds = globalBounds
-    if (nodeBounds.width == 0f && nodeBounds.height == 0f) {
+    val composeView = (componentNode.owner as AndroidOwner).view
+
+    // Window relative bounds of our node
+    val nodeBoundsInWindow = nodeBoundsInWindow()
+    if (nodeBoundsInWindow.width == 0f || nodeBoundsInWindow.height == 0f) {
         return false
     }
 
-    val displayMetrics = (componentNode.owner as AndroidOwner).view.resources.displayMetrics
-    val screenBounds = PxBounds(
-        left = 0f,
-        top = 0f,
-        right = displayMetrics.widthPixels.toFloat(),
-        bottom = displayMetrics.heightPixels.toFloat()
-    )
+    // Window relative bounds of our compose root view that are visible on the screen
+    val globalRootRect = android.graphics.Rect()
+    if (!composeView.getGlobalVisibleRect(globalRootRect)) {
+        return false
+    }
 
-    return nodeBounds.top >= screenBounds.top &&
-            nodeBounds.left >= screenBounds.left &&
-            nodeBounds.right <= screenBounds.right &&
-            nodeBounds.bottom <= screenBounds.bottom
+    return nodeBoundsInWindow.top >= globalRootRect.top &&
+            nodeBoundsInWindow.left >= globalRootRect.left &&
+            nodeBoundsInWindow.right <= globalRootRect.right &&
+            nodeBoundsInWindow.bottom <= globalRootRect.bottom
 }
