@@ -18,7 +18,14 @@ package androidx.sqlite.inspection;
 
 import static android.database.DatabaseUtils.getSqlStatementType;
 
+import static androidx.sqlite.inspection.DatabaseExtensions.isAttemptAtUsingClosedDatabase;
 import static androidx.sqlite.inspection.SqliteInspectionExecutors.directExecutor;
+import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_DB_CLOSED_DURING_OPERATION;
+import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_ISSUE_WITH_PROCESSING_NEW_DATABASE_CONNECTION;
+import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_ISSUE_WITH_PROCESSING_QUERY;
+import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID;
+import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_UNKNOWN;
+import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_UNRECOGNISED_COMMAND;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
@@ -47,6 +54,7 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseClosedEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabasePossiblyChangedEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredResponse;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorRecoverability;
@@ -208,8 +216,8 @@ final class SqliteInspector extends Inspector {
                         createErrorOccurredResponse(
                                 "Unrecognised command type: " + command.getOneOfCase().name(),
                                 null,
-                                true
-                        ).toByteArray());
+                                true,
+                                ERROR_UNRECOGNISED_COMMAND).toByteArray());
             }
         } catch (Exception exception) {
             callback.reply(
@@ -217,8 +225,8 @@ final class SqliteInspector extends Inspector {
                             "Unhandled Exception while processing the command: "
                                     + exception.getMessage(),
                             stackTraceFromException(exception),
-                            null
-                    ).toByteArray()
+                            null,
+                            ERROR_UNKNOWN).toByteArray()
             );
         }
     }
@@ -292,7 +300,8 @@ final class SqliteInspector extends Inspector {
                                         "Unhandled Exception while processing an onDatabaseAdded "
                                                 + "event: "
                                                 + exception.getMessage(),
-                                        stackTraceFromException(exception), null)
+                                        stackTraceFromException(exception), null,
+                                        ERROR_ISSUE_WITH_PROCESSING_NEW_DATABASE_CONNECTION)
                                         .toByteArray());
                             }
                             return database;
@@ -489,14 +498,25 @@ final class SqliteInspector extends Inspector {
                             .toByteArray()
                     );
                     triggerInvalidation(command.getQuery());
-                } catch (SQLiteException | IllegalArgumentException exception) {
-                    callback.reply(createErrorOccurredResponse(exception, true).toByteArray());
+                } catch (SQLiteException | IllegalArgumentException e) {
+                    callback.reply(createErrorOccurredResponse(e, true,
+                            ERROR_ISSUE_WITH_PROCESSING_QUERY).toByteArray());
+                } catch (IllegalStateException e) {
+                    if (isAttemptAtUsingClosedDatabase(e)) {
+                        callback.reply(createErrorOccurredResponse(e, true,
+                                ERROR_DB_CLOSED_DURING_OPERATION).toByteArray());
+                    } else {
+                        callback.reply(createErrorOccurredResponse(e, null,
+                                ERROR_UNKNOWN).toByteArray());
+                    }
+                } catch (Exception e) {
+                    callback.reply(createErrorOccurredResponse(e, null,
+                            ERROR_UNKNOWN).toByteArray());
                 } finally {
                     if (cursor != null) {
                         cursor.close();
                     }
                 }
-
             }
         });
         callback.addCancellationListener(directExecutor(), new Runnable() {
@@ -628,7 +648,8 @@ final class SqliteInspector extends Inspector {
     private void replyNoDatabaseWithId(CommandCallback callback, int databaseId) {
         String message = String.format("Unable to perform an operation on database (id=%s)."
                 + " The database may have already been closed.", databaseId);
-        callback.reply(createErrorOccurredResponse(message, null, true).toByteArray());
+        callback.reply(createErrorOccurredResponse(message, null, true,
+                ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID).toByteArray());
     }
 
     private @NonNull Response querySchema(SQLiteDatabase database) {
@@ -679,6 +700,17 @@ final class SqliteInspector extends Inspector {
             }
 
             return Response.newBuilder().setGetSchema(schemaBuilder.build()).build();
+        } catch (IllegalStateException e) {
+            if (isAttemptAtUsingClosedDatabase(e)) {
+                return createErrorOccurredResponse(e, true,
+                        ERROR_DB_CLOSED_DURING_OPERATION);
+            } else {
+                return createErrorOccurredResponse(e, null,
+                        ERROR_UNKNOWN);
+            }
+        } catch (Exception e) {
+            return createErrorOccurredResponse(e, null,
+                    ERROR_UNKNOWN);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -698,19 +730,20 @@ final class SqliteInspector extends Inspector {
     }
 
     private Event createErrorOccurredEvent(@Nullable String message, @Nullable String stackTrace,
-            Boolean isRecoverable) {
+            Boolean isRecoverable, ErrorCode errorCode) {
         return Event.newBuilder().setErrorOccurred(
                 ErrorOccurredEvent.newBuilder()
                         .setContent(
                                 createErrorContentMessage(message,
                                         stackTrace,
-                                        isRecoverable))
+                                        isRecoverable,
+                                        errorCode))
                         .build())
                 .build();
     }
 
     private static ErrorContent createErrorContentMessage(@Nullable String message,
-            @Nullable String stackTrace, Boolean isRecoverable) {
+            @Nullable String stackTrace, Boolean isRecoverable, ErrorCode errorCode) {
         ErrorContent.Builder builder = ErrorContent.newBuilder();
         if (message != null) {
             builder.setMessage(message);
@@ -723,22 +756,23 @@ final class SqliteInspector extends Inspector {
             recoverability.setIsRecoverable(isRecoverable);
         }
         builder.setRecoverability(recoverability.build());
+        builder.setErrorCode(errorCode);
         return builder.build();
     }
 
     private static Response createErrorOccurredResponse(@NonNull Exception exception,
-            Boolean isRecoverable) {
+            Boolean isRecoverable, ErrorCode errorCode) {
         return createErrorOccurredResponse(exception.getMessage(),
-                stackTraceFromException(exception), isRecoverable);
+                stackTraceFromException(exception), isRecoverable, errorCode);
     }
 
     private static Response createErrorOccurredResponse(@Nullable String message,
-            @Nullable String stackTrace, Boolean isRecoverable) {
+            @Nullable String stackTrace, Boolean isRecoverable, ErrorCode errorCode) {
         return Response.newBuilder()
                 .setErrorOccurred(
                         ErrorOccurredResponse.newBuilder()
                                 .setContent(createErrorContentMessage(message, stackTrace,
-                                        isRecoverable)))
+                                        isRecoverable, errorCode)))
                 .build();
     }
 

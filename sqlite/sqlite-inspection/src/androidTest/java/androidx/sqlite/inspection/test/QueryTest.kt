@@ -19,6 +19,8 @@ package androidx.sqlite.inspection.test
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue
+import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_ISSUE_WITH_PROCESSING_QUERY_VALUE
+import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID_VALUE
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryResponse
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Row
 import androidx.sqlite.inspection.test.MessageFactory.createGetSchemaCommand
@@ -126,6 +128,9 @@ class QueryTest {
                 assertThat(error.message).contains("The database may have already been closed.")
                 assertThat(error.stackTrace).isEqualTo("")
                 assertThat(error.recoverability.isRecoverable).isEqualTo(true)
+                assertThat(error.errorCodeValue).isEqualTo(
+                    ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID_VALUE
+                )
             }
     }
 
@@ -145,6 +150,7 @@ class QueryTest {
         assertThat(error.stackTrace).contains("SQLiteConnection.nativePrepareStatement")
         assertThat(error.stackTrace).contains("SQLiteDatabase.rawQueryWithFactory")
         assertThat(error.recoverability.isRecoverable).isEqualTo(true)
+        assertThat(error.errorCodeValue).isEqualTo(ERROR_ISSUE_WITH_PROCESSING_QUERY_VALUE)
     }
 
     @Test
@@ -163,6 +169,7 @@ class QueryTest {
         assertThat(error.stackTrace).contains("SQLiteDirectCursorDriver.query")
         assertThat(error.stackTrace).contains("SQLiteProgram.bind")
         assertThat(error.recoverability.isRecoverable).isEqualTo(true)
+        assertThat(error.errorCodeValue).isEqualTo(ERROR_ISSUE_WITH_PROCESSING_QUERY_VALUE)
     }
 
     @Test
