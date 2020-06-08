@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-package android.os
+package android.view
 
-import javax.swing.SwingUtilities
-
-public class Handler() {
-    constructor(looper: Looper, callback: Handler.Callback) : this()
-
-    constructor(looper: Looper, callback: Callback, async: Boolean) : this()
-
-    interface Callback {
-        fun handleMessage(msg: Message): Boolean
+class ViewConfiguration {
+    companion object {
+        @JvmStatic
+        fun getScrollFriction(): Float = 0.015f
     }
-    val looper = Looper()
-    fun post(runnable: Runnable): Boolean {
-        SwingUtilities.invokeLater(runnable)
-        return true
-    }
-
-    fun removeMessages(what: Int) {}
-
-    fun sendEmptyMessage(what: Int): Boolean = true
 }

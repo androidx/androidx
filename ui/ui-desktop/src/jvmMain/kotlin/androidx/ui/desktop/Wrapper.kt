@@ -96,22 +96,18 @@ private class Renderer(
 
     override fun onMouseClicked(x: Int, y: Int, modifiers: Int) {}
 
-    override fun onMousePressed(x: Int, y: Int, awtModifiers: Int) {
+    override fun onMousePressed(x: Int, y: Int, modifiers: Int) {
         view.dispatchTouchEvent(
-            MotionEvent(x, y, MotionEvent.ACTION_DOWN or modifiers(awtModifiers)))
+            MotionEvent(x, y, MotionEvent.ACTION_DOWN))
     }
 
-    override fun onMouseReleased(x: Int, y: Int, awtModifiers: Int) {
-        view.dispatchTouchEvent(MotionEvent(x, y, MotionEvent.ACTION_UP or modifiers(awtModifiers)))
+    override fun onMouseReleased(x: Int, y: Int, modifiers: Int) {
+        view.dispatchTouchEvent(MotionEvent(x, y, MotionEvent.ACTION_UP))
     }
 
-    override fun onMouseDragged(x: Int, y: Int, awtModifiers: Int) {
+    override fun onMouseDragged(x: Int, y: Int, modifiers: Int) {
         view.dispatchTouchEvent(MotionEvent(x, y,
-            MotionEvent.ACTION_MOVE or modifiers(awtModifiers)))
-    }
-
-    private fun modifiers(awtModifiers: Int): Int {
-        return 0
+            MotionEvent.ACTION_MOVE))
     }
 
     override fun onKeyPressed(code: Int, char: Char) {
