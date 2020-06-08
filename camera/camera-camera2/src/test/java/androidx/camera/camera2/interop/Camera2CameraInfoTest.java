@@ -21,11 +21,14 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
-import androidx.camera.core.CameraInfo;
+import androidx.camera.core.Camera;
+import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.testing.fakes.FakeCamera;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -42,21 +45,49 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public final class Camera2CameraInfoTest {
 
     @Test
-    public void canExtractId_fromCamera2CameraInfo() {
+    public void canGetId_fromCamera2CameraInfo() {
         String cameraId = "42";
         Camera2CameraInfoImpl impl = mock(Camera2CameraInfoImpl.class);
         when(impl.getCameraId()).thenAnswer(ignored -> cameraId);
-
-        String extractedId = Camera2CameraInfo.extractCameraId(impl);
+        Camera2CameraInfo camera2CameraInfo = new Camera2CameraInfo(impl);
+        String extractedId = camera2CameraInfo.getCameraId();
 
         assertThat(extractedId).isEqualTo(cameraId);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void extractIdThrows_whenNotCamera2Impl() {
-        CameraInfo info = mock(CameraInfo.class);
+    @Test
+    public void canExtractCharacteristics_fromCamera2CameraInfo() {
+        CameraCharacteristics characteristics = mock(CameraCharacteristics.class);
+        when(characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)).thenReturn(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
+        Camera2CameraInfoImpl impl = mock(Camera2CameraInfoImpl.class);
+        when(impl.getCameraCharacteristics()).thenAnswer(ignored -> characteristics);
+        Camera2CameraInfo camera2CameraInfo = new Camera2CameraInfo(impl);
+        Integer hardwareLevel = camera2CameraInfo.getCameraCharacteristic(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
 
-        Camera2CameraInfo.extractCameraId(info);
+        assertThat(hardwareLevel).isEqualTo(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
     }
 
+    @Test
+    public void canGetCamera2CameraInfo() {
+        Camera2CameraInfo camera2CameraInfo = mock(Camera2CameraInfo.class);
+        Camera2CameraInfoImpl cameraInfoImpl = mock(Camera2CameraInfoImpl.class);
+        when(cameraInfoImpl.getCamera2CameraInfo()).thenAnswer(
+                ignored -> camera2CameraInfo);
+        Camera camera = new FakeCamera(null, cameraInfoImpl);
+        Camera2CameraInfo resultCamera2CameraInfo = Camera2CameraInfo.fromCameraInfo(
+                camera.getCameraInfo());
+
+        assertThat(resultCamera2CameraInfo).isEqualTo(camera2CameraInfo);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void getCameraInfoThrows_whenNotCamera2Impl() {
+        CameraInfoInternal wrongCameraInfo = mock(CameraInfoInternal.class);
+        Camera camera = new FakeCamera(null, wrongCameraInfo);
+
+        Camera2CameraInfo.fromCameraInfo(camera.getCameraInfo());
+    }
 }
