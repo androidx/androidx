@@ -40,6 +40,7 @@ class FragmentStateManager {
     private static final String TARGET_REQUEST_CODE_STATE_TAG = "android:target_req_state";
     private static final String TARGET_STATE_TAG = "android:target_state";
     private static final String VIEW_STATE_TAG = "android:view_state";
+    private static final String VIEW_REGISTRY_STATE_TAG = "android:view_registry_state";
     private static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
     private final FragmentLifecycleCallbacksDispatcher mDispatcher;
@@ -129,6 +130,7 @@ class FragmentStateManager {
         mFragmentStore = fragmentStore;
         mFragment = retainedFragment;
         mFragment.mSavedViewState = null;
+        mFragment.mSavedViewRegistryState = null;
         mFragment.mBackStackNesting = 0;
         mFragment.mInLayout = false;
         mFragment.mAdded = false;
@@ -375,6 +377,8 @@ class FragmentStateManager {
         mFragment.mSavedFragmentState.setClassLoader(classLoader);
         mFragment.mSavedViewState = mFragment.mSavedFragmentState.getSparseParcelableArray(
                 VIEW_STATE_TAG);
+        mFragment.mSavedViewRegistryState = mFragment.mSavedFragmentState.getBundle(
+                VIEW_REGISTRY_STATE_TAG);
         mFragment.mTargetWho = mFragment.mSavedFragmentState.getString(
                 TARGET_STATE_TAG);
         if (mFragment.mTargetWho != null) {
@@ -554,6 +558,7 @@ class FragmentStateManager {
         mDispatcher.dispatchOnFragmentResumed(mFragment, false);
         mFragment.mSavedFragmentState = null;
         mFragment.mSavedViewState = null;
+        mFragment.mSavedViewRegistryState = null;
     }
 
     void pause() {
@@ -627,6 +632,12 @@ class FragmentStateManager {
             result.putSparseParcelableArray(
                     VIEW_STATE_TAG, mFragment.mSavedViewState);
         }
+        if (mFragment.mSavedViewRegistryState != null) {
+            if (result == null) {
+                result = new Bundle();
+            }
+            result.putBundle(VIEW_REGISTRY_STATE_TAG, mFragment.mSavedViewRegistryState);
+        }
         if (!mFragment.mUserVisibleHint) {
             if (result == null) {
                 result = new Bundle();
@@ -646,6 +657,11 @@ class FragmentStateManager {
         mFragment.mView.saveHierarchyState(mStateArray);
         if (mStateArray.size() > 0) {
             mFragment.mSavedViewState = mStateArray;
+        }
+        Bundle outBundle = new Bundle();
+        mFragment.mViewLifecycleOwner.performSave(outBundle);
+        if (!outBundle.isEmpty()) {
+            mFragment.mSavedViewRegistryState = outBundle;
         }
     }
 
