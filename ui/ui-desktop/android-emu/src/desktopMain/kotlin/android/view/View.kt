@@ -17,6 +17,7 @@
 package android.view
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Rect
@@ -165,4 +166,7 @@ open class View(val context: Context) {
         }
         return true
     }
+
+    private val resources = Resources()
+    fun getResources(): Resources = resources
 }

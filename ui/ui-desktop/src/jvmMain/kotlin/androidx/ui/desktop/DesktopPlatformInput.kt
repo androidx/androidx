@@ -59,6 +59,7 @@ internal class DesktopPlatformInput : PlatformTextInputService {
 
     override fun notifyFocusedRect(rect: Rect) {}
 
+    @Suppress("UNUSED_PARAMETER")
     fun onKeyPressed(keyCode: Int, char: Char) {
         onEditCommand?.let {
             when (keyCode) {
@@ -82,6 +83,7 @@ internal class DesktopPlatformInput : PlatformTextInputService {
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun onKeyReleased(keyCode: Int, char: Char) {
     }
 
