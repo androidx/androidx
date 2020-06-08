@@ -100,4 +100,14 @@ public class BiometricFragmentTest {
         verify(mAuthenticationCallback).onAuthenticationError(errMsgId, errString);
         assertThat(mFragment.isVisible()).isFalse();
     }
+
+    @Test
+    public void testShowBiometricPrompt_ReturnsWithoutError_WhenDetached() {
+        mFragment.showBiometricPromptForAuthentication();
+    }
+
+    @Test
+    public void testShowFingerprintDialog_ReturnsWithoutError_WhenDetached() {
+        mFragment.showFingerprintDialogForAuthentication();
+    }
 }

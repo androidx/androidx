@@ -452,9 +452,16 @@ public class BiometricFragment extends Fragment {
 
     @RequiresApi(Build.VERSION_CODES.P)
     @SuppressWarnings("deprecation")
-    private void showBiometricPromptForAuthentication() {
+    @VisibleForTesting
+    void showBiometricPromptForAuthentication() {
+        final Context context = getContext();
+        if (context == null) {
+            Log.w(TAG, "Not showing biometric prompt. Context is null.");
+            return;
+        }
+
         final android.hardware.biometrics.BiometricPrompt.Builder builder =
-                new android.hardware.biometrics.BiometricPrompt.Builder(getContext());
+                new android.hardware.biometrics.BiometricPrompt.Builder(context);
 
         final CharSequence title = mBundle.getCharSequence(BiometricPrompt.KEY_TITLE);
         final CharSequence subtitle = mBundle.getCharSequence(BiometricPrompt.KEY_SUBTITLE);
@@ -509,9 +516,11 @@ public class BiometricFragment extends Fragment {
     }
 
     @SuppressWarnings("deprecation")
-    private void showFingerprintDialogForAuthentication() {
+    @VisibleForTesting
+    void showFingerprintDialogForAuthentication() {
         final Context context = getContext();
         if (context == null) {
+            Log.e(TAG, "Not showing fingerprint dialog. Context is null.");
             return;
         }
 
