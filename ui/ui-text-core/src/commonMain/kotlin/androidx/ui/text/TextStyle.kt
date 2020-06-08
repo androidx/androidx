@@ -19,6 +19,7 @@ package androidx.ui.text
 import androidx.ui.util.annotation.VisibleForTesting
 import androidx.compose.Immutable
 import androidx.compose.Stable
+import androidx.ui.intl.LocaleList
 import androidx.ui.core.LayoutDirection
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow

@@ -16,6 +16,8 @@
 
 package androidx.ui.text.platform
 
+import androidx.ui.intl.AndroidLocale
+import androidx.ui.intl.PlatformLocale
 import androidx.ui.text.PlatformStringDelegate
 
 /**

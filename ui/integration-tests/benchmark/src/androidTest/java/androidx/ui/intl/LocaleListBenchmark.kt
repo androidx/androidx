@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.text
+package androidx.ui.intl
 
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated

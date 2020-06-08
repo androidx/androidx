@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.ui.intl.LocaleList
 import androidx.ui.unit.sp
 import org.junit.Assert.assertEquals
 import org.junit.Test

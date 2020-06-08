@@ -46,7 +46,7 @@ class LayoutIntrinsics(
     /**
      * Calculate minimum intrinsic width of the CharSequence.
      *
-     * @see androidx.ui.text.platformminIntrinsicWidth
+     * @see androidx.ui.text.platform.minIntrinsicWidth
      */
     val minIntrinsicWidth: Float by lazy {
         minIntrinsicWidth(charSequence, textPaint)

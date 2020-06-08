@@ -25,7 +25,7 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.LocaleList
+import androidx.ui.intl.LocaleList
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle

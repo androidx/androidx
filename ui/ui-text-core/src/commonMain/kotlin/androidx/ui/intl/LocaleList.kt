@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.ui.text
+package androidx.ui.intl
 
 import androidx.compose.Immutable
-import androidx.ui.text.platform.platformLocaleDelegate
+import androidx.ui.text.SpanStyle
+import androidx.ui.text.TextStyle
 
 /**
  * Defines a list of [Locale] objects.

@@ -18,6 +18,7 @@ package androidx.ui.text
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
+import androidx.ui.intl.LocaleList
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.lerp
