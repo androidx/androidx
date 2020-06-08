@@ -21,9 +21,10 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.doubleTapGestureFilter
-import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.drawBorder
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
@@ -47,10 +48,10 @@ fun DoubleTapGestureFilterDemo() {
         Box(
             Modifier.fillMaxSize()
                 .wrapContentSize(Alignment.Center)
+                .preferredSize(192.dp)
                 .doubleTapGestureFilter(onDoubleTap)
-                .preferredSize(192.dp),
-            backgroundColor = color.value,
-            border = Border(2.dp, BorderColor)
+                .drawBorder(2.dp, BorderColor)
+                .drawBackground(color.value)
         )
     }
 }

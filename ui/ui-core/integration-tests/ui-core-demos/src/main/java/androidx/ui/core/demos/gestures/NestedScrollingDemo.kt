@@ -19,10 +19,9 @@ package androidx.ui.core.demos.gestures
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Direction
-import androidx.ui.core.DrawModifier
-import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
+import androidx.ui.core.clipToBounds
 import androidx.ui.core.gesture.doubleTapGestureFilter
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.longPressGestureFilter
@@ -35,7 +34,6 @@ import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.drawBorder
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
@@ -85,12 +83,16 @@ private fun Draggable(children: @Composable () -> Unit) {
         override fun onDrag(dragDistance: Offset): Offset {
             val resultingOffset = offset.value + dragDistance.y
             val dyToConsume =
-                if (resultingOffset > 0f) {
-                    0f - offset.value
-                } else if (resultingOffset < maxOffset.value) {
-                    maxOffset.value - offset.value
-                } else {
-                    dragDistance.y
+                when {
+                    resultingOffset > 0f -> {
+                        0f - offset.value
+                    }
+                    resultingOffset < maxOffset.value -> {
+                        maxOffset.value - offset.value
+                    }
+                    else -> {
+                        dragDistance.y
+                    }
                 }
             offset.value = offset.value + dyToConsume
             return Offset(0f, dyToConsume)
@@ -107,7 +109,9 @@ private fun Draggable(children: @Composable () -> Unit) {
 
     Layout(
         children = children,
-        modifier = Modifier.dragGestureFilter(dragObserver, canDrag) + ClipModifier,
+        modifier = Modifier
+            .dragGestureFilter(dragObserver, canDrag)
+            .clipToBounds(),
         measureBlock = { measurables, constraints, _ ->
             val placeable =
                 measurables.first()
@@ -119,14 +123,6 @@ private fun Draggable(children: @Composable () -> Unit) {
                 placeable.place(0.ipx, offset.value.roundToInt().ipx)
             }
         })
-}
-
-val ClipModifier = object : DrawModifier {
-    override fun ContentDrawScope.draw() {
-        clipRect {
-            this@draw.drawContent()
-        }
-    }
 }
 
 /**

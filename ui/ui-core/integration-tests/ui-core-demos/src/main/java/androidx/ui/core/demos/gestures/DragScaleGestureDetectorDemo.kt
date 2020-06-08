@@ -92,11 +92,11 @@ fun DragAndScaleGestureDetectorDemo() {
                 " on the box to flip the order of scaling and dragging.  The behavior is always " +
                 "the same because the 2 gesture filters are completely orthogonal.")
         Box(
-            Modifier.offset(offsetX, offsetY)
-                .fillMaxSize()
+            Modifier.fillMaxSize()
                 .wrapContentSize(Alignment.Center)
-                .plus(gestures)
-                .preferredSize(size.value),
+                .offset(offsetX, offsetY)
+                .preferredSize(size.value)
+                .plus(gestures),
             backgroundColor = color
         )
     }

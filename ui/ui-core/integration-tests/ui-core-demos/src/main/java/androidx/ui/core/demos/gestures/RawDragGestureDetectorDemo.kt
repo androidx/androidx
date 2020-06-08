@@ -53,11 +53,12 @@ fun RawDragGestureFilterDemo() {
     Column {
         Text("Demonstrates dragging that starts immediately (no slop or anything else).")
         Box(
-            Modifier.offset(offsetX, offsetY)
+            Modifier
                 .fillMaxSize()
                 .wrapContentSize(Alignment.Center)
-                .rawDragGestureFilter(dragObserver)
-                .preferredSize(96.dp),
+                .offset(offsetX, offsetY)
+                .preferredSize(192.dp)
+                .rawDragGestureFilter(dragObserver),
             backgroundColor = Grey
         )
     }

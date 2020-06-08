@@ -93,8 +93,8 @@ fun DragSlopExceededGestureFilterDemo() {
         Box(
             Modifier.fillMaxSize()
                 .wrapContentSize(Alignment.Center)
-                .dragSlopExceededGestureFilter(onTouchSlopExceeded, canDrag)
-                .preferredSize(96.dp),
+                .preferredSize(192.dp)
+                .dragSlopExceededGestureFilter(onTouchSlopExceeded, canDrag),
             backgroundColor = color
         )
     }

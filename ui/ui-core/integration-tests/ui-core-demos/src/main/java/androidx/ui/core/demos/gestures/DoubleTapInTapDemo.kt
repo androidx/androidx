@@ -18,6 +18,7 @@ package androidx.ui.core.demos.gestures
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.doubleTapGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
@@ -25,11 +26,12 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.drawBorder
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
-import androidx.ui.geometry.Offset
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.dp
 
 @Composable
@@ -62,16 +64,19 @@ fun DoubleTapInTapDemo() {
         Box(
             Modifier
 
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+                .preferredSize(192.dp)
                 .tapGestureFilter(onTap)
                 .drawBorder(2.dp, BorderColor)
                 .drawBackground(outerColor.value, RectangleShape)
-                .fillMaxSize()
 
-                .padding(48.dp)
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+                .preferredSize(96.dp)
                 .doubleTapGestureFilter(onDoubleTap)
                 .drawBorder(2.dp, BorderColor)
                 .drawBackground(innerColor.value, RectangleShape)
-                .fillMaxSize()
         )
     }
 }

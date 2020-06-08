@@ -118,8 +118,8 @@ fun DragGestureFilterDemo() {
             Modifier.offset(offsetX, offsetY)
                 .fillMaxSize()
                 .wrapContentSize(Alignment.Center)
-                .dragGestureFilter(dragObserver, canDrag)
-                .preferredSize(96.dp),
+                .preferredSize(192.dp)
+                .dragGestureFilter(dragObserver, canDrag),
             backgroundColor = color
         )
     }

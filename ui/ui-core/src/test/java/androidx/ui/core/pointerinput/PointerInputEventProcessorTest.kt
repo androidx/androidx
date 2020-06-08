@@ -1092,72 +1092,83 @@ class PointerInputEventProcessorTest {
      * touches touch just inside the parent LayoutNode and inside the child LayoutNodes. 8
      * touches touch just outside the parent LayoutNode but inside the child LayoutNodes.
      *
-     * Because LayoutNodes clip the bounds where children LayoutNodes can be hit, all 8 should miss,
-     * but the other 4 touches are inside both, so hit.
+     * Because layout node bounds are not used to clip pointer input hit testing, all pointers
+     * should hit.
      */
     @Test
     fun process_4DownInClippedAreaOfLnsWithPims_onlyCorrectPointersHit() {
 
         // Arrange
 
-        val pointerInputFilter1: PointerInputFilter = spy()
-        val pointerInputFilter2: PointerInputFilter = spy()
-        val pointerInputFilter3: PointerInputFilter = spy()
-        val pointerInputFilter4: PointerInputFilter = spy()
+        val pointerInputFilterTopLeft: PointerInputFilter = spy()
+        val pointerInputFilterTopRight: PointerInputFilter = spy()
+        val pointerInputFilterBottomLeft: PointerInputFilter = spy()
+        val pointerInputFilterBottomRight: PointerInputFilter = spy()
 
-        val layoutNode1 = LayoutNode(
+        val layoutNodeTopLeft = LayoutNode(
             -1, -1, 1, 1,
             PointerInputModifierImpl(
-                pointerInputFilter1
+                pointerInputFilterTopLeft
             )
         )
-        val layoutNode2 = LayoutNode(
+        val layoutNodeTopRight = LayoutNode(
             2, -1, 4, 1,
             PointerInputModifierImpl(
-                pointerInputFilter2
+                pointerInputFilterTopRight
             )
         )
-        val layoutNode3 = LayoutNode(
+        val layoutNodeBottomLeft = LayoutNode(
             -1, 2, 1, 4,
             PointerInputModifierImpl(
-                pointerInputFilter3
+                pointerInputFilterBottomLeft
             )
         )
-        val layoutNode4 = LayoutNode(
+        val layoutNodeBottomRight = LayoutNode(
             2, 2, 4, 4,
             PointerInputModifierImpl(
-                pointerInputFilter4
+                pointerInputFilterBottomRight
             )
         )
 
         val parentLayoutNode = LayoutNode(1, 1, 4, 4).apply {
-            insertAt(0, layoutNode1)
-            insertAt(1, layoutNode2)
-            insertAt(2, layoutNode3)
-            insertAt(3, layoutNode4)
+            insertAt(0, layoutNodeTopLeft)
+            insertAt(1, layoutNodeTopRight)
+            insertAt(2, layoutNodeBottomLeft)
+            insertAt(3, layoutNodeBottomRight)
         }
         root.apply {
             insertAt(0, parentLayoutNode)
         }
-        val offsetsThatHit =
+        val offsetsTopLeft =
             listOf(
-                Offset(1f, 1f),
-                Offset(3f, 1f),
-                Offset(1f, 3f),
-                Offset(3f, 3f)
-            )
-        val offsetsThatMiss =
-            listOf(
-                Offset(1f, 0f),
-                Offset(3f, 0f),
                 Offset(0f, 1f),
-                Offset(4f, 1f),
-                Offset(0f, 3f),
-                Offset(4f, 3f),
-                Offset(1f, 4f),
-                Offset(3f, 4f)
+                Offset(1f, 0f),
+                Offset(1f, 1f)
             )
-        val allOffsets = offsetsThatHit + offsetsThatMiss
+
+        val offsetsTopRight =
+            listOf(
+                Offset(3f, 0f),
+                Offset(3f, 1f),
+                Offset(4f, 1f)
+            )
+
+        val offsetsBottomLeft =
+            listOf(
+                Offset(0f, 3f),
+                Offset(1f, 3f),
+                Offset(1f, 4f)
+            )
+
+        val offsetsBottomRight =
+            listOf(
+                Offset(3f, 3f),
+                Offset(3f, 4f),
+                Offset(4f, 3f)
+            )
+
+        val allOffsets = offsetsTopLeft + offsetsTopRight + offsetsBottomLeft + offsetsBottomRight
+
         val pointerInputEvent =
             PointerInputEvent(
                 Uptime.Boot + 11.milliseconds,
@@ -1172,15 +1183,15 @@ class PointerInputEventProcessorTest {
 
         // Assert
 
-        val expectedChanges =
-            (offsetsThatHit.indices).map {
+        val expectedChangesTopLeft =
+            (offsetsTopLeft.indices).map {
                 PointerInputChange(
                     id = PointerId(it.toLong()),
                     current = PointerInputData(
                         Uptime.Boot + 11.milliseconds,
                         Offset(
-                            if (offsetsThatHit[it].x == 1f) 1f else 0f,
-                            if (offsetsThatHit[it].y == 1f) 1f else 0f
+                            offsetsTopLeft[it].x,
+                            offsetsTopLeft[it].y
                         ),
                         true
                     ),
@@ -1189,43 +1200,76 @@ class PointerInputEventProcessorTest {
                 )
             }
 
-        // Verify call count
-        verify(
-            pointerInputFilter1,
-            times(PointerEventPass.values().size)
-        ).onPointerInput(any(), any(), any())
-        verify(
-            pointerInputFilter2,
-            times(PointerEventPass.values().size)
-        ).onPointerInput(any(), any(), any())
-        verify(
-            pointerInputFilter3,
-            times(PointerEventPass.values().size)
-        ).onPointerInput(any(), any(), any())
-        verify(
-            pointerInputFilter4,
-            times(PointerEventPass.values().size)
-        ).onPointerInput(any(), any(), any())
+        val expectedChangesTopRight =
+            (offsetsTopLeft.indices).map {
+                PointerInputChange(
+                    id = PointerId(it.toLong() + 3),
+                    current = PointerInputData(
+                        Uptime.Boot + 11.milliseconds,
+                        Offset(
+                            offsetsTopRight[it].x - 3f,
+                            offsetsTopRight[it].y
+                        ),
+                        true
+                    ),
+                    previous = PointerInputData(null, null, false),
+                    consumed = ConsumedData()
+                )
+            }
+
+        val expectedChangesBottomLeft =
+            (offsetsTopLeft.indices).map {
+                PointerInputChange(
+                    id = PointerId(it.toLong() + 6),
+                    current = PointerInputData(
+                        Uptime.Boot + 11.milliseconds,
+                        Offset(
+                            offsetsBottomLeft[it].x,
+                            offsetsBottomLeft[it].y - 3f
+                        ),
+                        true
+                    ),
+                    previous = PointerInputData(null, null, false),
+                    consumed = ConsumedData()
+                )
+            }
+
+        val expectedChangesBottomRight =
+            (offsetsTopLeft.indices).map {
+                PointerInputChange(
+                    id = PointerId(it.toLong() + 9),
+                    current = PointerInputData(
+                        Uptime.Boot + 11.milliseconds,
+                        Offset(
+                            offsetsBottomRight[it].x - 3f,
+                            offsetsBottomRight[it].y - 3f
+                        ),
+                        true
+                    ),
+                    previous = PointerInputData(null, null, false),
+                    consumed = ConsumedData()
+                )
+            }
 
         // Verify call values
         PointerEventPass.values().forEach { pointerEventPass ->
-            verify(pointerInputFilter1).onPointerInput(
-                eq(listOf(expectedChanges[0])),
+            verify(pointerInputFilterTopLeft).onPointerInput(
+                eq(expectedChangesTopLeft),
                 eq(pointerEventPass),
                 any()
             )
-            verify(pointerInputFilter2).onPointerInput(
-                eq(listOf(expectedChanges[1])),
+            verify(pointerInputFilterTopRight).onPointerInput(
+                eq(expectedChangesTopRight),
                 eq(pointerEventPass),
                 any()
             )
-            verify(pointerInputFilter3).onPointerInput(
-                eq(listOf(expectedChanges[2])),
+            verify(pointerInputFilterBottomLeft).onPointerInput(
+                eq(expectedChangesBottomLeft),
                 eq(pointerEventPass),
                 any()
             )
-            verify(pointerInputFilter4).onPointerInput(
-                eq(listOf(expectedChanges[3])),
+            verify(pointerInputFilterBottomRight).onPointerInput(
+                eq(expectedChangesBottomRight),
                 eq(pointerEventPass),
                 any()
             )

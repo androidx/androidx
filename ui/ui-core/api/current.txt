@@ -442,7 +442,7 @@ package androidx.ui.core {
     method public Object? getParentData();
     method public androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? getRef();
     method public int getWidth();
-    method public boolean hitTest(androidx.ui.geometry.Offset pointerPositionRelativeToScreen, java.util.List<androidx.ui.core.pointerinput.PointerInputFilter> hitPointerInputFilters);
+    method public void hitTest(androidx.ui.geometry.Offset pointerPositionRelativeToScreen, java.util.List<androidx.ui.core.pointerinput.PointerInputFilter> hitPointerInputFilters);
     method public void ignoreModelReads(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void insertAt(int index, androidx.ui.core.LayoutNode instance);
     method public boolean isPlaced();
