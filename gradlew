@@ -238,6 +238,12 @@ function runGradle() {
   fi
 }
 
+if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
+  echo "Passing '-PdisallowExecution' directly is forbidden. Did you mean -PverifyUpToDate ?"
+  echo "See TaskUpToDateValidator.java for more information"
+  exit 1
+fi
+
 runGradle "$@"
 # Check whether we were given the "-PverifyUpToDate" argument
 if [[ " ${@} " =~ " -PverifyUpToDate " ]]; then
