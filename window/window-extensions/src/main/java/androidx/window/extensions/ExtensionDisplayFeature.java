@@ -67,13 +67,32 @@ public class ExtensionDisplayFeature {
     /** Gets the bounding rect of the display feature in window coordinate space. */
     @NonNull
     public Rect getBounds() {
-        return mBounds;
+        return new Rect(mBounds);
     }
 
     /** Gets the type of the display feature. */
     @Type
     public int getType() {
         return mType;
+    }
+
+    @NonNull
+    private static String typeToString(int type) {
+        switch (type) {
+            case TYPE_FOLD:
+                return "FOLD";
+            case TYPE_HINGE:
+                return "HINGE";
+            default:
+                return "Unknown feature type (" + type + ")";
+        }
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "ExtensionDisplayFeature { bounds=" + mBounds + ", type=" + typeToString(getType())
+                + " }";
     }
 
     @Override
