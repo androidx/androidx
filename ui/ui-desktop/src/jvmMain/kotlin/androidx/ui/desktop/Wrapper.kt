@@ -25,6 +25,10 @@ import androidx.animation.ManualAnimationClock
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.Recomposer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.ui.core.setContent
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.input.TextInputService
@@ -47,6 +51,12 @@ fun SkiaWindow.setContent(content: @Composable () -> Unit) {
         val context = object : Context() {}
         val viewGroup = object : ViewGroup(context) {}
         val platformInputService = DesktopPlatformInput()
+        ViewTreeLifecycleOwner.set(viewGroup, object : LifecycleOwner {
+            val lifecycleRegistry = LifecycleRegistry(this).apply {
+                currentState = Lifecycle.State.RESUMED
+            }
+            override fun getLifecycle() = lifecycleRegistry
+        })
         viewGroup.setContent(Recomposer.current(), @Composable {
             Providers(TextInputServiceAmbient provides TextInputService(
                 platformInputService), children = content)
