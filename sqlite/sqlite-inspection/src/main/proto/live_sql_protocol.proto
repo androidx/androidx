@@ -158,6 +158,18 @@ message ErrorContent {
   string stack_trace = 2;
   // Recoverability information
   ErrorRecoverability recoverability = 3;
+  // Error code
+  enum ErrorCode {
+    NOT_SET = 0;
+    ERROR_UNKNOWN = 10;
+    ERROR_UNRECOGNISED_COMMAND = 20;
+    ERROR_DATABASE_VERSION_TOO_OLD = 30;
+    ERROR_ISSUE_WITH_PROCESSING_QUERY = 40;
+    ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID = 50;
+    ERROR_ISSUE_WITH_PROCESSING_NEW_DATABASE_CONNECTION = 60;
+    ERROR_DB_CLOSED_DURING_OPERATION = 70;
+  }
+  ErrorCode error_code = 4;
 }
 
 // Recoverability of an error:

@@ -17,6 +17,7 @@
 package androidx.sqlite.inspection.test
 
 import android.database.sqlite.SQLiteDatabase
+import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID_VALUE
 import androidx.sqlite.inspection.test.MessageFactory.createGetSchemaCommand
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesCommand
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -168,6 +169,9 @@ class GetSchemaTest {
                 "Unable to perform an operation on database (id=$databaseId).")
             assertThat(error.message).contains("The database may have already been closed.")
             assertThat(error.recoverability.isRecoverable).isEqualTo(true)
+            assertThat(error.errorCodeValue).isEqualTo(
+                ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID_VALUE
+            )
         }
     }
 
