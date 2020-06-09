@@ -33,14 +33,14 @@ package androidx.window.extensions {
     method public void onWindowLayoutChanged(android.os.IBinder, androidx.window.extensions.ExtensionWindowLayoutInfo);
   }
 
-  public class ExtensionProvider {
+  public final class ExtensionProvider {
     method public static String? getApiVersion();
     method public static androidx.window.extensions.ExtensionInterface? getExtensionImpl(android.content.Context);
   }
 
   public class ExtensionWindowLayoutInfo {
     ctor public ExtensionWindowLayoutInfo(java.util.List<androidx.window.extensions.ExtensionDisplayFeature!>);
-    method public java.util.List<androidx.window.extensions.ExtensionDisplayFeature!>? getDisplayFeatures();
+    method public java.util.List<androidx.window.extensions.ExtensionDisplayFeature!> getDisplayFeatures();
   }
 
 }

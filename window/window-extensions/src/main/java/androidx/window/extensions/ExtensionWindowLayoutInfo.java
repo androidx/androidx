@@ -21,6 +21,7 @@ import android.os.IBinder;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,19 +35,34 @@ public class ExtensionWindowLayoutInfo {
      * window and reported within the coordinate space of the window that was provided by the app.
      * @see ExtensionInterface#getWindowLayoutInfo(IBinder)
      */
-    @Nullable
+    @NonNull
     private List<ExtensionDisplayFeature> mDisplayFeatures;
 
     public ExtensionWindowLayoutInfo(@NonNull List<ExtensionDisplayFeature> displayFeatures) {
-        mDisplayFeatures = displayFeatures;
+        mDisplayFeatures = Collections.unmodifiableList(displayFeatures);
     }
 
     /**
      * Gets the list of display features present within the window.
      */
-    @Nullable
+    @NonNull
     public List<ExtensionDisplayFeature> getDisplayFeatures() {
         return mDisplayFeatures;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ExtensionWindowLayoutInfo { ExtensionDisplayFeatures[ ");
+        for (int i = 0; i < mDisplayFeatures.size(); i = i + 1) {
+            sb.append(mDisplayFeatures.get(i));
+            if (i < mDisplayFeatures.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append(" ] }");
+        return sb.toString();
     }
 
     @Override
