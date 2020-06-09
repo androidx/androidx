@@ -53,6 +53,11 @@ package androidx.autofill.inline {
     method public static android.view.View? render(android.content.Context, android.app.slice.Slice, android.os.Bundle);
   }
 
+  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class SuggestionHintConstants {
+    field public static final String SUGGESTION_HINT_CLIPBOARD_CONTENT = "clipboardContent";
+    field public static final String SUGGESTION_HINT_SMART_REPLY = "smartReply";
+  }
+
   @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class UiVersions {
     method public static java.util.List<java.lang.String!> getVersions(android.os.Bundle);
     method public static androidx.autofill.inline.UiVersions.StylesBuilder newStylesBuilder();
@@ -141,6 +146,7 @@ package androidx.autofill.inline.v1 {
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content build();
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setContentDescription(CharSequence);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setEndIcon(android.graphics.drawable.Icon);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setHints(java.util.List<java.lang.String!>);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setStartIcon(android.graphics.drawable.Icon);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setSubtitle(CharSequence);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setTitle(CharSequence);
