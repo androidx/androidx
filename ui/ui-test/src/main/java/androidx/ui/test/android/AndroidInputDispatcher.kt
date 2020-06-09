@@ -19,6 +19,7 @@ package androidx.ui.test.android
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.util.Log
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
@@ -26,11 +27,11 @@ import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
+import androidx.ui.geometry.Offset
 import androidx.ui.test.InputDispatcher
 import androidx.ui.test.InputDispatcherState
 import androidx.ui.test.PartialGesture
 import androidx.ui.unit.Duration
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import androidx.ui.util.lerp
@@ -397,8 +398,10 @@ internal class AndroidInputDispatcher(
                 latch.countDown()
             }
         }
-        check(latch.await(5, TimeUnit.SECONDS)) {
-            "Event $event was not dispatched in 5 seconds"
+        if (!latch.await(5, TimeUnit.SECONDS)) {
+            Log.w("AndroidInputDispatcher", "Dispatching of MotionEvent $event took longer than " +
+                    "5 seconds to complete. This should typically only take a few milliseconds.")
+            latch.await()
         }
     }
 
