@@ -37,7 +37,7 @@ import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.LocaleList
+import androidx.ui.intl.LocaleList
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextLayoutResult

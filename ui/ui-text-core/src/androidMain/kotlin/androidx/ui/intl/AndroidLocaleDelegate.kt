@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.text.platform
+package androidx.ui.intl
 
 import androidx.annotation.RequiresApi
 import android.os.LocaleList as AndroidLocaleList
