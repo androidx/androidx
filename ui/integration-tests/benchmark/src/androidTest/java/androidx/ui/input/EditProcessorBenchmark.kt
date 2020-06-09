@@ -79,7 +79,7 @@ class EditProcessorBenchmark(val initText: InitialText, val scenario: TestScenar
             val ep = runWithTimingDisabled {
                 EditProcessor().apply {
                     onNewState(
-                        EditorValue(
+                        TextFieldValue(
                             text = initText.text,
                             selection = TextRange(5, 5)
                         ),

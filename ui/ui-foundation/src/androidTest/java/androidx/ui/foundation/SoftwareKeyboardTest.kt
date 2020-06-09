@@ -21,6 +21,7 @@ import androidx.compose.state
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.TextInputServiceAmbient
+import androidx.ui.input.TextFieldValue
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.createComposeRule

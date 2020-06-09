@@ -18,7 +18,7 @@ package androidx.ui.desktop
 import androidx.ui.input.BackspaceKeyEditOp
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
-import androidx.ui.input.EditorValue
+import androidx.ui.input.TextFieldValue
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.MoveCursorEditOp
@@ -33,7 +33,7 @@ internal class DesktopPlatformInput : PlatformTextInputService {
     var imeAction: ImeAction? = null
 
     override fun startInput(
-        initModel: EditorValue,
+        value: TextFieldValue,
         keyboardType: KeyboardType,
         imeAction: ImeAction,
         onEditCommand: (List<EditOperation>) -> Unit,
@@ -54,7 +54,7 @@ internal class DesktopPlatformInput : PlatformTextInputService {
 
     override fun hideSoftwareKeyboard() {}
 
-    override fun onStateUpdated(model: EditorValue) {
+    override fun onStateUpdated(value: TextFieldValue) {
     }
 
     override fun notifyFocusedRect(rect: Rect) {}

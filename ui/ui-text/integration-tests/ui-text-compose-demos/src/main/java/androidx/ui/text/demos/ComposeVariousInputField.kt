@@ -34,11 +34,11 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.PasswordVisualTransformation
+import androidx.ui.input.TextFieldValue
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.text.AnnotatedString
 import androidx.ui.intl.LocaleList
-import androidx.ui.foundation.TextFieldValue
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle

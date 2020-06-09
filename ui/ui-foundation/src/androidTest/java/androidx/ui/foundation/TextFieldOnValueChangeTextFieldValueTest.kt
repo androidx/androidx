@@ -61,7 +61,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
         it.clockTestRule.pauseClock()
     }
 
-    val onValueChange: (TextFieldValue) -> Unit = mock()
+    val onValueChange: (androidx.ui.input.TextFieldValue) -> Unit = mock()
 
     lateinit var onEditCommandCallback: (List<EditOperation>) -> Unit
 
@@ -78,7 +78,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
                 TextInputServiceAmbient provides textInputService
             ) {
                 val state = state {
-                    TextFieldValue(
+                    androidx.ui.input.TextFieldValue(
                         "abcde",
                         TextRange(0, 0)
                     )
@@ -100,7 +100,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
             // Verify startInput is called and capture the callback.
             val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
             verify(textInputService, times(1)).startInput(
-                initModel = any(),
+                value = any(),
                 keyboardType = any(),
                 imeAction = any(),
                 onEditCommand = onEditCommandCaptor.capture(),
@@ -128,7 +128,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
         runOnIdleCompose {
             verify(onValueChange, times(1))
                 .invoke(eq(
-                    TextFieldValue(
+                    androidx.ui.input.TextFieldValue(
                         "ABCDEabcde",
                         TextRange(5, 5)
                     )
@@ -151,7 +151,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
         runOnIdleCompose {
             verify(onValueChange, times(1))
                 .invoke(eq(
-                    TextFieldValue(
+                    androidx.ui.input.TextFieldValue(
                         "ABCDEabcde",
                         TextRange(5, 5)
                     )
@@ -165,7 +165,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
         performEditOperation(SetSelectionEditOp(1, 1))
         runOnIdleCompose {
             verify(onValueChange, times(1)).invoke(eq(
-                TextFieldValue(
+                androidx.ui.input.TextFieldValue(
                     "abcde",
                     TextRange(1, 1)
                 )
@@ -179,7 +179,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
         runOnIdleCompose {
             verify(onValueChange, times(1))
                 .invoke(eq(
-                    TextFieldValue(
+                    androidx.ui.input.TextFieldValue(
                         "ABCDEabcde",
                         TextRange(5, 5)
                     )
@@ -197,7 +197,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
         performEditOperation(DeleteSurroundingTextEditOp(0, 1))
         runOnIdleCompose {
             verify(onValueChange, times(1)).invoke(eq(
-                TextFieldValue(
+                androidx.ui.input.TextFieldValue(
                     "bcde",
                     TextRange(0, 0)
                 )
