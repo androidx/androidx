@@ -21,8 +21,8 @@ import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.Uptime
 
 /**
@@ -37,7 +37,7 @@ open class StubPointerInputHandler(
     override fun invoke(
         p1: List<PointerInputChange>,
         p2: PointerEventPass,
-        p3: IntPxSize
+        p3: IntSize
     ): List<PointerInputChange> {
         return modifyBlock?.invoke(p1, p2, p3) ?: p1
     }

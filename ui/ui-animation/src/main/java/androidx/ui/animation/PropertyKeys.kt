@@ -28,15 +28,12 @@ import androidx.ui.graphics.colorspace.ColorSpace
 import androidx.ui.graphics.colorspace.ColorSpaces
 import androidx.ui.unit.Bounds
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxBounds
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.Position
 import androidx.ui.unit.PxBounds
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import kotlin.math.roundToInt
 
 /**
@@ -197,39 +194,27 @@ val PxBoundsToVectorConverter: TwoWayConverter<PxBounds, AnimationVector4D> =
 /**
  * A type converter that converts a pixel to a [AnimationVector1D], and vice versa.
  */
-val IntPxToVectorConverter: TwoWayConverter<IntPx, AnimationVector1D> = TwoWayConverter(
-    convertToVector = { AnimationVector1D(it.value.toFloat()) },
-    convertFromVector = { it.value.roundToInt().ipx }
+val IntPxToVectorConverter: TwoWayConverter<Int, AnimationVector1D> = TwoWayConverter(
+    convertToVector = { AnimationVector1D(it.toFloat()) },
+    convertFromVector = { it.value.roundToInt() }
 )
 
 /**
- * A type converter that converts a [IntPxPosition] to a [AnimationVector2D], and vice versa.
+ * A type converter that converts a [IntOffset] to a [AnimationVector2D], and vice versa.
  */
-val IntPxPositionToVectorConverter: TwoWayConverter<IntPxPosition, AnimationVector2D> =
+val IntPxPositionToVectorConverter: TwoWayConverter<IntOffset, AnimationVector2D> =
     TwoWayConverter(
-        convertToVector = { AnimationVector2D(it.x.value.toFloat(), it.y.value.toFloat()) },
-        convertFromVector = { IntPxPosition(it.v1.roundToInt().ipx, it.v2.roundToInt().ipx) }
+        convertToVector = { AnimationVector2D(it.x.toFloat(), it.y.toFloat()) },
+        convertFromVector = { IntOffset(it.v1.roundToInt(), it.v2.roundToInt()) }
     )
 
 /**
- * A type converter that converts a [IntPxSize] to a [AnimationVector2D], and vice versa.
+ * A type converter that converts a [IntSize] to a [AnimationVector2D], and vice versa.
  */
-val IntPxSizeToVectorConverter: TwoWayConverter<IntPxSize, AnimationVector2D> =
+val IntPxSizeToVectorConverter: TwoWayConverter<IntSize, AnimationVector2D> =
     TwoWayConverter(
-        { AnimationVector2D(it.width.value.toFloat(), it.height.value.toFloat()) },
-        { IntPxSize(it.v1.roundToInt().ipx, it.v2.roundToInt().ipx) }
-    )
-
-/**
- * A type converter that converts a [IntPxBounds] to a [AnimationVector4D], and vice versa.
- */
-val IntPxBoundsToVectorConverter: TwoWayConverter<IntPxBounds, AnimationVector4D> =
-    TwoWayConverter(
-        convertToVector = {
-            AnimationVector4D(it.left.value.toFloat(), it.top.value.toFloat(),
-                it.right.value.toFloat(), it.bottom.value.toFloat()) },
-        convertFromVector = { IntPxBounds(it.v1.roundToInt().ipx, it.v2.roundToInt().ipx,
-            it.v3.roundToInt().ipx, it.v4.roundToInt().ipx) }
+        { AnimationVector2D(it.width.toFloat(), it.height.toFloat()) },
+        { IntSize(it.v1.roundToInt(), it.v2.roundToInt()) }
     )
 
 // TODO: Figure out a better API to expose these converters. These may not be easy to remember.

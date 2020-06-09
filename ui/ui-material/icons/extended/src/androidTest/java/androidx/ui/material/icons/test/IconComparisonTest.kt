@@ -49,7 +49,6 @@ import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.ipx
 import androidx.ui.unit.toRect
 import com.google.common.truth.Truth
 import org.junit.Rule
@@ -205,7 +204,7 @@ private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset)
         // Using ipx directly ensures that we will always have a consistent layout / drawing
         // story, so anti-aliasing should be identical.
         val layoutSize = with(DensityAmbient.current) {
-            Modifier.preferredSize(72.ipx.toDp())
+            Modifier.preferredSize(72.toDp())
         }
         Row(Modifier.gravity(Alignment.Center)) {
             Box(

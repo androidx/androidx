@@ -33,9 +33,7 @@ import androidx.ui.text.font.font
 import androidx.ui.text.font.test.R
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -69,8 +67,8 @@ class TextLayoutTest {
     @Test
     fun testTextLayout() = with(density) {
         val layoutLatch = CountDownLatch(2)
-        val textSize = Ref<IntPxSize>()
-        val doubleTextSize = Ref<IntPxSize>()
+        val textSize = Ref<IntSize>()
+        val doubleTextSize = Ref<IntSize>()
         show {
             TestingText(
                 "aa",
@@ -89,8 +87,8 @@ class TextLayoutTest {
         assertThat(layoutLatch.await(1, TimeUnit.SECONDS)).isTrue()
         assertThat(textSize.value).isNotNull()
         assertThat(doubleTextSize.value).isNotNull()
-        assertThat(textSize.value!!.width).isGreaterThan(0.ipx)
-        assertThat(textSize.value!!.height).isGreaterThan(0.ipx)
+        assertThat(textSize.value!!.width).isGreaterThan(0)
+        assertThat(textSize.value!!.height).isGreaterThan(0)
         assertThat(textSize.value!!.width * 2).isEqualTo(doubleTextSize.value!!.width)
         assertThat(textSize.value!!.height).isEqualTo(doubleTextSize.value!!.height)
     }
@@ -98,8 +96,8 @@ class TextLayoutTest {
     @Test
     fun testTextLayout_intrinsicMeasurements() = with(density) {
         val layoutLatch = CountDownLatch(2)
-        val textSize = Ref<IntPxSize>()
-        val doubleTextSize = Ref<IntPxSize>()
+        val textSize = Ref<IntSize>()
+        val doubleTextSize = Ref<IntSize>()
         show {
             TestingText("aa ",
                 modifier = Modifier.onPositioned { coordinates ->
@@ -126,28 +124,30 @@ class TextLayoutTest {
             }
             Layout(
                 text,
-                minIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
-                minIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx },
-                maxIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
-                maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx }
+                minIntrinsicWidthMeasureBlock = { _, _, _ -> 0 },
+                minIntrinsicHeightMeasureBlock = { _, _, _ -> 0 },
+                maxIntrinsicWidthMeasureBlock = { _, _, _ -> 0 },
+                maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0 }
             ) { measurables, _, _ ->
                 val textMeasurable = measurables.first()
                 // Min width.
-                assertThat(textWidth).isEqualTo(textMeasurable.minIntrinsicWidth(0.ipx))
+                assertThat(textWidth).isEqualTo(textMeasurable.minIntrinsicWidth(0))
                 // Min height.
                 assertThat(textMeasurable.minIntrinsicHeight(textWidth)).isGreaterThan(textHeight)
                 assertThat(textHeight).isEqualTo(textMeasurable.minIntrinsicHeight(doubleTextWidth))
-                assertThat(textHeight).isEqualTo(textMeasurable.minIntrinsicHeight(IntPx.Infinity))
+                assertThat(textHeight)
+                    .isEqualTo(textMeasurable.minIntrinsicHeight(Constraints.Infinity))
                 // Max width.
-                assertThat(doubleTextWidth).isEqualTo(textMeasurable.maxIntrinsicWidth(0.ipx))
+                assertThat(doubleTextWidth).isEqualTo(textMeasurable.maxIntrinsicWidth(0))
                 // Max height.
                 assertThat(textMeasurable.maxIntrinsicHeight(textWidth)).isGreaterThan(textHeight)
                 assertThat(textHeight).isEqualTo(textMeasurable.maxIntrinsicHeight(doubleTextWidth))
-                assertThat(textHeight).isEqualTo(textMeasurable.maxIntrinsicHeight(IntPx.Infinity))
+                assertThat(textHeight)
+                    .isEqualTo(textMeasurable.maxIntrinsicHeight(Constraints.Infinity))
 
                 intrinsicsLatch.countDown()
 
-                layout(0.ipx, 0.ipx) {}
+                layout(0, 0) {}
             }
         }
         assertThat(intrinsicsLatch.await(1, TimeUnit.SECONDS)).isTrue()
@@ -166,16 +166,16 @@ class TextLayoutTest {
                 assertThat(placeable[LastBaseline]).isNotNull()
                 assertThat(placeable[FirstBaseline]).isEqualTo(placeable[LastBaseline])
                 layoutLatch.countDown()
-                layout(0.ipx, 0.ipx) {}
+                layout(0, 0) {}
             }
             Layout(text) { measurables, _, _ ->
-                val placeable = measurables.first().measure(Constraints(maxWidth = 0.ipx))
+                val placeable = measurables.first().measure(Constraints(maxWidth = 0))
                 assertThat(placeable[FirstBaseline]).isNotNull()
                 assertThat(placeable[LastBaseline]).isNotNull()
                 assertThat(placeable[FirstBaseline])
                     .isLessThan(placeable[LastBaseline])
                 layoutLatch.countDown()
-                layout(0.ipx, 0.ipx) {}
+                layout(0, 0) {}
             }
         }
         assertThat(layoutLatch.await(1, TimeUnit.SECONDS)).isTrue()
@@ -192,7 +192,7 @@ class TextLayoutTest {
             Layout(text) { measurables, _, _ ->
                 measurables.first().measure(Constraints())
                 layoutLatch.countDown()
-                layout(0.ipx, 0.ipx) {}
+                layout(0, 0) {}
             }
         }
         assertThat(layoutLatch.await(1, TimeUnit.SECONDS)).isTrue()
@@ -205,12 +205,12 @@ class TextLayoutTest {
                 activity.setContent {
                     Layout(composable) { measurables, constraints, _ ->
                         val placeables = measurables.map {
-                            it.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
+                            it.measure(constraints.copy(minWidth = 0, minHeight = 0))
                         }
                         layout(constraints.maxWidth, constraints.maxHeight) {
-                            var top = 0.ipx
+                            var top = 0
                             placeables.forEach {
-                                it.place(0.ipx, top)
+                                it.place(0, top)
                                 top += it.height
                             }
                         }

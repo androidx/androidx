@@ -18,15 +18,14 @@ package androidx.ui.core.gesture
 
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.consumeDownChange
+import androidx.ui.geometry.Offset
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
 import androidx.ui.testutils.invokeOverPasses
 import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -127,9 +126,9 @@ class RawPressStartGestureFilterTest {
     @Test
     fun onPointerInput_1DownMoveOutside2ndDown_onPressStartOnlyCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer0, IntPxSize(5.ipx, 5.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer0, IntSize(5, 5))
         pointer0 = pointer0.moveTo(100.milliseconds, 10f, 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer0, IntPxSize(5.ipx, 5.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer0, IntSize(5, 5))
         pointer0 = pointer0.moveTo(200.milliseconds)
         val pointer1 = down(1, x = 0f, y = 0f)
 

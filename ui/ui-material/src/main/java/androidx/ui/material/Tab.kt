@@ -60,14 +60,12 @@ import androidx.ui.text.FirstBaseline
 import androidx.ui.text.LastBaseline
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.coerceAtLeast
 import androidx.ui.unit.dp
-import androidx.ui.unit.max
 import androidx.ui.unit.sp
 import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.fastForEach
 import androidx.ui.util.fastForEachIndexed
+import kotlin.math.max
 
 /**
  * A TabRow contains a row of [Tab]s, and displays an indicator underneath the currently
@@ -182,7 +180,7 @@ fun <T> TabRow(
 
 @Composable
 private fun FixedTabRow(
-    width: IntPx,
+    width: Int,
     tabCount: Int,
     tabs: @Composable (Modifier) -> Unit,
     indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit,
@@ -210,7 +208,7 @@ private fun FixedTabRow(
 
 @Composable
 private fun ScrollableTabRow(
-    width: IntPx,
+    width: Int,
     selectedIndex: Int,
     tabs: @Composable () -> Unit,
     indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit,
@@ -248,10 +246,10 @@ private fun ScrollableTabRow(
                 Box(Modifier.tag(dividerTag), children = divider)
             }
         ) { measurables, constraints, _ ->
-            val tabPlaceables = mutableListOf<Pair<Placeable, IntPx>>()
+            val tabPlaceables = mutableListOf<Pair<Placeable, Int>>()
             val minTabWidth = ScrollableTabRowMinimumTabWidth.toIntPx()
 
-            var layoutHeight = IntPx.Zero
+            var layoutHeight = 0
 
             val tabConstraints = constraints.copy(minWidth = minTabWidth)
 
@@ -281,20 +279,20 @@ private fun ScrollableTabRow(
             layout(layoutWidth, layoutHeight) {
                 // Place the tabs
                 tabPlaceables.fastForEach { (placeable, left) ->
-                    placeable.place(left, IntPx.Zero)
+                    placeable.place(left, 0)
                 }
 
                 // The divider is measured with its own height, and width equal to the total width
                 // of the tab row, and then placed on top of the tabs.
                 measurables.fastFirstOrNull { it.tag == dividerTag }
                     ?.measure(constraints.copy(minWidth = layoutWidth, maxWidth = layoutWidth))
-                    ?.run { place(IntPx.Zero, layoutHeight - height) }
+                    ?.run { place(0, layoutHeight - height) }
 
                 // The indicator container is measured to fill the entire space occupied by the tab
                 // row, and then placed on top of the divider.
                 measurables.fastFirstOrNull { it.tag == indicatorTag }
                     ?.measure(Constraints.fixed(layoutWidth, layoutHeight))
-                    ?.place(IntPx.Zero, IntPx.Zero)
+                    ?.place(0, 0)
             }
         }
     }
@@ -304,8 +302,8 @@ private fun ScrollableTabRow(
 private fun ScrollableTabData(
     initialSelectedTab: Int,
     tabPositions: List<TabPosition>,
-    visibleWidth: IntPx,
-    edgeOffset: IntPx
+    visibleWidth: Int,
+    edgeOffset: Int
 ): ScrollableTabData = ScrollerPosition().let { scrollerPosition ->
     remember(scrollerPosition) {
         ScrollableTabData(
@@ -325,8 +323,8 @@ private class ScrollableTabData(
     val scrollerPosition: ScrollerPosition,
     initialSelectedTab: Int,
     var tabPositions: List<TabPosition>,
-    var visibleWidth: IntPx,
-    val edgeOffset: IntPx
+    var visibleWidth: Int,
+    val edgeOffset: Int
 ) {
     var selectedTab: Int = initialSelectedTab
         set(value) {
@@ -358,8 +356,8 @@ private class ScrollableTabData(
         val totalTabRowWidth = tabPositions.last().right + edgeOffset
         // How much space we have to scroll. If the visible width is <= to the total width, then
         // we have no space to scroll as everything is always visible.
-        val availableSpace = (totalTabRowWidth - visibleWidth).coerceAtLeast(IntPx.Zero)
-        return centeredTabOffset.coerceIn(IntPx.Zero, availableSpace).value.toFloat()
+        val availableSpace = (totalTabRowWidth - visibleWidth).coerceAtLeast(0)
+        return centeredTabOffset.coerceIn(0, availableSpace).toFloat()
     }
 }
 
@@ -373,8 +371,8 @@ object TabRow {
      * @property right the right edge's x position from the start of the [TabRow]
      * @property width the width of this tab
      */
-    data class TabPosition internal constructor(val left: IntPx, val width: IntPx) {
-        val right: IntPx get() = left + width
+    data class TabPosition internal constructor(val left: Int, val width: Int) {
+        val right: Int get() = left + width
     }
 
     /**
@@ -431,13 +429,13 @@ object TabRow {
                 // When this is supported by transitionDefinition, we should fix this to just set a
                 // default or similar.
                 state(selectedIndex) {
-                    this[IndicatorOffset] = tabPositions[selectedIndex].left.value.toFloat()
+                    this[IndicatorOffset] = tabPositions[selectedIndex].left.toFloat()
                 }
 
                 tabPositions.forEachIndexed { index, position ->
                     if (index != selectedIndex) {
                         state(index) {
-                            this[IndicatorOffset] = position.left.value.toFloat()
+                            this[IndicatorOffset] = position.left.toFloat()
                         }
                     }
                 }
@@ -595,16 +593,16 @@ private fun TabBaselineLayout(
         val textPlaceable = measurables.first { it.tag == "text" }.measure(
             // Measure with loose constraints for height as we don't want the text to take up more
             // space than it needs
-            constraints.copy(minHeight = IntPx.Zero)
+            constraints.copy(minHeight = 0)
         )
 
         val iconPlaceable = measurables.first { it.tag == "icon" }.measure(constraints)
 
         val hasTextPlaceable =
-            textPlaceable.width != IntPx.Zero && textPlaceable.height != IntPx.Zero
+            textPlaceable.width != 0 && textPlaceable.height != 0
 
         val hasIconPlaceable =
-            iconPlaceable.width != IntPx.Zero && iconPlaceable.height != IntPx.Zero
+            iconPlaceable.width != 0 && iconPlaceable.height != 0
 
         val tabWidth = max(textPlaceable.width, iconPlaceable.width)
 
@@ -645,10 +643,10 @@ private fun TabBaselineLayout(
  */
 private fun Placeable.PlacementScope.placeIcon(
     iconPlaceable: Placeable,
-    tabHeight: IntPx
+    tabHeight: Int
 ) {
     val iconY = (tabHeight - iconPlaceable.height) / 2
-    iconPlaceable.place(IntPx.Zero, iconY)
+    iconPlaceable.place(0, iconY)
 }
 
 /**
@@ -658,9 +656,9 @@ private fun Placeable.PlacementScope.placeIcon(
 private fun Placeable.PlacementScope.placeText(
     density: Density,
     textPlaceable: Placeable,
-    tabHeight: IntPx,
-    firstBaseline: IntPx,
-    lastBaseline: IntPx
+    tabHeight: Int,
+    firstBaseline: Int,
+    lastBaseline: Int
 ) {
     val baselineOffset = if (firstBaseline == lastBaseline) {
         SingleLineTextBaseline
@@ -672,7 +670,7 @@ private fun Placeable.PlacementScope.placeText(
     val totalOffset = with(density) { baselineOffset.toIntPx() + IndicatorHeight.toIntPx() }
 
     val textPlaceableY = tabHeight - lastBaseline - totalOffset
-    textPlaceable.place(IntPx.Zero, textPlaceableY)
+    textPlaceable.place(0, textPlaceableY)
 }
 
 /**
@@ -684,10 +682,10 @@ private fun Placeable.PlacementScope.placeTextAndIcon(
     density: Density,
     textPlaceable: Placeable,
     iconPlaceable: Placeable,
-    tabWidth: IntPx,
-    tabHeight: IntPx,
-    firstBaseline: IntPx,
-    lastBaseline: IntPx
+    tabWidth: Int,
+    tabHeight: Int,
+    firstBaseline: Int,
+    lastBaseline: Int
 ) {
     val baselineOffset = if (firstBaseline == lastBaseline) {
         SingleLineTextBaselineWithIcon

@@ -16,9 +16,8 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.PxBounds
 
 /**
@@ -29,7 +28,7 @@ interface LayoutCoordinates {
     /**
      * The size of this layout in the local coordinates space.
      */
-    val size: IntPxSize
+    val size: IntSize
 
     /**
      * The alignment lines provided for this layout, not including inherited lines.
@@ -75,7 +74,7 @@ interface LayoutCoordinates {
      * Returns the position of an [alignment line][AlignmentLine],
      * or `null` if the line is not provided.
      */
-    operator fun get(line: AlignmentLine): IntPx?
+    operator fun get(line: AlignmentLine): Int?
 }
 
 /**
@@ -110,7 +109,7 @@ val LayoutCoordinates.positionInParent: Offset
  */
 val LayoutCoordinates.boundsInParent: PxBounds
     get() = parentCoordinates?.childBoundingBox(this)
-        ?: PxBounds(0f, 0f, size.width.value.toFloat(), size.height.value.toFloat())
+        ?: PxBounds(0f, 0f, size.width.toFloat(), size.height.toFloat())
 
 /**
  * The global boundaries of this layout inside.

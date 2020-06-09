@@ -51,7 +51,7 @@ class BoundsTest : ToolingTest() {
         activityTestRule.runOnUiThread {
             val tree = slotTableRecord.store.first().asTree()
             val boundingBoxes = tree.firstOrNull {
-                it.position?.contains("BoundsTest.kt") == true && it.box.right.value > 0
+                it.position?.contains("BoundsTest.kt") == true && it.box.right > 0
             }!!
                 .all()
                 .filter {

@@ -31,7 +31,6 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.PxBounds
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.height
-import androidx.ui.unit.ipx
 import androidx.ui.unit.width
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -72,7 +71,7 @@ class DrawLayerTest {
     fun testLayerBoundsPosition() {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                FixedSize(30.ipx, PaddingModifier(10.ipx).drawLayer() + positioner) {
+                FixedSize(30, PaddingModifier(10).drawLayer() + positioner) {
                 }
             }
         }
@@ -95,9 +94,9 @@ class DrawLayerTest {
     fun testScale() {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                Padding(10.ipx) {
+                Padding(10) {
                     FixedSize(
-                        10.ipx,
+                        10,
                         Modifier.drawLayer(scaleX = 2f, scaleY = 3f) + positioner
                     ) {
                     }
@@ -117,9 +116,9 @@ class DrawLayerTest {
     fun testRotation() {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                Padding(10.ipx) {
+                Padding(10) {
                     FixedSize(
-                        10.ipx,
+                        10,
                         Modifier.drawLayer(scaleY = 3f, rotationZ = 90f) + positioner
                     ) {
                     }
@@ -139,8 +138,8 @@ class DrawLayerTest {
     fun testRotationPivot() {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                Padding(10.ipx) {
-                    FixedSize(10.ipx,
+                Padding(10) {
+                    FixedSize(10,
                         Modifier.drawLayer(
                             rotationZ = 90f,
                             transformOrigin = TransformOrigin(1.0f, 1.0f)
@@ -162,8 +161,8 @@ class DrawLayerTest {
     fun testTranslationXY() {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                Padding(10.ipx) {
-                    FixedSize(10.ipx,
+                Padding(10) {
+                    FixedSize(10,
                         Modifier.drawLayer(
                             translationX = 5.0f,
                             translationY = 8.0f
@@ -185,10 +184,10 @@ class DrawLayerTest {
     fun testClip() {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                Padding(10.ipx) {
-                    FixedSize(10.ipx, Modifier.drawLayer(clip = true)) {
+                Padding(10) {
+                    FixedSize(10, Modifier.drawLayer(clip = true)) {
                         FixedSize(
-                            10.ipx,
+                            10,
                             Modifier.drawLayer(scaleX = 2f) + positioner
                         ) {
                         }
@@ -210,11 +209,11 @@ class DrawLayerTest {
     fun testTotalClip() {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                Padding(10.ipx) {
-                    FixedSize(10.ipx, Modifier.drawLayer(clip = true)) {
+                Padding(10) {
+                    FixedSize(10, Modifier.drawLayer(clip = true)) {
                         FixedSize(
-                            10.ipx,
-                            PaddingModifier(20.ipx) +
+                            10,
+                            PaddingModifier(20) +
                                     positioner
                         ) {
                         }

@@ -26,8 +26,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.layout.ColumnScope.alignWithSiblings
 import androidx.ui.layout.RowScope.alignWithSiblings
-import androidx.ui.unit.IntPx
-
 /**
  * A layout composable that places its children in a vertical sequence. For a layout composable
  * that places its children in a horizontal sequence, see [Row].
@@ -150,6 +148,6 @@ object ColumnScope {
      */
     @Stable
     fun Modifier.alignWithSiblings(
-        alignmentLineBlock: (Measured) -> IntPx
+        alignmentLineBlock: (Measured) -> Int
     ) = this + SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock)
 }

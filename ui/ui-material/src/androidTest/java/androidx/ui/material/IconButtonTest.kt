@@ -37,6 +37,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.roundToInt
 
 @LargeTest
 @RunWith(JUnit4::class)
@@ -78,8 +79,8 @@ class IconButtonTest {
             val iconX = iconCoords.positionInParent.x
             val iconY = iconCoords.positionInParent.y
             // Icon should be centered inside the IconButton
-            Truth.assertThat(iconX).isEqualTo(12.dp.toIntPx().value.toFloat())
-            Truth.assertThat(iconY).isEqualTo(12.dp.toIntPx().value.toFloat())
+            Truth.assertThat(iconX).isEqualTo((24.dp.toIntPx() / 2f).roundToInt().toFloat())
+            Truth.assertThat(iconY).isEqualTo((24.dp.toIntPx() / 2f).roundToInt().toFloat())
         }
     }
 
@@ -103,8 +104,8 @@ class IconButtonTest {
             val iconX = iconCoords.positionInParent.x
             val iconY = iconCoords.positionInParent.y
 
-            val expectedX = ((48.dp - width) / 2).toIntPx().value.toFloat()
-            val expectedY = ((48.dp - height) / 2).toIntPx().value.toFloat()
+            val expectedX = ((48.dp.toIntPx() - width.toIntPx()) / 2f).roundToInt().toFloat()
+            val expectedY = ((48.dp.toIntPx() - height.toIntPx()) / 2f).roundToInt().toFloat()
             // Icon should be centered inside the IconButton
             Truth.assertThat(iconX).isEqualTo(expectedX)
             Truth.assertThat(iconY).isEqualTo(expectedY)
@@ -142,8 +143,8 @@ class IconButtonTest {
             val iconX = iconCoords.positionInParent.x
             val iconY = iconCoords.positionInParent.y
             // Icon should be centered inside the IconButton
-            Truth.assertThat(iconX).isEqualTo(12.dp.toIntPx().value.toFloat())
-            Truth.assertThat(iconY).isEqualTo(12.dp.toIntPx().value.toFloat())
+            Truth.assertThat(iconX).isEqualTo((24.dp.toIntPx() / 2f).roundToInt().toFloat())
+            Truth.assertThat(iconY).isEqualTo((24.dp.toIntPx() / 2f).roundToInt().toFloat())
         }
     }
 
@@ -166,8 +167,8 @@ class IconButtonTest {
             val iconX = iconCoords.positionInParent.x
             val iconY = iconCoords.positionInParent.y
 
-            val expectedX = ((48.dp - width) / 2).toIntPx().value.toFloat()
-            val expectedY = ((48.dp - height) / 2).toIntPx().value.toFloat()
+            val expectedX = ((48.dp.toIntPx() - width.toIntPx()) / 2f).roundToInt().toFloat()
+            val expectedY = ((48.dp.toIntPx() - height.toIntPx()) / 2f).roundToInt().toFloat()
             // Icon should be centered inside the IconButton
             Truth.assertThat(iconX).isEqualTo(expectedX)
             Truth.assertThat(iconY).isEqualTo(expectedY)

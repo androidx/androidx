@@ -17,8 +17,6 @@
 package androidx.ui.core
 
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
-
 /**
  * The receiver scope of a layout's intrinsic measurements lambdas.
  */
@@ -34,27 +32,27 @@ abstract class IntrinsicMeasureScope : Density {
      * Calculates the minimum width that the layout can be such that
      * the content of the layout will be painted correctly.
      */
-    fun IntrinsicMeasurable.minIntrinsicWidth(height: IntPx) =
+    fun IntrinsicMeasurable.minIntrinsicWidth(height: Int) =
         minIntrinsicWidth(height, layoutDirection)
 
     /**
      * Calculates the smallest width beyond which increasing the width never
      * decreases the height.
      */
-    fun IntrinsicMeasurable.maxIntrinsicWidth(height: IntPx) =
+    fun IntrinsicMeasurable.maxIntrinsicWidth(height: Int) =
         maxIntrinsicWidth(height, layoutDirection)
 
     /**
      * Calculates the minimum height that the layout can be such that
      * the content of the layout will be painted correctly.
      */
-    fun IntrinsicMeasurable.minIntrinsicHeight(width: IntPx) =
+    fun IntrinsicMeasurable.minIntrinsicHeight(width: Int) =
         minIntrinsicHeight(width, layoutDirection)
 
     /**
      * Calculates the smallest height beyond which increasing the height never
      * decreases the width.
      */
-    fun IntrinsicMeasurable.maxIntrinsicHeight(width: IntPx) =
+    fun IntrinsicMeasurable.maxIntrinsicHeight(width: Int) =
         maxIntrinsicHeight(width, layoutDirection)
 }

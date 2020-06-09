@@ -22,15 +22,15 @@ import android.graphics.RectF
 import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.plus
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.minus
 import androidx.ui.unit.PxBounds
+import androidx.ui.unit.plus
 import androidx.ui.unit.toOffset
 
 /**
@@ -50,7 +50,7 @@ internal abstract class LayoutNodeWrapper(
     abstract val measureScope: MeasureScope
 
     // Size exposed to LayoutCoordinates.
-    final override val size: IntPxSize get() = measuredSize
+    final override val size: IntSize get() = measuredSize
 
     open val invalidateLayerOnBoundsChange = true
 
@@ -64,10 +64,10 @@ internal abstract class LayoutNodeWrapper(
                 findLayer()?.invalidate()
             }
             _measureResult = value
-            measuredSize = IntPxSize(measureResult.width, measureResult.height)
+            measuredSize = IntSize(measureResult.width, measureResult.height)
         }
 
-    var position: IntPxPosition = IntPxPosition.Origin
+    var position: IntOffset = IntOffset.Origin
         internal set(value) {
             if (invalidateLayerOnBoundsChange && value != field) {
                 findLayer()?.invalidate()
@@ -97,9 +97,9 @@ internal abstract class LayoutNodeWrapper(
         //  so calling this is expensive.  Would be nice to cache data such that this is cheap.
         val localPointerPosition = globalToLocal(globalPointerPosition)
         return localPointerPosition.x >= 0 &&
-                localPointerPosition.x < measuredSize.width.value &&
+                localPointerPosition.x < measuredSize.width &&
                 localPointerPosition.y >= 0 &&
-                localPointerPosition.y < measuredSize.height.value
+                localPointerPosition.y < measuredSize.height
     }
 
     /**
@@ -124,7 +124,7 @@ internal abstract class LayoutNodeWrapper(
     /**
      * Places the modified child.
      */
-    abstract override fun place(position: IntPxPosition)
+    abstract override fun place(position: IntOffset)
 
     /**
      * Draws the content of the LayoutNode
@@ -188,8 +188,8 @@ internal abstract class LayoutNodeWrapper(
     }
 
     protected inline fun withPositionTranslation(canvas: Canvas, block: (Canvas) -> Unit) {
-        val x = position.x.value.toFloat()
-        val y = position.y.value.toFloat()
+        val x = position.x.toFloat()
+        val y = position.y.toFloat()
         canvas.translate(x, y)
         block(canvas)
         canvas.translate(-x, -y)
@@ -211,8 +211,8 @@ internal abstract class LayoutNodeWrapper(
         val rect = Rect(
             left = 0.5f,
             top = 0.5f,
-            right = measuredSize.width.value.toFloat() - 0.5f,
-            bottom = measuredSize.height.value.toFloat() - 0.5f
+            right = measuredSize.width.toFloat() - 0.5f,
+            bottom = measuredSize.height.toFloat() - 0.5f
         )
         canvas.drawRect(rect, paint)
     }
@@ -246,11 +246,11 @@ internal abstract class LayoutNodeWrapper(
      * scaling, etc.
      */
     protected open fun rectInParent(bounds: RectF) {
-        val x = position.x.value
+        val x = position.x
         bounds.left += x
         bounds.right += x
 
-        val y = position.y.value
+        val y = position.y
         bounds.top += y
         bounds.bottom += y
     }
@@ -262,8 +262,8 @@ internal abstract class LayoutNodeWrapper(
         bounds.set(
             0f,
             0f,
-            child.size.width.value.toFloat(),
-            child.size.height.value.toFloat()
+            child.size.width.toFloat(),
+            child.size.height.toFloat()
         )
         var wrapper = child as LayoutNodeWrapper
         while (wrapper !== this) {

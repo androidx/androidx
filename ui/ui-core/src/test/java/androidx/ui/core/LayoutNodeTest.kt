@@ -18,9 +18,8 @@ package androidx.ui.core
 import androidx.test.filters.SmallTest
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.unit.IntPxPosition
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntOffset
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
@@ -336,17 +335,17 @@ class LayoutNodeTest {
         val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
-        val x0 = 100.ipx
-        val y0 = 10.ipx
-        val x1 = 50.ipx
-        val y1 = 80.ipx
+        val x0 = 100
+        val y0 = 10
+        val x1 = 50
+        val y1 = 80
         node0.place(x0, y0)
         node1.place(x1, y1)
 
         val globalPosition = Offset(250f, 300f)
 
-        val expectedX = globalPosition.x - x0.value.toFloat() - x1.value.toFloat()
-        val expectedY = globalPosition.y - y0.value.toFloat() - y1.value.toFloat()
+        val expectedX = globalPosition.x - x0.toFloat() - x1.toFloat()
+        val expectedY = globalPosition.y - y0.toFloat() - y1.toFloat()
         val expectedPosition = Offset(expectedX, expectedY)
 
         val result = node1.coordinates.globalToLocal(globalPosition)
@@ -361,17 +360,17 @@ class LayoutNodeTest {
         val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
-        val x0 = 100.ipx
-        val y0 = 10.ipx
-        val x1 = 50.ipx
-        val y1 = 80.ipx
+        val x0 = 100
+        val y0 = 10
+        val x1 = 50
+        val y1 = 80
         node0.place(x0, y0)
         node1.place(x1, y1)
 
         val globalPosition = Offset(250f, 300f)
 
-        val expectedX = globalPosition.x - x0.value.toFloat() - x1.value.toFloat()
-        val expectedY = globalPosition.y - y0.value.toFloat() - y1.value.toFloat()
+        val expectedX = globalPosition.x - x0.toFloat() - x1.toFloat()
+        val expectedY = globalPosition.y - y0.toFloat() - y1.toFloat()
         val expectedPosition = Offset(expectedX, expectedY)
 
         val result = node1.coordinates.globalToLocal(globalPosition)
@@ -386,17 +385,17 @@ class LayoutNodeTest {
         val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
-        val x0 = 100.ipx
-        val y0 = 10.ipx
-        val x1 = 50.ipx
-        val y1 = 80.ipx
+        val x0 = 100
+        val y0 = 10
+        val x1 = 50
+        val y1 = 80
         node0.place(x0, y0)
         node1.place(x1, y1)
 
         val localPosition = Offset(5f, 15f)
 
-        val expectedX = localPosition.x + x0.value.toFloat() + x1.value.toFloat()
-        val expectedY = localPosition.y + y0.value.toFloat() + y1.value.toFloat()
+        val expectedX = localPosition.x + x0.toFloat() + x1.toFloat()
+        val expectedY = localPosition.y + y0.toFloat() + y1.toFloat()
         val expectedPosition = Offset(expectedX, expectedY)
 
         val result = node1.coordinates.localToGlobal(localPosition)
@@ -411,17 +410,17 @@ class LayoutNodeTest {
         val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
-        val x0 = 100.ipx
-        val y0 = 10.ipx
-        val x1 = 50.ipx
-        val y1 = 80.ipx
+        val x0 = 100
+        val y0 = 10
+        val x1 = 50
+        val y1 = 80
         node0.place(x0, y0)
         node1.place(x1, y1)
 
         val localPosition = Offset(5f, 15f)
 
-        val expectedX = localPosition.x + x0.value.toFloat() + x1.value.toFloat()
-        val expectedY = localPosition.y + y0.value.toFloat() + y1.value.toFloat()
+        val expectedX = localPosition.x + x0.toFloat() + x1.toFloat()
+        val expectedY = localPosition.y + y0.toFloat() + y1.toFloat()
         val expectedPosition = Offset(expectedX, expectedY)
 
         val result = node1.coordinates.localToGlobal(localPosition)
@@ -432,8 +431,8 @@ class LayoutNodeTest {
     @Test
     fun testPxLocalToGlobalUsesOwnerPosition() {
         val node = ZeroSizedLayoutNode()
-        node.attach(mockOwner(IntPxPosition(20.ipx, 20.ipx)))
-        node.place(100.ipx, 10.ipx)
+        node.attach(mockOwner(IntOffset(20, 20)))
+        node.place(100, 10)
 
         val result = node.coordinates.localToGlobal(Offset.Zero)
 
@@ -443,8 +442,8 @@ class LayoutNodeTest {
     @Test
     fun testIntPxLocalToGlobalUsesOwnerPosition() {
         val node = ZeroSizedLayoutNode()
-        node.attach(mockOwner(IntPxPosition(20.ipx, 20.ipx)))
-        node.place(100.ipx, 10.ipx)
+        node.attach(mockOwner(IntOffset(20, 20)))
+        node.place(100, 10)
 
         val result = node.coordinates.localToGlobal(Offset.Zero)
 
@@ -458,15 +457,15 @@ class LayoutNodeTest {
         val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
-        val x1 = 50.ipx
-        val y1 = 80.ipx
-        node0.place(100.ipx, 10.ipx)
+        val x1 = 50
+        val y1 = 80
+        node0.place(100, 10)
         node1.place(x1, y1)
 
         val localPosition = Offset(5f, 15f)
 
-        val expectedX = localPosition.x + x1.value.toFloat()
-        val expectedY = localPosition.y + y1.value.toFloat()
+        val expectedX = localPosition.x + x1.toFloat()
+        val expectedY = localPosition.y + y1.toFloat()
         val expectedPosition = Offset(expectedX, expectedY)
 
         val result = node0.coordinates.childToLocal(node1.coordinates, localPosition)
@@ -518,8 +517,8 @@ class LayoutNodeTest {
         parent.attach(mockOwner())
         val child = ZeroSizedLayoutNode()
         parent.insertAt(0, child)
-        parent.place(-100.ipx, 10.ipx)
-        child.place(50.ipx, 80.ipx)
+        parent.place(-100, 10)
+        child.place(50, 80)
 
         val actual = child.coordinates.positionInRoot
 
@@ -529,10 +528,10 @@ class LayoutNodeTest {
     @Test
     fun testPositionRelativeToRootIsNotAffectedByOwnerPosition() {
         val parent = LayoutNode()
-        parent.attach(mockOwner(IntPxPosition(20.ipx, 20.ipx)))
+        parent.attach(mockOwner(IntOffset(20, 20)))
         val child = ZeroSizedLayoutNode()
         parent.insertAt(0, child)
-        child.place(50.ipx, 80.ipx)
+        child.place(50, 80)
 
         val actual = child.coordinates.positionInRoot
 
@@ -545,8 +544,8 @@ class LayoutNodeTest {
         parent.attach(mockOwner())
         val child = ZeroSizedLayoutNode()
         parent.insertAt(0, child)
-        parent.place(-100.ipx, 10.ipx)
-        child.place(50.ipx, 80.ipx)
+        parent.place(-100, 10)
+        child.place(50, 80)
 
         val actual = parent.coordinates.childToLocal(child.coordinates, Offset.Zero)
 
@@ -561,9 +560,9 @@ class LayoutNodeTest {
         val child = ZeroSizedLayoutNode()
         grandParent.insertAt(0, parent)
         parent.insertAt(0, child)
-        grandParent.place(-7.ipx, 17.ipx)
-        parent.place(23.ipx, -13.ipx)
-        child.place(-3.ipx, 11.ipx)
+        grandParent.place(-7, 17)
+        parent.place(23, -13)
+        child.place(-3, 11)
 
         val actual = grandParent.coordinates.childToLocal(child.coordinates, Offset.Zero)
 
@@ -1254,7 +1253,7 @@ class LayoutNodeTest {
                 pointerInputFilter
             )
         ).apply {
-            attach(mockOwner(IntPxPosition(1.ipx, 1.ipx)))
+            attach(mockOwner(IntOffset(1, 1)))
         }
 
         val offsetThatHits1 = Offset(2f, 2f)
@@ -1593,7 +1592,7 @@ class LayoutNodeTest {
 }
 
 internal fun mockOwner(
-    position: IntPxPosition = IntPxPosition.Origin,
+    position: IntOffset = IntOffset.Origin,
     targetRoot: LayoutNode = LayoutNode()
 ): Owner =
     @Suppress("UNCHECKED_CAST")
@@ -1618,7 +1617,7 @@ internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = M
                 constraints: Constraints,
                 layoutDirection: LayoutDirection
             ): MeasureScope.MeasureResult =
-                measureScope.layout(x2.ipx - x.ipx, y2.ipx - y.ipx) {}
+                measureScope.layout(x2 - x, y2 - y) {}
         }
         attach(mockOwner())
         remeasure(Constraints(), layoutDirection)
@@ -1627,6 +1626,6 @@ internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = M
             wrapper.measureResult = innerLayoutNodeWrapper.measureResult
             wrapper = (wrapper as? LayoutNodeWrapper)?.wrapped
         }
-        place(x.ipx, y.ipx)
+        place(x, y)
         detach()
     }

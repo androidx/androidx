@@ -81,13 +81,12 @@ import androidx.ui.savedinstancestate.UiSavedStateRegistry
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntOffset
 import androidx.ui.unit.max
 import androidx.ui.util.fastForEach
 import androidx.ui.util.trace
 import java.lang.reflect.Method
+import kotlin.math.max
 
 /***
  * This function creates an instance of [AndroidOwner]
@@ -346,17 +345,17 @@ internal class AndroidComposeView constructor(
                 resources.configuration.localeLayoutDirection
             )
             measureAndLayoutDelegate.measureAndLayout()
-            setMeasuredDimension(root.width.value, root.height.value)
+            setMeasuredDimension(root.width, root.height)
         }
     }
 
-    private fun convertMeasureSpec(measureSpec: Int): Pair<IntPx, IntPx> {
+    private fun convertMeasureSpec(measureSpec: Int): Pair<Int, Int> {
         val mode = MeasureSpec.getMode(measureSpec)
-        val size = IntPx(MeasureSpec.getSize(measureSpec))
+        val size = MeasureSpec.getSize(measureSpec)
         return when (mode) {
             MeasureSpec.EXACTLY -> size to size
-            MeasureSpec.UNSPECIFIED -> IntPx.Zero to IntPx.Infinity
-            MeasureSpec.AT_MOST -> IntPx.Zero to size
+            MeasureSpec.UNSPECIFIED -> 0 to Constraints.Infinity
+            MeasureSpec.AT_MOST -> 0 to size
             else -> throw IllegalStateException()
         }
     }
@@ -632,10 +631,10 @@ internal class AndroidComposeView constructor(
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? =
         textInputServiceAndroid.createInputConnection(outAttrs)
 
-    override fun calculatePosition(): IntPxPosition {
+    override fun calculatePosition(): IntOffset {
         val positionArray = intArrayOf(0, 0)
         getLocationOnScreen(positionArray)
-        return IntPxPosition(positionArray[0].ipx, positionArray[1].ipx)
+        return IntOffset(positionArray[0], positionArray[1])
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -714,26 +713,26 @@ internal class AndroidComposeView constructor(
                 layoutDirection: LayoutDirection
             ): MeasureScope.MeasureResult {
                 return when {
-                    measurables.isEmpty() -> measureScope.layout(IntPx.Zero, IntPx.Zero) {}
+                    measurables.isEmpty() -> measureScope.layout(0, 0) {}
                     measurables.size == 1 -> {
                         val placeable = measurables[0].measure(constraints, layoutDirection)
                         measureScope.layout(placeable.width, placeable.height) {
-                            placeable.place(IntPx.Zero, IntPx.Zero)
+                            placeable.place(0, 0)
                         }
                     }
                     else -> {
                         val placeables = measurables.map {
                             it.measure(constraints, layoutDirection)
                         }
-                        var maxWidth = IntPx.Zero
-                        var maxHeight = IntPx.Zero
+                        var maxWidth = 0
+                        var maxHeight = 0
                         placeables.fastForEach { placeable ->
                             maxWidth = max(placeable.width, maxWidth)
                             maxHeight = max(placeable.height, maxHeight)
                         }
                         measureScope.layout(maxWidth, maxHeight) {
                             placeables.fastForEach { placeable ->
-                                placeable.place(IntPx.Zero, IntPx.Zero)
+                                placeable.place(0, 0)
                             }
                         }
                     }
@@ -743,28 +742,28 @@ internal class AndroidComposeView constructor(
             override fun minIntrinsicWidth(
                 intrinsicMeasureScope: IntrinsicMeasureScope,
                 measurables: List<IntrinsicMeasurable>,
-                h: IntPx,
+                h: Int,
                 layoutDirection: LayoutDirection
             ) = error("Undefined intrinsics block and it is required")
 
             override fun minIntrinsicHeight(
                 intrinsicMeasureScope: IntrinsicMeasureScope,
                 measurables: List<IntrinsicMeasurable>,
-                w: IntPx,
+                w: Int,
                 layoutDirection: LayoutDirection
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicWidth(
                 intrinsicMeasureScope: IntrinsicMeasureScope,
                 measurables: List<IntrinsicMeasurable>,
-                h: IntPx,
+                h: Int,
                 layoutDirection: LayoutDirection
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicHeight(
                 intrinsicMeasureScope: IntrinsicMeasureScope,
                 measurables: List<IntrinsicMeasurable>,
-                w: IntPx,
+                w: Int,
                 layoutDirection: LayoutDirection
             ) = error("Undefined intrinsics block and it is required")
         }

@@ -49,7 +49,6 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.onClick
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
 import kotlin.math.roundToInt
 
 /**
@@ -238,8 +237,8 @@ fun CoreTextField(
                         width,
                         height,
                         mapOf(
-                            FirstBaseline to result.firstBaseline.roundToInt().ipx,
-                            LastBaseline to result.lastBaseline.roundToInt().ipx
+                            FirstBaseline to result.firstBaseline.roundToInt(),
+                            LastBaseline to result.lastBaseline.roundToInt()
                         )
                     ) {}
                 }

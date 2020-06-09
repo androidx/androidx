@@ -44,9 +44,6 @@ import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.ipx
-import androidx.ui.unit.min
 import kotlin.math.roundToInt
 
 /**
@@ -317,15 +314,15 @@ private fun ScrollerLayout(
         children = child,
         measureBlock = { measurables, constraints, _ ->
             val childConstraints = constraints.copy(
-                maxHeight = if (isVertical) IntPx.Infinity else constraints.maxHeight,
-                maxWidth = if (isVertical) constraints.maxWidth else IntPx.Infinity
+                maxHeight = if (isVertical) Constraints.Infinity else constraints.maxHeight,
+                maxWidth = if (isVertical) constraints.maxWidth else Constraints.Infinity
             )
             require(measurables.size == 1)
             val placeable = measurables.first().measure(childConstraints)
-            val width = min(placeable.width, constraints.maxWidth)
-            val height = min(placeable.height, constraints.maxHeight)
-            val scrollHeight = placeable.height.value.toFloat() - height.value.toFloat()
-            val scrollWidth = placeable.width.value.toFloat() - width.value.toFloat()
+            val width = placeable.width.coerceAtMost(constraints.maxWidth)
+            val height = placeable.height.coerceAtMost(constraints.maxHeight)
+            val scrollHeight = placeable.height.toFloat() - height.toFloat()
+            val scrollWidth = placeable.width.toFloat() - width.toFloat()
             val side = if (isVertical) scrollHeight else scrollWidth
             layout(width, height) {
                 scrollerPosition.updateMaxPosition(side)
@@ -334,7 +331,7 @@ private fun ScrollerLayout(
                     if (scrollerPosition.isReversed) scroll - side else -scroll
                 val xOffset = if (isVertical) 0 else absScroll.roundToInt()
                 val yOffset = if (isVertical) absScroll.roundToInt() else 0
-                placeable.place(xOffset.ipx, yOffset.ipx)
+                placeable.place(xOffset, yOffset)
             }
         }
     )

@@ -87,7 +87,7 @@ fun SimpleRelativeToSiblingsInRow() {
         Box(
             backgroundColor = Color.Red,
             modifier = Modifier.preferredSize(80.dp, 40.dp)
-                .alignWithSiblings { it.height * 0.5 }
+                .alignWithSiblings { it.height / 2 }
         )
         Text(
             text = "Text.",

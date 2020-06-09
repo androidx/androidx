@@ -16,19 +16,19 @@
 
 package androidx.ui.text
 
-import androidx.ui.util.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.constrain
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
+import androidx.ui.text.TextDelegate.Companion.paint
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
+import androidx.ui.util.annotation.VisibleForTesting
+import kotlin.math.ceil
 
 /**
  * An object that paints text onto a [Canvas].
@@ -94,8 +94,8 @@ class TextDelegate(
      *
      * Valid only after [layout] has been called.
      */
-    val minIntrinsicWidth: IntPx get() = assumeIntrinsics {
-        kotlin.math.ceil(it.minIntrinsicWidth).toInt().ipx
+    val minIntrinsicWidth: Int get() = assumeIntrinsics {
+        kotlin.math.ceil(it.minIntrinsicWidth).toInt()
     }
 
     /**
@@ -103,8 +103,8 @@ class TextDelegate(
      *
      * Valid only after [layout] has been called.
      */
-    val maxIntrinsicWidth: IntPx get() = assumeIntrinsics {
-        kotlin.math.ceil(it.maxIntrinsicWidth).toInt().ipx
+    val maxIntrinsicWidth: Int get() = assumeIntrinsics {
+        kotlin.math.ceil(it.maxIntrinsicWidth).toInt()
     }
 
     init {
@@ -170,9 +170,13 @@ class TextDelegate(
         layoutDirection: LayoutDirection,
         prevResult: TextLayoutResult? = null
     ): TextLayoutResult {
-        val minWidth = constraints.minWidth
+        val minWidth = constraints.minWidth.toFloat()
         val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
-        val maxWidth = if (widthMatters) constraints.maxWidth else IntPx.Infinity
+        val maxWidth = if (widthMatters && constraints.hasBoundedWidth) {
+            constraints.maxWidth.toFloat()
+        } else {
+            Float.POSITIVE_INFINITY
+        }
 
         if (prevResult != null && prevResult.canReuse(
                 text, style, maxLines, softWrap, overflow, density, layoutDirection,
@@ -181,9 +185,9 @@ class TextDelegate(
                 copy(
                     layoutInput = layoutInput.copy(constraints = constraints),
                     size = constraints.constrain(
-                        IntPxSize(
-                            kotlin.math.ceil(multiParagraph.width).toInt().ipx,
-                            kotlin.math.ceil(multiParagraph.height).toInt().ipx
+                        IntSize(
+                            ceil(multiParagraph.width).toInt(),
+                            ceil(multiParagraph.height).toInt()
                         )
                     )
                 )
@@ -191,15 +195,15 @@ class TextDelegate(
         }
 
         val multiParagraph = layoutText(
-            minWidth.value.toFloat(),
-            maxWidth.value.toFloat(),
+            minWidth,
+            maxWidth,
             layoutDirection
         )
 
         val size = constraints.constrain(
-            IntPxSize(
-                kotlin.math.ceil(multiParagraph.width).toInt().ipx,
-                kotlin.math.ceil(multiParagraph.height).toInt().ipx
+            IntSize(
+                ceil(multiParagraph.width).toInt(),
+                ceil(multiParagraph.height).toInt()
             )
         )
 

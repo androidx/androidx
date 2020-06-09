@@ -23,8 +23,6 @@ import androidx.compose.state
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.hasBoundedHeight
-import androidx.ui.core.hasBoundedWidth
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.clickable
@@ -97,7 +95,7 @@ fun ModalDrawerLayout(
         val dpConstraints = with(DensityAmbient.current) {
             DpConstraints(constraints)
         }
-        val minValue = -constraints.maxWidth.value.toFloat()
+        val minValue = -constraints.maxWidth.toFloat()
         val maxValue = 0f
 
         val anchors = listOf(minValue to DrawerState.Closed, maxValue to DrawerState.Opened)
@@ -171,7 +169,7 @@ fun BottomDrawerLayout(
             DpConstraints(constraints)
         }
         val minValue = 0f
-        val maxValue = constraints.maxHeight.value.toFloat()
+        val maxValue = constraints.maxHeight.toFloat()
 
         // TODO: add proper landscape support
         val isLandscape = constraints.maxWidth > constraints.maxHeight

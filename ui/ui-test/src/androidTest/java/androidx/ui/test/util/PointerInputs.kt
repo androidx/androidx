@@ -25,7 +25,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.Duration
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.Uptime
 import com.google.common.truth.Truth.assertThat
 
@@ -72,7 +72,7 @@ class RecordingFilter(
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange> {
         if (pass == PointerEventPass.InitialDown) {
             record(changes)

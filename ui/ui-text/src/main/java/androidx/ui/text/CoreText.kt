@@ -35,6 +35,7 @@ import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrarAmbient
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.graphics.Paint
@@ -43,13 +44,10 @@ import androidx.ui.text.selection.TextSelectionDelegate
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
-import androidx.ui.unit.min
 import androidx.ui.util.fastForEach
 import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 /** The default selection color if none is specified. */
@@ -162,10 +160,10 @@ fun CoreText(
             state.textDelegate
                 .layout(
                     Constraints(
-                        0.ipx,
+                        0,
                         width,
-                        0.ipx,
-                        IntPx.Infinity
+                        0,
+                        Constraints.Infinity
                     ),
                     layoutDirection
                 ).size.height
@@ -178,10 +176,10 @@ fun CoreText(
             state.textDelegate
                 .layout(
                     Constraints(
-                        0.ipx,
+                        0,
                         width,
-                        0.ipx,
-                        IntPx.Infinity
+                        0,
+                        Constraints.Infinity
                     ),
                     layoutDirection
                 ).size.height
@@ -205,8 +203,8 @@ fun CoreText(
                 Pair(
                     measurables[index].measure(
                         Constraints(
-                            maxWidth = floor(it.width).toInt().ipx,
-                            maxHeight = floor(it.height).toInt().ipx
+                            maxWidth = floor(it.width).toInt(),
+                            maxHeight = floor(it.height).toInt()
                         )
                     ),
                     Offset(it.left, it.top)
@@ -221,15 +219,15 @@ fun CoreText(
             // and last baselines of the text. These can be used by parent layouts
             // to position this text or align this and other texts by baseline.
             //
-            // Note: we use round to make IntPx but any rounding doesn't work well here since
+            // Note: we use round to make Int but any rounding doesn't work well here since
             // the layout system works with integer pixels but baseline can be in a middle of
             // the pixel. So any rounding doesn't offer the pixel perfect baseline. We use
             // round just because the Android framework is doing float-to-int conversion with
             // round.
             // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/jni/android/graphics/Paint.cpp;l=635?q=Paint.cpp
             mapOf(
-                FirstBaseline to layoutResult.firstBaseline.roundToInt().ipx,
-                LastBaseline to layoutResult.lastBaseline.roundToInt().ipx
+                FirstBaseline to layoutResult.firstBaseline.roundToInt(),
+                LastBaseline to layoutResult.lastBaseline.roundToInt()
             )
         ) {
             placeables.fastForEach { placeable ->
@@ -269,7 +267,7 @@ internal fun InlineChildren(
         ) { children, constrains, _ ->
             val placeables = children.map { it.measure(constrains) }
             layout(width = constrains.maxWidth, height = constrains.maxHeight) {
-                placeables.fastForEach { it.place(0.ipx, 0.ipx) }
+                placeables.fastForEach { it.place(0, 0) }
             }
         }
     }

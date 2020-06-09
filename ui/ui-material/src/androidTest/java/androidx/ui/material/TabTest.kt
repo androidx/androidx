@@ -150,7 +150,7 @@ class TabTest {
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords.localToGlobal(Offset.Zero).y
-            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).value.toFloat()
+            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toFloat()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
 
             tabRowWidth to tabRowHeight
@@ -164,12 +164,12 @@ class TabTest {
         runOnIdleCompose {
             with(composeTestRule.density) {
                 val indicatorPositionX = indicatorCoords.localToGlobal(Offset.Zero).x
-                val expectedPositionX = (tabRowWidth / 2).value.toFloat()
+                val expectedPositionX = (tabRowWidth / 2).toFloat()
                 assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
                 val indicatorPositionY = indicatorCoords.localToGlobal(Offset.Zero).y
                 val expectedPositionY =
-                    (tabRowHeight - indicatorHeight.toIntPx()).value.toFloat()
+                    (tabRowHeight - indicatorHeight.toIntPx()).toFloat()
                 assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
             }
         }
@@ -195,7 +195,7 @@ class TabTest {
                         text = {
                             Text(text, Modifier.onPositioned { coords: LayoutCoordinates ->
                                 textCoords = coords
-                                textBaseline = coords[LastBaseline]!!.value.toFloat()
+                                textBaseline = coords[LastBaseline]!!.toFloat()
                             })
                         },
                         selected = state == index,
@@ -209,13 +209,13 @@ class TabTest {
             val expectedBaseline = 18.dp
             val indicatorHeight = 2.dp
             val expectedBaselineDistance =
-                (expectedBaseline.toIntPx() + indicatorHeight.toIntPx()).value.toFloat()
+                (expectedBaseline.toIntPx() + indicatorHeight.toIntPx()).toFloat()
 
             val tabRowHeight = tabRowCoords.size.height
 
             val textPositionY = textCoords.localToGlobal(Offset.Zero).y
             val baselinePositionY = textPositionY + textBaseline
-            val expectedPositionY = (tabRowHeight.value.toFloat() - expectedBaselineDistance)
+            val expectedPositionY = (tabRowHeight.toFloat() - expectedBaselineDistance)
             assertThat(baselinePositionY).isEqualTo(expectedPositionY)
         }
     }
@@ -240,7 +240,7 @@ class TabTest {
                         text = {
                             Text(text, Modifier.onPositioned { coords: LayoutCoordinates ->
                                 textCoords = coords
-                                textBaseline = coords[LastBaseline]!!.value.toFloat()
+                                textBaseline = coords[LastBaseline]!!.toFloat()
                             })
                         },
                         icon = { Icon(Icons.Filled.Favorite) },
@@ -255,13 +255,13 @@ class TabTest {
             val expectedBaseline = 14.dp
             val indicatorHeight = 2.dp
             val expectedBaselineDistance =
-                (expectedBaseline.toIntPx() + indicatorHeight.toIntPx()).value.toFloat()
+                (expectedBaseline.toIntPx() + indicatorHeight.toIntPx()).toFloat()
 
             val tabRowHeight = tabRowCoords.size.height
 
             val textPositionY = textCoords.localToGlobal(Offset.Zero).y
             val baselinePositionY = textPositionY + textBaseline
-            val expectedPositionY = (tabRowHeight.value.toFloat() - expectedBaselineDistance)
+            val expectedPositionY = (tabRowHeight.toFloat() - expectedBaselineDistance)
             assertThat(baselinePositionY).isEqualTo(expectedPositionY)
         }
     }
@@ -286,7 +286,7 @@ class TabTest {
                         text = {
                             Text(text, Modifier.preferredWidth(100.dp).onPositioned { coords ->
                                 textCoords = coords
-                                textBaseline = coords[LastBaseline]!!.value.toFloat()
+                                textBaseline = coords[LastBaseline]!!.toFloat()
                             }, maxLines = 2)
                         },
                         selected = state == index,
@@ -300,13 +300,13 @@ class TabTest {
             val expectedBaseline = 10.dp
             val indicatorHeight = 2.dp
             val expectedBaselineDistance =
-                (expectedBaseline.toIntPx() + indicatorHeight.toIntPx()).value.toFloat()
+                (expectedBaseline.toIntPx() + indicatorHeight.toIntPx()).toFloat()
 
             val tabRowHeight = tabRowCoords.size.height
 
             val textPositionY = textCoords.localToGlobal(Offset.Zero).y
             val baselinePositionY = textPositionY + textBaseline
-            val expectedPositionY = (tabRowHeight.value.toFloat() - expectedBaselineDistance)
+            val expectedPositionY = (tabRowHeight.toFloat() - expectedBaselineDistance)
             assertThat(baselinePositionY).isEqualTo(expectedPositionY)
         }
     }
@@ -357,11 +357,11 @@ class TabTest {
             // Indicator should be placed in the bottom left of the first tab
             val indicatorPositionX = indicatorCoords.localToGlobal(Offset.Zero).x
             // Tabs in a scrollable tab row are offset 52.dp from each end
-            val expectedPositionX = scrollableTabRowOffset.toIntPx().value.toFloat()
+            val expectedPositionX = scrollableTabRowOffset.toIntPx().toFloat()
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords.localToGlobal(Offset.Zero).y
-            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).value.toFloat()
+            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toFloat()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
 
             tabRowHeight
@@ -375,12 +375,12 @@ class TabTest {
         composeTestRule.runOnIdleComposeWithDensity {
             val indicatorPositionX = indicatorCoords.localToGlobal(Offset.Zero).x
             val expectedPositionX =
-                (scrollableTabRowOffset + minimumTabWidth).toIntPx().value.toFloat()
+                (scrollableTabRowOffset + minimumTabWidth).toIntPx().toFloat()
             assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
 
             val indicatorPositionY = indicatorCoords.localToGlobal(Offset.Zero).y
             val expectedPositionY =
-                (tabRowHeight - indicatorHeight.toIntPx()).value.toFloat()
+                (tabRowHeight - indicatorHeight.toIntPx()).toFloat()
             assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
         }
     }

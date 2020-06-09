@@ -136,8 +136,8 @@ internal fun getTextSelectionInfo(
     val bounds = Rect(
         0.0f,
         0.0f,
-        textLayoutResult.size.width.value.toFloat(),
-        textLayoutResult.size.height.value.toFloat()
+        textLayoutResult.size.width.toFloat(),
+        textLayoutResult.size.height.toFloat()
     )
 
     val lastOffset = textLayoutResult.layoutInput.text.text.length

@@ -52,10 +52,7 @@ import androidx.ui.material.samples.PasswordFilledTextField
 import androidx.ui.material.samples.TextFieldWithHelperMessage
 import androidx.ui.material.samples.TextFieldWithHideKeyboardOnImeAction
 import androidx.ui.savedinstancestate.savedInstanceState
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-
 @Composable
 fun TextFieldsDemo() {
     val space = with(DensityAmbient.current) { 5.dp.toIntPx() }
@@ -196,14 +193,14 @@ private fun OptionRow(
  */
 private enum class Option { None, Helper, Error }
 
-private fun arrangeWithSpacer(space: IntPx) = object : Arrangement.Vertical {
+private fun arrangeWithSpacer(space: Int) = object : Arrangement.Vertical {
     override fun arrange(
-        totalSize: IntPx,
-        size: List<IntPx>,
+        totalSize: Int,
+        size: List<Int>,
         layoutDirection: LayoutDirection
-    ): List<IntPx> {
-        val positions = mutableListOf<IntPx>()
-        var current = 0.ipx
+    ): List<Int> {
+        val positions = mutableListOf<Int>()
+        var current = 0
         size.forEach {
             positions.add(current)
             current += (it + space)

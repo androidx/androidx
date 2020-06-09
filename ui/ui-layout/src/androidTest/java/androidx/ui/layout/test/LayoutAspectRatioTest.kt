@@ -22,12 +22,10 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.layout.aspectRatio
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.layout.aspectRatio
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -44,15 +42,15 @@ class LayoutAspectRatioTest : LayoutTest() {
         testIntrinsics(@Composable {
             Container(modifier = Modifier.aspectRatio(2f), width = 30.dp, height = 40.dp) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
-            assertEquals(40.ipx, minIntrinsicWidth(20.ipx))
-            assertEquals(40.ipx, maxIntrinsicWidth(20.ipx))
-            assertEquals(20.ipx, minIntrinsicHeight(40.ipx))
-            assertEquals(20.ipx, maxIntrinsicHeight(40.ipx))
+            assertEquals(40, minIntrinsicWidth(20))
+            assertEquals(40, maxIntrinsicWidth(20))
+            assertEquals(20, minIntrinsicHeight(40))
+            assertEquals(20, maxIntrinsicHeight(40))
 
-            assertEquals(30.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
-            assertEquals(30.dp.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
-            assertEquals(40.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
-            assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
+            assertEquals(30.dp.toIntPx(), minIntrinsicWidth(Constraints.Infinity))
+            assertEquals(30.dp.toIntPx(), maxIntrinsicWidth(Constraints.Infinity))
+            assertEquals(40.dp.toIntPx(), minIntrinsicHeight(Constraints.Infinity))
+            assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(Constraints.Infinity))
         }
     }
 
@@ -68,29 +66,29 @@ class LayoutAspectRatioTest : LayoutTest() {
 
     @Test
     fun testAspectRatio_sizesCorrectly() {
-        assertEquals(IntPxSize(30.ipx, 30.ipx), getSize(1f, Constraints(maxWidth = 30.ipx)))
-        assertEquals(IntPxSize(30.ipx, 15.ipx), getSize(2f, Constraints(maxWidth = 30.ipx)))
+        assertEquals(IntSize(30, 30), getSize(1f, Constraints(maxWidth = 30)))
+        assertEquals(IntSize(30, 15), getSize(2f, Constraints(maxWidth = 30)))
         assertEquals(
-            IntPxSize(10.ipx, 10.ipx),
-            getSize(1f, Constraints(maxWidth = 30.ipx, maxHeight = 10.ipx))
+            IntSize(10, 10),
+            getSize(1f, Constraints(maxWidth = 30, maxHeight = 10))
         )
         assertEquals(
-            IntPxSize(20.ipx, 10.ipx),
-            getSize(2f, Constraints(maxWidth = 30.ipx, maxHeight = 10.ipx))
+            IntSize(20, 10),
+            getSize(2f, Constraints(maxWidth = 30, maxHeight = 10))
         )
         assertEquals(
-            IntPxSize(10.ipx, 5.ipx),
-            getSize(2f, Constraints(minWidth = 10.ipx, minHeight = 5.ipx))
+            IntSize(10, 5),
+            getSize(2f, Constraints(minWidth = 10, minHeight = 5))
         )
         assertEquals(
-            IntPxSize(20.ipx, 10.ipx),
-            getSize(2f, Constraints(minWidth = 5.ipx, minHeight = 10.ipx))
+            IntSize(20, 10),
+            getSize(2f, Constraints(minWidth = 5, minHeight = 10))
         )
     }
 
-    private fun getSize(aspectRatio: Float, childContraints: Constraints): IntPxSize {
+    private fun getSize(aspectRatio: Float, childContraints: Constraints): IntSize {
         val positionedLatch = CountDownLatch(1)
-        val size = Ref<IntPxSize>()
+        val size = Ref<IntSize>()
         val position = Ref<Offset>()
         show {
             Layout(@Composable {
@@ -103,7 +101,7 @@ class LayoutAspectRatioTest : LayoutTest() {
                 require(measurables.isNotEmpty())
                 val placeable = measurables.first().measure(childContraints)
                 layout(incomingConstraints.maxWidth, incomingConstraints.maxHeight) {
-                    placeable.place(0.ipx, 0.ipx)
+                    placeable.place(0, 0)
                 }
             }
         }

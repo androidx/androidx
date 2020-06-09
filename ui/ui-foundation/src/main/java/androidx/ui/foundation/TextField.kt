@@ -267,7 +267,7 @@ private data class CursorModifier(
                 TextFieldDelegate.applyCompositionDecoration(it, transformed)
             } ?: transformed
             val cursorWidth = CursorThickness.value * density
-            val cursorHeight = cursorState.layoutResult?.size?.height?.value?.toFloat() ?: 0f
+            val cursorHeight = cursorState.layoutResult?.size?.height?.toFloat() ?: 0f
 
             val cursorRect = cursorState.layoutResult?.getCursorRect(
                 transformedText.offsetMap.originalToTransformed(editorValue.value.selection.min)

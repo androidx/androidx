@@ -33,10 +33,8 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.relativePaddingFrom
 import androidx.ui.layout.padding
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
+import kotlin.math.max
 
 /**
  * Snackbars provide brief messages about app processes at the bottom of the screen.
@@ -111,7 +109,7 @@ private fun TextOnlySnackbar(text: @Composable () -> Unit) {
         val minHeight = if (firstBaseline == lastBaseline) MinHeightOneLine else MinHeightTwoLines
         layout(constraints.maxWidth, max(minHeight.toIntPx(), textPlaceable.height)) {
             val textPlaceY = HeightToFirstLine.toIntPx() - firstBaseline
-            textPlaceable.place(0.ipx, textPlaceY)
+            textPlaceable.place(0, textPlaceY)
         }
     }
 }
@@ -159,7 +157,7 @@ private fun OneRowSnackbar(
             (constraints.maxWidth - buttonPlaceable.width - TextEndExtraSpacing.toIntPx())
                 .coerceAtLeast(constraints.minWidth)
         val textPlaceable = measurables.first { it.tag == textTag }.measure(
-            constraints.copy(minHeight = IntPx.Zero, maxWidth = textMaxWidth)
+            constraints.copy(minHeight = 0, maxWidth = textMaxWidth)
         )
 
         val firstTextBaseline =
@@ -171,8 +169,8 @@ private fun OneRowSnackbar(
         val textPlaceY = baselineOffset - firstTextBaseline
         val buttonPlaceX = constraints.maxWidth - buttonPlaceable.width
 
-        val containerHeight: IntPx
-        val buttonPlaceY: IntPx
+        val containerHeight: Int
+        val buttonPlaceY: Int
         if (isOneLine) {
             val minContainerHeight = MinHeightOneLine.toIntPx()
             val contentHeight = buttonPlaceable.height + SingleTextYPadding.toIntPx() * 2
@@ -188,7 +186,7 @@ private fun OneRowSnackbar(
         }
 
         layout(constraints.maxWidth, containerHeight) {
-            textPlaceable.place(0.ipx, textPlaceY)
+            textPlaceable.place(0, textPlaceY)
             buttonPlaceable.place(buttonPlaceX, buttonPlaceY)
         }
     }

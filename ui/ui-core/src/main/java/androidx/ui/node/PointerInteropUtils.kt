@@ -23,7 +23,7 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.unit.Duration
-import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntOffset
 import androidx.ui.unit.NanosecondsPerMillisecond
 import androidx.ui.unit.milliseconds
 
@@ -38,7 +38,7 @@ import androidx.ui.unit.milliseconds
  * @param block The block to be executed with the created [MotionEvent].
  */
 internal fun List<PointerInputChange>.toMotionEventScope(
-    regionToGlobalOffset: IntPxPosition,
+    regionToGlobalOffset: IntOffset,
     block: (MotionEvent) -> Unit
 ) {
     toMotionEventScope(regionToGlobalOffset, block, false)
@@ -56,7 +56,7 @@ internal fun List<PointerInputChange>.toMotionEventScope(
  */
 // TODO(shepshapard): Refactor in order to remove the need for current.uptime!!
 internal fun List<PointerInputChange>.toCancelMotionEventScope(
-    regionToGlobalOffset: IntPxPosition,
+    regionToGlobalOffset: IntOffset,
     block: (MotionEvent) -> Unit
 ) {
     toMotionEventScope(regionToGlobalOffset, block, true)
@@ -76,7 +76,7 @@ internal fun emptyCancelMotionEventScope(
 }
 
 private fun List<PointerInputChange>.toMotionEventScope(
-    regionToGlobalOffset: IntPxPosition,
+    regionToGlobalOffset: IntOffset,
     block: (MotionEvent) -> Unit,
     cancel: Boolean
 ) {
@@ -137,8 +137,8 @@ private fun List<PointerInputChange>.toMotionEventScope(
                     it.current.position!!.y
                 }
             // We add the regionToGlobalOffset so that the raw coordinates are correct.
-            val rawX = offsetX + regionToGlobalOffset.x.value
-            val rawY = offsetY + regionToGlobalOffset.y.value
+            val rawX = offsetX + regionToGlobalOffset.x
+            val rawY = offsetY + regionToGlobalOffset.y
 
             MotionEvent.PointerCoords().apply {
                 this.x = rawX
@@ -167,8 +167,8 @@ private fun List<PointerInputChange>.toMotionEventScope(
     ).apply {
         // We subtract the regionToGlobalOffset so the local coordinates are correct.
         offsetLocation(
-            -regionToGlobalOffset.x.value.toFloat(),
-            -regionToGlobalOffset.y.value.toFloat()
+            -regionToGlobalOffset.x.toFloat(),
+            -regionToGlobalOffset.y.toFloat()
         )
         block(this)
         recycle()

@@ -31,7 +31,6 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.ltr
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.rtl
-import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -57,7 +56,7 @@ class LayoutDirectionModifierTest : LayoutTest() {
             ) { _, _, incomingLayoutDirection ->
                 layoutDirection.value = incomingLayoutDirection
                 latch.countDown()
-                layout(0.ipx, 0.ipx) {}
+                layout(0, 0) {}
             }
         }
 
@@ -75,16 +74,16 @@ class LayoutDirectionModifierTest : LayoutTest() {
             Layout(
                 children = @Composable {},
                 modifier = Modifier.preferredWidth(IntrinsicSize.Max).rtl,
-                minIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
-                minIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx },
+                minIntrinsicWidthMeasureBlock = { _, _, _ -> 0 },
+                minIntrinsicHeightMeasureBlock = { _, _, _ -> 0 },
                 maxIntrinsicWidthMeasureBlock = { _, _, incomingLayoutDirection ->
                     layoutDirection.value = incomingLayoutDirection
                     latch.countDown()
-                    0.ipx
+                    0
                 },
-                maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx }
+                maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0 }
             ) { _, _, _ ->
-                layout(0.ipx, 0.ipx) {}
+                layout(0, 0) {}
             }
         }
 
@@ -107,7 +106,7 @@ class LayoutDirectionModifierTest : LayoutTest() {
                 Layout(emptyContent(), restoreModifier) { _, _, layoutDirection ->
                     resultLayoutDirection.value = layoutDirection
                     latch.countDown()
-                    layout(0.ipx, 0.ipx) {}
+                    layout(0, 0) {}
                 }
             }
         }

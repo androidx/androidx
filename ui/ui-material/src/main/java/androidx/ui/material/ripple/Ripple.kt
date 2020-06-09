@@ -41,14 +41,13 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Interaction
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.toSize
 import androidx.ui.util.fastForEach
 
@@ -104,7 +103,7 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
 
     var color: Color by mutableStateOf(Color.Transparent, StructurallyEqual)
 
-    private var size: IntPxSize = IntPxSize(0.ipx, 0.ipx)
+    private var size: IntSize = IntSize(0, 0)
     private var effects = modelListOf<RippleAnimation>()
     private var currentEffect: RippleAnimation? = null
 
@@ -114,9 +113,9 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
         layoutDirection: LayoutDirection
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(constraints)
-        size = IntPxSize(placeable.width, placeable.height)
+        size = IntSize(placeable.width, placeable.height)
         return layout(placeable.width, placeable.height) {
-            placeable.place(0.ipx, 0.ipx)
+            placeable.place(0, 0)
         }
     }
 
@@ -137,7 +136,7 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
         val targetRadius = with(density) {
             radius?.toPx() ?: getRippleEndRadius(
                 bounded,
-                Size(size.width.value.toFloat(), size.height.value.toFloat())
+                Size(size.width.toFloat(), size.height.toFloat())
             )
         }
 

@@ -45,12 +45,13 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.Ref
 import androidx.ui.core.clipToBounds
+import androidx.ui.core.constrainWidth
 import androidx.ui.core.drawBehind
-import androidx.ui.core.offset
-import androidx.ui.core.tag
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
+import androidx.ui.core.offset
+import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
@@ -66,10 +67,10 @@ import androidx.ui.foundation.shape.corner.ZeroCornerSize
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
+import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.VisualTransformation
-import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.RippleIndication
@@ -81,12 +82,10 @@ import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.lerp
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
-import androidx.ui.unit.min
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
@@ -527,17 +526,17 @@ internal fun TextFieldScroller(
             ),
         children = textField,
         measureBlock = { measurables, constraints, _ ->
-            val childConstraints = constraints.copy(maxHeight = IntPx.Infinity)
+            val childConstraints = constraints.copy(maxHeight = Constraints.Infinity)
             val placeable = measurables.first().measure(childConstraints)
             val height = min(placeable.height, constraints.maxHeight)
-            val diff = placeable.height.value.toFloat() - height.value.toFloat()
+            val diff = placeable.height.toFloat() - height.toFloat()
             layout(placeable.width, height) {
                 // update current and maximum positions to correctly calculate delta in scrollable
                 scrollerPosition.maximum = diff
                 if (scrollerPosition.current > diff) scrollerPosition.current = diff
 
                 val yOffset = scrollerPosition.current - diff
-                placeable.place(0.ipx, yOffset.roundToInt().ipx)
+                placeable.place(0, yOffset.roundToInt())
             }
         }
     )
@@ -603,15 +602,15 @@ private fun TextFieldLayout(
 
         val labelConstraints = constraints
             .offset(vertical = -LastBaselineOffset.toIntPx())
-            .copy(minWidth = IntPx.Zero, minHeight = IntPx.Zero)
+            .copy(minWidth = 0, minHeight = 0)
         val labelPlaceable = measurables.first { it.tag == LabelTag }.measure(labelConstraints)
         val labelBaseline = labelPlaceable[LastBaseline] ?: labelPlaceable.height
-        val labelEndPosition = (baseLineOffset - labelBaseline).coerceAtLeast(IntPx.Zero)
+        val labelEndPosition = (baseLineOffset - labelBaseline).coerceAtLeast(0)
         val effectiveLabelBaseline = max(labelBaseline, baseLineOffset)
 
         val textFieldConstraints = constraints
             .offset(vertical = -LastBaselineOffset.toIntPx() - effectiveLabelBaseline)
-            .copy(minHeight = IntPx.Zero)
+            .copy(minHeight = 0)
         val textfieldPlaceable = measurables
             .first { it.tag == TextFieldTag }
             .measure(textFieldConstraints)
@@ -628,7 +627,7 @@ private fun TextFieldLayout(
         layout(width, height) {
             // Text field and label are placed with respect to the baseline offsets.
             // But if label is empty, then the text field should be centered vertically.
-            if (labelPlaceable.width != IntPx.Zero) {
+            if (labelPlaceable.width != 0) {
                 // only respects the offset from the last baseline to the bottom of the text field
                 val textfieldPositionY = height - LastBaselineOffset.toIntPx() -
                         min(textfieldLastBaseline, textfieldPlaceable.height)
@@ -680,15 +679,15 @@ private fun IconsTextFieldLayout(
         },
         modifier = modifier
     ) { measurables, incomingConstraints, _ ->
-        val constraints = incomingConstraints.copy(minWidth = IntPx.Zero, minHeight = IntPx.Zero)
-        var occupiedSpace = 0.ipx
+        val constraints = incomingConstraints.copy(minWidth = 0, minHeight = 0)
+        var occupiedSpace = 0
 
         val leadingPlaceable = measurables.find { it.tag == "leading" }?.measure(constraints)
-        occupiedSpace += leadingPlaceable?.width ?: 0.ipx
+        occupiedSpace += leadingPlaceable?.width ?: 0
 
         val trailingPlaceable = measurables.find { it.tag == "trailing" }
             ?.measure(constraints.offset(horizontal = -occupiedSpace))
-        occupiedSpace += trailingPlaceable?.width ?: 0.ipx
+        occupiedSpace += trailingPlaceable?.width ?: 0
 
         val textFieldPlaceable = measurables.first {
             it.tag != "leading" && it.tag != "trailing"
@@ -701,16 +700,16 @@ private fun IconsTextFieldLayout(
                 leadingPlaceable,
                 trailingPlaceable,
                 textFieldPlaceable
-            ).maxBy { it?.height ?: 0.ipx }?.height ?: 0.ipx,
+            ).maxBy { it?.height ?: 0 }?.height ?: 0,
             incomingConstraints.minHeight
         )
         layout(width, height) {
             leadingPlaceable?.place(
-                0.ipx,
+                0,
                 Alignment.CenterVertically.align(height - leadingPlaceable.height)
             )
             textFieldPlaceable.place(
-                leadingPlaceable?.width ?: 0.ipx,
+                leadingPlaceable?.width ?: 0,
                 Alignment.CenterVertically.align(height - textFieldPlaceable.height)
             )
             trailingPlaceable?.place(
@@ -731,17 +730,17 @@ private fun Modifier.iconPadding(start: Dp = 0.dp, end: Dp = 0.dp) =
             val horizontal = start.toIntPx() + end.toIntPx()
             val placeable = measurable.measure(constraints.offset(-horizontal))
             val width = if (placeable.nonZero) {
-                (placeable.width + horizontal).coerceIn(constraints.minWidth, constraints.maxWidth)
+                constraints.constrainWidth(placeable.width + horizontal)
             } else {
-                0.ipx
+                0
             }
             return layout(width, placeable.height) {
-                placeable.place(start.toIntPx(), 0.ipx)
+                placeable.place(start.toIntPx(), 0)
             }
         }
     }
 
-private val Placeable.nonZero: Boolean get() = this.width != 0.ipx || this.height != 0.ipx
+private val Placeable.nonZero: Boolean get() = this.width != 0 || this.height != 0
 
 /**
  * A draw modifier that draws a bottom indicator line
@@ -763,47 +762,47 @@ private fun Modifier.drawIndicatorLine(lineWidth: Dp, color: Color): Modifier {
  * Places the provided text field, placeholder and label with respect to the baseline offsets
  */
 private fun Placeable.PlacementScope.placeLabelAndTextfield(
-    width: IntPx,
-    height: IntPx,
+    width: Int,
+    height: Int,
     textfieldPlaceable: Placeable,
     labelPlaceable: Placeable,
     placeholderPlaceable: Placeable?,
-    labelEndPosition: IntPx,
-    textPosition: IntPx,
+    labelEndPosition: Int,
+    textPosition: Int,
     animationProgress: Float
 ) {
     val labelCenterPosition = Alignment.CenterStart.align(
-        IntPxSize(
+        IntSize(
             width - labelPlaceable.width,
             height - labelPlaceable.height
         )
     )
     val labelDistance = labelCenterPosition.y - labelEndPosition
     val labelPositionY =
-        labelCenterPosition.y - labelDistance * animationProgress
-    labelPlaceable.place(IntPx.Zero, labelPositionY)
+        labelCenterPosition.y - (labelDistance * animationProgress).roundToInt()
+    labelPlaceable.place(0, labelPositionY)
 
-    textfieldPlaceable.place(IntPx.Zero, textPosition)
-    placeholderPlaceable?.place(IntPx.Zero, textPosition)
+    textfieldPlaceable.place(0, textPosition)
+    placeholderPlaceable?.place(0, textPosition)
 }
 
 /**
  * Places the provided text field and placeholder center vertically
  */
 private fun Placeable.PlacementScope.placeTextfield(
-    width: IntPx,
-    height: IntPx,
+    width: Int,
+    height: Int,
     textPlaceable: Placeable,
     placeholderPlaceable: Placeable?
 ) {
     val textCenterPosition = Alignment.CenterStart.align(
-        IntPxSize(
+        IntSize(
             width - textPlaceable.width,
             height - textPlaceable.height
         )
     )
-    textPlaceable.place(IntPx.Zero, textCenterPosition.y)
-    placeholderPlaceable?.place(IntPx.Zero, textCenterPosition.y)
+    textPlaceable.place(0, textCenterPosition.y)
+    placeholderPlaceable?.place(0, textCenterPosition.y)
 }
 
 private object TextFieldTransitionScope {

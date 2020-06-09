@@ -49,7 +49,7 @@ class VectorInvalidationTestCase(var latch: CountDownLatch) {
         with(DensityAmbient.current) {
             vectorAsset.resource.resource?.let {
                 val width = it.defaultWidth
-                vectorSize = width.toIntPx().value
+                vectorSize = width.toIntPx()
                 AtLeastSize(
                     size = width.toIntPx(),
                     modifier = WhiteBackground.paint(VectorPainter(it))) {

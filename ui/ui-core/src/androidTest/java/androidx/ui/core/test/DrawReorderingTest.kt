@@ -37,8 +37,6 @@ import androidx.ui.core.setContent
 import androidx.ui.core.zIndex
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.ipx
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -76,15 +74,15 @@ class DrawReorderingTest {
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(
-                    size = 30.ipx
+                    size = 30
                 ) {
                     FixedSize(
-                        10.ipx, PaddingModifier(10.ipx)
+                        10, PaddingModifier(10)
                             .zIndex(1f)
                             .background(Color.White)
                     )
                     FixedSize(
-                        30.ipx, Modifier.drawLayer()
+                        30, Modifier.drawLayer()
                             .background(Color.Red)
                             .drawLatchModifier()
                     )
@@ -105,15 +103,15 @@ class DrawReorderingTest {
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(
-                    size = 30.ipx
+                    size = 30
                 ) {
                     FixedSize(
-                        10.ipx, PaddingModifier(10.ipx)
+                        10, PaddingModifier(10)
                             .zIndex(1f)
                             .background(Color.White)
                     )
                     FixedSize(
-                        30.ipx, Modifier.background(Color.Red)
+                        30, Modifier.background(Color.Red)
                             .drawLatchModifier()
                     )
                 }
@@ -133,19 +131,19 @@ class DrawReorderingTest {
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(
-                    size = 30.ipx
+                    size = 30
                 ) {
-                    FixedSize(10.ipx, PaddingModifier(10.ipx)) {
+                    FixedSize(10, PaddingModifier(10)) {
                         FixedSize(
-                            10.ipx,
+                            10,
                             Modifier.zIndex(1f)
                                 .background(Color.Green)
                         )
                     }
-                    FixedSize(30.ipx, Modifier.background(Color.Red))
-                    FixedSize(10.ipx, PaddingModifier(10.ipx)) {
+                    FixedSize(30, Modifier.background(Color.Red))
+                    FixedSize(10, PaddingModifier(10)) {
                         FixedSize(
-                            10.ipx,
+                            10,
                             Modifier.background(Color.White)
                                 .drawLatchModifier()
                         )
@@ -167,17 +165,17 @@ class DrawReorderingTest {
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(
-                    size = 30.ipx
+                    size = 30
                 ) {
-                    FixedSize(10.ipx, PaddingModifier(10.ipx)) {
+                    FixedSize(10, PaddingModifier(10)) {
                         FixedSize(
-                            10.ipx,
+                            10,
                             Modifier.zIndex(1f)
                                 .background(Color.Green)
                         )
                     }
                     FixedSize(
-                        30.ipx,
+                        30,
                         Modifier.background(Color.Red)
                             .drawLatchModifier()
                     )
@@ -200,21 +198,21 @@ class DrawReorderingTest {
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(
-                    size = 30.ipx
+                    size = 30
                 ) {
                     FixedSize(
-                        10.ipx, PaddingModifier(10.ipx)
+                        10, PaddingModifier(10)
                             .zIndex(state.value)
                             .background(Color.Black)
                     )
                     FixedSize(
-                        30.ipx,
+                        30,
                         Modifier.background(Color.Red)
                             .drawLatchModifier()
                     )
                     FixedSize(
-                        10.ipx,
-                        PaddingModifier(10.ipx).background(Color.White)
+                        10,
+                        PaddingModifier(10).background(Color.White)
                     )
                 }
             }
@@ -267,7 +265,7 @@ class DrawReorderingTest {
             override val zIndex: Float
                 get() = state.value
         }
-        val modifier1 = PaddingModifier(10.ipx)
+        val modifier1 = PaddingModifier(10)
             .plus(zIndex)
             .background(Color.White)
         val modifier2 = Modifier.background(Color.Red)
@@ -275,9 +273,9 @@ class DrawReorderingTest {
         val view = View(activity)
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(size = 30.ipx) {
-                    FixedSize(10.ipx, modifier1)
-                    FixedSize(30.ipx, modifier2)
+                FixedSize(size = 30) {
+                    FixedSize(10, modifier1)
+                    FixedSize(30, modifier2)
                 }
             }
             activity.addContentView(view, ViewGroup.LayoutParams(1, 1))
@@ -334,22 +332,22 @@ class DrawReorderingTest {
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(
-                    size = 30.ipx
+                    size = 30
                 ) {
-                    FixedSize(30.ipx) {
+                    FixedSize(30) {
                         FixedSize(
-                            10.ipx,
-                            PaddingModifier(10.ipx).plus(elevation).background(Color.Black)
+                            10,
+                            PaddingModifier(10).plus(elevation).background(Color.Black)
                         )
                     }
                     FixedSize(
-                        30.ipx,
+                        30,
                         Modifier.background(Color.Red)
                             .drawLatchModifier()
                     )
                     FixedSize(
-                        10.ipx,
-                        PaddingModifier(10.ipx)
+                        10,
+                        PaddingModifier(10)
                             .background(Color.White)
                     )
                 }
@@ -385,22 +383,22 @@ class DrawReorderingTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testChangingReorderedChildSize() {
-        val size = mutableStateOf(10.ipx)
+        val size = mutableStateOf(10)
         val view = View(activity)
         rule.runOnUiThread {
             activity.setContent {
                 AtLeastSize(
-                    size = 30.ipx,
+                    size = 30,
                     modifier = Modifier.background(Color.Red)
                 ) {
                     FixedSize(
                         size,
-                        PaddingModifier(10.ipx)
+                        PaddingModifier(10)
                             .zIndex(1f)
                             .background(Color.White)
                     )
                     FixedSize(
-                        30.ipx,
+                        30,
                         Modifier.background(Color.Red)
                             .drawLatchModifier()
                     )
@@ -423,7 +421,7 @@ class DrawReorderingTest {
         drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
             view.viewTreeObserver.addOnDrawListener(onDrawListener)
-            size.value = 20.ipx
+            size.value = 20
             view.invalidate()
         }
         rule.validateSquareColors(
@@ -441,15 +439,15 @@ class DrawReorderingTest {
         val color = mutableStateOf(Color.Red)
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(size = 30.ipx) {
+                FixedSize(size = 30) {
                     FixedSize(
-                        10.ipx,
-                        PaddingModifier(10.ipx)
+                        10,
+                        PaddingModifier(10)
                             .zIndex(1f)
                             .background(Color.White)
                     )
                     FixedSize(
-                        30.ipx,
+                        30,
                         Modifier.background(color.value)
                             .drawLatchModifier()
                     )
@@ -480,16 +478,16 @@ class DrawReorderingTest {
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(
-                    size = 30.ipx
+                    size = 30
                 ) {
                     FixedSize(
-                        10.ipx, PaddingModifier(10.ipx)
+                        10, PaddingModifier(10)
                             .zIndex(3f)
                             .zIndex(1f)
                             .background(Color.White)
                     )
                     FixedSize(
-                        30.ipx, Modifier.zIndex(2f)
+                        30, Modifier.zIndex(2f)
                             .background(Color.Red)
                             .drawLatchModifier()
                     )
@@ -522,7 +520,7 @@ class DrawReorderingTest {
 
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(30.ipx, modifier)
+                FixedSize(30, modifier)
             }
         }
 
@@ -581,14 +579,14 @@ class DrawReorderingTest {
         val color = mutableStateOf(Color.Red)
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(size = 30.ipx) {
+                FixedSize(size = 30) {
                     FixedSize(
-                        10.ipx,
-                        PaddingModifier(10.ipx)
+                        10,
+                        PaddingModifier(10)
                             .zIndex(1f)
                             .background(Color.White)
                     )
-                    FixedSize(30.ipx, Modifier.background(color.value).drawLatchModifier())
+                    FixedSize(30, Modifier.background(color.value).drawLatchModifier())
                 }
             }
         }
@@ -616,15 +614,15 @@ class DrawReorderingTest {
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(
-                    size = 30.ipx
+                    size = 30
                 ) {
                     FixedSize(
-                        10.ipx, PaddingModifier(10.ipx)
+                        10, PaddingModifier(10)
                             .drawLayer(shadowElevation = 1f)
                             .background(Color.White)
                     )
                     FixedSize(
-                        30.ipx, Modifier.drawLayer()
+                        30, Modifier.drawLayer()
                             .background(Color.Red)
                             .drawLatchModifier()
                     )
@@ -652,7 +650,7 @@ private fun Modifier.background(
 
 @Composable
 fun FixedSize(
-    size: State<IntPx>,
+    size: State<Int>,
     modifier: Modifier = Modifier,
     children: @Composable () -> Unit = emptyContent()
 ) {
@@ -663,7 +661,7 @@ fun FixedSize(
         }
         layout(size.value, size.value) {
             placeables.forEach { child ->
-                child.place(0.ipx, 0.ipx)
+                child.place(0, 0)
             }
         }
     }

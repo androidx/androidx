@@ -52,9 +52,8 @@ import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
 import androidx.ui.test.sendSwipeUp
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.assertEquals
@@ -680,8 +679,8 @@ class ScrollerTest {
     ) {
         findByTag(scrollerTag)
             .captureToBitmap()
-            .assertPixels(expectedSize = IntPxSize(width.ipx, height.ipx)) { pos ->
-                val colorIndex = (offset + pos.y.value) / rowHeight
+            .assertPixels(expectedSize = IntSize(width, height)) { pos ->
+                val colorIndex = (offset + pos.y) / rowHeight
                 colors[colorIndex]
             }
     }
@@ -695,8 +694,8 @@ class ScrollerTest {
     ) {
         findByTag(scrollerTag)
             .captureToBitmap()
-            .assertPixels(expectedSize = IntPxSize(width.ipx, height.ipx)) { pos ->
-                val colorIndex = (offset + pos.x.value) / columnWidth
+            .assertPixels(expectedSize = IntSize(width, height)) { pos ->
+                val colorIndex = (offset + pos.x) / columnWidth
                 colors[colorIndex]
             }
     }

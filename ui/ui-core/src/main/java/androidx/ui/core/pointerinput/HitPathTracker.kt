@@ -22,8 +22,8 @@ import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.plus
 
 /**
@@ -508,15 +508,15 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
     private fun MutableMap<PointerId, PointerInputChange>.dispatchToPointerInputFilter(
         filter: PointerInputFilter,
         pass: PointerEventPass,
-        size: IntPxSize
+        size: IntSize
     ) {
         filter.onPointerInput(values.toList(), pass, size).forEach {
             this[it.id] = it
         }
     }
 
-    private fun MutableMap<out Any, PointerInputChange>.addOffset(position: IntPxPosition) {
-        if (position != IntPxPosition.Origin) {
+    private fun MutableMap<out Any, PointerInputChange>.addOffset(position: IntOffset) {
+        if (position != IntOffset.Origin) {
             replaceEverything {
                 it.copy(
                     current = it.current.copy(position = it.current.position?.plus(position)),
@@ -526,7 +526,7 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
         }
     }
 
-    private fun MutableMap<out Any, PointerInputChange>.subtractOffset(position: IntPxPosition) {
+    private fun MutableMap<out Any, PointerInputChange>.subtractOffset(position: IntOffset) {
         addOffset(-position)
     }
 

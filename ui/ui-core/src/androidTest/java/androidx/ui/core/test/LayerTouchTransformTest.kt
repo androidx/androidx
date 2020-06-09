@@ -43,8 +43,6 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.sendDown
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -52,6 +50,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -147,7 +146,7 @@ fun SimpleLayout(modifier: Modifier, children: @Composable () -> Unit = emptyCon
         children,
         modifier
     ) { measurables, constraints, _ ->
-        val childConstraints = constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+        val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val placeables = measurables.map { it.measure(childConstraints) }
         var containerWidth = constraints.minWidth
         var containerHeight = constraints.minHeight
@@ -157,7 +156,7 @@ fun SimpleLayout(modifier: Modifier, children: @Composable () -> Unit = emptyCon
         }
         layout(containerWidth, containerHeight) {
             placeables.forEach {
-                it.place(0.ipx, 0.ipx)
+                it.place(0, 0)
             }
         }
     }

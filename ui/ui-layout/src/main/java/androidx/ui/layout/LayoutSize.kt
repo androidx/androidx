@@ -26,17 +26,14 @@ import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
+import androidx.ui.core.constrainHeight
+import androidx.ui.core.constrainWidth
 import androidx.ui.core.enforce
-import androidx.ui.core.hasBoundedHeight
-import androidx.ui.core.hasBoundedWidth
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
-import androidx.ui.unit.min
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
+import kotlin.math.max
 
 /**
  * Declare the preferred width of the content to be exactly [width]dp. The incoming measurement
@@ -289,7 +286,7 @@ fun Modifier.sizeIn(
 /**
  * Have the content fill the [Constraints.maxWidth] of the incoming measurement constraints
  * by setting the [minimum width][Constraints.minWidth] to be equal to the
- * [maximum width][Constraints.maxWidth]. If the incoming maximum width is [IntPx.Infinity] this
+ * [maximum width][Constraints.maxWidth]. If the incoming maximum width is [Constraints.Infinity] this
  * modifier will have no effect.
  *
  * Example usage:
@@ -301,7 +298,7 @@ fun Modifier.fillMaxWidth() = this + FillModifier(Direction.Horizontal)
 /**
  * Have the content fill the [Constraints.maxHeight] of the incoming measurement constraints
  * by setting the [minimum height][Constraints.minHeight] to be equal to the
- * [maximum height][Constraints.maxHeight]. If the incoming maximum height is [IntPx.Infinity] this
+ * [maximum height][Constraints.maxHeight]. If the incoming maximum height is [Constraints.Infinity] this
  * modifier will have no effect.
  *
  * Example usage:
@@ -315,7 +312,7 @@ fun Modifier.fillMaxHeight() = this + FillModifier(Direction.Vertical)
  * measurement constraints by setting the [minimum width][Constraints.minWidth] to be equal to the
  * [maximum width][Constraints.maxWidth] and the [minimum height][Constraints.minHeight] to be
  * equal to the [maximum height][Constraints.maxHeight]. If the incoming maximum width or height
- * is [IntPx.Infinity] this modifier will have no effect in that dimension.
+ * is [Constraints.Infinity] this modifier will have no effect in that dimension.
  *
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleFillModifier
@@ -335,7 +332,7 @@ fun Modifier.fillMaxSize() = this + FillModifier(Direction.Both)
 // TODO(popam): avoid recreating modifier for common align
 fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHorizontally) = this +
         AlignmentModifier(Direction.Horizontal) { size, layoutDirection ->
-            IntPxPosition(align.align(size.width, layoutDirection), 0.ipx)
+            IntOffset(align.align(size.width, layoutDirection), 0)
         }
 
 /**
@@ -350,7 +347,7 @@ fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHori
 @Stable
 fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVertically) =
     this + AlignmentModifier(Direction.Vertical) { size, _ ->
-        IntPxPosition(0.ipx, align.align(size.height))
+        IntOffset(0, align.align(size.height))
     }
 
 /**
@@ -371,7 +368,7 @@ fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) =
 /**
  * Constrain the size of the wrapped layout only when it would be otherwise unconstrained:
  * the [minWidth] and [minHeight] constraints are only applied when the incoming corresponding
- * constraint is `0.ipx`.
+ * constraint is `0`.
  * The modifier can be used, for example, to define a default min size of a component,
  * while still allowing it to be overidden with smaller min sizes across usages.
  *
@@ -407,7 +404,7 @@ private data class FillModifier(private val direction: Direction) : LayoutModifi
         val placeable = measurable.measure(wrappedConstraints)
 
         return layout(placeable.width, placeable.height) {
-            placeable.place(0.ipx, 0.ipx)
+            placeable.place(0, 0)
         }
     }
 }
@@ -421,10 +418,14 @@ private data class SizeModifier(
 ) : LayoutModifier {
     private val Density.targetConstraints
         get() = Constraints(
-            minWidth = if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0.ipx,
-            minHeight = if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0.ipx,
-            maxWidth = if (maxWidth != Dp.Unspecified) maxWidth.toIntPx() else IntPx.Infinity,
-            maxHeight = if (maxHeight != Dp.Unspecified) maxHeight.toIntPx() else IntPx.Infinity
+            minWidth = if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0,
+            minHeight = if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0,
+            maxWidth = if (maxWidth != Dp.Unspecified) maxWidth.toIntPx() else Constraints.Infinity,
+            maxHeight = if (maxHeight != Dp.Unspecified) {
+                maxHeight.toIntPx()
+            } else {
+                Constraints.Infinity
+            }
         )
 
     override fun MeasureScope.measure(
@@ -439,22 +440,22 @@ private data class SizeModifier(
                 val resolvedMinWidth = if (minWidth != Dp.Unspecified) {
                     targetConstraints.minWidth
                 } else {
-                    min(constraints.minWidth, targetConstraints.maxWidth)
+                    constraints.minWidth.coerceAtMost(targetConstraints.maxWidth)
                 }
                 val resolvedMaxWidth = if (maxWidth != Dp.Unspecified) {
                     targetConstraints.maxWidth
                 } else {
-                    max(constraints.maxWidth, targetConstraints.minWidth)
+                    constraints.maxWidth.coerceAtLeast(targetConstraints.minWidth)
                 }
                 val resolvedMinHeight = if (minHeight != Dp.Unspecified) {
                     targetConstraints.minHeight
                 } else {
-                    min(constraints.minHeight, targetConstraints.maxHeight)
+                    constraints.minHeight.coerceAtMost(targetConstraints.maxHeight)
                 }
                 val resolvedMaxHeight = if (maxHeight != Dp.Unspecified) {
                     targetConstraints.maxHeight
                 } else {
-                    max(constraints.maxHeight, targetConstraints.minHeight)
+                    constraints.maxHeight.coerceAtLeast(targetConstraints.minHeight)
                 }
                 Constraints(
                     resolvedMinWidth,
@@ -466,50 +467,50 @@ private data class SizeModifier(
         }
         val placeable = measurable.measure(wrappedConstraints)
         return layout(placeable.width, placeable.height) {
-            placeable.place(0.ipx, 0.ipx)
+            placeable.place(0, 0)
         }
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: IntPx,
+        height: Int,
         layoutDirection: LayoutDirection
     ) = measurable.minIntrinsicWidth(height, layoutDirection).let {
         val constraints = targetConstraints
-        it.coerceIn(constraints.minWidth, constraints.maxWidth)
+        constraints.constrainWidth(it)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: IntPx,
+        height: Int,
         layoutDirection: LayoutDirection
     ) = measurable.maxIntrinsicWidth(height, layoutDirection).let {
         val constraints = targetConstraints
-        it.coerceIn(constraints.minWidth, constraints.maxWidth)
+        constraints.constrainWidth(it)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: IntPx,
+        width: Int,
         layoutDirection: LayoutDirection
     ) = measurable.minIntrinsicHeight(width, layoutDirection).let {
         val constraints = targetConstraints
-        it.coerceIn(constraints.minHeight, constraints.maxHeight)
+        constraints.constrainHeight(it)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: IntPx,
+        width: Int,
         layoutDirection: LayoutDirection
     ) = measurable.maxIntrinsicHeight(width, layoutDirection).let {
         val constraints = targetConstraints
-        it.coerceIn(constraints.minHeight, constraints.maxHeight)
+        constraints.constrainHeight(it)
     }
 }
 
 private data class AlignmentModifier(
     private val direction: Direction,
-    private val alignmentCallback: (IntPxSize, LayoutDirection) -> IntPxPosition
+    private val alignmentCallback: (IntSize, LayoutDirection) -> IntOffset
 ) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -517,9 +518,9 @@ private data class AlignmentModifier(
         layoutDirection: LayoutDirection
     ): MeasureScope.MeasureResult {
         val wrappedConstraints = when (direction) {
-            Direction.Both -> constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
-            Direction.Horizontal -> constraints.copy(minWidth = 0.ipx)
-            Direction.Vertical -> constraints.copy(minHeight = 0.ipx)
+            Direction.Both -> constraints.copy(minWidth = 0, minHeight = 0)
+            Direction.Horizontal -> constraints.copy(minWidth = 0)
+            Direction.Vertical -> constraints.copy(minHeight = 0)
         }
         val placeable = measurable.measure(wrappedConstraints)
         val wrapperWidth = max(constraints.minWidth, placeable.width)
@@ -529,7 +530,7 @@ private data class AlignmentModifier(
             wrapperHeight
         ) {
             val position = alignmentCallback(
-                IntPxSize(wrapperWidth - placeable.width, wrapperHeight - placeable.height),
+                IntSize(wrapperWidth - placeable.width, wrapperHeight - placeable.height),
                 layoutDirection
             )
             placeable.placeAbsolute(position)
@@ -547,13 +548,13 @@ private data class UnspecifiedConstraintsModifier(
         layoutDirection: LayoutDirection
     ): MeasureScope.MeasureResult {
         val wrappedConstraints = Constraints(
-            if (minWidth != Dp.Unspecified && constraints.minWidth == 0.ipx) {
+            if (minWidth != Dp.Unspecified && constraints.minWidth == 0) {
                 minWidth.toIntPx().coerceAtMost(constraints.maxWidth)
             } else {
                 constraints.minWidth
             },
             constraints.maxWidth,
-            if (minHeight != Dp.Unspecified && constraints.minHeight == 0.ipx) {
+            if (minHeight != Dp.Unspecified && constraints.minHeight == 0) {
                 minHeight.toIntPx().coerceAtMost(constraints.maxHeight)
             } else {
                 constraints.minHeight
@@ -562,40 +563,40 @@ private data class UnspecifiedConstraintsModifier(
         )
         val placeable = measurable.measure(wrappedConstraints)
         return layout(placeable.width, placeable.height) {
-            placeable.place(0.ipx, 0.ipx)
+            placeable.place(0, 0)
         }
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: IntPx,
+        height: Int,
         layoutDirection: LayoutDirection
     ) = measurable.minIntrinsicWidth(height).coerceAtLeast(
-        if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0.ipx
+        if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0
     )
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: IntPx,
+        height: Int,
         layoutDirection: LayoutDirection
     ) = measurable.maxIntrinsicWidth(height).coerceAtLeast(
-        if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0.ipx
+        if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0
     )
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: IntPx,
+        width: Int,
         layoutDirection: LayoutDirection
     ) = measurable.minIntrinsicHeight(width).coerceAtLeast(
-        if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0.ipx
+        if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0
     )
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: IntPx,
+        width: Int,
         layoutDirection: LayoutDirection
     ) = measurable.maxIntrinsicHeight(width).coerceAtLeast(
-        if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0.ipx
+        if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0
     )
 }
 

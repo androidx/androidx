@@ -24,9 +24,6 @@ import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.ipx
-
 /**
  * [Modifier] that changes the [LayoutDirection] of the wrapped layout to [LayoutDirection.Ltr].
  */
@@ -51,31 +48,31 @@ private data class LayoutDirectionModifier(
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(constraints, prescribedLayoutDirection)
         return layout(placeable.width, placeable.height) {
-            placeable.place(0.ipx, 0.ipx)
+            placeable.place(0, 0)
         }
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: IntPx,
+        height: Int,
         layoutDirection: LayoutDirection
     ) = measurable.minIntrinsicWidth(height, prescribedLayoutDirection)
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: IntPx,
+        width: Int,
         layoutDirection: LayoutDirection
     ) = measurable.minIntrinsicHeight(width, prescribedLayoutDirection)
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: IntPx,
+        height: Int,
         layoutDirection: LayoutDirection
     ) = measurable.maxIntrinsicWidth(height, prescribedLayoutDirection)
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: IntPx,
+        width: Int,
         layoutDirection: LayoutDirection
     ) = measurable.maxIntrinsicHeight(width, prescribedLayoutDirection)
 }

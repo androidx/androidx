@@ -43,8 +43,6 @@ import androidx.ui.core.subcomposeInto
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.foundation.gestures.scrollable
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.ipx
 import kotlin.math.abs
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -245,9 +243,9 @@ private class ListState<T> {
 
         // Add in our newly composed space so that it may be consumed
         if (scrollDirection.isForward) {
-            lastItemRemainingSpace += childHeight.value
+            lastItemRemainingSpace += childHeight
         } else {
-            firstItemScrollOffset += childHeight.value
+            firstItemScrollOffset += childHeight
         }
 
         return true
@@ -284,11 +282,11 @@ private class ListState<T> {
                 FrameManager.nextFrame()
             }
 
-            val width = constraints.maxWidth.value
-            val height = constraints.maxHeight.value
+            val width = constraints.maxWidth
+            val height = constraints.maxHeight
             this@ListState.layoutDirection = layoutDirection
             // TODO: axis
-            val childConstraints = Constraints(maxWidth = width.ipx, maxHeight = IntPx.Infinity)
+            val childConstraints = Constraints(maxWidth = width, maxHeight = Constraints.Infinity)
 
             // We're being asked to consume scroll by the Scrollable
             if (abs(scrollToBeConsumed) >= 0.5f) {
@@ -315,7 +313,7 @@ private class ListState<T> {
                     node.measure(childConstraints, layoutDirection)
                     measuredThisPass[index] = true
                 }
-                val childHeight = node.height.value
+                val childHeight = node.height
                 heightUsed += childHeight
 
                 if (heightUsed < 0f) {
@@ -357,11 +355,11 @@ private class ListState<T> {
                 )
             }
 
-            return measureScope.layout(width = width.ipx, height = height.ipx) {
+            return measureScope.layout(width = width, height = height) {
                 var currentY = round(-firstItemScrollOffset)
                 rootNode.children.forEach {
-                    it.place(x = IntPx.Zero, y = currentY.roundToInt().ipx)
-                    currentY += it.height.value
+                    it.place(x = 0, y = currentY.roundToInt())
+                    currentY += it.height
                 }
             }
         }
@@ -496,16 +494,16 @@ private val ListItemMeasureBlocks = MeasuringIntrinsicsMeasureBlocks { measurabl
             )
         )
     }
-    val columnWidth = (placeables.maxBy { it.width.value }?.width ?: 0.ipx)
+    val columnWidth = (placeables.maxBy { it.width }?.width ?: 0)
         .coerceAtLeast(constraints.minWidth)
-    val columnHeight = placeables.sumBy { it.height.value }.ipx.coerceIn(
+    val columnHeight = placeables.sumBy { it.height }.coerceIn(
         constraints.minHeight,
         constraints.maxHeight
     )
     layout(columnWidth, columnHeight) {
-        var top = 0.ipx
+        var top = 0
         placeables.forEach { placeable ->
-            placeable.placeAbsolute(0.ipx, top)
+            placeable.placeAbsolute(0, top)
             top += placeable.height
         }
     }

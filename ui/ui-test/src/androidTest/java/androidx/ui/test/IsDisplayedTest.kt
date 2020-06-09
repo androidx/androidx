@@ -49,7 +49,6 @@ import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.junit.Rule
@@ -97,10 +96,10 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
             if (place) {
                 val placeable = measurables[0].measure(constraints)
                 layout(placeable.width, placeable.height) {
-                    placeable.place(0.ipx, 0.ipx)
+                    placeable.place(0, 0)
                 }
             } else {
-                layout(0.ipx, 0.ipx) {}
+                layout(0, 0) {}
             }
         }
     }

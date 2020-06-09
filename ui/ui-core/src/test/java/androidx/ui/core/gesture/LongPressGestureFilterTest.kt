@@ -20,15 +20,14 @@ import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.gesture.customevents.LongPressFiredEvent
+import androidx.ui.geometry.Offset
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
 import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -169,9 +168,9 @@ class LongPressGestureFilterTest {
     @Test
     fun onPointerInput_downMoveOutOfBoundsWait_eventNotFired() {
         var pointer = down(0, 0.milliseconds)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.moveTo(50.milliseconds, 1f, 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
 
         verify(onLongPress, never()).invoke(any())
@@ -201,15 +200,15 @@ class LongPressGestureFilterTest {
     @Test
     fun onPointerInput_downMoveOutOfBoundsWaitUpThenDownWait_eventFiredOnce() {
         var pointer = down(0, 0.milliseconds)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.moveTo(50.milliseconds, 1f, 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
         pointer = pointer.up(105.milliseconds)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
 
         pointer = down(1, 200.milliseconds)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
 
         verify(onLongPress).invoke(any())
@@ -438,7 +437,7 @@ class LongPressGestureFilterTest {
         val result = filter.onPointerInput(
             listOf(up0),
             PointerEventPass.InitialDown,
-            IntPxSize(0.ipx, 0.ipx)
+            IntSize(0, 0)
         )
 
         // Assert

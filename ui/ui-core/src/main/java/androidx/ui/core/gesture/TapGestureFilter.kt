@@ -31,8 +31,8 @@ import androidx.ui.core.consumeDownChange
 import androidx.ui.core.gesture.customevents.DelayUpEvent
 import androidx.ui.core.gesture.customevents.DelayUpMessage
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 import androidx.ui.util.fastAny
 
 /**
@@ -87,7 +87,7 @@ internal class TapGestureFilter : PointerInputFilter() {
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange> {
 
         if (pass == PointerEventPass.PostUp) {

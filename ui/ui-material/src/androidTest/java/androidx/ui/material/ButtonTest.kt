@@ -223,7 +223,7 @@ class ButtonTest {
 
         with(composeTestRule.density) {
             assertThat(realSize.height)
-                .isGreaterThan(36.dp.toIntPx().value.toFloat())
+                .isGreaterThan(36.dp.toIntPx().toFloat())
         }
     }
 
@@ -491,8 +491,8 @@ class ButtonTest {
             assertThat(contentBounds.width).isLessThan(buttonBounds.width)
             assertThat(contentBounds.height).isLessThan(buttonBounds.height)
             with(composeTestRule.density) {
-                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().value.toFloat())
-                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().value.toFloat())
+                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toFloat())
+                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toFloat())
             }
             assertWithinOnePixel(buttonBounds.center(), contentBounds.center())
         }
@@ -554,7 +554,7 @@ class ButtonTest {
             val topLeft = childCoordinates!!.localToGlobal(Offset.Zero).x -
                     parentCoordinates!!.localToGlobal(Offset.Zero).x
             val currentPadding = with(composeTestRule.density) {
-                padding.toIntPx().value.toFloat()
+                padding.toIntPx().toFloat()
             }
             assertThat(currentPadding).isEqualTo(topLeft)
         }

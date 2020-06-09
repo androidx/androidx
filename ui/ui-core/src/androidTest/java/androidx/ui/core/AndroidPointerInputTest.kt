@@ -34,9 +34,8 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.testutils.down
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds
 import androidx.ui.viewinterop.AndroidView
 import com.google.common.truth.Truth.assertThat
@@ -187,7 +186,7 @@ class AndroidPointerInputTest {
                             latch.countDown()
                         }
                 ) { _, _, _ ->
-                    val sizePx = size.value.ipx
+                    val sizePx = size.value
                     layout(sizePx, sizePx) {}
                 }
             }
@@ -210,7 +209,7 @@ class AndroidPointerInputTest {
                 1,
                 0,
                 arrayOf(PointerProperties(0)),
-                arrayOf(PointerCoords(ownerPosition.x.value + 15f, ownerPosition.y.value + 15f))
+                arrayOf(PointerCoords(ownerPosition.x + 15f, ownerPosition.y + 15f))
             )
 
             // we expect it to first remeasure and only then process
@@ -249,7 +248,7 @@ class AndroidPointerInputTest {
                                             latch.countDown()
                                         }
                                 ) { _, _, _ ->
-                                    layout(5.ipx, 5.ipx) {}
+                                    layout(5, 5) {}
                                 }
                             }
                         }
@@ -383,7 +382,7 @@ private class ConsumeMovementGestureFilter(val consumeMovement: Boolean) : Point
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ) =
         if (consumeMovement) {
             changes.map { it.consumePositionChange(
@@ -402,7 +401,7 @@ private class ConsumeDownChangeFilter : PointerInputFilter() {
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ) = changes.map {
         if (it.changedToDown()) {
             onDown(it.current.position!!)
@@ -421,7 +420,7 @@ private class LogEventsGestureFilter(val log: MutableList<List<PointerInputChang
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange> {
         if (pass == PointerEventPass.InitialDown) {
             log.add(changes.map { it.copy() })

@@ -21,15 +21,14 @@ import androidx.ui.core.PointerId
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.gesture.customevents.DelayUpEvent
 import androidx.ui.core.gesture.customevents.DelayUpMessage
+import androidx.ui.geometry.Offset
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
 import androidx.ui.testutils.invokeOverPasses
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -98,11 +97,11 @@ class TapGestureFilterTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeXUp_onReleaseNotCalled() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.moveTo(50.milliseconds, -1f, 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.up(100.milliseconds)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
 
         verify(filter.onTap, never()).invoke(any())
     }
@@ -110,11 +109,11 @@ class TapGestureFilterTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsPositiveXUp_onReleaseNotCalled() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.moveTo(50.milliseconds, 1f, 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.up(100.milliseconds)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
 
         verify(filter.onTap, never()).invoke(any())
     }
@@ -122,11 +121,11 @@ class TapGestureFilterTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeYUp_onReleaseNotCalled() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.moveTo(50.milliseconds, 0f, -1f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.up(100.milliseconds)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
 
         verify(filter.onTap, never()).invoke(any())
     }
@@ -134,11 +133,11 @@ class TapGestureFilterTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsPositiveYUp_onReleaseNotCalled() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.moveTo(50.milliseconds, 0f, 1f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.up(100.milliseconds)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
 
         verify(filter.onTap, never()).invoke(any())
     }
@@ -170,15 +169,15 @@ class TapGestureFilterTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsUpDownUp_onReleaseCalledOnce() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.moveTo(50.milliseconds, 0f, 1f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.up(100.milliseconds)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = down(1, duration = 150.milliseconds, x = 0f, y = 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.up(200.milliseconds)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
 
         verify(filter.onTap).invoke(any())
     }
@@ -329,12 +328,12 @@ class TapGestureFilterTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeXUp_upChangeNotConsumed() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.moveTo(50.milliseconds, -1f, 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.up(100.milliseconds)
         val result =
-            filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
 
         assertThat(result.consumed.downChange, `is`(false))
     }
@@ -342,12 +341,12 @@ class TapGestureFilterTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsPositiveXUp_upChangeNotConsumed() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.moveTo(50.milliseconds, 1f, 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.up(100.milliseconds)
         val result =
-            filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
 
         assertThat(result.consumed.downChange, `is`(false))
     }
@@ -355,12 +354,12 @@ class TapGestureFilterTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeYUp_upChangeNotConsumed() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.moveTo(50.milliseconds, 0f, -1f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.up(100.milliseconds)
         val result =
-            filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
 
         assertThat(result.consumed.downChange, `is`(false))
     }
@@ -368,13 +367,13 @@ class TapGestureFilterTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsPositiveYUp_upChangeNotConsumed() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.moveTo(50.milliseconds, 0f, 1f)
-        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
         pointer = pointer.up(100.milliseconds)
 
         val result =
-            filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
 
         assertThat(result.consumed.downChange, `is`(false))
     }
@@ -408,7 +407,7 @@ class TapGestureFilterTest {
         pointerEventChange = filter::onPointerInput.invokeOverPasses(
             pointerEventChange,
             PointerEventPass.PostUp,
-            IntPxSize(0.ipx, 0.ipx)
+            IntSize(0, 0)
         )
         assertThat(pointerEventChange.consumed.downChange, `is`(true))
     }

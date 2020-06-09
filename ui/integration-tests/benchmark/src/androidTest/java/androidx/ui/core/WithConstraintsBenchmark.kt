@@ -32,9 +32,7 @@ import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -103,11 +101,11 @@ private class WithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
 
 private class ChangingConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
 
-    private lateinit var state: MutableState<IntPx>
+    private lateinit var state: MutableState<Int>
 
     @Composable
     override fun emitContent() {
-        val size = state { 100.ipx }
+        val size = state { 100 }
         this.state = size
         ChangingConstraintsLayout(state) {
             WithConstraints {
@@ -117,20 +115,20 @@ private class ChangingConstraintsTestCase : ComposeTestCase, ToggleableTestCase 
     }
 
     override fun toggleState() {
-        state.value = if (state.value == 100.ipx) 50.ipx else 100.ipx
+        state.value = if (state.value == 100) 50 else 100
     }
 }
 
 @Composable
-private fun ChangingConstraintsLayout(size: State<IntPx>, children: @Composable () -> Unit) {
+private fun ChangingConstraintsLayout(size: State<Int>, children: @Composable () -> Unit) {
     Layout(children) { measurables, _, _ ->
         val constraints = Constraints.fixed(size.value, size.value)
-        with(PlacementScope) { measurables.first().measure(constraints).place(0.ipx, 0.ipx) }
-        layout(100.ipx, 100.ipx) {}
+        with(PlacementScope) { measurables.first().measure(constraints).place(0, 0) }
+        layout(100, 100) {}
     }
 }
 
 private object PlacementScope : Placeable.PlacementScope() {
-    override val parentWidth = 0.ipx
+    override val parentWidth = 0
     override val parentLayoutDirection = LayoutDirection.Ltr
 }

@@ -31,8 +31,6 @@ import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.ui.integration.test.cartesian
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.ipx
 import androidx.ui.unit.sp
 import org.junit.Rule
 import org.junit.Test
@@ -120,7 +118,7 @@ class TextDelegateBenchmark(
         textBenchmarkTestRule.generator { textGenerator ->
             val maxWidth = textDelegate(textGenerator).let {
                 it.layout(Constraints(), layoutDirection)
-                (it.maxIntrinsicWidth.value / 4f).toIntPx()
+                (it.maxIntrinsicWidth / 4f).toIntPx()
             }
             benchmarkRule.measureRepeated {
                 val textDelegate = runWithTimingDisabled {
@@ -139,16 +137,16 @@ class TextDelegateBenchmark(
         textBenchmarkTestRule.generator { textGenerator ->
             val width = textDelegate(textGenerator).let {
                 it.layout(Constraints(), layoutDirection)
-                (it.maxIntrinsicWidth.value / 4f).toIntPx()
+                (it.maxIntrinsicWidth / 4f).toIntPx()
             }
             val textDelegate = textDelegate(textGenerator)
 
             val offset = 20
             var sign = 1
             benchmarkRule.measureRepeated {
-                val maxWidth = width.value + sign * offset
+                val maxWidth = width + sign * offset
                 sign *= -1
-                textDelegate.layout(Constraints(maxWidth = maxWidth.ipx), layoutDirection)
+                textDelegate.layout(Constraints(maxWidth = maxWidth), layoutDirection)
             }
         }
     }
@@ -161,7 +159,7 @@ class TextDelegateBenchmark(
         textBenchmarkTestRule.generator { textGenerator ->
             val maxWidth = textDelegate(textGenerator).let {
                 it.layout(Constraints(), layoutDirection)
-                (it.maxIntrinsicWidth.value / 4f).toIntPx()
+                (it.maxIntrinsicWidth / 4f).toIntPx()
             }
             benchmarkRule.measureRepeated {
                 val (canvas, layoutResult) = runWithTimingDisabled {
@@ -172,8 +170,8 @@ class TextDelegateBenchmark(
                         )
                         val canvas = Canvas(
                             ImageAsset(
-                                layoutResult.size.width.value,
-                                layoutResult.size.height.value
+                                layoutResult.size.width,
+                                layoutResult.size.height
                             )
                         )
                         Pair(canvas, layoutResult)
@@ -192,7 +190,7 @@ class TextDelegateBenchmark(
         textBenchmarkTestRule.generator { textGenerator ->
             val maxWidth = textDelegate(textGenerator).let {
                 it.layout(Constraints(), layoutDirection)
-                (it.maxIntrinsicWidth.value / 4f).toIntPx()
+                (it.maxIntrinsicWidth / 4f).toIntPx()
             }
             val textDelegate = textDelegate(textGenerator)
             val layoutResult = textDelegate.layout(
@@ -200,7 +198,7 @@ class TextDelegateBenchmark(
                 layoutDirection
             )
             val canvas = Canvas(
-                ImageAsset(layoutResult.size.width.value, layoutResult.size.height.value)
+                ImageAsset(layoutResult.size.width, layoutResult.size.height)
             )
 
             benchmarkRule.measureRepeated {
@@ -217,7 +215,7 @@ class TextDelegateBenchmark(
         textBenchmarkTestRule.generator { textGenerator ->
             val maxWidth = textDelegate(textGenerator).let {
                 it.layout(Constraints(), layoutDirection)
-                (it.maxIntrinsicWidth.value / 4f).toIntPx()
+                (it.maxIntrinsicWidth / 4f).toIntPx()
             }
             val textDelegate = textDelegate(textGenerator)
             val layoutResult = textDelegate.layout(
@@ -227,8 +225,8 @@ class TextDelegateBenchmark(
             val paint = Paint().also { it.color = Color.Yellow }
 
             benchmarkRule.measureRepeatedRecordingCanvas(
-                width = layoutResult.size.width.value,
-                height = layoutResult.size.height.value
+                width = layoutResult.size.width,
+                height = layoutResult.size.height
             ) { canvas ->
                 TextDelegate.paintBackground(
                     start = 0,
@@ -242,4 +240,4 @@ class TextDelegateBenchmark(
     }
 }
 
-fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx
+fun Float.toIntPx(): Int = ceil(this).roundToInt()

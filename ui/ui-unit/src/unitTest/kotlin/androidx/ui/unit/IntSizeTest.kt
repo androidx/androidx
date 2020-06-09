@@ -44,4 +44,18 @@ class IntSizeTest {
     fun intSizeDivInt() {
         assertEquals(IntSize(10, 10), IntSize(40, 40) / 4)
     }
+
+    @Test
+    fun sizeCenter() {
+        val size = IntSize(width = 10, height = 20)
+        assertEquals(IntOffset(5, 10), size.center)
+    }
+
+    @Test
+    fun components() {
+        val size = IntSize(width = 10, height = 20)
+        val (w, h) = size
+        assertEquals(10, w)
+        assertEquals(20, h)
+    }
 }

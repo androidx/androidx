@@ -24,8 +24,6 @@ import androidx.ui.core.LayoutNode.LayoutState.Ready
 import androidx.ui.core.LayoutNode.UsageByParent.InLayoutBlock
 import androidx.ui.core.LayoutNode.UsageByParent.InMeasureBlock
 import androidx.ui.core.LayoutNode.UsageByParent.NotUsed
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.ipx
 import androidx.ui.util.fastForEach
 import androidx.ui.util.trace
 
@@ -76,7 +74,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      */
     private val postponedMeasureRequests = mutableListOf<LayoutNode>()
 
-    private var rootConstraints = Constraints.fixed(width = IntPx.Zero, height = IntPx.Zero)
+    private var rootConstraints = Constraints.fixed(width = 0, height = 0)
     private var rootLayoutDirection = LayoutDirection.Ltr
 
     /**
@@ -207,7 +205,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                         }
                         if (layoutNode.layoutState == NeedsRelayout && layoutNode.isPlaced) {
                             if (layoutNode === root) {
-                                layoutNode.place(0.ipx, 0.ipx)
+                                layoutNode.place(0, 0)
                             } else {
                                 layoutNode.replace()
                             }

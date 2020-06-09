@@ -29,8 +29,8 @@ internal class ModifiedDrawNode(
         val drawScope = layoutNode.mDrawScope
         withPositionTranslation(canvas) {
             val size = Size(
-                measuredSize.width.value.toFloat(),
-                measuredSize.height.value.toFloat()
+                measuredSize.width.toFloat(),
+                measuredSize.height.toFloat()
             )
             drawScope.draw(canvas, size, wrapped) {
                 with(drawScope) {

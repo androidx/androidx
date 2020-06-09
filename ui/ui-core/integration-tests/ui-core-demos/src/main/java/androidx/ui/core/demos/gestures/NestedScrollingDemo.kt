@@ -18,6 +18,7 @@ package androidx.ui.core.demos.gestures
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Constraints
 import androidx.ui.core.Direction
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
@@ -33,15 +34,13 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.drawBorder
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import kotlin.math.roundToInt
 
 /**
@@ -115,12 +114,12 @@ private fun Draggable(children: @Composable () -> Unit) {
         measureBlock = { measurables, constraints, _ ->
             val placeable =
                 measurables.first()
-                    .measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))
+                    .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
 
-            maxOffset.value = (constraints.maxHeight.value - placeable.height.value).toFloat()
+            maxOffset.value = (constraints.maxHeight - placeable.height).toFloat()
 
             layout(constraints.maxWidth, constraints.maxHeight) {
-                placeable.place(0.ipx, offset.value.roundToInt().ipx)
+                placeable.place(0, offset.value.roundToInt())
             }
         })
 }

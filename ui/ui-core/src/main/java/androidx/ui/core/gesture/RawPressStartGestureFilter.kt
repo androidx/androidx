@@ -25,8 +25,8 @@ import androidx.ui.core.changedToUp
 import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 
 /**
  * Reacts if the first pointer input change it sees is an unconsumed down change, and if it reacts,
@@ -72,7 +72,7 @@ internal class RawPressStartGestureFilter : PointerInputFilter() {
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange> {
 
             var internalChanges = changes

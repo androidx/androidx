@@ -18,6 +18,7 @@ package androidx.ui.unit
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
+import androidx.ui.core.Constraints
 import androidx.ui.geometry.Rect
 import kotlin.math.roundToInt
 
@@ -37,7 +38,7 @@ private data class DensityImpl(
 ) : Density
 
 /**
- * A density of the screen. Used for the conversions between [Dp], [Px], [IntPx] and [TextUnit].
+ * A density of the screen. Used for the conversions between [Dp], [Px], [Int] and [TextUnit].
  *
  * @sample androidx.ui.unit.samples.WithDensitySample
  */
@@ -63,10 +64,13 @@ interface Density {
     fun Dp.toPx(): Float = value * density
 
     /**
-     * Convert [Dp] to [IntPx] by rounding
+     * Convert [Dp] to [Int] by rounding
      */
     @Stable
-    fun Dp.toIntPx(): IntPx = toPx().roundToInt().ipx
+    fun Dp.toIntPx(): Int {
+        val px = toPx()
+        return if (px.isInfinite()) Constraints.Infinity else px.roundToInt()
+    }
 
     /**
      * Convert [Dp] to Sp. Sp is used for font size, etc.
@@ -85,10 +89,10 @@ interface Density {
     }
 
     /**
-     * Convert Sp to [IntPx] by rounding
+     * Convert Sp to [Int] by rounding
      */
     @Stable
-    fun TextUnit.toIntPx(): IntPx = toPx().roundToInt().ipx
+    fun TextUnit.toIntPx(): Int = toPx().roundToInt()
 
     /**
      * Convert Sp to [Dp].
@@ -101,16 +105,16 @@ interface Density {
     }
 
     /**
-     * Convert [IntPx] to [Dp].
+     * Convert an [Int] pixel value to [Dp].
      */
     @Stable
-    fun IntPx.toDp(): Dp = (value / density).dp
+    fun Int.toDp(): Dp = (this / density).dp
 
     /**
-     * Convert [IntPx] to Sp.
+     * Convert an [Int] pixel value to Sp.
      */
     @Stable
-    fun IntPx.toSp(): TextUnit = (value / (fontScale * density)).sp
+    fun Int.toSp(): TextUnit = (this / (fontScale * density)).sp
 
     /** Convert a [Float] pixel value to a Dp */
     @Stable
@@ -119,14 +123,6 @@ interface Density {
     /** Convert a [Float] pixel value to a Sp */
     @Stable
     fun Float.toSp(): TextUnit = (this / (fontScale * density)).sp
-
-    /** Convert a [Int] pixel value to a Dp */
-    @Stable
-    fun Int.toDp(): Dp = toFloat().toDp()
-
-    /** Convert a [Int] pixel value to a Sp */
-    @Stable
-    fun Int.toSp(): TextUnit = toFloat().toSp()
 
     /**
      * Convert a [Bounds] to a [Rect].

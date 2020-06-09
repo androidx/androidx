@@ -24,6 +24,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
+import androidx.ui.core.constrainHeight
+import androidx.ui.core.constrainWidth
 import androidx.ui.core.offset
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
@@ -157,10 +159,8 @@ private data class PaddingModifier(
 
         val placeable = measurable.measure(constraints.offset(-horizontal, -vertical))
 
-        val width = (placeable.width + horizontal)
-            .coerceIn(constraints.minWidth, constraints.maxWidth)
-        val height = (placeable.height + vertical)
-            .coerceIn(constraints.minHeight, constraints.maxHeight)
+        val width = constraints.constrainWidth(placeable.width + horizontal)
+        val height = constraints.constrainHeight(placeable.height + vertical)
         return layout(width, height) {
             if (rtlAware) {
                 placeable.place(start.toIntPx(), top.toIntPx())

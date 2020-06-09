@@ -20,13 +20,12 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Canvas
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.isZero
 import androidx.ui.unit.Density
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -57,7 +56,7 @@ class TextLayoutResultIntegrationTest {
                 resourceLoader = resourceLoader
             )
 
-            val layoutResult = textDelegate.layout(Constraints(0.ipx, 200.ipx), layoutDirection)
+            val layoutResult = textDelegate.layout(Constraints(0, 200), layoutDirection)
 
             assertThat(layoutResult.size.width).isEqualTo(
                 (fontSize.toPx() * text.length).toIntPx()
@@ -68,7 +67,7 @@ class TextLayoutResultIntegrationTest {
     @Test
     fun width_getter_with_small_width() {
         val text = "Hello"
-        val width = 80.ipx
+        val width = 80
         val spanStyle = SpanStyle(fontSize = 20.sp, fontFamily = fontFamily)
         val annotatedString = AnnotatedString(text, spanStyle)
         val textDelegate = TextDelegate(
@@ -112,7 +111,7 @@ class TextLayoutResultIntegrationTest {
             resourceLoader = resourceLoader
         )
 
-        val layoutResult = textDelegate.layout(Constraints(0.ipx, 20.ipx), layoutDirection)
+        val layoutResult = textDelegate.layout(Constraints(0, 20), layoutDirection)
 
         assertThat(layoutResult).isNotNull()
     }

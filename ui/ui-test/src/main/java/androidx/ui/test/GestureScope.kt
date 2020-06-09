@@ -20,7 +20,7 @@ import androidx.annotation.FloatRange
 import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.unit.Duration
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.lerp
@@ -29,6 +29,7 @@ import androidx.ui.unit.milliseconds
 import androidx.ui.util.lerp
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlin.math.sin
 
@@ -74,7 +75,7 @@ sealed class BaseGestureScope(node: SemanticsNode) {
 /**
  * Returns the size of the component we're interacting with
  */
-val BaseGestureScope.size: IntPxSize
+val BaseGestureScope.size: IntSize
     get() = semanticsNode.size
 
 /**
@@ -83,7 +84,7 @@ val BaseGestureScope.size: IntPxSize
  */
 val BaseGestureScope.center: Offset
     get() {
-        return Offset(size.width.value / 2f, size.height.value / 2f)
+        return Offset(size.width / 2f, size.height / 2f)
     }
 
 /**
@@ -292,7 +293,7 @@ fun GestureScope.sendSwipeWithVelocity(
  */
 fun GestureScope.sendSwipeUp() {
     val x = center.x
-    val y0 = (size.height * (1 - edgeFuzzFactor)).value.toFloat()
+    val y0 = (size.height * (1 - edgeFuzzFactor)).roundToInt().toFloat()
     val y1 = 0.0f
     val start = Offset(x, y0)
     val end = Offset(x, y1)
@@ -307,8 +308,8 @@ fun GestureScope.sendSwipeUp() {
  */
 fun GestureScope.sendSwipeDown() {
     val x = center.x
-    val y0 = (size.height * edgeFuzzFactor).value.toFloat()
-    val y1 = size.height.value.toFloat()
+    val y0 = (size.height * edgeFuzzFactor).roundToInt().toFloat()
+    val y1 = size.height.toFloat()
     val start = Offset(x, y0)
     val end = Offset(x, y1)
     sendSwipe(start, end, 200.milliseconds)
@@ -321,7 +322,7 @@ fun GestureScope.sendSwipeDown() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeLeft() {
-    val x0 = (size.width * (1 - edgeFuzzFactor)).value.toFloat()
+    val x0 = (size.width * (1 - edgeFuzzFactor)).toFloat()
     val x1 = 0.0f
     val y = center.y
     val start = Offset(x0, y)
@@ -336,8 +337,8 @@ fun GestureScope.sendSwipeLeft() {
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeRight() {
-    val x0 = (size.width * edgeFuzzFactor).value.toFloat()
-    val x1 = size.width.value.toFloat()
+    val x0 = (size.width * edgeFuzzFactor).roundToInt().toFloat()
+    val x1 = size.width.toFloat()
     val y = center.y
     val start = Offset(x0, y)
     val end = Offset(x1, y)

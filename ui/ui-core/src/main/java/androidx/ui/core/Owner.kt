@@ -27,7 +27,7 @@ import androidx.ui.input.TextInputService
 import androidx.ui.savedinstancestate.UiSavedStateRegistry
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntOffset
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -133,7 +133,7 @@ interface Owner {
      * Returns the most global position of the owner that Compose can access (such as the device
      * screen).
      */
-    fun calculatePosition(): IntPxPosition
+    fun calculatePosition(): IntOffset
 
     /**
      * Ask the system to provide focus to this owner.

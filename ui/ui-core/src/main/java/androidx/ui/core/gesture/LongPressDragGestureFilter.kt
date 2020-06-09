@@ -24,8 +24,8 @@ import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 
 interface LongPressDragObserver {
 
@@ -168,7 +168,7 @@ private class LongPressDragGestureDetectorGlue : PointerInputFilter() {
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange> {
 
         if (pass == PointerEventPass.PostUp &&

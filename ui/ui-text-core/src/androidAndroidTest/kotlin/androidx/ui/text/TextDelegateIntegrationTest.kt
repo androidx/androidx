@@ -29,7 +29,6 @@ import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.assertThat
 import androidx.ui.unit.Density
-import androidx.ui.unit.ipx
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -103,7 +102,7 @@ class TextDelegateIntegrationTest {
                 resourceLoader = resourceLoader
             )
             val layoutResult = textDelegate.layout(
-                Constraints(maxWidth = 120.ipx),
+                Constraints(maxWidth = 120),
                 LayoutDirection.Ltr
             )
 
@@ -358,9 +357,9 @@ class TextDelegateIntegrationTest {
             density = density,
             resourceLoader = resourceLoader
         )
-        val width = 200.ipx
-        val heightFirstLayout = 100.ipx
-        val heightSecondLayout = 200.ipx
+        val width = 200
+        val heightFirstLayout = 100
+        val heightSecondLayout = 200
 
         val constraintsFirstLayout = Constraints.fixed(width, heightFirstLayout)
         val resultFirstLayout = textDelegate.layout(constraintsFirstLayout, LayoutDirection.Ltr)
@@ -383,9 +382,9 @@ class TextDelegateIntegrationTest {
             density = density,
             resourceLoader = resourceLoader
         )
-        val width = 200.ipx
-        val heightFirstLayout = 100.ipx
-        val heightSecondLayout = 200.ipx
+        val width = 200
+        val heightFirstLayout = 100
+        val heightSecondLayout = 200
 
         val constraintsFirstLayout = Constraints.fixed(width, heightFirstLayout)
         val resultFirstLayout = textDelegate.layout(constraintsFirstLayout, LayoutDirection.Ltr)
@@ -402,7 +401,7 @@ class TextDelegateIntegrationTest {
 }
 
 private fun TextLayoutResult.toBitmap() = Bitmap.createBitmap(
-    size.width.value,
-    size.height.value,
+    size.width,
+    size.height,
     Bitmap.Config.ARGB_8888
 )
