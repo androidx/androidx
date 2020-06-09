@@ -52,6 +52,7 @@ import androidx.autofill.inline.common.TextViewStyle;
 import androidx.autofill.inline.common.ViewStyle;
 
 import java.util.Collections;
+import java.util.List;
 
 /**
  * The entry point for building the content or style for the V1 inline suggestion UI.
@@ -617,6 +618,8 @@ public final class InlineSuggestionUi {
             private CharSequence mSubtitle;
             @Nullable
             private CharSequence mContentDescription;
+            @Nullable
+            private List<String> mHints;
 
             /**
              * Use {@link InlineSuggestionUi#newContentBuilder(PendingIntent)} to instantiate
@@ -686,6 +689,17 @@ public final class InlineSuggestionUi {
                 return this;
             }
 
+            /**
+             * Sets hints to indicate the kind of data in the suggestion.
+             *
+             * @param hints defined in {@link androidx.autofill.inline.SuggestionHintConstants}
+             */
+            @NonNull
+            public Builder setHints(@NonNull List<String> hints) {
+                mHints = hints;
+                return this;
+            }
+
             @NonNull
             @Override
             public Content build() {
@@ -726,6 +740,9 @@ public final class InlineSuggestionUi {
                 if (mContentDescription != null) {
                     mSliceBuilder.addText(mContentDescription, null,
                             Collections.singletonList(HINT_INLINE_CONTENT_DESCRIPTION));
+                }
+                if (mHints != null) {
+                    mSliceBuilder.addHints(mHints);
                 }
                 return new Content(mSliceBuilder.build());
             }
