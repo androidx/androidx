@@ -22,12 +22,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.impl.AppSearchImpl;
+import androidx.concurrent.futures.ResolvableFuture;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.SchemaProto;
 import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.StatusProto;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,7 +37,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * This class provides access to the centralized AppSearch index maintained by the system.
@@ -50,6 +51,9 @@ import java.util.concurrent.Future;
 public class AppSearchManager {
 
     private final AppSearchImpl mAppSearchImpl = new AppSearchImpl();
+
+    // Never call Executor.shutdownNow(), it will cancel the futures it's returned. And since
+    // execute() won't return anything, we will hang forever waiting for the execution.
     private final ExecutorService mQueryExecutor = Executors.newCachedThreadPool();
     private final ExecutorService mMutateExecutor = Executors.newFixedThreadPool(1);
     /**
@@ -96,11 +100,11 @@ public class AppSearchManager {
      * efficiently.
      *
      * @param schemas The schema configs for the types used by the calling app.
-     * @return a Future representing the pending result of performing this operation.
+     * @return a ListenableFuture representing the pending result of performing this operation.
      */
     // TODO(b/143789408): Linkify #putDocuments after that API is made public
     @NonNull
-    public Future<AppSearchResult<Void>> setSchema(@NonNull AppSearchSchema... schemas) {
+    public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull AppSearchSchema... schemas) {
         return setSchema(Arrays.asList(schemas), /*forceOverride=*/false);
     }
 
@@ -118,13 +122,13 @@ public class AppSearchManager {
      * @param forceOverride Whether to force the new schema to be applied even if there are
      *     incompatible changes versus the previously set schema. Documents which are incompatible
      *     with the new schema will be deleted.
-     * @return @return a Future representing the pending result of performing this operation.
+     * @return a ListenableFuture representing the pending result of performing this operation.
      */
     @NonNull
-    public Future<AppSearchResult<Void>> setSchema(
+    public ListenableFuture<AppSearchResult<Void>> setSchema(
             @NonNull List<AppSearchSchema> schemas, boolean forceOverride) {
         // Prepare the merged schema for transmission.
-        Callable<AppSearchResult<Void>> callableTask = () -> {
+        return execute(mMutateExecutor, () -> {
             SchemaProto.Builder schemaProtoBuilder = SchemaProto.newBuilder();
             for (AppSearchSchema schema : schemas) {
                 schemaProtoBuilder.addTypes(schema.getProto());
@@ -135,8 +139,7 @@ public class AppSearchManager {
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
             }
-        };
-        return mMutateExecutor.submit(callableTask);
+        });
     }
 
     /**
@@ -149,17 +152,17 @@ public class AppSearchManager {
      * schema type previously registered via the {@link #setSchema} method.
      *
      * @param documents {@link GenericDocument}s that need to be indexed.
-     * @return A {@link Future}&lt;{@link AppSearchBatchResult}&lt;{@link String},
+     * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
      *     {@code Void}&gt;&gt;. Where mapping the document URIs to {@link Void} if they were
      *     successfully indexed, or a {@link Throwable} describing the failure if they could not
      *     be indexed.
      */
     @NonNull
-    public Future<AppSearchBatchResult<String, Void>> putDocuments(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
             @NonNull List<GenericDocument> documents) {
         // TODO(b/146386470): Transmit these documents as a RemoteStream instead of sending them in
         // one big list.
-        Callable<AppSearchBatchResult<String, Void>> callableTask = () -> {
+        return execute(mMutateExecutor, () -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < documents.size(); i++) {
@@ -172,8 +175,7 @@ public class AppSearchManager {
                 }
             }
             return resultBuilder.build();
-        };
-        return mMutateExecutor.submit(callableTask);
+        });
     }
 
     /**
@@ -183,10 +185,10 @@ public class AppSearchManager {
      * {@code AppSearch#getDocuments()} API provided by JetPack.
      *
      * @param uris URIs of the documents to look up.
-     * @return A {@link Future}&lt;{@link AppSearchBatchResult}&lt;{@link String},
+     * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
      *     {@link GenericDocument}&gt;&gt;.
-     *     If the call fails to start, {@link Future} will be completed exceptionally.
-     *     Otherwise, {@link Future} will be completed with an
+     *     If the call fails to start, {@link ListenableFuture} will be completed exceptionally.
+     *     Otherwise, {@link ListenableFuture} will be completed with an
      *     {@link AppSearchBatchResult}&lt;{@link String}, {@link GenericDocument}&gt;
      *     mapping the document URIs to
      *     {@link GenericDocument} values if they were successfully retrieved, a {@code null}
@@ -194,11 +196,11 @@ public class AppSearchManager {
      *     if an error occurred.
      */
     @NonNull
-    public Future<AppSearchBatchResult<String, GenericDocument>> getDocuments(
+    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getDocuments(
             @NonNull List<String> uris) {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
-        Callable<AppSearchBatchResult<String, GenericDocument>> callableTask = () -> {
+        return execute(mQueryExecutor, () -> {
             AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < uris.size(); i++) {
@@ -213,8 +215,8 @@ public class AppSearchManager {
                             GenericDocument document = new GenericDocument(documentProto);
                             resultBuilder.setSuccess(uri, document);
                         } catch (Throwable t) {
-                            // These documents went through validation, so how could this fail? We
-                            // must have done something wrong.
+                            // These documents went through validation, so how could this fail?
+                            // We must have done something wrong.
                             resultBuilder.setFailure(
                                     uri, AppSearchResult.RESULT_INTERNAL_ERROR, t.getMessage());
                         }
@@ -224,8 +226,7 @@ public class AppSearchManager {
                 }
             }
             return resultBuilder.build();
-        };
-        return mQueryExecutor.submit(callableTask);
+        });
     }
 
     /**
@@ -270,27 +271,27 @@ public class AppSearchManager {
      *
      * @param queryExpression Query String to search.
      * @param searchSpec Spec for setting filters, raw query etc.
-     * @return  A {@link Future}&lt;{@link AppSearchBatchResult}&lt;{@link String},
+     * @return  A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
      *     {@link SearchResults}&gt;&gt;.
-     *     If the call fails to start, {@link Future} will be completed exceptionally.
-     *     Otherwise, {@link Future} will be completed with an
+     *     If the call fails to start, {@link ListenableFuture} will be completed exceptionally.
+     *     Otherwise, {@link ListenableFuture} will be completed with an
      *     {@link AppSearchBatchResult}&lt;{@link String}, {@link SearchResults}&gt;
      *     where the keys are document URIs, and the values are serialized Document protos.
      */
     @NonNull
-    public Future<AppSearchResult<SearchResults>> query(
+    public ListenableFuture<AppSearchResult<SearchResults>> query(
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec) {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
-        Callable<AppSearchResult<SearchResults>> callableTask = () -> {
+        return execute(mQueryExecutor, () -> {
             try {
                 SearchSpecProto searchSpecProto = searchSpec.getSearchSpecProto();
                 searchSpecProto = searchSpecProto.toBuilder().setQuery(queryExpression).build();
                 SearchResultProto searchResultProto = mAppSearchImpl.query(searchSpecProto,
                         searchSpec.getResultSpecProto(), searchSpec.getScoringSpecProto());
-                // TODO(sidchhabra): Translate SearchResultProto errors into error codes. This might
-                //     better be done in AppSearchImpl by throwing an AppSearchException.
+                // TODO(sidchhabra): Translate SearchResultProto errors into error codes. This
+                //  might better be done in AppSearchImpl by throwing an AppSearchException.
                 if (searchResultProto.getStatus().getCode() != StatusProto.Code.OK) {
                     return AppSearchResult.newFailedResult(
                             AppSearchResult.RESULT_INTERNAL_ERROR,
@@ -302,8 +303,7 @@ public class AppSearchManager {
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
             }
-        };
-        return mQueryExecutor.submit(callableTask);
+        });
     }
 
     /**
@@ -313,16 +313,16 @@ public class AppSearchManager {
      * provided by JetPack.
      *
      * @param uris URIs of the documents to delete
-     * @return A {@link Future}&lt;{@link AppSearchBatchResult}&lt;{@link String},
-     *     {@link Void}&gt;&gt;. If the call fails to start, {@link Future} will be
-     *     completed exceptionally.Otherwise, {@link Future} will be completed with an
+     * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
+     *     {@link Void}&gt;&gt;. If the call fails to start, {@link ListenableFuture} will be
+     *     completed exceptionally.Otherwise, {@link ListenableFuture} will be completed with an
      *     {@link AppSearchBatchResult}&lt;{@link String}, {@link Void}&gt;
      *     where the keys are schema types. If a schema type doesn't exist, it will be reported as a
      *     failure where the {@code throwable} is {@code null}..
      */
     @NonNull
-    public Future<AppSearchBatchResult<String, Void>> delete(@NonNull List<String> uris) {
-        Callable<AppSearchBatchResult<String, Void>> callableTask = () -> {
+    public ListenableFuture<AppSearchBatchResult<String, Void>> delete(@NonNull List<String> uris) {
+        return execute(mMutateExecutor, () -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < uris.size(); i++) {
@@ -339,8 +339,7 @@ public class AppSearchManager {
                 }
             }
             return resultBuilder.build();
-        };
-        return mMutateExecutor.submit(callableTask);
+        });
     }
 
     /**
@@ -350,18 +349,18 @@ public class AppSearchManager {
      * {@code AppSearch#deleteByType()} API provided by JetPack.
      *
      * @param schemaTypes Schema types whose documents to delete.
-     * @return A {@link Future}&lt;{@link AppSearchBatchResult}&lt;{@link String},
+     * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
      *     {@link Void}&gt;&gt;.
-     *     If the call fails to start, {@link Future} will be completed exceptionally.
-     *     Otherwise, {@link Future} will be completed with an
+     *     If the call fails to start, {@link ListenableFuture} will be completed exceptionally.
+     *     Otherwise, {@link ListenableFuture} will be completed with an
      *     {@link AppSearchBatchResult}&lt;{@link String}, {@link Void}&gt;
      *     where the keys are schema types. If a schema type doesn't exist, it will be reported as a
      *     failure where the {@code throwable} is {@code null}.
      */
     @NonNull
-    public Future<AppSearchBatchResult<String, Void>> deleteByTypes(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> deleteByTypes(
             @NonNull List<String> schemaTypes) {
-        Callable<AppSearchBatchResult<String, Void>> callableTask = () -> {
+        return execute(mMutateExecutor, () -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < schemaTypes.size(); i++) {
@@ -380,27 +379,40 @@ public class AppSearchManager {
                 }
             }
             return resultBuilder.build();
-        };
-        return mMutateExecutor.submit(callableTask);
+        });
     }
 
     /**
      * Deletes all documents owned by the calling app.
      *
-     * @return A {@link Future}&lt;{@link AppSearchResult}&lt;{@link Void}&gt;&gt;.
+     * @return A {@link ListenableFuture}&lt;{@link AppSearchResult}&lt;{@link Void}&gt;&gt;.
      *     Will be completed with the result of the call.
      */
     @NonNull
-    public <ValueType> Future<AppSearchResult<ValueType>> deleteAll() {
-        Callable<AppSearchResult<ValueType>> callableTask = () -> {
+    public <ValueType> ListenableFuture<AppSearchResult<ValueType>> deleteAll() {
+        return execute(mMutateExecutor, () -> {
             try {
                 mAppSearchImpl.deleteAll();
                 return AppSearchResult.newSuccessfulResult(null);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
             }
-        };
-        return mMutateExecutor.submit(callableTask);
+        });
+    }
+
+    /** Executes the callable task on the given executor. */
+    private <T> ListenableFuture<T> execute(ExecutorService executor, Callable<T> callable) {
+        ResolvableFuture<T> future = ResolvableFuture.create();
+        executor.execute(() -> {
+            if (!future.isCancelled()) {
+                try {
+                    future.set(callable.call());
+                } catch (Throwable t) {
+                    future.setException(t);
+                }
+            }
+        });
+        return future;
     }
 
     private <ValueType> AppSearchResult<ValueType> throwableToFailedResult(
