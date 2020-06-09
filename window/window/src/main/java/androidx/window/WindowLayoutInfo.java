@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -36,8 +37,7 @@ public final class WindowLayoutInfo {
     private final List<DisplayFeature> mDisplayFeatures;
 
     WindowLayoutInfo(@NonNull List<DisplayFeature> displayFeatures) {
-        mDisplayFeatures = new ArrayList<>();
-        mDisplayFeatures.addAll(displayFeatures);
+        mDisplayFeatures = Collections.unmodifiableList(displayFeatures);
     }
 
     /**
@@ -82,7 +82,7 @@ public final class WindowLayoutInfo {
     /**
      * Builder for {@link WindowLayoutInfo} objects.
      */
-    public static class Builder {
+    public static final class Builder {
         private List<DisplayFeature> mDisplayFeatures = new ArrayList<>();
 
         /**
