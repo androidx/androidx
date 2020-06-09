@@ -135,6 +135,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // When instantiated from saved state, this is the saved state.
     Bundle mSavedFragmentState;
     SparseArray<Parcelable> mSavedViewState;
+    Bundle mSavedViewRegistryState;
     // If the userVisibleHint is changed before the state is set,
     // it is stored here
     @Nullable Boolean mSavedUserVisibleHint;
@@ -627,6 +628,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mSavedViewState != null) {
             mView.restoreHierarchyState(mSavedViewState);
             mSavedViewState = null;
+        }
+        if (mView != null) {
+            mViewLifecycleOwner.performRestore(mSavedViewRegistryState);
+            mSavedViewRegistryState = null;
         }
         mCalled = false;
         onViewStateRestored(savedInstanceState);
@@ -2790,6 +2795,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             writer.print(prefix); writer.print("mSavedViewState=");
                     writer.println(mSavedViewState);
         }
+        if (mSavedViewRegistryState != null) {
+            writer.print(prefix); writer.print("mSavedViewRegistryState=");
+                    writer.println(mSavedViewRegistryState);
+        }
         Fragment target = getTargetFragment();
         if (target != null) {
             writer.print(prefix); writer.print("mTarget="); writer.print(target);
@@ -2887,7 +2896,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             // ViewTree get() methods return something meaningful
             ViewTreeLifecycleOwner.set(mView, mViewLifecycleOwner);
             ViewTreeViewModelStoreOwner.set(mView, this);
-            ViewTreeSavedStateRegistryOwner.set(mView, this);
+            ViewTreeSavedStateRegistryOwner.set(mView, mViewLifecycleOwner);
             // Then inform any Observers of the new LifecycleOwner
             mViewLifecycleOwnerLiveData.setValue(mViewLifecycleOwner);
         } else {

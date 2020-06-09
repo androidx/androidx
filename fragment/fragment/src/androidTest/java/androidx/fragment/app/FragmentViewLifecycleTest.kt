@@ -290,13 +290,11 @@ class FragmentViewLifecycleTest {
             .that(ViewTreeViewModelStoreOwner.get(fragment.view
                 ?: error("no fragment view created")))
             .isSameInstanceAs(fragment)
-        assertWithMessage("ViewTreeSavedStateRegistryOwner should match fragment after commitNow")
-            .that(
-                ViewTreeSavedStateRegistryOwner.get(
-                    fragment.view ?: error("no fragment view created")
-                )
-            )
-            .isSameInstanceAs(fragment)
+        assertWithMessage("ViewTreeSavedStateRegistryOwner should match viewLifecycleOwner" +
+                " after commitNow")
+            .that(ViewTreeSavedStateRegistryOwner.get(fragment.view
+                ?: error("no fragment view created")))
+            .isSameInstanceAs(fragment.viewLifecycleOwner)
 
         assertWithMessage("ViewTreeLifecycleOwner should match viewLifecycleOwner in " +
                 "viewLifecycleOwnerLiveData observer")
@@ -306,10 +304,10 @@ class FragmentViewLifecycleTest {
                 "viewLifecycleOwnerLiveData observer")
             .that(observedTreeViewModelStoreOwner)
             .isSameInstanceAs(fragment)
-        assertWithMessage("ViewTreeSavedStateRegistryOwner should match fragment in " +
+        assertWithMessage("ViewTreeSavedStateRegistryOwner should match viewLifecycleOwner in " +
                 "viewLifecycleOwnerLiveData observer")
             .that(observedTreeViewSavedStateRegistryOwner)
-            .isSameInstanceAs(fragment)
+            .isSameInstanceAs(fragment.viewLifecycleOwner)
 
         assertWithMessage("ViewTreeLifecycleOwner should match observed LifecycleOwner in " +
                 "viewLifecycleOwnerLiveData observer")
@@ -324,10 +322,35 @@ class FragmentViewLifecycleTest {
                 "onViewCreated")
             .that(fragment.onViewCreatedViewModelStoreOwner)
             .isSameInstanceAs(fragment)
-        assertWithMessage("ViewTreeSavedStateRegistryOwner should match fragment in " +
+        assertWithMessage("ViewTreeSavedStateRegistryOwner should match viewLifecycleOwner in " +
                 "onViewCreated")
             .that(fragment.onViewCreatedSavedStateRegistryOwner)
-            .isSameInstanceAs(fragment)
+            .isSameInstanceAs(fragment.viewLifecycleOwner)
+    }
+
+    @Test
+    fun testViewTreeSavedStateRegistryOwnerWithBackStack() {
+        val activity = activityRule.activity
+        val fm = activity.supportFragmentManager
+
+        val savedStateFragment = ViewTreeSavedStateFragment()
+        fm.beginTransaction().add(R.id.content, savedStateFragment).commit()
+        activityRule.executePendingTransactions()
+
+        assertThat(savedStateFragment.stateIsSaved).isFalse()
+
+        fm.beginTransaction()
+            .replace(R.id.content, StrictViewFragment())
+            .addToBackStack(null)
+            .commit()
+        activityRule.executePendingTransactions()
+
+        assertThat(savedStateFragment.stateIsSaved).isTrue()
+
+        activityRule.popBackStackImmediate()
+
+        assertThat(savedStateFragment.stateIsRestored).isTrue()
+        assertThat(savedStateFragment.restoredState).isEqualTo("test")
     }
 
     class ViewTreeCheckFragment : Fragment() {
@@ -393,6 +416,32 @@ class FragmentViewLifecycleTest {
             liveData.observe(viewLifecycleOwner, onViewStateRestoredObserver)
             assertWithMessage("LiveData should have observers after onViewStateRestored observe")
                 .that(liveData.hasObservers()).isTrue()
+        }
+    }
+
+    class ViewTreeSavedStateFragment : StrictViewFragment(R.layout.fragment_a) {
+        var stateIsSaved = false
+        var stateIsRestored = false
+        var restoredState: String? = null
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            val savedStateRegistryOwner = ViewTreeSavedStateRegistryOwner.get(view)!!
+            val savedStateLifecycle = savedStateRegistryOwner.lifecycle
+            val savedStateRegistry = savedStateRegistryOwner.savedStateRegistry
+            savedStateLifecycle.addObserver(LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_CREATE) {
+                    val restoredBundle = savedStateRegistry.consumeRestoredStateForKey(
+                        "savedState")
+                    stateIsRestored = restoredBundle != null
+                    restoredState = restoredBundle?.getString("state")
+                }
+            })
+            savedStateRegistry.registerSavedStateProvider("savedState") {
+                stateIsSaved = true
+                Bundle().apply {
+                    putString("state", "test")
+                }
+            }
         }
     }
 }
