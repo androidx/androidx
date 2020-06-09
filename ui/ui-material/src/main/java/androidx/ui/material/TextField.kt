@@ -74,6 +74,7 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.RippleIndication
+import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.LastBaseline
@@ -394,7 +395,11 @@ private fun FilledTextFieldImpl(
             emphasis = EmphasisAmbient.current.high
         ) {
             TextFieldScroller(
-                scrollerPosition = rememberSavedInstanceState { TextFieldScrollerPosition() },
+                scrollerPosition = rememberSavedInstanceState(
+                    saver = TextFieldScrollerPosition.Saver
+                ) {
+                    TextFieldScrollerPosition()
+                },
                 modifier = tagModifier
             ) {
                 TextField(
@@ -544,9 +549,16 @@ internal fun TextFieldScroller(
 
 @VisibleForTesting
 @Stable
-internal class TextFieldScrollerPosition {
-    var current by mutableStateOf(0f, StructurallyEqual)
+internal class TextFieldScrollerPosition(private val initial: Float = 0f) {
+    var current by mutableStateOf(initial, StructurallyEqual)
     var maximum by mutableStateOf(Float.POSITIVE_INFINITY, StructurallyEqual)
+
+    companion object {
+        val Saver = Saver<TextFieldScrollerPosition, Float>(
+            save = { it.current },
+            restore = { restored -> TextFieldScrollerPosition(initial = restored) }
+        )
+    }
 }
 
 /**
