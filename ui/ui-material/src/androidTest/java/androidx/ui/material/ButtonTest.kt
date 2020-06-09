@@ -22,6 +22,7 @@ import androidx.compose.Providers
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.LayoutCoordinates
@@ -130,6 +131,7 @@ class ButtonTest {
     }
 
     @Test
+    @FlakyTest // TODO: b/158341686
     fun canBeDisabled() {
         val tag = "myButton"
 
