@@ -54,7 +54,8 @@ public class MediaWidgetTestBase extends MediaTestBase {
     static final String PLAYER_TYPE_MEDIA_PLAYER = "MediaPlayer";
 
     // Expected success time
-    static final int WAIT_TIME_MS = 1000;
+    // Increased timeout to pass on old devices (ex. Nexus4 API 17)
+    static final int WAIT_TIME_MS = 2000;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
