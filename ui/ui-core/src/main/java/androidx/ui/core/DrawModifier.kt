@@ -33,21 +33,6 @@ fun Modifier.drawBehind(
     onDraw: DrawScope.() -> Unit
 ) = this + DrawBackgroundModifier(onDraw)
 
-/**
- * Creates a [DrawModifier] that calls [onDraw] before the contents of the layout.
- */
-@Deprecated(
-    "Replaced by Modifier.drawBehind",
-    replaceWith = ReplaceWith(
-        "Modifier.drawBehind(onDraw)",
-        "androidx.ui.core.drawBehind",
-        "androidx.ui.core.Modifier"
-    )
-)
-fun draw(
-    onDraw: DrawScope.() -> Unit
-): DrawModifier = DrawBackgroundModifier(onDraw)
-
 private class DrawBackgroundModifier(
     val onDraw: DrawScope.() -> Unit
 ) : DrawModifier {
@@ -69,18 +54,3 @@ private class DrawBackgroundModifier(
         onDraw()
     }
 }
-
-/**
- * Creates a [DrawModifier] that allows the developer to draw before or after the layout's
- * contents. It also allows the modifier to adjust the layout's canvas.
- */
-@Deprecated(
-    "Replaced by Modifier.drawWithContent",
-    ReplaceWith(
-        "Modifier.drawWithContent(onDraw)",
-        "androidx.ui.core.Modifier"
-    )
-)
-/*inline*/ fun drawWithContent(
-    onDraw: ContentDrawScope.() -> Unit
-): DrawModifier = Modifier.drawWithContent(onDraw) as DrawModifier

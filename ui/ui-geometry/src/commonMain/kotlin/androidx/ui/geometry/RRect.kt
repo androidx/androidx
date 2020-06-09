@@ -170,24 +170,6 @@ data class RRect(
         return newX * newX + newY * newY <= 1.0f
     }
 
-    // Kept this with a deprecated annotation to facilitate porting other code that uses
-    // the function's old name/location
-    @Deprecated(
-        "renamed to avoid conceptual naming collision with android inflate",
-        replaceWith = ReplaceWith("grow(delta)", "androidx.ui.geometry.grow"),
-        level = DeprecationLevel.ERROR
-    )
-    fun inflate(delta: Float): RRect = grow(delta)
-
-    // Kept this with a deprecated annotation to facilitate porting other code that uses
-    // the function's old name/location
-    @Deprecated(
-        "renamed to avoid conceptual naming collision with android inflate",
-        replaceWith = ReplaceWith("shrink(delta)", "androidx.ui.geometry.shrink"),
-        level = DeprecationLevel.ERROR
-    )
-    fun deflate(delta: Float): RRect = shrink(delta)
-
     override fun toString(): String {
         val tlRadius = topLeftRadius()
         val trRadius = topRightRadius()

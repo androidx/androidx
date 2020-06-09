@@ -61,7 +61,6 @@ package androidx.ui.geometry {
     method public float component9();
     method public boolean contains(androidx.ui.geometry.Offset point);
     method public androidx.ui.geometry.RRect copy(float left, float top, float right, float bottom, float topLeftRadiusX, float topLeftRadiusY, float topRightRadiusX, float topRightRadiusY, float bottomRightRadiusX, float bottomRightRadiusY, float bottomLeftRadiusX, float bottomLeftRadiusY);
-    method @Deprecated public androidx.ui.geometry.RRect deflate(float delta);
     method public float getBottom();
     method public float getBottomLeftRadiusX();
     method public float getBottomLeftRadiusY();
@@ -77,7 +76,6 @@ package androidx.ui.geometry {
     method public float getTopRightRadiusY();
     method public float getWidth();
     method public static androidx.ui.geometry.RRect getZero();
-    method @Deprecated public androidx.ui.geometry.RRect inflate(float delta);
     property public final float height;
     property public final float width;
     field public static final androidx.ui.geometry.RRect.Companion! Companion;

@@ -2530,7 +2530,7 @@ class AndroidLayoutDrawTest {
                     drawRect(model.innerColor)
                     drawLatch.countDown()
                 }
-                val innerDrawWithContentModifier = drawWithContent {
+                val innerDrawWithContentModifier = Modifier.drawWithContent {
                     drawRect(model.outerColor)
                     val start = model.size.value.toFloat()
                     val end = start * 2
