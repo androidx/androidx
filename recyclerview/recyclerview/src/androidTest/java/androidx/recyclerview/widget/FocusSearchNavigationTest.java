@@ -177,6 +177,22 @@ public class FocusSearchNavigationTest {
         assertThat(mAfter, hasFocus());
     }
 
+    @Test
+    public void focusSearchForwardWithSingleItem() throws Throwable {
+        setup(1);
+        requestFocus(mBefore);
+        assertThat(mBefore, hasFocus());
+
+        View focused = mBefore;
+        focusSearchAndGive(focused, View.FOCUS_FORWARD);
+        RecyclerView.ViewHolder viewHolder = mRecyclerView.findViewHolderForAdapterPosition(0);
+        assertThat("The first view holder ", viewHolder, hasFocus());
+
+        focused = viewHolder.itemView;
+        focusSearchAndGive(focused, View.FOCUS_FORWARD);
+        assertThat(mAfter, hasFocus());
+    }
+
     private View focusSearchAndGive(final View view, final int focusDir) throws Throwable {
         View next = focusSearch(view, focusDir);
         if (next != null && next != view) {

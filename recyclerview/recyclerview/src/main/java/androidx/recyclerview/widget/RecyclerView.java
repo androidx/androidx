@@ -2910,7 +2910,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * same View may still get the focus as a result of that search.
      */
     private boolean isPreferredNextFocus(View focused, View next, int direction) {
-        if (next == null || next == this) {
+        if (next == null || next == this || next == focused) {
             return false;
         }
         // panic, result view is not a child anymore, maybe workaround b/37864393
@@ -2960,9 +2960,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             case View.FOCUS_DOWN:
                 return downness > 0;
             case View.FOCUS_FORWARD:
-                return downness > 0 || (downness == 0 && rightness * rtl >= 0);
+                return downness > 0 || (downness == 0 && rightness * rtl > 0);
             case View.FOCUS_BACKWARD:
-                return downness < 0 || (downness == 0 && rightness * rtl <= 0);
+                return downness < 0 || (downness == 0 && rightness * rtl < 0);
         }
         throw new IllegalArgumentException("Invalid direction: " + direction + exceptionLabel());
     }
