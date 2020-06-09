@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.ui.core.layout
 
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Constraints
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutNode.LayoutState
 import androidx.ui.core.test.AndroidOwnerExtraAssertionsRule
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.math.max
 
 @SmallTest
 @RunWith(JUnit4::class)
 class MeasureAndLayoutDelegateTest {
 
-    private val Size = 100
     private val DifferentSize = 50
     private val DifferentSize2 = 30
 
@@ -1203,276 +1200,6 @@ class MeasureAndLayoutDelegateTest {
                 delegate.requestRelayout(root)
                 assertThat(delegate.measureAndLayout()).isTrue()
             }
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun createDelegate(
-        root: LayoutNode,
-        firstMeasureCompleted: Boolean = true
-    ): MeasureAndLayoutDelegate {
-        val delegate = MeasureAndLayoutDelegate(root)
-        root.attach(mock {
-            on { measureIteration } doAnswer {
-                delegate.measureIteration
-            }
-            on { onRequestMeasure(any()) } doAnswer {
-                delegate.requestRemeasure(it.arguments[0] as LayoutNode)
-                Unit
-            }
-            on { observeMeasureModelReads(any(), any()) } doAnswer {
-                (it.arguments[1] as () -> Unit).invoke()
-            }
-            on { observeLayoutModelReads(any(), any()) } doAnswer {
-                (it.arguments[1] as () -> Unit).invoke()
-            }
-        })
-        if (firstMeasureCompleted) {
-            delegate.updateRootParams(
-                defaultRootConstraints(),
-                LayoutDirection.Ltr
-            )
-            assertThat(delegate.measureAndLayout()).isTrue()
-        }
-        return delegate
-    }
-
-    private fun defaultRootConstraints() = Constraints(maxWidth = Size, maxHeight = Size)
-
-    private fun assertNotRemeasured(node: LayoutNode, block: (LayoutNode) -> Unit) {
-        val measuresCountBefore = node.measuresCount
-        block(node)
-        assertThat(node.measuresCount).isEqualTo(measuresCountBefore)
-        assertMeasuredAndLaidOut(node)
-    }
-
-    private fun assertRemeasured(
-        node: LayoutNode,
-        times: Int = 1,
-        withDirection: LayoutDirection? = null,
-        block: (LayoutNode) -> Unit
-    ) {
-        val measuresCountBefore = node.measuresCount
-        block(node)
-        assertThat(node.measuresCount).isEqualTo(measuresCountBefore + times)
-        if (withDirection != null) {
-            assertThat(node.measuredWithLayoutDirection).isEqualTo(withDirection)
-        }
-        assertMeasuredAndLaidOut(node)
-    }
-
-    private fun assertRelaidOut(node: LayoutNode, times: Int = 1, block: (LayoutNode) -> Unit) {
-        val layoutsCountBefore = node.layoutsCount
-        block(node)
-        assertThat(node.layoutsCount).isEqualTo(layoutsCountBefore + times)
-        assertMeasuredAndLaidOut(node)
-    }
-
-    private fun assertNotRelaidOut(node: LayoutNode, block: (LayoutNode) -> Unit) {
-        val layoutsCountBefore = node.layoutsCount
-        block(node)
-        assertThat(node.layoutsCount).isEqualTo(layoutsCountBefore)
-        assertMeasuredAndLaidOut(node)
-    }
-
-    private fun assertMeasureRequired(node: LayoutNode) {
-        assertThat(node.layoutState).isEqualTo(LayoutState.NeedsRemeasure)
-    }
-
-    private fun assertMeasuredAndLaidOut(node: LayoutNode) {
-        assertThat(node.layoutState).isEqualTo(LayoutState.Ready)
-    }
-
-    private fun assertLayoutRequired(node: LayoutNode) {
-        assertThat(node.layoutState).isEqualTo(LayoutState.NeedsRelayout)
-    }
-
-    private fun assertRemeasured(
-        modifier: SpyLayoutModifier,
-        block: () -> Unit
-    ) {
-        val measuresCountBefore = modifier.measuresCount
-        block()
-        assertThat(modifier.measuresCount).isEqualTo(measuresCountBefore + 1)
-    }
-
-    private fun assertNotRemeasured(
-        modifier: SpyLayoutModifier,
-        block: () -> Unit
-    ) {
-        val measuresCountBefore = modifier.measuresCount
-        block()
-        assertThat(modifier.measuresCount).isEqualTo(measuresCountBefore)
-    }
-
-    private fun assertRelaidOut(
-        modifier: SpyLayoutModifier,
-        block: () -> Unit
-    ) {
-        val layoutsCountBefore = modifier.layoutsCount
-        block()
-        assertThat(modifier.layoutsCount).isEqualTo(layoutsCountBefore + 1)
-    }
-
-    private fun root(block: LayoutNode.() -> Unit = {}): LayoutNode {
-        return node(block).apply {
-            isPlaced = true
-        }
-    }
-
-    private fun node(block: LayoutNode.() -> Unit = {}): LayoutNode {
-        return LayoutNode().apply {
-            measureBlocks = MeasureInMeasureBlock()
-            block.invoke(this)
-        }
-    }
-}
-
-private fun LayoutNode.add(child: LayoutNode) = insertAt(children.count(), child)
-private fun LayoutNode.measureInLayoutBlock() {
-    measureBlocks = MeasureInLayoutBlock()
-}
-
-private fun LayoutNode.runDuringMeasure(block: () -> Unit) {
-    (measureBlocks as SmartMeasureBlock).preMeasureCallback = block
-}
-
-private fun LayoutNode.runDuringLayout(block: () -> Unit) {
-    (measureBlocks as SmartMeasureBlock).preLayoutCallback = block
-}
-
-private val LayoutNode.first: LayoutNode get() = children.first()
-private val LayoutNode.second: LayoutNode get() = children[1]
-private val LayoutNode.measuresCount: Int
-    get() = (measureBlocks as SmartMeasureBlock).measuresCount
-private val LayoutNode.layoutsCount: Int
-    get() = (measureBlocks as SmartMeasureBlock).layoutsCount
-private var LayoutNode.wrapChildren: Boolean
-    get() = (measureBlocks as SmartMeasureBlock).wrapChildren
-    set(value) {
-        (measureBlocks as SmartMeasureBlock).wrapChildren = value
-    }
-private val LayoutNode.measuredWithLayoutDirection: LayoutDirection
-    get() = (measureBlocks as SmartMeasureBlock).measuredLayoutDirection!!
-private var LayoutNode.size: Int?
-    get() = (measureBlocks as SmartMeasureBlock).size
-    set(value) {
-        (measureBlocks as SmartMeasureBlock).size = value
-    }
-private var LayoutNode.childrenDirection: LayoutDirection?
-    get() = (measureBlocks as SmartMeasureBlock).childrenLayoutDirection
-    set(value) {
-        (measureBlocks as SmartMeasureBlock).childrenLayoutDirection = value
-    }
-
-abstract class SmartMeasureBlock : LayoutNode.NoIntrinsicsMeasureBlocks("") {
-    var measuresCount = 0
-        protected set
-    var layoutsCount = 0
-        protected set
-    open var wrapChildren = false
-    var preMeasureCallback: (() -> Unit)? = null
-    var preLayoutCallback: (() -> Unit)? = null
-    var measuredLayoutDirection: LayoutDirection? = null
-        protected set
-    var childrenLayoutDirection: LayoutDirection? = null
-    // child size is used when null
-    var size: Int? = null
-}
-
-private class MeasureInMeasureBlock : SmartMeasureBlock() {
-    override fun measure(
-        measureScope: MeasureScope,
-        measurables: List<Measurable>,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ): MeasureScope.MeasureResult {
-        measuresCount++
-        measuredLayoutDirection = layoutDirection
-        preMeasureCallback?.invoke()
-        preMeasureCallback = null
-        val childConstraints = if (size == null) {
-            constraints
-        } else {
-            val size = size!!
-            constraints.copy(maxWidth = size, maxHeight = size)
-        }
-        val placeables = measurables.map {
-            it.measure(childConstraints, childrenLayoutDirection ?: layoutDirection)
-        }
-        var maxWidth = 0
-        var maxHeight = 0
-        if (!wrapChildren) {
-            maxWidth = childConstraints.maxWidth
-            maxHeight = childConstraints.maxHeight
-        } else {
-            placeables.forEach { placeable ->
-                maxWidth = max(placeable.width, maxWidth)
-                maxHeight = max(placeable.height, maxHeight)
-            }
-        }
-        return measureScope.layout(maxWidth, maxHeight) {
-            layoutsCount++
-            preLayoutCallback?.invoke()
-            preLayoutCallback = null
-            placeables.forEach { placeable ->
-                placeable.place(0, 0)
-            }
-        }
-    }
-}
-
-private class MeasureInLayoutBlock : SmartMeasureBlock() {
-
-    override var wrapChildren: Boolean
-        get() = false
-        set(value) {
-            if (value) {
-                throw IllegalArgumentException("MeasureInLayoutBlock always fills the parent size")
-            }
-        }
-
-    override fun measure(
-        measureScope: MeasureScope,
-        measurables: List<Measurable>,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ): MeasureScope.MeasureResult {
-        measuresCount++
-        measuredLayoutDirection = layoutDirection
-        preMeasureCallback?.invoke()
-        preMeasureCallback = null
-        val childConstraints = if (size == null) {
-            constraints
-        } else {
-            val size = size!!
-            constraints.copy(maxWidth = size, maxHeight = size)
-        }
-        return measureScope.layout(childConstraints.maxWidth, childConstraints.maxHeight) {
-            preLayoutCallback?.invoke()
-            preLayoutCallback = null
-            layoutsCount++
-            measurables.forEach {
-                it.measure(childConstraints, childrenLayoutDirection ?: layoutDirection)
-                    .place(0, 0)
-            }
-        }
-    }
-}
-
-private class SpyLayoutModifier : LayoutModifier {
-    var measuresCount = 0
-    var layoutsCount = 0
-
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ): MeasureScope.MeasureResult {
-        measuresCount++
-        return layout(constraints.maxWidth, constraints.maxHeight) {
-            layoutsCount++
-            measurable.measure(constraints).place(0, 0)
         }
     }
 }
