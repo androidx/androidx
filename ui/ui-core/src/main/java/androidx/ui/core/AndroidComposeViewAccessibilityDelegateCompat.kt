@@ -24,7 +24,9 @@ import android.view.View
 import android.view.ViewParent
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
+import androidx.annotation.IntRange
 import androidx.collection.SparseArrayCompat
+import androidx.core.util.Preconditions
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
@@ -44,6 +46,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         /** Virtual node identifier value for invalid nodes. */
         const val InvalidId = Integer.MIN_VALUE
         const val ClassName = "android.view.View"
+        /**
+         * Intent size limitations prevent sending over a megabyte of data. Limit
+         * text length to 100K characters - 200KB.
+         */
+        const val ParcelSafeTextLength = 100000
         private val AccessibilityActionsResourceIds = intArrayOf(
             androidx.ui.core.R.id.accessibility_custom_action_0,
             androidx.ui.core.R.id.accessibility_custom_action_1,
@@ -159,16 +166,25 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             )
         }
 
+        // TODO: we need a AnnotedString to CharSequence conversion function
+        info.text = trimToSize(semanticsNode.config.getOrNull(SemanticsProperties.Text)?.text,
+            ParcelSafeTextLength)
         // TODO(b/151847522): use state description when android R is available
-        info.contentDescription = semanticsNode.config.getOrElse(
-            SemanticsProperties.AccessibilityValue) { "" }
-        var content = semanticsNode.config.getOrElse(
-            SemanticsProperties.AccessibilityLabel) { "" }
-        if (content != "") {
-            info.contentDescription = TextUtils.concat(content, ",", info.contentDescription)
+        var state = semanticsNode.config.getOrNull(SemanticsProperties.AccessibilityValue)
+        info.contentDescription = state
+        var content = semanticsNode.config.getOrNull(SemanticsProperties.AccessibilityLabel)
+        if (content != null) {
+            if (info.contentDescription != null) {
+                info.contentDescription = TextUtils.concat(content, ",", info.contentDescription)
+            } else {
+                info.contentDescription = content
+            }
         }
-        info.isEnabled = semanticsNode.config.getOrElse(
-            SemanticsProperties.Enabled) { true }
+        // This is part of b/151847522 because content description overwrite text.
+        if (content == null && state != null && info.text != null) {
+            info.contentDescription = TextUtils.concat(info.contentDescription, ",", info.text)
+        }
+        info.isEnabled = semanticsNode.config.getOrElse(SemanticsProperties.Enabled) { true }
         info.isVisibleToUser = !(semanticsNode.config.getOrElse(
             SemanticsProperties.Hidden) { false })
         info.isClickable = semanticsNode.config.contains(SemanticsActions.OnClick)
@@ -581,6 +597,24 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     override fun getAccessibilityNodeProvider(host: View?): AccessibilityNodeProviderCompat {
         return nodeProvider
+    }
+
+    /**
+     * Trims the text to [size] length. Returns the string as it is if the length is
+     * smaller than [size]. If chars at [size] - 1 and [size] is a surrogate
+     * pair, returns a CharSequence of length [size] - 1.
+     *
+     * @param size length of the result, should be greater than 0
+     */
+    private fun <T : CharSequence> trimToSize(text: T?, @IntRange(from = 1) size: Int): T? {
+        Preconditions.checkArgument(size > 0)
+        var len = size
+        if (text.isNullOrEmpty() || text.length <= size) return text
+        if (Character.isHighSurrogate(text[size - 1]) && Character.isLowSurrogate(text[size])) {
+            len = size - 1
+        }
+        @Suppress("UNCHECKED_CAST")
+        return text.subSequence(0, len) as T
     }
 
     // TODO (in a separate cl): Called when the SemanticsNode with id semanticsNodeId disappears.

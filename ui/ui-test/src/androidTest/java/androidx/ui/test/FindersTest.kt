@@ -24,6 +24,8 @@ import androidx.ui.layout.Column
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.semantics.testTag
+import androidx.ui.semantics.text
+import androidx.ui.text.AnnotatedString
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -95,7 +97,7 @@ class FindersTest {
     @Test
     fun findBySubstring_matches() {
         composeTestRule.setContent {
-            BoundaryNode { accessibilityLabel = "Hello World" }
+            BoundaryNode { text = AnnotatedString("Hello World") }
         }
 
         findBySubstring("World")
@@ -104,7 +106,7 @@ class FindersTest {
     @Test
     fun findBySubstring_ignoreCase_matches() {
         composeTestRule.setContent {
-            BoundaryNode { accessibilityLabel = "Hello World" }
+            BoundaryNode { text = AnnotatedString("Hello World") }
         }
 
         findBySubstring("world", ignoreCase = true)
@@ -113,7 +115,7 @@ class FindersTest {
     @Test(expected = AssertionError::class)
     fun findBySubstring_wrongCase_fails() {
         composeTestRule.setContent {
-            BoundaryNode { accessibilityLabel = "Hello World" }
+            BoundaryNode { text = AnnotatedString("Hello World") }
         }
 
         // Need to assert exists or it won't fail

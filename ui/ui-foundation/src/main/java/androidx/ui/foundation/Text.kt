@@ -25,7 +25,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
 import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.accessibilityLabel
+import androidx.ui.semantics.text
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Paragraph
 import androidx.ui.text.InlineTextContent
@@ -210,7 +210,8 @@ fun Text(
             letterSpacing = letterSpacing
         )
     )
-    Semantics(properties = { accessibilityLabel = text.text }) {
+    // TODO: text could contain composables, should be the final text
+    Semantics(properties = { this.text = text }) {
         CoreText(
             text,
             modifier,

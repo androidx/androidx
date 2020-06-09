@@ -126,35 +126,51 @@ fun hasNoScrollAction(): SemanticsMatcher =
 /**
  * Returns whether the component's label matches exactly to the given text.
  *
- * @param text Text to match.
+ * @param label Text to match.
  * @param ignoreCase Whether case should be ignored.
  *
- * @see hasSubstring
  * @see SemanticsProperties.AccessibilityLabel
  */
-fun hasText(text: String, ignoreCase: Boolean = false): SemanticsMatcher {
+fun hasLabel(label: String, ignoreCase: Boolean = false): SemanticsMatcher {
     return SemanticsMatcher(
-        "${SemanticsProperties.AccessibilityLabel.name} = '$text' (ignoreCase: $ignoreCase)"
+        "${SemanticsProperties.AccessibilityLabel.name} = '$label' (ignoreCase: $ignoreCase)"
     ) {
-        it.config.getOrNull(SemanticsProperties.AccessibilityLabel).equals(text, ignoreCase)
+        it.config.getOrNull(SemanticsProperties.AccessibilityLabel).equals(label, ignoreCase)
     }
 }
 
 /**
- * Returns whether the component's label contains the given substring.
+ * Returns whether the component's text matches exactly to the given text.
+ *
+ * @param text Text to match.
+ * @param ignoreCase Whether case should be ignored.
+ *
+ * @see hasSubstring
+ * @see SemanticsProperties.Text
+ */
+fun hasText(text: String, ignoreCase: Boolean = false): SemanticsMatcher {
+    return SemanticsMatcher(
+        "${SemanticsProperties.Text.name} = '$text' (ignoreCase: $ignoreCase)"
+    ) {
+        it.config.getOrNull(SemanticsProperties.Text)?.text.equals(text, ignoreCase)
+    }
+}
+
+/**
+ * Returns whether the component's text contains the given substring.
  *
  * @param substring Substring to check.
  * @param ignoreCase Whether case should be ignored.
  *
  * @see hasText
- * @see SemanticsProperties.AccessibilityLabel
+ * @see SemanticsProperties.Text
  */
 fun hasSubstring(substring: String, ignoreCase: Boolean = false):
         SemanticsMatcher {
     return SemanticsMatcher(
-        "${SemanticsProperties.AccessibilityLabel.name}.contains($substring, $ignoreCase)"
+        "${SemanticsProperties.Text.name}.contains($substring, $ignoreCase)"
     ) {
-        it.config.getOrNull(SemanticsProperties.AccessibilityLabel)?.contains(substring, ignoreCase)
+        it.config.getOrNull(SemanticsProperties.Text)?.text?.contains(substring, ignoreCase)
             ?: false
     }
 }
