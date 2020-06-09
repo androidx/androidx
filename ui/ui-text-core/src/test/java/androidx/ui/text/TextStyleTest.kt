@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.ui.intl.LocaleList
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow

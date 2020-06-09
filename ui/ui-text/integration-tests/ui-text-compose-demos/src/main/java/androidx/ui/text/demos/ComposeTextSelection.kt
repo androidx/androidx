@@ -28,7 +28,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxWidth
-import androidx.ui.text.LocaleList
+import androidx.ui.intl.LocaleList
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.annotatedString

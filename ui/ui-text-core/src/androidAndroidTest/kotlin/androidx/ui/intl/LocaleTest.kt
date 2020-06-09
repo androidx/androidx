@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.text
+package androidx.ui.intl
 
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat

@@ -18,6 +18,7 @@ package androidx.ui.text
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
+import androidx.ui.intl.LocaleList
 import androidx.ui.text.AnnotatedString.Builder
 import androidx.ui.text.AnnotatedString.Range
 import androidx.ui.util.fastForEach

@@ -205,6 +205,55 @@ package androidx.ui.input {
 
 }
 
+package androidx.ui.intl {
+
+  public final class AndroidPlatformLocaleKt {
+  }
+
+  @androidx.compose.Immutable public final class Locale {
+    ctor public Locale(String languageTag);
+    method public String getLanguage();
+    method public String getRegion();
+    method public String getScript();
+    method public String toLanguageTag();
+    property public final String language;
+    property public final String region;
+    property public final String script;
+    field public static final androidx.ui.intl.Locale.Companion! Companion;
+  }
+
+  public static final class Locale.Companion {
+    method public androidx.ui.intl.Locale getCurrent();
+    property public final androidx.ui.intl.Locale current;
+  }
+
+  @androidx.compose.Immutable public final class LocaleList implements java.util.Collection<androidx.ui.intl.Locale> kotlin.jvm.internal.markers.KMappedMarker {
+    ctor public LocaleList(java.util.List<androidx.ui.intl.Locale> localeList);
+    ctor public LocaleList(String languageTags);
+    ctor public LocaleList(androidx.ui.intl.Locale... locales);
+    method public java.util.List<androidx.ui.intl.Locale> component1();
+    method public operator boolean contains(androidx.ui.intl.Locale element);
+    method public boolean containsAll(java.util.Collection<?> elements);
+    method @androidx.compose.Immutable public androidx.ui.intl.LocaleList copy(java.util.List<androidx.ui.intl.Locale> localeList);
+    method public operator androidx.ui.intl.Locale get(int i);
+    method public java.util.List<androidx.ui.intl.Locale> getLocaleList();
+    method public int getSize();
+    method public boolean isEmpty();
+    method public java.util.Iterator<androidx.ui.intl.Locale> iterator();
+    property public int size;
+    field public static final androidx.ui.intl.LocaleList.Companion! Companion;
+  }
+
+  public static final class LocaleList.Companion {
+    method public androidx.ui.intl.LocaleList getCurrent();
+    property public final androidx.ui.intl.LocaleList current;
+  }
+
+  public final class PlatformLocaleKt {
+  }
+
+}
+
 package androidx.ui.text {
 
   @androidx.compose.Immutable public final class AnnotatedString {
@@ -260,56 +309,17 @@ package androidx.ui.text {
     method public static androidx.ui.text.AnnotatedString AnnotatedString(String text, androidx.ui.text.ParagraphStyle paragraphStyle);
     method @Deprecated public static inline androidx.ui.text.AnnotatedString AnnotatedString(kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,kotlin.Unit> builder);
     method public static inline androidx.ui.text.AnnotatedString annotatedString(kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,kotlin.Unit> builder);
-    method public static androidx.ui.text.AnnotatedString capitalize(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
-    method public static androidx.ui.text.AnnotatedString decapitalize(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
+    method public static androidx.ui.text.AnnotatedString capitalize(androidx.ui.text.AnnotatedString, androidx.ui.intl.LocaleList localeList = LocaleList.current);
+    method public static androidx.ui.text.AnnotatedString decapitalize(androidx.ui.text.AnnotatedString, androidx.ui.intl.LocaleList localeList = LocaleList.current);
     method public static int getLength(androidx.ui.text.AnnotatedString);
     method public static androidx.ui.text.AnnotatedString subSequence(androidx.ui.text.AnnotatedString, int start, int end);
-    method public static androidx.ui.text.AnnotatedString toLowerCase(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
-    method public static androidx.ui.text.AnnotatedString toUpperCase(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
+    method public static androidx.ui.text.AnnotatedString toLowerCase(androidx.ui.text.AnnotatedString, androidx.ui.intl.LocaleList localeList = LocaleList.current);
+    method public static androidx.ui.text.AnnotatedString toUpperCase(androidx.ui.text.AnnotatedString, androidx.ui.intl.LocaleList localeList = LocaleList.current);
     method public static inline <R> R withStyle(androidx.ui.text.AnnotatedString.Builder, androidx.ui.text.SpanStyle style, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,? extends R> block);
     method public static inline <R> R withStyle(androidx.ui.text.AnnotatedString.Builder, androidx.ui.text.ParagraphStyle style, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,? extends R> block);
   }
 
   public final class JvmAnnotatedStringKt {
-  }
-
-  @androidx.compose.Immutable public final class Locale {
-    ctor public Locale(String languageTag);
-    method public String getLanguage();
-    method public String getRegion();
-    method public String getScript();
-    method public String toLanguageTag();
-    property public final String language;
-    property public final String region;
-    property public final String script;
-    field public static final androidx.ui.text.Locale.Companion! Companion;
-  }
-
-  public static final class Locale.Companion {
-    method public androidx.ui.text.Locale getCurrent();
-    property public final androidx.ui.text.Locale current;
-  }
-
-  @androidx.compose.Immutable public final class LocaleList implements java.util.Collection<androidx.ui.text.Locale> kotlin.jvm.internal.markers.KMappedMarker {
-    ctor public LocaleList(java.util.List<androidx.ui.text.Locale> localeList);
-    ctor public LocaleList(String languageTags);
-    ctor public LocaleList(androidx.ui.text.Locale... locales);
-    method public java.util.List<androidx.ui.text.Locale> component1();
-    method public operator boolean contains(androidx.ui.text.Locale element);
-    method public boolean containsAll(java.util.Collection<?> elements);
-    method @androidx.compose.Immutable public androidx.ui.text.LocaleList copy(java.util.List<androidx.ui.text.Locale> localeList);
-    method public operator androidx.ui.text.Locale get(int i);
-    method public java.util.List<androidx.ui.text.Locale> getLocaleList();
-    method public int getSize();
-    method public boolean isEmpty();
-    method public java.util.Iterator<androidx.ui.text.Locale> iterator();
-    property public int size;
-    field public static final androidx.ui.text.LocaleList.Companion! Companion;
-  }
-
-  public static final class LocaleList.Companion {
-    method public androidx.ui.text.LocaleList getCurrent();
-    property public final androidx.ui.text.LocaleList current;
   }
 
   public final class MultiParagraph {
@@ -485,7 +495,7 @@ package androidx.ui.text {
   @androidx.compose.Immutable public final class SpanStyle {
     method public long component1();
     method public androidx.ui.text.style.TextGeometricTransform? component10();
-    method public androidx.ui.text.LocaleList? component11();
+    method public androidx.ui.intl.LocaleList? component11();
     method public long component12();
     method public androidx.ui.text.style.TextDecoration? component13();
     method public androidx.ui.graphics.Shadow? component14();
@@ -497,7 +507,7 @@ package androidx.ui.text {
     method public String? component7();
     method public long component8();
     method public androidx.ui.text.style.BaselineShift? component9();
-    method @androidx.compose.Immutable public androidx.ui.text.SpanStyle copy-kRoccyE(long color, long fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, long letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, long background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow);
+    method @androidx.compose.Immutable public androidx.ui.text.SpanStyle copy-HjQ0eR4(long color, long fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, long letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.intl.LocaleList? localeList, long background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow);
     method public long getBackground();
     method public androidx.ui.text.style.BaselineShift? getBaselineShift();
     method public long getColor();
@@ -508,7 +518,7 @@ package androidx.ui.text {
     method public androidx.ui.text.font.FontSynthesis? getFontSynthesis();
     method public androidx.ui.text.font.FontWeight? getFontWeight();
     method public long getLetterSpacing();
-    method public androidx.ui.text.LocaleList? getLocaleList();
+    method public androidx.ui.intl.LocaleList? getLocaleList();
     method public androidx.ui.graphics.Shadow? getShadow();
     method public androidx.ui.text.style.TextDecoration? getTextDecoration();
     method public androidx.ui.text.style.TextGeometricTransform? getTextGeometricTransform();
@@ -521,14 +531,14 @@ package androidx.ui.text {
   }
 
   public final class StringKt {
-    method public static String capitalize(String, androidx.ui.text.Locale locale);
-    method public static String capitalize(String, androidx.ui.text.LocaleList localeList);
-    method public static String decapitalize(String, androidx.ui.text.Locale locale);
-    method public static String decapitalize(String, androidx.ui.text.LocaleList localeList);
-    method public static String toLowerCase(String, androidx.ui.text.Locale locale);
-    method public static String toLowerCase(String, androidx.ui.text.LocaleList localeList);
-    method public static String toUpperCase(String, androidx.ui.text.Locale locale);
-    method public static String toUpperCase(String, androidx.ui.text.LocaleList localeList);
+    method public static String capitalize(String, androidx.ui.intl.Locale locale);
+    method public static String capitalize(String, androidx.ui.intl.LocaleList localeList);
+    method public static String decapitalize(String, androidx.ui.intl.Locale locale);
+    method public static String decapitalize(String, androidx.ui.intl.LocaleList localeList);
+    method public static String toLowerCase(String, androidx.ui.intl.Locale locale);
+    method public static String toLowerCase(String, androidx.ui.intl.LocaleList localeList);
+    method public static String toUpperCase(String, androidx.ui.intl.Locale locale);
+    method public static String toUpperCase(String, androidx.ui.intl.LocaleList localeList);
   }
 
   public final class TextLayoutHelperKt {
@@ -624,7 +634,7 @@ package androidx.ui.text {
   @androidx.compose.Immutable public final class TextStyle {
     method public long component1();
     method public androidx.ui.text.style.TextGeometricTransform? component10();
-    method public androidx.ui.text.LocaleList? component11();
+    method public androidx.ui.intl.LocaleList? component11();
     method public long component12();
     method public androidx.ui.text.style.TextDecoration? component13();
     method public androidx.ui.graphics.Shadow? component14();
@@ -640,7 +650,7 @@ package androidx.ui.text {
     method public String? component7();
     method public long component8();
     method public androidx.ui.text.style.BaselineShift? component9();
-    method @androidx.compose.Immutable public androidx.ui.text.TextStyle copy-4Bo2vQE(long color, long fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, long letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, long background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow, androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, long lineHeight, androidx.ui.text.style.TextIndent? textIndent);
+    method @androidx.compose.Immutable public androidx.ui.text.TextStyle copy-bPwzXGo(long color, long fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, long letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.intl.LocaleList? localeList, long background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow, androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, long lineHeight, androidx.ui.text.style.TextIndent? textIndent);
     method public long getBackground();
     method public androidx.ui.text.style.BaselineShift? getBaselineShift();
     method public long getColor();
@@ -652,7 +662,7 @@ package androidx.ui.text {
     method public androidx.ui.text.font.FontWeight? getFontWeight();
     method public long getLetterSpacing();
     method public long getLineHeight();
-    method public androidx.ui.text.LocaleList? getLocaleList();
+    method public androidx.ui.intl.LocaleList? getLocaleList();
     method public androidx.ui.graphics.Shadow? getShadow();
     method public androidx.ui.text.style.TextAlign? getTextAlign();
     method public androidx.ui.text.style.TextDecoration? getTextDecoration();
@@ -852,13 +862,7 @@ package androidx.ui.text.platform {
   public final class AndroidParagraphKt {
   }
 
-  public final class AndroidPlatformLocaleKt {
-  }
-
   public final class AndroidStringDelegateKt {
-  }
-
-  public final class PlatformLocaleKt {
   }
 
   public final class TypefaceAdapterKt {

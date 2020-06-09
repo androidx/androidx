@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.text.platform
-
-import androidx.ui.text.PlatformStringDelegate
+package androidx.ui.intl
 
 /**
  * Interface for providing platform dependent locale object.
@@ -67,5 +65,3 @@ internal interface PlatformLocaleDelegate {
 internal expect fun createPlatformLocaleDelegate(): PlatformLocaleDelegate
 
 internal val platformLocaleDelegate = createPlatformLocaleDelegate()
-
-internal expect fun ActualStringDelegate(): PlatformStringDelegate
