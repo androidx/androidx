@@ -60,12 +60,16 @@ final class DatabaseExtensions {
             database.acquireReference();
             return true; // success
         } catch (IllegalStateException e) {
-            String message = e.getMessage();
-            if (message != null
-                    && message.contains("attempt to re-open an already-closed object")) {
-                return false; // too late to secure a reference
+            if (isAttemptAtUsingClosedDatabase(e)) {
+                return false;
             }
-            throw e; // unexpected exception
+            throw e;
         }
+    }
+
+    static boolean isAttemptAtUsingClosedDatabase(IllegalStateException exception) {
+        String message = exception.getMessage();
+        return message != null
+                && message.contains("attempt to re-open an already-closed object");
     }
 }

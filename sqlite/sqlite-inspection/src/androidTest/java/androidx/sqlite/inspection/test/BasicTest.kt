@@ -17,6 +17,7 @@
 package androidx.sqlite.inspection.test
 
 import androidx.sqlite.inspection.SqliteInspectorProtocol
+import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_UNRECOGNISED_COMMAND_VALUE
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -55,6 +56,9 @@ class BasicTest {
                 assertThat(response.hasErrorOccurred()).isEqualTo(true)
                 assertThat(response.errorOccurred.content.message)
                     .contains("Unrecognised command type: ONEOF_NOT_SET")
+                assertThat(response.errorOccurred.content.errorCodeValue).isEqualTo(
+                    ERROR_UNRECOGNISED_COMMAND_VALUE
+                )
             }
     }
 }
