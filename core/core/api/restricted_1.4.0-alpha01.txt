@@ -51,6 +51,7 @@ package androidx.core.app {
     method public static <T extends android.view.View> T requireViewById(android.app.Activity, @IdRes int);
     method public static void setEnterSharedElementCallback(android.app.Activity, androidx.core.app.SharedElementCallback?);
     method public static void setExitSharedElementCallback(android.app.Activity, androidx.core.app.SharedElementCallback?);
+    method public static void setLocusContext(android.app.Activity, androidx.core.content.LocusIdCompat?, android.os.Bundle?);
     method public static void setPermissionCompatDelegate(androidx.core.app.ActivityCompat.PermissionCompatDelegate?);
     method public static boolean shouldShowRequestPermissionRationale(android.app.Activity, String);
     method public static void startActivityForResult(android.app.Activity, android.content.Intent, int, android.os.Bundle?);
