@@ -151,7 +151,7 @@ private class ListState<T> {
         }
     }
 
-    private fun consumePendingScroll() {
+    private fun consumePendingScroll(childConstraints: Constraints) {
         val scrollDirection = ScrollDirection(isForward = scrollToBeConsumed < 0f)
 
         while (true) {
@@ -164,7 +164,7 @@ private class ListState<T> {
             // Allow up to half a pixel of scroll to remain unconsumed
             if (abs(scrollToBeConsumed) >= 0.5f) {
                 // We need to bring another item onscreen. Can we?
-                if (!composeAndMeasureNextItem(scrollDirection)) {
+                if (!composeAndMeasureNextItem(childConstraints, scrollDirection)) {
                     // Nope. Break out and return the rest of the drag
                     break
                 }
@@ -218,7 +218,10 @@ private class ListState<T> {
      * @return `true` if an item was composed and measured, `false` if there are no more items in
      * the scroll direction
      */
-    private fun composeAndMeasureNextItem(scrollDirection: ScrollDirection): Boolean {
+    private fun composeAndMeasureNextItem(
+        childConstraints: Constraints,
+        scrollDirection: ScrollDirection
+    ): Boolean {
         val nextItemIndex = if (scrollDirection.isForward) {
             if (data.size > lastComposedItem.value + 1) {
                 lastComposedItem + 1
@@ -234,8 +237,6 @@ private class ListState<T> {
         }
 
         val nextItem = composeChildForDataIndex(nextItemIndex)
-        // TODO: axis
-        val childConstraints = Constraints(maxWidth = rootNode.width, maxHeight = IntPx.Infinity)
 
         val childPlaceable = nextItem.measure(childConstraints, layoutDirection)
         measuredThisPass[nextItemIndex] = true
@@ -283,6 +284,12 @@ private class ListState<T> {
                 FrameManager.nextFrame()
             }
 
+            val width = constraints.maxWidth.value
+            val height = constraints.maxHeight.value
+            this@ListState.layoutDirection = layoutDirection
+            // TODO: axis
+            val childConstraints = Constraints(maxWidth = width.ipx, maxHeight = IntPx.Infinity)
+
             // We're being asked to consume scroll by the Scrollable
             if (abs(scrollToBeConsumed) >= 0.5f) {
                 // Consume it in advance, because it simplifies the rest of this method if we
@@ -290,14 +297,8 @@ private class ListState<T> {
                 // discard anything off the start of the viewport, because we know we can fill
                 // it, assuming nothing has shrunken on us (which has to be handled separately
                 // anyway)
-                consumePendingScroll()
+                consumePendingScroll(childConstraints)
             }
-
-            val width = constraints.maxWidth.value
-            val height = constraints.maxHeight.value
-            this@ListState.layoutDirection = layoutDirection
-            // TODO: axis
-            val childConstraints = Constraints(maxWidth = width.ipx, maxHeight = IntPx.Infinity)
 
             var heightUsed = round(-firstItemScrollOffset)
 
