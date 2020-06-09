@@ -2177,6 +2177,7 @@ package androidx.ui.semantics {
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getHidden();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsPopup();
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getTestTag();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.AnnotatedString> getText();
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityLabel;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> AccessibilityRangeInfo;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityValue;
@@ -2184,6 +2185,7 @@ package androidx.ui.semantics {
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Hidden;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsPopup;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> TestTag;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.AnnotatedString> Text;
     field public static final androidx.ui.semantics.SemanticsProperties! INSTANCE;
   }
 
@@ -2202,6 +2204,7 @@ package androidx.ui.semantics {
     method public static androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,java.lang.Boolean>> getScrollTo(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Boolean>> getSetProgress(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static String getTestTag(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static androidx.ui.text.AnnotatedString getText(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static void onClick(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function0<java.lang.Boolean> action);
     method @Deprecated public static void scrollBackward(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function0<java.lang.Boolean> action);
     method @Deprecated public static void scrollForward(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function0<java.lang.Boolean> action);
@@ -2219,6 +2222,7 @@ package androidx.ui.semantics {
     method public static void setScrollTo(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,java.lang.Boolean>> p);
     method public static void setSetProgress(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Boolean>> p);
     method public static void setTestTag(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
+    method public static void setText(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.text.AnnotatedString p);
   }
 
   public class SemanticsPropertyKey<T> implements kotlin.properties.ReadWriteProperty<androidx.ui.semantics.SemanticsPropertyReceiver,T> {

@@ -17,8 +17,12 @@
 package androidx.ui.foundation
 
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.graphics.Color
+import androidx.ui.test.assertTextEquals
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
@@ -213,5 +217,21 @@ class TextTest {
             Truth.assertThat(fontStyle).isEqualTo(expectedFontStyle)
             Truth.assertThat(letterSpacing).isEqualTo(expectedLetterSpacing)
         }
+    }
+
+    @Test
+    fun testSemantics() {
+        composeTestRule.setContent {
+            ProvideTextStyle(ExpectedTextStyle) {
+                Box(backgroundColor = Color.White) {
+                    Text(
+                        TestText,
+                        modifier = Modifier.testTag("text")
+                    )
+                }
+            }
+        }
+
+        findByTag("text").assertTextEquals(TestText)
     }
 }

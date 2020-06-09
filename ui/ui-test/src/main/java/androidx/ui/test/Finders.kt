@@ -38,7 +38,16 @@ fun findAllByTag(testTag: String): SemanticsNodeInteractionCollection =
     findAll(hasTestTag(testTag))
 
 /**
- * Finds a component with the given text as its accessibilityLabel.
+ * Finds a component with the given label as its accessibilityLabel.
+ *
+ * For usage patterns see [SemanticsNodeInteraction]
+ * @see find for general find method.
+ */
+fun findByLabel(label: String, ignoreCase: Boolean = false): SemanticsNodeInteraction =
+    find(hasLabel(label, ignoreCase))
+
+/**
+ * Finds a component with the given text.
  *
  * For usage patterns see [SemanticsNodeInteraction]
  * @see findBySubstring to search by substring instead of via exact match.
@@ -48,7 +57,7 @@ fun findByText(text: String, ignoreCase: Boolean = false): SemanticsNodeInteract
     find(hasText(text, ignoreCase))
 
 /**
- *  Finds a component with accessibilityLabel that contains the given substring.
+ *  Finds a component with text that contains the given substring.
  *
  * For usage patterns see [SemanticsNodeInteraction]
  * @see findByText to perform exact matches.
@@ -58,12 +67,20 @@ fun findBySubstring(text: String, ignoreCase: Boolean = false): SemanticsNodeInt
     find(hasSubstring(text, ignoreCase))
 
 /**
- * Finds all components with the given text as their accessibility label.
+ * Finds all components with the given text.
  *
  * For usage patterns see [SemanticsNodeInteraction]
  */
 fun findAllByText(text: String, ignoreCase: Boolean = false): SemanticsNodeInteractionCollection =
     findAll(hasText(text, ignoreCase))
+
+/**
+ * Finds all components with the given label as AccessibilityLabel.
+ *
+ * For usage patterns see [SemanticsNodeInteraction]
+ */
+fun findAllByLabel(label: String, ignoreCase: Boolean = false): SemanticsNodeInteractionCollection =
+    findAll(hasLabel(label, ignoreCase))
 
 /**
  * Finds the root semantics node of the Compose tree.  Useful for example for screenshot tests

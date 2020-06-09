@@ -59,7 +59,8 @@ class DumpToStringTest {
 
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
                 "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'Hello'")
+                "- Text = 'AnnotatedString(text=Hello, spanStyles=[], paragraphStyles=[], " +
+                "annotations=[])'")
     }
 
     @Test
@@ -75,9 +76,11 @@ class DumpToStringTest {
                 "1) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
                 "\n" +
                 "2) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'Hello'\n" +
+                "- Text = 'AnnotatedString(text=Hello, spanStyles=[], paragraphStyles=[], " +
+                "annotations=[])'\n" +
                 "3) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'World'")
+                "- Text = 'AnnotatedString(text=World, spanStyles=[], paragraphStyles=[], " +
+                "annotations=[])'")
     }
 
     @Composable

@@ -55,7 +55,8 @@ class ErrorMessagesTest {
                 "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
                 "- TestTag = 'MyButton'\n" +
                 "- Enabled = 'false'\n" +
-                "- AccessibilityLabel = 'Toggle'\n" +
+                "- Text = 'AnnotatedString(text=Toggle, spanStyles=[], paragraphStyles=[], " +
+                "annotations=[])'\n" +
                 "- MergeDescendants = 'true'\n" +
                 "Selector used: (TestTag = 'MyButton')"
         ) {
@@ -121,7 +122,7 @@ class ErrorMessagesTest {
         expectErrorMessageStartsWith("" +
                 "Failed to perform a gesture.\n" +
                 "Reason: Expected exactly '1' node but found '2' nodes that satisfy: " +
-                "(AccessibilityLabel = 'Toggle' (ignoreCase: false))\n" +
+                "(Text = 'Toggle' (ignoreCase: false))\n" +
                 "Nodes found:\n" +
                 "1) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
                 "- TestTag = 'MyButton'"
@@ -190,7 +191,7 @@ class ErrorMessagesTest {
         expectErrorMessageStartsWith("" +
                 "Failed to assert count of nodes.\n" +
                 "Reason: Expected '3' nodes but found '2' nodes that satisfy: " +
-                "(AccessibilityLabel = 'Toggle' (ignoreCase: false))\n" +
+                "(Text = 'Toggle' (ignoreCase: false))\n" +
                 "Nodes found:\n" +
                 "1) Id: X, Position: LTRB(X.px, X.px, X.px, X.px)"
         ) {
@@ -208,7 +209,7 @@ class ErrorMessagesTest {
         expectErrorMessage("" +
                 "Failed to assert count of nodes.\n" +
                 "Reason: Expected '3' nodes but could not find any node that satisfies: " +
-                "(AccessibilityLabel = 'Toggle2' (ignoreCase: false))"
+                "(Text = 'Toggle2' (ignoreCase: false))"
         ) {
             findAllByText("Toggle2")
                 .assertCountEquals(3)
@@ -231,8 +232,9 @@ class ErrorMessagesTest {
                 "Failed to perform a gesture.\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
                 "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'Hello'\n" +
-                "Original selector: AccessibilityLabel = 'Hello' (ignoreCase: false)"
+                "- Text = 'AnnotatedString(text=Hello, spanStyles=[], paragraphStyles=[], " +
+                "annotations=[])'\n" +
+                "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {
             node.doClick()
         }
@@ -255,8 +257,10 @@ class ErrorMessagesTest {
                 "Failed: assertExists.\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
                 "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'Hello'\n" +
-                "Original selector: AccessibilityLabel = 'Hello' (ignoreCase: false)") {
+                "- Text = 'AnnotatedString(text=Hello, spanStyles=[], paragraphStyles=[], " +
+                "annotations=[])'\n" +
+                "Original selector: Text = 'Hello' (ignoreCase: false)"
+        ) {
             node.assertExists()
         }
     }
@@ -278,8 +282,9 @@ class ErrorMessagesTest {
                 "Failed to assert the following: (OnClick is defined)\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
                 "Id: X, Position: LTRB(X.px, X.px, X.px, X.px)\n" +
-                "- AccessibilityLabel = 'Hello'\n" +
-                "Original selector: AccessibilityLabel = 'Hello' (ignoreCase: false)"
+                "- Text = 'AnnotatedString(text=Hello, spanStyles=[], paragraphStyles=[], " +
+                "annotations=[])'\n" +
+                "Original selector: Text = 'Hello' (ignoreCase: false)"
         ) {
             node.assertHasClickAction()
         }

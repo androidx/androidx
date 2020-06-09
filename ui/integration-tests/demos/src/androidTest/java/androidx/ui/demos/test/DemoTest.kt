@@ -29,7 +29,7 @@ import androidx.ui.demos.common.allDemos
 import androidx.ui.demos.common.allLaunchableDemos
 import androidx.ui.test.SemanticsNodeInteractionCollection
 import androidx.ui.test.android.AndroidComposeTestRule
-import androidx.ui.test.assertLabelEquals
+import androidx.ui.test.assertTextEquals
 import androidx.ui.test.doClick
 import androidx.ui.test.doScrollTo
 import androidx.ui.test.find
@@ -199,7 +199,7 @@ private fun assertIsOnRootScreen() = assertAppBarHasTitle(AllDemosCategory.title
  * Asserts that the app bar title matches the given [title].
  */
 private fun assertAppBarHasTitle(title: String) =
-    findByTag(Tags.AppBarTitle).assertLabelEquals(title)
+    findByTag(Tags.AppBarTitle).assertTextEquals(title)
 
 private fun SemanticsNodeInteractionCollection.isNotEmpty(): Boolean {
     return fetchSemanticsNodes().isNotEmpty()
