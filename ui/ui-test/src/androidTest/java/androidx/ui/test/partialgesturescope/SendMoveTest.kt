@@ -17,6 +17,7 @@
 package androidx.ui.test.partialgesturescope
 
 import androidx.test.filters.MediumTest
+import androidx.ui.geometry.Offset
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.partialgesturescope.Common.partialGesture
@@ -26,7 +27,6 @@ import androidx.ui.test.sendMove
 import androidx.ui.test.sendUp
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.expectError
-import androidx.ui.geometry.Offset
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
