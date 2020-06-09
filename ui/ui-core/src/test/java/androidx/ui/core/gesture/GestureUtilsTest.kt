@@ -18,8 +18,7 @@ package androidx.ui.core.gesture
 
 import androidx.ui.testutils.down
 import androidx.ui.testutils.up
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -35,7 +34,7 @@ class GestureUtilsTest {
             listOf(
                 down(0, x = 0f, y = 0f).up(100.milliseconds)
             )
-                .anyPointersInBounds(IntPxSize(1.ipx, 1.ipx))
+                .anyPointersInBounds(IntSize(1, 1))
         ).isFalse()
     }
 
@@ -48,7 +47,7 @@ class GestureUtilsTest {
                 down(2, x = 0f, y = -1f),
                 down(3, x = 0f, y = 1f)
             )
-                .anyPointersInBounds(IntPxSize(1.ipx, 1.ipx))
+                .anyPointersInBounds(IntSize(1, 1))
         ).isFalse()
     }
 
@@ -56,7 +55,7 @@ class GestureUtilsTest {
     fun anyPointersInBounds_1InBounds_returnsTrue() {
         assertThat(
             listOf(down(0, x = 0f, y = 0f))
-                .anyPointersInBounds(IntPxSize(1.ipx, 1.ipx))
+                .anyPointersInBounds(IntSize(1, 1))
         ).isTrue()
     }
 
@@ -70,7 +69,7 @@ class GestureUtilsTest {
                 down(3, x = 0f, y = -1f),
                 down(4, x = 0f, y = 1f)
             )
-                .anyPointersInBounds(IntPxSize(1.ipx, 1.ipx))
+                .anyPointersInBounds(IntSize(1, 1))
         ).isTrue()
     }
 }

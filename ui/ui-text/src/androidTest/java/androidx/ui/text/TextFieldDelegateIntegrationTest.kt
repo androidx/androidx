@@ -31,7 +31,6 @@ import androidx.ui.input.OffsetMap
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.ResourceFont
 import androidx.ui.unit.Density
-import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,7 +64,7 @@ class TextFieldDelegateIntegrationTest {
         )
         val selection = TextRange(0, 1)
         val selectionColor = Color.Blue
-        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx), layoutDirection)
+        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
 
         val expectedBitmap = layoutResult.toBitmap()
         val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
@@ -100,7 +99,7 @@ class TextFieldDelegateIntegrationTest {
             density = density,
             resourceLoader = resourceLoader
         )
-        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx), layoutDirection)
+        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
         val requestHeight = layoutResult.size.height / 2
 
         val (_, height, _) = TextFieldDelegate.layout(
@@ -121,7 +120,7 @@ class TextFieldDelegateIntegrationTest {
             density = density,
             resourceLoader = resourceLoader
         )
-        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx), layoutDirection)
+        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
         val requestHeight = layoutResult.size.height * 2
 
         val (_, height, _) = TextFieldDelegate.layout(
@@ -135,7 +134,7 @@ class TextFieldDelegateIntegrationTest {
 }
 
 private fun TextLayoutResult.toBitmap() = Bitmap.createBitmap(
-    size.width.value,
-    size.height.value,
+    size.width,
+    size.height,
     Bitmap.Config.ARGB_8888
 )

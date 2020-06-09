@@ -19,6 +19,7 @@ package androidx.ui.core.gesture
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.consumePositionChange
+import androidx.ui.geometry.Offset
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
@@ -27,9 +28,7 @@ import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
 import androidx.ui.unit.Duration
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -498,7 +497,7 @@ class RawDragGestureFilterTest {
     @Test
     fun onPointerInput_moveCallBackConsumes_changeDistanceConsumedByCorrectAmount() {
         var change = down(0, 0.milliseconds)
-        filter::onPointerInput.invokeOverAllPasses(change, IntPxSize(0.ipx, 0.ipx))
+        filter::onPointerInput.invokeOverAllPasses(change, IntSize(0, 0))
         dragStartBlocked = false
 
         change = change.moveTo(

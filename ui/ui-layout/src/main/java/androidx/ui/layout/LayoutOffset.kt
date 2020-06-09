@@ -27,7 +27,6 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import kotlin.math.roundToInt
 
 /**
@@ -72,7 +71,7 @@ private data class OffsetPxModifier(val x: State<Float>, val y: State<Float>) : 
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {
-            placeable.place(x.value.roundToInt().ipx, y.value.roundToInt().ipx)
+            placeable.place(x.value.roundToInt(), y.value.roundToInt())
         }
     }
 }

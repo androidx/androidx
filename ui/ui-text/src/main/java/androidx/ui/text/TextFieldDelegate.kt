@@ -19,6 +19,8 @@ package androidx.ui.text
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.LayoutDirection
+import androidx.ui.core.constrainHeight
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -39,9 +41,6 @@ import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
@@ -63,7 +62,7 @@ private fun computeLineHeightForEmptyText(
     style: TextStyle,
     density: Density,
     resourceLoader: Font.ResourceLoader
-): IntPx {
+): Int {
     return Paragraph(
         text = "H", // No meaning: just a reference character.
         style = TextStyle(
@@ -78,7 +77,7 @@ private fun computeLineHeightForEmptyText(
     ).height.toIntPx()
 }
 
-private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx
+private fun Float.toIntPx(): Int = ceil(this).roundToInt()
 
 class TextFieldDelegate {
     companion object {
@@ -95,7 +94,7 @@ class TextFieldDelegate {
             constraints: Constraints,
             layoutDirection: LayoutDirection,
             prevResultText: TextLayoutResult? = null
-        ): Triple<IntPx, IntPx, TextLayoutResult> {
+        ): Triple<Int, Int, TextLayoutResult> {
             val layoutResult = textDelegate.layout(constraints, layoutDirection, prevResultText)
 
             val isEmptyText = textDelegate.text.text.isEmpty()
@@ -105,7 +104,7 @@ class TextFieldDelegate {
                     density = textDelegate.density,
                     resourceLoader = textDelegate.resourceLoader
                 )
-                singleLineHeight.coerceIn(constraints.minHeight, constraints.maxHeight)
+                constraints.constrainHeight(singleLineHeight)
             } else {
                 layoutResult.size.height
             }
@@ -180,7 +179,7 @@ class TextFieldDelegate {
                     textDelegate.density,
                     textDelegate.resourceLoader
                 )
-                Rect(0f, 0f, 1.0f, lineHeightForEmptyText.value.toFloat())
+                Rect(0f, 0f, 1.0f, lineHeightForEmptyText.toFloat())
             }
             val globalLT = layoutCoordinates.localToRoot(Offset(bbox.left, bbox.top))
 

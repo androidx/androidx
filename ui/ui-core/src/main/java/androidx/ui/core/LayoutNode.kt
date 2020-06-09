@@ -29,14 +29,12 @@ import androidx.ui.core.semantics.SemanticsModifier
 import androidx.ui.core.semantics.SemanticsWrapper
 import androidx.ui.core.semantics.outerSemantics
 import androidx.ui.core.focus.FocusModifier
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
 import androidx.ui.util.fastForEach
 import kotlin.math.roundToInt
 import kotlin.math.sign
@@ -274,9 +272,9 @@ class LayoutNode : Measurable {
         fun minIntrinsicWidth(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx,
+            h: Int,
             layoutDirection: LayoutDirection
-        ): IntPx
+        ): Int
 
         /**
          * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
@@ -284,9 +282,9 @@ class LayoutNode : Measurable {
         fun minIntrinsicHeight(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx,
+            w: Int,
             layoutDirection: LayoutDirection
-        ): IntPx
+        ): Int
 
         /**
          * The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
@@ -294,9 +292,9 @@ class LayoutNode : Measurable {
         fun maxIntrinsicWidth(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx,
+            h: Int,
             layoutDirection: LayoutDirection
-        ): IntPx
+        ): Int
 
         /**
          * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
@@ -304,37 +302,37 @@ class LayoutNode : Measurable {
         fun maxIntrinsicHeight(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx,
+            w: Int,
             layoutDirection: LayoutDirection
-        ): IntPx
+        ): Int
     }
 
     abstract class NoIntrinsicsMeasureBlocks(private val error: String) : MeasureBlocks {
         override fun minIntrinsicWidth(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx,
+            h: Int,
             layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun minIntrinsicHeight(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx,
+            w: Int,
             layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun maxIntrinsicWidth(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx,
+            h: Int,
             layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun maxIntrinsicHeight(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx,
+            w: Int,
             layoutDirection: LayoutDirection
         ) = error(error)
     }
@@ -381,22 +379,22 @@ class LayoutNode : Measurable {
     /**
      * The measured width of this layout and all of its [modifier]s. Shortcut for `size.width`.
      */
-    val width: IntPx get() = outerMeasurablePlaceable.width
+    val width: Int get() = outerMeasurablePlaceable.width
 
     /**
      * The measured height of this layout and all of its [modifier]s. Shortcut for `size.height`.
      */
-    val height: IntPx get() = outerMeasurablePlaceable.height
+    val height: Int get() = outerMeasurablePlaceable.height
 
     /**
      * The alignment lines of this layout, inherited + intrinsic
      */
-    internal val alignmentLines: MutableMap<AlignmentLine, IntPx> = hashMapOf()
+    internal val alignmentLines: MutableMap<AlignmentLine, Int> = hashMapOf()
 
     /**
      * The alignment lines provided by this layout at the last measurement
      */
-    internal val providedAlignmentLines: MutableMap<AlignmentLine, IntPx> = hashMapOf()
+    internal val providedAlignmentLines: MutableMap<AlignmentLine, Int> = hashMapOf()
 
     internal val mDrawScope: LayoutNodeDrawScope = sharedDrawScope
 
@@ -449,7 +447,7 @@ class LayoutNode : Measurable {
 
     internal var alignmentUsageByParent = UsageByParent.NotUsed
 
-    private val previousAlignmentLines = mutableMapOf<AlignmentLine, IntPx>()
+    private val previousAlignmentLines = mutableMapOf<AlignmentLine, Int>()
 
     @Deprecated("Temporary API to support ConstraintLayout prototyping.")
     var canMultiMeasure: Boolean = false
@@ -619,7 +617,7 @@ class LayoutNode : Measurable {
      */
     private val onChildPositionedCallbacks = mutableListOf<OnChildPositionedModifier>()
 
-    fun place(x: IntPx, y: IntPx) {
+    fun place(x: Int, y: Int) {
         with(InnerPlacementScope) {
             this.parentLayoutDirection = layoutDirection
             val previousParentWidth = parentWidth
@@ -662,9 +660,9 @@ class LayoutNode : Measurable {
      * Returns the alignment line value for a given alignment line without affecting whether
      * the flag for whether the alignment line was read.
      */
-    fun getAlignmentLine(line: AlignmentLine): IntPx? {
+    fun getAlignmentLine(line: AlignmentLine): Int? {
         val linePos = alignmentLines[line] ?: return null
-        var pos = Offset(linePos.value.toFloat(), linePos.value.toFloat())
+        var pos = Offset(linePos.toFloat(), linePos.toFloat())
         var wrapper = innerLayoutNodeWrapper
         while (wrapper != outerLayoutNodeWrapper) {
             pos = wrapper.toParentPosition(pos)
@@ -672,9 +670,9 @@ class LayoutNode : Measurable {
         }
         pos = wrapper.toParentPosition(pos)
         return if (line is HorizontalAlignmentLine) {
-            pos.y.roundToInt().ipx
+            pos.y.roundToInt()
         } else {
-            pos.x.roundToInt().ipx
+            pos.x.roundToInt()
         }
     }
 
@@ -801,7 +799,7 @@ class LayoutNode : Measurable {
         }
     }
 
-    internal fun calculateAlignmentLines(): Map<AlignmentLine, IntPx> {
+    internal fun calculateAlignmentLines(): Map<AlignmentLine, Int> {
         isCalculatingAlignmentLines = true
         alignmentLinesRead = true
         alignmentLinesQueryOwner = this
@@ -925,16 +923,16 @@ class LayoutNode : Measurable {
 
     override val parentData: Any? get() = outerMeasurablePlaceable.parentData
 
-    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+    override fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
         outerMeasurablePlaceable.minIntrinsicWidth(height, layoutDirection)
 
-    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+    override fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
         outerMeasurablePlaceable.maxIntrinsicWidth(height, layoutDirection)
 
-    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+    override fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
         outerMeasurablePlaceable.minIntrinsicHeight(width, layoutDirection)
 
-    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+    override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
         outerMeasurablePlaceable.maxIntrinsicHeight(width, layoutDirection)
 
     internal companion object {

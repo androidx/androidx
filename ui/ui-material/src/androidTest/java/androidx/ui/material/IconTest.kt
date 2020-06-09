@@ -72,7 +72,7 @@ class IconTest {
         composeTestRule
             .setMaterialContentAndCollectSizes {
                 val dummyImage = with(DensityAmbient.current) {
-                    ImageAsset(width.toIntPx().value, height.toIntPx().value)
+                    ImageAsset(width.toIntPx(), height.toIntPx())
                 }
 
                 Icon(dummyImage)
@@ -89,7 +89,7 @@ class IconTest {
         composeTestRule
             .setMaterialContentAndCollectSizes {
                 val dummyImage = with(DensityAmbient.current) {
-                    ImageAsset(width.toIntPx().value, height.toIntPx().value)
+                    ImageAsset(width.toIntPx(), height.toIntPx())
                 }
 
                 Icon(dummyImage)
@@ -119,7 +119,7 @@ class IconTest {
         composeTestRule
             .setMaterialContentAndCollectSizes {
                 val dummyImage = with(DensityAmbient.current) {
-                    ImageAsset(width.toIntPx().value, height.toIntPx().value)
+                    ImageAsset(width.toIntPx(), height.toIntPx())
                 }
 
                 val imagePainter = ImagePainter(dummyImage)

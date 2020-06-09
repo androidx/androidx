@@ -22,9 +22,9 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.round
 
 /**
@@ -56,7 +56,7 @@ abstract class PointerInputFilter {
     abstract fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange>
 
     /**
@@ -93,9 +93,9 @@ abstract class PointerInputFilter {
 
     internal lateinit var layoutCoordinates: LayoutCoordinates
 
-    internal val size: IntPxSize
+    internal val size: IntSize
         get() = layoutCoordinates.size
-    internal val position: IntPxPosition
+    internal val position: IntOffset
         get() = layoutCoordinates.localToGlobal(Offset.Zero).round()
     internal val isAttached: Boolean
         get() = layoutCoordinates.isAttached

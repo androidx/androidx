@@ -53,7 +53,7 @@ package androidx.ui.test {
 
   public final class BitmapHelpersKt {
     method public static void assertPixelColor-9bBi3KA(android.graphics.Bitmap, long expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String> error = { color -> return "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
-    method public static void assertPixels(android.graphics.Bitmap, androidx.ui.unit.IntPxSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntPxPosition,androidx.ui.graphics.Color> expectedColorProvider);
+    method public static void assertPixels(android.graphics.Bitmap, androidx.ui.unit.IntSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntOffset,androidx.ui.graphics.Color> expectedColorProvider);
     method public static void assertShape--mmofgM(android.graphics.Bitmap, androidx.ui.unit.Density density, float horizontalPadding, float verticalPadding, long backgroundColor, long shapeColor, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, float shapeOverlapPixelCount = 1.0f);
     method public static void assertShape-t2RoSCg(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, long shapeColor, long backgroundColor, androidx.ui.graphics.Shape backgroundShape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, float sizeX = width.toFloat(), float sizeY = height.toFloat(), float shapeSizeX = sizeX, float shapeSizeY = sizeY, float centerX = width / 2.0, float centerY = height / 2.0, float shapeOverlapPixelCount = 1.0f);
     method public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
@@ -63,11 +63,11 @@ package androidx.ui.test {
 
   public final class CollectedSizes {
     ctor public CollectedSizes(androidx.ui.geometry.Size size, androidx.ui.unit.Density density);
-    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,androidx.ui.unit.IntPx> expectedHeightPx);
+    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,java.lang.Integer> expectedHeightPx);
     method public androidx.ui.test.CollectedSizes assertHeightEqualsTo-ipo6vVg(float expectedHeight);
-    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,androidx.ui.unit.IntPx> expectedSquarePx);
+    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,java.lang.Integer> expectedSquarePx);
     method public androidx.ui.test.CollectedSizes assertIsSquareWithSize-ipo6vVg(float expectedSize);
-    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,androidx.ui.unit.IntPx> expectedWidthPx);
+    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,java.lang.Integer> expectedWidthPx);
     method public androidx.ui.test.CollectedSizes assertWidthEqualsTo-ipo6vVg(float expectedWidth);
   }
 
@@ -206,7 +206,7 @@ package androidx.ui.test {
   public final class GestureScopeKt {
     method public static androidx.ui.geometry.Offset getCenter(androidx.ui.test.BaseGestureScope);
     method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.test.BaseGestureScope);
-    method public static androidx.ui.unit.IntPxSize getSize(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.unit.IntSize getSize(androidx.ui.test.BaseGestureScope);
     method public static androidx.ui.geometry.Offset localToGlobal(androidx.ui.test.BaseGestureScope, androidx.ui.geometry.Offset position);
     method public static void movePointerBy(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset delta);
     method public static void movePointerTo(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset position);

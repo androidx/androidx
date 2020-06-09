@@ -16,9 +16,8 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,17 +25,17 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class AlignmentTest {
-    private val space = IntPxSize(100.ipx, 100.ipx)
-    private val space1D = 100.ipx
+    private val space = IntSize(100, 100)
+    private val space1D = 100
 
     @Test
     fun testAlign_topStart() {
         assertEquals(
-            IntPxPosition(0.ipx, 0.ipx),
+            IntOffset(0, 0),
             Alignment.TopStart.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(100.ipx, 0.ipx),
+            IntOffset(100, 0),
             Alignment.TopStart.align(space, LayoutDirection.Rtl)
         )
     }
@@ -44,11 +43,11 @@ class AlignmentTest {
     @Test
     fun testAlign_topCenter() {
         assertEquals(
-            IntPxPosition(50.ipx, 0.ipx),
+            IntOffset(50, 0),
             Alignment.TopCenter.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(50.ipx, 0.ipx),
+            IntOffset(50, 0),
             Alignment.TopCenter.align(space, LayoutDirection.Rtl)
         )
     }
@@ -56,11 +55,11 @@ class AlignmentTest {
     @Test
     fun testAlign_topEnd() {
         assertEquals(
-            IntPxPosition(100.ipx, 0.ipx),
+            IntOffset(100, 0),
             Alignment.TopEnd.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(0.ipx, 0.ipx),
+            IntOffset(0, 0),
             Alignment.TopEnd.align(space, LayoutDirection.Rtl)
         )
     }
@@ -68,11 +67,11 @@ class AlignmentTest {
     @Test
     fun testAlign_centerStart() {
         assertEquals(
-            IntPxPosition(0.ipx, 50.ipx),
+            IntOffset(0, 50),
             Alignment.CenterStart.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(100.ipx, 50.ipx),
+            IntOffset(100, 50),
             Alignment.CenterStart.align(space, LayoutDirection.Rtl)
         )
     }
@@ -80,11 +79,11 @@ class AlignmentTest {
     @Test
     fun testAlign_center() {
         assertEquals(
-            IntPxPosition(50.ipx, 50.ipx),
+            IntOffset(50, 50),
             Alignment.Center.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(50.ipx, 50.ipx),
+            IntOffset(50, 50),
             Alignment.Center.align(space, LayoutDirection.Rtl)
         )
     }
@@ -92,11 +91,11 @@ class AlignmentTest {
     @Test
     fun testAlign_centerEnd() {
         assertEquals(
-            IntPxPosition(100.ipx, 50.ipx),
+            IntOffset(100, 50),
             Alignment.CenterEnd.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(0.ipx, 50.ipx),
+            IntOffset(0, 50),
             Alignment.CenterEnd.align(space, LayoutDirection.Rtl)
         )
     }
@@ -104,11 +103,11 @@ class AlignmentTest {
     @Test
     fun testAlign_bottomStart() {
         assertEquals(
-            IntPxPosition(0.ipx, 100.ipx),
+            IntOffset(0, 100),
             Alignment.BottomStart.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(100.ipx, 100.ipx),
+            IntOffset(100, 100),
             Alignment.BottomStart.align(space, LayoutDirection.Rtl)
         )
     }
@@ -116,11 +115,11 @@ class AlignmentTest {
     @Test
     fun testAlign_bottomCenter() {
         assertEquals(
-            IntPxPosition(50.ipx, 100.ipx),
+            IntOffset(50, 100),
             Alignment.BottomCenter.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(50.ipx, 100.ipx),
+            IntOffset(50, 100),
             Alignment.BottomCenter.align(space, LayoutDirection.Rtl)
         )
     }
@@ -128,11 +127,11 @@ class AlignmentTest {
     @Test
     fun testAlign_bottomEnd() {
         assertEquals(
-            IntPxPosition(100.ipx, 100.ipx),
+            IntOffset(100, 100),
             Alignment.BottomEnd.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(0.ipx, 100.ipx),
+            IntOffset(0, 100),
             Alignment.BottomEnd.align(space, LayoutDirection.Rtl)
         )
     }
@@ -140,7 +139,7 @@ class AlignmentTest {
     @Test
     fun testAlign_top() {
         assertEquals(
-            0.ipx,
+            0,
             Alignment.Top.align(space1D)
         )
     }
@@ -148,7 +147,7 @@ class AlignmentTest {
     @Test
     fun testAlign_centerVertically() {
         assertEquals(
-            50.ipx,
+            50,
             Alignment.CenterVertically.align(space1D)
         )
     }
@@ -156,7 +155,7 @@ class AlignmentTest {
     @Test
     fun testAlign_bottom() {
         assertEquals(
-            100.ipx,
+            100,
             Alignment.Bottom.align(space1D)
         )
     }
@@ -164,11 +163,11 @@ class AlignmentTest {
     @Test
     fun testAlign_start() {
         assertEquals(
-                0.ipx,
+                0,
         Alignment.Start.align(space1D)
         )
         assertEquals(
-            100.ipx,
+            100,
             Alignment.Start.align(space1D, LayoutDirection.Rtl)
         )
     }
@@ -176,11 +175,11 @@ class AlignmentTest {
     @Test
     fun testAlign_centerHorizontally() {
         assertEquals(
-            50.ipx,
+            50,
             Alignment.CenterHorizontally.align(space1D)
         )
         assertEquals(
-            50.ipx,
+            50,
             Alignment.CenterHorizontally.align(space1D, LayoutDirection.Rtl)
         )
     }
@@ -188,11 +187,11 @@ class AlignmentTest {
     @Test
     fun testAlign_end() {
         assertEquals(
-            100.ipx,
+            100,
             Alignment.End.align(space1D)
         )
         assertEquals(
-            0.ipx,
+            0,
             Alignment.End.align(space1D, LayoutDirection.Rtl)
         )
     }
@@ -200,11 +199,11 @@ class AlignmentTest {
     @Test
     fun testAbsoluteAlign_left() {
         assertEquals(
-            0.ipx,
+            0,
             AbsoluteAlignment.Left.align(space1D)
         )
         assertEquals(
-            0.ipx,
+            0,
             AbsoluteAlignment.Left.align(space1D, LayoutDirection.Rtl)
         )
     }
@@ -212,11 +211,11 @@ class AlignmentTest {
     @Test
     fun testAbsoluteAlign_right() {
         assertEquals(
-            100.ipx,
+            100,
             AbsoluteAlignment.Right.align(space1D)
         )
         assertEquals(
-            100.ipx,
+            100,
             AbsoluteAlignment.Right.align(space1D, LayoutDirection.Rtl)
         )
     }
@@ -224,11 +223,11 @@ class AlignmentTest {
     @Test
     fun testAbsoluteAlign_topLeft() {
         assertEquals(
-            IntPxPosition(0.ipx, 0.ipx),
+            IntOffset(0, 0),
             AbsoluteAlignment.TopLeft.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(0.ipx, 0.ipx),
+            IntOffset(0, 0),
             AbsoluteAlignment.TopLeft.align(space, LayoutDirection.Rtl)
         )
     }
@@ -236,11 +235,11 @@ class AlignmentTest {
     @Test
     fun testAbsoluteAlign_topRight() {
         assertEquals(
-            IntPxPosition(100.ipx, 0.ipx),
+            IntOffset(100, 0),
             AbsoluteAlignment.TopRight.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(100.ipx, 0.ipx),
+            IntOffset(100, 0),
             AbsoluteAlignment.TopRight.align(space, LayoutDirection.Rtl)
         )
     }
@@ -248,11 +247,11 @@ class AlignmentTest {
     @Test
     fun testAbsoluteAlign_centerLeft() {
         assertEquals(
-            IntPxPosition(0.ipx, 50.ipx),
+            IntOffset(0, 50),
             AbsoluteAlignment.CenterLeft.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(0.ipx, 50.ipx),
+            IntOffset(0, 50),
             AbsoluteAlignment.CenterLeft.align(space, LayoutDirection.Rtl)
         )
     }
@@ -260,11 +259,11 @@ class AlignmentTest {
     @Test
     fun testAbsoluteAlign_centerRight() {
         assertEquals(
-            IntPxPosition(100.ipx, 50.ipx),
+            IntOffset(100, 50),
             AbsoluteAlignment.CenterRight.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(100.ipx, 50.ipx),
+            IntOffset(100, 50),
             AbsoluteAlignment.CenterRight.align(space, LayoutDirection.Rtl)
         )
     }
@@ -272,11 +271,11 @@ class AlignmentTest {
     @Test
     fun testAbsoluteAlign_bottomLeft() {
         assertEquals(
-            IntPxPosition(0.ipx, 100.ipx),
+            IntOffset(0, 100),
             AbsoluteAlignment.BottomLeft.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(0.ipx, 100.ipx),
+            IntOffset(0, 100),
             AbsoluteAlignment.BottomLeft.align(space, LayoutDirection.Rtl)
         )
     }
@@ -284,11 +283,11 @@ class AlignmentTest {
     @Test
     fun testAbsoluteAlign_bottomRight() {
         assertEquals(
-            IntPxPosition(100.ipx, 100.ipx),
+            IntOffset(100, 100),
             AbsoluteAlignment.BottomRight.align(space, LayoutDirection.Ltr)
         )
         assertEquals(
-            IntPxPosition(100.ipx, 100.ipx),
+            IntOffset(100, 100),
             AbsoluteAlignment.BottomRight.align(space, LayoutDirection.Rtl)
         )
     }

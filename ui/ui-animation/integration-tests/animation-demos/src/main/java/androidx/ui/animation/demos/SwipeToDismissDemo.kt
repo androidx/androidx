@@ -124,7 +124,7 @@ private fun SwipeToDismiss() {
         modifier.fillMaxWidth()
             .preferredHeight(heightDp)
             .onPositioned { coordinates ->
-                itemWidth.value = coordinates.size.width.value * 2 / 3f
+                itemWidth.value = coordinates.size.width * 2 / 3f
             }
     ) {
         val progress = 1 - itemBottom.value / height

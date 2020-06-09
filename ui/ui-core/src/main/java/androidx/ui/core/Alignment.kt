@@ -18,10 +18,8 @@ package androidx.ui.core
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import kotlin.math.roundToInt
 
 /**
@@ -37,9 +35,9 @@ interface Alignment {
      * according to this [Alignment].
      */
     fun align(
-        size: IntPxSize,
+        size: IntSize,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr
-    ): IntPxPosition
+    ): IntOffset
 
     /**
      * An interface that positions a point on a 1D vertical finite line. [Alignment.Vertical] is
@@ -51,7 +49,7 @@ interface Alignment {
          * Returns the position of a 1D point in a container of a given size, according to this
          * [Alignment].
          */
-        fun align(size: IntPx): IntPx
+        fun align(size: Int): Int
     }
 
     /**
@@ -64,7 +62,7 @@ interface Alignment {
          * Returns the position of a 1D point in a container of a given size,
          * according to this [Alignment].
          */
-        fun align(size: IntPx, layoutDirection: LayoutDirection = LayoutDirection.Ltr): IntPx
+        fun align(size: Int, layoutDirection: LayoutDirection = LayoutDirection.Ltr): Int
     }
 
     companion object {
@@ -119,13 +117,13 @@ private data class DirectionalAlignment(
     val horizontalBias: Float
 ) : Alignment {
     override fun align(
-        size: IntPxSize,
+        size: IntSize,
         layoutDirection: LayoutDirection
-    ): IntPxPosition {
+    ): IntOffset {
         // Convert to Px first and only round at the end, to avoid rounding twice while calculating
         // the new positions
-        val centerX = size.width.value.toFloat() / 2f
-        val centerY = size.height.value.toFloat() / 2f
+        val centerX = size.width.toFloat() / 2f
+        val centerY = size.height.toFloat() / 2f
         val resolvedHorizontalBias = if (layoutDirection == LayoutDirection.Ltr) {
             horizontalBias
         } else {
@@ -134,27 +132,27 @@ private data class DirectionalAlignment(
 
         val x = centerX * (1 + resolvedHorizontalBias)
         val y = centerY * (1 + verticalBias)
-        return IntPxPosition(x.roundToInt().ipx, y.roundToInt().ipx)
+        return IntOffset(x.roundToInt(), y.roundToInt())
     }
 
     @Immutable
     data class Vertical(private val bias: Float) : Alignment.Vertical {
-        override fun align(size: IntPx): IntPx {
+        override fun align(size: Int): Int {
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
-            val center = size.value.toFloat() / 2f
-            return (center * (1 + bias)).roundToInt().ipx
+            val center = size.toFloat() / 2f
+            return (center * (1 + bias)).roundToInt()
         }
     }
 
     @Immutable
     data class Horizontal(private val bias: Float) : Alignment.Horizontal {
-        override fun align(size: IntPx, layoutDirection: LayoutDirection): IntPx {
+        override fun align(size: Int, layoutDirection: LayoutDirection): Int {
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
-            val center = size.value.toFloat() / 2f
+            val center = size.toFloat() / 2f
             val resolvedBias = if (layoutDirection == LayoutDirection.Ltr) bias else -1 * bias
-            return (center * (1 + resolvedBias)).roundToInt().ipx
+            return (center * (1 + resolvedBias)).roundToInt()
         }
     }
 }
@@ -172,15 +170,15 @@ data class AbsoluteAlignment internal constructor(
      * Returns the position of a 2D point in a container of a given size, according to this
      * [AbsoluteAlignment]. The position will not be mirrored in Rtl context.
      */
-    override fun align(size: IntPxSize, layoutDirection: LayoutDirection): IntPxPosition {
+    override fun align(size: IntSize, layoutDirection: LayoutDirection): IntOffset {
         // Convert to Px first and only round at the end, to avoid rounding twice while calculating
         // the new positions
-        val centerX = size.width.value.toFloat() / 2f
-        val centerY = size.height.value.toFloat() / 2f
+        val centerX = size.width.toFloat() / 2f
+        val centerY = size.height.toFloat() / 2f
 
         val x = centerX * (1 + horizontalBias)
         val y = centerY * (1 + verticalBias)
-        return IntPxPosition(x.roundToInt().ipx, y.roundToInt().ipx)
+        return IntOffset(x.roundToInt(), y.roundToInt())
     }
 
     /**
@@ -194,11 +192,11 @@ data class AbsoluteAlignment internal constructor(
          * according to this [AbsoluteAlignment.Horizontal]. This position will not be mirrored in
          * Rtl context.
          */
-        override fun align(size: IntPx, layoutDirection: LayoutDirection): IntPx {
+        override fun align(size: Int, layoutDirection: LayoutDirection): Int {
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
-            val center = size.value.toFloat() / 2f
-            return (center * (1 + bias)).roundToInt().ipx
+            val center = size.toFloat() / 2f
+            return (center * (1 + bias)).roundToInt()
         }
     }
 

@@ -55,8 +55,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntOffset
 import junit.framework.TestCase.assertNotNull
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
@@ -78,24 +77,24 @@ class AndroidViewCompatTest {
     @Test
     fun simpleLayoutTest() {
         val squareRef = Ref<ColoredSquareView>()
-        val squareSize = mutableStateOf(100.ipx)
+        val squareSize = mutableStateOf(100)
         var expectedSize = 100
         composeTestRule.setContent {
             Align {
                 Layout(
                     modifier = Modifier.testTag("content"),
                     children = @Composable {
-                        ColoredSquareView(size = squareSize.value.value, ref = squareRef)
+                        ColoredSquareView(size = squareSize.value, ref = squareRef)
                     }
                 ) { measurables, constraints, _ ->
                     assertEquals(1, measurables.size)
                     val placeable = measurables.first().measure(
-                        constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+                        constraints.copy(minWidth = 0, minHeight = 0)
                     )
-                    assertEquals(placeable.width, expectedSize.ipx)
-                    assertEquals(placeable.height, expectedSize.ipx)
+                    assertEquals(placeable.width, expectedSize)
+                    assertEquals(placeable.height, expectedSize)
                     layout(constraints.maxWidth, constraints.maxHeight) {
-                        placeable.place(0.ipx, 0.ipx)
+                        placeable.place(0, 0)
                     }
                 }
             }
@@ -110,7 +109,7 @@ class AndroidViewCompatTest {
 
         runOnUiThread {
             // Change view attribute using recomposition.
-            squareSize.value = 200.ipx
+            squareSize.value = 200
             expectedSize = 200
         }
         findByTag("content").assertIsDisplayed()
@@ -151,8 +150,8 @@ class AndroidViewCompatTest {
             .onView(instanceOf(ColoredSquareView::class.java))
             .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
-        val expectedPixelColor = { position: IntPxPosition ->
-            if (position.x.value < squareSize && position.y.value < squareSize) {
+        val expectedPixelColor = { position: IntOffset ->
+            if (position.x < squareSize && position.y < squareSize) {
                 expectedColor
             } else {
                 Color.White
@@ -199,7 +198,7 @@ class AndroidViewCompatTest {
         testMeasurement_isDoneWithCorrectMeasureSpecs(
             MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
-            Constraints.fixed(20.ipx, 30.ipx),
+            Constraints.fixed(20, 30),
             ViewGroup.LayoutParams(40, 50)
         )
     }
@@ -209,7 +208,7 @@ class AndroidViewCompatTest {
         testMeasurement_isDoneWithCorrectMeasureSpecs(
             MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
-            Constraints.fixed(20.ipx, 30.ipx),
+            Constraints.fixed(20, 30),
             ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
         )
     }
@@ -219,7 +218,7 @@ class AndroidViewCompatTest {
         testMeasurement_isDoneWithCorrectMeasureSpecs(
             MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
-            Constraints.fixed(20.ipx, 30.ipx),
+            Constraints.fixed(20, 30),
             ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         )
     }
@@ -232,7 +231,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(25, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
             Constraints(
-                minWidth = 20.ipx, maxWidth = 30.ipx, minHeight = 35.ipx, maxHeight = 45.ipx
+                minWidth = 20, maxWidth = 30, minHeight = 35, maxHeight = 45
             ),
             ViewGroup.LayoutParams(25, 35)
         )
@@ -244,7 +243,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
             Constraints(
-                minWidth = 20.ipx, maxWidth = 30.ipx, minHeight = 35.ipx, maxHeight = 45.ipx
+                minWidth = 20, maxWidth = 30, minHeight = 35, maxHeight = 45
             ),
             ViewGroup.LayoutParams(15, 25)
         )
@@ -256,7 +255,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(45, MeasureSpec.EXACTLY),
             Constraints(
-                minWidth = 20.ipx, maxWidth = 30.ipx, minHeight = 35.ipx, maxHeight = 45.ipx
+                minWidth = 20, maxWidth = 30, minHeight = 35, maxHeight = 45
             ),
             ViewGroup.LayoutParams(35, 50)
         )
@@ -267,7 +266,7 @@ class AndroidViewCompatTest {
         testMeasurement_isDoneWithCorrectMeasureSpecs(
             MeasureSpec.makeMeasureSpec(40, MeasureSpec.AT_MOST),
             MeasureSpec.makeMeasureSpec(50, MeasureSpec.AT_MOST),
-            Constraints(maxWidth = 40.ipx, maxHeight = 50.ipx),
+            Constraints(maxWidth = 40, maxHeight = 50),
             ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
         )
     }
@@ -277,7 +276,7 @@ class AndroidViewCompatTest {
         testMeasurement_isDoneWithCorrectMeasureSpecs(
             MeasureSpec.makeMeasureSpec(40, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(50, MeasureSpec.EXACTLY),
-            Constraints(maxWidth = 40.ipx, maxHeight = 50.ipx),
+            Constraints(maxWidth = 40, maxHeight = 50),
             ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         )
     }
@@ -325,7 +324,7 @@ class AndroidViewCompatTest {
         val heightMeasureSpecRef = Ref<Int>()
         // Unique starting constraints so that new constraints are different and thus recomp is
         // guaranteed.
-        val constraintsHolder = mutableStateOf(Constraints.fixed(1234.ipx, 5678.ipx))
+        val constraintsHolder = mutableStateOf(Constraints.fixed(1234, 5678))
 
         composeTestRule.setContent {
             Container(LayoutConstraints(constraintsHolder.value)) {
@@ -358,7 +357,7 @@ class AndroidViewCompatTest {
             }
         }
         runOnUiThread {
-            constraintsHolder.value = Constraints(minWidth = 20.ipx, minHeight = 30.ipx)
+            constraintsHolder.value = Constraints(minWidth = 20, minHeight = 30)
         }
 
         runOnIdleCompose {
@@ -429,7 +428,7 @@ class AndroidViewCompatTest {
         ): MeasureScope.MeasureResult {
             val placeable = measurable.measure(childConstraints)
             return layout(placeable.width, placeable.height) {
-                placeable.place(0.ipx, 0.ipx)
+                placeable.place(0, 0)
             }
         }
     }
@@ -442,7 +441,7 @@ class AndroidViewCompatTest {
         Layout(children, modifier) { measurables, constraints, _ ->
             val placeable = measurables[0].measure(constraints)
             layout(placeable.width, placeable.height) {
-                placeable.place(0.ipx, 0.ipx)
+                placeable.place(0, 0)
             }
         }
     }

@@ -33,10 +33,8 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.ltr
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.rtl
-import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntOffset
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-
 @Composable
 fun RtlDemo() {
     Column(verticalArrangement = Arrangement.SpaceEvenly) {
@@ -118,7 +116,7 @@ private fun testSiblings() {
     Column {
         Stack(boxSize.drawBackground(Color.Red).alignWithSiblings { p -> p.width }
         ) {}
-        Stack(boxSize.drawBackground(Color.Green).alignWithSiblings { p -> p.width * 0.5 }
+        Stack(boxSize.drawBackground(Color.Green).alignWithSiblings { p -> p.width / 2 }
         ) {}
         Stack(boxSize.drawBackground(Color.Blue).alignWithSiblings { p -> p.width / 4 }
         ) {}
@@ -133,18 +131,18 @@ private fun CustomLayout(rtlSupport: Boolean) {
         Stack(boxSize.drawBackground(Color.Blue)) {}
     }) { measurables, constraints, _ ->
         val p = measurables.map { e ->
-            e.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
+            e.measure(constraints.copy(minWidth = 0, minHeight = 0))
         }
-        val w = p.fold(0.ipx) { sum, e -> sum + e.width }
+        val w = p.fold(0) { sum, e -> sum + e.width }
         val h = p.maxBy { it.height }!!.height
         layout(w, h) {
-            var xPosition = 0.ipx
+            var xPosition = 0
             for (child in p) {
-                child.placeAbsolute(IntPxPosition(xPosition, 0.ipx))
+                child.placeAbsolute(IntOffset(xPosition, 0))
                 if (rtlSupport) {
-                    child.place(IntPxPosition(xPosition, 0.ipx))
+                    child.place(IntOffset(xPosition, 0))
                 } else {
-                    child.placeAbsolute(IntPxPosition(xPosition, 0.ipx))
+                    child.placeAbsolute(IntOffset(xPosition, 0))
                 }
                 xPosition += child.width
             }

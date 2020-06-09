@@ -43,7 +43,6 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.material.Scaffold.FabPosition
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxBounds
 import androidx.ui.geometry.Size
 import androidx.ui.unit.dp
@@ -291,8 +290,8 @@ private fun DockedBottomBar(
         }
 
         layout(layoutWidth, layoutHeight) {
-            appBarPlaceable.place(IntPx.Zero, appBarVerticalOffset)
-            fabPlaceable.place(fabPosX, IntPx.Zero)
+            appBarPlaceable.place(0, appBarVerticalOffset)
+            fabPlaceable.place(fabPosX, 0)
         }
     }
 }

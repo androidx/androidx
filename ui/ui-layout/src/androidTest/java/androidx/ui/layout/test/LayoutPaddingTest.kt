@@ -19,6 +19,7 @@ package androidx.ui.layout.test
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
+import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
@@ -26,6 +27,7 @@ import androidx.ui.core.Ref
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.Column
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.InnerPadding
@@ -39,12 +41,8 @@ import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.rtl
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.min
 import androidx.ui.unit.toSize
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -54,6 +52,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -180,7 +179,7 @@ class LayoutPaddingTest : LayoutTest() {
 
     @Test
     fun intrinsicMeasurements() = with(density) {
-        val padding = 100.ipx.toDp()
+        val padding = 100.toDp()
 
         val latch = CountDownLatch(1)
         var error: Throwable? = null
@@ -198,7 +197,7 @@ class LayoutPaddingTest : LayoutTest() {
             val actualAspectRatioDimension = testDimension - totalAxisSpacing
 
             // When we measure the width first, the height will be half
-            val expectedAspectRatioHeight = actualAspectRatioDimension / 2f
+            val expectedAspectRatioHeight = (actualAspectRatioDimension / 2f).roundToInt()
             // When we measure the height first, the width will be double
             val expectedAspectRatioWidth = actualAspectRatioDimension * 2
 
@@ -211,19 +210,19 @@ class LayoutPaddingTest : LayoutTest() {
                 // Min width.
                 assertEquals(totalAxisSpacing, minIntrinsicWidth(0.dp.toIntPx()))
                 assertEquals(expectedTotalWidth, minIntrinsicWidth(testDimension))
-                assertEquals(totalAxisSpacing, minIntrinsicWidth(IntPx.Infinity))
+                assertEquals(totalAxisSpacing, minIntrinsicWidth(Constraints.Infinity))
                 // Min height.
                 assertEquals(totalAxisSpacing, minIntrinsicHeight(0.dp.toIntPx()))
                 assertEquals(expectedTotalHeight, minIntrinsicHeight(testDimension))
-                assertEquals(totalAxisSpacing, minIntrinsicHeight(IntPx.Infinity))
+                assertEquals(totalAxisSpacing, minIntrinsicHeight(Constraints.Infinity))
                 // Max width.
                 assertEquals(totalAxisSpacing, maxIntrinsicWidth(0.dp.toIntPx()))
                 assertEquals(expectedTotalWidth, maxIntrinsicWidth(testDimension))
-                assertEquals(totalAxisSpacing, maxIntrinsicWidth(IntPx.Infinity))
+                assertEquals(totalAxisSpacing, maxIntrinsicWidth(Constraints.Infinity))
                 // Max height.
                 assertEquals(totalAxisSpacing, maxIntrinsicHeight(0.dp.toIntPx()))
                 assertEquals(expectedTotalHeight, maxIntrinsicHeight(testDimension))
-                assertEquals(totalAxisSpacing, maxIntrinsicHeight(IntPx.Infinity))
+                assertEquals(totalAxisSpacing, maxIntrinsicHeight(Constraints.Infinity))
             } catch (t: Throwable) {
                 error = t
             } finally {
@@ -239,7 +238,7 @@ class LayoutPaddingTest : LayoutTest() {
 
     @Test
     fun testRtlSupport() = with(density) {
-        val sizeDp = 100.ipx.toDp()
+        val sizeDp = 100.toDp()
         val size = sizeDp.toIntPx()
         val padding1Dp = 5.dp
         val padding2Dp = 10.dp
@@ -249,7 +248,7 @@ class LayoutPaddingTest : LayoutTest() {
         val padding3 = padding3Dp.toIntPx()
 
         val drawLatch = CountDownLatch(3)
-        val childSize = Array(3) { IntPxSize(0.ipx, 0.ipx) }
+        val childSize = Array(3) { IntSize(0, 0) }
         val childPosition = Array(3) { Offset(0f, 0f) }
 
         // ltr: P1 S P2 | S P3 | P1 S
@@ -294,35 +293,32 @@ class LayoutPaddingTest : LayoutTest() {
         val root = findOwnerView()
         waitForDraw(root)
 
-        val rootWidth = root.width.ipx
+        val rootWidth = root.width
 //        S P1 | P3 S | P2 S P1
-        assertEquals(Offset((rootWidth - padding1 - size).value.toFloat(), 0f), childPosition[0])
-        assertEquals(IntPxSize(size, size), childSize[0])
+        assertEquals(Offset((rootWidth - padding1 - size).toFloat(), 0f), childPosition[0])
+        assertEquals(IntSize(size, size), childSize[0])
 
         assertEquals(
-            Offset((rootWidth - padding1 - padding2 - size * 2).value.toFloat(), 0f),
+            Offset((rootWidth - padding1 - padding2 - size * 2).toFloat(), 0f),
             childPosition[1]
         )
-        assertEquals(IntPxSize(size, size), childSize[1])
+        assertEquals(IntSize(size, size), childSize[1])
 
         assertEquals(
-            Offset(
-                (rootWidth - size * 3 - padding1 * 2 - padding2 - padding3).value.toFloat(),
-                0f
-            ),
+            Offset((rootWidth - size * 3 - padding1 * 2 - padding2 - padding3).toFloat(), 0f),
             childPosition[2]
         )
-        assertEquals(IntPxSize(size, size), childSize[2])
+        assertEquals(IntSize(size, size), childSize[2])
     }
 
     @Test
     fun testPaddingRtl_whenBetweenLayoutDirectionModifiers() = with(density) {
-        val padding = 50.ipx
-        val size = 300.ipx
+        val padding = 50
+        val size = 300
         val paddingDp = padding.toDp()
         val latch = CountDownLatch(1)
         val resultPosition = Ref<Offset>()
-        val resultSize = Ref<IntPxSize>()
+        val resultSize = Ref<IntSize>()
 
         show {
             Column(Modifier.fillMaxSize().rtl) {
@@ -345,14 +341,14 @@ class LayoutPaddingTest : LayoutTest() {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         val root = findOwnerView()
         waitForDraw(root)
-        val rootWidth = root.width.ipx
+        val rootWidth = root.width
 
         assertEquals(
-            IntPxSize(size - padding, size).toSize(),
+            IntSize(size - padding, size).toSize(),
             resultSize.value?.toSize()
         )
         assertEquals(
-            Offset((rootWidth - size + padding).value.toFloat(), 0f),
+            Offset((rootWidth - size + padding).toFloat(), 0f),
             resultPosition.value
         )
     }
@@ -366,7 +362,7 @@ class LayoutPaddingTest : LayoutTest() {
         val paddingPx = padding.toIntPx()
 
         val drawLatch = CountDownLatch(1)
-        var childSize = IntPxSize(-1.ipx, -1.ipx)
+        var childSize = IntSize(-1, -1)
         var childPosition = Offset(-1f, -1f)
         show {
             Stack(Modifier.fillMaxSize()) {
@@ -392,11 +388,11 @@ class LayoutPaddingTest : LayoutTest() {
         waitForDraw(root)
 
         val innerSize = (size - paddingPx * 2)
-        assertEquals(IntPxSize(innerSize, innerSize), childSize)
-        val left = ((root.width.ipx - size) / 2) + paddingPx
-        val top = ((root.height.ipx - size) / 2) + paddingPx
+        assertEquals(IntSize(innerSize, innerSize), childSize)
+        val left = ((root.width - size) / 2f).roundToInt() + paddingPx
+        val top = ((root.height - size) / 2f).roundToInt() + paddingPx
         assertEquals(
-            Offset(left.value.toFloat(), top.value.toFloat()),
+            Offset(left.toFloat(), top.toFloat()),
             childPosition
         )
     }
@@ -412,7 +408,7 @@ class LayoutPaddingTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(1)
-        var childSize = IntPxSize(-1.ipx, -1.ipx)
+        var childSize = IntSize(-1, -1)
         var childPosition = Offset(-1f, -1f)
         show {
             Stack(Modifier.fillMaxSize()) {
@@ -442,16 +438,16 @@ class LayoutPaddingTest : LayoutTest() {
         val paddingTop = top.toIntPx()
         val paddingBottom = bottom.toIntPx()
         assertEquals(
-            IntPxSize(
+            IntSize(
                 size - paddingLeft - paddingRight,
                 size - paddingTop - paddingBottom
             ),
             childSize
         )
-        val viewLeft = ((root.width.ipx - size) / 2) + paddingLeft
-        val viewTop = ((root.height.ipx - size) / 2) + paddingTop
+        val viewLeft = ((root.width - size) / 2f).roundToInt() + paddingLeft
+        val viewTop = ((root.height - size) / 2f).roundToInt() + paddingTop
         assertEquals(
-            Offset(viewLeft.value.toFloat(), viewTop.value.toFloat()),
+            Offset(viewLeft.toFloat(), viewTop.toFloat()),
             childPosition
         )
     }
@@ -465,7 +461,7 @@ class LayoutPaddingTest : LayoutTest() {
         val paddingPx = padding.toIntPx()
 
         val drawLatch = CountDownLatch(1)
-        var childSize = IntPxSize(-1.ipx, -1.ipx)
+        var childSize = IntSize(-1, -1)
         var childPosition = Offset(-1f, -1f)
         show {
             Stack(Modifier.fillMaxSize()) {
@@ -489,10 +485,10 @@ class LayoutPaddingTest : LayoutTest() {
         val root = findOwnerView()
         waitForDraw(root)
 
-        assertEquals(IntPxSize(0.ipx, 0.ipx), childSize)
-        val left = ((root.width.ipx - size) / 2) + paddingPx
-        val top = ((root.height.ipx - size) / 2) + paddingPx
-        assertEquals(Offset(left.value.toFloat(), top.value.toFloat()), childPosition)
+        assertEquals(IntSize(0, 0), childSize)
+        val left = ((root.width - size) / 2f).roundToInt() + paddingPx
+        val top = ((root.height - size) / 2f).roundToInt() + paddingPx
+        assertEquals(Offset(left.toFloat(), top.toFloat()), childPosition)
     }
 
     /**
@@ -507,10 +503,10 @@ class LayoutPaddingTest : LayoutTest() {
             }
             val placeable = measurables.first().measure(constraints)
             layout(
-                min(placeable.width, constraints.maxWidth),
-                min(placeable.height, constraints.maxHeight)
+                placeable.width.coerceAtMost(constraints.maxWidth),
+                placeable.height.coerceAtMost(constraints.maxHeight)
             ) {
-                placeable.place(IntPx.Zero, IntPx.Zero)
+                placeable.place(0, 0)
             }
         }
     }

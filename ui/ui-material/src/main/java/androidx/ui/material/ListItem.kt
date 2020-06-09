@@ -18,6 +18,7 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
@@ -39,12 +40,11 @@ import androidx.ui.text.LastBaseline
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.util.fastForEachIndexed
+import kotlin.math.max
 
 /**
  * Material Design implementation of [list items](https://material.io/components/lists).
@@ -412,20 +412,20 @@ private fun BaselinesOffsetColumn(
     content: @Composable () -> Unit
 ) {
     Layout(content, modifier) { measurables, constraints, _ ->
-        val childConstraints = constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity)
+        val childConstraints = constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
         val placeables = measurables.map { it.measure(childConstraints) }
 
-        val containerWidth = placeables.fold(0.ipx) { maxWidth, placeable ->
+        val containerWidth = placeables.fold(0) { maxWidth, placeable ->
             max(maxWidth, placeable.width)
         }
-        val y = Array(placeables.size) { 0.ipx }
-        var containerHeight = 0.ipx
+        val y = Array(placeables.size) { 0 }
+        var containerHeight = 0
         placeables.fastForEachIndexed { index, placeable ->
             val toPreviousBaseline = if (index > 0) {
                 placeables[index - 1].height - placeables[index - 1][LastBaseline]!!
-            } else 0.ipx
+            } else 0
             val topPadding = max(
-                0.ipx,
+                0,
                 offsets[index].toIntPx() - placeable[FirstBaseline]!! - toPreviousBaseline
             )
             y[index] = topPadding + containerHeight
@@ -434,7 +434,7 @@ private fun BaselinesOffsetColumn(
 
         layout(containerWidth, containerHeight) {
             placeables.fastForEachIndexed { index, placeable ->
-                placeable.place(0.ipx, y[index])
+                placeable.place(0, y[index])
             }
         }
     }
@@ -454,20 +454,20 @@ private fun OffsetToBaselineOrCenter(
     content: @Composable () -> Unit
 ) {
     Layout(content, modifier) { measurables, constraints, _ ->
-        val placeable = measurables[0].measure(constraints.copy(minHeight = 0.ipx))
+        val placeable = measurables[0].measure(constraints.copy(minHeight = 0))
         val baseline = placeable[FirstBaseline]
-        val y: IntPx
-        val containerHeight: IntPx
+        val y: Int
+        val containerHeight: Int
         if (baseline != null) {
             y = offset.toIntPx() - baseline
             containerHeight = max(constraints.minHeight, y + placeable.height)
         } else {
             containerHeight = max(constraints.minHeight, placeable.height)
             y = Alignment.Center
-                .align(IntPxSize(0.ipx, containerHeight - placeable.height)).y
+                .align(IntSize(0, containerHeight - placeable.height)).y
         }
         layout(placeable.width, containerHeight) {
-            placeable.place(0.ipx, y)
+            placeable.place(0, y)
         }
     }
 }

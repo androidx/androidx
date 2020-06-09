@@ -366,8 +366,8 @@ class DraggableTest {
 
         findByTag(draggableBoxTag)
             .doPartialGesture {
-                sendDown(Offset(size.width.value / 4f, size.height.value / 2f))
-                sendMoveBy(Offset(size.width.value / 2f, 0f))
+                sendDown(Offset(size.width / 4f, size.height / 2f))
+                sendMoveBy(Offset(size.width / 2f, 0f))
             }
 
         runOnIdleCompose {
@@ -410,8 +410,8 @@ class DraggableTest {
 
         findByTag(draggableBoxTag)
             .doPartialGesture {
-                sendDown(Offset(size.width.value / 4f, size.height.value / 2f))
-                sendMoveBy(Offset(size.width.value / 2f, 0f))
+                sendDown(Offset(size.width / 4f, size.height / 2f))
+                sendMoveBy(Offset(size.width / 2f, 0f))
             }
 
         runOnIdleCompose {

@@ -28,10 +28,8 @@ import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.padding
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import androidx.ui.util.fastForEach
 
 /**
@@ -129,14 +127,14 @@ private fun needsPadding(
 
 private fun Alignment.toColumnArrangement() = object : Arrangement.Vertical {
     override fun arrange(
-        totalSize: IntPx,
-        size: List<IntPx>,
+        totalSize: Int,
+        size: List<Int>,
         layoutDirection: LayoutDirection
-    ): List<IntPx> {
-        val usedSize = size.fold(0.ipx) { sum, current -> sum + current }
-        var y = align(IntPxSize(0.ipx, totalSize - usedSize), layoutDirection).y
+    ): List<Int> {
+        val usedSize = size.fold(0) { sum, current -> sum + current }
+        var y = align(IntSize(0, totalSize - usedSize), layoutDirection).y
 
-        val positions = mutableListOf<IntPx>()
+        val positions = mutableListOf<Int>()
         size.fastForEach { childSize ->
             positions += y
             y += childSize
@@ -146,7 +144,7 @@ private fun Alignment.toColumnArrangement() = object : Arrangement.Vertical {
 }
 
 private fun Alignment.toColumnGravity() = object : Alignment.Horizontal {
-    override fun align(size: IntPx, layoutDirection: LayoutDirection): IntPx {
-        return align(IntPxSize(size, 0.ipx), layoutDirection).x
+    override fun align(size: Int, layoutDirection: LayoutDirection): Int {
+        return align(IntSize(size, 0), layoutDirection).x
     }
 }

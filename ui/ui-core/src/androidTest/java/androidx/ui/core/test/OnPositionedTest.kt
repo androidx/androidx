@@ -32,7 +32,6 @@ import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.PxBounds
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -61,7 +60,7 @@ class OnPositionedTest {
 
     @Test
     fun handlesChildrenNodeMoveCorrectly() {
-        val size = 50.ipx
+        val size = 50
         var index by mutableStateOf(0)
         var latch = CountDownLatch(2)
         var wrap1Position = 0f
@@ -95,26 +94,26 @@ class OnPositionedTest {
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(0f, wrap1Position)
-        assertEquals(size.value.toFloat(), wrap2Position)
+        assertEquals(size.toFloat(), wrap2Position)
         latch = CountDownLatch(2)
         rule.runOnUiThread {
             index = 1
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(size.value.toFloat(), wrap1Position)
+        assertEquals(size.toFloat(), wrap1Position)
         assertEquals(0f, wrap2Position)
     }
 
     @Test
     fun callbacksAreCalledWhenChildResized() {
-        var size by mutableStateOf(10.ipx)
-        var realSize = 0.ipx
-        var realChildSize = 0.ipx
+        var size by mutableStateOf(10)
+        var realSize = 0
+        var realChildSize = 0
         var latch = CountDownLatch(1)
         var childLatch = CountDownLatch(1)
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 20.ipx, modifier = Modifier.onChildPositioned {
+                AtLeastSize(size = 20, modifier = Modifier.onChildPositioned {
                     realSize = it.size.width
                     latch.countDown()
                 }) {
@@ -128,42 +127,42 @@ class OnPositionedTest {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertTrue(childLatch.await(1, TimeUnit.SECONDS))
-        assertEquals(10.ipx, realSize)
-        assertEquals(10.ipx, realChildSize)
+        assertEquals(10, realSize)
+        assertEquals(10, realChildSize)
 
         latch = CountDownLatch(1)
         childLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            size = 15.ipx
+            size = 15
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertTrue(childLatch.await(1, TimeUnit.SECONDS))
-        assertEquals(15.ipx, realSize)
-        assertEquals(15.ipx, realChildSize)
+        assertEquals(15, realSize)
+        assertEquals(15, realChildSize)
     }
 
     @Test
     fun callbackCalledForChildWhenParentMoved() {
-        var position by mutableStateOf(0.ipx)
+        var position by mutableStateOf(0)
         var childGlobalPosition = Offset(0f, 0f)
         var latch = CountDownLatch(1)
         rule.runOnUiThreadIR {
             activity.setContent {
                 Layout(
                     measureBlock = { measurables, constraints, _ ->
-                        layout(10.ipx, 10.ipx) {
-                            measurables[0].measure(constraints).place(position, 0.ipx)
+                        layout(10, 10) {
+                            measurables[0].measure(constraints).place(position, 0)
                         }
                     },
                     children = {
                         Wrap(
-                            minWidth = 10.ipx,
-                            minHeight = 10.ipx
+                            minWidth = 10,
+                            minHeight = 10
                         ) {
                             Wrap(
-                                minWidth = 10.ipx,
-                                minHeight = 10.ipx,
+                                minWidth = 10,
+                                minHeight = 10,
                                 modifier = Modifier.onPositioned { coordinates ->
                                     childGlobalPosition = coordinates.globalPosition
                                     latch.countDown()
@@ -179,7 +178,7 @@ class OnPositionedTest {
 
         latch = CountDownLatch(1)
         rule.runOnUiThread {
-            position = 10.ipx
+            position = 10
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
@@ -199,28 +198,28 @@ class OnPositionedTest {
                         onChildPositionedCalledTimes++
                     },
                     measureBlock = { measurables, constraints, _ ->
-                        layout(10.ipx, 10.ipx) {
-                            measurables[1].measure(constraints).place(0.ipx, 0.ipx)
+                        layout(10, 10) {
+                            measurables[1].measure(constraints).place(0, 0)
                         }
                     },
                     children = {
                         Wrap(
-                            minWidth = 10.ipx,
-                            minHeight = 10.ipx,
+                            minWidth = 10,
+                            minHeight = 10,
                             modifier = Modifier.onPositioned {
                                 wrap1OnPositionedCalled = true
                             }
                         )
                         Wrap(
-                            minWidth = 10.ipx,
-                            minHeight = 10.ipx,
+                            minWidth = 10,
+                            minHeight = 10,
                             modifier = Modifier.onPositioned {
                                 wrap2OnPositionedCalled = true
                             }
                         ) {
                             Wrap(
-                                minWidth = 10.ipx,
-                                minHeight = 10.ipx,
+                                minWidth = 10,
+                                minHeight = 10,
                                 modifier = Modifier.onPositioned {
                                     latch.countDown()
                                 }
@@ -244,8 +243,8 @@ class OnPositionedTest {
 
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(10.ipx,
-                    PaddingModifier(5.ipx) +
+                FixedSize(10,
+                    PaddingModifier(5) +
                             Modifier.onPositioned {
                                 coordinates = it
                                 positionedLatch.countDown()
@@ -275,8 +274,8 @@ class OnPositionedTest {
 
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(10.ipx,
-                    PaddingModifier(5.ipx) +
+                FixedSize(10,
+                    PaddingModifier(5) +
                             Modifier.onPositioned {
                                 coordinates = it
                                 positionedLatch.countDown()

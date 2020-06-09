@@ -36,7 +36,6 @@ import androidx.ui.graphics.compositeOver
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import kotlin.math.ln
 
 /**
@@ -130,7 +129,7 @@ private fun SurfaceLayout(modifier: Modifier = Modifier, children: @Composable (
         } else {
             val placeable = measurable.measure(constraints)
             layout(placeable.width, placeable.height) {
-                placeable.placeAbsolute(0.ipx, 0.ipx)
+                placeable.placeAbsolute(0, 0)
             }
         }
     }

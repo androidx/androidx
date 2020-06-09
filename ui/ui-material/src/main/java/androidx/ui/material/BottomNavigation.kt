@@ -46,9 +46,10 @@ import androidx.ui.layout.preferredHeight
 import androidx.ui.text.LastBaseline
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
 import androidx.ui.unit.max
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 // TODO: b/149825331 add documentation references to Scaffold here and samples for using
 // BottomNavigation inside a Scaffold
@@ -221,12 +222,12 @@ private fun BottomNavigationItemBaselineLayout(
         val textPlaceable = measurables.first { it.tag == "text" }.measure(
             // Measure with loose constraints for height as we don't want the text to take up more
             // space than it needs
-            constraints.copy(minHeight = IntPx.Zero)
+            constraints.copy(minHeight = 0)
         )
 
         // If the text is empty, just place the icon.
         if (textPlaceable.width <= BottomNavigationItemHorizontalPadding.toIntPx() * 2 &&
-            textPlaceable.height == IntPx.Zero
+            textPlaceable.height == 0
         ) {
             placeIcon(iconPlaceable, constraints)
         } else {
@@ -250,7 +251,7 @@ private fun MeasureScope.placeIcon(
     val height = constraints.maxHeight
     val iconY = (height - iconPlaceable.height) / 2
     return layout(iconPlaceable.width, height) {
-        iconPlaceable.place(IntPx.Zero, iconY)
+        iconPlaceable.place(0, iconY)
     }
 }
 
@@ -308,7 +309,7 @@ private fun MeasureScope.placeTextAndIcon(
     // When selected the icon is above the unselected position, so we will animate moving
     // downwards from the selected state, so when progress is 1, the total distance is 0, and we
     // are at the selected state.
-    val offset = iconDistance * (1 - iconPositionAnimationProgress)
+    val offset = (iconDistance * (1 - iconPositionAnimationProgress)).roundToInt()
 
     return layout(containerWidth, height) {
         if (iconPositionAnimationProgress != 0f) {

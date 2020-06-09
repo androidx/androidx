@@ -93,14 +93,14 @@ class PxTest {
     @Test
     fun pxPositionMinusIntPxPosition() {
         val a = Offset(3f, 10f)
-        val b = IntPxPosition(5.ipx, 8.ipx)
+        val b = IntOffset(5, 8)
         assertEquals(Offset(-2f, 2f), a - b)
     }
 
     @Test
     fun pxPositionPlusIntPxPosition() {
         val a = Offset(3f, 10f)
-        val b = IntPxPosition(5.ipx, 8.ipx)
+        val b = IntOffset(5, 8)
         assertEquals(Offset(8f, 18f), a + b)
     }
 

@@ -24,7 +24,10 @@ import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
+import androidx.ui.core.constrainHeight
+import androidx.ui.core.constrainWidth
 import androidx.ui.core.onPositioned
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Row
@@ -32,11 +35,8 @@ import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -55,7 +55,7 @@ class ContainerTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(1)
-        val containerSize = Ref<IntPxSize>()
+        val containerSize = Ref<IntSize>()
         show {
             Stack {
                 Container(Modifier.onPositioned { coordinates ->
@@ -68,7 +68,7 @@ class ContainerTest : LayoutTest() {
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        assertEquals(IntPxSize(size, size), containerSize.value)
+        assertEquals(IntSize(size, size), containerSize.value)
     }
 
     @Test
@@ -79,7 +79,7 @@ class ContainerTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val containerSize = Ref<IntPxSize>()
+        val containerSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
             Stack {
@@ -103,10 +103,10 @@ class ContainerTest : LayoutTest() {
 
         val totalPadding = paddingDp.toIntPx() * 2
         assertEquals(
-            IntPxSize(size + totalPadding, size + totalPadding),
+            IntSize(size + totalPadding, size + totalPadding),
             containerSize.value
         )
-        assertEquals(Offset(padding.value.toFloat(), padding.value.toFloat()), childPosition.value)
+        assertEquals(Offset(padding.toFloat(), padding.toFloat()), childPosition.value)
     }
 
     @Test
@@ -119,8 +119,8 @@ class ContainerTest : LayoutTest() {
         val childConstraints = DpConstraints.fixed(childWidthDp, childHeightDp)
 
         val positionedLatch = CountDownLatch(4)
-        val containerSize = Ref<IntPxSize>()
-        val childSize = Array(3) { IntPxSize(0.ipx, 0.ipx) }
+        val containerSize = Ref<IntSize>()
+        val childSize = Array(3) { IntSize(0, 0) }
         show {
             Stack {
                 Row(Modifier.onPositioned { coordinates ->
@@ -158,10 +158,10 @@ class ContainerTest : LayoutTest() {
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        assertEquals(IntPxSize(childWidth, childHeight), childSize[0])
-        assertEquals(IntPxSize(childWidth, childHeight), childSize[1])
+        assertEquals(IntSize(childWidth, childHeight), childSize[0])
+        assertEquals(IntSize(childWidth, childHeight), childSize[1])
         assertEquals(
-            IntPxSize((childWidthDp * 2).toIntPx(), (childHeightDp * 2).toIntPx()),
+            IntSize((childWidthDp * 2).toIntPx(), (childHeightDp * 2).toIntPx()),
             childSize[2]
         )
     }
@@ -172,9 +172,9 @@ class ContainerTest : LayoutTest() {
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(3)
-        val alignSize = Ref<IntPxSize>()
-        val containerSize = Ref<IntPxSize>()
-        val childSize = Ref<IntPxSize>()
+        val alignSize = Ref<IntSize>()
+        val containerSize = Ref<IntSize>()
+        val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
             Container(
@@ -205,12 +205,12 @@ class ContainerTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(alignSize.value, containerSize.value)
-        assertEquals(IntPxSize(size, size), childSize.value)
+        assertEquals(IntSize(size, size), childSize.value)
         assertEquals(
             Offset(
-                (containerSize.value!!.width.value.toFloat() / 2 - size.value.toFloat() / 2)
+                (containerSize.value!!.width.toFloat() / 2 - size.toFloat() / 2)
                     .roundToInt().toFloat(),
-                (containerSize.value!!.height.value.toFloat() / 2 - size.value.toFloat() / 2)
+                (containerSize.value!!.height.toFloat() / 2 - size.toFloat() / 2)
                     .roundToInt().toFloat()
             ),
             childPosition.value
@@ -219,15 +219,15 @@ class ContainerTest : LayoutTest() {
 
     @Test
     fun testContainer_respectsIncomingMinConstraints() = with(density) {
-        // Start with an even number of IntPx to avoid rounding issues due to different DPI
+        // Start with an even number of Int to avoid rounding issues due to different DPI
         // I.e, if we fix Dp instead, it's possible that when we convert to Px, sizeDp can round
         // down but sizeDp * 2 can round up, causing a 1 pixel test error.
-        val size = 200.ipx
+        val size = 200
         val sizeDp = size.toDp()
 
         val positionedLatch = CountDownLatch(2)
-        val containerSize = Ref<IntPxSize>()
-        val childSize = Ref<IntPxSize>()
+        val containerSize = Ref<IntSize>()
+        val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
             Stack {
@@ -254,11 +254,11 @@ class ContainerTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            IntPxSize((sizeDp * 2).toIntPx(), (sizeDp * 2).toIntPx()),
+            IntSize((sizeDp * 2).toIntPx(), (sizeDp * 2).toIntPx()),
             containerSize.value
         )
-        assertEquals(IntPxSize(size, size), childSize.value)
-        assertEquals(Offset(size.value.toFloat(), size.value.toFloat()), childPosition.value)
+        assertEquals(IntSize(size, size), childSize.value)
+        assertEquals(Offset(size.toFloat(), size.toFloat()), childPosition.value)
     }
 
     @Test
@@ -266,7 +266,7 @@ class ContainerTest : LayoutTest() {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
-        val containerSize = Ref<IntPxSize>()
+        val containerSize = Ref<IntSize>()
         val latch = CountDownLatch(1)
         show {
             Stack {
@@ -280,28 +280,28 @@ class ContainerTest : LayoutTest() {
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
-        assertEquals(IntPxSize(size, size), containerSize.value)
+        assertEquals(IntSize(size, size), containerSize.value)
     }
 
     @Test
     fun testContainer_correctlyAppliesNonSymmetricPadding() = with(density) {
-        val childSizeDp = 50.dp
-        val paddingLeft = 8.dp
-        val paddingTop = 7.dp
-        val paddingRight = 5.dp
-        val paddingBottom = 10.dp
+        val childSizeDp = 50.toDp()
+        val paddingLeft = 8.toDp()
+        val paddingTop = 7.toDp()
+        val paddingRight = 5.toDp()
+        val paddingBottom = 10.toDp()
         val innerPadding = InnerPadding(
             start = paddingLeft,
             top = paddingTop,
             end = paddingRight,
             bottom = paddingBottom
         )
-        val expectedSize = IntPxSize(
+        val expectedSize = IntSize(
             childSizeDp.toIntPx() + paddingLeft.toIntPx() + paddingRight.toIntPx(),
             childSizeDp.toIntPx() + paddingTop.toIntPx() + paddingBottom.toIntPx()
         )
 
-        var containerSize: IntPxSize? = null
+        var containerSize: IntSize? = null
         val latch = CountDownLatch(1)
         show {
             Stack {
@@ -323,9 +323,9 @@ class ContainerTest : LayoutTest() {
 
     @Test
     fun testContainer_contentSmallerThanPaddingIsCentered() = with(density) {
-        val containerSize = 50.dp
-        val padding = 10.dp
-        val childSize = 5.dp
+        val containerSize = 50.toDp()
+        val padding = 10.toDp()
+        val childSize = 5.toDp()
         val innerPadding = InnerPadding(padding)
 
         var childCoordinates: LayoutCoordinates? = null
@@ -345,16 +345,17 @@ class ContainerTest : LayoutTest() {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
         val centeringOffset = padding.toIntPx() +
-                (containerSize.toIntPx() - padding.toIntPx() * 2 - childSize.toIntPx()) / 2
+                ((containerSize.toIntPx() - padding.toIntPx() * 2 -
+                        childSize.toIntPx()) / 2f).roundToInt()
         val childPosition = childCoordinates!!.parentCoordinates!!.childToLocal(
             childCoordinates!!,
             Offset.Zero
         )
         assertEquals(
-            Offset(centeringOffset.value.toFloat(), centeringOffset.value.toFloat()),
+            Offset(centeringOffset.toFloat(), centeringOffset.toFloat()),
             childPosition
         )
-        assertEquals(IntPxSize(childSize.toIntPx(), childSize.toIntPx()), childCoordinates!!.size)
+        assertEquals(IntSize(childSize.toIntPx(), childSize.toIntPx()), childCoordinates!!.size)
     }
 
     @Test
@@ -377,7 +378,7 @@ class ContainerTest : LayoutTest() {
                     val placeable = measurables.first().measure(constraints)
                     ++measure
                     layout(placeable.width, placeable.height) {
-                        placeable.place(IntPx.Zero, IntPx.Zero)
+                        placeable.place(0, 0)
                         ++layout
                         layoutLatch.countDown()
                     }
@@ -415,7 +416,7 @@ class ContainerTest : LayoutTest() {
                     val placeable = measurables.first().measure(constraints)
                     ++measure
                     layout(placeable.width, placeable.height) {
-                        placeable.place(IntPx.Zero, IntPx.Zero)
+                        placeable.place(0, 0)
                         ++layout
                         layoutLatch.countDown()
                     }
@@ -453,7 +454,7 @@ class ContainerTest : LayoutTest() {
                     val placeable = measurables.first().measure(constraints)
                     ++measure
                     layout(placeable.width, placeable.height) {
-                        placeable.place(IntPx.Zero, IntPx.Zero)
+                        placeable.place(0, 0)
                         ++layout
                         layoutLatch.countDown()
                     }
@@ -475,8 +476,8 @@ class ContainerTest : LayoutTest() {
     fun EmptyBox(width: Dp, height: Dp, modifier: Modifier = Modifier) {
         Layout(modifier = modifier, children = { }) { _, constraints, _ ->
             layout(
-                width.toIntPx().coerceIn(constraints.minWidth, constraints.maxWidth),
-                height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
+                constraints.constrainWidth(width.toIntPx()),
+                constraints.constrainHeight(height.toIntPx())
             ) {}
         }
     }

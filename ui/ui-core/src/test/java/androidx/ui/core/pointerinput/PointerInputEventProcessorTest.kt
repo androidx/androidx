@@ -27,11 +27,10 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.consumePositionChange
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.Uptime
-import androidx.ui.unit.ipx
 import androidx.ui.unit.minus
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -544,11 +543,11 @@ class PointerInputEventProcessorTest {
             insertAt(0, middleLayoutNode)
         }
 
-        testOwner.position = IntPxPosition(aOX.ipx, aOY.ipx)
+        testOwner.position = IntOffset(aOX, aOY)
 
         root.insertAt(0, parentLayoutNode)
 
-        val additionalOffset = IntPxPosition(aOX.ipx, aOY.ipx)
+        val additionalOffset = IntOffset(aOX, aOY)
 
         val offset = Offset(pointerX.toFloat(), pointerY.toFloat())
 
@@ -594,9 +593,9 @@ class PointerInputEventProcessorTest {
         )
 
         val expectedSizes = arrayOf(
-            IntPxSize(pX2.ipx - pX1.ipx, pY2.ipx - pY1.ipx),
-            IntPxSize(mX2.ipx - mX1.ipx, mY2.ipx - mY1.ipx),
-            IntPxSize(cX2.ipx - cX1.ipx, cY2.ipx - cY1.ipx)
+            IntSize(pX2 - pX1, pY2 - pY1),
+            IntSize(mX2 - mX1, mY2 - mY1),
+            IntSize(cX2 - cX1, cY2 - cY1)
         )
 
         // Act
@@ -716,13 +715,13 @@ class PointerInputEventProcessorTest {
                 .onPointerInput(
                     listOf(expectedChange1),
                     pointerEventPass,
-                    IntPxSize(50.ipx, 50.ipx)
+                    IntSize(50, 50)
                 )
             verify(childPointerInputFilter2)
                 .onPointerInput(
                     listOf(expectedChange2),
                     pointerEventPass,
-                    IntPxSize(50.ipx, 50.ipx)
+                    IntSize(50, 50)
                 )
         }
     }
@@ -841,19 +840,19 @@ class PointerInputEventProcessorTest {
                 .onPointerInput(
                     listOf(expectedChange1),
                     pointerEventPass,
-                    IntPxSize(100.ipx, 100.ipx)
+                    IntSize(100, 100)
                 )
             verify(childPointerInputFilter2)
                 .onPointerInput(
                     listOf(expectedChange2),
                     pointerEventPass,
-                    IntPxSize(100.ipx, 100.ipx)
+                    IntSize(100, 100)
                 )
             verify(childPointerInputFilter3)
                 .onPointerInput(
                     listOf(expectedChange3),
                     pointerEventPass,
-                    IntPxSize(100.ipx, 100.ipx)
+                    IntSize(100, 100)
                 )
         }
     }
@@ -957,13 +956,13 @@ class PointerInputEventProcessorTest {
                 .onPointerInput(
                     listOf(expectedChange1, expectedChange3),
                     pointerEventPass,
-                    IntPxSize(100.ipx, 150.ipx)
+                    IntSize(100, 150)
                 )
             verify(childPointerInputFilter2)
                 .onPointerInput(
                     listOf(expectedChange2),
                     pointerEventPass,
-                    IntPxSize(50.ipx, 50.ipx)
+                    IntSize(50, 50)
                 )
         }
     }
@@ -1062,13 +1061,13 @@ class PointerInputEventProcessorTest {
                 .onPointerInput(
                     listOf(expectedChange1, expectedChange3),
                     pointerEventPass,
-                    IntPxSize(150.ipx, 100.ipx)
+                    IntSize(150, 100)
                 )
             verify(childPointerInputFilter2)
                 .onPointerInput(
                     listOf(expectedChange2),
                     pointerEventPass,
-                    IntPxSize(50.ipx, 50.ipx)
+                    IntSize(50, 50)
                 )
         }
     }
@@ -1330,7 +1329,7 @@ class PointerInputEventProcessorTest {
                     PointerInputEventData(it, Uptime.Boot + 11.milliseconds, allOffsets[it], true)
                 }
             )
-        testOwner.position = IntPxPosition(1.ipx, 1.ipx)
+        testOwner.position = IntOffset(1, 1)
 
         // Act
 
@@ -1426,19 +1425,19 @@ class PointerInputEventProcessorTest {
                 .onPointerInput(
                     listOf(expectedChange),
                     pointerEventPass,
-                    IntPxSize(50.ipx, 50.ipx)
+                    IntSize(50, 50)
                 )
             verify(pointerInputFilter2)
                 .onPointerInput(
                     listOf(expectedChange),
                     pointerEventPass,
-                    IntPxSize(50.ipx, 50.ipx)
+                    IntSize(50, 50)
                 )
             verify(pointerInputFilter3)
                 .onPointerInput(
                     listOf(expectedChange),
                     pointerEventPass,
-                    IntPxSize(50.ipx, 50.ipx)
+                    IntSize(50, 50)
                 )
         }
     }
@@ -1502,7 +1501,7 @@ class PointerInputEventProcessorTest {
                 .onPointerInput(
                     listOf(expectedChange),
                     pointerEventPass,
-                    IntPxSize(499.ipx, 495.ipx)
+                    IntSize(499, 495)
                 )
         }
     }
@@ -1602,25 +1601,25 @@ class PointerInputEventProcessorTest {
                 .onPointerInput(
                     listOf(expectedChange1),
                     pointerEventPass,
-                    IntPxSize(499.ipx, 494.ipx)
+                    IntSize(499, 494)
                 )
             verify(pointerInputFilter2)
                 .onPointerInput(
                     listOf(expectedChange1),
                     pointerEventPass,
-                    IntPxSize(499.ipx, 494.ipx)
+                    IntSize(499, 494)
                 )
             verify(pointerInputFilter3)
                 .onPointerInput(
                     listOf(expectedChange2),
                     pointerEventPass,
-                    IntPxSize(497.ipx, 492.ipx)
+                    IntSize(497, 492)
                 )
             verify(pointerInputFilter4)
                 .onPointerInput(
                     listOf(expectedChange2),
                     pointerEventPass,
-                    IntPxSize(497.ipx, 492.ipx)
+                    IntSize(497, 492)
                 )
         }
     }
@@ -2649,7 +2648,7 @@ class PointerInputEventProcessorTest {
 }
 
 abstract class TestOwner : Owner {
-    var position = IntPxPosition.Origin
+    var position = IntOffset.Origin
 
     override val root: LayoutNode
         get() = LayoutNode()
@@ -2664,7 +2663,7 @@ open class TestPointerInputFilter(
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange> {
         return pointerInputHandler(changes, pass, bounds)
     }

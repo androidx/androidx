@@ -2,69 +2,42 @@
 package androidx.ui.core {
 
   @androidx.compose.Immutable public final class Constraints {
-    method public int component1();
-    method public int component2();
-    method public int component3();
-    method public int component4();
-    method @androidx.compose.Immutable public androidx.ui.core.Constraints copy-Q13GOEE(int minWidth, int maxWidth, int minHeight, int maxHeight);
+    ctor public Constraints(internal long value);
+    method public androidx.ui.core.Constraints copy(int minWidth = this.minWidth, int maxWidth = this.maxWidth, int minHeight = this.minHeight, int maxHeight = this.maxHeight);
+    method @androidx.compose.Immutable public androidx.ui.core.Constraints copy(long value);
+    method public boolean getHasBoundedHeight();
+    method public boolean getHasBoundedWidth();
     method public int getMaxHeight();
     method public int getMaxWidth();
     method public int getMinHeight();
     method public int getMinWidth();
+    property public final boolean hasBoundedHeight;
+    property public final boolean hasBoundedWidth;
+    property public final int maxHeight;
+    property public final int maxWidth;
+    property public final int minHeight;
+    property public final int minWidth;
     field public static final androidx.ui.core.Constraints.Companion! Companion;
+    field public static final int Infinity = 2147483647; // 0x7fffffff
   }
 
   public static final class Constraints.Companion {
-    method @androidx.compose.Stable public androidx.ui.core.Constraints fixed-rRMsBxU(int width, int height);
-    method @androidx.compose.Stable public androidx.ui.core.Constraints fixedHeight-gshw56o(int height);
-    method @androidx.compose.Stable public androidx.ui.core.Constraints fixedWidth-gshw56o(int width);
-  }
-
-  @androidx.compose.Immutable public final inline class Constraints2 {
-    ctor public Constraints2();
-    method public static long constructor-impl(internal long value);
-    method @androidx.compose.Stable public static long copy-impl(long $this, int minWidth = this.minWidth, int maxWidth = this.maxWidth, int minHeight = this.minHeight, int maxHeight = this.maxHeight);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
-    method public static boolean equals-impl0(long p1, long p2);
-    method public static boolean getHasBoundedHeight-impl(long $this);
-    method public static boolean getHasBoundedWidth-impl(long $this);
-    method public static int getMaxHeight-impl(long $this);
-    method public static int getMaxWidth-impl(long $this);
-    method public static int getMinHeight-impl(long $this);
-    method public static int getMinWidth-impl(long $this);
-    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
-    method @androidx.compose.Immutable public static inline String! toString-impl(long p);
-    field public static final androidx.ui.core.Constraints2.Companion! Companion;
-    field @androidx.compose.Stable public static final int Infinity = -1073741824; // 0xc0000000
-  }
-
-  public static final class Constraints2.Companion {
-    method @androidx.compose.Stable public long fixed(int width, int height);
-    method @androidx.compose.Stable public long fixedHeight(int height);
-    method @androidx.compose.Stable public long fixedWidth(int width);
-  }
-
-  public final class Constraints2Kt {
-    method @androidx.compose.Stable public static long Constraints2(@IntRange(from=0) int minWidth = 0, int maxWidth = -1073741824, @IntRange(from=0) int minHeight = 0, int maxHeight = -1073741824);
-    method @androidx.compose.Stable public static long constrain-M1ogGms(long, long size);
-    method @androidx.compose.Stable public static long enforce-uQjoOwo(long, long otherConstraints);
-    method public static boolean getHasFixedHeight-ybNdgAI(long);
-    method public static boolean getHasFixedWidth-ybNdgAI(long);
-    method public static boolean isZero-ybNdgAI(long);
-    method @androidx.compose.Stable public static long offset-xOKVbDg(long, int horizontal = 0, int vertical = 0);
-    method @androidx.compose.Stable public static boolean satisfiedBy-M1ogGms(long, long size);
+    method @androidx.compose.Stable public androidx.ui.core.Constraints fixed(int width, int height);
+    method @androidx.compose.Stable public androidx.ui.core.Constraints fixedHeight(int height);
+    method @androidx.compose.Stable public androidx.ui.core.Constraints fixedWidth(int width);
   }
 
   public final class ConstraintsKt {
-    method @androidx.compose.Stable public static androidx.ui.unit.IntPxSize constrain(androidx.ui.core.Constraints, androidx.ui.unit.IntPxSize size);
+    method @androidx.compose.Stable public static androidx.ui.core.Constraints Constraints(int minWidth = 0, int maxWidth = 2147483647, int minHeight = 0, int maxHeight = 2147483647);
+    method @androidx.compose.Stable public static androidx.ui.unit.IntSize constrain(androidx.ui.core.Constraints, androidx.ui.unit.IntSize size);
+    method @androidx.compose.Stable public static int constrainHeight(androidx.ui.core.Constraints, int height);
+    method @androidx.compose.Stable public static int constrainWidth(androidx.ui.core.Constraints, int width);
     method @androidx.compose.Stable public static androidx.ui.core.Constraints enforce(androidx.ui.core.Constraints, androidx.ui.core.Constraints otherConstraints);
-    method public static boolean getHasBoundedHeight(androidx.ui.core.Constraints);
-    method public static boolean getHasBoundedWidth(androidx.ui.core.Constraints);
     method public static boolean getHasFixedHeight(androidx.ui.core.Constraints);
     method public static boolean getHasFixedWidth(androidx.ui.core.Constraints);
     method public static boolean isZero(androidx.ui.core.Constraints);
-    method @androidx.compose.Stable public static androidx.ui.core.Constraints offset-3L2DHGc(androidx.ui.core.Constraints, int horizontal = 0.ipx, int vertical = 0.ipx);
-    method @androidx.compose.Stable public static boolean satisfiedBy(androidx.ui.core.Constraints, androidx.ui.unit.IntPxSize size);
+    method @androidx.compose.Stable public static androidx.ui.core.Constraints offset(androidx.ui.core.Constraints, int horizontal = 0, int vertical = 0);
+    method @androidx.compose.Stable public static boolean satisfiedBy(androidx.ui.core.Constraints, androidx.ui.unit.IntSize size);
   }
 
   public enum LayoutDirection {
@@ -95,18 +68,16 @@ package androidx.ui.unit {
   @androidx.compose.Immutable public interface Density {
     method public float getDensity();
     method public float getFontScale();
-    method @androidx.compose.Stable public default float toDp(float);
     method @androidx.compose.Stable public default float toDp(int);
-    method @androidx.compose.Stable public default float toDp-gshw56o(int);
+    method @androidx.compose.Stable public default float toDp(float);
     method @androidx.compose.Stable public default float toDp-vVlMl6k(long);
     method @androidx.compose.Stable public default int toIntPx-ipo6vVg(float);
     method @androidx.compose.Stable public default int toIntPx-vVlMl6k(long);
     method @androidx.compose.Stable public default float toPx-ipo6vVg(float);
     method @androidx.compose.Stable public default float toPx-vVlMl6k(long);
     method @androidx.compose.Stable public default androidx.ui.geometry.Rect toRect(androidx.ui.unit.Bounds);
-    method @androidx.compose.Stable public default long toSp(float);
     method @androidx.compose.Stable public default long toSp(int);
-    method @androidx.compose.Stable public default long toSp-gshw56o(int);
+    method @androidx.compose.Stable public default long toSp(float);
     method @androidx.compose.Stable public default long toSp-ipo6vVg(float);
     property public abstract float density;
     property public abstract float fontScale;
@@ -286,126 +257,58 @@ package androidx.ui.unit {
     field public static final long SecondsPerMinute = 60L; // 0x3cL
   }
 
-  @androidx.compose.Immutable public final inline class IntPx implements java.lang.Comparable<androidx.ui.unit.IntPx> {
-    ctor public IntPx();
-    method @androidx.compose.Stable public operator int compareTo-gshw56o(int p);
-    method @androidx.compose.Stable public static operator int compareTo-gshw56o(int $this, int other);
-    method public static int constructor-impl(int value);
-    method @androidx.compose.Stable public static operator int div-impl(int $this, float other);
-    method @androidx.compose.Stable public static operator int div-impl(int $this, double other);
-    method @androidx.compose.Stable public static operator int div-impl(int $this, int other);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(int p, Object? p1);
-    method public static boolean equals-impl0(int p1, int p2);
-    method public int getValue();
-    method @androidx.compose.Immutable public static inline int hashCode-impl(int p);
-    method @androidx.compose.Stable public static operator int minus-gshw56o(int $this, int other);
-    method @androidx.compose.Stable public static operator int plus-gshw56o(int $this, int other);
-    method @androidx.compose.Stable public static inline operator int rem-impl(int $this, int other);
-    method @androidx.compose.Stable public static operator int times-impl(int $this, float other);
-    method @androidx.compose.Stable public static operator int times-impl(int $this, double other);
-    method @androidx.compose.Stable public static operator int times-impl(int $this, int other);
-    method @androidx.compose.Stable public static String toString-impl(int $this);
-    method @androidx.compose.Stable public static operator int unaryMinus-impl(int $this);
-    field public static final androidx.ui.unit.IntPx.Companion! Companion;
+  @androidx.compose.Immutable public final class IntOffset {
+    ctor public IntOffset(internal long value);
+    method @androidx.compose.Stable public inline operator int component1();
+    method @androidx.compose.Stable public inline operator int component2();
+    method public int getX();
+    method public int getY();
+    method @androidx.compose.Stable public inline operator androidx.ui.unit.IntOffset minus(androidx.ui.unit.IntOffset other);
+    method @androidx.compose.Stable public inline operator androidx.ui.unit.IntOffset plus(androidx.ui.unit.IntOffset other);
+    method @androidx.compose.Stable public inline operator androidx.ui.unit.IntOffset unaryMinus();
+    property public final int x;
+    property public final int y;
+    field public static final androidx.ui.unit.IntOffset.Companion! Companion;
   }
 
-  public static final class IntPx.Companion {
-    method public int getInfinity();
-    method public int getZero();
-    property public final int Infinity;
-    property public final int Zero;
+  public static final class IntOffset.Companion {
+    method public androidx.ui.unit.IntOffset getOrigin();
+    property public final androidx.ui.unit.IntOffset Origin;
   }
 
-  @androidx.compose.Immutable public final class IntPxBounds {
-    method public int component1();
-    method public int component2();
-    method public int component3();
-    method public int component4();
-    method @androidx.compose.Immutable public androidx.ui.unit.IntPxBounds copy-Q13GOEE(int left, int top, int right, int bottom);
-    method public int getBottom();
-    method public int getLeft();
-    method public int getRight();
-    method public int getTop();
+  public final class IntOffsetKt {
+    method @androidx.compose.Stable public static inline androidx.ui.unit.IntOffset IntOffset(int x, int y);
+    method @androidx.compose.Stable public static androidx.ui.unit.IntOffset lerp(androidx.ui.unit.IntOffset start, androidx.ui.unit.IntOffset stop, float fraction);
+    method @androidx.compose.Stable public static operator androidx.ui.geometry.Offset minus(androidx.ui.geometry.Offset, androidx.ui.unit.IntOffset offset);
+    method @androidx.compose.Stable public static operator androidx.ui.geometry.Offset minus(androidx.ui.unit.IntOffset, androidx.ui.geometry.Offset offset);
+    method @androidx.compose.Stable public static operator androidx.ui.geometry.Offset plus(androidx.ui.geometry.Offset, androidx.ui.unit.IntOffset offset);
+    method @androidx.compose.Stable public static operator androidx.ui.geometry.Offset plus(androidx.ui.unit.IntOffset, androidx.ui.geometry.Offset offset);
+    method @androidx.compose.Stable public static inline androidx.ui.geometry.Offset toOffset(androidx.ui.unit.IntOffset);
   }
 
-  public final class IntPxKt {
-    method public static inline androidx.ui.unit.IntPxPosition IntPxPosition-rRMsBxU(int x, int y);
-    method @androidx.compose.Stable public static inline androidx.ui.unit.IntPxSize IntPxSize-rRMsBxU(int width, int height);
-    method @androidx.compose.Stable public static inline androidx.ui.geometry.Offset Offset-rRMsBxU(int x, int y);
-    method @androidx.compose.Stable public static inline androidx.ui.geometry.Size Size-rRMsBxU(int width, int height);
-    method @androidx.compose.Stable public static androidx.ui.unit.IntPxPosition center(androidx.ui.unit.IntPxSize);
-    method @androidx.compose.Stable public static inline androidx.ui.unit.IntPxPosition center(androidx.ui.unit.IntPxBounds);
-    method @androidx.compose.Stable public static inline int coerceAtLeast-rRMsBxU(int, int minimumValue);
-    method @androidx.compose.Stable public static inline int coerceAtMost-rRMsBxU(int, int maximumValue);
-    method @androidx.compose.Stable public static inline int coerceIn-qx1LT1w(int, int minimumValue, int maximumValue);
-    method public static inline int getHeight(androidx.ui.unit.IntPxBounds);
-    method public static inline int getIpx(int);
-    method public static inline int getWidth(androidx.ui.unit.IntPxBounds);
-    method @androidx.compose.Stable public static inline boolean isFinite-gshw56o(int);
-    method @androidx.compose.Stable public static androidx.ui.unit.IntPxPosition lerp(androidx.ui.unit.IntPxPosition start, androidx.ui.unit.IntPxPosition stop, float fraction);
-    method @androidx.compose.Stable public static int lerp-9BbVZj8(int start, int stop, float fraction);
-    method @androidx.compose.Stable public static inline int max-rRMsBxU(int a, int b);
-    method @androidx.compose.Stable public static inline int min-rRMsBxU(int a, int b);
-    method @androidx.compose.Stable public static inline operator androidx.ui.geometry.Offset minus(androidx.ui.geometry.Offset, androidx.ui.unit.IntPxPosition other);
-    method @androidx.compose.Stable public static inline operator androidx.ui.geometry.Offset plus(androidx.ui.geometry.Offset, androidx.ui.unit.IntPxPosition other);
-    method @androidx.compose.Stable public static inline operator androidx.ui.unit.IntPxSize times(int, androidx.ui.unit.IntPxSize size);
-    method @androidx.compose.Stable public static inline operator int times--Vi_IPY(float, int other);
-    method @androidx.compose.Stable public static inline operator int times-9kGzznM(int, int other);
-    method @androidx.compose.Stable public static inline operator int times-tHVXE4c(double, int other);
-    method @androidx.compose.Stable public static inline androidx.ui.geometry.Offset toOffset(androidx.ui.unit.IntPxPosition);
-    method @androidx.compose.Stable public static inline androidx.ui.unit.IntPxSize toSize(androidx.ui.unit.IntPxBounds);
-    method @androidx.compose.Stable public static inline androidx.ui.geometry.Size toSize(androidx.ui.unit.IntPxSize);
+  @androidx.compose.Immutable public final class IntSize {
+    ctor public IntSize(internal long value);
+    method @androidx.compose.Stable public inline operator int component1();
+    method @androidx.compose.Stable public inline operator int component2();
+    method @androidx.compose.Stable public operator androidx.ui.unit.IntSize div(int other);
+    method public int getHeight();
+    method public int getWidth();
+    method @androidx.compose.Stable public operator androidx.ui.unit.IntSize times(int other);
+    property public final int height;
+    property public final int width;
+    field public static final androidx.ui.unit.IntSize.Companion! Companion;
   }
 
-  @androidx.compose.Immutable public final class IntPxPosition {
-    method @androidx.compose.Immutable public androidx.ui.unit.IntPxPosition copy(long value);
-    method public inline int getX();
-    method public inline int getY();
-    method @androidx.compose.Stable public inline operator androidx.ui.unit.IntPxPosition minus(androidx.ui.unit.IntPxPosition other);
-    method @androidx.compose.Stable public inline operator androidx.ui.unit.IntPxPosition plus(androidx.ui.unit.IntPxPosition other);
-    method @androidx.compose.Stable public inline operator androidx.ui.unit.IntPxPosition unaryMinus();
-    property public final inline int x;
-    property public final inline int y;
-    field public static final androidx.ui.unit.IntPxPosition.Companion! Companion;
-  }
-
-  public static final class IntPxPosition.Companion {
-    method public androidx.ui.unit.IntPxPosition getOrigin();
-    property public final androidx.ui.unit.IntPxPosition Origin;
-  }
-
-  @androidx.compose.Immutable public final class IntPxSize {
-    method @androidx.compose.Immutable public androidx.ui.unit.IntPxSize copy(long value);
-    method @androidx.compose.Stable public inline operator androidx.ui.unit.IntPxSize div(int other);
-    method public inline int getHeight();
-    method public inline int getWidth();
-    method @androidx.compose.Stable public inline operator androidx.ui.unit.IntPxSize times(int other);
-    property public final inline int height;
-    property public final inline int width;
-    field public static final androidx.ui.unit.IntPxSize.Companion! Companion;
-  }
-
-  public static final class IntPxSize.Companion {
-    method public androidx.ui.unit.IntPxSize getZero();
-    property public final androidx.ui.unit.IntPxSize Zero;
-  }
-
-  @androidx.compose.Immutable public final inline class IntSize {
-    ctor public IntSize();
-    method public static long constructor-impl(internal long value);
-    method @androidx.compose.Stable public static operator long div-impl(long $this, int other);
-    method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
-    method public static boolean equals-impl0(long p1, long p2);
-    method public static int getHeight-impl(long $this);
-    method public static int getWidth-impl(long $this);
-    method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
-    method @androidx.compose.Stable public static operator long times-impl(long $this, int other);
-    method @androidx.compose.Stable public static String toString-impl(long $this);
+  public static final class IntSize.Companion {
+    method public androidx.ui.unit.IntSize getZero();
+    property public final androidx.ui.unit.IntSize Zero;
   }
 
   public final class IntSizeKt {
-    method @androidx.compose.Stable public static long IntSize(int width, int height);
-    method @androidx.compose.Stable public static operator long times-twsQOwo(int, long size);
+    method @androidx.compose.Stable public static androidx.ui.unit.IntSize IntSize(int width, int height);
+    method public static androidx.ui.unit.IntOffset getCenter(androidx.ui.unit.IntSize);
+    method @androidx.compose.Stable public static operator androidx.ui.unit.IntSize times(int, androidx.ui.unit.IntSize size);
+    method @androidx.compose.Stable public static androidx.ui.geometry.Size toSize(androidx.ui.unit.IntSize);
   }
 
   @androidx.compose.Immutable public final inline class Position {
@@ -474,10 +377,9 @@ package androidx.ui.unit {
     method @androidx.compose.Stable public static inline androidx.ui.geometry.Offset center(androidx.ui.unit.PxBounds);
     method public static inline float getHeight(androidx.ui.unit.PxBounds);
     method public static inline float getWidth(androidx.ui.unit.PxBounds);
-    method @androidx.compose.Stable public static inline androidx.ui.unit.IntPxPosition round(androidx.ui.geometry.Offset);
+    method @androidx.compose.Stable public static inline androidx.ui.unit.IntOffset round(androidx.ui.geometry.Offset);
     method @androidx.compose.Stable public static androidx.ui.unit.PxBounds toBounds(androidx.ui.geometry.Size);
     method @androidx.compose.Stable public static androidx.ui.geometry.Rect toRect(androidx.ui.unit.PxBounds);
-    method @androidx.compose.Stable public static androidx.ui.geometry.Rect toRect(androidx.ui.geometry.Size);
     method @androidx.compose.Stable public static androidx.ui.geometry.Size toSize(androidx.ui.unit.PxBounds);
   }
 

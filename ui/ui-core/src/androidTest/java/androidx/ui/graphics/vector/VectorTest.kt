@@ -34,9 +34,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.toArgb
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -85,7 +83,7 @@ class VectorTest {
     fun testVectorAlignment() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                VectorTint(minimumSize = 500.ipx, alignment = Alignment.BottomEnd)
+                VectorTint(minimumSize = 500, alignment = Alignment.BottomEnd)
             }
         }
 
@@ -128,12 +126,12 @@ class VectorTest {
 
     @Composable
     private fun VectorTint(
-        size: IntPx = 200.ipx,
-        minimumSize: IntPx = size,
+        size: Int = 200,
+        minimumSize: Int = size,
         alignment: Alignment = Alignment.Center
     ) {
-        val sizePx = size.value.toFloat()
-        val sizeDp = (size.value / DensityAmbient.current.density).dp
+        val sizePx = size.toFloat()
+        val sizeDp = (size / DensityAmbient.current.density).dp
         val background = Modifier.paint(
             VectorPainter(
                 defaultWidth = sizeDp,

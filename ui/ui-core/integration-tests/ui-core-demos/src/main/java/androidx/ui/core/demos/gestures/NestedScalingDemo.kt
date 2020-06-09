@@ -28,7 +28,7 @@ import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.unit.IntPx
+import kotlin.math.roundToInt
 
 /**
  * Demo app created to study some complex interactions of multiple DragGestureDetectors.
@@ -89,10 +89,10 @@ private fun Scalable(
         measureBlock = { measurables, constraints, _ ->
             val newConstraints =
                 constraints.copy(
-                    maxWidth = constraints.maxWidth * currentPercent.value,
-                    maxHeight = constraints.maxHeight * currentPercent.value,
-                    minWidth = IntPx.Zero,
-                    minHeight = IntPx.Zero
+                    maxWidth = (constraints.maxWidth * currentPercent.value).roundToInt(),
+                    maxHeight = (constraints.maxHeight * currentPercent.value).roundToInt(),
+                    minWidth = 0,
+                    minHeight = 0
                 )
 
             val placeable = if (measurables.isNotEmpty()) {

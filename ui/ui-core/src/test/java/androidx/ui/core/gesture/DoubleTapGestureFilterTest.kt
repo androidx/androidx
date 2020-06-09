@@ -21,14 +21,13 @@ import androidx.ui.core.PointerId
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.gesture.customevents.DelayUpEvent
 import androidx.ui.core.gesture.customevents.DelayUpMessage
+import androidx.ui.geometry.Offset
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -318,11 +317,11 @@ class DoubleTapGestureFilterTest {
         val down2 = down(0, 13.milliseconds, 0f, 0f)
         val up2 = down2.up(duration = 14.milliseconds)
 
-        filter::onPointerInput.invokeOverAllPasses(down, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(move, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(up, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(down2, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(up2, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(down, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(move, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(up, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(down2, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(up2, IntSize(1, 1))
 
         verify(onDoubleTap, never()).invoke(any())
     }
@@ -335,11 +334,11 @@ class DoubleTapGestureFilterTest {
         val move2 = down2.moveTo(3.milliseconds, 1f, 1f)
         val up2 = down2.up(duration = 4.milliseconds)
 
-        filter::onPointerInput.invokeOverAllPasses(down, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(up, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(down2, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(move2, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(up2, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(down, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(up, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(down2, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(move2, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(up2, IntSize(1, 1))
 
         verify(onDoubleTap, never()).invoke(any())
     }
@@ -450,14 +449,14 @@ class DoubleTapGestureFilterTest {
         val down3 = down(0, 5.milliseconds, 0f, 0f)
         val up3 = down3.up(6.milliseconds)
 
-        filter::onPointerInput.invokeOverAllPasses(down, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(move, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(up, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(down, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(move, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(up, IntSize(1, 1))
 
-        filter::onPointerInput.invokeOverAllPasses(down2, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(up2, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(down3, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(up3, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(down2, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(up2, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(down3, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(up3, IntSize(1, 1))
 
         verify(onDoubleTap).invoke(any())
     }
@@ -474,16 +473,16 @@ class DoubleTapGestureFilterTest {
         val down4 = down(0, 7.milliseconds, 0f, 0f)
         val up4 = down4.up(8.milliseconds)
 
-        filter::onPointerInput.invokeOverAllPasses(down, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(up, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(down2, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(move2, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(up2, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(down, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(up, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(down2, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(move2, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(up2, IntSize(1, 1))
 
-        filter::onPointerInput.invokeOverAllPasses(down3, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(up3, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(down4, IntPxSize(1.ipx, 1.ipx))
-        filter::onPointerInput.invokeOverAllPasses(up4, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(down3, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(up3, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(down4, IntSize(1, 1))
+        filter::onPointerInput.invokeOverAllPasses(up4, IntSize(1, 1))
 
         verify(onDoubleTap).invoke(any())
     }

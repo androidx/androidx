@@ -48,11 +48,9 @@ import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
 import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-
 /**
  * A Material Design [dropdown menu](https://material.io/components/menus#dropdown-menu).
  *
@@ -242,11 +240,11 @@ internal data class DropdownMenuPositionProvider(
     val displayMetrics: DisplayMetrics
 ) : PopupPositionProvider {
     override fun calculatePosition(
-        parentLayoutPosition: IntPxPosition,
-        parentLayoutSize: IntPxSize,
+        parentLayoutPosition: IntOffset,
+        parentLayoutSize: IntSize,
         layoutDirection: LayoutDirection,
-        popupSize: IntPxSize
-    ): IntPxPosition {
+        popupSize: IntSize
+    ): IntOffset {
         // The padding inset that accommodates elevation, needs to be taken into account.
         val inset = with(density) { MenuElevation.toIntPx() }
         val realPopupWidth = popupSize.width - inset * 2
@@ -259,25 +257,25 @@ internal data class DropdownMenuPositionProvider(
         // Compute horizontal position.
         val toRight = parentRight + contentOffsetX
         val toLeft = parentLayoutPosition.x - contentOffsetX - realPopupWidth
-        val toDisplayRight = displayMetrics.widthPixels.ipx - realPopupWidth
-        val toDisplayLeft = 0.ipx
+        val toDisplayRight = displayMetrics.widthPixels - realPopupWidth
+        val toDisplayLeft = 0
         val x = if (layoutDirection == LayoutDirection.Ltr) {
             sequenceOf(toRight, toLeft, toDisplayRight)
         } else {
             sequenceOf(toLeft, toRight, toDisplayLeft)
         }.firstOrNull {
-            it >= 0.ipx && it + realPopupWidth <= displayMetrics.widthPixels.ipx
+            it >= 0 && it + realPopupWidth <= displayMetrics.widthPixels
         } ?: toLeft
 
         // Compute vertical position.
         val toBottom = parentBottom + contentOffsetY
         val toTop = parentLayoutPosition.y - contentOffsetY - realPopupHeight
         val toCenter = parentLayoutPosition.y - realPopupHeight / 2
-        val toDisplayBottom = displayMetrics.heightPixels.ipx - realPopupHeight
+        val toDisplayBottom = displayMetrics.heightPixels - realPopupHeight
         val y = sequenceOf(toBottom, toTop, toCenter, toDisplayBottom).firstOrNull {
-            it >= 0.ipx && it + realPopupHeight <= displayMetrics.heightPixels.ipx
+            it >= 0 && it + realPopupHeight <= displayMetrics.heightPixels
         } ?: toTop
 
-        return IntPxPosition(x - inset, y - inset)
+        return IntOffset(x - inset, y - inset)
     }
 }

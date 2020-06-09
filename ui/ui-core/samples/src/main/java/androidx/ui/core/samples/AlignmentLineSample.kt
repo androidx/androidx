@@ -21,9 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.ipx
-import androidx.ui.unit.min
+import kotlin.math.min
 
 @Sampled
 @Composable
@@ -36,28 +34,28 @@ fun AlignmentLineSample() {
 
     // A layout with a fixed size, and a given position for the exampleLine alignment line.
     @Composable
-    fun LineProviderLayout(exampleLinePosition: IntPx) {
-        val size: IntPx = 20.ipx
+    fun LineProviderLayout(exampleLinePosition: Int) {
+        val size: Int = 20
         Layout({}) { _, _, _ ->
             layout(size, size, mapOf(exampleLine to exampleLinePosition)) {}
         }
     }
 
     Layout({
-        LineProviderLayout(exampleLinePosition = 5.ipx)
-        LineProviderLayout(exampleLinePosition = 10.ipx)
+        LineProviderLayout(exampleLinePosition = 5)
+        LineProviderLayout(exampleLinePosition = 10)
     }) { measurables, constraints, _ ->
         val placeables = measurables.map { it.measure(constraints) }
-        // placeables[0][line] will be 5.ipx
-        // placeables[1][line] will be 10.ipx
+        // placeables[0][line] will be 5
+        // placeables[1][line] will be 10
         layout(constraints.maxWidth, constraints.maxHeight) {
-            placeables[0].placeAbsolute(0.ipx, 3.ipx)
-            placeables[1].placeAbsolute(constraints.maxWidth / 2, 0.ipx)
+            placeables[0].placeAbsolute(0, 3)
+            placeables[1].placeAbsolute(constraints.maxWidth / 2, 0)
         }
     }
     // Note that if the parent of this Layout (the parent of AlignmentLineSample) was able to
     // query its position of exampleLine (assuming this was in a shared scope), its position would
-    // be 8.ipx. This is because the Layout positioned its first child at 3.ipx from the top,
+    // be 8. This is because the Layout positioned its first child at 3 from the top,
     // and because of the ::min merging strategy the position of exampleLine will be
-    // min(5.ipx + 3.ipx, 10.ipx + 0.ipx).
+    // min(5 + 3, 10 + 0).
 }

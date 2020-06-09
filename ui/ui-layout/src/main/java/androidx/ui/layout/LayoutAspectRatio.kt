@@ -27,10 +27,8 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.satisfiedBy
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
-import androidx.ui.unit.isFinite
+import androidx.ui.unit.IntSize
+import kotlin.math.roundToInt
 
 /**
  * Attempts to size the content to match a specified aspect ratio by trying to match one of the
@@ -67,60 +65,87 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
         }
         val placeable = measurable.measure(wrappedConstraints)
         return layout(placeable.width, placeable.height) {
-            placeable.place(0.ipx, 0.ipx)
+            placeable.place(0, 0)
         }
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: IntPx,
+        height: Int,
         layoutDirection: LayoutDirection
-    ) = if (height != IntPx.Infinity) {
-        height * aspectRatio
+    ) = if (height != Constraints.Infinity) {
+        (height * aspectRatio).roundToInt()
     } else {
         measurable.minIntrinsicWidth(height)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: IntPx,
+        height: Int,
         layoutDirection: LayoutDirection
-    ) = if (height != IntPx.Infinity) {
-        height * aspectRatio
+    ) = if (height != Constraints.Infinity) {
+        (height * aspectRatio).roundToInt()
     } else {
         measurable.maxIntrinsicWidth(height)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: IntPx,
+        width: Int,
         layoutDirection: LayoutDirection
-    ) = if (width != IntPx.Infinity) {
-        width / aspectRatio
+    ) = if (width != Constraints.Infinity) {
+        (width / aspectRatio).roundToInt()
     } else {
         measurable.minIntrinsicHeight(width)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: IntPx,
+        width: Int,
         layoutDirection: LayoutDirection
-    ) = if (width != IntPx.Infinity) {
-        width / aspectRatio
+    ) = if (width != Constraints.Infinity) {
+        (width / aspectRatio).roundToInt()
     } else {
         measurable.maxIntrinsicHeight(width)
     }
 
-    private fun Constraints.findSizeWith(aspectRatio: Float): IntPxSize? {
-        return listOf(
-            IntPxSize(this.maxWidth, this.maxWidth / aspectRatio),
-            IntPxSize(this.maxHeight * aspectRatio, this.maxHeight),
-            IntPxSize(this.minWidth, this.minWidth / aspectRatio),
-            IntPxSize(this.minHeight * aspectRatio, this.minHeight)
-        ).find {
-            this.satisfiedBy(it) &&
-                    it.width != 0.ipx && it.height != 0.ipx &&
-                    it.width.isFinite() && it.height.isFinite()
+    private fun Constraints.findSizeWith(aspectRatio: Float): IntSize? {
+        val maxWidth = this.maxWidth
+        if (maxWidth != Constraints.Infinity) {
+            val height = (maxWidth / aspectRatio).roundToInt()
+            if (height > 0) {
+                val size = IntSize(maxWidth, height)
+                if (satisfiedBy(size)) {
+                    return size
+                }
+            }
         }
+        val maxHeight = this.maxHeight
+        if (maxHeight != Constraints.Infinity) {
+            val width = (maxHeight * aspectRatio).roundToInt()
+            if (width > 0) {
+                val size = IntSize(width, maxHeight)
+                if (satisfiedBy(size)) {
+                    return size
+                }
+            }
+        }
+        val minWidth = this.minWidth
+        val height = (minWidth / aspectRatio).roundToInt()
+        if (height > 0) {
+            val size = IntSize(minWidth, height)
+            if (satisfiedBy(size)) {
+                return size
+            }
+        }
+        val minHeight = this.minHeight
+        val width = (minHeight * aspectRatio).roundToInt()
+        if (width > 0) {
+            val size = IntSize(width, minHeight)
+            if (satisfiedBy(size)) {
+                return size
+            }
+        }
+        return null
     }
 }

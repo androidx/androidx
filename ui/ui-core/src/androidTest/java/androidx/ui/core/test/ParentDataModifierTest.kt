@@ -27,7 +27,6 @@ import androidx.ui.core.setContent
 import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
-import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -71,7 +70,7 @@ class ParentDataModifierTest {
 
                     val placeable = measurables[0].measure(constraints)
                     layout(placeable.width, placeable.height) {
-                        placeable.place(0.ipx, 0.ipx)
+                        placeable.place(0, 0)
                     }
                 })
             }
@@ -98,7 +97,7 @@ class ParentDataModifierTest {
 
                         val placeable = measurables[0].measure(constraints)
                         layout(placeable.width, placeable.height) {
-                            placeable.place(0.ipx, 0.ipx)
+                            placeable.place(0, 0)
                         }
                     }
                 )
@@ -116,19 +115,19 @@ class ParentDataModifierTest {
                     Layout(
                         modifier = Modifier.tag(0),
                         children = emptyContent()
-                    ) { _, _, _ -> layout(0.ipx, 0.ipx) {} }
+                    ) { _, _, _ -> layout(0, 0) {} }
                 }
                 val footer = @Composable {
                     Layout(
                         modifier = Modifier.tag(1),
                         children = emptyContent()
-                    ) { _, _, _ -> layout(0.ipx, 0.ipx) {} }
+                    ) { _, _, _ -> layout(0, 0) {} }
                 }
 
                 Layout({ header(); footer() }) { measurables, _, _ ->
                     assertEquals(0, ((measurables[0]).parentData as? LayoutTagParentData)?.tag)
                     assertEquals(1, ((measurables[1]).parentData as? LayoutTagParentData)?.tag)
-                    layout(0.ipx, 0.ipx) { }
+                    layout(0, 0) { }
                 }
             }
         }
@@ -147,7 +146,7 @@ class ParentDataModifierTest {
 
 @Composable
 fun SimpleDrawChild(drawLatch: CountDownLatch) {
-    AtLeastSize(size = 10.ipx, modifier = Modifier.drawBehind {
+    AtLeastSize(size = 10, modifier = Modifier.drawBehind {
         drawRect(Color(0xFF008000))
         drawLatch.countDown()
     }) {}

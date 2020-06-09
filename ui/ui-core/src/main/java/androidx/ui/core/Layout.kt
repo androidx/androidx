@@ -32,15 +32,12 @@ import androidx.compose.remember
 import androidx.ui.core.LayoutNode.LayoutState
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
-import androidx.ui.unit.min
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.util.fastForEach
 import androidx.ui.util.fastMap
 import androidx.ui.util.fastMaxBy
+import kotlin.math.max
 
 /**
  * [Layout] is the main core component for layout. It can be used to measure and position
@@ -101,25 +98,25 @@ import androidx.ui.util.fastMaxBy
         override fun minIntrinsicWidth(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx,
+            h: Int,
             layoutDirection: LayoutDirection
         ) = intrinsicMeasureScope.minIntrinsicWidthMeasureBlock(measurables, h, layoutDirection)
         override fun minIntrinsicHeight(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx,
+            w: Int,
             layoutDirection: LayoutDirection
         ) = intrinsicMeasureScope.minIntrinsicHeightMeasureBlock(measurables, w, layoutDirection)
         override fun maxIntrinsicWidth(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx,
+            h: Int,
             layoutDirection: LayoutDirection
         ) = intrinsicMeasureScope.maxIntrinsicWidthMeasureBlock(measurables, h, layoutDirection)
         override fun maxIntrinsicHeight(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx,
+            w: Int,
             layoutDirection: LayoutDirection
         ) = intrinsicMeasureScope.maxIntrinsicHeightMeasureBlock(measurables, w, layoutDirection)
     }
@@ -204,7 +201,7 @@ fun PassThroughLayout(
             val width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth
             val height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
             layout(width, height) {
-                placeables.fastForEach { it.place(IntPx.Zero, IntPx.Zero) }
+                placeables.fastForEach { it.place(0, 0) }
             }
         }
         MeasuringIntrinsicsMeasureBlocks(measureBlock)
@@ -222,12 +219,12 @@ fun PassThroughLayout(
 /**
  * Used to return a fixed sized item for intrinsics measurements in [Layout]
  */
-private class DummyPlaceable(width: IntPx, height: IntPx) : Placeable() {
+private class DummyPlaceable(width: Int, height: Int) : Placeable() {
     init {
-        measuredSize = IntPxSize(width, height)
+        measuredSize = IntSize(width, height)
     }
-    override fun get(line: AlignmentLine): IntPx? = null
-    override fun place(position: IntPxPosition) { }
+    override fun get(line: AlignmentLine): Int? = null
+    override fun place(position: IntOffset) { }
 }
 
 /**
@@ -278,19 +275,19 @@ internal class DefaultIntrinsicMeasurable(
         return DummyPlaceable(constraints.maxWidth, height)
     }
 
-    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
+    override fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int {
         return measurable.minIntrinsicWidth(height, layoutDirection)
     }
 
-    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
+    override fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int {
         return measurable.maxIntrinsicWidth(height, layoutDirection)
     }
 
-    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx {
+    override fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int {
         return measurable.minIntrinsicHeight(width, layoutDirection)
     }
 
-    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx {
+    override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int {
         return measurable.maxIntrinsicHeight(width, layoutDirection)
     }
 }
@@ -318,7 +315,7 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
         override fun minIntrinsicWidth(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx,
+            h: Int,
             layoutDirection: LayoutDirection
         ) = intrinsicMeasureScope.MeasuringMinIntrinsicWidth(
             measureBlock,
@@ -329,7 +326,7 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
         override fun minIntrinsicHeight(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx,
+            w: Int,
             layoutDirection: LayoutDirection
         ) = intrinsicMeasureScope.MeasuringMinIntrinsicHeight(
             measureBlock,
@@ -340,7 +337,7 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
         override fun maxIntrinsicWidth(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx,
+            h: Int,
             layoutDirection: LayoutDirection
         ) = intrinsicMeasureScope.MeasuringMaxIntrinsicWidth(
             measureBlock,
@@ -351,7 +348,7 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
         override fun maxIntrinsicHeight(
             intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx,
+            w: Int,
             layoutDirection: LayoutDirection
         ) = intrinsicMeasureScope.MeasuringMaxIntrinsicHeight(
             measureBlock,
@@ -377,9 +374,9 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
 private inline fun Density.MeasuringMinIntrinsicWidth(
     measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
-    h: IntPx,
+    h: Int,
     layoutDirection: LayoutDirection
-): IntPx {
+): Int {
     val mapped = measurables.map {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
     }
@@ -396,9 +393,9 @@ private inline fun Density.MeasuringMinIntrinsicWidth(
 private inline fun Density.MeasuringMinIntrinsicHeight(
     measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
-    w: IntPx,
+    w: Int,
     layoutDirection: LayoutDirection
-): IntPx {
+): Int {
     val mapped = measurables.map {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
     }
@@ -415,9 +412,9 @@ private inline fun Density.MeasuringMinIntrinsicHeight(
 private inline fun Density.MeasuringMaxIntrinsicWidth(
     measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
-    h: IntPx,
+    h: Int,
     layoutDirection: LayoutDirection
-): IntPx {
+): Int {
     val mapped = measurables.map {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
     }
@@ -434,9 +431,9 @@ private inline fun Density.MeasuringMaxIntrinsicWidth(
 private inline fun Density.MeasuringMaxIntrinsicHeight(
     measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
-    w: IntPx,
+    w: Int,
     layoutDirection: LayoutDirection
-): IntPx {
+): Int {
     val mapped = measurables.map {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
     }
@@ -546,7 +543,7 @@ private class WithConstrainsState {
 
     private var scope: WithConstraintsScope = WithConstraintsScopeImpl(
         Density(1f),
-        Constraints.fixed(0.ipx, 0.ipx),
+        Constraints.fixed(0, 0),
         LayoutDirection.Ltr
     )
 
@@ -575,18 +572,18 @@ private class WithConstrainsState {
 
             // Measure the obtained children and compute our size.
             val layoutChildren = root.children
-            var maxWidth: IntPx = constraints.minWidth
-            var maxHeight: IntPx = constraints.minHeight
+            var maxWidth: Int = constraints.minWidth
+            var maxHeight: Int = constraints.minHeight
             layoutChildren.fastForEach {
                 it.measure(constraints, layoutDirection)
                 maxWidth = max(maxWidth, it.width)
                 maxHeight = max(maxHeight, it.height)
             }
-            maxWidth = min(maxWidth, constraints.maxWidth)
-            maxHeight = min(maxHeight, constraints.maxHeight)
+            maxWidth = maxWidth.coerceAtMost(constraints.maxWidth)
+            maxHeight = maxHeight.coerceAtMost(constraints.maxHeight)
 
             return measureScope.layout(maxWidth, maxHeight) {
-                layoutChildren.fastForEach { it.place(IntPx.Zero, IntPx.Zero) }
+                layoutChildren.fastForEach { it.place(0, 0) }
             }
         }
     }

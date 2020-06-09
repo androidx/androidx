@@ -31,12 +31,9 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.rtl
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.isFinite
 import com.google.common.truth.Truth
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.Description
@@ -57,12 +54,12 @@ class PopupTest {
     val composeTestRule = createComposeRule(disableTransitions = true)
     private val testTag = "testedPopup"
 
-    private val parentGlobalPosition = IntPxPosition(IntPx(50), IntPx(50))
-    private val offset = IntPxPosition(IntPx(10), IntPx(10))
-    private val parentSize = IntPxSize(IntPx(100), IntPx(100))
-    private val popupSize = IntPxSize(IntPx(40), IntPx(20))
+    private val parentGlobalPosition = IntOffset(50, 50)
+    private val offset = IntOffset(10, 10)
+    private val parentSize = IntSize(100, 100)
+    private val popupSize = IntSize(40, 20)
 
-    private var composeViewAbsolutePosition = IntPxPosition(IntPx(0), IntPx(0))
+    private var composeViewAbsolutePosition = IntOffset(0, 0)
 
     // TODO(b/140215440): Some tests are calling the OnChildPosition method inside the Popup too
     //  many times
@@ -82,9 +79,9 @@ class PopupTest {
                 val composeView = ViewAmbient.current
                 val positionArray = IntArray(2)
                 composeView.getLocationOnScreen(positionArray)
-                composeViewAbsolutePosition = IntPxPosition(
-                    IntPx(positionArray[0]),
-                    IntPx(positionArray[1])
+                composeViewAbsolutePosition = IntOffset(
+                    positionArray[0],
+                    positionArray[1]
                 )
 
                 // Align the parent of the popup on the top left corner, this results in the global
@@ -171,7 +168,7 @@ class PopupTest {
             }
         }
 
-        popupMatches(matchesSize(popupSize.width.value, popupSize.height.value))
+        popupMatches(matchesSize(popupSize.width, popupSize.height))
     }
 
     @Test
@@ -180,7 +177,7 @@ class PopupTest {
            x = offset.x
            y = offset.y
         */
-        val expectedPositionTopStart = IntPxPosition(IntPx(10), IntPx(10))
+        val expectedPositionTopStart = IntOffset(10, 10)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(alignment = Alignment.TopStart, measureLatch = measureLatch)
@@ -195,7 +192,7 @@ class PopupTest {
            x = -offset.x + parentSize.x - popupSize.x
            y = offset.y
         */
-        val expectedPositionTopStart = IntPxPosition(IntPx(50), IntPx(10))
+        val expectedPositionTopStart = IntOffset(50, 10)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
@@ -214,7 +211,7 @@ class PopupTest {
            x = offset.x + parentSize.x / 2 - popupSize.x / 2
            y = offset.y
         */
-        val expectedPositionTopCenter = IntPxPosition(IntPx(40), IntPx(10))
+        val expectedPositionTopCenter = IntOffset(40, 10)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(alignment = Alignment.TopCenter, measureLatch = measureLatch)
@@ -229,7 +226,7 @@ class PopupTest {
            x = -offset.x + parentSize.x / 2 - popupSize.x / 2
            y = offset.y
         */
-        val expectedPositionTopCenter = IntPxPosition(IntPx(20), IntPx(10))
+        val expectedPositionTopCenter = IntOffset(20, 10)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
@@ -248,7 +245,7 @@ class PopupTest {
            x = offset.x + parentSize.x - popupSize.x
            y = offset.y
         */
-        val expectedPositionTopEnd = IntPxPosition(IntPx(70), IntPx(10))
+        val expectedPositionTopEnd = IntOffset(70, 10)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(alignment = Alignment.TopEnd, measureLatch = measureLatch)
@@ -263,7 +260,7 @@ class PopupTest {
            x = -offset.x falls back to zero if outside the screen
            y = offset.y
         */
-        val expectedPositionTopEnd = IntPxPosition(IntPx(0), IntPx(10))
+        val expectedPositionTopEnd = IntOffset(0, 10)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
@@ -282,7 +279,7 @@ class PopupTest {
            x = offset.x + parentSize.x - popupSize.x
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
-        val expectedPositionCenterEnd = IntPxPosition(IntPx(70), IntPx(50))
+        val expectedPositionCenterEnd = IntOffset(70, 50)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(alignment = Alignment.CenterEnd, measureLatch = measureLatch)
@@ -297,7 +294,7 @@ class PopupTest {
            x = -offset.x falls back to zero if outside the screen
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
-        val expectedPositionCenterEnd = IntPxPosition(IntPx(0), IntPx(50))
+        val expectedPositionCenterEnd = IntOffset(0, 50)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
@@ -316,7 +313,7 @@ class PopupTest {
            x = offset.x + parentSize.x - popupSize.x
            y = offset.y + parentSize.y - popupSize.y
         */
-        val expectedPositionBottomEnd = IntPxPosition(IntPx(70), IntPx(90))
+        val expectedPositionBottomEnd = IntOffset(70, 90)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(alignment = Alignment.BottomEnd, measureLatch = measureLatch)
@@ -331,7 +328,7 @@ class PopupTest {
            x = -offset.x falls back to zero if outside the screen
            y = offset.y + parentSize.y - popupSize.y
         */
-        val expectedPositionBottomEnd = IntPxPosition(IntPx(0), IntPx(90))
+        val expectedPositionBottomEnd = IntOffset(0, 90)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
@@ -350,7 +347,7 @@ class PopupTest {
            x = offset.x + parentSize.x / 2 - popupSize.x / 2
            y = offset.y + parentSize.y - popupSize.y
         */
-        val expectedPositionBottomCenter = IntPxPosition(IntPx(40), IntPx(90))
+        val expectedPositionBottomCenter = IntOffset(40, 90)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
@@ -368,7 +365,7 @@ class PopupTest {
            x = -offset.x + parentSize.x / 2 - popupSize.x / 2
            y = offset.y + parentSize.y - popupSize.y
         */
-        val expectedPositionBottomCenter = IntPxPosition(IntPx(20), IntPx(90))
+        val expectedPositionBottomCenter = IntOffset(20, 90)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
@@ -387,7 +384,7 @@ class PopupTest {
            x = offset.x
            y = offset.y + parentSize.y - popupSize.y
         */
-        val expectedPositionBottomStart = IntPxPosition(IntPx(10), IntPx(90))
+        val expectedPositionBottomStart = IntOffset(10, 90)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(alignment = Alignment.BottomStart, measureLatch = measureLatch)
@@ -402,7 +399,7 @@ class PopupTest {
            x = -offset.x + parentSize.x - popupSize.x
            y = offset.y + parentSize.y - popupSize.y
         */
-        val expectedPositionBottomStart = IntPxPosition(IntPx(50), IntPx(90))
+        val expectedPositionBottomStart = IntOffset(50, 90)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
@@ -421,7 +418,7 @@ class PopupTest {
            x = offset.x
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
-        val expectedPositionCenterStart = IntPxPosition(IntPx(10), IntPx(50))
+        val expectedPositionCenterStart = IntOffset(10, 50)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(alignment = Alignment.CenterStart, measureLatch = measureLatch)
@@ -436,7 +433,7 @@ class PopupTest {
            x = -offset.x + parentSize.x - popupSize.x
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
-        val expectedPositionCenterStart = IntPxPosition(IntPx(50), IntPx(50))
+        val expectedPositionCenterStart = IntOffset(50, 50)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
@@ -455,7 +452,7 @@ class PopupTest {
            x = offset.x + parentSize.x / 2 - popupSize.x / 2
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
-        val expectedPositionCenter = IntPxPosition(IntPx(40), IntPx(50))
+        val expectedPositionCenter = IntOffset(40, 50)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(alignment = Alignment.Center, measureLatch = measureLatch)
@@ -470,7 +467,7 @@ class PopupTest {
            x = -offset.x + parentSize.x / 2 - popupSize.x / 2
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
-        val expectedPositionCenter = IntPxPosition(IntPx(20), IntPx(50))
+        val expectedPositionCenter = IntOffset(20, 50)
         val measureLatch = CountDownLatch(1)
 
         createPopupWithAlignmentRule(
@@ -489,7 +486,7 @@ class PopupTest {
            x = parentGlobalPosition.x + offset.x
            y = parentGlobalPosition.y + offset.y
         */
-        val expectedPositionTopStart = IntPxPosition(IntPx(60), IntPx(60))
+        val expectedPositionTopStart = IntOffset(60, 60)
 
         val positionTopStart =
             AlignmentOffsetPositionProvider(Alignment.TopStart, offset).calculatePosition(
@@ -508,7 +505,7 @@ class PopupTest {
            x = parentGlobalPosition.x + parentSize.x - popupSize.x + (-offset.x)
            y = parentGlobalPosition.y + offset.y
         */
-        val expectedPositionTopStart = IntPxPosition(IntPx(100), IntPx(60))
+        val expectedPositionTopStart = IntOffset(100, 60)
 
         val positionTopStart =
             AlignmentOffsetPositionProvider(Alignment.TopStart, offset).calculatePosition(
@@ -527,7 +524,7 @@ class PopupTest {
            x = parentGlobalPosition.x + offset.x + parentSize.x / 2 - popupSize.x / 2
            y = parentGlobalPosition.y + offset.y
         */
-        val expectedPositionTopCenter = IntPxPosition(IntPx(90), IntPx(60))
+        val expectedPositionTopCenter = IntOffset(90, 60)
 
         val positionTopCenter =
             AlignmentOffsetPositionProvider(Alignment.TopCenter, offset).calculatePosition(
@@ -546,7 +543,7 @@ class PopupTest {
            x = parentGlobalPosition.x + (-offset.x) + parentSize.x / 2 - popupSize.x / 2
            y = parentGlobalPosition.y + offset.y
         */
-        val expectedPositionTopCenter = IntPxPosition(IntPx(70), IntPx(60))
+        val expectedPositionTopCenter = IntOffset(70, 60)
 
         val positionTopCenter =
             AlignmentOffsetPositionProvider(Alignment.TopCenter, offset).calculatePosition(
@@ -565,7 +562,7 @@ class PopupTest {
            x = parentGlobalPosition.x + offset.x + parentSize.x - popupSize.x
            y = parentGlobalPosition.y + offset.y
         */
-        val expectedPositionTopEnd = IntPxPosition(IntPx(120), IntPx(60))
+        val expectedPositionTopEnd = IntOffset(120, 60)
 
         val positionTopEnd =
             AlignmentOffsetPositionProvider(Alignment.TopEnd, offset).calculatePosition(
@@ -584,7 +581,7 @@ class PopupTest {
            x = parentGlobalPosition.x + (-offset.x)
            y = parentGlobalPosition.y + offset.y
         */
-        val expectedPositionTopEnd = IntPxPosition(IntPx(40), IntPx(60))
+        val expectedPositionTopEnd = IntOffset(40, 60)
 
         val positionTopEnd =
             AlignmentOffsetPositionProvider(Alignment.TopEnd, offset).calculatePosition(
@@ -603,7 +600,7 @@ class PopupTest {
            x = parentGlobalPosition.x + offset.x + parentSize.x - popupSize.x
            y = parentGlobalPosition.y + offset.y + parentSize.y / 2 - popupSize.y / 2
         */
-        val expectedPositionCenterEnd = IntPxPosition(IntPx(120), IntPx(100))
+        val expectedPositionCenterEnd = IntOffset(120, 100)
 
         val positionCenterEnd =
             AlignmentOffsetPositionProvider(Alignment.CenterEnd, offset).calculatePosition(
@@ -622,7 +619,7 @@ class PopupTest {
            x = parentGlobalPosition.x + (-offset.x)
            y = parentGlobalPosition.y + offset.y + parentSize.y / 2 - popupSize.y / 2
         */
-        val expectedPositionCenterEnd = IntPxPosition(IntPx(40), IntPx(100))
+        val expectedPositionCenterEnd = IntOffset(40, 100)
 
         val positionCenterEnd =
             AlignmentOffsetPositionProvider(Alignment.CenterEnd, offset).calculatePosition(
@@ -641,7 +638,7 @@ class PopupTest {
            x = parentGlobalPosition.x + parentSize.x - popupSize.x + offset.x
            y = parentGlobalPosition.y + offset.y + parentSize.y - popupSize.y
         */
-        val expectedPositionBottomEnd = IntPxPosition(IntPx(120), IntPx(140))
+        val expectedPositionBottomEnd = IntOffset(120, 140)
 
         val positionBottomEnd =
             AlignmentOffsetPositionProvider(Alignment.BottomEnd, offset).calculatePosition(
@@ -660,7 +657,7 @@ class PopupTest {
            x = parentGlobalPosition.x + parentSize.x - popupSize.x + offset.x
            y = parentGlobalPosition.y + offset.y + parentSize.y - popupSize.y
         */
-        val expectedPositionBottomEnd = IntPxPosition(IntPx(40), IntPx(140))
+        val expectedPositionBottomEnd = IntOffset(40, 140)
 
         val positionBottomEnd =
             AlignmentOffsetPositionProvider(Alignment.BottomEnd, offset).calculatePosition(
@@ -679,7 +676,7 @@ class PopupTest {
            x = parentGlobalPosition.x + offset.x + parentSize.x / 2 - popupSize.x / 2
            y = parentGlobalPosition.y + offset.y + parentSize.y - popupSize.y
         */
-        val expectedPositionBottomCenter = IntPxPosition(IntPx(90), IntPx(140))
+        val expectedPositionBottomCenter = IntOffset(90, 140)
 
         val positionBottomCenter =
             AlignmentOffsetPositionProvider(Alignment.BottomCenter, offset).calculatePosition(
@@ -698,7 +695,7 @@ class PopupTest {
            x = parentGlobalPosition.x + (-offset.x) + parentSize.x / 2 - popupSize.x / 2
            y = parentGlobalPosition.y + offset.y + parentSize.y - popupSize.y
         */
-        val expectedPositionBottomCenter = IntPxPosition(IntPx(70), IntPx(140))
+        val expectedPositionBottomCenter = IntOffset(70, 140)
 
         val positionBottomCenter =
             AlignmentOffsetPositionProvider(Alignment.BottomCenter, offset).calculatePosition(
@@ -717,7 +714,7 @@ class PopupTest {
            x = parentGlobalPosition.x + offset.x
            y = parentGlobalPosition.y + offset.y + parentSize.y - popupSize.y
         */
-        val expectedPositionBottomStart = IntPxPosition(IntPx(60), IntPx(140))
+        val expectedPositionBottomStart = IntOffset(60, 140)
 
         val positionBottomStart =
             AlignmentOffsetPositionProvider(Alignment.BottomStart, offset).calculatePosition(
@@ -736,7 +733,7 @@ class PopupTest {
            x = parentGlobalPosition.x + parentSize.x - popupSize.x + (-offset.x)
            y = parentGlobalPosition.y + offset.y + parentSize.y - popupSize.y
         */
-        val expectedPositionBottomStart = IntPxPosition(IntPx(100), IntPx(140))
+        val expectedPositionBottomStart = IntOffset(100, 140)
 
         val positionBottomStart =
             AlignmentOffsetPositionProvider(Alignment.BottomStart, offset).calculatePosition(
@@ -755,7 +752,7 @@ class PopupTest {
            x = parentGlobalPosition.x + offset.x
            y = parentGlobalPosition.y + offset.y + parentSize.y / 2 - popupSize.y / 2
         */
-        val expectedPositionCenterStart = IntPxPosition(IntPx(60), IntPx(100))
+        val expectedPositionCenterStart = IntOffset(60, 100)
 
         val positionCenterStart =
             AlignmentOffsetPositionProvider(Alignment.CenterStart, offset).calculatePosition(
@@ -774,7 +771,7 @@ class PopupTest {
            x = parentGlobalPosition.x + parentSize.x - popupSize.x + (-offset.x)
            y = parentGlobalPosition.y + offset.y + parentSize.y / 2 - popupSize.y / 2
         */
-        val expectedPositionCenterStart = IntPxPosition(IntPx(100), IntPx(100))
+        val expectedPositionCenterStart = IntOffset(100, 100)
 
         val positionCenterStart =
             AlignmentOffsetPositionProvider(Alignment.CenterStart, offset).calculatePosition(
@@ -793,7 +790,7 @@ class PopupTest {
            x = parentGlobalPosition.x + offset.x + parentSize.x / 2 - popupSize.x / 2
            y = parentGlobalPosition.y + offset.y + parentSize.y / 2 - popupSize.y / 2
         */
-        val expectedPositionCenter = IntPxPosition(IntPx(90), IntPx(100))
+        val expectedPositionCenter = IntOffset(90, 100)
 
         val positionCenter =
             AlignmentOffsetPositionProvider(Alignment.Center, offset).calculatePosition(
@@ -812,7 +809,7 @@ class PopupTest {
            x = parentGlobalPosition.x + (-offset.x) + parentSize.x / 2 - popupSize.x / 2
            y = parentGlobalPosition.y + offset.y + parentSize.y / 2 - popupSize.y / 2
         */
-        val expectedPositionCenter = IntPxPosition(IntPx(70), IntPx(100))
+        val expectedPositionCenter = IntOffset(70, 100)
 
         val positionCenter =
             AlignmentOffsetPositionProvider(Alignment.Center, offset).calculatePosition(
@@ -852,7 +849,7 @@ class PopupTest {
            x = parentGlobalPosition.x + offset.x
            y = parentGlobalPosition.y + offset.y + parentSize.y
         */
-        val expectedPositionLeft = IntPxPosition(IntPx(60), IntPx(160))
+        val expectedPositionLeft = IntOffset(60, 160)
 
         val positionLeft =
             DropdownPositionProvider(DropDownAlignment.Start, offset).calculatePosition(
@@ -871,7 +868,7 @@ class PopupTest {
            x = parentGlobalPosition.x + parentSize.x - popupSize.x + (-offset.x)
            y = parentGlobalPosition.y + offset.y + parentSize.y
         */
-        val expectedPosition = IntPxPosition(IntPx(100), IntPx(160))
+        val expectedPosition = IntOffset(100, 160)
 
         val positionLeft =
             DropdownPositionProvider(DropDownAlignment.Start, offset).calculatePosition(
@@ -890,7 +887,7 @@ class PopupTest {
            x = parentGlobalPosition.x + offset.x + parentSize.x
            y = parentGlobalPosition.y + offset.y + parentSize.y
         */
-        val expectedPositionRight = IntPxPosition(IntPx(160), IntPx(160))
+        val expectedPositionRight = IntOffset(160, 160)
 
         val positionRight =
             DropdownPositionProvider(DropDownAlignment.End, offset).calculatePosition(
@@ -909,7 +906,7 @@ class PopupTest {
            x = parentGlobalPosition.x - popupSize.x + (-offset.x)
            y = parentGlobalPosition.y + offset.y + parentSize.y
         */
-        val expectedPositionRight = IntPxPosition(IntPx(0), IntPx(160))
+        val expectedPositionRight = IntOffset(0, 160)
 
         val positionRight =
             DropdownPositionProvider(DropDownAlignment.End, offset).calculatePosition(
@@ -946,15 +943,15 @@ class PopupTest {
         }
     }
 
-    private fun matchesPosition(expectedPosition: IntPxPosition): BoundedMatcher<View, View> {
+    private fun matchesPosition(expectedPosition: IntOffset): BoundedMatcher<View, View> {
         return object : BoundedMatcher<View, View>(View::class.java) {
             // (-1, -1) no position found
-            var positionFound = IntPxPosition(IntPx(-1), IntPx(-1))
+            var positionFound = IntOffset(-1, -1)
 
             override fun matchesSafely(item: View?): Boolean {
                 val position = IntArray(2)
                 item?.getLocationOnScreen(position)
-                positionFound = IntPxPosition(IntPx(position[0]), IntPx(position[1]))
+                positionFound = IntOffset(position[0], position[1])
 
                 return expectedPosition == positionFound
             }
@@ -973,16 +970,16 @@ private fun TestAlign(children: @Composable () -> Unit) {
     Layout(children) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
-        val placeable = measurable?.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
+        val placeable = measurable?.measure(constraints.copy(minWidth = 0, minHeight = 0))
 
         // The layout is as large as possible for bounded constraints,
         // or wrap content otherwise.
-        val layoutWidth = if (constraints.maxWidth.isFinite()) {
+        val layoutWidth = if (constraints.hasBoundedWidth) {
             constraints.maxWidth
         } else {
             placeable?.width ?: constraints.minWidth
         }
-        val layoutHeight = if (constraints.maxHeight.isFinite()) {
+        val layoutHeight = if (constraints.hasBoundedHeight) {
             constraints.maxHeight
         } else {
             placeable?.height ?: constraints.minHeight
@@ -991,7 +988,7 @@ private fun TestAlign(children: @Composable () -> Unit) {
         layout(layoutWidth, layoutHeight) {
             if (placeable != null) {
                 val position = Alignment.TopStart.align(
-                    IntPxSize(layoutWidth - placeable.width, layoutHeight - placeable.height)
+                    IntSize(layoutWidth - placeable.width, layoutHeight - placeable.height)
                 )
                 placeable.place(position.x, position.y)
             }

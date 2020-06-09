@@ -24,7 +24,6 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
 import androidx.ui.geometry.Size
 import androidx.ui.unit.dp
 import androidx.ui.unit.toSize
@@ -94,25 +93,25 @@ class CollectedSizes(private val size: Size, private val density: Density) {
 
     fun assertIsSquareWithSize(expectedSize: Dp) = assertIsSquareWithSize { expectedSize.toIntPx() }
 
-    fun assertWidthEqualsTo(expectedWidthPx: Density.() -> IntPx): CollectedSizes {
+    fun assertWidthEqualsTo(expectedWidthPx: Density.() -> Int): CollectedSizes {
         val widthPx = with(density) {
-            expectedWidthPx().value
+            expectedWidthPx()
         }
         assertSize(size.width.roundToInt(), widthPx)
         return this
     }
 
-    fun assertHeightEqualsTo(expectedHeightPx: Density.() -> IntPx): CollectedSizes {
+    fun assertHeightEqualsTo(expectedHeightPx: Density.() -> Int): CollectedSizes {
         val heightPx = with(density) {
-            expectedHeightPx().value
+            expectedHeightPx()
         }
         assertSize(size.height.roundToInt(), heightPx)
         return this
     }
 
-    fun assertIsSquareWithSize(expectedSquarePx: Density.() -> IntPx): CollectedSizes {
+    fun assertIsSquareWithSize(expectedSquarePx: Density.() -> Int): CollectedSizes {
         val squarePx = with(density) {
-            expectedSquarePx().value
+            expectedSquarePx()
         }
         assertSize(size.width.roundToInt(), squarePx)
         assertSize(size.height.roundToInt(), squarePx)

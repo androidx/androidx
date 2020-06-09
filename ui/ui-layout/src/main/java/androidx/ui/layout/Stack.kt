@@ -27,11 +27,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
-import androidx.ui.unit.isFinite
-import androidx.ui.unit.max
+import androidx.ui.unit.IntSize
+import kotlin.math.max
 
 /**
  * A composable that positions its children relative to its edges.
@@ -54,22 +51,22 @@ fun Stack(
     Layout(stackChildren, modifier = modifier) { measurables, constraints, layoutDirection ->
         val placeables = arrayOfNulls<Placeable>(measurables.size)
         // First measure aligned children to get the size of the layout.
-        val childConstraints = constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+        val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         (0 until measurables.size).filter { i -> !measurables[i].stretch }.forEach { i ->
             placeables[i] = measurables[i].measure(childConstraints)
         }
         val (stackWidth, stackHeight) = with(placeables.filterNotNull()) {
             Pair(
-                max(maxBy { it.width.value }?.width ?: IntPx.Zero, constraints.minWidth),
-                max(maxBy { it.height.value }?.height ?: IntPx.Zero, constraints.minHeight)
+                max(maxBy { it.width }?.width ?: 0, constraints.minWidth),
+                max(maxBy { it.height }?.height ?: 0, constraints.minHeight)
             )
         }
 
         // Now measure stretch children.
         (0 until measurables.size).filter { i -> measurables[i].stretch }.forEach { i ->
             // infinity check is needed for intrinsic measurements
-            val minWidth = if (stackWidth.isFinite()) stackWidth else IntPx.Zero
-            val minHeight = if (stackHeight.isFinite()) stackHeight else IntPx.Zero
+            val minWidth = if (stackWidth != Constraints.Infinity) stackWidth else 0
+            val minHeight = if (stackHeight != Constraints.Infinity) stackHeight else 0
             placeables[i] = measurables[i].measure(
                 Constraints(minWidth, stackWidth, minHeight, stackHeight)
             )
@@ -83,7 +80,7 @@ fun Stack(
                 val placeable = placeables[i]!!
 
                 val position = childData.alignment.align(
-                    IntPxSize(
+                    IntSize(
                         stackWidth - placeable.width,
                         stackHeight - placeable.height
                     ),

@@ -30,7 +30,6 @@ import androidx.ui.semantics.testTag
 import androidx.ui.unit.Density
 import androidx.ui.geometry.Size
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Rule
 import org.junit.Test
 
@@ -233,8 +232,8 @@ class AssertsTest {
     fun assertSizesTest_testPixelAssertion() {
         val size = Size(50f, 31f)
         val spec = CollectedSizes(size, Density(0f))
-        spec.assertWidthEqualsTo { 50.ipx }
-        spec.assertHeightEqualsTo { 31.ipx }
+        spec.assertWidthEqualsTo { 50 }
+        spec.assertHeightEqualsTo { 31 }
     }
 
     @Test
@@ -250,7 +249,7 @@ class AssertsTest {
         val size = Size(50f, 50f)
         val spec = CollectedSizes(size, Density(2f))
         spec.assertIsSquareWithSize(25.dp)
-        spec.assertIsSquareWithSize { 50.ipx }
+        spec.assertIsSquareWithSize { 50 }
     }
 
     @Composable

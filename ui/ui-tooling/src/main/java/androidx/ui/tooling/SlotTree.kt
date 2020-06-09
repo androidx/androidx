@@ -27,12 +27,17 @@ import androidx.compose.keySourceInfoOf
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.ModifierInfo
 import androidx.ui.core.globalPosition
-import androidx.ui.unit.IntPxBounds
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
-import androidx.ui.unit.min
 import java.lang.reflect.Field
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
+
+data class Bounds(
+    val left: Int,
+    val top: Int,
+    val right: Int,
+    val bottom: Int
+)
 
 /**
  * A group in the slot table. Represents either a call or an emitted node.
@@ -46,7 +51,7 @@ sealed class Group(
     /**
      * The bounding layout box for the group.
      */
-    val box: IntPxBounds,
+    val box: Bounds,
 
     /**
      * Any data that was stored in the slot table for the group
@@ -82,7 +87,7 @@ data class ParameterInformation(
  */
 class CallGroup(
     key: Any?,
-    box: IntPxBounds,
+    box: Bounds,
     override val parameters: List<ParameterInformation>,
     data: Collection<Any?>,
     children: Collection<Group>
@@ -98,7 +103,7 @@ class NodeGroup(
      * An emitted node
      */
     val node: Any,
-    box: IntPxBounds,
+    box: Bounds,
     data: Collection<Any?>,
     override val modifierInfo: List<ModifierInfo>,
     children: Collection<Group>
@@ -121,7 +126,7 @@ private fun convertKey(key: Any?): Any? =
             else key
     }
 
-internal val emptyBox = IntPxBounds(0.ipx, 0.ipx, 0.ipx, 0.ipx)
+internal val emptyBox = Bounds(0, 0, 0, 0)
 
 /**
  * Iterate the slot table and extract a group tree that corresponds to the content of the table.
@@ -171,22 +176,22 @@ private fun SlotReader.getGroup(): Group {
         CallGroup(key, box, extractParameterInfo(data), data, children)
 }
 
-private fun boundsOfLayoutNode(node: LayoutNode): IntPxBounds {
+private fun boundsOfLayoutNode(node: LayoutNode): Bounds {
     if (node.owner == null) {
-        return IntPxBounds(
-            left = 0.ipx,
-            top = 0.ipx,
+        return Bounds(
+            left = 0,
+            top = 0,
             right = node.width,
             bottom = node.height
         )
     }
     val position = node.coordinates.globalPosition
     val size = node.coordinates.size
-    val left = position.x.roundToInt().ipx
-    val top = position.y.roundToInt().ipx
+    val left = position.x.roundToInt()
+    val top = position.y.roundToInt()
     val right = left + size.width
     val bottom = top + size.height
-    return IntPxBounds(left = left, top = top, right = right, bottom = bottom)
+    return Bounds(left = left, top = top, right = right, bottom = bottom)
 }
 
 /**
@@ -195,10 +200,10 @@ private fun boundsOfLayoutNode(node: LayoutNode): IntPxBounds {
  */
 fun SlotTable.asTree(): Group = read { it.getGroup() }
 
-internal fun IntPxBounds.union(other: IntPxBounds): IntPxBounds {
+internal fun Bounds.union(other: Bounds): Bounds {
     if (this == emptyBox) return other else if (other == emptyBox) return this
 
-    return IntPxBounds(
+    return Bounds(
         left = min(left, other.left),
         top = min(top, other.top),
         bottom = max(bottom, other.bottom),

@@ -37,7 +37,6 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
@@ -65,16 +64,16 @@ class LayoutOffsetTest : LayoutTest() {
     fun positionIsModified() = with(density) {
         val offsetX = 10.dp
         val offsetY = 20.dp
-        var positionX = 0.ipx
-        var positionY = 0.ipx
+        var positionX = 0
+        var positionY = 0
         composeTestRule.setContent {
             Stack(
                 Modifier.testTag("stack")
                     .wrapContentSize(Alignment.TopStart)
                     .offset(offsetX, offsetY)
                     .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.globalPosition.x.roundToInt().ipx
-                        positionY = coordinates.globalPosition.y.roundToInt().ipx
+                        positionX = coordinates.globalPosition.x.roundToInt()
+                        positionY = coordinates.globalPosition.y.roundToInt()
                     }
             ) {
             }
@@ -90,11 +89,11 @@ class LayoutOffsetTest : LayoutTest() {
     @Test
     fun positionIsModified_rtl() = with(density) {
         val containerWidth = 30.dp
-        val boxSize = 1.ipx
+        val boxSize = 1
         val offsetX = 10.dp
         val offsetY = 20.dp
-        var positionX = 0.ipx
-        var positionY = 0.ipx
+        var positionX = 0
+        var positionY = 0
         composeTestRule.setContent {
             Stack(
                 Modifier.testTag("stack")
@@ -104,8 +103,8 @@ class LayoutOffsetTest : LayoutTest() {
                     .wrapContentSize(Alignment.TopStart)
                     .offset(offsetX, offsetY)
                     .onPositioned { coordinates: LayoutCoordinates ->
-                        positionX = coordinates.globalPosition.x.roundToInt().ipx
-                        positionY = coordinates.globalPosition.y.roundToInt().ipx
+                        positionX = coordinates.globalPosition.x.roundToInt()
+                        positionY = coordinates.globalPosition.y.roundToInt()
                     }
             ) {
                 // TODO(popam): this box should not be needed after b/154758475 is fixed.
@@ -175,7 +174,7 @@ class LayoutOffsetTest : LayoutTest() {
         findByTag("stack").assertExists()
         runOnIdleCompose {
             Assert.assertEquals(
-                containerWidth.toIntPx().value - offsetX.roundToInt() - boxSize,
+                containerWidth.toIntPx() - offsetX.roundToInt() - boxSize,
                 positionX
             )
             Assert.assertEquals(offsetY, positionY)

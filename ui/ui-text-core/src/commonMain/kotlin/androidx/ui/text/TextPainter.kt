@@ -31,8 +31,8 @@ object TextPainter {
         val needClipping = textLayoutResult.hasVisualOverflow &&
                 textLayoutResult.layoutInput.overflow == TextOverflow.Clip
         if (needClipping) {
-            val width = textLayoutResult.size.width.value.toFloat()
-            val height = textLayoutResult.size.height.value.toFloat()
+            val width = textLayoutResult.size.width.toFloat()
+            val height = textLayoutResult.size.height.toFloat()
             val bounds = Rect.fromLTWH(0f, 0f, width, height)
             canvas.save()
             canvas.clipRect(bounds)

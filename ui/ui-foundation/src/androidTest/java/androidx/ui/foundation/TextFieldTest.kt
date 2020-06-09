@@ -26,10 +26,10 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.TextInputServiceAmbient
-import androidx.ui.core.onPositioned
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
+import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
@@ -62,10 +62,8 @@ import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -81,6 +79,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -327,7 +326,7 @@ class TextFieldTest {
 
     @Test
     fun textField_hasDefaultWidth() {
-        var size: IntPx? = null
+        var size: Int? = null
         composeTestRule.setContent {
             Box {
                 TextField(
@@ -348,7 +347,7 @@ class TextFieldTest {
     @Test
     fun textField_respectsWidthSetByModifier() {
         val textFieldWidth = 100.dp
-        var size: IntPx? = null
+        var size: Int? = null
         composeTestRule.setContent {
             Box {
                 TextField(
@@ -372,7 +371,7 @@ class TextFieldTest {
     fun textFieldInRow_fixedElementIsVisible() {
         val parentSize = 300.dp
         val boxSize = 50.dp
-        var size: IntPx? = null
+        var size: Int? = null
         composeTestRule.setContent {
             Box(Modifier.preferredSize(parentSize)) {
                 Row {
@@ -558,19 +557,19 @@ class TextFieldTest {
     }
 
     private fun Bitmap.assertCursor(cursorWidth: Dp, density: Density) {
-        val halfCursorWidth = with(density) { cursorWidth.toIntPx() } / 2f
-        val width = width.ipx
-        val height = height.ipx
+        val halfCursorWidth = (with(density) { cursorWidth.toIntPx() } / 2f).roundToInt()
+        val width = width
+        val height = height
         this.assertPixels(
-            IntPxSize(width, height)
+            IntSize(width, height)
         ) { position ->
-            if (position.x >= halfCursorWidth - 1.ipx && position.x < halfCursorWidth + 1.ipx) {
+            if (position.x >= halfCursorWidth - 1 && position.x < halfCursorWidth + 1) {
                 // skip some pixels around cursor
                 null
-            } else if (position.y < 5.ipx || position.y > height - 5.ipx) {
+            } else if (position.y < 5 || position.y > height - 5) {
                 // skip some pixels vertically
                 null
-            } else if (position.x in 0.ipx..halfCursorWidth) {
+            } else if (position.x in 0..halfCursorWidth) {
                 // cursor
                 Color.Red
             } else {

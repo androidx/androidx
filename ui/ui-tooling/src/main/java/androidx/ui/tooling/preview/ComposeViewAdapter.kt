@@ -39,13 +39,12 @@ import androidx.ui.core.setContent
 import androidx.ui.core.toAndroidRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
+import androidx.ui.tooling.Bounds
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.preview.animation.PreviewAnimationClock
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxBounds
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.toRect
 import kotlin.reflect.KClass
@@ -62,18 +61,18 @@ data class ViewInfo(
     val fileName: String,
     val lineNumber: Int,
     val methodName: String,
-    val bounds: IntPxBounds,
+    val bounds: Bounds,
     val children: List<ViewInfo>
 ) {
-    fun hasBounds(): Boolean = bounds.bottom != IntPx.Zero && bounds.right != IntPx.Zero
+    fun hasBounds(): Boolean = bounds.bottom != 0 && bounds.right != 0
 
     fun allChildren(): List<ViewInfo> =
         children + children.flatMap { it.allChildren() }
 
     override fun toString(): String =
         """($fileName:$lineNumber,
-            |bounds=(top=${bounds.top.value}, left=${bounds.left.value},
-            |bottom=${bounds.bottom.value}, right=${bounds.right.value}),
+            |bounds=(top=${bounds.top}, left=${bounds.left},
+            |bottom=${bounds.bottom}, right=${bounds.right}),
             |childrenCount=${children.size})""".trimMargin()
 }
 
@@ -217,10 +216,10 @@ internal class ComposeViewAdapter : FrameLayout {
                 if (it.hasBounds()) {
                     canvas?.apply {
                         val pxBounds = PxBounds(
-                            it.bounds.left.value.toFloat(),
-                            it.bounds.top.value.toFloat(),
-                            it.bounds.right.value.toFloat(),
-                            it.bounds.bottom.value.toFloat()
+                            it.bounds.left.toFloat(),
+                            it.bounds.top.toFloat(),
+                            it.bounds.right.toFloat(),
+                            it.bounds.bottom.toFloat()
                         )
                         drawRect(pxBounds.toRect().toAndroidRect(), debugBoundsPaint)
                     }

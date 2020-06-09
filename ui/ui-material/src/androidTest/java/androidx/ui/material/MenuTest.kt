@@ -21,6 +21,7 @@ import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.MediumTest
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
@@ -44,11 +45,10 @@ import androidx.ui.test.isPopup
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.waitForIdle
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.Position
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -100,18 +100,20 @@ class MenuTest {
     @Test
     fun menu_hasExpectedSize() {
         composeTestRule.setContent {
-            DropdownMenu(
-                expanded = true,
-                toggle = {
-                    Box(Modifier.size(20.dp).drawBackground(Color.Blue))
-                },
-                onDismissRequest = {}
-            ) {
-                Semantics(properties = { testTag = "MenuContent1" }, container = true) {
-                    Box(Modifier.preferredSize(70.dp))
-                }
-                Semantics(properties = { testTag = "MenuContent2" }, container = true) {
-                    Box(Modifier.preferredSize(130.dp))
+            with(DensityAmbient.current) {
+                DropdownMenu(
+                    expanded = true,
+                    toggle = {
+                        Box(Modifier.size(20.toDp()).drawBackground(Color.Blue))
+                    },
+                    onDismissRequest = {}
+                ) {
+                    Semantics(properties = { testTag = "MenuContent1" }, container = true) {
+                        Box(Modifier.preferredSize(70.toDp()))
+                    }
+                    Semantics(properties = { testTag = "MenuContent2" }, container = true) {
+                        Box(Modifier.preferredSize(130.toDp()))
+                    }
                 }
             }
         }
@@ -123,8 +125,8 @@ class MenuTest {
                     hasAnyChildThat(hasTestTag("MenuContent2"))
         ).assertExists().fetchSemanticsNode()
         with(composeTestRule.density) {
-            assertThat(node.size.width).isEqualTo(130.dp.toIntPx() + MenuElevation.toIntPx() * 2)
-            assertThat(node.size.height).isEqualTo(200.dp.toIntPx() +
+            assertThat(node.size.width).isEqualTo(130 + MenuElevation.toIntPx() * 2)
+            assertThat(node.size.height).isEqualTo(200 +
                     DropdownMenuVerticalPadding.toIntPx() * 2 + MenuElevation.toIntPx() * 2
             )
         }
@@ -139,12 +141,12 @@ class MenuTest {
             widthPixels = screenWidth
             heightPixels = screenHeight
         }
-        val anchorPosition = IntPxPosition(100.ipx, 200.ipx)
-        val anchorSize = IntPxSize(10.ipx, 20.ipx)
+        val anchorPosition = IntOffset(100, 200)
+        val anchorSize = IntSize(10, 20)
         val inset = with(density) { MenuElevation.toIntPx() }
         val offsetX = 20
         val offsetY = 40
-        val popupSize = IntPxSize(50.ipx, 80.ipx)
+        val popupSize = IntSize(50, 80)
 
         val ltrPosition = DropdownMenuPositionProvider(
             Position(offsetX.dp, offsetY.dp),
@@ -158,10 +160,10 @@ class MenuTest {
         )
 
         assertThat(ltrPosition.x).isEqualTo(
-            anchorPosition.x + anchorSize.width - inset + offsetX.ipx
+            anchorPosition.x + anchorSize.width - inset + offsetX
         )
         assertThat(ltrPosition.y).isEqualTo(
-            anchorPosition.y + anchorSize.height - inset + offsetY.ipx
+            anchorPosition.y + anchorSize.height - inset + offsetY
         )
 
         val rtlPosition = DropdownMenuPositionProvider(
@@ -176,10 +178,10 @@ class MenuTest {
         )
 
         assertThat(rtlPosition.x).isEqualTo(
-            anchorPosition.x - popupSize.width + inset - offsetX.ipx
+            anchorPosition.x - popupSize.width + inset - offsetX
         )
         assertThat(rtlPosition.y).isEqualTo(
-            anchorPosition.y + anchorSize.height - inset + offsetY.ipx
+            anchorPosition.y + anchorSize.height - inset + offsetY
         )
     }
 
@@ -192,13 +194,13 @@ class MenuTest {
             widthPixels = screenWidth
             heightPixels = screenHeight
         }
-        val anchorPosition = IntPxPosition(450.ipx, 950.ipx)
-        val anchorPositionRtl = IntPxPosition(50.ipx, 950.ipx)
-        val anchorSize = IntPxSize(10.ipx, 20.ipx)
+        val anchorPosition = IntOffset(450, 950)
+        val anchorPositionRtl = IntOffset(50, 950)
+        val anchorSize = IntSize(10, 20)
         val inset = with(density) { MenuElevation.toIntPx() }
         val offsetX = 20
         val offsetY = 40
-        val popupSize = IntPxSize(150.ipx, 80.ipx)
+        val popupSize = IntSize(150, 80)
 
         val ltrPosition = DropdownMenuPositionProvider(
             Position(offsetX.dp, offsetY.dp),
@@ -212,10 +214,10 @@ class MenuTest {
         )
 
         assertThat(ltrPosition.x).isEqualTo(
-            anchorPosition.x - popupSize.width + inset - offsetX.ipx
+            anchorPosition.x - popupSize.width + inset - offsetX
         )
         assertThat(ltrPosition.y).isEqualTo(
-            anchorPosition.y - popupSize.height + inset - offsetY.ipx
+            anchorPosition.y - popupSize.height + inset - offsetY
         )
 
         val rtlPosition = DropdownMenuPositionProvider(
@@ -230,10 +232,10 @@ class MenuTest {
         )
 
         assertThat(rtlPosition.x).isEqualTo(
-            anchorPositionRtl.x + anchorSize.width - inset + offsetX.ipx
+            anchorPositionRtl.x + anchorSize.width - inset + offsetX
         )
         assertThat(rtlPosition.y).isEqualTo(
-            anchorPositionRtl.y - popupSize.height + inset - offsetY.ipx
+            anchorPositionRtl.y - popupSize.height + inset - offsetY
         )
     }
 

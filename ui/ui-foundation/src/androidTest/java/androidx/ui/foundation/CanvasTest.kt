@@ -41,7 +41,7 @@ import androidx.ui.test.findRoot
 import androidx.ui.test.findByTag
 import androidx.ui.test.setContentAndCollectSizes
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Assert
@@ -149,7 +149,7 @@ class CanvasTest {
 
     @Test
     fun canvas_exactSizes() {
-        var canvasSize: IntPxSize? = null
+        var canvasSize: IntSize? = null
         val latch = CountDownLatch(1)
         composeTestRule.setContentAndCollectSizes {
             SemanticParent {
@@ -167,8 +167,8 @@ class CanvasTest {
         assertTrue(latch.await(5, TimeUnit.SECONDS))
 
         with(composeTestRule.density) {
-            Truth.assertThat(canvasSize!!.width.value).isEqualTo(100.dp.toIntPx().value)
-            Truth.assertThat(canvasSize!!.height.value).isEqualTo(100.dp.toIntPx().value)
+            Truth.assertThat(canvasSize!!.width).isEqualTo(100.dp.toIntPx())
+            Truth.assertThat(canvasSize!!.height).isEqualTo(100.dp.toIntPx())
         }
 
         val bitmap = findByTag(contentTag).captureToBitmap()
@@ -182,7 +182,7 @@ class CanvasTest {
 
     @Test
     fun canvas_exactSizes_drawCircle() {
-        var canvasSize: IntPxSize? = null
+        var canvasSize: IntSize? = null
         val latch = CountDownLatch(1)
         composeTestRule.setContentAndCollectSizes {
             SemanticParent {
@@ -203,8 +203,8 @@ class CanvasTest {
         assertTrue(latch.await(5, TimeUnit.SECONDS))
 
         with(composeTestRule.density) {
-            Truth.assertThat(canvasSize!!.width.value).isEqualTo(100.dp.toIntPx().value)
-            Truth.assertThat(canvasSize!!.height.value).isEqualTo(100.dp.toIntPx().value)
+            Truth.assertThat(canvasSize!!.width).isEqualTo(100.dp.toIntPx())
+            Truth.assertThat(canvasSize!!.height).isEqualTo(100.dp.toIntPx())
         }
 
         val bitmap = findByTag(contentTag).captureToBitmap()

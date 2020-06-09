@@ -32,10 +32,8 @@ import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.unit.Bounds
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxBounds
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.Position
 import androidx.ui.unit.PxBounds
 import androidx.ui.geometry.Offset
@@ -322,7 +320,7 @@ fun animate(
 }
 
 /**
- * Fire-and-forget animation [Composable] for [IntPx]. Once such an animation is created, it
+ * Fire-and-forget animation [Composable] for [Int]. Once such an animation is created, it
  * will be positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
  * course of the animation, simply supply a different [target] to the [Composable].
  *
@@ -336,10 +334,10 @@ fun animate(
  */
 @Composable
 fun animate(
-    target: IntPx,
-    animBuilder: AnimationBuilder<IntPx> = remember { PhysicsBuilder() },
-    endListener: ((IntPx) -> Unit)? = null
-): IntPx {
+    target: Int,
+    animBuilder: AnimationBuilder<Int> = remember { PhysicsBuilder() },
+    endListener: ((Int) -> Unit)? = null
+): Int {
     return animate(
         target, IntPxToVectorConverter, animBuilder, PxVisibilityThreshold1D,
         endListener
@@ -347,7 +345,7 @@ fun animate(
 }
 
 /**
- * Fire-and-forget animation [Composable] for [IntPxPosition]. Once such an animation is created, it
+ * Fire-and-forget animation [Composable] for [IntOffset]. Once such an animation is created, it
  * will be positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
  * course of the animation, simply supply a different [target] to the [Composable].
  *
@@ -361,10 +359,10 @@ fun animate(
  */
 @Composable
 fun animate(
-    target: IntPxPosition,
-    animBuilder: AnimationBuilder<IntPxPosition> = remember { PhysicsBuilder() },
-    endListener: ((IntPxPosition) -> Unit)? = null
-): IntPxPosition {
+    target: IntOffset,
+    animBuilder: AnimationBuilder<IntOffset> = remember { PhysicsBuilder() },
+    endListener: ((IntOffset) -> Unit)? = null
+): IntOffset {
     return animate(
         target, IntPxPositionToVectorConverter, animBuilder, PxVisibilityThreshold2D,
         endListener
@@ -372,7 +370,7 @@ fun animate(
 }
 
 /**
- * Fire-and-forget animation [Composable] for [IntPxSize]. Once such an animation is created, it
+ * Fire-and-forget animation [Composable] for [IntSize]. Once such an animation is created, it
  * will be positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
  * course of the animation, simply supply a different [target] to the [Composable].
  *
@@ -386,37 +384,14 @@ fun animate(
  */
 @Composable
 fun animate(
-    target: IntPxSize,
-    animBuilder: AnimationBuilder<IntPxSize> = remember { PhysicsBuilder() },
-    endListener: ((IntPxSize) -> Unit)? = null
-): IntPxSize {
+    target: IntSize,
+    animBuilder: AnimationBuilder<IntSize> = remember { PhysicsBuilder() },
+    endListener: ((IntSize) -> Unit)? = null
+): IntSize {
     return animate(
         target, IntPxSizeToVectorConverter, animBuilder, PxVisibilityThreshold2D,
         endListener
     )
-}
-
-/**
- * Fire-and-forget animation [Composable] for [IntPxBounds]. Once such an animation is created,
- * it will be positionally memoized, like other @[Composable]s. To trigger the animation, or alter
- * the course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animate] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
- *
- * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun animate(
-    target: IntPxBounds,
-    animBuilder: AnimationBuilder<IntPxBounds> = remember { PhysicsBuilder() },
-    endListener: ((IntPxBounds) -> Unit)? = null
-): IntPxBounds {
-    return animate(
-        target, IntPxBoundsToVectorConverter, animBuilder, PxVisibilityThreshold4D, endListener)
 }
 
 /**

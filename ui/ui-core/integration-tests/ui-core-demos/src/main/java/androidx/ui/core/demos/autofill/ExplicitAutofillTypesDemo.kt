@@ -115,7 +115,7 @@ private fun LayoutCoordinates.boundingBox() = localToGlobal(Offset.Zero).run {
     Rect(
         x.toInt(),
         y.toInt(),
-        x.toInt() + size.width.value,
-        y.toInt() + size.height.value
+        x.toInt() + size.width,
+        y.toInt() + size.height
     )
 }

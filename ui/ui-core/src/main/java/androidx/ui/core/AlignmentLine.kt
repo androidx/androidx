@@ -17,7 +17,6 @@
 package androidx.ui.core
 
 import androidx.compose.Immutable
-import androidx.ui.unit.IntPx
 
 /**
  * Defines an offset line that can be used by parent layouts to align and position their children.
@@ -49,24 +48,24 @@ import androidx.ui.unit.IntPx
  */
 @Immutable
 sealed class AlignmentLine(
-    internal val merger: (IntPx, IntPx) -> IntPx
+    internal val merger: (Int, Int) -> Int
 )
 
 /**
  * Merges two values of the current [alignment line][AlignmentLine].
  */
-fun AlignmentLine.merge(position1: IntPx, position2: IntPx) = merger(position1, position2)
+fun AlignmentLine.merge(position1: Int, position2: Int) = merger(position1, position2)
 
 /**
  * A vertical [AlignmentLine].
  *
  * @param merger How to merge two alignment line values defined by different children
  */
-class VerticalAlignmentLine(merger: (IntPx, IntPx) -> IntPx) : AlignmentLine(merger)
+class VerticalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)
 
 /**
  * A horizontal [AlignmentLine].
  *
  * @param merger How to merge two alignment line values defined by different children
  */
-class HorizontalAlignmentLine(merger: (IntPx, IntPx) -> IntPx) : AlignmentLine(merger)
+class HorizontalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)

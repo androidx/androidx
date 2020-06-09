@@ -38,12 +38,9 @@ import androidx.ui.core.hasFixedHeight
 import androidx.ui.core.hasFixedWidth
 import androidx.ui.core.onPositioned
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
-import androidx.ui.unit.isFinite
-import androidx.ui.unit.max
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
@@ -133,7 +130,7 @@ private fun Handle(
                 } else {
                     if (isStartHandle) Alignment.TopStart else Alignment.TopEnd
                 },
-                offset = IntPxPosition(offset.x.roundToInt().ipx, offset.y.roundToInt().ipx)
+                offset = IntOffset(offset.x.roundToInt(), offset.y.roundToInt())
             ) {
                 val drag = Modifier.dragGestureFilter(
                     dragObserver = manager.handleDragObserver(isStartHandle = isStartHandle)
@@ -158,17 +155,17 @@ private fun Wrap(modifier: Modifier = Modifier, children: @Composable () -> Unit
             measurable.measure(constraints)
         }
 
-        val width = placeables.fold(0.ipx) { maxWidth, placeable ->
+        val width = placeables.fold(0) { maxWidth, placeable ->
             max(maxWidth, (placeable.width))
         }
 
-        val height = placeables.fold(0.ipx) { minWidth, placeable ->
+        val height = placeables.fold(0) { minWidth, placeable ->
             max(minWidth, (placeable.height))
         }
 
         layout(width, height) {
             placeables.forEach { placeable ->
-                placeable.placeAbsolute(0.ipx, 0.ipx)
+                placeable.placeAbsolute(0, 0)
             }
         }
     }
@@ -187,39 +184,37 @@ internal fun SimpleContainer(
     Layout(children, modifier) { measurables, incomingConstraints, _ ->
         val containerConstraints = Constraints()
             .copy(
-                width?.toIntPx() ?: 0.ipx,
-                width?.toIntPx() ?: IntPx.Infinity,
-                height?.toIntPx() ?: 0.ipx,
-                height?.toIntPx() ?: IntPx.Infinity
+                width?.toIntPx() ?: 0,
+                width?.toIntPx() ?: Constraints.Infinity,
+                height?.toIntPx() ?: 0,
+                height?.toIntPx() ?: Constraints.Infinity
             )
             .enforce(incomingConstraints)
-        val childConstraints = containerConstraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+        val childConstraints = containerConstraints.copy(minWidth = 0, minHeight = 0)
         var placeable: Placeable? = null
         val containerWidth = if (
-            containerConstraints.hasFixedWidth &&
-            containerConstraints.maxWidth.isFinite()
+            containerConstraints.hasFixedWidth
         ) {
             containerConstraints.maxWidth
         } else {
             placeable = measurables.firstOrNull()?.measure(childConstraints)
-            max((placeable?.width ?: 0.ipx), containerConstraints.minWidth)
+            max((placeable?.width ?: 0), containerConstraints.minWidth)
         }
         val containerHeight = if (
-            containerConstraints.hasFixedHeight &&
-            containerConstraints.maxHeight.isFinite()
+            containerConstraints.hasFixedHeight
         ) {
             containerConstraints.maxHeight
         } else {
             if (placeable == null) {
                 placeable = measurables.firstOrNull()?.measure(childConstraints)
             }
-            max((placeable?.height ?: 0.ipx), containerConstraints.minHeight)
+            max((placeable?.height ?: 0), containerConstraints.minHeight)
         }
         layout(containerWidth, containerHeight) {
             val p = placeable ?: measurables.firstOrNull()?.measure(childConstraints)
             p?.let {
                 val position = Alignment.Center.align(
-                    IntPxSize(
+                    IntSize(
                         containerWidth - it.width,
                         containerHeight - it.height
                     )
