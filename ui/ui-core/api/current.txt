@@ -657,6 +657,7 @@ package androidx.ui.core {
     method public void onSemanticsChange();
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public boolean requestFocus();
+    method public boolean sendKeyEvent(androidx.ui.core.keyinput.KeyEvent keyEvent);
     method public void setOnSavedStateRegistryAvailable(kotlin.jvm.functions.Function1<? super androidx.ui.savedinstancestate.UiSavedStateRegistry,kotlin.Unit> callback);
     property public abstract androidx.ui.autofill.Autofill? autofill;
     property public abstract androidx.ui.autofill.AutofillTree autofillTree;
@@ -1685,6 +1686,9 @@ package androidx.ui.core.keyinput {
   }
 
   public final class KeyEvent {
+    method public int component1();
+    method public androidx.ui.core.keyinput.KeyEventType component2();
+    method public androidx.ui.core.keyinput.KeyEvent copy-x3VrOOY(int key, androidx.ui.core.keyinput.KeyEventType type);
     method public int getKey();
     method public androidx.ui.core.keyinput.KeyEventType getType();
   }

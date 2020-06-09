@@ -247,6 +247,10 @@ package androidx.ui.test {
     method public static void sendUp(androidx.ui.test.PartialGestureScope, int pointerId = 0);
   }
 
+  public final class KeyInputHelpersKt {
+    method public static boolean doSendKeyEvent(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.core.keyinput.KeyEvent keyEvent);
+  }
+
   public final class OutputKt {
     method public static String dumpToString(androidx.ui.test.SemanticsNodeInteraction);
     method public static String dumpToString(androidx.ui.test.SemanticsNodeInteractionCollection);

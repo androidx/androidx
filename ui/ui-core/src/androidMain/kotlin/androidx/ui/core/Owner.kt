@@ -20,6 +20,7 @@ import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.keyinput.KeyEvent
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.graphics.Canvas
@@ -141,6 +142,13 @@ interface Owner {
      * @return true if the system granted focus to this owner. False otherwise.
      */
     fun requestFocus(): Boolean
+
+    /**
+     * Send this [KeyEvent] to the focused component in this [Owner].
+     *
+     * @return true if the event was consumed. False otherwise.
+     */
+    fun sendKeyEvent(keyEvent: KeyEvent): Boolean
 
     /**
      * Observing the model reads are temporary disabled during the [block] execution.

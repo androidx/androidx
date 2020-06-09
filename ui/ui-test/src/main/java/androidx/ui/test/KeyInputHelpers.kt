@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.keyinput
+package androidx.ui.test
+
+import androidx.ui.core.keyinput.KeyEvent
 
 /**
- * When a user presses a key on a hardware keyboard, a [KeyEvent] is sent to the
- * [KeyInputModifier] that is currently active.
+ * Send the specified [KeyEvent] to the focused component.
  *
- * @param key the key that was pressed.
- * @param type the [type][KeyEventType] of key event.
+ * @return true if the event was consumed. False otherwise.
  */
-data class KeyEvent(val key: Key, val type: KeyEventType)
-
-/**
- * The type of Key Event.
- */
-enum class KeyEventType { KeyUp, KeyDown }
+fun SemanticsNodeInteraction.doSendKeyEvent(keyEvent: KeyEvent): Boolean {
+    val semanticsNode = fetchSemanticsNode("Failed to send key Event (${keyEvent.key})")
+    val owner = semanticsNode.componentNode.owner
+    requireNotNull(owner) { "Failed to find owner" }
+    return runOnUiThread { owner.sendKeyEvent(keyEvent) }
+}
