@@ -92,8 +92,13 @@ open class View(val context: Context) {
 
     fun setMeasuredDimension(measuredWidth: Int, measuredHeight: Int) {}
 
-    fun getTag(key: Int): Any? = null
-    fun setTag(key: Int, obj: Any?) {}
+    private val tags = mutableMapOf<Int, Any?>()
+    fun getTag(key: Int): Any? {
+        return tags.get(key)
+    }
+    fun setTag(key: Int, obj: Any?) {
+        tags[key] = obj
+    }
 
     var parent: ViewParent? = null
 
