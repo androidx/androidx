@@ -40,9 +40,9 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * BoxInsetLayout is a screen shape-aware ViewGroup that can box its children in the center
- * square of a round screen by using the {@code boxedEdges} attribute. The values for this attribute
+ * square of a round screen by using the {@code layout_boxedEdges} attribute. The values for this attribute
  * specify the child's edges to be boxed in: {@code left|top|right|bottom} or {@code all}. The
- * {@code boxedEdges} attribute is ignored on a device with a rectangular screen.
+ * {@code layout_boxedEdges} attribute is ignored on a device with a rectangular screen.
  */
 @UiThread
 public class BoxInsetLayout extends ViewGroup {
@@ -390,7 +390,7 @@ public class BoxInsetLayout extends ViewGroup {
      * See {@link R.styleable#BoxInsetLayout_Layout BoxInsetLayout Layout Attributes} for a list
      * of all child view attributes that this class supports.
      *
-     * {@link androidx.wear.R.attr#boxedEdges}
+     * {@link androidx.wear.R.attr#layout_boxedEdges}
      */
     public static class LayoutParams extends FrameLayout.LayoutParams {
 
