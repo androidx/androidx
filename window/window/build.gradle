@@ -36,6 +36,9 @@ android {
 
         buildConfigField "String", "WINDOW_LIB_VERSION", "\"${LibraryVersions.WINDOW}\""
     }
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
 }
 
 dependencies {
