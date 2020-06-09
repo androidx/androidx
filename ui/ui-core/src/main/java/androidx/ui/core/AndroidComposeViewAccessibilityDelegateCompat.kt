@@ -34,7 +34,7 @@ import androidx.ui.core.semantics.findChildById
 import androidx.ui.core.semantics.getOrNull
 import androidx.ui.semantics.CustomAccessibilityAction
 import androidx.ui.semantics.SemanticsActions
-import androidx.ui.semantics.SemanticsActions.Companion.CustomActions
+import androidx.ui.semantics.SemanticsActions.CustomActions
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.util.fastForEach
 
@@ -174,8 +174,25 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         info.isClickable = semanticsNode.config.contains(SemanticsActions.OnClick)
         if (info.isClickable) {
             info.addAction(
-                AccessibilityNodeInfoCompat
-                    .AccessibilityActionCompat.ACTION_CLICK
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_CLICK
+            )
+        }
+        if (semanticsNode.config.contains(SemanticsActions.SetProgress)) {
+            info.addAction(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SET_PROGRESS
+            )
+        }
+        // TODO(b/157692376): remove scroll forward/backward api together with slider scroll action.
+        @Suppress("DEPRECATION")
+        if (semanticsNode.config.contains(SemanticsActions.ScrollForward)) {
+            info.addAction(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_FORWARD
+            )
+        }
+        @Suppress("DEPRECATION")
+        if (semanticsNode.config.contains(SemanticsActions.ScrollBackward)) {
+            info.addAction(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_BACKWARD
             )
         }
 
@@ -390,7 +407,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     fun performActionHelper(
         virtualViewId: Int,
-        action: Int
+        action: Int,
+        arguments: Bundle?
     ): Boolean {
         var node: SemanticsNode
         if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
@@ -407,6 +425,37 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             AccessibilityNodeInfoCompat.ACTION_CLICK -> {
                 return if (node.canPerformAction(SemanticsActions.OnClick)) {
                     node.config[SemanticsActions.OnClick].action()
+                } else {
+                    false
+                }
+            }
+            AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD -> {
+                // TODO(b/157692376): remove scroll forward/backward api together with slider
+                //  scroll action.
+                @Suppress("DEPRECATION")
+                return if (node.canPerformAction(SemanticsActions.ScrollForward)) {
+                    node.config[SemanticsActions.ScrollForward].action()
+                } else {
+                    false
+                }
+            }
+            AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD -> {
+                @Suppress("DEPRECATION")
+                return if (node.canPerformAction(SemanticsActions.ScrollBackward)) {
+                    node.config[SemanticsActions.ScrollBackward].action()
+                } else {
+                    false
+                }
+            }
+            android.R.id.accessibilityActionSetProgress -> {
+                if (arguments == null || !arguments.containsKey(
+                        AccessibilityNodeInfoCompat.ACTION_ARGUMENT_PROGRESS_VALUE)) {
+                    return false
+                }
+                return if (node.canPerformAction(SemanticsActions.SetProgress)) {
+                    node.config[SemanticsActions.SetProgress].action(
+                        arguments.getFloat(
+                            AccessibilityNodeInfoCompat.ACTION_ARGUMENT_PROGRESS_VALUE))
                 } else {
                     false
                 }
@@ -548,7 +597,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             action: Int,
             arguments: Bundle?
         ): Boolean {
-            return performActionHelper(virtualViewId, action)
+            return performActionHelper(virtualViewId, action, arguments)
         }
     }
 }
