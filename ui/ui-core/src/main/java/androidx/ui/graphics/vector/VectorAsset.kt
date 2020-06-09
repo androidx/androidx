@@ -16,15 +16,7 @@
 
 package androidx.ui.graphics.vector
 
-import androidx.compose.Composable
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.core.paint
-import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.ColorFilter
-import androidx.ui.core.ContentScale
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.unit.Dp
@@ -237,28 +229,3 @@ data class VectorPath(
      */
     val strokeLineMiter: Float = DefaultStrokeLineMiter
 ) : VectorNode()
-
-/**
- * Composes a vector graphic into the composition tree based on the specification
- * provided by given [VectorAsset]
- * @param[tintColor] Optional color used to tint this vector graphic
- * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
- */
-@Deprecated("Use VectorPainter and Modifier.paint instead")
-@Composable
-fun drawVector(
-    vectorImage: VectorAsset,
-    tintColor: Color = Color.Transparent,
-    tintBlendMode: BlendMode = DefaultTintBlendMode,
-    alignment: Alignment = Alignment.Center,
-    contentScale: ContentScale = ContentScale.Inside
-) = Modifier.paint(
-    VectorPainter(vectorImage),
-    alignment = alignment,
-    contentScale = contentScale,
-    colorFilter = if (tintColor != Color.Transparent) {
-        ColorFilter(tintColor, tintBlendMode)
-    } else {
-        null
-    }
-)

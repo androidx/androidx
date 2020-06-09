@@ -51,19 +51,6 @@ fun composeVector(
     }
 }
 
-@Deprecated(
-    "Specify the Recomposer explicitly",
-    ReplaceWith(
-        "composeVector(container, Recomposer.current(), parent, composable)",
-        "androidx.compose.Recomposer"
-    )
-)
-fun composeVector(
-    container: VectorComponent,
-    parent: CompositionReference? = null,
-    composable: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
-): Composition = composeVector(container, Recomposer.current(), parent, composable)
-
 @OptIn(ComposeCompilerApi::class)
 class VectorComposer(
     val root: VNode,
