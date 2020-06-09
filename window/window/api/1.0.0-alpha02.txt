@@ -10,7 +10,7 @@ package androidx.window {
     field public static final int POSTURE_UNKNOWN = 0; // 0x0
   }
 
-  public static class DeviceState.Builder {
+  public static final class DeviceState.Builder {
     ctor public DeviceState.Builder();
     method public androidx.window.DeviceState build();
     method public androidx.window.DeviceState.Builder setPosture(int);
@@ -23,7 +23,7 @@ package androidx.window {
     field public static final int TYPE_HINGE = 2; // 0x2
   }
 
-  public static class DisplayFeature.Builder {
+  public static final class DisplayFeature.Builder {
     ctor public DisplayFeature.Builder();
     method public androidx.window.DisplayFeature build();
     method public androidx.window.DisplayFeature.Builder setBounds(android.graphics.Rect);
@@ -53,7 +53,7 @@ package androidx.window {
     method public java.util.List<androidx.window.DisplayFeature!> getDisplayFeatures();
   }
 
-  public static class WindowLayoutInfo.Builder {
+  public static final class WindowLayoutInfo.Builder {
     ctor public WindowLayoutInfo.Builder();
     method public androidx.window.WindowLayoutInfo build();
     method public androidx.window.WindowLayoutInfo.Builder setDisplayFeatures(java.util.List<androidx.window.DisplayFeature!>);

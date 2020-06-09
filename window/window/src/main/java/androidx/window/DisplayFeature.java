@@ -55,7 +55,7 @@ public final class DisplayFeature {
      */
     @NonNull
     public Rect getBounds() {
-        return mBounds;
+        return new Rect(mBounds);
     }
 
     /**
@@ -120,7 +120,7 @@ public final class DisplayFeature {
     /**
      * Builder for {@link DisplayFeature} objects.
      */
-    public static class Builder {
+    public static final class Builder {
         private Rect mBounds = new Rect();
         @Type
         private int mType = TYPE_FOLD;
