@@ -20,6 +20,7 @@ import androidx.animation.AnimatedValue
 import androidx.animation.Infinite
 import androidx.animation.KeyframesBuilder
 import androidx.animation.RepeatableBuilder
+import androidx.annotation.RestrictTo
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.Stable
@@ -55,6 +56,14 @@ import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
+import org.jetbrains.annotations.TestOnly
+
+// TODO(b/151940543): Remove this variable when we have a solution for idling animations
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+var blinkingCursorEnabled: Boolean = true
+    @TestOnly
+    set
 
 /**
  * A class holding information about the editing state.
@@ -254,15 +263,20 @@ fun TextField(
     val animColor = animatedColor(cursorColor)
     onCommit(cursorColor, cursorState.focused, fullModel.value) {
         if (cursorNeeded) {
-            animColor.animateTo(Color.Transparent, anim = RepeatableBuilder<Color>().apply {
-                iterations = Infinite
-                animation = KeyframesBuilder<Color>().apply {
-                    duration = 1000
-                    cursorColor at 0
-                    cursorColor at 499
-                    Color.Transparent at 500
-                }
-            })
+            // TODO(b/151940543): Disable blinking in tests until we handle idling animations
+            if (blinkingCursorEnabled) {
+                animColor.animateTo(Color.Transparent, anim = RepeatableBuilder<Color>().apply {
+                    iterations = Infinite
+                    animation = KeyframesBuilder<Color>().apply {
+                        duration = 1000
+                        cursorColor at 0
+                        cursorColor at 499
+                        Color.Transparent at 500
+                    }
+                })
+            } else {
+                animColor.snapTo(cursorColor)
+            }
         } else {
             animColor.snapTo(Color.Transparent)
         }

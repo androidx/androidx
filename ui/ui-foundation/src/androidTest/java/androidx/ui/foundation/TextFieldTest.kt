@@ -16,7 +16,6 @@
 
 package androidx.ui.foundation
 
-import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
 import androidx.compose.MutableState
@@ -39,13 +38,11 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.assert
-import androidx.ui.test.assertPixels
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
@@ -55,13 +52,8 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.hasImeAction
 import androidx.ui.test.hasInputMethodsSupport
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.waitForIdle
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
-import androidx.ui.text.TextStyle
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -76,17 +68,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
 class TextFieldTest {
     @get:Rule
-    val composeTestRule = createComposeRule().also {
-        it.clockTestRule.pauseClock()
-    }
+    val composeTestRule = createComposeRule()
 
     private val DefaultTextFieldWidth = 280.dp
 
@@ -445,92 +432,6 @@ class TextFieldTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun textFieldFocused_cursorRendered() = with(composeTestRule.density) {
-        val width = 10.dp
-        val height = 20.dp
-        val latch = CountDownLatch(1)
-        composeTestRule.setContent {
-            TextField(
-                value = androidx.ui.input.TextFieldValue(),
-                onValueChange = {},
-                textStyle = TextStyle(color = Color.White, background = Color.White),
-                modifier = Modifier.preferredSize(width, height).drawBackground(Color.White),
-                cursorColor = Color.Red,
-                onFocusChange = { focused ->
-                    if (focused) latch.countDown()
-                }
-            )
-        }
-        find(hasInputMethodsSupport()).doClick()
-        assert(latch.await(1, TimeUnit.SECONDS))
-
-        waitForIdle()
-
-        composeTestRule.clockTestRule.advanceClock(100)
-        with(composeTestRule.density) {
-            find(hasInputMethodsSupport())
-                .captureToBitmap()
-                .assertCursor(2.dp, this)
-        }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun cursorBlinkingAnimation() = with(composeTestRule.density) {
-        val width = 10.dp
-        val height = 20.dp
-        val latch = CountDownLatch(1)
-        composeTestRule.setContent {
-            // The padding helps if the test is run accidentally in landscape. Landscape makes
-            // the cursor to be next to the navigation bar which affects the red color to be a bit
-            // different - possibly anti-aliasing.
-            Box(Modifier.padding(10.dp)) {
-                TextField(
-                    value = androidx.ui.input.TextFieldValue(),
-                    onValueChange = {},
-                    textStyle = TextStyle(color = Color.White, background = Color.White),
-                    modifier = Modifier.preferredSize(width, height).drawBackground(Color.White),
-                    cursorColor = Color.Red,
-                    onFocusChange = { focused ->
-                        if (focused) latch.countDown()
-                    }
-                )
-            }
-        }
-
-        find(hasInputMethodsSupport()).doClick()
-        assert(latch.await(1, TimeUnit.SECONDS))
-
-        waitForIdle()
-
-        // cursor visible first 500 ms
-        composeTestRule.clockTestRule.advanceClock(100)
-        with(composeTestRule.density) {
-            find(hasInputMethodsSupport())
-                .captureToBitmap()
-                .assertCursor(2.dp, this)
-        }
-
-        // cursor invisible during next 500 ms
-        composeTestRule.clockTestRule.advanceClock(700)
-
-        // TODO: There seems to be an issue on Pixel that we capture the bitmap too early and
-        // perform the assert while the cursor is still there.
-        waitForIdle()
-
-        find(hasInputMethodsSupport())
-            .captureToBitmap()
-            .assertShape(
-                density = composeTestRule.density,
-                shape = RectangleShape,
-                shapeColor = Color.White,
-                backgroundColor = Color.White,
-                shapeOverlapPixelCount = 0.0f
-            )
-    }
-
-    @Test
     fun defaultSemantics() {
         composeTestRule.setContent {
             TextField(
@@ -557,28 +458,5 @@ class TextFieldTest {
 
         find(hasInputMethodsSupport())
             .assert(hasImeAction(ImeAction.Search))
-    }
-
-    private fun Bitmap.assertCursor(cursorWidth: Dp, density: Density) {
-        val halfCursorWidth = (with(density) { cursorWidth.toIntPx() } / 2f).roundToInt()
-        val width = width
-        val height = height
-        this.assertPixels(
-            IntSize(width, height)
-        ) { position ->
-            if (position.x >= halfCursorWidth - 1 && position.x < halfCursorWidth + 1) {
-                // skip some pixels around cursor
-                null
-            } else if (position.y < 5 || position.y > height - 5) {
-                // skip some pixels vertically
-                null
-            } else if (position.x in 0..halfCursorWidth) {
-                // cursor
-                Color.Red
-            } else {
-                // text field background
-                Color.White
-            }
-        }
     }
 }

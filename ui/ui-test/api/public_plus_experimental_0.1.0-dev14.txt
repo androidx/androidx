@@ -362,11 +362,11 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRule {
-    ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule, androidx.compose.Recomposer? recomposer, boolean disableTransitions);
+    ctor public AndroidComposeTestRule(androidx.test.rule.ActivityTestRule<T> activityTestRule, androidx.compose.Recomposer? recomposer, boolean disableTransitions);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
     method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
-    method public androidx.test.ext.junit.rules.ActivityScenarioRule<T> getActivityRule();
+    method public androidx.test.rule.ActivityTestRule<T> getActivityTestRule();
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
