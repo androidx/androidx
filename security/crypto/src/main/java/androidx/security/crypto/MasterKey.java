@@ -280,7 +280,7 @@ public final class MasterKey {
 
         /**
          * Sets a custom {@link KeyGenParameterSpec} to use as the basis of the master key.
-         * NOTE: Either this method OR {@link #setKeyGenParameterSpec} should be used to set
+         * NOTE: Either this method OR {@link #setKeyScheme(KeyScheme)} should be used to set
          * the parameters to use for building the master key. Calling either function after
          * the other will throw an {@link IllegalArgumentException}.
          *
