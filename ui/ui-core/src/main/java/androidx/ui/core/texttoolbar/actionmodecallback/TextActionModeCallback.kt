@@ -32,7 +32,7 @@ internal class TextActionModeCallback(
         requireNotNull(menu)
         requireNotNull(mode)
 
-        menu.add(0, MENU_ITEM_COPY, 0, "copy")
+        menu.add(0, MENU_ITEM_COPY, 0, android.R.string.copy)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
         return true
     }
