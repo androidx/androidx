@@ -18,6 +18,8 @@ package androidx.contentaccess.compiler.processor
 
 import androidx.contentaccess.ContentAccessObject
 import androidx.contentaccess.ContentQuery
+import androidx.contentaccess.compiler.ext.reportError
+import androidx.contentaccess.compiler.utils.ErrorIndicator
 import androidx.contentaccess.compiler.vo.ContentAccessObjectVO
 import androidx.contentaccess.compiler.writer.ContentAccessObjectWriter
 import androidx.contentaccess.ext.getAllMethodsIncludingSupers
@@ -25,9 +27,9 @@ import androidx.contentaccess.ext.hasAnnotation
 import javax.annotation.processing.ProcessingEnvironment
 import androidx.contentaccess.ext.toAnnotationBox
 import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
+import isVoidObject
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
-import javax.tools.Diagnostic
 
 class ContentAccessObjectProcessor(
     val element: TypeElement,
@@ -38,25 +40,27 @@ class ContentAccessObjectProcessor(
 
     @KotlinPoetMetadataPreview
     fun process() {
-        // TODO(obenabde): create helper functions for errors.
-        // TODO(obenabde): See if you can do more stuff before returning after some of the errors
-        // here.
-        // TODO(obenabde): Examine error propagation through passing some context/error reporter
-        // validation type of structure.
+        val errorIndicator = ErrorIndicator()
         if (element.kind != ElementKind.INTERFACE) {
-            messager.printMessage(Diagnostic.Kind.ERROR, "Only interfaces should be annotated" +
-                    " with @ContentAccessObject, ${element.qualifiedName} is not interface.",
-                element)
-            return
+            messager.reportError("Only interfaces should be annotated with @ContentAccessObject," +
+                    " ${element.qualifiedName} is not interface.", element, errorIndicator)
+        } else {
+            if (element.getAllMethodsIncludingSupers().isEmpty()) {
+                messager.reportError("Interface ${element.qualifiedName} annotated with " +
+                        "@ContentAccessObject doesn't delcare any methods. Interfaces annotated " +
+                        "with @ContentAccessObject should declare at least one method.", element,
+                    errorIndicator)
+            }
         }
-        val entity = ContentEntityProcessor(element.toAnnotationBox
-            (ContentAccessObject::class)!!.getAsTypeMirror("contentEntity")!!,
-            processingEnv).processEntity()
-        if (element.getAllMethodsIncludingSupers().isEmpty()) {
-            messager.printMessage(Diagnostic.Kind.ERROR, "Interface ${element.qualifiedName} " +
-                    "annotated with @ContentAccessObject doesn't delcare any methods. Interfaces " +
-                    "annotated with @ContentAccessObject should declare at least one method.",
-                element)
+        val contentEntityType = element.toAnnotationBox(ContentAccessObject::class)!!
+            .getAsTypeMirror("contentEntity")!!
+        val entity = if (contentEntityType.isVoidObject()) {
+            null
+        } else {
+            ContentEntityProcessor(contentEntityType, processingEnv, errorIndicator).processEntity()
+        }
+        if (errorIndicator.errorFound) {
+            // Any of the above errors should handicap progress, stop early.
             return
         }
         val queryMethods = element.getAllMethodsIncludingSupers()
@@ -64,13 +68,15 @@ class ContentAccessObjectProcessor(
             .map {
                 ContentQueryProcessor(entity, it, it.getAnnotation
                     (ContentQuery::class
-                    .java), processingEnv).process()
+                    .java), processingEnv, errorIndicator).process()
             }
         // Return if there was an error.
-        queryMethods.forEach { if (it.second) return }
+        if (errorIndicator.errorFound) {
+            return
+        }
         ContentAccessObjectWriter(ContentAccessObjectVO(entity, element
             .qualifiedName.toString(), processingEnv.elementUtils.getPackageOf
-            (element).toString(), element.asType(), queryMethods.map { it.first!! }), processingEnv)
+            (element).toString(), element.asType(), queryMethods.map { it!! }), processingEnv)
             .generateFile()
     }
 }
