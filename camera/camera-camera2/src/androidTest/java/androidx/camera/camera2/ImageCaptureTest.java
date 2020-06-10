@@ -319,7 +319,7 @@ public final class ImageCaptureTest {
             useCase.takePicture(mMainExecutor, callback);
         }
 
-        verify(callback, timeout(10000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
+        verify(callback, timeout(50000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
     }
 
     @Test
