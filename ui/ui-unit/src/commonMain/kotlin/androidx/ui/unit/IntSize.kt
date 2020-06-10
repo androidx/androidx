@@ -29,20 +29,20 @@ import androidx.ui.util.unpackInt2
  * A two-dimensional size class used for measuring in [Int] pixels.
  */
 @Immutable
-/*inline*/ class IntSize(@PublishedApi internal val value: Long) {
+/*inline*/ class IntSize(@PublishedApi internal val packedValue: Long) {
     /**
      * The horizontal aspect of the size in [Int] pixels.
      */
     @Stable
     val width: Int
-        get() = unpackInt1(value)
+        get() = unpackInt1(packedValue)
 
     /**
      * The vertical aspect of the size in [Int] pixels.
      */
     @Stable
     val height: Int
-        get() = unpackInt2(value)
+        get() = unpackInt2(packedValue)
 
     @Stable
     inline operator fun component1(): Int = width
@@ -71,12 +71,12 @@ import androidx.ui.util.unpackInt2
         if (other !is IntSize) {
             return false
         }
-        return other.value == value
+        return other.packedValue == packedValue
     }
 
     @Stable
     override fun hashCode(): Int {
-        return value.hashCode()
+        return packedValue.hashCode()
     }
 
     companion object {
