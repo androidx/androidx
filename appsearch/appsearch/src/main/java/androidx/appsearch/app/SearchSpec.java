@@ -20,7 +20,6 @@ import android.os.Bundle;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.IllegalSearchSpecException;
 import androidx.core.util.Preconditions;
 
@@ -30,9 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * This class represents the specification logic for AppSearch. It can be used to set the type of
  * search, like prefix or exact only or apply filters to search for a specific schema type only etc.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 // TODO(sidchhabra) : AddResultSpec fields for Snippets etc.
 public final class SearchSpec {
 
@@ -42,10 +39,14 @@ public final class SearchSpec {
     static final String NUM_PER_PAGE_FIELD = "numPerPage";
     static final String RANKING_STRATEGY_FIELD = "rankingStrategy";
     static final String ORDER_FILED = "order";
-    static final String NUM_TO_SNIPPET_FIELD = "numToSnippet";
-    static final String NUM_MATCHED_PER_PROPERTY_FIELD = "numMatchedPerProperty";
+    static final String SNIPPET_COUNT_FIELD = "snippetCount";
+    static final String SNIPPET_COUNT_PER_PROPERTY_FIELD = "snippetCountPerProperty";
     static final String MAX_SNIPPET_FIELD = "maxSnippet";
     static final int DEFAULT_NUM_PER_PAGE = 10;
+    private static final int MAX_NUM_PER_PAGE = 10_000;
+    private static final int MAX_SNIPPET_COUNT = 10_000;
+    private static final int MAX_SNIPPET_PER_PROPERTY_COUNT = 10_000;
+    private static final int MAX_SNIPPET_SIZE_LIMIT = 10_000;
 
     private final Bundle mBundle;
 
@@ -60,28 +61,34 @@ public final class SearchSpec {
         return mBundle;
     }
 
-    /** Term Match Type for the query. */
+    /**
+     * Term Match Type for the query.
+     * @hide
+     */
     // NOTE: The integer values of these constants must match the proto enum constants in
     // {@link com.google.android.icing.proto.SearchSpecProto.termMatchType}
     @IntDef(value = {
-            TERM_MATCH_TYPE_EXACT_ONLY,
-            TERM_MATCH_TYPE_PREFIX
+            TERM_MATCH_EXACT_ONLY,
+            TERM_MATCH_PREFIX
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface TermMatchTypeCode {}
+    public @interface TermMatchCode {}
 
     /**
      * Query terms will only match exact tokens in the index.
      * <p>Ex. A query term "foo" will only match indexed token "foo", and not "foot" or "football".
      */
-    public static final int TERM_MATCH_TYPE_EXACT_ONLY = 1;
+    public static final int TERM_MATCH_EXACT_ONLY = 1;
     /**
      * Query terms will match indexed tokens when the query term is a prefix of the token.
      * <p>Ex. A query term "foo" will match indexed tokens like "foo", "foot", and "football".
      */
-    public static final int TERM_MATCH_TYPE_PREFIX = 2;
+    public static final int TERM_MATCH_PREFIX = 2;
 
-    /** Ranking Strategy for query result.*/
+    /**
+     * Ranking Strategy for query result.
+     * @hide
+     */
     // NOTE: The integer values of these constants must match the proto enum constants in
     // {@link ScoringSpecProto.RankingStrategy.Code }
     @IntDef(value = {
@@ -99,7 +106,10 @@ public final class SearchSpec {
     /** Ranked by document creation timestamps. */
     public static final int RANKING_STRATEGY_CREATION_TIMESTAMP = 2;
 
-    /** Order for query result.*/
+    /**
+     * Order for query result.
+     * @hide
+     */
     // NOTE: The integer values of these constants must match the proto enum constants in
     // {@link ScoringSpecProto.Order.Code }
     @IntDef(value = {
@@ -127,13 +137,13 @@ public final class SearchSpec {
         }
 
         /**
-         * Indicates how the query terms should match {@link TermMatchTypeCode} in the index.
+         * Indicates how the query terms should match {@code TermMatchCode} in the index.
          */
         @NonNull
-        public Builder setTermMatchType(@TermMatchTypeCode int termMatchTypeCode) {
+        public Builder setTermMatch(@TermMatchCode int termMatchTypeCode) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkArgumentInRange(termMatchTypeCode, TERM_MATCH_TYPE_EXACT_ONLY,
-                    TERM_MATCH_TYPE_PREFIX, "Term match type");
+            Preconditions.checkArgumentInRange(termMatchTypeCode, TERM_MATCH_EXACT_ONLY,
+                    TERM_MATCH_PREFIX, "Term match type");
             mBundle.putInt(TERM_MATCH_TYPE_FIELD, termMatchTypeCode);
             return this;
         }
@@ -166,14 +176,12 @@ public final class SearchSpec {
 
         /**
          * Sets the number of results per page in the returned object.
-         * <p> The default number of results per page is 10.
+         * <p> The default number of results per page is 10. And should be set in range [0, 10k].
          */
         @NonNull
         public SearchSpec.Builder setNumPerPage(int numPerPage) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            if (numPerPage <= 0) {
-                throw new IllegalArgumentException("Invalid number per page :" + numPerPage);
-            }
+            Preconditions.checkArgumentInRange(numPerPage, 0, MAX_NUM_PER_PAGE, "NumPerPage");
             mBundle.putInt(NUM_PER_PAGE_FIELD, numPerPage);
             return this;
         }
@@ -203,28 +211,33 @@ public final class SearchSpec {
         }
 
         /**
-         * Only the first {@code numToSnippet} documents based on the ranking strategy
+         * Only the first {@code snippetCount} documents based on the ranking strategy
          * will have snippet information provided.
          * <p>If set to 0 (default), snippeting is disabled and
-         * {@link SearchResults.Result#getMatchInfo} will return {@code null} for that result.
+         * {@link SearchResults.Result#getMatches} will return {@code null} for that result.
+         * <p>The value should be set in range[0, 10k].
          */
         @NonNull
-        public SearchSpec.Builder setNumToSnippet(int numToSnippet) {
+        public SearchSpec.Builder setSnippetCount(int snippetCount) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putInt(NUM_TO_SNIPPET_FIELD, numToSnippet);
+            Preconditions.checkArgumentInRange(snippetCount, 0, MAX_SNIPPET_COUNT, "snippetCount");
+            mBundle.putInt(SNIPPET_COUNT_FIELD, snippetCount);
             return this;
         }
 
         /**
-         * Only the first {@code numMatchesPerProperty} matches for a every property of
+         * Only the first {@code matchesCountPerProperty} matches for a every property of
          * {@link GenericDocument} will contain snippet information.
-         * <p>If set to 0, snippeting is disabled and {@link SearchResults.Result#getMatchInfo}
+         * <p>If set to 0, snippeting is disabled and {@link SearchResults.Result#getMatches}
          * will return {@code null} for that result.
+         * <p>The value should be set in range[0, 10k].
          */
         @NonNull
-        public SearchSpec.Builder setNumMatchesPerProperty(int numMatchesPerProperty) {
+        public SearchSpec.Builder setSnippetCountPerProperty(int snippetCountPerProperty) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putInt(NUM_MATCHED_PER_PROPERTY_FIELD, numMatchesPerProperty);
+            Preconditions.checkArgumentInRange(snippetCountPerProperty,
+                    0, MAX_SNIPPET_PER_PROPERTY_COUNT, "snippetCountPerProperty");
+            mBundle.putInt(SNIPPET_COUNT_PER_PROPERTY_FIELD, snippetCountPerProperty);
             return this;
         }
 
@@ -237,10 +250,13 @@ public final class SearchSpec {
          * be returned. If matches enabled is also set to false, then snippeting is disabled.
          * <p>Ex. {@code maxSnippetSize} = 16. "foo bar baz bat rat" with a query of "baz" will
          * return a window of "bar baz bat" which is only 11 bytes long.
+         * <p>The value should be in range[0, 10k].
          */
         @NonNull
         public SearchSpec.Builder setMaxSnippetSize(int maxSnippetSize) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkArgumentInRange(
+                    maxSnippetSize, 0, MAX_SNIPPET_SIZE_LIMIT, "maxSnippetSize");
             mBundle.putInt(MAX_SNIPPET_FIELD, maxSnippetSize);
             return this;
         }

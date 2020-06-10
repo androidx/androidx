@@ -66,9 +66,7 @@ import androidx.core.util.Preconditions;
  * <p>{@link MatchInfo#getExactMatch()} returns "TestNameJr@gmail.com"
  * <p>{@link MatchInfo#getSnippetPosition()} returns [0, 20]
  * <p>{@link MatchInfo#getSnippet()} returns "TestNameJr@gmail.com"
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 // TODO(sidchhabra): Capture real snippet after integration with icingLib.
 public final class MatchInfo {
     // The path of the matching snippet property.
@@ -86,6 +84,7 @@ public final class MatchInfo {
     private final Bundle mBundle;
     private MatchRange mExactMatchRange;
     private MatchRange mWindowRange;
+
 
     MatchInfo(@NonNull Bundle bundle, @NonNull GenericDocument document) {
         mBundle = Preconditions.checkNotNull(bundle);
@@ -173,7 +172,7 @@ public final class MatchInfo {
 
     private CharSequence getSubstring(MatchRange range) {
         return getFullText()
-                .substring(range.getLower(), range.getUpper());
+                .substring(range.getStart(), range.getEnd());
     }
 
     /** Extracts the matching string from the document. */
@@ -200,33 +199,36 @@ public final class MatchInfo {
      *
      */
     public static class MatchRange{
-        private final int mUpper;
-        private final int mLower;
+        private final int mEnd;
+        private final int mStart;
 
         /**
          * Creates a new immutable range.
-         * <p> The endpoints are {@code [lower, upper)}; that is the range is bounded. {@code lower}
-         * must be lesser or equal to {@code upper}.
+         * <p> The endpoints are {@code [start, end)}; that is the range is bounded. {@code start}
+         * must be lesser or equal to {@code end}.
          *
-         * @param lower The lower endpoint (inclusive)
-         * @param upper The upper endpoint (exclusive)
+         * @param start The start point (inclusive)
+         * @param end The end point (exclusive)
+         * @hide
          */
-        public MatchRange(int lower, int upper) {
-            if (lower > upper) {
-                throw new IllegalArgumentException("lower must be less than or equal to upper");
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public MatchRange(int start, int end) {
+            if (start > end) {
+                throw new IllegalArgumentException("Start point must be less than or equal to "
+                        + "end point");
             }
-            mLower = lower;
-            mUpper = upper;
+            mStart = start;
+            mEnd = end;
         }
 
-        /** Gets the lower endpoint (inclusive). */
-        public int getLower() {
-            return mLower;
+        /** Gets the start point (inclusive). */
+        public int getStart() {
+            return mStart;
         }
 
-        /** Gets the upper endpoint (exclusive). */
-        public int getUpper() {
-            return mUpper;
+        /** Gets the end point (exclusive). */
+        public int getEnd() {
+            return mEnd;
         }
 
         @Override
@@ -238,19 +240,19 @@ public final class MatchInfo {
                 return false;
             }
             MatchRange otherMatchRange = (MatchRange) other;
-            return this.getLower() == otherMatchRange.getLower()
-                    && this.getUpper() == otherMatchRange.getUpper();
+            return this.getStart() == otherMatchRange.getStart()
+                    && this.getEnd() == otherMatchRange.getEnd();
         }
 
         @Override
         @NonNull
         public String toString() {
-            return "MatchRange { lower: " + mLower + " , upper: " + mUpper + "}";
+            return "MatchRange { start: " + mStart + " , end: " + mEnd + "}";
         }
 
         @Override
         public int hashCode() {
-            return ObjectsCompat.hash(mLower, mUpper);
+            return ObjectsCompat.hash(mStart, mEnd);
         }
     }
 

@@ -20,7 +20,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -37,15 +36,14 @@ import java.util.concurrent.ExecutorService;
  * request.
  * <p>Should close this object after finish fetching results.
  * <p>This class is not thread safe.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchResults implements Closeable {
 
     private static final String TAG = "AppSearch-SearchResults";
     private final ExecutorService mExecutorService;
     private final AppSearchBackend.BackendSearchResults mBackendSearchResults;
 
+    /** @hide */
     public SearchResults(@NonNull ExecutorService executorService,
             @NonNull AppSearchBackend.BackendSearchResults backendSearchResults)  {
         mExecutorService = executorService;
@@ -97,17 +95,17 @@ public final class SearchResults implements Closeable {
 
         /**
          * Contains a list of Snippets that matched the request. Only populated when requested in
-         * both {@link SearchSpec.Builder#setNumToSnippet}
-         * and {@link SearchSpec.Builder#setNumMatchesPerProperty}.
+         * both {@link SearchSpec.Builder#setSnippetCount(int)}
+         * and {@link SearchSpec.Builder#setSnippetCountPerProperty(int)}.
          *
-         * @see #getMatchInfo()
+         * @see #getMatches()
          */
         @Nullable
-        private final List<MatchInfo> mMatchInfos;
+        private final List<MatchInfo> mMatches;
 
-        Result(@NonNull GenericDocument document, @Nullable List<MatchInfo> matchInfos) {
+        Result(@NonNull GenericDocument document, @Nullable List<MatchInfo> matches) {
             mDocument = document;
-            mMatchInfos = matchInfos;
+            mMatches = matches;
         }
 
         /**
@@ -121,18 +119,18 @@ public final class SearchResults implements Closeable {
 
         /**
          * Contains a list of Snippets that matched the request. Only populated when requested in
-         * both {@link SearchSpec.Builder#setNumToSnippet}
-         * and {@link SearchSpec.Builder#setNumMatchesPerProperty}.
+         * both {@link SearchSpec.Builder#setSnippetCount(int)}
+         * and {@link SearchSpec.Builder#setSnippetCountPerProperty(int)}.
          *
          * @return  List of matches based on {@link SearchSpec}, if snippeting is disabled and this
          * method is called it will return {@code null}. Users can also restrict snippet population
-         * using {@link SearchSpec.Builder#setNumToSnippet} and
-         * {@link SearchSpec.Builder#setNumMatchesPerProperty}, for all results after that value
-         * this method will return {@code null}.
+         * using {@link SearchSpec.Builder#setSnippetCount} and
+         * {@link SearchSpec.Builder#setSnippetCountPerProperty(int)}, for all results after that
+         * value this method will return {@code null}.
          */
         @Nullable
-        public List<MatchInfo> getMatchInfo() {
-            return mMatchInfos;
+        public List<MatchInfo> getMatches() {
+            return mMatches;
         }
     }
 }
