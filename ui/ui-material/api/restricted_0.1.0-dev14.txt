@@ -259,14 +259,14 @@ package androidx.ui.material {
     field public static final androidx.ui.material.TabRow! INSTANCE;
   }
 
-  public static final class TabRow.TabPosition {
-    method public int component1();
-    method public int component2();
-    method public androidx.ui.material.TabRow.TabPosition copy(int left, int width);
-    method public int getLeft();
-    method public int getRight();
-    method public int getWidth();
-    property public final int right;
+  @androidx.compose.Immutable public static final class TabRow.TabPosition {
+    method public float component1();
+    method public float component2();
+    method @androidx.compose.Immutable public androidx.ui.material.TabRow.TabPosition copy-98Cn76g(float left, float width);
+    method public float getLeft();
+    method public float getRight();
+    method public float getWidth();
+    property public final float right;
   }
 
   public final class TextButton {
