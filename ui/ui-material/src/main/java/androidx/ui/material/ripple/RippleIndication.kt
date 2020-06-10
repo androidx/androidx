@@ -153,11 +153,12 @@ private class RippleIndicationInstance internal constructor(
     private var currentRipple: RippleAnimation? = null
 
     override fun ContentDrawScope.drawIndication(interactionState: InteractionState) {
+        val color = color.value
         val targetRadius =
             radius?.toPx() ?: getRippleEndRadius(bounded, size)
         drawContent()
         with(stateLayer) {
-            drawStateLayer(interactionState, targetRadius, color.value)
+            drawStateLayer(interactionState, targetRadius, color)
         }
         val pressPosition = interactionState.interactionPositionFor(Interaction.Pressed)
         if (pressPosition != null) {
@@ -169,7 +170,7 @@ private class RippleIndicationInstance internal constructor(
             // ripples and state layers overlap
             removeRipple()
         }
-        drawRipples(color.value)
+        drawRipples(color)
     }
 
     private fun ContentDrawScope.addRipple(targetRadius: Float, pressPosition: Offset) {
@@ -267,9 +268,11 @@ private class StateLayer(
 
         previousInteractions = currentInteractions
 
-        val modulatedColor = color.copy(alpha = animatedOpacity.value)
+        val opacity = animatedOpacity.value
 
-        if (animatedOpacity.value > 0f) {
+        if (opacity > 0f) {
+            val modulatedColor = color.copy(alpha = opacity)
+
             if (bounded) {
                 clipRect {
                     drawCircle(modulatedColor, targetRadius)
