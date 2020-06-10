@@ -29,13 +29,13 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
-import androidx.ui.core.testTag
 import androidx.ui.core.setContent
+import androidx.ui.core.testTag
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
-import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.material.TriStateCheckbox
+import androidx.ui.test.android.AndroidComposeTestRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

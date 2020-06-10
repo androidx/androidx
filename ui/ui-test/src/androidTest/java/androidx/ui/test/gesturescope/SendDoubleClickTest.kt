@@ -19,6 +19,7 @@ package androidx.ui.test.gesturescope
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.doubleTapGestureFilter
+import androidx.ui.geometry.Offset
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
@@ -28,7 +29,6 @@ import androidx.ui.test.sendDoubleClick
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.ClickableTestBox.defaultSize
 import androidx.ui.test.util.ClickableTestBox.defaultTag
-import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

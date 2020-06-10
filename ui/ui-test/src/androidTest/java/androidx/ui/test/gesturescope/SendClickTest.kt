@@ -22,6 +22,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.changedToUp
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.test.ActivityWithActionBar
@@ -33,7 +34,6 @@ import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.RecordingFilter
-import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

@@ -18,8 +18,8 @@ package androidx.ui.test
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.Popup
 import androidx.ui.core.Modifier
+import androidx.ui.core.Popup
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import org.junit.Rule

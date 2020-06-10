@@ -18,6 +18,7 @@ package androidx.ui.test.gesturescope
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.android.AndroidInputDispatcher
@@ -30,7 +31,6 @@ import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.isMonotonicBetween
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat

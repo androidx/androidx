@@ -18,6 +18,7 @@ package androidx.ui.test.partialgesturescope
 
 import android.os.SystemClock.sleep
 import androidx.test.filters.MediumTest
+import androidx.ui.geometry.Offset
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.movePointerBy
@@ -33,7 +34,6 @@ import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verify
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before

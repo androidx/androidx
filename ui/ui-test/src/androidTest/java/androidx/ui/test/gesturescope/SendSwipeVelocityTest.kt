@@ -19,6 +19,7 @@ package androidx.ui.test.gesturescope
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.wrapContentSize
@@ -37,7 +38,6 @@ import androidx.ui.test.util.isAlmostEqualTo
 import androidx.ui.test.util.isMonotonicBetween
 import androidx.ui.test.util.recordedDuration
 import androidx.ui.unit.Duration
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.inMilliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule

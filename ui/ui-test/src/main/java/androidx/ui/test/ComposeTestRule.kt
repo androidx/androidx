@@ -20,8 +20,8 @@ import android.util.DisplayMetrics
 import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.compose.Recomposer
-import androidx.ui.unit.Density
 import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.unit.Density
 import org.junit.rules.TestRule
 
 /**

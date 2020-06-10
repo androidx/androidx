@@ -19,11 +19,11 @@ package androidx.ui.test.inputdispatcher
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_UP
 import androidx.test.filters.SmallTest
+import androidx.ui.geometry.Offset
 import androidx.ui.test.InputDispatcher
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.unit.Duration
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat

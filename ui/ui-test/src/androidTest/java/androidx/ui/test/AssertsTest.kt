@@ -23,12 +23,12 @@ import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
 import androidx.ui.foundation.semantics.selected
 import androidx.ui.foundation.semantics.toggleableState
+import androidx.ui.geometry.Size
 import androidx.ui.layout.Column
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.hidden
 import androidx.ui.semantics.testTag
 import androidx.ui.unit.Density
-import androidx.ui.geometry.Size
 import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
