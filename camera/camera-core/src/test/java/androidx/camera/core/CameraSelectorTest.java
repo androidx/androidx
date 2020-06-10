@@ -22,9 +22,9 @@ import static org.mockito.Mockito.mock;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.core.impl.CameraFilter;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.impl.UseCaseConfigFactory;
@@ -44,8 +44,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.concurrent.ExecutionException;
 
 @SmallTest
@@ -59,7 +58,7 @@ public class CameraSelectorTest {
     private static final int FRONT_ROTATION_DEGREE = 90;
     private CameraInternal mRearCamera;
     private CameraInternal mFrontCamera;
-    private Set<CameraInternal> mCameras = new HashSet<>();
+    private LinkedHashSet<CameraInternal> mCameras = new LinkedHashSet<>();
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
@@ -128,6 +127,7 @@ public class CameraSelectorTest {
         cameraSelectorBuilder.build().getLensFacing();
     }
 
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     @Test
     public void canAppendFilters() {
         CameraFilter filter0 = mock(CameraFilter.class);
@@ -135,9 +135,9 @@ public class CameraSelectorTest {
         CameraFilter filter2 = mock(CameraFilter.class);
 
         CameraSelector cameraSelector = new CameraSelector.Builder()
-                .appendFilter(filter0)
-                .appendFilter(filter1)
-                .appendFilter(filter2)
+                .addCameraFilter(filter0)
+                .addCameraFilter(filter1)
+                .addCameraFilter(filter2)
                 .build();
 
         assertThat(cameraSelector.getCameraFilterSet()).containsAtLeast(filter0, filter1, filter2);
@@ -151,5 +151,16 @@ public class CameraSelectorTest {
     @Test
     public void canSelectDefaultFrontCamera() {
         assertThat(CameraSelector.DEFAULT_FRONT_CAMERA.select(mCameras)).isEqualTo(mFrontCamera);
+    }
+
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @Test(expected = IllegalArgumentException.class)
+    public void exception_extraCameraInResult() {
+        CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
+        cameraSelectorBuilder.addCameraFilter((cameras) -> {
+            // Add an camera not contained in the input to result.
+            cameras.add(new FakeCamera());
+        });
+        cameraSelectorBuilder.build().select(mCameras);
     }
 }

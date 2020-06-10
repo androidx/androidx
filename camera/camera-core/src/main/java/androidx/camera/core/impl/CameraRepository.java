@@ -161,7 +161,7 @@ public final class CameraRepository implements UseCaseMediator.StateChangeCallba
      * @return set of all cameras
      */
     @NonNull
-    public Set<CameraInternal> getCameras() {
+    public LinkedHashSet<CameraInternal> getCameras() {
         synchronized (mCamerasLock) {
             return new LinkedHashSet<>(mCameras.values());
         }
