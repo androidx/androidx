@@ -20,6 +20,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.longPressGestureFilter
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.wrapContentSize
@@ -31,7 +32,6 @@ import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.ClickableTestBox.defaultSize
 import androidx.ui.test.util.ClickableTestBox.defaultTag
 import androidx.ui.test.util.isAlmostEqualTo
-import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

@@ -19,11 +19,11 @@ package androidx.ui.test
 import androidx.annotation.FloatRange
 import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.lerp
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.PxBounds
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.lerp
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import androidx.ui.util.lerp
@@ -80,7 +80,7 @@ val BaseGestureScope.size: IntSize
 
 /**
  * Returns the center of the component we're interacting with, in the component's local
- * coordinate system, where (0.px, 0.px) is the top left corner of the component.
+ * coordinate system, where (0, 0) is the top left corner of the component.
  */
 val BaseGestureScope.center: Offset
     get() {
@@ -124,7 +124,7 @@ class GestureScope internal constructor(
 /**
  * Performs a click gesture at the given [position] on the associated component, or in the center
  * if the [position] is omitted. The [position] is in the component's local coordinate system,
- * where (0.px, 0.px) is the top left corner of the component. The default [position] is the
+ * where (0, 0) is the top left corner of the component. The default [position] is the
  * center of the component.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
@@ -140,7 +140,7 @@ fun GestureScope.sendClick(position: Offset = center) {
  * Performs a long click gesture at the given [position] on the associated component, or in the
  * center if the [position] is omitted. There will be [LongPressTimeout] + 100 milliseconds time
  * between the down and the up event. The [position] is in the component's local coordinate
- * system, where (0.px, 0.px) is the top left corner of the component.
+ * system, where (0, 0) is the top left corner of the component.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  *
@@ -155,7 +155,7 @@ fun GestureScope.sendLongClick(position: Offset = center) {
 /**
  * Performs a double click gesture at the given [position] on the associated component, or in the
  * center if the [position] is omitted. The [position] is in the component's local coordinate
- * system, where (0.px, 0.px) is the top left corner of the component.
+ * system, where (0, 0) is the top left corner of the component.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  *
@@ -172,7 +172,7 @@ fun GestureScope.sendDoubleClick(position: Offset = center) {
 /**
  * Performs the swipe gesture on the associated component. The motion events are linearly
  * interpolated between [start] and [end]. The coordinates are in the component's local
- * coordinate system, where (0.px, 0.px) is the top left corner of the component. The default
+ * coordinate system, where (0, 0) is the top left corner of the component. The default
  * duration is 200 milliseconds.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
@@ -195,7 +195,7 @@ fun GestureScope.sendSwipe(
  * Performs a pinch gesture on the associated component.
  *
  * For each pair of start and end [Offset]s, the motion events are linearly interpolated. The
- * coordinates are in the component's local coordinate system where (0.px, 0.px) is the top left
+ * coordinates are in the component's local coordinate system where (0, 0) is the top left
  * corner of the component. The default duration is 400 milliseconds.
  *
  * @param start0 The start position of the first gesture in the component's local coordinate system
@@ -230,7 +230,7 @@ fun GestureScope.sendPinch(
  * Performs the swipe gesture on the associated component, such that the velocity when the
  * gesture is finished is roughly equal to [endVelocity]. The MotionEvents are linearly
  * interpolated between [start] and [end]. The coordinates are in the component's
- * local coordinate system, where (0.px, 0.px) is the top left corner of the component. The
+ * local coordinate system, where (0, 0) is the top left corner of the component. The
  * default duration is 200 milliseconds.
  *
  * Note that due to imprecisions, no guarantees can be made on the precision of the actual
@@ -428,7 +428,7 @@ class PartialGestureScope internal constructor(
 
 /**
  * Sends a down event for the pointer with the given [pointerId] at [position] on the associated
- * component. The [position] is in the component's local coordinate system, where (0.px, 0.px) is
+ * component. The [position] is in the component's local coordinate system, where (0, 0) is
  * the top left corner of the component.
  *
  * If no pointers are down yet, this will start a new partial gesture. If a partial gesture is
@@ -468,7 +468,7 @@ fun PartialGestureScope.sendDown(pointerId: Int, position: Offset) {
 
 /**
  * Sends a down event for the default pointer at [position] on the associated component. The
- * [position] is in the component's local coordinate system, where (0.px, 0.px) is the top left
+ * [position] is in the component's local coordinate system, where (0, 0) is the top left
  * corner of the component. The default pointer has `pointerId = 0`.
  *
  * If no pointers are down yet, this will start a new partial gesture. If a partial gesture is
@@ -484,7 +484,7 @@ fun PartialGestureScope.sendDown(position: Offset) {
 /**
  * Sends a move event on the associated component, with the position of the pointer with the
  * given [pointerId] updated to [position]. The [position] is in the component's local coordinate
- * system, where (0.px, 0.px) is the top left corner of the component.
+ * system, where (0, 0) is the top left corner of the component.
  *
  * If the pointer is not yet down, an [IllegalArgumentException] will be thrown.
  *
@@ -499,7 +499,7 @@ fun PartialGestureScope.sendMoveTo(pointerId: Int, position: Offset) {
 /**
  * Sends a move event on the associated component, with the position of the default pointer
  * updated to [position]. The [position] is in the component's local coordinate system, where
- * (0.px, 0.px) is the top left corner of the component. The default pointer has `pointerId = 0`.
+ * (0, 0) is the top left corner of the component. The default pointer has `pointerId = 0`.
  *
  * If the default pointer is not yet down, an [IllegalArgumentException] will be thrown.
  *

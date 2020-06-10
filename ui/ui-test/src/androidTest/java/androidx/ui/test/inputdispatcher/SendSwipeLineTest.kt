@@ -18,6 +18,7 @@ package androidx.ui.test.inputdispatcher
 
 import android.view.MotionEvent
 import androidx.test.filters.SmallTest
+import androidx.ui.geometry.Offset
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
@@ -26,7 +27,6 @@ import androidx.ui.test.util.moveEvents
 import androidx.ui.test.util.splitsDurationEquallyInto
 import androidx.ui.test.util.verify
 import androidx.ui.unit.milliseconds
-import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule

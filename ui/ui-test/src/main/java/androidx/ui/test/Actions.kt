@@ -17,10 +17,10 @@
 package androidx.ui.test
 
 import androidx.ui.core.semantics.findClosestParentNode
+import androidx.ui.geometry.Offset
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsPropertyKey
-import androidx.ui.geometry.Offset
 
 /**
  * Performs a click action on the given component.

@@ -19,12 +19,12 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.onChildPositioned
+import androidx.ui.geometry.Size
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.geometry.Size
 import androidx.ui.unit.dp
 import androidx.ui.unit.toSize
 import kotlin.math.abs

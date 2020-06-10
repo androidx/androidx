@@ -22,13 +22,13 @@ import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import androidx.test.filters.SmallTest
+import androidx.ui.geometry.Offset
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verifyEvent
 import androidx.ui.test.util.verifyPointer
-import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Rule
