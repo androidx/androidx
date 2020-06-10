@@ -56,7 +56,7 @@ import androidx.navigation.Navigator;
  *            android:name="androidx.navigation.fragment.NavHostFragment"
  *            app:navGraph="@navigation/nav_sample"
  *            app:defaultNavHost="true" /&gt;
- *    &lt;android.support.design.widget.NavigationView
+ *    &lt;com.google.android.material.navigation.NavigationView
  *            android:layout_width="wrap_content"
  *            android:layout_height="match_parent"
  *            android:layout_gravity="start"/&gt;
