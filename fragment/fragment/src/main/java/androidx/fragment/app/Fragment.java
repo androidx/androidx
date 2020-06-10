@@ -124,11 +124,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     static final int INITIALIZING = -1;          // Not yet attached.
     static final int ATTACHED = 0;               // Attached to the host.
     static final int CREATED = 1;                // Created.
-    static final int AWAITING_EXIT_EFFECTS = 2;  // Downward state, awaiting exit effects
-    static final int ACTIVITY_CREATED = 3;       // Fully created, not started.
-    static final int STARTED = 4;                // Created and started, not resumed.
-    static final int AWAITING_ENTER_EFFECTS = 5; // Upward state, awaiting enter effects
-    static final int RESUMED = 6;                // Created started and resumed.
+    static final int VIEW_CREATED = 2;           // View Created.
+    static final int AWAITING_EXIT_EFFECTS = 3;  // Downward state, awaiting exit effects
+    static final int ACTIVITY_CREATED = 4;       // Fully created, not started.
+    static final int STARTED = 5;                // Created and started, not resumed.
+    static final int AWAITING_ENTER_EFFECTS = 6; // Upward state, awaiting enter effects
+    static final int RESUMED = 7;                // Created started and resumed.
 
     int mState = INITIALIZING;
 
@@ -2906,6 +2907,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             }
             mViewLifecycleOwner = null;
         }
+    }
+
+    void performViewCreated() {
+        // since calling super.onViewCreated() is not required, we do not need to set and check the
+        // `mCalled` flag
+        onViewCreated(mView, mSavedFragmentState);
+        mChildFragmentManager.dispatchViewCreated();
     }
 
     @SuppressWarnings("deprecation")

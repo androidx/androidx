@@ -118,6 +118,7 @@ class RestoreViewParentFragment : Fragment(R.layout.fragment_a) {
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
+        childFragment.requireView()
         viewRestored = true
     }
 }
