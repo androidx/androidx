@@ -54,11 +54,11 @@ public class FakeIcing {
      * @param document The document to insert.
      */
     public void put(@NonNull DocumentProto document) {
-        String uri = document.getUri();
+        String integratedUri = document.getNamespace() + ":" + document.getUri();
 
         synchronized (mLock) {
             // Update mDocIdMap
-            Integer docId = mUriToDocIdMap.get(uri);
+            Integer docId = mUriToDocIdMap.get(integratedUri);
             if (docId != null) {
                 // Delete the old doc
                 mDocStore.remove(docId);
@@ -66,7 +66,7 @@ public class FakeIcing {
 
             // Allocate a new docId
             docId = mNextDocId.getAndIncrement();
-            mUriToDocIdMap.put(uri, docId);
+            mUriToDocIdMap.put(integratedUri, docId);
 
             // Update mDocStore
             mDocStore.put(docId, document);
@@ -79,13 +79,14 @@ public class FakeIcing {
     /**
      * Retrieves a document from the index.
      *
+     * @param namespace The namespace this Document resides in.
      * @param uri The URI of the document to retrieve.
      * @return The body of the document, or {@code null} if no such document exists.
      */
     @Nullable
-    public DocumentProto get(@NonNull String uri) {
+    public DocumentProto get(@NonNull String namespace, @NonNull String uri) {
         synchronized (mLock) {
-            Integer docId = mUriToDocIdMap.get(uri);
+            Integer docId = mUriToDocIdMap.get(namespace + ":" + uri);
             if (docId == null) {
                 return null;
             }
@@ -137,18 +138,19 @@ public class FakeIcing {
 
     /**
      * Deletes a document by its URI.
-     *
+     * @param namespace The namespace this Document resides in.
      * @param uri The URI of the document to be deleted.
      * @return Whether deletion was successful.
      */
-    public boolean delete(@NonNull String uri) {
+    public boolean delete(@NonNull String namespace, @NonNull String uri) {
         // Update mDocIdMap
         synchronized (mLock) {
-            Integer docId = mUriToDocIdMap.get(uri);
+            String integratedUri = namespace + ":" + uri;
+            Integer docId = mUriToDocIdMap.get(integratedUri);
             if (docId != null) {
                 // Delete the old doc
                 mDocStore.remove(docId);
-                mUriToDocIdMap.remove(uri);
+                mUriToDocIdMap.remove(integratedUri);
                 return true;
             }
         }
@@ -176,8 +178,9 @@ public class FakeIcing {
             for (int i = 0; i < mDocStore.size(); i++) {
                 DocumentProto document = mDocStore.valueAt(i);
                 if (type.equals(document.getSchema())) {
+                    String integratedUri = document.getNamespace() + ":" + document.getUri();
                     mDocStore.removeAt(i);
-                    mUriToDocIdMap.remove(document.getUri());
+                    mUriToDocIdMap.remove(integratedUri);
                     i--;
                     deletedAny = true;
                 }

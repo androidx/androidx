@@ -43,6 +43,9 @@ import java.util.Objects;
 public class GenericDocument {
     private static final String TAG = "GenericDocument";
 
+    /** The default empty namespace.*/
+    public static final String DEFAULT_NAMESPACE = "";
+
     /**
      * The maximum number of elements in a repeatable field. Will reject the request if exceed
      * this limit.
@@ -151,6 +154,12 @@ public class GenericDocument {
     @NonNull
     public String getUri() {
         return mProto.getUri();
+    }
+
+    /** Returns the namespace of the {@link GenericDocument}. */
+    @NonNull
+    public String getNamespace() {
+        return mProto.getNamespace();
     }
 
     /** Returns the schema type of the {@link GenericDocument}. */
@@ -439,8 +448,20 @@ public class GenericDocument {
         public Builder(@NonNull String uri, @NonNull String schemaType) {
             mBuilderTypeInstance = (BuilderType) this;
             mProtoBuilder.setUri(uri).setSchema(schemaType);
+            mProtoBuilder.setNamespace(DEFAULT_NAMESPACE);
             // Set current timestamp for creation timestamp by default.
             setCreationTimestampMillis(System.currentTimeMillis());
+        }
+
+        /**
+         * Set the app-defined namespace this Document resides in. No special values  are
+         * reserved or understood by the infrastructure. URIs are unique within a namespace. The
+         * number of namespaces per app should be kept small for efficiency reasons.
+         */
+        @NonNull
+        public BuilderType setNamespace(@NonNull String namespace) {
+            mProtoBuilder.setNamespace(namespace);
+            return mBuilderTypeInstance;
         }
 
         /**

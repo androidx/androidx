@@ -34,6 +34,8 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class FakeIcingTest {
+    private static final String NAMESPACE = "testNamespace";
+    private static final String FAKE_NAMESPACE = "fakeNamespace";
     @Test
     public void query() {
         FakeIcing icing = new FakeIcing();
@@ -61,7 +63,8 @@ public class FakeIcingTest {
         DocumentProto cat = createDoc("uri:cat", "The cat said meow");
         FakeIcing icing = new FakeIcing();
         icing.put(cat);
-        assertThat(icing.get("uri:cat")).isEqualTo(cat);
+        assertThat(icing.get(NAMESPACE, "uri:cat")).isEqualTo(cat);
+        assertThat(icing.get(FAKE_NAMESPACE, "uri:cat")).isNull();
     }
 
     @Test
@@ -75,7 +78,7 @@ public class FakeIcingTest {
 
         assertThat(queryGetUris(icing, "meow")).containsExactly("uri:cat");
         assertThat(queryGetUris(icing, "said")).containsExactly("uri:cat", "uri:dog");
-        assertThat(icing.get("uri:cat")).isEqualTo(cat);
+        assertThat(icing.get(NAMESPACE, "uri:cat")).isEqualTo(cat);
 
         // Replace
         DocumentProto cat2 = createDoc("uri:cat", "The cat said purr");
@@ -85,7 +88,7 @@ public class FakeIcingTest {
 
         assertThat(queryGetUris(icing, "meow")).isEmpty();
         assertThat(queryGetUris(icing, "said")).containsExactly("uri:cat", "uri:dog", "uri:bird");
-        assertThat(icing.get("uri:cat")).isEqualTo(cat2);
+        assertThat(icing.get(NAMESPACE, "uri:cat")).isEqualTo(cat2);
     }
 
     @Test
@@ -99,20 +102,23 @@ public class FakeIcingTest {
 
         assertThat(queryGetUris(icing, "meow")).containsExactly("uri:cat");
         assertThat(queryGetUris(icing, "said")).containsExactly("uri:cat", "uri:dog");
-        assertThat(icing.get("uri:cat")).isEqualTo(cat);
+        assertThat(icing.get(NAMESPACE, "uri:cat")).isEqualTo(cat);
 
         // Delete
-        icing.delete("uri:cat");
-        icing.delete("uri:notreal");
+        icing.delete(NAMESPACE, "uri:cat");
+        icing.delete(NAMESPACE, "uri:notreal");
+        icing.delete(FAKE_NAMESPACE, "uri:dog");
 
         assertThat(queryGetUris(icing, "meow")).isEmpty();
         assertThat(queryGetUris(icing, "said")).containsExactly("uri:dog");
-        assertThat(icing.get("uri:cat")).isNull();
+        assertThat(icing.get(NAMESPACE, "uri:dog")).isEqualTo(dog);
+        assertThat(icing.get(NAMESPACE, "uri:cat")).isNull();
     }
 
     private static DocumentProto createDoc(String uri, String body) {
         return DocumentProto.newBuilder()
                 .setUri(uri)
+                .setNamespace(NAMESPACE)
                 .addProperties(PropertyProto.newBuilder().addStringValues(body))
                 .build();
     }
