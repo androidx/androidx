@@ -47,16 +47,16 @@ import kotlinx.coroutines.flow.Flow
  *
  * @sample androidx.paging.samples.pagingDataAdapterSample
  */
-abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
+abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOverloads constructor(
     diffCallback: DiffUtil.ItemCallback<T>,
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     workerDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : RecyclerView.Adapter<VH>() {
     private val differ = AsyncPagingDataDiffer(
-        mainDispatcher = mainDispatcher,
-        workerDispatcher = workerDispatcher,
         diffCallback = diffCallback,
-        updateCallback = AdapterListUpdateCallback(this)
+        updateCallback = AdapterListUpdateCallback(this),
+        mainDispatcher = mainDispatcher,
+        workerDispatcher = workerDispatcher
     )
 
     /**
