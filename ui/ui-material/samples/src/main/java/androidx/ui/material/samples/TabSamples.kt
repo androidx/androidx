@@ -25,10 +25,9 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.PxPropKey
+import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
@@ -287,8 +286,8 @@ fun FancyIndicator(color: Color) {
 @Sampled
 @Composable
 fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedIndex: Int) {
-    val indicatorStart = remember { PxPropKey() }
-    val indicatorEnd = remember { PxPropKey() }
+    val indicatorStart = remember { DpPropKey() }
+    val indicatorEnd = remember { DpPropKey() }
     val indicatorColor = remember { ColorPropKey() }
 
     val colors = listOf(Color.Yellow, Color.Red, Color.Green)
@@ -297,8 +296,8 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
             transitionDefinition {
                 tabPositions.forEachIndexed { index, position ->
                     state(index) {
-                        this[indicatorStart] = position.left.toFloat()
-                        this[indicatorEnd] = position.right.toFloat()
+                        this[indicatorStart] = position.left
+                        this[indicatorEnd] = position.right
                         this[indicatorColor] = colors[index % colors.size]
                     }
                 }
@@ -330,11 +329,8 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
     // Padding to set the 'offset'
     Box(Modifier.fillMaxSize(), gravity = ContentGravity.BottomStart) {
         Transition(transitionDefinition, selectedIndex) { state ->
-            val density = DensityAmbient.current
-            val offset = with(density) { state[indicatorStart].toDp() }
-            val width = with(density) {
-                (state[indicatorEnd] - state[indicatorStart]).toDp()
-            }
+            val offset = state[indicatorStart]
+            val width = state[indicatorEnd] - state[indicatorStart]
             Box(
                 Modifier.offset(x = offset, y = 0.dp).preferredWidth(width),
                 gravity = ContentGravity.Center

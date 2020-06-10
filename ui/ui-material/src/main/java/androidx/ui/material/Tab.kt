@@ -17,10 +17,10 @@
 package androidx.ui.material
 
 import androidx.animation.FastOutSlowInEasing
-import androidx.animation.FloatPropKey
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
+import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.emptyContent
 import androidx.compose.getValue
@@ -28,6 +28,7 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
+import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
@@ -60,6 +61,7 @@ import androidx.ui.text.FirstBaseline
 import androidx.ui.text.LastBaseline
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import androidx.ui.util.fastFirstOrNull
@@ -187,11 +189,14 @@ private fun FixedTabRow(
     divider: @Composable () -> Unit
 ) {
     val tabWidth = width / tabCount
+    val density = DensityAmbient.current
 
     val tabPositions = remember(tabCount, tabWidth) {
-        (0 until tabCount).map { index ->
-            val left = (tabWidth * index)
-            TabPosition(left, tabWidth)
+        with(density) {
+            (0 until tabCount).map { index ->
+                val left = (tabWidth * index)
+                TabPosition(left.toDp(), tabWidth.toDp())
+            }
         }
     }
 
@@ -267,7 +272,12 @@ private fun ScrollableTabRow(
 
                     // Position each tab at the end of the previous one
                     tabPlaceables.add(placeable to sum)
-                    newTabPositions.add(TabPosition(left = sum, width = placeable.width))
+                    newTabPositions.add(
+                        TabPosition(
+                            left = sum.toDp(),
+                            width = placeable.width.toDp()
+                        )
+                    )
                     sum + placeable.width
                 } + edgeOffset
 
@@ -305,13 +315,15 @@ private fun ScrollableTabData(
     visibleWidth: Int,
     edgeOffset: Int
 ): ScrollableTabData = ScrollerPosition().let { scrollerPosition ->
+    val density = DensityAmbient.current
     remember(scrollerPosition) {
         ScrollableTabData(
             scrollerPosition = scrollerPosition,
             initialSelectedTab = initialSelectedTab,
             tabPositions = tabPositions,
             visibleWidth = visibleWidth,
-            edgeOffset = edgeOffset
+            edgeOffset = edgeOffset,
+            density = density
         )
     }
 }
@@ -324,7 +336,8 @@ private class ScrollableTabData(
     initialSelectedTab: Int,
     var tabPositions: List<TabPosition>,
     var visibleWidth: Int,
-    val edgeOffset: Int
+    val edgeOffset: Int,
+    val density: Density
 ) {
     var selectedTab: Int = initialSelectedTab
         set(value) {
@@ -348,12 +361,12 @@ private class ScrollableTabData(
      * If the tab is at the start / end, and there is not enough space to fully centre the tab, this
      * will just clamp to the min / max position given the max width.
      */
-    private fun TabPosition.calculateTabOffset(): Float {
-        val tabOffset = left
+    private fun TabPosition.calculateTabOffset(): Float = with(density) {
+        val tabOffset = left.toIntPx()
         val scrollerCenter = visibleWidth / 2
-        val tabWidth = width
+        val tabWidth = width.toIntPx()
         val centeredTabOffset = tabOffset - (scrollerCenter - tabWidth / 2)
-        val totalTabRowWidth = tabPositions.last().right + edgeOffset
+        val totalTabRowWidth = tabPositions.last().right.toIntPx() + edgeOffset
         // How much space we have to scroll. If the visible width is <= to the total width, then
         // we have no space to scroll as everything is always visible.
         val availableSpace = (totalTabRowWidth - visibleWidth).coerceAtLeast(0)
@@ -362,7 +375,7 @@ private class ScrollableTabData(
 }
 
 object TabRow {
-    private val IndicatorOffset = FloatPropKey()
+    private val IndicatorOffset = DpPropKey()
 
     /**
      * Data class that contains information about a tab's position on screen
@@ -371,8 +384,9 @@ object TabRow {
      * @property right the right edge's x position from the start of the [TabRow]
      * @property width the width of this tab
      */
-    data class TabPosition internal constructor(val left: Int, val width: Int) {
-        val right: Int get() = left + width
+    @Immutable
+    data class TabPosition internal constructor(val left: Dp, val width: Dp) {
+        val right: Dp get() = left + width
     }
 
     /**
@@ -386,15 +400,12 @@ object TabRow {
     ) {
         // TODO: should we animate the width of the indicator as it moves between tabs of different
         // sizes inside a scrollable tab row?
-        val currentTabWidth = with(DensityAmbient.current) {
-            tabPositions[selectedIndex].width.toDp()
-        }
+        val currentTabWidth = tabPositions[selectedIndex].width
 
         Box(Modifier.fillMaxSize(), gravity = ContentGravity.BottomStart) {
             IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
-                val offset = with(DensityAmbient.current) { indicatorOffset.toDp() }
                 Box(
-                    Modifier.padding(start = offset).preferredWidth(currentTabWidth),
+                    Modifier.padding(start = indicatorOffset).preferredWidth(currentTabWidth),
                     children = indicator
                 )
             }
@@ -420,7 +431,7 @@ object TabRow {
     internal fun IndicatorTransition(
         tabPositions: List<TabPosition>,
         selectedIndex: Int,
-        indicator: @Composable (indicatorOffset: Float) -> Unit
+        indicator: @Composable (indicatorOffset: Dp) -> Unit
     ) {
         val transitionDefinition = remember(tabPositions) {
             transitionDefinition {
@@ -429,13 +440,13 @@ object TabRow {
                 // When this is supported by transitionDefinition, we should fix this to just set a
                 // default or similar.
                 state(selectedIndex) {
-                    this[IndicatorOffset] = tabPositions[selectedIndex].left.toFloat()
+                    this[IndicatorOffset] = tabPositions[selectedIndex].left
                 }
 
                 tabPositions.forEachIndexed { index, position ->
                     if (index != selectedIndex) {
                         state(index) {
-                            this[IndicatorOffset] = position.left.toFloat()
+                            this[IndicatorOffset] = position.left
                         }
                     }
                 }
