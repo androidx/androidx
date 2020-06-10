@@ -41,15 +41,14 @@ import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.graphics.useOrElse
-import androidx.ui.input.EditorValue
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.defaultMinSizeConstraints
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.listSaver
-import androidx.ui.text.CoreTextField
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.CoreTextField
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextFieldDelegate
 import androidx.ui.text.TextLayoutResult
@@ -67,6 +66,11 @@ import androidx.ui.unit.dp
  * @param selection the selection range. If the selection is collapsed, it represents cursor
  * location. Do not specify outside of the text buffer.
  */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "Please use androidx.ui.input.TextFieldValue instead",
+    ReplaceWith("TextFieldValue", "androidx.ui.input.TextFieldValue")
+)
 @Immutable
 data class TextFieldValue(
     @Stable
@@ -78,6 +82,13 @@ data class TextFieldValue(
         /**
          * The default [Saver] implementation for [TextFieldValue].
          */
+        @Deprecated(
+            "Please use androidx.ui.input.TextFieldValue.Saver instead",
+            ReplaceWith(
+                "androidx.ui.input.TextFieldValue.Saver",
+                "androidx.ui.input.TextFieldValue.Companion.Saver"
+            )
+        )
         val Saver = listSaver<TextFieldValue, Any>(
             save = {
                 listOf(it.text, it.selection.start, it.selection.end)
@@ -87,6 +98,66 @@ data class TextFieldValue(
             }
         )
     }
+}
+
+@Suppress("DEPRECATION")
+@Composable
+@Deprecated("Use the TextField with androidx.ui.input.TextFieldValue instead.")
+fun TextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    textColor: Color = Color.Unset,
+    textStyle: TextStyle = currentTextStyle(),
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Unspecified,
+    onFocusChange: (Boolean) -> Unit = {},
+    onImeActionPerformed: (ImeAction) -> Unit = {},
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
+    cursorColor: Color = contentColor()
+) {
+    val fullModel = state { androidx.ui.input.TextFieldValue() }
+    if (fullModel.value.text != value.text || fullModel.value.selection != value.selection) {
+        val newSelection = TextRange(
+            value.selection.start.coerceIn(0, value.text.length),
+            value.selection.end.coerceIn(0, value.text.length)
+        )
+        fullModel.value = androidx.ui.input.TextFieldValue(
+            text = value.text,
+            selection = newSelection
+        )
+    }
+
+    val onValueChangeWrapper: (androidx.ui.input.TextFieldValue) -> Unit = {
+        val prevState = fullModel.value
+        fullModel.value = it
+        if (prevState.text != it.text || prevState.selection != it.selection) {
+            onValueChange(
+                TextFieldValue(
+                    it.text,
+                    it.selection
+                )
+            )
+        }
+    }
+
+    TextField(
+        value = fullModel.value,
+        onValueChange = onValueChangeWrapper,
+        modifier = modifier,
+        textColor = textColor,
+        textStyle = textStyle,
+        keyboardType = keyboardType,
+        imeAction = imeAction,
+        onFocusChange = onFocusChange,
+        onImeActionPerformed = onImeActionPerformed,
+        visualTransformation = visualTransformation,
+        onTextLayout = onTextLayout,
+        onTextInputStarted = onTextInputStarted,
+        cursorColor = cursorColor
+    )
 }
 
 /**
@@ -107,10 +178,10 @@ data class TextFieldValue(
  * to users, for example, any ongoing composition text will be cleared or committed, then software
  * keyboard may go back to the default one.
  *
- * @param value The [TextFieldValue] to be shown in the [TextField].
+ * @param value The [androidx.ui.input.TextFieldValue] to be shown in the [TextField].
  * @param onValueChange Called when the input service updates the text, selection or cursor. When
  * the input service update the text, selection or cursor, this callback is called with the updated
- * [TextFieldValue]. If you want to observe the composition text, use [TextField] with
+ * [androidx.ui.input.TextFieldValue]. If you want to observe the composition text, use [TextField] with
  * compositionRange instead.
  * @param modifier optional [Modifier] for this text field.
  * @param textColor [Color] to apply to the text. If [Color.Unset], and [textStyle] has no color
@@ -145,8 +216,8 @@ data class TextFieldValue(
  */
 @Composable
 fun TextField(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
+    value: androidx.ui.input.TextFieldValue,
+    onValueChange: (androidx.ui.input.TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     textColor: Color = Color.Unset,
     textStyle: TextStyle = currentTextStyle(),
@@ -159,15 +230,18 @@ fun TextField(
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     cursorColor: Color = contentColor()
 ) {
-    val fullModel = state { EditorValue() }
-    if (fullModel.value.text != value.text || fullModel.value.selection != value.selection) {
+    val fullModel = state { androidx.ui.input.TextFieldValue() }
+    if (fullModel.value.text != value.text ||
+        fullModel.value.selection != value.selection ||
+        fullModel.value.composition != value.composition) {
         val newSelection = TextRange(
             value.selection.start.coerceIn(0, value.text.length),
             value.selection.end.coerceIn(0, value.text.length)
         )
-        fullModel.value = EditorValue(
+        fullModel.value = androidx.ui.input.TextFieldValue(
             text = value.text,
-            selection = newSelection
+            selection = newSelection,
+            composition = value.composition
         )
     }
 
@@ -208,7 +282,7 @@ fun TextField(
             fullModel.value = it
             if (prevState.text != it.text || prevState.selection != it.selection) {
                 onValueChange(
-                    TextFieldValue(
+                    androidx.ui.input.TextFieldValue(
                         it.text,
                         it.selection
                     )
@@ -240,13 +314,13 @@ private class CursorState {
 private fun Modifier.cursorModifier(
     color: AnimatedValue<Color, *>,
     cursorState: CursorState,
-    editorValue: State<EditorValue>,
+    textFieldValue: State<androidx.ui.input.TextFieldValue>,
     visualTransformation: VisualTransformation
 ): Modifier {
-    return if (cursorState.focused && editorValue.value.selection.collapsed) {
+    return if (cursorState.focused && textFieldValue.value.selection.collapsed) {
         composed {
-            remember(cursorState, editorValue, visualTransformation) {
-                CursorModifier(color, cursorState, editorValue, visualTransformation)
+            remember(cursorState, textFieldValue, visualTransformation) {
+                CursorModifier(color, cursorState, textFieldValue, visualTransformation)
             }
         }
     } else {
@@ -257,20 +331,22 @@ private fun Modifier.cursorModifier(
 private data class CursorModifier(
     val color: AnimatedValue<Color, *>,
     val cursorState: CursorState,
-    val editorValue: State<EditorValue>,
+    val textFieldValue: State<androidx.ui.input.TextFieldValue>,
     val visualTransformation: VisualTransformation
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {
         if (color.value.alpha != 0f) {
-            val transformed = visualTransformation.filter(AnnotatedString(editorValue.value.text))
-            val transformedText = editorValue.value.composition?.let {
+            val transformed = visualTransformation.filter(
+                AnnotatedString(textFieldValue.value.text)
+            )
+            val transformedText = textFieldValue.value.composition?.let {
                 TextFieldDelegate.applyCompositionDecoration(it, transformed)
             } ?: transformed
             val cursorWidth = CursorThickness.value * density
             val cursorHeight = cursorState.layoutResult?.size?.height?.toFloat() ?: 0f
 
             val cursorRect = cursorState.layoutResult?.getCursorRect(
-                transformedText.offsetMap.originalToTransformed(editorValue.value.selection.min)
+                transformedText.offsetMap.originalToTransformed(textFieldValue.value.selection.min)
             ) ?: Rect(
                 0f, 0f,
                 cursorWidth, cursorHeight

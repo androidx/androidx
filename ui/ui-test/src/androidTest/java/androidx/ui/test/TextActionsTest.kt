@@ -22,8 +22,8 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.TextFieldValue
 import androidx.ui.input.ImeAction
+import androidx.ui.input.TextFieldValue
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.expectErrorMessageStartsWith

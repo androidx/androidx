@@ -20,10 +20,10 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
+import androidx.ui.input.TextFieldValue
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp

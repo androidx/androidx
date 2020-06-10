@@ -30,8 +30,8 @@ import androidx.ui.demos.common.DemoCategory
 import androidx.ui.demos.common.allLaunchableDemos
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight

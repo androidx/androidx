@@ -19,7 +19,7 @@ package androidx.ui.layout.test
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
-import androidx.ui.input.EditorValue
+import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.rtl
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.CoreText
@@ -44,7 +44,7 @@ class TextLayoutDirectionModifierTest : LayoutTest() {
 
         show {
             CoreTextField(
-                value = EditorValue("..."),
+                value = TextFieldValue("..."),
                 modifier = Modifier.rtl,
                 onValueChange = {},
                 onTextLayout = { result ->

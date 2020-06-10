@@ -17,7 +17,7 @@
 package androidx.ui.test
 
 import androidx.ui.input.EditOperation
-import androidx.ui.input.EditorValue
+import androidx.ui.input.TextFieldValue
 import androidx.ui.input.ImeAction
 import androidx.ui.input.InputSessionToken
 import androidx.ui.input.KeyboardType
@@ -39,7 +39,7 @@ internal class TextInputServiceForTests(
     var onImeActionPerformed: ((ImeAction) -> Unit)? = null
 
     override fun startInput(
-        initModel: EditorValue,
+        value: TextFieldValue,
         keyboardType: KeyboardType,
         imeAction: ImeAction,
         onEditCommand: (List<EditOperation>) -> Unit,
@@ -48,7 +48,7 @@ internal class TextInputServiceForTests(
         this.onEditCommand = onEditCommand
         this.onImeActionPerformed = onImeActionPerformed
         return super.startInput(
-            initModel,
+            value,
             keyboardType,
             imeAction,
             onEditCommand,

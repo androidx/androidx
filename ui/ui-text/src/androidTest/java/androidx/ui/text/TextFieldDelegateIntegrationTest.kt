@@ -26,7 +26,7 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.input.EditorValue
+import androidx.ui.input.TextFieldValue
 import androidx.ui.input.OffsetMap
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.ResourceFont
@@ -81,7 +81,7 @@ class TextFieldDelegateIntegrationTest {
         val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
         TextFieldDelegate.draw(
             canvas = actualCanvas,
-            value = EditorValue(text = "Hello, World", selection = selection),
+            value = TextFieldValue(text = "Hello, World", selection = selection),
             selectionColor = selectionColor,
             offsetMap = OffsetMap.identityOffsetMap,
             textLayoutResult = layoutResult
