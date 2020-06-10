@@ -30,8 +30,7 @@ class CryptoObjectUtils {
     private CryptoObjectUtils() {}
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    @Nullable
-    static BiometricPrompt.CryptoObject unwrapFromBiometricPrompt(
+    static @Nullable BiometricPrompt.CryptoObject unwrapFromBiometricPrompt(
             @Nullable android.hardware.biometrics.BiometricPrompt.CryptoObject cryptoObject) {
         if (cryptoObject == null) {
             return null;
@@ -47,8 +46,7 @@ class CryptoObjectUtils {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    @Nullable
-    static android.hardware.biometrics.BiometricPrompt.CryptoObject
+    static @Nullable android.hardware.biometrics.BiometricPrompt.CryptoObject
             wrapForBiometricPrompt(@Nullable BiometricPrompt.CryptoObject cryptoObject) {
         if (cryptoObject == null) {
             return null;

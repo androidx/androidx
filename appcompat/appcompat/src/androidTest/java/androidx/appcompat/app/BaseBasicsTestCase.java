@@ -131,6 +131,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     @Test
     @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 20)
     @RequiresApi(16)
+    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     public void testFitSystemWindowsReachesContent() {
         final FitWindowsContentLayout content =
                 mActivityTestRule.getActivity().findViewById(R.id.test_content);
@@ -150,6 +151,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
+    @RequiresApi(21)
     public void testOnApplyWindowInsetsReachesContent() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {
@@ -189,6 +191,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     @Test
     @SdkSuppress(minSdkVersion = 28)
     @RequiresApi(28)
+    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     public void testOnApplyWindowInsetsReachesContent_withDisplayCutout() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {
@@ -354,6 +357,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     }
 
     @RequiresApi(16)
+    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     private WindowInsetsCompat waitForWindowInsets(@NonNull final View view) throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<WindowInsetsCompat> received = new AtomicReference<>();

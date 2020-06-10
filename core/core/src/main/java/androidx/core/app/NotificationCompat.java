@@ -34,6 +34,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -61,6 +62,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.content.LocusIdCompat;
+import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.text.BidiFormatter;
 import androidx.core.view.GravityCompat;
@@ -704,6 +706,11 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public ArrayList<Action> mActions = new ArrayList<>();
 
+        /** @hide */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @NonNull
+        public ArrayList<Person> mPersonList = new ArrayList<>();
+
         // Invisible actions are stored in the CarExtender bundle without actually being owned by
         // CarExtender. This is to comply with an optimization of the Android OS which removes
         // Actions from the Notification if there are no listeners for those Actions.
@@ -751,6 +758,7 @@ public class NotificationCompat {
         BubbleMetadata mBubbleMetadata;
         Notification mNotification = new Notification();
         boolean mSilent;
+        Icon mSmallIcon;
 
         /**
          * @deprecated This field was not meant to be public.
@@ -775,7 +783,6 @@ public class NotificationCompat {
         public Builder(@NonNull Context context, @NonNull String channelId) {
             mContext = context;
             mChannelId = channelId;
-
             // Set defaults to match the defaults of a Notification
             mNotification.when = System.currentTimeMillis();
             mNotification.audioStreamType = Notification.STREAM_DEFAULT;
@@ -808,6 +815,19 @@ public class NotificationCompat {
          */
         public Builder setShowWhen(boolean show) {
             mShowWhen = show;
+            return this;
+        }
+
+        /**
+         * Set the small icon to use in the notification layouts.  Different classes of devices
+         * may return different sizes.  See the UX guidelines for more information on how to
+         * design these icons.
+         *
+         * @param icon The small Icon object to use
+         */
+        @RequiresApi(23)
+        public @NonNull Builder setSmallIcon(@NonNull IconCompat icon) {
+            this.mSmallIcon = icon.toIcon(mContext);
             return this;
         }
 
@@ -1301,10 +1321,37 @@ public class NotificationCompat {
          *
          * @param uri A URI for the person.
          * @see Notification#EXTRA_PEOPLE
+         * @deprecated use {@link #addPerson(Person)}
          */
-        @SuppressWarnings("deprecation")
+        @Deprecated
         public Builder addPerson(String uri) {
             mPeople.add(uri);
+            return this;
+        }
+
+        /**
+         * Add a person that is relevant to this notification.
+         *
+         * <P>
+         * Depending on user preferences, this annotation may allow the notification to pass
+         * through interruption filters, if this notification is of category {@link #CATEGORY_CALL}
+         * or {@link #CATEGORY_MESSAGE}. The addition of people may also cause this notification to
+         * appear more prominently in the user interface.
+         * </P>
+         *
+         * <P>
+         * A person should usually contain a uri in order to benefit from the ranking boost.
+         * However, even if no uri is provided, it's beneficial to provide other people in the
+         * notification, such that listeners and voice only devices can announce and handle them
+         * properly.
+         * </P>
+         *
+         * @param person the person to add.
+         * @see Notification#EXTRA_PEOPLE_LIST
+         */
+        @NonNull
+        public Builder addPerson(@NonNull final Person person) {
+            mPersonList.add(person);
             return this;
         }
 
@@ -1598,6 +1645,35 @@ public class NotificationCompat {
          */
         public Builder setShortcutId(String shortcutId) {
             mShortcutId = shortcutId;
+            return this;
+        }
+
+        /**
+         * Populates this notification with given {@link ShortcutInfoCompat}.
+         *
+         * <p>Sets {@link androidx.core.content.pm.ShortcutInfoCompat#getId() shortcutId} based on
+         * the given shortcut. In addition, it also sets {@link LocusIdCompat locusId} and
+         * {@link #setContentTitle(CharSequence) contentTitle} if they were empty.
+         *
+         */
+        @NonNull
+        public Builder setShortcutInfo(@Nullable final ShortcutInfoCompat shortcutInfo) {
+            // TODO: b/156784300 add sanity check to filter long-lived and sharing shortcut
+            if (shortcutInfo == null) {
+                return this;
+            }
+            mShortcutId = shortcutInfo.getId();
+            if (mLocusId == null) {
+                if (shortcutInfo.getLocusId() != null) {
+                    mLocusId = shortcutInfo.getLocusId();
+                } else if (shortcutInfo.getId() != null) {
+                    mLocusId = new LocusIdCompat(shortcutInfo.getId());
+                }
+            }
+            if (mContentTitle == null) {
+                setContentTitle(shortcutInfo.getShortLabel());
+            }
+            // TODO: b/156784300 include person info
             return this;
         }
 

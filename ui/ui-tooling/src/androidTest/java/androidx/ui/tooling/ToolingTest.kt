@@ -17,6 +17,7 @@
 package androidx.ui.tooling
 
 import android.os.Handler
+import android.os.Looper
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
@@ -43,7 +44,7 @@ open class ToolingTest {
         activity = activityTestRule.activity
         activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
 
-        activityTestRule.onUiThread { handler = Handler() }
+        activityTestRule.onUiThread { handler = Handler(Looper.getMainLooper()) }
     }
 
     internal fun show(composable: @Composable () -> Unit) {

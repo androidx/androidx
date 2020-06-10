@@ -20,6 +20,7 @@ import static android.view.View.NO_ID;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.Build;
@@ -42,6 +43,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments;
 import androidx.core.view.accessibility.AccessibilityViewCommand.MoveAtGranularityArguments;
@@ -543,6 +545,49 @@ public class AccessibilityNodeInfoCompat {
                 new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 28
                         ? AccessibilityNodeInfo.AccessibilityAction.ACTION_HIDE_TOOLTIP : null,
                         android.R.id.accessibilityActionHideTooltip, null, null, null);
+
+        /**
+         * Action that presses and holds a node.
+         * <p>
+         * This action is for nodes that have distinct behavior that depends on how long a press is
+         * held. Nodes having a single action for long press should use {@link #ACTION_LONG_CLICK}
+         *  instead of this action, and nodes should not expose both actions.
+         * <p>
+         * When calling {@code performAction(ACTION_PRESS_AND_HOLD, bundle}, use
+         * {@link #ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT} to specify how long the
+         * node is pressed. The first time an accessibility service performs ACTION_PRES_AND_HOLD
+         * on a node, it must specify 0 as ACTION_ARGUMENT_PRESS_AND_HOLD, so the application is
+         * notified that the held state has started. To ensure reasonable behavior, the values
+         * must be increased incrementally and may not exceed 10,000. UIs requested
+         * to hold for times outside of this range should ignore the action.
+         * <p>
+         * The total time the element is held could be specified by an accessibility user up-front,
+         * or may depend on what happens on the UI as the user continues to request the hold.
+         * <p>
+         *   <strong>Note:</strong> The time between dispatching the action and it arriving in the
+         *     UI process is not guaranteed. It is possible on a busy system for the time to expire
+         *     unexpectedly. For the case of holding down a key for a repeating action, a delayed
+         *     arrival should be benign. Please do not use this sort of action in cases where such
+         *     delays will lead to unexpected UI behavior.
+         * <p>
+         */
+        @NonNull public static final AccessibilityActionCompat ACTION_PRESS_AND_HOLD =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 30
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_PRESS_AND_HOLD : null,
+                        android.R.id.accessibilityActionPressAndHold, null, null, null);
+
+        /**
+         * Action to send an ime actionId which is from
+         * {@link android.view.inputmethod.EditorInfo#actionId}. This ime actionId sets by
+         * {@link android.widget.TextView#setImeActionLabel(CharSequence, int)}, or it would be
+         * {@link android.view.inputmethod.EditorInfo#IME_ACTION_UNSPECIFIED} if no specific
+         * actionId has set. A node should expose this action only for views that are currently
+         * with input focus and editable.
+         */
+        @NonNull public static final AccessibilityActionCompat ACTION_IME_ENTER =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 30
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER : null,
+                        android.R.id.accessibilityActionImeEnter, null, null, null);
 
         final Object mAction;
         private final int mId;
@@ -1185,6 +1230,9 @@ public class AccessibilityNodeInfoCompat {
     private static final String SPANS_ACTION_ID_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.SPANS_ACTION_ID_KEY";
 
+    private static final String STATE_DESCRIPTION_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.STATE_DESCRIPTION_KEY";
+
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
     private static final int BOOLEAN_PROPERTY_SCREEN_READER_FOCUSABLE = 0x00000001;
@@ -1565,6 +1613,21 @@ public class AccessibilityNodeInfoCompat {
      */
     public static final String ACTION_ARGUMENT_MOVE_WINDOW_Y =
             "ACTION_ARGUMENT_MOVE_WINDOW_Y";
+
+    /**
+     * Argument to represent the duration in milliseconds to press and hold a node.
+     * <p>
+     * <strong>Type:</strong> int<br>
+     * <strong>Actions:</strong>
+     * <ul>
+     *     <li>{@link AccessibilityActionCompat#ACTION_PRESS_AND_HOLD}</li>
+     * </ul>
+     *
+     * @see AccessibilityActionCompat#ACTION_PRESS_AND_HOLD
+     */
+    @SuppressLint("ActionValue")
+    public static final String ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT =
+            "android.view.accessibility.action.ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT";
 
     // Focus types
 
@@ -2740,6 +2803,21 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the state description of this node.
+     *
+     * @return the state description or null if android version smaller
+     * than 19.
+     */
+    public @Nullable CharSequence getStateDescription() {
+        if (BuildCompat.isAtLeastR()) {
+            return mInfo.getStateDescription();
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getExtras().getCharSequence(STATE_DESCRIPTION_KEY);
+        }
+        return null;
+    }
+
+    /**
      * Sets the content description of this node.
      * <p>
      * <strong>Note:</strong> Cannot be called from an
@@ -2752,6 +2830,25 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setContentDescription(CharSequence contentDescription) {
         mInfo.setContentDescription(contentDescription);
+    }
+
+    /**
+     * Sets the state description of this node.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param stateDescription the state description of this node.
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setStateDescription(@Nullable CharSequence stateDescription) {
+        if (BuildCompat.isAtLeastR()) {
+            mInfo.setStateDescription(stateDescription);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.getExtras().putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);
+        }
     }
 
     /**
@@ -4158,6 +4255,10 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_SHOW_TOOLTIP";
             case android.R.id.accessibilityActionHideTooltip:
                 return "ACTION_HIDE_TOOLTIP";
+            case android.R.id.accessibilityActionPressAndHold:
+                return "ACTION_PRESS_AND_HOLD";
+            case android.R.id.accessibilityActionImeEnter:
+                return "ACTION_IME_ENTER";
             default:
                 return"ACTION_UNKNOWN";
         }

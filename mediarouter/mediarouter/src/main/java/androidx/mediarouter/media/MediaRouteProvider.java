@@ -369,7 +369,7 @@ public abstract class MediaRouteProvider {
      * the {@link #onSelect} method of its route controller.  While selected,
      * the media router may call other methods of the route controller to
      * request that it perform certain actions to the route.  When a route is
-     * unselected, the media router invokes the {@link #onUnselect} method of its
+     * unselected, the media router invokes the {@link #onUnselect(int)} method of its
      * route controller.  When the media route no longer needs the route controller
      * it will invoke the {@link #onRelease} method to allow the route controller
      * to free its resources.
@@ -396,7 +396,10 @@ public abstract class MediaRouteProvider {
 
         /**
          * Unselects the route.
+         *
+         * @deprecated Use {@link #onUnselect(int)} instead.
          */
+        @Deprecated
         public void onUnselect() {
         }
 
@@ -414,7 +417,7 @@ public abstract class MediaRouteProvider {
          *
          * @param reason The reason for unselecting the route.
          */
-        public void onUnselect(int reason) {
+        public void onUnselect(@MediaRouter.UnselectReason int reason) {
             onUnselect();
         }
 
@@ -642,6 +645,8 @@ public abstract class MediaRouteProvider {
              */
             public static final int SELECTED = 3;
 
+            //TODO: mMediaRouteDescriptor could have an old info. We should provide a way to
+            // update it or use only the route ID.
             final MediaRouteDescriptor mMediaRouteDescriptor;
             @SelectionState
             final int mSelectionState;

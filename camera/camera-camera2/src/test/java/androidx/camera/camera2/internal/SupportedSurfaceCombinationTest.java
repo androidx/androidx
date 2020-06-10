@@ -155,6 +155,7 @@ public final class SupportedSurfaceCombinationTest {
     private FakeCameraFactory mCameraFactory;
 
     @Before
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     public void setUp() {
         WindowManager windowManager =
                 (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);

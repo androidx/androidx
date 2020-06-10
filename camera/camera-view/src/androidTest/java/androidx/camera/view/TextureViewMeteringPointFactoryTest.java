@@ -102,6 +102,7 @@ public class TextureViewMeteringPointFactoryTest {
     private int mHeight;
 
     @Before
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     public void setUp() throws Throwable {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();

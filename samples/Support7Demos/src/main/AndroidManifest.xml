@@ -104,6 +104,7 @@
                 android:process=":mrp">
             <intent-filter>
                 <action android:name="android.media.MediaRouteProviderService" />
+                <action android:name="android.media.MediaRoute2ProviderService" />
             </intent-filter>
         </service>
 
@@ -112,6 +113,7 @@
             android:process=":dynamic_mrp">
             <intent-filter>
                 <action android:name="android.media.MediaRouteProviderService" />
+                <action android:name="android.media.MediaRoute2ProviderService" />
             </intent-filter>
         </service>
 
@@ -750,6 +752,9 @@
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
+
+        <meta-data android:name="androidx.mediarouter.FEATURE"
+            android:value="seamless_transfer" />
     </application>
 
 </manifest>

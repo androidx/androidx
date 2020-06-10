@@ -30,7 +30,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
@@ -155,6 +154,7 @@ public final class CameraDeviceCompatDeviceTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public void canConfigureCaptureSession() throws CameraAccessException {
         OutputConfigurationCompat outputConfig = new OutputConfigurationCompat(mSurface);
 
@@ -163,7 +163,7 @@ public final class CameraDeviceCompatDeviceTest {
 
         SessionConfigurationCompat sessionConfig = new SessionConfigurationCompat(
                 SessionConfigurationCompat.SESSION_REGULAR,
-                Collections.singletonList(outputConfig), AsyncTask.THREAD_POOL_EXECUTOR,
+                Collections.singletonList(outputConfig), android.os.AsyncTask.THREAD_POOL_EXECUTOR,
                 stateCallback);
 
         CameraDeviceCompat deviceCompat = CameraDeviceCompat.toCameraDeviceCompat(mCameraDevice,
