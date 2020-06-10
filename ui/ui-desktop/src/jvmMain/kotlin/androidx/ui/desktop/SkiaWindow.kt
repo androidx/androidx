@@ -27,6 +27,7 @@ import org.jetbrains.skija.Canvas
 import org.jetbrains.skija.Context
 import org.jetbrains.skija.JNI
 import org.jetbrains.skija.Surface
+import org.jetbrains.skija.ColorSpace
 import java.nio.IntBuffer
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
@@ -153,7 +154,7 @@ class SkiaWindow(
                 skijaState.apply {
                     val gl = drawable!!.gl!!
                     // drawable.swapBuffers()
-                    canvas!!.clear(0xFFFFFFFFL)
+                    canvas!!.clear(0xFFFFFFF)
                     gl.glBindTexture(GL.GL_TEXTURE_2D, textureId)
                     renderer!!.onRender(
                         canvas!!, glCanvas.width, glCanvas.height
@@ -202,14 +203,15 @@ class SkiaWindow(
                 (height * dpiY).toInt(),
                 0,
                 8,
-                fbId.toLong(),
-                BackendRenderTarget.FramebufferFormat.GR_GL_RGBA8.toLong()
+                fbId,
+                BackendRenderTarget.FramebufferFormat.GR_GL_RGBA8
             )
             surface = Surface.makeFromBackendRenderTarget(
                 context,
                 renderTarget,
                 Surface.Origin.BOTTOM_LEFT,
-                Surface.ColorType.RGBA_8888
+                Surface.ColorType.RGBA_8888,
+                ColorSpace.getSRGB()
             )
             canvas = surface!!.canvas
             canvas!!.scale(dpiX, dpiY)

@@ -174,4 +174,11 @@ open class View(val context: Context) {
 
     private val resources = Resources()
     fun getResources(): Resources = resources
+
+    fun offsetTopAndBottom(offset: Int) {
+        if (offset != 0) {
+            top += offset
+            bottom += offset
+        }
+    }
 }

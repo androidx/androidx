@@ -63,9 +63,9 @@ open class Paint {
     }
 
     var color: Int
-        get() = skijaPaint.getColor().toInt()
+        get() = skijaPaint.getColor()
         set(value) {
-            skijaPaint.setColor(value.toLong())
+            skijaPaint.setColor(value)
         }
     var strokeWidth: Float
         get() = skijaPaint.getStrokeWidth()
@@ -96,6 +96,12 @@ open class Paint {
         get() = skijaPaint.isAntiAlias()
         set(value) {
             skijaPaint.setAntiAlias(value)
+        }
+
+    var alpha: Int
+        get() = (color shr 24) and 0xff
+        set(value) {
+            color = (value shl 24) or (color and 0x00ffffff)
         }
 
     var textSize: Float = 20f

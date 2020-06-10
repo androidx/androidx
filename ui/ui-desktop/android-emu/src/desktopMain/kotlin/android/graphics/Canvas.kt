@@ -50,8 +50,19 @@ public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas?) {
         )
     }
 
+    fun drawBitmap(
+        bitmap: android.graphics.Bitmap,
+        src: android.graphics.Rect?,
+        dst: android.graphics.Rect,
+        paint: android.graphics.Paint
+    ) {
+        val skijaDst = dst.toSkia()
+        val skijaSrc = src?.toSkia()
+        skijaCanvas!!.drawImageRect(bitmap.skiaImage, skijaSrc, skijaDst, paint.skijaPaint)
+    }
+
     fun drawRect(rect: android.graphics.RectF, paint: android.graphics.Paint) {
-        val skijaRect = Rect.makeLTRB(rect.left, rect.top, rect.right, rect.bottom)
+        val skijaRect = rect.toSkia()
         skijaCanvas!!.drawRect(skijaRect, paint.skijaPaint)
     }
 
