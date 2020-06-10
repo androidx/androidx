@@ -16,27 +16,11 @@
 
 package android.graphics
 
-import org.jetbrains.skija.Rect as SkRect
+import org.jetbrains.skija.Image
 
-class RectF(
-    @kotlin.jvm.JvmField
-    var left: Float,
-    @kotlin.jvm.JvmField
-    var top: Float,
-    @kotlin.jvm.JvmField
-    var right: Float,
-    @kotlin.jvm.JvmField
-    var bottom: Float
-) {
-    constructor() : this(0f, 0f, 0f, 0f)
+class Bitmap(bytes: ByteArray) {
+    val skiaImage = Image.fromEncoded(bytes)
 
-    fun set(left: Float, top: Float, right: Float, bottom: Float) {
-        this.left = left
-        this.top = top
-        this.right = right
-        this.bottom = bottom
-    }
+    val width = skiaImage.width
+    val height = skiaImage.height
 }
-
-fun RectF.toSkia() =
-    SkRect.makeLTRB(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat())

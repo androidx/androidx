@@ -15,13 +15,18 @@
  */
 package androidx.ui.desktop.examples.example1
 
+import android.graphics.Bitmap
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.compose.remember
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.graphics.Color
+import androidx.ui.foundation.Image
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
+import androidx.ui.graphics.asImageAsset
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
@@ -85,7 +90,20 @@ fun main() = mainWith(title) @Composable {
                     onValueChange = { text.value = it },
                     label = { Text(text = "Input2") }
                 )
+
+                Image(imageResource("androidx/ui/desktop/example/circus.jpg"))
             }
         }
     )
+}
+
+fun loadResource(path: String): ByteArray {
+    return Thread.currentThread().contextClassLoader.getResource(path).readBytes()
+}
+
+@Composable
+fun imageResource(path: String): ImageAsset {
+    return remember(path) {
+        Bitmap(loadResource(path)).asImageAsset()
+    }
 }

@@ -33,6 +33,10 @@ kotlin {
     jvm()
 
     sourceSets {
+        jvmMain {
+            resources.srcDirs += "src/jvmMain/res"
+        }
+        
         jvmMain.dependencies {
             implementation project(":ui:ui-desktop")
             implementation fileTree(sdkDir)

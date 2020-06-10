@@ -101,6 +101,7 @@ kotlin {
             api(KOTLIN_STDLIB_COMMON)
             implementation project(":compose:compose-runtime")
         }
+        
 
         jvmMain {
             resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
@@ -110,7 +111,7 @@ kotlin {
             api(KOTLIN_STDLIB)
             api(KOTLIN_COROUTINES_CORE)
 
-            api "org.jetbrains.skija:skija:0.1.0"
+            api "org.jetbrains.skija:skija:0.2.41"
 
             api project(":ui:ui-desktop:android-emu")
 
