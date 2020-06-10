@@ -95,7 +95,7 @@ class SendClickTest(private val config: TestConfig) {
 
     private val recordedClicks = mutableListOf<ClickData>()
     private val expectedClickPosition =
-        config.position ?: Offset(squareSize / 2, squareSize / 2)
+        config.position ?: Offset((squareSize - 1) / 2, (squareSize - 1) / 2)
 
     @Test
     fun testClick() {

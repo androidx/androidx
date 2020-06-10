@@ -204,9 +204,23 @@ package androidx.ui.test {
   }
 
   public final class GestureScopeKt {
+    method public static inline float getBottom(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.geometry.Offset getBottomCenter(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.geometry.Offset getBottomLeft(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.geometry.Offset getBottomRight(androidx.ui.test.BaseGestureScope);
     method public static androidx.ui.geometry.Offset getCenter(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.geometry.Offset getCenterLeft(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.geometry.Offset getCenterRight(androidx.ui.test.BaseGestureScope);
+    method public static inline float getCenterX(androidx.ui.test.BaseGestureScope);
+    method public static inline float getCenterY(androidx.ui.test.BaseGestureScope);
     method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.test.BaseGestureScope);
+    method public static inline float getLeft(androidx.ui.test.BaseGestureScope);
+    method public static inline float getRight(androidx.ui.test.BaseGestureScope);
     method public static androidx.ui.unit.IntSize getSize(androidx.ui.test.BaseGestureScope);
+    method public static inline float getTop(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.geometry.Offset getTopCenter(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.geometry.Offset getTopLeft(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.geometry.Offset getTopRight(androidx.ui.test.BaseGestureScope);
     method public static androidx.ui.geometry.Offset localToGlobal(androidx.ui.test.BaseGestureScope, androidx.ui.geometry.Offset position);
     method public static void movePointerBy(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset delta);
     method public static void movePointerTo(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset position);
