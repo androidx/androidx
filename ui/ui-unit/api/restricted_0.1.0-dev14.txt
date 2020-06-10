@@ -287,7 +287,7 @@ package androidx.ui.unit {
   }
 
   @androidx.compose.Immutable public final class IntSize {
-    ctor public IntSize(internal long value);
+    ctor public IntSize(internal long packedValue);
     method @androidx.compose.Stable public inline operator int component1();
     method @androidx.compose.Stable public inline operator int component2();
     method @androidx.compose.Stable public operator androidx.ui.unit.IntSize div(int other);
@@ -313,7 +313,7 @@ package androidx.ui.unit {
 
   @androidx.compose.Immutable public final inline class Position {
     ctor public Position();
-    method public static long constructor-impl(internal long value);
+    method public static long constructor-impl(internal long packedValue);
     method @androidx.compose.Immutable public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static float getX-impl(long $this);

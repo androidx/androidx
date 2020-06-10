@@ -38,7 +38,7 @@ inline fun TransformOrigin(pivotFractionX: Float, pivotFractionY: Float): Transf
  */
 @OptIn(ExperimentalUnsignedTypes::class)
 @Immutable
-inline class TransformOrigin(@PublishedApi internal val value: Long) {
+inline class TransformOrigin(@PublishedApi internal val packedValue: Long) {
 
     /**
      * Return the position along the x-axis that should be used as the
@@ -47,7 +47,7 @@ inline class TransformOrigin(@PublishedApi internal val value: Long) {
      * and right bounds of the content
      */
     val pivotFractionX: Float
-        get() = unpackFloat1(value)
+        get() = unpackFloat1(packedValue)
 
     /**
      * Return the position along the y-axis that should be used as the
@@ -56,7 +56,7 @@ inline class TransformOrigin(@PublishedApi internal val value: Long) {
      * and bottom bounds of the content
      */
     val pivotFractionY: Float
-        get() = unpackFloat2(value)
+        get() = unpackFloat2(packedValue)
 
     companion object {
 
