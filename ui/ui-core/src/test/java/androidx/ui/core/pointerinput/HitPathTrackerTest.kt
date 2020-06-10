@@ -964,15 +964,15 @@ class HitPathTrackerTest {
 
         // Arrange.
 
-        val pif1 = PointerInputFilterMock()
-        val pif2 = PointerInputFilterMock()
-        val pif3 = PointerInputFilterMock()
-        val pif4 = PointerInputFilterMock()
-        val pif5 = PointerInputFilterMock()
-        val pif6 = PointerInputFilterMock()
-        val pif7 = PointerInputFilterMock()
-        val pif8 = PointerInputFilterMock()
-        val pif9 = PointerInputFilterMock()
+        val pif1 = PointerInputFilterMock(isAttached = true)
+        val pif2 = PointerInputFilterMock(isAttached = true)
+        val pif3 = PointerInputFilterMock(isAttached = true)
+        val pif4 = PointerInputFilterMock(isAttached = true)
+        val pif5 = PointerInputFilterMock(isAttached = true)
+        val pif6 = PointerInputFilterMock(isAttached = true)
+        val pif7 = PointerInputFilterMock(isAttached = true)
+        val pif8 = PointerInputFilterMock(isAttached = true)
+        val pif9 = PointerInputFilterMock(isAttached = true)
 
         val pointerId1 = PointerId(1)
         val pointerId2 = PointerId(2)
@@ -1037,9 +1037,9 @@ class HitPathTrackerTest {
     //  compositionRoot, root -> middle -> leaf
     @Test
     fun removeDetachedPointerInputFilters_1PathRootDetached_allRemovedAndCorrectCancels() {
-        val root = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val middle = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root = PointerInputFilterMock(isAttached = false)
+        val middle = PointerInputFilterMock(isAttached = false)
+        val leaf = PointerInputFilterMock(isAttached = false)
 
         hitPathTracker.addHitPath(PointerId(0), listOf(root, middle, leaf))
 
@@ -1056,9 +1056,9 @@ class HitPathTrackerTest {
     //  compositionRoot -> root, middle -> child
     @Test
     fun removeDetachedPointerInputFilters_1PathMiddleDetached_removesAndCancelsCorrect() {
-        val root = PointerInputFilterMock()
-        val middle = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val child = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root = PointerInputFilterMock(isAttached = true)
+        val middle = PointerInputFilterMock(isAttached = false)
+        val child = PointerInputFilterMock(isAttached = false)
 
         val pointerId = PointerId(0)
         hitPathTracker.addHitPath(pointerId, listOf(root, middle, child))
@@ -1082,9 +1082,9 @@ class HitPathTrackerTest {
     //  compositionRoot -> root -> middle, leaf
     @Test
     fun removeDetachedPointerInputFilters_1PathLeafDetached_removesAndCancelsCorrect() {
-        val root = PointerInputFilterMock()
-        val middle = PointerInputFilterMock()
-        val leaf = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root = PointerInputFilterMock(isAttached = true)
+        val middle = PointerInputFilterMock(isAttached = true)
+        val leaf = PointerInputFilterMock(isAttached = false)
 
         val pointerId = PointerId(0)
         hitPathTracker.addHitPath(pointerId, listOf(root, middle, leaf))
@@ -1112,17 +1112,17 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_3Roots1Detached_removesAndCancelsCorrect() {
 
-        val root1 = PointerInputFilterMock()
-        val middle1 = PointerInputFilterMock()
-        val leaf1 = PointerInputFilterMock()
+        val root1 = PointerInputFilterMock(isAttached = true)
+        val middle1 = PointerInputFilterMock(isAttached = true)
+        val leaf1 = PointerInputFilterMock(isAttached = true)
 
-        val root2 = PointerInputFilterMock()
-        val middle2 = PointerInputFilterMock()
-        val leaf2 = PointerInputFilterMock()
+        val root2 = PointerInputFilterMock(isAttached = true)
+        val middle2 = PointerInputFilterMock(isAttached = true)
+        val leaf2 = PointerInputFilterMock(isAttached = true)
 
-        val root3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val middle3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root3 = PointerInputFilterMock(isAttached = false)
+        val middle3 = PointerInputFilterMock(isAttached = false)
+        val leaf3 = PointerInputFilterMock(isAttached = false)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1176,17 +1176,17 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_3Roots1MiddleDetached_removesAndCancelsCorrect() {
 
-        val root1 = PointerInputFilterMock()
-        val middle1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root1 = PointerInputFilterMock(isAttached = true)
+        val middle1 = PointerInputFilterMock(isAttached = false)
+        val leaf1 = PointerInputFilterMock(isAttached = false)
 
-        val root2 = PointerInputFilterMock()
-        val middle2 = PointerInputFilterMock()
-        val leaf2 = PointerInputFilterMock()
+        val root2 = PointerInputFilterMock(isAttached = true)
+        val middle2 = PointerInputFilterMock(isAttached = true)
+        val leaf2 = PointerInputFilterMock(isAttached = true)
 
-        val root3 = PointerInputFilterMock()
-        val middle3 = PointerInputFilterMock()
-        val leaf3 = PointerInputFilterMock()
+        val root3 = PointerInputFilterMock(isAttached = true)
+        val middle3 = PointerInputFilterMock(isAttached = true)
+        val leaf3 = PointerInputFilterMock(isAttached = true)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1242,17 +1242,17 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_3Roots1LeafDetached_removesAndCancelsCorrect() {
 
-        val root1 = PointerInputFilterMock()
-        val middle1 = PointerInputFilterMock()
-        val leaf1 = PointerInputFilterMock()
+        val root1 = PointerInputFilterMock(isAttached = true)
+        val middle1 = PointerInputFilterMock(isAttached = true)
+        val leaf1 = PointerInputFilterMock(isAttached = true)
 
-        val root2 = PointerInputFilterMock()
-        val middle2 = PointerInputFilterMock()
-        val leaf2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root2 = PointerInputFilterMock(isAttached = true)
+        val middle2 = PointerInputFilterMock(isAttached = true)
+        val leaf2 = PointerInputFilterMock(isAttached = false)
 
-        val root3 = PointerInputFilterMock()
-        val middle3 = PointerInputFilterMock()
-        val leaf3 = PointerInputFilterMock()
+        val root3 = PointerInputFilterMock(isAttached = true)
+        val middle3 = PointerInputFilterMock(isAttached = true)
+        val leaf3 = PointerInputFilterMock(isAttached = true)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1309,17 +1309,17 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_3Roots2Detached_removesAndCancelsCorrect() {
 
-        val root1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val middle1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root1 = PointerInputFilterMock(isAttached = false)
+        val middle1 = PointerInputFilterMock(isAttached = false)
+        val leaf1 = PointerInputFilterMock(isAttached = false)
 
-        val root2 = PointerInputFilterMock()
-        val middle2 = PointerInputFilterMock()
-        val leaf2 = PointerInputFilterMock()
+        val root2 = PointerInputFilterMock(isAttached = true)
+        val middle2 = PointerInputFilterMock(isAttached = true)
+        val leaf2 = PointerInputFilterMock(isAttached = true)
 
-        val root3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val middle3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root3 = PointerInputFilterMock(isAttached = false)
+        val middle3 = PointerInputFilterMock(isAttached = false)
+        val leaf3 = PointerInputFilterMock(isAttached = false)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1366,17 +1366,17 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_3Roots2MiddlesDetached_removesAndCancelsCorrect() {
 
-        val root1 = PointerInputFilterMock()
-        val middle1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root1 = PointerInputFilterMock(isAttached = true)
+        val middle1 = PointerInputFilterMock(isAttached = false)
+        val leaf1 = PointerInputFilterMock(isAttached = false)
 
-        val root2 = PointerInputFilterMock()
-        val middle2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root2 = PointerInputFilterMock(isAttached = true)
+        val middle2 = PointerInputFilterMock(isAttached = false)
+        val leaf2 = PointerInputFilterMock(isAttached = false)
 
-        val root3 = PointerInputFilterMock()
-        val middle3 = PointerInputFilterMock()
-        val leaf3 = PointerInputFilterMock()
+        val root3 = PointerInputFilterMock(isAttached = true)
+        val middle3 = PointerInputFilterMock(isAttached = true)
+        val leaf3 = PointerInputFilterMock(isAttached = true)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1429,17 +1429,17 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_3Roots2LeafsDetached_removesAndCancelsCorrect() {
 
-        val root1 = PointerInputFilterMock()
-        val middle1 = PointerInputFilterMock()
-        val leaf1 = PointerInputFilterMock()
+        val root1 = PointerInputFilterMock(isAttached = true)
+        val middle1 = PointerInputFilterMock(isAttached = true)
+        val leaf1 = PointerInputFilterMock(isAttached = true)
 
-        val root2 = PointerInputFilterMock()
-        val middle2 = PointerInputFilterMock()
-        val leaf2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root2 = PointerInputFilterMock(isAttached = true)
+        val middle2 = PointerInputFilterMock(isAttached = true)
+        val leaf2 = PointerInputFilterMock(isAttached = false)
 
-        val root3 = PointerInputFilterMock()
-        val middle3 = PointerInputFilterMock()
-        val leaf3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root3 = PointerInputFilterMock(isAttached = true)
+        val middle3 = PointerInputFilterMock(isAttached = true)
+        val leaf3 = PointerInputFilterMock(isAttached = false)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1492,17 +1492,17 @@ class HitPathTrackerTest {
     //  compositionRoot, root3 -> middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputFilters_3Roots3Detached_allRemovedAndCancelsCorrect() {
-        val root1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val middle1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root1 = PointerInputFilterMock(isAttached = false)
+        val middle1 = PointerInputFilterMock(isAttached = false)
+        val leaf1 = PointerInputFilterMock(isAttached = false)
 
-        val root2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val middle2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root2 = PointerInputFilterMock(isAttached = false)
+        val middle2 = PointerInputFilterMock(isAttached = false)
+        val leaf2 = PointerInputFilterMock(isAttached = false)
 
-        val root3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val middle3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root3 = PointerInputFilterMock(isAttached = false)
+        val middle3 = PointerInputFilterMock(isAttached = false)
+        val leaf3 = PointerInputFilterMock(isAttached = false)
 
         hitPathTracker.addHitPath(PointerId(3), listOf(root1, middle1, leaf1))
         hitPathTracker.addHitPath(PointerId(5), listOf(root2, middle2, leaf2))
@@ -1536,17 +1536,17 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_3Roots3MiddlesDetached_removesAndCancelsCorrect() {
 
-        val root1 = PointerInputFilterMock()
-        val middle1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root1 = PointerInputFilterMock(isAttached = true)
+        val middle1 = PointerInputFilterMock(isAttached = false)
+        val leaf1 = PointerInputFilterMock(isAttached = false)
 
-        val root2 = PointerInputFilterMock()
-        val middle2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root2 = PointerInputFilterMock(isAttached = true)
+        val middle2 = PointerInputFilterMock(isAttached = false)
+        val leaf2 = PointerInputFilterMock(isAttached = false)
 
-        val root3 = PointerInputFilterMock()
-        val middle3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root3 = PointerInputFilterMock(isAttached = true)
+        val middle3 = PointerInputFilterMock(isAttached = false)
+        val leaf3 = PointerInputFilterMock(isAttached = false)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1594,17 +1594,17 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_3Roots3LeafsDetached_removesAndCancelsCorrect() {
 
-        val root1 = PointerInputFilterMock()
-        val middle1 = PointerInputFilterMock()
-        val leaf1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root1 = PointerInputFilterMock(isAttached = true)
+        val middle1 = PointerInputFilterMock(isAttached = true)
+        val leaf1 = PointerInputFilterMock(isAttached = false)
 
-        val root2 = PointerInputFilterMock()
-        val middle2 = PointerInputFilterMock()
-        val leaf2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root2 = PointerInputFilterMock(isAttached = true)
+        val middle2 = PointerInputFilterMock(isAttached = true)
+        val leaf2 = PointerInputFilterMock(isAttached = false)
 
-        val root3 = PointerInputFilterMock()
-        val middle3 = PointerInputFilterMock()
-        val leaf3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root3 = PointerInputFilterMock(isAttached = true)
+        val middle3 = PointerInputFilterMock(isAttached = true)
+        val leaf3 = PointerInputFilterMock(isAttached = false)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1655,17 +1655,17 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_3RootsStaggeredDetached_removesAndCancelsCorrect() {
 
-        val root1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val middle1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root1 = PointerInputFilterMock(isAttached = false)
+        val middle1 = PointerInputFilterMock(isAttached = false)
+        val leaf1 = PointerInputFilterMock(isAttached = false)
 
-        val root2 = PointerInputFilterMock()
-        val middle2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root2 = PointerInputFilterMock(isAttached = true)
+        val middle2 = PointerInputFilterMock(isAttached = false)
+        val leaf2 = PointerInputFilterMock(isAttached = false)
 
-        val root3 = PointerInputFilterMock()
-        val middle3 = PointerInputFilterMock()
-        val leaf3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root3 = PointerInputFilterMock(isAttached = true)
+        val middle3 = PointerInputFilterMock(isAttached = true)
+        val leaf3 = PointerInputFilterMock(isAttached = false)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1711,16 +1711,16 @@ class HitPathTrackerTest {
     //   middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputFilters_rootWith3MiddlesDetached_allRemovedAndCorrectCancels() {
-        val root = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val root = PointerInputFilterMock(isAttached = false)
 
-        val middle1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val middle1 = PointerInputFilterMock(isAttached = false)
+        val leaf1 = PointerInputFilterMock(isAttached = false)
 
-        val middle2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val middle2 = PointerInputFilterMock(isAttached = false)
+        val leaf2 = PointerInputFilterMock(isAttached = false)
 
-        val middle3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val middle3 = PointerInputFilterMock(isAttached = false)
+        val leaf3 = PointerInputFilterMock(isAttached = false)
 
         hitPathTracker.addHitPath(PointerId(3), listOf(root, middle1, leaf1))
         hitPathTracker.addHitPath(PointerId(5), listOf(root, middle2, leaf2))
@@ -1755,16 +1755,16 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_rootWith3Middles1Detached_removesAndCancelsCorrect() {
 
-        val root = PointerInputFilterMock()
+        val root = PointerInputFilterMock(isAttached = true)
 
-        val middle1 = PointerInputFilterMock()
-        val leaf1 = PointerInputFilterMock()
+        val middle1 = PointerInputFilterMock(isAttached = true)
+        val leaf1 = PointerInputFilterMock(isAttached = true)
 
-        val middle2 = PointerInputFilterMock()
-        val leaf2 = PointerInputFilterMock()
+        val middle2 = PointerInputFilterMock(isAttached = true)
+        val leaf2 = PointerInputFilterMock(isAttached = true)
 
-        val middle3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val middle3 = PointerInputFilterMock(isAttached = false)
+        val leaf3 = PointerInputFilterMock(isAttached = false)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1815,16 +1815,16 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_rootWith3Middles2Detached_removesAndCancelsCorrect() {
 
-        val root = PointerInputFilterMock()
+        val root = PointerInputFilterMock(isAttached = true)
 
-        val middle1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val middle1 = PointerInputFilterMock(isAttached = false)
+        val leaf1 = PointerInputFilterMock(isAttached = false)
 
-        val middle2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val middle2 = PointerInputFilterMock(isAttached = false)
+        val leaf2 = PointerInputFilterMock(isAttached = false)
 
-        val middle3 = PointerInputFilterMock()
-        val leaf3 = PointerInputFilterMock()
+        val middle3 = PointerInputFilterMock(isAttached = true)
+        val leaf3 = PointerInputFilterMock(isAttached = true)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1871,16 +1871,16 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_rootWith3MiddlesAllDetached_allMiddlesRemoved() {
 
-        val root = PointerInputFilterMock()
+        val root = PointerInputFilterMock(isAttached = true)
 
-        val middle1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val middle1 = PointerInputFilterMock(isAttached = false)
+        val leaf1 = PointerInputFilterMock(isAttached = false)
 
-        val middle2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val middle2 = PointerInputFilterMock(isAttached = false)
+        val leaf2 = PointerInputFilterMock(isAttached = false)
 
-        val middle3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val middle3 = PointerInputFilterMock(isAttached = false)
+        val leaf3 = PointerInputFilterMock(isAttached = false)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1923,13 +1923,13 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_middleWith3Leafs1Detached_correctLeafRemoved() {
 
-        val root = PointerInputFilterMock()
+        val root = PointerInputFilterMock(isAttached = true)
 
-        val middle = PointerInputFilterMock()
+        val middle = PointerInputFilterMock(isAttached = true)
 
-        val leaf1 = PointerInputFilterMock()
-        val leaf2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf3 = PointerInputFilterMock()
+        val leaf1 = PointerInputFilterMock(isAttached = true)
+        val leaf2 = PointerInputFilterMock(isAttached = false)
+        val leaf3 = PointerInputFilterMock(isAttached = true)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -1975,13 +1975,13 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_middleWith3Leafs2Detached_correctLeafsRemoved() {
 
-        val root = PointerInputFilterMock()
+        val root = PointerInputFilterMock(isAttached = true)
 
-        val middle = PointerInputFilterMock()
+        val middle = PointerInputFilterMock(isAttached = true)
 
-        val leaf1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf2 = PointerInputFilterMock()
-        val leaf3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val leaf1 = PointerInputFilterMock(isAttached = false)
+        val leaf2 = PointerInputFilterMock(isAttached = true)
+        val leaf3 = PointerInputFilterMock(isAttached = false)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2024,13 +2024,13 @@ class HitPathTrackerTest {
     @Test
     fun removeDetachedPointerInputFilters_middleWith3LeafsAllDetached_allLeafsRemoved() {
 
-        val root = PointerInputFilterMock()
+        val root = PointerInputFilterMock(isAttached = true)
 
-        val middle = PointerInputFilterMock()
+        val middle = PointerInputFilterMock(isAttached = true)
 
-        val leaf1 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf2 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
-        val leaf3 = PointerInputFilterMock(layoutCoordinates = LayoutCoordinatesStub(false))
+        val leaf1 = PointerInputFilterMock(isAttached = false)
+        val leaf2 = PointerInputFilterMock(isAttached = false)
+        val leaf3 = PointerInputFilterMock(isAttached = false)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2913,440 +2913,6 @@ class HitPathTrackerTest {
         }
     }
 
-    @Test
-    fun dispatchChanges_pifRemovesSelfDuringInitialDown_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.InitialDown
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovesSelfDuringPreUp_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PreUp
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovesSelfDuringPreDown_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PreDown
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovesSelfDuringPostUp_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostUp
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovesSelfDuringPostDown_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostDown
-        )
-    }
-
-    private fun dispatchChanges_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-        removalPass: PointerEventPass
-    ) {
-        val layoutCoordinates = LayoutCoordinatesStub(true)
-        val pif: PointerInputFilter = PointerInputFilterMock(
-            pointerInputHandler =
-            spy(StubPointerInputHandler { changes, pass, _ ->
-                if (pass == removalPass) {
-                    layoutCoordinates.isAttached = false
-                }
-                changes
-            }),
-            layoutCoordinates = layoutCoordinates
-        )
-        hitPathTracker.addHitPath(PointerId(13), listOf(pif))
-
-        hitPathTracker.dispatchChanges(listOf(down(13)))
-
-        var passedRemovalPass = false
-        PointerEventPass.values().forEach {
-            if (!passedRemovalPass) {
-                verify(pif).onPointerInput(any(), eq(it), any())
-                passedRemovalPass = it == removalPass
-            } else {
-                verify(pif, never()).onPointerInput(any(), eq(it), any())
-            }
-        }
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovedByParentDuringInitialDown_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.InitialDown
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovedByParentDuringPreUp_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PreUp
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovedByParentDuringPreDown_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PreDown
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovedByParentDuringPostUp_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostUp
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovedByParentDuringPostDown_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostDown
-        )
-    }
-
-    private fun dispatchChanges_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-        removalPass: PointerEventPass
-    ) {
-        val childLayoutCoordinates = LayoutCoordinatesStub(true)
-        val parentPif: PointerInputFilter = PointerInputFilterMock(
-            pointerInputHandler =
-            spy(StubPointerInputHandler { changes, pass, _ ->
-                if (pass == removalPass) {
-                    childLayoutCoordinates.isAttached = false
-                }
-                changes
-            })
-        )
-        val childPif: PointerInputFilter = PointerInputFilterMock(
-            layoutCoordinates = childLayoutCoordinates
-        )
-        hitPathTracker.addHitPath(PointerId(13), listOf(parentPif, childPif))
-
-        hitPathTracker.dispatchChanges(listOf(down(13)))
-
-        val removalPassIsDown =
-            when (removalPass) {
-                PointerEventPass.InitialDown -> true
-                PointerEventPass.PreDown -> true
-                PointerEventPass.PostDown -> true
-                else -> false
-            }
-        var passedRemovalPass = false
-        PointerEventPass.values().forEach {
-            passedRemovalPass = passedRemovalPass || removalPassIsDown && it == removalPass
-            if (!passedRemovalPass) {
-                verify(childPif).onPointerInput(any(), eq(it), any())
-            } else {
-                verify(childPif, never()).onPointerInput(any(), eq(it), any())
-            }
-            passedRemovalPass = passedRemovalPass || !removalPassIsDown && it == removalPass
-        }
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovedByChildDuringInitialDown_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.InitialDown
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovedByChildDuringPreUp_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PreUp
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovedByChildDuringPreDown_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PreDown
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovedByChildDuringPostUp_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostUp
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovedByChildDuringPostDown_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostDown
-        )
-    }
-
-    private fun dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-        removalPass: PointerEventPass
-    ) {
-        val parentLayoutCoordinates = LayoutCoordinatesStub(true)
-        val parentPif: PointerInputFilter = PointerInputFilterMock(
-            layoutCoordinates = parentLayoutCoordinates
-        )
-        val childPif: PointerInputFilter = PointerInputFilterMock(
-            pointerInputHandler =
-            spy(StubPointerInputHandler { changes, pass, _ ->
-                if (pass == removalPass) {
-                    parentLayoutCoordinates.isAttached = false
-                }
-                changes
-            })
-        )
-        hitPathTracker.addHitPath(PointerId(13), listOf(parentPif, childPif))
-
-        hitPathTracker.dispatchChanges(listOf(down(13)))
-
-        val removalPassIsDown =
-            when (removalPass) {
-                PointerEventPass.InitialDown -> true
-                PointerEventPass.PreDown -> true
-                PointerEventPass.PostDown -> true
-                else -> false
-            }
-        var passedRemovalPass = false
-        PointerEventPass.values().forEach {
-            passedRemovalPass = passedRemovalPass || !removalPassIsDown && it == removalPass
-            if (!passedRemovalPass) {
-                verify(parentPif).onPointerInput(any(), eq(it), any())
-            } else {
-                verify(parentPif, never()).onPointerInput(any(), eq(it), any())
-            }
-            passedRemovalPass = passedRemovalPass || removalPassIsDown && it == removalPass
-        }
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovesSelfDuringInitialDown_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.InitialDown
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovesSelfDuringPreUp_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PreUp
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovesSelfDuringPreDown_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PreDown
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovesSelfDuringPostUp_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostUp
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovesSelfDuringPostDown_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostDown
-        )
-    }
-
-    private fun dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-        removalPass: PointerEventPass
-    ) {
-
-        lateinit var dispatcher: CustomEventDispatcher
-
-        val layoutCoordinates = LayoutCoordinatesStub(true)
-
-        val dispatchingPif = PointerInputFilterMock(initHandler = { dispatcher = it })
-        val receivingPif = PointerInputFilterMock(
-            onCustomEvent = { _, pointerEventPass ->
-                if (pointerEventPass == removalPass) {
-                    layoutCoordinates.isAttached = false
-                }
-            },
-            layoutCoordinates = layoutCoordinates
-        )
-
-        hitPathTracker.addHitPath(PointerId(13), listOf(dispatchingPif, receivingPif))
-
-        dispatcher.dispatchCustomEvent(object : CustomEvent {})
-
-        var passedRemovalPass = false
-        PointerEventPass.values().forEach {
-            if (!passedRemovalPass) {
-                verify(receivingPif).onCustomEvent(any(), eq(it))
-                passedRemovalPass = it == removalPass
-            } else {
-                verify(receivingPif, never()).onCustomEvent(any(), eq(it))
-            }
-        }
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByParentDuringInitialDown_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.InitialDown
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByParentDuringPreUp_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PreUp
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByParentDuringPreDown_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PreDown
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByParentDuringPostUp_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostUp
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByParentDuringPostDown_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostDown
-        )
-    }
-
-    private fun dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-        removalPass: PointerEventPass
-    ) {
-        lateinit var dispatcher: CustomEventDispatcher
-
-        val layoutCoordinates = LayoutCoordinatesStub(true)
-
-        val dispatchingPif = PointerInputFilterMock(initHandler = { dispatcher = it })
-        val parentPif = PointerInputFilterMock(
-            onCustomEvent = { _, pointerEventPass ->
-                if (pointerEventPass == removalPass) {
-                    layoutCoordinates.isAttached = false
-                }
-            }
-        )
-        val childPif = PointerInputFilterMock(
-            layoutCoordinates = layoutCoordinates
-        )
-
-        hitPathTracker.addHitPath(PointerId(13), listOf(dispatchingPif, parentPif, childPif))
-
-        dispatcher.dispatchCustomEvent(object : CustomEvent {})
-
-        val removalPassIsDown =
-            when (removalPass) {
-                PointerEventPass.InitialDown -> true
-                PointerEventPass.PreDown -> true
-                PointerEventPass.PostDown -> true
-                else -> false
-            }
-        var passedRemovalPass = false
-        PointerEventPass.values().forEach {
-            passedRemovalPass = passedRemovalPass || removalPassIsDown && it == removalPass
-            if (!passedRemovalPass) {
-                verify(childPif).onCustomEvent(any(), eq(it))
-            } else {
-                verify(childPif, never()).onCustomEvent(any(), eq(it))
-            }
-            passedRemovalPass = passedRemovalPass || !removalPassIsDown && it == removalPass
-        }
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByChildDuringInitialDown_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.InitialDown
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByChildDuringPreUp_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PreUp
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByChildDuringPreDown_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PreDown
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByChildDuringPostUp_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostUp
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByChildDuringPostDown_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostDown
-        )
-    }
-
-    private fun dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-        removalPass: PointerEventPass
-    ) {
-        lateinit var dispatcher: CustomEventDispatcher
-
-        val layoutCoordinates = LayoutCoordinatesStub(true)
-
-        val dispatchingPif = PointerInputFilterMock(initHandler = { dispatcher = it })
-        val parentPif = PointerInputFilterMock(
-            layoutCoordinates = layoutCoordinates
-        )
-        val childPif = PointerInputFilterMock(
-            onCustomEvent = { _, pointerEventPass ->
-                if (pointerEventPass == removalPass) {
-                    layoutCoordinates.isAttached = false
-                }
-            }
-        )
-
-        hitPathTracker.addHitPath(PointerId(13), listOf(dispatchingPif, parentPif, childPif))
-
-        dispatcher.dispatchCustomEvent(object : CustomEvent {})
-
-        val removalPassIsDown =
-            when (removalPass) {
-                PointerEventPass.InitialDown -> true
-                PointerEventPass.PreDown -> true
-                PointerEventPass.PostDown -> true
-                else -> false
-            }
-        var passedRemovalPass = false
-        PointerEventPass.values().forEach {
-            passedRemovalPass = passedRemovalPass || !removalPassIsDown && it == removalPass
-            if (!passedRemovalPass) {
-                verify(parentPif).onCustomEvent(any(), eq(it))
-            } else {
-                verify(parentPif, never()).onCustomEvent(any(), eq(it))
-            }
-            passedRemovalPass = passedRemovalPass || removalPassIsDown && it == removalPass
-        }
-    }
-
     private fun areEqual(actualNode: NodeParent, expectedNode: NodeParent): Boolean {
         var check = true
 
@@ -3394,23 +2960,20 @@ class HitPathTrackerTest {
 fun PointerInputFilterMock(
     initHandler: (CustomEventDispatcher) -> Unit = mock(),
     pointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler()),
-    layoutCoordinates: LayoutCoordinates = LayoutCoordinatesStub(true),
-    onCustomEvent: (CustomEvent, PointerEventPass) -> Unit = mock()
+    isAttached: Boolean = true
 ): PointerInputFilter =
     spy(
         PointerInputFilterStub(
             pointerInputHandler,
-            initHandler,
-            onCustomEvent
+            initHandler
         ).apply {
-            this.layoutCoordinates = layoutCoordinates
+            layoutCoordinates = LayoutCoordinatesStub(isAttached)
         }
     )
 
 open class PointerInputFilterStub(
     val pointerInputHandler: PointerInputHandler,
-    val initHandler: (CustomEventDispatcher) -> Unit,
-    val customEventHandler: (CustomEvent, PointerEventPass) -> Unit
+    val initHandler: (CustomEventDispatcher) -> Unit
 ) : PointerInputFilter() {
 
     override fun onPointerInput(
@@ -3427,15 +2990,13 @@ open class PointerInputFilterStub(
         initHandler(customEventDispatcher)
     }
 
-    override fun onCustomEvent(customEvent: CustomEvent, pass: PointerEventPass) {
-        customEventHandler(customEvent, pass)
-    }
+    override fun onCustomEvent(customEvent: CustomEvent, pass: PointerEventPass) {}
 }
 
 internal data class TestCustomEvent(val value: String) : CustomEvent
 
 class LayoutCoordinatesStub(
-    override var isAttached: Boolean = true
+    override val isAttached: Boolean = true
 ) : LayoutCoordinates {
 
     override val size: IntSize
