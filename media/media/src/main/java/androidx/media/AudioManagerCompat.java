@@ -121,5 +121,29 @@ public final class AudioManagerCompat {
         }
     }
 
+    /**
+     * Returns the maximum volume index for a particular stream.
+     *
+     * @param streamType The stream type whose maximum volume index is returned.
+     * @return The maximum valid volume index for the stream.
+     */
+    public static int getStreamMaxVolume(@NonNull AudioManager audioManager, int streamType) {
+        return audioManager.getStreamMaxVolume(streamType);
+    }
+
+    /**
+     * Returns the minimum volume index for a particular stream.
+     *
+     * @param streamType The stream type whose minimum volume index is returned.
+     * @return The minimum valid volume index for the stream.
+     */
+    public static int getStreamMinVolume(@NonNull AudioManager audioManager, int streamType) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            return audioManager.getStreamMinVolume(streamType);
+        } else {
+            return 0;
+        }
+    }
+
     private AudioManagerCompat() {}
 }
