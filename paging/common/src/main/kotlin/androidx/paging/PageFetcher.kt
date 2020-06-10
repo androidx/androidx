@@ -63,6 +63,16 @@ internal class PageFetcher<Key : Any, Value : Any>(
             .scan(null) { previousGeneration: PageFetcherSnapshot<Key, Value>?,
                           triggerRemoteRefresh ->
                 val pagingSource = pagingSourceFactory()
+
+                // Ensure pagingSourceFactory produces a new instance of PagingSource.
+                check(pagingSource !== previousGeneration?.pagingSource) {
+                    """
+                    An instance of PagingSource was re-used when Pager expected to create a new
+                    instance. Ensure that the pagingSourceFactory passed to Pager always returns a
+                    new instance of PagingSource.
+                    """.trimIndent()
+                }
+
                 @OptIn(ExperimentalPagingApi::class)
                 val initialKey = previousGeneration?.refreshKeyInfo()
                     ?.let { pagingSource.getRefreshKey(it) }
