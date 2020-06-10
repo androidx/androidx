@@ -16,11 +16,8 @@
 
 package androidx.mediarouter.media;
 
-import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_CONTROLLER_ID;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_CONTROLLER_INFO;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_MEMBER_ROUTE_ID;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_MEMBER_ROUTE_IDS;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_PROVIDER_DESCRIPTOR;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_ID;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_LIBRARY_GROUP;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_UNSELECT_REASON;
@@ -48,7 +45,6 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DESCRIPTOR_CHANGED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DYNAMIC_ROUTE_CREATED;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DYNAMIC_ROUTE_CREATED_WITHOUT_REQUEST;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_FAILURE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_SUCCESS;
@@ -69,7 +65,6 @@ import android.os.IBinder.DeathRecipient;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseArray;
@@ -81,6 +76,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
+import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.OnDynamicRoutesChangedListener;
 import androidx.mediarouter.media.MediaRouteProvider.RouteController;
 
 import java.lang.ref.WeakReference;
@@ -920,15 +916,6 @@ public abstract class MediaRouteProviderService extends Service {
             return -1;
         }
 
-        ClientRecord getClientForPackageName(String packageName) {
-            for (ClientRecord client : mClients) {
-                if (TextUtils.equals(client.mPackageName, packageName)) {
-                    return client;
-                }
-            }
-            return null;
-        }
-
         //TODO: Reconsider "ClientRecord" structure
         class ClientRecord implements DeathRecipient {
             public final Messenger mMessenger;
@@ -938,9 +925,8 @@ public abstract class MediaRouteProviderService extends Service {
 
             final SparseArray<RouteController> mControllers = new SparseArray<>();
 
-            final DynamicGroupRouteController.OnDynamicRoutesChangedListener
-                    mDynamicRoutesChangedListener =
-                    new DynamicGroupRouteController.OnDynamicRoutesChangedListener() {
+            final OnDynamicRoutesChangedListener mDynamicRoutesChangedListener =
+                    new OnDynamicRoutesChangedListener() {
                         @Override
                         public void onRoutesChanged(
                                 @NonNull DynamicGroupRouteController controller,
@@ -1073,33 +1059,6 @@ public abstract class MediaRouteProviderService extends Service {
                 sendReply(mMessenger, SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED,
                         0, controllerId, bundle, null);
             }
-
-            void sendDynamicRouteControllerCreatedWithoutRequest(
-                    MediaRouteProviderDescriptor descriptor,
-                    DynamicGroupRouteController controller,
-                    int controllerId, String routeId) {
-
-                mControllers.put(controllerId, controller);
-                controller.setOnDynamicRoutesChangedListener(
-                        ContextCompat.getMainExecutor(mService.getApplicationContext()),
-                        mDynamicRoutesChangedListener);
-
-                Bundle bundle = new Bundle();
-                bundle.putBundle(CLIENT_DATA_PROVIDER_DESCRIPTOR,
-                        createDescriptorBundleForClientVersion(descriptor, mVersion));
-
-                Bundle controllerInfo = new Bundle();
-                controllerInfo.putString(CLIENT_DATA_ROUTE_ID, routeId);
-                controllerInfo.putString(DATA_KEY_GROUPABLE_SECION_TITLE,
-                        controller.getGroupableSelectionTitle());
-                controllerInfo.putString(DATA_KEY_TRANSFERABLE_SECTION_TITLE,
-                        controller.getTransferableSectionTitle());
-                controllerInfo.putInt(CLIENT_DATA_CONTROLLER_ID, controllerId);
-                bundle.putBundle(CLIENT_DATA_CONTROLLER_INFO, controllerInfo);
-
-                sendReply(mMessenger, SERVICE_MSG_DYNAMIC_ROUTE_CREATED_WITHOUT_REQUEST,
-                        0, 0, bundle, null);
-            }
         }
 
         ClientRecord createClientRecord(Messenger messenger, int version, String packageName) {
@@ -1121,6 +1080,9 @@ public abstract class MediaRouteProviderService extends Service {
         MediaRoute2ProviderServiceAdapter mMR2ProviderServiceAdapter;
         // Maps the route ID to route controller.
         final Map<String, RouteController> mRouteIdToControllerMap = new ArrayMap<>();
+        final OnDynamicRoutesChangedListener mDynamicRoutesChangedListener =
+                (controller, routes) -> mMR2ProviderServiceAdapter
+                        .setDynamicRouteDescriptor(controller, routes);
 
         MediaRouteProviderServiceImplApi30(MediaRouteProviderService instance) {
             super(instance);
@@ -1160,29 +1122,20 @@ public abstract class MediaRouteProviderService extends Service {
                 Messenger messenger, int version, String packageName) {
             return new ClientRecord(messenger, version, packageName);
         }
-        @Override
-        ClientRecord getClientForPackageName(String packageName) {
-            return (ClientRecord) super.getClientForPackageName(packageName);
-        }
 
         RouteController getControllerForRouteId(String routeId) {
             return mRouteIdToControllerMap.get(routeId);
         }
 
+        void setDynamicRoutesChangedListener(DynamicGroupRouteController controller) {
+            controller.setOnDynamicRoutesChangedListener(
+                    ContextCompat.getMainExecutor(mService.getApplicationContext()),
+                    mDynamicRoutesChangedListener);
+        }
+
         class ClientRecord extends MediaRouteProviderServiceImplBase.ClientRecord {
             ClientRecord(Messenger messenger, int version, String packageName) {
                 super(messenger, version, packageName);
-            }
-
-            public boolean saveRouteController(String routeId, RouteController controller,
-                    int controllerId) {
-                mRouteIdToControllerMap.put(routeId, controller);
-
-                if (mControllers.indexOfKey(controllerId) < 0) {
-                    mControllers.put(controllerId, controller);
-                    return true;
-                }
-                return false;
             }
 
             @Override

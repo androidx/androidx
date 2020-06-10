@@ -160,9 +160,6 @@ abstract class MediaRouteProviderProtocol {
     public static final String CLIENT_DATA_UNSELECT_REASON = "unselectReason";
     public static final String CLIENT_DATA_MEMBER_ROUTE_IDS = "memberRouteIds";
     public static final String CLIENT_DATA_MEMBER_ROUTE_ID = "memberRouteId";
-    public static final String CLIENT_DATA_PROVIDER_DESCRIPTOR = "providerDescriptor";
-    public static final String CLIENT_DATA_CONTROLLER_INFO = "controllerInfo";
-    public static final String CLIENT_DATA_CONTROLLER_ID = "controllerId";
 
     public static final String DATA_KEY_GROUPABLE_SECION_TITLE = "groupableTitle";
     public static final String DATA_KEY_TRANSFERABLE_SECTION_TITLE = "transferableTitle";
@@ -234,22 +231,6 @@ abstract class MediaRouteProviderProtocol {
      *       - DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS: (list of bundle)
      */
     public static final int SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED = 7;
-
-    // TODO: Remove this when related logic in service is removed.
-    /** (service v3)
-     * Dynamic route controller created without any request. (unsolicited event)
-     * - arg1   : reserved (0)
-     * - arg2   : service version
-     * - obj    : bundle
-     *       - CLIENT_DATA_PROVIDER_DESCRIPTOR: (bundle) provider descriptor bundle.
-     *       - CLIENT_DATA_CONTROLLER_INFO: (bundle) Information of the new controller which
-     *         includes following items:
-     *              - CLIENT_DATA_ROUTE_ID: (string) dynamic group route id
-     *              - CLIENT_DATA_CONTROLLER_ID: (int) the controller id
-     *              - DATA_KEY_GROUPABLE_SECION_TITLE: (string) groupable section title
-     *              - DATA_KEY_TRANSFERABLE_SECTION_TITLE: (string) transferable section title
-     */
-    public static final int SERVICE_MSG_DYNAMIC_ROUTE_CREATED_WITHOUT_REQUEST = 8;
 
     public static final String SERVICE_DATA_ERROR = "error";
 
