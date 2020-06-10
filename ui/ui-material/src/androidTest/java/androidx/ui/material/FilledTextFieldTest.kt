@@ -63,6 +63,8 @@ import androidx.ui.test.sendSwipeUp
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.unit.IntSize
+import androidx.ui.savedinstancestate.rememberSavedInstanceState
+import androidx.ui.test.StateRestorationTester
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
@@ -841,10 +843,11 @@ class FilledTextFieldTest {
 
         with(testRule.density) {
             testRule.setContent {
-                Stack(Modifier
-                    .preferredSize(parentSize.toDp())
-                    .drawBackground(Color.White)
-                    .testTag(tag)
+                Stack(
+                    Modifier
+                        .preferredSize(parentSize.toDp())
+                        .drawBackground(Color.White)
+                        .testTag(tag)
                 ) {
                     TextFieldScroller(
                         remember { scrollerPosition },
@@ -903,6 +906,49 @@ class FilledTextFieldTest {
             .doGesture { sendSwipeUp() }
         runOnIdleCompose {
             assertThat(scrollerPosition.current).isLessThan(firstSwipePosition)
+        }
+    }
+
+    @Test
+    fun textFieldScroller_restoresScrollerPosition() {
+        val tag = "scroller"
+        val restorationTester = StateRestorationTester(testRule)
+        var scrollerPosition = TextFieldScrollerPosition()
+
+        restorationTester.setContent {
+            scrollerPosition = rememberSavedInstanceState(
+                saver = TextFieldScrollerPosition.Saver
+            ) {
+                TextFieldScrollerPosition()
+            }
+            TextFieldScroller(
+                scrollerPosition,
+                Modifier.fillMaxWidth().preferredHeight(40.dp).testTag(tag)
+            ) {
+                TextField(
+                    value = TextFieldValue(LONG_TEXT),
+                    onValueChange = {}
+                )
+            }
+        }
+
+        findByTag(tag)
+            .doGesture { sendSwipeDown() }
+
+        val swipePosition = runOnIdleCompose {
+            scrollerPosition.current
+        }
+        assertThat(swipePosition).isGreaterThan(0f)
+
+        runOnIdleCompose {
+            scrollerPosition = TextFieldScrollerPosition()
+            assertThat(scrollerPosition.current).isEqualTo(0f)
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        runOnIdleCompose {
+            assertThat(scrollerPosition.current).isEqualTo(swipePosition)
         }
     }
 
