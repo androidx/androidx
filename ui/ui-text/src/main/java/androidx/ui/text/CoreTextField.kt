@@ -41,7 +41,7 @@ import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.input.EditProcessor
-import androidx.ui.input.EditorValue
+import androidx.ui.input.TextFieldValue
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.NO_SESSION
@@ -51,14 +51,71 @@ import androidx.ui.semantics.onClick
 import androidx.ui.geometry.Offset
 import kotlin.math.roundToInt
 
+@Suppress("DEPRECATION")
+@Composable
+@Deprecated("Use the Composable with androidx.ui.input.TextFieldValue instead.")
+fun CoreTextField(
+    value: androidx.ui.input.EditorValue,
+    modifier: Modifier,
+    onValueChange: (androidx.ui.input.EditorValue) -> Unit,
+    textStyle: TextStyle = TextStyle.Default,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Unspecified,
+    onFocusChange: (Boolean) -> Unit = {},
+    onImeActionPerformed: (ImeAction) -> Unit = {},
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {}
+) {
+    val fullModel = state { TextFieldValue() }
+    if (fullModel.value.text != value.text ||
+        fullModel.value.selection != value.selection ||
+        fullModel.value.composition != value.composition) {
+        val newSelection = TextRange(
+            value.selection.start.coerceIn(0, value.text.length),
+            value.selection.end.coerceIn(0, value.text.length)
+        )
+        fullModel.value = TextFieldValue(
+            text = value.text,
+            selection = newSelection,
+            composition = value.composition
+        )
+    }
+
+    val onValueChangeWrapper: (TextFieldValue) -> Unit = {
+        fullModel.value = it
+        onValueChange(
+            androidx.ui.input.EditorValue(
+                it.text,
+                it.selection,
+                it.composition
+            )
+        )
+    }
+
+    CoreTextField(
+        value = fullModel.value,
+        modifier = modifier,
+        onValueChange = onValueChangeWrapper,
+        textStyle = textStyle,
+        keyboardType = keyboardType,
+        imeAction = imeAction,
+        onFocusChange = onFocusChange,
+        onImeActionPerformed = onImeActionPerformed,
+        visualTransformation = visualTransformation,
+        onTextLayout = onTextLayout,
+        onTextInputStarted = onTextInputStarted
+    )
+}
+
 /**
  * The common TextField implementation.
  */
 @Composable
 fun CoreTextField(
-    value: EditorValue,
+    value: TextFieldValue,
     modifier: Modifier,
-    onValueChange: (EditorValue) -> Unit,
+    onValueChange: (TextFieldValue) -> Unit,
     textStyle: TextStyle = TextStyle.Default,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
@@ -74,7 +131,7 @@ fun CoreTextField(
     // the latest state.
     val generation = state { 0 }
     val Wrapper: @Composable (Int, @Composable () -> Unit) -> Unit = { _, child -> child() }
-    val onValueChangeWrapper: (EditorValue) -> Unit = { onValueChange(it); generation.value++ }
+    val onValueChangeWrapper: (TextFieldValue) -> Unit = { onValueChange(it); generation.value++ }
 
     Wrapper(generation.value) {
         // Ambients

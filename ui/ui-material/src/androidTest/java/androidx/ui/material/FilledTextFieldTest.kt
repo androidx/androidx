@@ -31,7 +31,6 @@ import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.drawBackground
@@ -43,6 +42,7 @@ import androidx.ui.input.KeyboardType
 import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.input.TextInputService
 import androidx.ui.geometry.Offset
+import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxWidth
@@ -649,7 +649,7 @@ class FilledTextFieldTest {
 
         runOnIdleCompose {
             verify(textInputService, atLeastOnce()).startInput(
-                initModel = any(),
+                value = any(),
                 keyboardType = eq(KeyboardType.Email),
                 imeAction = eq(ImeAction.Go),
                 onEditCommand = any(),

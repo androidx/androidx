@@ -20,8 +20,8 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.padding
 import androidx.ui.unit.dp
 

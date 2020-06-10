@@ -27,7 +27,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
-import androidx.ui.input.EditorValue
+import androidx.ui.input.TextFieldValue
 import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.INVALID_SESSION
 import androidx.ui.input.ImeAction
@@ -89,7 +89,7 @@ class TextFieldDelegate {
          * @return the bounding box size(width and height) of the layout result
          */
         @JvmStatic
-        fun layout(
+        internal fun layout(
             textDelegate: TextDelegate,
             constraints: Constraints,
             layoutDirection: LayoutDirection,
@@ -121,9 +121,9 @@ class TextFieldDelegate {
          * @param selectionColor The selection color
          */
         @JvmStatic
-        fun draw(
+        internal fun draw(
             canvas: Canvas,
-            value: EditorValue,
+            value: TextFieldValue,
             offsetMap: OffsetMap,
             textLayoutResult: TextLayoutResult,
             selectionColor: Color
@@ -153,8 +153,8 @@ class TextFieldDelegate {
          * @param offsetMap The mapper from/to editing buffer to/from visible text.
          */
         @JvmStatic
-        fun notifyFocusedRect(
-            value: EditorValue,
+        internal fun notifyFocusedRect(
+            value: TextFieldValue,
             textDelegate: TextDelegate,
             textLayoutResult: TextLayoutResult,
             layoutCoordinates: LayoutCoordinates,
@@ -205,7 +205,7 @@ class TextFieldDelegate {
         internal fun onEditCommand(
             ops: List<EditOperation>,
             editProcessor: EditProcessor,
-            onValueChange: (EditorValue) -> Unit
+            onValueChange: (TextFieldValue) -> Unit
         ) {
             onValueChange(editProcessor.onEditCommands(ops))
         }
@@ -223,12 +223,12 @@ class TextFieldDelegate {
          * @param hasFocus True if the composable has input focus, otherwise false.
          */
         @JvmStatic
-        fun onRelease(
+        internal fun onRelease(
             position: Offset,
             textLayoutResult: TextLayoutResult,
             editProcessor: EditProcessor,
             offsetMap: OffsetMap,
-            onValueChange: (EditorValue) -> Unit,
+            onValueChange: (TextFieldValue) -> Unit,
             textInputService: TextInputService?,
             token: InputSessionToken,
             hasFocus: Boolean
@@ -255,17 +255,17 @@ class TextFieldDelegate {
          * @param onImeActionPerformed The callback called when the editor action arrives.
          */
         @JvmStatic
-        fun onFocus(
+        internal fun onFocus(
             textInputService: TextInputService?,
-            value: EditorValue,
+            value: TextFieldValue,
             editProcessor: EditProcessor,
             keyboardType: KeyboardType,
             imeAction: ImeAction,
-            onValueChange: (EditorValue) -> Unit,
+            onValueChange: (TextFieldValue) -> Unit,
             onImeActionPerformed: (ImeAction) -> Unit
         ): InputSessionToken {
             return textInputService?.startInput(
-                initModel = EditorValue(value.text, value.selection, value.composition),
+                value = TextFieldValue(value.text, value.selection, value.composition),
                 keyboardType = keyboardType,
                 imeAction = imeAction,
                 onEditCommand = { onEditCommand(it, editProcessor, onValueChange) },
@@ -281,12 +281,12 @@ class TextFieldDelegate {
          * @param onValueChange The callback called when the new editor state arrives.
          */
         @JvmStatic
-        fun onBlur(
+        internal fun onBlur(
             textInputService: TextInputService?,
             token: InputSessionToken,
             editProcessor: EditProcessor,
             hasNextClient: Boolean,
-            onValueChange: (EditorValue) -> Unit
+            onValueChange: (TextFieldValue) -> Unit
         ) {
             onEditCommand(listOf(FinishComposingTextEditOp()), editProcessor, onValueChange)
             textInputService?.stopInput(token)

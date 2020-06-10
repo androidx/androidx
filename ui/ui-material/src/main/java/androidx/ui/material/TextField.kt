@@ -57,7 +57,6 @@ import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.clickable
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.gestures.DragDirection
@@ -70,6 +69,7 @@ import androidx.ui.graphics.Shape
 import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
+import androidx.ui.input.TextFieldValue
 import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
@@ -318,6 +318,81 @@ fun FilledTextField(
     FilledTextFieldImpl(
         value = value,
         onValueChange = onValueChange,
+        modifier = modifier,
+        textStyle = textStyle,
+        label = label,
+        placeholder = placeholder,
+        leading = leadingIcon,
+        trailing = trailingIcon,
+        isErrorValue = isErrorValue,
+        visualTransformation = visualTransformation,
+        keyboardType = keyboardType,
+        imeAction = imeAction,
+        onImeActionPerformed = onImeActionPerformed,
+        onFocusChange = onFocusChange,
+        onTextInputStarted = onTextInputStarted,
+        activeColor = activeColor,
+        inactiveColor = inactiveColor,
+        errorColor = errorColor,
+        backgroundColor = backgroundColor,
+        shape = shape
+    )
+}
+
+@Suppress("DEPRECATION")
+@Composable
+@Deprecated("Use the FilledTextField with androidx.ui.input.TextFieldValue instead.")
+fun FilledTextField(
+    value: androidx.ui.foundation.TextFieldValue,
+    onValueChange: (androidx.ui.foundation.TextFieldValue) -> Unit,
+    label: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = currentTextStyle(),
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isErrorValue: Boolean = false,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Unspecified,
+    onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit = { _, _ -> },
+    onFocusChange: (Boolean) -> Unit = {},
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
+    activeColor: Color = MaterialTheme.colors.primary,
+    inactiveColor: Color = MaterialTheme.colors.onSurface,
+    errorColor: Color = MaterialTheme.colors.error,
+    backgroundColor: Color = MaterialTheme.colors.onSurface,
+    shape: Shape =
+        MaterialTheme.shapes.small.copy(bottomLeft = ZeroCornerSize, bottomRight = ZeroCornerSize)
+) {
+
+    val fullModel = state { TextFieldValue() }
+    if (fullModel.value.text != value.text || fullModel.value.selection != value.selection) {
+        val newSelection = TextRange(
+            value.selection.start.coerceIn(0, value.text.length),
+            value.selection.end.coerceIn(0, value.text.length)
+        )
+        fullModel.value = TextFieldValue(
+            text = value.text,
+            selection = newSelection
+        )
+    }
+
+    val onValueChangeWrapper: (TextFieldValue) -> Unit = {
+        val prevState = fullModel.value
+        fullModel.value = it
+        if (prevState.text != it.text || prevState.selection != it.selection) {
+            onValueChange(
+                androidx.ui.foundation.TextFieldValue(
+                    it.text,
+                    it.selection
+                )
+            )
+        }
+    }
+    FilledTextFieldImpl(
+        value = fullModel.value,
+        onValueChange = onValueChangeWrapper,
         modifier = modifier,
         textStyle = textStyle,
         label = label,

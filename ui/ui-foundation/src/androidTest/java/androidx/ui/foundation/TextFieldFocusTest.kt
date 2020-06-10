@@ -22,7 +22,7 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.focus.FocusModifier
-import androidx.ui.input.EditorValue
+import androidx.ui.input.TextFieldValue
 import androidx.ui.layout.width
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
@@ -44,7 +44,7 @@ class TextFieldFocusTest {
     @Composable
     private fun TextFieldApp(dataList: List<FocusTestData>) {
         for (data in dataList) {
-            val editor = state { EditorValue() }
+            val editor = state { TextFieldValue() }
             CoreTextField(
                 value = editor.value,
                 modifier = Modifier.width(10.dp) + data.id,
