@@ -16,8 +16,10 @@
 
 package androidx.ui.test
 
+import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
@@ -39,6 +41,7 @@ import org.junit.runners.Parameterized
 
 @MediumTest
 @RunWith(Parameterized::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class BitmapCapturingTest(val config: TestConfig) {
     data class TestConfig(
         val activityClass: Class<out ComponentActivity>
