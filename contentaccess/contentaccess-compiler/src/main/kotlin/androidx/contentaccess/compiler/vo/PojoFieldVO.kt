@@ -18,10 +18,9 @@ package androidx.contentaccess.compiler.vo
 
 import javax.lang.model.type.TypeMirror
 
-// Represents a column in a content provider
-data class ContentColumnVO(
+data class PojoFieldVO(
     val name: String,
+    val columnName: String,
     val type: TypeMirror,
-    val columnName: String = name,
     val isNullable: Boolean
 )

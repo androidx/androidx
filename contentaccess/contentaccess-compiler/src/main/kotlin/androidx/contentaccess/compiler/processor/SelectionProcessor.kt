@@ -16,24 +16,26 @@
 
 package androidx.contentaccess.compiler.processor
 
-import androidx.contentaccess.compiler.vo.ContentColumnVO
+import androidx.contentaccess.compiler.ext.reportError
+import androidx.contentaccess.compiler.utils.ErrorIndicator
 import androidx.contentaccess.compiler.vo.SelectionVO
 import javax.annotation.processing.Messager
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.TypeMirror
-import javax.tools.Diagnostic
 
 class SelectionProcessor(
     val method: ExecutableElement,
     val messager: Messager,
     val selection: String,
-    val columns: Map<String, ContentColumnVO>,
-    val paramsNamesAndTypes: HashMap<String, TypeMirror>
+    val paramsNamesAndTypes: HashMap<String, TypeMirror>,
+    val errorIndicator: ErrorIndicator
 ) {
 
     // TODO(obenabde): validate the selection: make sure it's valid syntax, make sure the
     //  comparisons between parameters are valid etc...
-    fun process(): Pair<SelectionVO?, Boolean> {
+    fun process(): SelectionVO? {
+        // TODO(obenabde): Consider returning a kotlin Result to avoid returning null in case
+        // of failure.
         // TODO(obenabde): right now this forces all to be separated by spaces, so a=:param won't
         //  work since we split here by spaces, either make it support no spaces for comparisons
         //  or decide to keep it this way. Also the detection and substitution logic is pretty
@@ -41,28 +43,23 @@ class SelectionProcessor(
         val selectionsArgs = ArrayList<String>()
         val splitSelection = ArrayList<String>(selection.split(" "))
         for (i in splitSelection.indices) {
-            val commaLessWord = splitSelection.get(i).replace(",", "")
             if (splitSelection.get(i).startsWith(":")) {
                 val word = splitSelection.get(i)
                 if (word.length == 1) {
-                    messager.printMessage(Diagnostic.Kind.ERROR, "Found stray \":\" in the " +
-                            "selection", method)
-                    return Pair(null, true)
+                    messager.reportError("Found stray \":\" in the selection", method,
+                        errorIndicator)
+                    return null
                 }
                 val strippedParamName = splitSelection.get(i).substring(1)
                 if (!paramsNamesAndTypes.containsKey(strippedParamName)) {
-                    messager.printMessage(Diagnostic.Kind.ERROR, "Selection argument " +
-                            ":${strippedParamName.substring(1)} is not specified in the " +
-                            "method's parameters.", method)
-                    return Pair(null, true)
+                    messager.reportError("Selection argument :${strippedParamName.substring(1)} " +
+                            "is not specified in the method's parameters.", method, errorIndicator)
+                    return null
                 }
                 selectionsArgs.add(strippedParamName)
                 splitSelection[i] = "?"
-            } else if (columns.containsKey(commaLessWord)) {
-                splitSelection[i] = splitSelection[i].replace(commaLessWord, columns.get
-                    (commaLessWord)!!.columnName)
             }
         }
-        return Pair(SelectionVO(splitSelection.joinToString(" "), selectionsArgs), false)
+        return SelectionVO(splitSelection.joinToString(" "), selectionsArgs)
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.contentaccess.compiler.writer
 
+import androidx.contentaccess.compiler.processor.PojoProcessor
 import androidx.contentaccess.compiler.vo.ContentColumnVO
 import androidx.contentaccess.compiler.vo.ContentQueryVO
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -57,9 +58,8 @@ class ContentQueryMethodWriter(val processingEnv: ProcessingEnvironment) {
                 .addStatement("_projection[$i] = %S", contentQuery.toQueryFor[i].columnName)
         }
         var noSelectionArgs = true
-        methodBuilder.addStatement("var _selection : String")
         if (contentQuery.selection != null) {
-            methodBuilder.addStatement("_selection = %S", contentQuery.selection.selection)
+            methodBuilder.addStatement("val _selection = %S", contentQuery.selection.selection)
             val selectionArgs = contentQuery.selection.selectionArgs
             val joinedSelectionArgs = if (selectionArgs.size == 1) {
                 "${selectionArgs[0]}.toString()"
@@ -70,6 +70,8 @@ class ContentQueryMethodWriter(val processingEnv: ProcessingEnvironment) {
                 noSelectionArgs = false
                 methodBuilder.addStatement("val _selectionArgs = arrayOf($joinedSelectionArgs)")
             }
+        } else {
+            methodBuilder.addStatement("val _selection = \"\"")
         }
         callResolverAndFormulateReturn(methodBuilder, contentQuery, contentQuery.returnType,
             noSelectionArgs)
@@ -182,9 +184,36 @@ class ContentQueryMethodWriter(val processingEnv: ProcessingEnvironment) {
             return
         }
         val constructorParams = ArrayList<String>()
+        val pojoFields = PojoProcessor(returnType, processingEnv).process()
+        val pojoColumnsToFieldNames = pojoFields.map { it.columnName to it.name }.toMap()
+        val columnNamesBeingSelected = columns.map { it.columnName }
+        val unPopulatedPojoFields = pojoFields.filter { it.columnName !in
+                columnNamesBeingSelected }.map { it.name }
         for ((currIndex, column) in columns.withIndex()) {
-            constructorParams.add("${column.name} = _cursor.${column.type
-                .getCursorMethod()}($currIndex)")
+            if (column.isNullable) {
+                methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames.get(column
+                    .columnName)}_value" +
+                        " = if (_cursor.isNull($currIndex))")
+                methodBuilder.addStatement("null")
+                methodBuilder.nextControlFlow("else")
+                methodBuilder.addStatement("_cursor.${column.type.getCursorMethod()}($currIndex)")
+                methodBuilder.endControlFlow()
+            } else {
+                methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames.get(column
+                    .columnName)}_value" +
+                        " = if (_cursor.isNull($currIndex))")
+                methodBuilder.addStatement("throw NullPointerException(%S)", "Column ${column
+                    .columnName} associated with field ${column.name} in $returnType return " +
+                        "null, however field ${column.name} is not nullable")
+                methodBuilder.nextControlFlow("else")
+                methodBuilder.addStatement("_cursor.${column.type.getCursorMethod()}($currIndex)")
+                methodBuilder.endControlFlow()
+            }
+            constructorParams.add("${pojoColumnsToFieldNames.get(column.columnName)}" +
+                    " = _${pojoColumnsToFieldNames.get(column.columnName)}_value")
+        }
+        for (unPopoulatedPojoField in unPopulatedPojoFields) {
+            constructorParams.add("$unPopoulatedPojoField = null")
         }
         methodBuilder.addStatement("val $RETURN_OBJECT_NAME = %T(%L)", returnType,
             constructorParams.joinToString(","))

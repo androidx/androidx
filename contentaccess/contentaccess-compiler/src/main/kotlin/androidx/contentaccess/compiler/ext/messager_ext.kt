@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.contentaccess.compiler.vo
+package androidx.contentaccess.compiler.ext
 
-import javax.lang.model.type.TypeMirror
+import androidx.contentaccess.compiler.utils.ErrorIndicator
+import javax.annotation.processing.Messager
+import javax.lang.model.element.Element
+import javax.tools.Diagnostic
 
-// Represents a column in a content provider
-data class ContentColumnVO(
-    val name: String,
-    val type: TypeMirror,
-    val columnName: String = name,
-    val isNullable: Boolean
-)
+fun Messager.reportError(error: String, element: Element) {
+    this.printMessage(
+        Diagnostic.Kind.ERROR, error, element)
+}
+
+fun Messager.reportError(error: String, element: Element, errorIndicator: ErrorIndicator) {
+    errorIndicator.indicateError()
+    this.printMessage(
+        Diagnostic.Kind.ERROR, error, element)
+}
