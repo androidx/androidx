@@ -120,7 +120,7 @@ internal open class AndroidViewHolder(context: Context) : ViewGroup(context) {
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        view?.layout(l, t, r, b)
+        view?.layout(0, 0, r - l, b - t)
     }
 
     override fun getLayoutParams(): LayoutParams? {

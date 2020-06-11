@@ -28,6 +28,8 @@ import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
@@ -40,7 +42,9 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
@@ -49,15 +53,21 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Owner
 import androidx.ui.core.Ref
 import androidx.ui.core.drawLayer
+import androidx.ui.core.globalPosition
+import androidx.ui.core.onPositioned
+import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
+import androidx.ui.framework.test.TestActivity
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.padding
+import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
-import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
@@ -73,6 +83,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.roundToInt
 
 /**
  * Testing the support for Android Views in Compose UI.
@@ -81,7 +92,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class AndroidViewCompatTest {
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = AndroidComposeTestRule<TestActivity>()
 
     @Test
     fun simpleLayoutTest() {
@@ -402,6 +413,73 @@ class AndroidViewCompatTest {
 
         runOnIdleCompose { size += 20 }
         findByTag("view").captureToBitmap().assertPixels(IntSize(size, size)) { Color.Blue }
+    }
+
+    @Test
+    fun testCoordinates_acrossMultipleViewAndComposeSwitches() {
+        val padding = 100
+
+        lateinit var outer: Offset
+        lateinit var inner: Offset
+
+        composeTestRule.setContent {
+            Box(Modifier.onPositioned { outer = it.globalPosition }) {
+                val paddingDp = with(DensityAmbient.current) { padding.toDp() }
+                Box(Modifier.padding(paddingDp)) {
+                    emitView(::FrameLayout) {
+                        it.setContent {
+                            Box(Modifier.padding(paddingDp)
+                                .onPositioned { inner = it.globalPosition })
+                        }
+                    }
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            assertEquals(outer.x + padding * 2, inner.x)
+            assertEquals(outer.y + padding * 2, inner.y)
+        }
+    }
+
+    @Test
+    fun testCoordinates_acrossMultipleViewAndComposeSwitches_whenContainerMoves() {
+        val size = 100
+        val padding = 100
+
+        lateinit var topView: View
+        lateinit var coordinates: LayoutCoordinates
+        var startX = 0
+
+        composeTestRule.activityRule.scenario.onActivity {
+            val root = LinearLayout(it)
+            it.setContentView(root)
+
+            topView = View(it)
+            root.addView(topView, size, size)
+            val frameLayout = FrameLayout(it)
+            root.addView(frameLayout)
+
+            frameLayout.setContent {
+                Box {
+                    val paddingDp = with(DensityAmbient.current) { padding.toDp() }
+                    Box(Modifier.padding(paddingDp)) {
+                        emitView(::FrameLayout) {
+                            it.setContent {
+                                Box(Modifier.padding(paddingDp).onPositioned { coordinates = it })
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        runOnIdleCompose { startX = coordinates.globalPosition.x.roundToInt() }
+
+        runOnIdleCompose { topView.visibility = View.GONE }
+
+        runOnIdleCompose {
+            assertEquals(100, startX - coordinates.globalPosition.x.roundToInt())
+        }
     }
 
     class ColoredSquareView(context: Context) : View(context) {
