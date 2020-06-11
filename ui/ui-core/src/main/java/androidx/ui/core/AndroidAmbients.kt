@@ -29,6 +29,7 @@ import androidx.compose.setValue
 import androidx.compose.state
 import androidx.compose.staticAmbientOf
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.ui.platform.AndroidUriHandler
 import kotlinx.coroutines.Dispatchers
 
@@ -52,6 +53,11 @@ val LifecycleOwnerAmbient = staticAmbientOf<LifecycleOwner>()
  * The ambient containing the current Compose [View].
  */
 val ViewAmbient = staticAmbientOf<View>()
+
+/**
+ * The ambient containing the current [ViewModelStoreOwner].
+ */
+val ViewModelStoreOwnerAmbient = staticAmbientOf<ViewModelStoreOwner>()
 
 @Composable
 internal fun ProvideAndroidAmbients(owner: AndroidOwner, content: @Composable () -> Unit) {
@@ -77,7 +83,8 @@ internal fun ProvideAndroidAmbients(owner: AndroidOwner, content: @Composable ()
         ConfigurationAmbient provides configuration,
         ContextAmbient provides context,
         LifecycleOwnerAmbient provides viewTreeOwners.lifecycleOwner,
-        ViewAmbient provides owner.view
+        ViewAmbient provides owner.view,
+        ViewModelStoreOwnerAmbient provides viewTreeOwners.viewModelStoreOwner
     ) {
         ProvideCommonAmbients(
             owner = owner,

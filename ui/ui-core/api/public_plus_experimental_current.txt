@@ -189,10 +189,11 @@ package androidx.ui.core {
     method public static androidx.compose.ProvidableAmbient<android.content.Context> getContextAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.lifecycle.LifecycleOwner> getLifecycleOwnerAmbient();
     method public static androidx.compose.ProvidableAmbient<android.view.View> getViewAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.lifecycle.ViewModelStoreOwner> getViewModelStoreOwnerAmbient();
   }
 
   public final class AndroidComposeViewKt {
-    method public static androidx.ui.core.AndroidOwner AndroidOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null);
+    method public static androidx.ui.core.AndroidOwner AndroidOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null, androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner = null);
     method public static androidx.ui.core.LayoutDirection getLocaleLayoutDirection(android.content.res.Configuration);
   }
 
@@ -210,8 +211,9 @@ package androidx.ui.core {
   }
 
   public static final class AndroidOwner.ViewTreeOwners {
-    ctor public AndroidOwner.ViewTreeOwners(androidx.lifecycle.LifecycleOwner lifecycleOwner);
+    ctor public AndroidOwner.ViewTreeOwners(androidx.lifecycle.LifecycleOwner lifecycleOwner, androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner);
     method public androidx.lifecycle.LifecycleOwner getLifecycleOwner();
+    method public androidx.lifecycle.ViewModelStoreOwner getViewModelStoreOwner();
   }
 
   public final class ClipKt {
@@ -2282,6 +2284,15 @@ package androidx.ui.viewinterop {
   public final class ComposedViewKt {
     method @androidx.compose.Composable public static void AndroidView(@LayoutRes int resId, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> postInflationCallback = { _ ->  });
     method @androidx.compose.Composable public static void AndroidView(android.view.View view);
+  }
+
+}
+
+package androidx.ui.viewmodel {
+
+  public final class ViewModelKt {
+    method @androidx.compose.Composable public static <VM extends androidx.lifecycle.ViewModel> VM viewModel(Class<VM> modelClass, String? key = null, androidx.lifecycle.ViewModelProvider.Factory? factory = null);
+    method @androidx.compose.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! viewModel(String key = null, androidx.lifecycle.ViewModelProvider.Factory? factory = null);
   }
 
 }

@@ -18,6 +18,7 @@ package androidx.ui.core
 import android.view.View
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelStoreOwner
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -81,9 +82,10 @@ interface AndroidOwner : Owner {
         /**
          * The [LifecycleOwner] associated with this owner.
          */
-        val lifecycleOwner: LifecycleOwner
-        // TODO: Add these two items here as well
-        // val savedStateRegistry: UiSavedStateRegistry,
-        // val viewModelStoreOwner: ViewTreeViewModelStoreOwner
+        val lifecycleOwner: LifecycleOwner,
+        /**
+         * The [ViewModelStoreOwner] associated with this owner.
+         */
+        val viewModelStoreOwner: ViewModelStoreOwner
     )
 }

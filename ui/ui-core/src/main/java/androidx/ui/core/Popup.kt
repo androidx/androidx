@@ -37,6 +37,7 @@ import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.popup
 import androidx.ui.unit.IntOffset
@@ -278,6 +279,7 @@ private class PopupLayout(
         id = android.R.id.content
         updateLayoutParams()
         ViewTreeLifecycleOwner.set(this, ViewTreeLifecycleOwner.get(composeView))
+        ViewTreeViewModelStoreOwner.set(this, ViewTreeViewModelStoreOwner.get(composeView))
     }
 
     /**
