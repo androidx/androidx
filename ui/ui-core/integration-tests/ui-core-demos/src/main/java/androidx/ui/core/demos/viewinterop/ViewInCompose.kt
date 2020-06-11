@@ -43,8 +43,7 @@ import androidx.ui.viewinterop.AndroidView
 fun ViewInComposeDemo() {
     Column {
         // This is a collection of multiple ways of including Android Views in Compose
-        // UI hierarchies. Note that these APIs are subject to change. Also note that
-        // pointer input is currently not working for Views inside Compose.
+        // UI hierarchies. Note that these APIs are subject to change.
 
         // Include Android View.
         TextView(text = "This is a text in a TextView")
