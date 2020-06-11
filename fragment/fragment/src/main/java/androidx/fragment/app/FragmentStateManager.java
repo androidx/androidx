@@ -271,9 +271,11 @@ class FragmentStateManager {
                         case Fragment.CREATED:
                             create();
                             break;
-                        case Fragment.AWAITING_EXIT_EFFECTS:
+                        case Fragment.VIEW_CREATED:
                             ensureInflatedView();
                             createView();
+                            break;
+                        case Fragment.AWAITING_EXIT_EFFECTS:
                             activityCreated();
                             break;
                         case Fragment.ACTIVITY_CREATED:
@@ -342,6 +344,9 @@ class FragmentStateManager {
                             }
                             mFragment.mState = Fragment.AWAITING_EXIT_EFFECTS;
                             break;
+                        case Fragment.VIEW_CREATED:
+                            mFragment.mState = Fragment.VIEW_CREATED;
+                            break;
                         case Fragment.CREATED:
                             destroyFragmentView();
                             break;
@@ -392,9 +397,10 @@ class FragmentStateManager {
                 mFragment.mView.setSaveFromParentEnabled(false);
                 mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
                 if (mFragment.mHidden) mFragment.mView.setVisibility(View.GONE);
-                mFragment.onViewCreated(mFragment.mView, mFragment.mSavedFragmentState);
+                mFragment.performViewCreated();
                 mDispatcher.dispatchOnFragmentViewCreated(
                         mFragment, mFragment.mView, mFragment.mSavedFragmentState, false);
+                mFragment.mState = Fragment.VIEW_CREATED;
             }
         }
     }
@@ -552,7 +558,7 @@ class FragmentStateManager {
                             }
                         });
             }
-            mFragment.onViewCreated(mFragment.mView, mFragment.mSavedFragmentState);
+            mFragment.performViewCreated();
             mDispatcher.dispatchOnFragmentViewCreated(
                     mFragment, mFragment.mView, mFragment.mSavedFragmentState, false);
             // Only animate the view if it is visible. This is done after
@@ -560,6 +566,7 @@ class FragmentStateManager {
             mFragment.mIsNewlyAdded = (mFragment.mView.getVisibility() == View.VISIBLE)
                     && mFragment.mContainer != null;
         }
+        mFragment.mState = Fragment.VIEW_CREATED;
     }
 
     void activityCreated() {
