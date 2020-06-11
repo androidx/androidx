@@ -29,9 +29,7 @@
         </activity>
 
         <!-- Rotations -->
-        <activity
-            android:name=".rotations.UnlockedOrientationActivity"
-            android:screenOrientation="fullSensor" />
+        <activity android:name=".rotations.UnlockedOrientationActivity" />
         <activity
             android:name=".rotations.LockedOrientationActivity"
             android:screenOrientation="portrait" />

@@ -40,6 +40,8 @@ import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_rotations_main.previewView
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 
 open class CameraActivity : AppCompatActivity() {
@@ -47,15 +49,22 @@ open class CameraActivity : AppCompatActivity() {
     private lateinit var mCamera: Camera
     protected lateinit var mImageAnalysis: ImageAnalysis
     protected lateinit var mImageCapture: ImageCapture
+    private lateinit var mAnalysisExecutor: ExecutorService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rotations_main)
+        mAnalysisExecutor = Executors.newSingleThreadExecutor()
         if (shouldRequestPermissionsAtRuntime() && !hasPermissions()) {
             requestPermissions(PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         } else {
             setUpCamera()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mAnalysisExecutor.shutdown()
     }
 
     override fun onRequestPermissionsResult(
@@ -89,7 +98,7 @@ open class CameraActivity : AppCompatActivity() {
         cameraProcessFuture.addListener(Runnable {
             val cameraProvider = cameraProcessFuture.get()
             setUpCamera(cameraProvider)
-        }, CameraXExecutors.mainThreadExecutor())
+        }, ContextCompat.getMainExecutor(this))
     }
 
     private fun setUpCamera(cameraProvider: ProcessCameraProvider) {
@@ -101,7 +110,7 @@ open class CameraActivity : AppCompatActivity() {
         mImageAnalysis = ImageAnalysis.Builder()
             .build()
             .apply {
-                setAnalyzer(CameraXExecutors.ioExecutor(), createAnalyzer())
+                setAnalyzer(mAnalysisExecutor, createAnalyzer())
             }
         mImageCapture = ImageCapture.Builder()
             .build()

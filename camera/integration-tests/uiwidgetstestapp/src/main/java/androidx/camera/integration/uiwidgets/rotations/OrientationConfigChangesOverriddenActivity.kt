@@ -18,6 +18,8 @@ package androidx.camera.integration.uiwidgets.rotations
 
 import android.content.Context
 import android.hardware.display.DisplayManager
+import androidx.annotation.VisibleForTesting
+import java.util.concurrent.Semaphore
 
 class OrientationConfigChangesOverriddenActivity : CameraActivity() {
 
@@ -34,6 +36,7 @@ class OrientationConfigChangesOverriddenActivity : CameraActivity() {
                     mImageAnalysis.targetRotation = rotation
                     mImageCapture.targetRotation = rotation
                 }
+                mDisplayChanged.release()
             }
 
             override fun onDisplayAdded(displayId: Int) {
@@ -53,4 +56,9 @@ class OrientationConfigChangesOverriddenActivity : CameraActivity() {
         super.onStop()
         mDisplayManager.unregisterDisplayListener(mDisplayListener)
     }
+
+    // region For testing
+    @VisibleForTesting
+    val mDisplayChanged = Semaphore(0)
+    // endregion
 }

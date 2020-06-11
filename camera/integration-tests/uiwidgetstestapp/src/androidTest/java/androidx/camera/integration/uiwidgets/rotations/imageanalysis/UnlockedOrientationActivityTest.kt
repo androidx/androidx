@@ -23,12 +23,13 @@ import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+import android.content.res.Configuration
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity
 import androidx.camera.integration.uiwidgets.rotations.UnlockedOrientationActivity
-import androidx.camera.integration.uiwidgets.rotations.get
+import androidx.camera.integration.uiwidgets.rotations.UnlockedOrientationActivity.Companion.mCreated
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
@@ -36,6 +37,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import androidx.test.uiautomator.UiDevice
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assume
@@ -44,6 +47,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
 /**
@@ -64,6 +68,13 @@ import java.util.concurrent.TimeUnit
 class UnlockedOrientationActivityTest(private val lensFacing: Int, private val orientation: Int) {
 
     companion object {
+        private val ORIENTATION_MAP = hashMapOf(
+            SCREEN_ORIENTATION_PORTRAIT to Configuration.ORIENTATION_PORTRAIT,
+            SCREEN_ORIENTATION_REVERSE_PORTRAIT to Configuration.ORIENTATION_PORTRAIT,
+            SCREEN_ORIENTATION_LANDSCAPE to Configuration.ORIENTATION_LANDSCAPE,
+            SCREEN_ORIENTATION_REVERSE_LANDSCAPE to Configuration.ORIENTATION_LANDSCAPE
+        )
+
         @JvmStatic
         @Parameterized.Parameters(name = "lensFacing={0}, orientation={1}")
         fun data() = mutableListOf<Array<Any?>>().apply {
@@ -87,16 +98,19 @@ class UnlockedOrientationActivityTest(private val lensFacing: Int, private val o
         CoreAppTestUtil.assumeCompatibleDevice()
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
+        // Initialize CameraX
         val context = ApplicationProvider.getApplicationContext<Context>()
         val config = Camera2Config.defaultConfig()
         CameraX.initialize(context, config).get()
+
+        // Clear the device's UI and ensure it's in a natural orientation
+        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        uiDevice.setOrientationNatural()
     }
 
     @After
     fun tearDown() {
-        if (CameraX.isInitialized()) {
-            InstrumentationRegistry.getInstrumentation().runOnMainSync { CameraX.unbindAll() }
-        }
         CameraX.shutdown().get()
     }
 
@@ -105,18 +119,23 @@ class UnlockedOrientationActivityTest(private val lensFacing: Int, private val o
         launchActivity(lensFacing).use { scenario ->
 
             // Wait until camera is set up, and Analyzer is running
-            val analysisRunning1 = scenario.get { mAnalysisRunning }
+            val analysisRunning1 = scenario.withActivity { mAnalysisRunning }
             assertThat(analysisRunning1.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
 
             // Rotate to specified orientation
-            rotate(scenario, orientation)
+            if (scenario.rotate(orientation)) {
 
-            // Wait until camera is set up, and Analyzer is running
-            val analysisRunning2 = scenario.get { mAnalysisRunning }
-            assertThat(analysisRunning2.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+                // Wait until the activity is rotated (and recreated)
+                assertThat(mCreated.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+
+                // Wait until camera is set up, and Analyzer is running
+                val analysisRunning2 = scenario.withActivity { mAnalysisRunning }
+                assertThat(analysisRunning1).isNotSameInstanceAs(analysisRunning2)
+                assertThat(analysisRunning2.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+            }
 
             // Image rotation is correct if equal to sensor rotation relative to target rotation
-            val (sensorToTargetRotation, imageRotationDegrees) = scenario.get {
+            val (sensorToTargetRotation, imageRotationDegrees) = scenario.withActivity {
                 Pair(getSensorRotationRelativeToAnalysisTargetRotation(), mAnalysisImageRotation)
             }
             assertThat(sensorToTargetRotation).isEqualTo(imageRotationDegrees)
@@ -132,17 +151,14 @@ class UnlockedOrientationActivityTest(private val lensFacing: Int, private val o
         return ActivityScenario.launch<UnlockedOrientationActivity>(intent)
     }
 
-    /**
-     * Simulates a physical device rotation for an Activity with an unlocked orientation by
-     * calling {@link Activity#setRequestedOrientation(int)}. This results in a new instance of
-     * the Activity created in the specified orientation.
-     */
-    private fun rotate(
-        scenario: ActivityScenario<UnlockedOrientationActivity>,
-        orientation: Int
-    ) {
-        scenario.onActivity { activity ->
+    private fun ActivityScenario<UnlockedOrientationActivity>.rotate(orientation: Int): Boolean {
+        val currentOrientation = withActivity { resources.configuration.orientation }
+        val didRotate = ORIENTATION_MAP[orientation] != currentOrientation
+        // Rotate
+        onActivity { activity ->
+            mCreated = Semaphore(0)
             activity.requestedOrientation = orientation
         }
+        return didRotate
     }
 }
