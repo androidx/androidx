@@ -45,9 +45,17 @@ class MultiParagraphIntrinsics(
     resourceLoader: Font.ResourceLoader
 ) : ParagraphIntrinsics {
 
-    override val minIntrinsicWidth: Float
+    override val minIntrinsicWidth: Float by lazy {
+        infoList.maxBy {
+            it.intrinsics.minIntrinsicWidth
+        }?.intrinsics?.minIntrinsicWidth ?: 0f
+    }
 
-    override val maxIntrinsicWidth: Float
+    override val maxIntrinsicWidth: Float by lazy {
+        infoList.maxBy {
+            it.intrinsics.maxIntrinsicWidth
+        }?.intrinsics?.maxIntrinsicWidth ?: 0f
+    }
 
     /**
      * [ParagraphIntrinsics] for each paragraph included in the [annotatedString]. For empty string
@@ -84,14 +92,6 @@ class MultiParagraphIntrinsics(
                     endIndex = paragraphStyleItem.end
                 )
             }
-
-        minIntrinsicWidth = infoList.maxBy {
-            it.intrinsics.minIntrinsicWidth
-        }?.intrinsics?.minIntrinsicWidth ?: 0f
-
-        maxIntrinsicWidth = infoList.maxBy {
-            it.intrinsics.maxIntrinsicWidth
-        }?.intrinsics?.maxIntrinsicWidth ?: 0f
     }
 
     /**
