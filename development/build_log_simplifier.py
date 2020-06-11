@@ -25,27 +25,20 @@ def usage():
     """)
     exit(1)
 
-try:
-    build_log_loc = sys.argv[1]
-
-    infile = open(build_log_loc)
-
+def select_failing_task_output(lines):
     tasks_of_interest = []
-
     # first, find tasks of interest
-    for line in infile:
+    for line in lines:
         if line.startswith("Execution failed for task"):
             tasks_of_interest.append(line.split("task '")[1][:-3])
 
-    infile.close()
-    infile = open(build_log_loc)
 
-    print("Tasks of interest: " + str(tasks_of_interest))
+    print("Detected these failing tasks: " + str(tasks_of_interest))
 
     # next, save all excerpts between start(interesting task) and end(interesting task)
     current_interesting_tasks = []
     retained_lines = []
-    for line in infile:
+    for line in lines:
         if line.startswith("Task ") and line.split(" ")[1] in tasks_of_interest:
             if line.split(" ")[-1].strip() == "Starting":
                 current_interesting_tasks.append(line.split(" ")[1])
@@ -53,10 +46,41 @@ try:
                 current_interesting_tasks.remove(line.split(" ")[1])
                 retained_lines.append(line)
         if current_interesting_tasks: retained_lines.append(line)
+    if retained_lines:
+        return retained_lines
+    # if no output was created by any failing tasks, then maybe there could be useful output from
+    # somewhere else
+    return lines
 
+def shorten_uninteresting_stack_frames(lines):
+    result = []
+    prev_line_is_boring = False
+    for line in lines:
+        if line.startswith("\tat org.gradle"):
+            if not prev_line_is_boring:
+                result.append("\tat org.gradle...\n")
+            prev_line_is_boring = True
+        elif line.startswith("\tat java.base"):
+            if not prev_line_is_boring:
+                result.append("\tat java.base...")
+            prev_line_is_boring = True
+        else:
+            result.append(line)
+            prev_line_is_boring = False
+    return result
 
-    print(len(retained_lines))
-    print(''.join(retained_lines))
+try:
+    build_log_loc = sys.argv[1]
+
+    infile = open(build_log_loc)
+    lines = infile.readlines()
+    infile.close()
+
+    lines = select_failing_task_output(lines)
+    lines = shorten_uninteresting_stack_frames(lines)
+
+    print(len(lines))
+    print(''.join(lines))
 except Exception as e:
     print("An error occurred! "+str(e))
     usage()
