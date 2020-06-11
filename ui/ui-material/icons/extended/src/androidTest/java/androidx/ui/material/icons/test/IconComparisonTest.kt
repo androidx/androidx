@@ -16,13 +16,8 @@
 
 package androidx.ui.material.icons.test
 
-import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
-import android.view.PixelCopy
-import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.compose.Composition
@@ -44,20 +39,16 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.res.vectorResource
-import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.captureToBitmap
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.toRect
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 import kotlin.reflect.KProperty0
 import kotlin.reflect.jvm.javaGetter
 
@@ -122,11 +113,9 @@ class IconComparisonTest(
 
             assertVectorAssetsAreEqual(xmlVector!!, programmaticVector, iconName)
 
-            val activity = composeTestRule.activityTestRule.activity
-
             assertBitmapsAreEqual(
-                findByTag(XmlTestTag).fastCaptureToBitmap(activity),
-                findByTag(ProgrammaticTestTag).fastCaptureToBitmap(activity),
+                findByTag(XmlTestTag).captureToBitmap(),
+                findByTag(ProgrammaticTestTag).captureToBitmap(),
                 iconName
             )
 
@@ -221,76 +210,4 @@ private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset)
             )
         }
     }
-}
-
-/**
- * Taken from before http://aosp/1318899
- *
- * The current SemanticsNodeInteraction.captureToBitmap is unfortunately 3x~ slower, so
- * although this approach doesn't handle cutouts / action bars, in this specific test it is ok to
- * use it to speed up the test run for this large test.
- */
-private fun SemanticsNodeInteraction.fastCaptureToBitmap(activity: Activity): Bitmap {
-    // First we wait for the drawing to happen
-    val drawLatch = CountDownLatch(1)
-    val decorView = activity.window.decorView
-    val handler = Handler(Looper.getMainLooper())
-    handler.post {
-        if (Build.VERSION.SDK_INT >= 29) {
-            decorView.viewTreeObserver.registerFrameCommitCallback {
-                drawLatch.countDown()
-            }
-        } else {
-            decorView.viewTreeObserver.addOnDrawListener(object : ViewTreeObserver.OnDrawListener {
-                var handled = false
-                override fun onDraw() {
-                    if (!handled) {
-                        handled = true
-                        handler.post {
-                            drawLatch.countDown()
-                            decorView.viewTreeObserver.removeOnDrawListener(this)
-                        }
-                    }
-                }
-            })
-        }
-        decorView.invalidate()
-    }
-    if (!drawLatch.await(1, TimeUnit.SECONDS)) {
-        throw AssertionError("Failed waiting for DecorView redraw!")
-    }
-
-    val node = fetchSemanticsNode("Failed to capture a node to bitmap.")
-    val captureRect = node.globalBounds.toRect()
-
-    // and then request the pixel copy of the drawn buffer
-    val destBitmap = Bitmap.createBitmap(
-        captureRect.width.roundToInt(),
-        captureRect.height.roundToInt(),
-        Bitmap.Config.ARGB_8888
-    )
-
-    val srcRect = android.graphics.Rect(
-        captureRect.left.roundToInt(),
-        captureRect.top.roundToInt(),
-        captureRect.right.roundToInt(),
-        captureRect.bottom.roundToInt()
-    )
-
-    val latch = CountDownLatch(1)
-    var copyResult = 0
-    val onCopyFinished = PixelCopy.OnPixelCopyFinishedListener { result ->
-        copyResult = result
-        latch.countDown()
-    }
-
-    PixelCopy.request(activity.window, srcRect, destBitmap, onCopyFinished, handler)
-
-    if (!latch.await(1, TimeUnit.SECONDS)) {
-        throw AssertionError("Failed waiting for PixelCopy!")
-    }
-    if (copyResult != PixelCopy.SUCCESS) {
-        throw AssertionError("PixelCopy failed!")
-    }
-    return destBitmap
 }

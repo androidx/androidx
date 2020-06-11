@@ -16,29 +16,85 @@
 
 package androidx.ui.test.android
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.Bitmap
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
-import androidx.ui.geometry.Rect
-import kotlin.math.roundToInt
+import android.graphics.Rect
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.view.PixelCopy
+import android.view.View
+import android.view.ViewTreeObserver
+import androidx.annotation.RequiresApi
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
+@RequiresApi(Build.VERSION_CODES.O)
 internal fun captureRegionToBitmap(
-    captureRect: Rect
+    captureRectInWindow: Rect,
+    view: View
 ): Bitmap {
-    // TODO: This could go to some Android specific extensions.
-    val srcRect = android.graphics.Rect(
-        captureRect.left.roundToInt(),
-        captureRect.top.roundToInt(),
-        captureRect.right.roundToInt(),
-        captureRect.bottom.roundToInt()
+    fun Context.getActivity(): Activity? {
+        return when (this) {
+            is Activity -> this
+            is ContextWrapper -> this.baseContext.getActivity()
+            else -> null
+        }
+    }
+
+    val window = view.context.getActivity()!!.window
+    val handler = Handler(Looper.getMainLooper())
+
+    // first we wait for the drawing to happen
+    val drawLatch = CountDownLatch(1)
+    val decorView = window.decorView
+    handler.post {
+        if (Build.VERSION.SDK_INT >= 29) {
+            decorView.viewTreeObserver.registerFrameCommitCallback {
+                drawLatch.countDown()
+            }
+        } else {
+            decorView.viewTreeObserver.addOnDrawListener(object : ViewTreeObserver.OnDrawListener {
+                var handled = false
+                override fun onDraw() {
+                    if (!handled) {
+                        handled = true
+                        handler.post {
+                            drawLatch.countDown()
+                            decorView.viewTreeObserver.removeOnDrawListener(this)
+                        }
+                    }
+                }
+            })
+        }
+        decorView.invalidate()
+    }
+    if (!drawLatch.await(1, TimeUnit.SECONDS)) {
+        throw AssertionError("Failed waiting for DecorView redraw!")
+    }
+
+    // and then request the pixel copy of the drawn buffer
+    val destBitmap = Bitmap.createBitmap(
+        captureRectInWindow.width(),
+        captureRectInWindow.height(),
+        Bitmap.Config.ARGB_8888
     )
 
-    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-    device.waitForIdle()
+    val latch = CountDownLatch(1)
+    var copyResult = 0
+    val onCopyFinished = PixelCopy.OnPixelCopyFinishedListener { result ->
+        copyResult = result
+        latch.countDown()
+    }
+    PixelCopy.request(window, captureRectInWindow, destBitmap, onCopyFinished, handler)
 
-    val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-    val srcBitmap = automation.takeScreenshot()
-
-    return Bitmap.createBitmap(srcBitmap, captureRect.left.roundToInt(),
-        captureRect.top.roundToInt(), srcRect.width(), srcRect.height())
+    if (!latch.await(1, TimeUnit.SECONDS)) {
+        throw AssertionError("Failed waiting for PixelCopy!")
+    }
+    if (copyResult != PixelCopy.SUCCESS) {
+        throw AssertionError("PixelCopy failed!")
+    }
+    return destBitmap
 }

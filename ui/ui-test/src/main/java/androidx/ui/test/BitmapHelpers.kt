@@ -17,9 +17,11 @@
 package androidx.ui.test
 
 import android.graphics.Bitmap
+import android.os.Build
 import android.view.View
+import androidx.annotation.RequiresApi
+import androidx.ui.core.AndroidOwner
 import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -33,21 +35,40 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
-import androidx.ui.unit.toRect
+import androidx.ui.unit.height
+import androidx.ui.unit.width
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import kotlin.math.roundToInt
 
 /**
- * Captures the screen region occupied by this component into a bitmap.
+ * Captures the underlying component's surface into bitmap.
  *
- * In case there is anything else (for example a popup) on top of this component, it will be also
- * captured as part of this operation.
- */
+ * This has a limitation that if there is another window covering part of this component, such a
+ * window won't occur in this bitmap.
+*/
+@RequiresApi(Build.VERSION_CODES.O)
 fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
     val node = fetchSemanticsNode("Failed to capture a node to bitmap.")
     // TODO(pavlis): Consider doing assertIsDisplayed here. Will need to move things around.
-    return captureRegionToBitmap(node.globalBounds.toRect())
+    val nodeBounds = node.boundsInRoot
+    val nodeBoundsRect = android.graphics.Rect(
+        nodeBounds.left.roundToInt(),
+        nodeBounds.top.roundToInt(),
+        nodeBounds.right.roundToInt(),
+        nodeBounds.bottom.roundToInt())
+
+    val view = (node.componentNode.owner as AndroidOwner).view
+
+    val locationInWindow = intArrayOf(0, 0)
+    view.getLocationInWindow(locationInWindow)
+    val x = locationInWindow[0]
+    val y = locationInWindow[1]
+
+    // Now these are bounds in window
+    nodeBoundsRect.offset(x, y)
+
+    return captureRegionToBitmap(nodeBoundsRect, view)
 }
 
 /**
@@ -57,13 +78,14 @@ fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
  * Activity's window. Also if there is another window covering part of the component if won't occur
  * in the bitmap as this is taken from the component's window surface.
  */
+@RequiresApi(Build.VERSION_CODES.O)
 fun View.captureToBitmap(): Bitmap {
-    val locationOnScreen = intArrayOf(0, 0)
-    getLocationOnScreen(locationOnScreen)
-    val x = locationOnScreen[0].toFloat()
-    val y = locationOnScreen[1].toFloat()
-    val bounds = Rect(x, y, x + width, y + height)
-    return captureRegionToBitmap(bounds)
+    val locationInWindow = intArrayOf(0, 0)
+    getLocationInWindow(locationInWindow)
+    val x = locationInWindow[0]
+    val y = locationInWindow[1]
+    val boundsInWindow = android.graphics.Rect(x, y, x + width, y + height)
+    return captureRegionToBitmap(boundsInWindow, this)
 }
 
 /**
