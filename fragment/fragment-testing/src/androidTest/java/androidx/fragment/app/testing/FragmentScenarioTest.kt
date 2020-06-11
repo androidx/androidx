@@ -220,6 +220,28 @@ class FragmentScenarioTest {
     }
 
     @Test
+    fun withFragment() {
+        with(launchFragment<StateRecordingFragment>()) {
+            val stateOfFragment = withFragment { state }
+            assertThat(stateOfFragment).isEqualTo(State.RESUMED)
+        }
+    }
+
+    @Test
+    fun withFragmentException() {
+        with(launchFragment<StateRecordingFragment>()) {
+            try {
+                withFragment {
+                    throw IllegalStateException("Throwing an exception within withFragment")
+                }
+            } catch (e: IllegalStateException) {
+                assertThat(e).hasMessageThat()
+                    .isEqualTo("Throwing an exception within withFragment")
+            }
+        }
+    }
+
+    @Test
     fun fromResumedToCreated() {
         with(launchFragmentInContainer<StateRecordingFragment>()) {
             moveToState(State.CREATED)
