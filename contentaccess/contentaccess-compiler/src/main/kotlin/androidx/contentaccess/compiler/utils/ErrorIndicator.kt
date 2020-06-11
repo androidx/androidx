@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.contentaccess.compiler.vo
+package androidx.contentaccess.compiler.utils
 
-import javax.lang.model.type.TypeMirror
+class ErrorIndicator() {
+    var errorFound: Boolean = false
 
-// Represents a column in a content provider
-data class ContentColumnVO(
-    val name: String,
-    val type: TypeMirror,
-    val columnName: String = name,
-    val isNullable: Boolean
-)
+    fun indicateError() {
+        errorFound = true
+    }
+}

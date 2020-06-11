@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
 /**
  * Annotates a method that accesses a content provider.
  *
- * @property query optional single field to query, otherwise queried fields are inferred from
+ * @property projection optional single field to query, otherwise queried fields are inferred from
  * return type. If this is specified and but the return type is a POJO, then that will result in
  * an error.
  *
@@ -36,7 +36,7 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
 annotation class ContentQuery(
-    val query: String = "",
+    val projection: Array<String> = arrayOf(),
     val selection: String = "",
     val orderBy: String = "",
     val uri: String = "",

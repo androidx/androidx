@@ -19,6 +19,7 @@ import com.squareup.kotlinpoet.asTypeName
 import java.lang.RuntimeException
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.ElementFilter
@@ -50,17 +51,20 @@ fun TypeMirror.isSupportedGenericType(): Boolean {
     return isSupportedCollection() || isOptional() || isFlowable()
 }
 
-fun TypeMirror.extractFirstTypeParameter():
+fun TypeMirror.extractImmediateTypeParameter():
         TypeMirror {
     val asDeclared = MoreTypes.asDeclared(this)
     return asDeclared.typeArguments.first()
 }
 
 fun TypeMirror.extractIntendedReturnType(): TypeMirror {
-    val firstWrappedType = extractFirstTypeParameter()
+    if (!this.isSupportedGenericType()) {
+        return this
+    }
+    val firstWrappedType = extractImmediateTypeParameter()
     if (isFlowable() && (firstWrappedType.isSupportedCollection() ||
                 firstWrappedType.isOptional())) {
-        return firstWrappedType.extractFirstTypeParameter()
+        return firstWrappedType.extractImmediateTypeParameter()
     }
     return firstWrappedType
 }
@@ -169,13 +173,13 @@ fun TypeMirror.getCursorMethod(): String {
     throw RuntimeException("No cursor method for the given return type.")
 }
 
-fun TypeMirror.getOrderedConstructorParams(): List<Pair<String, TypeMirror>> {
+fun TypeMirror.getOrderedConstructorParams(): List<VariableElement> {
     val constructors = ElementFilter.constructorsIn(this.asTypeElement().enclosedElements)
     if (constructors.size > 1) {
         // TODO(obenabde): error, should have only one constructor otherwise it becomes
         //  ambiguous
     }
-    return constructors.first().parameters.map({ it.simpleName.toString() to it.asType() })
+    return constructors.first().parameters
 }
 
 internal val FLOWABLE_TYPE = "io.reactivex.Flowable"

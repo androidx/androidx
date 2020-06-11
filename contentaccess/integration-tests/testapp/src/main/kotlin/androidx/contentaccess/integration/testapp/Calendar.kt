@@ -45,11 +45,11 @@ data class Calendar(
 @ContentEntity("content://com.android.calendar/events")
 data class Event(
     @ContentPrimaryKey("_id")
-    var iD: Long?,
+    var iD: Long,
     @ContentColumn("calendar_id")
     var calendarId: Long?,
     @ContentColumn("title")
-    var title: String?,
+    var titles: String?,
     @ContentColumn("description")
     var description: String?,
     @ContentColumn("dtstart")
