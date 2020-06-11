@@ -108,3 +108,25 @@ inline fun <reified F : Fragment> launchFragmentInContainer(
             else -> super.instantiate(classLoader, className)
         }
     })
+
+/**
+ * Run [block] using [FragmentScenario.onFragment], returning the result of the [block].
+ *
+ * If any exceptions are raised while running [block], they are rethrown.
+ */
+@SuppressWarnings("DocumentExceptions")
+inline fun <reified F : Fragment, T : Any> FragmentScenario<F>.withFragment(
+    crossinline block: F.() -> T
+): T {
+    lateinit var value: T
+    var err: Throwable? = null
+    onFragment { fragment ->
+        try {
+            value = block(fragment)
+        } catch (t: Throwable) {
+            err = t
+        }
+    }
+    err?.let { throw it }
+    return value
+}
