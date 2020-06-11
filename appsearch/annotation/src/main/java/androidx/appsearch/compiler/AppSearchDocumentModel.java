@@ -129,6 +129,24 @@ class AppSearchDocumentModel {
         return mReadKinds.get(element);
     }
 
+    /**
+     * Finds the AppSearch name for the given property.
+     *
+     * <p>This is usually the name of the field in Java, but may be changed if the developer
+     * specifies a different 'name' parameter in the annotation.
+     */
+    @Nullable
+    public String getPropertyName(@NonNull VariableElement property) throws ProcessingException {
+        AnnotationMirror annotation =
+                mIntrospectionHelper.getAnnotation(property, IntrospectionHelper.PROPERTY_CLASS);
+        Map<String, Object> params = mIntrospectionHelper.getAnnotationParams(annotation);
+        String propertyName = params.get("name").toString();
+        if (propertyName.isEmpty()) {
+            propertyName = property.getSimpleName().toString();
+        }
+        return propertyName;
+    }
+
     private void scanFields() throws ProcessingException {
         Element uriField = null;
         Element creationTimestampField = null;
