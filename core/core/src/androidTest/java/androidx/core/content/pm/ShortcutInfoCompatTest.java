@@ -34,7 +34,6 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
-import android.os.Build;
 import android.os.PersistableBundle;
 
 import androidx.core.app.Person;
@@ -53,7 +52,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -239,32 +237,6 @@ public class ShortcutInfoCompatTest {
         assertFalse(compat.isImmutable());
         assertFalse(compat.isPinned());
         assertFalse(compat.hasKeyFieldsOnly());
-
-        if (Build.VERSION.SDK_INT >= 28) {
-            final Method setDisabledReason = ShortcutInfo.class.getDeclaredMethod(
-                    "setDisabledReason", int.class);
-            setDisabledReason.setAccessible(true);
-            setDisabledReason.invoke(shortcut, ShortcutInfo.DISABLED_REASON_BY_APP);
-        }
-
-        final int flag = FLAG_PINNED | FLAG_DYNAMIC | FLAG_MANIFEST | FLAG_IMMUTABLE | FLAG_DISABLED
-                | FLAG_CACHED | FLAG_KEY_FIELDS_ONLY;
-        final Method replaceFlags = ShortcutInfo.class.getDeclaredMethod("replaceFlags", int.class);
-        replaceFlags.setAccessible(true);
-        replaceFlags.invoke(shortcut, flag);
-
-        compat = new ShortcutInfoCompat.Builder(mContext, shortcut).build();
-        assertEquals(Build.VERSION.SDK_INT >= 28 ? ShortcutInfo.DISABLED_REASON_BY_APP :
-                ShortcutInfo.DISABLED_REASON_UNKNOWN, compat.getDisabledReason());
-        if (Build.VERSION.SDK_INT >= 30) {
-            assertTrue(compat.isCached());
-        }
-        assertTrue(compat.isDeclaredInManifest());
-        assertTrue(compat.isDynamic());
-        assertFalse(compat.isEnabled());
-        assertTrue(compat.isImmutable());
-        assertTrue(compat.isPinned());
-        assertTrue(compat.hasKeyFieldsOnly());
     }
 
     @Test
