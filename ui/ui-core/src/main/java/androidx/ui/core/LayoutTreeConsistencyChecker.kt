@@ -16,7 +16,6 @@
 
 package androidx.ui.core
 
-import android.util.Log
 import androidx.ui.core.LayoutNode.LayoutState
 import androidx.ui.util.fastForEach
 
@@ -33,9 +32,7 @@ internal class LayoutTreeConsistencyChecker(
     fun assertConsistent() {
         val inconsistencyFound = !isTreeConsistent(root)
         if (inconsistencyFound) {
-            logTree()
-            Log.d("AndroidOwner", "List of relayoutNodes: $relayoutNodes")
-            throw IllegalStateException("Inconsistency found! See the printed tree")
+            throw IllegalStateException("Inconsistency found! ${logTree()}")
         }
     }
 
@@ -83,22 +80,22 @@ internal class LayoutTreeConsistencyChecker(
     }
 
     /** Prints the nodes tree into the logs. */
-    private fun logTree() {
+    private fun logTree(): String {
+        val stringBuilder = StringBuilder()
         fun printSubTree(node: LayoutNode, depth: Int) {
             var childrenDepth = depth
             val nodeRepresentation = nodeToString(node)
             if (nodeRepresentation.isNotEmpty()) {
-                val stringBuilder = StringBuilder()
                 for (i in 0 until depth) {
                     stringBuilder.append("..")
                 }
-                stringBuilder.append(nodeRepresentation)
-                Log.d("AndroidOwner", stringBuilder.toString())
+                stringBuilder.appendln(nodeRepresentation)
                 childrenDepth += 1
             }
             node.children.fastForEach { printSubTree(it, childrenDepth) }
         }
-        Log.d("AndroidOwner", "Tree state:")
+        stringBuilder.appendln("Tree state:")
         printSubTree(root, 0)
+        return stringBuilder.toString()
     }
 }
