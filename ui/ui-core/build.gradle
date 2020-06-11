@@ -25,63 +25,78 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-multiplatform")
 }
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
-    implementation(KOTLIN_STDLIB)
-    implementation(KOTLIN_COROUTINES_ANDROID)
+}
 
-    api "androidx.annotation:annotation:1.1.0"
-    api "androidx.activity:activity:1.2.0-alpha05"
+kotlin {
+    android()
+    sourceSets {
+        commonMain.dependencies {
+            implementation(KOTLIN_STDLIB_COMMON)
+            implementation(KOTLIN_COROUTINES_CORE)
 
-    api project(":ui:ui-unit")
-    api project(":ui:ui-graphics")
-    api project(":ui:ui-text-core")
-    api project(":ui:ui-animation-core")
-    api project(":ui:ui-saved-instance-state")
-    implementation project(":ui:ui-util")
+            api project(":ui:ui-unit")
+            api project(":ui:ui-graphics")
+            api project(":ui:ui-text-core")
+            api project(":ui:ui-animation-core")
+            api project(":ui:ui-saved-instance-state")
+            implementation project(":ui:ui-util")
+            implementation project(":compose:compose-runtime")
+        }
 
-    implementation project(":compose:compose-runtime")
-    implementation "androidx.autofill:autofill:1.0.0"
+        androidMain.dependencies {
+            implementation(KOTLIN_STDLIB)
+            // we don't use these dependencies but we need to ensure at least these versions are used if
+            // the user adds these dependencies as otherwise AppCompatActivity and Fragment will not
+            // propagate ViewTree*Owners we are relying on and we will crash.
+            implementation "androidx.fragment:fragment:1.3.0-alpha05"
+            // due to b/152023266 we can't add these dependency right now
+            // to be fixed as part of b/158301343
+            // implementation "androidx.appcompat:appcompat:1.3.0-alpha01"
+            api "androidx.annotation:annotation:1.1.0"
+            api "androidx.activity:activity:1.2.0-alpha02"
+            implementation "androidx.autofill:autofill:1.0.0"
+            implementation(KOTLIN_COROUTINES_ANDROID)
+        }
 
-    // we don't use these dependencies but we need to ensure at least these versions are used if
-    // the user adds these dependencies as otherwise AppCompatActivity and Fragment will not
-    // propagate ViewTree*Owners we are relying on and we will crash.
-    implementation "androidx.fragment:fragment:1.3.0-alpha05"
-    // due to b/152023266 we can't add these dependency right now
-    // to be fixed as part of b/158301343
-    // implementation "androidx.appcompat:appcompat:1.3.0-alpha01"
+        unitTest.dependencies {
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(JUNIT)
+            implementation(TRUTH)
+            implementation(MOCKITO_CORE)
+            implementation(ROBOLECTRIC) {
+                exclude group: 'org.apache.maven'
+            }
+            implementation MOCKITO_KOTLIN, {
+                exclude group: 'org.mockito' // to keep control on the mockito version
+            }
+            implementation project(":ui:ui-test")
+        }
 
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(ROBOLECTRIC)
-    testImplementation MOCKITO_KOTLIN, {
-        exclude group: 'org.mockito' // to keep control on the mockito version
+        androidAndroidTest.dependencies {
+            implementation "androidx.fragment:fragment:1.2.4"
+            implementation "androidx.appcompat:appcompat:1.1.0"
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(ESPRESSO_CORE)
+            implementation(JUNIT)
+            implementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+            implementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+            implementation(TRUTH)
+            implementation MOCKITO_KOTLIN, {
+                exclude group: 'org.mockito' // to keep control on the mockito version
+            }
+            implementation project(":ui:ui-test")
+            implementation project(":ui:ui-test-font")
+            implementation project(":ui:ui-layout")
+            implementation project(":ui:ui-foundation")
+        }
     }
-    testImplementation project(":ui:ui-test")
-
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(TRUTH)
-    androidTestImplementation MOCKITO_KOTLIN, {
-        exclude group: 'org.mockito' // to keep control on the mockito version
-    }
-
-    androidTestImplementation project(":ui:ui-test")
-    androidTestImplementation project(":ui:ui-test-font")
-    androidTestImplementation project(":ui:ui-layout")
-    androidTestImplementation project(":ui:ui-foundation")
-    androidTestImplementation "androidx.fragment:fragment:1.2.4"
-    androidTestImplementation "androidx.appcompat:appcompat:1.1.0"
 }
 
 androidx {
