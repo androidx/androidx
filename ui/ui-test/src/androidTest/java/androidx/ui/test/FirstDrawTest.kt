@@ -77,9 +77,7 @@ class FirstDrawTest {
     fun waitsForOutOfBoundsComposeView() {
         var drawn = false
 
-        val activity = testRule.activityTestRule.activity
-        activity.runOnUiThread {
-
+        testRule.activityRule.scenario.onActivity { activity ->
             // Set the compose content in a FrameLayout that is completely placed out of the
             // screen, and enforce clipToPadding in case clipping will prevent the clipped
             // content from being drawn.

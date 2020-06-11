@@ -27,6 +27,7 @@ import androidx.ui.core.Ref
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInRoot
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
@@ -34,20 +35,22 @@ import androidx.ui.foundation.TextField
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.drawBackground
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.compositeOver
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.PasswordVisualTransformation
-import androidx.ui.input.TextInputService
-import androidx.ui.geometry.Offset
 import androidx.ui.input.TextFieldValue
+import androidx.ui.input.TextInputService
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
+import androidx.ui.savedinstancestate.rememberSavedInstanceState
+import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.assertPixels
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
@@ -63,8 +66,6 @@ import androidx.ui.test.sendSwipeUp
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.unit.IntSize
-import androidx.ui.savedinstancestate.rememberSavedInstanceState
-import androidx.ui.test.StateRestorationTester
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
@@ -399,7 +400,7 @@ class FilledTextFieldTest {
                     label = {},
                     placeholder = {
                         Text(text = "placeholder", modifier = Modifier.onPositioned {
-                            placeholderPosition.value = it.globalPosition
+                            placeholderPosition.value = it.positionInRoot
                             placeholderSize.value = it.size
                             placeholderBaseline.value =
                                 it[FirstBaseline]!!.toFloat() + placeholderPosition.value!!.y

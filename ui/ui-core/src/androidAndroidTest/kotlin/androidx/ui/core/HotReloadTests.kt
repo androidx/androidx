@@ -57,7 +57,8 @@ class HotReloadTests {
 
     @Test
     fun composeView() {
-        val activity = rule.activityTestRule.activity
+        lateinit var activity: TestActivity
+        rule.activityRule.scenario.onActivity { activity = it }
         var value = "First value"
 
         @Composable fun text(text: String, id: Int = -1) {
@@ -103,7 +104,8 @@ class HotReloadTests {
 
     @Test
     fun composeLayoutNode() {
-        val activity = rule.activityTestRule.activity
+        lateinit var activity: TestActivity
+        rule.activityRule.scenario.onActivity { activity = it }
         var value = "First value"
 
         @Composable fun semanticsNode(text: String, id: Int) {

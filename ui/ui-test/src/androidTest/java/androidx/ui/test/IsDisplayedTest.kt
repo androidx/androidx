@@ -31,6 +31,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withParent
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
@@ -72,10 +73,10 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
         )
     }
 
-    @Suppress("DEPRECATION")
     @get:Rule
     val composeTestRule = AndroidComposeTestRule(
-        androidx.test.rule.ActivityTestRule(config.activityClass))
+        ActivityScenarioRule(config.activityClass)
+    )
 
     private val colors = listOf(Color.Red, Color.Green, Color.Blue)
 
@@ -188,11 +189,11 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
 
     @Test
     fun viewVisibility_androidComposeView() {
-        val activity = composeTestRule.activityTestRule.activity
-        val androidComposeView = runOnUiThread {
+        lateinit var androidComposeView: View
+        composeTestRule.activityRule.scenario.onActivity { activity ->
             // FrameLayout(id=100, w=100, h=100)
             // '- AndroidComposeView
-            FrameLayout(activity).apply {
+            androidComposeView = FrameLayout(activity).apply {
                 id = 100
                 layoutParams = ViewGroup.MarginLayoutParams(100, 100)
                 activity.setContentView(this)
@@ -219,12 +220,12 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
 
     @Test
     fun viewVisibility_parentView() {
-        val activity = composeTestRule.activityTestRule.activity
-        val composeContainer = runOnUiThread {
+        lateinit var composeContainer: View
+        composeTestRule.activityRule.scenario.onActivity { activity ->
             // FrameLayout
             // '- FrameLayout(id=100, w=100, h=100) -> composeContainer
             //    '- AndroidComposeView
-            FrameLayout(activity).apply {
+            composeContainer = FrameLayout(activity).apply {
                 id = 100
                 layoutParams = ViewGroup.MarginLayoutParams(100, 100)
                 activity.setContentView(FrameLayout(activity).also { it.addView(this) })

@@ -62,8 +62,11 @@ class ComposedViewTest {
 
     @Test
     fun androidViewWithViewTest() {
-        val frameLayout = FrameLayout(composeTestRule.activityTestRule.activity).apply {
-            layoutParams = ViewGroup.LayoutParams(300, 300)
+        lateinit var frameLayout: FrameLayout
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            frameLayout = FrameLayout(activity).apply {
+                layoutParams = ViewGroup.LayoutParams(300, 300)
+            }
         }
         composeTestRule.setContent {
             AndroidView(frameLayout)
@@ -99,8 +102,11 @@ class ComposedViewTest {
 
     @Test
     fun androidViewProperlyDetached() {
-        val frameLayout = FrameLayout(composeTestRule.activityTestRule.activity).apply {
-            layoutParams = ViewGroup.LayoutParams(300, 300)
+        lateinit var frameLayout: FrameLayout
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            frameLayout = FrameLayout(activity).apply {
+                layoutParams = ViewGroup.LayoutParams(300, 300)
+            }
         }
         var emit by mutableStateOf(true)
         composeTestRule.setContent {

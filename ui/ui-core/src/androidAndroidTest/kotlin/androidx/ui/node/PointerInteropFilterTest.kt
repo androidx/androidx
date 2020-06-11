@@ -54,7 +54,9 @@ class PointerInteropFilterTest {
 
     @Before
     fun setup() {
-        mockViewGroup = MockViewGroup(composeTestRule.activityTestRule.activity)
+        lateinit var activity: ComponentActivity
+        composeTestRule.activityRule.scenario.onActivity { activity = it }
+        mockViewGroup = MockViewGroup(activity)
         pointerInteropFilter = PointerInteropFilter(mockViewGroup)
     }
 

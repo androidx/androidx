@@ -40,7 +40,8 @@ class MultipleActivitiesClickTest {
 
     @Test
     fun test() {
-        val activity1 = composeTestRule.activityTestRule.activity
+        lateinit var activity1: Activity1
+        composeTestRule.activityRule.scenario.onActivity { activity1 = it }
         activity1.startNewActivity()
         findByTag("activity2").doGesture { sendClick() }
         val activity2 = getCurrentActivity() as Activity2
