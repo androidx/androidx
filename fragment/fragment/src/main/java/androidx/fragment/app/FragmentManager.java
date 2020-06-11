@@ -1297,6 +1297,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
                     if (newState > Fragment.CREATED) {
                         fragmentStateManager.createView();
+                    }
+                    // fall through
+                case Fragment.VIEW_CREATED:
+                    if (newState > Fragment.VIEW_CREATED) {
                         fragmentStateManager.activityCreated();
                     }
                     // fall through
@@ -1334,6 +1338,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                 fragmentStateManager.saveViewState();
                             }
                         }
+                    }
+                    // fall through
+                case Fragment.VIEW_CREATED:
+                    if (newState < Fragment.VIEW_CREATED) {
                         FragmentAnim.AnimationOrAnimator anim = null;
                         if (f.mView != null && f.mContainer != null) {
                             // Stop any current animations:
@@ -2936,6 +2944,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mStopped = false;
         mNonConfig.setIsStateSaved(false);
         dispatchStateChange(Fragment.CREATED);
+    }
+
+    void dispatchViewCreated() {
+        dispatchStateChange(Fragment.VIEW_CREATED);
     }
 
     void dispatchActivityCreated() {
