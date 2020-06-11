@@ -49,7 +49,7 @@ jobs:
       - name: test environment
         run: echo $DIST_DIR && ls $HOME/Library/Android/sdk
       - name: build on server
-        run: cd playground && ./gradlew --build-file build.gradle -Pandroidx.sdkPath=$(echo $HOME)/Library/Android/sdk :buildOnServer && cd ..
+        run: cd playground && ./gradlew -Pandroidx.sdkPath=$(echo $HOME)/Library/Android/sdk :buildOnServer && cd ..
       - name: Upload Results
         if: always()
         uses: actions/upload-artifact@v2
