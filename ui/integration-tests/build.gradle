@@ -44,7 +44,6 @@ dependencies {
     implementation project(":ui:ui-layout")
     implementation project(":ui:ui-material")
     implementation project(":ui:ui-test")
-    implementation project(":ui:ui-vector")
 }
 
 androidx {

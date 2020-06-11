@@ -39,7 +39,6 @@ dependencies {
     api project(":ui:ui-unit")
     api project(":ui:ui-graphics")
     api project(":ui:ui-text-core")
-    api project(":ui:ui-vector")
     api project(":ui:ui-animation-core")
     api project(":ui:ui-saved-instance-state")
     implementation project(":ui:ui-util")
