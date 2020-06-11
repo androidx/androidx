@@ -338,6 +338,26 @@ private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
     else -> DEFAULT_ALIGNMENT
 }
 
+// TODO(b/159152328): temporary workaround for ui-desktop. remove when full support of MPP will be in-place
+@Deprecated(
+    "Temporary workaround. Supposed to be used only in ui-desktop before MPP",
+    level = DeprecationLevel.ERROR
+)
+@InternalPlatformTextApi
+var paragraphActualFactory: ((
+    paragraphIntrinsics: ParagraphIntrinsics,
+    maxLines: Int,
+    ellipsis: Boolean,
+    constraints: ParagraphConstraints
+) -> Paragraph) = { paragraphIntrinsics, maxLines, ellipsis, constraints ->
+    AndroidParagraph(
+        paragraphIntrinsics as AndroidParagraphIntrinsics,
+        maxLines,
+        ellipsis,
+        constraints)
+}
+
+@OptIn(InternalPlatformTextApi::class)
 internal actual fun ActualParagraph(
     text: String,
     style: TextStyle,
@@ -348,32 +368,32 @@ internal actual fun ActualParagraph(
     constraints: ParagraphConstraints,
     density: Density,
     resourceLoader: Font.ResourceLoader
-): Paragraph {
-    return AndroidParagraph(
-        text = text,
-        style = style,
-        spanStyles = spanStyles,
-        placeholders = placeholders,
-        maxLines = maxLines,
-        ellipsis = ellipsis,
-        constraints = constraints,
-        typefaceAdapter = TypefaceAdapter(
-            resourceLoader = resourceLoader
+): Paragraph =
+    @Suppress("DEPRECATION_ERROR")
+    paragraphActualFactory(
+        ActualParagraphIntrinsics(
+            text,
+            style,
+            spanStyles,
+            placeholders,
+            density,
+            resourceLoader
         ),
-        density = density
+        maxLines,
+        ellipsis,
+        constraints
     )
-}
 
+@OptIn(InternalPlatformTextApi::class)
 internal actual fun ActualParagraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int,
     ellipsis: Boolean,
     constraints: ParagraphConstraints
-): Paragraph {
-    return AndroidParagraph(
-        paragraphIntrinsics = paragraphIntrinsics as AndroidParagraphIntrinsics,
-        maxLines = maxLines,
-        ellipsis = ellipsis,
-        constraints = constraints
-    )
-}
+): Paragraph =
+    @Suppress("DEPRECATION_ERROR")
+    paragraphActualFactory(
+        paragraphIntrinsics,
+        maxLines,
+        ellipsis,
+    constraints)

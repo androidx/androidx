@@ -33,6 +33,7 @@ import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.ui.core.setContent
 import androidx.ui.core.TextInputServiceAmbient
+import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.input.TextInputService
 
 import javax.swing.SwingUtilities
@@ -63,8 +64,12 @@ fun SkiaWindow.setContent(content: @Composable () -> Unit) {
             throw IllegalStateException("ViewModels creation is not supported")
         })
         viewGroup.setContent(Recomposer.current(), @Composable {
-            Providers(TextInputServiceAmbient provides TextInputService(
-                platformInputService), children = content)
+            Providers(
+                TextInputServiceAmbient provides TextInputService(
+                    platformInputService),
+                FontLoaderAmbient provides FontLoader(),
+                children = content
+            )
         })
         val view = viewGroup.getChildAt(0)
         view.onAttachedToWindow()

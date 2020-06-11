@@ -15,6 +15,8 @@
  */
 package androidx.ui.desktop
 
+import androidx.ui.text.platform.paragraphActualFactory
+import androidx.ui.text.platform.paragraphIntrinsicsActualFactory
 import com.jogamp.opengl.GL
 import com.jogamp.opengl.GLAutoDrawable
 import com.jogamp.opengl.GLCapabilities
@@ -22,19 +24,19 @@ import com.jogamp.opengl.GLEventListener
 import com.jogamp.opengl.GLProfile
 import com.jogamp.opengl.awt.GLCanvas
 import com.jogamp.opengl.util.FPSAnimator
-import org.jetbrains.skija.BackendRenderTarget
-import org.jetbrains.skija.Canvas
-import org.jetbrains.skija.Context
-import org.jetbrains.skija.JNI
-import org.jetbrains.skija.Surface
-import org.jetbrains.skija.ColorSpace
-import java.nio.IntBuffer
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
+import java.nio.IntBuffer
 import javax.swing.JFrame
+import org.jetbrains.skija.BackendRenderTarget
+import org.jetbrains.skija.Canvas
+import org.jetbrains.skija.ColorSpace
+import org.jetbrains.skija.Context
+import org.jetbrains.skija.JNI
+import org.jetbrains.skija.Surface
 
 private class SkijaState {
     var context: Context? = null
@@ -75,12 +77,18 @@ class SkiaWindow(
     height: Int,
     fps: Int = 0
 ) : JFrame() {
+    @OptIn(androidx.ui.text.platform.InternalPlatformTextApi::class)
     companion object {
         init {
             JNI.loadLibrary("/", "skija")
             // Until https://github.com/Kotlin/kotlinx.coroutines/issues/2039 is resolved
             // we have to set this property manually for coroutines to work.
             System.getProperties().setProperty("kotlinx.coroutines.fast.service.loader", "false")
+
+            @Suppress("DEPRECATION_ERROR")
+            paragraphIntrinsicsActualFactory = ::DesktopParagraphIntrinsics
+            @Suppress("DEPRECATION_ERROR")
+            paragraphActualFactory = ::DesktopParagraph
         }
     }
 
