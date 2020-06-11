@@ -114,7 +114,7 @@ internal fun cameraXOpenCamera(
                     val viewGroup = params.cameraXPreviewTexture?.parent as ViewGroup
                     viewGroup.removeView(params.cameraXPreviewTexture)
                     viewGroup.addView(params.cameraXPreviewTexture)
-                    params.cameraXPreviewTexture?.surfaceTexture = surfaceTexture
+                    params.cameraXPreviewTexture?.setSurfaceTexture(surfaceTexture)
                 }
 
                 // Surface provided to camera for producing buffers into and

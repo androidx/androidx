@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
+<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
 
     <issue
         id="RestrictedApi"
@@ -8,7 +8,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="522"
+            line="539"
             column="35"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                 ~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="523"
+            line="540"
             column="18"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                 ~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="527"
+            line="544"
             column="18"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                 ~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="530"
+            line="547"
             column="18"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="118"
+            line="125"
             column="19"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="118"
+            line="125"
             column="30"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="118"
+            line="125"
             column="43"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="138"
+            line="145"
             column="12"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="559"
+            line="576"
             column="19"/>
     </issue>
 

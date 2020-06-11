@@ -698,6 +698,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         mRangeValue = progressValue;
     }
 
+    @SuppressWarnings("deprecation")
     private void addRange() {
         if (mHandler == null) {
             mHandler = new Handler();
@@ -800,6 +801,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void addSelection(final SliceItem selection) {
         if (mHandler == null) {
             mHandler = new Handler();

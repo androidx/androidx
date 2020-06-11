@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
+<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
 
     <issue
         id="LambdaLast"
@@ -8,7 +8,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="787"
+            line="789"
             column="52"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="709"
+            line="711"
             column="41"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="910"
+            line="912"
             column="38"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="1388"
+            line="1390"
             column="35"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="1429"
+            line="1431"
             column="12"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="1440"
+            line="1442"
             column="40"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="1460"
+            line="1462"
             column="25"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="1460"
+            line="1462"
             column="48"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                           ~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="1484"
+            line="1486"
             column="28"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2026"
+            line="2028"
             column="42"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2167"
+            line="2169"
             column="33"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2427"
+            line="2429"
             column="22"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2469"
+            line="2471"
             column="27"/>
     </issue>
 
@@ -184,7 +184,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2711"
+            line="2713"
             column="33"/>
     </issue>
 
@@ -195,7 +195,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2735"
+            line="2737"
             column="37"/>
     </issue>
 
@@ -206,7 +206,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2897"
+            line="2899"
             column="31"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2939"
+            line="2941"
             column="31"/>
     </issue>
 
@@ -228,7 +228,7 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2959"
+            line="2961"
             column="13"/>
     </issue>
 
@@ -239,7 +239,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2988"
+            line="2990"
             column="55"/>
     </issue>
 
@@ -250,7 +250,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3011"
+            line="3013"
             column="15"/>
     </issue>
 
@@ -261,7 +261,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3016"
+            line="3018"
             column="15"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3016"
+            line="3018"
             column="59"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3021"
+            line="3023"
             column="41"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3026"
+            line="3028"
             column="12"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3026"
+            line="3028"
             column="56"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3141"
+            line="3143"
             column="29"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3141"
+            line="3143"
             column="46"/>
     </issue>
 

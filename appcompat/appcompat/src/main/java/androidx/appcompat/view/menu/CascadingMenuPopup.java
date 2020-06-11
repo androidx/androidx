@@ -218,6 +218,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
      *
      * @param anchor A parent view to get the {@link android.view.View#getWindowToken()} token from.
      */
+    @SuppressWarnings("deprecation")
     public CascadingMenuPopup(@NonNull Context context, @NonNull View anchor,
             @AttrRes int popupStyleAttr, @StyleRes int popupStyleRes, boolean overflowOnly) {
         mContext = context;

@@ -45,6 +45,7 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -193,6 +194,7 @@ public class ShortcutInfoCompatTest {
     }
 
     @Test
+    @FlakyTest
     @SdkSuppress(minSdkVersion = 26)
     public void testBuilder_fromShortcutInfo() throws Exception {
         final long ts = System.currentTimeMillis();

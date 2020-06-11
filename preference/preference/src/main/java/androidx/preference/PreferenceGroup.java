@@ -57,6 +57,7 @@ public abstract class PreferenceGroup extends Preference {
     private static final String TAG = "PreferenceGroup";
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final SimpleArrayMap<String, Long> mIdRecycleCache = new SimpleArrayMap<>();
+    @SuppressWarnings("deprecation")
     private final Handler mHandler = new Handler();
     /**
      * The container for child {@link Preference}s. This is sorted based on the ordering, please

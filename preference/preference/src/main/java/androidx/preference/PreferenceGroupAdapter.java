@@ -85,6 +85,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         }
     };
 
+    @SuppressWarnings("deprecation")
     public PreferenceGroupAdapter(PreferenceGroup preferenceGroup) {
         mPreferenceGroup = preferenceGroup;
         mHandler = new Handler();

@@ -155,6 +155,7 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
     private ProcessLifecycleOwner() {
     }
 
+    @SuppressWarnings("deprecation")
     void attach(Context context) {
         mHandler = new Handler();
         mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);

@@ -118,6 +118,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     private int mLayoutResId = R.layout.preference_list_fragment;
     private Runnable mSelectPreferenceRunnable;
 
+    @SuppressWarnings("deprecation")
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {

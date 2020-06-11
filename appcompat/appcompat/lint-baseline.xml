@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
+<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
 
     <issue
         id="KotlinPropertyAccess"
@@ -23,7 +23,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="196"
+            line="210"
             column="20"/>
     </issue>
 
@@ -34,11 +34,11 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="128"
+            line="141"
             column="22"/>
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="148"
+            line="161"
             column="17"/>
     </issue>
 
@@ -49,11 +49,11 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="273"
+            line="279"
             column="31"/>
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="290"
+            line="296"
             column="26"/>
     </issue>
 
@@ -64,11 +64,11 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
-            line="141"
+            line="146"
             column="28"/>
         <location
             file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
-            line="125"
+            line="130"
             column="17"/>
     </issue>
 
@@ -1311,468 +1311,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setActionBarVisibilityCallback(ActionBarVisibilityCallback cb) {"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="170"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onConfigurationChanged(Configuration newConfig) {"
-        errorLine2="                                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="226"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected boolean fitSystemWindows(Rect insets) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="290"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected LayoutParams generateDefaultLayoutParams() {"
-        errorLine2="              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="321"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public LayoutParams generateLayoutParams(AttributeSet attrs) {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="326"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public LayoutParams generateLayoutParams(AttributeSet attrs) {"
-        errorLine2="                                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="326"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="331"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="331"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="336"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void draw(Canvas c) {"
-        errorLine2="                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="449"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,"
-        errorLine2="                               ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="469"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            int dyUnconsumed, int type, int[] consumed) {"
-        errorLine2="                                        ~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="470"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes, int type) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="477"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes, int type) {"
-        errorLine2="                                                   ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="477"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes, int type) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="482"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes, int type) {"
-        errorLine2="                                                   ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="482"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onStopNestedScroll(View target, int type) {"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="489"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,"
-        errorLine2="                               ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="496"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {"
-        errorLine2="                                  ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="504"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {"
-        errorLine2="                                                               ~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="504"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="513"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes) {"
-        errorLine2="                                                   ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="513"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="521"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes) {"
-        errorLine2="                                                   ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="521"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedScroll(View target, int dxConsumed, int dyConsumed,"
-        errorLine2="                               ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="531"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onStopNestedScroll(View target) {"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="538"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {"
-        errorLine2="                                 ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="552"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {"
-        errorLine2="                                  ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="566"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {"
-        errorLine2="                                                               ~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="566"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {"
-        errorLine2="                                    ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="571"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setWindowCallback(Window.Callback cb) {"
-        errorLine2="                                  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="659"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setWindowTitle(CharSequence title) {"
-        errorLine2="                               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="665"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CharSequence getTitle() {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="671"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setIcon(Drawable d) {"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="716"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setMenu(Menu menu, MenuPresenter.Callback cb) {"
-        errorLine2="                        ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="764"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setMenu(Menu menu, MenuPresenter.Callback cb) {"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="764"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void saveToolbarHierarchyState(SparseArray&lt;Parcelable> toolbarStates) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="770"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void restoreToolbarHierarchyState(SparseArray&lt;Parcelable> toolbarStates) {"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="776"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public LayoutParams(Context c, AttributeSet attrs) {"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="788"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public LayoutParams(Context c, AttributeSet attrs) {"
-        errorLine2="                                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="788"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public LayoutParams(ViewGroup.LayoutParams source) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="796"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public LayoutParams(ViewGroup.MarginLayoutParams source) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="800"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static ActionBarPolicy get(Context context) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
@@ -3009,7 +2547,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserModel.java"
-            line="102"
+            line="101"
             column="45"/>
     </issue>
 
@@ -3020,7 +2558,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserModel.java"
-            line="121"
+            line="120"
             column="26"/>
     </issue>
 
@@ -3031,7 +2569,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserModel.java"
-            line="121"
+            line="120"
             column="41"/>
     </issue>
 
@@ -3042,7 +2580,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserModel.java"
-            line="122"
+            line="121"
             column="17"/>
     </issue>
 
@@ -3053,7 +2591,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserModel.java"
-            line="146"
+            line="145"
             column="41"/>
     </issue>
 
@@ -3064,7 +2602,7 @@
         errorLine2="                                                                   ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserModel.java"
-            line="146"
+            line="145"
             column="68"/>
     </issue>
 
@@ -3119,7 +2657,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="303"
+            line="301"
             column="41"/>
     </issue>
 
@@ -3130,7 +2668,7 @@
         errorLine2="                                                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="322"
+            line="320"
             column="57"/>
     </issue>
 
@@ -3141,7 +2679,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="346"
+            line="344"
             column="29"/>
     </issue>
 
@@ -3152,7 +2690,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="483"
+            line="481"
             column="12"/>
     </issue>
 
@@ -3163,7 +2701,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="492"
+            line="490"
             column="38"/>
     </issue>
 
@@ -3174,7 +2712,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="872"
+            line="870"
             column="28"/>
     </issue>
 
@@ -3185,7 +2723,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="872"
+            line="870"
             column="45"/>
     </issue>
 
@@ -4736,7 +4274,7 @@
         errorLine2="                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="96"
+            line="109"
             column="38"/>
     </issue>
 
@@ -4747,7 +4285,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="164"
+            line="178"
             column="32"/>
     </issue>
 
@@ -4758,7 +4296,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="169"
+            line="184"
             column="32"/>
     </issue>
 
@@ -4769,7 +4307,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="169"
+            line="184"
             column="43"/>
     </issue>
 
@@ -4780,7 +4318,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="174"
+            line="190"
             column="32"/>
     </issue>
 
@@ -4791,7 +4329,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="174"
+            line="190"
             column="43"/>
     </issue>
 
@@ -4802,7 +4340,7 @@
         errorLine2="                            ~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="212"
+            line="237"
             column="29"/>
     </issue>
 
@@ -4813,7 +4351,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="237"
+            line="262"
             column="35"/>
     </issue>
 
@@ -4824,7 +4362,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="517"
+            line="542"
             column="48"/>
     </issue>
 
@@ -4835,7 +4373,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="550"
+            line="575"
             column="37"/>
     </issue>
 
@@ -4846,7 +4384,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="563"
+            line="588"
             column="12"/>
     </issue>
 
@@ -4857,19 +4395,8 @@
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="592"
+            line="617"
             column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBackgroundDrawable(Drawable background) {"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatAutoCompleteTextView.java"
-            line="109"
-            column="39"/>
     </issue>
 
     <issue
@@ -4919,22 +4446,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBackgroundDrawable(Drawable background) {"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="95"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void setTextAppearance(Context context, int resId) {"
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="170"
+            line="171"
             column="35"/>
     </issue>
 
@@ -4945,7 +4461,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="178"
+            line="179"
             column="48"/>
     </issue>
 
@@ -4956,7 +4472,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="184"
+            line="185"
             column="51"/>
     </issue>
 
@@ -4967,7 +4483,7 @@
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="209"
+            line="210"
             column="34"/>
     </issue>
 
@@ -4978,7 +4494,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="343"
+            line="344"
             column="12"/>
     </issue>
 
@@ -4989,7 +4505,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="374"
+            line="375"
             column="54"/>
     </issue>
 
@@ -5035,17 +4551,6 @@
             file="src/main/java/androidx/appcompat/widget/AppCompatCheckBox.java"
             line="86"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBackgroundDrawable(Drawable background) {"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatCheckBox.java"
-            line="212"
-            column="39"/>
     </issue>
 
     <issue
@@ -5099,7 +4604,7 @@
         errorLine2="                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="295"
+            line="301"
             column="21"/>
     </issue>
 
@@ -5110,7 +4615,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="309"
+            line="315"
             column="35"/>
     </issue>
 
@@ -5121,7 +4626,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="314"
+            line="320"
             column="39"/>
     </issue>
 
@@ -5132,7 +4637,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="320"
+            line="326"
             column="49"/>
     </issue>
 
@@ -5143,7 +4648,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="357"
+            line="363"
             column="41"/>
     </issue>
 
@@ -5154,7 +4659,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="368"
+            line="374"
             column="41"/>
     </issue>
 
@@ -5165,7 +4670,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="368"
+            line="374"
             column="49"/>
     </issue>
 
@@ -5176,7 +4681,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="374"
+            line="380"
             column="41"/>
     </issue>
 
@@ -5187,7 +4692,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="374"
+            line="380"
             column="49"/>
     </issue>
 
@@ -5198,7 +4703,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="380"
+            line="386"
             column="35"/>
     </issue>
 
@@ -5209,7 +4714,7 @@
         errorLine2="                    ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="475"
+            line="481"
             column="21"/>
     </issue>
 
@@ -5220,7 +4725,7 @@
         errorLine2="                                                           ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="475"
+            line="481"
             column="60"/>
     </issue>
 
@@ -5231,7 +4736,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="497"
+            line="503"
             column="46"/>
     </issue>
 
@@ -5374,7 +4879,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDialog.java"
-            line="168"
+            line="175"
             column="12"/>
     </issue>
 
@@ -5385,7 +4890,7 @@
         errorLine2="                                           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDialog.java"
-            line="186"
+            line="193"
             column="44"/>
     </issue>
 
@@ -5396,7 +4901,7 @@
         errorLine2="                                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDialog.java"
-            line="190"
+            line="197"
             column="45"/>
     </issue>
 
@@ -5407,7 +4912,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDialog.java"
-            line="195"
+            line="202"
             column="57"/>
     </issue>
 
@@ -5418,7 +4923,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDialog.java"
-            line="205"
+            line="212"
             column="37"/>
     </issue>
 
@@ -5469,22 +4974,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBackgroundDrawable(Drawable background) {"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="111"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void setTextAppearance(Context context, int resId) {"
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="186"
+            line="199"
             column="35"/>
     </issue>
 
@@ -5495,7 +4989,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="194"
+            line="213"
             column="12"/>
     </issue>
 
@@ -5506,7 +5000,7 @@
         errorLine2="                                                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="194"
+            line="213"
             column="52"/>
     </issue>
 
@@ -5517,7 +5011,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="204"
+            line="230"
             column="54"/>
     </issue>
 
@@ -5535,22 +5029,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBackgroundDrawable(Drawable background) {"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatImageButton.java"
-            line="125"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatImageHelper.java"
-            line="50"
+            line="51"
             column="36"/>
     </issue>
 
@@ -5563,28 +5046,6 @@
             file="src/main/java/androidx/appcompat/widget/AppCompatImageView.java"
             line="111"
             column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBackgroundDrawable(Drawable background) {"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatImageView.java"
-            line="135"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBackgroundDrawable(Drawable background) {"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatMultiAutoCompleteTextView.java"
-            line="107"
-            column="39"/>
     </issue>
 
     <issue
@@ -5662,17 +5123,6 @@
             file="src/main/java/androidx/appcompat/widget/AppCompatRadioButton.java"
             line="84"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBackgroundDrawable(Drawable background) {"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatRadioButton.java"
-            line="211"
-            column="39"/>
     </issue>
 
     <issue
@@ -5777,17 +5227,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBackgroundDrawable(Drawable background) {"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="484"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public Parcelable onSaveInstanceState() {"
         errorLine2="           ~~~~~~~~~~">
         <location
@@ -5805,17 +5244,6 @@
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
             line="624"
             column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBackgroundDrawable(Drawable background) {"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="123"
-            column="39"/>
     </issue>
 
     <issue
@@ -5902,7 +5330,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="180"
+            line="193"
             column="48"/>
     </issue>
 
@@ -5913,7 +5341,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="180"
+            line="193"
             column="65"/>
     </issue>
 
@@ -5924,7 +5352,7 @@
         errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="185"
+            line="198"
             column="50"/>
     </issue>
 
@@ -5935,7 +5363,7 @@
         errorLine2="                                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="185"
+            line="198"
             column="67"/>
     </issue>
 
@@ -5946,7 +5374,7 @@
         errorLine2="                                           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="190"
+            line="203"
             column="44"/>
     </issue>
 
@@ -5957,7 +5385,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="190"
+            line="203"
             column="61"/>
     </issue>
 
@@ -5968,7 +5396,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="195"
+            line="208"
             column="48"/>
     </issue>
 
@@ -5979,7 +5407,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="195"
+            line="208"
             column="65"/>
     </issue>
 
@@ -5990,7 +5418,7 @@
         errorLine2="                                             ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="200"
+            line="213"
             column="46"/>
     </issue>
 
@@ -6001,7 +5429,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="200"
+            line="213"
             column="63"/>
     </issue>
 
@@ -6012,7 +5440,7 @@
         errorLine2="                                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="205"
+            line="218"
             column="54"/>
     </issue>
 
@@ -6023,7 +5451,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="205"
+            line="218"
             column="71"/>
     </issue>
 
@@ -6034,7 +5462,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="210"
+            line="223"
             column="48"/>
     </issue>
 
@@ -6045,7 +5473,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="210"
+            line="223"
             column="65"/>
     </issue>
 
@@ -6056,7 +5484,7 @@
         errorLine2="                                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="215"
+            line="228"
             column="54"/>
     </issue>
 
@@ -6067,7 +5495,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="215"
+            line="228"
             column="71"/>
     </issue>
 
@@ -6078,7 +5506,7 @@
         errorLine2="                                                             ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="220"
+            line="233"
             column="62"/>
     </issue>
 
@@ -6089,7 +5517,7 @@
         errorLine2="                                                                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="220"
+            line="233"
             column="79"/>
     </issue>
 
@@ -6100,7 +5528,7 @@
         errorLine2="                                                                       ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="225"
+            line="238"
             column="72"/>
     </issue>
 
@@ -6111,7 +5539,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="226"
+            line="239"
             column="13"/>
     </issue>
 
@@ -6122,7 +5550,7 @@
         errorLine2="                                                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="231"
+            line="244"
             column="82"/>
     </issue>
 
@@ -6133,7 +5561,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="232"
+            line="245"
             column="13"/>
     </issue>
 
@@ -6144,7 +5572,7 @@
         errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="237"
+            line="250"
             column="50"/>
     </issue>
 
@@ -6155,7 +5583,7 @@
         errorLine2="                                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="237"
+            line="250"
             column="67"/>
     </issue>
 
@@ -6166,7 +5594,7 @@
         errorLine2="                                             ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="242"
+            line="255"
             column="46"/>
     </issue>
 
@@ -6177,7 +5605,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="242"
+            line="255"
             column="63"/>
     </issue>
 
@@ -6188,7 +5616,7 @@
         errorLine2="                                                       ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="247"
+            line="260"
             column="56"/>
     </issue>
 
@@ -6199,7 +5627,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="247"
+            line="260"
             column="73"/>
     </issue>
 
@@ -6210,7 +5638,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="259"
+            line="272"
             column="31"/>
     </issue>
 
@@ -6221,7 +5649,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="259"
+            line="272"
             column="48"/>
     </issue>
 
@@ -6232,7 +5660,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="259"
+            line="272"
             column="61"/>
     </issue>
 
@@ -6529,7 +5957,7 @@
         errorLine2="                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/BaseMenuPresenter.java"
-            line="232"
+            line="233"
             column="41"/>
     </issue>
 
@@ -6540,7 +5968,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/BaseMenuPresenter.java"
-            line="232"
+            line="233"
             column="59"/>
     </issue>
 
@@ -6551,7 +5979,7 @@
         errorLine2="                                          ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/BaseMenuPresenter.java"
-            line="237"
+            line="238"
             column="43"/>
     </issue>
 
@@ -6562,7 +5990,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/BaseMenuPresenter.java"
-            line="237"
+            line="238"
             column="61"/>
     </issue>
 
@@ -6727,7 +6155,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
-            line="141"
+            line="146"
             column="12"/>
     </issue>
 
@@ -6738,7 +6166,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
-            line="155"
+            line="160"
             column="12"/>
     </issue>
 
@@ -6749,7 +6177,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
-            line="155"
+            line="160"
             column="36"/>
     </issue>
 
@@ -6760,7 +6188,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
-            line="176"
+            line="181"
             column="41"/>
     </issue>
 
@@ -6771,7 +6199,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
-            line="193"
+            line="198"
             column="12"/>
     </issue>
 
@@ -7431,7 +6859,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="233"
+            line="230"
             column="12"/>
     </issue>
 
@@ -7442,7 +6870,7 @@
         errorLine2="                                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="244"
+            line="241"
             column="36"/>
     </issue>
 
@@ -7453,7 +6881,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="295"
+            line="292"
             column="27"/>
     </issue>
 
@@ -7464,7 +6892,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1733"
+            line="1730"
             column="12"/>
     </issue>
 
@@ -7475,7 +6903,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1733"
+            line="1730"
             column="46"/>
     </issue>
 
@@ -7486,7 +6914,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1746"
+            line="1743"
             column="15"/>
     </issue>
 
@@ -7497,7 +6925,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1756"
+            line="1753"
             column="15"/>
     </issue>
 
@@ -7508,7 +6936,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1756"
+            line="1753"
             column="49"/>
     </issue>
 
@@ -7519,7 +6947,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1763"
+            line="1760"
             column="41"/>
     </issue>
 
@@ -7530,7 +6958,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1768"
+            line="1765"
             column="48"/>
     </issue>
 
@@ -7541,7 +6969,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1774"
+            line="1771"
             column="51"/>
     </issue>
 
@@ -7552,7 +6980,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1801"
+            line="1798"
             column="29"/>
     </issue>
 
@@ -7563,7 +6991,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1801"
+            line="1798"
             column="40"/>
     </issue>
 
@@ -7574,7 +7002,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1838"
+            line="1835"
             column="29"/>
     </issue>
 
@@ -7585,7 +7013,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1845"
+            line="1842"
             column="29"/>
     </issue>
 
@@ -7596,7 +7024,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1855"
+            line="1852"
             column="29"/>
     </issue>
 
@@ -8016,39 +7444,6 @@
             file="src/main/java/androidx/appcompat/view/menu/MenuAdapter.java"
             line="92"
             column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        boolean onMenuItemSelected(MenuBuilder menu, MenuItem item);"
-        errorLine2="                                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/view/menu/MenuBuilder.java"
-            line="204"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        boolean onMenuItemSelected(MenuBuilder menu, MenuItem item);"
-        errorLine2="                                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/view/menu/MenuBuilder.java"
-            line="204"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onMenuModeChange(MenuBuilder menu);"
-        errorLine2="                              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/view/menu/MenuBuilder.java"
-            line="211"
-            column="31"/>
     </issue>
 
     <issue
@@ -9862,7 +9257,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPopupHelper.java"
-            line="344"
+            line="345"
             column="12"/>
     </issue>
 
@@ -9946,33 +9341,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing);"
-        errorLine2="                         ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="45"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        boolean onOpenSubMenu(MenuBuilder subMenu);"
-        errorLine2="                              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="56"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    void initForMenu(Context context, MenuBuilder menu);"
         errorLine2="                     ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="69"
+            line="70"
             column="22"/>
     </issue>
 
@@ -9983,7 +9356,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="69"
+            line="70"
             column="39"/>
     </issue>
 
@@ -9994,7 +9367,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="78"
+            line="79"
             column="5"/>
     </issue>
 
@@ -10005,7 +9378,7 @@
         errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="78"
+            line="79"
             column="26"/>
     </issue>
 
@@ -10016,7 +9389,7 @@
         errorLine2="                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="93"
+            line="94"
             column="22"/>
     </issue>
 
@@ -10027,7 +9400,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="103"
+            line="104"
             column="31"/>
     </issue>
 
@@ -10038,7 +9411,7 @@
         errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="115"
+            line="116"
             column="22"/>
     </issue>
 
@@ -10049,7 +9422,7 @@
         errorLine2="                                 ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="130"
+            line="131"
             column="34"/>
     </issue>
 
@@ -10060,7 +9433,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="130"
+            line="131"
             column="52"/>
     </issue>
 
@@ -10071,7 +9444,7 @@
         errorLine2="                                   ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="139"
+            line="140"
             column="36"/>
     </issue>
 
@@ -10082,7 +9455,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="139"
+            line="140"
             column="54"/>
     </issue>
 
@@ -10093,7 +9466,7 @@
         errorLine2="    ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="153"
+            line="154"
             column="5"/>
     </issue>
 
@@ -10104,7 +9477,7 @@
         errorLine2="                                ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPresenter.java"
-            line="159"
+            line="160"
             column="33"/>
     </issue>
 
@@ -10511,7 +9884,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="221"
+            line="216"
             column="35"/>
     </issue>
 
@@ -10522,7 +9895,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="231"
+            line="226"
             column="35"/>
     </issue>
 
@@ -10533,7 +9906,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="410"
+            line="405"
             column="35"/>
     </issue>
 
@@ -10544,7 +9917,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="433"
+            line="428"
             column="34"/>
     </issue>
 
@@ -10555,7 +9928,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="483"
+            line="478"
             column="48"/>
     </issue>
 
@@ -10566,7 +9939,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="515"
+            line="510"
             column="40"/>
     </issue>
 
@@ -10577,7 +9950,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="524"
+            line="519"
             column="36"/>
     </issue>
 
@@ -10588,7 +9961,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="533"
+            line="528"
             column="51"/>
     </issue>
 
@@ -10599,7 +9972,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="542"
+            line="537"
             column="41"/>
     </issue>
 
@@ -10610,7 +9983,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="554"
+            line="549"
             column="42"/>
     </issue>
 
@@ -10621,7 +9994,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="563"
+            line="558"
             column="12"/>
     </issue>
 
@@ -10632,7 +10005,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="575"
+            line="570"
             column="26"/>
     </issue>
 
@@ -10643,7 +10016,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="749"
+            line="744"
             column="39"/>
     </issue>
 
@@ -10654,7 +10027,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="759"
+            line="754"
             column="12"/>
     </issue>
 
@@ -10665,7 +10038,7 @@
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1349"
+            line="1344"
             column="15"/>
     </issue>
 
@@ -10676,7 +10049,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1357"
+            line="1352"
             column="43"/>
     </issue>
 
@@ -10687,7 +10060,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1846"
+            line="1841"
             column="35"/>
     </issue>
 
@@ -10698,7 +10071,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1850"
+            line="1845"
             column="35"/>
     </issue>
 
@@ -10709,7 +10082,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1850"
+            line="1845"
             column="52"/>
     </issue>
 
@@ -10720,7 +10093,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1854"
+            line="1849"
             column="35"/>
     </issue>
 
@@ -10731,7 +10104,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1854"
+            line="1849"
             column="52"/>
     </issue>
 
@@ -10742,7 +10115,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1889"
+            line="1884"
             column="36"/>
     </issue>
 
@@ -10753,7 +10126,7 @@
         errorLine2="                                                                      ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1925"
+            line="1920"
             column="71"/>
     </issue>
 
@@ -10764,7 +10137,7 @@
         errorLine2="                                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1940"
+            line="1935"
             column="49"/>
     </issue>
 
@@ -10775,7 +10148,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1987"
+            line="1982"
             column="16"/>
     </issue>
 
@@ -10786,7 +10159,7 @@
         errorLine2="                                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1987"
+            line="1982"
             column="56"/>
     </issue>
 
@@ -10896,7 +10269,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="49"
+            line="50"
             column="33"/>
     </issue>
 
@@ -10907,7 +10280,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="49"
+            line="50"
             column="50"/>
     </issue>
 
@@ -10918,7 +10291,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="50"
+            line="51"
             column="13"/>
     </issue>
 
@@ -10929,7 +10302,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="62"
+            line="63"
             column="26"/>
     </issue>
 
@@ -10940,7 +10313,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="67"
+            line="68"
             column="29"/>
     </issue>
 
@@ -10951,7 +10324,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="93"
+            line="94"
             column="31"/>
     </issue>
 
@@ -10962,7 +10335,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="115"
+            line="116"
             column="12"/>
     </issue>
 
@@ -10973,7 +10346,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="120"
+            line="121"
             column="12"/>
     </issue>
 
@@ -10984,7 +10357,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="125"
+            line="126"
             column="12"/>
     </issue>
 
@@ -10995,7 +10368,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="130"
+            line="131"
             column="12"/>
     </issue>
 
@@ -11006,30 +10379,8 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="135"
+            line="136"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {"
-        errorLine2="                                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="140"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {"
-        errorLine2="                                                        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="140"
-            column="57"/>
     </issue>
 
     <issue
@@ -11039,7 +10390,7 @@
         errorLine2="                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="144"
+            line="145"
             column="29"/>
     </issue>
 
@@ -11050,7 +10401,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="147"
+            line="148"
             column="38"/>
     </issue>
 
@@ -11061,19 +10412,8 @@
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="156"
+            line="157"
             column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onMenuModeChange(MenuBuilder menu) {"
-        errorLine2="                                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="160"
-            column="34"/>
     </issue>
 
     <issue
@@ -11083,7 +10423,7 @@
         errorLine2="                          ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="41"
+            line="42"
             column="27"/>
     </issue>
 
@@ -11094,7 +10434,7 @@
         errorLine2="                                           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="41"
+            line="42"
             column="44"/>
     </issue>
 
@@ -11105,7 +10445,7 @@
         errorLine2="                                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="41"
+            line="42"
             column="68"/>
     </issue>
 
@@ -11116,7 +10456,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="68"
+            line="69"
             column="12"/>
     </issue>
 
@@ -11127,7 +10467,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="73"
+            line="74"
             column="12"/>
     </issue>
 
@@ -11138,7 +10478,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="78"
+            line="79"
             column="29"/>
     </issue>
 
@@ -11149,7 +10489,7 @@
         errorLine2="           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="83"
+            line="84"
             column="12"/>
     </issue>
 
@@ -11160,7 +10500,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="94"
+            line="95"
             column="12"/>
     </issue>
 
@@ -11171,7 +10511,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="94"
+            line="95"
             column="28"/>
     </issue>
 
@@ -11182,7 +10522,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="100"
+            line="101"
             column="12"/>
     </issue>
 
@@ -11193,7 +10533,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="106"
+            line="107"
             column="12"/>
     </issue>
 
@@ -11204,7 +10544,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="106"
+            line="107"
             column="34"/>
     </issue>
 
@@ -11215,7 +10555,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="111"
+            line="112"
             column="12"/>
     </issue>
 
@@ -11226,7 +10566,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="116"
+            line="117"
             column="12"/>
     </issue>
 
@@ -11237,7 +10577,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="116"
+            line="117"
             column="35"/>
     </issue>
 
@@ -11248,7 +10588,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="121"
+            line="122"
             column="12"/>
     </issue>
 
@@ -11259,7 +10599,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="126"
+            line="127"
             column="12"/>
     </issue>
 
@@ -11270,7 +10610,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="126"
+            line="127"
             column="34"/>
     </issue>
 
@@ -11281,7 +10621,7 @@
         errorLine2="                                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="131"
+            line="132"
             column="41"/>
     </issue>
 
@@ -11292,7 +10632,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="136"
+            line="137"
             column="43"/>
     </issue>
 
@@ -11303,7 +10643,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/SubMenuBuilder.java"
-            line="141"
+            line="142"
             column="12"/>
     </issue>
 
@@ -11589,7 +10929,7 @@
         errorLine2="                                        ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="312"
+            line="324"
             column="41"/>
     </issue>
 
@@ -11600,7 +10940,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="376"
+            line="388"
             column="35"/>
     </issue>
 
@@ -11611,7 +10951,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="404"
+            line="416"
             column="35"/>
     </issue>
 
@@ -11622,7 +10962,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="492"
+            line="504"
             column="34"/>
     </issue>
 
@@ -11633,7 +10973,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="521"
+            line="533"
             column="12"/>
     </issue>
 
@@ -11644,7 +10984,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="611"
+            line="623"
             column="34"/>
     </issue>
 
@@ -11655,7 +10995,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="642"
+            line="654"
             column="12"/>
     </issue>
 
@@ -11666,7 +11006,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="754"
+            line="766"
             column="12"/>
     </issue>
 
@@ -11677,7 +11017,7 @@
         errorLine2="                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="763"
+            line="775"
             column="27"/>
     </issue>
 
@@ -11688,7 +11028,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="773"
+            line="785"
             column="12"/>
     </issue>
 
@@ -11699,7 +11039,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="782"
+            line="794"
             column="28"/>
     </issue>
 
@@ -11710,7 +11050,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="877"
+            line="889"
             column="46"/>
     </issue>
 
@@ -11721,7 +11061,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="918"
+            line="930"
             column="33"/>
     </issue>
 
@@ -11732,7 +11072,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1145"
+            line="1157"
             column="22"/>
     </issue>
 
@@ -11743,7 +11083,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1210"
+            line="1222"
             column="27"/>
     </issue>
 
@@ -11754,7 +11094,7 @@
         errorLine2="              ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1334"
+            line="1346"
             column="15"/>
     </issue>
 
@@ -11765,7 +11105,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1380"
+            line="1392"
             column="38"/>
     </issue>
 
@@ -11776,7 +11116,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1403"
+            line="1415"
             column="48"/>
     </issue>
 
@@ -11787,7 +11127,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1409"
+            line="1421"
             column="51"/>
     </issue>
 
@@ -11798,7 +11138,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1430"
+            line="1442"
             column="54"/>
     </issue>
 
@@ -12073,7 +11413,7 @@
         errorLine2="                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="559"
+            line="556"
             column="25"/>
     </issue>
 
@@ -12084,7 +11424,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="559"
+            line="556"
             column="43"/>
     </issue>
 
@@ -12095,7 +11435,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="633"
+            line="630"
             column="25"/>
     </issue>
 
@@ -12106,7 +11446,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="655"
+            line="652"
             column="12"/>
     </issue>
 
@@ -12117,7 +11457,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="679"
+            line="676"
             column="36"/>
     </issue>
 
@@ -12128,7 +11468,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="693"
+            line="690"
             column="12"/>
     </issue>
 
@@ -12139,7 +11479,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="740"
+            line="737"
             column="12"/>
     </issue>
 
@@ -12150,7 +11490,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="764"
+            line="761"
             column="26"/>
     </issue>
 
@@ -12161,7 +11501,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="796"
+            line="793"
             column="12"/>
     </issue>
 
@@ -12172,7 +11512,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="818"
+            line="815"
             column="29"/>
     </issue>
 
@@ -12183,7 +11523,7 @@
         errorLine2="                                       ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="849"
+            line="846"
             column="40"/>
     </issue>
 
@@ -12194,7 +11534,7 @@
         errorLine2="                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="860"
+            line="857"
             column="43"/>
     </issue>
 
@@ -12205,7 +11545,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1024"
+            line="1021"
             column="46"/>
     </issue>
 
@@ -12216,7 +11556,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1130"
+            line="1127"
             column="12"/>
     </issue>
 
@@ -12227,7 +11567,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1207"
+            line="1204"
             column="44"/>
     </issue>
 
@@ -12238,7 +11578,7 @@
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1535"
+            line="1532"
             column="15"/>
     </issue>
 
@@ -12249,7 +11589,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1547"
+            line="1544"
             column="43"/>
     </issue>
 
@@ -12260,7 +11600,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1581"
+            line="1578"
             column="33"/>
     </issue>
 
@@ -12271,7 +11611,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1607"
+            line="1604"
             column="33"/>
     </issue>
 
@@ -12282,7 +11622,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2202"
+            line="2199"
             column="12"/>
     </issue>
 
@@ -12293,7 +11633,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2202"
+            line="2199"
             column="46"/>
     </issue>
 
@@ -12304,7 +11644,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2207"
+            line="2204"
             column="15"/>
     </issue>
 
@@ -12315,7 +11655,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2207"
+            line="2204"
             column="49"/>
     </issue>
 
@@ -12326,7 +11666,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2220"
+            line="2217"
             column="15"/>
     </issue>
 
@@ -12337,7 +11677,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2225"
+            line="2222"
             column="41"/>
     </issue>
 
@@ -12348,7 +11688,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2231"
+            line="2228"
             column="12"/>
     </issue>
 
@@ -12359,7 +11699,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2280"
+            line="2277"
             column="34"/>
     </issue>
 
@@ -12370,7 +11710,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2280"
+            line="2277"
             column="62"/>
     </issue>
 
@@ -12381,7 +11721,7 @@
         errorLine2="                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2335"
+            line="2332"
             column="40"/>
     </issue>
 
@@ -12392,7 +11732,7 @@
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2354"
+            line="2351"
             column="49"/>
     </issue>
 
@@ -12403,7 +11743,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2372"
+            line="2369"
             column="29"/>
     </issue>
 
@@ -12414,7 +11754,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2378"
+            line="2375"
             column="29"/>
     </issue>
 
@@ -12425,7 +11765,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2382"
+            line="2379"
             column="29"/>
     </issue>
 
@@ -12436,7 +11776,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2389"
+            line="2386"
             column="29"/>
     </issue>
 
@@ -12447,7 +11787,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2405"
+            line="2402"
             column="27"/>
     </issue>
 
@@ -12458,7 +11798,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2409"
+            line="2406"
             column="27"/>
     </issue>
 
@@ -12469,7 +11809,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2409"
+            line="2406"
             column="42"/>
     </issue>
 
@@ -12480,7 +11820,7 @@
         errorLine2="                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2415"
+            line="2412"
             column="27"/>
     </issue>
 
@@ -12491,7 +11831,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2420"
+            line="2417"
             column="35"/>
     </issue>
 
@@ -13349,7 +12689,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="168"
+            line="169"
             column="33"/>
     </issue>
 
@@ -13360,7 +12700,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="178"
+            line="179"
             column="33"/>
     </issue>
 
@@ -13371,7 +12711,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="187"
+            line="188"
             column="33"/>
     </issue>
 
@@ -13763,28 +13103,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {"
-        errorLine2="                                          ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1119"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {"
-        errorLine2="                                                            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1119"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
@@ -13813,17 +13131,6 @@
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
             line="1143"
             column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onMenuModeChange(MenuBuilder menu) {"
-        errorLine2="                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1147"
-            column="38"/>
     </issue>
 
     <issue

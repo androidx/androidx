@@ -123,6 +123,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
     private int mLayoutResId = R.layout.preference_list_fragment;
     private Runnable mSelectPreferenceRunnable;
 
+    @SuppressWarnings("deprecation")
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {

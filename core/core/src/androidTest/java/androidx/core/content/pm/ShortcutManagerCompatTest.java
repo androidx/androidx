@@ -67,6 +67,7 @@ import androidx.core.content.FileProvider;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -304,6 +305,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
     @MediumTest
     @Test
     @SdkSuppress(minSdkVersion = 25)
+    @FlakyTest
     public void testPushDynamicShortcuts() throws Throwable {
         // setup mock objects
         final ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
