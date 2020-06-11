@@ -32,7 +32,9 @@ import androidx.compose.currentComposer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.setContent
@@ -273,6 +275,7 @@ internal class ComposeViewAdapter : FrameLayout {
         animationClockStartTime: Long = -1
     ) {
         ViewTreeLifecycleOwner.set(this, FakeLifecycleOwner)
+        ViewTreeViewModelStoreOwner.set(this, FakeViewModelStoreOwner)
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
 
@@ -372,5 +375,9 @@ internal class ComposeViewAdapter : FrameLayout {
         }
 
         override fun getLifecycle() = lifecycleRegistry
+    }
+
+    private val FakeViewModelStoreOwner = ViewModelStoreOwner {
+        throw IllegalStateException("ViewModels creation is not supported in Preview")
     }
 }

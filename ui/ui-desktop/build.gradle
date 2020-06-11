@@ -71,8 +71,9 @@ attrContainer.attribute(
 )
 
 dependencies {
-    ui_components "androidx.lifecycle:lifecycle-common:2.3.0-alpha01"
-    ui_components "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01"
+    ui_components "androidx.lifecycle:lifecycle-common:2.3.0-alpha04"
+    ui_components "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha04"
+    ui_components "androidx.lifecycle:lifecycle-viewmodel:2.3.0-alpha04"
     ui_components "androidx.core:core:1.2.0"
     ui_components "androidx.arch.core:core-common:2.1.0"
     ui_components "org.jogamp.jogl:jogl-all:2.4.0-rc-20200306"

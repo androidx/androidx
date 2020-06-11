@@ -40,7 +40,9 @@ import androidx.core.os.HandlerCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.ui.autofill.AndroidAutofill
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
@@ -97,15 +99,20 @@ import kotlin.math.max
  */
 fun AndroidOwner(
     context: Context,
-    lifecycleOwner: LifecycleOwner? = null
-): AndroidOwner = AndroidComposeView(context, lifecycleOwner).also {
+    lifecycleOwner: LifecycleOwner? = null,
+    viewModelStoreOwner: ViewModelStoreOwner? = null
+): AndroidOwner = AndroidComposeView(context,
+    lifecycleOwner,
+    viewModelStoreOwner
+).also {
     AndroidOwner.onAndroidOwnerCreatedCallback?.invoke(it)
 }
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 internal class AndroidComposeView constructor(
     context: Context,
-    initialLifecycleOwner: LifecycleOwner?
+    initialLifecycleOwner: LifecycleOwner?,
+    initialViewModelStoreOwner: ViewModelStoreOwner?
 ) : ViewGroup(context), AndroidOwner {
 
     override val view: View = this
@@ -526,8 +533,11 @@ internal class AndroidComposeView constructor(
     }
 
     override var viewTreeOwners: ViewTreeOwners? =
-        if (initialLifecycleOwner != null) {
-            ViewTreeOwners(initialLifecycleOwner)
+        if (initialLifecycleOwner != null && initialViewModelStoreOwner != null) {
+            ViewTreeOwners(
+                initialLifecycleOwner,
+                initialViewModelStoreOwner
+            )
         } else {
             null
         }
@@ -555,8 +565,13 @@ internal class AndroidComposeView constructor(
             val lifecycleOwner = ViewTreeLifecycleOwner.get(this) ?: throw IllegalStateException(
                 "Composed into the View which doesn't propagate ViewTreeLifecycleOwner!"
             )
+            val viewModelStoreOwner =
+                ViewTreeViewModelStoreOwner.get(this) ?: throw IllegalStateException(
+                    "Composed into the View which doesn't propagate ViewTreeViewModelStoreOwner!"
+                )
             val viewTreeOwners = ViewTreeOwners(
-                lifecycleOwner = lifecycleOwner
+                lifecycleOwner = lifecycleOwner,
+                viewModelStoreOwner = viewModelStoreOwner
             )
             this.viewTreeOwners = viewTreeOwners
             onViewTreeOwnersAvailable?.invoke(viewTreeOwners)
