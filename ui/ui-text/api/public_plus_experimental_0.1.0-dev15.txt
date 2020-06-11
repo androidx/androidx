@@ -47,6 +47,12 @@ package androidx.ui.text {
 
 package androidx.ui.text.selection {
 
+  public final class MultiWidgetSelectionDelegateKt {
+  }
+
+  public final class TextFieldSelectionDelegateKt {
+  }
+
   public final class TextSelectionDelegateKt {
   }
 

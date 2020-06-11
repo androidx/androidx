@@ -61,6 +61,15 @@ class TextRangeTest {
     }
 
     @Test
+    fun test_range_reversed() {
+        assertThat(TextRange(0, 0).reversed).isFalse()
+        assertThat(TextRange(0, 1).reversed).isFalse()
+
+        assertThat(TextRange(1, 0).reversed).isTrue()
+        assertThat(TextRange(3, 2).reversed).isTrue()
+    }
+
+    @Test
     fun test_intersects() {
         // same values intersect
         assertThat(TextRange(0, 1).intersects(TextRange(0, 1))).isTrue()

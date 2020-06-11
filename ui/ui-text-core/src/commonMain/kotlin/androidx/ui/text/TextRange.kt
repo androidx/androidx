@@ -45,6 +45,11 @@ data class TextRange(@IntRange(from = 0) val start: Int, @IntRange(from = 0) val
     val collapsed: Boolean get() = start == end
 
     /**
+     * Returns true if the start offset is larger than the end offset.
+     */
+    val reversed: Boolean get() = start > end
+
+    /**
      * Returns the length of the range.
      */
     val length: Int get() = max - min

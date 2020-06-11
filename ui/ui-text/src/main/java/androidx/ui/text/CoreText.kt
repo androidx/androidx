@@ -40,7 +40,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.graphics.Paint
 import androidx.ui.text.font.Font
-import androidx.ui.text.selection.TextSelectionDelegate
+import androidx.ui.text.selection.MultiWidgetSelectionDelegate
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
@@ -242,7 +242,7 @@ fun CoreText(
         val id: Selectable? =
             selectionRegistrar?.let {
                 selectionRegistrar.subscribe(
-                    TextSelectionDelegate(
+                    MultiWidgetSelectionDelegate(
                         selectionRangeUpdate = { state.selectionRange = it },
                         coordinatesCallback = { state.layoutCoordinates },
                         layoutResultCallback = { state.layoutResult }
