@@ -96,13 +96,15 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         Operation lastIn = null;
         for (final Operation operation : operations) {
             switch (operation.getType()) {
+                case HIDE:
                 case REMOVE:
                     if (firstOut == null) {
                         firstOut = operation;
                     }
                     break;
+                case SHOW:
                 case ADD:
-                    // The last ADD is, by definition, the lastIn Operation
+                    // The last SHOW/ADD is, by definition, the lastIn Operation
                     lastIn = operation;
                     break;
             }
@@ -170,7 +172,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         final Fragment fragment = operation.getFragment();
         final View viewToAnimate = fragment.mView;
         FragmentAnim.AnimationOrAnimator anim = FragmentAnim.loadAnimation(context,
-                fragment, operation.getType() == Operation.Type.ADD);
+                fragment, operation.getType() == Operation.Type.ADD
+                        || operation.getType() == Operation.Type.SHOW);
         if (anim == null) {
             // No animation, so we can immediately remove the CancellationSignal
             removeCancellationSignal(operation, signal);
@@ -181,6 +184,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         // Kick off the respective type of animation
         if (anim.animation != null) {
             final Animation animation = operation.getType() == Operation.Type.ADD
+                    || operation.getType() == Operation.Type.SHOW
                     ? new FragmentAnim.EnterViewTransitionAnimation(anim.animation)
                     : new FragmentAnim.EndViewTransitionAnimation(anim.animation, container,
                             viewToAnimate);
@@ -522,10 +526,17 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void applyContainerChanges(@NonNull Operation operation) {
         View view = operation.getFragment().mView;
-        if (operation.getType() == Operation.Type.ADD) {
-            view.setVisibility(View.VISIBLE);
-        } else {
-            getContainer().removeView(view);
+        switch (operation.getType()) {
+            case ADD:
+            case SHOW:
+                view.setVisibility(View.VISIBLE);
+                break;
+            case REMOVE:
+                getContainer().removeView(view);
+                break;
+            case HIDE:
+                view.setVisibility(View.GONE);
+                break;
         }
     }
 
@@ -567,7 +578,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 boolean providesSharedElementTransition) {
             mOperation = operation;
             mSignal = signal;
-            if (operation.getType() == Operation.Type.ADD) {
+            if (operation.getType() == Operation.Type.ADD
+                    || operation.getType() == Operation.Type.SHOW) {
                 mTransition = isPop
                         ? operation.getFragment().getReenterTransition()
                         : operation.getFragment().getEnterTransition();

@@ -51,6 +51,7 @@ class FragmentStateManager {
     private boolean mMovingToState = false;
     private int mFragmentManagerState = Fragment.INITIALIZING;
     private CancellationSignal mEnterAnimationCancellationSignal;
+    private CancellationSignal mHiddenAnimationCancellationSignal;
     private CancellationSignal mExitAnimationCancellationSignal;
 
     /**
@@ -280,6 +281,9 @@ class FragmentStateManager {
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
                                                 mFragment.getParentFragmentManager());
+                                if (mHiddenAnimationCancellationSignal != null) {
+                                    mHiddenAnimationCancellationSignal.cancel();
+                                }
                                 mEnterAnimationCancellationSignal = new CancellationSignal();
                                 controller.enqueueAdd(this,
                                         mEnterAnimationCancellationSignal);
@@ -329,6 +333,9 @@ class FragmentStateManager {
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
                                                 mFragment.getParentFragmentManager());
+                                if (mHiddenAnimationCancellationSignal != null) {
+                                    mHiddenAnimationCancellationSignal.cancel();
+                                }
                                 mExitAnimationCancellationSignal = new CancellationSignal();
                                 controller.enqueueRemove(this,
                                         mExitAnimationCancellationSignal);
@@ -346,6 +353,28 @@ class FragmentStateManager {
                             break;
                     }
                 }
+            }
+            if (FragmentManager.USE_STATE_MANAGER && mFragment.mHiddenChanged) {
+                if (mFragment.mView != null && mFragment.mContainer != null) {
+                    // Cancel any previously running show/hide
+                    if (mHiddenAnimationCancellationSignal != null) {
+                        mHiddenAnimationCancellationSignal.cancel();
+                    }
+                    // Get the controller and enqueue the show/hide
+                    SpecialEffectsController controller = SpecialEffectsController
+                            .getOrCreateController(mFragment.mContainer,
+                                    mFragment.getParentFragmentManager());
+                    mHiddenAnimationCancellationSignal = new CancellationSignal();
+                    if (mFragment.mHidden) {
+                        controller.enqueueHide(this,
+                                mHiddenAnimationCancellationSignal);
+                    } else {
+                        controller.enqueueShow(this,
+                                mHiddenAnimationCancellationSignal);
+                    }
+                }
+                mFragment.mHiddenChanged = false;
+                mFragment.onHiddenChanged(mFragment.mHidden);
             }
         } finally {
             mMovingToState = false;
