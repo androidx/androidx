@@ -703,9 +703,8 @@ class LayoutNode : Measurable {
             owner.observeLayoutModelReads(this) {
                 children.fastForEach { child ->
                     child.isPlaced = false
-                    if (alignmentLinesRequired && child.layoutState != NeedsRelayout &&
+                    if (alignmentLinesRequired && child.layoutState == Ready &&
                         !child.alignmentLinesCalculatedDuringLastLayout) {
-                        require(child.layoutState == Ready)
                         child.layoutState = NeedsRelayout
                     }
                     if (!child.alignmentLinesRequired) {
