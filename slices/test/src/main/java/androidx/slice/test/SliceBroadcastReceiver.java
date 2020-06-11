@@ -39,6 +39,7 @@ import androidx.annotation.RequiresApi;
 @RequiresApi(19)
 public class SliceBroadcastReceiver extends BroadcastReceiver {
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onReceive(final Context context, Intent i) {
         String action = i.getAction();

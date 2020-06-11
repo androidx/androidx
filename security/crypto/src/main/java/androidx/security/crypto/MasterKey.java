@@ -317,6 +317,7 @@ public final class MasterKey {
             }
         }
 
+        @SuppressWarnings("deprecation")
         @RequiresApi(Build.VERSION_CODES.M)
         private MasterKey buildOnM() throws GeneralSecurityException, IOException {
             if (mKeyScheme == null && mKeyGenParameterSpec == null) {

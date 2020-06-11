@@ -55,6 +55,7 @@ import androidx.core.content.LocusIdCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
@@ -124,6 +125,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
+    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testShortcutInfo() {
         final String shortcutId = "my-shortcut";
@@ -1356,6 +1358,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @FlakyTest
     public void testPeopleField() {
         final Person person = new Person.Builder().setName("test name").setKey("key").build();
         final Person person2 = new Person.Builder()

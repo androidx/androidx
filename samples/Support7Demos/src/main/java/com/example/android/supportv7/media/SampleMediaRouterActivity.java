@@ -97,6 +97,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     private SeekBar mSeekBar;
     private boolean mSeeking;
 
+    @SuppressWarnings("deprecation")
     private final Handler mHandler = new Handler();
     private final Runnable mUpdateSeekRunnable = new Runnable() {
         @Override

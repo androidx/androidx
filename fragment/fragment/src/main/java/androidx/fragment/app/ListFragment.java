@@ -47,6 +47,7 @@ public class ListFragment extends Fragment {
     static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
     static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
 
+    @SuppressWarnings("deprecation")
     final private Handler mHandler = new Handler();
 
     final private Runnable mRequestFocus = new Runnable() {

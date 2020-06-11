@@ -71,6 +71,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
     private List<MediaRoute2Info> mRoutes = new ArrayList<>();
 
+    @SuppressWarnings("deprecation")
     MediaRoute2Provider(@NonNull Context context, @NonNull Callback callback) {
         super(context);
         mMediaRouter2 = MediaRouter2.getInstance(context);

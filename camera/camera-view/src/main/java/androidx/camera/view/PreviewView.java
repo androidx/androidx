@@ -411,6 +411,7 @@ public class PreviewView extends FrameLayout {
         return sensorDegrees % 180 == 90;
     }
 
+    @SuppressWarnings("deprecation")
     private boolean isRemoteDisplayMode() {
         DisplayManager displayManager =
                 (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);

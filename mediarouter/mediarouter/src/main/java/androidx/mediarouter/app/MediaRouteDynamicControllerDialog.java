@@ -139,7 +139,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
     private boolean mCreated;
     private boolean mAttachedToWindow;
     private long mLastUpdateTime;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "deprecation"}) /* synthetic access */
     final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message message) {

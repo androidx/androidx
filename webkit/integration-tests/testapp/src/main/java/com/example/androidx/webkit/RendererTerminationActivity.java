@@ -171,6 +171,7 @@ public class RendererTerminationActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void blockWebViewRenderer(int durationMs) {
         mBlocker.beginBlocking();
         new Handler().postDelayed(this::unblockWebViewRenderer, durationMs);

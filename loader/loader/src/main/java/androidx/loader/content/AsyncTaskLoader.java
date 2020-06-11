@@ -115,6 +115,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
      *
      * @param delayMS Amount of delay, in milliseconds.
      */
+    @SuppressWarnings("deprecation")
     public void setUpdateThrottle(long delayMS) {
         mUpdateThrottle = delayMS;
         if (delayMS != 0) {
