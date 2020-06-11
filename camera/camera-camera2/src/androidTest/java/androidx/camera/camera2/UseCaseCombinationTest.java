@@ -20,9 +20,6 @@ import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextur
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assume.assumeTrue;
-
-import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -46,12 +43,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
@@ -66,17 +63,14 @@ import java.util.concurrent.Semaphore;
 public final class UseCaseCombinationTest {
     private static final CameraSelector DEFAULT_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA;
     private final MutableLiveData<Long> mAnalysisResult = new MutableLiveData<>();
-    @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO);
+    @ClassRule
+    public static TestRule sCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Semaphore mSemaphore;
     private FakeLifecycleOwner mLifecycle;
 
     @Before
     public void setUp() {
-        assumeTrue(CameraUtil.deviceHasCamera());
-
         final Context context = ApplicationProvider.getApplicationContext();
         final CameraXConfig config = Camera2Config.defaultConfig();
         CameraX.initialize(context, config);
