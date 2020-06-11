@@ -69,6 +69,35 @@ def shorten_uninteresting_stack_frames(lines):
             prev_line_is_boring = False
     return result
 
+# If multiple tasks have no output, this function removes all but the first and last
+# For example, turns this:
+#  > Task :a
+#  > Task :b
+#  > Task :c
+#  > Task :d
+# into this:
+#  > Task :a
+#  > Task ...
+#  > Task :d
+def skip_tasks_having_no_output(lines):
+    result = []
+    pending_tasks = []
+    for line in lines + [""]:
+        is_task = line.startswith("> Task ")
+        if is_task:
+            pending_tasks.append(line)
+        else:
+            if len(pending_tasks) > 0:
+                result += pending_tasks[0]
+                if len(pending_tasks) > 2:
+                    result += "> Task ...\n"
+                if len(pending_tasks) > 1:
+                    result += pending_tasks[-1]
+                pending_tasks = []
+            if line != "":
+                result.append(line)
+    return result
+
 try:
     build_log_loc = sys.argv[1]
 
@@ -78,6 +107,7 @@ try:
 
     lines = select_failing_task_output(lines)
     lines = shorten_uninteresting_stack_frames(lines)
+    lines = skip_tasks_having_no_output(lines)
 
     print(len(lines))
     print(''.join(lines))
