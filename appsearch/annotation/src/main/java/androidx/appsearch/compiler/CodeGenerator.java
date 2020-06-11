@@ -323,17 +323,20 @@ class CodeGenerator {
             @NonNull String fieldName,
             @NonNull VariableElement property) throws ProcessingException {
         // Scenario 1: field is a Collection
-        //   1a: Collection contains boxed Long, Integer, Double, Float, Boolean or byte[].
+        //   1a: CollectionForLoopAssign
+        //       Collection contains boxed Long, Integer, Double, Float, Boolean or byte[].
         //       We have to pack it into a primitive array of type long[], double[], boolean[],
         //       or byte[][] by reading each element one-by-one and assigning it. The compiler takes
         //       care of unboxing.
         //
-        //   1b: Collection contains String or GenericDocument.
+        //   1b: CollectionCallToArray
+        //       Collection contains String or GenericDocument.
         //       We have to convert this into an array of String[] or GenericDocument[], but no
         //       conversion of the collection elements is needed. We can use Collection#toArray for
         //       this.
         //
-        //   1c: Collection contains a class which is annotated with @AppSearchDocument.
+        //   1c: CollectionForLoopCallToGenericDocument
+        //       Collection contains a class which is annotated with @AppSearchDocument.
         //       We have to convert this into an array of GenericDocument[], by reading each element
         //       one-by-one and converting it through the standard conversion machinery.
         //
@@ -344,17 +347,20 @@ class CodeGenerator {
         //       be implemented.
 
         // Scenario 2: field is an Array
-        //   2a: Array is of type Long[], Integer[], int[], Double[], Float[], float[], Boolean[],
+        //   2a: ArrayForLoopAssign
+        //       Array is of type Long[], Integer[], int[], Double[], Float[], float[], Boolean[],
         //       or Byte[].
         //       We have to pack it into a primitive array of type long[], double[], boolean[] or
         //       byte[] by reading each element one-by-one and assigning it. The compiler takes care
         //       of unboxing.
         //
-        //   2b: Array is of type String[], long[], double[], boolean[], byte[][] or
+        //   2b: ArrayUseDirectly
+        //       Array is of type String[], long[], double[], boolean[], byte[][] or
         //       GenericDocument[].
         //       We can directly use this field with no conversion.
         //
-        //   2c: Array is of a class which is annotated with @AppSearchDocument.
+        //   2c: ArrayForLoopCallToGenericDocument
+        //       Array is of a class which is annotated with @AppSearchDocument.
         //       We have to convert this into an array of GenericDocument[], by reading each element
         //       one-by-one and converting it through the standard conversion machinery.
         //
@@ -366,27 +372,30 @@ class CodeGenerator {
         //       currently, but in principle they are possible and could be implemented.
 
         // Scenario 3: Single valued fields
-        //   3a: Field is of type String, Long, Integer, Double, Float, Boolean, byte[] or
+        //   3a: FieldUseDirectlyWithNullCheck
+        //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[] or
         //       GenericDocument.
         //       We can use this field directly, after testing for null. The java compiler will box
         //       or unbox as needed.
         //
-        //   3b: Field is of type long, int, double, float, or boolean.
+        //   3b: FieldUseDirectlyWithoutNullCheck
+        //       Field is of type long, int, double, float, or boolean.
         //       We can use this field directly without testing for null.
         //
-        //   3c: Field is of a class which is annotated with @AppSearchDocument.
+        //   3c: FieldCallToGenericDocument
+        //       Field is of a class which is annotated with @AppSearchDocument.
         //       We have to convert this into a GenericDocument through the standard conversion
         //       machinery.
         //
         //   3x: Field is of any other kind of class. This is unsupported and compilation fails.
 
-        if (tryScenario1Collection(builder, fieldName, property)) {
+        if (tryConvertFromCollection(builder, fieldName, property)) {
             return;
         }
-        if (tryScenario2Array(builder, fieldName, property)) {
+        if (tryConvertFromArray(builder, fieldName, property)) {
             return;
         }
-        tryScenario3SingleField(builder, fieldName, property);
+        convertFromField(builder, fieldName, property);
     }
 
     /**
@@ -394,7 +403,7 @@ class CodeGenerator {
      * suitable for GenericDocument and returns true. If the field is not a Collection, returns
      * false.
      */
-    private boolean tryScenario1Collection(
+    private boolean tryConvertFromCollection(
             @NonNull MethodSpec.Builder method,
             @NonNull String fieldName,
             @NonNull VariableElement property) throws ProcessingException {
@@ -415,9 +424,9 @@ class CodeGenerator {
                 ((DeclaredType) property.asType()).getTypeArguments();
         TypeMirror propertyType = genericTypes.get(0);
 
-        // TODO(b/156296904): Handle scenario 1c
-        if (!tryType1a(builder, fieldName, propertyType)
-                && !tryType1b(builder, fieldName, propertyType)) {
+        // TODO(b/156296904): Handle scenario 1c (CollectionForLoopCallToGenericDocument)
+        if (!tryCollectionForLoopAssign(builder, fieldName, propertyType)  // 1a
+                && !tryCollectionCallToArray(builder, fieldName, propertyType)) {  // 1b
             // Scenario 1x
             throw new ProcessingException(
                     "Unhandled property type " + property.asType().toString(), property);
@@ -427,11 +436,12 @@ class CodeGenerator {
         return true;
     }
 
-    //   1a: Collection contains boxed Long, Integer, Double, Float, Boolean or byte[].
+    //   1a: CollectionForLoopAssign
+    //       Collection contains boxed Long, Integer, Double, Float, Boolean or byte[].
     //       We have to pack it into a primitive array of type long[], double[], boolean[],
     //       or byte[][] by reading each element one-by-one and assigning it. The compiler takes
     //       care of unboxing.
-    private boolean tryType1a(
+    private boolean tryCollectionForLoopAssign(
             @NonNull CodeBlock.Builder method,
             @NonNull String fieldName,
             @NonNull TypeMirror propertyType) {
@@ -477,11 +487,12 @@ class CodeGenerator {
         return true;
     }
 
-    //   1b: Collection contains String or GenericDocument.
+    //   1b: CollectionCallToArray
+    //       Collection contains String or GenericDocument.
     //       We have to convert this into an array of String[] or GenericDocument[], but no
     //       conversion of the collection elements is needed. We can use Collection#toArray for
     //       this.
-    private boolean tryType1b(
+    private boolean tryCollectionCallToArray(
             @NonNull CodeBlock.Builder method,
             @NonNull String fieldName,
             @NonNull TypeMirror propertyType) {
@@ -511,7 +522,7 @@ class CodeGenerator {
      * If the given field is an array, generates code to read it and convert it into a form suitable
      * for GenericDocument and returns true. If the field is not an array, returns false.
      */
-    private boolean tryScenario2Array(
+    private boolean tryConvertFromArray(
             @NonNull MethodSpec.Builder method,
             @NonNull String fieldName,
             @NonNull VariableElement property) throws ProcessingException {
@@ -533,9 +544,9 @@ class CodeGenerator {
 
         TypeMirror propertyType = ((ArrayType) property.asType()).getComponentType();
 
-        // TODO(b/156296904): Handle scenario 2c
-        if (!tryType2a(builder, fieldName, propertyType)
-                && !tryType2b(builder, fieldName, propertyType)) {
+        // TODO(b/156296904): Handle scenario 2c (ArrayForLoopCallToGenericDocument)
+        if (!tryArrayForLoopAssign(builder, fieldName, propertyType)  // 2a
+                && !tryArrayUseDirectly(builder, fieldName, propertyType)) {  // 2b
             // Scenario 2x
             throw new ProcessingException(
                     "Unhandled property type " + property.asType().toString(), property);
@@ -545,12 +556,13 @@ class CodeGenerator {
         return true;
     }
 
-    //   2a: Array is of type Long[], Integer[], int[], Double[], Float[], float[], Boolean[],
+    //   2a: ArrayForLoopAssign
+    //       Array is of type Long[], Integer[], int[], Double[], Float[], float[], Boolean[],
     //       or Byte[].
     //       We have to pack it into a primitive array of type long[], double[], boolean[] or
     //       byte[] by reading each element one-by-one and assigning it. The compiler takes care
     //       of unboxing.
-    private boolean tryType2a(
+    private boolean tryArrayForLoopAssign(
             @NonNull CodeBlock.Builder method,
             @NonNull String fieldName,
             @NonNull TypeMirror propertyType) {
@@ -598,10 +610,11 @@ class CodeGenerator {
         return true;
     }
 
-    //   2b: Array is of type String[], long[], double[], boolean[], byte[][] or
+    //   2b: ArrayUseDirectly
+    //       Array is of type String[], long[], double[], boolean[], byte[][] or
     //       GenericDocument[].
     //       We can directly use this field with no conversion.
-    private boolean tryType2b(
+    private boolean tryArrayUseDirectly(
             @NonNull CodeBlock.Builder method,
             @NonNull String fieldName,
             @NonNull TypeMirror propertyType) {
@@ -631,14 +644,15 @@ class CodeGenerator {
      * Given a field which is a single element (non-collection), generates code to read it and
      * convert it into a form suitable for GenericDocument.
      */
-    private void tryScenario3SingleField(
+    private void convertFromField(
             @NonNull MethodSpec.Builder method,
             @NonNull String fieldName,
             @NonNull VariableElement property) throws ProcessingException {
-        // TODO(b/156296904): Handle scenario 3c
+        // TODO(b/156296904): Handle scenario 3c (FieldCallToGenericDocument)
         CodeBlock.Builder builder = CodeBlock.builder();
-        if (!tryType3a(builder, fieldName, property.asType())
-                && !tryType3b(builder, fieldName, property.asType())) {
+        if (!tryFieldUseDirectlyWithNullCheck(builder, fieldName, property.asType())  // 3a
+                && !tryFieldUseDirectlyWithoutNullCheck(
+                        builder, fieldName, property.asType())) {  // 3b
             // Scenario 3x
             throw new ProcessingException(
                     "Unhandled property type " + property.asType().toString(), property);
@@ -646,11 +660,12 @@ class CodeGenerator {
         method.addCode(builder.build());
     }
 
-    //   3a: Field is of type String, Long, Integer, Double, Float, Boolean, byte[] or
+    //   3a: FieldUseDirectlyWithNullCheck
+    //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[] or
     //       GenericDocument.
     //       We can use this field directly, after testing for null. The java compiler will box
     //       or unbox as needed.
-    private boolean tryType3a(
+    private boolean tryFieldUseDirectlyWithNullCheck(
             @NonNull CodeBlock.Builder method,
             @NonNull String fieldName,
             @NonNull TypeMirror propertyType) {
@@ -684,9 +699,10 @@ class CodeGenerator {
         return true;
     }
 
-    //   3b: Field is of type long, int, double, float, or boolean.
+    //   3b: FieldUseDirectlyWithoutNullCheck
+    //       Field is of type long, int, double, float, or boolean.
     //       We can use this field directly without testing for null.
-    private boolean tryType3b(
+    private boolean tryFieldUseDirectlyWithoutNullCheck(
             @NonNull CodeBlock.Builder method,
             @NonNull String fieldName,
             @NonNull TypeMirror propertyType) {
