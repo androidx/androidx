@@ -21,12 +21,10 @@ import androidx.paging.PagingConfig.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 
 /**
- * Configures how to load content from a [PagingSource].
- *
- * Use [PagingConfig.Builder] to construct and define custom loading behavior, such as
- * [pageSize], which defines number of items loaded at a time.
+ * An object used to configure loading behavior within a [Pager], as it loads content from a
+ * [PagingSource].
  */
-class PagingConfig(
+class PagingConfig @JvmOverloads constructor(
     /**
      * Defines the number of items loaded at once from the [PagingSource].
      *
@@ -115,6 +113,9 @@ class PagingConfig(
      * Threshold for number of items scrolled outside the bounds of loaded items to trigger
      * invalidate. Defaults to [COUNT_UNDEFINED], which disables invalidation due to scrolling
      * large distances.
+     *
+     * @see PagingSource.getRefreshKey
+     * @see PagingSource.jumpingSupported
      */
     @JvmField
     val jumpThreshold: Int = COUNT_UNDEFINED
