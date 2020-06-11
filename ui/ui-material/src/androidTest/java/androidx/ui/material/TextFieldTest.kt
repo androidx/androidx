@@ -18,7 +18,9 @@ package androidx.ui.material
 
 import android.os.Build
 import androidx.compose.Providers
+import androidx.compose.getValue
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -82,10 +84,11 @@ import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import androidx.ui.layout.preferredWidth
 
 @MediumTest
 @RunWith(JUnit4::class)
-class FilledTextFieldTest {
+class TextFieldTest {
 
     private val ExpectedMinimumTextFieldHeight = 56.dp
     private val ExpectedPadding = 16.dp
@@ -93,6 +96,7 @@ class FilledTextFieldTest {
     private val ExpectedBaselineOffset = 20.dp
     private val ExpectedLastBaselineOffset = 16.dp
     private val IconColorAlpha = 0.54f
+    private val TextfieldTag = "textField"
 
     private val LONG_TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do " +
             "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam," +
@@ -104,7 +108,7 @@ class FilledTextFieldTest {
     val testRule = createComposeRule()
 
     @Test
-    fun testTextFieldMinimumHeight() {
+    fun testFilledTextField_minimumHeight() {
         testRule
             .setMaterialContentAndCollectSizes {
                 FilledTextField(
@@ -118,12 +122,15 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testTextField_singleFocus() {
+    fun testTextFields_singleFocus() {
         var textField1Focused = false
         val textField1Tag = "TextField1"
 
         var textField2Focused = false
         val textField2Tag = "TextField2"
+
+        var textField3Focused = false
+        val textField3Tag = "TextField3"
 
         testRule.setMaterialContent {
             Column {
@@ -134,12 +141,19 @@ class FilledTextFieldTest {
                     label = {},
                     onFocusChange = { textField1Focused = it }
                 )
-                FilledTextField(
+                OutlinedTextField(
                     modifier = Modifier.testTag(textField2Tag),
                     value = "input2",
                     onValueChange = {},
                     label = {},
                     onFocusChange = { textField2Focused = it }
+                )
+                FilledTextField(
+                    modifier = Modifier.testTag(textField3Tag),
+                    value = "input2",
+                    onValueChange = {},
+                    label = {},
+                    onFocusChange = { textField3Focused = it }
                 )
             }
         }
@@ -149,6 +163,7 @@ class FilledTextFieldTest {
         runOnIdleCompose {
             assertThat(textField1Focused).isTrue()
             assertThat(textField2Focused).isFalse()
+            assertThat(textField3Focused).isFalse()
         }
 
         findByTag(textField2Tag).doClick()
@@ -156,16 +171,25 @@ class FilledTextFieldTest {
         runOnIdleCompose {
             assertThat(textField1Focused).isFalse()
             assertThat(textField2Focused).isTrue()
+            assertThat(textField3Focused).isFalse()
+        }
+
+        findByTag(textField3Tag).doClick()
+
+        runOnIdleCompose {
+            assertThat(textField1Focused).isFalse()
+            assertThat(textField2Focused).isFalse()
+            assertThat(textField3Focused).isTrue()
         }
     }
 
     @Test
-    fun testGetFocus_whenClickedOnSurfaceArea() {
+    fun testFilledTextField_getFocus_whenClickedOnSurfaceArea() {
         var focused = false
         testRule.setMaterialContent {
             Box {
                 FilledTextField(
-                    modifier = Modifier.testTag("textField"),
+                    modifier = Modifier.testTag(TextfieldTag),
                     value = "input",
                     onValueChange = {},
                     label = {},
@@ -175,7 +199,7 @@ class FilledTextFieldTest {
         }
 
         // Click on (2, 2) which is Surface area and outside input area
-        findByTag("textField").doGesture {
+        findByTag(TextfieldTag).doGesture {
             sendClick(Offset(2f, 2f))
         }
 
@@ -185,7 +209,32 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testLabelPosition_initial_withDefaultHeight() {
+    fun testOutlinedTextField_getFocus_whenClickedOnInternalArea() {
+        var focused = false
+        testRule.setMaterialContent {
+            Box {
+                OutlinedTextField(
+                    modifier = Modifier.testTag(TextfieldTag),
+                    value = "input",
+                    onValueChange = {},
+                    label = {},
+                    onFocusChange = { focused = it }
+                )
+            }
+        }
+
+        // Click on (2, 2) which is a background area and outside input area
+        findByTag(TextfieldTag).doGesture {
+            sendClick(Offset(2f, 2f))
+        }
+
+        testRule.runOnIdleComposeWithDensity {
+            assertThat(focused).isTrue()
+        }
+    }
+
+    @Test
+    fun testFilledTextField_labelPosition_initial_withDefaultHeight() {
         val labelSize = Ref<IntSize>()
         val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
@@ -226,7 +275,42 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testLabelPosition_initial_withCustomHeight() {
+    fun testOutlinedTextField_labelPosition_initial_withDefaultHeight() {
+        val labelSize = Ref<IntSize>()
+        val labelPosition = Ref<Offset>()
+        testRule.setMaterialContent {
+            Box {
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {
+                        Text(text = "label", modifier = Modifier.onPositioned {
+                            labelPosition.value = it.globalPosition
+                            labelSize.value = it.size
+                        })
+                    }
+                )
+            }
+        }
+
+        testRule.runOnIdleComposeWithDensity {
+            // size
+            assertThat(labelSize.value).isNotNull()
+            assertThat(labelSize.value?.height).isGreaterThan(0)
+            assertThat(labelSize.value?.width).isGreaterThan(0)
+            assertThat(labelPosition.value?.x).isEqualTo(
+                ExpectedPadding.toIntPx().toFloat()
+            )
+            // label is centered in 56.dp default container, plus additional 8.dp padding on top
+            val minimumHeight = ExpectedMinimumTextFieldHeight.toIntPx()
+            assertThat(labelPosition.value?.y).isEqualTo(
+                ((minimumHeight - labelSize.value!!.height) / 2f).roundToInt() + 8.dp.toIntPx()
+            )
+        }
+    }
+
+    @Test
+    fun testFilledTextField_labelPosition_initial_withCustomHeight() {
         val height = 80.dp
         val labelSize = Ref<IntSize>()
         val labelPosition = Ref<Offset>()
@@ -262,14 +346,14 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testLabelPosition_whenFocused() {
+    fun testFilledTextField_labelPosition_whenFocused() {
         val labelSize = Ref<IntSize>()
         val labelPosition = Ref<Offset>()
         val baseline = Ref<Float>()
         testRule.setMaterialContent {
             Box {
                 FilledTextField(
-                    modifier = Modifier.testTag("textField"),
+                    modifier = Modifier.testTag(TextfieldTag),
                     value = "",
                     onValueChange = {},
                     label = {
@@ -285,7 +369,7 @@ class FilledTextFieldTest {
         }
 
         // click to focus
-        clickAndAdvanceClock("textField", 200)
+        clickAndAdvanceClock(TextfieldTag, 200)
 
         testRule.runOnIdleComposeWithDensity {
             // size
@@ -303,7 +387,42 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testLabelPosition_whenInput() {
+    fun testOutlinedTextField_labelPosition_whenFocused() {
+        val labelSize = Ref<IntSize>()
+        val labelPosition = Ref<Offset>()
+
+        testRule.setMaterialContent {
+            OutlinedTextField(
+                modifier = Modifier.testTag(TextfieldTag),
+                value = "",
+                onValueChange = {},
+                label = {
+                    Text(text = "label", modifier = Modifier.onPositioned {
+                        labelPosition.value = it.globalPosition
+                        labelSize.value = it.size
+                    })
+                }
+            )
+        }
+
+        // click to focus
+        clickAndAdvanceClock(TextfieldTag, 200)
+
+        testRule.runOnIdleComposeWithDensity {
+            // size
+            assertThat(labelSize.value).isNotNull()
+            assertThat(labelSize.value?.height).isGreaterThan(0)
+            assertThat(labelSize.value?.width).isGreaterThan(0)
+            // label's top position
+            assertThat(labelPosition.value?.x).isEqualTo(
+                ExpectedPadding.toIntPx().toFloat()
+            )
+            assertThat(labelPosition.value?.y).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun testFilledTextField_labelPosition_whenInput() {
         val labelSize = Ref<IntSize>()
         val labelPosition = Ref<Offset>()
         val baseline = Ref<Float>()
@@ -340,7 +459,37 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testPlaceholderPosition_withLabel() {
+    fun testOutlinedTextField_labelPosition_whenInput() {
+        val labelSize = Ref<IntSize>()
+        val labelPosition = Ref<Offset>()
+        testRule.setMaterialContent {
+            OutlinedTextField(
+                value = "input",
+                onValueChange = {},
+                label = {
+                    Text(text = "label", modifier = Modifier.onPositioned {
+                        labelPosition.value = it.globalPosition
+                        labelSize.value = it.size
+                    })
+                }
+            )
+        }
+
+        testRule.runOnIdleComposeWithDensity {
+            // size
+            assertThat(labelSize.value).isNotNull()
+            assertThat(labelSize.value?.height).isGreaterThan(0)
+            assertThat(labelSize.value?.width).isGreaterThan(0)
+            // label's top position
+            assertThat(labelPosition.value?.x).isEqualTo(
+                ExpectedPadding.toIntPx().toFloat()
+            )
+            assertThat(labelPosition.value?.y).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun testFilledTextField_placeholderPosition_withLabel() {
         val placeholderSize = Ref<IntSize>()
         val placeholderPosition = Ref<Offset>()
         val placeholderBaseline = Ref<Float>()
@@ -349,7 +498,7 @@ class FilledTextFieldTest {
                 FilledTextField(
                     modifier = Modifier
                         .preferredHeight(60.dp)
-                        .testTag("textField"),
+                        .testTag(TextfieldTag),
                     value = "",
                     onValueChange = {},
                     label = { Text("label") },
@@ -365,7 +514,7 @@ class FilledTextFieldTest {
             }
         }
         // click to focus
-        clickAndAdvanceClock("textField", 200)
+        clickAndAdvanceClock(TextfieldTag, 200)
 
         testRule.runOnIdleComposeWithDensity {
             // size
@@ -385,7 +534,49 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testPlaceholderPosition_whenNoLabel() {
+    fun testOutlinedTextField_placeholderPosition_withLabel() {
+        val placeholderSize = Ref<IntSize>()
+        val placeholderPosition = Ref<Offset>()
+        testRule.setMaterialContent {
+            Box {
+                OutlinedTextField(
+                    modifier = Modifier.testTag(TextfieldTag),
+                    value = "",
+                    onValueChange = {},
+                    label = { Text("label") },
+                    placeholder = {
+                        Text(text = "placeholder", modifier = Modifier.onPositioned {
+                            placeholderPosition.value = it.globalPosition
+                            placeholderSize.value = it.size
+                        })
+                    }
+                )
+            }
+        }
+        // click to focus
+        clickAndAdvanceClock(TextfieldTag, 200)
+
+        testRule.runOnIdleComposeWithDensity {
+            // size
+            assertThat(placeholderSize.value).isNotNull()
+            assertThat(placeholderSize.value?.height).isGreaterThan(0)
+            assertThat(placeholderSize.value?.width).isGreaterThan(0)
+            // placeholder's position
+            assertThat(placeholderPosition.value?.x).isEqualTo(
+                ExpectedPadding.toIntPx().toFloat()
+            )
+            // placeholder is centered in 56.dp default container,
+            // plus additional 8.dp padding on top
+            assertThat(placeholderPosition.value?.y).isEqualTo(
+                ((ExpectedMinimumTextFieldHeight.toIntPx() - placeholderSize.value!!.height) /
+                        2f).roundToInt() +
+                        8.dp.toIntPx()
+            )
+        }
+    }
+
+    @Test
+    fun testFilledTextField_placeholderPosition_whenNoLabel() {
         val placeholderSize = Ref<IntSize>()
         val placeholderPosition = Ref<Offset>()
         val placeholderBaseline = Ref<Float>()
@@ -393,7 +584,7 @@ class FilledTextFieldTest {
         testRule.setMaterialContent {
             Box {
                 FilledTextField(
-                    modifier = Modifier.preferredHeight(height).testTag("textField"),
+                    modifier = Modifier.preferredHeight(height).testTag(TextfieldTag),
                     value = "",
                     onValueChange = {},
                     label = {},
@@ -409,7 +600,7 @@ class FilledTextFieldTest {
             }
         }
         // click to focus
-        clickAndAdvanceClock("textField", 200)
+        clickAndAdvanceClock(TextfieldTag, 200)
 
         testRule.runOnIdleComposeWithDensity {
             // size
@@ -427,13 +618,55 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testNoPlaceholder_whenInputNotEmpty() {
+    fun testOutlinedTextField_placeholderPosition_whenNoLabel() {
         val placeholderSize = Ref<IntSize>()
         val placeholderPosition = Ref<Offset>()
         testRule.setMaterialContent {
             Box {
+                OutlinedTextField(
+                    modifier = Modifier.testTag(TextfieldTag),
+                    value = "",
+                    onValueChange = {},
+                    label = {},
+                    placeholder = {
+                        Text(text = "placeholder", modifier = Modifier.onPositioned {
+                            placeholderPosition.value = it.globalPosition
+                            placeholderSize.value = it.size
+                        })
+                    }
+                )
+            }
+        }
+        // click to focus
+        clickAndAdvanceClock(TextfieldTag, 200)
+
+        testRule.runOnIdleComposeWithDensity {
+            // size
+            assertThat(placeholderSize.value).isNotNull()
+            assertThat(placeholderSize.value?.height).isGreaterThan(0)
+            assertThat(placeholderSize.value?.width).isGreaterThan(0)
+            // centered position
+            assertThat(placeholderPosition.value?.x).isEqualTo(
+                ExpectedPadding.toIntPx().toFloat()
+            )
+            // placeholder is centered in 56.dp default container,
+            // plus additional 8.dp padding on top
+            assertThat(placeholderPosition.value?.y).isEqualTo(
+                ((ExpectedMinimumTextFieldHeight.toIntPx() - placeholderSize.value!!.height) /
+                        2f).roundToInt() +
+                        8.dp.toIntPx()
+            )
+        }
+    }
+
+    @Test
+    fun testFilledTextField_noPlaceholder_whenInputNotEmpty() {
+        val placeholderSize = Ref<IntSize>()
+        val placeholderPosition = Ref<Offset>()
+        testRule.setMaterialContent {
+            Column {
                 FilledTextField(
-                    modifier = Modifier.testTag("textField"),
+                    modifier = Modifier.testTag(TextfieldTag),
                     value = "input",
                     onValueChange = {},
                     label = {},
@@ -448,7 +681,7 @@ class FilledTextFieldTest {
         }
 
         // click to focus
-        clickAndAdvanceClock("textField", 200)
+        clickAndAdvanceClock(TextfieldTag, 200)
 
         testRule.runOnIdleComposeWithDensity {
             assertThat(placeholderSize.value).isNull()
@@ -457,10 +690,40 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testPlaceholderColorAndTextStyle() {
+    fun testOutlinedTextField_noPlaceholder_whenInputNotEmpty() {
+        val placeholderSize = Ref<IntSize>()
+        val placeholderPosition = Ref<Offset>()
+        testRule.setMaterialContent {
+            Column {
+                OutlinedTextField(
+                    modifier = Modifier.testTag(TextfieldTag),
+                    value = "input",
+                    onValueChange = {},
+                    label = {},
+                    placeholder = {
+                        Text(text = "placeholder", modifier = Modifier.onPositioned {
+                            placeholderPosition.value = it.globalPosition
+                            placeholderSize.value = it.size
+                        })
+                    }
+                )
+            }
+        }
+
+        // click to focus
+        clickAndAdvanceClock(TextfieldTag, 200)
+
+        testRule.runOnIdleComposeWithDensity {
+            assertThat(placeholderSize.value).isNull()
+            assertThat(placeholderPosition.value).isNull()
+        }
+    }
+
+    @Test
+    fun testFilledTextField_placeholderColorAndTextStyle() {
         testRule.setMaterialContent {
             FilledTextField(
-                modifier = Modifier.testTag("textField"),
+                modifier = Modifier.testTag(TextfieldTag),
                 value = "",
                 onValueChange = {},
                 label = {},
@@ -474,11 +737,32 @@ class FilledTextFieldTest {
         }
 
         // click to focus
-        findByTag("textField").doClick()
+        findByTag(TextfieldTag).doClick()
     }
 
     @Test
-    fun testTrailingAndLeading_sizeAndPosition() {
+    fun testOutlinedTextField_placeholderColorAndTextStyle() {
+        testRule.setMaterialContent {
+            OutlinedTextField(
+                modifier = Modifier.testTag(TextfieldTag),
+                value = "",
+                onValueChange = {},
+                label = {},
+                placeholder = {
+                    Text("placeholder")
+                    assertThat(contentColor())
+                        .isEqualTo(MaterialTheme.colors.onSurface.copy(0.6f))
+                    assertThat(currentTextStyle()).isEqualTo(MaterialTheme.typography.subtitle1)
+                }
+            )
+        }
+
+        // click to focus
+        findByTag(TextfieldTag).doClick()
+    }
+
+    @Test
+    fun testFilledTextField_trailingAndLeading_sizeAndPosition() {
         val textFieldHeight = 60.dp
         val textFieldWidth = 300.dp
         val size = 30.dp
@@ -523,14 +807,65 @@ class FilledTextFieldTest {
                     .toFloat()
             )
             assertThat(trailingPosition.value?.y)
-                .isEqualTo(((textFieldHeight.toIntPx() - trailingSize.value!!.height) / 2f)
-                    .roundToInt().toFloat()
+                .isEqualTo(
+                    ((textFieldHeight.toIntPx() - trailingSize.value!!.height) / 2f)
+                        .roundToInt().toFloat()
                 )
         }
     }
 
     @Test
-    fun testLabelPositionX_initial_withTrailingAndLeading() {
+    fun testOutlinedTextField_trailingAndLeading_sizeAndPosition() {
+        val textFieldWidth = 300.dp
+        val size = 30.dp
+        val leadingPosition = Ref<Offset>()
+        val leadingSize = Ref<IntSize>()
+        val trailingPosition = Ref<Offset>()
+        val trailingSize = Ref<IntSize>()
+
+        testRule.setMaterialContent {
+            OutlinedTextField(
+                value = "text",
+                onValueChange = {},
+                modifier = Modifier.preferredWidth(textFieldWidth),
+                label = {},
+                leadingIcon = {
+                    Box(Modifier.preferredSize(size).onPositioned {
+                        leadingPosition.value = it.globalPosition
+                        leadingSize.value = it.size
+                    })
+                },
+                trailingIcon = {
+                    Box(Modifier.preferredSize(size).onPositioned {
+                        trailingPosition.value = it.globalPosition
+                        trailingSize.value = it.size
+                    })
+                }
+            )
+        }
+
+        testRule.runOnIdleComposeWithDensity {
+            val minimumHeight = ExpectedMinimumTextFieldHeight.toIntPx()
+            // leading
+            assertThat(leadingSize.value).isEqualTo(IntSize(size.toIntPx(), size.toIntPx()))
+            assertThat(leadingPosition.value?.x).isEqualTo(IconPadding.toIntPx().toFloat())
+            assertThat(leadingPosition.value?.y).isEqualTo(
+                ((minimumHeight - leadingSize.value!!.height) / 2f).roundToInt() + 8.dp.toIntPx()
+            )
+            // trailing
+            assertThat(trailingSize.value).isEqualTo(IntSize(size.toIntPx(), size.toIntPx()))
+            assertThat(trailingPosition.value?.x).isEqualTo(
+                (textFieldWidth.toIntPx() - IconPadding.toIntPx() - trailingSize.value!!.width)
+                    .toFloat()
+            )
+            assertThat(trailingPosition.value?.y).isEqualTo(
+                ((minimumHeight - trailingSize.value!!.height) / 2f).roundToInt() + 8.dp.toIntPx()
+            )
+        }
+    }
+
+    @Test
+    fun testFilledTextField_labelPositionX_initial_withTrailingAndLeading() {
         val height = 60.dp
         val iconSize = 30.dp
         val labelPosition = Ref<Offset>()
@@ -560,7 +895,35 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testLabelPositionX_initial_withEmptyTrailingAndLeading() {
+    fun testOutlinedTextField_labelPositionX_initial_withTrailingAndLeading() {
+        val iconSize = 30.dp
+        val labelPosition = Ref<Offset>()
+        testRule.setMaterialContent {
+            Box {
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {
+                        Text(text = "label", modifier = Modifier.onPositioned {
+                            labelPosition.value = it.globalPosition
+                        })
+                    },
+                    trailingIcon = { Box(Modifier.preferredSize(iconSize)) },
+                    leadingIcon = { Box(Modifier.preferredSize(iconSize)) }
+                )
+            }
+        }
+
+        testRule.runOnIdleComposeWithDensity {
+            assertThat(labelPosition.value?.x).isEqualTo(
+                (ExpectedPadding.toIntPx() + IconPadding.toIntPx() + iconSize.toIntPx())
+                    .toFloat()
+            )
+        }
+    }
+
+    @Test
+    fun testFilledTextField_labelPositionX_initial_withEmptyTrailingAndLeading() {
         val height = 60.dp
         val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
@@ -588,46 +951,103 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testColorInLeadingTrailing_whenValidInput() {
+    fun testOutlinedTextField_labelPositionX_initial_withEmptyTrailingAndLeading() {
+        val labelPosition = Ref<Offset>()
         testRule.setMaterialContent {
-            FilledTextField(
-                value = "",
-                onValueChange = {},
-                label = {},
-                isErrorValue = false,
-                leadingIcon = {
-                    assertThat(contentColor())
-                        .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
-                },
-                trailingIcon = {
-                    assertThat(contentColor())
-                        .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
-                }
+            Box {
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {
+                        Text(text = "label", modifier = Modifier.onPositioned {
+                            labelPosition.value = it.globalPosition
+                        })
+                    },
+                    trailingIcon = {},
+                    leadingIcon = {}
+                )
+            }
+        }
+
+        testRule.runOnIdleComposeWithDensity {
+            assertThat(labelPosition.value?.x).isEqualTo(
+                ExpectedPadding.toIntPx().toFloat()
             )
         }
     }
 
     @Test
-    fun testColorInLeadingTrailing_whenInvalidInput() {
+    fun testTextField_colorInLeadingTrailing_whenValidInput() {
         testRule.setMaterialContent {
-            FilledTextField(
-                value = "",
-                onValueChange = {},
-                label = {},
-                isErrorValue = true,
-                leadingIcon = {
-                    assertThat(contentColor())
-                        .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
-                },
-                trailingIcon = {
-                    assertThat(contentColor()).isEqualTo(MaterialTheme.colors.error)
-                }
-            )
+            Column {
+                FilledTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {},
+                    isErrorValue = false,
+                    leadingIcon = {
+                        assertThat(contentColor())
+                            .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                    },
+                    trailingIcon = {
+                        assertThat(contentColor())
+                            .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                    }
+                )
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {},
+                    isErrorValue = false,
+                    leadingIcon = {
+                        assertThat(contentColor())
+                            .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                    },
+                    trailingIcon = {
+                        assertThat(contentColor())
+                            .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                    }
+                )
+            }
         }
     }
 
     @Test
-    fun testImeActionAndKeyboardTypePropagatedDownstream() {
+    fun testTextField_colorInLeadingTrailing_whenInvalidInput() {
+        testRule.setMaterialContent {
+            Column {
+                FilledTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {},
+                    isErrorValue = true,
+                    leadingIcon = {
+                        assertThat(contentColor())
+                            .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                    },
+                    trailingIcon = {
+                        assertThat(contentColor()).isEqualTo(MaterialTheme.colors.error)
+                    }
+                )
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {},
+                    isErrorValue = true,
+                    leadingIcon = {
+                        assertThat(contentColor())
+                            .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                    },
+                    trailingIcon = {
+                        assertThat(contentColor()).isEqualTo(MaterialTheme.colors.error)
+                    }
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testFilledTextField_imeActionAndKeyboardTypePropagatedDownstream() {
         val textInputService = mock<TextInputService>()
         testRule.setContent {
             Providers(
@@ -635,7 +1055,7 @@ class FilledTextFieldTest {
             ) {
                 var text = state { TextFieldValue("") }
                 FilledTextField(
-                    modifier = Modifier.testTag("textField"),
+                    modifier = Modifier.testTag(TextfieldTag),
                     value = text.value,
                     onValueChange = { text.value = it },
                     label = {},
@@ -645,7 +1065,39 @@ class FilledTextFieldTest {
             }
         }
 
-        clickAndAdvanceClock("textField", 200)
+        clickAndAdvanceClock(TextfieldTag, 200)
+
+        runOnIdleCompose {
+            verify(textInputService, atLeastOnce()).startInput(
+                value = any(),
+                keyboardType = eq(KeyboardType.Email),
+                imeAction = eq(ImeAction.Go),
+                onEditCommand = any(),
+                onImeActionPerformed = any()
+            )
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_imeActionAndKeyboardTypePropagatedDownstream() {
+        val textInputService = mock<TextInputService>()
+        testRule.setContent {
+            Providers(
+                TextInputServiceAmbient provides textInputService
+            ) {
+                var text = state { TextFieldValue("") }
+                OutlinedTextField(
+                    modifier = Modifier.testTag(TextfieldTag),
+                    value = text.value,
+                    onValueChange = { text.value = it },
+                    label = {},
+                    imeAction = ImeAction.Go,
+                    keyboardType = KeyboardType.Email
+                )
+            }
+        }
+
+        clickAndAdvanceClock(TextfieldTag, 200)
 
         runOnIdleCompose {
             verify(textInputService, atLeastOnce()).startInput(
@@ -660,10 +1112,10 @@ class FilledTextFieldTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testVisualTransformationPropagated() {
+    fun testFilledTextField_visualTransformationPropagated() {
         testRule.setMaterialContent {
             FilledTextField(
-                modifier = Modifier.testTag("textField"),
+                modifier = Modifier.testTag(TextfieldTag),
                 value = "qwerty",
                 onValueChange = {},
                 label = {},
@@ -673,7 +1125,7 @@ class FilledTextFieldTest {
             )
         }
 
-        findByTag("textField")
+        findByTag(TextfieldTag)
             .captureToBitmap()
             .assertShape(
                 density = testRule.density,
@@ -687,13 +1139,40 @@ class FilledTextFieldTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun test_alphaNotSet_toBackgroundColorAndTransparentColors() {
+    fun testOutlinedTextField_visualTransformationPropagated() {
+        testRule.setMaterialContent {
+            Box(Modifier.drawBackground(Color.White)) {
+                OutlinedTextField(
+                    modifier = Modifier.testTag(TextfieldTag),
+                    value = "qwerty",
+                    onValueChange = {},
+                    label = {},
+                    visualTransformation = PasswordVisualTransformation('\u0020')
+                )
+            }
+        }
+
+        findByTag(TextfieldTag)
+            .captureToBitmap()
+            .assertShape(
+                density = testRule.density,
+                backgroundColor = Color.White,
+                shapeColor = Color.White,
+                shape = RectangleShape,
+                // avoid elevation artifacts
+                shapeOverlapPixelCount = with(testRule.density) { 3.dp.toPx() }
+            )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testFilledTextField_alphaNotSet_toBackgroundColorAndTransparentColors() {
         val latch = CountDownLatch(1)
 
         testRule.setMaterialContent {
             Stack(Modifier.drawBackground(Color.White)) {
                 FilledTextField(
-                    modifier = Modifier.testTag("textField"),
+                    modifier = Modifier.testTag(TextfieldTag),
                     value = "",
                     onValueChange = {},
                     label = {},
@@ -710,7 +1189,7 @@ class FilledTextFieldTest {
 
         val expectedColor = Color.Blue.copy(alpha = 0.12f).compositeOver(Color.White)
 
-        findByTag("textField")
+        findByTag(TextfieldTag)
             .captureToBitmap()
             .assertShape(
                 density = testRule.density,
@@ -721,10 +1200,10 @@ class FilledTextFieldTest {
                 shapeOverlapPixelCount = with(testRule.density) { 1.dp.toPx() }
             )
 
-        findByTag("textField").doClick()
+        findByTag(TextfieldTag).doClick()
         assert(latch.await(1, TimeUnit.SECONDS))
 
-        findByTag("textField")
+        findByTag(TextfieldTag)
             .captureToBitmap()
             .assertShape(
                 density = testRule.density,
@@ -737,12 +1216,12 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testOnTextInputStartedCallback() {
+    fun testFilledTextField_onTextInputStartedCallback() {
         var controller: SoftwareKeyboardController? = null
 
         testRule.setMaterialContent {
             FilledTextField(
-                modifier = Modifier.testTag("textField"),
+                modifier = Modifier.testTag(TextfieldTag),
                 value = "",
                 onValueChange = {},
                 label = {},
@@ -753,7 +1232,7 @@ class FilledTextFieldTest {
         }
         assertThat(controller).isNull()
 
-        findByTag("textField")
+        findByTag(TextfieldTag)
             .doClick()
 
         runOnIdleCompose {
@@ -762,12 +1241,37 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testImeActionCallback_withSoftwareKeyboardController() {
+    fun testOutlinedTextField_onTextInputStartedCallback() {
+        var controller: SoftwareKeyboardController? = null
+
+        testRule.setMaterialContent {
+            OutlinedTextField(
+                modifier = Modifier.testTag(TextfieldTag),
+                value = "",
+                onValueChange = {},
+                label = {},
+                onTextInputStarted = {
+                    controller = it
+                }
+            )
+        }
+        assertThat(controller).isNull()
+
+        findByTag(TextfieldTag)
+            .doClick()
+
+        runOnIdleCompose {
+            assertThat(controller).isNotNull()
+        }
+    }
+
+    @Test
+    fun testFilledTextField_imeActionCallback_withSoftwareKeyboardController() {
         var controller: SoftwareKeyboardController? = null
 
         testRule.setMaterialContent {
             FilledTextField(
-                modifier = Modifier.testTag("textField"),
+                modifier = Modifier.testTag(TextfieldTag),
                 value = "",
                 onValueChange = {},
                 label = {},
@@ -779,7 +1283,7 @@ class FilledTextFieldTest {
         }
         assertThat(controller).isNull()
 
-        findByTag("textField")
+        findByTag(TextfieldTag)
             .doSendImeAction()
 
         runOnIdleCompose {
@@ -788,7 +1292,33 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun textField_scrollable_withLongInput() {
+    fun testOutlinedTextField_imeActionCallback_withSoftwareKeyboardController() {
+        var controller: SoftwareKeyboardController? = null
+
+        testRule.setMaterialContent {
+            OutlinedTextField(
+                modifier = Modifier.testTag(TextfieldTag),
+                value = "",
+                onValueChange = {},
+                label = {},
+                imeAction = ImeAction.Go,
+                onImeActionPerformed = { _, softwareKeyboardController ->
+                    controller = softwareKeyboardController
+                }
+            )
+        }
+        assertThat(controller).isNull()
+
+        findByTag(TextfieldTag)
+            .doSendImeAction()
+
+        runOnIdleCompose {
+            assertThat(controller).isNotNull()
+        }
+    }
+
+    @Test
+    fun testTextField_scrollable_withLongInput() {
         val scrollerPosition = TextFieldScrollerPosition()
         testRule.setContent {
             Stack {
@@ -811,7 +1341,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun textField_notScrollable_withShortInput() {
+    fun testTextField_notScrollable_withShortInput() {
         val text = "text"
         val scrollerPosition = TextFieldScrollerPosition()
         testRule.setContent {
@@ -834,8 +1364,7 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun textField_scrolledAndClipped() {
-        val tag = "testTag"
+    fun testTextField_scrolledAndClipped() {
         val scrollerPosition = TextFieldScrollerPosition()
 
         val parentSize = 200
@@ -847,7 +1376,7 @@ class FilledTextFieldTest {
                     Modifier
                         .preferredSize(parentSize.toDp())
                         .drawBackground(Color.White)
-                        .testTag(tag)
+                        .testTag(TextfieldTag)
                 ) {
                     TextFieldScroller(
                         remember { scrollerPosition },
@@ -864,7 +1393,7 @@ class FilledTextFieldTest {
 
         runOnIdleCompose {}
 
-        findByTag(tag)
+        findByTag(TextfieldTag)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(parentSize, parentSize)) { position ->
                 if (position.x > textFieldSize && position.y > textFieldSize) Color.White else null
@@ -872,15 +1401,14 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun textField_swipe_whenLongInput() {
-        val tag = "testTag"
+    fun testTextField_swipe_whenLongInput() {
         val scrollerPosition = TextFieldScrollerPosition()
 
         testRule.setContent {
             Stack {
                 TextFieldScroller(
                     remember { scrollerPosition },
-                    Modifier.fillMaxWidth().preferredHeight(40.dp).testTag(tag)
+                    Modifier.fillMaxWidth().preferredHeight(40.dp).testTag(TextfieldTag)
                 ) {
                     TextField(
                         value = TextFieldValue(LONG_TEXT),
@@ -894,7 +1422,7 @@ class FilledTextFieldTest {
             assertThat(scrollerPosition.current).isEqualTo(0f)
         }
 
-        findByTag(tag)
+        findByTag(TextfieldTag)
             .doGesture { sendSwipeDown() }
 
         val firstSwipePosition = runOnIdleCompose {
@@ -902,7 +1430,7 @@ class FilledTextFieldTest {
         }
         assertThat(firstSwipePosition).isGreaterThan(0f)
 
-        findByTag(tag)
+        findByTag(TextfieldTag)
             .doGesture { sendSwipeUp() }
         runOnIdleCompose {
             assertThat(scrollerPosition.current).isLessThan(firstSwipePosition)
@@ -911,7 +1439,6 @@ class FilledTextFieldTest {
 
     @Test
     fun textFieldScroller_restoresScrollerPosition() {
-        val tag = "scroller"
         val restorationTester = StateRestorationTester(testRule)
         var scrollerPosition = TextFieldScrollerPosition()
 
@@ -923,7 +1450,7 @@ class FilledTextFieldTest {
             }
             TextFieldScroller(
                 scrollerPosition,
-                Modifier.fillMaxWidth().preferredHeight(40.dp).testTag(tag)
+                Modifier.fillMaxWidth().preferredHeight(40.dp).testTag(TextfieldTag)
             ) {
                 TextField(
                     value = TextFieldValue(LONG_TEXT),
@@ -932,7 +1459,7 @@ class FilledTextFieldTest {
             }
         }
 
-        findByTag(tag)
+        findByTag(TextfieldTag)
             .doGesture { sendSwipeDown() }
 
         val swipePosition = runOnIdleCompose {
