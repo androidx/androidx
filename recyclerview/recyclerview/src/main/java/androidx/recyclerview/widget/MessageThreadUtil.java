@@ -16,7 +16,6 @@
 
 package androidx.recyclerview.widget;
 
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -83,11 +82,12 @@ class MessageThreadUtil<T> implements ThreadUtil<T> {
         };
     }
 
+    @SuppressWarnings("deprecation") /* AsyncTask */
     @Override
     public BackgroundCallback<T> getBackgroundProxy(final BackgroundCallback<T> callback) {
         return new BackgroundCallback<T>() {
             final MessageQueue mQueue = new MessageQueue();
-            private final Executor mExecutor = AsyncTask.THREAD_POOL_EXECUTOR;
+            private final Executor mExecutor = android.os.AsyncTask.THREAD_POOL_EXECUTOR;
             AtomicBoolean mBackgroundRunning = new AtomicBoolean(false);
 
             static final int REFRESH = 1;

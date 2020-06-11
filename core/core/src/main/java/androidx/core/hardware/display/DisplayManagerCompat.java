@@ -79,6 +79,7 @@ public final class DisplayManagerCompat {
      * @return The display object, or null if there is no valid display with the given id.
      */
     @Nullable
+    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     public Display getDisplay(int displayId) {
         if (Build.VERSION.SDK_INT >= 17) {
             return ((DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE))
@@ -127,6 +128,7 @@ public final class DisplayManagerCompat {
      * @see #DISPLAY_CATEGORY_PRESENTATION
      */
     @NonNull
+    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     public Display[] getDisplays(@Nullable String category) {
         if (Build.VERSION.SDK_INT >= 17) {
             return ((DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE))

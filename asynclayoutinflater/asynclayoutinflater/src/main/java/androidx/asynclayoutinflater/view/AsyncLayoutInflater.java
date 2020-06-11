@@ -72,6 +72,7 @@ public final class AsyncLayoutInflater {
     Handler mHandler;
     InflateThread mInflateThread;
 
+    @SuppressWarnings("deprecation")
     public AsyncLayoutInflater(@NonNull Context context) {
         mInflater = new BasicInflater(context);
         mHandler = new Handler(mHandlerCallback);

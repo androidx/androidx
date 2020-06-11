@@ -46,6 +46,7 @@ public final class ImageCaptureConfigProvider implements ConfigProvider<ImageCap
 
     @Override
     @NonNull
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     public ImageCaptureConfig getConfig(@Nullable CameraInfo cameraInfo) {
         ImageCapture.Builder builder = ImageCapture.Builder.fromConfig(
                 ImageCapture.DEFAULT_CONFIG.getConfig(cameraInfo));

@@ -15,6 +15,9 @@
  */
 package androidx.core.view;
 
+import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT;
+import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -24,6 +27,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -32,6 +36,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.Display;
 import android.view.View;
@@ -46,6 +51,7 @@ import androidx.test.filters.SdkSuppress;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -262,6 +268,22 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         } else {
             assertTrue("empty list for old device", returnedRects.isEmpty());
         }
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    public void testPerformAction_ExpectedActionAndArguments() {
+        AccessibilityActionCompat actionCompat = AccessibilityActionCompat.ACTION_PRESS_AND_HOLD;
+        View view = mock(View.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt(ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT, 100);
+
+        ViewCompat.performAccessibilityAction(view, actionCompat.getId(), bundle);
+
+        ArgumentCaptor<Bundle> bundleCaptor = ArgumentCaptor.forClass(Bundle.class);
+        verify(view).performAccessibilityAction(eq(actionCompat.getId()), bundleCaptor.capture());
+        assertEquals(100,
+                bundleCaptor.getValue().getInt(ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT));
     }
 
     private static boolean isViewIdGenerated(int id) {

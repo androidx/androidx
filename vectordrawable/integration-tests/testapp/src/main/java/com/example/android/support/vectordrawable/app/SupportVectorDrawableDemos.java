@@ -16,7 +16,6 @@
 
 package com.example.android.support.vectordrawable.app;
 
-import android.app.ListActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -36,7 +35,8 @@ import java.util.Map;
 /**
  * The root level activity for this demo. Showing a list of sub demos.
  */
-public class SupportVectorDrawableDemos extends ListActivity {
+@SuppressWarnings("deprecation")
+public class SupportVectorDrawableDemos extends android.app.ListActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

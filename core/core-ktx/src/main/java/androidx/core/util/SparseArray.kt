@@ -24,6 +24,7 @@ import android.util.SparseArray
 inline val <T> SparseArray<T>.size get() = size()
 
 /** Returns true if the collection contains [key]. */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER") /* contains() added in R */
 inline operator fun <T> SparseArray<T>.contains(key: Int) = indexOfKey(key) >= 0
 
 /** Allows the use of the index operator for storing values in the collection. */

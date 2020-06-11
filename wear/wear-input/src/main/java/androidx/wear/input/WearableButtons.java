@@ -181,6 +181,7 @@ public final class WearableButtons {
      * @return A {@link ButtonInfo} containing the metadata for the given keycode or null if the
      *     information is not available
      */
+    @SuppressWarnings("deprecation")
     @Nullable
     public static ButtonInfo getButtonInfo(@NonNull Context context, int keycode) {
         Bundle bundle = sButtonsProvider.getButtonInfo(context, keycode);

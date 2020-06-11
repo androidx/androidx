@@ -21,6 +21,7 @@ package androidx.ui.core.test
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.util.SparseArray
 import android.view.PixelCopy
 import android.view.View
@@ -3086,7 +3087,7 @@ fun androidx.test.rule.ActivityTestRule<*>.waitAndScreenShot(
             view.viewTreeObserver.addOnPreDrawListener(flushListener)
             view.invalidate()
         }
-        handler = Handler()
+        handler = Handler(Looper.getMainLooper())
     }
 
     if (forceInvalidate) {

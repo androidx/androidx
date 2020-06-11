@@ -449,8 +449,6 @@ MissingNullability: androidx.core.app.NotificationCompat.Builder#addInvisibleAct
     Missing nullability on parameter `title` in method `addInvisibleAction`
 MissingNullability: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(int, CharSequence, android.app.PendingIntent) parameter #2:
     Missing nullability on parameter `intent` in method `addInvisibleAction`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addPerson(String):
-    Missing nullability on method `addPerson` return
 MissingNullability: androidx.core.app.NotificationCompat.Builder#addPerson(String) parameter #0:
     Missing nullability on parameter `uri` in method `addPerson`
 MissingNullability: androidx.core.app.NotificationCompat.Builder#build():

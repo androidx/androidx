@@ -663,6 +663,7 @@ public class ViewCompat {
      * <li>{@link AccessibilityNodeInfoCompat#setPackageName(CharSequence)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setClassName(CharSequence)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setContentDescription(CharSequence)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setStateDescription(CharSequence)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setEnabled(boolean)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setClickable(boolean)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setFocusable(boolean)},</li>
@@ -1345,6 +1346,43 @@ public class ViewCompat {
         }
         return actions;
     }
+
+    /**
+     * Sets the state description of this node.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param stateDescription the state description of this node.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    @UiThread
+    public static void setStateDescription(@NonNull View view,
+            @Nullable CharSequence stateDescription) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            stateDescriptionProperty().set(view, stateDescription);
+        }
+    }
+
+    /**
+     * Returns the {@link View}'s state description.
+     * <p>
+     * <strong>Note:</strong> Do not override this method, as it will have no
+     * effect on the state description presented to accessibility services.
+     * You must call {@link #setStateDescription(View, CharSequence)} to modify the
+     * state description.
+     *
+     * @return the state description
+     * @see #setStateDescription(View, CharSequence)
+     */
+    @UiThread
+    public static final @Nullable CharSequence getStateDescription(@NonNull View view) {
+        return stateDescriptionProperty().get(view);
+    }
+
 
     /**
      * Allow accessibility services to find and activate clickable spans in the application.
@@ -3535,6 +3573,7 @@ public class ViewCompat {
      * @return The logical display, or null if the view is not currently attached to a window.
      */
     @Nullable
+    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     public static Display getDisplay(@NonNull View view) {
         if (Build.VERSION.SDK_INT >= 17) {
             return view.getDisplay();
@@ -4036,6 +4075,29 @@ public class ViewCompat {
         };
     }
 
+    private static AccessibilityViewProperty<CharSequence> stateDescriptionProperty() {
+        return new AccessibilityViewProperty<CharSequence>(R.id.tag_state_description,
+                CharSequence.class, AccessibilityEvent.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION, 30) {
+
+            @RequiresApi(30)
+            @Override
+            CharSequence frameworkGet(View view) {
+                return view.getStateDescription();
+            }
+
+            @RequiresApi(30)
+            @Override
+            void frameworkSet(View view, CharSequence value) {
+                view.setStateDescription(value);
+            }
+
+            @Override
+            boolean shouldUpdate(CharSequence oldValue, CharSequence newValue) {
+                return !TextUtils.equals(oldValue, newValue);
+            }
+        };
+    }
+
     /**
      * Gets whether this view is a heading for accessibility purposes.
      *
@@ -4098,6 +4160,7 @@ public class ViewCompat {
         private final int mTagKey;
         private final Class<T> mType;
         private final int mFrameworkMinimumSdk;
+        private final int mContentChangeType;
 
         AccessibilityViewProperty(int tagKey, Class<T> type, int frameworkMinimumSdk) {
             this(tagKey, type,
@@ -4108,7 +4171,9 @@ public class ViewCompat {
                 int tagKey, Class<T> type, int contentChangeType, int frameworkMinimumSdk) {
             mTagKey = tagKey;
             mType = type;
+            mContentChangeType = contentChangeType;
             mFrameworkMinimumSdk = frameworkMinimumSdk;
+
         }
 
         void set(View view, T value) {
@@ -4120,8 +4185,7 @@ public class ViewCompat {
                 // If we're here, we're guaranteed to be on v19+ (see the logic in
                 // extrasAvailable), so we can call notifyViewAccessibilityStateChangedIfNeeded
                 // which requires 19.
-                notifyViewAccessibilityStateChangedIfNeeded(view,
-                        AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED);
+                notifyViewAccessibilityStateChangedIfNeeded(view, mContentChangeType);
             }
         }
 

@@ -128,6 +128,7 @@ public class BoxInsetLayout extends ViewGroup {
     }
 
     @Override
+    @SuppressWarnings("deprecation") /* getSystemWindowInsetXXXX */
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mIsRound = getResources().getConfiguration().isScreenRound();

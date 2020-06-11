@@ -85,7 +85,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedListBuilder.kt"
-            line="50"
+            line="51"
             column="35"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedListBuilder.kt"
-            line="296"
+            line="297"
             column="13"/>
     </issue>
 

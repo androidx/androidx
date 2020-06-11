@@ -24,10 +24,17 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.media.MediaRoute2ProviderService;
+import android.os.Build;
 import android.os.Handler;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Watches for media route provider services to be installed.
@@ -41,11 +48,11 @@ final class RegisteredMediaRouteProviderWatcher {
     private final Handler mHandler;
     private final PackageManager mPackageManager;
 
-    private final ArrayList<RegisteredMediaRouteProvider> mProviders =
-            new ArrayList<RegisteredMediaRouteProvider>();
+    private final ArrayList<RegisteredMediaRouteProvider> mProviders = new ArrayList<>();
     private boolean mRunning;
 
-    public RegisteredMediaRouteProviderWatcher(Context context, Callback callback) {
+    @SuppressWarnings("deprecation")
+    RegisteredMediaRouteProviderWatcher(Context context, Callback callback) {
         mContext = context;
         mCallback = callback;
         mHandler = new Handler();
@@ -90,27 +97,38 @@ final class RegisteredMediaRouteProviderWatcher {
             return;
         }
 
+        List<ServiceInfo> mediaRoute2ProviderServices = new ArrayList<>();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            mediaRoute2ProviderServices = getMediaRoute2ProviderServices();
+        }
+
         // Add providers for all new services.
         // Reorder the list so that providers left at the end will be the ones to remove.
         int targetIndex = 0;
         Intent intent = new Intent(MediaRouteProviderService.SERVICE_INTERFACE);
         for (ResolveInfo resolveInfo : mPackageManager.queryIntentServices(intent, 0)) {
             ServiceInfo serviceInfo = resolveInfo.serviceInfo;
-            if (serviceInfo != null) {
-                int sourceIndex = findProvider(serviceInfo.packageName, serviceInfo.name);
-                if (sourceIndex < 0) {
-                    RegisteredMediaRouteProvider provider =
-                            new RegisteredMediaRouteProvider(mContext,
-                            new ComponentName(serviceInfo.packageName, serviceInfo.name));
-                    provider.start();
-                    mProviders.add(targetIndex++, provider);
-                    mCallback.addProvider(provider);
-                } else if (sourceIndex >= targetIndex) {
-                    RegisteredMediaRouteProvider provider = mProviders.get(sourceIndex);
-                    provider.start(); // restart the provider if needed
-                    provider.rebindIfDisconnected();
-                    Collections.swap(mProviders, sourceIndex, targetIndex++);
-                }
+            if (serviceInfo == null) {
+                continue;
+            }
+            if (MediaRouter.isTransferEnabled()
+                    && listContainsServiceInfo(mediaRoute2ProviderServices, serviceInfo)) {
+                // Do not register services which supports MediaRoute2ProviderService,
+                // since we will communicate with them via MediaRouter2.
+                continue;
+            }
+            int sourceIndex = findProvider(serviceInfo.packageName, serviceInfo.name);
+            if (sourceIndex < 0) {
+                RegisteredMediaRouteProvider provider = new RegisteredMediaRouteProvider(
+                        mContext, new ComponentName(serviceInfo.packageName, serviceInfo.name));
+                provider.start();
+                mProviders.add(targetIndex++, provider);
+                mCallback.addProvider(provider);
+            } else if (sourceIndex >= targetIndex) {
+                RegisteredMediaRouteProvider provider = mProviders.get(sourceIndex);
+                provider.start(); // restart the provider if needed
+                provider.rebindIfDisconnected();
+                Collections.swap(mProviders, sourceIndex, targetIndex++);
             }
         }
 
@@ -123,6 +141,27 @@ final class RegisteredMediaRouteProviderWatcher {
                 provider.stop();
             }
         }
+    }
+
+    static boolean listContainsServiceInfo(List<ServiceInfo> serviceList, ServiceInfo target) {
+        if (target == null || serviceList == null || serviceList.isEmpty()) {
+            return false;
+        }
+        for (ServiceInfo serviceInfo : serviceList) {
+            if (target.packageName.equals(serviceInfo.packageName)
+                    && target.name.equals(serviceInfo.name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    @NonNull
+    List<ServiceInfo> getMediaRoute2ProviderServices() {
+        Intent intent = new Intent(MediaRoute2ProviderService.SERVICE_INTERFACE);
+        return mPackageManager.queryIntentServices(intent, 0).stream()
+                .map(resolveInfo -> resolveInfo.serviceInfo).collect(Collectors.toList());
     }
 
     private int findProvider(String packageName, String className) {

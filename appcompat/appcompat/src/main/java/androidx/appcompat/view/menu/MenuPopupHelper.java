@@ -220,6 +220,7 @@ public class MenuPopupHelper implements MenuHelper {
      * @return an initialized popup
      */
     @NonNull
+    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     private MenuPopup createPopup() {
         final WindowManager windowManager = (WindowManager) mContext.getSystemService(
                 Context.WINDOW_SERVICE);

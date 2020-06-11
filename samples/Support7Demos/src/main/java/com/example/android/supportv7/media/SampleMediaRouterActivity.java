@@ -49,6 +49,7 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.FragmentManager;
@@ -94,9 +95,9 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     private ImageButton mPauseResumeButton;
     private ImageButton mStopButton;
     private SeekBar mSeekBar;
-    private boolean mNeedResume;
     private boolean mSeeking;
 
+    @SuppressWarnings("deprecation")
     private final Handler mHandler = new Handler();
     private final Runnable mUpdateSeekRunnable = new Runnable() {
         @Override
@@ -129,15 +130,20 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onRouteSelected(MediaRouter router, RouteInfo route) {
-            Log.d(TAG, "onRouteSelected: route=" + route);
+        public void onRouteSelected(@NonNull MediaRouter router, @NonNull RouteInfo route,
+                int reason) {
+            Log.d(TAG, "onRouteSelected: route=" + route + ", reason=" + reason);
 
             mPlayer = Player.create(SampleMediaRouterActivity.this, route, mMediaSession);
             if (isPresentationApiSupported()) {
                 mPlayer.updatePresentation();
             }
             mSessionManager.setPlayer(mPlayer);
-            mSessionManager.unsuspend();
+            if (reason == MediaRouter.UNSELECT_REASON_STOPPED) {
+                mSessionManager.stop();
+            } else {
+                mSessionManager.unsuspend();
+            }
 
             updateUi();
         }
@@ -238,10 +244,11 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         // Populate an array adapter with streaming media items.
         String[] mediaNames = getResources().getStringArray(R.array.media_names);
         String[] mediaUris = getResources().getStringArray(R.array.media_uris);
+        String[] mediaMimes = getResources().getStringArray(R.array.media_mimes);
         mLibraryItems = new LibraryAdapter();
         for (int i = 0; i < mediaNames.length; i++) {
             mLibraryItems.add(new MediaItem(
-                    "[streaming] "+mediaNames[i], Uri.parse(mediaUris[i]), "video/mp4"));
+                    "[streaming] " + mediaNames[i], Uri.parse(mediaUris[i]), mediaMimes[i]));
         }
 
         // Scan local external storage directory for media files.
@@ -479,26 +486,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     public void onStart() {
         // Be sure to call the super class.
         super.onStart();
-    }
-
-    @Override
-    public void onPause() {
-        // pause media player for local playback case only
-        if (!mPlayer.isRemotePlayback() && !mSessionManager.isPaused()) {
-            mNeedResume = true;
-            mSessionManager.pause();
-        }
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        // resume media player for local playback case only
-        if (!mPlayer.isRemotePlayback() && mNeedResume) {
-            mSessionManager.resume();
-            mNeedResume = false;
-        }
-        super.onResume();
     }
 
     @Override

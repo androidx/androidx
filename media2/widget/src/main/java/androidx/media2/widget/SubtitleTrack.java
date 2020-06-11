@@ -57,6 +57,7 @@ abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeListener {
 
     public boolean DEBUG = false;
 
+    @SuppressWarnings("deprecation")
     protected Handler mHandler = new Handler();
 
     private MediaFormat mFormat;

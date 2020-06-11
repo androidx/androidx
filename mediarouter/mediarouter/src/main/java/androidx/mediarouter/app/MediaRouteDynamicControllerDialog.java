@@ -26,7 +26,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -140,7 +139,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
     private boolean mCreated;
     private boolean mAttachedToWindow;
     private long mLastUpdateTime;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "deprecation"}) /* synthetic access */
     final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message message) {
@@ -664,13 +663,15 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         blurScript.setRadius(radius);
         blurScript.setInput(allocation);
         blurScript.forEach(blurAllocation);
-        blurAllocation.copyTo(bitmap);
+
+        Bitmap mutableBitmap = bitmap.copy(bitmap.getConfig(), true /* isMutable */);
+        blurAllocation.copyTo(mutableBitmap);
 
         allocation.destroy();
         blurAllocation.destroy();
         blurScript.destroy();
         rs.destroy();
-        return bitmap;
+        return mutableBitmap;
     }
 
     private abstract class MediaRouteVolumeSliderHolder extends RecyclerView.ViewHolder {
@@ -1314,8 +1315,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
                 mItemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mIsSelectingRoute = true;
-                        mRoute.select();
+                        mRouter.transferToRoute(mRoute);
                         mImageView.setVisibility(View.INVISIBLE);
                         mProgressBar.setVisibility(View.VISIBLE);
                     }
@@ -1424,7 +1424,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
     }
 
-    private class FetchArtTask extends AsyncTask<Void, Void, Bitmap> {
+    private class FetchArtTask extends android.os.AsyncTask<Void, Void, Bitmap> {
         private final Bitmap mIconBitmap;
         private final Uri mIconUri;
         private int mBackgroundColor;

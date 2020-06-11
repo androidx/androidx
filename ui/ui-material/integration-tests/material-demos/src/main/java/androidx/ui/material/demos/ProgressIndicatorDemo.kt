@@ -17,6 +17,7 @@
 package androidx.ui.material.demos
 
 import android.os.Handler
+import android.os.Looper
 import androidx.compose.Composable
 import androidx.compose.Stable
 import androidx.compose.getValue
@@ -85,8 +86,8 @@ private class ProgressState {
         handler.removeCallbacks(updateProgress)
     }
 
-    private val handler = Handler()
-    private val updateProgress: Runnable = object : Runnable {
+    val handler = Handler(Looper.getMainLooper())
+    val updateProgress: Runnable = object : Runnable {
         override fun run() {
             if (progress == 1f) {
                 color = when (color) {

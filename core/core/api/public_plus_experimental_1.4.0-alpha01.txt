@@ -37,6 +37,7 @@ package androidx.core.app {
     method public static <T extends android.view.View> T requireViewById(android.app.Activity, @IdRes int);
     method public static void setEnterSharedElementCallback(android.app.Activity, androidx.core.app.SharedElementCallback?);
     method public static void setExitSharedElementCallback(android.app.Activity, androidx.core.app.SharedElementCallback?);
+    method public static void setLocusContext(android.app.Activity, androidx.core.content.LocusIdCompat?, android.os.Bundle?);
     method public static void setPermissionCompatDelegate(androidx.core.app.ActivityCompat.PermissionCompatDelegate?);
     method public static boolean shouldShowRequestPermissionRationale(android.app.Activity, String);
     method public static void startActivityForResult(android.app.Activity, android.content.Intent, int, android.os.Bundle?);
@@ -968,6 +969,7 @@ package androidx.core.content.pm {
     method public static java.util.List<androidx.core.content.pm.ShortcutInfoCompat!> getDynamicShortcuts(android.content.Context);
     method public static int getMaxShortcutCountPerActivity(android.content.Context);
     method public static boolean isRequestPinShortcutSupported(android.content.Context);
+    method public static boolean pushDynamicShortcut(android.content.Context, androidx.core.content.pm.ShortcutInfoCompat);
     method public static void removeAllDynamicShortcuts(android.content.Context);
     method public static void removeDynamicShortcuts(android.content.Context, java.util.List<java.lang.String!>);
     method public static boolean requestPinShortcut(android.content.Context, androidx.core.content.pm.ShortcutInfoCompat, android.content.IntentSender?);
@@ -2674,6 +2676,7 @@ package androidx.core.view.accessibility {
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_EXPAND;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_FOCUS;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_HIDE_TOOLTIP;
+    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_IME_ENTER;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_LONG_CLICK;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_MOVE_WINDOW;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_NEXT_AT_MOVEMENT_GRANULARITY;

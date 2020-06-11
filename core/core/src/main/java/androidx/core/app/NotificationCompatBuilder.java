@@ -31,7 +31,9 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 import android.widget.RemoteViews;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArraySet;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.ArrayList;
@@ -128,7 +130,8 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             mBuilder.setShowWhen(b.mShowWhen);
 
             if (Build.VERSION.SDK_INT < 21) {
-                if (b.mPeople != null && !b.mPeople.isEmpty()) {
+                final List<String> people = combineLists(getPeople(b.mPersonList), b.mPeople);
+                if (people != null && !people.isEmpty()) {
                     mExtras.putStringArray(Notification.EXTRA_PEOPLE,
                             b.mPeople.toArray(new String[b.mPeople.size()]));
                 }
@@ -149,9 +152,19 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                     .setPublicVersion(b.mPublicVersion)
                     .setSound(n.sound, n.audioAttributes);
 
-            for (String person: b.mPeople) {
-                mBuilder.addPerson(person);
+
+            final List<String> people;
+            if (Build.VERSION.SDK_INT < 28) {
+                people = combineLists(getPeople(b.mPersonList), b.mPeople);
+            } else {
+                people = b.mPeople;
             }
+            if (people != null && !people.isEmpty()) {
+                for (String person : people) {
+                    mBuilder.addPerson(person);
+                }
+            }
+
             mHeadsUpContentView = b.mHeadsUpContentView;
 
             if (b.mInvisibleActions.size() > 0) {
@@ -175,6 +188,11 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                         NotificationCompat.CarExtender.EXTRA_CAR_EXTENDER, carExtenderBundle);
                 mExtras.putBundle(
                         NotificationCompat.CarExtender.EXTRA_CAR_EXTENDER, carExtenderBundle);
+            }
+        }
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (b.mSmallIcon != null) {
+                mBuilder.setSmallIcon(b.mSmallIcon);
             }
         }
         if (Build.VERSION.SDK_INT >= 24) {
@@ -204,6 +222,11 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                         .setDefaults(0)
                         .setLights(0, 0, 0)
                         .setVibrate(null);
+            }
+        }
+        if (Build.VERSION.SDK_INT >= 28) {
+            for (Person p : b.mPersonList) {
+                mBuilder.addPerson(p.toAndroidPerson());
             }
         }
         if (Build.VERSION.SDK_INT >= 29) {
@@ -237,6 +260,33 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 mBuilder.setGroupAlertBehavior(mGroupAlertBehavior);
             }
         }
+    }
+
+    @Nullable
+    private static List<String> combineLists(@Nullable final List<String> first,
+            @Nullable final List<String> second) {
+        if (first == null) {
+            return second;
+        }
+        if (second == null) {
+            return first;
+        }
+        final ArraySet<String> people = new ArraySet<>(first.size() + second.size());
+        people.addAll(first);
+        people.addAll(second);
+        return new ArrayList<>(people);
+    }
+
+    @Nullable
+    private static List<String> getPeople(@Nullable final List<Person> people) {
+        if (people == null) {
+            return null;
+        }
+        final ArrayList<String> result = new ArrayList<>(people.size());
+        for (Person person : people) {
+            result.add(person.resolveToLegacyUri());
+        }
+        return result;
     }
 
     @Override

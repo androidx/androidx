@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
@@ -100,6 +99,7 @@ public final class TrustedWebActivityServiceConnectionPool {
      */
     @MainThread
     @NonNull
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public ListenableFuture<TrustedWebActivityServiceConnection> connect(
             @NonNull final Uri scope,
             @NonNull Set<Token> possiblePackages,
@@ -128,7 +128,8 @@ public final class TrustedWebActivityServiceConnectionPool {
         return newConnection.getServiceWrapper();
     }
 
-    static class BindToServiceAsyncTask extends AsyncTask<Void, Void, Exception> {
+    @SuppressWarnings("deprecation") /* AsyncTask */
+    static class BindToServiceAsyncTask extends android.os.AsyncTask<Void, Void, Exception> {
         private final Context mAppContext;
         private final Intent mIntent;
         private final ConnectionHolder mConnection;

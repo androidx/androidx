@@ -40,24 +40,23 @@ class AuthenticationCallbackProvider {
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
-    @Nullable
-    private android.hardware.biometrics.BiometricPrompt.AuthenticationCallback mBiometricCallback;
+    private @Nullable android.hardware.biometrics.BiometricPrompt.AuthenticationCallback
+            mBiometricCallback;
 
     @Nullable
     private androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback
             mFingerprintCallback;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    @NonNull
-    final Listener mListener;
+    final @NonNull Listener mListener;
 
     AuthenticationCallbackProvider(@NonNull Listener listener) {
         mListener = listener;
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
-    @NonNull
-    android.hardware.biometrics.BiometricPrompt.AuthenticationCallback getBiometricCallback() {
+    @NonNull android.hardware.biometrics.BiometricPrompt.AuthenticationCallback
+            getBiometricCallback() {
         if (mBiometricCallback == null) {
             mBiometricCallback = new android.hardware.biometrics.BiometricPrompt
                     .AuthenticationCallback() {
@@ -92,8 +91,7 @@ class AuthenticationCallbackProvider {
         return mBiometricCallback;
     }
 
-    @NonNull
-    androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback
+    @NonNull androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback
             getFingerprintCallback() {
         if (mFingerprintCallback == null) {
             mFingerprintCallback = new androidx.core.hardware.fingerprint.FingerprintManagerCompat

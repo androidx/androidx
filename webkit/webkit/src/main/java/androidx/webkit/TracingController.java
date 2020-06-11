@@ -17,7 +17,6 @@
 package androidx.webkit;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -118,7 +117,7 @@ public abstract class TracingController {
      *                 To dispatch events through the main thread of your application,
      *                 you can use {@link Context#getMainExecutor()}.
      *                 To dispatch events through a shared thread pool,
-     *                 you can use {@link AsyncTask#THREAD_POOL_EXECUTOR}.
+     *                 you can use {@link android.os.AsyncTask#THREAD_POOL_EXECUTOR}.
      *
      * @return {@code false} if the WebView framework was not tracing at the time of the call,
      * {@code true} otherwise.

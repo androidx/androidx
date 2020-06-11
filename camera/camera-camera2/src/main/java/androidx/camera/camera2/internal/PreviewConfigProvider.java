@@ -46,6 +46,7 @@ public final class PreviewConfigProvider implements ConfigProvider<PreviewConfig
 
     @Override
     @NonNull
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     public PreviewConfig getConfig(@Nullable CameraInfo cameraInfo) {
         Preview.Builder builder = Preview.Builder.fromConfig(
                 Preview.DEFAULT_CONFIG.getConfig(cameraInfo));

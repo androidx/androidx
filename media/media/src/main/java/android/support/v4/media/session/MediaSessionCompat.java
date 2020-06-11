@@ -628,6 +628,7 @@ public class MediaSessionCompat {
      * @param callback The callback to receive updates on.
      * @param handler The handler that events should be posted on.
      */
+    @SuppressWarnings("deprecation")
     public void setCallback(Callback callback, Handler handler) {
         if (callback == null) {
             mImpl.setCallback(null, null);

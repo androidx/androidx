@@ -478,6 +478,7 @@ class Cea708CaptionRenderer extends SubtitleController.Renderer {
                     new ArrayList<>();
             private final Handler mHandler;
 
+            @SuppressWarnings("deprecation")
             CCHandler(CCLayout ccLayout) {
                 mCCLayout = ccLayout;
                 mHandler = new Handler(this);

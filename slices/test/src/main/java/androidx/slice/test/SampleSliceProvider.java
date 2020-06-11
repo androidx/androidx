@@ -1136,6 +1136,7 @@ public class SampleSliceProvider extends SliceProvider {
                 .setHeader(new HeaderBuilder().setTitle("Some loading title", true)).build();
     }
 
+    @SuppressWarnings("deprecation")
     private Handler mHandler = new Handler();
     private SparseArray<String> mListSummaries = new SparseArray<>();
     long mListLastUpdate;

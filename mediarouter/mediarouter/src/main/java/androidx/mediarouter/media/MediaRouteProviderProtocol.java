@@ -160,6 +160,7 @@ abstract class MediaRouteProviderProtocol {
     public static final String CLIENT_DATA_UNSELECT_REASON = "unselectReason";
     public static final String CLIENT_DATA_MEMBER_ROUTE_IDS = "memberRouteIds";
     public static final String CLIENT_DATA_MEMBER_ROUTE_ID = "memberRouteId";
+
     public static final String DATA_KEY_GROUPABLE_SECION_TITLE = "groupableTitle";
     public static final String DATA_KEY_TRANSFERABLE_SECTION_TITLE = "transferableTitle";
     public static final String DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS = "dynamicRoutes";
@@ -223,7 +224,7 @@ abstract class MediaRouteProviderProtocol {
     public static final int SERVICE_MSG_DYNAMIC_ROUTE_CREATED = 6;
 
     /** (service v2)
-     * Dynamic route controller created. Sends back related data.
+     * Dynamic route descriptors changed. (unsolicited event)
      * - arg1    : reserved (0)
      * - arg2    : controllerId
      * - obj    : bundle
@@ -272,6 +273,7 @@ abstract class MediaRouteProviderProtocol {
      * The service version used from androidx 1.0.0.
      */
     public static final int SERVICE_VERSION_2 = 2;
+
     /**
      * The current service version.
      */

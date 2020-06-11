@@ -2314,6 +2314,22 @@ public final class TvContractCompat {
          */
         public static final String COLUMN_SYSTEM_CHANNEL_KEY = "system_channel_key";
 
+        /**
+         * The global content ID of this TV channel, as a URI.
+         *
+         * <p>A globally unique URI that identifies this TV channel, if applicable. Suitable URIs
+         * include
+         * <ul>
+         * <li>{@code globalServiceId} from ATSC A/331. ex {@code https://doi.org/10.5239/7E4E-B472}
+         * <li>Other broadcast ID provider. ex {@code http://example.com/tv_channel/1234}
+         * </ul>
+         *
+         * <p>Can be empty.
+         *
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_GLOBAL_CONTENT_ID = "global_content_id";
+
         private Channels() {}
 
         /**
@@ -2468,6 +2484,37 @@ public final class TvContractCompat {
          * <p>Type: INTEGER (boolean)
          */
         public static final String COLUMN_RECORDING_PROHIBITED = "recording_prohibited";
+
+        /**
+         * The event ID of this TV program.
+         *
+         * <p>It is used to identify the current TV program in the same channel, if applicable.
+         * Use the same coding for {@code event_id} in the underlying broadcast standard if it
+         * is defined there (e.g. ATSC A/65, ETSI EN 300 468 and ARIB STD-B10).
+         *
+         * <p>This is a required field only if the underlying broadcast standard defines the same
+         * name field. Otherwise, leave empty.
+         *
+         * <p>Type: INTEGER
+         */
+        public static final String COLUMN_EVENT_ID = "event_id";
+
+        /**
+         * The global content ID of this TV program, as a URI.
+         *
+         * <p>A globally unique ID that identifies this TV program, if applicable. Suitable URIs
+         * include
+         * <ul>
+         * <li>{@code crid://<CRIDauthority>/<data>} from ETSI TS 102 323
+         * <li>{@code globalContentId} from ATSC A/332
+         * <li>Other broadcast ID provider. ex {@code http://example.com/tv_program/1234}
+         * </ul>
+         *
+         * <p>Can be empty.
+         *
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_GLOBAL_CONTENT_ID = "global_content_id";
 
         private Programs() {}
 
