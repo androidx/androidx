@@ -16,6 +16,7 @@
 
 package androidx.ui.viewinterop
 
+import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -30,10 +31,21 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Modifier
 import androidx.ui.core.test.R
+import androidx.ui.core.testTag
+import androidx.ui.foundation.drawBackground
+import androidx.ui.graphics.Color
+import androidx.ui.layout.size
 import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.assertPixels
+import androidx.ui.test.captureToBitmap
+import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
+import androidx.ui.unit.Dp
+import androidx.ui.unit.IntSize
+import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.equalTo
@@ -85,13 +97,7 @@ class ComposedViewTest {
             .onView(withClassName(endsWith("RelativeLayout")))
             .check(matches(isDisplayed()))
             .check { view, exception ->
-                if (view.layoutParams.width !=
-                    TypedValue.applyDimension(
-                        TypedValue.COMPLEX_UNIT_DIP,
-                        300f,
-                        view.context.resources.displayMetrics
-                    ).roundToInt()
-                ) {
+                if (view.layoutParams.width != 300.dp.toPx(view.context.resources.displayMetrics)) {
                     throw exception
                 }
                 if (view.layoutParams.height != WRAP_CONTENT) {
@@ -124,4 +130,95 @@ class ComposedViewTest {
             assertThat(frameLayout.parent).isNull()
         }
     }
+
+    @Test
+    fun androidViewWithResource_modifierIsApplied() {
+        val size = 20.dp
+        composeTestRule.setContent {
+            AndroidView(R.layout.test_layout, Modifier.size(size))
+        }
+        Espresso
+            .onView(instanceOf(RelativeLayout::class.java))
+            .check(matches(isDisplayed()))
+            .check { view, exception ->
+                val expectedSize = size.toPx(view.context.resources.displayMetrics)
+                if (view.width != expectedSize || view.height != expectedSize) {
+                    throw exception
+                }
+            }
+    }
+
+    @Test
+    fun androidViewWithView_modifierIsApplied() {
+        val size = 20.dp
+        lateinit var frameLayout: FrameLayout
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            frameLayout = FrameLayout(activity)
+        }
+        composeTestRule.setContent {
+            AndroidView(frameLayout, Modifier.size(size))
+        }
+
+        Espresso
+            .onView(equalTo(frameLayout))
+            .check(matches(isDisplayed()))
+            .check { view, exception ->
+                val expectedSize = size.toPx(view.context.resources.displayMetrics)
+                if (view.width != expectedSize || view.height != expectedSize) {
+                    throw exception
+                }
+            }
+    }
+
+    @Test
+    fun androidViewWithView_drawModifierIsApplied() {
+        val size = 300
+        lateinit var frameLayout: FrameLayout
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            frameLayout = FrameLayout(activity).apply {
+                layoutParams = ViewGroup.LayoutParams(size, size)
+            }
+        }
+        composeTestRule.setContent {
+            AndroidView(frameLayout, Modifier.testTag("view").drawBackground(Color.Blue))
+        }
+
+        findByTag("view").captureToBitmap().assertPixels(IntSize(size, size)) {
+            Color.Blue
+        }
+    }
+
+    @Test
+    fun androidViewWithResource_modifierIsCorrectlyChanged() {
+        val size = mutableStateOf(20.dp)
+        composeTestRule.setContent {
+            AndroidView(R.layout.test_layout, Modifier.size(size.value))
+        }
+        Espresso
+            .onView(instanceOf(RelativeLayout::class.java))
+            .check(matches(isDisplayed()))
+            .check { view, exception ->
+                val expectedSize = size.value.toPx(view.context.resources.displayMetrics)
+                if (view.width != expectedSize || view.height != expectedSize) {
+                    throw exception
+                }
+            }
+        runOnIdleCompose { size.value = 30.dp }
+        Espresso
+            .onView(instanceOf(RelativeLayout::class.java))
+            .check(matches(isDisplayed()))
+            .check { view, exception ->
+                val expectedSize = size.value.toPx(view.context.resources.displayMetrics)
+                if (view.width != expectedSize || view.height != expectedSize) {
+                    throw exception
+                }
+            }
+    }
+
+    private fun Dp.toPx(displayMetrics: DisplayMetrics) =
+        TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            value,
+            displayMetrics
+        ).roundToInt()
 }

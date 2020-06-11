@@ -23,6 +23,9 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.annotation.LayoutRes
 import androidx.compose.Composable
+import androidx.compose.currentComposer
+import androidx.ui.core.Modifier
+import androidx.ui.core.materialize
 
 /**
  * Composes an Android [View] given a layout resource [resId]. The method handles the inflation
@@ -30,14 +33,19 @@ import androidx.compose.Composable
  * callback will always be invoked on the main thread.
  *
  * @param resId The id of the layout resource to be inflated.
+ * @param modifier The modifier to be applied to the layout.
  * @param postInflationCallback The callback to be invoked after the layout is inflated.
  */
 @Composable
-// TODO(popam): support modifiers here
-fun AndroidView(@LayoutRes resId: Int, postInflationCallback: (View) -> Unit = { _ -> }) {
+fun AndroidView(
+    @LayoutRes resId: Int,
+    modifier: Modifier = Modifier,
+    postInflationCallback: (View) -> Unit = { _ -> }
+) {
     AndroidViewHolder(
         postInflationCallback = postInflationCallback,
-        resId = resId
+        resId = resId,
+        modifier = currentComposer.materialize(modifier)
     )
 }
 
@@ -45,11 +53,11 @@ fun AndroidView(@LayoutRes resId: Int, postInflationCallback: (View) -> Unit = {
  * Composes an Android [View].
  *
  * @param view The [View] to compose.
+ * @param modifier The [Modifier] to be applied to the [view].
  */
 @Composable
-// TODO(popam): support modifiers here
-fun AndroidView(view: View) {
-    AndroidViewHolder(view = view)
+fun AndroidView(view: View, modifier: Modifier = Modifier) {
+    AndroidViewHolder(view = view, modifier = currentComposer.materialize(modifier))
 }
 
 // Open to be mockable in tests.
@@ -64,6 +72,16 @@ internal open class AndroidViewHolder(context: Context) : ViewGroup(context) {
                 }
             }
         }
+
+    var modifier: Modifier = Modifier
+        set(value) {
+            if (value !== field) {
+                field = value
+                onModifierChanged?.invoke(value)
+            }
+        }
+
+    internal var onModifierChanged: ((Modifier) -> Unit)? = null
 
     var postInflationCallback: (View) -> Unit = {}
 
