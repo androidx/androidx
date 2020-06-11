@@ -14,23 +14,36 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import androidx.build.AndroidXPlaygroundRootPlugin
 import androidx.build.AndroidXRootPlugin
 
+// A generic build.gradle file for all playground projects that sets it up to use public artifacts.
+// See README.md for details
+
 buildscript {
+    def playgroundCommonFolder = rootProject.buildFile.parentFile
+    ext.supportRootFolder = playgroundCommonFolder.parentFile
+
+    def metalavaBuildId = rootProject.properties["androidx.playground.metalavaBuildId"]
+    def dokkaBuildId = rootProject.properties["androidx.playground.dokkaBuildId"]
+    if (metalavaBuildId == null || dokkaBuildId == null) {
+        throw new GradleException("metalava and or dokka build ids must be defined.")
+    }
+    def metalavaRepo = "https://androidx.dev/metalava/builds/${metalavaBuildId}/artifacts/repo/m2repository"
+    def dokkaRepo = "https://androidx.dev/dokka/builds/${dokkaBuildId}/artifacts/repository"
     repositories {
         google()
         mavenCentral()
         jcenter()
         maven {
-            url 'https://androidx.dev/metalava/builds/6535121/artifacts/repo/m2repository'
+            url metalavaRepo
             metadataSources {
                 mavenPom()
                 artifact()
             }
         }
         maven {
-            url 'https://androidx.dev/dokka/builds/6402791/artifacts/repository'
+            url dokkaRepo
             metadataSources {
                 mavenPom()
                 artifact()
@@ -38,41 +51,20 @@ buildscript {
         }
     }
 
-    ext.supportRootFolder = project.projectDir.getParentFile()
-    // The docs-* tasks expect a property `repos` to be defined so we
-    // are just initializing it to an empty Map.
     ext.repos = [:]
     apply from: '../buildSrc/build_dependencies.gradle'
+
     dependencies {
         classpath build_libs.agp
         classpath build_libs.kotlin.gradle_plugin
         classpath 'androidx.build:gradle-plugin:0.1.0'
+        classpath "com.github.jengelman.gradle.plugins:shadow:5.2.0"
     }
 }
+apply from: "../buildSrc/dependencies.gradle"
 
 apply from: "../buildSrc/out.gradle"
-init.chooseOutDir("/playground")
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        jcenter()
-        maven {
-            url 'https://androidx.dev/metalava/builds/6535121/artifacts/repo/m2repository'
-            metadataSources {
-                mavenPom()
-                artifact()
-            }
-        }
-        maven {
-            url 'https://androidx.dev/dokka/builds/6402791/artifacts/repository'
-            metadataSources {
-                mavenPom()
-                artifact()
-            }
-        }
-    }
-}
+init.chooseOutDir("/${rootProject.name}")
 
 apply plugin: AndroidXRootPlugin
+apply plugin: AndroidXPlaygroundRootPlugin
