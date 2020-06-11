@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
+<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
 
     <issue
         id="LambdaLast"
@@ -8,7 +8,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="385"
+            line="396"
             column="35"/>
     </issue>
 
@@ -261,7 +261,7 @@
         errorLine2="                 ~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="171"
+            line="182"
             column="18"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="190"
+            line="201"
             column="12"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="218"
+            line="229"
             column="12"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="225"
+            line="236"
             column="12"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="234"
+            line="245"
             column="12"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="241"
+            line="252"
             column="23"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="249"
+            line="260"
             column="23"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="257"
+            line="268"
             column="39"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="325"
+            line="336"
             column="16"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="325"
+            line="336"
             column="32"/>
     </issue>
 
@@ -371,7 +371,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="333"
+            line="344"
             column="16"/>
     </issue>
 
@@ -382,7 +382,7 @@
         errorLine2="                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="333"
+            line="344"
             column="44"/>
     </issue>
 
@@ -393,7 +393,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="341"
+            line="352"
             column="16"/>
     </issue>
 
@@ -404,7 +404,7 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="341"
+            line="352"
             column="44"/>
     </issue>
 
@@ -415,7 +415,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="348"
+            line="359"
             column="16"/>
     </issue>
 
@@ -426,7 +426,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="358"
+            line="369"
             column="16"/>
     </issue>
 
@@ -437,7 +437,7 @@
         errorLine2="                                                         ~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="358"
+            line="369"
             column="58"/>
     </issue>
 
@@ -448,7 +448,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="369"
+            line="380"
             column="16"/>
     </issue>
 
@@ -459,7 +459,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="384"
+            line="395"
             column="16"/>
     </issue>
 
@@ -470,7 +470,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="397"
+            line="408"
             column="16"/>
     </issue>
 
@@ -481,7 +481,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="397"
+            line="408"
             column="32"/>
     </issue>
 
@@ -490,39 +490,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="                @SliceHint String... hints) {"
         errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"
-            line="398"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder addText(CharSequence text, @Nullable String subType,"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"
-            line="408"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder addText(CharSequence text, @Nullable String subType,"
-        errorLine2="                               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"
-            line="408"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                @SliceHint List&lt;String> hints) {"
-        errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
             line="409"
@@ -532,55 +499,22 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder addIcon(IconCompat icon, @Nullable String subType,"
+        errorLine1="        public Builder addText(CharSequence text, @Nullable String subType,"
         errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"
-            line="418"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder addIcon(IconCompat icon, @Nullable String subType,"
-        errorLine2="                               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"
-            line="418"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                @SliceHint String... hints) {"
-        errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
             line="419"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder addIcon(IconCompat icon, @Nullable String subType,"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"
-            line="432"
             column="16"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder addIcon(IconCompat icon, @Nullable String subType,"
-        errorLine2="                               ~~~~~~~~~~">
+        errorLine1="        public Builder addText(CharSequence text, @Nullable String subType,"
+        errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="432"
+            line="419"
             column="32"/>
     </issue>
 
@@ -591,7 +525,73 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="433"
+            line="420"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder addIcon(IconCompat icon, @Nullable String subType,"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="429"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder addIcon(IconCompat icon, @Nullable String subType,"
+        errorLine2="                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="429"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="                @SliceHint String... hints) {"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="430"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder addIcon(IconCompat icon, @Nullable String subType,"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="443"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder addIcon(IconCompat icon, @Nullable String subType,"
+        errorLine2="                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="443"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="                @SliceHint List&lt;String> hints) {"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="444"
             column="28"/>
     </issue>
 
@@ -602,7 +602,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="448"
+            line="459"
             column="16"/>
     </issue>
 
@@ -613,7 +613,7 @@
         errorLine2="                                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="448"
+            line="459"
             column="45"/>
     </issue>
 
@@ -624,7 +624,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="449"
+            line="460"
             column="28"/>
     </issue>
 
@@ -635,7 +635,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="461"
+            line="472"
             column="16"/>
     </issue>
 
@@ -646,7 +646,7 @@
         errorLine2="                                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="461"
+            line="472"
             column="45"/>
     </issue>
 
@@ -657,29 +657,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="462"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder addInt(int value, @Nullable String subType,"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"
             line="473"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                @SliceHint String... hints) {"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"
-            line="474"
             column="28"/>
     </issue>
 
@@ -697,8 +675,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                @SliceHint List&lt;String> hints) {"
-        errorLine2="                           ~~~~~~~~~~~~">
+        errorLine1="                @SliceHint String... hints) {"
+        errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
             line="485"
@@ -708,22 +686,22 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Slice.Builder addLong(long time, @Nullable String subType,"
-        errorLine2="               ~~~~~~~~~~~~~">
+        errorLine1="        public Builder addInt(int value, @Nullable String subType,"
+        errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="494"
+            line="495"
             column="16"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                @SliceHint String... hints) {"
-        errorLine2="                           ~~~~~~~~~">
+        errorLine1="                @SliceHint List&lt;String> hints) {"
+        errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="495"
+            line="496"
             column="28"/>
     </issue>
 
@@ -741,8 +719,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                @SliceHint List&lt;String> hints) {"
-        errorLine2="                           ~~~~~~~~~~~~">
+        errorLine1="                @SliceHint String... hints) {"
+        errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
             line="506"
@@ -752,22 +730,22 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Slice.Builder addTimestamp(long time, @Nullable String subType,"
+        errorLine1="        public Slice.Builder addLong(long time, @Nullable String subType,"
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="517"
+            line="516"
             column="16"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                @SliceHint String... hints) {"
-        errorLine2="                           ~~~~~~~~~">
+        errorLine1="                @SliceHint List&lt;String> hints) {"
+        errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="518"
+            line="517"
             column="28"/>
     </issue>
 
@@ -785,11 +763,33 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="                @SliceHint String... hints) {"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="529"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Slice.Builder addTimestamp(long time, @Nullable String subType,"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="539"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="                @SliceHint List&lt;String> hints) {"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="529"
+            line="540"
             column="28"/>
     </issue>
 
@@ -800,7 +800,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="538"
+            line="549"
             column="16"/>
     </issue>
 
@@ -811,7 +811,7 @@
         errorLine2="                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="538"
+            line="549"
             column="38"/>
     </issue>
 
@@ -822,7 +822,7 @@
         errorLine2="               ~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="546"
+            line="557"
             column="16"/>
     </issue>
 
@@ -833,7 +833,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="564"
+            line="575"
             column="12"/>
     </issue>
 
@@ -844,7 +844,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="564"
+            line="575"
             column="28"/>
     </issue>
 
@@ -855,7 +855,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="589"
+            line="600"
             column="36"/>
     </issue>
 
@@ -866,7 +866,7 @@
         errorLine2="                                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="589"
+            line="600"
             column="54"/>
     </issue>
 
@@ -877,7 +877,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="613"
+            line="624"
             column="35"/>
     </issue>
 
@@ -888,7 +888,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/Slice.java"
-            line="614"
+            line="625"
             column="13"/>
     </issue>
 
@@ -921,7 +921,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="151"
+            line="153"
             column="28"/>
     </issue>
 

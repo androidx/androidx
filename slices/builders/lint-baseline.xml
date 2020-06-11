@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
+<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
 
     <issue
         id="UnknownNullness"
@@ -118,7 +118,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="60"
+            line="55"
             column="70"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                      ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="84"
+            line="79"
             column="23"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="93"
+            line="88"
             column="25"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="110"
+            line="105"
             column="34"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                                 ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="117"
+            line="112"
             column="34"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="123"
+            line="118"
             column="39"/>
     </issue>
 
@@ -184,7 +184,7 @@
         errorLine2="                             ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="148"
+            line="143"
             column="30"/>
     </issue>
 
@@ -195,7 +195,7 @@
         errorLine2="                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="249"
+            line="216"
             column="27"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="                                   ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="339"
+            line="368"
             column="36"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="438"
+            line="467"
             column="15"/>
     </issue>
 
@@ -338,51 +338,18 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="453"
+            line="482"
             column="12"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getTitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
+        errorLine1="        public IconCompat getTitleIcon() {"
+        errorLine2="               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="619"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getSubtitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="627"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public SliceAction getPrimaryAction() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="635"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getContentDescription() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="643"
+            line="703"
             column="16"/>
     </issue>
 
@@ -393,7 +360,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="835"
+            line="735"
             column="16"/>
     </issue>
 
@@ -404,40 +371,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="843"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public PendingIntent getAction() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="851"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public PendingIntent getInputAction() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="859"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public IconCompat getThumb() {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="867"
+            line="743"
             column="16"/>
     </issue>
 
@@ -448,7 +382,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="875"
+            line="751"
             column="16"/>
     </issue>
 
@@ -459,40 +393,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="883"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public RowBuilder(Uri uri) {"
-        errorLine2="                          ~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="980"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public RowBuilder setTitleItem(@NonNull IconCompat icon, @ImageMode int imageMode) {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1013"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Uri getUri() {"
-        errorLine2="               ~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1262"
+            line="759"
             column="16"/>
     </issue>
 
@@ -503,62 +404,7 @@
         errorLine2="               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1326"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public SliceAction getTitleAction() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1334"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public SliceAction getPrimaryAction() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1342"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getTitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1350"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getSubtitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1366"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getContentDescription() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1382"
+            line="1027"
             column="16"/>
     </issue>
 
@@ -569,7 +415,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1398"
+            line="1041"
             column="16"/>
     </issue>
 
@@ -580,7 +426,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1406"
+            line="1049"
             column="16"/>
     </issue>
 
@@ -591,29 +437,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1414"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public HeaderBuilder(Uri uri) {"
-        errorLine2="                             ~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1474"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Uri getUri() {"
-        errorLine2="               ~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1598"
+            line="1057"
             column="16"/>
     </issue>
 
@@ -624,7 +448,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1606"
+            line="1097"
             column="16"/>
     </issue>
 
@@ -635,18 +459,40 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1622"
+            line="1105"
             column="16"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getSummary() {"
-        errorLine2="               ~~~~~~~~~~~~">
+        errorLine1="        public PendingIntent getAction() {"
+        errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1638"
+            line="1113"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public PendingIntent getInputAction() {"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1121"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public IconCompat getThumb() {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1129"
             column="16"/>
     </issue>
 
@@ -657,7 +503,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1654"
+            line="1137"
             column="16"/>
     </issue>
 
@@ -668,7 +514,161 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1662"
+            line="1145"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public RowBuilder(Uri uri) {"
+        errorLine2="                          ~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1242"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public RowBuilder setTitleItem(@NonNull IconCompat icon, @ImageMode int imageMode) {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1275"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Uri getUri() {"
+        errorLine2="               ~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1524"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public IconCompat getTitleIcon() {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1588"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SliceAction getTitleAction() {"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1596"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SliceAction getPrimaryAction() {"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1604"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public CharSequence getTitle() {"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1612"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public CharSequence getSubtitle() {"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1628"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public CharSequence getContentDescription() {"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1644"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public List&lt;Object> getEndItems() {"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1660"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public List&lt;Integer> getEndTypes() {"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1668"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public List&lt;Boolean> getEndLoads() {"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1676"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public HeaderBuilder(Uri uri) {"
+        errorLine2="                             ~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1736"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Uri getUri() {"
+        errorLine2="               ~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/ListBuilder.java"
+            line="1860"
             column="16"/>
     </issue>
 
@@ -822,7 +822,7 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="94"
+            line="92"
             column="28"/>
     </issue>
 
@@ -833,7 +833,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="94"
+            line="92"
             column="45"/>
     </issue>
 
@@ -844,7 +844,7 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="100"
+            line="98"
             column="28"/>
     </issue>
 
@@ -855,7 +855,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="100"
+            line="98"
             column="45"/>
     </issue>
 
@@ -866,7 +866,7 @@
         errorLine2="                                                            ~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="100"
+            line="98"
             column="61"/>
     </issue>
 
@@ -877,7 +877,7 @@
         errorLine2="                      ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="107"
+            line="105"
             column="23"/>
     </issue>
 
@@ -888,7 +888,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="135"
+            line="133"
             column="12"/>
     </issue>
 
@@ -899,7 +899,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="211"
+            line="209"
             column="31"/>
     </issue>
 
@@ -910,7 +910,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="218"
+            line="216"
             column="26"/>
     </issue>
 
@@ -921,7 +921,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="225"
+            line="223"
             column="30"/>
     </issue>
 
@@ -932,7 +932,7 @@
         errorLine2="                              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="239"
+            line="237"
             column="31"/>
     </issue>
 
@@ -943,7 +943,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="249"
+            line="247"
             column="34"/>
     </issue>
 
@@ -954,7 +954,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="316"
+            line="314"
             column="19"/>
     </issue>
 
@@ -965,7 +965,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="317"
+            line="315"
             column="19"/>
     </issue>
 
@@ -976,7 +976,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="318"
+            line="316"
             column="19"/>
     </issue>
 
@@ -987,7 +987,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="319"
+            line="317"
             column="19"/>
     </issue>
 
@@ -998,7 +998,7 @@
         errorLine2="                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="337"
+            line="351"
             column="27"/>
     </issue>
 
@@ -1009,7 +1009,7 @@
         errorLine2="                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="396"
+            line="446"
             column="27"/>
     </issue>
 
@@ -1020,7 +1020,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="493"
+            line="549"
             column="37"/>
     </issue>
 
@@ -1031,7 +1031,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="557"
+            line="591"
             column="36"/>
     </issue>
 
@@ -1042,7 +1042,7 @@
         errorLine2="                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="635"
+            line="647"
             column="27"/>
     </issue>
 
@@ -1053,7 +1053,7 @@
         errorLine2="                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="705"
+            line="717"
             column="27"/>
     </issue>
 
@@ -1955,7 +1955,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="39"
+            line="51"
             column="35"/>
     </issue>
 
@@ -1966,7 +1966,7 @@
         errorLine2="                                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="39"
+            line="51"
             column="52"/>
     </issue>
 
@@ -1977,7 +1977,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="43"
+            line="55"
             column="35"/>
     </issue>
 
@@ -1988,7 +1988,7 @@
         errorLine2="                                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="43"
+            line="55"
             column="52"/>
     </issue>
 
@@ -1999,7 +1999,7 @@
         errorLine2="                                                                   ~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="43"
+            line="55"
             column="68"/>
     </issue>
 
@@ -2010,7 +2010,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="49"
+            line="61"
             column="31"/>
     </issue>
 
@@ -2021,7 +2021,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="56"
+            line="68"
             column="12"/>
     </issue>
 
@@ -2032,7 +2032,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="66"
+            line="78"
             column="12"/>
     </issue>
 
@@ -2043,7 +2043,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="74"
+            line="86"
             column="12"/>
     </issue>
 
@@ -2054,7 +2054,7 @@
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="82"
+            line="94"
             column="32"/>
     </issue>
 
@@ -2065,7 +2065,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="88"
+            line="100"
             column="12"/>
     </issue>
 
@@ -2076,7 +2076,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="96"
+            line="108"
             column="12"/>
     </issue>
 

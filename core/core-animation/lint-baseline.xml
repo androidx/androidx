@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
+<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
 
     <issue
         id="KotlinPropertyAccess"
@@ -8,11 +8,11 @@
         errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/ValueAnimator.java"
-            line="513"
+            line="515"
             column="35"/>
         <location
             file="src/main/java/androidx/core/animation/ValueAnimator.java"
-            line="492"
+            line="493"
             column="17"/>
     </issue>
 
@@ -23,7 +23,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/ObjectAnimator.java"
-            line="386"
+            line="390"
             column="50"/>
     </issue>
 
@@ -34,7 +34,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/ObjectAnimator.java"
-            line="601"
+            line="608"
             column="50"/>
     </issue>
 
@@ -45,7 +45,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/ObjectAnimator.java"
-            line="632"
+            line="639"
             column="47"/>
     </issue>
 
@@ -56,7 +56,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/ObjectAnimator.java"
-            line="689"
+            line="696"
             column="13"/>
     </issue>
 
@@ -67,7 +67,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/ObjectAnimator.java"
-            line="725"
+            line="732"
             column="50"/>
     </issue>
 
@@ -78,7 +78,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="247"
+            line="246"
             column="50"/>
     </issue>
 
@@ -89,7 +89,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="272"
+            line="271"
             column="13"/>
     </issue>
 
@@ -100,7 +100,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="378"
+            line="379"
             column="50"/>
     </issue>
 
@@ -111,7 +111,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="404"
+            line="405"
             column="13"/>
     </issue>
 
@@ -122,7 +122,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="428"
+            line="429"
             column="47"/>
     </issue>
 
@@ -133,7 +133,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="481"
+            line="482"
             column="50"/>
     </issue>
 
@@ -144,7 +144,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="516"
+            line="517"
             column="13"/>
     </issue>
 
@@ -155,74 +155,8 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/ValueAnimator.java"
-            line="384"
+            line="385"
             column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public AccelerateInterpolator(Context context, AttributeSet attrs) {"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/AccelerateInterpolator.java"
-            line="53"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public AccelerateInterpolator(Context context, AttributeSet attrs) {"
-        errorLine2="                                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/AccelerateInterpolator.java"
-            line="53"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final void set(T object, Integer value) {"
-        errorLine2="                          ~">
-        <location
-            file="src/main/java/androidx/core/animation/IntProperty.java"
-            line="63"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final void set(T object, Integer value) {"
-        errorLine2="                                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/IntProperty.java"
-            line="63"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object getAnimatedValue(String propertyName) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/ValueAnimator.java"
-            line="834"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object getAnimatedValue(String propertyName) {"
-        errorLine2="                                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/ValueAnimator.java"
-            line="834"
-            column="36"/>
     </issue>
 
 </issues>

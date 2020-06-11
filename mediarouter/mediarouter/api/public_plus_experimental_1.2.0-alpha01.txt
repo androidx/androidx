@@ -285,7 +285,7 @@ package androidx.mediarouter.media {
     method public void onRelease();
     method public void onSelect();
     method public void onSetVolume(int);
-    method public void onUnselect();
+    method @Deprecated public void onUnselect();
     method public void onUnselect(int);
     method public void onUpdateVolume(int);
   }
@@ -363,6 +363,7 @@ package androidx.mediarouter.media {
     field public static final int CALLBACK_FLAG_PERFORM_ACTIVE_SCAN = 1; // 0x1
     field public static final int CALLBACK_FLAG_REQUEST_DISCOVERY = 4; // 0x4
     field public static final int CALLBACK_FLAG_UNFILTERED_EVENTS = 2; // 0x2
+    field public static final String METADATA_NAME_FEATURE = "androidx.mediarouter.FEATURE";
     field public static final int UNSELECT_REASON_DISCONNECTED = 1; // 0x1
     field public static final int UNSELECT_REASON_ROUTE_CHANGED = 3; // 0x3
     field public static final int UNSELECT_REASON_STOPPED = 2; // 0x2
