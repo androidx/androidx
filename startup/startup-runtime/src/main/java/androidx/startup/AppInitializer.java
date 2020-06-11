@@ -47,7 +47,7 @@ public final class AppInitializer {
     /**
      * The {@link AppInitializer} instance.
      */
-    private static AppInitializer sInstance;
+    private static volatile AppInitializer sInstance;
 
     /**
      * Guards app initialization.
@@ -77,12 +77,14 @@ public final class AppInitializer {
     @NonNull
     @SuppressWarnings("UnusedReturnValue")
     public static AppInitializer getInstance(@NonNull Context context) {
-        synchronized (sLock) {
-            if (sInstance == null) {
-                sInstance = new AppInitializer(context);
+        if (sInstance == null) {
+            synchronized (sLock) {
+                if (sInstance == null) {
+                    sInstance = new AppInitializer(context);
+                }
             }
-            return sInstance;
         }
+        return sInstance;
     }
 
     /**
