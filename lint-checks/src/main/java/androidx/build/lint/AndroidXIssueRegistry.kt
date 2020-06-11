@@ -21,7 +21,8 @@ import com.android.tools.lint.detector.api.CURRENT_API
 import com.android.tools.lint.detector.api.Issue
 
 class AndroidXIssueRegistry : IssueRegistry() {
-    override val api = CURRENT_API
+    override val minApi = CURRENT_API
+    override val api = 8
     override val issues get(): List<Issue> {
         return Issues
     }
