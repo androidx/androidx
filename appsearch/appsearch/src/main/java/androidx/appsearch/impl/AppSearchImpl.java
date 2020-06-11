@@ -63,12 +63,13 @@ public final class AppSearchImpl {
     /**
      * Retrieves a document from the AppSearch index by URI.
      *
+     * @param namespace The namespace this Document resides in.
      * @param uri The URI of the document to get.
      * @return The Document contents, or {@code null} if no such URI exists in the system.
      */
     @Nullable
-    public DocumentProto getDocument(@NonNull String uri) {
-        return mFakeIcing.get(uri);
+    public DocumentProto getDocument(@NonNull String namespace, @NonNull String uri) {
+        return mFakeIcing.get(namespace, uri);
     }
 
     /**
@@ -111,12 +112,12 @@ public final class AppSearchImpl {
     }
 
     /** Deletes the given document by URI */
-    public boolean delete(@NonNull String uri) {
-        DocumentProto document = mFakeIcing.get(uri);
+    public boolean delete(@NonNull String namespace, @NonNull String uri) {
+        DocumentProto document = mFakeIcing.get(namespace, uri);
         if (document == null) {
             return false;
         }
-        return mFakeIcing.delete(uri);
+        return mFakeIcing.delete(namespace, uri);
     }
 
     /** Deletes all documents having the given {@code schemaType}. */
