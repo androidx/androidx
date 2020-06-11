@@ -222,6 +222,7 @@ public class GenericDocumentTest {
                 .setCreationTimestampMillis(5L)
                 .setScore(1)
                 .setTtlMillis(1L)
+                .setNamespace("namespace")
                 .setProperty("longKey1", 1L)
                 .setProperty("doubleKey1", 1.0)
                 .setProperty("booleanKey1", true)
@@ -236,7 +237,8 @@ public class GenericDocumentTest {
                 .setSchema("schemaType1")
                 .setCreationTimestampMs(5L)
                 .setScore(1)
-                .setTtlMs(1L);
+                .setTtlMs(1L)
+                .setNamespace("namespace");
         HashMap<String, PropertyProto.Builder> propertyProtoMap = new HashMap<>();
         propertyProtoMap.put("longKey1",
                 PropertyProto.newBuilder().setName("longKey1").addInt64Values(1L));

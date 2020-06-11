@@ -145,9 +145,6 @@ public class AppSearchManager {
     /**
      * Index {@link GenericDocument}s into AppSearch.
      *
-     * <p>You should not call this method directly; instead, use the
-     * {@code AppSearch#putDocuments()} API provided by JetPack.
-     *
      * <p>Each {@link GenericDocument}'s {@code schemaType} field must be set to the name of a
      * schema type previously registered via the {@link #setSchema} method.
      *
@@ -181,9 +178,7 @@ public class AppSearchManager {
     /**
      * Retrieves {@link GenericDocument}s by URI.
      *
-     * <p>You should not call this method directly; instead, use the
-     * {@code AppSearch#getDocuments()} API provided by JetPack.
-     *
+     * @param namespace The namespace these documents reside in.
      * @param uris URIs of the documents to look up.
      * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
      *     {@link GenericDocument}&gt;&gt;.
@@ -197,6 +192,7 @@ public class AppSearchManager {
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getDocuments(
+            @NonNull String namespace,
             @NonNull List<String> uris) {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
@@ -206,7 +202,7 @@ public class AppSearchManager {
             for (int i = 0; i < uris.size(); i++) {
                 String uri = uris.get(i);
                 try {
-                    DocumentProto documentProto = mAppSearchImpl.getDocument(uri);
+                    DocumentProto documentProto = mAppSearchImpl.getDocument(namespace, uri);
                     if (documentProto == null) {
                         resultBuilder.setFailure(
                                 uri, AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null);
@@ -227,6 +223,26 @@ public class AppSearchManager {
             }
             return resultBuilder.build();
         });
+    }
+
+    /**
+     * Retrieves {@link GenericDocument}s by URI in default namespace.
+     *
+     * @param uris URIs of the documents to look up.
+     * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
+     *     {@link GenericDocument}&gt;&gt;.
+     *     If the call fails to start, {@link ListenableFuture} will be completed exceptionally.
+     *     Otherwise, {@link ListenableFuture} will be completed with an
+     *     {@link AppSearchBatchResult}&lt;{@link String}, {@link GenericDocument}&gt;
+     *     mapping the document URIs to
+     *     {@link GenericDocument} values if they were successfully retrieved, a {@code null}
+     *     failure if they were not found, or a {@link Throwable} failure describing the problem
+     *     if an error occurred.
+     */
+    @NonNull
+    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getDocuments(
+            @NonNull List<String> uris) {
+        return getDocuments(GenericDocument.DEFAULT_NAMESPACE, uris);
     }
 
     /**
@@ -312,23 +328,25 @@ public class AppSearchManager {
      * <p>You should not call this method directly; instead, use the {@code AppSearch#delete()} API
      * provided by JetPack.
      *
+     * @param namespace The namespace these documents reside in.
      * @param uris URIs of the documents to delete
      * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
      *     {@link Void}&gt;&gt;. If the call fails to start, {@link ListenableFuture} will be
      *     completed exceptionally.Otherwise, {@link ListenableFuture} will be completed with an
      *     {@link AppSearchBatchResult}&lt;{@link String}, {@link Void}&gt;
      *     where the keys are schema types. If a schema type doesn't exist, it will be reported as a
-     *     failure where the {@code throwable} is {@code null}..
+     *     failure where the {@code throwable} is {@code null}.
      */
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> delete(@NonNull List<String> uris) {
+    public ListenableFuture<AppSearchBatchResult<String, Void>> delete(@NonNull String namespace,
+            @NonNull List<String> uris) {
         return execute(mMutateExecutor, () -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < uris.size(); i++) {
                 String uri = uris.get(i);
                 try {
-                    if (!mAppSearchImpl.delete(uri)) {
+                    if (!mAppSearchImpl.delete(namespace, uri)) {
                         resultBuilder.setFailure(
                                 uri, AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null);
                     } else {
@@ -343,10 +361,28 @@ public class AppSearchManager {
     }
 
     /**
-     * Deletes {@link GenericDocument}s by schema type.
+     * Deletes {@link GenericDocument}s by URI in default namespace.
      *
-     * <p>You should not call this method directly; instead, use the
-     * {@code AppSearch#deleteByType()} API provided by JetPack.
+     * <p>You should not call this method directly; instead, use the {@code AppSearch#delete()} API
+     * provided by JetPack.
+     *
+     * @param uris URIs of the documents to delete
+     * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
+     *     {@link Void}&gt;&gt;. If the call fails to start, {@link ListenableFuture} will be
+     *     completed exceptionally.Otherwise, {@link ListenableFuture} will be completed with an
+     *     {@link AppSearchBatchResult}&lt;{@link String}, {@link Void}&gt;
+     *     where the keys are schema types. If a schema type doesn't exist, it will be reported as a
+     *     failure where the {@code throwable} is {@code null}.
+     */
+    @NonNull
+    public ListenableFuture<AppSearchBatchResult<String, Void>> delete(@NonNull List<String> uris) {
+        return delete(GenericDocument.DEFAULT_NAMESPACE, uris);
+    }
+
+    //TODO(b/153118598): Implement deleteByNamespace after we port to real icing.
+
+    /**
+     * Deletes {@link GenericDocument}s by schema type.
      *
      * @param schemaTypes Schema types whose documents to delete.
      * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
