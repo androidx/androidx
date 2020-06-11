@@ -121,6 +121,16 @@ abstract class SpecialEffectsController {
         enqueue(Operation.Type.ADD, fragmentStateManager, cancellationSignal);
     }
 
+    void enqueueShow(@NonNull FragmentStateManager fragmentStateManager,
+            @NonNull CancellationSignal cancellationSignal) {
+        enqueue(Operation.Type.SHOW, fragmentStateManager, cancellationSignal);
+    }
+
+    void enqueueHide(@NonNull FragmentStateManager fragmentStateManager,
+            @NonNull CancellationSignal cancellationSignal) {
+        enqueue(Operation.Type.HIDE, fragmentStateManager, cancellationSignal);
+    }
+
     void enqueueRemove(@NonNull FragmentStateManager fragmentStateManager,
             @NonNull CancellationSignal cancellationSignal) {
         enqueue(Operation.Type.REMOVE, fragmentStateManager, cancellationSignal);
@@ -221,11 +231,23 @@ abstract class SpecialEffectsController {
              */
             ADD,
             /**
-             * A REMOVE operation indicates that the Fragment should be removed to the
+             * A REMOVE operation indicates that the Fragment should be removed from the
              * {@link Operation#getContainer() container} and any "exit" special effects
              * should be run before calling {@link #complete()}.
              */
-            REMOVE
+            REMOVE,
+            /**
+             * An SHOW operation indicates that the Fragment should be made visible in the
+             * {@link Operation#getContainer() container} and any "enter" special effects
+             * should be run before calling {@link #complete()}.
+             */
+            SHOW,
+            /**
+             * A HIDE operation indicates that the Fragment should be hidden from the
+             * {@link Operation#getContainer() container} and any "exit" special effects
+             * should be run before calling {@link #complete()}.
+             */
+            HIDE
         }
 
         @NonNull
