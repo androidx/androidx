@@ -32,6 +32,7 @@ import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import androidx.annotation.RequiresApi
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Shadow
 import androidx.ui.graphics.isSet
 import androidx.ui.graphics.toArgb
 import androidx.ui.intl.AndroidLocale
@@ -59,6 +60,7 @@ import androidx.ui.text.platform.style.SkewXSpan
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
@@ -108,32 +110,31 @@ internal fun TextPaint.applySpanStyle(
         TextUnitType.Inherit -> {} // Do nothing
     }
 
-    style.fontFeatureSettings?.let {
-        fontFeatureSettings = it
+    if (style.fontFeatureSettings != null && style.fontFeatureSettings != "") {
+        fontFeatureSettings = style.fontFeatureSettings
     }
 
-    style.textGeometricTransform?.let {
-        textScaleX *= it.scaleX
+    if (style.textGeometricTransform != null &&
+        style.textGeometricTransform != TextGeometricTransform.None
+    ) {
+        textScaleX *= style.textGeometricTransform.scaleX
+        textSkewX += style.textGeometricTransform.skewX
     }
 
-    style.textGeometricTransform?.let {
-        textSkewX += it.skewX
-    }
-
-    style.shadow?.let {
+    if (style.shadow != null && style.shadow != Shadow.None) {
         setShadowLayer(
-            it.blurRadius,
-            it.offset.x,
-            it.offset.y,
-            it.color.toArgb()
+            style.shadow.blurRadius,
+            style.shadow.offset.x,
+            style.shadow.offset.y,
+            style.shadow.color.toArgb()
         )
     }
 
-    style.textDecoration?.let {
-        if (it.contains(TextDecoration.Underline)) {
+    if (style.textDecoration != null && style.textDecoration != TextDecoration.None) {
+        if (style.textDecoration.contains(TextDecoration.Underline)) {
             isUnderlineText = true
         }
-        if (it.contains(TextDecoration.LineThrough)) {
+        if (style.textDecoration.contains(TextDecoration.LineThrough)) {
             isStrikeThruText = true
         }
     }
