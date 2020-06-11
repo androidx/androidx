@@ -257,6 +257,11 @@ package androidx.paging {
 
   public final class PagingConfig {
     ctor public PagingConfig(int pageSize, @IntRange(from=null) int prefetchDistance, boolean enablePlaceholders, @IntRange(from=null) int initialLoadSize, @IntRange(from=null) int maxSize, int jumpThreshold);
+    ctor public PagingConfig(int pageSize, @IntRange(from=null) int prefetchDistance, boolean enablePlaceholders, @IntRange(from=null) int initialLoadSize, @IntRange(from=null) int maxSize);
+    ctor public PagingConfig(int pageSize, @IntRange(from=null) int prefetchDistance, boolean enablePlaceholders, @IntRange(from=null) int initialLoadSize);
+    ctor public PagingConfig(int pageSize, @IntRange(from=null) int prefetchDistance, boolean enablePlaceholders);
+    ctor public PagingConfig(int pageSize, @IntRange(from=null) int prefetchDistance);
+    ctor public PagingConfig(int pageSize);
     field public static final androidx.paging.PagingConfig.Companion! Companion;
     field public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
     field public final boolean enablePlaceholders;
