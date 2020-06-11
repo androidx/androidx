@@ -289,6 +289,7 @@ package androidx.ui.text {
     method public java.util.List<androidx.ui.text.AnnotatedString.Range<androidx.ui.text.ParagraphStyle>> getParagraphStyles();
     method public java.util.List<androidx.ui.text.AnnotatedString.Range<androidx.ui.text.SpanStyle>> getSpanStyles();
     method public java.util.List<androidx.ui.text.AnnotatedString.Range<java.lang.String>> getStringAnnotations(String tag, int start, int end);
+    method public java.util.List<androidx.ui.text.AnnotatedString.Range<java.lang.String>> getStringAnnotations(int start, int end);
     method public String getText();
     method @androidx.compose.Stable public operator androidx.ui.text.AnnotatedString plus(androidx.ui.text.AnnotatedString other);
   }

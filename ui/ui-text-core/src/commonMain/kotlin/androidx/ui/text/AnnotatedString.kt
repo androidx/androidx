@@ -36,6 +36,12 @@ typealias SpanStyleRange = Range<SpanStyle>
 typealias ParagraphStyleRange = Range<ParagraphStyle>
 
 /**
+ * The class that stores a string type annotation.
+ * @see AnnotatedString.Builder
+ */
+typealias StringAnnotation = Range<String>
+
+/**
  * The basic data structure of text with multiple styles. To construct an [AnnotatedString] you
  * can use [Builder].
  */
@@ -106,10 +112,22 @@ data class AnnotatedString internal constructor(
      * with the range [start, end) will be returned. When [start] is bigger than [end], an empty
      * list will be returned.
      */
-    fun getStringAnnotations(tag: String, start: Int, end: Int): List<Range<String>> =
+    fun getStringAnnotations(tag: String, start: Int, end: Int): List<StringAnnotation> =
         annotations.filter {
             tag == it.tag && intersect(start, end, it.start, it.end)
         }
+
+    /**
+     * Query all of the string annotations attached on this AnnotatedString.
+     *
+     * @param start the start of the query range, inclusive.
+     * @param end the end of the query range, exclusive.
+     * @return a list of annotations stored in [Range].  Notice that All annotations that intersect
+     * with the range [start, end) will be returned. When [start] is bigger than [end], an empty
+     * list will be returned.
+     */
+    fun getStringAnnotations(start: Int, end: Int): List<StringAnnotation> =
+        annotations.filter { intersect(start, end, it.start, it.end) }
 
     /**
      * The information attached on the text such as a [SpanStyle].
