@@ -22,6 +22,10 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -87,6 +91,8 @@ import java.util.List;
  */
 public class MediaRouteButton extends View {
     private static final String TAG = "MediaRouteButton";
+
+    private static final boolean USE_OUTPUT_SWITCHER_IF_AVAILABLE = true;
 
     private static final String CHOOSER_FRAGMENT_TAG =
             "android.support.v7.mediarouter:MediaRouteChooserDialogFragment";
@@ -303,6 +309,32 @@ public class MediaRouteButton extends View {
     public boolean showDialog() {
         if (!mAttachedToWindow) {
             return false;
+        }
+
+        if (USE_OUTPUT_SWITCHER_IF_AVAILABLE && MediaRouter.isTransferEnabled()) {
+            Context context = getContext();
+
+            Intent intent = new Intent()
+                    .setAction(OutputSwitcherConstants.ACTION_MEDIA_OUTPUT)
+                    .putExtra(OutputSwitcherConstants.EXTRA_PACKAGE_NAME, context.getPackageName())
+                    .putExtra(OutputSwitcherConstants.KEY_MEDIA_SESSION_TOKEN,
+                            mRouter.getMediaSessionToken());
+
+            PackageManager packageManager = context.getPackageManager();
+            List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent, 0);
+            for (ResolveInfo resolveInfo : resolveInfos) {
+                ActivityInfo activityInfo = resolveInfo.activityInfo;
+                if (activityInfo == null || activityInfo.applicationInfo == null) {
+                    continue;
+                }
+                ApplicationInfo appInfo = activityInfo.applicationInfo;
+                if (((ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)
+                        & appInfo.flags) != 0) {
+                    context.startActivity(intent);
+                    return true;
+                }
+            }
+            // If there is no output switcher, fall back to the normal dialog.
         }
 
         final FragmentManager fm = getFragmentManager();
