@@ -32,5 +32,7 @@ export JAVA_HOME="prebuilts/jdk/jdk11/linux-x86/"
 export JAVA_TOOLS_JAR="$JAVA_HOME/lib/tools.jar"
 export LINT_PRINT_STACKTRACE=true
 
-$gw -p frameworks/support --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors
-DIST_SUBDIR="/ui" $gw -p frameworks/support/ui --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors
+LOG_SIMPLIFIER="$SCRIPT_DIR/../development/build_log_simplifier.sh"
+
+"$LOG_SIMPLIFIER" $gw -p frameworks/support --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors
+"$LOG_SIMPLIFIER" DIST_SUBDIR="/ui" $gw -p frameworks/support/ui --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors
