@@ -150,19 +150,45 @@ public final class CameraXTest {
     }
 
     @Test
-    public void reinit_withPreviousFailedInit() throws ExecutionException, InterruptedException {
+    public void failedInit_doesNotRequireReconfigure() throws InterruptedException {
         // Create an empty config to cause a failed init.
         CameraXConfig cameraXConfig = new CameraXConfig.Builder().build();
         Exception exception = null;
+        CameraX.configureInstance(cameraXConfig);
+        boolean firstInitFailed = false;
         try {
-            CameraX.initialize(mContext, cameraXConfig).get();
+            CameraX.getOrCreateInstance(mContext).get();
         } catch (ExecutionException e) {
-            exception = e;
+            firstInitFailed = true;
         }
-        assertThat(exception).isInstanceOf(ExecutionException.class);
 
-        CameraX.initialize(mContext, mConfigBuilder.build()).get();
-        assertThat(CameraX.isInitialized()).isTrue();
+        // Does not throw IllegalStateException (though initialization will fail)
+        boolean secondInitFailed = false;
+        try {
+            CameraX.getOrCreateInstance(mContext).get();
+        } catch (ExecutionException e) {
+            secondInitFailed = true;
+        }
+        assertThat(firstInitFailed).isTrue();
+        assertThat(secondInitFailed).isTrue();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void cannotConfigureTwice() {
+        CameraX.configureInstance(mConfigBuilder.build());
+        CameraX.configureInstance(mConfigBuilder.build());
+    }
+
+    @Test
+    public void shutdown_clearsPreviousConfiguration()
+            throws ExecutionException, InterruptedException {
+        CameraX.configureInstance(mConfigBuilder.build());
+
+        // Clear the configuration so we can reinit
+        CameraX.shutdown().get();
+
+        // Should not throw
+        CameraX.configureInstance(mConfigBuilder.build());
     }
 
     @Test
