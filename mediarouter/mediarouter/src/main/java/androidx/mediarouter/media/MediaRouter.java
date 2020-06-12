@@ -885,10 +885,8 @@ public final class MediaRouter {
      * Returns whether the seamless transfer feature is enabled.
      *
      * @see MediaRouter
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    public static boolean isTransferEnabled() {
+    static boolean isTransferEnabled() {
         if (sGlobal == null) {
             return false;
         }
