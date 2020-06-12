@@ -69,6 +69,32 @@ package androidx.ui.tooling {
 
 }
 
+package androidx.ui.tooling.inspector {
+
+  public final class InspectorNode {
+    ctor public InspectorNode(long id, String name, String fileName, int lineNumber, String functionName, int left, int top, int width, int height, java.util.List<androidx.ui.tooling.inspector.InspectorNode> children);
+    method public java.util.List<androidx.ui.tooling.inspector.InspectorNode> getChildren();
+    method public String getFileName();
+    method public String getFunctionName();
+    method public int getHeight();
+    method public long getId();
+    method public int getLeft();
+    method public int getLineNumber();
+    method public String getName();
+    method public int getTop();
+    method public int getWidth();
+  }
+
+  public final class LayoutInspectorTree {
+    ctor public LayoutInspectorTree();
+    method public java.util.List<androidx.ui.tooling.inspector.InspectorNode> convert(android.view.View view);
+  }
+
+  public final class LayoutInspectorTreeKt {
+  }
+
+}
+
 package androidx.ui.tooling.preview {
 
   public final class ComposeViewAdapterKt {
