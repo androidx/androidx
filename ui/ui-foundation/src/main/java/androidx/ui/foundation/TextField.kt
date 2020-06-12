@@ -281,12 +281,7 @@ fun TextField(
             val prevState = fullModel.value
             fullModel.value = it
             if (prevState.text != it.text || prevState.selection != it.selection) {
-                onValueChange(
-                    androidx.ui.input.TextFieldValue(
-                        it.text,
-                        it.selection
-                    )
-                )
+                onValueChange(it)
             }
         },
         textStyle = mergedStyle,
