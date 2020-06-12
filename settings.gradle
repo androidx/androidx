@@ -391,11 +391,11 @@ includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-
 //
 /////////////////////////////
 
-includeProject(":support-media-compat-test-client", "media/version-compat-tests/current/client")
-includeProject(":support-media-compat-test-client-previous", "media/version-compat-tests/previous/client")
-includeProject(":support-media-compat-test-service", "media/version-compat-tests/current/service")
-includeProject(":support-media-compat-test-service-previous", "media/version-compat-tests/previous/service")
-includeProject(":support-media-compat-test-lib", "media/version-compat-tests/lib")
+includeProject(":support-media-test-client", "media/version-compat-tests/current/client")
+includeProject(":support-media-test-client-previous", "media/version-compat-tests/previous/client")
+includeProject(":support-media-test-service", "media/version-compat-tests/current/service")
+includeProject(":support-media-test-service-previous", "media/version-compat-tests/previous/service")
+includeProject(":support-media-test-lib", "media/version-compat-tests/lib")
 
 includeProject(":support-media2-test-client", "media2/session/version-compat-tests/current/client")
 includeProject(":support-media2-test-client-previous", "media2/session/version-compat-tests/previous/client")
