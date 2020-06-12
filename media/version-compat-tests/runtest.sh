@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# A script that runs media-compat-test between different versions.
+# A script that runs media tests between different versions.
 
 # Usage './runtest.sh <version_combination_number> [option]'
 
-CLIENT_MODULE_NAME_BASE="support-media-compat-test-client"
-SERVICE_MODULE_NAME_BASE="support-media-compat-test-service"
+CLIENT_MODULE_NAME_BASE="support-media-test-client"
+SERVICE_MODULE_NAME_BASE="support-media-test-service"
 CLIENT_VERSION=""
 SERVICE_VERSION=""
 CLIENT_TEST_TARGET=""
