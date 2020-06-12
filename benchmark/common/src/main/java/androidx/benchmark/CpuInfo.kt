@@ -65,7 +65,7 @@ internal object CpuInfo {
                 // scaling_min_freq, or -1 if can't access
                 currentMinFreq = readFileTextOrNull("$path/cpufreq/scaling_min_freq")?.toInt()
                     ?: -1,
-                maxFreqKhz = readFileTextOrNull("$path/cpuinfo_max_freq")?.toLong() ?: -1L
+                maxFreqKhz = readFileTextOrNull("$path/cpufreq/cpuinfo_max_freq")?.toLong() ?: -1L
             )
         } ?: emptyList()
 
@@ -75,10 +75,8 @@ internal object CpuInfo {
             ?.maxFreqKhz?.times(1000) ?: -1
 
         locked = isCpuLocked(coreDirs)
-        if (!locked) {
-            coreDirs.forEachIndexed { index, coreDir ->
-                Log.d(TAG, "cpu$index $coreDir")
-            }
+        coreDirs.forEachIndexed { index, coreDir ->
+            Log.d(TAG, "cpu$index $coreDir")
         }
     }
 
