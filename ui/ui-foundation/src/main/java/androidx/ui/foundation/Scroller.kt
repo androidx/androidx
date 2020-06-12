@@ -30,6 +30,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.ScrollableState
@@ -42,7 +43,6 @@ import androidx.ui.layout.RowScope
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.semantics.ScrollTo
-import androidx.ui.semantics.Semantics
 import kotlin.math.roundToInt
 
 /**
@@ -275,30 +275,30 @@ private fun Scroller(
 ) {
     val direction =
         if (isVertical) DragDirection.Vertical else DragDirection.Horizontal
-    Semantics(container = true, properties = {
-        if (isScrollable) {
-            // when b/156389287 is fixed, this should be proper scrollTo with reverse handling
-            ScrollTo(action = { x, y ->
-                if (isVertical) {
-                    scrollerPosition.scrollBy(y)
-                } else {
-                    scrollerPosition.scrollBy(x)
+    ScrollerLayout(
+        scrollerPosition = scrollerPosition,
+        modifier = modifier
+            .semantics {
+                if (isScrollable) {
+                    // when b/156389287 is fixed, this should be proper scrollTo with reverse handling
+                    ScrollTo(action = { x, y ->
+                        if (isVertical) {
+                            scrollerPosition.scrollBy(y)
+                        } else {
+                            scrollerPosition.scrollBy(x)
+                        }
+                        return@ScrollTo true
+                    })
                 }
-                return@ScrollTo true
-            })
-        }
-    }) {
-        ScrollerLayout(
-            scrollerPosition = scrollerPosition,
-            modifier = modifier.scrollable(
+            }
+            .scrollable(
                 scrollableState = scrollerPosition.scrollableState,
                 dragDirection = direction,
                 enabled = isScrollable
             ),
-            isVertical = isVertical,
-            child = child
-        )
-    }
+        isVertical = isVertical,
+        child = child
+    )
 }
 
 @Composable

@@ -23,6 +23,7 @@ import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.composed
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.semantics.semantics
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Indication
 import androidx.ui.foundation.IndicationAmbient
 import androidx.ui.foundation.Interaction
@@ -31,7 +32,6 @@ import androidx.ui.foundation.Strings
 import androidx.ui.foundation.clickable
 import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
 import androidx.ui.foundation.semantics.selected
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.semantics.onClick
 
@@ -39,7 +39,7 @@ import androidx.ui.semantics.onClick
  * Component for representing one option out of many
  * in mutually exclusion set, e.g [androidx.ui.material.RadioGroup]
  *
- * Provides click handling as well as [Semantics] for accessibility
+ * Provides click handling as well as [Modifier.semantics] for accessibility
  *
  * @param selected whether or not this item is selected in mutually exclusion set
  * @param onClick callback to invoke when this item is clicked
@@ -71,14 +71,12 @@ fun MutuallyExclusiveSetItem(
 ) {
     // TODO: when semantics can be merged, we should make this use Clickable internally rather
     //  than duplicating logic
-    Semantics(
-        container = true,
-        properties = {
-            inMutuallyExclusiveGroup = true
-            this.selected = selected
-            this.accessibilityValue = if (selected) Strings.Selected else Strings.NotSelected
-            onClick(action = { onClick(); return@onClick true })
-        }) {
+    Box(Modifier.semantics {
+        inMutuallyExclusiveGroup = true
+        this.selected = selected
+        this.accessibilityValue = if (selected) Strings.Selected else Strings.NotSelected
+        onClick(action = { onClick(); return@onClick true })
+    }) {
         // TODO(b/150706555): This layout is temporary and should be removed once Semantics
         //  is implemented with modifiers.
         @Suppress("DEPRECATION")

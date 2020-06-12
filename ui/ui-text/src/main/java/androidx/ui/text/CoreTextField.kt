@@ -39,6 +39,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
+import androidx.ui.core.semantics.semantics
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.TextFieldValue
@@ -46,7 +47,6 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.NO_SESSION
 import androidx.ui.input.VisualTransformation
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.onClick
 import androidx.ui.geometry.Offset
 import kotlin.math.roundToInt
@@ -358,28 +358,28 @@ private fun TextInputEventObserver(
         onBlur(false)
     }
 
-    Semantics(
-        container = true,
+    val semantics = Modifier.semantics(applyToChildLayoutNode = true,
         mergeAllDescendants = true,
         properties = {
             this.imeAction = imeAction
             this.supportsInputMethods = true
             onClick(action = { doFocusIn(); return@onClick true })
-        }
-    ) {
-        val drag = Modifier.dragPositionGestureFilter(
-            onPress = {
-                if (focusModifier.focusState == FocusState.Focused) {
-                    onPress(it)
-                } else {
-                    doFocusIn()
-                }
-            },
-            onRelease = onRelease
-        )
+        })
+    val drag = Modifier.dragPositionGestureFilter(
+        onPress = {
+            if (focusModifier.focusState == FocusState.Focused) {
+                onPress(it)
+            } else {
+                doFocusIn()
+            }
+        },
+        onRelease = onRelease
+    )
 
-        // TODO(b/150706555): This layout is temporary and should be removed once Semantics
-        //  is implemented with modifiers.
+    // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+    //  is implemented with modifiers.
+    @Suppress("DEPRECATION")
+    PassThroughLayout(semantics) {
         @Suppress("DEPRECATION")
         PassThroughLayout(drag, children)
     }

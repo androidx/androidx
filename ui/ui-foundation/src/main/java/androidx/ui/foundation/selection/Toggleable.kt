@@ -35,13 +35,12 @@ import androidx.ui.foundation.selection.ToggleableState.Indeterminate
 import androidx.ui.foundation.selection.ToggleableState.Off
 import androidx.ui.foundation.selection.ToggleableState.On
 import androidx.ui.foundation.semantics.toggleableState
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
 
 /**
- * Combines [tapGestureFilter] and [Semantics] for the components that need to be
+ * Combines [tapGestureFilter] and [Modifier.semantics] for the components that need to be
  * toggleable, like Switch.
  *
  * @see [TriStateToggleable] if you require support for an indeterminate state.
@@ -116,7 +115,7 @@ fun Modifier.toggleable(
 )
 
 /**
- * Combines [tapGestureFilter] and [Semantics] for the components with three states
+ * Combines [tapGestureFilter] and [Modifier.semantics] for the components with three states
  * like TriStateCheckbox.
  *
  * It supports three states: On, Off and Indeterminate.
