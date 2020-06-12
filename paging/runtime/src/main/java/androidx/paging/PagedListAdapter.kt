@@ -19,7 +19,7 @@ package androidx.paging
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.MergeAdapter
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 
 /**
@@ -262,44 +262,44 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
     }
 
     /**
-     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.APPEND] [LoadState] as a list item at the end of the presented list.
      */
     fun withLoadStateHeader(
         header: LoadStateAdapter<*>
-    ): MergeAdapter {
+    ): ConcatAdapter {
         addLoadStateListener { loadType, loadState ->
             if (loadType == LoadType.PREPEND) {
                 header.loadState = loadState
             }
         }
-        return MergeAdapter(header, this)
+        return ConcatAdapter(header, this)
     }
 
     /**
-     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.PREPEND] [LoadState] as a list item at the start of the presented list.
      */
     fun withLoadStateFooter(
         footer: LoadStateAdapter<*>
-    ): MergeAdapter {
+    ): ConcatAdapter {
         addLoadStateListener { loadType, loadState ->
             if (loadType == LoadType.APPEND) {
                 footer.loadState = loadState
             }
         }
-        return MergeAdapter(this, footer)
+        return ConcatAdapter(this, footer)
     }
 
     /**
-     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.PREPEND] and [LoadType.APPEND] [LoadState]s as list items at the start and end
      * respectively.
      */
     fun withLoadStateHeaderAndFooter(
         header: LoadStateAdapter<*>,
         footer: LoadStateAdapter<*>
-    ): MergeAdapter {
+    ): ConcatAdapter {
         addLoadStateListener { loadType, loadState ->
             if (loadType == LoadType.PREPEND) {
                 header.loadState = loadState
@@ -307,6 +307,6 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
                 footer.loadState = loadState
             }
         }
-        return MergeAdapter(header, this, footer)
+        return ConcatAdapter(header, this, footer)
     }
 }

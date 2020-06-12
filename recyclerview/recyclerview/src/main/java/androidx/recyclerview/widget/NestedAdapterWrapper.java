@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 /**
- * Wrapper for each adapter in {@link MergeAdapter}.
+ * Wrapper for each adapter in {@link ConcatAdapter}.
  */
 class NestedAdapterWrapper {
     @NonNull

@@ -24,11 +24,11 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 
 /**
- * Helper subject to write nicer looking MergeAdapter tests.
+ * Helper subject to write nicer looking ConcatAdapter tests.
  */
-internal class MergeAdapterSubject(
+internal class ConcatAdapterSubject(
     metadata: FailureMetadata,
-    private val adapter: MergeAdapter
+    private val adapter: ConcatAdapter
 ) : Subject(
     metadata,
     adapter
@@ -72,7 +72,7 @@ internal class MergeAdapterSubject(
         assertThat(adapter.canRestoreState()).isFalse()
     }
 
-    fun throwsException(block: (MergeAdapter) -> Unit): ThrowableSubject {
+    fun throwsException(block: (ConcatAdapter) -> Unit): ThrowableSubject {
         val result = runCatching {
             block(adapter)
         }.exceptionOrNull()
@@ -97,10 +97,10 @@ internal class MergeAdapterSubject(
         assertWithMessage("should not have stable ids").that(adapter.hasStableIds()).isFalse()
     }
 
-    object Factory : Subject.Factory<MergeAdapterSubject, MergeAdapter> {
-        override fun createSubject(metadata: FailureMetadata, actual: MergeAdapter):
-                MergeAdapterSubject {
-            return MergeAdapterSubject(
+    object Factory : Subject.Factory<ConcatAdapterSubject, ConcatAdapter> {
+        override fun createSubject(metadata: FailureMetadata, actual: ConcatAdapter):
+                ConcatAdapterSubject {
+            return ConcatAdapterSubject(
                 metadata = metadata,
                 adapter = actual
             )
@@ -108,8 +108,8 @@ internal class MergeAdapterSubject(
     }
 
     companion object {
-        fun assertThat(mergeAdapter: MergeAdapter) =
-            assertAbout(Factory).that(mergeAdapter)
+        fun assertThat(concatAdapter: ConcatAdapter) =
+            assertAbout(Factory).that(concatAdapter)
     }
 
     class BindingSubject(
@@ -125,11 +125,11 @@ internal class MergeAdapterSubject(
             val layoutParams = view.layoutParams
             check(layoutParams is RecyclerView.LayoutParams)
             val viewHolder = layoutParams.mViewHolder
-            viewHolder as MergeAdapterTest.MergeAdapterViewHolder
+            viewHolder as ConcatAdapterTest.ConcatAdapterViewHolder
         }
 
         internal fun verifyBoundTo(
-            adapter: MergeAdapterTest.NestedTestAdapter,
+            adapter: ConcatAdapterTest.NestedTestAdapter,
             localPosition: Int
         ) {
             assertThat(viewHolder.boundItem()).isEqualTo(adapter.getItemAt(localPosition))

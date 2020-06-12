@@ -16,9 +16,9 @@
 
 package androidx.recyclerview.widget;
 
-import static androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS;
-import static androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.NO_STABLE_IDS;
-import static androidx.recyclerview.widget.MergeAdapter.Config.StableIdMode.SHARED_STABLE_IDS;
+import static androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS;
+import static androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode.NO_STABLE_IDS;
+import static androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode.SHARED_STABLE_IDS;
 import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.ALLOW;
 import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT;
 import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY;
@@ -41,11 +41,11 @@ import java.util.IdentityHashMap;
 import java.util.List;
 
 /**
- * All logic for the {@link MergeAdapter} is here so that we can clearly see a separation
+ * All logic for the {@link ConcatAdapter} is here so that we can clearly see a separation
  * between an adapter implementation and merging logic.
  */
-class MergeAdapterController implements NestedAdapterWrapper.Callback {
-    private final MergeAdapter mMergeAdapter;
+class ConcatAdapterController implements NestedAdapterWrapper.Callback {
+    private final ConcatAdapter mConcatAdapter;
 
     /**
      * Holds the mapping from the view type to the adapter which reported that type.
@@ -72,17 +72,17 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
     private WrapperAndLocalPosition mReusableHolder = new WrapperAndLocalPosition();
 
     @NonNull
-    private final MergeAdapter.Config.StableIdMode mStableIdMode;
+    private final ConcatAdapter.Config.StableIdMode mStableIdMode;
 
     /**
      * This is where we keep stable ids, if supported
      */
     private final StableIdStorage mStableIdStorage;
 
-    MergeAdapterController(
-            MergeAdapter mergeAdapter,
-            MergeAdapter.Config config) {
-        mMergeAdapter = mergeAdapter;
+    ConcatAdapterController(
+            ConcatAdapter concatAdapter,
+            ConcatAdapter.Config config) {
+        mConcatAdapter = concatAdapter;
 
         // setup view type handling
         if (config.isolateViewTypes) {
@@ -126,7 +126,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
     /**
      * return true if added, false otherwise.
      *
-     * @see MergeAdapter#addAdapter(Adapter)
+     * @see ConcatAdapter#addAdapter(Adapter)
      */
     boolean addAdapter(Adapter<ViewHolder> adapter) {
         return addAdapter(mWrappers.size(), adapter);
@@ -136,7 +136,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
      * return true if added, false otherwise.
      * throws exception if index is out of bounds
      *
-     * @see MergeAdapter#addAdapter(int, Adapter)
+     * @see ConcatAdapter#addAdapter(int, Adapter)
      */
     boolean addAdapter(int index, Adapter<ViewHolder> adapter) {
         if (index < 0 || index > mWrappers.size()) {
@@ -149,8 +149,8 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
                     + "is ISOLATED_STABLE_IDS or SHARED_STABLE_IDS");
         } else {
             if (adapter.hasStableIds()) {
-                Log.w(MergeAdapter.TAG, "Stable ids in the adapter will be ignored as the"
-                        + " MergeAdapter is configured not to have stable ids");
+                Log.w(ConcatAdapter.TAG, "Stable ids in the adapter will be ignored as the"
+                        + " ConcatAdapter is configured not to have stable ids");
             }
         }
         NestedAdapterWrapper existing = findWrapperFor(adapter);
@@ -169,7 +169,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
         }
         // new items, notify add for them
         if (wrapper.getCachedItemCount() > 0) {
-            mMergeAdapter.notifyItemRangeInserted(
+            mConcatAdapter.notifyItemRangeInserted(
                     countItemsBefore(wrapper),
                     wrapper.getCachedItemCount()
             );
@@ -187,7 +187,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
         NestedAdapterWrapper wrapper = mWrappers.get(index);
         int offset = countItemsBefore(wrapper);
         mWrappers.remove(index);
-        mMergeAdapter.notifyItemRangeRemoved(offset, wrapper.getCachedItemCount());
+        mConcatAdapter.notifyItemRangeRemoved(offset, wrapper.getCachedItemCount());
         // notify detach for all recyclerviews
         for (WeakReference<RecyclerView> reference : mAttachedRecyclerViews) {
             RecyclerView recyclerView = reference.get();
@@ -222,7 +222,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
     @Override
     public void onChanged(@NonNull NestedAdapterWrapper wrapper) {
         // TODO should we notify more cleverly, maybe in v2
-        mMergeAdapter.notifyDataSetChanged();
+        mConcatAdapter.notifyDataSetChanged();
         calculateAndUpdateStateRestorationPolicy();
     }
 
@@ -230,7 +230,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
     public void onItemRangeChanged(@NonNull NestedAdapterWrapper nestedAdapterWrapper,
             int positionStart, int itemCount) {
         final int offset = countItemsBefore(nestedAdapterWrapper);
-        mMergeAdapter.notifyItemRangeChanged(
+        mConcatAdapter.notifyItemRangeChanged(
                 positionStart + offset,
                 itemCount
         );
@@ -240,7 +240,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
     public void onItemRangeChanged(@NonNull NestedAdapterWrapper nestedAdapterWrapper,
             int positionStart, int itemCount, @Nullable Object payload) {
         final int offset = countItemsBefore(nestedAdapterWrapper);
-        mMergeAdapter.notifyItemRangeChanged(
+        mConcatAdapter.notifyItemRangeChanged(
                 positionStart + offset,
                 itemCount,
                 payload
@@ -251,7 +251,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
     public void onItemRangeInserted(@NonNull NestedAdapterWrapper nestedAdapterWrapper,
             int positionStart, int itemCount) {
         final int offset = countItemsBefore(nestedAdapterWrapper);
-        mMergeAdapter.notifyItemRangeInserted(
+        mConcatAdapter.notifyItemRangeInserted(
                 positionStart + offset,
                 itemCount
         );
@@ -261,7 +261,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
     public void onItemRangeRemoved(@NonNull NestedAdapterWrapper nestedAdapterWrapper,
             int positionStart, int itemCount) {
         int offset = countItemsBefore(nestedAdapterWrapper);
-        mMergeAdapter.notifyItemRangeRemoved(
+        mConcatAdapter.notifyItemRangeRemoved(
                 positionStart + offset,
                 itemCount
         );
@@ -271,7 +271,7 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
     public void onItemRangeMoved(@NonNull NestedAdapterWrapper nestedAdapterWrapper,
             int fromPosition, int toPosition) {
         int offset = countItemsBefore(nestedAdapterWrapper);
-        mMergeAdapter.notifyItemMoved(
+        mConcatAdapter.notifyItemMoved(
                 fromPosition + offset,
                 toPosition + offset
         );
@@ -284,8 +284,8 @@ class MergeAdapterController implements NestedAdapterWrapper.Callback {
 
     private void calculateAndUpdateStateRestorationPolicy() {
         StateRestorationPolicy newPolicy = computeStateRestorationPolicy();
-        if (newPolicy != mMergeAdapter.getStateRestorationPolicy()) {
-            mMergeAdapter.internalSetStateRestorationPolicy(newPolicy);
+        if (newPolicy != mConcatAdapter.getStateRestorationPolicy()) {
+            mConcatAdapter.internalSetStateRestorationPolicy(newPolicy);
         }
     }
 

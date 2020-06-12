@@ -31,7 +31,7 @@ import androidx.recyclerview.widget.RecyclerView
  *
  * To present this Adapter as a header and or footer alongside your [PagingDataAdapter], see
  * [PagingDataAdapter.withLoadStateHeaderAndFooter], or use
- * [MergeAdapter][androidx.recyclerview.widget.MergeAdapter] directly to concatenate Adapters.
+ * [ConcatAdapter][androidx.recyclerview.widget.ConcatAdapter] directly to concatenate Adapters.
  *
  * @see PagingDataAdapter.withLoadStateHeaderAndFooter
  * @see PagingDataAdapter.withLoadStateHeader
