@@ -223,6 +223,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
 
     @LargeTest
     @Test
+    @SdkSuppress(minSdkVersion = 25)
     public void testShortcut() {
         final List<String> shortcutIds = Lists.newArrayList("test-id");
         final String disableMessage = "disabled";
@@ -271,6 +272,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
 
     @MediumTest
     @Test
+    @SdkSuppress(minSdkVersion = 25)
     public void testGetShortcut() throws Throwable {
         final int flag = FLAG_MATCH_MANIFEST | FLAG_MATCH_DYNAMIC | FLAG_MATCH_PINNED;
         final ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
