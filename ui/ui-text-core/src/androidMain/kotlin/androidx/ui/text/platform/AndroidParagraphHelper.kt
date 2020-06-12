@@ -91,11 +91,15 @@ internal fun TextPaint.applySpanStyle(
         typeface = createTypeface(style, typefaceAdapter)
     }
 
-    style.localeList?.let {
+    if (style.localeList != null && style.localeList != LocaleList.current) {
         if (Build.VERSION.SDK_INT >= 24) {
-            textLocales = it.toAndroidLocaleList()
+            textLocales = style.localeList.toAndroidLocaleList()
         } else {
-            val locale = if (it.isEmpty()) Locale.current else it[0]
+            val locale = if (style.localeList.isEmpty()) {
+                Locale.current
+            } else {
+                style.localeList[0]
+            }
             textLocale = locale.toJavaLocale()
         }
     }
