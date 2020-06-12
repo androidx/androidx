@@ -19,7 +19,9 @@ package androidx.media;
 import android.media.AudioManager;
 import android.os.Build;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat.StreamType;
 
 /** Compatibility library for {@link AudioManager} with fallbacks for older platforms. */
 public final class AudioManagerCompat {
@@ -127,7 +129,9 @@ public final class AudioManagerCompat {
      * @param streamType The stream type whose maximum volume index is returned.
      * @return The maximum valid volume index for the stream.
      */
-    public static int getStreamMaxVolume(@NonNull AudioManager audioManager, int streamType) {
+    @IntRange(from = 0)
+    public static int getStreamMaxVolume(@NonNull AudioManager audioManager,
+            @StreamType int streamType) {
         return audioManager.getStreamMaxVolume(streamType);
     }
 
@@ -137,7 +141,9 @@ public final class AudioManagerCompat {
      * @param streamType The stream type whose minimum volume index is returned.
      * @return The minimum valid volume index for the stream.
      */
-    public static int getStreamMinVolume(@NonNull AudioManager audioManager, int streamType) {
+    @IntRange(from = 0)
+    public static int getStreamMinVolume(@NonNull AudioManager audioManager,
+            @StreamType int streamType) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             return audioManager.getStreamMinVolume(streamType);
         } else {
