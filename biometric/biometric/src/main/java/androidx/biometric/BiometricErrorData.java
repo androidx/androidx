@@ -21,12 +21,18 @@ import androidx.annotation.Nullable;
 import java.util.Arrays;
 
 /**
- * Container for data associated with a biometric authentication error, which may be handled by the
- * client application's callback.
+ * A container for data associated with a biometric authentication error, which may be handled by
+ * the client application's callback.
  */
 class BiometricErrorData {
-    private int mErrorCode;
+    /**
+     * An integer ID associated with this error.
+     */
+    @BiometricPrompt.BiometricError private int mErrorCode;
 
+    /**
+     * A human-readable message that describes the error.
+     */
     @Nullable private CharSequence mErrorMessage;
 
     BiometricErrorData(int errorCode, @Nullable CharSequence errorMessage) {
@@ -34,6 +40,7 @@ class BiometricErrorData {
         mErrorMessage = errorMessage;
     }
 
+    @BiometricPrompt.BiometricError
     int getErrorCode() {
         return mErrorCode;
     }
@@ -57,6 +64,12 @@ class BiometricErrorData {
         return false;
     }
 
+    /**
+     * Checks if a given error message is equivalent to the one for this object.
+     *
+     * @param otherMessage A message to compare to the error message for this object.
+     * @return Whether the error message for this object and {@code otherMessage} are equivalent.
+     */
     private boolean isErrorMessageEqualTo(@Nullable CharSequence otherMessage) {
         final String errorString = convertToString(mErrorMessage);
         final String otherString = convertToString(otherMessage);
@@ -64,6 +77,12 @@ class BiometricErrorData {
                 || (errorString != null && errorString.equals(otherString));
     }
 
+    /**
+     * Converts a nullable {@link CharSequence} message to an equivalent {@link String}.
+     *
+     * @param message The message to be converted.
+     * @return A string matching the given message, or {@code null} if message is {@code null}.
+     */
     @Nullable
     private static String convertToString(@Nullable CharSequence message) {
         return message != null ? message.toString() : null;

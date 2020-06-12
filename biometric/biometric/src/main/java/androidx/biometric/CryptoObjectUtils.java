@@ -29,6 +29,12 @@ class CryptoObjectUtils {
     // Prevent instantiation.
     private CryptoObjectUtils() {}
 
+    /**
+     * Unwraps a crypto object returned by {@link android.hardware.biometrics.BiometricPrompt}.
+     *
+     * @param cryptoObject A crypto object from {@link android.hardware.biometrics.BiometricPrompt}.
+     * @return An equivalent {@link androidx.biometric.BiometricPrompt.CryptoObject} instance.
+     */
     @RequiresApi(api = Build.VERSION_CODES.P)
     static @Nullable BiometricPrompt.CryptoObject unwrapFromBiometricPrompt(
             @Nullable android.hardware.biometrics.BiometricPrompt.CryptoObject cryptoObject) {
@@ -45,6 +51,13 @@ class CryptoObjectUtils {
         }
     }
 
+    /**
+     * Wraps a crypto object to be passed to {@link android.hardware.biometrics.BiometricPrompt}.
+     *
+     * @param cryptoObject An instance of {@link androidx.biometric.BiometricPrompt.CryptoObject}.
+     * @return An equivalent crypto object that is compatible with
+     *  {@link android.hardware.biometrics.BiometricPrompt}.
+     */
     @RequiresApi(api = Build.VERSION_CODES.P)
     static @Nullable android.hardware.biometrics.BiometricPrompt.CryptoObject
             wrapForBiometricPrompt(@Nullable BiometricPrompt.CryptoObject cryptoObject) {
@@ -64,6 +77,14 @@ class CryptoObjectUtils {
         }
     }
 
+    /**
+     * Unwraps a crypto object returned by
+     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     *
+     * @param cryptoObject A crypto object from
+     *                     {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     * @return An equivalent {@link androidx.biometric.BiometricPrompt.CryptoObject} instance.
+     */
     @SuppressWarnings("deprecation")
     @Nullable
     static BiometricPrompt.CryptoObject unwrapFromFingerprintManager(
@@ -82,6 +103,14 @@ class CryptoObjectUtils {
         }
     }
 
+    /**
+     * Wraps a crypto object to be passed to
+     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     *
+     * @param cryptoObject An instance of {@link androidx.biometric.BiometricPrompt.CryptoObject}.
+     * @return An equivalent crypto object that is compatible with
+     *  {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     */
     @SuppressWarnings("deprecation")
     @Nullable
     static androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject

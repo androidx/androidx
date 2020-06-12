@@ -51,23 +51,38 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * This class implements a custom AlertDialog that prompts the user for fingerprint authentication.
- * This class is not meant to be preserved across process death; for security reasons, the
- * BiometricPromptCompat will automatically dismiss the dialog when the activity is no longer in the
- * foreground.
+ * A fragment that provides a standard prompt UI for fingerprint authentication on versions prior
+ * to Android 9.0 (API 28).
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FingerprintDialogFragment extends DialogFragment {
-    private static final String TAG = "FingerprintDialogFrag";
+    private static final String TAG = "FingerprintFragment";
 
-    // States for the icon animation.
+    /**
+     * The dialog has not been initialized.
+     */
     static final int STATE_NONE = 0;
+
+    /**
+     * Waiting for the user to authenticate with fingerprint.
+     */
     static final int STATE_FINGERPRINT = 1;
+
+    /**
+     * An error or failure occurred during fingerprint authentication.
+     */
     static final int STATE_FINGERPRINT_ERROR = 2;
+
+    /**
+     * The user has successfully authenticated with fingerprint.
+     */
     static final int STATE_FINGERPRINT_AUTHENTICATED = 3;
 
+    /**
+     * A possible state for the fingerprint dialog.
+     */
     @IntDef({
         STATE_NONE,
         STATE_FINGERPRINT,
@@ -78,18 +93,19 @@ public class FingerprintDialogFragment extends DialogFragment {
     @interface State {}
 
     /**
-     * Error/help message will show for this amount of time, unless
-     * {@link DeviceConfig#shouldHideFingerprintDialog(Context, String)}} is true.
-     *
-     * <p>For error messages, the dialog will also be dismissed after this amount of time. Error
-     * messages will be propagated back to the application via AuthenticationCallback
-     * after this amount of time.
+     * Transient errors and help messages will be displayed on the dialog for this amount of time.
      */
     private static final int MESSAGE_DISPLAY_TIME_MS = 2000;
 
+    /**
+     * A handler used to post delayed events.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Handler mHandler = new Handler(Looper.getMainLooper());
 
+    /**
+     * A runnable that resets the dialog to its default state and appearance.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Runnable mResetDialogRunnable = new Runnable() {
         @Override
@@ -98,17 +114,38 @@ public class FingerprintDialogFragment extends DialogFragment {
         }
     };
 
+    /**
+     * The view model for the ongoing authentication session.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     BiometricViewModel mViewModel;
 
+    /**
+     * The text color used for displaying error messages.
+     */
     private int mErrorTextColor;
+
+    /**
+     * The text color used for displaying help messages.
+     */
     private int mNormalTextColor;
 
+    /**
+     * An icon shown on the dialog during authentication.
+     */
     private ImageView mFingerprintIcon;
 
+    /**
+     * Help text shown below the fingerprint icon on the dialog.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     TextView mHelpMessageView;
 
+    /**
+     * Creates a new instance of {@link FingerprintDialogFragment}.
+     *
+     * @return A {@link FingerprintDialogFragment}.
+     */
     @NonNull
     static FingerprintDialogFragment newInstance() {
         return new FingerprintDialogFragment();
@@ -201,6 +238,10 @@ public class FingerprintDialogFragment extends DialogFragment {
         mViewModel.setFingerprintDialogCancelPending(true);
     }
 
+    /**
+     * Connects the {@link BiometricViewModel} for the ongoing authentication session to this
+     * fragment.
+     */
     private void connectViewModel() {
         final FragmentActivity activity = getActivity();
         if (activity == null) {
@@ -229,6 +270,12 @@ public class FingerprintDialogFragment extends DialogFragment {
         });
     }
 
+    /**
+     * Updates the fingerprint icon to match the new dialog state, including animating between
+     * states if necessary.
+     *
+     * @param state The new state for the fingerprint dialog.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void updateFingerprintIcon(@State int state) {
         // May be null if we're intentionally suppressing the dialog.
@@ -260,6 +307,11 @@ public class FingerprintDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Updates the color of the help message text to match the new dialog state.
+     *
+     * @param state The new state for the fingerprint dialog.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void updateHelpMessageColor(@State int state) {
         if (mHelpMessageView != null) {
@@ -268,6 +320,11 @@ public class FingerprintDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Changes the help message text shown on the dialog.
+     *
+     * @param helpMessage The new help message text for the dialog.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void updateHelpMessageText(@Nullable CharSequence helpMessage) {
         if (mHelpMessageView != null) {
@@ -275,6 +332,9 @@ public class FingerprintDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Resets the appearance of the dialog to its initial state (i.e. waiting for authentication).
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void resetDialog() {
         final Context context = getContext();
@@ -288,6 +348,12 @@ public class FingerprintDialogFragment extends DialogFragment {
                 context.getString(R.string.fingerprint_dialog_touch_sensor));
     }
 
+    /**
+     * Gets the theme color corresponding to a given style attribute.
+     *
+     * @param attr The desired attribute.
+     * @return The theme color for that attribute.
+     */
     private int getThemedColorFor(int attr) {
         final Context context = getContext();
         final FragmentActivity activity = getActivity();
@@ -306,6 +372,13 @@ public class FingerprintDialogFragment extends DialogFragment {
         return color;
     }
 
+    /**
+     * Checks if the fingerprint icon should animate when transitioning between dialog states.
+     *
+     * @param previousState The previous state for the fingerprint dialog.
+     * @param state The new state for the fingerprint dialog.
+     * @return Whether the fingerprint icon should animate.
+     */
     private boolean shouldAnimateForTransition(@State int previousState, @State int state) {
         if (previousState == STATE_NONE && state == STATE_FINGERPRINT) {
             return false;
@@ -320,6 +393,13 @@ public class FingerprintDialogFragment extends DialogFragment {
         return false;
     }
 
+    /**
+     * Gets the icon or animation asset that should appear when transitioning between dialog states.
+     *
+     * @param previousState The previous state for the fingerprint dialog.
+     * @param state The new state for the fingerprint dialog.
+     * @return A drawable asset to be used for the fingerprint icon.
+     */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private Drawable getAnimationForTransition(@State int previousState, @State int state) {
         final Context context = getContext();

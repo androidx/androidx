@@ -21,22 +21,24 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
-class DeviceConfig {
-    // Private constructor to prevent instantiation.
-    private DeviceConfig() {
-    }
+/**
+ * Utility class for specifying custom behavior based on the vendor and model of the device.
+ */
+class DeviceUtils {
+    // Prevent instantiation.
+    private DeviceUtils() {}
 
     /**
-     * Determines if the current device should explicitly fall back to using
-     * {@link FingerprintDialogFragment} and {@link FingerprintHelperFragment} when
+     * Checks if the current device should explicitly fall back to using
+     * {@link FingerprintDialogFragment} when
      * {@link BiometricPrompt#authenticate(BiometricPrompt.PromptInfo,
      * BiometricPrompt.CryptoObject)} is called.
      *
      * @param context The application or activity context.
      * @param vendor Name of the device vendor/manufacturer.
      * @param model Model name of the current device.
-     * @return true if the current device should fall back to fingerprint for crypto-based
-     * authentication, or false otherwise.
+     * @return Whether the current device should fall back to fingerprint for crypto-based
+     *  authentication.
      */
     static boolean shouldUseFingerprintForCrypto(
             @NonNull Context context, String vendor, String model) {
@@ -49,13 +51,13 @@ class DeviceConfig {
     }
 
     /**
-     * Determines if the current device should hide {@link FingerprintDialogFragment} and ensure
-     * that {@link FingerprintHelperFragment} is always dismissed immediately upon receiving an
-     * error or cancel signal (e.g., if the dialog is shown behind an overlay).
+     * Checks if the current device should hide {@link FingerprintDialogFragment} and ensure that
+     * {@link FingerprintDialogFragment} is always dismissed immediately upon receiving an error or
+     * cancel signal (e.g. if the dialog is shown behind an overlay).
      *
      * @param context The application or activity context.
      * @param model Model name of the current device.
-     * @return true if {@link FingerprintDialogFragment} should be hidden, or false otherwise.
+     * @return Whether the {@link FingerprintDialogFragment} should be hidden.
      */
     static boolean shouldHideFingerprintDialog(@NonNull Context context, String model) {
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.P) {
@@ -66,13 +68,13 @@ class DeviceConfig {
     }
 
     /**
-     * Determines if the name of the current device vendor matches one in the given string array
+     * Checks if the name of the current device vendor matches one in the given string array
      * resource.
      *
      * @param context The application or activity context.
      * @param vendor Case-insensitive name of the device vendor.
      * @param resId Resource ID for the string array of vendor names to check against.
-     * @return true if the vendor name matches one in the given string array, or false otherwise.
+     * @return Whether the vendor name matches one in the given string array.
      */
     private static boolean isVendorInList(@NonNull Context context, String vendor, int resId) {
         if (vendor == null) {
@@ -89,12 +91,12 @@ class DeviceConfig {
     }
 
     /**
-     * Determines if the current device model matches a prefix in the given string array resource.
+     * Checks if the current device model matches a prefix in the given string array resource.
      *
      * @param context The application or activity context.
      * @param model Model name of the current device.
      * @param resId Resource ID for the string array of device model prefixes to check against.
-     * @return true if the model matches one in the given string array, or false otherwise.
+     * @return Whether the model matches one in the given string array.
      */
     private static boolean isModelInPrefixList(@NonNull Context context, String model, int resId) {
         if (model == null) {

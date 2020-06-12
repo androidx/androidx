@@ -30,54 +30,129 @@ import androidx.lifecycle.ViewModel;
 import java.util.concurrent.Executor;
 
 /**
+ * A container for data associated with an ongoing authentication session, including intermediate
+ * values needed to display the prompt UI.
+ *
+ * <p>This model and all of its data is persisted over the lifetime of the client activity that
+ * hosts the {@link BiometricPrompt}.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BiometricViewModel extends ViewModel {
+    /**
+     * The executor that will run authentication callback methods.
+     */
     @Nullable private Executor mClientExecutor;
 
+    /**
+     * The callback object that will receive authentication events.
+     */
     @Nullable private BiometricPrompt.AuthenticationCallback mClientCallback;
 
+    /**
+     * Info about the appearance and behavior of the prompt provided by the client application.
+     */
     @Nullable private BiometricPrompt.PromptInfo mPromptInfo;
 
+    /**
+     * The crypto object associated with the current authentication session.
+     */
     @Nullable private BiometricPrompt.CryptoObject mCryptoObject;
 
+    /**
+     * A provider for cross-platform compatible authentication callbacks.
+     */
     @Nullable private AuthenticationCallbackProvider mAuthenticationCallbackProvider;
 
+    /**
+     * A provider for cross-platform compatible cancellation signal objects.
+     */
     @Nullable private CancellationSignalProvider mCancellationSignalProvider;
 
+    /**
+     * A dialog listener for the negative button shown on the prompt.
+     */
     @Nullable private DialogInterface.OnClickListener mNegativeButtonListener;
 
+    /**
+     * A label for the negative button shown on the prompt.
+     *
+     * <p>If {@code null}, this value is instead read from the current
+     * {@link androidx.biometric.BiometricPrompt.PromptInfo}.
+     */
     @Nullable private CharSequence mNegativeButtonText;
 
+    /**
+     * An integer indicating where the dialog was last canceled from.
+     */
     @BiometricFragment.CanceledFrom
     private int mCanceledFrom = BiometricFragment.CANCELED_FROM_NONE;
 
+    /**
+     * Whether the prompt is currently showing.
+     */
     private boolean mIsPromptShowing;
 
+    /**
+     * Whether the client callback is awaiting an authentication result.
+     */
     private boolean mIsAwaitingResult;
 
+    /**
+     * Whether the user is currently authenticating with their PIN, pattern, or password.
+     */
     private boolean mIsConfirmingDeviceCredential;
 
+    /**
+     * Information associated with a successful authentication attempt.
+     */
     @Nullable private MutableLiveData<BiometricPrompt.AuthenticationResult> mAuthenticationResult;
 
+    /**
+     * Information associated with an unrecoverable authentication error.
+     */
     @Nullable private MutableLiveData<BiometricErrorData> mAuthenticationError;
 
+    /**
+     * A human-readable message describing a recoverable authentication error or event.
+     */
     @Nullable private MutableLiveData<CharSequence> mAuthenticationHelpMessage;
 
+    /**
+     * Whether an unrecognized biometric has been presented.
+     */
     @Nullable private MutableLiveData<Boolean> mIsAuthenticationFailurePending;
 
+    /**
+     * Whether the user has pressed the negative button on the prompt.
+     */
     @Nullable private MutableLiveData<Boolean> mIsNegativeButtonPressPending;
 
+    /**
+     * Whether the fingerprint dialog should always be dismissed instantly.
+     */
     private boolean mIsFingerprintDialogDismissedInstantly = true;
 
+    /**
+     * Whether the user has manually canceled out of the fingerprint dialog.
+     */
     @Nullable private MutableLiveData<Boolean> mIsFingerprintDialogCancelPending;
 
+    /**
+     * The previous state of the fingerprint dialog UI.
+     */
     @FingerprintDialogFragment.State
     private int mFingerprintDialogPreviousState = FingerprintDialogFragment.STATE_NONE;
 
+    /**
+     * The current state of the fingerprint dialog UI.
+     */
     @Nullable private MutableLiveData<Integer> mFingerprintDialogState;
 
+    /**
+     * A human-readable message to be displayed below the icon on the fingerprint dialog.
+     */
     @Nullable private MutableLiveData<CharSequence> mFingerprintDialogHelpMessage;
 
     @NonNull

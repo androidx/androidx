@@ -47,10 +47,8 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
- * A fragment that wraps the BiometricPrompt and has the ability to continue authentication across
- * device configuration changes. This class is not meant to be preserved after process death; for
- * security reasons, the BiometricPromptCompat will automatically stop authentication when the
- * activity is no longer in the foreground.
+ * A fragment that hosts the system-dependent UI for {@link BiometricPrompt} and coordinates logic
+ * for the ongoing authentication session across device configuration changes.
  *
  * @hide
  */
@@ -58,32 +56,67 @@ import java.util.concurrent.Executor;
 public class BiometricFragment extends Fragment {
     private static final String TAG = "BiometricFragment";
 
-    // Where the dialog was canceled from.
+    /**
+     * Authentication was not canceled by the user but may have been canceled by the system.
+     */
     static final int CANCELED_FROM_NONE = 0;
+
+    /**
+     * Authentication was canceled by the user (e.g. by pressing the system back button).
+     */
     static final int CANCELED_FROM_USER = 1;
+
+    /**
+     * Authentication was canceled by the user by pressing the negative button on the prompt.
+     */
     static final int CANCELED_FROM_NEGATIVE_BUTTON = 2;
 
+    /**
+     * Where authentication was canceled from.
+     */
     @IntDef({CANCELED_FROM_NONE, CANCELED_FROM_USER, CANCELED_FROM_NEGATIVE_BUTTON})
     @Retention(RetentionPolicy.SOURCE)
     @interface CanceledFrom {}
 
+    /**
+     * Tag used to identify the {@link FingerprintDialogFragment} attached to the client
+     * activity/fragment.
+     */
     private static final String FINGERPRINT_DIALOG_FRAGMENT_TAG =
             "androidx.biometric.FingerprintDialogFragment";
 
-    private static final int HIDE_DIALOG_DELAY_MS = 2000;
-
-    // In order to keep consistent behavior between versions, we need to send
-    // FingerprintDialogFragment a message indicating whether or not to dismiss the UI instantly.
+    /**
+     * The amount of time before the flag indicating whether to dismiss the fingerprint dialog
+     * instantly can be changed.
+     */
     private static final int DISMISS_INSTANTLY_DELAY_MS = 500;
 
-    // For debugging fingerprint dialog only. Must never be checked in as `true`.
-    private static final boolean DEBUG_FORCE_FINGERPRINT = false;
+    /**
+     * The amount of time to wait before dismissing the fingerprint dialog after encountering an
+     * error. Ignored if {@link DeviceUtils#shouldHideFingerprintDialog(Context, String)} is
+     * {@code true}.
+     */
+    private static final int HIDE_DIALOG_DELAY_MS = 2000;
 
-    // Request code used when launching the confirm device credential Settings activity.
+    /**
+     * Request code used when launching the confirm device credential Settings activity.
+     */
     private static final int REQUEST_CONFIRM_CREDENTIAL = 1;
 
-    // Do not rely on the application's executor when calling into the framework's code.
+    /**
+     * Force the fingerprint dialog to appear for debugging. Must NOT be checked in as {@code true}.
+     */
+    private static final boolean DEBUG_FORCE_FINGERPRINT = false;
+
+    /**
+     * A handler used to post delayed events and to execute framework code.
+     */
     @VisibleForTesting Handler mHandler = new Handler(Looper.getMainLooper());
+
+    /**
+     * An executor used by {@link android.hardware.biometrics.BiometricPrompt} to run framework
+     * code.
+     */
     private final Executor mPromptExecutor = new Executor() {
         @Override
         public void execute(@NonNull Runnable runnable) {
@@ -91,10 +124,15 @@ public class BiometricFragment extends Fragment {
         }
     };
 
+    /**
+     * The view model for the ongoing authentication session.
+     */
     @VisibleForTesting BiometricViewModel mViewModel;
 
     /**
-     * Creates a new instance of the {@link BiometricFragment}.
+     * Creates a new instance of {@link BiometricFragment}.
+     *
+     * @return A {@link BiometricFragment}.
      */
     static BiometricFragment newInstance() {
         return new BiometricFragment();
@@ -123,6 +161,10 @@ public class BiometricFragment extends Fragment {
         }
     }
 
+    /**
+     * Connects the {@link BiometricViewModel} for the ongoing authentication session to this
+     * fragment.
+     */
     private void connectViewModel() {
         final FragmentActivity activity = getActivity();
         if (activity == null) {
@@ -191,7 +233,7 @@ public class BiometricFragment extends Fragment {
                             if (isManagingDeviceCredentialButton()) {
                                 onDeviceCredentialButtonPressed();
                             } else {
-                                onNegativeButtonPressed();
+                                onCancelButtonPressed();
                             }
                             mViewModel.setNegativeButtonPressPending(false);
                         }
@@ -212,6 +254,12 @@ public class BiometricFragment extends Fragment {
                 });
     }
 
+    /**
+     * Shows the prompt UI to the user and begins an authentication session.
+     *
+     * @param info An object describing the appearance and behavior of the prompt.
+     * @param crypto A crypto object to be associated with this authentication.
+     */
     void authenticate(
             @NonNull BiometricPrompt.PromptInfo info,
             @Nullable BiometricPrompt.CryptoObject crypto) {
@@ -259,6 +307,9 @@ public class BiometricFragment extends Fragment {
         }
     }
 
+    /**
+     * Shows the fingerprint dialog UI to the user and begins authentication.
+     */
     @SuppressWarnings("deprecation")
     private void showFingerprintDialogForAuthentication() {
         final Context context = requireContext();
@@ -267,13 +318,13 @@ public class BiometricFragment extends Fragment {
         final int errorCode = checkForFingerprintPreAuthenticationErrors(fingerprintManagerCompat);
         if (errorCode != 0) {
             sendErrorAndDismiss(
-                    errorCode, Utils.getFingerprintErrorString(getContext(), errorCode));
+                    errorCode, ErrorUtils.getFingerprintErrorString(getContext(), errorCode));
             return;
         }
 
         if (isAdded()) {
             final boolean shouldHideFingerprintDialog =
-                    DeviceConfig.shouldHideFingerprintDialog(context, Build.MODEL);
+                    DeviceUtils.shouldHideFingerprintDialog(context, Build.MODEL);
             if (mViewModel.isFingerprintDialogDismissedInstantly() != shouldHideFingerprintDialog) {
                 mHandler.postDelayed(
                         new Runnable() {
@@ -299,6 +350,10 @@ public class BiometricFragment extends Fragment {
         }
     }
 
+    /**
+     * Shows the framework {@link android.hardware.biometrics.BiometricPrompt} UI to the user and
+     * begins authentication.
+     */
     @RequiresApi(Build.VERSION_CODES.P)
     @SuppressWarnings("deprecation")
     private void showBiometricPromptForAuthentication() {
@@ -350,20 +405,25 @@ public class BiometricFragment extends Fragment {
         }
     }
 
+    /**
+     * Cancels the ongoing authentication session and sends an error to the client callback.
+     *
+     * @param canceledFrom Where authentication was canceled from.
+     */
     void cancelAuthentication(@CanceledFrom int canceledFrom) {
         if (isUsingFingerprintDialog()) {
             mViewModel.setCanceledFrom(canceledFrom);
             if (canceledFrom == CANCELED_FROM_USER) {
                 final int errorCode = BiometricPrompt.ERROR_USER_CANCELED;
                 sendErrorToClient(
-                        errorCode, Utils.getFingerprintErrorString(getContext(), errorCode));
+                        errorCode, ErrorUtils.getFingerprintErrorString(getContext(), errorCode));
             }
         }
         mViewModel.getCancellationSignalProvider().cancel();
     }
 
     /**
-     * Remove the fragment so that resources can be freed.
+     * Removes this fragment and any associated UI from the client activity/fragment.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void dismiss() {
@@ -374,6 +434,9 @@ public class BiometricFragment extends Fragment {
         }
     }
 
+    /**
+     * Removes the fingerprint dialog UI from the client activity/fragment.
+     */
     private void dismissFingerprintDialog() {
         mViewModel.setPromptShowing(false);
         if (isAdded()) {
@@ -392,25 +455,36 @@ public class BiometricFragment extends Fragment {
         }
     }
 
+    /**
+     * Callback that is run when the view model receives a successful authentication result.
+     *
+     * @param result An object containing authentication-related data.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @VisibleForTesting
     void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
         sendSuccessAndDismiss(result);
     }
 
+    /**
+     * Callback that is run when the view model receives an unrecoverable error result.
+     *
+     * @param errorCode An integer ID associated with the error.
+     * @param errorMessage A human-readable string that describes the error.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @VisibleForTesting
     void onAuthenticationError(final int errorCode, @Nullable CharSequence errorMessage) {
         // Ensure we're only sending publicly defined errors.
-        final int knownErrorCode = Utils.isUnknownError(errorCode)
-                ? BiometricPrompt.ERROR_VENDOR
-                : errorCode;
+        final int knownErrorCode = ErrorUtils.isKnownError(errorCode)
+                ? errorCode
+                : BiometricPrompt.ERROR_VENDOR;
 
         if (isUsingFingerprintDialog()) {
             // Avoid passing a null error string to the client callback.
             final CharSequence errorString = errorMessage != null
                     ? errorMessage
-                    : Utils.getFingerprintErrorString(getContext(), errorCode);
+                    : ErrorUtils.getFingerprintErrorString(getContext(), errorCode);
 
             if (errorCode == BiometricPrompt.ERROR_CANCELED) {
                 // User-initiated cancellation errors should already be handled.
@@ -423,12 +497,14 @@ public class BiometricFragment extends Fragment {
                     sendErrorAndDismiss(knownErrorCode, errorString);
                 } else {
                     showFingerprintErrorMessage(errorString);
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            sendErrorAndDismiss(errorCode, errorString);
-                        }
-                    }, getHideDialogDelay());
+                    mHandler.postDelayed(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    sendErrorAndDismiss(errorCode, errorString);
+                                }
+                            },
+                            getDismissDialogDelay());
                 }
 
                 // Always set this to true. In case the user tries to authenticate again
@@ -445,13 +521,21 @@ public class BiometricFragment extends Fragment {
         }
     }
 
+    /**
+     * Callback that is run when the view model receives a recoverable error or help message.
+     *
+     * @param helpMessage A human-readable error/help message.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void onAuthenticationHelp(@Nullable CharSequence helpMessage) {
+    void onAuthenticationHelp(@NonNull CharSequence helpMessage) {
         if (isUsingFingerprintDialog()) {
             showFingerprintErrorMessage(helpMessage);
         }
     }
 
+    /**
+     * Callback that is run when the view model reports a failed authentication attempt.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void onAuthenticationFailed() {
         if (isUsingFingerprintDialog()) {
@@ -460,6 +544,10 @@ public class BiometricFragment extends Fragment {
         sendFailureToClient();
     }
 
+    /**
+     * Callback that is run when the view model reports that the device credential fallback
+     * button has been pressed on the prompt.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void onDeviceCredentialButtonPressed() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -469,8 +557,12 @@ public class BiometricFragment extends Fragment {
         launchConfirmCredentialActivity();
     }
 
+    /**
+     * Callback that is run when the view model reports that the cancel button has been pressed on
+     * the prompt.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void onNegativeButtonPressed() {
+    void onCancelButtonPressed() {
         final BiometricPrompt.PromptInfo info = mViewModel.getPromptInfo();
         final CharSequence errorText = info != null
                 ? info.getNegativeButtonText()
@@ -483,6 +575,10 @@ public class BiometricFragment extends Fragment {
         cancelAuthentication(BiometricFragment.CANCELED_FROM_NEGATIVE_BUTTON);
     }
 
+    /**
+     * Launches the confirm device credential Settings activity, where the user can authenticate
+     * using their PIN, pattern, or password.
+     */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private void launchConfirmCredentialActivity() {
         final FragmentActivity activity = getActivity();
@@ -534,6 +630,11 @@ public class BiometricFragment extends Fragment {
         startActivityForResult(intent, REQUEST_CONFIRM_CREDENTIAL);
     }
 
+    /**
+     * Processes the result returned by the confirm device credential Settings activity.
+     *
+     * @param resultCode The result code from the Settings activity.
+     */
     private void handleConfirmCredentialResult(int resultCode) {
         if (resultCode == Activity.RESULT_OK) {
             // Device credential auth succeeded. This is incompatible with crypto.
@@ -547,6 +648,11 @@ public class BiometricFragment extends Fragment {
         }
     }
 
+    /**
+     * Updates the fingerprint dialog to show an error message to the user.
+     *
+     * @param errorMessage The error message to show on the dialog.
+     */
     private void showFingerprintErrorMessage(@Nullable CharSequence errorMessage) {
         final CharSequence helpMessage = errorMessage != null
                 ? errorMessage
@@ -555,17 +661,42 @@ public class BiometricFragment extends Fragment {
         mViewModel.setFingerprintDialogHelpMessage(helpMessage);
     }
 
+    /**
+     * Sends a successful authentication result to the client and dismisses the prompt.
+     *
+     * @param result An object containing authentication-related data.
+     *
+     * @see #sendSuccessToClient(BiometricPrompt.AuthenticationResult)
+     */
     private void sendSuccessAndDismiss(@NonNull BiometricPrompt.AuthenticationResult result) {
         sendSuccessToClient(result);
         dismiss();
     }
 
+    /**
+     * Sends an unrecoverable error result to the client and dismisses the prompt.
+     *
+     * @param errorCode An integer ID associated with the error.
+     * @param errorString A human-readable string that describes the error.
+     *
+     * @see #sendErrorToClient(int, CharSequence)
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void sendErrorAndDismiss(int errorCode, @NonNull CharSequence errorString) {
         sendErrorToClient(errorCode, errorString);
         dismiss();
     }
 
+
+    /**
+     * Sends a successful authentication result to the client callback.
+     *
+     * @param result An object containing authentication-related data.
+     *
+     * @see #sendSuccessAndDismiss(BiometricPrompt.AuthenticationResult)
+     * @see BiometricPrompt.AuthenticationCallback#onAuthenticationSucceeded(
+     *  BiometricPrompt.AuthenticationResult)
+     */
     private void sendSuccessToClient(@NonNull final BiometricPrompt.AuthenticationResult result) {
         if (!mViewModel.isAwaitingResult()) {
             Log.w(TAG, "Success not sent to client. Client is not awaiting a result.");
@@ -582,6 +713,15 @@ public class BiometricFragment extends Fragment {
                 });
     }
 
+    /**
+     * Sends an unrecoverable error result to the client callback.
+     *
+     * @param errorCode An integer ID associated with the error.
+     * @param errorString A human-readable string that describes the error.
+     *
+     * @see #sendErrorAndDismiss(int, CharSequence)
+     * @see BiometricPrompt.AuthenticationCallback#onAuthenticationError(int, CharSequence)
+     */
     private void sendErrorToClient(final int errorCode, @NonNull final CharSequence errorString) {
         if (mViewModel.isConfirmingDeviceCredential()) {
             Log.v(TAG, "Error not sent to client. User is confirming their device credential.");
@@ -602,6 +742,11 @@ public class BiometricFragment extends Fragment {
         });
     }
 
+    /**
+     * Sends an authentication failure event to the client callback.
+     *
+     * @see BiometricPrompt.AuthenticationCallback#onAuthenticationFailed()
+     */
     private void sendFailureToClient() {
         if (!mViewModel.isAwaitingResult()) {
             Log.w(TAG, "Failure not sent to client. Client is not awaiting a result.");
@@ -617,7 +762,9 @@ public class BiometricFragment extends Fragment {
     }
 
     /**
-     * Check for possible error conditions prior to starting authentication.
+     * Checks for possible error conditions prior to starting fingerprint authentication.
+     *
+     * @return 0 if there is no error, or a nonzero integer identifying the specific error.
      */
     @SuppressWarnings("deprecation")
     private static int checkForFingerprintPreAuthenticationErrors(
@@ -630,39 +777,68 @@ public class BiometricFragment extends Fragment {
         return 0;
     }
 
+    /**
+     * Checks if this fragment is responsible for drawing and handling the result of a device
+     * credential fallback button on the prompt.
+     *
+     * @return Whether this fragment is managing a device credential button for the prompt.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean isManagingDeviceCredentialButton() {
         return Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
                 && mViewModel.isDeviceCredentialAllowed();
     }
 
+    /**
+     * Checks if this fragment should display the fingerprint dialog authentication UI to the user,
+     * rather than delegate to the framework {@link android.hardware.biometrics.BiometricPrompt}.
+     *
+     * @return Whether this fragment should display the fingerprint dialog UI.
+     */
     private boolean isUsingFingerprintDialog() {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.P || shouldForceFingerprint();
     }
 
     /**
-     * Force some devices to fall back to fingerprint in order to support strong (crypto) auth.
+     * Checks if this fragment should always display the fingerprint dialog authentication UI,
+     * regardless of Android version.
+     *
+     * <p>This is needed to force some devices to fall back to fingerprint in order to support
+     * strong (crypto-based) authentication.
+     *
+     * @see DeviceUtils#shouldUseFingerprintForCrypto(Context, String, String)
      */
     private boolean shouldForceFingerprint() {
         final FragmentActivity activity = getActivity();
         return DEBUG_FORCE_FINGERPRINT || (activity != null && mViewModel.getCryptoObject() != null
-                && DeviceConfig.shouldUseFingerprintForCrypto(
+                && DeviceUtils.shouldUseFingerprintForCrypto(
                         activity, Build.MANUFACTURER, Build.MODEL));
     }
 
-    /** Checks if the client is currently changing configurations (e.g., screen orientation). */
+    /**
+     * Checks if the client activity is currently changing configurations (e.g. rotating screen
+     * orientation).
+     *
+     * @return Whether the client activity is changing configurations.
+     */
     private boolean isChangingConfigurations() {
         final FragmentActivity activity = getActivity();
         return activity != null && activity.isChangingConfigurations();
     }
 
     /**
-     * @return The effective millisecond delay to wait before hiding the dialog, while respecting
-     * the result of {@link DeviceConfig#shouldHideFingerprintDialog(Context, String)}.
+     * Gets the amount of time to wait after receiving an unrecoverable error before dismissing the
+     * fingerprint dialog and forwarding the error to the client.
+     *
+     * <p>This method respects the result of
+     * {@link DeviceUtils#shouldHideFingerprintDialog(Context, String)} and returns 0 if the latter
+     * is {@code true}.
+     *
+     * @return The delay (in milliseconds) to apply before hiding the fingerprint dialog.
      */
-    private int getHideDialogDelay() {
+    private int getDismissDialogDelay() {
         Context context = getContext();
-        return context != null && DeviceConfig.shouldHideFingerprintDialog(context, Build.MODEL)
+        return context != null && DeviceUtils.shouldHideFingerprintDialog(context, Build.MODEL)
                 ? 0
                 : HIDE_DIALOG_DELAY_MS;
     }
