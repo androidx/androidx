@@ -597,6 +597,12 @@ public class IconCompat extends CustomVersionedParcelable {
             String resType = resName.split("/", -1)[0];
             resName = resName.split("/", -1)[1];
             String resPackage = fullResName.split(":", -1)[0];
+            if ("0_resource_name_obfuscated".equals(resName)) {
+                // All obfuscated resources have the same name, so not going to look up the
+                // resource identifier from the resource name.
+                Log.i(TAG, "Found obfuscated resource, not trying to update resource id for it");
+                return;
+            }
             String appPackage = getResPackage();
             Resources res = getResources(context, appPackage);
             int id = res.getIdentifier(resName, resType, resPackage);
