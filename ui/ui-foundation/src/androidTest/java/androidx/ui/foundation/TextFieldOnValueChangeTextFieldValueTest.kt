@@ -78,7 +78,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
                 val state = state {
                     androidx.ui.input.TextFieldValue(
                         "abcde",
-                        TextRange(0, 0)
+                        TextRange(0)
                     )
                 }
                 TextField(
@@ -128,7 +128,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
                 .invoke(eq(
                     androidx.ui.input.TextFieldValue(
                         "ABCDEabcde",
-                        TextRange(5, 5)
+                        TextRange(5)
                     )
                 ))
         }
@@ -152,7 +152,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
                 .invoke(eq(
                     androidx.ui.input.TextFieldValue(
                         text = "ABCDEabcde",
-                        selection = TextRange(5, 5),
+                        selection = TextRange(5),
                         composition = TextRange(0, composingText.length)
                     )
                 ))
@@ -167,7 +167,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
             verify(onValueChange, times(1)).invoke(eq(
                 androidx.ui.input.TextFieldValue(
                     "abcde",
-                    TextRange(1, 1)
+                    TextRange(1)
                 )
             ))
         }
@@ -182,7 +182,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
                 .invoke(eq(
                     androidx.ui.input.TextFieldValue(
                         text = "ABCDEabcde",
-                        selection = TextRange(5, 5),
+                        selection = TextRange(5),
                         composition = TextRange(0, composingText.length)
                     )
                 ))
@@ -201,7 +201,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
             verify(onValueChange, times(1)).invoke(eq(
                 androidx.ui.input.TextFieldValue(
                     "bcde",
-                    TextRange(0, 0)
+                    TextRange(0)
                 )
             ))
         }

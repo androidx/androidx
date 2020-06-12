@@ -31,7 +31,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_insert_empty() {
-        val eb = EditingBuffer("", TextRange(0, 0))
+        val eb = EditingBuffer("", TextRange(0))
 
         SetComposingTextEditOp("X", 1).process(eb)
 
@@ -44,7 +44,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_insert_cursor_tail() {
-        val eb = EditingBuffer("A", TextRange(1, 1))
+        val eb = EditingBuffer("A", TextRange(1))
 
         SetComposingTextEditOp("X", 1).process(eb)
 
@@ -57,7 +57,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_insert_cursor_head() {
-        val eb = EditingBuffer("A", TextRange(1, 1))
+        val eb = EditingBuffer("A", TextRange(1))
 
         SetComposingTextEditOp("X", 0).process(eb)
 
@@ -70,7 +70,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_insert_cursor_far_tail() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 1))
+        val eb = EditingBuffer("ABCDE", TextRange(1))
 
         SetComposingTextEditOp("X", 2).process(eb)
 
@@ -83,7 +83,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_insert_cursor_far_head() {
-        val eb = EditingBuffer("ABCDE", TextRange(4, 4))
+        val eb = EditingBuffer("ABCDE", TextRange(4))
 
         SetComposingTextEditOp("X", -2).process(eb)
 
@@ -96,7 +96,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_insert_empty_text_cursor_head() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 1))
+        val eb = EditingBuffer("ABCDE", TextRange(1))
 
         SetComposingTextEditOp("", 0).process(eb)
 
@@ -107,7 +107,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_insert_empty_text_cursor_tail() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 1))
+        val eb = EditingBuffer("ABCDE", TextRange(1))
 
         SetComposingTextEditOp("", 1).process(eb)
 
@@ -118,7 +118,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_insert_empty_text_cursor_far_tail() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 1))
+        val eb = EditingBuffer("ABCDE", TextRange(1))
 
         SetComposingTextEditOp("", 2).process(eb)
 
@@ -129,7 +129,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_insert_empty_text_cursor_far_head() {
-        val eb = EditingBuffer("ABCDE", TextRange(4, 4))
+        val eb = EditingBuffer("ABCDE", TextRange(4))
 
         SetComposingTextEditOp("", -2).process(eb)
 
@@ -140,7 +140,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_cancel_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.setComposition(1, 4) // Mark "BCD" as composition
         SetComposingTextEditOp("X", 1).process(eb)
@@ -183,7 +183,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_cursor_position_too_small() {
-        val eb = EditingBuffer("ABCDE", TextRange(5, 5))
+        val eb = EditingBuffer("ABCDE", TextRange(5))
 
         SetComposingTextEditOp("X", -1000).process(eb)
 
@@ -196,7 +196,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_cursor_position_too_large() {
-        val eb = EditingBuffer("ABCDE", TextRange(5, 5))
+        val eb = EditingBuffer("ABCDE", TextRange(5))
 
         SetComposingTextEditOp("X", 1000).process(eb)
 

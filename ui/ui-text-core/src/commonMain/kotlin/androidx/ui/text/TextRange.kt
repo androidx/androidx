@@ -61,3 +61,8 @@ data class TextRange(val start: Int, val end: Int) {
      */
     operator fun contains(offset: Int): Boolean = offset in min until max
 }
+
+/**
+ * Creates a [TextRange] where start is equal to end, and the value of those are [index].
+ */
+fun TextRange(index: Int): TextRange = TextRange(start = index, end = index)

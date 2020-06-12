@@ -40,7 +40,7 @@ class BackspaceKeyEditOpTest {
 
     @Test
     fun test_delete() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 1))
+        val eb = EditingBuffer("ABCDE", TextRange(1))
 
         BackspaceKeyEditOp().process(eb)
 
@@ -51,7 +51,7 @@ class BackspaceKeyEditOpTest {
 
     @Test
     fun test_delete_from_offset0() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         BackspaceKeyEditOp().process(eb)
 
@@ -73,7 +73,7 @@ class BackspaceKeyEditOpTest {
 
     @Test
     fun test_delete_with_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 1))
+        val eb = EditingBuffer("ABCDE", TextRange(1))
         eb.setComposition(2, 3)
 
         BackspaceKeyEditOp().process(eb)
@@ -85,7 +85,7 @@ class BackspaceKeyEditOpTest {
 
     @Test
     fun test_delete_surrogate_pair() {
-        val eb = EditingBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(2, 2))
+        val eb = EditingBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(2))
 
         BackspaceKeyEditOp().process(eb)
 
@@ -107,7 +107,7 @@ class BackspaceKeyEditOpTest {
 
     @Test
     fun test_delete_with_composition_surrogate_pair() {
-        val eb = EditingBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(2, 2))
+        val eb = EditingBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(2))
         eb.setComposition(4, 6)
 
         BackspaceKeyEditOp().process(eb)
@@ -122,7 +122,7 @@ class BackspaceKeyEditOpTest {
     fun test_delete_with_composition_zwj_emoji() {
         val eb = EditingBuffer(
             "$ZWJ_EMOJI$ZWJ_EMOJI",
-            TextRange(ZWJ_EMOJI.length, ZWJ_EMOJI.length))
+            TextRange(ZWJ_EMOJI.length))
 
         BackspaceKeyEditOp().process(eb)
 

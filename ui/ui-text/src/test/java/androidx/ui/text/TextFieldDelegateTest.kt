@@ -93,7 +93,7 @@ class TextFieldDelegateTest {
     @Test
     fun test_on_edit_command() {
         val ops = listOf(CommitTextEditOp("Hello, World", 1))
-        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1, 1))
+        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
 
         whenever(processor.onEditCommands(ops)).thenReturn(dummyEditorState)
 
@@ -111,7 +111,7 @@ class TextFieldDelegateTest {
     fun test_on_release() {
         val position = Offset(100f, 200f)
         val offset = 10
-        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1, 1))
+        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
 
         whenever(textLayoutResult.getOffsetForPosition(position)).thenReturn(offset)
@@ -165,7 +165,7 @@ class TextFieldDelegateTest {
 
     @Test
     fun on_focus() {
-        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1, 1))
+        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
         TextFieldDelegate.onFocus(textInputService, dummyEditorState, processor,
             KeyboardType.Text, ImeAction.Unspecified, onValueChange, onEditorActionPerformed)
         verify(textInputService).startInput(
@@ -230,7 +230,7 @@ class TextFieldDelegateTest {
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
         val dummyPoint = Offset(5f, 6f)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
-        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1, 1))
+        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
@@ -247,7 +247,7 @@ class TextFieldDelegateTest {
 
     @Test
     fun notify_focused_rect_without_focus() {
-        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1, 1))
+        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
@@ -268,7 +268,7 @@ class TextFieldDelegateTest {
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
         val dummyPoint = Offset(5f, 6f)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
-        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(12, 12))
+        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(12))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
@@ -337,7 +337,7 @@ class TextFieldDelegateTest {
     fun check_on_release_uses_offset_map() {
         val position = Offset(100f, 200f)
         val offset = 10
-        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1, 1))
+        val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
 
         whenever(textLayoutResult.getOffsetForPosition(position)).thenReturn(offset)
