@@ -16,10 +16,17 @@
 
 package androidx.contentaccess.compiler.utils
 
-class ErrorIndicator() {
-    var errorFound: Boolean = false
+import javax.annotation.processing.Messager
+import javax.lang.model.element.Element
+import javax.tools.Diagnostic
 
-    fun indicateError() {
-        errorFound = true
+class ErrorReporter(private val messager: Messager) {
+    var errorReported: Boolean = false
+        private set
+
+    fun reportError(error: String, element: Element) {
+        errorReported = true
+        messager.printMessage(
+            Diagnostic.Kind.ERROR, error, element)
     }
 }

@@ -33,7 +33,6 @@ plugins {
 
 dependencies {
     implementation(project(":contentaccess:contentaccess-annotations"))
-    implementation("androidx.annotation:annotation:1.0.0")
 
     implementation(KOTLIN_STDLIB)
     compileOnly(AUTO_SERVICE_ANNOTATIONS)

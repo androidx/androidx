@@ -14,20 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.contentaccess.compiler.ext
+package androidx.contentaccess.compiler.vo
 
-import androidx.contentaccess.compiler.utils.ErrorIndicator
-import javax.annotation.processing.Messager
-import javax.lang.model.element.Element
-import javax.tools.Diagnostic
-
-fun Messager.reportError(error: String, element: Element) {
-    this.printMessage(
-        Diagnostic.Kind.ERROR, error, element)
-}
-
-fun Messager.reportError(error: String, element: Element, errorIndicator: ErrorIndicator) {
-    errorIndicator.indicateError()
-    this.printMessage(
-        Diagnostic.Kind.ERROR, error, element)
-}
+data class PojoVO(val pojoFields: List<PojoFieldVO>)
