@@ -73,11 +73,11 @@ package androidx.recyclerview.widget {
   public final class ConcatAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder> {
     ctor @java.lang.SafeVarargs public ConcatAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!...);
     ctor @java.lang.SafeVarargs public ConcatAdapter(androidx.recyclerview.widget.ConcatAdapter.Config, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!...);
-    ctor public ConcatAdapter(java.util.List<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!>);
-    ctor public ConcatAdapter(androidx.recyclerview.widget.ConcatAdapter.Config, java.util.List<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!>);
+    ctor public ConcatAdapter(java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>>);
+    ctor public ConcatAdapter(androidx.recyclerview.widget.ConcatAdapter.Config, java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>>);
     method public boolean addAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
     method public boolean addAdapter(int, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
-    method public java.util.List<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!> getAdapters();
+    method public java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>> getAdapters();
     method public int getItemCount();
     method public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
     method public androidx.recyclerview.widget.RecyclerView.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
@@ -88,13 +88,13 @@ package androidx.recyclerview.widget {
     method public boolean removeAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
   }
 
-  public static class ConcatAdapter.Config {
+  public static final class ConcatAdapter.Config {
     field public static final androidx.recyclerview.widget.ConcatAdapter.Config DEFAULT;
     field public final boolean isolateViewTypes;
     field public final androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode stableIdMode;
   }
 
-  public static class ConcatAdapter.Config.Builder {
+  public static final class ConcatAdapter.Config.Builder {
     ctor public ConcatAdapter.Config.Builder();
     method public androidx.recyclerview.widget.ConcatAdapter.Config build();
     method public androidx.recyclerview.widget.ConcatAdapter.Config.Builder setIsolateViewTypes(boolean);
