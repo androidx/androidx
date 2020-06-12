@@ -100,9 +100,7 @@ class FilledTextFieldTest {
             "fugiat nulla pariatur."
 
     @get:Rule
-    val testRule = createComposeRule().also {
-        it.clockTestRule.pauseClock()
-    }
+    val testRule = createComposeRule()
 
     @Test
     fun testTextFieldMinimumHeight() {
