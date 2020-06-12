@@ -94,5 +94,10 @@ interface ComposeTestCaseSetup {
  */
 fun createComposeRule(
     recomposer: Recomposer? = null,
-    disableTransitions: Boolean = false
-): ComposeTestRule = AndroidComposeTestRule<ComponentActivity>(recomposer, disableTransitions)
+    disableTransitions: Boolean = false,
+    disableBlinkingCursor: Boolean = true
+): ComposeTestRule = AndroidComposeTestRule<ComponentActivity>(
+    recomposer,
+    disableTransitions,
+    disableBlinkingCursor
+)

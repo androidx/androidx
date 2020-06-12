@@ -25,6 +25,7 @@ import androidx.compose.Recomposer
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.setContent
+import androidx.ui.foundation.blinkingCursorEnabled
 import androidx.ui.input.textInputServiceFactory
 import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.ComposeTestCase
@@ -50,7 +51,8 @@ import org.junit.runners.model.Statement
  */
 inline fun <reified T : ComponentActivity> AndroidComposeTestRule(
     recomposer: Recomposer? = null,
-    disableTransitions: Boolean = false
+    disableTransitions: Boolean = false,
+    disableBlinkingCursor: Boolean = true
 ): AndroidComposeTestRule<T> {
     // TODO(b/138993381): By launching custom activities we are losing control over what content is
     // already there. This is issue in case the user already set some compose content and decides
@@ -59,7 +61,8 @@ inline fun <reified T : ComponentActivity> AndroidComposeTestRule(
     return AndroidComposeTestRule(
         ActivityScenarioRule(T::class.java),
         recomposer,
-        disableTransitions
+        disableTransitions,
+        disableBlinkingCursor
     )
 }
 
@@ -74,7 +77,8 @@ class AndroidComposeTestRule<T : ComponentActivity>(
     //  work with any kind of Activity launcher.
     val activityRule: ActivityScenarioRule<T>,
     val recomposer: Recomposer? = null,
-    private val disableTransitions: Boolean = false
+    private val disableTransitions: Boolean = false,
+    private val disableBlinkingCursor: Boolean = true
 ) : ComposeTestRule {
 
     private fun getActivity(): T {
@@ -170,6 +174,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
 
         private fun beforeEvaluate() {
             transitionsEnabled = !disableTransitions
+            blinkingCursorEnabled = !disableBlinkingCursor
             AndroidOwnerRegistry.setupRegistry()
             FirstDrawRegistry.setupRegistry()
             registerComposeWithEspresso()
@@ -181,6 +186,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
 
         private fun afterEvaluate() {
             transitionsEnabled = true
+            blinkingCursorEnabled = true
             AndroidOwnerRegistry.tearDownRegistry()
             FirstDrawRegistry.tearDownRegistry()
             // Dispose the content

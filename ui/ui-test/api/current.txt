@@ -137,7 +137,7 @@ package androidx.ui.test {
   }
 
   public final class ComposeTestRuleKt {
-    method public static androidx.ui.test.ComposeTestRule createComposeRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false);
+    method public static androidx.ui.test.ComposeTestRule createComposeRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false, boolean disableBlinkingCursor = true);
   }
 
   public final class DisableTransitions implements org.junit.rules.TestRule {
@@ -362,7 +362,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRule {
-    ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule, androidx.compose.Recomposer? recomposer, boolean disableTransitions);
+    ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule, androidx.compose.Recomposer? recomposer, boolean disableTransitions, boolean disableBlinkingCursor);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
     method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
@@ -383,7 +383,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRuleKt {
-    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T>! AndroidComposeTestRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T>! AndroidComposeTestRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false, boolean disableBlinkingCursor = true);
   }
 
   public final class ComposeIdlingResourceKt {
