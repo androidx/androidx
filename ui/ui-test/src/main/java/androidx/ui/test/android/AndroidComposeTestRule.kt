@@ -31,6 +31,7 @@ import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
+import androidx.ui.test.ExperimentalTesting
 import androidx.ui.test.TextInputServiceForTests
 import androidx.ui.test.isOnUiThread
 import androidx.ui.test.runOnUiThread
@@ -141,15 +142,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
         }
     }
 
-    override fun forGivenContent(composable: @Composable () -> Unit): ComposeTestCaseSetup {
-        return forGivenTestCase(object : ComposeTestCase {
-            @Composable
-            override fun emitContent() {
-                composable()
-            }
-        })
-    }
-
+    @ExperimentalTesting
     override fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup {
         return AndroidComposeTestCaseSetup(
             testCase,

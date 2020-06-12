@@ -20,6 +20,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.test.assertNoPendingChanges
 import androidx.ui.integration.test.material.ImmutableColorPaletteTestCase
 import androidx.ui.integration.test.material.ObservableColorPaletteTestCase
+import androidx.ui.test.ExperimentalTesting
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doFramesUntilNoChangesPending
 import org.junit.Assert
@@ -34,6 +35,7 @@ import org.junit.runners.JUnit4
  */
 @MediumTest
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalTesting::class)
 class ColorPaletteTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)

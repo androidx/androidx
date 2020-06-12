@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import androidx.compose.Composable
 import androidx.compose.mutableStateOf
 import androidx.compose.onPreCommit
 import androidx.compose.state
@@ -36,8 +37,20 @@ class AndroidComposeTestCaseRunnerTest {
         disableTransitions = true
     )
 
+    internal fun ComposeTestRule.forGivenContent(
+        composable: @Composable () -> Unit
+    ): ComposeTestCaseSetup {
+        @OptIn(ExperimentalTesting::class)
+        return forGivenTestCase(object : ComposeTestCase {
+            @Composable
+            override fun emitContent() {
+                composable()
+            }
+        })
+    }
+
     @Test
-    fun foreverRecomposing_viaModel_shouldFail() {
+    fun foreverRecomposing_viaModel_shouldFai2l() {
         val count = mutableStateOf(0)
         composeTestRule.forGivenContent {
             Text("Hello ${count.value}")
