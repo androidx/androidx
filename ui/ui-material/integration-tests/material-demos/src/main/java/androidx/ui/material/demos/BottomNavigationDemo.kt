@@ -20,13 +20,19 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.selection.selectable
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
+import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
-import androidx.ui.material.RadioGroup
+import androidx.ui.layout.width
+import androidx.ui.material.RadioButton
 import androidx.ui.material.samples.BottomNavigationSample
 import androidx.ui.material.samples.BottomNavigationWithOnlySelectedLabelsSample
 import androidx.ui.unit.dp
@@ -34,19 +40,40 @@ import androidx.ui.unit.dp
 @Composable
 fun BottomNavigationDemo() {
     var alwaysShowLabels by state { false }
-
     Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Bottom) {
-        RadioGroup {
-            RadioGroupTextItem(
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .preferredHeight(56.dp)
+                .selectable(
+                    selected = !alwaysShowLabels,
+                    onClick = { alwaysShowLabels = false }
+                ),
+            verticalGravity = Alignment.CenterVertically
+        ) {
+            RadioButton(
                 selected = !alwaysShowLabels,
-                onSelect = { alwaysShowLabels = false },
-                text = "Only show labels when selected"
+                onClick = { alwaysShowLabels = false }
             )
-            RadioGroupTextItem(
+            Spacer(Modifier.width(16.dp))
+            Text("Only show labels when selected")
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .preferredHeight(56.dp)
+                .selectable(
+                    selected = alwaysShowLabels,
+                    onClick = { alwaysShowLabels = true }
+                ),
+            verticalGravity = Alignment.CenterVertically
+        ) {
+            RadioButton(
                 selected = alwaysShowLabels,
-                onSelect = { alwaysShowLabels = true },
-                text = "Always show labels"
+                onClick = { alwaysShowLabels = true }
             )
+            Spacer(Modifier.width(16.dp))
+            Text("Always show labels")
         }
 
         Spacer(Modifier.preferredHeight(50.dp))

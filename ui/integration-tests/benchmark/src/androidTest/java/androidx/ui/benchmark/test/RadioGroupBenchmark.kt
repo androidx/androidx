@@ -29,17 +29,22 @@ import androidx.ui.benchmark.toggleStateBenchmarkDraw
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.ui.layout.Column
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.RadioGroup
-import androidx.ui.test.ComposeTestCase
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.selection.selectable
 import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.layout.Column
+import androidx.ui.layout.Row
+import androidx.ui.material.MaterialTheme
+import androidx.ui.material.RadioButton
+import androidx.ui.test.ComposeTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Benchmark for [RadioGroup].
+ * Benchmark for RadioGroup-like layout (column of rows of text and radio buttons).
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -104,13 +109,20 @@ internal class RadioGroupTestCase : ComposeTestCase, ToggleableTestCase {
     @Composable
     override fun emitContent() {
         MaterialTheme {
-            RadioGroup {
-                Column {
-                    options.forEach { item ->
-                        RadioGroupTextItem(
-                            text = item.toString(),
+            Column {
+                options.forEach { item ->
+                    Row(
+                        modifier = Modifier.selectable(
                             selected = (select.value == item),
-                            onSelect = { select.value = item })
+                            onClick = { select.value = item }
+                        ),
+                        verticalGravity = Alignment.CenterVertically
+                    ) {
+                        Text(item.toString())
+                        RadioButton(
+                            selected = (select.value == item),
+                            onClick = { select.value = item }
+                        )
                     }
                 }
             }

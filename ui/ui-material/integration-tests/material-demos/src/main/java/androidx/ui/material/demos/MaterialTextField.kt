@@ -25,12 +25,14 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnScope.gravity
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredWidth
@@ -39,7 +41,7 @@ import androidx.ui.material.EmphasisAmbient
 import androidx.ui.material.FilledTextField
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.OutlinedTextField
-import androidx.ui.material.RadioGroup
+import androidx.ui.material.RadioButton
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.icons.filled.Info
@@ -129,11 +131,28 @@ fun MaterialTextFieldDemo() {
 
         Column {
             Title("Text field type")
-            RadioGroup(
-                options = TextFieldType.values().map { it.name },
-                selectedOption = selectedTextField.name,
-                onSelectedChange = { selectedTextField = TextFieldType.valueOf(it) }
-            )
+            Column {
+                TextFieldType.values().map { it.name }.forEach { textType ->
+                    Row(Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = (textType == selectedTextField.name),
+                            onClick = { selectedTextField = TextFieldType.valueOf(textType) }
+                        )
+                        .padding(horizontal = 16.dp)
+                    ) {
+                        RadioButton(
+                            selected = (textType == selectedTextField.name),
+                            onClick = { selectedTextField = TextFieldType.valueOf(textType) }
+                        )
+                        Text(
+                            text = textType,
+                            style = MaterialTheme.typography.body1.merge(),
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+                }
+            }
 
             Title("Options")
             OptionRow(
@@ -147,19 +166,37 @@ fun MaterialTextFieldDemo() {
                 onCheckedChange = { trailingChecked = it }
             )
             OptionRow(
-                title = "Character counter",
+                title = "Character counter (TODO)",
                 checked = characterCounterChecked,
+                enabled = false,
                 onCheckedChange = { /* TODO */ }
             )
 
             Spacer(Modifier.preferredHeight(20.dp))
 
             Title("Assistive text")
-            RadioGroup(
-                options = Option.values().map { it.name },
-                selectedOption = selectedOption.name,
-                onSelectedChange = { selectedOption = Option.valueOf(it) }
-            )
+            Column {
+                Option.values().map { it.name }.forEach { text ->
+                    Row(Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = (text == selectedOption.name),
+                            onClick = { selectedOption = Option.valueOf(text) }
+                        )
+                        .padding(horizontal = 16.dp)
+                    ) {
+                        RadioButton(
+                            selected = (text == selectedOption.name),
+                            onClick = { selectedOption = Option.valueOf(text) }
+                        )
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.body1.merge(),
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -205,10 +242,11 @@ private fun Title(title: String) {
 private fun OptionRow(
     title: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true
 ) {
     Row(Modifier.padding(start = 10.dp, top = 10.dp)) {
-        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
+        Checkbox(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
         Spacer(Modifier.preferredWidth(20.dp))
         Text(text = title, style = MaterialTheme.typography.body1)
     }

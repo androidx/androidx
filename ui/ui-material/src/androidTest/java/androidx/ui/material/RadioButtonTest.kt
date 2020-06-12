@@ -16,7 +16,6 @@
 
 package androidx.ui.material
 
-import androidx.compose.Composable
 import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
@@ -39,7 +38,7 @@ import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class RadioGroupUiTest {
+class RadioButtonTest {
 
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
@@ -60,27 +59,18 @@ class RadioGroupUiTest {
 
     private val options = listOf(itemOne, itemTwo, itemThree)
 
-    @Composable
-    fun VerticalRadioGroupforTests(children: @Composable RadioGroupScope.() -> Unit) {
-        RadioGroup {
-            Column {
-                children(p1 = this@RadioGroup)
-            }
-        }
-    }
-
     @Test
     fun radioGroupTest_defaultSemantics() {
         val selected = mutableStateOf(itemOne)
 
         composeTestRule.setMaterialContent {
-            VerticalRadioGroupforTests {
+            Column {
                 options.forEach { item ->
-                    RadioGroupTextItem(
+                    RadioButton(
                         modifier = Modifier.testTag(item),
-                        text = item,
                         selected = (selected.value == item),
-                        onSelect = { selected.value = item })
+                        onClick = { selected.value = item }
+                    )
                 }
             }
         }
@@ -95,13 +85,13 @@ class RadioGroupUiTest {
         val selected = mutableStateOf(itemOne)
 
         composeTestRule.setMaterialContent {
-            VerticalRadioGroupforTests {
+            Column {
                 options.forEach { item ->
-                    RadioGroupTextItem(
+                    RadioButton(
                         modifier = Modifier.testTag(item),
-                        text = item,
                         selected = (selected.value == item),
-                        onSelect = { selected.value = item })
+                        onClick = { selected.value = item }
+                    )
                 }
             }
         }
@@ -122,13 +112,13 @@ class RadioGroupUiTest {
     fun radioGroupTest_clickSelect() {
         val selected = mutableStateOf(itemOne)
         composeTestRule.setMaterialContent {
-            VerticalRadioGroupforTests {
+            Column {
                 options.forEach { item ->
-                    RadioGroupTextItem(
+                    RadioButton(
                         modifier = Modifier.testTag(item),
-                        text = item,
                         selected = (selected.value == item),
-                        onSelect = { selected.value = item })
+                        onClick = { selected.value = item }
+                    )
                 }
             }
         }
@@ -149,13 +139,13 @@ class RadioGroupUiTest {
         val selected = mutableStateOf(itemOne)
 
         composeTestRule.setMaterialContent {
-            VerticalRadioGroupforTests {
+            Column {
                 options.forEach { item ->
-                    RadioGroupTextItem(
+                    RadioButton(
                         modifier = Modifier.testTag(item),
-                        text = item,
                         selected = (selected.value == item),
-                        onSelect = { selected.value = item })
+                        onClick = { selected.value = item }
+                    )
                 }
             }
         }
@@ -193,7 +183,7 @@ class RadioGroupUiTest {
     private fun materialSizesTestForValue(selected: Boolean) {
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                RadioButton(selected = selected, onSelect = null)
+                RadioButton(selected = selected, onClick = {})
             }
             .assertIsSquareWithSize { 2.dp.toIntPx() * 2 + 20.dp.toIntPx() }
     }
