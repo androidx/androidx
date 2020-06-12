@@ -18,6 +18,7 @@ package androidx.mediarouter.app;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -87,6 +88,8 @@ import java.util.List;
  */
 public class MediaRouteButton extends View {
     private static final String TAG = "MediaRouteButton";
+
+    private static final boolean USE_OUTPUT_SWITCHER_IF_AVAILABLE = true;
 
     private static final String CHOOSER_FRAGMENT_TAG =
             "android.support.v7.mediarouter:MediaRouteChooserDialogFragment";
@@ -303,6 +306,24 @@ public class MediaRouteButton extends View {
     public boolean showDialog() {
         if (!mAttachedToWindow) {
             return false;
+        }
+
+        if (USE_OUTPUT_SWITCHER_IF_AVAILABLE && MediaRouter.isTransferEnabled()) {
+            Context context = getContext();
+
+            Intent intent = new Intent()
+                    .setAction(OutputSwitcherConstants.ACTION_MEDIA_OUTPUT)
+                    .putExtra(OutputSwitcherConstants.EXTRA_PACKAGE_NAME, context.getPackageName())
+                    .putExtra(OutputSwitcherConstants.KEY_MEDIA_SESSION_TOKEN,
+                            mRouter.getMediaSessionToken());
+
+            ComponentName componentName = intent.resolveActivity(context.getPackageManager());
+            if (componentName != null && OutputSwitcherConstants.SETTINGS_PACKAGE_NAME.equals(
+                    componentName.getPackageName())) {
+                context.startActivity(intent);
+                return true;
+            }
+            // If there is no output switcher, fall back to the normal dialog.
         }
 
         final FragmentManager fm = getFragmentManager();
