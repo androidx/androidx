@@ -314,6 +314,31 @@ class PageFetcherTest {
             fetcherState.job.cancel()
         }
     }
+
+    @Test
+    fun checksFactoryForNewInstance() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pagingSource = TestPagingSource()
+            val config = PagingConfig(
+                pageSize = 1,
+                prefetchDistance = 1,
+                initialLoadSize = 2
+            )
+            val pageFetcher = PageFetcher({ pagingSource }, 50, config)
+            val job = testScope.launch {
+                assertFailsWith<IllegalStateException> {
+                    pageFetcher.flow.collect { }
+                }
+            }
+
+            advanceUntilIdle()
+
+            pageFetcher.refresh()
+            advanceUntilIdle()
+
+            assertTrue { job.isCompleted }
+        }
+    }
 }
 
 internal class FetcherState<T : Any>(
