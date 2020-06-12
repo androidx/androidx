@@ -18,7 +18,6 @@ package androidx.ui.core.semantics
 
 import androidx.ui.core.DelegatingLayoutNodeWrapper
 import androidx.ui.core.LayoutNodeWrapper
-import androidx.ui.util.fastForEach
 
 internal class SemanticsWrapper(
     wrapped: LayoutNodeWrapper,
@@ -32,49 +31,16 @@ internal class SemanticsWrapper(
 
     fun collapsedSemanticsConfiguration(): SemanticsConfiguration {
         var config = SemanticsConfiguration()
-        collapseChainedSemanticsIntoTopConfig(config, this)
+        config.absorb(modifier.semanticsConfiguration, ignoreAlreadySet = true)
+
+        val innerConfig = wrapped.nearestSemantics?.collapsedSemanticsConfiguration()
+        if (innerConfig != null) {
+            config.absorb(innerConfig, ignoreAlreadySet = true)
+        }
         return config
     }
 
     override fun toString(): String {
         return "${super.toString()} localConfig: ${modifier.semanticsConfiguration}"
-    }
-
-    /**
-     * "Collapses" together the [SemanticsConfiguration]s that will apply to the child [LayoutNode].
-     *
-     * This ignores semantic boundaries (because they only apply once the node
-     * is built), and currently does not validate that a [LayoutNode] actually
-     * exists as a child (though this is not contractual)
-     */
-    private fun collapseChainedSemanticsIntoTopConfig(
-        parentConfig: SemanticsConfiguration,
-        topNodeOfConfig: SemanticsWrapper
-    ) {
-        parentConfig.absorb(modifier.semanticsConfiguration, ignoreAlreadySet = true)
-
-        if (semanticsModifier.applyToChildLayoutNode) {
-            // Recursively collapse the chain, if we have an immediate child
-            findOneImmediateChild()?.collapseChainedSemanticsIntoTopConfig(
-                parentConfig, topNodeOfConfig)
-        } else {
-            // Collapse locally within the modifiers directly applying to the current layout node
-            val innerConfig = wrapped.nearestSemantics?.collapsedSemanticsConfiguration()
-            if (innerConfig != null) {
-                parentConfig.absorb(innerConfig, ignoreAlreadySet = true)
-            }
-        }
-    }
-
-    // This searches the children down only one level of the tree and returns one child found.
-    // Note that this assumes each LayoutNode only has one semantics modifier for now.
-    private fun findOneImmediateChild(): SemanticsWrapper? {
-        var immediateChild: SemanticsWrapper? = null
-        layoutNode.children.fastForEach { child ->
-            if (child.outerSemantics != null) {
-                immediateChild = child.outerSemantics
-            }
-        }
-        return immediateChild
     }
 }
