@@ -35,6 +35,7 @@ import androidx.ui.layout.ExperimentalLayout
 import androidx.ui.layout.aspectRatio
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.rtl
@@ -889,7 +890,7 @@ class ConstraintLayoutTest : LayoutTest() {
         }
     }
 
-    @Test
+    @Test(expected = Test.None::class)
     fun testConstraintLayout_inlineDSL_recompositionDoesNotCrash() = with(density) {
         val first = mutableStateOf(true)
         composeTestRule.setContent {
@@ -908,7 +909,7 @@ class ConstraintLayoutTest : LayoutTest() {
         waitForIdle()
     }
 
-    @Test
+    @Test(expected = Test.None::class)
     fun testConstraintLayout_ConstraintSetDSL_recompositionDoesNotCrash() = with(density) {
         val first = mutableStateOf(true)
         composeTestRule.setContent {
@@ -921,6 +922,37 @@ class ConstraintLayoutTest : LayoutTest() {
                 } else {
                     Box(Modifier.tag("box"))
                 }
+            }
+        }
+        runOnIdleCompose {
+            first.value = false
+        }
+        waitForIdle()
+    }
+
+    @Test(expected = Test.None::class)
+    fun testConstraintLayout_inlineDSL_remeasureDoesNotCrash() = with(density) {
+        val first = mutableStateOf(true)
+        composeTestRule.setContent {
+            ConstraintLayout(if (first.value) Modifier else Modifier.padding(10.dp)) {
+                Box(if (first.value) Modifier else Modifier.size(20.dp))
+            }
+        }
+        runOnIdleCompose {
+            first.value = false
+        }
+        waitForIdle()
+    }
+
+    @Test(expected = Test.None::class)
+    fun testConstraintLayout_ConstraintSetDSL_remeasureDoesNotCrash() = with(density) {
+        val first = mutableStateOf(true)
+        composeTestRule.setContent {
+            ConstraintLayout(
+                modifier = if (first.value) Modifier else Modifier.padding(10.dp),
+                constraintSet = ConstraintSet2 { }
+            ) {
+                Box(if (first.value) Modifier else Modifier.size(20.dp))
             }
         }
         runOnIdleCompose {
