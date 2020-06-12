@@ -1735,12 +1735,20 @@ class State(val density: Density) : SolverState() {
 private class Measurer internal constructor() : BasicMeasure.Measurer {
     private val root = ConstraintWidgetContainer(0, 0).also { it.measurer = this }
     private val placeables = mutableMapOf<Measurable, Placeable>()
+    private val lastMeasures = mutableMapOf<Measurable, Array<Int>>()
+    private val lastMeasureDefaultsHolder = arrayOf(0, 0, 0)
     private lateinit var density: Density
     private lateinit var measureScope: MeasureScope
     private val state by lazy(LazyThreadSafetyMode.NONE) { State(density) }
 
     val widthConstraintsHolder = IntArray(2)
     val heightConstraintsHolder = IntArray(2)
+
+    fun reset() {
+        placeables.clear()
+        lastMeasures.clear()
+        state.reset()
+    }
 
     override fun measure(constraintWidget: ConstraintWidget, measure: BasicMeasure.Measure) {
         val measurable = constraintWidget.companionWidget
@@ -1753,11 +1761,8 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
             )
         }
 
-        val initialPlaceable = placeables[measurable]
-        val initialWidth = initialPlaceable?.width ?: constraintWidget.width
-        val initialHeight = initialPlaceable?.height ?: constraintWidget.height
-        val initialBaseline =
-            initialPlaceable?.get(FirstBaseline) ?: constraintWidget.baselineDistance
+        val (initialWidth, initialHeight, initialBaseline) =
+            lastMeasures[measurable] ?: lastMeasureDefaultsHolder.apply { copyFrom(measure) }
 
         var constraints = run {
             obtainConstraints(
@@ -1840,6 +1845,8 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         val baseline = currentPlaceable?.get(FirstBaseline)
         measure.measuredHasBaseline = baseline != null
         if (baseline != null) measure.measuredBaseline = baseline
+        lastMeasures.getOrPut(measurable, { arrayOf(0, 0, 0) }).copyFrom(measure)
+
         measure.measuredNeedsSolverPass = measure.measuredWidth != initialWidth ||
                 measure.measuredHeight != initialHeight ||
                 measure.measuredBaseline != initialBaseline
@@ -1876,6 +1883,12 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         }
     }
 
+    fun Array<Int>.copyFrom(measure: BasicMeasure.Measure) {
+        this[0] = measure.measuredWidth
+        this[1] = measure.measuredHeight
+        this[2] = measure.measuredBaseline
+    }
+
     fun performMeasure(
         constraints: Constraints,
         layoutDirection: LayoutDirection,
@@ -1885,7 +1898,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
     ): IntSize {
         this.density = measureScope
         this.measureScope = measureScope
-        state.reset()
+        reset()
         // Define the size of the ConstraintLayout.
         state.width(
             if (constraints.hasFixedWidth) {
