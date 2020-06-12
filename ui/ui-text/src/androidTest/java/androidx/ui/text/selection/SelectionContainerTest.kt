@@ -61,9 +61,6 @@ class SelectionContainerTest {
     @get:Rule
     val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
 
-    private val activity
-        get() = composeTestRule.activityTestRule.activity
-
     private lateinit var view: View
 
     private val textContent = "Text Demo Text Demo"
@@ -106,7 +103,9 @@ class SelectionContainerTest {
                 }
             }
         }
-        view = activity.findViewById<ViewGroup>(android.R.id.content)
+        composeTestRule.activityRule.scenario.onActivity {
+            view = it.findViewById<ViewGroup>(android.R.id.content)
+        }
     }
 
     @Test

@@ -79,69 +79,65 @@ class MultipleComposeRootsTest {
      */
     @Test
     fun twoHierarchiesSharingTheSameModel() {
-        val activity = composeTestRule.activityTestRule.activity
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            val state1 = mutableStateOf(value = ToggleableState.Off)
+            val state2 = mutableStateOf(value = ToggleableState.On)
 
-        activity.runOnUiThread(object : Runnable { // Workaround for lambda bug in IR
-            override fun run() {
-                val state1 = mutableStateOf(value = ToggleableState.Off)
-                val state2 = mutableStateOf(value = ToggleableState.On)
+            val linearLayout = LinearLayout(activity)
+                .apply { orientation = LinearLayout.VERTICAL }
 
-                val linearLayout = LinearLayout(activity)
-                    .apply { orientation = LinearLayout.VERTICAL }
+            val textView1 = TextView(activity).apply { text = "Compose 1" }
+            val frameLayout1 = FrameLayout(activity)
 
-                val textView1 = TextView(activity).apply { text = "Compose 1" }
-                val frameLayout1 = FrameLayout(activity)
+            val textView2 = TextView(activity).apply { text = "Compose 2" }
+            val frameLayout2 = FrameLayout(activity)
 
-                val textView2 = TextView(activity).apply { text = "Compose 2" }
-                val frameLayout2 = FrameLayout(activity)
+            activity.setContentView(linearLayout)
+            linearLayout.addView(textView1)
+            linearLayout.addView(frameLayout1)
+            linearLayout.addView(textView2)
+            linearLayout.addView(frameLayout2)
 
-                activity.setContentView(linearLayout)
-                linearLayout.addView(textView1)
-                linearLayout.addView(frameLayout1)
-                linearLayout.addView(textView2)
-                linearLayout.addView(frameLayout2)
+            fun updateTitle1() {
+                textView1.text = "Compose 1 - ${state1.value}"
+            }
 
-                fun updateTitle1() {
-                    textView1.text = "Compose 1 - ${state1.value}"
-                }
+            fun updateTitle2() {
+                textView2.text = "Compose 2 - ${state2.value}"
+            }
 
-                fun updateTitle2() {
-                    textView2.text = "Compose 2 - ${state2.value}"
-                }
-
-                frameLayout1.setContent(Recomposer.current()) {
-                    MaterialTheme {
-                        Surface {
-                            TriStateCheckbox(
-                                modifier = Modifier.testTag("checkbox1"),
-                                state = state1.value,
-                                onClick = {
-                                    state1.toggle()
-                                    state2.toggle()
-                                    updateTitle1()
-                                    updateTitle2()
-                                })
-                        }
-                    }
-                }
-
-                frameLayout2.setContent(Recomposer.current()) {
-                    MaterialTheme {
-                        Surface {
-                            TriStateCheckbox(
-                                modifier = Modifier.testTag("checkbox2"),
-                                state = state2.value,
-                                onClick = {
-                                    state1.toggle()
-                                    state2.toggle()
-                                    updateTitle1()
-                                    updateTitle2()
-                                })
-                        }
+            frameLayout1.setContent(Recomposer.current()) {
+                MaterialTheme {
+                    Surface {
+                        TriStateCheckbox(
+                            modifier = Modifier.testTag("checkbox1"),
+                            state = state1.value,
+                            onClick = {
+                                state1.toggle()
+                                state2.toggle()
+                                updateTitle1()
+                                updateTitle2()
+                            })
                     }
                 }
             }
-        })
+
+            frameLayout2.setContent(Recomposer.current()) {
+                MaterialTheme {
+                    Surface {
+                        TriStateCheckbox(
+                            modifier = Modifier.testTag("checkbox2"),
+                            state = state2.value,
+                            onClick = {
+                                state1.toggle()
+                                state2.toggle()
+                                updateTitle1()
+                                updateTitle2()
+                            })
+                    }
+                }
+            }
+        }
 
         Espresso.onView(withText("Compose 1")).check(matches(isDisplayed()))
         Espresso.onView(withText("Compose 2")).check(matches(isDisplayed()))

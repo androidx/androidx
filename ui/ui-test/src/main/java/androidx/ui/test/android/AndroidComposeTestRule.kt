@@ -16,14 +16,13 @@
 
 package androidx.ui.test.android
 
-import android.os.Handler
-import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.SparseArray
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.compose.Recomposer
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.setContent
 import androidx.ui.input.textInputServiceFactory
@@ -57,9 +56,8 @@ inline fun <reified T : ComponentActivity> AndroidComposeTestRule(
     // already there. This is issue in case the user already set some compose content and decides
     // to set it again via our API. In such case we won't be able to dispose the old composition.
     // Other option would be to provide a smaller interface that does not expose these methods.
-    @Suppress("DEPRECATION")
     return AndroidComposeTestRule(
-        androidx.test.rule.ActivityTestRule(T::class.java),
+        ActivityScenarioRule(T::class.java),
         recomposer,
         disableTransitions
     )
@@ -72,25 +70,35 @@ inline fun <reified T : ComponentActivity> AndroidComposeTestRule(
  * [setContent] is called.
  */
 class AndroidComposeTestRule<T : ComponentActivity>(
-    // TODO(b/153623653): Remove activityTestRule from arguments when AndroidComposeTestRule can
+    // TODO(b/153623653): Remove activityRule from arguments when AndroidComposeTestRule can
     //  work with any kind of Activity launcher.
-    @Suppress("DEPRECATION") val activityTestRule: androidx.test.rule.ActivityTestRule<T>,
+    val activityRule: ActivityScenarioRule<T>,
     val recomposer: Recomposer? = null,
     private val disableTransitions: Boolean = false
 ) : ComposeTestRule {
 
+    private fun getActivity(): T {
+        var activity: T? = null
+        if (activity == null) {
+            activityRule.scenario.onActivity { activity = it }
+            if (activity == null) {
+                throw IllegalStateException("Activity was not set in the ActivityScenarioRule!")
+            }
+        }
+        return activity!!
+    }
+
     override val clockTestRule = AnimationClockTestRule()
 
-    private val handler: Handler = Handler(Looper.getMainLooper())
     private var disposeContentHook: (() -> Unit)? = null
 
-    override val density: Density get() = Density(activityTestRule.activity)
+    override val density: Density get() =
+        Density(getActivity().resources.displayMetrics.density)
 
-    override val displayMetrics: DisplayMetrics get() =
-        activityTestRule.activity.resources.displayMetrics
+    override val displayMetrics: DisplayMetrics get() = getActivity().resources.displayMetrics
 
     override fun apply(base: Statement, description: Description?): Statement {
-        val activityTestRuleStatement = activityTestRule.apply(base, description)
+        val activityTestRuleStatement = activityRule.apply(base, description)
         val composeTestRuleStatement = AndroidComposeStatement(activityTestRuleStatement)
         return clockTestRule.apply(composeTestRuleStatement, description)
     }
@@ -104,13 +112,15 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             "Cannot call setContent twice per test!"
         }
 
+        lateinit var activity: T
+        activityRule.scenario.onActivity { activity = it }
+
         runOnUiThread {
-            val composition = activityTestRule.activity.setContent(
+            val composition = activity.setContent(
                 recomposer ?: Recomposer.current(),
                 composable
             )
-            val contentViewGroup =
-                activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
+            val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
             // AndroidComposeView is postponing the composition till the saved state is restored.
             // We will emulate the restoration of the empty state to trigger the real composition.
             contentViewGroup.getChildAt(0).restoreHierarchyState(SparseArray())
@@ -139,7 +149,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
     override fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup {
         return AndroidComposeTestCaseSetup(
             testCase,
-            activityTestRule.activity
+            getActivity()
         )
     }
 

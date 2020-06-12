@@ -18,6 +18,7 @@ package androidx.ui.test
 
 import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
@@ -56,10 +57,9 @@ class BitmapCapturingTest(val config: TestConfig) {
         )
     }
 
-    @Suppress("DEPRECATION")
     @get:Rule
     val composeTestRule = AndroidComposeTestRule(
-        androidx.test.rule.ActivityTestRule(config.activityClass)
+        ActivityScenarioRule(config.activityClass)
     )
 
     private val rootTag = "Root"

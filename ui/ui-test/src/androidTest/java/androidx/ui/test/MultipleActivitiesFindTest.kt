@@ -34,7 +34,7 @@ class MultipleActivitiesFindTest {
 
     @Test
     fun test() {
-        composeTestRule.activityTestRule.activity.startNewActivity()
+        composeTestRule.activityRule.scenario.onActivity { it.startNewActivity() }
         findByTag("activity1").assertDoesNotExist()
         findByTag("activity2").assertExists()
     }
