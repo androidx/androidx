@@ -26,7 +26,6 @@ import androidx.ui.core.setContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,7 +48,6 @@ class LifecycleOwnerInAppCompatActivityTest {
         activity = activityTestRule.activity
     }
 
-    @Ignore("Disabled due to b/158301343")
     @Test
     fun lifecycleOwnerIsAvailable() {
         val latch = CountDownLatch(1)
@@ -66,7 +64,6 @@ class LifecycleOwnerInAppCompatActivityTest {
         assertEquals(activity, owner)
     }
 
-    @Ignore("Disabled due to b/158301343")
     @Test
     fun lifecycleOwnerIsAvailableWhenComposedIntoViewGroup() {
         val latch = CountDownLatch(1)
