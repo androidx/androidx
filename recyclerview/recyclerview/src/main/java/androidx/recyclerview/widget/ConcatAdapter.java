@@ -109,7 +109,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
      *
      * @param adapters The list of adapters to add
      */
-    public ConcatAdapter(@NonNull List<Adapter<? extends ViewHolder>> adapters) {
+    public ConcatAdapter(@NonNull List<? extends Adapter<? extends ViewHolder>> adapters) {
         this(Config.DEFAULT, adapters);
     }
 
@@ -122,7 +122,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
      */
     public ConcatAdapter(
             @NonNull Config config,
-            @NonNull List<Adapter<? extends ViewHolder>> adapters) {
+            @NonNull List<? extends Adapter<? extends ViewHolder>> adapters) {
         mController = new ConcatAdapterController(this, config);
         for (Adapter<? extends ViewHolder> adapter : adapters) {
             addAdapter(adapter);
@@ -276,7 +276,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
      * @return A copy of the list of adapters in this ConcatAdapter.
      */
     @NonNull
-    public List<Adapter<? extends ViewHolder>> getAdapters() {
+    public List<? extends Adapter<? extends ViewHolder>> getAdapters() {
         return Collections.unmodifiableList(mController.getCopyOfAdapters());
     }
 
@@ -303,7 +303,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
     /**
      * The configuration object for a {@link ConcatAdapter}.
      */
-    public static class Config {
+    public static final class Config {
         /**
          * If {@code false}, {@link ConcatAdapter} assumes all assigned adapters share a global
          * view type pool such that they use the same view types to refer to the same
@@ -400,7 +400,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
         /**
          * The builder for {@link Config} class.
          */
-        public static class Builder {
+        public static final class Builder {
             private boolean mIsolateViewTypes;
             private StableIdMode mStableIdMode = NO_STABLE_IDS;
 
