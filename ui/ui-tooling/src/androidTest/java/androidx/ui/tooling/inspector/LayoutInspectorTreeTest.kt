@@ -133,23 +133,16 @@ class LayoutInspectorTreeTest : ToolingTest() {
         )
         validate(
             name = "Column",
-            fileName = "Column.kt",
-            function = "androidx.ui.layout.ColumnKt.Column",
+            fileName = "Box.kt",
+            function = "androidx.ui.foundation.BoxKt.Box",
             left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
             children = listOf("RowColumnImpl")
         )
         validate(
             name = "RowColumnImpl",
-            fileName = "RowColumnImpl.kt",
-            function = "androidx.ui.layout.RowColumnImplKt.RowColumnImpl",
+            fileName = "Column.kt",
+            function = "androidx.ui.layout.ColumnKt.Column",
             left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
-            children = listOf("Box")
-        )
-        validate(
-            name = "Box",
-            fileName = "Box.kt",
-            function = "androidx.ui.foundation.BoxKt.Box",
-            left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 54.9.dp,
             children = listOf("Column")
         )
         validate(
@@ -162,8 +155,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
         )
         validate(
             name = "RowColumnImpl",
-            fileName = "RowColumnImpl.kt",
-            function = "androidx.ui.layout.RowColumnImplKt.RowColumnImpl",
+            fileName = "Column.kt",
+            function = "androidx.ui.layout.ColumnKt.Column",
             left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 54.9.dp,
             children = listOf("Text", "Surface")
         )
@@ -192,16 +185,9 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "SurfaceLayout",
             fileName = "Surface.kt",
-            function = "androidx.ui.material.SurfaceKt.SurfaceLayout",
-            left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
-            isRenderNode = true,
-            children = listOf("Surface")
-        )
-        validate(
-            name = "Surface",
-            fileName = "Surface.kt",
             function = "androidx.ui.material.SurfaceKt.Surface",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
+            isRenderNode = true,
             children = listOf("Button")
         )
         validate(
@@ -214,23 +200,16 @@ class LayoutInspectorTreeTest : ToolingTest() {
         )
         validate(
             name = "Surface",
-            fileName = "Surface.kt",
-            function = "androidx.ui.material.SurfaceKt.Surface",
+            fileName = "Button.kt",
+            function = "androidx.ui.material.ButtonKt.Button",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("SurfaceLayout")
         )
         validate(
             name = "SurfaceLayout",
             fileName = "Surface.kt",
-            function = "androidx.ui.material.SurfaceKt.SurfaceLayout",
-            left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
-            children = listOf("Surface")
-        )
-        validate(
-            name = "Surface",
-            fileName = "Surface.kt",
             function = "androidx.ui.material.SurfaceKt.Surface",
-            left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
+            left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("Box")
         )
         validate(
@@ -242,23 +221,16 @@ class LayoutInspectorTreeTest : ToolingTest() {
         )
         validate(
             name = "Column",
-            fileName = "Column.kt",
-            function = "androidx.ui.layout.ColumnKt.Column",
+            fileName = "Box.kt",
+            function = "androidx.ui.foundation.BoxKt.Box",
             left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
             children = listOf("RowColumnImpl")
         )
         validate(
             name = "RowColumnImpl",
-            fileName = "RowColumnImpl.kt",
-            function = "androidx.ui.layout.RowColumnImplKt.RowColumnImpl",
+            fileName = "Column.kt",
+            function = "androidx.ui.layout.ColumnKt.Column",
             left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
-            children = listOf("Box")
-        )
-        validate(
-            name = "Box",
-            fileName = "Box.kt",
-            function = "androidx.ui.foundation.BoxKt.Box",
-            left = 21.8.dp, top = 27.6.dp, width = 20.4.dp, height = 18.9.dp,
             children = listOf("ProvideTextStyle")
         )
         validate(
@@ -318,6 +290,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
             val width = if (node.width == view.width) "viewWidth" else round(node.width.toDp())
             val height = if (node.height == view.height) "viewHeight" else round(node.height.toDp())
             val function = node.functionName.replace(lambdaExpr, LAMBDA_REPLACEMENT)
+
             print(
                 """
                   validate(

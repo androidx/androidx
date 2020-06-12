@@ -24,7 +24,6 @@ import androidx.ui.tooling.R
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.position
 import java.util.ArrayDeque
-import java.util.regex.Pattern
 
 /**
  * A pattern for matching Group position.
@@ -44,7 +43,7 @@ private const val POSITION_FUNCTION_NAME = 1
 private const val POSITION_FILENAME = 3
 private const val POSITION_LINE_NUMBER = 4
 private const val INVOKE_FUNCTION = ".invoke"
-private val positionPattern = Pattern.compile(POSITION_REGEX)
+private val positionRegEx = Regex(POSITION_REGEX)
 private val unwantedFunctions = mapOf(
     "AndroidAmbients.kt" to "androidx.ui.core.",
     "Ambient.kt" to "androidx.compose.",
@@ -77,39 +76,62 @@ class LayoutInspectorTree {
     }
 
     private fun convert(tables: Set<SlotTable>): List<InspectorNode> {
-        val result = mutableListOf<InspectorNode>()
-        for (table in tables) {
-            buildToList(convert(table.asTree()), result)
+        return buildToList(tables.map { convert(it.asTree()) }, mutableListOf())
+    }
+
+    private fun convert(group: Group): MutableInspectorNode {
+        val children = convertChildren(group)
+        val node = parse(group)
+        extractRenderIdToNode(node, children)
+        buildToList(children, node.children)
+        return node
+    }
+
+    private fun convertChildren(group: Group): List<MutableInspectorNode> {
+        if (group.children.isEmpty()) {
+            return emptyList()
+        }
+        var first: MutableInspectorNode? = null
+        val groupIterator = group.children.iterator()
+        while (groupIterator.hasNext()) {
+            val node = convert(groupIterator.next())
+            if (node.name.isNotEmpty() || node.children.isNotEmpty() || node.id != 0L) {
+                if (first != null) {
+                    return convertTailEndOfChildren(groupIterator, first, node)
+                }
+                if (node.name.isNotEmpty()) {
+                    // Assume this represents the Composable node that group is calling.
+                    parseCallLocation(group, node)
+                    if (unwantedGroup(node)) {
+                        markUnwanted(node)
+                    }
+                }
+                first = node
+            } else {
+                release(node)
+            }
+        }
+        return listOfNotNull(first)
+    }
+
+    private fun convertTailEndOfChildren(
+        groupIterator: Iterator<Group>,
+        first: MutableInspectorNode?,
+        second: MutableInspectorNode
+    ): List<MutableInspectorNode> {
+        val result = mutableListOf<MutableInspectorNode>()
+        first?.let { result.add(it) }
+        result.add(second)
+        while (groupIterator.hasNext()) {
+            val node = convert(groupIterator.next())
+            if (node.name.isNotEmpty() || node.children.isNotEmpty() || node.id != 0L) {
+                result.add(node)
+            } else {
+                release(node)
+            }
         }
         return result
     }
-
-    private fun convert(group: Group): List<MutableInspectorNode> {
-        val children = convertChildren(group.children)
-        val single = children.singleOrNull()
-        val node = parse(group) ?: return children
-        return if (!isLambda(node)) {
-            extractRenderIdToNode(node, children)
-            buildToList(children, node.children)
-            listOf(node)
-        } else if (single != null && isLambda(node) && !isLambda(single)) {
-            single.functionName = node.functionName
-            single.fileName = node.fileName
-            single.lineNumber = node.lineNumber
-            release(node)
-            children
-        } else {
-            release(node)
-            children
-        }
-    }
-
-    private fun convertChildren(groups: Collection<Group>): List<MutableInspectorNode> =
-        when (groups.size) {
-            0 -> emptyList()
-            1 -> convert(groups.first())
-            else -> groups.flatMap { convert(it) }
-        }
 
     private fun extractRenderIdToNode(
         node: MutableInspectorNode,
@@ -122,64 +144,64 @@ class LayoutInspectorTree {
 
     /**
      * Adds the nodes in [input] to the [result] list.
-     * Render nodes (without a reference to a Composable) are skipped.
+     * Nodes without a reference to a Composable are skipped.
      */
     private fun buildToList(
         input: List<MutableInspectorNode>,
         result: MutableList<InspectorNode>
-    ) {
+    ): List<InspectorNode> {
         input.forEach {
-            if (isRenderNodeId(it)) {
+            if (it.name.isEmpty()) {
                 result.addAll(it.children)
             } else {
                 result.add(it.build())
             }
             release(it)
         }
+        return result
     }
 
-    private fun parse(group: Group): MutableInspectorNode? {
-        val position = group.position ?: return null
-        val matcher = positionPattern.matcher(position)
-        if (!matcher.matches()) {
-            return null
-        }
+    private fun parse(group: Group): MutableInspectorNode {
         val node = newNode()
         node.id = getRenderNode(group)
-        node.functionName = matcher.group(POSITION_FUNCTION_NAME) ?: return noNode(node)
-        node.fileName = matcher.group(POSITION_FILENAME) ?: return noNode(node)
-        node.lineNumber = matcher.group(POSITION_LINE_NUMBER)?.toIntOrNull() ?: return noNode(node)
+        if (!parseCallLocation(group, node)) {
+            return markUnwanted(node)
+        }
         if (unwantedGroup(node)) {
-            return noNode(node)
+            return markUnwanted(node)
         }
         val box = group.box
         node.top = box.top
         node.left = box.left
         node.height = box.bottom - box.top
         node.width = box.right - box.left
+        if (node.height <= 0 || node.width <= 0) {
+            return markUnwanted(node)
+        }
         if (!isLambda(node)) {
-            if (node.height <= 0 || node.width <= 0) {
-                return noNode(node)
-            }
-            node.id = getRenderNode(group)
             node.name = node.functionName.substringAfterLast(".")
         }
         return node
     }
 
+    private fun parseCallLocation(group: Group, node: MutableInspectorNode): Boolean {
+        val position = group.position ?: return false
+        val matcher = positionRegEx.matchEntire(position) ?: return false
+        val functionName = matcher.groups[POSITION_FUNCTION_NAME]?.value ?: return false
+        val fileName = matcher.groups[POSITION_FILENAME]?.value ?: return false
+        val lineNumber = matcher.groups[POSITION_LINE_NUMBER]?.value?.toIntOrNull() ?: return false
+        node.functionName = functionName
+        node.fileName = fileName
+        node.lineNumber = lineNumber
+        return true
+    }
+
     private fun getRenderNode(group: Group): Long =
         group.modifierInfo.mapNotNull { (it.extra as? OwnedLayer)?.layerId }.singleOrNull() ?: 0
 
-    private fun noNode(node: MutableInspectorNode): MutableInspectorNode? {
-        val id = node.id
-        if (id != 0L) {
-            // Remember a RenderNode id even when we don't want the node:
-            node.reset()
-            node.id = id
-            return node
-        }
-        release(node)
-        return null
+    private fun markUnwanted(node: MutableInspectorNode): MutableInspectorNode {
+        node.resetExceptIdAndChildren()
+        return node
     }
 
     private fun isLambda(node: MutableInspectorNode) =

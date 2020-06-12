@@ -87,7 +87,13 @@ internal class MutableInspectorNode {
     val children = mutableListOf<InspectorNode>()
 
     fun reset() {
+        resetExceptIdAndChildren()
         id = 0L
+        children.clear()
+    }
+
+    fun resetExceptIdAndChildren() {
+        name = ""
         fileName = ""
         lineNumber = 0
         functionName = ""
@@ -95,7 +101,6 @@ internal class MutableInspectorNode {
         top = 0
         width = 0
         height = 0
-        children.clear()
     }
 
     fun build(): InspectorNode =
