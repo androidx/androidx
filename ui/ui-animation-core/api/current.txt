@@ -370,14 +370,6 @@ package androidx.animation {
     method public V getVelocity(long playTime, V start, V end, V startVelocity);
   }
 
-  @androidx.animation.InternalAnimationApi public final class SeekableAnimation<T> {
-    ctor public SeekableAnimation(androidx.animation.TransitionDefinition<T> def, T! fromState, T! toState);
-    method public java.util.Map<androidx.animation.PropKey<java.lang.Object,androidx.animation.AnimationVector>,java.lang.Object> getAnimValuesAt(long playTime);
-    method public androidx.animation.TransitionDefinition<T> getDef();
-    method public long getDuration();
-    property public final long duration;
-  }
-
   public final class SnapBuilder<T> extends androidx.animation.AnimationBuilder<T> {
     ctor public SnapBuilder();
     method public <V extends androidx.animation.AnimationVector> androidx.animation.SnapSpec<V> build(androidx.animation.TwoWayConverter<T,V> converter);
@@ -445,8 +437,6 @@ package androidx.animation {
   }
 
   public final class ToolingGlueKt {
-    method @androidx.animation.InternalAnimationApi public static <T> androidx.animation.SeekableAnimation<T> createSeekableAnimation(androidx.animation.TransitionAnimation<T>, T? fromState, T? toState);
-    method @androidx.animation.InternalAnimationApi public static <T> java.util.Set<T> getStates(androidx.animation.TransitionAnimation<T>);
   }
 
   public final class TransitionAnimation<T> implements androidx.animation.TransitionState {
@@ -461,13 +451,6 @@ package androidx.animation {
     property public final boolean isRunning;
     property public final kotlin.jvm.functions.Function1<T,kotlin.Unit>? onStateChangeFinished;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onUpdate;
-  }
-
-  @androidx.animation.InternalAnimationApi public final class TransitionAnimation.TransitionAnimationClockObserver implements androidx.animation.AnimationClockObserver {
-    ctor public TransitionAnimation.TransitionAnimationClockObserver();
-    method public androidx.animation.TransitionAnimation<T> getAnimation();
-    method public void onAnimationFrame(long frameTimeMillis);
-    property public final androidx.animation.TransitionAnimation<T> animation;
   }
 
   public final class TransitionAnimationKt {
