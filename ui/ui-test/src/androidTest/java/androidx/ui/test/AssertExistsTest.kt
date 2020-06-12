@@ -17,6 +17,7 @@
 package androidx.ui.test
 
 import androidx.compose.state
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
@@ -39,6 +40,7 @@ class AssertExistsTest {
     val composeTestRule = createComposeRule(disableTransitions = true)
 
     @Test
+    @FlakyTest
     fun toggleTextInHierarchy_assertExistsAndNotExists() {
         composeTestRule.setContent {
             MaterialTheme {
