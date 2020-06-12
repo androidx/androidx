@@ -31,7 +31,12 @@ import androidx.ui.test.sendLongClick
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.ClickableTestBox.defaultSize
 import androidx.ui.test.util.ClickableTestBox.defaultTag
+import androidx.ui.test.util.SinglePointerInputRecorder
 import androidx.ui.test.util.isAlmostEqualTo
+import androidx.ui.test.util.recordedDuration
+import androidx.ui.test.waitForIdle
+import androidx.ui.unit.Duration
+import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -46,19 +51,21 @@ import org.junit.runners.Parameterized
 @MediumTest
 @RunWith(Parameterized::class)
 class SendLongClickTest(private val config: TestConfig) {
-    data class TestConfig(val position: Offset?)
+    data class TestConfig(val position: Offset?, val duration: Duration?)
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return mutableListOf<TestConfig>().apply {
-                for (x in listOf(1.0f, defaultSize / 4)) {
-                    for (y in listOf(1.0f, defaultSize / 3)) {
-                        add(TestConfig(Offset(x, y)))
+                for (duration in listOf(null, 700.milliseconds)) {
+                    for (x in listOf(1.0f, defaultSize / 4)) {
+                        for (y in listOf(1.0f, defaultSize / 3)) {
+                            add(TestConfig(Offset(x, y), duration))
+                        }
                     }
+                    add(TestConfig(null, duration))
                 }
-                add(TestConfig(null))
             }
         }
     }
@@ -69,6 +76,7 @@ class SendLongClickTest(private val config: TestConfig) {
     private val recordedLongClicks = mutableListOf<Offset>()
     private val expectedClickPosition =
         config.position ?: Offset((defaultSize - 1) / 2, (defaultSize - 1) / 2)
+    private val expectedDuration = config.duration ?: 600.milliseconds
 
     private fun recordLongPress(position: Offset) {
         recordedLongClicks.add(position)
@@ -77,23 +85,33 @@ class SendLongClickTest(private val config: TestConfig) {
     @Test
     fun testLongClick() {
         // Given some content
+        val recorder = SinglePointerInputRecorder()
         composeTestRule.setContent {
             Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
-                ClickableTestBox(Modifier.longPressGestureFilter(::recordLongPress))
+                ClickableTestBox(Modifier.longPressGestureFilter(::recordLongPress) + recorder)
             }
         }
 
         // When we inject a long click
         findByTag(defaultTag).doGesture {
-            if (config.position != null) {
+            if (config.position != null && config.duration != null) {
+                sendLongClick(config.position, config.duration)
+            } else if (config.position != null) {
                 sendLongClick(config.position)
+            } else if (config.duration != null) {
+                sendLongClick(duration = config.duration)
             } else {
                 sendLongClick()
             }
         }
 
+        waitForIdle()
+
         // Then we record 1 long click at the expected position
         assertThat(recordedLongClicks).hasSize(1)
         recordedLongClicks[0].isAlmostEqualTo(expectedClickPosition)
+
+        // And that the duration was as expected
+        assertThat(recorder.recordedDuration).isEqualTo(expectedDuration)
     }
 }
