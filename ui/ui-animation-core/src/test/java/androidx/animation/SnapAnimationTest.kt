@@ -27,11 +27,11 @@ class SnapAnimationTest {
     @Test
     fun isFinishedAtTheBeginning() {
         val animation = SnapBuilder<Float>().build()
-        val animationWrapper = TargetBasedAnimationWrapper(
+        val animationWrapper = TargetBasedAnimation(
+            animation,
+            0f,
             0f,
             AnimationVector(0f),
-            0f,
-            animation,
             FloatToVectorConverter
         )
 

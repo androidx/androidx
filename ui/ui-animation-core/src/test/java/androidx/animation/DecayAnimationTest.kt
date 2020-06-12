@@ -33,7 +33,7 @@ class DecayAnimationTest {
         val startValue = 200f
         val startVelocity = -800f
 
-        val animWrapper = anim.createWrapper(startValue, startVelocity)
+        val animWrapper = anim.createAnimation(startValue, startVelocity)
         // Obtain finish value by passing in an absurdly large playtime.
         val finishValue = animWrapper.getValue(Int.MAX_VALUE.toLong())
         val finishTime = animWrapper.durationMillis
@@ -48,7 +48,7 @@ class DecayAnimationTest {
                 // Before the animation finishes, absolute velocity is above the threshold
                 assertTrue(Math.abs(velocity) >= 2.0f)
                 assertEquals(value, animWrapper.getValue(playTime), epsilon)
-                assertEquals(velocity, animWrapper.getVelocity(playTime).value, epsilon)
+                assertEquals(velocity, animWrapper.getVelocityVector(playTime).value, epsilon)
                 assertTrue(playTime < finishTime)
             } else {
                 // When the animation is finished, expect absolute velocity < threshold
@@ -75,22 +75,22 @@ class DecayAnimationTest {
 
         val startValue = 2000f
         val startVelocity = 800f
-        val fullAnim = ExponentialDecay(absVelocityThreshold = 0f).createWrapper(startValue,
+        val fullAnim = ExponentialDecay(absVelocityThreshold = 0f).createAnimation(startValue,
             startVelocity)
 
         val finishValue = fullAnim.getValue(Int.MAX_VALUE.toLong())
 
-        val finishValue1 = anim1.createWrapper(startValue, startVelocity)
+        val finishValue1 = anim1.createAnimation(startValue, startVelocity)
             .getValue(Int.MAX_VALUE.toLong())
 
-        val finishVelocity1 = anim1.createWrapper(startValue, startVelocity)
-            .getVelocity(Int.MAX_VALUE.toLong()).value
+        val finishVelocity1 = anim1.createAnimation(startValue, startVelocity)
+            .getVelocityVector(Int.MAX_VALUE.toLong()).value
 
         // Verify that the finish velocity is at the threshold
         assertEquals(threshold, finishVelocity1, epsilon)
 
         // Feed in the finish value from anim1 to anim2
-        val finishValue2 = anim2.createWrapper(finishValue1, finishVelocity1)
+        val finishValue2 = anim2.createAnimation(finishValue1, finishVelocity1)
             .getValue(Int.MAX_VALUE.toLong())
 
         assertEquals(finishValue, finishValue2, 2f)

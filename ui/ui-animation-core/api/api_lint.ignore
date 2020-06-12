@@ -7,6 +7,8 @@ ArrayReturn: androidx.animation.TransitionDefinition#transition(kotlin.Pair<? ex
 
 AutoBoxing: androidx.animation.CubicBezierEasing#invoke(float):
     Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.animation.DecayAnimation#getValue(long):
+    Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.animation.RepeatableBuilder#getIterations():
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.animation.RepeatableBuilder#setIterations(Integer) parameter #0:
@@ -15,6 +17,8 @@ AutoBoxing: androidx.animation.RepeatableBuilder#setIterations(Integer) paramete
 
 CallbackName: androidx.animation.AnimationClockObserver:
     Class should be named AnimationClockCallback
+CallbackName: androidx.animation.TransitionAnimation.TransitionAnimationClockObserver:
+    Class should be named TransitionAnimationClockCallback
 
 
 DocumentExceptions: androidx.animation.DurationBasedAnimationBuilder#setDelay(int):
@@ -29,26 +33,12 @@ DocumentExceptions: androidx.animation.RepeatableBuilder#setIterations(Integer):
 
 HiddenTypeParameter: androidx.animation.BaseAnimationClock#Companion:
     Field BaseAnimationClock.Companion references hidden type androidx.animation.BaseAnimationClock.Companion.
-HiddenTypeParameter: androidx.animation.DurationBasedAnimationBuilder#build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>):
-    Method androidx.animation.DurationBasedAnimationBuilder.build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>) references hidden type androidx.animation.DurationBasedAnimation<V>.
-HiddenTypeParameter: androidx.animation.KeyframesBuilder#build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>):
-    Method androidx.animation.KeyframesBuilder.build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>) references hidden type androidx.animation.DurationBasedAnimation<V>.
-HiddenTypeParameter: androidx.animation.PhysicsBuilder#build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>):
-    Method androidx.animation.PhysicsBuilder.build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>) references hidden type androidx.animation.Animation<V>.
-HiddenTypeParameter: androidx.animation.RepeatableBuilder#build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>):
-    Method androidx.animation.RepeatableBuilder.build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>) references hidden type androidx.animation.Animation<V>.
-HiddenTypeParameter: androidx.animation.SnapBuilder#build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>):
-    Method androidx.animation.SnapBuilder.build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>) references hidden type androidx.animation.Animation<V>.
-HiddenTypeParameter: androidx.animation.TweenBuilder#build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>):
-    Method androidx.animation.TweenBuilder.build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V>) references hidden type androidx.animation.DurationBasedAnimation<V>.
-
-
-MissingBuildMethod: androidx.animation.AnimationBuilder:
-    androidx.animation.AnimationBuilder does not declare a `build()` method, but builder classes are expected to
 
 
 MissingNullability: androidx.animation.CubicBezierEasing#invoke(float):
     Missing nullability on method `invoke` return
+MissingNullability: androidx.animation.DecayAnimation#getValue(long):
+    Missing nullability on method `getValue` return
 
 
 TopLevelBuilder: androidx.animation.AnimationBuilder:

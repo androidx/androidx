@@ -28,7 +28,7 @@ class TransitionAnimationTest {
         val clock = ManualAnimationClock(0)
         val anim = TransitionAnimation(def1, clock)
         anim.toState(AnimState.B)
-        val physicsAnim = SpringAnimation()
+        val physicsAnim = FloatSpringSpec()
         for (playTime in 0L until physicsAnim.getDurationMillis(0f, 1f, 0f) step 20L) {
             clock.clockTimeMillis = playTime
             assertEquals(anim[prop1],

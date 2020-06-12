@@ -16,15 +16,15 @@
 
 package androidx.ui.foundation.animation
 
-import androidx.animation.DecayAnimation
+import androidx.animation.FloatDecayAnimationSpec
 import kotlin.math.sign
 
 /**
  * A native Android fling curve decay.
  */
-class AndroidFlingDecayAnimation(
+class AndroidFlingDecaySpec(
     flingCalculator: AndroidFlingCalculator
-) : DecayAnimation {
+) : FloatDecayAnimationSpec {
 
     var flingCalculator = flingCalculator
         // Allow the @Composable factory to update this for the animation it creates
