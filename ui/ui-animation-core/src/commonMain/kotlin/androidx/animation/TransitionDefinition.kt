@@ -24,7 +24,8 @@ import kotlin.experimental.ExperimentalTypeInference
  *
  * Each property involved in the states that the transition is from and to can have an animation
  * associated with it. When such an animation is defined, the animation system will be using it
- * instead of the default [SpringAnimation] animation to animate the value change for that property.
+ * instead of the default [FloatSpringSpec] animation to animate the value change for that
+ * property.
  *
  * @sample androidx.animation.samples.TransitionSpecWith3Properties
  **/
@@ -53,12 +54,14 @@ class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out 
      */
     internal var defaultAnimation: DefaultTransitionAnimation = SpringTransition()
 
-    private val propAnimation: MutableMap<PropKey<*, *>, Animation<*>> = mutableMapOf()
+    private val propAnimation: MutableMap<PropKey<*, *>, AnimationSpec<*>> = mutableMapOf()
 
-    internal fun <T, V : AnimationVector> getAnimationForProp(prop: PropKey<T, V>): Animation<V> {
+    internal fun <T, V : AnimationVector> getAnimationForProp(
+        prop: PropKey<T, V>
+    ): AnimationSpec<V> {
         @Suppress("UNCHECKED_CAST")
         return (propAnimation.getOrPut(prop,
-            { defaultAnimation.createDefault(prop.typeConverter) })) as Animation<V>
+            { defaultAnimation.createDefault(prop.typeConverter) })) as AnimationSpec<V>
     }
 
     internal fun defines(from: S?, to: S?) =
@@ -74,33 +77,33 @@ class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out 
     }
 
     /**
-     * Creates a [Tween] animation, initialized with [init]
+     * Creates a [FloatTweenSpec] animation, initialized with [init]
      *
-     * @param init Initialization function for the [Tween] animation
+     * @param init Initialization function for the [FloatTweenSpec] animation
      */
     fun <T> tween(init: TweenBuilder<T>.() -> Unit): DurationBasedAnimationBuilder<T> =
         TweenBuilder<T>().apply(init)
 
     /**
-     * Creates a [SpringAnimation] animation, initialized with [init]
+     * Creates a [FloatSpringSpec] animation, initialized with [init]
      *
-     * @param init Initialization function for the [SpringAnimation] animation
+     * @param init Initialization function for the [FloatSpringSpec] animation
      */
     fun <T> physics(init: PhysicsBuilder<T>.() -> Unit): AnimationBuilder<T> =
         PhysicsBuilder<T>().apply(init)
 
     /**
-     * Creates a [Keyframes] animation, initialized with [init]
+     * Creates a [KeyframesSpec] animation, initialized with [init]
      *
-     * @param init Initialization function for the [Keyframes] animation
+     * @param init Initialization function for the [KeyframesSpec] animation
      */
     fun <T> keyframes(init: KeyframesBuilder<T>.() -> Unit): KeyframesBuilder<T> =
         KeyframesBuilder<T>().apply(init)
 
     /**
-     * Creates a [Repeatable] animation, initialized with [init]
+     * Creates a [RepeatableSpec] animation, initialized with [init]
      *
-     * @param init Initialization function for the [Repeatable] animation
+     * @param init Initialization function for the [RepeatableSpec] animation
      */
     fun <T> repeatable(init: RepeatableBuilder<T>.() -> Unit): AnimationBuilder<T> =
         RepeatableBuilder<T>().apply(init)
@@ -112,13 +115,15 @@ class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out 
 }
 
 internal interface DefaultTransitionAnimation {
-    fun <T, V : AnimationVector> createDefault(typeConverter: TwoWayConverter<T, V>): Animation<V>
+    fun <T, V : AnimationVector> createDefault(
+        typeConverter: TwoWayConverter<T, V>
+    ): AnimationSpec<V>
 }
 
 internal class SnapTransition : DefaultTransitionAnimation {
     override fun <T, V : AnimationVector> createDefault(
         typeConverter: TwoWayConverter<T, V>
-    ): Animation<V> {
+    ): AnimationSpec<V> {
         return SnapBuilder<T>().build(typeConverter)
     }
 }
@@ -126,7 +131,7 @@ internal class SnapTransition : DefaultTransitionAnimation {
 internal class SpringTransition : DefaultTransitionAnimation {
     override fun <T, V : AnimationVector> createDefault(
         typeConverter: TwoWayConverter<T, V>
-    ): Animation<V> {
+    ): AnimationSpec<V> {
         return PhysicsBuilder<T>().build(typeConverter)
     }
 }

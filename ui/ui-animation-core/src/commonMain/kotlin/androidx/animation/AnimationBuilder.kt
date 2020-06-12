@@ -17,7 +17,6 @@
 package androidx.animation
 
 import androidx.animation.Spring.DampingRatioNoBouncy
-import androidx.animation.Spring.DefaultDisplacementThreshold
 import androidx.animation.Spring.StiffnessMedium
 import androidx.animation.Spring.StiffnessVeryLow
 
@@ -25,15 +24,15 @@ import androidx.animation.Spring.StiffnessVeryLow
  * Animation builder for creating an animation that animates a value of type [T].
  */
 abstract class AnimationBuilder<T> {
-    internal abstract fun <V : AnimationVector> build(
+    abstract fun <V : AnimationVector> build(
         converter: TwoWayConverter<T, V>
-    ): Animation<V>
+    ): AnimationSpec<V>
 }
 
 /**
- * The default duration used in [Animation]s.
+ * The default duration used in [AnimationSpec]s.
  */
-const val DefaultDuration: Int = 300
+const val DefaultDuration: Long = 300L
 
 /**
  * Used as a iterations count for [RepeatableBuilder] to create an infinity repeating animation.
@@ -41,10 +40,10 @@ const val DefaultDuration: Int = 300
 const val Infinite: Int = Int.MAX_VALUE
 
 /**
- * [KeyframesBuilder] creates a [Keyframes] animation.
- * [Keyframes] animation based on the values defined at different timestamps in
+ * [KeyframesBuilder] creates a [KeyframesSpec] animation.
+ * [KeyframesSpec] animation based on the values defined at different timestamps in
  * the duration of the animation (i.e. different keyframes). Each keyframe can be defined using
- * [at]. [Keyframes] allows very specific animation definitions with a precision to millisecond.
+ * [at]. [KeyframesSpec] allows very specific animation definitions with a precision to millisecond.
  *
  * @sample androidx.animation.samples.FloatKeyframesBuilder
  *
@@ -84,10 +83,10 @@ class KeyframesBuilder<T> : DurationBasedAnimationBuilder<T>() {
 
     override fun <V : AnimationVector> build(
         converter: TwoWayConverter<T, V>
-    ): DurationBasedAnimation<V> {
-        return Keyframes(duration.toLong(), delay.toLong(), keyframes.mapValues {
+    ): DurationBasedAnimationSpec<V> {
+        return KeyframesSpec(keyframes.mapValues {
             it.value.toPair(converter.convertToVector)
-        })
+        }, duration.toLong(), delay.toLong())
     }
 
     /**
@@ -130,12 +129,12 @@ class RepeatableBuilder<T> : AnimationBuilder<T>() {
      *
      * @throws IllegalStateException if the [iterations] or [animation] are undefined
      */
-    override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): Animation<V> {
+    override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): AnimationSpec<V> {
         val iterationsCount = iterations?.toLong()
             ?: throw IllegalStateException("The iterations count should be provided")
         val animation = animation
             ?: throw IllegalStateException("The animation should be provided")
-        return Repeatable(
+        return RepeatableSpec(
             iterationsCount,
             animation.build(converter)
         )
@@ -149,7 +148,7 @@ abstract class DurationBasedAnimationBuilder<T> : AnimationBuilder<T>() {
     /**
      * Duration of the animation in milliseconds. Defaults to [DefaultDuration]
      */
-    var duration: Int = DefaultDuration
+    var duration: Int = DefaultDuration.toInt()
         set(value) {
             if (value < 0) {
                 throw IllegalStateException("Duration shouldn't be negative")
@@ -170,7 +169,7 @@ abstract class DurationBasedAnimationBuilder<T> : AnimationBuilder<T>() {
 
     abstract override fun <V : AnimationVector> build(
         converter: TwoWayConverter<T, V>
-    ): DurationBasedAnimation<V>
+    ): DurationBasedAnimationSpec<V>
 }
 
 /**
@@ -188,13 +187,10 @@ class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
 
     override fun <V : AnimationVector> build(
         converter: TwoWayConverter<T, V>
-    ): DurationBasedAnimation<V> {
+    ): TweenSpec<V> {
         val delay = this.delay.toLong()
         val duration = this.duration.toLong()
-        return SimpleDurationBasedAnimation(
-            duration, delay,
-            Tween(duration, delay, easing).buildMultiDimensAnim()
-        )
+        return TweenSpec(duration, delay, easing)
     }
 }
 
@@ -204,44 +200,23 @@ class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
  * @param dampingRatio Damping ratio of the spring. Defaults to [DampingRatioNoBouncy]
  * @param stiffness Stiffness of the spring. Defaults to [StiffnessVeryLow]
  */
-class PhysicsBuilder<T> private constructor(
+class PhysicsBuilder<T>(
     var dampingRatio: Float = DampingRatioNoBouncy,
-    var stiffness: Float = StiffnessMedium
+    var stiffness: Float = StiffnessMedium,
+    displacementThreshold: T? = null
 ) : AnimationBuilder<T>() {
 
-    private var genericThreshold: T? = null
-    private var floatThreshold: Float = DefaultDisplacementThreshold
+    private val genericThreshold: T? = displacementThreshold
 
-    constructor(
-        dampingRatio: Float = DampingRatioNoBouncy,
-        stiffness: Float = StiffnessMedium,
-        displacementThreshold: T
-    ) : this(dampingRatio, stiffness) {
-        this.genericThreshold = displacementThreshold
-    }
-
-    constructor(
-        dampingRatio: Float = DampingRatioNoBouncy,
-        stiffness: Float = StiffnessMedium,
-        displacementThreshold: Float = DefaultDisplacementThreshold
-    ) : this(dampingRatio, stiffness) {
-        floatThreshold = displacementThreshold
-    }
-
-    override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): Animation<V> {
-        val floatThreshold = this.floatThreshold
-        val genericThreshold = this.genericThreshold
-
-        return if (genericThreshold != null) {
-            SpringAnimationVector(
-                dampingRatio,
-                stiffness,
-                converter.convertToVector(genericThreshold)
-            )
-        } else {
-            SpringAnimation(dampingRatio, stiffness, floatThreshold)
-                .buildMultiDimensAnim()
-        }
+    override fun <V : AnimationVector> build(
+        converter: TwoWayConverter<T, V>
+    ): SpringSpec<V> {
+        val threshold: V? = genericThreshold?.let { converter.convertToVector(genericThreshold) }
+        return SpringSpec(
+            dampingRatio,
+            stiffness,
+            threshold
+        )
     }
 }
 
@@ -249,116 +224,24 @@ class PhysicsBuilder<T> private constructor(
  * Builds Snap animation for immediately switching the animating value to the end value.
  */
 class SnapBuilder<T> : AnimationBuilder<T>() {
-    override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): Animation<V> =
-        SnapAnimation()
-}
+    /**
+     * The amount of time in milliseconds that the snap animation should wait before it runs. 0
+     * by default.
+     */
+    var delay: Int = 0
 
-private class SpringAnimationVector<V : AnimationVector>(
-    val dampingRatio: Float,
-    val stiffness: Float,
-    val threshold: V
-) : Animation<V> {
-    private val anims = (0 until threshold.size).map { index ->
-        SpringAnimation(dampingRatio, stiffness, threshold[index])
-    }
-    private lateinit var valueVector: V
-    private lateinit var velocityVector: V
-
-    override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
-        if (!::valueVector.isInitialized) {
-            valueVector = start.newInstance()
-        }
-        for (i in 0 until valueVector.size) {
-            valueVector[i] = anims[i].getValue(playTime, start[i], end[i], startVelocity[i])
-        }
-        return valueVector
-    }
-
-    override fun getVelocity(playTime: Long, start: V, end: V, startVelocity: V): V {
-        if (!::velocityVector.isInitialized) {
-            velocityVector = startVelocity.newInstance()
-        }
-        for (i in 0 until velocityVector.size) {
-            velocityVector[i] = anims[i].getVelocity(playTime, start[i], end[i], startVelocity[i])
-        }
-        return velocityVector
-    }
-
-    override fun getDurationMillis(start: V, end: V, startVelocity: V): Long {
-        var maxDuration = 0L
-        (0 until start.size).forEach {
-            maxDuration = maxOf(
-                maxDuration,
-                anims[it].getDurationMillis(start[it], end[it], startVelocity[it])
-            )
-        }
-        return maxDuration
-    }
-}
-
-/**
- * Convert a 1D animation into a potential multi-dimensional animation by using the same 1D
- * animation on all dimensions.
- */
-internal fun <V : AnimationVector> FloatAnimation.buildMultiDimensAnim(): Animation<V> =
-    VectorizedAnimation(this)
-
-private class VectorizedAnimation<V : AnimationVector>(val anim: FloatAnimation) : Animation<V> {
-    private lateinit var valueVector: V
-    private lateinit var velocityVector: V
-    private lateinit var endVelocityVector: V
-
-    override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
-        if (!::valueVector.isInitialized) {
-            valueVector = start.newInstance()
-        }
-        for (i in 0 until valueVector.size) {
-            valueVector[i] = anim.getValue(playTime, start[i], end[i], startVelocity[i])
-        }
-        return valueVector
-    }
-
-    override fun getVelocity(playTime: Long, start: V, end: V, startVelocity: V): V {
-        if (!::velocityVector.isInitialized) {
-            velocityVector = startVelocity.newInstance()
-        }
-        for (i in 0 until velocityVector.size) {
-            velocityVector[i] = anim.getVelocity(playTime, start[i], end[i], startVelocity[i])
-        }
-        return velocityVector
-    }
-
-    override fun getEndVelocity(start: V, end: V, startVelocity: V, animationDuration: Long): V {
-        if (!::endVelocityVector.isInitialized) {
-            endVelocityVector = startVelocity.newInstance()
-        }
-        for (i in 0 until endVelocityVector.size) {
-            endVelocityVector[i] =
-                anim.getEndVelocity(start[i], end[i], startVelocity[i], animationDuration)
-        }
-        return endVelocityVector
-    }
-
-    override fun getDurationMillis(start: V, end: V, startVelocity: V): Long {
-        var maxDuration = 0L
-        (0 until start.size).forEach {
-            maxDuration = maxOf(
-                maxDuration,
-                anim.getDurationMillis(start[it], end[it], startVelocity[it])
-            )
-        }
-        return maxDuration
-    }
+    override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): SnapSpec<V> =
+        SnapSpec(delay.toLong())
 }
 
 /**
  * Convenient internal class to set a duration on a multi-dimensional animation.
  */
-private class SimpleDurationBasedAnimation<V : AnimationVector>(
+private class SimpleDurationBasedAnimationSpec<V : AnimationVector>(
     override val duration: Long,
     override val delay: Long,
-    private val anim: Animation<V>
-) : DurationBasedAnimation<V> {
+    private val anim: AnimationSpec<V>
+) : DurationBasedAnimationSpec<V> {
     override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
         return anim.getValue(playTime, start, end, startVelocity)
     }

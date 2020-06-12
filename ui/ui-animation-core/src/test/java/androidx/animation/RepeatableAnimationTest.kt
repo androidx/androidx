@@ -41,11 +41,11 @@ class RepeatableAnimationTest {
             animation = Animation
             build()
         }
-        val animationWrapper = TargetBasedAnimationWrapper(
+        val animationWrapper = TargetBasedAnimation(
+            repeat,
+            0f,
             0f,
             AnimationVector(0f),
-            0f,
-            repeat,
             FloatToVectorConverter
         )
 

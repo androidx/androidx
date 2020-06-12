@@ -220,8 +220,8 @@ package androidx.ui.foundation.animation {
   public final class AndroidFlingCalculatorKt {
   }
 
-  public final class AndroidFlingDecayAnimation implements androidx.animation.DecayAnimation {
-    ctor public AndroidFlingDecayAnimation(androidx.ui.foundation.animation.AndroidFlingCalculator flingCalculator);
+  public final class AndroidFlingDecaySpec implements androidx.animation.FloatDecayAnimationSpec {
+    ctor public AndroidFlingDecaySpec(androidx.ui.foundation.animation.AndroidFlingCalculator flingCalculator);
     method public float getAbsVelocityThreshold();
     method public long getDurationMillis(float start, float startVelocity);
     method public androidx.ui.foundation.animation.AndroidFlingCalculator getFlingCalculator();
@@ -251,18 +251,18 @@ package androidx.ui.foundation.animation {
   }
 
   @androidx.compose.Immutable public final class FlingConfig {
-    ctor public FlingConfig(androidx.animation.DecayAnimation decayAnimation, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
-    method public androidx.animation.DecayAnimation component1();
+    ctor public FlingConfig(androidx.animation.FloatDecayAnimationSpec decayAnimation, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
+    method public androidx.animation.FloatDecayAnimationSpec component1();
     method public kotlin.jvm.functions.Function3<androidx.animation.AnimationEndReason,java.lang.Float,java.lang.Float,kotlin.Unit>? component2();
     method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> component3();
-    method @androidx.compose.Immutable public androidx.ui.foundation.animation.FlingConfig copy(androidx.animation.DecayAnimation decayAnimation, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
+    method @androidx.compose.Immutable public androidx.ui.foundation.animation.FlingConfig copy(androidx.animation.FloatDecayAnimationSpec decayAnimation, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
     method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> getAdjustTarget();
-    method public androidx.animation.DecayAnimation getDecayAnimation();
+    method public androidx.animation.FloatDecayAnimationSpec getDecayAnimation();
     method public kotlin.jvm.functions.Function3<androidx.animation.AnimationEndReason,java.lang.Float,java.lang.Float,kotlin.Unit>? getOnAnimationEnd();
   }
 
   public final class FlingConfigKt {
-    method public static androidx.ui.foundation.animation.FlingConfig AnchorsFlingConfig(java.util.List<java.lang.Float> anchors, androidx.animation.AnimationBuilder<java.lang.Float> animationBuilder = androidx.animation.PhysicsBuilder(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, androidx.animation.DecayAnimation decayAnimation = androidx.animation.ExponentialDecay());
+    method public static androidx.ui.foundation.animation.FlingConfig AnchorsFlingConfig(java.util.List<java.lang.Float> anchors, androidx.animation.AnimationBuilder<java.lang.Float> animationBuilder = androidx.animation.PhysicsBuilder(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, androidx.animation.FloatDecayAnimationSpec decayAnimation = androidx.animation.ExponentialDecay());
     method @androidx.compose.Composable public static androidx.ui.foundation.animation.FlingConfig FlingConfig(kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget = { return null });
     method public static void fling(androidx.animation.AnimatedFloat, androidx.ui.foundation.animation.FlingConfig config, float startVelocity);
   }

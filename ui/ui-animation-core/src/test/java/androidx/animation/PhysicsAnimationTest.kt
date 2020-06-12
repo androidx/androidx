@@ -104,7 +104,7 @@ class PhysicsAnimationTest {
             stiffness = stiffness,
             displacementThreshold = 1f
         )
-        val criticalWrapper = criticalBuilder.build().toWrapper(
+        val criticalWrapper = criticalBuilder.build().toAnimation(
             startValue = startValue,
             endValue = endValue,
             startVelocity = startVelocity
@@ -135,7 +135,7 @@ class PhysicsAnimationTest {
             stiffness = stiffness,
             displacementThreshold = 1f
         )
-        val overWrapper = overBuilder.build().toWrapper(
+        val overWrapper = overBuilder.build().toAnimation(
             startValue = startValue,
             endValue = endValue,
             startVelocity = startVelocity
@@ -166,7 +166,7 @@ class PhysicsAnimationTest {
             stiffness = stiffness,
             displacementThreshold = 1f
         )
-        val underWrapper = underBuilder.build().toWrapper(
+        val underWrapper = underBuilder.build().toAnimation(
             startValue = startValue,
             endValue = endValue,
             startVelocity = startVelocity
@@ -185,8 +185,8 @@ class PhysicsAnimationTest {
 
     @Test
     fun testEndSnapping() {
-        PhysicsBuilder<Float>().build().toWrapper(0f, 0f, 100f).also { animation ->
-            assertEquals(0f, animation.getVelocity(animation.durationMillis).value)
+        PhysicsBuilder<Float>().build().toAnimation(0f, 0f, 100f).also { animation ->
+            assertEquals(0f, animation.getVelocityVector(animation.durationMillis).value)
             assertEquals(100f, animation.getValue(animation.durationMillis))
         }
     }
@@ -280,17 +280,16 @@ class PhysicsAnimationTest {
         }
     }
 
-    private fun Animation<AnimationVector1D>.toWrapper(
+    private fun AnimationSpec<AnimationVector1D>.toAnimation(
         startValue: Float,
         startVelocity: Float,
         endValue: Float
-    ): AnimationWrapper<Float, AnimationVector1D> {
-        return TargetBasedAnimationWrapper(
+    ): Animation<Float, AnimationVector1D> {
+        return this.createAnimation(
             startValue = startValue,
-            startVelocity = AnimationVector(startVelocity),
             endValue = endValue,
-            animation = this,
-            typeConverter = FloatToVectorConverter
+            startVelocityVector = AnimationVector(startVelocity),
+            converter = FloatToVectorConverter
         )
     }
 

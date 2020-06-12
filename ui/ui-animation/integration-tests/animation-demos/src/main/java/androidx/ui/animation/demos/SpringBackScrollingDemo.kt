@@ -17,7 +17,6 @@
 package androidx.ui.animation.demos
 
 import android.util.Log
-import androidx.animation.DEBUG
 import androidx.animation.PhysicsBuilder
 import androidx.animation.fling
 import androidx.compose.Composable

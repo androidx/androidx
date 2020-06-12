@@ -17,7 +17,6 @@
 package androidx.ui.animation.demos
 
 import android.util.Log
-import androidx.animation.DEBUG
 import androidx.animation.PhysicsBuilder
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
@@ -40,6 +39,8 @@ import androidx.ui.layout.preferredHeight
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 import kotlin.math.roundToInt
+
+const val DEBUG = false
 
 @Composable
 fun FancyScrollingDemo() {
