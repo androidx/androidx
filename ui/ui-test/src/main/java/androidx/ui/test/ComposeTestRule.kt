@@ -54,15 +54,10 @@ interface ComposeTestRule : TestRule {
     fun setContent(composable: @Composable () -> Unit)
 
     /**
-     * Takes the given content and prepares it for execution-controlled test via
-     * [ComposeTestCaseSetup].
-     */
-    fun forGivenContent(composable: @Composable () -> Unit): ComposeTestCaseSetup
-
-    /**
      * Takes the given test case and prepares it for execution-controlled test via
      * [ComposeTestCaseSetup].
      */
+    @ExperimentalTesting
     fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup
 
     // TODO(pavlis): Provide better abstraction for host side reusability
