@@ -100,8 +100,8 @@ class IconComparisonTest(
             val programmaticVector = property.get()
             var composition: Composition? = null
 
-            runOnUiThread {
-                composition = composeTestRule.activityTestRule.activity.setContent {
+            composeTestRule.activityRule.scenario.onActivity {
+                composition = it.setContent {
                     xmlVector = drawableName.toVectorAsset()
                     DrawVectors(programmaticVector, xmlVector!!)
                 }

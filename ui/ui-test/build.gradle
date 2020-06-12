@@ -36,6 +36,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
     implementation(ANDROIDX_TEST_RULES)
     implementation(ANDROIDX_TEST_RUNNER)
+    api(ANDROIDX_TEST_EXT_JUNIT)
     implementation(ESPRESSO_CORE)
     implementation(JUNIT)
 

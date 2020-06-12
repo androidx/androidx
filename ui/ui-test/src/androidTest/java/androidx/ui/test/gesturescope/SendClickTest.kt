@@ -18,6 +18,7 @@ package androidx.ui.test.gesturescope
 
 import androidx.activity.ComponentActivity
 import androidx.compose.Composable
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.MediumTest
 import androidx.ui.core.changedToUp
 import androidx.ui.core.pointerinput.PointerInputFilter
@@ -30,7 +31,6 @@ import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
-import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.RecordingFilter
@@ -86,10 +86,9 @@ class SendClickTest(private val config: TestConfig) {
         }
     }
 
-    @Suppress("DEPRECATION")
     @get:Rule
     val composeTestRule = AndroidComposeTestRule(
-        androidx.test.rule.ActivityTestRule(config.activityClass),
+        ActivityScenarioRule(config.activityClass),
         disableTransitions = true
     )
 
@@ -100,10 +99,14 @@ class SendClickTest(private val config: TestConfig) {
     @Test
     fun testClick() {
         // Given a column of 5 small components
-        val activity = composeTestRule.activityTestRule.activity
-        if (activity is ActivityWithActionBar) {
-            runOnUiThread { activity.setContent { ColumnOfSquares(5) } }
-        } else {
+        var contentSet = false
+        composeTestRule.activityRule.scenario.onActivity {
+            if (it is ActivityWithActionBar) {
+                it.setContent { ColumnOfSquares(5) }
+                contentSet = true
+            }
+        }
+        if (!contentSet) {
             composeTestRule.setContent { ColumnOfSquares(5) }
         }
 
