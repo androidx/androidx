@@ -61,7 +61,7 @@ includeProject(":ui:ui-animation:samples", "ui-animation/samples")
 includeProject(":ui:ui-core", "ui-core")
 includeProject(":ui:ui-core:integration-tests:ui-core-demos", "ui-core/integration-tests/ui-core-demos")
 includeProject(":ui:ui-core:samples", "ui-core/samples")
-if (startParameter.projectProperties.containsKey('compose.desktop')) {
+if (!startParameter.projectProperties.containsKey('compose.desktop.disable')) {
     includeProject(":ui:ui-desktop", "ui-desktop")
     includeProject(":ui:ui-desktop:android-emu", "ui-desktop/android-emu")
     includeProject(":ui:ui-desktop:samples", "ui-desktop/samples")
