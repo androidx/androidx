@@ -2305,7 +2305,7 @@ class AndroidLayoutDrawTest {
                             Color.Blue,
                             Offset(offset.value.toFloat(), 0f),
                             Offset(0f, offset.value.toFloat()),
-                            stroke = Stroke(width = 0.0f) // 0.0f represents hairline stroke
+                            strokeWidth = Stroke.HairlineWidth
                         )
                         drawLatch.countDown()
                     })

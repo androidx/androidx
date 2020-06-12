@@ -39,6 +39,8 @@ import androidx.ui.graphics.setNativePathEffect
 import androidx.ui.graphics.vectormath.Matrix4
 import androidx.ui.graphics.vectormath.degrees
 import androidx.ui.unit.Density
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 
 /**
  * Simultaneously translate the [DrawScope] coordinate space by [left] and [top] as well as modify
@@ -59,11 +61,11 @@ inline fun DrawScope.inset(
     right: Float,
     bottom: Float,
     block: DrawScope.() -> Unit
-) = canvas?.apply {
-        transform.inset(left, top, right, bottom)
-        block()
-        transform.inset(-left, -top, -right, -bottom)
-    }
+) {
+    transform.inset(left, top, right, bottom)
+    block()
+    transform.inset(-left, -top, -right, -bottom)
+}
 
 /**
  * Convenience method modifies the [DrawScope] bounds to inset both left and right bounds by
@@ -92,11 +94,11 @@ inline fun DrawScope.translate(
     left: Float = 0.0f,
     top: Float = 0.0f,
     block: DrawScope.() -> Unit
-) = canvas?.apply {
-        translate(left, top)
-        block()
-        translate(-left, -top)
-    }
+) {
+    transform.translate(left, top)
+    block()
+    transform.translate(-left, -top)
+}
 
 /**
  *  Add a rotation (in degrees clockwise) to the current transform at the given pivot point.
@@ -208,16 +210,13 @@ inline fun DrawScope.clipPath(
  *
  * @param block Lambda callback to issue drawing commands on the provided [Canvas] and given size
  */
-inline fun DrawScope.drawCanvas(block: (Canvas, Size) -> Unit) =
-    canvas?.let {
-        block(it, size)
-    }
+inline fun DrawScope.drawCanvas(block: (Canvas, Size) -> Unit) = block(canvas, size)
 
 /**
  * Perform 1 or more transformations and execute drawing commands with the specified transformations
  * applied. After this call is complete, the transformation before this call was made is restored
  *
- * @sample androidx.ui.graphics.samples.canvasScopeBatchedTransformSample
+ * @sample androidx.ui.graphics.samples.DrawScopeBatchedTransformSample
  *
  * @param transformBlock Callback invoked to issue transformations to be made before the drawing
  * operations are issued
@@ -227,15 +226,15 @@ inline fun DrawScope.drawCanvas(block: (Canvas, Size) -> Unit) =
 inline fun DrawScope.withTransform(
     transformBlock: DrawTransform.() -> Unit,
     drawBlock: DrawScope.() -> Unit
-) = canvas?.apply {
+) = canvas.let {
         // Transformation can include inset calls which change the drawing area
         // so cache the previous size before the transformation is done
         // and reset it afterwards
         val previousSize = size
-        save()
+        it.save()
         transformBlock(transform)
         drawBlock()
-        restore()
+        it.restore()
         setSize(previousSize)
     }
 
@@ -249,12 +248,12 @@ inline fun DrawScope.withTransform(
  * specified width and height respectively. Drawing content is not clipped,
  * so it is possible to draw outside of the specified bounds.
  *
- * @sample androidx.ui.graphics.samples.canvasScopeSample
+ * @sample androidx.ui.graphics.samples.DrawScopeSample
  */
 @DrawScopeMarker
 abstract class DrawScope : Density {
 
-    @PublishedApi internal var canvas: Canvas? = null
+    @PublishedApi internal lateinit var canvas: Canvas
 
     @PublishedApi internal val transform = object : DrawTransform {
 
@@ -265,7 +264,7 @@ abstract class DrawScope : Density {
             get() = this@DrawScope.center
 
         override fun inset(left: Float, top: Float, right: Float, bottom: Float) {
-            this@DrawScope.canvas?.let {
+            this@DrawScope.canvas.let {
                 val updatedSize = size - Offset(left + right, top + bottom)
                 require(updatedSize.width > 0 && updatedSize.height > 0) {
                     "Width and height must be greater than zero"
@@ -282,19 +281,19 @@ abstract class DrawScope : Density {
             bottom: Float,
             clipOp: ClipOp
         ) {
-            this@DrawScope.canvas?.clipRect(left, top, right, bottom, clipOp)
+            this@DrawScope.canvas.clipRect(left, top, right, bottom, clipOp)
         }
 
         override fun clipPath(path: Path, clipOp: ClipOp) {
-            this@DrawScope.canvas?.clipPath(path, clipOp)
+            this@DrawScope.canvas.clipPath(path, clipOp)
         }
 
         override fun translate(left: Float, top: Float) {
-            this@DrawScope.canvas?.translate(left, top)
+            this@DrawScope.canvas.translate(left, top)
         }
 
         override fun rotate(degrees: Float, pivotX: Float, pivotY: Float) {
-            this@DrawScope.canvas?.apply {
+            this@DrawScope.canvas.apply {
                 translate(pivotX, pivotY)
                 rotate(degrees)
                 translate(-pivotX, -pivotY)
@@ -302,7 +301,7 @@ abstract class DrawScope : Density {
         }
 
         override fun scale(scaleX: Float, scaleY: Float, pivotX: Float, pivotY: Float) {
-            this@DrawScope.canvas?.apply {
+            this@DrawScope.canvas.apply {
                 translate(pivotX, pivotY)
                 scale(scaleX, scaleY)
                 translate(-pivotX, -pivotY)
@@ -310,7 +309,7 @@ abstract class DrawScope : Density {
         }
 
         override fun transform(matrix: Matrix4) {
-            this@DrawScope.canvas?.concat(matrix)
+            this@DrawScope.canvas.concat(matrix)
         }
     }
 
@@ -353,54 +352,82 @@ abstract class DrawScope : Density {
      * Draws a line between the given points using the given paint. The line is
      * stroked.
      *
-     * @param brush: the color or fill to be applied to the line
-     * @param p1: First point of the line to be drawn
-     * @param p2: Second point of the line to be drawn
-     * @param stroke: The stroke parameters to apply to the line
-     * @param alpha: opacity to be applied to the [brush] from 0.0f to 1.0f representing
+     * @param brush the color or fill to be applied to the line
+     * @param start first point of the line to be drawn
+     * @param end second point of the line to be drawn
+     * @param strokeWidth stroke width to apply to the line
+     * @param cap treatment applied to the ends of the line segment
+     * @param pathEffect optional effect or pattern to apply to the line
+     * @param alpha opacity to be applied to the [brush] from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param colorFilter: ColorFilter to apply to the [brush] when drawn into the destination
-     * @param blendMode: the blending algorithm to apply to the [brush]
+     * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
+     * @param blendMode the blending algorithm to apply to the [brush]
      */
     fun drawLine(
         brush: Brush,
-        p1: Offset,
-        p2: Offset,
-        stroke: Stroke,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        start: Offset,
+        end: Offset,
+        strokeWidth: Float = Stroke.HairlineWidth,
+        cap: StrokeCap = Stroke.DefaultCap,
+        pathEffect: NativePathEffect? = null,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawLine(
-            p1,
-            p2,
-            configurePaint(brush, stroke, alpha, colorFilter, blendMode)
+    ) = canvas.drawLine(
+            start,
+            end,
+            configureStrokePaint(
+                brush,
+                strokeWidth,
+                Stroke.DefaultMiter,
+                cap,
+                StrokeJoin.miter,
+                pathEffect,
+                alpha,
+                colorFilter,
+                blendMode
+            )
         )
 
     /**
      * Draws a line between the given points using the given paint. The line is
      * stroked.
      *
-     * @param color: the color to be applied to the line
-     * @param p1: First point of the line to be drawn
-     * @param p2: Second point of the line to be drawn
-     * @param stroke: The stroke parameters to apply to the line
-     * @param alpha: opacity to be applied to the [color] from 0.0f to 1.0f representing
+     * @param color the color to be applied to the line
+     * @param start first point of the line to be drawn
+     * @param end second point of the line to be drawn
+     * @param strokeWidth The stroke width to apply to the line
+     * @param cap treatment applied to the ends of the line segment
+     * @param pathEffect optional effect or pattern to apply to the line
+     * @param alpha opacity to be applied to the [color] from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
-     * @param blendMode: the blending algorithm to apply to the [color]
+     * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
+     * @param blendMode the blending algorithm to apply to the [color]
      */
     fun drawLine(
         color: Color,
-        p1: Offset,
-        p2: Offset,
-        stroke: Stroke,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        start: Offset,
+        end: Offset,
+        strokeWidth: Float = Stroke.HairlineWidth,
+        cap: StrokeCap = Stroke.DefaultCap,
+        pathEffect: NativePathEffect? = null,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawLine(
-            p1,
-            p2,
-            configurePaint(color, stroke, alpha, colorFilter, blendMode)
+    ) = canvas.drawLine(
+            start,
+            end,
+            configureStrokePaint(
+                color,
+                strokeWidth,
+                Stroke.DefaultMiter,
+                cap,
+                StrokeJoin.miter,
+                pathEffect,
+                alpha,
+                colorFilter,
+                blendMode
+            )
         )
 
     /**
@@ -408,24 +435,24 @@ abstract class DrawScope : Density {
      * it is drawn starting from the origin of the current translation. If no size is provided,
      * the size of the current environment is used.
      *
-     * @param brush: The color or fill to be applied to the rectangle
-     * @param topLeft: Offset from the local origin of 0, 0 relative to the current translation
-     * @param size: Dimensions of the rectangle to draw
-     * @param alpha: Opacity to be applied to the [brush] from 0.0f to 1.0f representing
+     * @param brush The color or fill to be applied to the rectangle
+     * @param topLeft Offset from the local origin of 0, 0 relative to the current translation
+     * @param size Dimensions of the rectangle to draw
+     * @param alpha Opacity to be applied to the [brush] from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param style: Whether or not the rectangle is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [brush] when drawn into the destination
-     * @param blendMode: Blending algorithm to apply to destination
+     * @param style Whether or not the rectangle is stroked or filled in
+     * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
+     * @param blendMode Blending algorithm to apply to destination
      */
     fun drawRect(
         brush: Brush,
         topLeft: Offset = Offset.Zero,
-        size: Size = this.size,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        size: Size = this.size - topLeft,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawRect(
+    ) = canvas.drawRect(
             left = topLeft.x,
             top = topLeft.y,
             right = topLeft.x + size.width,
@@ -438,24 +465,24 @@ abstract class DrawScope : Density {
      * it is drawn starting from the origin of the current translation. If no size is provided,
      * the size of the current environment is used.
      *
-     * @param color: The color to be applied to the rectangle
-     * @param topLeft: Offset from the local origin of 0, 0 relative to the current translation
-     * @param size: Dimensions of the rectangle to draw
-     * @param alpha: Opacity to be applied to the [color] from 0.0f to 1.0f representing
+     * @param color The color to be applied to the rectangle
+     * @param topLeft Offset from the local origin of 0, 0 relative to the current translation
+     * @param size Dimensions of the rectangle to draw
+     * @param alpha Opacity to be applied to the [color] from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param style: Whether or not the rectangle is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [color] source pixels
-     * @param blendMode: Blending algorithm to apply to destination
+     * @param style Whether or not the rectangle is stroked or filled in
+     * @param colorFilter ColorFilter to apply to the [color] source pixels
+     * @param blendMode Blending algorithm to apply to destination
      */
     fun drawRect(
         color: Color,
         topLeft: Offset = Offset.Zero,
-        size: Size = this.size,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        size: Size = this.size - topLeft,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawRect(
+    ) = canvas.drawRect(
             left = topLeft.x,
             top = topLeft.y,
             right = topLeft.x + size.width,
@@ -472,17 +499,17 @@ abstract class DrawScope : Density {
      * @param alpha Opacity to be applied to [image] from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
      * @param style Specifies whether the image is to be drawn filled in or as a rectangular stroke
-     * @param colorFilter: ColorFilter to apply to the [image] when drawn into the destination
-     * @param blendMode: Blending algorithm to apply to destination
+     * @param colorFilter ColorFilter to apply to the [image] when drawn into the destination
+     * @param blendMode Blending algorithm to apply to destination
      */
     fun drawImage(
         image: ImageAsset,
         topLeft: Offset = Offset.Zero,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawImage(
+    ) = canvas.drawImage(
             image,
             topLeft,
             configurePaint(null, style, alpha, colorFilter, blendMode)
@@ -495,33 +522,32 @@ abstract class DrawScope : Density {
      * If no src rect is provided, the entire image is scaled into the corresponding destination
      * bounds
      *
-     * @param image: The source image to draw
-     * @param srcOffset: Optional offset representing the top left offset of the source image
+     * @param image The source image to draw
+     * @param srcOffset Optional offset representing the top left offset of the source image
      * to draw, this defaults to the origin of [image]
-     * @param srcSize: Optional dimensions of the source image to draw relative to [srcOffset],
+     * @param srcSize Optional dimensions of the source image to draw relative to [srcOffset],
      * this defaults the width and height of [image]
-     * @param dstOffset: Optional offset representing the top left offset of the destination
+     * @param dstOffset Optional offset representing the top left offset of the destination
      * to draw the given image, this defaults to the origin of the current translation
      * tarting top left offset in the destination to draw the image
-     * @param dstSize: Optional dimensions of the destination to draw, this defaults to the size
-     * of the current drawing environment
+     * @param dstSize Optional dimensions of the destination to draw, this defaults to [srcSize]
      * @param alpha Opacity to be applied to [image] from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
      * @param style Specifies whether the image is to be drawn filled in or as a rectangular stroke
-     * @param colorFilter: ColorFilter to apply to the [image] when drawn into the destination
-     * @param blendMode: Blending algorithm to apply to destination
+     * @param colorFilter ColorFilter to apply to the [image] when drawn into the destination
+     * @param blendMode Blending algorithm to apply to destination
      */
     fun drawImage(
         image: ImageAsset,
-        srcOffset: Offset = Offset.Zero,
-        srcSize: Size = Size(image.width.toFloat(), image.height.toFloat()),
-        dstOffset: Offset = Offset.Zero,
-        dstSize: Size = this.size,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        srcOffset: IntOffset = IntOffset.Origin,
+        srcSize: IntSize = IntSize(image.width, image.height),
+        dstOffset: IntOffset = IntOffset.Origin,
+        dstSize: IntSize = srcSize,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawImageRect(
+    ) = canvas.drawImageRect(
             image,
             srcOffset,
             srcSize,
@@ -542,19 +568,19 @@ abstract class DrawScope : Density {
      * @param alpha Opacity to be applied to rounded rectangle from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
      * @param style Specifies whether the rounded rectangle is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [brush] when drawn into the destination
-     * @param blendMode: Blending algorithm to be applied to the brush
+     * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
+     * @param blendMode Blending algorithm to be applied to the brush
      */
     fun drawRoundRect(
         brush: Brush,
         topLeft: Offset = Offset.Zero,
-        size: Size = this.size,
+        size: Size = this.size - topLeft,
         radius: Radius = Radius.Zero,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawRoundRect(
+    ) = canvas.drawRoundRect(
             topLeft.x,
             topLeft.y,
             topLeft.x + size.width,
@@ -575,19 +601,19 @@ abstract class DrawScope : Density {
      * @param alpha Opacity to be applied to rounded rectangle from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
      * @param style Specifies whether the rounded rectangle is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
-     * @param blendMode: Blending algorithm to be applied to the color
+     * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
+     * @param blendMode Blending algorithm to be applied to the color
      */
     fun drawRoundRect(
         color: Color,
         topLeft: Offset = Offset.Zero,
-        size: Size = this.size,
+        size: Size = this.size - topLeft,
         radius: Radius = Radius.Zero,
         style: DrawStyle = Fill,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawRoundRect(
+    ) = canvas.drawRoundRect(
             topLeft.x,
             topLeft.y,
             topLeft.x + size.width,
@@ -601,24 +627,24 @@ abstract class DrawScope : Density {
      * Draws a circle at the provided center coordinate and radius. If no center point is provided
      * the center of the bounds is used.
      *
-     * @param brush: The color or fill to be applied to the circle
-     * @param radius: The radius of the circle
-     * @param center: The center coordinate where the circle is to be drawn
-     * @param alpha: Opacity to be applied to the circle from 0.0f to 1.0f representing
+     * @param brush The color or fill to be applied to the circle
+     * @param radius The radius of the circle
+     * @param center The center coordinate where the circle is to be drawn
+     * @param alpha Opacity to be applied to the circle from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param style: Whether or not the circle is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [brush] when drawn into the destination
-     * @param blendMode: Blending algorithm to be applied to the brush
+     * @param style Whether or not the circle is stroked or filled in
+     * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
+     * @param blendMode Blending algorithm to be applied to the brush
      */
     fun drawCircle(
         brush: Brush,
         radius: Float = size.minDimension / 2.0f,
         center: Offset = this.center,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawCircle(
+    ) = canvas.drawCircle(
             center,
             radius,
             configurePaint(brush, style, alpha, colorFilter, blendMode)
@@ -628,24 +654,24 @@ abstract class DrawScope : Density {
      * Draws a circle at the provided center coordinate and radius. If no center point is provided
      * the center of the bounds is used.
      *
-     * @param color: The color or fill to be applied to the circle
-     * @param radius: The radius of the circle
-     * @param center: The center coordinate where the circle is to be drawn
-     * @param alpha: Opacity to be applied to the circle from 0.0f to 1.0f representing
+     * @param color The color or fill to be applied to the circle
+     * @param radius The radius of the circle
+     * @param center The center coordinate where the circle is to be drawn
+     * @param alpha Opacity to be applied to the circle from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param style: Whether or not the circle is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
-     * @param blendMode: Blending algorithm to be applied to the brush
+     * @param style Whether or not the circle is stroked or filled in
+     * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
+     * @param blendMode Blending algorithm to be applied to the brush
      */
     fun drawCircle(
         color: Color,
         radius: Float = size.minDimension / 2.0f,
         center: Offset = this.center,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawCircle(
+    ) = canvas.drawCircle(
             center,
             radius,
             configurePaint(color, style, alpha, colorFilter, blendMode)
@@ -656,24 +682,24 @@ abstract class DrawScope : Density {
      * it is drawn starting from the origin of the current translation. If no size is provided,
      * the size of the current environment is used.
      *
-     * @param brush: Color or fill to be applied to the oval
-     * @param topLeft: Offset from the local origin of 0, 0 relative to the current translation
-     * @param size: Dimensions of the rectangle to draw
-     * @param alpha: Opacity to be applied to the oval from 0.0f to 1.0f representing
+     * @param brush Color or fill to be applied to the oval
+     * @param topLeft Offset from the local origin of 0, 0 relative to the current translation
+     * @param size Dimensions of the rectangle to draw
+     * @param alpha Opacity to be applied to the oval from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param style: Whether or not the oval is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [brush] when drawn into the destination
-     * @param blendMode: Blending algorithm to be applied to the brush
+     * @param style Whether or not the oval is stroked or filled in
+     * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
+     * @param blendMode Blending algorithm to be applied to the brush
      */
     fun drawOval(
         brush: Brush,
         topLeft: Offset = Offset.Zero,
-        size: Size = this.size,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        size: Size = this.size - topLeft,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawOval(
+    ) = canvas.drawOval(
             left = topLeft.x,
             top = topLeft.y,
             right = topLeft.x + size.width,
@@ -686,24 +712,24 @@ abstract class DrawScope : Density {
      * it is drawn starting from the origin of the current translation. If no size is provided,
      * the size of the current environment is used.
      *
-     * @param color: Color to be applied to the oval
-     * @param topLeft: Offset from the local origin of 0, 0 relative to the current translation
-     * @param size: Dimensions of the rectangle to draw
-     * @param alpha: Opacity to be applied to the oval from 0.0f to 1.0f representing
+     * @param color Color to be applied to the oval
+     * @param topLeft Offset from the local origin of 0, 0 relative to the current translation
+     * @param size Dimensions of the rectangle to draw
+     * @param alpha Opacity to be applied to the oval from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param style: Whether or not the oval is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
-     * @param blendMode: Blending algorithm to be applied to the brush
+     * @param style Whether or not the oval is stroked or filled in
+     * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
+     * @param blendMode Blending algorithm to be applied to the brush
      */
     fun drawOval(
         color: Color,
         topLeft: Offset = Offset.Zero,
-        size: Size = this.size,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        size: Size = this.size - topLeft,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawOval(
+    ) = canvas.drawOval(
             left = topLeft.x,
             top = topLeft.y,
             right = topLeft.x + size.width,
@@ -721,18 +747,17 @@ abstract class DrawScope : Density {
      * closed back to the center, forming a circle sector. Otherwise, the arc is
      * not closed, forming a circle segment.
      *
-     * @param brush: Color or fill to be applied to the arc
-     * @param topLeft: Offset from the local origin of 0, 0 relative to the current translation
-     * @param size: Dimensions of the arc to draw
-     * @param startAngle: Starting angle in degrees. 0 represents 3 o'clock
-     * @param sweepAngle: Size of the arc in degrees that is drawn at the position provided in
-     * [startAngle]
-     * @param useCenter: Flag indicating if the arc is to close the center of the bounds
-     * @param alpha: Opacity to be applied to the arc from 0.0f to 1.0f representing
+     * @param brush Color or fill to be applied to the arc
+     * @param topLeft Offset from the local origin of 0, 0 relative to the current translation
+     * @param size Dimensions of the arc to draw
+     * @param startAngle Starting angle in degrees. 0 represents 3 o'clock
+     * @param sweepAngle Size of the arc in degrees that is drawn clockwise relative to [startAngle]
+     * @param useCenter Flag indicating if the arc is to close the center of the bounds
+     * @param alpha Opacity to be applied to the arc from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param style: Whether or not the arc is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [brush] when drawn into the destination
-     * @param blendMode: Blending algorithm to be applied to the arc when it is drawn
+     * @param style Whether or not the arc is stroked or filled in
+     * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
+     * @param blendMode Blending algorithm to be applied to the arc when it is drawn
      */
     fun drawArc(
         brush: Brush,
@@ -740,12 +765,12 @@ abstract class DrawScope : Density {
         sweepAngle: Float,
         useCenter: Boolean,
         topLeft: Offset = Offset.Zero,
-        size: Size = this.size,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        size: Size = this.size - topLeft,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawArc(
+    ) = canvas.drawArc(
             left = topLeft.x,
             top = topLeft.y,
             right = topLeft.x + size.width,
@@ -766,18 +791,17 @@ abstract class DrawScope : Density {
      * closed back to the center, forming a circle sector. Otherwise, the arc is
      * not closed, forming a circle segment.
      *
-     * @param color: Color to be applied to the arc
-     * @param topLeft: Offset from the local origin of 0, 0 relative to the current translation
-     * @param size: Dimensions of the arc to draw
-     * @param startAngle: Starting angle in degrees. 0 represents 3 o'clock
-     * @param sweepAngle: Size of the arc in degrees that is drawn at the position provided in
-     * [startAngle]
-     * @param useCenter: Flag indicating if the arc is to close the center of the bounds
-     * @param alpha: Opacity to be applied to the arc from 0.0f to 1.0f representing
+     * @param color Color to be applied to the arc
+     * @param topLeft Offset from the local origin of 0, 0 relative to the current translation
+     * @param size Dimensions of the arc to draw
+     * @param startAngle Starting angle in degrees. 0 represents 3 o'clock
+     * @param sweepAngle Size of the arc in degrees that is drawn clockwise relative to [startAngle]
+     * @param useCenter Flag indicating if the arc is to close the center of the bounds
+     * @param alpha Opacity to be applied to the arc from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param style: Whether or not the arc is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
-     * @param blendMode: Blending algorithm to be applied to the arc when it is drawn
+     * @param style Whether or not the arc is stroked or filled in
+     * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
+     * @param blendMode Blending algorithm to be applied to the arc when it is drawn
      */
     fun drawArc(
         color: Color,
@@ -785,12 +809,12 @@ abstract class DrawScope : Density {
         sweepAngle: Float,
         useCenter: Boolean,
         topLeft: Offset = Offset.Zero,
-        size: Size = this.size,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        size: Size = this.size - topLeft,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawArc(
+    ) = canvas.drawArc(
         left = topLeft.x,
         top = topLeft.y,
         right = topLeft.x + size.width,
@@ -807,72 +831,85 @@ abstract class DrawScope : Density {
      * filled, then subpaths within it are implicitly closed (see [Path.close]).
      *
      *
-     * @param path: Path to draw
-     * @param color: Color to be applied to the path
-     * @param alpha: Opacity to be applied to the path from 0.0f to 1.0f representing
+     * @param path Path to draw
+     * @param color Color to be applied to the path
+     * @param alpha Opacity to be applied to the path from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param style: Whether or not the path is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
-     * @param blendMode: Blending algorithm to be applied to the path when it is drawn
+     * @param style Whether or not the path is stroked or filled in
+     * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
+     * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
     fun drawPath(
         path: Path,
         color: Color,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawPath(path, configurePaint(color, style, alpha, colorFilter, blendMode))
+    ) = canvas.drawPath(path, configurePaint(color, style, alpha, colorFilter, blendMode))
 
     /**
      * Draws the given [Path] with the given [Color]. Whether this shape is
      * filled or stroked (or both) is controlled by [DrawStyle]. If the path is
      * filled, then subpaths within it are implicitly closed (see [Path.close]).
      *
-     * @param path: Path to draw
-     * @param brush: Brush to be applied to the path
-     * @param alpha: Opacity to be applied to the path from 0.0f to 1.0f representing
+     * @param path Path to draw
+     * @param brush Brush to be applied to the path
+     * @param alpha Opacity to be applied to the path from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param style: Whether or not the path is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [brush] when drawn into the destination
-     * @param blendMode: Blending algorithm to be applied to the path when it is drawn
+     * @param style Whether or not the path is stroked or filled in
+     * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
+     * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
     fun drawPath(
         path: Path,
         brush: Brush,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawPath(path, configurePaint(brush, style, alpha, colorFilter, blendMode))
+    ) = canvas.drawPath(path, configurePaint(brush, style, alpha, colorFilter, blendMode))
 
     /**
      * Draws a sequence of points according to the given [PointMode].
      *
      * The `points` argument is interpreted as offsets from the origin.
      *
-     * @param points: List of points to draw with the specified [PointMode]
-     * @param pointMode: [PointMode] used to indicate how the points are to be drawn
-     * @param color: Color to be applied to the points
-     * @param alpha: Opacity to be applied to the path from 0.0f to 1.0f representing
+     * @param points List of points to draw with the specified [PointMode]
+     * @param pointMode [PointMode] used to indicate how the points are to be drawn
+     * @param color Color to be applied to the points
+     * @param alpha Opacity to be applied to the path from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param stroke: The stroke parameters to apply to the points
-     * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
-     * @param blendMode: Blending algorithm to be applied to the path when it is drawn
+     * @param strokeWidth The stroke width to apply to the line
+     * @param cap Treatment applied to the ends of the line segment
+     * @param pathEffect optional effect or pattern to apply to the point
+     * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
+     * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
     fun drawPoints(
         points: List<Offset>,
         pointMode: PointMode,
         color: Color,
-        stroke: Stroke,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        strokeWidth: Float = Stroke.HairlineWidth,
+        cap: StrokeCap = StrokeCap.butt,
+        pathEffect: NativePathEffect? = null,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawPoints(
+    ) = canvas.drawPoints(
             pointMode,
             points,
-            configurePaint(color, stroke, alpha, colorFilter,
-            blendMode)
+            configureStrokePaint(
+                color,
+                strokeWidth,
+                Stroke.DefaultMiter,
+                cap,
+                StrokeJoin.miter,
+                pathEffect,
+                alpha,
+                colorFilter,
+                blendMode
+            )
         )
 
     /**
@@ -880,28 +917,41 @@ abstract class DrawScope : Density {
      *
      * The `points` argument is interpreted as offsets from the origin.
      *
-     * @param points: List of points to draw with the specified [PointMode]
-     * @param pointMode: [PointMode] used to indicate how the points are to be drawn
-     * @param brush: Brush to be applied to the points
-     * @param alpha: Opacity to be applied to the path from 0.0f to 1.0f representing
+     * @param points List of points to draw with the specified [PointMode]
+     * @param pointMode [PointMode] used to indicate how the points are to be drawn
+     * @param brush Brush to be applied to the points
+     * @param strokeWidth The stroke width to apply to the line
+     * @param cap Treatment applied to the ends of the line segment
+     * @param pathEffect optional effect or pattern to apply to the points
+     * @param alpha Opacity to be applied to the path from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
-     * @param style: Whether or not the path is stroked or filled in
-     * @param colorFilter: ColorFilter to apply to the [brush] when drawn into the destination
-     * @param blendMode: Blending algorithm to be applied to the path when it is drawn
+     * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
+     * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
     fun drawPoints(
         points: List<Offset>,
         pointMode: PointMode,
         brush: Brush,
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
-        style: DrawStyle = Fill,
+        strokeWidth: Float = Stroke.HairlineWidth,
+        cap: StrokeCap = StrokeCap.butt,
+        pathEffect: NativePathEffect? = null,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode
-    ) = canvas?.drawPoints(
+    ) = canvas.drawPoints(
         pointMode,
         points,
-        configurePaint(brush, style, alpha, colorFilter,
-            blendMode)
+        configureStrokePaint(
+            brush,
+            strokeWidth,
+            Stroke.DefaultMiter,
+            cap,
+            StrokeJoin.miter,
+            pathEffect,
+            alpha,
+            colorFilter,
+            blendMode
+        )
     )
 
     /**
@@ -913,20 +963,22 @@ abstract class DrawScope : Density {
      * should draw within
      * @param block lambda that is called to issue drawing commands on this [DrawScope]
      */
-    fun draw(canvas: Canvas, size: Size, block: DrawScope.() -> Unit) {
+    protected fun draw(canvas: Canvas, size: Size, block: DrawScope.() -> Unit) {
         val previousSize = this.size
         // Remember the previous canvas in case we are temporarily re-directing our drawing
         // to a separate Layer/RenderNode only to draw that content back into the original Canvas
         // If there is no previous canvas that was being drawin into, this ends up reseting this
         // parameter back to null defensively
-        val previousCanvas = this.canvas
+        val previousCanvas = if (this::canvas.isInitialized) this.canvas else null
         this.canvas = canvas
         setSize(size)
         canvas.save()
         this.block()
         canvas.restore()
         setSize(previousSize)
-        this.canvas = previousCanvas
+        if (previousCanvas != null) {
+            this.canvas = previousCanvas
+        }
     }
 
     /**
@@ -1005,6 +1057,57 @@ abstract class DrawScope : Density {
         if (this.blendMode != blendMode) this.blendMode = blendMode
     }
 
+    private fun configureStrokePaint(
+        color: Color,
+        strokeWidth: Float,
+        miter: Float,
+        cap: StrokeCap,
+        join: StrokeJoin,
+        pathEffect: NativePathEffect?,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float,
+        colorFilter: ColorFilter?,
+        blendMode: BlendMode
+    ) =
+        strokePaint.apply {
+            // Modulate the color alpha directly
+            // instead of configuring a separate alpha parameter
+            val targetColor = color.modulate(alpha)
+            if (this.color != targetColor) this.color = targetColor
+            if (this.shader != null) this.shader = null
+            if (this.colorFilter != colorFilter) this.colorFilter = colorFilter
+            if (this.blendMode != blendMode) this.blendMode = blendMode
+            if (this.strokeWidth != strokeWidth) this.strokeWidth = strokeWidth
+            if (this.strokeMiterLimit != miter) this.strokeMiterLimit = miter
+            if (this.strokeCap != strokeCap) this.strokeCap = cap
+            if (this.strokeJoin != strokeJoin) this.strokeJoin = join
+            this.asFrameworkPaint().setNativePathEffect(pathEffect)
+        }
+
+    private fun configureStrokePaint(
+        brush: Brush?,
+        strokeWidth: Float,
+        miter: Float,
+        cap: StrokeCap,
+        join: StrokeJoin,
+        pathEffect: NativePathEffect?,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float,
+        colorFilter: ColorFilter?,
+        blendMode: BlendMode
+    ) = strokePaint.apply {
+            if (brush != null) {
+                brush.applyTo(this, alpha)
+            } else if (this.alpha != alpha) {
+                this.alpha = alpha
+            }
+            if (this.colorFilter != colorFilter) this.colorFilter = colorFilter
+            if (this.blendMode != blendMode) this.blendMode = blendMode
+            if (this.strokeWidth != strokeWidth) this.strokeWidth = strokeWidth
+            if (this.strokeMiterLimit != miter) this.strokeMiterLimit = miter
+            if (this.strokeCap != strokeCap) this.strokeCap = cap
+            if (this.strokeJoin != strokeJoin) this.strokeJoin = join
+            this.asFrameworkPaint().setNativePathEffect(pathEffect)
+        }
+
     /**
      * Returns a [Color] modulated with the given alpha value
      */
@@ -1016,15 +1119,6 @@ abstract class DrawScope : Density {
         }
 
     companion object {
-        /**
-         * Default alpha value used for each drawing operation
-         * This represents a fully opaque drawing operation.
-         *
-         * Note color values that have their own alpha value
-         * will draw with some transparency even if this value
-         * is used
-         */
-        const val DefaultAlpha: Float = 1.0f
 
         /**
          * Default blending mode used for each drawing operation.
@@ -1056,10 +1150,10 @@ data class Stroke(
     val width: Float = 0.0f,
 
     /**
-     * Set the paint's stroke miter value. This is used to control the behavior of miter
-     * joins when the joins angle si sharp. This value must be >= 0.
+     * Set the stroke miter value. This is used to control the behavior of miter
+     * joins when the joins angle is sharp. This value must be >= 0.
      */
-    val miter: Float = 4.0f,
+    val miter: Float = DefaultMiter,
 
     /**
      * Return the paint's Cap, controlling how the start and end of stroked
@@ -1077,4 +1171,27 @@ data class Stroke(
      * Effect to apply to the stroke, null indicates a solid stroke line is to be drawn
      */
     val pathEffect: NativePathEffect? = null
-) : DrawStyle()
+) : DrawStyle() {
+    companion object {
+
+        /**
+         * Width to indicate a hairline stroke of 1 pixel
+         */
+        const val HairlineWidth = 0.0f
+
+        /**
+         * Default miter length used in combination with joins
+         */
+        const val DefaultMiter: Float = 4.0f
+
+        /**
+         * Default cap used for line endings
+         */
+        val DefaultCap = StrokeCap.butt
+
+        /**
+         * Default join style used for connections between line and curve segments
+         */
+        val DefaultJoin = StrokeJoin.miter
+    }
+}

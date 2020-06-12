@@ -40,7 +40,6 @@ import androidx.ui.core.focus.FocusModifier
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.graphics.useOrElse
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
@@ -361,7 +360,7 @@ private data class CursorModifier(
                 color.value,
                 Offset(cursorX, cursorRect.top),
                 Offset(cursorX, cursorRect.bottom),
-                Stroke(cursorWidth)
+                strokeWidth = cursorWidth
             )
         }
 

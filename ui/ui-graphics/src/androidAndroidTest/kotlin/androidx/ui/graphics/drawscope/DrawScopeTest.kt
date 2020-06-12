@@ -57,7 +57,7 @@ class DrawScopeTest {
     @Test
     fun testDrawRectColor() {
         val img = createTestDstImage()
-        TestDrawScope().draw(Canvas(img), dstSize) {
+        TestDrawScope().drawInto(Canvas(img), dstSize) {
             // Verify that the overload that consumes a color parameter
             // fills the canvas with red color
             drawRect(color = Color.Red)
@@ -74,7 +74,7 @@ class DrawScopeTest {
     @Test
     fun testDrawRectBrushColor() {
         val img = createTestDstImage()
-        TestDrawScope().draw(Canvas(img), dstSize) {
+        TestDrawScope().drawInto(Canvas(img), dstSize) {
             // Verify that the overload that consumes a brush parameter
             // fills the canvas with red color
             drawRect(brush = SolidColor(Color.Red))
@@ -91,7 +91,7 @@ class DrawScopeTest {
     @Test
     fun testDrawRectColorAlpha() {
         val img = createTestDstImage()
-        TestDrawScope().draw(Canvas(img), dstSize) {
+        TestDrawScope().drawInto(Canvas(img), dstSize) {
             // Verify that the overload that consumes a color parameter
             // fills the canvas with red color
             drawRect(color = Color.Red, alpha = 0.5f)
@@ -119,7 +119,7 @@ class DrawScopeTest {
     @Test
     fun testDrawRectBrushColorAlpha() {
         val img = createTestDstImage()
-        TestDrawScope().draw(Canvas(img), dstSize) {
+        TestDrawScope().drawInto(Canvas(img), dstSize) {
             // Verify that the overload that consumes a brush parameter
             // fills the canvas with red color
             drawRect(brush = SolidColor(Color.Red), alpha = 0.5f)
@@ -147,7 +147,7 @@ class DrawScopeTest {
     @Test
     fun testDrawRectColorIntrinsicAlpha() {
         val img = createTestDstImage()
-        TestDrawScope().draw(Canvas(img), dstSize) {
+        TestDrawScope().drawInto(Canvas(img), dstSize) {
             // Verify that the overload that consumes a color parameter
             // fills the canvas with red color
             drawRect(color =
@@ -181,7 +181,7 @@ class DrawScopeTest {
     @Test
     fun testDrawRectBrushColorIntrinsicAlpha() {
         val img = createTestDstImage()
-        TestDrawScope().draw(Canvas(img), dstSize) {
+        TestDrawScope().drawInto(Canvas(img), dstSize) {
             // Verify that the overload that consumes a brush parameter
             // fills the canvas with red color
             drawRect(brush =
@@ -220,7 +220,7 @@ class DrawScopeTest {
         val img = createTestDstImage()
         val insetLeft = 10.0f
         val insetTop = 12.0f
-        TestDrawScope().draw(Canvas(img), dstSize) {
+        TestDrawScope().drawInto(Canvas(img), dstSize) {
             translate(insetLeft, insetTop) {
                 drawRect(color = Color.Red)
             }
@@ -247,7 +247,7 @@ class DrawScopeTest {
         val insetTop = 12.0f
         val insetRight = 11.0f
         val insetBottom = 13.0f
-        TestDrawScope().draw(Canvas(img), dstSize) {
+        TestDrawScope().drawInto(Canvas(img), dstSize) {
             inset(insetLeft, insetTop, insetRight, insetBottom) {
                 drawRect(color = Color.Red)
             }
@@ -271,7 +271,7 @@ class DrawScopeTest {
     @Test
     fun testInsetRestoredAfterScopedInsetDraw() {
         val img = createTestDstImage()
-        TestDrawScope().draw(Canvas(img), dstSize) {
+        TestDrawScope().drawInto(Canvas(img), dstSize) {
             // Verify that the overload that consumes a color parameter
             // fills the canvas with red color
             val left = 10.0f
@@ -292,7 +292,7 @@ class DrawScopeTest {
     @Test
     fun testFillOverwritesOldAlpha() {
         val img = createTestDstImage()
-        TestDrawScope().draw(Canvas(img), dstSize) {
+        TestDrawScope().drawInto(Canvas(img), dstSize) {
             // Verify that the alpha parameter used in the first draw call is overridden
             // in the subsequent call that does not specify an alpha value
             drawRect(color = Color.Blue, alpha = 0.5f)
@@ -310,7 +310,7 @@ class DrawScopeTest {
     @Test
     fun testFillOverwritesOldPaintBrushAlpha() {
         val img = createTestDstImage()
-        TestDrawScope().draw(Canvas(img), dstSize) {
+        TestDrawScope().drawInto(Canvas(img), dstSize) {
             // Verify that the alpha parameter used in the first draw call is overridden
             // in the subsequent call that does not specify an alpha value that goes through
             // a different code path for configuration of the underlying paint
@@ -335,7 +335,7 @@ class DrawScopeTest {
         val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
-        canvasScope.draw(Canvas(imageAsset), size) {
+        canvasScope.drawInto(Canvas(imageAsset), size) {
             drawRect(color = Color.Red)
             scale(0.5f, 0.5f, pivotX = 0.0f, pivotY = 0.0f) {
                 drawRect(color = Color.Blue)
@@ -364,7 +364,7 @@ class DrawScopeTest {
         val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
-        canvasScope.draw(Canvas(imageAsset), size) {
+        canvasScope.drawInto(Canvas(imageAsset), size) {
             drawRect(color = Color.Red)
             scale(0.5f, 0.5f) {
                 drawRect(color = Color.Blue)
@@ -408,7 +408,7 @@ class DrawScopeTest {
         val imageAsset = ImageAsset(width, height)
 
         try {
-            canvasScope.draw(Canvas(imageAsset), size) {
+            canvasScope.drawInto(Canvas(imageAsset), size) {
                 inset(100.0f, 0.0f, 100.0f, 0.0f) {
                     drawRect(color = Color.Red)
                 }
@@ -429,7 +429,7 @@ class DrawScopeTest {
         val imageAsset = ImageAsset(width, height)
 
         try {
-            canvasScope.draw(Canvas(imageAsset), size) {
+            canvasScope.drawInto(Canvas(imageAsset), size) {
                 inset(0.0f, 100.0f, 0.0f, 100.0f) {
                     drawRect(color = Color.Red)
                 }
@@ -449,7 +449,7 @@ class DrawScopeTest {
         val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
-        canvasScope.draw(Canvas(imageAsset), size) {
+        canvasScope.drawInto(Canvas(imageAsset), size) {
             drawRect(color = Color.Red)
             scale(0.5f, 0.5f, width.toFloat(), height.toFloat()) {
                 drawRect(color = Color.Blue)
@@ -481,7 +481,7 @@ class DrawScopeTest {
         val height = 200
         val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
-        TestDrawScope().draw(Canvas(imageAsset), size) {
+        TestDrawScope().drawInto(Canvas(imageAsset), size) {
             drawRect(color = Color.Red)
             rotate(180.0f) {
                 drawRect(
@@ -511,7 +511,7 @@ class DrawScopeTest {
         val height = 200
         val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
-        TestDrawScope().draw(Canvas(imageAsset), size) {
+        TestDrawScope().drawInto(Canvas(imageAsset), size) {
             drawRect(color = Color.Red)
             rotate(-45.0f, 0.0f, 0.0f) {
                 drawRect(
@@ -537,7 +537,7 @@ class DrawScopeTest {
         val height = 200
         val size = Size(width.toFloat(), height.toFloat())
         val imageAsset1 = ImageAsset(width, height)
-        TestDrawScope().draw(Canvas(imageAsset1), size) {
+        TestDrawScope().drawInto(Canvas(imageAsset1), size) {
             drawRect(color = Color.Red)
             inset(20.0f, 12.0f, 10.0f, 8.0f) {
                 scale(2.0f, 0.5f) {
@@ -555,7 +555,7 @@ class DrawScopeTest {
 
         val imageAsset2 = ImageAsset(width, height)
         val saveCountCanvas = SaveCountCanvas(Canvas(imageAsset2))
-        TestDrawScope().draw(saveCountCanvas, size) {
+        TestDrawScope().drawInto(saveCountCanvas, size) {
             drawRect(color = Color.Red)
             withTransform({
                 inset(20.0f, 12.0f, 10.0f, 8.0f)

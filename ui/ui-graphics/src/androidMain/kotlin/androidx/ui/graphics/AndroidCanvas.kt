@@ -19,9 +19,10 @@ package androidx.ui.graphics
 import android.graphics.Matrix
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
-import androidx.ui.geometry.Size
 import androidx.ui.graphics.vectormath.Matrix4
 import androidx.ui.graphics.vectormath.isIdentity
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.util.fastForEach
 
 actual typealias NativeCanvas = android.graphics.Canvas
@@ -282,10 +283,10 @@ private val EmptyCanvas = android.graphics.Canvas()
      */
     override fun drawImageRect(
         image: ImageAsset,
-        srcOffset: Offset,
-        srcSize: Size,
-        dstOffset: Offset,
-        dstSize: Size,
+        srcOffset: IntOffset,
+        srcSize: IntSize,
+        dstOffset: IntOffset,
+        dstSize: IntSize,
         paint: Paint
     ) {
         // There is no framework API to draw a subset of a target bitmap
@@ -294,16 +295,16 @@ private val EmptyCanvas = android.graphics.Canvas()
         internalCanvas.drawBitmap(
             image.asAndroidBitmap(),
             srcRect.apply {
-                left = srcOffset.x.toInt()
-                top = srcOffset.y.toInt()
-                right = (srcOffset.x + srcSize.width).toInt()
-                bottom = (srcOffset.y + srcSize.height).toInt()
+                left = srcOffset.x
+                top = srcOffset.y
+                right = srcOffset.x + srcSize.width
+                bottom = srcOffset.y + srcSize.height
             },
             dstRect.apply {
-                left = dstOffset.x.toInt()
-                top = dstOffset.y.toInt()
-                right = (dstOffset.x + dstSize.width).toInt()
-                bottom = (dstOffset.y + dstSize.height).toInt()
+                left = dstOffset.x
+                top = dstOffset.y
+                right = dstOffset.x + dstSize.width
+                bottom = dstOffset.y + dstSize.height
             },
             paint.asFrameworkPaint()
         )
