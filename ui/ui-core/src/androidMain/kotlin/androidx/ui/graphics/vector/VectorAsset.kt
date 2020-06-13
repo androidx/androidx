@@ -197,7 +197,7 @@ data class VectorPath(
     /**
      * Opacity to fill the path
      */
-    val fillAlpha: Float = DefaultAlpha,
+    val fillAlpha: Float = 1.0f,
 
     /**
      * Specifies the color or gradient used to fill the stroke
@@ -207,7 +207,7 @@ data class VectorPath(
     /**
      * Opacity to stroke the path
      */
-    val strokeAlpha: Float = DefaultAlpha,
+    val strokeAlpha: Float = 1.0f,
 
     /**
      * Width of the line to stroke the path

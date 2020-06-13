@@ -20,10 +20,11 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.ClipOp
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.vectormath.Matrix4
 import androidx.ui.graphics.vectormath.degrees
 
 /**
- * Convenience method modifies the [CanvasTransform] bounds to inset both left and right bounds by
+ * Convenience method modifies the [DrawTransform] bounds to inset both left and right bounds by
  * [dx] as well as the top and bottom by [dy]. If only [dx] is provided, the same inset is applied
  * to all 4 bounds
  *
@@ -32,7 +33,7 @@ import androidx.ui.graphics.vectormath.degrees
  * insets the top and bottom by [dx] pixels
  */
 @Suppress("NOTHING_TO_INLINE")
-inline fun CanvasTransform.inset(dx: Float = 0.0f, dy: Float = 0.0f) = inset(dx, dy, dx, dy)
+inline fun DrawTransform.inset(dx: Float = 0.0f, dy: Float = 0.0f) = inset(dx, dy, dx, dy)
 
 /**
  * Add a rotation (in radians clockwise) to the current transform at the given pivot point.
@@ -45,7 +46,7 @@ inline fun CanvasTransform.inset(dx: Float = 0.0f, dy: Float = 0.0f) = inset(dx,
  * coordinate space vertically
  */
 @Suppress("NOTHING_TO_INLINE")
-inline fun CanvasTransform.rotateRad(
+inline fun DrawTransform.rotateRad(
     radians: Float,
     pivotX: Float = center.x,
     pivotY: Float = center.y
@@ -55,7 +56,7 @@ inline fun CanvasTransform.rotateRad(
  * Defines transformations that can be applied to a drawing environment
  */
 @DrawScopeMarker
-interface CanvasTransform {
+interface DrawTransform {
 
     /**
      * Get the current size of the CanvasTransform
@@ -155,4 +156,10 @@ interface CanvasTransform {
         pivotX: Float = center.x,
         pivotY: Float = center.y
     )
+
+    /**
+     * Transform the drawing environment by the given matrix
+     * @param matrix transformation matrix used to transform the drawing environment
+     */
+    fun transform(matrix: Matrix4)
 }

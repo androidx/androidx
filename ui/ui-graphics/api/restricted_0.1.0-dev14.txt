@@ -755,19 +755,6 @@ package androidx.ui.graphics.colorspace {
 
 package androidx.ui.graphics.drawscope {
 
-  @androidx.ui.graphics.drawscope.DrawScopeMarker public interface CanvasTransform {
-    method public void clipPath(androidx.ui.graphics.Path path, androidx.ui.graphics.ClipOp clipOp = androidx.ui.graphics.ClipOp.intersect);
-    method public void clipRect(float left = 0.0f, float top = 0.0f, float right = size.width, float bottom = size.height, androidx.ui.graphics.ClipOp clipOp = androidx.ui.graphics.ClipOp.intersect);
-    method public default androidx.ui.geometry.Offset getCenter();
-    method public androidx.ui.geometry.Size getSize();
-    method public void inset(float left, float top, float right, float bottom);
-    method public void rotate(float degrees, float pivotX = center.x, float pivotY = center.y);
-    method public void scale(float scaleX, float scaleY = scaleX, float pivotX = center.x, float pivotY = center.y);
-    method public void translate(float left = 0.0f, float top = 0.0f);
-    property public default androidx.ui.geometry.Offset center;
-    property public abstract androidx.ui.geometry.Size size;
-  }
-
   @androidx.ui.graphics.drawscope.DrawScopeMarker public abstract class DrawScope implements androidx.ui.unit.Density {
     ctor public DrawScope();
     method public final void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.geometry.Size size, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
@@ -799,7 +786,7 @@ package androidx.ui.graphics.drawscope {
     field public static final androidx.ui.graphics.drawscope.DrawScope.Companion! Companion;
     field public static final float DefaultAlpha = 1.0f;
     field @kotlin.PublishedApi internal androidx.ui.graphics.Canvas? canvas;
-    field @kotlin.PublishedApi internal final androidx.ui.graphics.drawscope.CanvasTransform transform;
+    field @kotlin.PublishedApi internal final androidx.ui.graphics.drawscope.DrawTransform transform;
   }
 
   public static final class DrawScope.Companion {
@@ -817,7 +804,7 @@ package androidx.ui.graphics.drawscope {
     method public static inline androidx.ui.graphics.Canvas? rotateRad(androidx.ui.graphics.drawscope.DrawScope, float radians, float pivotX = center.x, float pivotY = center.y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline androidx.ui.graphics.Canvas? scale(androidx.ui.graphics.drawscope.DrawScope, float scaleX, float scaleY = scaleX, float pivotX = center.x, float pivotY = center.y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline androidx.ui.graphics.Canvas? translate(androidx.ui.graphics.drawscope.DrawScope, float left = 0.0f, float top = 0.0f, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
-    method public static inline androidx.ui.graphics.Canvas? withTransform(androidx.ui.graphics.drawscope.DrawScope, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.CanvasTransform,kotlin.Unit> transformBlock, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawBlock);
+    method public static inline androidx.ui.graphics.Canvas? withTransform(androidx.ui.graphics.drawscope.DrawScope, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawTransform,kotlin.Unit> transformBlock, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawBlock);
   }
 
   @kotlin.DslMarker public @interface DrawScopeMarker {
@@ -826,9 +813,23 @@ package androidx.ui.graphics.drawscope {
   public abstract sealed class DrawStyle {
   }
 
+  @androidx.ui.graphics.drawscope.DrawScopeMarker public interface DrawTransform {
+    method public void clipPath(androidx.ui.graphics.Path path, androidx.ui.graphics.ClipOp clipOp = androidx.ui.graphics.ClipOp.intersect);
+    method public void clipRect(float left = 0.0f, float top = 0.0f, float right = size.width, float bottom = size.height, androidx.ui.graphics.ClipOp clipOp = androidx.ui.graphics.ClipOp.intersect);
+    method public default androidx.ui.geometry.Offset getCenter();
+    method public androidx.ui.geometry.Size getSize();
+    method public void inset(float left, float top, float right, float bottom);
+    method public void rotate(float degrees, float pivotX = center.x, float pivotY = center.y);
+    method public void scale(float scaleX, float scaleY = scaleX, float pivotX = center.x, float pivotY = center.y);
+    method public void transform(androidx.ui.graphics.vectormath.Matrix4 matrix);
+    method public void translate(float left = 0.0f, float top = 0.0f);
+    property public default androidx.ui.geometry.Offset center;
+    property public abstract androidx.ui.geometry.Size size;
+  }
+
   public final class DrawTransformKt {
-    method public static inline void inset(androidx.ui.graphics.drawscope.CanvasTransform, float dx = 0.0f, float dy = 0.0f);
-    method public static inline void rotateRad(androidx.ui.graphics.drawscope.CanvasTransform, float radians, float pivotX = center.x, float pivotY = center.y);
+    method public static inline void inset(androidx.ui.graphics.drawscope.DrawTransform, float dx = 0.0f, float dy = 0.0f);
+    method public static inline void rotateRad(androidx.ui.graphics.drawscope.DrawTransform, float radians, float pivotX = center.x, float pivotY = center.y);
   }
 
   public final class Fill extends androidx.ui.graphics.drawscope.DrawStyle {
