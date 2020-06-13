@@ -70,6 +70,7 @@ class TransitionAnimation<T>(
     private var startVelocityMap: MutableMap<PropKey<Any, AnimationVector>, Any> = mutableMapOf()
 
     // Named class for animation clock observer to help with tools' reflection.
+    /** @suppress */
     @InternalAnimationApi
     inner class TransitionAnimationClockObserver : AnimationClockObserver {
         // This API is intended for tools' use only. Hence the @InternalAnimationApi.

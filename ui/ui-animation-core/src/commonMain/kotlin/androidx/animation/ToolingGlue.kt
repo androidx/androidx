@@ -28,6 +28,7 @@ annotation class InternalAnimationApi
  *
  * This API is intended for tools' use only. Hence the @InternalAnimationApi.
  */
+/** @suppress */
 @InternalAnimationApi
 class SeekableAnimation<T>(
     val def: TransitionDefinition<T>,
@@ -87,6 +88,7 @@ class SeekableAnimation<T>(
  *
  * @param fromState The state that a [SeekableAnimation] will start from.
  * @param toState The state that a [SeekableAnimation] will end in.
+ * @suppress
  */
 @InternalAnimationApi
 fun <T> TransitionAnimation<T>.createSeekableAnimation(fromState: T, toState: T) =
@@ -96,6 +98,7 @@ fun <T> TransitionAnimation<T>.createSeekableAnimation(fromState: T, toState: T)
  * Returns the all states available in a [TransitionDefinition].
  *
  * This API is intended for tools' use only. Hence the @InternalAnimationApi.
+ * @suppress
  */
 @InternalAnimationApi
 fun <T> TransitionAnimation<T>.getStates(): Set<T> = def.states.keys
