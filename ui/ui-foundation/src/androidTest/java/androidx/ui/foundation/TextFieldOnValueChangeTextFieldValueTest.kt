@@ -145,13 +145,15 @@ class TextFieldOnValueChangeTextFieldValueTest {
 
     @Test
     fun setComposingText_onValueChange_call_once() {
-        performEditOperation(SetComposingTextEditOp("ABCDE", 1))
+        val composingText = "ABCDE"
+        performEditOperation(SetComposingTextEditOp(composingText, 1))
         runOnIdleCompose {
             verify(onValueChange, times(1))
                 .invoke(eq(
                     androidx.ui.input.TextFieldValue(
-                        "ABCDEabcde",
-                        TextRange(5, 5)
+                        text = "ABCDEabcde",
+                        selection = TextRange(5, 5),
+                        composition = TextRange(0, composingText.length)
                     )
                 ))
         }
@@ -173,13 +175,15 @@ class TextFieldOnValueChangeTextFieldValueTest {
 
     @Test
     fun clearComposition_onValueChange_call_once() {
-        performEditOperation(SetComposingTextEditOp("ABCDE", 1))
+        val composingText = "ABCDE"
+        performEditOperation(SetComposingTextEditOp(composingText, 1))
         runOnIdleCompose {
             verify(onValueChange, times(1))
                 .invoke(eq(
                     androidx.ui.input.TextFieldValue(
-                        "ABCDEabcde",
-                        TextRange(5, 5)
+                        text = "ABCDEabcde",
+                        selection = TextRange(5, 5),
+                        composition = TextRange(0, composingText.length)
                     )
                 ))
         }
