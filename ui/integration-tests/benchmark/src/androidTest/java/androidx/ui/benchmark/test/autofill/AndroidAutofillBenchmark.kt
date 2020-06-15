@@ -16,7 +16,6 @@
 
 package androidx.ui.benchmark.test.autofill
 
-import android.graphics.Rect
 import android.util.SparseArray
 import android.view.View
 import android.view.autofill.AutofillValue
@@ -24,12 +23,13 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
-import androidx.ui.autofill.AutofillNode
 import androidx.test.filters.SdkSuppress
+import androidx.ui.autofill.AutofillNode
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.autofill.AutofillType
 import androidx.ui.core.AutofillTreeAmbient
 import androidx.ui.core.ViewAmbient
+import androidx.ui.geometry.Rect
 import androidx.ui.test.createComposeRule
 import org.junit.Before
 import org.junit.Rule
@@ -67,7 +67,7 @@ class AndroidAutofillBenchmark {
         val autofillNode = AutofillNode(
             onFill = {},
             autofillTypes = listOf(AutofillType.PersonFullName),
-            boundingBox = Rect(0, 0, 0, 0)
+            boundingBox = Rect(0f, 0f, 0f, 0f)
         )
         val autofillValues = SparseArray<AutofillValue>().apply {
             append(autofillNode.id, AutofillValue.forText("Name"))

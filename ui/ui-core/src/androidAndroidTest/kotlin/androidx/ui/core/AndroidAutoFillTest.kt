@@ -16,7 +16,6 @@
 
 package androidx.ui.core
 
-import android.graphics.Rect
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewStructure
@@ -29,6 +28,7 @@ import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillNode
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.autofill.AutofillType
+import androidx.ui.geometry.Rect
 import androidx.ui.test.android.fake.FakeViewStructure
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
@@ -83,7 +83,7 @@ class AndroidAutoFillTest {
         val autofillNode = AutofillNode(
             onFill = {},
             autofillTypes = listOf(AutofillType.PersonFullName),
-            boundingBox = Rect(0, 0, 0, 0)
+            boundingBox = Rect(0f, 0f, 0f, 0f)
         )
         autofillTree += autofillNode
 
@@ -112,7 +112,7 @@ class AndroidAutoFillTest {
         val autofillNode = AutofillNode(
             onFill = { autofilledValue = it },
             autofillTypes = listOf(AutofillType.PersonFullName),
-            boundingBox = Rect(0, 0, 0, 0)
+            boundingBox = Rect(0f, 0f, 0f, 0f)
         )
         val autofillValues = SparseArray<AutofillValue>().apply {
             append(autofillNode.id, AutofillValue.forText(expectedValue))

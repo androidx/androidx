@@ -16,8 +16,8 @@
 
 package androidx.ui.autofill
 
-import android.graphics.Rect
-import androidx.annotation.GuardedBy
+import androidx.ui.geometry.Rect
+import androidx.ui.util.annotation.GuardedBy
 
 /**
  * Autofill API.
@@ -75,8 +75,8 @@ data class AutofillNode(
         @GuardedBy("this")
         private var previousId = 0
 
-        @Synchronized
-        private fun generateId() = ++previousId
+        private fun generateId() =
+            synchronized(this) { ++previousId }
     }
 
     val id: Int = generateId()

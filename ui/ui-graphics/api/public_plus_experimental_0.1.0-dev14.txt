@@ -4,6 +4,7 @@ package androidx.ui.core {
   public final class RectHelperKt {
     method public static android.graphics.Rect toAndroidRect(androidx.ui.geometry.Rect);
     method public static android.graphics.RectF toAndroidRectF(androidx.ui.geometry.Rect);
+    method public static androidx.ui.geometry.Rect toComposeRect(android.graphics.Rect);
   }
 
 }
