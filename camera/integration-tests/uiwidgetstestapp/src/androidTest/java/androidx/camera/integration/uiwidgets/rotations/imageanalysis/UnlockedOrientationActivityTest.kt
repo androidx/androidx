@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.uiwidgets.rotations.imageanalysis
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -91,7 +90,7 @@ class UnlockedOrientationActivityTest(private val lensFacing: Int, private val o
 
     @get:Rule
     val mCameraPermissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.CAMERA)
+        GrantPermissionRule.grant(*CameraActivity.PERMISSIONS)
 
     @Before
     fun setUp() {
