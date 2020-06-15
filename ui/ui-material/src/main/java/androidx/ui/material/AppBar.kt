@@ -18,6 +18,7 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
@@ -43,7 +44,6 @@ import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.relativePaddingFrom
-import androidx.ui.semantics.Semantics
 import androidx.ui.text.LastBaseline
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -95,13 +95,11 @@ fun TopAppBar(
             }
         }
 
-        Box(Modifier.fillMaxHeight().weight(1f), gravity = ContentGravity.BottomStart) {
-            Semantics(container = true) {
-                ProvideTextStyle(value = MaterialTheme.typography.h6) {
-                    val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
-                    Row(Modifier.relativePaddingFrom(LastBaseline, after = baselineOffset)) {
-                        ProvideEmphasis(emphasisLevels.high, title)
-                    }
+        Box(Modifier.fillMaxHeight().weight(1f).semantics(), gravity = ContentGravity.BottomStart) {
+            ProvideTextStyle(value = MaterialTheme.typography.h6) {
+                val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
+                Row(Modifier.relativePaddingFrom(LastBaseline, after = baselineOffset)) {
+                    ProvideEmphasis(emphasisLevels.high, title)
                 }
             }
         }

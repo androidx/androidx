@@ -16,7 +16,6 @@
 package androidx.ui.material
 
 import androidx.test.filters.LargeTest
-import androidx.ui.text.LastBaseline
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.globalPosition
@@ -27,7 +26,6 @@ import androidx.ui.foundation.Text
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.samples.BottomNavigationSample
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsNotDisplayed
 import androidx.ui.test.assertIsSelected
@@ -37,6 +35,7 @@ import androidx.ui.test.doClick
 import androidx.ui.test.findAll
 import androidx.ui.test.findByText
 import androidx.ui.test.isInMutuallyExclusiveGroup
+import androidx.ui.text.LastBaseline
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Rule
@@ -182,13 +181,7 @@ class BottomNavigationTest {
                             )
                         },
                         text = {
-                            // TODO: b/149477576 we need a boundary here so that we don't
-                            // merge the text in order for assertIsNotDisplayed to work. If
-                            // we merge upwards the text is merged into the main component
-                            // which is displayed, so the test fails.
-                            Semantics(container = true) {
-                                Text("Item")
-                            }
+                            Text("Item")
                         },
                         selected = false,
                         onSelected = {},
@@ -244,7 +237,8 @@ class BottomNavigationTest {
             val iconExpectedY = (itemCoords.size.height - iconCoords.size.height) / 2
 
             Truth.assertThat(iconCoords.globalPosition.x).isWithin(1f).of(
-                iconExpectedX.toFloat())
+                iconExpectedX.toFloat()
+            )
             Truth.assertThat(iconCoords.globalPosition.y).isEqualTo(iconExpectedY.toFloat())
         }
     }

@@ -51,6 +51,7 @@ import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
 import androidx.ui.core.offset
+import androidx.ui.core.semantics.semantics
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentColorAmbient
@@ -76,7 +77,6 @@ import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.rememberSavedInstanceState
-import androidx.ui.semantics.Semantics
 import androidx.ui.text.LastBaseline
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextRange
@@ -499,79 +499,80 @@ private fun FilledTextFieldImpl(
         }
     }
 
-    val textFieldModifier = Modifier.preferredSizeIn(
-        minWidth = TextFieldMinWidth,
-        minHeight = TextFieldMinHeight
-    ) + modifier
+    val textFieldModifier = Modifier
+        .preferredSizeIn(
+            minWidth = TextFieldMinWidth,
+            minHeight = TextFieldMinHeight
+        )
+        .plus(modifier)
+        .semantics(mergeAllDescendants = true)
 
-    Semantics(container = true, mergeAllDescendants = true) {
-        Surface(
-            modifier = textFieldModifier,
-            shape = shape,
-            color = backgroundColor.applyAlpha(alpha = ContainerAlpha)
-        ) {
-            val emphasisLevels = EmphasisAmbient.current
-            val emphasizedActiveColor = emphasisLevels.high.applyEmphasis(activeColor)
-            val labelInactiveColor = emphasisLevels.medium.applyEmphasis(inactiveColor)
-            val indicatorInactiveColor =
-                inactiveColor.applyAlpha(alpha = IndicatorInactiveAlpha)
+    Surface(
+        modifier = textFieldModifier,
+        shape = shape,
+        color = backgroundColor.applyAlpha(alpha = ContainerAlpha)
+    ) {
+        val emphasisLevels = EmphasisAmbient.current
+        val emphasizedActiveColor = emphasisLevels.high.applyEmphasis(activeColor)
+        val labelInactiveColor = emphasisLevels.medium.applyEmphasis(inactiveColor)
+        val indicatorInactiveColor =
+            inactiveColor.applyAlpha(alpha = IndicatorInactiveAlpha)
 
-            TextFieldTransitionScope.transition(
-                inputState = inputState.value,
-                activeColor = emphasizedActiveColor,
-                labelInactiveColor = labelInactiveColor,
-                indicatorInactiveColor = indicatorInactiveColor
-            ) { labelProgress, animatedLabelColor, indicatorWidth, indicatorColor ->
-                // TODO(soboleva): figure out how this will play with the textStyle provided in label slot
-                val labelAnimatedStyle = lerp(
-                    MaterialTheme.typography.subtitle1,
-                    MaterialTheme.typography.caption,
-                    labelProgress
-                )
+        TextFieldTransitionScope.transition(
+            inputState = inputState.value,
+            activeColor = emphasizedActiveColor,
+            labelInactiveColor = labelInactiveColor,
+            indicatorInactiveColor = indicatorInactiveColor
+        ) { labelProgress, animatedLabelColor, indicatorWidth, indicatorColor ->
+            // TODO(soboleva): figure out how this will play with the textStyle provided in label slot
+            val labelAnimatedStyle = lerp(
+                MaterialTheme.typography.subtitle1,
+                MaterialTheme.typography.caption,
+                labelProgress
+            )
 
-                val leadingColor = inactiveColor.applyAlpha(alpha = TrailingLeadingAlpha)
-                val trailingColor = if (isErrorValue) errorColor else leadingColor
+            val leadingColor = inactiveColor.applyAlpha(alpha = TrailingLeadingAlpha)
+            val trailingColor = if (isErrorValue) errorColor else leadingColor
 
-                // text field with label and placeholder
-                val labelColor = if (isErrorValue) errorColor else animatedLabelColor
-                val decoratedLabel = @Composable {
-                    Decoration(
-                        contentColor = labelColor,
-                        typography = labelAnimatedStyle,
-                        children = label
-                    )
-                }
-
-                // places leading icon, text field with label, trailing icon
-                IconsTextFieldLayout(
-                    modifier = Modifier
-                        .clickable(indication = RippleIndication(bounded = false)) {
-                            focusModifier.requestFocus()
-                            keyboardController.value?.showSoftwareKeyboard()
-                        }
-                        .drawIndicatorLine(
-                            lineWidth = indicatorWidth,
-                            color = if (isErrorValue) errorColor else indicatorColor
-                        ),
-                    textField = {
-                        TextFieldLayout(
-                            animationProgress = labelProgress,
-                            modifier = Modifier
-                                .padding(
-                                    start = HorizontalTextFieldPadding,
-                                    end = HorizontalTextFieldPadding
-                                ),
-                            placeholder = decoratedPlaceholder,
-                            label = decoratedLabel,
-                            textField = decoratedTextField
-                        )
-                    },
-                    leading = leading,
-                    trailing = trailing,
-                    leadingColor = leadingColor,
-                    trailingColor = trailingColor
+            // text field with label and placeholder
+            val labelColor = if (isErrorValue) errorColor else animatedLabelColor
+            val decoratedLabel = @Composable {
+                Decoration(
+                    contentColor = labelColor,
+                    typography = labelAnimatedStyle,
+                    children = label
                 )
             }
+
+            // places leading icon, text field with label, trailing icon
+            IconsTextFieldLayout(
+                modifier = Modifier
+                    .clickable(indication = RippleIndication(bounded = false)) {
+                        focusModifier.requestFocus()
+                        keyboardController.value?.showSoftwareKeyboard()
+                    }
+                    .drawIndicatorLine(
+                        lineWidth = indicatorWidth,
+                        color = if (isErrorValue) errorColor else indicatorColor
+                    ),
+                textField = {
+                    TextFieldLayout(
+                        animationProgress = labelProgress,
+                        modifier = Modifier
+                            .padding(
+                                start = HorizontalTextFieldPadding,
+                                end = HorizontalTextFieldPadding
+                            ),
+                        placeholder = decoratedPlaceholder,
+                        label = decoratedLabel,
+                        textField = decoratedTextField
+                    )
+                },
+                leading = leading,
+                trailing = trailing,
+                leadingColor = leadingColor,
+                trailingColor = trailingColor
+            )
         }
     }
 }
