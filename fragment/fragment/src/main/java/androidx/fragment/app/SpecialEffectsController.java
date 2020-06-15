@@ -84,6 +84,7 @@ abstract class SpecialEffectsController {
     final HashMap<Fragment, Operation> mAwaitingCompletionOperations = new HashMap<>();
 
     boolean mOperationDirectionIsPop = false;
+    boolean mIsContainerPostponed = false;
 
     SpecialEffectsController(@NonNull ViewGroup container) {
         mContainer = container;
@@ -175,7 +176,37 @@ abstract class SpecialEffectsController {
         mOperationDirectionIsPop = isPop;
     }
 
+    void markPostponedState() {
+        synchronized (mPendingOperations) {
+            // Default to not postponed
+            mIsContainerPostponed = false;
+            for (int index = mPendingOperations.size() - 1; index >= 0; index--) {
+                Operation operation = mPendingOperations.get(index);
+                // Only consider operations with entering transitions
+                if (operation.getType() == Operation.Type.ADD
+                        || operation.getType() == Operation.Type.SHOW) {
+                    Fragment fragment = operation.getFragment();
+                    // The container is considered postponed if the Fragment
+                    // associated with the last entering Operation is postponed
+                    mIsContainerPostponed = fragment.isPostponed();
+                    break;
+                }
+            }
+        }
+    }
+
+    void forcePostponedExecutePendingOperations() {
+        if (mIsContainerPostponed) {
+            mIsContainerPostponed = false;
+            executePendingOperations();
+        }
+    }
+
     void executePendingOperations() {
+        if (mIsContainerPostponed) {
+            // No operations should execute while the container is postponed
+            return;
+        }
         synchronized (mPendingOperations) {
             executeOperations(new ArrayList<>(mPendingOperations), mOperationDirectionIsPop);
             mPendingOperations.clear();
