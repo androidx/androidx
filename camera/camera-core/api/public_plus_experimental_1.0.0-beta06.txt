@@ -23,7 +23,7 @@ package androidx.camera.core {
   }
 
   @androidx.camera.core.ExperimentalCameraFilter public interface CameraFilter {
-    method public void filter(java.util.LinkedHashSet<androidx.camera.core.Camera!>);
+    method public java.util.LinkedHashSet<androidx.camera.core.Camera!> filter(java.util.LinkedHashSet<androidx.camera.core.Camera!>);
   }
 
   public interface CameraInfo {

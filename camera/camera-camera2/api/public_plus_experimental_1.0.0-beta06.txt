@@ -14,7 +14,7 @@ package androidx.camera.camera2.interop {
   }
 
   public static interface Camera2CameraFilter.Camera2Filter {
-    method public void filter(java.util.LinkedHashMap<java.lang.String!,android.hardware.camera2.CameraCharacteristics!>);
+    method public java.util.LinkedHashMap<java.lang.String!,android.hardware.camera2.CameraCharacteristics!> filter(java.util.LinkedHashMap<java.lang.String!,android.hardware.camera2.CameraCharacteristics!>);
   }
 
   @androidx.camera.camera2.interop.ExperimentalCamera2Interop public final class Camera2CameraInfo {

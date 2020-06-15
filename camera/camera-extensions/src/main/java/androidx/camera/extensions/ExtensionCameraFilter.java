@@ -28,7 +28,6 @@ import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.core.util.Preconditions;
 
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * A filter that filters camera based on extender implementation. If the implementation is
@@ -55,9 +54,10 @@ public final class ExtensionCameraFilter implements CameraFilter {
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
 
+    @NonNull
     @Override
-    public void filter(@NonNull LinkedHashSet<Camera> cameras) {
-        Set<Camera> resultCameras = new LinkedHashSet<>();
+    public LinkedHashSet<Camera> filter(@NonNull LinkedHashSet<Camera> cameras) {
+        LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
         for (Camera camera : cameras) {
             Preconditions.checkState(camera instanceof CameraInternal,
                     "The camera doesn't contain internal implementation.");
@@ -81,6 +81,7 @@ public final class ExtensionCameraFilter implements CameraFilter {
                 resultCameras.add(camera);
             }
         }
-        cameras.retainAll(resultCameras);
+
+        return resultCameras;
     }
 }
