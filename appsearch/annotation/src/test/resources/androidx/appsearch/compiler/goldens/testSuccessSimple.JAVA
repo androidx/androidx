@@ -36,4 +36,10 @@ class $$__AppSearch__Gift {
     builder.setProperty("dog", dataClass.getDog());
     return builder.build();
   }
+
+  public Gift fromGenericDocument(GenericDocument genericDoc) {
+    int priceConv = genericDoc.getPropertyLong("price");
+    boolean catConv = genericDoc.getPropertyBoolean("cat");
+    boolean dogConv = genericDoc.getPropertyBoolean("dog");
+  }
 }

@@ -45,4 +45,22 @@ class $$__AppSearch__Gift {
     }
     return builder.build();
   }
+
+  public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String[] indexNoneCopy = genericDoc.getPropertyStringArray("indexNone");
+    String indexNoneConv = null;
+    if (indexNoneCopy != null && indexNoneCopy.length != 0) {
+      indexNoneConv = indexNoneCopy[0];
+    }
+    String[] indexExactCopy = genericDoc.getPropertyStringArray("indexExact");
+    String indexExactConv = null;
+    if (indexExactCopy != null && indexExactCopy.length != 0) {
+      indexExactConv = indexExactCopy[0];
+    }
+    String[] indexPrefixCopy = genericDoc.getPropertyStringArray("indexPrefix");
+    String indexPrefixConv = null;
+    if (indexPrefixCopy != null && indexPrefixCopy.length != 0) {
+      indexPrefixConv = indexPrefixCopy[0];
+    }
+  }
 }

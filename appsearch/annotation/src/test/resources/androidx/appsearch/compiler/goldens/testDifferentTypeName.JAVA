@@ -15,4 +15,7 @@ class $$__AppSearch__Gift {
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
     return builder.build();
   }
+
+  public Gift fromGenericDocument(GenericDocument genericDoc) {
+  }
 }

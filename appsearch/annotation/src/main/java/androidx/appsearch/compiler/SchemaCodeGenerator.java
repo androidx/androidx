@@ -114,8 +114,7 @@ class SchemaCodeGenerator {
         } else if (property.asType().getKind() == TypeKind.ARRAY
                 // Byte arrays have a native representation in Icing, so they are not considered a
                 // "repeated" type
-                && !typeUtil.isSameType(property.asType(), mHelper.mByteArrayType)
-                && !typeUtil.isSameType(property.asType(), mHelper.mByteArrayBoxType)) {
+                && !typeUtil.isSameType(property.asType(), mHelper.mByteArrayType)) {
             propertyType = ((ArrayType) property.asType()).getComponentType();
             repeated = true;
 
@@ -142,8 +141,7 @@ class SchemaCodeGenerator {
                 || typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)) {
             propertyTypeEnum = mHelper.getAppSearchClass(
                     "AppSearchSchema", "PropertyConfig", "DATA_TYPE_BOOLEAN");
-        } else if (typeUtil.isSameType(propertyType, mHelper.mByteArrayType)
-                || typeUtil.isSameType(propertyType, mHelper.mByteArrayBoxType)) {
+        } else if (typeUtil.isSameType(propertyType, mHelper.mByteArrayType)) {
             propertyTypeEnum = mHelper.getAppSearchClass(
                     "AppSearchSchema", "PropertyConfig", "DATA_TYPE_BYTES");
         } else {

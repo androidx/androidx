@@ -4,8 +4,10 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import java.lang.Integer;
 import java.lang.String;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.TreeSet;
 
 class $$__AppSearch__Gift {
   public static final String SCHEMA_TYPE = "Gift";
@@ -45,7 +47,7 @@ class $$__AppSearch__Gift {
       String[] listOfStringConv = listOfStringCopy.toArray(new String[0]);
       builder.setProperty("listOfString", listOfStringConv);
     }
-    TreeSet<Integer> setOfIntCopy = dataClass.setOfInt;
+    Collection<Integer> setOfIntCopy = dataClass.setOfInt;
     if (setOfIntCopy != null) {
       long[] setOfIntConv = new long[setOfIntCopy.size()];
       int i = 0;
@@ -63,5 +65,27 @@ class $$__AppSearch__Gift {
       builder.setProperty("byteArray", byteArrayCopy);
     }
     return builder.build();
+  }
+
+  public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String[] listOfStringCopy = genericDoc.getPropertyStringArray("listOfString");
+    List<String> listOfStringConv = null;
+    if (listOfStringCopy != null) {
+      listOfStringConv = Arrays.asList(listOfStringCopy);
+    }
+    long[] setOfIntCopy = genericDoc.getPropertyLongArray("setOfInt");
+    List<Integer> setOfIntConv = null;
+    if (setOfIntCopy != null) {
+      setOfIntConv = new ArrayList<>(setOfIntCopy.length);
+      for (int i = 0; i < setOfIntCopy.length; i++) {
+        setOfIntConv.set(i, setOfIntCopy[i]);
+      }
+    }
+    byte[][] repeatedByteArrayConv = genericDoc.getPropertyBytesArray("repeatedByteArray");
+    byte[][] byteArrayCopy = genericDoc.getPropertyBytesArray("byteArray");
+    byte[] byteArrayConv = null;
+    if (byteArrayCopy != null && byteArrayCopy.length != 0) {
+      byteArrayConv = byteArrayCopy[0];
+    }
   }
 }

@@ -22,6 +22,7 @@ import com.squareup.javapoet.ClassName;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -55,6 +56,7 @@ class IntrospectionHelper {
             "androidx.appsearch.annotation.AppSearchDocument.Property";
 
     final TypeMirror mCollectionType;
+    final TypeMirror mListType;
     final TypeMirror mStringType;
     final TypeMirror mIntegerBoxType;
     final TypeMirror mIntPrimitiveType;
@@ -68,7 +70,6 @@ class IntrospectionHelper {
     final TypeMirror mBooleanPrimitiveType;
     final TypeMirror mByteBoxType;
     final TypeMirror mByteArrayType;
-    final TypeMirror mByteArrayBoxType;
 
     private final ProcessingEnvironment mEnv;
 
@@ -78,6 +79,7 @@ class IntrospectionHelper {
         Elements elementUtil = env.getElementUtils();
         Types typeUtil = env.getTypeUtils();
         mCollectionType = elementUtil.getTypeElement(Collection.class.getName()).asType();
+        mListType = elementUtil.getTypeElement(List.class.getName()).asType();
         mStringType = elementUtil.getTypeElement(String.class.getName()).asType();
         mIntegerBoxType = elementUtil.getTypeElement(Integer.class.getName()).asType();
         mIntPrimitiveType = typeUtil.unboxedType(mIntegerBoxType);
@@ -91,7 +93,6 @@ class IntrospectionHelper {
         mBooleanPrimitiveType = typeUtil.unboxedType(mBooleanBoxType);
         mByteBoxType = elementUtil.getTypeElement(Byte.class.getName()).asType();
         mByteArrayType = typeUtil.getArrayType(typeUtil.getPrimitiveType(TypeKind.BYTE));
-        mByteArrayBoxType = typeUtil.getArrayType(mByteBoxType);
     }
 
     public AnnotationMirror getAnnotation(@NonNull Element element, @NonNull String fqClass)

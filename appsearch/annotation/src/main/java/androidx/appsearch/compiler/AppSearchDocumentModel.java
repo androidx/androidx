@@ -135,7 +135,7 @@ class AppSearchDocumentModel {
      * <p>This is usually the name of the field in Java, but may be changed if the developer
      * specifies a different 'name' parameter in the annotation.
      */
-    @Nullable
+    @NonNull
     public String getPropertyName(@NonNull VariableElement property) throws ProcessingException {
         AnnotationMirror annotation =
                 mIntrospectionHelper.getAnnotation(property, IntrospectionHelper.PROPERTY_CLASS);

@@ -35,4 +35,17 @@ class $$__AppSearch__Gift {
     }
     return builder.build();
   }
+
+  public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String[] tokNoneCopy = genericDoc.getPropertyStringArray("tokNone");
+    String tokNoneConv = null;
+    if (tokNoneCopy != null && tokNoneCopy.length != 0) {
+      tokNoneConv = tokNoneCopy[0];
+    }
+    String[] tokPlainCopy = genericDoc.getPropertyStringArray("tokPlain");
+    String tokPlainConv = null;
+    if (tokPlainCopy != null && tokPlainCopy.length != 0) {
+      tokPlainConv = tokPlainCopy[0];
+    }
+  }
 }
