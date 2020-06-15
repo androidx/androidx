@@ -183,7 +183,8 @@ public final class MediaRouter {
             value = {
                     CALLBACK_FLAG_PERFORM_ACTIVE_SCAN,
                     CALLBACK_FLAG_REQUEST_DISCOVERY,
-                    CALLBACK_FLAG_UNFILTERED_EVENTS
+                    CALLBACK_FLAG_UNFILTERED_EVENTS,
+                    CALLBACK_FLAG_FORCE_DISCOVERY
             }
     )
     @Retention(RetentionPolicy.SOURCE)
@@ -698,8 +699,8 @@ public final class MediaRouter {
             record = mCallbackRecords.get(index);
         }
         boolean updateNeeded = false;
-        if ((flags & ~record.mFlags) != 0) {
-            record.mFlags |= flags;
+        if (flags != record.mFlags) {
+            record.mFlags = flags;
             updateNeeded = true;
         }
         if (!record.mSelector.contains(selector)) {
