@@ -41,5 +41,9 @@ MissingNullability: androidx.animation.DecayAnimation#getValue(long):
     Missing nullability on method `getValue` return
 
 
+NotCloseable: androidx.animation.BaseAnimatedValue:
+    Classes that release resources (stop()) should implement AutoClosable and CloseGuard: class androidx.animation.BaseAnimatedValue
+
+
 TopLevelBuilder: androidx.animation.AnimationBuilder:
     Builder should be defined as inner class: androidx.animation.AnimationBuilder

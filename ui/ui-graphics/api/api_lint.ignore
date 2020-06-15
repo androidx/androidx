@@ -101,5 +101,13 @@ MissingNullability: androidx.ui.graphics.Shader#toString-impl(android.graphics.S
     Missing nullability on parameter `p` in method `toString-impl`
 
 
+NotCloseable: androidx.ui.graphics.AndroidPath:
+    Classes that release resources (close()) should implement AutoClosable and CloseGuard: class androidx.ui.graphics.AndroidPath
+NotCloseable: androidx.ui.graphics.Path:
+    Classes that release resources (close()) should implement AutoClosable and CloseGuard: class androidx.ui.graphics.Path
+NotCloseable: androidx.ui.graphics.vector.PathBuilder:
+    Classes that release resources (close()) should implement AutoClosable and CloseGuard: class androidx.ui.graphics.vector.PathBuilder
+
+
 TopLevelBuilder: androidx.ui.graphics.vector.PathBuilder:
     Builder should be defined as inner class: androidx.ui.graphics.vector.PathBuilder
