@@ -26,10 +26,9 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
-
-import com.google.common.flogger.FluentLogger;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -46,7 +45,7 @@ import java.util.concurrent.Executor;
  */
 class BufferedServiceConnection {
 
-    private static final FluentLogger sLogger = FluentLogger.forEnclosingClass();
+    private static final String LOG_TAG = "BufferedServiceConnecti";
 
     @VisibleForTesting
     static final int MAX_BUFFER_SIZE = 100;
@@ -191,7 +190,7 @@ class BufferedServiceConnection {
         try {
             mMessenger.send(message);
         } catch (RemoteException e) {
-            sLogger.atSevere().withCause(e).log("Error sending message");
+            Log.e(LOG_TAG, "Error sending message", e);
         }
     }
 
