@@ -373,7 +373,8 @@ import java.util.List;
         InternalTrackInfo(int playerTrackIndex, int trackInfoType, @Nullable MediaFormat format,
                 int trackId) {
             mPlayerTrackIndex = playerTrackIndex;
-            mExternalTrackInfo = new TrackInfo(trackId, trackInfoType, format);
+            mExternalTrackInfo = new TrackInfo(trackId, trackInfoType, format,
+                    trackInfoType != MEDIA_TRACK_TYPE_VIDEO);
         }
     }
 

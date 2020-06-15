@@ -228,10 +228,12 @@ package androidx.media2.common {
 
   @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public static class SessionPlayer.TrackInfo extends androidx.versionedparcelable.CustomVersionedParcelable {
     ctor public SessionPlayer.TrackInfo(int, int, android.media.MediaFormat?);
+    ctor public SessionPlayer.TrackInfo(int, int, android.media.MediaFormat?, boolean);
     method public android.media.MediaFormat? getFormat();
     method public int getId();
     method public java.util.Locale getLanguage();
     method public int getTrackType();
+    method public boolean isSelectable();
     field public static final int MEDIA_TRACK_TYPE_AUDIO = 2; // 0x2
     field public static final int MEDIA_TRACK_TYPE_METADATA = 5; // 0x5
     field public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4; // 0x4

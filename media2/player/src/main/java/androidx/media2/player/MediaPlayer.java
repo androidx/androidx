@@ -2502,12 +2502,13 @@ public final class MediaPlayer extends SessionPlayer {
     }
 
     /**
-     * Returns metadata of the audio or video track currently selected for playback.
+     * Returns the selected track for the given track type.
      * The return value is an element in the list returned by {@link #getTracks()}.
      *
      * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO},
-     * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}, or {@link TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE}.
-     * @return metadata corresponding to the audio or video track currently selected for
+     * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}, {@link TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE},
+     * or {@link TrackInfo#MEDIA_TRACK_TYPE_METADATA}.
+     * @return metadata corresponding to the  track currently selected for
      * playback; {@code null} is returned when there is no selected track for {@code trackType} or
      * when {@code trackType} is not one of audio or video.
      * @throws IllegalStateException if called after {@link #close()}
@@ -2541,9 +2542,8 @@ public final class MediaPlayer extends SessionPlayer {
      * The first audio and video tracks are selected by default if available, even though
      * this method is not called.
      * <p>
-     * Currently, audio and subtitle tracks can be selected via this method. {@link #getTracks()}
-     * returns the list of tracks that can be selected, but the list may be invalidated when
-     * {@link PlayerCallback#onTracksChanged(SessionPlayer, List)} is called.
+     * Currently, tracks that return true for {@link TrackInfo#isSelectable()} can be selected via
+     * this method.
      *
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
      * object can be obtained from {@link #getTracks()}.
@@ -3607,7 +3607,8 @@ public final class MediaPlayer extends SessionPlayer {
      */
     public static final class TrackInfo extends SessionPlayer.TrackInfo {
         TrackInfo(SessionPlayer.TrackInfo infoInternal) {
-            super(infoInternal.getId(), infoInternal.getTrackType(), infoInternal.getFormat());
+            super(infoInternal.getId(), infoInternal.getTrackType(), infoInternal.getFormat(),
+                    (infoInternal.getTrackType() != MEDIA_TRACK_TYPE_VIDEO));
         }
 
         @Nullable
