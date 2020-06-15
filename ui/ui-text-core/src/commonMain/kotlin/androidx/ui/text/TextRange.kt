@@ -82,3 +82,24 @@ data class TextRange(@IntRange(from = 0) val start: Int, @IntRange(from = 0) val
  * Creates a [TextRange] where start is equal to end, and the value of those are [index].
  */
 fun TextRange(index: Int): TextRange = TextRange(start = index, end = index)
+
+/**
+ * Ensures that [TextRange.start] and [TextRange.end] values lies in the specified range
+ * [minimumValue] and [maximumValue]. For each [TextRange.start] and [TextRange.end] values:
+ * - if value is smaller than [minimumValue], value is replaced by [minimumValue]
+ * - if value is greater than [maximumValue], value is replaced by [maximumValue]
+ *
+ * @param minimumValue the minimum value that [TextRange.start] or [TextRange.end] can be.
+ * @param maximumValue the exclusive maximum value that [TextRange.start] or [TextRange.end] can be.
+ *
+ * @suppress
+ */
+@InternalTextApi
+fun TextRange.constrain(minimumValue: Int, maximumValue: Int): TextRange {
+    val newStart = start.coerceIn(minimumValue, maximumValue)
+    val newEnd = end.coerceIn(minimumValue, maximumValue)
+    if (newStart != start || newEnd != end) {
+        return TextRange(newStart, newEnd)
+    }
+    return this
+}
