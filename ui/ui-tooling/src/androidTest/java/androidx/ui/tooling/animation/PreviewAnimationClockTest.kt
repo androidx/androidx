@@ -16,8 +16,11 @@
 
 package androidx.ui.tooling.animation
 
+import androidx.animation.AnimationClockObserver
 import androidx.ui.tooling.preview.animation.PreviewAnimationClock
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PreviewAnimationClockTest {
@@ -26,5 +29,36 @@ class PreviewAnimationClockTest {
         val previewAnimationClock = PreviewAnimationClock(100)
         previewAnimationClock.setClockTime(300)
         assertEquals(400, previewAnimationClock.clock.clockTimeMillis)
+    }
+
+    @Test
+    fun subscribeAndUnsubscribeShouldNotify() {
+        val observer = object : AnimationClockObserver {
+            override fun onAnimationFrame(frameTimeMillis: Long) {
+                // Do nothing
+            }
+        }
+
+        val previewAnimationClock = TestPreviewAnimationClock()
+        assertFalse(previewAnimationClock.subscribed)
+        previewAnimationClock.subscribe(observer)
+        assertTrue(previewAnimationClock.subscribed)
+
+        assertFalse(previewAnimationClock.unsubscribed)
+        previewAnimationClock.unsubscribe(observer)
+        assertTrue(previewAnimationClock.unsubscribed)
+    }
+
+    private inner class TestPreviewAnimationClock : PreviewAnimationClock(0) {
+        var subscribed = false
+        var unsubscribed = false
+
+        override fun notifySubscribe(observer: AnimationClockObserver) {
+            subscribed = true
+        }
+
+        override fun notifyUnsubscribe(observer: AnimationClockObserver) {
+            unsubscribed = true
+        }
     }
 }

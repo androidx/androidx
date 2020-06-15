@@ -33,7 +33,8 @@ import androidx.annotation.VisibleForTesting
  *
  * @suppress
  */
-class PreviewAnimationClock(private val initialTimeMs: Long = 0L) : AnimationClockObservable {
+internal open class PreviewAnimationClock(private val initialTimeMs: Long = 0L) :
+    AnimationClockObservable {
 
     private val TAG = "PreviewAnimationClock"
 
@@ -47,7 +48,8 @@ class PreviewAnimationClock(private val initialTimeMs: Long = 0L) : AnimationClo
             Log.d(TAG, "AnimationClockObserver $observer subscribed")
         }
         clock.subscribe(observer)
-        // TODO: parse observer and notify Android Studio that the observers list has been updated.
+        // TODO(b/158752769): parse observer into an object with relevant animation data
+        notifySubscribe(observer)
     }
 
     override fun unsubscribe(observer: AnimationClockObserver) {
@@ -55,7 +57,20 @@ class PreviewAnimationClock(private val initialTimeMs: Long = 0L) : AnimationClo
             Log.d(TAG, "AnimationClockObserver $observer unsubscribed")
         }
         clock.unsubscribe(observer)
-        // TODO: parse observer and notify Android Studio that the observers list has been updated.
+        // TODO(b/158752769): parse observer into an object with relevant animation data
+        notifyUnsubscribe(observer)
+    }
+
+    @VisibleForTesting
+    protected open fun notifySubscribe(observer: AnimationClockObserver) {
+        // This method is expected to be no-op. It is intercepted in Android Studio using bytecode
+        // manipulation, in order for the tools to be aware that the animation was subscribed.
+    }
+
+    @VisibleForTesting
+    protected open fun notifyUnsubscribe(observer: AnimationClockObserver) {
+        // This method is expected to be no-op. It is intercepted in Android Studio using bytecode
+        // manipulation, in order for the tools to be aware that the animation was unsubscribed.
     }
 
     /**
