@@ -43,10 +43,15 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.Column
+import androidx.ui.layout.InnerPadding
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.heightIn
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
+import androidx.ui.layout.size
+import androidx.ui.layout.widthIn
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertIsEnabled
@@ -535,6 +540,21 @@ class ButtonTest {
                 shapeColor = Color.Yellow,
                 backgroundColor = Color.White
             )
+    }
+
+    @Test
+    fun minHeightAndMinWidthCanBeOverridden() {
+        val realSize: Size = composeTestRule.setMaterialContentAndGetPixelSize {
+            Button(onClick = {}, padding = InnerPadding(), modifier = Modifier.widthIn(20.dp)
+                .heightIn(15.dp)) {
+                Spacer(Modifier.size(10.dp))
+            }
+        }
+
+        with(composeTestRule.density) {
+            assertThat(realSize.width).isEqualTo(20.dp.toIntPx().toFloat())
+            assertThat(realSize.height).isEqualTo(15.dp.toIntPx().toFloat())
+        }
     }
 
     private fun assertLeftPaddingIs(
