@@ -25,7 +25,6 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity
 import androidx.camera.integration.uiwidgets.rotations.OrientationConfigChangesOverriddenActivity
-import androidx.camera.integration.uiwidgets.rotations.get
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
@@ -33,6 +32,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import androidx.test.uiautomator.UiDevice
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assume
@@ -63,6 +64,8 @@ class OrientationConfigChangesOverriddenActivityTest(
 ) {
 
     companion object {
+        private const val IMAGES_COUNT = 10
+
         @JvmStatic
         @Parameterized.Parameters(name = "lensFacing={0}, rotation={1}")
         fun data() = mutableListOf<Array<Any?>>().apply {
@@ -86,16 +89,19 @@ class OrientationConfigChangesOverriddenActivityTest(
         CoreAppTestUtil.assumeCompatibleDevice()
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
+        // Initialize CameraX
         val context = ApplicationProvider.getApplicationContext<Context>()
         val config = Camera2Config.defaultConfig()
         CameraX.initialize(context, config).get()
+
+        // Clear the device's UI and ensure it's in a natural orientation
+        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        uiDevice.setOrientationNatural()
     }
 
     @After
     fun tearDown() {
-        if (CameraX.isInitialized()) {
-            InstrumentationRegistry.getInstrumentation().runOnMainSync { CameraX.unbindAll() }
-        }
         CameraX.shutdown().get()
     }
 
@@ -104,17 +110,22 @@ class OrientationConfigChangesOverriddenActivityTest(
         launchActivity(lensFacing).use { scenario ->
 
             // Wait until camera is set up, and Analyzer is running
-            val analysisRunning = scenario.get { mAnalysisRunning }
+            val analysisRunning = scenario.withActivity { mAnalysisRunning }
             assertThat(analysisRunning.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
 
             // Rotate device
-            rotateDevice(rotation)
+            if (scenario.rotate(rotation)) {
 
-            // Wait for Analyzer to receive new images
-            assertThat(analysisRunning.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+                // Wait for the display to change
+                val displayChanged = scenario.withActivity { mDisplayChanged }
+                assertThat(displayChanged.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+
+                // Wait for Analyzer to receive new images
+                assertThat(analysisRunning.tryAcquire(IMAGES_COUNT, 5, TimeUnit.SECONDS)).isTrue()
+            }
 
             // Image rotation is correct if equal to sensor rotation relative to target rotation
-            val (sensorToTargetRotation, imageRotationDegrees) = scenario.get {
+            val (sensorToTargetRotation, imageRotationDegrees) = scenario.withActivity {
                 Pair(getSensorRotationRelativeToAnalysisTargetRotation(), mAnalysisImageRotation)
             }
             assertThat(sensorToTargetRotation).isEqualTo(imageRotationDegrees)
@@ -131,11 +142,10 @@ class OrientationConfigChangesOverriddenActivityTest(
         return ActivityScenario.launch<OrientationConfigChangesOverriddenActivity>(intent)
     }
 
-    /**
-     * Simulates a physical device rotation for an Activity that overrides orientation
-     * configuration changes. This triggers {@link DisplayManager.DisplayListener#onDisplayChanged}.
-     */
-    private fun rotateDevice(rotation: Int) {
+    private fun ActivityScenario<OrientationConfigChangesOverriddenActivity>.rotate(rotation: Int):
+            Boolean {
+        val currentRotation = withActivity { this.display!!.rotation }
         InstrumentationRegistry.getInstrumentation().uiAutomation.setRotation(rotation)
+        return currentRotation != rotation
     }
 }
