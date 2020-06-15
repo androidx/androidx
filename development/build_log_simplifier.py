@@ -69,6 +69,48 @@ def shorten_uninteresting_stack_frames(lines):
             prev_line_is_boring = False
     return result
 
+def remove_known_uninteresting_lines(lines):
+  skipLines = {
+      "A fine-grained performance profile is available: use the --scan option.",
+      "* Get more help at https://help.gradle.org",
+      "Use '--warning-mode all' to show the individual deprecation warnings.",
+      "See https://docs.gradle.org/6.5/userguide/command_line_interface.html#sec:command_line_warnings"
+
+      "Note: Some input files use or override a deprecated API.",
+      "Note: Recompile with -Xlint:deprecation for details."
+  }
+  skipPrefixes = [
+      "See the profiling report at:",
+
+      "Deprecated Gradle features were used in this build"
+  ]
+  result = []
+  for line in lines:
+      stripped = line.strip()
+      if stripped in skipLines:
+          continue
+      include = True
+      for prefix in skipPrefixes:
+          if stripped.startswith(prefix):
+              include = False
+              break
+      if include:
+          result.append(line)
+  return result
+
+def collapse_consecutive_blank_lines(lines):
+    result = []
+    prev_blank = False
+    for line in lines:
+        if line.strip() == "":
+            if not prev_blank:
+                result.append(line)
+            prev_blank = True
+        else:
+            result.append(line)
+            prev_blank = False
+    return result
+
 # If multiple tasks have no output, this function removes all but the first and last
 # For example, turns this:
 #  > Task :a
@@ -79,13 +121,19 @@ def shorten_uninteresting_stack_frames(lines):
 #  > Task :a
 #  > Task ...
 #  > Task :d
-def skip_tasks_having_no_output(lines):
+def collapse_tasks_having_no_output(lines):
     result = []
     pending_tasks = []
-    for line in lines + [""]:
+    for line in lines:
         is_task = line.startswith("> Task ")
         if is_task:
             pending_tasks.append(line)
+        elif line.strip() == "":
+            # If only blank lines occur between tasks, skip those blank lines
+            if len(pending_tasks) > 0:
+              pending_tasks.append(line)
+            else:
+              result.append(line)
         else:
             if len(pending_tasks) > 0:
                 result += pending_tasks[0]
@@ -94,8 +142,7 @@ def skip_tasks_having_no_output(lines):
                 if len(pending_tasks) > 1:
                     result += pending_tasks[-1]
                 pending_tasks = []
-            if line != "":
-                result.append(line)
+            result.append(line)
     return result
 
 try:
@@ -107,7 +154,9 @@ try:
 
     lines = select_failing_task_output(lines)
     lines = shorten_uninteresting_stack_frames(lines)
-    lines = skip_tasks_having_no_output(lines)
+    lines = remove_known_uninteresting_lines(lines)
+    lines = collapse_consecutive_blank_lines(lines)
+    lines = collapse_tasks_having_no_output(lines)
 
     print(len(lines))
     print(''.join(lines))
