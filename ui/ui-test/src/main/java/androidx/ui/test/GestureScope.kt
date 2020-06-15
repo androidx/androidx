@@ -67,7 +67,7 @@ sealed class BaseGestureScope(node: SemanticsNode) {
         }
 
     internal fun dispose() {
-        InputDispatcher.saveState(owner, inputDispatcher)
+        inputDispatcher.saveState(owner)
         _semanticsNode = null
         _inputDispatcher = null
     }

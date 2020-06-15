@@ -20,7 +20,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.doubleTapGestureFilter
 import androidx.ui.geometry.Offset
-import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
@@ -65,7 +65,7 @@ class SendDoubleClickTest(private val config: TestConfig) {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
-    private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
+    private val dispatcherRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
     private val eventPeriod get() = dispatcherRule.eventPeriod
 
     @get:Rule

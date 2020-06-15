@@ -21,7 +21,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.geometry.Offset
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
@@ -49,7 +49,7 @@ class SendPinchTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
-    private val eventPeriod = AndroidInputDispatcher.TestRule().eventPeriod
+    private val eventPeriod = InputDispatcherTestRule().eventPeriod
     private val recorder = MultiPointerInputRecorder()
 
     @Test

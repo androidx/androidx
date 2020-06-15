@@ -21,6 +21,7 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import androidx.test.filters.SmallTest
 import androidx.ui.geometry.Offset
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
@@ -48,7 +49,7 @@ class SendCancelTest {
         private val position2_1 = Offset(21f, 21f)
     }
 
-    private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
+    private val dispatcherRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
     private val eventPeriod get() = dispatcherRule.eventPeriod
 
     @get:Rule
@@ -62,8 +63,8 @@ class SendCancelTest {
         recorder.disposeEvents()
     }
 
-    private fun AndroidInputDispatcher.sendCancelAndCheckPointers() {
-        sendCancelAndCheck()
+    private fun AndroidInputDispatcher.sendCancelAndCheckPointers(delay: Long? = null) {
+        sendCancelAndCheck(delay)
         assertThat(getCurrentPosition(pointer1)).isNull()
         assertThat(getCurrentPosition(pointer2)).isNull()
     }
@@ -82,6 +83,25 @@ class SendCancelTest {
             this[0].verifyPointer(pointer1, position1_1)
 
             t += eventPeriod
+            this[1].verifyEvent(1, ACTION_CANCEL, 0, t)
+            this[1].verifyPointer(pointer1, position1_1)
+        }
+    }
+
+    @Test
+    fun onePointerWithDelay() {
+        subject.sendDownAndCheck(pointer1, position1_1)
+        subject.sendCancelAndCheckPointers(2 * eventPeriod)
+        subject.verifyNoGestureInProgress()
+        recorder.assertHasValidEventTimes()
+
+        recorder.events.apply {
+            var t = 0L
+            assertThat(this).hasSize(2)
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
+            this[0].verifyPointer(pointer1, position1_1)
+
+            t += 2 * eventPeriod
             this[1].verifyEvent(1, ACTION_CANCEL, 0, t)
             this[1].verifyPointer(pointer1, position1_1)
         }

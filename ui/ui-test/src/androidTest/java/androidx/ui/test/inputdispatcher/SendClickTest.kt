@@ -19,6 +19,7 @@ package androidx.ui.test.inputdispatcher
 import android.view.MotionEvent
 import androidx.test.filters.SmallTest
 import androidx.ui.geometry.Offset
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
@@ -54,7 +55,7 @@ class SendClickTest(config: TestConfig) {
         }
     }
 
-    private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
+    private val dispatcherRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
     private val eventPeriod get() = dispatcherRule.eventPeriod
 
     @get:Rule
