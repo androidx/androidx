@@ -17,6 +17,7 @@
 package androidx.ui.test
 
 import androidx.annotation.FloatRange
+import androidx.ui.core.gesture.DoubleTapTimeout
 import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.geometry.Offset
@@ -226,8 +227,6 @@ class GestureScope internal constructor(
  * where (0, 0) is the top left corner of the component. The default [position] is the
  * center of the component.
  *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- *
  * @param position The position where to click, in the component's local coordinate system. If
  * omitted, the center position will be used.
  */
@@ -237,34 +236,45 @@ fun GestureScope.sendClick(position: Offset = center) {
 
 /**
  * Performs a long click gesture at the given [position] on the associated component, or in the
- * center if the [position] is omitted. There will be [LongPressTimeout] + 100 milliseconds time
- * between the down and the up event. The [position] is in the component's local coordinate
+ * center if the [position] is omitted. By default, the [duration] of the press is
+ * [LongPressTimeout] + 100 milliseconds. The [position] is in the component's local coordinate
  * system, where (0, 0) is the top left corner of the component.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  *
  * @param position The position of the long click, in the component's local coordinate system. If
  * omitted, the center position will be used.
+ * @param duration The time between the down and the up event
  */
-fun GestureScope.sendLongClick(position: Offset = center) {
-    // Keep down for 100ms more than needed, to allow the long press logic to trigger
-    sendSwipe(position, position, LongPressTimeout + 100.milliseconds)
+fun GestureScope.sendLongClick(
+    position: Offset = center,
+    duration: Duration = LongPressTimeout + 100.milliseconds
+) {
+    require(duration >= LongPressTimeout) {
+        "Long click must have a duration of at least ${LongPressTimeout.inMilliseconds()}ms"
+    }
+    sendSwipe(position, position, duration)
 }
 
 /**
  * Performs a double click gesture at the given [position] on the associated component, or in the
- * center if the [position] is omitted. The [position] is in the component's local coordinate
- * system, where (0, 0) is the top left corner of the component.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ * center if the [position] is omitted. By default, the [delay] between the first and the second
+ * click is 145 milliseconds (empirically established). The [position] is in the component's
+ * local coordinate system, where (0, 0) is the top left corner of the component.
  *
  * @param position The position of the double click, in the component's local coordinate system.
  * If omitted, the center position will be used.
+ * @param delay The time between the up event of the first click and the down event of the second
+ * click
  */
-fun GestureScope.sendDoubleClick(position: Offset = center) {
+fun GestureScope.sendDoubleClick(
+    position: Offset = center,
+    delay: Duration = doubleClickDelay
+) {
+    require(delay <= DoubleTapTimeout - 10.milliseconds) {
+        "Time between clicks in double click can be at most ${DoubleTapTimeout - 10.milliseconds}ms"
+    }
     val globalPosition = localToGlobal(position)
     inputDispatcher.sendClick(globalPosition)
-    inputDispatcher.delay(doubleClickDelay)
+    inputDispatcher.delay(delay)
     inputDispatcher.sendClick(globalPosition)
 }
 
@@ -273,8 +283,6 @@ fun GestureScope.sendDoubleClick(position: Offset = center) {
  * interpolated between [start] and [end]. The coordinates are in the component's local
  * coordinate system, where (0, 0) is the top left corner of the component. The default
  * duration is 200 milliseconds.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  *
  * @param start The start position of the gesture, in the component's local coordinate system
  * @param end The end position of the gesture, in the component's local coordinate system
@@ -335,8 +343,6 @@ fun GestureScope.sendPinch(
  * Note that due to imprecisions, no guarantees can be made on the precision of the actual
  * velocity at the end of the gesture, but generally it is within 0.1% of the desired velocity.
  *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- *
  * @param start The start position of the gesture, in the component's local coordinate system
  * @param end The end position of the gesture, in the component's local coordinate system
  * @param endVelocity The velocity of the gesture at the moment it ends. Must be positive.
@@ -387,8 +393,6 @@ fun GestureScope.sendSwipeWithVelocity(
 /**
  * Performs a swipe up gesture on the associated component. The gesture starts slightly above the
  * bottom of the component and ends at the top.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeUp() {
     val x = center.x
@@ -402,8 +406,6 @@ fun GestureScope.sendSwipeUp() {
 /**
  * Performs a swipe down gesture on the associated component. The gesture starts slightly below the
  * top of the component and ends at the bottom.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeDown() {
     val x = center.x
@@ -417,8 +419,6 @@ fun GestureScope.sendSwipeDown() {
 /**
  * Performs a swipe left gesture on the associated component. The gesture starts slightly left of
  * the right side of the component and ends at the left side.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeLeft() {
     val x0 = (size.width * (1 - edgeFuzzFactor)).toFloat()
@@ -432,8 +432,6 @@ fun GestureScope.sendSwipeLeft() {
 /**
  * Performs a swipe right gesture on the associated component. The gesture starts slightly right of
  * the left side of the component and ends at the right side.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
  */
 fun GestureScope.sendSwipeRight() {
     val x0 = (size.width * edgeFuzzFactor).roundToInt().toFloat()

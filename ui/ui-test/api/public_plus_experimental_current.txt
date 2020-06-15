@@ -228,10 +228,10 @@ package androidx.ui.test {
     method public static void movePointerTo(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset position);
     method public static void sendCancel(androidx.ui.test.PartialGestureScope);
     method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center);
-    method public static void sendDoubleClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center);
+    method public static void sendDoubleClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center, androidx.ui.unit.Duration delay = androidx.ui.test.GestureScopeKt.doubleClickDelay);
     method public static void sendDown(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset position);
     method public static void sendDown(androidx.ui.test.PartialGestureScope, androidx.ui.geometry.Offset position);
-    method public static void sendLongClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center);
+    method public static void sendLongClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center, androidx.ui.unit.Duration duration = androidx.ui.core.gesture.ConstantsKt.LongPressTimeout + 100.milliseconds);
     method public static void sendMove(androidx.ui.test.PartialGestureScope);
     method public static void sendMoveBy(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset delta);
     method public static void sendMoveBy(androidx.ui.test.PartialGestureScope, androidx.ui.geometry.Offset delta);
