@@ -136,7 +136,7 @@ package androidx.ui.test {
   }
 
   public final class ComposeTestRuleKt {
-    method public static androidx.ui.test.ComposeTestRule createComposeRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false);
+    method public static androidx.ui.test.ComposeTestRule createComposeRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false, boolean disableBlinkingCursor = true);
   }
 
   public final class DisableTransitions implements org.junit.rules.TestRule {
@@ -228,10 +228,10 @@ package androidx.ui.test {
     method public static void movePointerTo(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset position);
     method public static void sendCancel(androidx.ui.test.PartialGestureScope);
     method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center);
-    method public static void sendDoubleClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center);
+    method public static void sendDoubleClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center, androidx.ui.unit.Duration delay = androidx.ui.test.GestureScopeKt.doubleClickDelay);
     method public static void sendDown(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset position);
     method public static void sendDown(androidx.ui.test.PartialGestureScope, androidx.ui.geometry.Offset position);
-    method public static void sendLongClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center);
+    method public static void sendLongClick(androidx.ui.test.GestureScope, androidx.ui.geometry.Offset position = center, androidx.ui.unit.Duration duration = androidx.ui.core.gesture.ConstantsKt.LongPressTimeout + 100.milliseconds);
     method public static void sendMove(androidx.ui.test.PartialGestureScope);
     method public static void sendMoveBy(androidx.ui.test.PartialGestureScope, int pointerId, androidx.ui.geometry.Offset delta);
     method public static void sendMoveBy(androidx.ui.test.PartialGestureScope, androidx.ui.geometry.Offset delta);
@@ -364,10 +364,10 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRule {
-    ctor public AndroidComposeTestRule(androidx.test.rule.ActivityTestRule<T> activityTestRule, androidx.compose.Recomposer? recomposer, boolean disableTransitions);
+    ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule, androidx.compose.Recomposer? recomposer, boolean disableTransitions, boolean disableBlinkingCursor);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
     method @androidx.ui.test.ExperimentalTesting public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
-    method public androidx.test.rule.ActivityTestRule<T> getActivityTestRule();
+    method public androidx.test.ext.junit.rules.ActivityScenarioRule<T> getActivityRule();
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
@@ -384,7 +384,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRuleKt {
-    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T>! AndroidComposeTestRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T>! AndroidComposeTestRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false, boolean disableBlinkingCursor = true);
   }
 
   public final class ComposeIdlingResourceKt {
