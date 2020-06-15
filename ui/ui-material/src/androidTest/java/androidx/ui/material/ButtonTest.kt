@@ -30,12 +30,15 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.boundsInRoot
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
+import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.shape.corner.CutCornerShape
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.compositeOver
@@ -44,7 +47,6 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertIsEnabled
@@ -57,8 +59,6 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.Dp
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
 import androidx.ui.unit.center
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
@@ -317,7 +317,8 @@ class ButtonTest {
                     Button(
                         onClick = {},
                         enabled = false,
-                        shape = RectangleShape) {}
+                        shape = RectangleShape
+                    ) {}
                 }
             }
         }
@@ -502,24 +503,26 @@ class ButtonTest {
     @Test
     fun zOrderingBasedOnElevationIsApplied() {
         composeTestRule.setMaterialContent {
-            Semantics(container = true, mergeAllDescendants = true) {
-                Stack(Modifier.testTag("stack").preferredSize(10.dp, 10.dp)) {
-                    Button(
-                        backgroundColor = Color.Yellow,
-                        elevation = 2.dp,
-                        onClick = {},
-                        shape = RectangleShape
-                    ) {
-                        Box(Modifier.fillMaxSize())
-                    }
-                    Button(
-                        backgroundColor = Color.Green,
-                        elevation = 0.dp,
-                        onClick = {},
-                        shape = RectangleShape
-                    ) {
-                        Box(Modifier.fillMaxSize())
-                    }
+            Stack(
+                Modifier.semantics(mergeAllDescendants = true)
+                    .testTag("stack")
+                    .preferredSize(10.dp, 10.dp)
+            ) {
+                Button(
+                    backgroundColor = Color.Yellow,
+                    elevation = 2.dp,
+                    onClick = {},
+                    shape = RectangleShape
+                ) {
+                    Box(Modifier.fillMaxSize())
+                }
+                Button(
+                    backgroundColor = Color.Green,
+                    elevation = 0.dp,
+                    onClick = {},
+                    shape = RectangleShape
+                ) {
+                    Box(Modifier.fillMaxSize())
                 }
             }
         }

@@ -42,8 +42,6 @@ import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.size
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
-import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.testTag
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
@@ -176,7 +174,7 @@ class ScaffoldTest {
         var drawerChildPosition: Offset = Offset.Zero
         val scaffoldState = ScaffoldState(isDrawerGesturesEnabled = false)
         composeTestRule.setMaterialContent {
-            Semantics(properties = { testTag = scaffoldTag }) {
+            Box(Modifier.testTag(scaffoldTag)) {
                 Scaffold(
                     scaffoldState = scaffoldState,
                     drawerContent = {
@@ -229,7 +227,7 @@ class ScaffoldTest {
         var drawerChildPosition: Offset = Offset.Zero
         val scaffoldState = ScaffoldState()
         composeTestRule.setMaterialContent {
-            Semantics(properties = { testTag = scaffoldTag }) {
+            Box(Modifier.testTag(scaffoldTag)) {
                 Scaffold(
                     scaffoldState = scaffoldState,
                     drawerContent = {

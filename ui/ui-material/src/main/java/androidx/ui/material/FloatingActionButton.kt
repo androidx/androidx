@@ -20,6 +20,7 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
@@ -33,7 +34,6 @@ import androidx.ui.layout.defaultMinSizeConstraints
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
-import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -66,25 +66,24 @@ fun FloatingActionButton(
     elevation: Dp = 6.dp,
     icon: @Composable () -> Unit
 ) {
-    // Since we're adding layouts in between the clickable layer and the content, we need to
-    // merge all descendants, or we'll get multiple nodes
-    Semantics(container = true, mergeAllDescendants = true) {
-        Surface(
-            modifier = modifier,
-            shape = shape,
-            color = backgroundColor,
-            contentColor = contentColor,
-            elevation = elevation
-        ) {
-            ProvideTextStyle(MaterialTheme.typography.button) {
-                Box(
-                    modifier = Modifier
-                        .defaultMinSizeConstraints(minWidth = FabSize, minHeight = FabSize)
-                        .clickable(onClick = onClick),
-                    gravity = ContentGravity.Center,
-                    children = icon
-                )
-            }
+    Surface(
+        modifier = modifier
+            // Since we're adding layouts in between the clickable layer and the content, we need to
+            // merge all descendants, or we'll get multiple nodes
+            .semantics(mergeAllDescendants = true),
+        shape = shape,
+        color = backgroundColor,
+        contentColor = contentColor,
+        elevation = elevation
+    ) {
+        ProvideTextStyle(MaterialTheme.typography.button) {
+            Box(
+                modifier = Modifier
+                    .defaultMinSizeConstraints(minWidth = FabSize, minHeight = FabSize)
+                    .clickable(onClick = onClick),
+                gravity = ContentGravity.Center,
+                children = icon
+            )
         }
     }
 }

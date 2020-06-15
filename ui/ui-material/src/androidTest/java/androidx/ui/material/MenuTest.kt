@@ -33,8 +33,6 @@ import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.size
-import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.testTag
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.find
@@ -108,12 +106,8 @@ class MenuTest {
                     },
                     onDismissRequest = {}
                 ) {
-                    Semantics(properties = { testTag = "MenuContent1" }, container = true) {
-                        Box(Modifier.preferredSize(70.toDp()))
-                    }
-                    Semantics(properties = { testTag = "MenuContent2" }, container = true) {
-                        Box(Modifier.preferredSize(130.toDp()))
-                    }
+                    Box(Modifier.testTag("MenuContent1").preferredSize(70.toDp()))
+                    Box(Modifier.testTag("MenuContent2").preferredSize(130.toDp()))
                 }
             }
         }

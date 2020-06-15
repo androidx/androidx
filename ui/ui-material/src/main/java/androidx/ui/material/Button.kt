@@ -20,6 +20,7 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
@@ -31,7 +32,6 @@ import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.preferredSizeIn
-import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -83,31 +83,31 @@ fun Button(
     padding: InnerPadding = Button.DefaultInnerPadding,
     text: @Composable () -> Unit
 ) {
-    // Since we're adding layouts in between the clickable layer and the content, we need to
-    // merge all descendants, or we'll get multiple nodes
-    Semantics(container = true, mergeAllDescendants = true) {
-        Surface(
-            shape = shape,
-            color = if (enabled) backgroundColor else disabledBackgroundColor,
-            contentColor = if (enabled) contentColor else disabledContentColor,
-            border = border,
-            elevation = if (enabled) elevation else disabledElevation,
-            modifier = modifier
+
+    Surface(
+        shape = shape,
+        color = if (enabled) backgroundColor else disabledBackgroundColor,
+        contentColor = if (enabled) contentColor else disabledContentColor,
+        border = border,
+        elevation = if (enabled) elevation else disabledElevation,
+        modifier = modifier
+            // Since we're adding layouts in between the clickable layer and the content, we need to
+            // merge all descendants, or we'll get multiple nodes
+            .semantics(mergeAllDescendants = true)
+    ) {
+        Box(
+            ButtonConstraints
+                .clickable(onClick = onClick, enabled = enabled),
+            paddingStart = padding.start,
+            paddingTop = padding.top,
+            paddingEnd = padding.end,
+            paddingBottom = padding.bottom,
+            gravity = ContentGravity.Center
         ) {
-            Box(
-                ButtonConstraints
-                    .clickable(onClick = onClick, enabled = enabled),
-                paddingStart = padding.start,
-                paddingTop = padding.top,
-                paddingEnd = padding.end,
-                paddingBottom = padding.bottom,
-                gravity = ContentGravity.Center
-            ) {
-                ProvideTextStyle(
-                    value = MaterialTheme.typography.button,
-                    children = text
-                )
-            }
+            ProvideTextStyle(
+                value = MaterialTheme.typography.button,
+                children = text
+            )
         }
     }
 }
