@@ -55,7 +55,6 @@ import androidx.core.content.LocusIdCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
@@ -1358,7 +1357,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
-    @FlakyTest
     public void testPeopleField() {
         final Person person = new Person.Builder().setName("test name").setKey("key").build();
         final Person person2 = new Person.Builder()
@@ -1370,7 +1368,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .addPerson(person2)
                 .build();
 
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (Build.VERSION.SDK_INT >= 29) {
             final ArrayList<android.app.Person> peopleList =
                     notification.extras.getParcelableArrayList(Notification.EXTRA_PEOPLE_LIST);
             final ArraySet<android.app.Person> people = new ArraySet<>(peopleList);
@@ -1378,6 +1376,19 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
             expected.add(new Person.Builder().setUri("self name").build().toAndroidPerson());
             expected.add(person.toAndroidPerson());
             expected.add(person2.toAndroidPerson());
+            assertEquals(expected, people);
+        } else if (Build.VERSION.SDK_INT >= 28) {
+            // Person#equals is not implemented in API 28, so comparing uri manually
+            final ArrayList<android.app.Person> peopleList =
+                    notification.extras.getParcelableArrayList(Notification.EXTRA_PEOPLE_LIST);
+            final ArraySet<String> people = new ArraySet<>();
+            for (android.app.Person p : peopleList) {
+                people.add(p.getUri());
+            }
+            final ArraySet<String> expected = new ArraySet<>();
+            expected.add("self name");
+            expected.add(person.toAndroidPerson().getUri());
+            expected.add(person2.toAndroidPerson().getUri());
             assertEquals(expected, people);
         } else if (Build.VERSION.SDK_INT >= 19) {
             final String[] peopleArray =
