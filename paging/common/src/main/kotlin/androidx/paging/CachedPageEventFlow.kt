@@ -27,6 +27,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.joinAll
@@ -34,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.ArrayDeque
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * An intermediate flow producer that flattens previous page events and gives any new downstream
@@ -47,14 +50,28 @@ internal class CachedPageEventFlow<T : Any>(
     private val pageController = FlattenedPageController<T>()
 
     /**
+     * We can collect from source only once since Events are ordered.
+     * This flag ensures that we do not try to collect from upstream more than once.
+     */
+    private val collectedFromSource = AtomicBoolean(false)
+    /**
      * Shared upstream.
-     * Note that, if upstream flow ends, re-subscribing to this will trigger a restart of it but
-     * cached data will still be delivered immediately.
+     * Note that, if upstream flow ends, re-subscribing to this will not re-collect from upstream
+     * since PageEvent flows cannot be restarted. Instead, a new subscriber will get only the
+     * cached values from snapshot.
      */
     private val multicastedSrc = Multicaster(
         scope = scope,
         bufferSize = 0,
-        source = src.withIndex(),
+        source = flow {
+            // we can collect from a Flow<PageEvent> only once.
+            // if this multicaster ever gets restarted, we should not try to collect from the
+            // original flow, instead, return empty flow from upstream and let the new downstream
+            // only receive historical events
+            if (collectedFromSource.compareAndSet(false, true)) {
+                emitAll(src.withIndex())
+            }
+        },
         onEach = pageController::record,
         keepUpstreamAlive = true
     )
