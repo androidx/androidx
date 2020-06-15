@@ -63,6 +63,7 @@ import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendClick
 import androidx.ui.test.sendSwipeDown
 import androidx.ui.test.sendSwipeUp
+import androidx.ui.test.waitForIdle
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.unit.IntSize
@@ -952,9 +953,9 @@ class FilledTextFieldTest {
     }
 
     private fun clickAndAdvanceClock(tag: String, time: Long) {
-        testRule.clockTestRule.pauseClock()
         findByTag(tag).doClick()
-        runOnIdleCompose { }
+        waitForIdle()
+        testRule.clockTestRule.pauseClock()
         testRule.clockTestRule.advanceClock(time)
     }
 }
