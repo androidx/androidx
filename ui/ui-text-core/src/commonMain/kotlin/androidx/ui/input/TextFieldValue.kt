@@ -77,8 +77,14 @@ data class EditorValue(
 /**
  * A class holding information about the editing state.
  *
- * The input service updates text selection or cursor as well as text. You can observe and
- * control the selection, cursor and text altogether.
+ * The input service updates text selection, cursor, text and text composition. This class
+ * represents those values and it is possible to observe changes to those values in the text
+ * editing composables.
+ *
+ * Input service composition is an instance of text produced by IME. An example visual for the
+ * composition is that the currently composed word is visually separated from others with
+ * underline, or text background. For description of
+ * composition please check [W3C IME Composition](https://www.w3.org/TR/ime-api/#ime-composition)
  *
  * This class stores a snapshot of the input state of the edit buffer and provide utility functions
  * for answering IME requests such as getTextBeforeCursor, getSelectedText.
@@ -86,8 +92,9 @@ data class EditorValue(
  * @param text the text will be rendered
  * @param selection the selection range. If the selection is collapsed, it represents cursor
  * location. Do not specify outside of the text buffer.
- * @param composition A composition range visible to IME.If null, there is no composition range.
- * If non-null, the composition range must be valid range in the given text.
+ * @param composition A composition range visible to IME. If null, there is no composition range.
+ * If non-null, the composition range must be valid range in the given text. For description of
+ * composition please check [W3C IME Composition](https://www.w3.org/TR/ime-api/#ime-composition).
  */
 @Immutable
 data class TextFieldValue(

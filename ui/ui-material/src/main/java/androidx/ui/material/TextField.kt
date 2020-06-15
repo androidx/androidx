@@ -124,8 +124,8 @@ import kotlin.math.roundToInt
  *
  * @sample androidx.ui.material.samples.TextFieldWithHideKeyboardOnImeAction
  *
- * If apart from input text change you also want to observe the cursor location or selection range,
- * use the FilledTextField overload with the [TextFieldValue] parameter instead.
+ * If apart from input text change you also want to observe the cursor location, selection range,
+ * or IME composition use the FilledTextField overload with the [TextFieldValue] parameter instead.
  *
  * @param value the input text to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates the text. An
@@ -244,13 +244,13 @@ fun FilledTextField(
  * See example usage:
  * @sample androidx.ui.material.samples.FilledTextFieldSample
  *
- * This overload provides access to the input text, cursor position and selection range. If you
- * only want to observe an input text change, use the FilledTextField overload with the
- * [String] parameter instead.
+ * This overload provides access to the input text, cursor position, selection range and
+ * IME composition. If you only want to observe an input text change, use the FilledTextField
+ * overload with the [String] parameter instead.
  *
  * @param value the input [TextFieldValue] to be shown in the text field
- * @param onValueChange the callback that is triggered when the input service updates the text,
- * selection or cursor. An updated [TextFieldValue] comes as a parameter of the callback
+ * @param onValueChange the callback that is triggered when the input service updates values in
+ * [TextFieldValue]. An updated [TextFieldValue] comes as a parameter of the callback
  * @param label the label to be displayed inside the text field container. The default text style
  * for internal [Text] is [Typography.caption] when the text field is in focus and
  * [Typography.subtitle1] when the text field is not in focus
@@ -427,8 +427,9 @@ fun FilledTextField(
  * See example usage:
  * @sample androidx.ui.material.samples.SimpleOutlinedTextFieldSample
  *
- * If apart from input text change you also want to observe the cursor location or selection range,
- * use the OutlinedTextField overload with the [TextFieldValue] parameter instead.
+ * If apart from input text change you also want to observe the cursor location, selection range,
+ * or IME composition use the OutlinedTextField overload with the [TextFieldValue] parameter
+ * instead.
  *
  * @param value the input text to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates the text. An
@@ -542,13 +543,13 @@ fun OutlinedTextField(
  * See example usage:
  * @sample androidx.ui.material.samples.OutlinedTextFieldSample
  *
- * This overload provides access to the input text, cursor position and selection range. If you
- * only want to observe an input text change, use the OutlinedTextField overload with the
- * [String] parameter instead.
+ * This overload provides access to the input text, cursor position and selection range and
+ * IME composition. If you only want to observe an input text change, use the OutlinedTextField
+ * overload with the [String] parameter instead.
  *
  * @param value the input [TextFieldValue] to be shown in the text field
- * @param onValueChange the callback that is triggered when the input service updates the text,
- * selection or cursor. An updated [TextFieldValue] comes as a parameter of the callback
+ * @param onValueChange the callback that is triggered when the input service updates values in
+ * [TextFieldValue]. An updated [TextFieldValue] comes as a parameter of the callback
  * @param label the label to be displayed inside the text field container. The default text style
  * for internal [Text] is [Typography.caption] when the text field is in focus and
  * [Typography.subtitle1] when the text field is not in focus
