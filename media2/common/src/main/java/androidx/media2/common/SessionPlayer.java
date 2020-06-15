@@ -1038,6 +1038,8 @@ public abstract class SessionPlayer implements Closeable {
         public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
         public static final int MEDIA_TRACK_TYPE_METADATA = 5;
 
+        private static final String KEY_IS_SELECTABLE = "isSelectable";
+
         /**
          * @hide
          */
@@ -1060,13 +1062,19 @@ public abstract class SessionPlayer implements Closeable {
         @ParcelField(3)
         int mTrackType;
 
-        // Parceled via mParcelledFormat.
+        // Parceled via mParcelableExtras.
         @NonParcelField
         @Nullable
         MediaFormat mFormat;
-        // For parceling mFormat. Should be only used by onPreParceling() and onPostParceling().
+        // Parceled via mParcelableExtras.
+        @NonParcelField
+        boolean mIsSelectable;
+        // For extra information containing MediaFormat and isSelectable data. Should only be used
+        // by onPreParceling() and onPostParceling().
         @ParcelField(4)
-        Bundle mParcelableFormatBundle;
+        Bundle mParcelableExtras;
+        @NonParcelField
+        private final Object mLock = new Object();
 
         // WARNING: Adding a new ParcelField may break old library users (b/152830728)
 
@@ -1080,14 +1088,30 @@ public abstract class SessionPlayer implements Closeable {
         /**
          * Constructor to create a TrackInfo instance.
          *
+         * Note: The default value for {@link #isSelectable()} is false.
+         *
          * @param id id of track unique across {@link MediaItem}s
          * @param type type of track. Can be video, audio or subtitle
          * @param format format of track
          */
         public TrackInfo(int id, int type, @Nullable MediaFormat format) {
+            this(id, type, format, /* isSelectable= */ false);
+        }
+
+        /**
+         * Constructor to create a TrackInfo instance.
+         *
+         * @param id id of track unique across {@link MediaItem}s
+         * @param type type of track. Can be video, audio or subtitle
+         * @param format format of track
+         * @param isSelectable whether track can be selected via
+         * {@link SessionPlayer#selectTrack(TrackInfo)}.
+         */
+        public TrackInfo(int id, int type, @Nullable MediaFormat format, boolean isSelectable) {
             mId = id;
             mTrackType = type;
             mFormat = format;
+            mIsSelectable = isSelectable;
         }
 
         /**
@@ -1133,6 +1157,15 @@ public abstract class SessionPlayer implements Closeable {
          */
         public int getId() {
             return mId;
+        }
+
+        /**
+         * Whether the current track can be selected via {@link #selectTrack(TrackInfo)} or not.
+         *
+         * @return True if the current track is can be selected; false if otherwise.
+         */
+        public boolean isSelectable() {
+            return mIsSelectable;
         }
 
         @Override
@@ -1187,23 +1220,21 @@ public abstract class SessionPlayer implements Closeable {
          */
         @RestrictTo(LIBRARY)
         @Override
-        @SuppressWarnings("SynchronizeOnNonFinalField") // mFormat effectively final.
         public void onPreParceling(boolean isStream) {
-            if (mFormat != null) {
-                synchronized (mFormat) {
-                    if (mParcelableFormatBundle == null) {
-                        mParcelableFormatBundle = new Bundle();
-                        putStringValueToBundle(MediaFormat.KEY_LANGUAGE,
-                                mFormat, mParcelableFormatBundle);
-                        putStringValueToBundle(MediaFormat.KEY_MIME,
-                                mFormat, mParcelableFormatBundle);
-                        putIntValueToBundle(MediaFormat.KEY_IS_FORCED_SUBTITLE,
-                                mFormat, mParcelableFormatBundle);
-                        putIntValueToBundle(MediaFormat.KEY_IS_AUTOSELECT,
-                                mFormat, mParcelableFormatBundle);
-                        putIntValueToBundle(MediaFormat.KEY_IS_DEFAULT,
-                                mFormat, mParcelableFormatBundle);
-                    }
+            synchronized (mLock) {
+                mParcelableExtras = new Bundle();
+                mParcelableExtras.putBoolean(KEY_IS_SELECTABLE, mIsSelectable);
+                if (mFormat != null) {
+                    putStringValueToBundle(MediaFormat.KEY_LANGUAGE,
+                            mFormat, mParcelableExtras);
+                    putStringValueToBundle(MediaFormat.KEY_MIME,
+                            mFormat, mParcelableExtras);
+                    putIntValueToBundle(MediaFormat.KEY_IS_FORCED_SUBTITLE,
+                            mFormat, mParcelableExtras);
+                    putIntValueToBundle(MediaFormat.KEY_IS_AUTOSELECT,
+                            mFormat, mParcelableExtras);
+                    putIntValueToBundle(MediaFormat.KEY_IS_DEFAULT,
+                            mFormat, mParcelableExtras);
                 }
             }
         }
@@ -1214,18 +1245,25 @@ public abstract class SessionPlayer implements Closeable {
         @RestrictTo(LIBRARY)
         @Override
         public void onPostParceling() {
-            if (mParcelableFormatBundle != null) {
+            if (mParcelableExtras != null) {
                 mFormat = new MediaFormat();
                 setStringValueToMediaFormat(MediaFormat.KEY_LANGUAGE,
-                        mFormat, mParcelableFormatBundle);
+                        mFormat, mParcelableExtras);
                 setStringValueToMediaFormat(MediaFormat.KEY_MIME,
-                        mFormat, mParcelableFormatBundle);
+                        mFormat, mParcelableExtras);
                 setIntValueToMediaFormat(MediaFormat.KEY_IS_FORCED_SUBTITLE,
-                        mFormat, mParcelableFormatBundle);
+                        mFormat, mParcelableExtras);
                 setIntValueToMediaFormat(MediaFormat.KEY_IS_AUTOSELECT,
-                        mFormat, mParcelableFormatBundle);
+                        mFormat, mParcelableExtras);
                 setIntValueToMediaFormat(MediaFormat.KEY_IS_DEFAULT,
-                        mFormat, mParcelableFormatBundle);
+                        mFormat, mParcelableExtras);
+                if (mParcelableExtras.containsKey(KEY_IS_SELECTABLE)) {
+                    mIsSelectable = mParcelableExtras.getBoolean(KEY_IS_SELECTABLE);
+                } else {
+                    // KEY_IS_SELECTABLE was added in media2 1.1.0 version, so need to set
+                    // default value for all TrackInfo instances from pre-1.1.0 version.
+                    mIsSelectable = mTrackType != MEDIA_TRACK_TYPE_VIDEO;
+                }
             }
         }
 

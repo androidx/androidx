@@ -182,7 +182,8 @@ public class MediaUtils {
         if (track == null || track.getClass() == TrackInfo.class) {
             return track;
         }
-        return new TrackInfo(track.getId(), track.getTrackType(), track.getFormat());
+        return new TrackInfo(track.getId(), track.getTrackType(), track.getFormat(),
+                track.isSelectable());
     }
 
     /**
