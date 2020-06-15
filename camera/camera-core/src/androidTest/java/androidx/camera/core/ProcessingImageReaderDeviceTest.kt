@@ -25,6 +25,7 @@ import kotlin.coroutines.suspendCoroutine
 
 import android.graphics.ImageFormat
 import android.media.ImageWriter
+import android.os.Build
 import android.util.Size
 import android.view.Surface
 
@@ -38,6 +39,7 @@ import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.fakes.FakeCaptureStage
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import org.junit.Assume.assumeTrue
 
 import org.junit.Before
 import org.junit.Test
@@ -78,6 +80,7 @@ class ProcessingImageReaderDeviceTest {
 
     @Before
     fun setUp() {
+        assumeTrue(Build.VERSION.SDK_INT >= 23); // ImageWrite is added since API 23.
         mCaptureBundle = CaptureBundles.createCaptureBundle(mCaptureStage0, mCaptureStage1)
     }
 
