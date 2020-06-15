@@ -66,7 +66,8 @@ internal abstract class InputDispatcher {
          * depends on too many factors. Instead, the value is chosen comfortably below the
          * targeted frame rate (60 fps, equating to a 16ms period).
          */
-        private var eventPeriod = 10.milliseconds.inMilliseconds()
+        var eventPeriod = 10.milliseconds.inMilliseconds()
+            private set
 
         /**
          * Indicates that [nextDownTime] is not set
@@ -562,8 +563,6 @@ internal abstract class InputDispatcher {
         private val disableDispatchInRealTime: Boolean = false,
         private val eventPeriodOverride: Long? = null
     ) : TestRule {
-
-        val eventPeriod get() = InputDispatcher.eventPeriod
 
         override fun apply(base: Statement, description: Description?): Statement {
             return ModifyingStatement(base)

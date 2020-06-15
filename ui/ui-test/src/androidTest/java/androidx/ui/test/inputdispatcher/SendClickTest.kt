@@ -19,6 +19,7 @@ package androidx.ui.test.inputdispatcher
 import android.view.MotionEvent
 import androidx.test.filters.SmallTest
 import androidx.ui.geometry.Offset
+import androidx.ui.test.InputDispatcher.Companion.eventPeriod
 import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
@@ -55,11 +56,8 @@ class SendClickTest(config: TestConfig) {
         }
     }
 
-    private val dispatcherRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
-    private val eventPeriod get() = dispatcherRule.eventPeriod
-
     @get:Rule
-    val inputDispatcherRule: TestRule = dispatcherRule
+    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
 
     private val position = Offset(config.x, config.y)
 
