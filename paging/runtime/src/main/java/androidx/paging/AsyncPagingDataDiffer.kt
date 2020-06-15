@@ -44,11 +44,11 @@ import java.util.concurrent.atomic.AtomicReference
  * [AsyncPagingDataDiffer] is exposed for complex cases, and where overriding [PagingDataAdapter] to
  * support paging isn't convenient.
  */
-class AsyncPagingDataDiffer<T : Any>(
-    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
-    private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
+class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
     private val diffCallback: DiffUtil.ItemCallback<T>,
-    private val updateCallback: ListUpdateCallback
+    private val updateCallback: ListUpdateCallback,
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+    private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
     internal val callback = object : PresenterCallback {
         override fun onInserted(position: Int, count: Int) {
