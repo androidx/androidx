@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-
 package androidx.paging
 
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -50,7 +50,20 @@ class SingleRunnerTest {
             // Immediately return.
         }
 
+        assertFalse { job.isCancelled }
+        assertTrue { job.isCompleted }
+    }
+
+    @Test
+    fun previousRunCanCancelItself() = runBlocking {
+        val runner = SingleRunner()
+        val job = launch(Dispatchers.Unconfined) {
+            runner.runInIsolation {
+                throw CancellationException()
+            }
+        }
         assertTrue { job.isCancelled }
+        assertTrue { job.isCompleted }
     }
 
     @Test
@@ -89,5 +102,35 @@ class SingleRunnerTest {
         }
 
         assertEquals(List(10) { it }, jobStartList)
+    }
+
+    @Test
+    fun racingCoroutines() = testScope.runBlockingTest {
+        val runner = SingleRunner()
+        val output = mutableListOf<Char>()
+        pauseDispatcher {
+            launch {
+                ('0' until '4').forEach {
+                    runner.runInIsolation {
+                        output.add(it)
+                        delay(100)
+                    }
+                }
+            }
+
+            launch {
+                ('a' until 'e').forEach {
+                    runner.runInIsolation {
+                        output.add(it)
+                        delay(40)
+                    }
+                }
+            }
+            advanceUntilIdle()
+        }
+        // Despite launching separately, with different delays, we should see these always
+        // interleave in the same order, since the delays aren't allowed to run in parallel and
+        // each launch will cancel the other one's delay.
+        assertThat(output.joinToString("")).isEqualTo("0a1b2c3d")
     }
 }
