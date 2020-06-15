@@ -39,7 +39,7 @@ class MoveCursorEditOpTest {
 
     @Test
     fun test_left() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         MoveCursorEditOp(-1).process(eb)
 
@@ -50,7 +50,7 @@ class MoveCursorEditOpTest {
 
     @Test
     fun test_left_multiple() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         MoveCursorEditOp(-2).process(eb)
 
@@ -61,7 +61,7 @@ class MoveCursorEditOpTest {
 
     @Test
     fun test_left_from_offset0() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         MoveCursorEditOp(-1).process(eb)
 
@@ -72,7 +72,7 @@ class MoveCursorEditOpTest {
 
     @Test
     fun test_right() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         MoveCursorEditOp(1).process(eb)
 
@@ -83,7 +83,7 @@ class MoveCursorEditOpTest {
 
     @Test
     fun test_right_multiple() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         MoveCursorEditOp(2).process(eb)
 
@@ -94,7 +94,7 @@ class MoveCursorEditOpTest {
 
     @Test
     fun test_right_from_offset_length() {
-        val eb = EditingBuffer("ABCDE", TextRange(5, 5))
+        val eb = EditingBuffer("ABCDE", TextRange(5))
 
         MoveCursorEditOp(1).process(eb)
 
@@ -105,7 +105,7 @@ class MoveCursorEditOpTest {
 
     @Test
     fun test_left_surrogate_pair() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         MoveCursorEditOp(-1).process(eb)
 
@@ -116,7 +116,7 @@ class MoveCursorEditOpTest {
 
     @Test
     fun test_left_multiple_surrogate_pair() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         MoveCursorEditOp(-2).process(eb)
 
@@ -127,7 +127,7 @@ class MoveCursorEditOpTest {
 
     @Test
     fun test_right_surrogate_pair() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         MoveCursorEditOp(1).process(eb)
 
@@ -138,7 +138,7 @@ class MoveCursorEditOpTest {
 
     @Test
     fun test_right_multiple_surrogate_pair() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6, 6))
+        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         MoveCursorEditOp(2).process(eb)
 
@@ -150,7 +150,7 @@ class MoveCursorEditOpTest {
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun test_left_emoji() {
-        val eb = EditingBuffer("$FAMILY$FAMILY", TextRange(FAMILY.length, FAMILY.length))
+        val eb = EditingBuffer("$FAMILY$FAMILY", TextRange(FAMILY.length))
 
         MoveCursorEditOp(-1).process(eb)
 
@@ -162,7 +162,7 @@ class MoveCursorEditOpTest {
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun test_right_emoji() {
-        val eb = EditingBuffer("$FAMILY$FAMILY", TextRange(FAMILY.length, FAMILY.length))
+        val eb = EditingBuffer("$FAMILY$FAMILY", TextRange(FAMILY.length))
 
         MoveCursorEditOp(1).process(eb)
 

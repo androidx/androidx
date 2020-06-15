@@ -30,7 +30,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_insert_empty() {
-        val eb = EditingBuffer("", TextRange(0, 0))
+        val eb = EditingBuffer("", TextRange(0))
 
         CommitTextEditOp("X", 1).process(eb)
 
@@ -41,7 +41,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_insert_cursor_tail() {
-        val eb = EditingBuffer("A", TextRange(1, 1))
+        val eb = EditingBuffer("A", TextRange(1))
 
         CommitTextEditOp("X", 1).process(eb)
 
@@ -52,7 +52,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_insert_cursor_head() {
-        val eb = EditingBuffer("A", TextRange(1, 1))
+        val eb = EditingBuffer("A", TextRange(1))
 
         CommitTextEditOp("X", 0).process(eb)
 
@@ -63,7 +63,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_insert_cursor_far_tail() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 1))
+        val eb = EditingBuffer("ABCDE", TextRange(1))
 
         CommitTextEditOp("X", 2).process(eb)
 
@@ -74,7 +74,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_insert_cursor_far_head() {
-        val eb = EditingBuffer("ABCDE", TextRange(4, 4))
+        val eb = EditingBuffer("ABCDE", TextRange(4))
 
         CommitTextEditOp("X", -2).process(eb)
 
@@ -85,7 +85,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_insert_empty_text_cursor_head() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 1))
+        val eb = EditingBuffer("ABCDE", TextRange(1))
 
         CommitTextEditOp("", 0).process(eb)
 
@@ -96,7 +96,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_insert_empty_text_cursor_tail() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 1))
+        val eb = EditingBuffer("ABCDE", TextRange(1))
 
         CommitTextEditOp("", 1).process(eb)
 
@@ -107,7 +107,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_insert_empty_text_cursor_far_tail() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 1))
+        val eb = EditingBuffer("ABCDE", TextRange(1))
 
         CommitTextEditOp("", 2).process(eb)
 
@@ -118,7 +118,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_insert_empty_text_cursor_far_head() {
-        val eb = EditingBuffer("ABCDE", TextRange(4, 4))
+        val eb = EditingBuffer("ABCDE", TextRange(4))
 
         CommitTextEditOp("", -2).process(eb)
 
@@ -129,7 +129,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_cancel_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.setComposition(1, 4) // Mark "BCD" as composition
         CommitTextEditOp("X", 1).process(eb)
@@ -166,7 +166,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_cursor_position_too_small() {
-        val eb = EditingBuffer("ABCDE", TextRange(5, 5))
+        val eb = EditingBuffer("ABCDE", TextRange(5))
 
         CommitTextEditOp("X", -1000).process(eb)
 
@@ -177,7 +177,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_cursor_position_too_large() {
-        val eb = EditingBuffer("ABCDE", TextRange(5, 5))
+        val eb = EditingBuffer("ABCDE", TextRange(5))
 
         CommitTextEditOp("X", 1000).process(eb)
 

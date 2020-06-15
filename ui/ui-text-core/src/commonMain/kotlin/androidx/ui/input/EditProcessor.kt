@@ -35,7 +35,7 @@ class EditProcessor {
 
     // The editing buffer used for applying editor commands from IME.
     private var mBuffer: EditingBuffer =
-        EditingBuffer(initialText = "", initialSelection = TextRange(0, 0))
+        EditingBuffer(initialText = "", initialSelection = TextRange(0))
 
     /**
      * Must be called whenever new editor model arrives.

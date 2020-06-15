@@ -40,7 +40,7 @@ internal class TextInputServiceAndroid(val view: View) : PlatformTextInputServic
     private var onEditCommand: (List<EditOperation>) -> Unit = {}
     private var onImeActionPerformed: (ImeAction) -> Unit = {}
 
-    private var state = TextFieldValue(text = "", selection = TextRange(0, 0))
+    private var state = TextFieldValue(text = "", selection = TextRange(0))
     private var keyboardType = KeyboardType.Text
     private var imeAction = ImeAction.Unspecified
     private var ic: RecordingInputConnection? = null

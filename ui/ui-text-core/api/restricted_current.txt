@@ -653,6 +653,7 @@ package androidx.ui.text {
   }
 
   public final class TextRangeKt {
+    method public static androidx.ui.text.TextRange TextRange(int index);
     method public static String substring(CharSequence, androidx.ui.text.TextRange range);
   }
 

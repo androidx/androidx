@@ -30,7 +30,7 @@ class FinishComposingTextEditOpTest {
 
     @Test
     fun test_set() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.setComposition(1, 4)
         FinishComposingTextEditOp().process(eb)

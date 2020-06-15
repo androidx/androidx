@@ -85,7 +85,7 @@ data class TextFieldValue(
     @Stable
     val text: String = "",
     @Stable
-    val selection: TextRange = TextRange(0, 0)
+    val selection: TextRange = TextRange(0)
 ) {
     companion object {
         /**

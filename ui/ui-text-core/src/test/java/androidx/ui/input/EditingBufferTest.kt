@@ -39,7 +39,7 @@ class EditingBufferTest {
 
     @Test
     fun test_insert() {
-        val eb = EditingBuffer("", TextRange(0, 0))
+        val eb = EditingBuffer("", TextRange(0))
 
         eb.replace(0, 0, "A")
 
@@ -74,7 +74,7 @@ class EditingBufferTest {
 
     @Test
     fun test_delete() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.replace(0, 1, "")
 
@@ -149,7 +149,7 @@ class EditingBufferTest {
 
     @Test
     fun test_setCompostion_and_cancelComposition() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.setComposition(0, 5) // Make all text as composition
         assertStrWithChars("ABCDE", eb)
@@ -190,7 +190,7 @@ class EditingBufferTest {
 
     @Test
     fun test_setCompostion_and_commitComposition() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.setComposition(0, 5) // Make all text as composition
         assertStrWithChars("ABCDE", eb)
@@ -231,7 +231,7 @@ class EditingBufferTest {
 
     @Test
     fun test_setCursor_and_get_cursor() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.cursor = 1
         assertStrWithChars("ABCDE", eb)
@@ -263,7 +263,7 @@ class EditingBufferTest {
 
     @Test
     fun test_delete_preceding_cursor_no_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.delete(1, 2)
         assertStrWithChars("ACDE", eb)
@@ -273,7 +273,7 @@ class EditingBufferTest {
 
     @Test
     fun test_delete_trailing_cursor_no_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(3, 3))
+        val eb = EditingBuffer("ABCDE", TextRange(3))
 
         eb.delete(1, 2)
         assertStrWithChars("ACDE", eb)
@@ -305,7 +305,7 @@ class EditingBufferTest {
 
     @Test
     fun test_delete_preceding_composition_no_intersection() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.setComposition(1, 2)
         eb.delete(2, 3)
@@ -318,7 +318,7 @@ class EditingBufferTest {
 
     @Test
     fun test_delete_trailing_composition_no_intersection() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.setComposition(3, 4)
         eb.delete(2, 3)
@@ -331,7 +331,7 @@ class EditingBufferTest {
 
     @Test
     fun test_delete_preceding_composition_intersection() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.setComposition(1, 3)
         eb.delete(2, 4)
@@ -344,7 +344,7 @@ class EditingBufferTest {
 
     @Test
     fun test_delete_trailing_composition_intersection() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.setComposition(3, 5)
         eb.delete(2, 4)
@@ -357,7 +357,7 @@ class EditingBufferTest {
 
     @Test
     fun test_delete_composition_contains_delrange() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.setComposition(2, 5)
         eb.delete(3, 4)
@@ -370,7 +370,7 @@ class EditingBufferTest {
 
     @Test
     fun test_delete_delrange_contains_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(0, 0))
+        val eb = EditingBuffer("ABCDE", TextRange(0))
 
         eb.setComposition(3, 4)
         eb.delete(2, 5)
