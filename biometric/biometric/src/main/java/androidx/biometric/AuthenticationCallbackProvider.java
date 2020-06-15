@@ -108,38 +108,9 @@ class AuthenticationCallbackProvider {
      */
     @RequiresApi(Build.VERSION_CODES.P)
     @NonNull
-    android.hardware.biometrics.BiometricPrompt.AuthenticationCallback
-            getBiometricCallback() {
+    android.hardware.biometrics.BiometricPrompt.AuthenticationCallback getBiometricCallback() {
         if (mBiometricCallback == null) {
-            mBiometricCallback = new android.hardware.biometrics.BiometricPrompt
-                    .AuthenticationCallback() {
-                @Override
-                public void onAuthenticationError(int errorCode, CharSequence errString) {
-                    mListener.onError(errorCode, errString);
-                }
-
-                @Override
-                public void onAuthenticationHelp(
-                        final int helpCode, final CharSequence helpString) {
-                    // Don't forward the result to the client, since the dialog takes care of it.
-                }
-
-                @Override
-                public void onAuthenticationSucceeded(
-                        android.hardware.biometrics.BiometricPrompt.AuthenticationResult result) {
-                    final BiometricPrompt.AuthenticationResult unwrappedResult =
-                            new BiometricPrompt.AuthenticationResult(result != null
-                                    ? CryptoObjectUtils.unwrapFromBiometricPrompt(
-                                            result.getCryptoObject())
-                                    : null);
-                    mListener.onSuccess(unwrappedResult);
-                }
-
-                @Override
-                public void onAuthenticationFailed() {
-                    mListener.onFailure();
-                }
-            };
+            mBiometricCallback = Api28Impl.createCallback(mListener);
         }
         return mBiometricCallback;
     }
@@ -189,5 +160,53 @@ class AuthenticationCallbackProvider {
             };
         }
         return mFingerprintCallback;
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 9.0 (API 28).
+     */
+    @RequiresApi(Build.VERSION_CODES.P)
+    private static class Api28Impl {
+        /**
+         * Creates a {@link android.hardware.biometrics.BiometricPrompt.AuthenticationCallback} that
+         * delegates events to the given listener.
+         *
+         * @param listener A listener object that will receive authentication events.
+         * @return A new instance of
+         *  {@link android.hardware.biometrics.BiometricPrompt.AuthenticationCallback}.
+         */
+        @NonNull
+        static android.hardware.biometrics.BiometricPrompt.AuthenticationCallback createCallback(
+                @NonNull final Listener listener) {
+            return new android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
+                @Override
+                public void onAuthenticationError(int errorCode, CharSequence errString) {
+                    listener.onError(errorCode, errString);
+                }
+
+                @Override
+                public void onAuthenticationHelp(
+                        final int helpCode, final CharSequence helpString) {
+                    // Don't forward the result to the client, since the dialog takes care of it.
+                }
+
+                @Override
+                public void onAuthenticationSucceeded(
+                        android.hardware.biometrics.BiometricPrompt.AuthenticationResult result) {
+                    final BiometricPrompt.AuthenticationResult unwrappedResult =
+                            new BiometricPrompt.AuthenticationResult(
+                                    result != null
+                                            ? CryptoObjectUtils.unwrapFromBiometricPrompt(
+                                                    result.getCryptoObject())
+                                            : null);
+                    listener.onSuccess(unwrappedResult);
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+                    listener.onFailure();
+                }
+            };
+        }
     }
 }

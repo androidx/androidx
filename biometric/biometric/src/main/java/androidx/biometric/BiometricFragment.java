@@ -21,6 +21,7 @@ import static androidx.biometric.BiometricConstants.ERROR_NEGATIVE_BUTTON;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -281,9 +282,8 @@ public class BiometricFragment extends Fragment {
         }
 
         // Fall back to device credential immediately if no biometrics are enrolled.
-        if (mViewModel.isDeviceCredentialAllowed()
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                && isManagingDeviceCredentialButton()
                 && BiometricManager.from(activity).canAuthenticate()
                         != BiometricManager.BIOMETRIC_SUCCESS) {
             mViewModel.setAwaitingResult(true);
@@ -355,28 +355,28 @@ public class BiometricFragment extends Fragment {
      * begins authentication.
      */
     @RequiresApi(Build.VERSION_CODES.P)
-    @SuppressWarnings("deprecation")
     private void showBiometricPromptForAuthentication() {
         final Context context = requireContext();
         final android.hardware.biometrics.BiometricPrompt.Builder builder =
-                new android.hardware.biometrics.BiometricPrompt.Builder(context);
+                Api28Impl.createPromptBuilder(context);
 
         final CharSequence title = mViewModel.getTitle();
         final CharSequence subtitle = mViewModel.getSubtitle();
         final CharSequence description = mViewModel.getDescription();
         if (title != null) {
-            builder.setTitle(title);
+            Api28Impl.setTitle(builder, title);
         }
         if (subtitle != null) {
-            builder.setSubtitle(subtitle);
+            Api28Impl.setSubtitle(builder, subtitle);
         }
         if (description != null) {
-            builder.setDescription(description);
+            Api28Impl.setDescription(builder, description);
         }
 
         final CharSequence negativeButtonText = mViewModel.getNegativeButtonText();
         if (!TextUtils.isEmpty(negativeButtonText)) {
-            builder.setNegativeButton(
+            Api28Impl.setNegativeButton(
+                    builder,
                     negativeButtonText,
                     mViewModel.getClientExecutor(),
                     mViewModel.getNegativeButtonListener());
@@ -384,24 +384,29 @@ public class BiometricFragment extends Fragment {
 
         // Set builder flags introduced in Q.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            builder.setConfirmationRequired(mViewModel.isConfirmationRequired());
-            builder.setDeviceCredentialAllowed(mViewModel.isDeviceCredentialAllowed());
+            Api29Impl.setConfirmationRequired(builder, mViewModel.isConfirmationRequired());
+            Api29Impl.setDeviceCredentialAllowed(builder, mViewModel.isDeviceCredentialAllowed());
         }
 
-        final android.hardware.biometrics.BiometricPrompt biometricPrompt = builder.build();
+        final android.hardware.biometrics.BiometricPrompt biometricPrompt =
+                Api28Impl.buildPrompt(builder);
         final android.os.CancellationSignal cancellationSignal =
                 mViewModel.getCancellationSignalProvider().getBiometricCancellationSignal();
         final android.hardware.biometrics.BiometricPrompt.AuthenticationCallback callback =
                 mViewModel.getAuthenticationCallbackProvider().getBiometricCallback();
         final BiometricPrompt.CryptoObject cryptoObject = mViewModel.getCryptoObject();
         if (mViewModel.getCryptoObject() == null) {
-            biometricPrompt.authenticate(cancellationSignal, mPromptExecutor, callback);
+            Api28Impl.authenticate(biometricPrompt, cancellationSignal, mPromptExecutor, callback);
         } else {
             android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCryptoObject =
                     Objects.requireNonNull(
                             CryptoObjectUtils.wrapForBiometricPrompt(cryptoObject));
-            biometricPrompt.authenticate(
-                    wrappedCryptoObject, cancellationSignal, mPromptExecutor, callback);
+            Api28Impl.authenticate(
+                    biometricPrompt,
+                    wrappedCryptoObject,
+                    cancellationSignal,
+                    mPromptExecutor,
+                    callback);
         }
     }
 
@@ -590,7 +595,7 @@ public class BiometricFragment extends Fragment {
         // Get the KeyguardManager service in whichever way the platform supports.
         final KeyguardManager keyguardManager;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            keyguardManager = activity.getSystemService(KeyguardManager.class);
+            keyguardManager = Api23Impl.getKeyguardManager(activity);
         } else {
             final Object service = activity.getSystemService(Context.KEYGUARD_SERVICE);
             keyguardManager = service instanceof KeyguardManager ? (KeyguardManager) service : null;
@@ -608,9 +613,8 @@ public class BiometricFragment extends Fragment {
         final CharSequence description = mViewModel.getDescription();
         final CharSequence credentialDescription = subtitle != null ? subtitle : description;
 
-        @SuppressWarnings("deprecation")
-        final Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(
-                title, credentialDescription);
+        final Intent intent = Api21Impl.createConfirmDeviceCredentialIntent(
+                keyguardManager, title, credentialDescription);
 
         if (intent == null) {
             Log.e(TAG, "Failed to check device credential. Got null intent from Keyguard.");
@@ -841,5 +845,206 @@ public class BiometricFragment extends Fragment {
         return context != null && DeviceUtils.shouldHideFingerprintDialog(context, Build.MODEL)
                 ? 0
                 : HIDE_DIALOG_DELAY_MS;
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 10 (API 29).
+     */
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private static class Api29Impl {
+        /**
+         * Sets the "confirmation required" option for the given framework prompt builder.
+         *
+         * @param builder An instance of
+         *                {@link android.hardware.biometrics.BiometricPrompt.Builder}.
+         * @param confirmationRequired The value for the "confirmation required" option.
+         */
+        static void setConfirmationRequired(
+                @NonNull android.hardware.biometrics.BiometricPrompt.Builder builder,
+                boolean confirmationRequired) {
+            builder.setConfirmationRequired(confirmationRequired);
+        }
+
+        /**
+         * Sets the "device credential allowed" option for the given framework prompt builder.
+         *
+         * @param builder An instance of
+         *                {@link android.hardware.biometrics.BiometricPrompt.Builder}.
+         * @param deviceCredentialAllowed The value for the "device credential allowed" option.
+         */
+        @SuppressWarnings("deprecation")
+        static void setDeviceCredentialAllowed(
+                @NonNull android.hardware.biometrics.BiometricPrompt.Builder builder,
+                boolean deviceCredentialAllowed) {
+            builder.setDeviceCredentialAllowed(deviceCredentialAllowed);
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 9.0 (API 28).
+     */
+    @RequiresApi(Build.VERSION_CODES.P)
+    private static class Api28Impl {
+        /**
+         * Creates an instance of the framework class
+         * {@link android.hardware.biometrics.BiometricPrompt.Builder}.
+         *
+         * @param context The application or activity context.
+         * @return An instance of {@link android.hardware.biometrics.BiometricPrompt.Builder}.
+         */
+        @NonNull
+        static android.hardware.biometrics.BiometricPrompt.Builder createPromptBuilder(
+                @NonNull Context context) {
+            return new android.hardware.biometrics.BiometricPrompt.Builder(context);
+        }
+
+        /**
+         * Sets the title for the given framework prompt builder.
+         *
+         * @param builder An instance of
+         *                {@link android.hardware.biometrics.BiometricPrompt.Builder}.
+         * @param title The title for the prompt.
+         */
+        static void setTitle(
+                @NonNull android.hardware.biometrics.BiometricPrompt.Builder builder,
+                @NonNull CharSequence title) {
+            builder.setTitle(title);
+        }
+
+        /**
+         * Sets the subtitle for the given framework prompt builder.
+         *
+         * @param builder An instance of
+         *                {@link android.hardware.biometrics.BiometricPrompt.Builder}.
+         * @param subtitle The subtitle for the prompt.
+         */
+        static void setSubtitle(
+                @NonNull android.hardware.biometrics.BiometricPrompt.Builder builder,
+                @NonNull CharSequence subtitle) {
+            builder.setSubtitle(subtitle);
+        }
+
+        /**
+         * Sets the description for the given framework prompt builder.
+         *
+         * @param builder An instance of
+         *                {@link android.hardware.biometrics.BiometricPrompt.Builder}.
+         * @param description The description for the prompt.
+         */
+        static void setDescription(
+                @NonNull android.hardware.biometrics.BiometricPrompt.Builder builder,
+                @NonNull CharSequence description) {
+            builder.setDescription(description);
+        }
+
+        /**
+         * Sets the negative button text and behavior for the given framework prompt builder.
+         *
+         * @param builder An instance of
+         *                {@link android.hardware.biometrics.BiometricPrompt.Builder}.
+         * @param text The text for the negative button.
+         * @param executor An executor for the negative button callback.
+         * @param listener A listener for the negative button press event.
+         */
+        static void setNegativeButton(
+                @NonNull android.hardware.biometrics.BiometricPrompt.Builder builder,
+                @NonNull CharSequence text,
+                @NonNull Executor executor,
+                @NonNull DialogInterface.OnClickListener listener) {
+            builder.setNegativeButton(text, executor, listener);
+        }
+
+        /**
+         * Creates an instance of the framework class
+         * {@link android.hardware.biometrics.BiometricPrompt} from the given builder.
+         *
+         * @param builder The builder for the prompt.
+         * @return An instance of {@link android.hardware.biometrics.BiometricPrompt}.
+         */
+        @NonNull
+        static android.hardware.biometrics.BiometricPrompt buildPrompt(
+                @NonNull android.hardware.biometrics.BiometricPrompt.Builder builder) {
+            return builder.build();
+        }
+
+        /**
+         * Starts (non-crypto) authentication for the given framework biometric prompt.
+         *
+         * @param biometricPrompt An instance of
+         *                        {@link android.hardware.biometrics.BiometricPrompt}.
+         * @param cancellationSignal A cancellation signal object for the prompt.
+         * @param executor An executor for authentication callbacks.
+         * @param callback An object that will receive authentication events.
+         */
+        static void authenticate(
+                @NonNull android.hardware.biometrics.BiometricPrompt biometricPrompt,
+                @NonNull android.os.CancellationSignal cancellationSignal,
+                @NonNull Executor executor,
+                @NonNull android.hardware.biometrics.BiometricPrompt.AuthenticationCallback
+                        callback) {
+            biometricPrompt.authenticate(cancellationSignal, executor, callback);
+        }
+
+        /**
+         * Starts (crypto-based) authentication for the given framework biometric prompt.
+         *
+         * @param biometricPrompt An instance of
+         *                        {@link android.hardware.biometrics.BiometricPrompt}.
+         * @param crypto A crypto object associated with the given authentication.
+         * @param cancellationSignal A cancellation signal object for the prompt.
+         * @param executor An executor for authentication callbacks.
+         * @param callback An object that will receive authentication events.
+         */
+        static void authenticate(
+                @NonNull android.hardware.biometrics.BiometricPrompt biometricPrompt,
+                @NonNull android.hardware.biometrics.BiometricPrompt.CryptoObject crypto,
+                @NonNull android.os.CancellationSignal cancellationSignal,
+                @NonNull Executor executor,
+                @NonNull android.hardware.biometrics.BiometricPrompt.AuthenticationCallback
+                        callback) {
+            biometricPrompt.authenticate(crypto, cancellationSignal, executor, callback);
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
+     */
+    @RequiresApi(Build.VERSION_CODES.M)
+    private static class Api23Impl {
+        /**
+         * Gets an instance of the {@link KeyguardManager} system service.
+         *
+         * @param context The application or activity context.
+         * @return An instance of {@link KeyguardManager}.
+         */
+        @Nullable
+        static KeyguardManager getKeyguardManager(@NonNull Context context) {
+            return context.getSystemService(KeyguardManager.class);
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 5.0 (API 21).
+     */
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private static class Api21Impl {
+        /**
+         * Calls
+         * {@link KeyguardManager#createConfirmDeviceCredentialIntent(CharSequence, CharSequence)}
+         * for the given keyguard manager.
+         *
+         * @param keyguardManager An instance of {@link KeyguardManager}.
+         * @param title The title for the confirm device credential activity.
+         * @param description The description for the confirm device credential activity.
+         * @return An intent that can be used to launch the confirm device credential activity.
+         */
+        @SuppressWarnings("deprecation")
+        @Nullable
+        static Intent createConfirmDeviceCredentialIntent(
+                @NonNull KeyguardManager keyguardManager,
+                @Nullable CharSequence title,
+                @Nullable CharSequence description) {
+            return keyguardManager.createConfirmDeviceCredentialIntent(title, description);
+        }
     }
 }

@@ -55,7 +55,7 @@ class CancellationSignalProvider {
     @NonNull
     android.os.CancellationSignal getBiometricCancellationSignal() {
         if (mBiometricCancellationSignal == null) {
-            mBiometricCancellationSignal = new android.os.CancellationSignal();
+            mBiometricCancellationSignal = Api16Impl.create();
         }
         return mBiometricCancellationSignal;
     }
@@ -84,12 +84,34 @@ class CancellationSignalProvider {
     void cancel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && mBiometricCancellationSignal != null) {
-            mBiometricCancellationSignal.cancel();
+            Api16Impl.cancel(mBiometricCancellationSignal);
             mBiometricCancellationSignal = null;
         }
         if (mFingerprintCancellationSignal != null) {
             mFingerprintCancellationSignal.cancel();
             mFingerprintCancellationSignal = null;
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 4.1 (API 16).
+     */
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+    private static class Api16Impl {
+        /**
+         * Creates a new instance of the platform class {@link android.os.CancellationSignal}.
+         *
+         * @return An instance of {@link android.os.CancellationSignal}.
+         */
+        static android.os.CancellationSignal create() {
+            return new android.os.CancellationSignal();
+        }
+
+        /**
+         * Calls {@link android.os.CancellationSignal#cancel()} for the given cancellation signal.
+         */
+        static void cancel(android.os.CancellationSignal cancellationSignal) {
+            cancellationSignal.cancel();
         }
     }
 }

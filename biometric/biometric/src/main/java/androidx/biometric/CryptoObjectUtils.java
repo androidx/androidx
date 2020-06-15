@@ -18,8 +18,14 @@ package androidx.biometric;
 
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+
+import java.security.Signature;
+
+import javax.crypto.Cipher;
+import javax.crypto.Mac;
 
 /**
  * Utility class for converting between different types of crypto objects that may be used
@@ -35,20 +41,31 @@ class CryptoObjectUtils {
      * @param cryptoObject A crypto object from {@link android.hardware.biometrics.BiometricPrompt}.
      * @return An equivalent {@link androidx.biometric.BiometricPrompt.CryptoObject} instance.
      */
-    @RequiresApi(api = Build.VERSION_CODES.P)
-    static @Nullable BiometricPrompt.CryptoObject unwrapFromBiometricPrompt(
+    @RequiresApi(Build.VERSION_CODES.P)
+    @Nullable
+    static BiometricPrompt.CryptoObject unwrapFromBiometricPrompt(
             @Nullable android.hardware.biometrics.BiometricPrompt.CryptoObject cryptoObject) {
+
         if (cryptoObject == null) {
             return null;
-        } else if (cryptoObject.getCipher() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getCipher());
-        } else if (cryptoObject.getSignature() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getSignature());
-        } else if (cryptoObject.getMac() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getMac());
-        } else {
-            return null;
         }
+
+        final Cipher cipher = Api28Impl.getCipher(cryptoObject);
+        if (cipher != null) {
+            return new BiometricPrompt.CryptoObject(cipher);
+        }
+
+        final Signature signature = Api28Impl.getSignature(cryptoObject);
+        if (signature != null) {
+            return new BiometricPrompt.CryptoObject(signature);
+        }
+
+        final Mac mac = Api28Impl.getMac(cryptoObject);
+        if (mac != null) {
+            return new BiometricPrompt.CryptoObject(mac);
+        }
+
+        return null;
     }
 
     /**
@@ -58,23 +75,31 @@ class CryptoObjectUtils {
      * @return An equivalent crypto object that is compatible with
      *  {@link android.hardware.biometrics.BiometricPrompt}.
      */
-    @RequiresApi(api = Build.VERSION_CODES.P)
-    static @Nullable android.hardware.biometrics.BiometricPrompt.CryptoObject
+    @RequiresApi(Build.VERSION_CODES.P)
+    @Nullable
+    static android.hardware.biometrics.BiometricPrompt.CryptoObject
             wrapForBiometricPrompt(@Nullable BiometricPrompt.CryptoObject cryptoObject) {
+
         if (cryptoObject == null) {
             return null;
-        } else if (cryptoObject.getCipher() != null) {
-            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(
-                    cryptoObject.getCipher());
-        } else if (cryptoObject.getSignature() != null) {
-            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(
-                    cryptoObject.getSignature());
-        } else if (cryptoObject.getMac() != null) {
-            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(
-                    cryptoObject.getMac());
-        } else {
-            return null;
         }
+
+        final Cipher cipher = cryptoObject.getCipher();
+        if (cipher != null) {
+            return Api28Impl.create(cipher);
+        }
+
+        final Signature signature = cryptoObject.getSignature();
+        if (signature != null) {
+            return Api28Impl.create(signature);
+        }
+
+        final Mac mac = cryptoObject.getMac();
+        if (mac != null) {
+            return Api28Impl.create(mac);
+        }
+
+        return null;
     }
 
     /**
@@ -90,17 +115,27 @@ class CryptoObjectUtils {
     static BiometricPrompt.CryptoObject unwrapFromFingerprintManager(
             @Nullable androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject
                     cryptoObject) {
+
         if (cryptoObject == null) {
             return null;
-        } else if (cryptoObject.getCipher() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getCipher());
-        } else if (cryptoObject.getSignature() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getSignature());
-        } else if (cryptoObject.getMac() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getMac());
-        } else {
-            return null;
         }
+
+        final Cipher cipher = cryptoObject.getCipher();
+        if (cipher != null) {
+            return new BiometricPrompt.CryptoObject(cipher);
+        }
+
+        final Signature signature = cryptoObject.getSignature();
+        if (signature != null) {
+            return new BiometricPrompt.CryptoObject(signature);
+        }
+
+        final Mac mac = cryptoObject.getMac();
+        if (mac != null) {
+            return new BiometricPrompt.CryptoObject(mac);
+        }
+
+        return null;
     }
 
     /**
@@ -115,19 +150,110 @@ class CryptoObjectUtils {
     @Nullable
     static androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject
             wrapForFingerprintManager(@Nullable BiometricPrompt.CryptoObject cryptoObject) {
+
         if (cryptoObject == null) {
             return null;
-        } else if (cryptoObject.getCipher() != null) {
+        }
+
+        final Cipher cipher = cryptoObject.getCipher();
+        if (cipher != null) {
             return new androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject(
-                    cryptoObject.getCipher());
-        } else if (cryptoObject.getSignature() != null) {
+                    cipher);
+        }
+
+        final Signature signature = cryptoObject.getSignature();
+        if (signature != null) {
             return new androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject(
-                    cryptoObject.getSignature());
-        } else if (cryptoObject.getMac() != null) {
+                    signature);
+        }
+
+        final Mac mac = cryptoObject.getMac();
+        if (mac != null) {
             return new androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject(
-                    cryptoObject.getMac());
-        } else {
-            return null;
+                    mac);
+        }
+
+        return null;
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 9.0 (API 28).
+     */
+    @RequiresApi(Build.VERSION_CODES.P)
+    private static class Api28Impl {
+        /**
+         * Creates an instance of the framework class
+         * {@link android.hardware.biometrics.BiometricPrompt.CryptoObject} from the given cipher.
+         *
+         * @param cipher The cipher object to be wrapped.
+         * @return An instance of {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         */
+        static android.hardware.biometrics.BiometricPrompt.CryptoObject create(
+                @NonNull Cipher cipher) {
+            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(cipher);
+        }
+
+        /**
+         * Creates an instance of the framework class
+         * {@link android.hardware.biometrics.BiometricPrompt.CryptoObject} from the given
+         * signature.
+         *
+         * @param signature The signature object to be wrapped.
+         * @return An instance of {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         */
+        static android.hardware.biometrics.BiometricPrompt.CryptoObject create(
+                @NonNull Signature signature) {
+            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(signature);
+        }
+
+        /**
+         * Creates an instance of the framework class
+         * {@link android.hardware.biometrics.BiometricPrompt.CryptoObject} from the given MAC.
+         *
+         * @param mac The MAC object to be wrapped.
+         * @return An instance of {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         */
+        static android.hardware.biometrics.BiometricPrompt.CryptoObject create(@NonNull Mac mac) {
+            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(mac);
+        }
+
+        /**
+         * Gets the cipher associated with the given crypto object, if any.
+         *
+         * @param crypto An instance of
+         *               {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         * @return The wrapped cipher object, or {@code null}.
+         */
+        @Nullable
+        static Cipher getCipher(
+                @NonNull android.hardware.biometrics.BiometricPrompt.CryptoObject crypto) {
+            return crypto.getCipher();
+        }
+
+        /**
+         * Gets the signature associated with the given crypto object, if any.
+         *
+         * @param crypto An instance of
+         *               {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         * @return The wrapped signature object, or {@code null}.
+         */
+        @Nullable
+        static Signature getSignature(
+                @NonNull android.hardware.biometrics.BiometricPrompt.CryptoObject crypto) {
+            return crypto.getSignature();
+        }
+
+        /**
+         * Gets the MAC associated with the given crypto object, if any.
+         *
+         * @param crypto An instance of
+         *               {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         * @return The wrapped MAC object, or {@code null}.
+         */
+        @Nullable
+        static Mac getMac(
+                @NonNull android.hardware.biometrics.BiometricPrompt.CryptoObject crypto) {
+            return crypto.getMac();
         }
     }
 }

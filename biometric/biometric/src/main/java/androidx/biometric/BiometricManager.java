@@ -47,8 +47,7 @@ public class BiometricManager {
     private final androidx.core.hardware.fingerprint.FingerprintManagerCompat mFingerprintManager;
 
     // Only guaranteed to be non-null on API 29+.
-    @Nullable
-    private final android.hardware.biometrics.BiometricManager mBiometricManager;
+    @Nullable private final android.hardware.biometrics.BiometricManager mBiometricManager;
 
     /**
      * No error detected.
@@ -86,19 +85,6 @@ public class BiometricManager {
     @Retention(RetentionPolicy.SOURCE)
     private @interface BiometricError {}
 
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private static class Api29Impl {
-        @NonNull
-        static android.hardware.biometrics.BiometricManager create(Context context) {
-            return context.getSystemService(android.hardware.biometrics.BiometricManager.class);
-        }
-
-        static @BiometricError int canAuthenticate(
-                android.hardware.biometrics.BiometricManager biometricManager) {
-            return biometricManager.canAuthenticate();
-        }
-    }
-
     /**
      * Creates a {@link BiometricManager} instance from the given context.
      *
@@ -110,7 +96,7 @@ public class BiometricManager {
     }
 
     // Prevent direct instantiation.
-    private BiometricManager(Context context) {
+    private BiometricManager(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             mBiometricManager = Api29Impl.create(context);
             mFingerprintManager = null;
@@ -160,6 +146,39 @@ public class BiometricManager {
             } else {
                 return BIOMETRIC_SUCCESS;
             }
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 10 (API 29).
+     */
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private static class Api29Impl {
+        /**
+         * Gets an instance of the framework
+         * {@link android.hardware.biometrics.BiometricManager} class.
+         *
+         * @param context The application or activity context.
+         * @return An instance of {@link android.hardware.biometrics.BiometricManager}.
+         */
+        @Nullable
+        static android.hardware.biometrics.BiometricManager create(@NonNull Context context) {
+            return context.getSystemService(android.hardware.biometrics.BiometricManager.class);
+        }
+
+        /**
+         * Calls {@link android.hardware.biometrics.BiometricManager#canAuthenticate()} for the
+         * given biometric manager.
+         *
+         * @param biometricManager An instance of
+         *  {@link android.hardware.biometrics.BiometricManager}.
+         * @return The result of
+         *  {@link android.hardware.biometrics.BiometricManager#canAuthenticate()}.
+         */
+        @BiometricError
+        static int canAuthenticate(
+                android.hardware.biometrics.BiometricManager biometricManager) {
+            return biometricManager.canAuthenticate();
         }
     }
 }

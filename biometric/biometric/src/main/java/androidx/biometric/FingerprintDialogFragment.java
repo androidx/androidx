@@ -157,7 +157,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         connectViewModel();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mErrorTextColor = getThemedColorFor(android.R.attr.colorError);
+            mErrorTextColor = getThemedColorFor(Api26Impl.getColorErrorAttr());
         } else {
             final Context context = getContext();
             mErrorTextColor = context != null
@@ -294,13 +294,9 @@ public class FingerprintDialogFragment extends DialogFragment {
                 return;
             }
 
-            final AnimatedVectorDrawable animation = icon instanceof AnimatedVectorDrawable
-                    ? (AnimatedVectorDrawable) icon
-                    : null;
-
             mFingerprintIcon.setImageDrawable(icon);
-            if (animation != null && shouldAnimateForTransition(previousState, state)) {
-                animation.start();
+            if (shouldAnimateForTransition(previousState, state)) {
+                Api21Impl.startAnimation(icon);
             }
 
             mViewModel.setFingerprintDialogPreviousState(state);
@@ -400,7 +396,6 @@ public class FingerprintDialogFragment extends DialogFragment {
      * @param state The new state for the fingerprint dialog.
      * @return A drawable asset to be used for the fingerprint icon.
      */
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private Drawable getAnimationForTransition(@State int previousState, @State int state) {
         final Context context = getContext();
         if (context == null) {
@@ -424,5 +419,35 @@ public class FingerprintDialogFragment extends DialogFragment {
         }
 
         return ContextCompat.getDrawable(context, iconRes);
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 8.0 (API 26).
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    private static final class Api26Impl {
+        /**
+         * Gets the resource ID of the {@code colorError} style attribute.
+         */
+        static int getColorErrorAttr() {
+            return R.attr.colorError;
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 5.0 (API 21).
+     */
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private static final class Api21Impl {
+        /**
+         * Starts animating the given icon if it is an {@link AnimatedVectorDrawable}.
+         *
+         * @param icon A {@link Drawable} icon asset.
+         */
+        static void startAnimation(@NonNull Drawable icon) {
+            if (icon instanceof AnimatedVectorDrawable) {
+                ((AnimatedVectorDrawable) icon).start();
+            }
+        }
     }
 }
