@@ -17,7 +17,6 @@
 package androidx.camera.core.impl;
 
 import android.content.Context;
-import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -106,25 +105,4 @@ public interface CameraDeviceSurfaceManager {
      * @return the size used for the on screen preview
      */
     Size getPreviewSize();
-
-    /**
-     * Checks whether a corrected aspect ratio is required due to device constraints.
-     *
-     * @param cameraId the camera id of the camera device used by the use cases
-     * @return the check result that whether aspect ratio need to be corrected
-     */
-    boolean requiresCorrectedAspectRatio(@NonNull String cameraId);
-
-
-    /**
-     * Returns the corrected aspect ratio for the given use case configuration or {@code null} if
-     * no correction is needed.
-     *
-     * @param cameraId the camera id of the camera device used by the use cases
-     * @param rotation desired rotation of output aspect ratio relative to natural orientation
-     * @return the corrected aspect ratio for the use case
-     */
-    @Nullable
-    Rational getCorrectedAspectRatio(@NonNull String cameraId,
-            @ImageOutputConfig.RotationValue int rotation);
 }

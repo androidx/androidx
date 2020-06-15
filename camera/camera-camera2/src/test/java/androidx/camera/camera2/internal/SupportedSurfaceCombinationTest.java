@@ -48,7 +48,6 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.ImageFormatConstants;
-import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
@@ -471,58 +470,98 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void checkTargetAspectRatioForPreviewInLegacyDevice()
-            throws CameraUnavailableException, CameraUseCaseAdapter.CameraException {
+    public void checkTargetAspectRatioInLegacyDevice()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
-        Rational targetAspectRatio = new Rational(9, 16);
+        Rational targetAspectRatio = ASPECT_RATIO_16_9;
+        final FakeUseCase fakeUseCase = new FakeUseCaseConfig.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+
+        Size maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG);
+        Rational maxJpegAspectRatio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(fakeUseCase);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Configs.useCaseConfigListFromUseCaseList(useCases));
+        Size selectedSize = suggestedResolutionMap.get(fakeUseCase.getUseCaseConfig());
+        Rational resultAspectRatio = new Rational(selectedSize.getWidth(),
+                selectedSize.getHeight());
+
+        // The targetAspectRatio value will only be set to the same aspect ratio as maximum
+        // supported jpeg size in Legacy + API 21 combination. For other combinations, it should
+        // keep the original targetAspectRatio set for the use case.
+        if (Build.VERSION.SDK_INT == 21) {
+            // Checks targetAspectRatio and maxJpegAspectRatio, which is the ratio of maximum size
+            // in the mSupportedSizes, are not equal to make sure this test case is valid.
+            assertThat(targetAspectRatio).isNotEqualTo(maxJpegAspectRatio);
+            assertThat(resultAspectRatio).isEqualTo(maxJpegAspectRatio);
+        } else {
+            // Checks no correction is needed.
+            assertThat(resultAspectRatio).isEqualTo(targetAspectRatio);
+        }
+    }
+
+    @Test
+    public void checkResolutionForMixedUseCase_AfterBindToLifecycle_InLegacyDevice()
+            throws CameraUnavailableException, CameraUseCaseAdapter.CameraException  {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        // The test case make sure the selected result is expected after the regular flow.
+        Rational targetAspectRatio = ASPECT_RATIO_16_9;
         final Preview preview = new Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         preview.setSurfaceProvider(CameraXExecutors.directExecutor(),
                 SurfaceTextureProvider.createSurfaceTextureProvider(mock(
                         SurfaceTextureProvider.SurfaceTextureCallback.class)));
+        final ImageCapture imageCapture = new ImageCapture.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        final ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
 
-        // Ensure we are bound to a camera to ensure aspect ratio correction is applied.
         CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA);
 
-        cameraUseCaseAdapter.addUseCases(Collections.singletonList(preview));
-
-        PreviewConfig config = (PreviewConfig) preview.getUseCaseConfig();
-        // The targetAspectRatioCustom value will only be set in Legacy + API 21 combination. For
-        // other combinations, it shouldn't be set since there is targetAspectRatio set for the
-        // use case.
-        Rational previewAspectRatio = config.getTargetAspectRatioCustom(null);
-
-        Rational correctedAspectRatio =
-                supportedSurfaceCombination.getCorrectedAspectRatio(
-                        config.getTargetRotation(Surface.ROTATION_0));
+        cameraUseCaseAdapter.addUseCases(Arrays.asList(preview, imageCapture, imageAnalysis));
 
         Size maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG);
-        Rational maxJpegAspectRatio = new Rational(maxJpegSize.getHeight(), maxJpegSize.getWidth());
+        Rational maxJpegAspectRatio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
 
-        List<UseCase> useCases = new ArrayList<>();
-        useCases.add(preview);
-        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
-        Size previewSize = suggestedResolutionMap.get(preview.getUseCaseConfig());
-        Rational resultAspectRatio = new Rational(previewSize.getHeight(), previewSize.getWidth());
+        Size previewResolution = preview.getAttachedSurfaceResolution();
+        Rational previewRatio = new Rational(previewResolution.getWidth(),
+                previewResolution.getHeight());
+        Size imageCaptureResolution = preview.getAttachedSurfaceResolution();
+        Rational imageCaptureRatio = new Rational(imageCaptureResolution.getWidth(),
+                imageCaptureResolution.getHeight());
+        Size imageAnalysisResolution = preview.getAttachedSurfaceResolution();
+        Rational imageAnalysisRatio = new Rational(imageAnalysisResolution.getWidth(),
+                imageAnalysisResolution.getHeight());
 
+        // The targetAspectRatio value will only be set to the same aspect ratio as maximum
+        // supported jpeg size in Legacy + API 21 combination. For other combinations, it should
+        // keep the original targetAspectRatio set for the use case.
         if (Build.VERSION.SDK_INT == 21) {
             // Checks targetAspectRatio and maxJpegAspectRatio, which is the ratio of maximum size
             // in the mSupportedSizes, are not equal to make sure this test case is valid.
             assertThat(targetAspectRatio).isNotEqualTo(maxJpegAspectRatio);
-            assertThat(previewAspectRatio).isEqualTo(maxJpegAspectRatio);
-            assertThat(correctedAspectRatio).isEqualTo(maxJpegAspectRatio);
-            assertThat(resultAspectRatio).isEqualTo(maxJpegAspectRatio);
+            assertThat(previewRatio).isEqualTo(maxJpegAspectRatio);
+            assertThat(imageCaptureRatio).isEqualTo(maxJpegAspectRatio);
+            assertThat(imageAnalysisRatio).isEqualTo(maxJpegAspectRatio);
         } else {
             // Checks no correction is needed.
-            assertThat(correctedAspectRatio).isNull();
-            assertThat(resultAspectRatio).isEqualTo(targetAspectRatio);
+            assertThat(previewRatio).isEqualTo(targetAspectRatio);
+            assertThat(imageCaptureRatio).isEqualTo(targetAspectRatio);
+            assertThat(imageAnalysisRatio).isEqualTo(targetAspectRatio);
         }
     }
 
@@ -619,7 +658,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkAspectRatioMatchedSizeCanBeSelected() throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -643,7 +682,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void checkCorrectAspectRatioNotMatchedSizeCanBeSelected()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1022,7 +1061,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void isAspectRatioMatchWithSupportedMod16Resolution()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1070,7 +1109,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void getSupportedOutputSizes_noConfigSettings() throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1097,7 +1136,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void getSupportedOutputSizes_aspectRatio4x3() throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1129,7 +1168,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void getSupportedOutputSizes_aspectRatio16x9() throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1161,9 +1200,67 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_targetResolution1080x1920InRotation0()
+    public void getSupportedOutputSizes_aspectRatio16x9_inLegacyDevice()
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase =
+                new FakeUseCaseConfig.Builder().setTargetAspectRatio(
+                        AspectRatio.RATIO_16_9).build();
+
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList;
+        // There is default minimum size 640x480 setting. Sizes smaller than 640x480 will be
+        // removed.
+        if (Build.VERSION.SDK_INT == 21) {
+            // Sizes with the same aspect ratio as maximum JPEG resolution will be in front of
+            // the returned sizes list and the list is sorted in descending order. Other items
+            // will be put in the following that are sorted by aspect ratio delta and then area
+            // size.
+            expectedList = Arrays.asList(new Size[]{
+                    // Matched the same AspectRatio as maximum JPEG items, sorted by aspect ratio
+                    // delta then area size.
+                    new Size(4032, 3024),
+                    new Size(1920, 1440),
+                    new Size(1280, 960),
+                    new Size(640, 480),
+
+                    // Mismatched the same AspectRatio as maximum JPEG items, sorted by area size.
+                    new Size(3840, 2160),
+                    new Size(1920, 1080),
+                    new Size(1280, 720),
+                    new Size(960, 544),
+                    new Size(800, 450)
+            });
+        } else {
+            // Sizes of aspect ratio 16/9 will be in front of the returned sizes list and the
+            // list is sorted in descending order. Other items will be put in the following that
+            // are sorted by aspect ratio delta and then area size.
+            expectedList = Arrays.asList(new Size[]{
+                    // Matched AspectRatio items, sorted by area size.
+                    new Size(3840, 2160),
+                    new Size(1920, 1080),
+                    new Size(1280, 720),
+                    new Size(960, 544),
+                    new Size(800, 450),
+
+                    // Mismatched AspectRatio items, sorted by aspect ratio delta then area size.
+                    new Size(4032, 3024),
+                    new Size(1920, 1440),
+                    new Size(1280, 960),
+                    new Size(640, 480)
+            });
+        }
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizes_targetResolution1080x1920InRotation0()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1195,9 +1292,64 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void getSupportedOutputSizes_targetResolutionLargerThan640x480()
+    public void getSupportedOutputSizes_targetResolution1080x1920InRotation0_InLegacyDevice()
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
+                new Size(1080, 1920)).build();
+
+        // Unnecessary big enough sizes will be removed from the result list. There is default
+        // minimum size 640x480 setting. Sizes smaller than 640x480 will also be removed.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList;
+        if (Build.VERSION.SDK_INT == 21) {
+            // Sizes with the same aspect ratio as maximum JPEG resolution will be in front of
+            // the returned sizes list and the list is sorted in descending order. Other items
+            // will be put in the following that are sorted by aspect ratio delta and then area
+            // size.
+            expectedList = Arrays.asList(new Size[]{
+                    // Matched the same AspectRatio as maximum JPEG items, sorted by aspect ratio
+                    // delta then area size.
+                    new Size(1920, 1440),
+                    new Size(1280, 960),
+                    new Size(640, 480),
+
+                    // Mismatched the same AspectRatio as maximum JPEG items, sorted by area size.
+                    new Size(1920, 1080),
+                    new Size(1280, 720),
+                    new Size(960, 544),
+                    new Size(800, 450)
+            });
+        } else {
+            // The target resolution will be calibrated by default target rotation 0 degree. The
+            // target resolution will also call setTargetAspectRatioCustom to set matching aspect
+            // ratio. Therefore, sizes of aspect ratio 16/9 will be in front of the returned
+            // sizes list and the list is sorted in descending order. Other items will be put in
+            // the following that are sorted by aspect ratio delta and then area size.
+            expectedList = Arrays.asList(new Size[]{
+                    // Matched AspectRatio items, sorted by area size.
+                    new Size(1920, 1080),
+                    new Size(1280, 720),
+                    new Size(960, 544),
+                    new Size(800, 450),
+
+                    // Mismatched AspectRatio items, sorted by aspect ratio delta then area size.
+                    new Size(1920, 1440),
+                    new Size(1280, 960),
+                    new Size(640, 480)
+            });
+        }
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizes_targetResolutionLargerThan640x480()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1230,7 +1382,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_targetResolutionSmallerThan640x480()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1258,7 +1410,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_targetResolution1800x1440NearTo4x3()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1291,7 +1443,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_aspectRatioCustom4x3_targetResolution1800x1440NearTo4x3()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1325,7 +1477,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_aspectRatioCustom16x9_targetResolution1800x1440NearTo4x3()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1360,7 +1512,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_targetResolution1280x600NearTo16x9()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1390,7 +1542,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_aspectRatioCustom16x9_targetResolution1280x600NearTo16x9()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1422,7 +1574,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_aspectRatioCustom4x3_targetResolution1280x600NearTo16x9()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1453,7 +1605,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void getSupportedOutputSizes_maxResolution1280x720() throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1477,7 +1629,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_defaultResolution1280x720_noTargetResolution()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1502,7 +1654,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_defaultResolution1280x720_targetResolution1920x1080()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1536,7 +1688,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_fallbackToGuaranteedResolution_whenNotFulfillConditions()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
                 new Size(320, 180),
@@ -1562,7 +1714,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_whenMaxSizeSmallerThanDefaultMiniSize()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
                 new Size(320, 180),
@@ -1591,7 +1743,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_whenMaxSizeSmallerThanSmallTargetResolution()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
                 new Size(320, 180),
@@ -1621,7 +1773,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_whenBothMaxAndTargetResolutionsSmallerThan640x480()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
                 new Size(320, 180),
@@ -1652,7 +1804,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_whenMaxSizeSmallerThanBigTargetResolution()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
@@ -1685,7 +1837,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_whenNoSizeBetweenMaxSizeAndTargetResolution()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
                 new Size(320, 180),
@@ -1715,7 +1867,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_whenTargetResolutionSmallerThanAnySize()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
                 new Size(320, 180),
@@ -1763,7 +1915,7 @@ public final class SupportedSurfaceCombinationTest {
     @Test
     public void getSupportedOutputSizes_whenMod16IsIgnoredForSmallSizes()
             throws CameraUnavailableException {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, new Size[]{
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, new Size[]{
                 new Size(640, 480),
                 new Size(320, 240),
                 new Size(320, 180),
