@@ -59,5 +59,9 @@ MissingNullability: androidx.ui.core.TransformOrigin#toString-impl(long):
     Missing nullability on method `toString-impl` return
 
 
+NotCloseable: androidx.ui.core.OwnedLayer:
+    Classes that release resources (destroy()) should implement AutoClosable and CloseGuard: class androidx.ui.core.OwnedLayer
+
+
 TopLevelBuilder: androidx.ui.graphics.vector.VectorAssetBuilder:
     Builder should be defined as inner class: androidx.ui.graphics.vector.VectorAssetBuilder
