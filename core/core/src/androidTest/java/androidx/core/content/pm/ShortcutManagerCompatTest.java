@@ -67,7 +67,6 @@ import androidx.core.content.FileProvider;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -300,14 +299,13 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
             when(mockShortcutManager.addDynamicShortcuts(ArgumentMatchers.<ShortcutInfo>anyList()))
                     .thenReturn(true);
         }
-        assertTrue(ShortcutManagerCompat.addDynamicShortcuts(mContext, getShortcuts()));
+        assertTrue(ShortcutManagerCompat.addDynamicShortcuts(mContext, getShortcutInfoCompats()));
         removeShortcuts();
     }
 
     @MediumTest
     @Test
     @SdkSuppress(minSdkVersion = 25)
-    @FlakyTest
     public void testPushDynamicShortcuts() throws Throwable {
         // setup mock objects
         final ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
@@ -316,11 +314,11 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
         when(mockShortcutManager.addDynamicShortcuts(ArgumentMatchers.<ShortcutInfo>anyList()))
                 .thenReturn(true);
         when(mockShortcutManager.getMaxShortcutCountPerActivity()).thenReturn(4);
-        doReturn(getShortcuts()).when(mockShortcutManager).getDynamicShortcuts();
-        doReturn(getShortcuts()).when(mShortcutInfoCompatSaver).getShortcuts();
+        doReturn(getShortcutInfos()).when(mockShortcutManager).getDynamicShortcuts();
+        doReturn(getShortcutInfoCompats()).when(mShortcutInfoCompatSaver).getShortcuts();
         // push a new shortcut
         final ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(
-                mContext, "bitmap-shortcut")
+                mContext, "my-shortcut")
                 .setShortLabel("bitmap")
                 .setIcon(createBitmapIcon())
                 .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
@@ -334,19 +332,19 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
             final ArgumentCaptor<List<String>> stringCaptor =
                     ArgumentCaptor.forClass(ArrayList.class);
             verify(mockShortcutManager).removeDynamicShortcuts(stringCaptor.capture());
-            verifyShortcutRemoved(stringCaptor);
+            verifyShortcutRemoved("shortcut-3", stringCaptor);
             // verify the new shortcut has been added
             final ArgumentCaptor<List<ShortcutInfo>> shortcutInfoCaptor =
                     ArgumentCaptor.forClass(ArrayList.class);
             verify(mockShortcutManager).addDynamicShortcuts(shortcutInfoCaptor.capture());
             final List<ShortcutInfo> actualShortcutInfos = shortcutInfoCaptor.getValue();
             assertEquals(1, actualShortcutInfos.size());
-            assertEquals(shortcutInfo, actualShortcutInfos.get(0));
+            assertEquals(shortcutInfo.getId(), actualShortcutInfos.get(0).getId());
         }
         // verify the shortcut with lowest rank has been removed
         final ArgumentCaptor<List<String>> stringCaptor = ArgumentCaptor.forClass(ArrayList.class);
         verify(mShortcutInfoCompatSaver).removeShortcuts(stringCaptor.capture());
-        verifyShortcutRemoved(stringCaptor);
+        verifyShortcutRemoved("uri-bitmap-shortcut", stringCaptor);
         // verify the new shortcut has been added
         final ArgumentCaptor<List<ShortcutInfoCompat>> shortcutInfoCaptor =
                 ArgumentCaptor.forClass(ArrayList.class);
@@ -356,16 +354,17 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
         assertEquals(shortcutInfo, actualShortcutInfos.get(0));
     }
 
-    private void verifyShortcutRemoved(final ArgumentCaptor<List<String>> stringCaptor) {
+    private void verifyShortcutRemoved(final String expected,
+            final ArgumentCaptor<List<String>> stringCaptor) {
         final List<String> actualStrings = stringCaptor.getValue();
         assertEquals(1, actualStrings.size());
-        assertEquals("uri-bitmap-shortcut", actualStrings.get(0));
+        assertEquals(expected, actualStrings.get(0));
     }
 
     @MediumTest
     @Test
     public void testConvertUriIconsToBitmapIcons() {
-        ArrayList<ShortcutInfoCompat> shortcuts = getShortcuts();
+        ArrayList<ShortcutInfoCompat> shortcuts = getShortcutInfoCompats();
         assertEquals(5, shortcuts.size());
         ShortcutManagerCompat.convertUriIconsToBitmapIcons(mContext, shortcuts);
         assertEquals(4, shortcuts.size());  // shortcut with invalid icon uri was removed
@@ -411,7 +410,53 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
         return rInfo;
     }
 
-    private ArrayList<ShortcutInfoCompat> getShortcuts() {
+    private ArrayList<ShortcutInfo> getShortcutInfos() {
+        ArrayList<ShortcutInfo> shortcuts = new ArrayList<>();
+
+        shortcuts.add(new ShortcutInfoCompat.Builder(mContext, "shortcut-1")
+                .setShortLabel("first")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setRank(0)
+                .build()
+                .toShortcutInfo());
+
+        shortcuts.add(new ShortcutInfoCompat.Builder(mContext, "shortcut-2")
+                .setShortLabel("second")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setRank(2)
+                .build()
+                .toShortcutInfo());
+
+        shortcuts.add(new ShortcutInfoCompat.Builder(mContext, "shortcut-3")
+                .setShortLabel("third")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setRank(4)
+                .build()
+                .toShortcutInfo());
+
+        shortcuts.add(new ShortcutInfoCompat.Builder(mContext, "shortcut-4")
+                .setShortLabel("fourth")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setRank(4)
+                .build()
+                .toShortcutInfo());
+
+        shortcuts.add(new ShortcutInfoCompat.Builder(mContext, "shortcut-5")
+                .setShortLabel("fifth")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setRank(4)
+                .build()
+                .toShortcutInfo());
+
+        return shortcuts;
+    }
+
+    private ArrayList<ShortcutInfoCompat> getShortcutInfoCompats() {
         ArrayList<ShortcutInfoCompat> shortcuts = new ArrayList<>();
 
         shortcuts.add(new ShortcutInfoCompat.Builder(mContext, "bitmap-shortcut")
