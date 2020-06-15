@@ -81,7 +81,7 @@ class EditProcessorBenchmark(val initText: InitialText, val scenario: TestScenar
                     onNewState(
                         TextFieldValue(
                             text = initText.text,
-                            selection = TextRange(5, 5)
+                            selection = TextRange(5)
                         ),
                         null, // text input service, not used.
                         0 // session token, not used

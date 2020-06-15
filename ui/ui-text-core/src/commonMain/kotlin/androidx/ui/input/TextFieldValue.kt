@@ -47,7 +47,7 @@ data class EditorValue(
      * A selection range visible to IME.
      * The selection range must be valid range in the given text.
      */
-    val selection: TextRange = TextRange(0, 0),
+    val selection: TextRange = TextRange(0),
 
     /**
      * A composition range visible to IME.
@@ -94,7 +94,7 @@ data class TextFieldValue(
     @Stable
     val text: String = "",
     @Stable
-    val selection: TextRange = TextRange(0, 0),
+    val selection: TextRange = TextRange(0),
     @Stable
     val composition: TextRange? = null
 ) {
