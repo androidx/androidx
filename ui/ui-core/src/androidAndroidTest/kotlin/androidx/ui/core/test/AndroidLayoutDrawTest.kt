@@ -86,6 +86,7 @@ import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -2437,6 +2438,106 @@ class AndroidLayoutDrawTest {
             assertRect(Color.Red, size = 10, centerX = 25, centerY = 25)
             assertRect(Color.Yellow, size = 10, centerX = 10, centerY = 10)
         }
+    }
+
+    // Delegates don't change when the modifier types remain the same
+    @Test
+    fun instancesKeepDelegates() {
+        var color by mutableStateOf(Color.Red)
+        var m: Measurable? = null
+        val layoutCaptureModifier = object : LayoutModifier {
+            override fun MeasureScope.measure(
+                measurable: Measurable,
+                constraints: Constraints,
+                layoutDirection: LayoutDirection
+            ): MeasureScope.MeasureResult {
+                m = measurable
+                val p = measurable.measure(constraints, layoutDirection)
+                drawLatch.countDown()
+                return layout(p.width, p.height) {
+                    p.place(0, 0)
+                }
+            }
+        }
+        activityTestRule.runOnUiThread {
+            activity.setContent {
+                FixedSize(30, layoutCaptureModifier.background(color)) {}
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        var firstMeasurable = m
+        drawLatch = CountDownLatch(1)
+
+        activityTestRule.runOnUiThread {
+            m = null
+            color = Color.Blue
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        assertNotNull(m)
+        assertSame(firstMeasurable, m)
+    }
+
+    // LayoutNodeWrappers remain even when there are multiple for a modifier
+    @Test
+    fun replaceMultiImplementationModifier() {
+        var color by mutableStateOf(Color.Red)
+        var m: Measurable? = null
+
+        var layerLatch = CountDownLatch(1)
+
+        class SpecialModifier(
+            val drawLatch: CountDownLatch,
+            val layerLatch: CountDownLatch
+        ) : DrawModifier, DrawLayerModifier {
+            override fun ContentDrawScope.draw() {
+                drawContent()
+                drawLatch.countDown()
+            }
+
+            override val translationX: Float
+                get() {
+                    layerLatch.countDown()
+                    return super.translationX
+                }
+        }
+
+        val layoutCaptureModifier = object : LayoutModifier {
+            override fun MeasureScope.measure(
+                measurable: Measurable,
+                constraints: Constraints,
+                layoutDirection: LayoutDirection
+            ): MeasureScope.MeasureResult {
+                m = measurable
+                val p = measurable.measure(constraints, layoutDirection)
+                return layout(p.width, p.height) {
+                    p.place(0, 0)
+                }
+            }
+        }
+        activityTestRule.runOnUiThread {
+            activity.setContent {
+                FixedSize(30, layoutCaptureModifier +
+                        SpecialModifier(drawLatch, layerLatch).background(color)) {}
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(layerLatch.await(1, TimeUnit.SECONDS))
+        var firstMeasurable = m
+        drawLatch = CountDownLatch(1)
+        layerLatch = CountDownLatch(1)
+
+        activityTestRule.runOnUiThread {
+            m = null
+            color = Color.Blue
+        }
+
+        // The latches are triggered in the new instance
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(layerLatch.await(1, TimeUnit.SECONDS))
+        // The new instance's measurable is the same.
+        assertNotNull(m)
+        assertSame(firstMeasurable, m)
     }
 
     private fun composeSquares(model: SquareModel) {

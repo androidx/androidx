@@ -34,6 +34,13 @@ internal class LayerWrapper(
     // Do not invalidate itself on position change.
     override val invalidateLayerOnBoundsChange get() = false
 
+    override var modifier: DrawLayerModifier
+        get() = super.modifier
+        set(value) {
+            super.modifier = value
+            _layer?.modifier = value
+        }
+
     private val invalidateParentLayer: () -> Unit = {
         wrappedBy?.findLayer()?.invalidate()
     }
@@ -160,5 +167,9 @@ internal class LayerWrapper(
             pointerPositionRelativeToScreen,
             hitPointerInputFilters
         )
+    }
+
+    override fun onModifierChanged() {
+        _layer?.invalidate()
     }
 }

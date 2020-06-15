@@ -27,8 +27,8 @@ import androidx.ui.unit.IntOffset
  * [LayoutNodeWrapper] with default implementations for methods.
  */
 internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
-    override val wrapped: LayoutNodeWrapper,
-    val modifier: T
+    override var wrapped: LayoutNodeWrapper,
+    open var modifier: T
 ) : LayoutNodeWrapper(wrapped.layoutNode) {
     override val providedAlignmentLines: Set<AlignmentLine>
         get() = wrapped.providedAlignmentLines
@@ -39,8 +39,25 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
 
     override val measureScope: MeasureScope get() = wrapped.measureScope
 
+    /**
+     * Indicates that this modifier is used in [wrappedBy] also.
+     */
+    var isChained = false
+
     init {
         wrapped.wrappedBy = this
+    }
+
+    /**
+     * Sets the modifier instance to the new modifier. [modifier] must be the
+     * same type as the current modifier.
+     */
+    fun setModifierTo(modifier: Modifier.Element) {
+        if (modifier !== this.modifier) {
+            require(modifier.javaClass == this.modifier.javaClass)
+            @Suppress("UNCHECKED_CAST")
+            this.modifier = modifier as T
+        }
     }
 
     override fun draw(canvas: Canvas) {
@@ -135,13 +152,11 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
     override val parentData: Any? get() = wrapped.parentData
 
     override fun attach() {
-        wrapped.attach()
         _isAttached = true
     }
 
     override fun detach() {
         _isAttached = false
-        wrapped.detach()
     }
 }
 

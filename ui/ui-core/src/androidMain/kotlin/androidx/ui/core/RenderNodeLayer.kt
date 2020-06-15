@@ -32,7 +32,7 @@ import androidx.ui.unit.IntSize
 @TargetApi(29)
 internal class RenderNodeLayer(
     val ownerView: AndroidComposeView,
-    val drawLayerModifier: DrawLayerModifier,
+    drawLayerModifier: DrawLayerModifier,
     val drawBlock: (Canvas) -> Unit,
     val invalidateParentLayer: () -> Unit
 ) : OwnedLayer {
@@ -61,22 +61,30 @@ internal class RenderNodeLayer(
     override val layerId: Long
         get() = renderNode.uniqueId
 
+    override var modifier: DrawLayerModifier = drawLayerModifier
+        set(value) {
+            if (field !== value) {
+                field = value
+                updateLayerProperties()
+            }
+        }
+
     override fun updateLayerProperties() {
-        transformOrigin = drawLayerModifier.transformOrigin
+        transformOrigin = modifier.transformOrigin
         val wasClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
-        renderNode.scaleX = drawLayerModifier.scaleX
-        renderNode.scaleY = drawLayerModifier.scaleY
-        renderNode.alpha = drawLayerModifier.alpha
-        renderNode.translationX = drawLayerModifier.translationX
-        renderNode.translationY = drawLayerModifier.translationY
-        renderNode.elevation = drawLayerModifier.shadowElevation
-        renderNode.rotationZ = drawLayerModifier.rotationZ
-        renderNode.rotationX = drawLayerModifier.rotationX
-        renderNode.rotationY = drawLayerModifier.rotationY
+        renderNode.scaleX = modifier.scaleX
+        renderNode.scaleY = modifier.scaleY
+        renderNode.alpha = modifier.alpha
+        renderNode.translationX = modifier.translationX
+        renderNode.translationY = modifier.translationY
+        renderNode.elevation = modifier.shadowElevation
+        renderNode.rotationZ = modifier.rotationZ
+        renderNode.rotationX = modifier.rotationX
+        renderNode.rotationY = modifier.rotationY
         renderNode.pivotX = transformOrigin.pivotFractionX * renderNode.width
         renderNode.pivotY = transformOrigin.pivotFractionY * renderNode.height
-        val shape = drawLayerModifier.shape
-        val clip = drawLayerModifier.clip
+        val shape = modifier.shape
+        val clip = modifier.clip
         renderNode.clipToOutline = clip && shape !== RectangleShape
         renderNode.clipToBounds = clip && shape === RectangleShape
         val shapeChanged = outlineResolver.update(

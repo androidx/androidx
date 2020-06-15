@@ -33,6 +33,11 @@ interface OwnedLayer {
     val layerId: Long
 
     /**
+     * The DrawLayerModifier used in this layer.
+     */
+    var modifier: DrawLayerModifier
+
+    /**
      * Reads the [DrawLayerModifier] and dirties the layer so that it will be redrawn.
      */
     fun updateLayerProperties()

@@ -31,6 +31,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -656,6 +657,45 @@ class LayoutNodeTest {
         assertFalse(layoutNode.coordinates.isAttached)
     }
 
+    // The LayoutNodeWrapper should be reused when it has been replaced with the same type
+    @Test
+    fun layoutNodeWrapperSameWithReplacementModifier() {
+        val layoutNode = LayoutNode()
+        val drawModifier = Modifier.drawBehind { }
+
+        layoutNode.modifier = drawModifier
+        val oldLayoutNodeWrapper = layoutNode.outerLayoutNodeWrapper
+        assertFalse(oldLayoutNodeWrapper.isAttached)
+
+        layoutNode.attach(mockOwner())
+        assertTrue(oldLayoutNodeWrapper.isAttached)
+
+        layoutNode.modifier = Modifier.drawBehind { }
+        val newLayoutNodeWrapper = layoutNode.outerLayoutNodeWrapper
+        assertSame(newLayoutNodeWrapper, oldLayoutNodeWrapper)
+    }
+
+    // The LayoutNodeWrapper should be reused when it has been replaced with the same type,
+    // even with multiple LayoutNodeWrappers for one modifier.
+    @Test
+    fun layoutNodeWrapperSameWithReplacementMultiModifier() {
+        class TestModifier : DrawModifier, DrawLayerModifier {
+            override fun ContentDrawScope.draw() {
+                drawContent()
+            }
+        }
+        val layoutNode = LayoutNode()
+
+        layoutNode.modifier = TestModifier()
+        val oldLayoutNodeWrapper = layoutNode.outerLayoutNodeWrapper
+        val oldLayoutNodeWrapper2 = oldLayoutNodeWrapper.wrapped
+        layoutNode.modifier = TestModifier()
+        val newLayoutNodeWrapper = layoutNode.outerLayoutNodeWrapper
+        val newLayoutNodeWrapper2 = newLayoutNodeWrapper.wrapped
+        assertSame(newLayoutNodeWrapper, oldLayoutNodeWrapper)
+        assertSame(newLayoutNodeWrapper2, oldLayoutNodeWrapper2)
+    }
+
     // The LayoutNodeWrapper should be detached when it has been replaced.
     @Test
     fun layoutNodeWrapperAttachedWhenLayoutNodeAttached() {
@@ -669,7 +709,7 @@ class LayoutNodeTest {
         layoutNode.attach(mockOwner())
         assertTrue(oldLayoutNodeWrapper.isAttached)
 
-        layoutNode.modifier = Modifier.drawBehind { }
+        layoutNode.modifier = Modifier.drawLayer()
         val newLayoutNodeWrapper = layoutNode.outerLayoutNodeWrapper
         assertTrue(newLayoutNodeWrapper.isAttached)
         assertFalse(oldLayoutNodeWrapper.isAttached)
