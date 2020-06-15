@@ -2565,7 +2565,7 @@ public class ViewCompat {
                 final WindowInsets result = view.dispatchApplyWindowInsets(unwrapped);
                 if (!result.equals(unwrapped)) {
                     // If the value changed, return a newly wrapped instance
-                    return WindowInsetsCompat.toWindowInsetsCompat(unwrapped);
+                    return WindowInsetsCompat.toWindowInsetsCompat(result);
                 }
             }
         }

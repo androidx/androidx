@@ -20,6 +20,7 @@ import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.Acces
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -43,7 +44,9 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
 import androidx.core.test.R;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -268,6 +271,31 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         } else {
             assertTrue("empty list for old device", returnedRects.isEmpty());
         }
+    }
+
+    @Test
+    @UiThreadTest
+    @SdkSuppress(minSdkVersion = 20) // dispatchApplyWindowInsets only works on API 20+
+    public void dispatchApplyWindowInsets_correctReturnValue() {
+        final View view = mActivityTestRule.getActivity().findViewById(R.id.container);
+
+        // Set an OnApplyWindowInsetsListener which returns consumed insets
+        ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                return insets.consumeSystemWindowInsets();
+            }
+        });
+
+        // Now create an inset instance and dispatch it to the view
+        final WindowInsetsCompat insets = new WindowInsetsCompat.Builder()
+                .setSystemWindowInsets(Insets.of(10, 20, 30, 40))
+                .build();
+        final WindowInsetsCompat result = ViewCompat.dispatchApplyWindowInsets(view, insets);
+
+        // Assert that the return insets doesn't equal what we passed in, and it is consumed
+        assertNotEquals(insets, result);
+        assertTrue(result.isConsumed());
     }
 
     @SdkSuppress(minSdkVersion = 21)
