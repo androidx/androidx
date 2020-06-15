@@ -71,6 +71,7 @@ import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
+@SdkSuppress(minSdkVersion = 18)
 public class AccessibilityDelegateCompatTest extends
         BaseInstrumentationTestCase<ViewCompatActivity> {
     private static final int TIMEOUT_ASYNC_PROCESSING = 5000;

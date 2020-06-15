@@ -160,6 +160,7 @@ public class ShortcutInfoCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 25)
     public void testBuilder_copyConstructor() {
         String longLabel = "Test long label";
         ComponentName activity = new ComponentName("Package name", "Class name");
@@ -267,6 +268,7 @@ public class ShortcutInfoCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 25)
     public void testBuilder_getters() {
         String longLabel = "Test long label";
         ComponentName activity = new ComponentName("Package name", "Class name");
