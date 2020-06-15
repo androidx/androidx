@@ -17,19 +17,30 @@
 package androidx.camera.camera2.pipe
 
 import android.content.Context
+import android.os.HandlerThread
 import androidx.camera.camera2.pipe.impl.CameraGraphModule
 import androidx.camera.camera2.pipe.impl.CameraPipeComponent
 import androidx.camera.camera2.pipe.impl.CameraPipeModule
 import androidx.camera.camera2.pipe.impl.DaggerCameraPipeComponent
 
 /**
- * Interface to configure and access the camera device wrappers.
+ * [CameraPipe] is the top level scope for all interactions with a Camera2 camera.
+ *
+ * Under most circumstances an application should only ever have a single instance of a [CameraPipe]
+ * object as each instance will cache expensive calls and operations with the Android Camera
+ * framework. In addition to the caching behaviors it will optimize the access and configuration of
+ * [android.hardware.camera2.CameraDevice] and [android.hardware.camera2.CameraCaptureSession] via
+ * the [CameraGraph] interface.
  */
-class CameraPipe(private val config: CameraPipe.Config) {
+class CameraPipe(config: Config) {
     private val component: CameraPipeComponent = DaggerCameraPipeComponent.builder()
         .cameraPipeModule(CameraPipeModule(config))
         .build()
 
+    /**
+     * This creates a new [CameraGraph] that can be used to interact with a single Camera on the
+     * device. Multiple [CameraGraph]s can be created, but only one should be active at a time.
+     */
     fun create(config: CameraGraph.Config): CameraGraph {
         return component.cameraGraphComponentBuilder()
             .cameraGraphModule(CameraGraphModule(config))
@@ -37,7 +48,19 @@ class CameraPipe(private val config: CameraPipe.Config) {
             .cameraGraph()
     }
 
+    /**
+     * This provides access to information about the available cameras on the device.
+     */
+    fun cameras(): Cameras {
+        return component.cameras()
+    }
+
+    /**
+     * This is the application level configuration for [CameraPipe]. Nullable values are optional
+     * and reasonable defaults will be provided if the values are not specified.
+     */
     data class Config(
-        val appContext: Context
+        val appContext: Context,
+        val cameraThread: HandlerThread? = null
     )
 }

@@ -19,9 +19,9 @@ package androidx.camera.camera2.pipe.impl
 import android.content.Context
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
 import androidx.test.core.app.ApplicationProvider
-import androidx.camera.camera2.pipe.CameraId
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking

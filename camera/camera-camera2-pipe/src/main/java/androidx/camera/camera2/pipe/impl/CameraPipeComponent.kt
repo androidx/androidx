@@ -17,23 +17,44 @@
 package androidx.camera.camera2.pipe.impl
 
 import android.content.Context
+import android.hardware.camera2.CameraManager
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.Cameras
+import dagger.Binds
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import dagger.Reusable
 import javax.inject.Singleton
 
 @Singleton
 @Component(modules = [CameraPipeModule::class])
 interface CameraPipeComponent {
     fun cameraGraphComponentBuilder(): CameraGraphComponent.Builder
+    fun cameras(): Cameras
 }
 
-@Module(subcomponents = [CameraGraphComponent::class])
+@Module(
+    includes = [CameraPipeBindings::class],
+    subcomponents = [CameraGraphComponent::class]
+)
 class CameraPipeModule(private val config: CameraPipe.Config) {
     @Provides
     fun provideCameraPipeConfig(): CameraPipe.Config = config
+}
 
-    @Provides
-    fun provideCameraPipeContext(): Context = config.appContext
+@Module
+abstract class CameraPipeBindings {
+    @Binds
+    abstract fun bindCameras(impl: CamerasImpl): Cameras
+
+    companion object {
+        @Provides
+        fun provideContext(config: CameraPipe.Config): Context = config.appContext
+
+        @Reusable
+        @Provides
+        fun provideCameraManager(context: Context): CameraManager =
+            context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    }
 }

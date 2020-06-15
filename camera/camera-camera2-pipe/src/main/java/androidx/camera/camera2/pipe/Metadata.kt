@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.hardware.camera2.params.StreamConfigurationMap
 import androidx.camera.camera2.pipe.impl.Debug
 import java.util.concurrent.ConcurrentHashMap
 
@@ -32,9 +33,8 @@ import java.util.concurrent.ConcurrentHashMap
  */
 interface Metadata {
     operator fun <T> get(key: Key<T>): T?
-
-    fun <T> getOrDefault(key: Key<T>, default: T): T
     fun <T> getChecked(key: Key<T>): T
+    fun <T> getOrDefault(key: Key<T>, default: T): T
 
     /**
      * Metadata keys provide values or controls that are provided or computed by CameraPipe.
@@ -63,14 +63,26 @@ interface Metadata {
 
 /**
  * CameraMetadata is a wrapper around [CameraCharacteristics].
+ *
+ * In some cases the properties on this interface will provide faster or more backwards compatible
+ * access to features that are only available on newer versions of the OS.
  */
 interface CameraMetadata : Metadata, UnsafeWrapper<CameraCharacteristics> {
     operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
-
-    fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
     fun <T> getChecked(key: CameraCharacteristics.Key<T>): T
+    fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
 
     val camera: CameraId
+    val isRedacted: Boolean
+
+    val keys: Set<CameraCharacteristics.Key<*>>
+    val requestKeys: Set<CaptureRequest.Key<*>>
+    val resultKeys: Set<CaptureResult.Key<*>>
+    val sessionKeys: Set<CaptureRequest.Key<*>>
+    val physicalCameraIds: Set<CameraId>
+    val physicalRequestKeys: Set<CaptureRequest.Key<*>>
+
+    val streamMap: StreamConfigurationMap
 }
 
 /**
@@ -78,9 +90,8 @@ interface CameraMetadata : Metadata, UnsafeWrapper<CameraCharacteristics> {
  */
 interface RequestMetadata : Metadata, UnsafeWrapper<CaptureRequest> {
     operator fun <T> get(key: CaptureRequest.Key<T>): T?
-
-    fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T
     fun <T> getChecked(key: CaptureRequest.Key<T>): T
+    fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T
 }
 
 /**
@@ -88,9 +99,8 @@ interface RequestMetadata : Metadata, UnsafeWrapper<CaptureRequest> {
  */
 interface ResultMetadata : Metadata, UnsafeWrapper<CaptureResult> {
     operator fun <T> get(key: CaptureResult.Key<T>): T?
-
-    fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T
     fun <T> getChecked(key: CaptureResult.Key<T>): T
+    fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T
 
     val camera: CameraId
     val request: RequestMetadata
