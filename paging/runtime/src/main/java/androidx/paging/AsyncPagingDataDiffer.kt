@@ -22,19 +22,16 @@ import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Helper class for mapping a [PagingData] into a
@@ -139,7 +136,7 @@ class AsyncPagingDataDiffer<T : Any>(
         }
     }
 
-    private val job = AtomicReference<Job?>(null)
+    private val submitDataId = AtomicInteger(0)
 
     /**
      * Present a [PagingData] until it is invalidated by a call to [refresh] or
@@ -163,11 +160,8 @@ class AsyncPagingDataDiffer<T : Any>(
      * @see [Pager]
      */
     suspend fun submitData(pagingData: PagingData<T>) {
-        try {
-            job.get()?.cancelAndJoin()
-        } finally {
-            differBase.collectFrom(pagingData, callback)
-        }
+        submitDataId.incrementAndGet()
+        differBase.collectFrom(pagingData, callback)
     }
 
     /**
@@ -183,16 +177,14 @@ class AsyncPagingDataDiffer<T : Any>(
      * @see [Pager]
      */
     fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
-        var oldJob: Job?
-        var newJob: Job
-        do {
-            oldJob = job.get()
-            newJob = lifecycle.coroutineScope.launch(start = CoroutineStart.LAZY) {
-                oldJob?.cancelAndJoin()
+        val id = submitDataId.incrementAndGet()
+        lifecycle.coroutineScope.launch {
+            // Check id when this job runs to ensure the last synchronous call submitData always
+            // wins.
+            if (submitDataId.get() == id) {
                 differBase.collectFrom(pagingData, callback)
             }
-        } while (!job.compareAndSet(oldJob, newJob))
-        newJob.start()
+        }
     }
 
     /**
