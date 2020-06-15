@@ -24,7 +24,9 @@ package androidx.paging {
   }
 
   public final class AsyncPagingDataDiffer<T> {
-    ctor public AsyncPagingDataDiffer(kotlinx.coroutines.CoroutineDispatcher mainDispatcher, kotlinx.coroutines.CoroutineDispatcher workerDispatcher, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback);
+    ctor public AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback, kotlinx.coroutines.CoroutineDispatcher mainDispatcher, kotlinx.coroutines.CoroutineDispatcher workerDispatcher);
+    ctor public AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback, kotlinx.coroutines.CoroutineDispatcher mainDispatcher);
+    ctor public AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback);
     method @androidx.paging.ExperimentalPagingApi public void addDataRefreshListener(kotlin.jvm.functions.Function0<kotlin.Unit> listener);
     method public void addLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
     method public kotlinx.coroutines.flow.Flow<kotlin.Unit> getDataRefreshFlow();
@@ -99,6 +101,8 @@ package androidx.paging {
 
   public abstract class PagingDataAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
     ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, kotlinx.coroutines.CoroutineDispatcher mainDispatcher, kotlinx.coroutines.CoroutineDispatcher workerDispatcher);
+    ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, kotlinx.coroutines.CoroutineDispatcher mainDispatcher);
+    ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     method @androidx.paging.ExperimentalPagingApi public final void addDataRefreshListener(kotlin.jvm.functions.Function0<kotlin.Unit> listener);
     method public final void addLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
     method public final kotlinx.coroutines.flow.Flow<kotlin.Unit> getDataRefreshFlow();
