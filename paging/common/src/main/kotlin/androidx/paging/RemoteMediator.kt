@@ -28,7 +28,8 @@ import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
  *
  * These events together can be used to implement layered pagination - network + local storage.
  *
- * @sample androidx.paging.samples.remoteMediatorSample
+ * @sample androidx.paging.samples.remoteMediatorItemKeyedSample
+ * @sample androidx.paging.samples.remoteMediatorPageKeyedSample
  */
 @ExperimentalPagingApi
 abstract class RemoteMediator<Key : Any, Value : Any> {
