@@ -45,8 +45,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
 @RunWith(JUnit4::class)
@@ -123,14 +123,20 @@ class PagingDataDifferTest {
     fun collectFrom_twiceConcurrently() = testScope.runBlockingTest {
         val differ = SimpleDiffer()
 
-        val job = launch {
-            differ.collectFrom(infinitelySuspendingPagingData(), dummyPresenterCallback)
-        }
-        assertFailsWith<IllegalStateException> {
+        val job1 = launch {
             differ.collectFrom(infinitelySuspendingPagingData(), dummyPresenterCallback)
         }
 
-        job.cancel()
+        // Ensure job1 is running.
+        assertTrue { job1.isActive }
+
+        val job2 = launch {
+            differ.collectFrom(infinitelySuspendingPagingData(), dummyPresenterCallback)
+        }
+
+        // job2 collection should cancel job1.
+        assertTrue { job1.isCancelled }
+        job2.cancel()
     }
 
     @Test
