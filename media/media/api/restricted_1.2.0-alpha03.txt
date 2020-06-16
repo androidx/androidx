@@ -680,9 +680,11 @@ package androidx.media {
 
   public abstract class VolumeProviderCompat {
     ctor public VolumeProviderCompat(@androidx.media.VolumeProviderCompat.ControlType int, int, int);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public VolumeProviderCompat(@androidx.media.VolumeProviderCompat.ControlType int, int, int, String?);
     method public final int getCurrentVolume();
     method public final int getMaxVolume();
     method @androidx.media.VolumeProviderCompat.ControlType public final int getVolumeControl();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final String? getVolumeControlId();
     method public Object! getVolumeProvider();
     method public void onAdjustVolume(int);
     method public void onSetVolumeTo(int);
