@@ -37,7 +37,7 @@ abstract class PagingDataDiffer<T : Any>(
 ) {
     private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var receiver: UiReceiver? = null
-    private val dataRefreshedListeners: MutableList<() -> Unit> = CopyOnWriteArrayList()
+    private val dataRefreshedListeners = CopyOnWriteArrayList<(isEmpty: Boolean) -> Unit>()
 
     private val collectFromRunner = SingleRunner()
 
@@ -77,7 +77,9 @@ abstract class PagingDataDiffer<T : Any>(
                     presenter = newPresenter
 
                     // Dispatch ListUpdate as soon as we are done diffing.
-                    dataRefreshedListeners.forEach { listener -> listener() }
+                    dataRefreshedListeners.forEach { listener ->
+                        listener(event.pages.all { page -> page.data.isEmpty() })
+                    }
 
                     // Transform the last loadAround index from the old list to the new list
                     // by passing it through the DiffResult, and pass it forward as a
@@ -144,30 +146,32 @@ abstract class PagingDataDiffer<T : Any>(
         get() = presenter.size
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val _dataRefreshCh = ConflatedBroadcastChannel<Unit>()
+    private val _dataRefreshCh = ConflatedBroadcastChannel<Boolean>()
 
     /**
-     * A [Flow] of [Unit] that is emitted when new [PagingData] generations are submitted and
-     * displayed.
+     * A [Flow] of [Boolean] that is emitted when new [PagingData] generations are submitted and
+     * displayed. The [Boolean] that is emitted is `true` if the new [PagingData] is empty,
+     * `false` otherwise.
      */
     @ExperimentalPagingApi
     @OptIn(FlowPreview::class)
-    val dataRefreshFlow: Flow<Unit> = _dataRefreshCh.asFlow()
+    val dataRefreshFlow: Flow<Boolean> = _dataRefreshCh.asFlow()
 
     init {
         @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
-        addDataRefreshListener { _dataRefreshCh.offer(Unit) }
+        addDataRefreshListener { _dataRefreshCh.offer(it) }
     }
 
     /**
      * Add a listener to observe new [PagingData] generations.
      *
-     * @param listener called whenever a new [PagingData] is submitted and displayed.
+     * @param listener called whenever a new [PagingData] is submitted and displayed. `true` is
+     * passed to the [listener] if the new [PagingData] is empty, `false` otherwise.
      *
      * @see removeDataRefreshListener
      */
     @ExperimentalPagingApi
-    fun addDataRefreshListener(listener: () -> Unit) {
+    fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
         dataRefreshedListeners.add(listener)
     }
 
@@ -179,7 +183,7 @@ abstract class PagingDataDiffer<T : Any>(
      * @see addDataRefreshListener
      */
     @ExperimentalPagingApi
-    fun removeDataRefreshListener(listener: () -> Unit) {
+    fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
         dataRefreshedListeners.remove(listener)
     }
 }
