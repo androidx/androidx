@@ -42,3 +42,15 @@ fun Rect.toAndroidRectF(): android.graphics.RectF {
         bottom
     )
 }
+
+/**
+ * Creates a new instance of [androidx.ui.geometry.Rect] with the same bounds
+ * specified in the given [android.graphics.Rect]
+ */
+fun android.graphics.Rect.toComposeRect(): androidx.ui.geometry.Rect =
+    androidx.ui.geometry.Rect(
+        this.left.toFloat(),
+        this.top.toFloat(),
+        this.right.toFloat(),
+        this.bottom.toFloat()
+    )
