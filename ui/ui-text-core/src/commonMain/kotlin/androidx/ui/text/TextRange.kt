@@ -60,6 +60,10 @@ data class TextRange(val start: Int, val end: Int) {
      * Returns true if the given offset is a part of this range.
      */
     operator fun contains(offset: Int): Boolean = offset in min until max
+
+    companion object {
+        val Zero = TextRange(0)
+    }
 }
 
 /**

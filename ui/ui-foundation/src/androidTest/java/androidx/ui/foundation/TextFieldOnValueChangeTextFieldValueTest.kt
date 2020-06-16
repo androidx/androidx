@@ -77,7 +77,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
                 val state = state {
                     androidx.ui.input.TextFieldValue(
                         "abcde",
-                        TextRange(0)
+                        TextRange.Zero
                     )
                 }
                 TextField(
@@ -140,7 +140,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
         runOnIdleCompose {
             verify(onValueChange, times(1)).invoke(eq(androidx.ui.input.TextFieldValue(
                 text = "abcde",
-                selection = TextRange(0),
+                selection = TextRange.Zero,
                 composition = TextRange(0, 5)
             )))
         }
@@ -206,7 +206,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
             verify(onValueChange, times(1)).invoke(eq(
                 androidx.ui.input.TextFieldValue(
                     "bcde",
-                    TextRange(0)
+                    TextRange.Zero
                 )
             ))
         }

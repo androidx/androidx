@@ -31,7 +31,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_insert_empty() {
-        val eb = EditingBuffer("", TextRange(0))
+        val eb = EditingBuffer("", TextRange.Zero)
 
         SetComposingTextEditOp("X", 1).process(eb)
 
@@ -140,7 +140,7 @@ class SetComposingTextEditOpTest {
 
     @Test
     fun test_cancel_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposition(1, 4) // Mark "BCD" as composition
         SetComposingTextEditOp("X", 1).process(eb)

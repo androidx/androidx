@@ -30,7 +30,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_insert_empty() {
-        val eb = EditingBuffer("", TextRange(0))
+        val eb = EditingBuffer("", TextRange.Zero)
 
         CommitTextEditOp("X", 1).process(eb)
 
@@ -129,7 +129,7 @@ class CommitTextEditOpTest {
 
     @Test
     fun test_cancel_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposition(1, 4) // Mark "BCD" as composition
         CommitTextEditOp("X", 1).process(eb)

@@ -61,7 +61,7 @@ class MoveCursorEditOpTest {
 
     @Test
     fun test_left_from_offset0() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         MoveCursorEditOp(-1).process(eb)
 
