@@ -8,12 +8,15 @@ plugins {
 }
 
 dependencies {
-    api("androidx.activity:activity:1.1.0")
+    // Public API dependencies
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.appcompat:appcompat:1.1.0")
-    api("androidx.core:core:1.2.0")
-    api("androidx.fragment:fragment:1.2.4")
-    api("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
+    api("androidx.fragment:fragment:1.2.5")
+
+    // Internal dependencies
+    implementation("androidx.activity:activity:1.1.0")
+    implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation("androidx.core:core:1.2.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
 
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
