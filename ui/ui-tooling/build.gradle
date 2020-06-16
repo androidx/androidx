@@ -42,6 +42,7 @@ dependencies {
     // kotlin-reflect and ui-animation-tooling-internal are provided by Studio at runtime
     compileOnly(project(":ui:ui-animation-tooling-internal"))
     compileOnly(KOTLIN_REFLECT)
+    compileOnly(KOTLIN_METADATA_JVM)
 
     androidTestImplementation project(":compose:test:test-core")
 
@@ -52,7 +53,16 @@ dependencies {
     androidTestImplementation project(":compose:foundation:foundation")
     androidTestImplementation(TRUTH)
     androidTestImplementation(KOTLIN_REFLECT)
+    androidTestImplementation(KOTLIN_METADATA_JVM)
     androidTestImplementation(project(":ui:ui-animation-tooling-internal"))
+}
+
+// Workaround for https://youtrack.jetbrains.com/issue/KT-39813
+android {
+    packagingOptions {
+        exclude "META-INF/metadata.jvm.kotlin_module"
+        exclude "META-INF/metadata.kotlin_module"
+    }
 }
 
 androidx {
