@@ -18,6 +18,8 @@ package androidx.ui.tooling.inspector
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.InternalComposeApi
+import androidx.compose.resetSourceInfo
 import androidx.test.filters.SmallTest
 import androidx.ui.core.OwnedLayer
 import androidx.ui.foundation.Text
@@ -51,6 +53,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
 
     @Before
     fun density() {
+        @OptIn(InternalComposeApi::class)
+        resetSourceInfo()
         density = Density(activity)
         view = activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
     }
@@ -260,8 +264,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Text",
             fileName = "LayoutInspectorTreeTest.kt",
-            function =
-            "androidx.ui.tooling.inspector.LayoutInspectorTreeTest\$buildTree$1$1$1$1$2.invoke",
+            function = "androidx.ui.tooling.inspector" +
+                    ".LayoutInspectorTreeTest\$buildTree\$1\$1\$1\$1\$2.invoke",
             left = 21.8.dp, top = 27.6.dp, width = 20.4.dp, height = 18.9.dp,
             children = listOf("CoreText")
         )
