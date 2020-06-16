@@ -78,6 +78,29 @@ public class CustomTabsClient {
     }
 
     /**
+     * Bind to a {@link CustomTabsService} using the given package name and
+     * {@link ServiceConnection}. This is similar to {@link #bindCustomTabsService} but does
+     * not use {@link Context#BIND_WAIVE_PRIORITY}, making it suitable for use cases where
+     * the browser is immediately going to be launched and breaking the connection would be
+     * unrecoverable.
+     * @param context     {@link Context} to use while calling
+     *                    {@link Context#bindService(Intent, ServiceConnection, int)}
+     * @param packageName Package name to set on the {@link Intent} for binding.
+     * @param connection  {@link CustomTabsServiceConnection} to use when binding. This will
+     *                    return a {@link CustomTabsClient} on
+     *                    {@link CustomTabsServiceConnection
+     *                    #onCustomTabsServiceConnected(ComponentName, CustomTabsClient)}
+     * @return Whether the binding was successful.
+     */
+    public static boolean bindCustomTabServicePreservePriority(@NonNull Context context,
+            @Nullable String packageName, @NonNull CustomTabsServiceConnection connection) {
+        connection.setApplicationContext(context.getApplicationContext());
+        Intent intent = new Intent(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION);
+        if (!TextUtils.isEmpty(packageName)) intent.setPackage(packageName);
+        return context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    /**
      * Returns the preferred package to use for Custom Tabs, preferring the default VIEW handler.
      */
     public static @Nullable String getPackageName(@NonNull Context context,
