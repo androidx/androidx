@@ -29,17 +29,17 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicBoolean
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class PagingDataDiffer<T : Any>(
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
 ) {
-    private val collecting = AtomicBoolean(false)
     private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var receiver: UiReceiver? = null
     private val dataRefreshedListeners: MutableList<() -> Unit> = CopyOnWriteArrayList()
+
+    private val collectFromRunner = SingleRunner()
 
     @Volatile
     private var lastAccessedIndex: Int = 0
@@ -58,53 +58,47 @@ abstract class PagingDataDiffer<T : Any>(
 
     open fun postEvents(): Boolean = false
 
-    suspend fun collectFrom(pagingData: PagingData<T>, callback: PresenterCallback) {
-        check(collecting.compareAndSet(false, true)) {
-            "Collecting from multiple PagingData concurrently is an illegal operation."
-        }
-
+    suspend fun collectFrom(
+        pagingData: PagingData<T>,
+        callback: PresenterCallback
+    ) = collectFromRunner.runInIsolation {
         receiver = pagingData.receiver
 
-        try {
-            pagingData.flow
-                .collect { event ->
-                    withContext(mainDispatcher) {
-                        if (event is PageEvent.Insert && event.loadType == REFRESH) {
-                            val newPresenter = PagePresenter(event)
-                            val transformedLastAccessedIndex = performDiff(
-                                previousList = presenter,
-                                newList = newPresenter,
-                                newCombinedLoadStates = event.combinedLoadStates,
-                                lastAccessedIndex = lastAccessedIndex
-                            )
-                            presenter = newPresenter
+        pagingData.flow.collect { event ->
+            withContext(mainDispatcher) {
+                if (event is PageEvent.Insert && event.loadType == REFRESH) {
+                    val newPresenter = PagePresenter(event)
+                    val transformedLastAccessedIndex = performDiff(
+                        previousList = presenter,
+                        newList = newPresenter,
+                        newCombinedLoadStates = event.combinedLoadStates,
+                        lastAccessedIndex = lastAccessedIndex
+                    )
+                    presenter = newPresenter
 
-                            // Dispatch ListUpdate as soon as we are done diffing.
-                            dataRefreshedListeners.forEach { listener -> listener() }
+                    // Dispatch ListUpdate as soon as we are done diffing.
+                    dataRefreshedListeners.forEach { listener -> listener() }
 
-                            // Transform the last loadAround index from the old list to the new list
-                            // by passing it through the DiffResult, and pass it forward as a
-                            // ViewportHint within the new list to the next generation of Pager.
-                            // This ensures prefetch distance for the last ViewportHint from the old
-                            // list is respected in the new list, even if invalidation interrupts
-                            // the prepend / append load that would have fulfilled it in the old
-                            // list.
-                            transformedLastAccessedIndex?.let { newIndex ->
-                                lastAccessedIndex = newIndex
-                                receiver?.addHint(presenter.loadAround(newIndex))
-                            }
-                        } else {
-                            if (postEvents()) {
-                                yield()
-                            }
-
-                            // Send event to presenter to be shown to the UI.
-                            presenter.processEvent(event, callback)
-                        }
+                    // Transform the last loadAround index from the old list to the new list
+                    // by passing it through the DiffResult, and pass it forward as a
+                    // ViewportHint within the new list to the next generation of Pager.
+                    // This ensures prefetch distance for the last ViewportHint from the old
+                    // list is respected in the new list, even if invalidation interrupts
+                    // the prepend / append load that would have fulfilled it in the old
+                    // list.
+                    transformedLastAccessedIndex?.let { newIndex ->
+                        lastAccessedIndex = newIndex
+                        receiver?.addHint(presenter.loadAround(newIndex))
                     }
+                } else {
+                    if (postEvents()) {
+                        yield()
+                    }
+
+                    // Send event to presenter to be shown to the UI.
+                    presenter.processEvent(event, callback)
                 }
-        } finally {
-            collecting.set(false)
+            }
         }
     }
 

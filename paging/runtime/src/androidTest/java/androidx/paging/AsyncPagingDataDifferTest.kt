@@ -31,8 +31,10 @@ import androidx.testutils.MainDispatcherRule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -41,6 +43,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.CoroutineContext
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 private class ListUpdateCapture : ListUpdateCallback {
@@ -336,6 +340,85 @@ class AsyncPagingDataDifferTest {
                 pager2.flow.collectLatest {
                     differ.submitData(lifecycle.lifecycle, it)
                     job2Submitted = true
+                }
+            }
+
+            advanceUntilIdle()
+
+            assertTrue(jobSubmitted)
+            assertTrue(job2Submitted)
+
+            job.cancel()
+            job2.cancel()
+        }
+    }
+
+    @Test
+    fun submitData_guaranteesOrder() = testScope.runBlockingTest {
+        val pager = Pager(config = PagingConfig(2, enablePlaceholders = false), initialKey = 50) {
+            TestPagingSource()
+        }
+
+        val reversedDispatcher = object : CoroutineDispatcher() {
+            var lastBlock: Runnable? = null
+            override fun dispatch(context: CoroutineContext, block: Runnable) {
+                // Save the first block to be dispatched, then run second one first after receiving
+                // calls to dispatch both.
+                val lastBlock = lastBlock
+                if (lastBlock == null) {
+                    this.lastBlock = block
+                } else {
+                    block.run()
+                    lastBlock.run()
+                }
+            }
+        }
+
+        val lifecycle = TestLifecycleOwner()
+        differ.submitData(lifecycle.lifecycle, PagingData.empty())
+        differ.submitData(lifecycle.lifecycle, pager.flow.first()) // Loads 6 items
+
+        // Ensure the second call wins when dispatched in order of execution.
+        advanceUntilIdle()
+        assertEquals(6, differ.itemCount)
+
+        val reversedLifecycle = TestLifecycleOwner(coroutineDispatcher = reversedDispatcher)
+        differ.submitData(reversedLifecycle.lifecycle, PagingData.empty())
+        differ.submitData(reversedLifecycle.lifecycle, pager.flow.first()) // Loads 6 items
+
+        // Ensure the second call wins when dispatched in reverse order of execution.
+        advanceUntilIdle()
+        assertEquals(6, differ.itemCount)
+    }
+
+    @Test
+    fun submitData_cancelsLastSuspendSubmit() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pager = Pager(
+                config = PagingConfig(2),
+                initialKey = 50
+            ) { TestPagingSource() }
+            val pager2 = Pager(
+                config = PagingConfig(2),
+                initialKey = 50
+            ) { TestPagingSource() }
+
+            val lifecycle = TestLifecycleOwner()
+            var jobSubmitted = false
+            val job = launch {
+                pager.flow.collectLatest {
+                    jobSubmitted = true
+                    differ.submitData(it)
+                }
+            }
+
+            advanceUntilIdle()
+
+            var job2Submitted = false
+            val job2 = launch {
+                pager2.flow.collectLatest {
+                    job2Submitted = true
+                    differ.submitData(lifecycle.lifecycle, it)
                 }
             }
 
