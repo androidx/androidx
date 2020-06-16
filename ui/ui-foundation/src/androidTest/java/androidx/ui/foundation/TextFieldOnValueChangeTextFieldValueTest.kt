@@ -20,6 +20,7 @@ import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SmallTest
 import androidx.ui.core.TextInputServiceAmbient
+import androidx.ui.geometry.Offset
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.DeleteSurroundingTextEditOp
 import androidx.ui.input.EditOperation
@@ -36,14 +37,12 @@ import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
 import androidx.ui.text.TextRange
-import androidx.ui.geometry.Offset
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.clearInvocations
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -135,11 +134,15 @@ class TextFieldOnValueChangeTextFieldValueTest {
     }
 
     @Test
-    fun setComposingRegion_onValueChange_never_call() {
-        // Composition conversion is not counted as a value change in EditorModel text field.
+    fun setComposingRegion_onValueChange_call_once() {
+        // Composition change will be reported as a change
         performEditOperation(SetComposingRegionEditOp(0, 5))
         runOnIdleCompose {
-            verify(onValueChange, never()).invoke(any())
+            verify(onValueChange, times(1)).invoke(eq(androidx.ui.input.TextFieldValue(
+                text = "abcde",
+                selection = TextRange(0),
+                composition = TextRange(0, 5)
+            )))
         }
     }
 
@@ -153,7 +156,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
                     androidx.ui.input.TextFieldValue(
                         text = "ABCDEabcde",
                         selection = TextRange(5),
-                        composition = TextRange(0, composingText.length)
+                        composition = TextRange(0, 5)
                     )
                 ))
         }
@@ -177,21 +180,23 @@ class TextFieldOnValueChangeTextFieldValueTest {
     fun clearComposition_onValueChange_call_once() {
         val composingText = "ABCDE"
         performEditOperation(SetComposingTextEditOp(composingText, 1))
+        val expectedTextFieldValue = androidx.ui.input.TextFieldValue(
+            text = "ABCDEabcde",
+            selection = TextRange(5),
+            composition = TextRange(0, composingText.length)
+        )
         runOnIdleCompose {
-            verify(onValueChange, times(1))
-                .invoke(eq(
-                    androidx.ui.input.TextFieldValue(
-                        text = "ABCDEabcde",
-                        selection = TextRange(5),
-                        composition = TextRange(0, composingText.length)
-                    )
-                ))
+            verify(onValueChange, times(1)).invoke(eq(expectedTextFieldValue))
         }
 
-        // Finishing composition change is not counted as a value change in EditorModel text field.
+        // Composition change will be reported as a change
         clearInvocations(onValueChange)
         performEditOperation(FinishComposingTextEditOp())
-        runOnIdleCompose { verify(onValueChange, never()).invoke(any()) }
+        runOnIdleCompose {
+            verify(onValueChange, times(1)).invoke(
+                eq(expectedTextFieldValue.copy(composition = null))
+            )
+        }
     }
 
     @Test

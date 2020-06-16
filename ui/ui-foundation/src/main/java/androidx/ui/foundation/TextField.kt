@@ -240,9 +240,7 @@ fun TextField(
     cursorColor: Color = contentColor()
 ) {
     val fullModel = state { androidx.ui.input.TextFieldValue() }
-    if (fullModel.value.text != value.text ||
-        fullModel.value.selection != value.selection ||
-        fullModel.value.composition != value.composition) {
+    if (fullModel.value != value) {
         val newSelection = TextRange(
             value.selection.start.coerceIn(0, value.text.length),
             value.selection.end.coerceIn(0, value.text.length)
@@ -292,11 +290,8 @@ fun TextField(
             .defaultMinSizeConstraints(minWidth = DefaultTextFieldWidth)
             .cursorModifier(animColor, cursorState, fullModel, visualTransformation),
         onValueChange = {
-            val prevState = fullModel.value
             fullModel.value = it
-            if (prevState.text != it.text || prevState.selection != it.selection) {
-                onValueChange(it)
-            }
+            onValueChange(it)
         },
         textStyle = mergedStyle,
         keyboardType = keyboardType,
