@@ -117,4 +117,14 @@ class TextRangeTest {
         assertThat(2 in TextRange(0, 2)).isFalse()
         assertThat(3 in TextRange(0, 2)).isFalse()
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun test_does_not_accept_negative_value_for_start() {
+        TextRange(-1, 1)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun test_does_not_accept_negative_value_for_end() {
+        TextRange(1, -1)
+    }
 }
