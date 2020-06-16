@@ -54,6 +54,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -279,6 +280,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                 (descriptor == null) ? Collections.emptyList() : descriptor.getRoutes();
         // Handle duplicated IDs
         notifyRoutes(routeDescriptors.stream().map(MediaRouter2Utils::toFwkMediaRoute2Info)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toMap(r -> r.getId(), r -> r, (a, b) -> b)).values());
     }
 
