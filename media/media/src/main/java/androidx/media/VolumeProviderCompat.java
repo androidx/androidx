@@ -23,6 +23,7 @@ import android.os.Build;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -66,6 +67,7 @@ public abstract class VolumeProviderCompat {
 
     private final int mControlType;
     private final int mMaxVolume;
+    private final String mControlId;
     private int mCurrentVolume;
     private Callback mCallback;
 
@@ -81,9 +83,26 @@ public abstract class VolumeProviderCompat {
      * @param currentVolume The current volume.
      */
     public VolumeProviderCompat(@ControlType int volumeControl, int maxVolume, int currentVolume) {
+        this(volumeControl, maxVolume, currentVolume, null);
+    }
+
+    /**
+     * Create a new volume provider for handling volume events. You must specify
+     * the type of volume control and the maximum volume that can be used.
+     *
+     * @param volumeControl The method for controlling volume that is used by this provider.
+     * @param maxVolume The maximum allowed volume.
+     * @param currentVolume The current volume.
+     * @param volumeControlId The volume control ID of this provider.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public VolumeProviderCompat(@ControlType int volumeControl, int maxVolume, int currentVolume,
+            @Nullable String volumeControlId) {
         mControlType = volumeControl;
         mMaxVolume = maxVolume;
         mCurrentVolume = currentVolume;
+        mControlId = volumeControlId;
     }
 
     /**
@@ -132,6 +151,19 @@ public abstract class VolumeProviderCompat {
     }
 
     /**
+     * Gets the volume control ID. It can be used to identify which volume provider is
+     * used by the session.
+     *
+     * @return the volume control ID or {@code null} if it isn't set.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Nullable
+    public final String getVolumeControlId() {
+        return mControlId;
+    }
+
+    /**
      * Override to handle requests to set the volume of the current output.
      *
      * @param volume The volume to set the output to.
@@ -166,18 +198,33 @@ public abstract class VolumeProviderCompat {
      * @return An equivalent {@link android.media.VolumeProvider} object, or null if none.
      */
     public Object getVolumeProvider() {
-        if (mVolumeProviderFwk == null && Build.VERSION.SDK_INT >= 21) {
-            mVolumeProviderFwk = new VolumeProvider(mControlType, mMaxVolume, mCurrentVolume) {
-                @Override
-                public void onSetVolumeTo(int volume) {
-                    VolumeProviderCompat.this.onSetVolumeTo(volume);
-                }
+        if (mVolumeProviderFwk == null) {
+            if (Build.VERSION.SDK_INT >= 30) {
+                mVolumeProviderFwk = new VolumeProvider(mControlType, mMaxVolume, mCurrentVolume,
+                        mControlId) {
+                    @Override
+                    public void onSetVolumeTo(int volume) {
+                        VolumeProviderCompat.this.onSetVolumeTo(volume);
+                    }
 
-                @Override
-                public void onAdjustVolume(int direction) {
-                    VolumeProviderCompat.this.onAdjustVolume(direction);
-                }
-            };
+                    @Override
+                    public void onAdjustVolume(int direction) {
+                        VolumeProviderCompat.this.onAdjustVolume(direction);
+                    }
+                };
+            } else if (Build.VERSION.SDK_INT >= 21) {
+                mVolumeProviderFwk = new VolumeProvider(mControlType, mMaxVolume, mCurrentVolume) {
+                    @Override
+                    public void onSetVolumeTo(int volume) {
+                        VolumeProviderCompat.this.onSetVolumeTo(volume);
+                    }
+
+                    @Override
+                    public void onAdjustVolume(int direction) {
+                        VolumeProviderCompat.this.onAdjustVolume(direction);
+                    }
+                };
+            }
         }
         return mVolumeProviderFwk;
     }
