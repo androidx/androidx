@@ -31,7 +31,7 @@ class SetSelectionEditOpTest {
 
     @Test
     fun test_set() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         SetSelectionEditOp(1, 4).process(eb)
 
@@ -43,7 +43,7 @@ class SetSelectionEditOpTest {
 
     @Test
     fun test_preserve_ongoing_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposition(1, 3)
 
@@ -71,7 +71,7 @@ class SetSelectionEditOpTest {
 
     @Test
     fun test_set_reversed() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         SetSelectionEditOp(4, 1).process(eb)
 
@@ -83,7 +83,7 @@ class SetSelectionEditOpTest {
 
     @Test
     fun test_set_too_small() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         SetSelectionEditOp(-1000, -1000).process(eb)
 
@@ -94,7 +94,7 @@ class SetSelectionEditOpTest {
 
     @Test
     fun test_set_too_large() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         SetSelectionEditOp(1000, 1000).process(eb)
 
@@ -105,7 +105,7 @@ class SetSelectionEditOpTest {
 
     @Test
     fun test_set_too_small_too_large() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         SetSelectionEditOp(-1000, 1000).process(eb)
 
@@ -117,7 +117,7 @@ class SetSelectionEditOpTest {
 
     @Test
     fun test_set_too_small_too_large_reversed() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         SetSelectionEditOp(1000, -1000).process(eb)
 

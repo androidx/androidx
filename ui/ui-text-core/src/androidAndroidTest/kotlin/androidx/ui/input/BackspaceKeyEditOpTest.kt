@@ -51,7 +51,7 @@ class BackspaceKeyEditOpTest {
 
     @Test
     fun test_delete_from_offset0() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         BackspaceKeyEditOp().process(eb)
 

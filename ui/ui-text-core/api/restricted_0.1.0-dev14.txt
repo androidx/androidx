@@ -650,6 +650,12 @@ package androidx.ui.text {
     property public final int length;
     property public final int max;
     property public final int min;
+    field public static final androidx.ui.text.TextRange.Companion! Companion;
+  }
+
+  public static final class TextRange.Companion {
+    method public androidx.ui.text.TextRange getZero();
+    property public final androidx.ui.text.TextRange Zero;
   }
 
   public final class TextRangeKt {

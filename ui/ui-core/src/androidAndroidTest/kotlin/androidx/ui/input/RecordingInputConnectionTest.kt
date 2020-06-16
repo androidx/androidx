@@ -45,7 +45,7 @@ class RecordingInputConnectionTest {
         ic = RecordingInputConnection(
             TextFieldValue(
                 "",
-                TextRange(0)
+                TextRange.Zero
             ), listener
         )
     }
@@ -58,7 +58,7 @@ class RecordingInputConnectionTest {
         // Set "Hello, World", and place the cursor at the beginning of the text.
         ic.mTextFieldValue = TextFieldValue(
             text = "Hello, World",
-            selection = TextRange(0))
+            selection = TextRange.Zero)
 
         assertEquals("", ic.getTextBeforeCursor(100, 0))
         assertEquals("Hello, World", ic.getTextAfterCursor(100, 0))
@@ -85,7 +85,7 @@ class RecordingInputConnectionTest {
         // Set "Hello, World", and place the cursor at the beginning of the text.
         ic.mTextFieldValue = TextFieldValue(
             text = "Hello, World",
-            selection = TextRange(0))
+            selection = TextRange.Zero)
 
         assertEquals("", ic.getTextBeforeCursor(5, 0))
         assertEquals("Hello", ic.getTextAfterCursor(5, 0))
@@ -112,7 +112,7 @@ class RecordingInputConnectionTest {
         // Set "Hello, World", and place the cursor at the beginning of the text.
         ic.mTextFieldValue = TextFieldValue(
             text = "Hello, World",
-            selection = TextRange(0))
+            selection = TextRange.Zero)
 
         assertEquals("", ic.getSelectedText(0))
 
@@ -135,7 +135,7 @@ class RecordingInputConnectionTest {
     fun commitTextTest() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
 
         // Inserting "Hello, " into the empty text field.
         assertTrue(ic.commitText("Hello, ", 1))
@@ -150,7 +150,7 @@ class RecordingInputConnectionTest {
     fun commitTextTest_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
 
         // IME set text "Hello, World." with two commitText API within the single batch session.
         // Do not callback to listener during batch session.
@@ -175,7 +175,7 @@ class RecordingInputConnectionTest {
     fun setComposingRegion() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Mark first "H" as composition.
         assertTrue(ic.setComposingRegion(0, 1))
@@ -190,7 +190,7 @@ class RecordingInputConnectionTest {
     fun setComposingRegion_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -214,7 +214,7 @@ class RecordingInputConnectionTest {
     fun setComposingTextTest() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
 
         // Inserting "Hello, " into the empty text field.
         assertTrue(ic.setComposingText("Hello, ", 1))
@@ -229,7 +229,7 @@ class RecordingInputConnectionTest {
     fun setComposingTextTest_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
 
         // IME set text "Hello, World." with two setComposingText API within the single batch
         // session. Do not callback to listener during batch session.
@@ -254,7 +254,7 @@ class RecordingInputConnectionTest {
     fun deleteSurroundingText() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Delete first "Hello, " characters
         assertTrue(ic.deleteSurroundingText(0, 6))
@@ -269,7 +269,7 @@ class RecordingInputConnectionTest {
     fun deleteSurroundingText_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -293,7 +293,7 @@ class RecordingInputConnectionTest {
     fun deleteSurroundingTextInCodePoints() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Delete first "Hello, " characters
         assertTrue(ic.deleteSurroundingTextInCodePoints(0, 6))
@@ -308,7 +308,7 @@ class RecordingInputConnectionTest {
     fun deleteSurroundingTextInCodePoints_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -332,7 +332,7 @@ class RecordingInputConnectionTest {
     fun setSelection() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Select "Hello, "
         assertTrue(ic.setSelection(0, 6))
@@ -347,7 +347,7 @@ class RecordingInputConnectionTest {
     fun setSelection_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -371,7 +371,7 @@ class RecordingInputConnectionTest {
     fun finishComposingText() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Cancel any ongoing composition. In this example, there is no composition range, but
         // should record the API call
@@ -387,7 +387,7 @@ class RecordingInputConnectionTest {
     fun finishComposingText_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -411,7 +411,7 @@ class RecordingInputConnectionTest {
     fun mixedAPICalls_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange(0))
+        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()

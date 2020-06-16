@@ -31,7 +31,7 @@ class SetComposingRegionEditOpTest {
 
     @Test
     fun test_set() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         SetComposingRegionEditOp(1, 4).process(eb)
 
@@ -44,7 +44,7 @@ class SetComposingRegionEditOpTest {
 
     @Test
     fun test_preserve_ongoing_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposition(1, 3)
 
@@ -73,7 +73,7 @@ class SetComposingRegionEditOpTest {
 
     @Test
     fun test_set_reversed() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         SetComposingRegionEditOp(4, 1).process(eb)
 
@@ -86,7 +86,7 @@ class SetComposingRegionEditOpTest {
 
     @Test
     fun test_set_too_small() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         SetComposingRegionEditOp(-1000, -1000).process(eb)
 
@@ -97,7 +97,7 @@ class SetComposingRegionEditOpTest {
 
     @Test
     fun test_set_too_large() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         SetComposingRegionEditOp(1000, 1000).process(eb)
 
@@ -108,7 +108,7 @@ class SetComposingRegionEditOpTest {
 
     @Test
     fun test_set_too_small_and_too_large() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         SetComposingRegionEditOp(-1000, 1000).process(eb)
 
@@ -121,7 +121,7 @@ class SetComposingRegionEditOpTest {
 
     @Test
     fun test_set_too_small_and_too_large_reversed() {
-        val eb = EditingBuffer("ABCDE", TextRange(0))
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         SetComposingRegionEditOp(1000, -1000).process(eb)
 
