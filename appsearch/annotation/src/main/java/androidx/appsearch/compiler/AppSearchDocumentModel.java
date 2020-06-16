@@ -92,10 +92,6 @@ class AppSearchDocumentModel {
 
         scanFields();
         scanConstructors();
-
-        // TODO(b/156296904): This line is to squash a populated-but-not-used warning. Use this map
-        // for source file output and remove this line.
-        mReadKinds.size();
     }
 
     @NonNull
@@ -112,6 +108,11 @@ class AppSearchDocumentModel {
             return mClass.getSimpleName().toString();
         }
         return name;
+    }
+
+    @NonNull
+    public Map<String, VariableElement> getAllFields() {
+        return Collections.unmodifiableMap(mAllAppSearchFields);
     }
 
     @NonNull

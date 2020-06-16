@@ -71,6 +71,8 @@ class ToGenericDocumentCodeGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(mHelper.getAppSearchClass("GenericDocument"))
                 .addParameter(classType, "dataClass");
+
+        // Construct a new GenericDocument.Builder with the schema type and URI
         methodBuilder.addStatement("$T builder =\nnew $T<>($L, SCHEMA_TYPE)",
                 ParameterizedTypeName.get(
                         mHelper.getAppSearchClass("GenericDocument", "Builder"),
@@ -79,8 +81,9 @@ class ToGenericDocumentCodeGenerator {
                 createAppSearchFieldRead(
                         mModel.getSpecialFieldName(AppSearchDocumentModel.SpecialField.URI)));
 
-        // TODO(b/156296904): Set score, ttl and other special fields
+        setSpecialFields(methodBuilder);
 
+        // Set properties
         for (Map.Entry<String, VariableElement> entry : mModel.getPropertyFields().entrySet()) {
             fieldToGenericDoc(methodBuilder, entry.getKey(), entry.getValue());
         }
@@ -507,6 +510,33 @@ class ToGenericDocumentCodeGenerator {
                 propertyName,
                 createAppSearchFieldRead(fieldName));
         return true;
+    }
+
+    private void setSpecialFields(MethodSpec.Builder method) {
+        for (AppSearchDocumentModel.SpecialField specialField :
+                AppSearchDocumentModel.SpecialField.values()) {
+            String fieldName = mModel.getSpecialFieldName(specialField);
+            if (fieldName == null) {
+                continue;  // The data class doesn't have this field, so no need to set it.
+            }
+            switch (specialField) {
+                case URI:
+                    break;  // Always provided to builder constructor; cannot be set separately.
+                case CREATION_TIMESTAMP_MILLIS:
+                    method.addStatement(
+                            "builder.setCreationTimestampMillis($L)",
+                            createAppSearchFieldRead(fieldName));
+                    break;
+                case TTL_MILLIS:
+                    method.addStatement(
+                            "builder.setTtlMillis($L)", createAppSearchFieldRead(fieldName));
+                    break;
+                case SCORE:
+                    method.addStatement(
+                            "builder.setScore($L)", createAppSearchFieldRead(fieldName));
+                    break;
+            }
+        }
     }
 
     private CodeBlock createAppSearchFieldRead(@NonNull String fieldName) {

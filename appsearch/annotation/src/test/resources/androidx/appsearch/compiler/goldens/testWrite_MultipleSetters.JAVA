@@ -24,8 +24,10 @@ class $$__AppSearch__Gift {
   }
 
   public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String uriConv = genericDoc.getUri();
     int priceConv = genericDoc.getPropertyLong("price");
     Gift dataClass = new Gift();
+    dataClass.uri = uriConv;
     dataClass.setPrice(priceConv);
     return dataClass;
   }

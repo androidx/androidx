@@ -37,6 +37,7 @@ class $$__AppSearch__Gift {
   }
 
   public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String uriConv = genericDoc.getUri();
     String[] tokNoneCopy = genericDoc.getPropertyStringArray("tokNone");
     String tokNoneConv = null;
     if (tokNoneCopy != null && tokNoneCopy.length != 0) {
@@ -48,6 +49,7 @@ class $$__AppSearch__Gift {
       tokPlainConv = tokPlainCopy[0];
     }
     Gift dataClass = new Gift();
+    dataClass.uri = uriConv;
     dataClass.tokNone = tokNoneConv;
     dataClass.tokPlain = tokPlainConv;
     return dataClass;

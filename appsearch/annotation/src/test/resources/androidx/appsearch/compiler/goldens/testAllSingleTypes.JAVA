@@ -92,6 +92,7 @@ class $$__AppSearch__Gift {
   }
 
   public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String uriConv = genericDoc.getUri();
     String[] stringPropCopy = genericDoc.getPropertyStringArray("stringProp");
     String stringPropConv = null;
     if (stringPropCopy != null && stringPropCopy.length != 0) {
@@ -128,6 +129,7 @@ class $$__AppSearch__Gift {
       bytesPropConv = bytesPropCopy[0];
     }
     Gift dataClass = new Gift();
+    dataClass.uri = uriConv;
     dataClass.stringProp = stringPropConv;
     dataClass.integerProp = integerPropConv;
     dataClass.longProp = longPropConv;
