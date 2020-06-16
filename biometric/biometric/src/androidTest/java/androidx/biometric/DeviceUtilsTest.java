@@ -35,7 +35,7 @@ import org.mockito.MockitoAnnotations;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class DeviceConfigTest {
+public class DeviceUtilsTest {
     @Mock
     private Context mContext;
     @Mock
@@ -57,21 +57,21 @@ public class DeviceConfigTest {
                 .thenReturn(modelPrefixes);
 
         final boolean isApi28 = Build.VERSION.SDK_INT == Build.VERSION_CODES.P;
-        assertThat(DeviceConfig.shouldUseFingerprintForCrypto(mContext, "hooli", "foobar"))
+        assertThat(DeviceUtils.shouldUseFingerprintForCrypto(mContext, "hooli", "foobar"))
                 .isEqualTo(isApi28);
-        assertThat(DeviceConfig.shouldUseFingerprintForCrypto(mContext, "hooli", "baz"))
+        assertThat(DeviceUtils.shouldUseFingerprintForCrypto(mContext, "hooli", "baz"))
                 .isEqualTo(isApi28);
-        assertThat(DeviceConfig.shouldUseFingerprintForCrypto(mContext, "hooli.xyz", "foobar"))
+        assertThat(DeviceUtils.shouldUseFingerprintForCrypto(mContext, "hooli.xyz", "foobar"))
                 .isEqualTo(isApi28);
-        assertThat(DeviceConfig.shouldUseFingerprintForCrypto(mContext, "hooli.xyz", "baz"))
+        assertThat(DeviceUtils.shouldUseFingerprintForCrypto(mContext, "hooli.xyz", "baz"))
                 .isFalse();
-        assertThat(DeviceConfig.shouldUseFingerprintForCrypto(mContext, "Pied Piper", "bar baz"))
+        assertThat(DeviceUtils.shouldUseFingerprintForCrypto(mContext, "Pied Piper", "bar baz"))
                 .isEqualTo(isApi28);
-        assertThat(DeviceConfig.shouldUseFingerprintForCrypto(mContext, "Pied Piper", "qox"))
+        assertThat(DeviceUtils.shouldUseFingerprintForCrypto(mContext, "Pied Piper", "qox"))
                 .isEqualTo(isApi28);
-        assertThat(DeviceConfig.shouldUseFingerprintForCrypto(mContext, "Aviato", "bar baz"))
+        assertThat(DeviceUtils.shouldUseFingerprintForCrypto(mContext, "Aviato", "bar baz"))
                 .isEqualTo(isApi28);
-        assertThat(DeviceConfig.shouldUseFingerprintForCrypto(mContext, "Aviato", "qox"))
+        assertThat(DeviceUtils.shouldUseFingerprintForCrypto(mContext, "Aviato", "qox"))
                 .isFalse();
     }
 
@@ -83,13 +83,13 @@ public class DeviceConfigTest {
                 .thenReturn(modelPrefixes);
 
         final boolean isApi28 = Build.VERSION.SDK_INT == Build.VERSION_CODES.P;
-        assertThat(DeviceConfig.shouldHideFingerprintDialog(mContext, "foo")).isEqualTo(isApi28);
-        assertThat(DeviceConfig.shouldHideFingerprintDialog(mContext, "bar")).isEqualTo(isApi28);
-        assertThat(DeviceConfig.shouldHideFingerprintDialog(mContext, "foobar")).isEqualTo(isApi28);
-        assertThat(DeviceConfig.shouldHideFingerprintDialog(mContext, "bar123")).isEqualTo(isApi28);
-        assertThat(DeviceConfig.shouldHideFingerprintDialog(mContext, "baz")).isFalse();
-        assertThat(DeviceConfig.shouldHideFingerprintDialog(mContext, "abcxyz")).isFalse();
-        assertThat(DeviceConfig.shouldHideFingerprintDialog(mContext, "bazfoo")).isFalse();
-        assertThat(DeviceConfig.shouldHideFingerprintDialog(mContext, "FooBar")).isFalse();
+        assertThat(DeviceUtils.shouldHideFingerprintDialog(mContext, "foo")).isEqualTo(isApi28);
+        assertThat(DeviceUtils.shouldHideFingerprintDialog(mContext, "bar")).isEqualTo(isApi28);
+        assertThat(DeviceUtils.shouldHideFingerprintDialog(mContext, "foobar")).isEqualTo(isApi28);
+        assertThat(DeviceUtils.shouldHideFingerprintDialog(mContext, "bar123")).isEqualTo(isApi28);
+        assertThat(DeviceUtils.shouldHideFingerprintDialog(mContext, "baz")).isFalse();
+        assertThat(DeviceUtils.shouldHideFingerprintDialog(mContext, "abcxyz")).isFalse();
+        assertThat(DeviceUtils.shouldHideFingerprintDialog(mContext, "bazfoo")).isFalse();
+        assertThat(DeviceUtils.shouldHideFingerprintDialog(mContext, "FooBar")).isFalse();
     }
 }

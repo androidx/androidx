@@ -22,19 +22,21 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-class Utils {
-    // Private constructor to prevent instantiation.
-    private Utils() {
-    }
+/**
+ * Utilities related to biometric authentication errors.
+ */
+class ErrorUtils {
+    // Prevent instantiation.
+    private ErrorUtils() {}
 
     /**
-     * Determines if the given ID fails to match any known error message.
+     * Checks if the given error code matches any known (i.e. publicly defined) error.
      *
-     * @param errMsgId Integer ID representing an error.
-     * @return true if the error is not publicly defined, or false otherwise.
+     * @param errorCode An integer ID associated with the error.
+     * @return Whether the error code matches a known error.
      */
-    static boolean isUnknownError(int errMsgId) {
-        switch (errMsgId) {
+    static boolean isKnownError(int errorCode) {
+        switch (errorCode) {
             case BiometricPrompt.ERROR_CANCELED:
             case BiometricPrompt.ERROR_HW_NOT_PRESENT:
             case BiometricPrompt.ERROR_HW_UNAVAILABLE:
@@ -48,9 +50,9 @@ class Utils {
             case BiometricPrompt.ERROR_UNABLE_TO_PROCESS:
             case BiometricPrompt.ERROR_USER_CANCELED:
             case BiometricPrompt.ERROR_VENDOR:
-                return false;
-            default:
                 return true;
+            default:
+                return false;
         }
     }
 
@@ -64,6 +66,8 @@ class Utils {
             return "";
         }
 
+        // Only needs to provide a subset of the fingerprint error strings. The rest are translated
+        // in FingerprintManager.
         switch (errorCode) {
             case BiometricPrompt.ERROR_HW_NOT_PRESENT:
                 return context.getString(R.string.fingerprint_error_hw_not_present);

@@ -18,6 +18,7 @@ package androidx.biometric;
 
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -28,19 +29,48 @@ import androidx.annotation.RequiresApi;
  */
 @SuppressWarnings("deprecation")
 class CancellationSignalProvider {
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
-    private @Nullable android.os.CancellationSignal mBiometricCancellationSignal;
+    /**
+     * A cancellation signal object that is compatible with
+     * {@link android.hardware.biometrics.BiometricPrompt}.
+     */
+    @Nullable private android.os.CancellationSignal mBiometricCancellationSignal;
 
-    private @Nullable androidx.core.os.CancellationSignal mFingerprintCancellationSignal;
+    /**
+     * A cancellation signal object that is compatible with
+     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     */
+    @Nullable private androidx.core.os.CancellationSignal mFingerprintCancellationSignal;
 
+    /**
+     * Provides a cancellation signal object that is compatible with
+     * {@link android.hardware.biometrics.BiometricPrompt}.
+     *
+     * <p>Subsequent calls to this method for the same provider instance will return the same
+     * cancellation signal, until {@link #cancel()} is invoked.
+     *
+     * @return A cancellation signal that can be passed to
+     *  {@link android.hardware.biometrics.BiometricPrompt}.
+     */
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+    @NonNull
     android.os.CancellationSignal getBiometricCancellationSignal() {
         if (mBiometricCancellationSignal == null) {
-            mBiometricCancellationSignal = new android.os.CancellationSignal();
+            mBiometricCancellationSignal = Api16Impl.create();
         }
         return mBiometricCancellationSignal;
     }
 
+    /**
+     * Provides a cancellation signal object that is compatible with
+     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     *
+     * <p>Subsequent calls to this method for the same provider instance will return the same
+     * cancellation signal, until {@link #cancel()} is invoked.
+     *
+     * @return A cancellation signal that can be passed to
+     *  {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     */
+    @NonNull
     androidx.core.os.CancellationSignal getFingerprintCancellationSignal() {
         if (mFingerprintCancellationSignal == null) {
             mFingerprintCancellationSignal = new androidx.core.os.CancellationSignal();
@@ -48,15 +78,40 @@ class CancellationSignalProvider {
         return mFingerprintCancellationSignal;
     }
 
+    /**
+     * Invokes cancel for all cached cancellation signal objects and clears any references to them.
+     */
     void cancel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && mBiometricCancellationSignal != null) {
-            mBiometricCancellationSignal.cancel();
+            Api16Impl.cancel(mBiometricCancellationSignal);
             mBiometricCancellationSignal = null;
         }
         if (mFingerprintCancellationSignal != null) {
             mFingerprintCancellationSignal.cancel();
             mFingerprintCancellationSignal = null;
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 4.1 (API 16).
+     */
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+    private static class Api16Impl {
+        /**
+         * Creates a new instance of the platform class {@link android.os.CancellationSignal}.
+         *
+         * @return An instance of {@link android.os.CancellationSignal}.
+         */
+        static android.os.CancellationSignal create() {
+            return new android.os.CancellationSignal();
+        }
+
+        /**
+         * Calls {@link android.os.CancellationSignal#cancel()} for the given cancellation signal.
+         */
+        static void cancel(android.os.CancellationSignal cancellationSignal) {
+            cancellationSignal.cancel();
         }
     }
 }

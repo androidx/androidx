@@ -29,69 +29,104 @@ import androidx.annotation.RequiresApi;
  */
 @SuppressWarnings("deprecation")
 class AuthenticationCallbackProvider {
+    /**
+     * A listener object that can receive events from either
+     * {@link android.hardware.biometrics.BiometricPrompt.AuthenticationCallback} or
+     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback}.
+     */
     static class Listener {
+        /**
+         * See {@link BiometricPrompt.AuthenticationCallback#onAuthenticationSucceeded(
+         * BiometricPrompt.AuthenticationResult)}.
+         *
+         * @param result An object containing authentication-related data.
+         */
         void onSuccess(@NonNull BiometricPrompt.AuthenticationResult result) {}
 
+        /**
+         * See {@link BiometricPrompt.AuthenticationCallback#onAuthenticationError(int,
+         * CharSequence)}.
+         *
+         * @param errorCode An integer ID associated with the error.
+         * @param errorMessage A human-readable message that describes the error.
+         */
         void onError(int errorCode, @Nullable CharSequence errorMessage) {}
 
+        /**
+         * Called when a recoverable error/event has been encountered during authentication.
+         *
+         * @param helpMessage A human-readable message that describes the event.
+         */
         void onHelp(@Nullable CharSequence helpMessage) {}
 
+        /**
+         * See {@link BiometricPrompt.AuthenticationCallback#onAuthenticationFailed()}.
+         */
         void onFailure() {}
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
-    private @Nullable android.hardware.biometrics.BiometricPrompt.AuthenticationCallback
-            mBiometricCallback;
+    /**
+     * An authentication callback object that is compatible with
+     * {@link android.hardware.biometrics.BiometricPrompt}.
+     */
+    @Nullable
+    private android.hardware.biometrics.BiometricPrompt.AuthenticationCallback mBiometricCallback;
 
+    /**
+     * An authentication callback object that is compatible with
+     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     */
     @Nullable
     private androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback
             mFingerprintCallback;
 
+    /**
+     * A common listener object that will receive all authentication events.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final @NonNull Listener mListener;
+    @NonNull
+    final Listener mListener;
 
+    /**
+     * Constructs a callback provider that delegates events to the given listener.
+     *
+     * @param listener A listener that will receive authentication events.
+     */
     AuthenticationCallbackProvider(@NonNull Listener listener) {
         mListener = listener;
     }
 
+    /**
+     * Provides a callback object that wraps the given listener and is compatible with
+     * {@link android.hardware.biometrics.BiometricPrompt}.
+     *
+     * <p>Subsequent calls to this method for the same provider instance will return the same
+     * callback object.
+     *
+     * @return A callback object that can be passed to
+     *  {@link android.hardware.biometrics.BiometricPrompt}.
+     */
     @RequiresApi(Build.VERSION_CODES.P)
-    @NonNull android.hardware.biometrics.BiometricPrompt.AuthenticationCallback
-            getBiometricCallback() {
+    @NonNull
+    android.hardware.biometrics.BiometricPrompt.AuthenticationCallback getBiometricCallback() {
         if (mBiometricCallback == null) {
-            mBiometricCallback = new android.hardware.biometrics.BiometricPrompt
-                    .AuthenticationCallback() {
-                @Override
-                public void onAuthenticationError(int errorCode, CharSequence errString) {
-                    mListener.onError(errorCode, errString);
-                }
-
-                @Override
-                public void onAuthenticationHelp(
-                        final int helpCode, final CharSequence helpString) {
-                    // Don't forward the result to the client, since the dialog takes care of it.
-                }
-
-                @Override
-                public void onAuthenticationSucceeded(
-                        android.hardware.biometrics.BiometricPrompt.AuthenticationResult result) {
-                    final BiometricPrompt.AuthenticationResult unwrappedResult =
-                            new BiometricPrompt.AuthenticationResult(result != null
-                                    ? CryptoObjectUtils.unwrapFromBiometricPrompt(
-                                            result.getCryptoObject())
-                                    : null);
-                    mListener.onSuccess(unwrappedResult);
-                }
-
-                @Override
-                public void onAuthenticationFailed() {
-                    mListener.onFailure();
-                }
-            };
+            mBiometricCallback = Api28Impl.createCallback(mListener);
         }
         return mBiometricCallback;
     }
 
-    @NonNull androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback
+    /**
+     * Provides a callback object that wraps the given listener and is compatible with
+     * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     *
+     * <p>Subsequent calls to this method for the same provider instance will return the same
+     * callback object.
+     *
+     * @return A callback object that can be passed to
+     *  {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
+     */
+    @NonNull
+    androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback
             getFingerprintCallback() {
         if (mFingerprintCallback == null) {
             mFingerprintCallback = new androidx.core.hardware.fingerprint.FingerprintManagerCompat
@@ -125,5 +160,53 @@ class AuthenticationCallbackProvider {
             };
         }
         return mFingerprintCallback;
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 9.0 (API 28).
+     */
+    @RequiresApi(Build.VERSION_CODES.P)
+    private static class Api28Impl {
+        /**
+         * Creates a {@link android.hardware.biometrics.BiometricPrompt.AuthenticationCallback} that
+         * delegates events to the given listener.
+         *
+         * @param listener A listener object that will receive authentication events.
+         * @return A new instance of
+         *  {@link android.hardware.biometrics.BiometricPrompt.AuthenticationCallback}.
+         */
+        @NonNull
+        static android.hardware.biometrics.BiometricPrompt.AuthenticationCallback createCallback(
+                @NonNull final Listener listener) {
+            return new android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
+                @Override
+                public void onAuthenticationError(int errorCode, CharSequence errString) {
+                    listener.onError(errorCode, errString);
+                }
+
+                @Override
+                public void onAuthenticationHelp(
+                        final int helpCode, final CharSequence helpString) {
+                    // Don't forward the result to the client, since the dialog takes care of it.
+                }
+
+                @Override
+                public void onAuthenticationSucceeded(
+                        android.hardware.biometrics.BiometricPrompt.AuthenticationResult result) {
+                    final BiometricPrompt.AuthenticationResult unwrappedResult =
+                            new BiometricPrompt.AuthenticationResult(
+                                    result != null
+                                            ? CryptoObjectUtils.unwrapFromBiometricPrompt(
+                                                    result.getCryptoObject())
+                                            : null);
+                    listener.onSuccess(unwrappedResult);
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+                    listener.onFailure();
+                }
+            };
+        }
     }
 }
