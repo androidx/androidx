@@ -81,7 +81,6 @@ class FocusMeteringControl {
     private volatile boolean mIsActive = false;
 
     //******************** Should only be accessed by executor (WorkThread) ****************//
-    private FocusMeteringAction mCurrentFocusMeteringAction;
     private boolean mIsInAfAutoMode = false;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @NonNull
@@ -101,11 +100,11 @@ class FocusMeteringControl {
     private MeteringRectangle[] mAwbRects = new MeteringRectangle[]{};
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    MeteringRectangle[] mDefaultAfRects = new MeteringRectangle[]{};
+            MeteringRectangle[] mDefaultAfRects = new MeteringRectangle[]{};
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    MeteringRectangle[] mDefaultAeRects = new MeteringRectangle[]{};
+            MeteringRectangle[] mDefaultAeRects = new MeteringRectangle[]{};
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    MeteringRectangle[] mDefaultAwbRects = new MeteringRectangle[]{};
+            MeteringRectangle[] mDefaultAwbRects = new MeteringRectangle[]{};
 
     CallbackToFutureAdapter.Completer<FocusMeteringResult> mRunningActionCompleter = null;
     CallbackToFutureAdapter.Completer<Void> mRunningCancelCompleter = null;
@@ -303,13 +302,6 @@ class FocusMeteringControl {
                     supportedAwbCount));
         }
 
-        failActionFuture("Cancelled by another startFocusAndMetering()");
-        failCancelFuture("Cancelled by another startFocusAndMetering()");
-
-        if (mCurrentFocusMeteringAction != null) {
-            cancelFocusAndMeteringWithoutAsyncResult();
-        }
-
         Rect cropSensorRegion = mCameraControl.getCropSensorRegion();
         Rational cropRegionAspectRatio = new Rational(cropSensorRegion.width(),
                 cropSensorRegion.height());
@@ -364,8 +356,9 @@ class FocusMeteringControl {
             return;
         }
 
+        failActionFuture("Cancelled by another startFocusAndMetering()");
+        failCancelFuture("Cancelled by another startFocusAndMetering()");
         disableAutoCancel();
-        mCurrentFocusMeteringAction = action;
         mRunningActionCompleter = completer;
 
         executeMeteringAction(
@@ -744,6 +737,5 @@ class FocusMeteringControl {
 
         mIsInAfAutoMode = false;
         mCameraControl.updateSessionConfig();
-        mCurrentFocusMeteringAction = null;
     }
 }
