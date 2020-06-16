@@ -18,6 +18,7 @@ package androidx.ui.test.gesturescope
 
 import androidx.test.filters.MediumTest
 import androidx.ui.geometry.Offset
+import androidx.ui.test.percentOffset
 import androidx.ui.test.bottom
 import androidx.ui.test.bottomCenter
 import androidx.ui.test.bottomLeft
@@ -30,6 +31,7 @@ import androidx.ui.test.centerY
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.height
 import androidx.ui.test.left
 import androidx.ui.test.right
 import androidx.ui.test.top
@@ -38,6 +40,7 @@ import androidx.ui.test.topLeft
 import androidx.ui.test.topRight
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.ClickableTestBox.defaultTag
+import androidx.ui.test.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -53,23 +56,39 @@ class PositionsTest {
         composeTestRule.setContent { ClickableTestBox(width = 3f, height = 100f) }
 
         findByTag(defaultTag).doGesture {
+            assertThat(width).isEqualTo(3)
+            assertThat(height).isEqualTo(100)
+
             assertThat(left).isEqualTo(0f)
-            assertThat(centerX).isEqualTo(1f)
+            assertThat(centerX).isEqualTo(1.5f)
             assertThat(right).isEqualTo(2f)
 
             assertThat(top).isEqualTo(0f)
-            assertThat(centerY).isEqualTo(49.5f)
+            assertThat(centerY).isEqualTo(50f)
             assertThat(bottom).isEqualTo(99f)
 
             assertThat(topLeft).isEqualTo(Offset(0f, 0f))
-            assertThat(topCenter).isEqualTo(Offset(1f, 0f))
+            assertThat(topCenter).isEqualTo(Offset(1.5f, 0f))
             assertThat(topRight).isEqualTo(Offset(2f, 0f))
-            assertThat(centerLeft).isEqualTo(Offset(0f, 49.5f))
-            assertThat(center).isEqualTo(Offset(1f, 49.5f))
-            assertThat(centerRight).isEqualTo(Offset(2f, 49.5f))
+            assertThat(centerLeft).isEqualTo(Offset(0f, 50f))
+            assertThat(center).isEqualTo(Offset(1.5f, 50f))
+            assertThat(centerRight).isEqualTo(Offset(2f, 50f))
             assertThat(bottomLeft).isEqualTo(Offset(0f, 99f))
-            assertThat(bottomCenter).isEqualTo(Offset(1f, 99f))
+            assertThat(bottomCenter).isEqualTo(Offset(1.5f, 99f))
             assertThat(bottomRight).isEqualTo(Offset(2f, 99f))
+        }
+    }
+
+    @Test
+    fun testRelativeOffset() {
+        composeTestRule.setContent { ClickableTestBox() }
+
+        findByTag(defaultTag).doGesture {
+            assertThat(percentOffset(.1f, .1f)).isEqualTo(Offset(10f, 10f))
+            assertThat(percentOffset(-.2f, 0f)).isEqualTo(Offset(-20f, 0f))
+            assertThat(percentOffset(.25f, -.5f)).isEqualTo(Offset(25f, -50f))
+            assertThat(percentOffset(0f, .5f)).isEqualTo(Offset(0f, 50f))
+            assertThat(percentOffset(2f, -2f)).isEqualTo(Offset(200f, -200f))
         }
     }
 }
