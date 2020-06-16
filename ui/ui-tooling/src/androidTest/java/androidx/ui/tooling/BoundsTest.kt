@@ -16,8 +16,15 @@
 
 package androidx.ui.tooling
 
+import androidx.compose.InternalComposeApi
+import androidx.compose.getValue
+import androidx.compose.key
+import androidx.compose.mutableStateOf
+import androidx.compose.resetSourceInfo
+import androidx.compose.setValue
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
+import androidx.ui.core.WithConstraints
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
@@ -25,15 +32,24 @@ import androidx.ui.layout.padding
 import androidx.ui.unit.Density
 import androidx.ui.unit.dp
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
 class BoundsTest : ToolingTest() {
     fun Group.all(): Collection<Group> =
         listOf(this) + this.children.flatMap { it.all() }
+
+    @Before
+    fun reset() {
+        @OptIn(InternalComposeApi::class)
+        resetSourceInfo()
+    }
 
     @Test
     fun testBounds() {
@@ -77,5 +93,70 @@ class BoundsTest : ToolingTest() {
                 )
             }
         }
+    }
+
+    @Test
+    fun testBoundWithConstraints() {
+        val slotTableRecord = SlotTableRecord.create()
+        show {
+            Inspectable(slotTableRecord) {
+                WithConstraints {
+                    Column {
+                        Box {
+                            Text("Hello")
+                        }
+                        Box {
+                            Text("Hello")
+                        }
+                    }
+                }
+            }
+        }
+
+        activityTestRule.runOnUiThread {
+            val store = slotTableRecord.store
+            Assert.assertTrue(store.size > 1)
+            val trees = slotTableRecord.store.map { it.asTree() }
+            val boundingBoxes = trees.map {
+                it.all().filter {
+                    it.box.right > 0 && it.key.let {
+                        it is String && it.contains("BoundsTest.kt")
+                    }
+                }
+            }.flatten().groupBy { it.key }
+
+            Assert.assertTrue(boundingBoxes.size >= 6)
+        }
+    }
+
+    @Test
+    fun testDisposeWithComposeTables() {
+        val slotTableRecord = SlotTableRecord.create()
+        var value by mutableStateOf(0)
+        var latch = CountDownLatch(1)
+        show {
+            Inspectable(slotTableRecord) {
+                key(value) {
+                    WithConstraints {
+                        Text("Hello")
+                    }
+                }
+            }
+            latch.countDown()
+        }
+
+        activityTestRule.runOnUiThread {
+            latch = CountDownLatch(1)
+            value = 1
+        }
+        latch.await(1, TimeUnit.SECONDS)
+
+        activityTestRule.runOnUiThread {
+            latch = CountDownLatch(1)
+            value = 2
+        }
+        latch.await(1, TimeUnit.SECONDS)
+
+        Assert.assertTrue(slotTableRecord.store.size < 3)
     }
 }
