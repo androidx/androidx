@@ -4,8 +4,8 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import java.lang.Float;
 import java.lang.String;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 class $$__AppSearch__Gift {
   public static final String SCHEMA_TYPE = "Gift";
@@ -45,7 +45,7 @@ class $$__AppSearch__Gift {
       String[] repeatReqConv = repeatReqCopy.toArray(new String[0]);
       builder.setProperty("repeatReq", repeatReqConv);
     }
-    Set<String> repeatNoReqCopy = dataClass.repeatNoReq;
+    List<String> repeatNoReqCopy = dataClass.repeatNoReq;
     if (repeatNoReqCopy != null) {
       String[] repeatNoReqConv = repeatNoReqCopy.toArray(new String[0]);
       builder.setProperty("repeatNoReq", repeatNoReqConv);
@@ -59,5 +59,34 @@ class $$__AppSearch__Gift {
       builder.setProperty("noReq", noReqCopy);
     }
     return builder.build();
+  }
+
+  public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String[] repeatReqCopy = genericDoc.getPropertyStringArray("repeatReq");
+    List<String> repeatReqConv = null;
+    if (repeatReqCopy != null) {
+      repeatReqConv = Arrays.asList(repeatReqCopy);
+    }
+    String[] repeatNoReqCopy = genericDoc.getPropertyStringArray("repeatNoReq");
+    List<String> repeatNoReqConv = null;
+    if (repeatNoReqCopy != null) {
+      repeatNoReqConv = Arrays.asList(repeatNoReqCopy);
+    }
+    double[] reqCopy = genericDoc.getPropertyDoubleArray("req");
+    Float reqConv = null;
+    if (reqCopy != null && reqCopy.length != 0) {
+      reqConv = reqCopy[0];
+    }
+    double[] noReqCopy = genericDoc.getPropertyDoubleArray("noReq");
+    Float noReqConv = null;
+    if (noReqCopy != null && noReqCopy.length != 0) {
+      noReqConv = noReqCopy[0];
+    }
+    Gift dataClass = new Gift();
+    dataClass.repeatReq = repeatReqConv;
+    dataClass.repeatNoReq = repeatNoReqConv;
+    dataClass.req = reqConv;
+    dataClass.noReq = noReqConv;
+    return dataClass;
   }
 }

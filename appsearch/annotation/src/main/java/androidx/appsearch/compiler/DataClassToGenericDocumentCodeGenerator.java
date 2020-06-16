@@ -94,7 +94,7 @@ class DataClassToGenericDocumentCodeGenerator {
      * {@link androidx.appsearch.app.GenericDocument.Builder#setProperty} methods.
      */
     private void fieldToGenericDoc(
-            @NonNull MethodSpec.Builder builder,
+            @NonNull MethodSpec.Builder method,
             @NonNull String fieldName,
             @NonNull VariableElement property) throws ProcessingException {
         // Scenario 1: field is a Collection
@@ -164,13 +164,13 @@ class DataClassToGenericDocumentCodeGenerator {
         //
         //   3x: Field is of any other kind of class. This is unsupported and compilation fails.
         String propertyName = mModel.getPropertyName(property);
-        if (tryConvertFromCollection(builder, fieldName, propertyName, property)) {
+        if (tryConvertFromCollection(method, fieldName, propertyName, property)) {
             return;
         }
-        if (tryConvertFromArray(builder, fieldName, propertyName, property)) {
+        if (tryConvertFromArray(method, fieldName, propertyName, property)) {
             return;
         }
-        convertFromField(builder, fieldName, propertyName, property);
+        convertFromField(method, fieldName, propertyName, property);
     }
 
     /**
@@ -189,7 +189,7 @@ class DataClassToGenericDocumentCodeGenerator {
         }
 
         // Copy the field into a local variable to make it easier to refer to it repeatedly.
-        CodeBlock.Builder builder = CodeBlock.builder()
+        CodeBlock.Builder body = CodeBlock.builder()
                 .addStatement(
                         "$T $NCopy = $L",
                         property.asType(),
@@ -201,15 +201,15 @@ class DataClassToGenericDocumentCodeGenerator {
         TypeMirror propertyType = genericTypes.get(0);
 
         // TODO(b/156296904): Handle scenario 1c (CollectionForLoopCallToGenericDocument)
-        if (!tryCollectionForLoopAssign(builder, fieldName, propertyName, propertyType)  // 1a
+        if (!tryCollectionForLoopAssign(body, fieldName, propertyName, propertyType)  // 1a
                 && !tryCollectionCallToArray(
-                        builder, fieldName, propertyName, propertyType)) {  // 1b
+                        body, fieldName, propertyName, propertyType)) {  // 1b
             // Scenario 1x
             throw new ProcessingException(
-                    "Unhandled property type " + property.asType().toString(), property);
+                    "Unhandled out property type (1x): " + property.asType().toString(), property);
         }
 
-        method.addCode(builder.build());
+        method.addCode(body.build());
         return true;
     }
 
@@ -315,7 +315,7 @@ class DataClassToGenericDocumentCodeGenerator {
         }
 
         // Copy the field into a local variable to make it easier to refer to it repeatedly.
-        CodeBlock.Builder builder = CodeBlock.builder()
+        CodeBlock.Builder body = CodeBlock.builder()
                 .addStatement(
                         "$T $NCopy = $L",
                         property.asType(),
@@ -325,14 +325,14 @@ class DataClassToGenericDocumentCodeGenerator {
         TypeMirror propertyType = ((ArrayType) property.asType()).getComponentType();
 
         // TODO(b/156296904): Handle scenario 2c (ArrayForLoopCallToGenericDocument)
-        if (!tryArrayForLoopAssign(builder, fieldName, propertyName, propertyType)  // 2a
-                && !tryArrayUseDirectly(builder, fieldName, propertyName, propertyType)) {  // 2b
+        if (!tryArrayForLoopAssign(body, fieldName, propertyName, propertyType)  // 2a
+                && !tryArrayUseDirectly(body, fieldName, propertyName, propertyType)) {  // 2b
             // Scenario 2x
             throw new ProcessingException(
-                    "Unhandled property type " + property.asType().toString(), property);
+                    "Unhandled out property type (2x): " + property.asType().toString(), property);
         }
 
-        method.addCode(builder.build());
+        method.addCode(body.build());
         return true;
     }
 
@@ -432,16 +432,16 @@ class DataClassToGenericDocumentCodeGenerator {
             @NonNull String propertyName,
             @NonNull VariableElement property) throws ProcessingException {
         // TODO(b/156296904): Handle scenario 3c (FieldCallToGenericDocument)
-        CodeBlock.Builder builder = CodeBlock.builder();
+        CodeBlock.Builder body = CodeBlock.builder();
         if (!tryFieldUseDirectlyWithNullCheck(
-                builder, fieldName, propertyName, property.asType())  // 3a
+                body, fieldName, propertyName, property.asType())  // 3a
                 && !tryFieldUseDirectlyWithoutNullCheck(
-                        builder, fieldName, propertyName, property.asType())) {  // 3b
+                        body, fieldName, propertyName, property.asType())) {  // 3b
             // Scenario 3x
             throw new ProcessingException(
-                    "Unhandled property type " + property.asType().toString(), property);
+                    "Unhandled out property type (3x): " + property.asType().toString(), property);
         }
-        method.addCode(builder.build());
+        method.addCode(body.build());
     }
 
     //   3a: FieldUseDirectlyWithNullCheck
@@ -456,7 +456,7 @@ class DataClassToGenericDocumentCodeGenerator {
             @NonNull TypeMirror propertyType) {
         Types typeUtil = mEnv.getTypeUtils();
         // Copy the field into a local variable to make it easier to refer to it repeatedly.
-        CodeBlock.Builder builder = CodeBlock.builder()
+        CodeBlock.Builder body = CodeBlock.builder()
                 .addStatement(
                         "$T $NCopy = $L",
                         propertyType,
@@ -476,11 +476,11 @@ class DataClassToGenericDocumentCodeGenerator {
             return false;
         }
 
-        builder.addStatement(
+        body.addStatement(
                 "builder.setProperty($S, $NCopy)", propertyName, fieldName)
                 .unindent().add("}\n");
 
-        method.add(builder.build());
+        method.add(body.build());
         return true;
     }
 

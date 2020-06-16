@@ -19,12 +19,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,8 +64,7 @@ class AppSearchDocumentModel {
     private final Map<VariableElement, ReadKind> mReadKinds = new HashMap<>();
     private final Map<VariableElement, WriteKind> mWriteKinds = new HashMap<>();
     private final Map<VariableElement, ProcessingException> mWriteWhyConstructor = new HashMap<>();
-    // TODO(b/156296904): use this for output
-    // private ExecutableElement mChosenConstructor = null;
+    private List<String> mChosenConstructorParams = null;
 
     private AppSearchDocumentModel(
             @NonNull ProcessingEnvironment env,
@@ -129,13 +130,19 @@ class AppSearchDocumentModel {
         return mReadKinds.get(element);
     }
 
+    @Nullable
+    public WriteKind getFieldWriteKind(String fieldName) {
+        VariableElement element = mAllAppSearchFields.get(fieldName);
+        return mWriteKinds.get(element);
+    }
+
     /**
      * Finds the AppSearch name for the given property.
      *
      * <p>This is usually the name of the field in Java, but may be changed if the developer
      * specifies a different 'name' parameter in the annotation.
      */
-    @Nullable
+    @NonNull
     public String getPropertyName(@NonNull VariableElement property) throws ProcessingException {
         AnnotationMirror annotation =
                 mIntrospectionHelper.getAnnotation(property, IntrospectionHelper.PROPERTY_CLASS);
@@ -145,6 +152,11 @@ class AppSearchDocumentModel {
             propertyName = property.getSimpleName().toString();
         }
         return propertyName;
+    }
+
+    @NonNull
+    public List<String> getChosenConstructorParams() {
+        return Collections.unmodifiableList(mChosenConstructorParams);
     }
 
     private void scanFields() throws ProcessingException {
@@ -342,6 +354,7 @@ class AppSearchDocumentModel {
                 whyNotConstructor.put(constructor, "Constructor is private");
                 continue constructorSearch;
             }
+            List<String> constructorParamFields = new ArrayList<>();
             Set<String> remainingFields = new HashSet<>(constructorWrittenFields.keySet());
             for (VariableElement parameter : constructor.getParameters()) {
                 String name = parameter.getSimpleName().toString();
@@ -353,6 +366,7 @@ class AppSearchDocumentModel {
                     continue constructorSearch;
                 }
                 remainingFields.remove(name);
+                constructorParamFields.add(name);
             }
             if (!remainingFields.isEmpty()) {
                 whyNotConstructor.put(
@@ -362,8 +376,7 @@ class AppSearchDocumentModel {
                 continue constructorSearch;
             }
             // Found one!
-            // TODO(b/156296904): use this for output
-            // mChosenConstructor = constructor;
+            mChosenConstructorParams = constructorParamFields;
             return;
         }
 

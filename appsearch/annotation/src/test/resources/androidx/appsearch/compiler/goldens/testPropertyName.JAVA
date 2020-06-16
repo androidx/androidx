@@ -25,4 +25,15 @@ class $$__AppSearch__Gift {
     }
     return builder.build();
   }
+
+  public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String[] oldNameCopy = genericDoc.getPropertyStringArray("newName");
+    String oldNameConv = null;
+    if (oldNameCopy != null && oldNameCopy.length != 0) {
+      oldNameConv = oldNameCopy[0];
+    }
+    Gift dataClass = new Gift();
+    dataClass.oldName = oldNameConv;
+    return dataClass;
+  }
 }
