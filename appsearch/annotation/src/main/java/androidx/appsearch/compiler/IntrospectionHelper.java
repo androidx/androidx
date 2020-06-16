@@ -46,6 +46,8 @@ class IntrospectionHelper {
             "androidx.appsearch.annotation.AppSearchDocument";
     static final String URI_CLASS =
             "androidx.appsearch.annotation.AppSearchDocument.Uri";
+    static final String NAMESPACE_CLASS =
+            "androidx.appsearch.annotation.AppSearchDocument.Namespace";
     static final String CREATION_TIMESTAMP_MILLIS_CLASS =
             "androidx.appsearch.annotation.AppSearchDocument.CreationTimestampMillis";
     static final String TTL_MILLIS_CLASS =
