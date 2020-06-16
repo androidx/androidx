@@ -23,6 +23,7 @@ import android.util.Size;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -108,6 +109,7 @@ public final class CameraUseCaseAdapter {
      * @throws CameraException Thrown if the combination of newly attached UseCases and the
      * currently attached UseCases exceed the capability of the camera.
      */
+    @UseExperimental(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)
     public void attachUseCases(@NonNull Collection<UseCase> useCases) throws CameraException {
         synchronized (mLock) {
             List<UseCase> useCaseListAfterUpdate = new ArrayList<>(mAttachedUseCases);
