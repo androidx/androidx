@@ -199,19 +199,12 @@ class LayoutInspectorTreeTest : ToolingTest() {
             function =
             "androidx.ui.tooling.inspector.LayoutInspectorTreeTest\$buildTree\$1\$1\$1\$1.invoke",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
-            children = listOf("Button")
-        )
-        validate(
-            name = "Button",
-            fileName = "Button.kt",
-            function = "androidx.ui.material.ButtonKt.Button",
-            left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("Surface")
         )
         validate(
             name = "Surface",
-            fileName = "Button.kt",
-            function = "androidx.ui.material.ButtonKt\$Button\$1.invoke",
+            fileName = "Surface.kt",
+            function = "androidx.ui.material.SurfaceKt.Surface",
             left = 0.0.dp, top = 18.9.dp, width = 64.0.dp, height = 36.0.dp,
             children = listOf("SurfaceLayout")
         )
@@ -232,7 +225,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "Box",
             fileName = "Button.kt",
-            function = "androidx.ui.material.ButtonKt\$Button\$1\$1.invoke",
+            function = "androidx.ui.material.ButtonKt\$Button\$1.invoke",
             left = 16.0.dp, top = 26.9.dp, width = 32.0.dp, height = 20.0.dp,
             children = listOf("Column")
         )
@@ -260,7 +253,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
         validate(
             name = "ProvideTextStyle",
             fileName = "Button.kt",
-            function = "androidx.ui.material.ButtonKt\$Button\$1\$1\$1.invoke",
+            function = "androidx.ui.material.ButtonKt\$Button\$1\$1.invoke",
             left = 21.8.dp, top = 27.6.dp, width = 20.4.dp, height = 18.9.dp,
             children = listOf("Text")
         )
