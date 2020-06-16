@@ -19,7 +19,7 @@ package androidx.ui.test.partialgesturescope
 import android.os.SystemClock.sleep
 import androidx.test.filters.MediumTest
 import androidx.ui.geometry.Offset
-import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.partialgesturescope.Common.partialGesture
 import androidx.ui.test.runOnIdleCompose
@@ -49,8 +49,7 @@ class SendDownTest {
     val composeTestRule = createComposeRule()
 
     @get:Rule
-    val inputDispatcherRule: TestRule =
-        AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
+    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
 
     private val recorder = MultiPointerInputRecorder()
 

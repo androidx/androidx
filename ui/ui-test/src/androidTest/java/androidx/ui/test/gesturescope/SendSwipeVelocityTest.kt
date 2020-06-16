@@ -23,7 +23,7 @@ import androidx.ui.geometry.Offset
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
@@ -121,7 +121,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
     val composeTestRule = createComposeRule(disableTransitions = true)
 
     @get:Rule
-    val inputDispatcherRule: TestRule = AndroidInputDispatcher.TestRule(
+    val inputDispatcherRule: TestRule = InputDispatcherTestRule(
         disableDispatchInRealTime = true,
         eventPeriodOverride = eventPeriod
     )

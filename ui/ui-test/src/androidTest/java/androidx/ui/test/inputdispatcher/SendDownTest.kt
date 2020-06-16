@@ -22,6 +22,8 @@ import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import androidx.test.filters.SmallTest
 import androidx.ui.geometry.Offset
+import androidx.ui.test.InputDispatcher.Companion.eventPeriod
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
@@ -56,11 +58,8 @@ class SendDownTest {
         private val position1_2 = Offset(12f, 12f)
     }
 
-    private val dispatcherRule = AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
-    private val eventPeriod get() = dispatcherRule.eventPeriod
-
     @get:Rule
-    val inputDispatcherRule: TestRule = dispatcherRule
+    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
 
     private val recorder = MotionEventRecorder()
     private val subject = AndroidInputDispatcher(recorder::recordEvent)
