@@ -240,49 +240,15 @@ function runGradle() {
   fi
 }
 
-# Runs a build and possibly modifies the output before displaying it, to make it easier to
-# interpret, and to make the relevant error messages fit inside of build failure emails.
-function runBuild() {
-  if [[ " ${@} " =~ " -Pandroidx.summarizeStderr " ]]; then
-    # run Gradle and save stdout and stderr into $logFile
-    if [ -n "$DIST_DIR" ]; then
-      LOG_DIR="$DIST_DIR"
-    else
-      LOG_DIR="$OUT_DIR/dist"
-    fi
-    mkdir -p "$LOG_DIR"
-    logFile="$LOG_DIR/gradle.log"
-    rm -f "$logFile"
-    if runGradle "$@" > >(tee -a "$logFile") 2> >(tee -a "$logFile" >&2); then
-      echo Gradle success
-    else
-      echo >&2
-      echo Gradle failure >&2
-      echo Attempting to locate the relevant error messages via build_log_simplifier.py >&2
-      echo >&2
-      # Try to identify the most relevant lines of output, and put them at the bottom of the
-      # output where they will also be placed into the build failure email.
-      # TODO: We may be able to stop cleaning up Gradle's output after Gradle can do this on its own:
-      # https://github.com/gradle/gradle/issues/1005
-      # and https://github.com/gradle/gradle/issues/13090
-      summaryLog="$LOG_DIR/error_summary.log"
-      $SCRIPT_PATH/development/build_log_simplifier.py $logFile | tail -n 100 | tee "$summaryLog" >&2
-      return 1
-    fi
-  else
-    runGradle "$@"
-  fi
-}
-
 if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
   echo "Passing '-PdisallowExecution' directly is forbidden. Did you mean -PverifyUpToDate ?"
   echo "See TaskUpToDateValidator.java for more information"
   exit 1
 fi
 
-runBuild "$@"
+runGradle "$@"
 # Check whether we were given the "-PverifyUpToDate" argument
 if [[ " ${@} " =~ " -PverifyUpToDate " ]]; then
   # Re-run Gradle, and find all tasks that are unexpectly out of date
-  runBuild "$@" -PdisallowExecution --continue --info
+  runGradle "$@" -PdisallowExecution --continue --info
 fi
