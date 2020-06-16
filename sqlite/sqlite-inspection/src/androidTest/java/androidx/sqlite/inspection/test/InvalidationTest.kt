@@ -48,17 +48,28 @@ class InvalidationTest {
     val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
 
     @Test
-    fun test_exec_methods(): Unit = runBlocking {
-        // Starting to track databases makes the inspector register hooks
-        testEnvironment.sendCommand(MessageFactory.createTrackDatabasesCommand())
+    fun test_exec_hook_methods() = test_simple_hook_methods(
+        listOf(
+            "execute()V",
+            "executeInsert()J",
+            "executeUpdateDelete()I"
+        ).map { it to SQLiteStatement::class.java })
 
-        // Verification of hooks being registered and triggering the DatabasePossiblyChangedEvent
-        testEnvironment.consumeRegisteredHooks().let { hooks ->
-            listOf("execute()V", "executeInsert()J", "executeUpdateDelete()I")
-                .forEach { method ->
+    @Test
+    fun test_end_transaction_hook_method() =
+        test_simple_hook_methods(listOf("endTransaction()V" to SQLiteDatabase::class.java))
+
+    private fun test_simple_hook_methods(expectedHooks: List<Pair<String, Class<*>>>) =
+        runBlocking {
+            // Starting to track databases makes the inspector register hooks
+            testEnvironment.sendCommand(MessageFactory.createTrackDatabasesCommand())
+
+            // Verification of hooks registration and triggering the DatabasePossiblyChangedEvent
+            testEnvironment.consumeRegisteredHooks().let { hooks ->
+                expectedHooks.forEach { (method, clazz) ->
                     val hook = hooks.filter { hook ->
                         hook.originMethod == method &&
-                                hook.originClass == SQLiteStatement::class.java
+                                hook.originClass == clazz
                     }
                     assertThat(hook).hasSize(1)
 
@@ -72,8 +83,8 @@ class InvalidationTest {
                     }
                     testEnvironment.assertNoQueuedEvents()
                 }
+            }
         }
-    }
 
     @Test
     @FlakyTest // TODO: deflake

@@ -352,7 +352,26 @@ final class SqliteInspector extends Inspector {
                 }, deferredExecutor);
 
         registerInvalidationHooksSqliteStatement(throttler);
+        registerInvalidationHooksTransaction(throttler);
         registerInvalidationHooksSQLiteCursor(throttler, hookRegistry);
+    }
+
+    /**
+     * Triggering invalidation on {@link SQLiteDatabase#endTransaction} allows us to avoid
+     * showing incorrect stale values that could originate from a mid-transaction query.
+     *
+     * TODO: track if transaction committed or rolled back by observing if
+     * {@link SQLiteDatabase#setTransactionSuccessful} was called
+     */
+    private void registerInvalidationHooksTransaction(final RequestCollapsingThrottler throttler) {
+        mEnvironment.registerExitHook(SQLiteDatabase.class, "endTransaction()V",
+                new InspectorEnvironment.ExitHook<Object>() {
+                    @Override
+                    public Object onExit(Object result) {
+                        throttler.submitRequest();
+                        return result;
+                    }
+                });
     }
 
     /**
