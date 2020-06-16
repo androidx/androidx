@@ -557,5 +557,39 @@ class $$__AppSearch__Gift {
     if (unboxByteArrCopy != null && unboxByteArrCopy.length != 0) {
       unboxByteArrConv = unboxByteArrCopy[0];
     }
+    Gift dataClass = new Gift();
+    dataClass.collectLong = collectLongConv;
+    dataClass.collectInteger = collectIntegerConv;
+    dataClass.collectDouble = collectDoubleConv;
+    dataClass.collectFloat = collectFloatConv;
+    dataClass.collectBoolean = collectBooleanConv;
+    dataClass.collectByteArr = collectByteArrConv;
+    dataClass.collectString = collectStringConv;
+    dataClass.arrBoxLong = arrBoxLongConv;
+    dataClass.arrUnboxLong = arrUnboxLongConv;
+    dataClass.arrBoxInteger = arrBoxIntegerConv;
+    dataClass.arrUnboxInt = arrUnboxIntConv;
+    dataClass.arrBoxDouble = arrBoxDoubleConv;
+    dataClass.arrUnboxDouble = arrUnboxDoubleConv;
+    dataClass.arrBoxFloat = arrBoxFloatConv;
+    dataClass.arrUnboxFloat = arrUnboxFloatConv;
+    dataClass.arrBoxBoolean = arrBoxBooleanConv;
+    dataClass.arrUnboxBoolean = arrUnboxBooleanConv;
+    dataClass.arrUnboxByteArr = arrUnboxByteArrConv;
+    dataClass.boxByteArr = boxByteArrConv;
+    dataClass.arrString = arrStringConv;
+    dataClass.string = stringConv;
+    dataClass.boxLong = boxLongConv;
+    dataClass.unboxLong = unboxLongConv;
+    dataClass.boxInteger = boxIntegerConv;
+    dataClass.unboxInt = unboxIntConv;
+    dataClass.boxDouble = boxDoubleConv;
+    dataClass.unboxDouble = unboxDoubleConv;
+    dataClass.boxFloat = boxFloatConv;
+    dataClass.unboxFloat = unboxFloatConv;
+    dataClass.boxBoolean = boxBooleanConv;
+    dataClass.unboxBoolean = unboxBooleanConv;
+    dataClass.unboxByteArr = unboxByteArrConv;
+    return dataClass;
   }
 }

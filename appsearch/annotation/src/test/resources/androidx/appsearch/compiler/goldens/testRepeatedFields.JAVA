@@ -87,5 +87,11 @@ class $$__AppSearch__Gift {
     if (byteArrayCopy != null && byteArrayCopy.length != 0) {
       byteArrayConv = byteArrayCopy[0];
     }
+    Gift dataClass = new Gift();
+    dataClass.listOfString = listOfStringConv;
+    dataClass.setOfInt = setOfIntConv;
+    dataClass.repeatedByteArray = repeatedByteArrayConv;
+    dataClass.byteArray = byteArrayConv;
+    return dataClass;
   }
 }

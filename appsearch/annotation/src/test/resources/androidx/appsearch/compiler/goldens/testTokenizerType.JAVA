@@ -47,5 +47,9 @@ class $$__AppSearch__Gift {
     if (tokPlainCopy != null && tokPlainCopy.length != 0) {
       tokPlainConv = tokPlainCopy[0];
     }
+    Gift dataClass = new Gift();
+    dataClass.tokNone = tokNoneConv;
+    dataClass.tokPlain = tokPlainConv;
+    return dataClass;
   }
 }

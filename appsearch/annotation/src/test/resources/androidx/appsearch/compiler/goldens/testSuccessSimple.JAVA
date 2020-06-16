@@ -41,5 +41,9 @@ class $$__AppSearch__Gift {
     int priceConv = genericDoc.getPropertyLong("price");
     boolean catConv = genericDoc.getPropertyBoolean("cat");
     boolean dogConv = genericDoc.getPropertyBoolean("dog");
+    Gift dataClass = new Gift(dogConv, uriConv);
+    dataClass.price = priceConv;
+    dataClass.cat = catConv;
+    return dataClass;
   }
 }

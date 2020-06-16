@@ -194,7 +194,7 @@ public class DocumentProcessorTest {
     }
 
     @Test
-    public void testRead_MultipleGetters() {
+    public void testRead_MultipleGetters() throws Exception {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -205,6 +205,7 @@ public class DocumentProcessorTest {
                         + "  void setPrice(int n) {}\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
     }
 
     @Test
@@ -268,7 +269,7 @@ public class DocumentProcessorTest {
     }
 
     @Test
-    public void testWrite_MultipleSetters() {
+    public void testWrite_MultipleSetters() throws Exception {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -279,6 +280,7 @@ public class DocumentProcessorTest {
                         + "  void setPrice(int n) {}\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
     }
 
     @Test

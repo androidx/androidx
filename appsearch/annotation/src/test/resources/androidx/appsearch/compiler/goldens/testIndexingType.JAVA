@@ -62,5 +62,10 @@ class $$__AppSearch__Gift {
     if (indexPrefixCopy != null && indexPrefixCopy.length != 0) {
       indexPrefixConv = indexPrefixCopy[0];
     }
+    Gift dataClass = new Gift();
+    dataClass.indexNone = indexNoneConv;
+    dataClass.indexExact = indexExactConv;
+    dataClass.indexPrefix = indexPrefixConv;
+    return dataClass;
   }
 }

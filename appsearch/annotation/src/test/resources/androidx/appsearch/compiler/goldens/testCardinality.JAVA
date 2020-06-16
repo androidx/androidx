@@ -82,5 +82,11 @@ class $$__AppSearch__Gift {
     if (noReqCopy != null && noReqCopy.length != 0) {
       noReqConv = noReqCopy[0];
     }
+    Gift dataClass = new Gift();
+    dataClass.repeatReq = repeatReqConv;
+    dataClass.repeatNoReq = repeatNoReqConv;
+    dataClass.req = reqConv;
+    dataClass.noReq = noReqConv;
+    return dataClass;
   }
 }

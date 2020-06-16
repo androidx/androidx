@@ -17,6 +17,7 @@
 package androidx.appsearch.compiler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -76,10 +77,24 @@ class GenericDocumentToDataClassCodeGenerator {
 
         // TODO(b/156296904): Set score, ttl and other special fields
 
+        // Unpack all fields from the GenericDocument into the format desired by the data class
         for (Map.Entry<String, VariableElement> entry : mModel.getPropertyFields().entrySet()) {
             fieldFromGenericDoc(methodBuilder, entry.getKey(), entry.getValue());
         }
 
+        // Create an instance of the data class via the chosen constructor
+        methodBuilder.addStatement(
+                "$T dataClass = new $T($L)", classType, classType, getConstructorParams());
+
+        // Assign all fields which weren't set in the constructor
+        for (String field : mModel.getPropertyFields().keySet()) {
+            CodeBlock fieldWrite = createAppSearchFieldWrite(field);
+            if (fieldWrite != null) {
+                methodBuilder.addStatement(fieldWrite);
+            }
+        }
+
+        methodBuilder.addStatement("return dataClass");
         return methodBuilder.build();
     }
 
@@ -558,5 +573,30 @@ class GenericDocumentToDataClassCodeGenerator {
         }
 
         return true;
+    }
+
+    private CodeBlock getConstructorParams() {
+        CodeBlock.Builder builder = CodeBlock.builder();
+        List<String> params = mModel.getChosenConstructorParams();
+        if (params.size() > 0) {
+            builder.add("$NConv", params.get(0));
+        }
+        for (int i = 1; i < params.size(); i++) {
+            builder.add(", $NConv", params.get(i));
+        }
+        return builder.build();
+    }
+
+    @Nullable
+    private CodeBlock createAppSearchFieldWrite(@NonNull String fieldName) {
+        switch (mModel.getFieldWriteKind(fieldName)) {
+            case FIELD:
+                return CodeBlock.of("dataClass.$N = $NConv", fieldName, fieldName);
+            case SETTER:
+                String setter = mModel.getAccessorName(fieldName, /*get=*/ false);
+                return CodeBlock.of("dataClass.$N($NConv)", setter, fieldName);
+            default:
+                return null;  // Constructor params should already have been set
+        }
     }
 }

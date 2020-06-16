@@ -32,5 +32,8 @@ class $$__AppSearch__Gift {
     if (oldNameCopy != null && oldNameCopy.length != 0) {
       oldNameConv = oldNameCopy[0];
     }
+    Gift dataClass = new Gift();
+    dataClass.oldName = oldNameConv;
+    return dataClass;
   }
 }

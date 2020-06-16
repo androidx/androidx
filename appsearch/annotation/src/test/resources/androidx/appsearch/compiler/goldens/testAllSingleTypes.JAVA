@@ -127,5 +127,14 @@ class $$__AppSearch__Gift {
     if (bytesPropCopy != null && bytesPropCopy.length != 0) {
       bytesPropConv = bytesPropCopy[0];
     }
+    Gift dataClass = new Gift();
+    dataClass.stringProp = stringPropConv;
+    dataClass.integerProp = integerPropConv;
+    dataClass.longProp = longPropConv;
+    dataClass.floatProp = floatPropConv;
+    dataClass.doubleProp = doublePropConv;
+    dataClass.booleanProp = booleanPropConv;
+    dataClass.bytesProp = bytesPropConv;
+    return dataClass;
   }
 }
