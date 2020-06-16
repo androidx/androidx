@@ -215,6 +215,7 @@ public final class CameraX {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @SuppressWarnings({"lambdaLast", "unused"})
     @NonNull
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     public static Camera bindToLifecycle(
             @NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
@@ -280,9 +281,10 @@ public final class CameraX {
      *                                  camera to be used for the given use cases.
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     @SuppressWarnings({"lambdaLast", "unused"})
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ExperimentalUseCaseGroup
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     @NonNull
     public static Camera bindToLifecycle(
             @NonNull LifecycleOwner lifecycleOwner,

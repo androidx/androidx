@@ -24,11 +24,13 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.InitializationException;
@@ -246,6 +248,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @SuppressWarnings("lambdaLast")
     @MainThread
     @NonNull
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCase... useCases) {
@@ -262,19 +265,18 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *
      * <p> If one {@link UseCase} is in multiple {@link UseCaseGroup}s, it will be linked to
      * the {@link UseCaseGroup} in the latest
-     * {@code #bindToLifecycle(LifecycleOwner, CameraSelector, UseCaseGroup)} call.
-     *
-     * @hide
+     * {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCaseGroup)} call.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalUseCaseGroupLifecycle
     @SuppressWarnings("lambdaLast")
     @MainThread
     @NonNull
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCaseGroup useCaseGroup) {
         return CameraX.bindToLifecycle(lifecycleOwner, cameraSelector,
-                useCaseGroup.getViewPort(), useCaseGroup.getUseCases());
+                useCaseGroup.getViewPort(), useCaseGroup.getUseCases().toArray(new UseCase[0]));
     }
 
     @Override

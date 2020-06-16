@@ -17,6 +17,8 @@
 package androidx.camera.core;
 
 import android.util.Rational;
+import android.view.Display;
+import android.view.Surface;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -29,10 +31,8 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * The FOV of one or many {@link UseCase}s.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalUseCaseGroup
 public final class ViewPort {
 
     /**
@@ -59,69 +59,65 @@ public final class ViewPort {
     }
 
     /**
-     * Scale the preview, maintaining the source aspect ratio, so it fills the entire
-     * container, and align it to the top left corner of the view.
-     * This may cause the preview to be cropped if the camera preview aspect ratio does not
-     * match that of its container.
-     *
-     * @hide
+     * Generate a crop rect that once applied, it scales the output while maintaining its aspect
+     * ratio, so it fills the entire {@link ViewPort}, and align it to the start of the
+     * {@link ViewPort}, which is the top left corner in a left-to-right (LTR) layout, or the top
+     * right corner in a right-to-left (RTL) layout.
+     * <p>
+     * This may cause the output to be cropped if the output aspect ratio does not match that of
+     * the {@link ViewPort}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int FILL_START = 0;
 
     /**
-     * Scale the preview, maintaining the source aspect ratio, so it fills the entire
-     * container, and center it inside the view.
-     * This may cause the preview to be cropped if the camera preview aspect ratio does not
-     * match that of its container.
-     *
-     * @hide
+     * Generate a crop rect that once applied, it scales the output while maintaining its aspect
+     * ratio, so it fills the entire {@link ViewPort} and center it.
+     * <p>
+     * This may cause the output to be cropped if the output aspect ratio does not match that of
+     * the {@link ViewPort}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int FILL_CENTER = 1;
 
     /**
-     * Scale the preview, maintaining the source aspect ratio, so it fills the entire
-     * container, and align it to the bottom right corner of the view.
-     * This may cause the preview to be cropped if the camera preview aspect ratio does not
-     * match that of its container.
-     *
-     * @hide
+     * Generate a crop rect that once applied, it scales the output while maintaining its aspect
+     * ratio, so it fills the entire {@link ViewPort}, and align it to the end of the
+     * {@link ViewPort}, which is the bottom right corner in a left-to-right (LTR) layout, or the
+     * bottom left corner in a right-to-left (RTL) layout.
+     * <p>
+     * This may cause the output to be cropped if the output aspect ratio does not match that of
+     * the {@link ViewPort}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int FILL_END = 2;
 
     /**
-     * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
-     * within the container, and align it to the top left corner of the view.
-     * Both dimensions of the preview will be equal or less than the corresponding dimensions
-     * of its container.
-     *
-     * @hide
+     * Generate a crop rect that once applied, it scales the output while maintaining its aspect
+     * ratio, so it is entirely contained within the {@link ViewPort}, and align it to the start
+     * of the {@link ViewPort}, which is the top left corner in a left-to-right (LTR) layout, or
+     * the top right corner in a right-to-left (RTL) layout.
+     * <p>
+     * Both dimensions of the {@link ViewPort} crop rect will be equal or less than the
+     * corresponding dimensions of the output.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int FIT_START = 3;
 
     /**
-     * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
-     * within the container, and center it inside the view.
-     * Both dimensions of the preview will be equal or less than the corresponding dimensions
-     * of its container.
-     *
-     * @hide
+     * Generate a crop rect that once applied, it scales the output while maintaining its aspect
+     * ratio, so it is entirely contained within the {@link ViewPort} and center it.
+     * <p>
+     * Both dimensions of the {@link ViewPort} will be equal or less than the corresponding
+     * dimensions of the output.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int FIT_CENTER = 4;
 
     /**
-     * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
-     * within the container, and align it to the bottom right corner of the view.
-     * Both dimensions of the preview will be equal or less than the corresponding dimensions
-     * of its container.
-     *
-     * @hide
+     * Generate a crop rect that once applied, it scales the output while maintaining its aspect
+     * ratio, so it is entirely contained within the {@link ViewPort}, and align it to the end of
+     * the {@link ViewPort}, which is the bottom right corner in a left-to-right (LTR) layout, or
+     * the bottom left corner in a right-to-left (RTL) layout.
+     * <p>
+     * Both dimensions of the {@link ViewPort} will be equal or less than the corresponding
+     * dimensions of the output.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int FIT_END = 5;
 
     @ScaleType
@@ -146,32 +142,23 @@ public final class ViewPort {
 
     /**
      * Gets the aspect ratio of the {@link ViewPort}.
-     *
-     * @hide
      */
     @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public Rational getAspectRatio() {
         return mAspectRatio;
     }
 
     /**
      * Gets the rotation of the {@link ViewPort}.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @ImageOutputConfig.RotationValue
     public int getRotation() {
         return mRotation;
     }
 
     /**
-     * Gets the {@link ScaleType} of the {@link ViewPort}.
-     *
-     * @hide
+     * Gets the scale type of the {@link ViewPort}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @ScaleType
     public int getScaleType() {
         return mScaleType;
@@ -190,10 +177,8 @@ public final class ViewPort {
 
     /**
      * Builder for {@link ViewPort}.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalUseCaseGroup
     public static class Builder {
 
         private static final int DEFAULT_LAYOUT_DIRECTION = android.util.LayoutDirection.LTR;
@@ -212,6 +197,18 @@ public final class ViewPort {
         private int mLayoutDirection = DEFAULT_LAYOUT_DIRECTION;
 
 
+        /**
+         * Creates {@link ViewPort.Builder} with aspect ratio and rotation
+         *
+         * <p> The rotation value is relative to the "natural" rotation. This is one of four
+         * valid values: {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+         * {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}. For example, if the desired
+         * the orientation is the gravity, the value should be set with the value
+         * of {@link Display#getRotation()}.
+         *
+         * <p> The aspect ratio is the desired crop rect after rotation is applied. In practice,
+         * this is usually the aspect ratio of the view finder.
+         */
         public Builder(@NonNull Rational aspectRatio,
                 @ImageOutputConfig.RotationValue int rotation) {
             mAspectRatio = aspectRatio;
@@ -221,13 +218,14 @@ public final class ViewPort {
         /**
          * Sets the {@link ScaleType} of the {@link ViewPort}.
          *
-         * <p> The value is used by {@link UseCase} to calculate the crop rect. The default value is
-         * {@link #FILL_CENTER} if not set.
+         * <p> The value is used by {@link UseCase} to calculate the
+         * {@link UseCase#getViewPortCropRect()}.
+         *
+         * <p> The default value is {@link #FILL_CENTER} if not set.
          *
          * @hide
          */
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder setScaleType(@ScaleType int scaleType) {
             mScaleType = scaleType;
             return this;
@@ -245,7 +243,6 @@ public final class ViewPort {
          * @hide
          */
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder setLayoutDirection(@LayoutDirection int layoutDirection) {
             mLayoutDirection = layoutDirection;
             return this;
@@ -253,10 +250,7 @@ public final class ViewPort {
 
         /**
          * Builds the {@link ViewPort}.
-         *
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
         public ViewPort build() {
             Preconditions.checkNotNull(mAspectRatio, "The crop aspect ratio must be set.");
