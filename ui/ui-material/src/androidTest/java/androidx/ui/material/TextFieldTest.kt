@@ -48,7 +48,6 @@ import androidx.ui.input.TextFieldValue
 import androidx.ui.input.TextInputService
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
-import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.savedinstancestate.rememberSavedInstanceState
@@ -1324,7 +1323,7 @@ class TextFieldTest {
             Stack {
                 TextFieldScroller(
                     remember { scrollerPosition },
-                    Modifier.fillMaxWidth().preferredHeight(40.dp)
+                    Modifier.preferredSize(width = 300.dp, height = 50.dp)
                 ) {
                     TextField(
                         value = TextFieldValue(LONG_TEXT),
@@ -1348,7 +1347,7 @@ class TextFieldTest {
             Stack {
                 TextFieldScroller(
                     remember { scrollerPosition },
-                    Modifier.fillMaxWidth().preferredHeight(100.dp)
+                    Modifier.preferredSize(width = 300.dp, height = 50.dp)
                 ) {
                     TextField(
                         value = TextFieldValue(text),
@@ -1364,6 +1363,7 @@ class TextFieldTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testTextField_scrolledAndClipped() {
         val scrollerPosition = TextFieldScrollerPosition()
 
@@ -1408,7 +1408,7 @@ class TextFieldTest {
             Stack {
                 TextFieldScroller(
                     remember { scrollerPosition },
-                    Modifier.fillMaxWidth().preferredHeight(40.dp).testTag(TextfieldTag)
+                    Modifier.preferredSize(width = 300.dp, height = 50.dp).testTag(TextfieldTag)
                 ) {
                     TextField(
                         value = TextFieldValue(LONG_TEXT),
@@ -1450,7 +1450,7 @@ class TextFieldTest {
             }
             TextFieldScroller(
                 scrollerPosition,
-                Modifier.fillMaxWidth().preferredHeight(40.dp).testTag(TextfieldTag)
+                Modifier.preferredSize(width = 300.dp, height = 50.dp).testTag(TextfieldTag)
             ) {
                 TextField(
                     value = TextFieldValue(LONG_TEXT),
