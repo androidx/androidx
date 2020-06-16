@@ -35,9 +35,8 @@ class Path {
         ry: Float,
         dir: Direction
     ) {
-        println("Path.addRoundRect")
-        // TODO: incorrect.
-        skijaPath.addPoly(floatArrayOf(left, top, left, bottom, right, bottom, right, top), true)
+        skijaPath.addRoundedRect(org.jetbrains.skija.RoundedRect.makeLTRB(
+            left, top, right, bottom, rx, ry), dir.skija)
     }
 
     fun reset() {
@@ -49,20 +48,9 @@ class Path {
         radii: FloatArray,
         dir: Direction
     ) {
-        println("Path.addRoundRect")
-        // TODO: incorrect.
-        skijaPath.addPoly(floatArrayOf(
-            rect.left,
-            rect.top,
-            rect.left,
-            rect.bottom,
-            rect.right,
-            rect.bottom,
-            rect.right,
-            rect.top
-        ), true)
+        skijaPath.addRoundedRect(org.jetbrains.skija.RoundedRect.makeComplexLTRB(
+            rect.left, rect.top, rect.right, rect.bottom, radii), dir.skija)
     }
 
-    // TODO: incorrect
-    fun isConvex(): Boolean = true
+    fun isConvex(): Boolean = skijaPath.isConvex
 }

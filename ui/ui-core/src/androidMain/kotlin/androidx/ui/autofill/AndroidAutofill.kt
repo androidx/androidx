@@ -24,6 +24,7 @@ import android.view.ViewStructure
 import android.view.autofill.AutofillManager
 import android.view.autofill.AutofillValue
 import androidx.annotation.RequiresApi
+import androidx.ui.core.toAndroidRect
 
 /**
  * Autofill implementation for Android.
@@ -45,7 +46,8 @@ internal class AndroidAutofill(val view: View, val autofillTree: AutofillTree) :
         autofillManager.notifyViewEntered(
             view,
             autofillNode.id,
-            autofillNode.boundingBox ?: error("requestAutofill called before onChildPositioned()")
+            autofillNode.boundingBox?.toAndroidRect()
+                ?: error("requestAutofill called before onChildPositioned()")
         )
     }
 
@@ -79,11 +81,12 @@ internal fun AndroidAutofill.populateViewStructure(root: ViewStructure) {
                 // null, the autofill overlay will not be shown.
                 Log.w(
                     "Autofill Warning",
-                    """Bounding box not set. 
+                    """Bounding box not set.
                         Did you call perform autofillTree before the component was positioned? """
                 )
             }
-            autofillNode.boundingBox?.run { setDimens(left, top, 0, 0, width(), height()) }
+            autofillNode.boundingBox?.toAndroidRect()?.run {
+                setDimens(left, top, 0, 0, width(), height()) }
         }
         index++
     }
