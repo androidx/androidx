@@ -31,7 +31,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.InnerPadding
-import androidx.ui.layout.preferredSizeIn
+import androidx.ui.layout.defaultMinSizeConstraints
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -83,7 +83,6 @@ fun Button(
     padding: InnerPadding = Button.DefaultInnerPadding,
     text: @Composable () -> Unit
 ) {
-
     Surface(
         shape = shape,
         color = if (enabled) backgroundColor else disabledBackgroundColor,
@@ -96,8 +95,10 @@ fun Button(
             .semantics(mergeAllDescendants = true)
     ) {
         Box(
-            ButtonConstraints
-                .clickable(onClick = onClick, enabled = enabled),
+            Modifier.defaultMinSizeConstraints(
+                minWidth = Button.DefaultMinWidth,
+                minHeight = Button.DefaultMinHeight
+            ).clickable(onClick = onClick, enabled = enabled),
             paddingStart = padding.start,
             paddingTop = padding.top,
             paddingEnd = padding.end,
@@ -235,9 +236,6 @@ inline fun TextButton(
     text = text
 )
 
-// Specification for Material Button:
-private val ButtonConstraints = Modifier.preferredSizeIn(minWidth = 64.dp, minHeight = 36.dp)
-
 /**
  * Contains the default values used by [Button]
  */
@@ -254,6 +252,18 @@ object Button {
         end = ButtonHorizontalPadding,
         bottom = ButtonVerticalPadding
     )
+
+    /**
+     * The default min width applied for the [Button].
+     * Note that you can override it by applying [Modifier.widthIn] directly on [Button].
+     */
+    val DefaultMinWidth = 64.dp
+
+    /**
+     * The default min width applied for the [Button].
+     * Note that you can override it by applying [Modifier.heightIn] directly on [Button].
+     */
+    val DefaultMinHeight = 36.dp
 
     /**
      * The default disabled background color used by Contained [Button]s

@@ -26,7 +26,11 @@ package androidx.ui.material {
     method public long getDefaultDisabledBackgroundColor();
     method public long getDefaultDisabledContentColor();
     method public androidx.ui.layout.InnerPadding getDefaultInnerPadding();
+    method public float getDefaultMinHeight();
+    method public float getDefaultMinWidth();
     property public final androidx.ui.layout.InnerPadding DefaultInnerPadding;
+    property public final float DefaultMinHeight;
+    property public final float DefaultMinWidth;
     property public final long defaultDisabledBackgroundColor;
     property public final long defaultDisabledContentColor;
     field public static final androidx.ui.material.Button! INSTANCE;
