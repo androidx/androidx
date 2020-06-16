@@ -73,7 +73,7 @@ inline fun <T> List<T>.fastSumBy(selector: (T) -> Int): Int {
  * to each element in the original collection.
  */
 inline fun <T, R> List<T>.fastMap(transform: (T) -> R): List<R> {
-    val target = ArrayList<R>()
+    val target = ArrayList<R>(size)
     fastForEach {
         target += transform(it)
     }
