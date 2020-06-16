@@ -610,6 +610,48 @@ public class DocumentProcessorTest {
                 "Unhandled out property type (3x): java.lang.Object");
     }
 
+    @Test
+    public void testAllSpecialFields_Field() throws Exception {
+        Compilation compilation = compile(
+                "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @AppSearchDocument.Score int score;\n"
+                        + "  @AppSearchDocument.CreationTimestampMillis long creationTs;\n"
+                        + "  @AppSearchDocument.TtlMillis int ttlMs;\n"
+                        + "  @AppSearchDocument.Property int price;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
+    }
+
+    @Test
+    public void testAllSpecialFields_Getter() throws Exception {
+        Compilation compilation = compile(
+                "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri private String uri;\n"
+                        + "  @AppSearchDocument.Score private int score;\n"
+                        + "  @AppSearchDocument.CreationTimestampMillis private long creationTs;\n"
+                        + "  @AppSearchDocument.TtlMillis private int ttlMs;\n"
+                        + "  @AppSearchDocument.Property private int price;\n"
+                        + "  public String getUri() { return uri; }\n"
+                        + "  public void setUri(String uri) { this.uri = uri; }\n"
+                        + "  public int getScore() { return score; }\n"
+                        + "  public void setScore(int score) { this.score = score; }\n"
+                        + "  public long getCreationTs() { return creationTs; }\n"
+                        + "  public void setCreationTs(int creationTs) {\n"
+                        + "    this.creationTs = creationTs;\n"
+                        + "  }\n"
+                        + "  public int getTtlMs() { return ttlMs; }\n"
+                        + "  public void setTtlMs(int ttlMs) { this.ttlMs = ttlMs; }\n"
+                        + "  public int getPrice() { return price; }\n"
+                        + "  public void setPrice(int price) { this.price = price; }\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden();
+    }
+
     private Compilation compile(String classBody) {
         return compile("Gift", classBody);
     }
