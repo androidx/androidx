@@ -20,14 +20,16 @@ import androidx.compose.Composable
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.compositionReference
 import androidx.compose.currentComposer
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
 import androidx.compose.onPreCommit
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.ui.core.DensityAmbient
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.unit.Dp
 
 /**
@@ -66,8 +68,10 @@ fun VectorPainter(
     val vpWidth = if (viewportWidth.isNaN()) widthPx else viewportWidth
     val vpHeight = if (viewportHeight.isNaN()) heightPx else viewportHeight
 
-    return VectorPainter(
-        createVector(
+    return remember { VectorPainter() }.apply {
+        // This assignment is thread safe as the internal VectorComponent parameter is backed
+        // by a mutableState object
+        vector = createVector(
             name = name,
             defaultWidth = widthPx,
             defaultHeight = heightPx,
@@ -75,7 +79,7 @@ fun VectorPainter(
             viewportHeight = vpHeight,
             children = children
         )
-    )
+    }
 }
 
 /**
@@ -101,15 +105,18 @@ fun VectorPainter(asset: VectorAsset): VectorPainter {
  * This can be represented by either a [VectorAsset] or a programmatic
  * composition of a vector
  */
-class VectorPainter internal constructor(private val vector: VectorComponent) : Painter() {
+class VectorPainter internal constructor() : Painter() {
 
-    private var currentAlpha: Float = DefaultAlpha
+    internal var vector by mutableStateOf<VectorComponent?>(null)
+
+    private var currentAlpha: Float = 1.0f
     private var currentColorFilter: ColorFilter? = null
 
-    override val intrinsicSize: Size = Size(vector.defaultWidth, vector.defaultHeight)
+    override val intrinsicSize: Size
+        get() = vector?.let { Size(it.defaultWidth, it.defaultHeight) } ?: Size.zero
 
     override fun DrawScope.onDraw() {
-        drawCanvas { canvas, _ -> vector.draw(canvas, currentAlpha, currentColorFilter) }
+        vector?.let { with (it) { draw(currentAlpha, currentColorFilter) } }
     }
 
     override fun applyAlpha(alpha: Float): Boolean {

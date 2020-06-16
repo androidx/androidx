@@ -16,20 +16,18 @@
 
 package androidx.ui.graphics.vector
 
-import androidx.ui.geometry.Offset
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
+import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.graphics.drawscope.Stroke
+import androidx.ui.graphics.drawscope.withTransform
 import androidx.ui.graphics.vectormath.Matrix4
-import androidx.ui.graphics.withSave
+import androidx.ui.unit.IntSize
 import androidx.ui.util.fastForEach
 import androidx.ui.util.toRadians
 import kotlin.math.ceil
@@ -45,12 +43,6 @@ const val DefaultTranslationY = 0.0f
 
 val EmptyPath = emptyList<PathNode>()
 
-/**
- * paint used to draw the cached vector graphic to the provided canvas
- */
-// TODO (njawad) Can we update the Compose Canvas API to make this paint optional?
-internal val EmptyPaint = Paint()
-
 inline fun PathData(block: PathBuilder.() -> Unit): List<PathNode> =
     with(PathBuilder()) {
         block()
@@ -58,7 +50,6 @@ inline fun PathData(block: PathBuilder.() -> Unit): List<PathNode> =
     }
 
 const val DefaultPathName = ""
-const val DefaultAlpha = 1.0f
 const val DefaultStrokeLineWidth = 0.0f
 const val DefaultStrokeLineMiter = 4.0f
 
@@ -80,18 +71,16 @@ sealed class VNode {
      * Callback invoked whenever the node in the vector tree is modified in a way that would
      * change the output of the Vector
      */
-    // TODO (b/144849567) don't make this publicly accessible after the vector graphics modules
-    //  are merged
-    open var invalidateListener: (() -> Unit)? = null
+    internal open var invalidateListener: (() -> Unit)? = null
 
     fun invalidate() {
         invalidateListener?.invoke()
     }
 
-    abstract fun draw(canvas: Canvas)
+    abstract fun DrawScope.draw()
 }
 
-class VectorComponent(
+internal class VectorComponent(
     var viewportWidth: Float,
     var viewportHeight: Float,
     var defaultWidth: Float,
@@ -111,36 +100,33 @@ class VectorComponent(
 
     private var isDirty: Boolean = true
 
-    private var vectorPaint: Paint? = null
-
-    /**
-     * Cached Image of the Vector Graphic to be re-used across draw calls
-     * if the Vector graphic is not dirty
-     */
-    // TODO (njawad) add invalidation logic to re-draw into the offscreen Image
-    private var cachedImage: ImageAsset? = null
+    private val cacheDrawScope = DrawCache()
 
     val size: Int
         get() = root.size
 
-    fun draw(canvas: Canvas, alpha: Float, colorFilter: ColorFilter?) {
-        var targetImage = cachedImage
-        if (targetImage == null) {
-            targetImage = ImageAsset(
-                ceil(defaultWidth).toInt(),
-                ceil(defaultHeight).toInt()
-            )
-            cachedImage = targetImage
-        }
-        if (isDirty) {
-            root.draw(Canvas(targetImage))
-            isDirty = false
-        }
-        canvas.drawImage(targetImage, Offset.Zero, obtainVectorPaint(alpha, colorFilter))
+    /**
+     * Cached lambda used to avoid allocating the lambda on each draw invocation
+     */
+    private val drawVectorBlock: DrawScope.() -> Unit = {
+        with (root) { draw() }
     }
 
-    override fun draw(canvas: Canvas) {
-        draw(canvas, DefaultAlpha, null)
+    fun DrawScope.draw(alpha: Float, colorFilter: ColorFilter?) {
+        if (isDirty) {
+            cacheDrawScope.drawCachedImage(
+                IntSize(ceil(defaultWidth).toInt(), ceil(defaultHeight).toInt()),
+                this@draw,
+                layoutDirection,
+                drawVectorBlock
+            )
+            isDirty = false
+        }
+        cacheDrawScope.drawInto(this, alpha, colorFilter)
+    }
+
+    override fun DrawScope.draw() {
+        draw(1.0f, null)
     }
 
     override fun toString(): String {
@@ -153,44 +139,22 @@ class VectorComponent(
             append("\tviewportHeight: ").append(viewportHeight).append("\n")
         }
     }
-
-    private fun obtainVectorPaint(alpha: Float, colorFilter: ColorFilter?): Paint {
-        return if (colorFilter == null && alpha == DefaultAlpha) {
-            EmptyPaint
-        } else {
-            val targetPaint = vectorPaint ?: Paint().also { vectorPaint = it }
-            val currentColorFilter = targetPaint.colorFilter
-            if (currentColorFilter != colorFilter) {
-                targetPaint.colorFilter = colorFilter
-            }
-            if (targetPaint.alpha != alpha) {
-                targetPaint.alpha = alpha
-            }
-            targetPaint
-        }
-    }
 }
 
-data class PathComponent(val name: String) : VNode() {
+internal data class PathComponent(val name: String) : VNode() {
 
     var fill: Brush? = null
         set(value) {
             if (field != value) {
                 field = value
-                updateFillPaint {
-                    field?.applyTo(this, fillAlpha)
-                }
                 invalidate()
             }
         }
 
-    var fillAlpha: Float = DefaultAlpha
+    var fillAlpha: Float = 1.0f
         set(value) {
             if (field != value) {
                 field = value
-                updateFillPaint {
-                    alpha = field
-                }
                 invalidate()
             }
         }
@@ -204,13 +168,10 @@ data class PathComponent(val name: String) : VNode() {
             }
         }
 
-    var strokeAlpha: Float = DefaultAlpha
+    var strokeAlpha: Float = 1.0f
         set(value) {
             if (field != value) {
                 field = value
-                updateStrokePaint {
-                    alpha = field
-                }
                 invalidate()
             }
         }
@@ -219,9 +180,6 @@ data class PathComponent(val name: String) : VNode() {
         set(value) {
             if (field != value) {
                 field = value
-                updateStrokePaint {
-                    strokeWidth = field
-                }
                 invalidate()
             }
         }
@@ -230,9 +188,6 @@ data class PathComponent(val name: String) : VNode() {
         set(value) {
             if (field != value) {
                 field = value
-                updateStrokePaint {
-                    field?.applyTo(this, strokeAlpha)
-                }
                 invalidate()
             }
         }
@@ -241,9 +196,7 @@ data class PathComponent(val name: String) : VNode() {
         set(value) {
             if (field != value) {
                 field = value
-                updateStrokePaint {
-                    strokeCap = field
-                }
+                isStrokeDirty = true
                 invalidate()
             }
         }
@@ -252,9 +205,7 @@ data class PathComponent(val name: String) : VNode() {
         set(value) {
             if (field != value) {
                 field = value
-                updateStrokePaint {
-                    strokeJoin = field
-                }
+                isStrokeDirty = true
                 invalidate()
             }
         }
@@ -263,53 +214,19 @@ data class PathComponent(val name: String) : VNode() {
         set(value) {
             if (field != value) {
                 field = value
-                updateStrokePaint {
-                    strokeMiterLimit = field
-                }
+                isStrokeDirty = true
                 invalidate()
             }
         }
 
     private var isPathDirty = true
+    private var isStrokeDirty = true
+
+    private var strokeStyle: Stroke? = null
 
     private val path = Path()
 
-    private var fillPaint: Paint? = null
-    private var strokePaint: Paint? = null
-
     private val parser = PathParser()
-
-    private inline fun updateStrokePaint(strokePaintUpdater: Paint.() -> Unit) {
-        if (strokePaint == null) {
-            strokePaint = createStrokePaint()
-        } else {
-            strokePaint?.strokePaintUpdater()
-        }
-    }
-
-    private fun createStrokePaint(): Paint = Paint().apply {
-        isAntiAlias = true
-        style = PaintingStyle.stroke
-        strokeWidth = strokeLineWidth
-        strokeCap = strokeLineCap
-        strokeJoin = strokeLineJoin
-        strokeMiterLimit = strokeLineMiter
-        stroke?.applyTo(this, strokeAlpha)
-    }
-
-    private fun updateFillPaint(fillPaintUpdater: Paint.() -> Unit) {
-        if (fillPaint == null) {
-            fillPaint = createFillPaint()
-        } else {
-            fillPaint?.fillPaintUpdater()
-        }
-    }
-
-    private fun createFillPaint(): Paint = Paint().apply {
-        isAntiAlias = true
-        style = PaintingStyle.fill
-        fill?.applyTo(this, fillAlpha)
-    }
 
     private fun updatePath() {
         parser.clear()
@@ -317,30 +234,22 @@ data class PathComponent(val name: String) : VNode() {
         parser.addPathNodes(pathData).toPath(path)
     }
 
-    override fun draw(canvas: Canvas) {
+    override fun DrawScope.draw() {
         if (isPathDirty) {
             updatePath()
             isPathDirty = false
         }
 
-        val fillBrush = fill
-        if (fillBrush != null) {
-            var targetFillPaint = fillPaint
-            if (targetFillPaint == null) {
-                targetFillPaint = createFillPaint()
-                fillPaint = targetFillPaint
+        fill?.let { drawPath(path, brush = it, alpha = fillAlpha) }
+        stroke?.let {
+            var targetStroke = strokeStyle
+            if (isStrokeDirty || targetStroke == null) {
+                targetStroke =
+                    Stroke(strokeLineWidth, strokeLineMiter, strokeLineCap, strokeLineJoin)
+                strokeStyle = targetStroke
+                isStrokeDirty = false
             }
-            canvas.drawPath(path, targetFillPaint)
-        }
-
-        val strokeBrush = stroke
-        if (strokeBrush != null) {
-            var targetStrokePaint = strokePaint
-            if (targetStrokePaint == null) {
-                targetStrokePaint = createStrokePaint()
-                strokePaint = targetStrokePaint
-            }
-            canvas.drawPath(path, targetStrokePaint)
+            drawPath(path, brush = it, alpha = strokeAlpha, style = targetStroke)
         }
     }
 
@@ -349,7 +258,7 @@ data class PathComponent(val name: String) : VNode() {
     }
 }
 
-data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
+internal data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
 
     private var groupMatrix: Matrix4? = null
 
@@ -523,7 +432,7 @@ data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
         invalidate()
     }
 
-    override fun draw(canvas: Canvas) {
+    override fun DrawScope.draw() {
         if (isMatrixDirty) {
             updateMatrix()
             isMatrixDirty = false
@@ -534,20 +443,17 @@ data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
             isClipPathDirty = false
         }
 
-        canvas.withSave {
+        withTransform({
             val targetClip = clipPath
             if (willClipPath && targetClip != null) {
-                canvas.clipPath(targetClip)
+                clipPath(targetClip)
             }
-
-            val matrix = groupMatrix
-            if (matrix != null) {
-                // TODO (njawad) add concat support to matrix
-                canvas.concat(matrix)
-            }
-
+            groupMatrix?.let { transform(it) }
+        }) {
             children.fastForEach { node ->
-                node.draw(canvas)
+                with(node) {
+                    this@draw.draw()
+                }
             }
         }
     }

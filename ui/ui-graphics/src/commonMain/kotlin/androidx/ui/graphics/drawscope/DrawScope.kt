@@ -36,6 +36,7 @@ import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.setNativePathEffect
+import androidx.ui.graphics.vectormath.Matrix4
 import androidx.ui.graphics.vectormath.degrees
 import androidx.ui.unit.Density
 
@@ -224,7 +225,7 @@ inline fun DrawScope.drawCanvas(block: (Canvas, Size) -> Unit) =
  * applied
  */
 inline fun DrawScope.withTransform(
-    transformBlock: CanvasTransform.() -> Unit,
+    transformBlock: DrawTransform.() -> Unit,
     drawBlock: DrawScope.() -> Unit
 ) = canvas?.apply {
         // Transformation can include inset calls which change the drawing area
@@ -255,7 +256,7 @@ abstract class DrawScope : Density {
 
     @PublishedApi internal var canvas: Canvas? = null
 
-    @PublishedApi internal val transform = object : CanvasTransform {
+    @PublishedApi internal val transform = object : DrawTransform {
 
         override val size: Size
             get() = this@DrawScope.size
@@ -306,6 +307,10 @@ abstract class DrawScope : Density {
                 scale(scaleX, scaleY)
                 translate(-pivotX, -pivotY)
             }
+        }
+
+        override fun transform(matrix: Matrix4) {
+            this@DrawScope.canvas?.concat(matrix)
         }
     }
 
