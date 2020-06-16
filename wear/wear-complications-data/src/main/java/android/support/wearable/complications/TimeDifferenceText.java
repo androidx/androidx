@@ -108,7 +108,7 @@ public final class TimeDifferenceText implements TimeDependentText {
     }
 
     /**
-     * @return The time precision in milliseconds
+     * Returns the time precision in milliseconds.
      */
     public long getPrecision() {
         long defaultPrecision;

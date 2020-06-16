@@ -656,7 +656,7 @@ public final class ComplicationDrawable extends Drawable implements Parcelable {
     }
 
     /**
-     *  @inheritDoc
+     *  {@inheritDoc}
      *  @deprecated This method is no longer used in graphics optimizations
      */
     @Override
@@ -1202,7 +1202,7 @@ public final class ComplicationDrawable extends Drawable implements Parcelable {
      * <p>If {@link ComplicationData} has the type {@link ComplicationData#TYPE_NO_PERMISSION}, this
      * method will launch an intent to request complication permission for the watch face. This will
      * only work if the context set by {@link #getDrawable} or the constructor is an
-     * instance of androidx.wear.watchface.WatchFaceService.
+     * instance of WatchFaceService.
      *
      * @param x X coordinate of the tap relative to screen origin
      * @param y Y coordinate of the tap relative to screen origin
