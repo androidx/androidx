@@ -66,9 +66,9 @@ fun VectorScope.Path(
     pathData: List<PathNode>,
     name: String = DefaultPathName,
     fill: Brush? = null,
-    fillAlpha: Float = DefaultAlpha,
+    fillAlpha: Float = 1.0f,
     stroke: Brush? = null,
-    strokeAlpha: Float = DefaultAlpha,
+    strokeAlpha: Float = 1.0f,
     strokeLineWidth: Float = DefaultStrokeLineWidth,
     strokeLineCap: StrokeCap = DefaultStrokeLineCap,
     strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
@@ -88,10 +88,10 @@ fun VectorScope.Path(
     )
 }
 
-class VectorScope(val composer: VectorComposer)
+class VectorScope internal constructor (internal val composer: VectorComposer)
 
 @Suppress("NAME_SHADOWING")
-fun composeVector(
+internal fun composeVector(
     container: VectorComponent,
     recomposer: Recomposer,
     parent: CompositionReference? = null,
@@ -110,7 +110,7 @@ fun composeVector(
 }
 
 @OptIn(ComposeCompilerApi::class)
-class VectorComposer(
+internal class VectorComposer(
     val root: VNode,
     slotTable: SlotTable,
     recomposer: Recomposer
