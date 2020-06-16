@@ -107,9 +107,7 @@ class SnackbarTest {
                 assertThat(it[FirstBaseline]).isNotEqualTo(0)
                 assertThat(it[FirstBaseline])
                     .isEqualTo(it[LastBaseline])
-                // TODO(aelias): Remove 'parentCoordinates!!' when Semantics no longer using PassThroughLayout
-                assertThat(it.parentCoordinates!!.positionInParent.y.roundToInt() +
-                        it[FirstBaseline]!!)
+                assertThat(it.positionInParent.y.roundToInt() + it[FirstBaseline]!!)
                     .isEqualTo(30.dp.toIntPx())
             }
         }
@@ -198,11 +196,8 @@ class SnackbarTest {
                 assertThat(it[FirstBaseline]).isNotEqualTo(0)
                 assertThat(it[LastBaseline]).isNotEqualTo(0)
                 assertThat(it[FirstBaseline]).isNotEqualTo(it[LastBaseline])
-                // TODO(aelias): Remove 'parentCoordinates!!' when Semantics no longer using PassThroughLayout
-                assertThat(
-                    it.parentCoordinates!!.positionInParent.y.roundToInt() +
-                            it[FirstBaseline]!!
-                ).isEqualTo(30.dp.toIntPx())
+                assertThat(it.positionInParent.y.roundToInt() + it[FirstBaseline]!!)
+                    .isEqualTo(30.dp.toIntPx())
             }
         }
     }

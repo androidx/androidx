@@ -61,10 +61,7 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
 
     val globalPosition = node.globalPosition
 
-    val layoutNode = scrollableSemanticsNode.componentNode.children.lastOrNull()
-        ?: throw AssertionError(
-            "No Layout Node found!"
-        )
+    val layoutNode = scrollableSemanticsNode.componentNode
 
     val position = layoutNode.coordinates.localToGlobal(Offset(0.0f, 0.0f))
 

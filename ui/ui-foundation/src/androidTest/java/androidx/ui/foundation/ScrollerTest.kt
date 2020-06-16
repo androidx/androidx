@@ -31,7 +31,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.GestureScope
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.StateRestorationTester
@@ -713,28 +712,27 @@ class ScrollerTest {
         composeTestRule.setContent {
             val content = @Composable {
                 repeat(itemCount) {
-                    Semantics(container = true) {
-                        Text(text = "$it")
-                    }
+                    Text(text = "$it")
                 }
             }
             Stack {
-                Box(Modifier.preferredSize(width, height), backgroundColor = Color.White) {
-                    Semantics(container = true) {
-                        if (isVertical) {
-                            VerticalScroller(
-                                scrollerPosition,
-                                modifier = Modifier.testTag(scrollerTag)
-                            ) {
-                                content()
-                            }
-                        } else {
-                            HorizontalScroller(
-                                scrollerPosition,
-                                modifier = Modifier.testTag(scrollerTag)
-                            ) {
-                                content()
-                            }
+                Box(
+                    Modifier.preferredSize(width, height),
+                    backgroundColor = Color.White
+                ) {
+                    if (isVertical) {
+                        VerticalScroller(
+                            scrollerPosition,
+                            modifier = Modifier.testTag(scrollerTag)
+                        ) {
+                            content()
+                        }
+                    } else {
+                        HorizontalScroller(
+                            scrollerPosition,
+                            modifier = Modifier.testTag(scrollerTag)
+                        ) {
+                            content()
                         }
                     }
                 }

@@ -70,12 +70,7 @@ class SemanticsTests {
         composeTestRule.setContent {
             SimpleTestLayout(Modifier.semantics(mergeAllDescendants = true).testTag(TestTag)) {
                 if (showSubtree.value) {
-                    Semantics(properties = {
-                        accessibilityLabel = label
-                    }) {
-                        SimpleTestLayout {
-                        }
-                    }
+                    SimpleTestLayout(Modifier.semantics { accessibilityLabel = label }) { }
                 }
             }
         }

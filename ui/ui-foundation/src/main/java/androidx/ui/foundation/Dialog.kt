@@ -31,10 +31,11 @@ import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.ui.core.Modifier
 import androidx.ui.core.ViewAmbient
+import androidx.ui.core.semantics.semantics
 import androidx.ui.core.setContent
 import androidx.ui.foundation.semantics.dialog
-import androidx.ui.semantics.Semantics
 
 /**
  * Opens a dialog with the given content.
@@ -71,7 +72,7 @@ fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
 
     onCommit {
         dialog.setContent {
-            Semantics(container = true, properties = { this.dialog = true }, children = children)
+            Box(Modifier.semantics { this.dialog = true }, children = children)
         }
     }
 }

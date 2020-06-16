@@ -20,15 +20,15 @@ import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.StructurallyEqual
 import androidx.compose.ambientOf
-import androidx.ui.text.CoreText
 import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.text
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.Paragraph
+import androidx.ui.text.CoreText
 import androidx.ui.text.InlineTextContent
+import androidx.ui.text.Paragraph
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
@@ -211,18 +211,16 @@ fun Text(
         )
     )
     // TODO: text could contain composables, should be the final text
-    Semantics(properties = { this.text = text }) {
-        CoreText(
-            text,
-            modifier,
-            mergedStyle,
-            softWrap,
-            overflow,
-            maxLines,
-            inlineContent,
-            onTextLayout
-        )
-    }
+    CoreText(
+        text,
+        modifier.semantics { this.text = text },
+        mergedStyle,
+        softWrap,
+        overflow,
+        maxLines,
+        inlineContent,
+        onTextLayout
+    )
 }
 
 private val TextStyleAmbient = ambientOf(StructurallyEqual) { TextStyle() }

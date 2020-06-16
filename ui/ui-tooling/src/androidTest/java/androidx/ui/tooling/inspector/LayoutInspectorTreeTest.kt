@@ -121,7 +121,9 @@ class LayoutInspectorTreeTest : ToolingTest() {
                 assertThat(node.width.toDp().value).isWithin(2.0f).of(width.value)
                 assertThat(node.height.toDp().value).isWithin(2.0f).of(height.value)
             }
-            assertThat(node.children.map { it.name }).containsExactlyElementsIn(children).inOrder()
+            assertThat(node.children.map { it.name })
+                .containsExactlyElementsIn(children)
+                .inOrder()
         }
 
         validate(
@@ -177,8 +179,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
         )
         validate(
             name = "CoreText",
-            fileName = "Text.kt",
-            function = "androidx.ui.foundation.TextKt\$Text[###].invoke",
+            fileName = "CoreText.kt",
+            function = "androidx.ui.text.CoreTextKt.CoreText",
             left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 18.9.dp
         )
         validate(
@@ -278,8 +280,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
         )
         validate(
             name = "CoreText",
-            fileName = "Text.kt",
-            function = "androidx.ui.foundation.TextKt\$Text[###].invoke",
+            fileName = "CoreText.kt",
+            function = "androidx.ui.text.CoreTextKt.CoreText",
             left = 21.8.dp, top = 27.6.dp, width = 20.4.dp, height = 18.9.dp
         )
         assertThat(nodeIterator.hasNext()).isFalse()

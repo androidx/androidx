@@ -34,7 +34,6 @@ import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.semantics.semantics
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
 import androidx.ui.geometry.Offset
@@ -42,7 +41,7 @@ import androidx.ui.unit.IntSize
 import androidx.ui.util.fastAny
 
 /**
- * Combines [tapGestureFilter] and [Semantics] for the clickable
+ * Combines [tapGestureFilter] and Semantics for the clickable
  * components like Button.
  *
  * @sample androidx.ui.foundation.samples.ClickableSample

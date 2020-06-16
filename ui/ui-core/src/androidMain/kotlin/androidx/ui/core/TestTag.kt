@@ -19,7 +19,6 @@ package androidx.ui.core
 import androidx.compose.Composable
 import androidx.compose.Stable
 import androidx.ui.core.semantics.semantics
-import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.testTag
 
@@ -31,7 +30,10 @@ import androidx.ui.semantics.testTag
 @Composable
 @Deprecated(message = "Use Modifier.testTag instead.")
 fun TestTag(tag: String, children: @Composable () -> Unit) {
-    Semantics(properties = { testTag = tag }, children = children)
+    @Suppress("DEPRECATION")
+    PassThroughLayout(
+        Modifier.semantics(applyToChildLayoutNode = true, properties = { testTag = tag }),
+        children)
 }
 
 /**
