@@ -34,8 +34,11 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
+import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertShape
+import androidx.ui.test.assertWidthIsAtLeast
+import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
@@ -51,7 +54,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.math.roundToInt
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -107,33 +109,33 @@ class FloatingActionButtonTest {
 
     @Test
     fun extendedFab_longText_HasHeightFromSpec() {
-        val size = composeTestRule
-            .setMaterialContentAndGetPixelSize {
-                ExtendedFloatingActionButton(
-                    text = { Text("Extended FAB Text") },
-                    icon = { Icon(Icons.Filled.Favorite) },
-                    onClick = {}
-                )
-            }
-        with(composeTestRule.density) {
-            assertThat(size.height.roundToInt().toFloat()).isEqualTo(48.dp.toIntPx())
-            assertThat(size.width.roundToInt().toFloat()).isAtLeast(48.dp.toIntPx())
+        composeTestRule.setMaterialContent {
+            ExtendedFloatingActionButton(
+                modifier = Modifier.testTag("FAB"),
+                text = { Text("Extended FAB Text") },
+                icon = { Icon(Icons.Filled.Favorite) },
+                onClick = {}
+            )
         }
+
+        findByTag("FAB")
+            .assertHeightIsEqualTo(48.dp)
+            .assertWidthIsAtLeast(48.dp)
     }
 
     @Test
     fun extendedFab_shortText_HasMinimumSizeFromSpec() {
-        val size = composeTestRule
-            .setMaterialContentAndGetPixelSize {
-                ExtendedFloatingActionButton(
-                    text = { Text(".") },
-                    onClick = {}
-                )
-            }
-        with(composeTestRule.density) {
-            assertThat(size.width.roundToInt().toFloat()).isEqualTo(48.dp.toIntPx())
-            assertThat(size.height.roundToInt().toFloat()).isEqualTo(48.dp.toIntPx())
+        composeTestRule.setMaterialContent {
+            ExtendedFloatingActionButton(
+                modifier = Modifier.testTag("FAB"),
+                text = { Text(".") },
+                onClick = {}
+            )
         }
+
+        findByTag("FAB")
+            .assertWidthIsEqualTo(48.dp)
+            .assertHeightIsEqualTo(48.dp)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
