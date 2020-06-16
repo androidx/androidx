@@ -20,14 +20,12 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnScope.gravity
 import androidx.ui.layout.Row
@@ -40,6 +38,7 @@ import androidx.ui.material.Checkbox
 import androidx.ui.material.EmphasisAmbient
 import androidx.ui.material.FilledTextField
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.OutlinedTextField
 import androidx.ui.material.RadioGroup
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
@@ -49,55 +48,75 @@ import androidx.ui.material.samples.FilledTextFieldWithErrorState
 import androidx.ui.material.samples.FilledTextFieldWithIcons
 import androidx.ui.material.samples.FilledTextFieldWithPlaceholder
 import androidx.ui.material.samples.PasswordFilledTextField
+import androidx.ui.material.samples.SimpleOutlinedTextFieldSample
 import androidx.ui.material.samples.TextFieldWithHelperMessage
 import androidx.ui.material.samples.TextFieldWithHideKeyboardOnImeAction
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.unit.dp
+
 @Composable
 fun TextFieldsDemo() {
-    val space = with(DensityAmbient.current) { 5.dp.toIntPx() }
-    Column(
-        modifier = Modifier.fillMaxHeight().padding(10.dp),
-        verticalArrangement = arrangeWithSpacer(space)
-    ) {
-        Text("Password text field")
-        PasswordFilledTextField()
-        Text("Text field with leading and trailing icons")
-        FilledTextFieldWithIcons()
-        Text("Text field with placeholder")
-        FilledTextFieldWithPlaceholder()
-        Text("Text field with error state handling")
-        FilledTextFieldWithErrorState()
-        Text("Text field with helper/error message")
-        TextFieldWithHelperMessage()
-        Text("Hide keyboard on IME action")
-        TextFieldWithHideKeyboardOnImeAction()
-        Text("TextFieldValue overload")
-        FilledTextFieldSample()
+    VerticalScroller {
+        Column(
+            modifier = Modifier.fillMaxHeight().padding(10.dp)
+        ) {
+            Text("Password text field")
+            PasswordFilledTextField()
+            Text("Text field with leading and trailing icons")
+            FilledTextFieldWithIcons()
+            Text("Outlined text field")
+            SimpleOutlinedTextFieldSample()
+            Text("Text field with placeholder")
+            FilledTextFieldWithPlaceholder()
+            Text("Text field with error state handling")
+            FilledTextFieldWithErrorState()
+            Text("Text field with helper/error message")
+            TextFieldWithHelperMessage()
+            Text("Hide keyboard on IME action")
+            TextFieldWithHideKeyboardOnImeAction()
+            Text("TextFieldValue overload")
+            FilledTextFieldSample()
+        }
     }
 }
 
 @Composable
-fun FilledTextFieldDemo() {
+fun MaterialTextFieldDemo() {
     Column(Modifier.padding(10.dp)) {
         var text by savedInstanceState { "" }
         var leadingChecked by savedInstanceState { false }
         var trailingChecked by savedInstanceState { false }
         val characterCounterChecked by savedInstanceState { false }
         var selectedOption by savedInstanceState { Option.None }
+        var selectedTextField by savedInstanceState { TextFieldType.Filled }
 
-        val textField = @Composable {
-            FilledTextField(
-                value = text,
-                onValueChange = { text = it },
-                label = {
-                    val label = "Label" + if (selectedOption == Option.Error) "*" else ""
-                    Text(text = label)
-                },
-                leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
-                trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
-                isErrorValue = selectedOption == Option.Error
-            )
+        val textField: @Composable () -> Unit = @Composable {
+            when (selectedTextField) {
+                TextFieldType.Filled ->
+                    FilledTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        label = {
+                            val label = "Label" + if (selectedOption == Option.Error) "*" else ""
+                            Text(text = label)
+                        },
+                        leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
+                        trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
+                        isErrorValue = selectedOption == Option.Error
+                    )
+                TextFieldType.Outlined ->
+                    OutlinedTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        label = {
+                            val label = "Label" + if (selectedOption == Option.Error) "*" else ""
+                            Text(text = label)
+                        },
+                        leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
+                        trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
+                        isErrorValue = selectedOption == Option.Error
+                    )
+            }
         }
 
         Box(Modifier.preferredHeight(150.dp).gravity(Alignment.CenterHorizontally)) {
@@ -109,6 +128,13 @@ fun FilledTextFieldDemo() {
         }
 
         Column {
+            Title("Text field type")
+            RadioGroup(
+                options = TextFieldType.values().map { it.name },
+                selectedOption = selectedTextField.name,
+                onSelectedChange = { selectedTextField = TextFieldType.valueOf(it) }
+            )
+
             Title("Options")
             OptionRow(
                 title = "Leading icon",
@@ -193,18 +219,4 @@ private fun OptionRow(
  */
 private enum class Option { None, Helper, Error }
 
-private fun arrangeWithSpacer(space: Int) = object : Arrangement.Vertical {
-    override fun arrange(
-        totalSize: Int,
-        size: List<Int>,
-        layoutDirection: LayoutDirection
-    ): List<Int> {
-        val positions = mutableListOf<Int>()
-        var current = 0
-        size.forEach {
-            positions.add(current)
-            current += (it + space)
-        }
-        return positions
-    }
-}
+private enum class TextFieldType { Filled, Outlined }

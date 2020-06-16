@@ -38,7 +38,7 @@ val MaterialDemos = DemoCategory("Material", listOf(
     ComposableDemo("Emphasis") { EmphasisSample() },
     ComposableDemo("ListItems") { ListItemDemo() },
     DemoCategory("TextFields", listOf(
-        ComposableDemo("FilledTextField") { FilledTextFieldDemo() },
+        ComposableDemo("FilledTextField/OutlinedTextField") { MaterialTextFieldDemo() },
         ComposableDemo("Multiple text fields") { TextFieldsDemo() }
     )),
     ComposableDemo("Material Theme") { MaterialThemeDemo() },
