@@ -18,10 +18,16 @@ package androidx.biometric;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import android.os.Build;
+import android.os.Handler;
 
 import androidx.annotation.NonNull;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,12 +36,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.concurrent.Executor;
 
-@MediumTest
+@LargeTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class BiometricFragmentTest {
@@ -46,68 +55,84 @@ public class BiometricFragmentTest {
         }
     };
 
-    @Mock
-    public BiometricPrompt.AuthenticationCallback mAuthenticationCallback;
+    @Mock private BiometricPrompt.AuthenticationCallback mAuthenticationCallback;
+    @Mock private Handler mHandler;
 
-    @Captor
-    public ArgumentCaptor<BiometricPrompt.AuthenticationResult> mResultCaptor;
+    @Captor private ArgumentCaptor<BiometricPrompt.AuthenticationResult> mResultCaptor;
 
     private BiometricFragment mFragment;
+    private BiometricViewModel mViewModel;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        prepareMockHandler(mHandler);
         mFragment = BiometricFragment.newInstance();
+        mViewModel = new BiometricViewModel();
+        mFragment.mHandler = mHandler;
+        mFragment.mViewModel = mViewModel;
     }
 
     @Test
     public void testCancel_DoesNotCrash_WhenNotAssociatedWithFragmentManager() {
-        mFragment.cancel(BiometricFragment.USER_CANCELED_FROM_NONE);
+        mFragment.cancelAuthentication(BiometricFragment.CANCELED_FROM_NONE);
     }
 
     @Test
-    public void testOnBiometricSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
-        mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
-        mFragment.mAwaitingResult = true;
-        mFragment.mCallbackProvider.getBiometricCallback()
-                .onAuthenticationSucceeded(null /* result */);
+    public void testOnAuthenticationSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
+        mViewModel.setClientExecutor(EXECUTOR);
+        mViewModel.setClientCallback(mAuthenticationCallback);
+        mViewModel.setAwaitingResult(true);
+
+        mFragment.onAuthenticationSucceeded(new BiometricPrompt.AuthenticationResult(null));
 
         verify(mAuthenticationCallback).onAuthenticationSucceeded(mResultCaptor.capture());
         assertThat(mResultCaptor.getValue().getCryptoObject()).isNull();
     }
 
     @Test
-    public void testOnFingerprintSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
-        mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
-        mFragment.mAwaitingResult = true;
-        mFragment.mCallbackProvider.getFingerprintCallback()
-                .onAuthenticationSucceeded(null /* result */);
-
-        verify(mAuthenticationCallback).onAuthenticationSucceeded(mResultCaptor.capture());
-        assertThat(mResultCaptor.getValue().getCryptoObject()).isNull();
-    }
-
-    @Test
-    public void testOnFingerprintError_DoesShowErrorAndDismissDialog_WhenHardwareUnavailable() {
+    @Config(minSdk = Build.VERSION_CODES.M, maxSdk = Build.VERSION_CODES.O_MR1)
+    public void testOnFingerprintError_DoesShowErrorAndDismiss_WhenHardwareUnavailable() {
         final int errMsgId = BiometricConstants.ERROR_HW_UNAVAILABLE;
         final String errString = "lorem ipsum";
 
-        mFragment.setClientCallback(EXECUTOR, mAuthenticationCallback);
-        mFragment.mAwaitingResult = true;
-        mFragment.mCallbackProvider.getFingerprintCallback()
-                .onAuthenticationError(errMsgId, errString);
+        mViewModel.setClientExecutor(EXECUTOR);
+        mViewModel.setClientCallback(mAuthenticationCallback);
+        mViewModel.setPromptShowing(true);
+        mViewModel.setAwaitingResult(true);
+        mViewModel.setFingerprintDialogDismissedInstantly(false);
 
+        mFragment.onAuthenticationError(errMsgId, errString);
+
+        assertThat(mViewModel.getFingerprintDialogState().getValue())
+                .isEqualTo(FingerprintDialogFragment.STATE_FINGERPRINT_ERROR);
+        assertThat(mViewModel.getFingerprintDialogHelpMessage().getValue()).isEqualTo(errString);
+        assertThat(mViewModel.isPromptShowing()).isFalse();
         verify(mAuthenticationCallback).onAuthenticationError(errMsgId, errString);
-        assertThat(mFragment.isVisible()).isFalse();
     }
 
     @Test
-    public void testShowBiometricPrompt_ReturnsWithoutError_WhenDetached() {
-        mFragment.showBiometricPromptForAuthentication();
+    public void testAuthenticate_ReturnsWithoutError_WhenDetached() {
+        mFragment.authenticate(
+                new BiometricPrompt.PromptInfo.Builder()
+                        .setTitle("Title")
+                        .setNegativeButtonText("Cancel")
+                        .build(),
+                null /* crypto */);
     }
 
-    @Test
-    public void testShowFingerprintDialog_ReturnsWithoutError_WhenDetached() {
-        mFragment.showFingerprintDialogForAuthentication();
+    private static void prepareMockHandler(Handler mockHandler) {
+        // Immediately invoke any scheduled callbacks.
+        when(mockHandler.postDelayed(any(Runnable.class), anyLong()))
+                .thenAnswer(new Answer<Boolean>() {
+                    @Override
+                    public Boolean answer(InvocationOnMock invocation) {
+                        final Runnable runnable = invocation.getArgument(0);
+                        if (runnable != null) {
+                            runnable.run();
+                        }
+                        return true;
+                    }
+                });
     }
 }
