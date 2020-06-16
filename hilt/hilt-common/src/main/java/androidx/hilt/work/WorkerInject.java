@@ -44,8 +44,7 @@ import dagger.hilt.GeneratesRootInput;
  * }
  * </pre>
  * <pre>
- * &#64;GenerateComponents
- * &#64;AndroidEntryPoint
+ * &#64;HiltAndroidApp
  * public class MyApplication extends Application implements Configuration.Provider {
  *     &#64;Inject HiltWorkerFactory workerFactory;
  *
