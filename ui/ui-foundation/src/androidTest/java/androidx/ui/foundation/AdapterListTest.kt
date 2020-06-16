@@ -23,13 +23,12 @@ import androidx.compose.onDispose
 import androidx.compose.setValue
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.height
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.size
-import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.testTag
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.children
 import androidx.ui.test.createComposeRule
@@ -65,22 +64,20 @@ class AdapterListTest {
         val data = (1..50).toList()
 
         composeTestRule.setContent {
-            Semantics(container = true, properties = { testTag = AdapterListTag }) {
-                // Fixed height to eliminate device size as a factor
-                Box(Modifier.preferredHeight(300.dp)) {
-                    AdapterList(data = data, modifier = Modifier.fillMaxSize()) {
-                        onCommit {
-                            composed = true
-                            // Signal when everything is done composing
-                            latch.countDown()
-                            onDispose {
-                                disposed = true
-                            }
+            // Fixed height to eliminate device size as a factor
+            Box(Modifier.testTag(AdapterListTag).preferredHeight(300.dp)) {
+                AdapterList(data = data, modifier = Modifier.fillMaxSize()) {
+                    onCommit {
+                        composed = true
+                        // Signal when everything is done composing
+                        latch.countDown()
+                        onDispose {
+                            disposed = true
                         }
-
-                        // There will be 10 of these in the 300dp box
-                        Spacer(Modifier.preferredHeight(31.dp))
                     }
+
+                    // There will be 10 of these in the 300dp box
+                    Spacer(Modifier.preferredHeight(31.dp))
                 }
             }
         }
@@ -121,26 +118,24 @@ class AdapterListTest {
         var part2 by mutableStateOf(false)
 
         composeTestRule.setContent {
-            Semantics(container = true, properties = { testTag = AdapterListTag }) {
-                AdapterList(
-                    data = if (!part2) data1 else data2,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    onCommit {
-                        composed = true
-                        // Signal when everything is done composing
-                        if (!part2) {
-                            latch1.countDown()
-                        } else {
-                            latch2.countDown()
-                        }
-                        onDispose {
-                            disposals++
-                        }
+            AdapterList(
+                data = if (!part2) data1 else data2,
+                modifier = Modifier.testTag(AdapterListTag).fillMaxSize()
+            ) {
+                onCommit {
+                    composed = true
+                    // Signal when everything is done composing
+                    if (!part2) {
+                        latch1.countDown()
+                    } else {
+                        latch2.countDown()
                     }
-
-                    Spacer(Modifier.height(50.dp))
+                    onDispose {
+                        disposals++
+                    }
                 }
+
+                Spacer(Modifier.height(50.dp))
             }
         }
 
@@ -209,12 +204,8 @@ class AdapterListTest {
         var numItemsModel by mutableStateOf(numItems)
         val tag = "List"
         composeTestRule.setContent {
-            Semantics(container = true, properties = { testTag = tag }) {
-                AdapterList((1..numItemsModel).toList()) {
-                    Semantics(container = true) {
-                        Text("$it")
-                    }
-                }
+            AdapterList((1..numItemsModel).toList(), modifier = Modifier.testTag(tag)) {
+                Text("$it")
             }
         }
 
@@ -252,12 +243,8 @@ class AdapterListTest {
         var dataModel by mutableStateOf(dataLists[0])
         val tag = "List"
         composeTestRule.setContent {
-            Semantics(container = true, properties = { testTag = tag }) {
-                AdapterList(dataModel) {
-                    Semantics(container = true) {
-                        Text("$it")
-                    }
-                }
+            AdapterList(dataModel, modifier = Modifier.testTag(tag)) {
+                Text("$it")
             }
         }
 

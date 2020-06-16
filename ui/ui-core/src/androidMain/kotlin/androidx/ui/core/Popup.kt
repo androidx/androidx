@@ -38,7 +38,7 @@ import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.ui.semantics.Semantics
+import androidx.ui.core.semantics.semantics
 import androidx.ui.semantics.popup
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
@@ -200,15 +200,13 @@ fun Popup(
     val recomposer = currentComposer.recomposer
     onCommit {
         composition = popupLayout.setContent(recomposer) {
-            Semantics(container = true, properties = { this.popup = true }) {
-                SimpleStack(Modifier.onPositioned {
-                    // Get the size of the content
-                    popupLayout.popupPositionProperties.childrenSize = it.size
+            SimpleStack(Modifier.semantics { this.popup = true }.onPositioned {
+                // Get the size of the content
+                popupLayout.popupPositionProperties.childrenSize = it.size
 
-                    // Update the popup's position
-                    popupLayout.updatePosition()
-                }, children = children)
-            }
+                // Update the popup's position
+                popupLayout.updatePosition()
+            }, children = children)
         }
     }
 
