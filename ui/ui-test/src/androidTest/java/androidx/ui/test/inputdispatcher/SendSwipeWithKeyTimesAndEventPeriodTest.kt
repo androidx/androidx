@@ -20,6 +20,7 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_UP
 import androidx.test.filters.SmallTest
 import androidx.ui.geometry.Offset
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
@@ -92,7 +93,7 @@ class SendSwipeWithKeyTimesAndEventPeriodTest(private val config: TestConfig) {
     }
 
     @get:Rule
-    val inputDispatcherRule: TestRule = AndroidInputDispatcher.TestRule(
+    val inputDispatcherRule: TestRule = InputDispatcherTestRule(
         disableDispatchInRealTime = true,
         eventPeriodOverride = config.eventPeriod
     )

@@ -31,16 +31,24 @@ internal fun AndroidInputDispatcher.movePointerAndCheck(pointerId: Int, position
     assertThat(getCurrentPosition(pointerId)).isEqualTo(position)
 }
 
-internal fun AndroidInputDispatcher.sendUpAndCheck(pointerId: Int) {
-    sendUp(pointerId)
+internal fun AndroidInputDispatcher.sendUpAndCheck(pointerId: Int, delay: Long? = null) {
+    if (delay != null) {
+        sendUp(pointerId, delay)
+    } else {
+        sendUp(pointerId)
+    }
     assertThat(getCurrentPosition(pointerId)).isNull()
 }
 
-internal fun AndroidInputDispatcher.sendCancelAndCheck() {
-    sendCancel()
+internal fun AndroidInputDispatcher.sendCancelAndCheck(delay: Long? = null) {
+    if (delay != null) {
+        sendCancel(delay)
+    } else {
+        sendCancel()
+    }
     verifyNoGestureInProgress()
 }
 
 internal fun InputDispatcher.verifyNoGestureInProgress() {
-    assertThat(getState().partialGesture).isNull()
+    assertThat(isGestureInProgress).isFalse()
 }

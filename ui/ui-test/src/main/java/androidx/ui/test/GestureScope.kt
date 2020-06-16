@@ -22,6 +22,7 @@ import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.lerp
+import androidx.ui.test.InputDispatcher.Companion.eventPeriod
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.PxBounds
@@ -29,6 +30,7 @@ import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import androidx.ui.util.lerp
 import kotlin.math.atan2
+import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sign
@@ -67,7 +69,7 @@ sealed class BaseGestureScope(node: SemanticsNode) {
         }
 
     internal fun dispose() {
-        InputDispatcher.saveState(owner, inputDispatcher)
+        inputDispatcher.saveState(owner)
         _semanticsNode = null
         _inputDispatcher = null
     }
@@ -358,10 +360,13 @@ fun GestureScope.sendSwipeWithVelocity(
     require(endVelocity >= 0f) {
         "Velocity cannot be $endVelocity, it must be positive"
     }
-    // TODO(b/146551983): require that duration >= 2.5 * eventPeriod
-    // TODO(b/146551983): check that eventPeriod < 40 milliseconds
-    require(duration >= 25.milliseconds) {
-        "Duration must be at least 25ms because velocity requires at least 3 input events"
+    require(eventPeriod < 40.milliseconds.inMilliseconds()) {
+        "InputDispatcher.eventPeriod must be smaller than 40ms in order to generate velocities"
+    }
+    val minimumDuration = ceil(2.5f * eventPeriod).roundToInt()
+    require(duration >= minimumDuration.milliseconds) {
+        "Duration must be at least ${minimumDuration}ms because " +
+                "velocity requires at least 3 input events"
     }
     val globalStart = localToGlobal(start)
     val globalEnd = localToGlobal(end)

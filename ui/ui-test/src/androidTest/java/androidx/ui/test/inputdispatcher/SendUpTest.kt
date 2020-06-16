@@ -22,6 +22,8 @@ import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import androidx.test.filters.SmallTest
 import androidx.ui.geometry.Offset
+import androidx.ui.test.InputDispatcher.Companion.eventPeriod
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
@@ -50,8 +52,7 @@ class SendUpTest {
     }
 
     @get:Rule
-    val inputDispatcherRule: TestRule =
-        AndroidInputDispatcher.TestRule(disableDispatchInRealTime = true)
+    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
 
     private val recorder = MotionEventRecorder()
     private val subject = AndroidInputDispatcher(recorder::recordEvent)
@@ -75,6 +76,26 @@ class SendUpTest {
             this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
             this[0].verifyPointer(pointer1, position1_1)
 
+            this[1].verifyEvent(1, ACTION_UP, 0, t) // pointer1
+            this[1].verifyPointer(pointer1, position1_1)
+        }
+    }
+
+    @Test
+    fun onePointerWithDelay() {
+        subject.sendDownAndCheck(pointer1, position1_1)
+        subject.sendUpAndCheck(pointer1, 2 * eventPeriod)
+        subject.verifyNoGestureInProgress()
+
+        recorder.assertHasValidEventTimes()
+        recorder.events.apply {
+            var t = 0L
+            assertThat(this).hasSize(2)
+
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
+            this[0].verifyPointer(pointer1, position1_1)
+
+            t += 2 * eventPeriod
             this[1].verifyEvent(1, ACTION_UP, 0, t) // pointer1
             this[1].verifyPointer(pointer1, position1_1)
         }

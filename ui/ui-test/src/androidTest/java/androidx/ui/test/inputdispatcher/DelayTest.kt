@@ -21,6 +21,7 @@ import android.view.MotionEvent.ACTION_UP
 import androidx.test.filters.SmallTest
 import androidx.ui.geometry.Offset
 import androidx.ui.test.InputDispatcher
+import androidx.ui.test.InputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.unit.Duration
@@ -85,9 +86,7 @@ class DelayTest(private val config: TestConfig) {
     }
 
     @get:Rule
-    val inputDispatcherRule: TestRule = AndroidInputDispatcher.TestRule(
-        disableDispatchInRealTime = true
-    )
+    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
 
     private val recorder = MotionEventRecorder()
     private val subject = AndroidInputDispatcher(recorder::recordEvent)
