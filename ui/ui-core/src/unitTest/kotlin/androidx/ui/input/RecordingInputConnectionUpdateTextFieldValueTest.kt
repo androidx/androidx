@@ -48,7 +48,7 @@ class RecordingInputConnectionUpdateTextFieldValueTest {
         ic = RecordingInputConnection(
             TextFieldValue(
                 "",
-                TextRange(0)
+                TextRange.Zero
             ), listener
         )
     }
@@ -58,7 +58,7 @@ class RecordingInputConnectionUpdateTextFieldValueTest {
         val imm: InputMethodManager = mock()
         val view: View = mock()
 
-        val inputState = TextFieldValue(text = "Hello, World.", selection = TextRange(0))
+        val inputState = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         ic.updateInputState(inputState, imm, view)
 
@@ -73,7 +73,7 @@ class RecordingInputConnectionUpdateTextFieldValueTest {
 
         ic.getExtractedText(null, InputConnection.GET_EXTRACTED_TEXT_MONITOR)
 
-        val inputState = TextFieldValue(text = "Hello, World.", selection = TextRange(0))
+        val inputState = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         ic.updateInputState(inputState, imm, view)
 
