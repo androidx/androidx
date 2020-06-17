@@ -26,10 +26,9 @@ import java.util.LinkedHashSet;
 @ExperimentalCameraFilter
 public interface CameraFilter {
     /**
-     * Filters a set of {@link Camera}s. The method modifies the input set directly, leaves the
-     * cameras that match requirement and removes the rest.
+     * Filters a set of {@link Camera}s and returns those matching the requirements.
      *
-     * <p>If the filtered set has extra cameras contained in the original set, when used by a
+     * <p>If the output set contains cameras not in the input set, when used by a
      * {@link androidx.camera.core.CameraSelector} then it will result in an
      * IllegalArgumentException thrown when calling bindToLifecycle.
      *
@@ -38,7 +37,11 @@ public interface CameraFilter {
      * available cameras will be filtered by all {@link CameraFilter}s by the order they were
      * added. The first camera in the result will be selected if there are multiple cameras left.
      *
-     * @param cameras The set of {@link Camera} being filtered.
+     * @param cameras The input set of {@link Camera}s being filtered. It's not expected to be
+     *                modified.
+     * @return The output set of {@link Camera}s that match the requirements. Users are expected
+     * to create a new set to return with.
      */
-    void filter(@NonNull LinkedHashSet<Camera> cameras);
+    @NonNull
+    LinkedHashSet<Camera> filter(@NonNull LinkedHashSet<Camera> cameras);
 }

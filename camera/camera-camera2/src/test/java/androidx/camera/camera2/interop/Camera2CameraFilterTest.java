@@ -39,11 +39,9 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
@@ -86,31 +84,29 @@ public final class Camera2CameraFilterTest {
     @Test
     public void canFilterWithCamera2Filter() {
         Camera2CameraFilter.Camera2Filter camera2Filter = (idCharMap) -> {
-            Set<String> keyToRemove = new HashSet<>();
+            LinkedHashMap<String, CameraCharacteristics> resultMap = new LinkedHashMap<>();
             for (Map.Entry<String, CameraCharacteristics> entry : idCharMap.entrySet()) {
-                if (!entry.getValue().get(
+                if (entry.getValue().get(
                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL).equals(
                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)) {
-                    keyToRemove.add(entry.getKey());
+                    resultMap.put(entry.getKey(), entry.getValue());
                 }
             }
-            for (String key : keyToRemove) {
-                idCharMap.remove((key));
-            }
+            return resultMap;
         };
 
-        camera2Filter.filter(mIdCharMap);
-        assertThat(mIdCharMap.keySet()).containsExactly(FRONT_ID);
+        assertThat(camera2Filter.filter(mIdCharMap).keySet()).containsExactly(FRONT_ID);
     }
 
     @Test
     public void canSelectWithCameraSelector() {
         CameraFilter filter = Camera2CameraFilter.createCameraFilter((idCharMap) -> {
+            LinkedHashMap<String, CameraCharacteristics> resultMap = new LinkedHashMap<>();
             if (idCharMap.containsKey(FRONT_ID)) {
                 CameraCharacteristics characteristics = idCharMap.get(FRONT_ID);
-                idCharMap.clear();
-                idCharMap.put(FRONT_ID, characteristics);
+                resultMap.put(FRONT_ID, characteristics);
             }
+            return resultMap;
         });
 
         CameraSelector cameraSelector = new CameraSelector.Builder().addCameraFilter(
@@ -119,11 +115,31 @@ public final class Camera2CameraFilterTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void exception_extraCameraId() {
-        CameraFilter filter = Camera2CameraFilter.createCameraFilter(
-                (idCharMap) -> idCharMap.put(EXTRA_ID, null));
+    public void exception_extraOutputCameraId() {
+        CameraFilter filter = Camera2CameraFilter.createCameraFilter((idCharMap) -> {
+            LinkedHashMap<String, CameraCharacteristics> resultMap = new LinkedHashMap<>();
+            // Add an extra camera id to output.
+            resultMap.put(EXTRA_ID, null);
+            return resultMap;
+        });
         CameraSelector cameraSelector = new CameraSelector.Builder().addCameraFilter(
                 filter).build();
+        cameraSelector.select(mCameras);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void exception_extraInputAndOutputCameraId() {
+        CameraFilter filter = Camera2CameraFilter.createCameraFilter((idCharMap) -> {
+            // Add an extra camera id to input.
+            idCharMap.put(EXTRA_ID, null);
+            LinkedHashMap<String, CameraCharacteristics> resultMap = new LinkedHashMap<>();
+            // Add an extra camera id to output.
+            resultMap.put(EXTRA_ID, null);
+            return resultMap;
+        });
+        CameraSelector cameraSelector = new CameraSelector.Builder().addCameraFilter(
+                filter).build();
+        // Should throw an exception even the extra camera id is also added to the input.
         cameraSelector.select(mCameras);
     }
 }

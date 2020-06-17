@@ -25,7 +25,6 @@ import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.core.util.Preconditions;
 
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * A filter that filters camera based on lens facing.
@@ -39,9 +38,10 @@ public class LensFacingCameraFilter implements CameraFilter {
         mLensFacing = lensFacing;
     }
 
+    @NonNull
     @Override
-    public void filter(@NonNull LinkedHashSet<Camera> cameras) {
-        Set<Camera> resultCameras = new LinkedHashSet<>();
+    public LinkedHashSet<Camera> filter(@NonNull LinkedHashSet<Camera> cameras) {
+        LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
         for (Camera camera : cameras) {
             Preconditions.checkState(camera instanceof CameraInternal,
                     "The camera doesn't contain internal implementation.");
@@ -50,7 +50,8 @@ public class LensFacingCameraFilter implements CameraFilter {
                 resultCameras.add(camera);
             }
         }
-        cameras.retainAll(resultCameras);
+
+        return resultCameras;
     }
 
     /** Returns the lens facing associated with this lens facing camera id filter. */
