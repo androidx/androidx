@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+echo "Starting $0 at $(date)"
+
 WORKING_DIR="$(pwd)"
 SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
 cd "$(dirname $0)/../../.."
@@ -36,3 +38,5 @@ LOG_SIMPLIFIER="$SCRIPT_DIR/../development/build_log_simplifier.sh"
 
 "$LOG_SIMPLIFIER" $gw -p frameworks/support --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors
 "$LOG_SIMPLIFIER" DIST_SUBDIR="/ui" $gw -p frameworks/support/ui --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors
+
+echo "Completing $0 at $(date)"
