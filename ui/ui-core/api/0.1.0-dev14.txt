@@ -2201,7 +2201,7 @@ package androidx.ui.semantics {
   }
 
   public final class SemanticsKt {
-    method @androidx.compose.Composable public static void Semantics(boolean container = false, boolean mergeAllDescendants = false, kotlin.jvm.functions.Function1<? super androidx.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? properties = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated @androidx.compose.Composable public static void Semantics(boolean container = false, boolean mergeAllDescendants = false, kotlin.jvm.functions.Function1<? super androidx.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? properties = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class SemanticsProperties {

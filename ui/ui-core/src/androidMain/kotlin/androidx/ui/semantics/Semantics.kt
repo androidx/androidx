@@ -20,6 +20,7 @@ import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
 
+@Deprecated("Semantics() is deprecated. Use Modifier.semantics() instead.")
 @Composable
 fun Semantics(
     /**
