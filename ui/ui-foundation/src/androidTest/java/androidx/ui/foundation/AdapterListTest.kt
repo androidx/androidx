@@ -23,13 +23,20 @@ import androidx.compose.onDispose
 import androidx.compose.setValue
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Modifier
+import androidx.ui.core.gesture.TouchSlop
 import androidx.ui.core.testTag
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.height
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.size
+import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.assertCountEquals
+import androidx.ui.test.assertIsDisplayed
+import androidx.ui.test.assertIsNotDisplayed
+import androidx.ui.test.center
 import androidx.ui.test.children
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
@@ -37,7 +44,10 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendSwipeUp
+import androidx.ui.test.sendSwipeWithVelocity
 import androidx.ui.test.waitForIdle
+import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
@@ -263,4 +273,63 @@ class AdapterListTest {
             }
         }
     }
+
+    @Test
+    fun whenItemsAreInitiallyCreatedWith0SizeWeCanScrollWhenTheyExpanded() {
+        val thirdTag = "third"
+        val items = (1..3).toList()
+        var thirdHasSize by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            AdapterList(
+                data = items,
+                modifier = Modifier.fillMaxWidth()
+                    .preferredHeight(100.dp)
+                    .testTag(AdapterListTag)
+            ) {
+                if (it == 3) {
+                    Spacer(Modifier.testTag(thirdTag)
+                        .fillMaxWidth()
+                        .preferredHeight(if (thirdHasSize) 60.dp else 0.dp))
+                } else {
+                    Spacer(Modifier.fillMaxWidth().preferredHeight(60.dp))
+                }
+            }
+        }
+
+        findByTag(AdapterListTag)
+            .scrollBy(y = 21.dp, density = composeTestRule.density)
+
+        findByTag(thirdTag)
+            .assertExists()
+            .assertIsNotDisplayed()
+
+        runOnIdleCompose {
+            thirdHasSize = true
+        }
+
+        waitForIdle()
+
+        findByTag(AdapterListTag)
+            .scrollBy(y = 10.dp, density = composeTestRule.density)
+
+        findByTag(thirdTag)
+            .assertIsDisplayed()
+    }
 }
+
+internal fun SemanticsNodeInteraction.scrollBy(x: Dp = 0.dp, y: Dp = 0.dp, density: Density) =
+    doGesture {
+        with(density) {
+            val touchSlop = TouchSlop.toIntPx()
+            val xPx = x.toIntPx()
+            val yPx = y.toIntPx()
+            val offsetX = if (xPx > 0) xPx + touchSlop else if (xPx < 0) xPx - touchSlop else 0
+            val offsetY = if (yPx > 0) yPx + touchSlop else if (yPx < 0) xPx - touchSlop else 0
+            sendSwipeWithVelocity(
+                start = center,
+                end = Offset(center.x - offsetX, center.y - offsetY),
+                endVelocity = 0f
+            )
+        }
+    }

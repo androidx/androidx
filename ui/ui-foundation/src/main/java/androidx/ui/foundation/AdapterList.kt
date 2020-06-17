@@ -43,6 +43,7 @@ import androidx.ui.core.subcomposeInto
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.foundation.gestures.scrollable
+import androidx.ui.layout.Spacer
 import kotlin.math.abs
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -307,7 +308,7 @@ private class ListState<T> {
             // TODO: handle the case where we can't fill the viewport due to children shrinking,
             //  but there are more items at the start that we could fill with
             var index = itemIndexOffset
-            while (heightUsed < height && index.value < data.size) {
+            while (heightUsed <= height && index.value < data.size) {
                 val node = getNodeForDataIndex(index)
                 if (measuredThisPass[index] != true) {
                     node.measure(childConstraints, layoutDirection)
@@ -515,7 +516,10 @@ private val ListItemMeasureBlocks = MeasuringIntrinsicsMeasureBlocks { measurabl
  * @param data the backing list of data to display
  * @param modifier the modifier to apply to this `AdapterList`
  * @param itemCallback a callback that takes an item from [data] and emits the UI for that item.
- * May emit any number of components, which will be stacked vertically
+ * May emit any number of components, which will be stacked vertically. Note that [AdapterList]
+ * can start scrolling incorrectly if you emit nothing and then lazily recompose with the real
+ * content, so even if you load the content asynchronously please reserve some space for the
+ * item, for example using [Spacer].
  */
 @Composable
 fun <T> AdapterList(
