@@ -26,6 +26,7 @@ import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.layout.rtl
 import androidx.ui.material.FilledTextField
 import androidx.ui.material.GOLDEN_MATERIAL
 import androidx.ui.material.OutlinedTextField
@@ -101,6 +102,24 @@ class TextFieldScreenshotTest {
     }
 
     @Test
+    fun outlinedTextField_focused_rtl() {
+        composeTestRule.setMaterialContent {
+            Box(Modifier.semantics(mergeAllDescendants = true).testTag(TextFieldTag).rtl) {
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = { Text("Label") }
+                )
+            }
+        }
+
+        findByTag(TextFieldTag)
+            .doClick()
+
+        assertAgainstGolden("outlined_textField_focused_rtl")
+    }
+
+    @Test
     fun filledTextField_withInput() {
         composeTestRule.setMaterialContent {
             Box(Modifier.semantics(mergeAllDescendants = true).testTag(TextFieldTag)) {
@@ -146,6 +165,24 @@ class TextFieldScreenshotTest {
             .doClick()
 
         assertAgainstGolden("filled_textField_focused")
+    }
+
+    @Test
+    fun filledTextField_focused_rtl() {
+        composeTestRule.setMaterialContent {
+            Box(Modifier.semantics(mergeAllDescendants = true).testTag(TextFieldTag).rtl) {
+                FilledTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = { Text("Label") }
+                )
+            }
+        }
+
+        findByTag(TextFieldTag)
+            .doClick()
+
+        assertAgainstGolden("filled_textField_focused_rtl")
     }
 
     private fun assertAgainstGolden(goldenIdentifier: String) {

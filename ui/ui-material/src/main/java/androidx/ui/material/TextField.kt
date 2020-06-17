@@ -1510,9 +1510,15 @@ private fun Modifier.drawOutlinedBorder(
         } else {
             val effectivePadding = padding - innerPadding - dx - lineWidth / 2
             val gap = diff + 2 * innerPadding
-            relativeLineTo(-effectiveWidth + effectivePadding + gap, 0f)
-            relativeMoveTo(-gap, 0f)
-            relativeLineTo(-effectivePadding, 0f)
+            if (layoutDirection == LayoutDirection.Ltr) {
+                relativeLineTo(-effectiveWidth + effectivePadding + gap, 0f)
+                relativeMoveTo(-gap, 0f)
+                relativeLineTo(-effectivePadding, 0f)
+            } else {
+                relativeLineTo(-effectivePadding, 0f)
+                relativeMoveTo(-gap, 0f)
+                relativeLineTo(-effectiveWidth + gap + effectivePadding, 0f)
+            }
         }
 
         // top-left corner and left line
