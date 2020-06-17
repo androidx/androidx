@@ -2740,6 +2740,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
         if (listener != null) {
             listener.onStartEnterTransition();
+        } else if (FragmentManager.USE_STATE_MANAGER && mView != null
+                && mContainer != null && mFragmentManager != null) {
+            SpecialEffectsController controller = SpecialEffectsController.getOrCreateController(
+                    mContainer, mFragmentManager);
+            controller.markPostponedState();
+            controller.executePendingOperations();
         }
     }
 

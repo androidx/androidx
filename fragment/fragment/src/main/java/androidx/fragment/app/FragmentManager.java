@@ -2102,6 +2102,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     records, startIndex, endIndex);
             for (SpecialEffectsController controller : changedControllers) {
                 controller.updateOperationDirection(isPop);
+                controller.markPostponedState();
                 controller.executePendingOperations();
             }
         } else {
@@ -2375,9 +2376,16 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * Starts all postponed transactions regardless of whether they are ready or not.
      */
     private void forcePostponedTransactions() {
-        if (mPostponedTransactions != null) {
-            while (!mPostponedTransactions.isEmpty()) {
-                mPostponedTransactions.remove(0).completeTransaction();
+        if (USE_STATE_MANAGER) {
+            Set<SpecialEffectsController> controllers = collectAllSpecialEffectsController();
+            for (SpecialEffectsController controller : controllers) {
+                controller.forcePostponedExecutePendingOperations();
+            }
+        } else {
+            if (mPostponedTransactions != null) {
+                while (!mPostponedTransactions.isEmpty()) {
+                    mPostponedTransactions.remove(0).completeTransaction();
+                }
             }
         }
     }
