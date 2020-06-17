@@ -19,7 +19,14 @@
     android:height="24dp"
     android:viewportHeight="24"
     android:viewportWidth="24">
-    <group>
+    <group
+        android:pivotX="1"
+        android:pivotY="2"
+        android:rotation="3"
+        android:scaleX="4"
+        android:scaleY="5"
+        android:translateX="6"
+        android:translateY="7">
         <clip-path android:pathData="M20,10, 10,0z" />
         <path
             android:fillColor="#FFFF0000"
