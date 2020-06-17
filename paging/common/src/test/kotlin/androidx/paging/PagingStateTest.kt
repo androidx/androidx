@@ -16,25 +16,22 @@
 
 package androidx.paging
 
+import androidx.paging.PagingSource.LoadResult.Page
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class PagingStateTest {
     @Test
     fun closestItemToPosition_withoutPlaceholders() {
         val pagingState = PagingState(
-            pages = listOf(
-                PagingSource.LoadResult.Page(
-                    data = List(10) { it },
-                    prevKey = null,
-                    nextKey = null
-                )
-            ),
+            pages = listOf(List(10) { it }).asPages(),
             anchorPosition = 10,
-            config = PagingConfig(pageSize = 10, prefetchDistance = 0),
+            config = PagingConfig(pageSize = 10),
             placeholdersBefore = 0
         )
 
@@ -46,15 +43,9 @@ class PagingStateTest {
     @Test
     fun closestItemToPosition_withPlaceholders() {
         val pagingState = PagingState(
-            pages = listOf(
-                PagingSource.LoadResult.Page(
-                    data = List(10) { it },
-                    prevKey = null,
-                    nextKey = null
-                )
-            ),
+            pages = listOf(List(10) { it }).asPages(),
             anchorPosition = 10,
-            config = PagingConfig(pageSize = 10, prefetchDistance = 0),
+            config = PagingConfig(pageSize = 10),
             placeholdersBefore = 10
         )
 
@@ -65,17 +56,11 @@ class PagingStateTest {
 
     @Test
     fun closestPageToPosition_withoutPlaceholders() {
-        val pages = List(10) {
-            PagingSource.LoadResult.Page(
-                data = listOf(it),
-                prevKey = null,
-                nextKey = if (it < 9) it else null
-            )
-        }
+        val pages = List(10) { listOf(it) }.asPages()
         val pagingState = PagingState(
             pages = pages,
             anchorPosition = 10,
-            config = PagingConfig(pageSize = 10, prefetchDistance = 0),
+            config = PagingConfig(pageSize = 10),
             placeholdersBefore = 0
         )
 
@@ -86,17 +71,11 @@ class PagingStateTest {
 
     @Test
     fun closestPageToPosition_withPlaceholders() {
-        val pages = List(10) {
-            PagingSource.LoadResult.Page(
-                data = listOf(it),
-                prevKey = null,
-                nextKey = if (it < 9) it else null
-            )
-        }
+        val pages = List(10) { listOf(it) }.asPages()
         val pagingState = PagingState(
             pages = pages,
             anchorPosition = 10,
-            config = PagingConfig(pageSize = 10, prefetchDistance = 0),
+            config = PagingConfig(pageSize = 10),
             placeholdersBefore = 10
         )
 
@@ -104,4 +83,87 @@ class PagingStateTest {
         assertEquals(pages[5], pagingState.closestPageToPosition(15))
         assertEquals(pages.last(), pagingState.closestPageToPosition(25))
     }
+
+    @Test
+    fun itemOrNull_noPages() {
+        val pagingState = PagingState(
+            pages = listOf<Page<Int, Int>>(),
+            anchorPosition = 10,
+            config = PagingConfig(pageSize = 10),
+            placeholdersBefore = 10
+        )
+
+        assertEquals(null, pagingState.firstItemOrNull())
+        assertEquals(null, pagingState.lastItemOrNull())
+    }
+
+    @Test
+    fun itemOrNull_emptyPages() {
+        val pagingState = PagingState(
+            pages = List(10) { listOf<Int>() }.asPages(),
+            anchorPosition = 10,
+            config = PagingConfig(pageSize = 10),
+            placeholdersBefore = 10
+        )
+
+        assertEquals(null, pagingState.firstItemOrNull())
+        assertEquals(null, pagingState.lastItemOrNull())
+    }
+
+    @Test
+    fun itemOrNull_emptyPagesAtEnds() {
+        val pagingState = PagingState(
+            pages = (listOf<List<Int>>() + List(10) { listOf(it) } + listOf()).asPages(),
+            anchorPosition = 10,
+            config = PagingConfig(pageSize = 10),
+            placeholdersBefore = 10
+        )
+
+        assertEquals(0, pagingState.firstItemOrNull())
+        assertEquals(9, pagingState.lastItemOrNull())
+    }
+
+    @Test
+    fun isEmpty_noPages() {
+        val pagingState = PagingState(
+            pages = listOf<Page<Int, Int>>(),
+            anchorPosition = 10,
+            config = PagingConfig(pageSize = 10),
+            placeholdersBefore = 10
+        )
+
+        assertTrue { pagingState.isEmpty() }
+    }
+
+    @Test
+    fun isEmpty_emptyPages() {
+        val pagingState = PagingState(
+            pages = List(10) { listOf<Int>() }.asPages(),
+            anchorPosition = 10,
+            config = PagingConfig(pageSize = 10),
+            placeholdersBefore = 10
+        )
+
+        assertTrue { pagingState.isEmpty() }
+    }
+
+    @Test
+    fun isEmpty_emptyPagesAtEnds() {
+        val pagingState = PagingState(
+            pages = (listOf<List<Int>>() + List(10) { listOf(it) } + listOf()).asPages(),
+            anchorPosition = 10,
+            config = PagingConfig(pageSize = 10),
+            placeholdersBefore = 10
+        )
+
+        assertFalse { pagingState.isEmpty() }
+    }
+}
+
+private fun <T : Any> List<List<T>>.asPages() = mapIndexed { index, page: List<T> ->
+    Page(
+        data = page,
+        prevKey = if (index > 0) index - 1 else null,
+        nextKey = if (index < 9) index else null
+    )
 }

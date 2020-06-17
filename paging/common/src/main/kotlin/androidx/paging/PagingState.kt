@@ -87,6 +87,24 @@ class PagingState<Key : Any, Value : Any> internal constructor(
         }
     }
 
+    /**
+     * @return `true` if all loaded pages are empty or no pages were loaded when this [PagingState]
+     * was created, `false` otherwise.
+     */
+    fun isEmpty() = pages.all { it.data.isEmpty() }
+
+    /**
+     * @return The first loaded item in the list or `null` if all loaded pages are empty or no pages
+     * were loaded when this [PagingState] was created.
+     */
+    fun firstItemOrNull(): Value? = pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()
+
+    /**
+     * @return The last loaded item in the list or `null` if all loaded pages are empty or no pages
+     * were loaded when this [PagingState] was created.
+     */
+    fun lastItemOrNull(): Value? = pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
+
     private inline fun <T> anchorPositionToPagedIndices(
         anchorPosition: Int,
         block: (pageIndex: Int, index: Int) -> T

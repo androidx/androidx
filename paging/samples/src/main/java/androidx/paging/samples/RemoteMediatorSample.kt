@@ -77,9 +77,7 @@ fun remoteMediatorItemKeyedSample() {
                     // first page in the list. Immediately return, reporting end of pagination.
                     LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
                     LoadType.APPEND -> {
-                        val lastItem = state.pages
-                            .lastOrNull { it.data.isNotEmpty() }
-                            ?.data?.last()
+                        val lastItem = state.lastItemOrNull()
 
                         // We must explicitly check if the last item is `null` when appending,
                         // since passing `null` to networkService is only valid for initial load.
