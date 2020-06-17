@@ -642,6 +642,27 @@ final class CaptureSession {
         return mStartStreamingFuture;
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @GuardedBy("mStateLock")
+    void finishClose() {
+        if (mState == State.RELEASED) {
+            Log.d(TAG, "Skipping finishClose due to being state RELEASED.");
+            return;
+        }
+
+        closeConfiguredDeferrableSurfaces();
+
+        mState = State.RELEASED;
+        mCaptureSessionCompat = null;
+
+        clearConfiguredSurfaces();
+
+        if (mReleaseCompleter != null) {
+            mReleaseCompleter.set(null);
+            mReleaseCompleter = null;
+        }
+    }
+
     /**
      * Sets the {@link CaptureRequest} so that the camera will start producing data.
      *
@@ -984,26 +1005,9 @@ final class CaptureSession {
                     throw new IllegalStateException(
                             "onClosed() should not be possible in state: " + mState);
                 }
-
-                if (mState == State.RELEASED) {
-                    // If released then onClosed() has already been called, but it can be ignored
-                    // since a session can be forceClosed.
-                    return;
-                }
-
                 Log.d(TAG, "CameraCaptureSession.onClosed()");
 
-                closeConfiguredDeferrableSurfaces();
-
-                mState = State.RELEASED;
-                mCaptureSessionCompat = null;
-
-                clearConfiguredSurfaces();
-
-                if (mReleaseCompleter != null) {
-                    mReleaseCompleter.set(null);
-                    mReleaseCompleter = null;
-                }
+                finishClose();
             }
         }
 
@@ -1023,21 +1027,18 @@ final class CaptureSession {
                     case OPENED:
                     case RELEASED:
                         throw new IllegalStateException(
-                                "onConfiguredFailed() should not be possible in state: " + mState);
+                                "onConfigureFailed() should not be possible in state: " + mState);
                     case OPENING:
                     case CLOSED:
-                        // For CaptureSession onConfigureFailed in framework, it will not allow
-                        // any close function or callback work. Hence, change state to RELEASED.
-                        // Check b/147402661 for detail.
-                        mState = State.RELEASED;
-                        mCaptureSessionCompat = null;
-                        break;
                     case RELEASING:
-                        // TODO(b/147402661): Refactor this part after detail checking.
-                        mState = State.RELEASING;
-                        session.close();
+                        // For CaptureSession onConfigureFailed in framework, it will not allow
+                        // any close function or callback work. Calling session.close() will not
+                        // trigger StateCallback.onClosed(). It has to complete the close flow
+                        // internally. Check b/147402661 for detail.
+                        finishClose();
+                        break;
                 }
-                Log.e(TAG, "CameraCaptureSession.onConfiguredFailed() " + mState);
+                Log.e(TAG, "CameraCaptureSession.onConfigureFailed() " + mState);
             }
         }
     }
