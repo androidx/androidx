@@ -336,7 +336,7 @@ fun CoreTextField(
                 .plus(focusModifier)
                 .plus(drawModifier)
                 .plus(onPositionedModifier)
-        ) { _, constraints, layoutDirection ->
+        ) { _, constraints ->
             TextFieldDelegate.layout(
                 state.textDelegate,
                 constraints,

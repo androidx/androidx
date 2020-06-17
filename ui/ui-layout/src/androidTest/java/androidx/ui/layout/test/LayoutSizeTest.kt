@@ -583,7 +583,7 @@ class LayoutSizeTest : LayoutTest() {
                 Modifier.wrapContentSize()
                     .sizeIn(maxWidth = 30.toDp(), maxHeight = 40.toDp())
                     .defaultMinSizeConstraints(minWidth = 10.toDp(), minHeight = 20.toDp())
-            ) { _, constraints, _ ->
+            ) { _, constraints ->
                 assertEquals(10, constraints.minWidth)
                 assertEquals(20, constraints.minHeight)
                 assertEquals(30, constraints.maxWidth)
@@ -603,7 +603,7 @@ class LayoutSizeTest : LayoutTest() {
                     minWidth = 50.toDp(),
                     minHeight = 50.toDp()
                 )
-            ) { _, constraints, _ ->
+            ) { _, constraints ->
                 assertEquals(10, constraints.minWidth)
                 assertEquals(20, constraints.minHeight)
                 assertEquals(100, constraints.maxWidth)
@@ -620,7 +620,7 @@ class LayoutSizeTest : LayoutTest() {
                     maxWidth = 100.toDp(),
                     maxHeight = 110.toDp()
                 ).defaultMinSizeConstraints()
-            ) { _, constraints, _ ->
+            ) { _, constraints ->
                 assertEquals(10, constraints.minWidth)
                 assertEquals(20, constraints.minHeight)
                 assertEquals(100, constraints.maxWidth)
@@ -641,7 +641,7 @@ class LayoutSizeTest : LayoutTest() {
                 Modifier.wrapContentSize()
                     .sizeIn(maxWidth = 30.toDp(), maxHeight = 40.toDp())
                     .defaultMinSizeConstraints(minWidth = 70.toDp(), minHeight = 80.toDp())
-            ) { _, constraints, _ ->
+            ) { _, constraints ->
                 assertEquals(30, constraints.minWidth)
                 assertEquals(40, constraints.minHeight)
                 assertEquals(30, constraints.maxWidth)
@@ -1027,7 +1027,7 @@ class LayoutSizeTest : LayoutTest() {
                         Container(width = width, height = height) { }
                     }
                 }
-            }) { measurables, incomingConstraints, _ ->
+            }) { measurables, incomingConstraints ->
                 require(measurables.isNotEmpty())
                 val placeable = measurables.first().measure(incomingConstraints)
                 layout(
@@ -1054,7 +1054,7 @@ class LayoutSizeTest : LayoutTest() {
                     assertEquals(expectedConstraints, constraints)
                     latch.countDown()
                 }
-            }) { measurables, _, _ ->
+            }) { measurables, _ ->
                 measurables[0].measure(incomingConstraints)
                 layout(0, 0) { }
             }

@@ -355,7 +355,7 @@ class LayoutNode : Measurable {
         }
 
     /**
-     * The scope used to run the [MeasureBlocks.measure] [MeasureBlock].
+     * The scope used to run the [MeasureBlocks.measure] [MeasureBlock2].
      */
     val measureScope: MeasureScope = object : MeasureScope(), Density {
         private val ownerDensity: Density

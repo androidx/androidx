@@ -112,7 +112,7 @@ private fun Scrollable(children: @Composable () -> Unit) {
         modifier = Modifier
             .scrollGestureFilter(scrollObserver, Orientation.Vertical, canDrag)
             .clipToBounds(),
-        measureBlock = { measurables, constraints, _ ->
+        measureBlock = { measurables, constraints ->
             val placeable =
                 measurables.first()
                     .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))

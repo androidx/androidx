@@ -31,22 +31,22 @@ fun LayoutWithProvidedIntrinsicsUsage(children: @Composable () -> Unit) {
     // and will position them to be bottom right aligned.
     Layout(
         children,
-        minIntrinsicWidthMeasureBlock = { measurables, h, _ ->
+        minIntrinsicWidthMeasureBlock = { measurables, h ->
             // The min intrinsic width of this layout will be twice the largest min intrinsic
             // width of a child. Note that we call minIntrinsicWidth with h / 2 for children,
             // since we should be double the size of the children.
             (measurables.map { it.minIntrinsicWidth(h / 2) }.maxBy { it } ?: 0) * 2
         },
-        minIntrinsicHeightMeasureBlock = { measurables, w, _ ->
+        minIntrinsicHeightMeasureBlock = { measurables, w ->
             (measurables.map { it.minIntrinsicHeight(w / 2) }.maxBy { it } ?: 0) * 2
         },
-        maxIntrinsicWidthMeasureBlock = { measurables, h, _ ->
+        maxIntrinsicWidthMeasureBlock = { measurables, h ->
             (measurables.map { it.maxIntrinsicHeight(h / 2) }.maxBy { it } ?: 0) * 2
         },
-        maxIntrinsicHeightMeasureBlock = { measurables, w, _ ->
+        maxIntrinsicHeightMeasureBlock = { measurables, w ->
             (measurables.map { it.maxIntrinsicHeight(w / 2) }.maxBy { it } ?: 0) * 2
         }
-    ) { measurables, constraints, _ ->
+    ) { measurables, constraints ->
         // measurables contains one element corresponding to each of our layout children.
         // constraints are the constraints that our parent is currently measuring us with.
         val childConstraints = Constraints(
@@ -73,7 +73,7 @@ fun LayoutWithProvidedIntrinsicsUsage(children: @Composable () -> Unit) {
 fun LayoutUsage(children: @Composable () -> Unit) {
     // We build a layout that will occupy twice as much space as its children,
     // and will position them to be bottom right aligned.
-    Layout(children) { measurables, constraints, _ ->
+    Layout(children) { measurables, constraints ->
         // measurables contains one element corresponding to each of our layout children.
         // constraints are the constraints that our parent is currently measuring us with.
         val childConstraints = Constraints(
@@ -103,7 +103,7 @@ fun LayoutTagChildrenUsage(header: @Composable () -> Unit, footer: @Composable (
         // modifier on header and footer directly if they are composables accepting modifiers.
         Box(Modifier.layoutId("header"), children = header)
         Box(Modifier.layoutId("footer"), children = footer)
-    }) { measurables, constraints, _ ->
+    }) { measurables, constraints ->
         val placeables = measurables.map { measurable ->
             when (measurable.id) {
                 // You should use appropriate constraints. Here we measure with dummy constraints.

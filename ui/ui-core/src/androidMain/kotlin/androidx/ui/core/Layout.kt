@@ -76,6 +76,82 @@ import kotlin.math.max
     /*crossinline*/
     children: @Composable () -> Unit,
     /*crossinline*/
+    minIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock2,
+    /*crossinline*/
+    minIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock2,
+    /*crossinline*/
+    maxIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock2,
+    /*crossinline*/
+    maxIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock2,
+    modifier: Modifier = Modifier,
+    /*crossinline*/
+    measureBlock: MeasureBlock2
+) {
+    val measureBlocks = object : LayoutNode.MeasureBlocks {
+        override fun measure(
+            measureScope: MeasureScope,
+            measurables: List<Measurable>,
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
+        ) = measureScope.measureBlock(measurables, constraints)
+        override fun minIntrinsicWidth(
+            intrinsicMeasureScope: IntrinsicMeasureScope,
+            measurables: List<IntrinsicMeasurable>,
+            h: Int,
+            layoutDirection: LayoutDirection
+        ): Int {
+            val receiver = IntrinsicsMeasureScope(intrinsicMeasureScope, layoutDirection)
+            return receiver.minIntrinsicWidthMeasureBlock(measurables, h)
+        }
+        override fun minIntrinsicHeight(
+            intrinsicMeasureScope: IntrinsicMeasureScope,
+            measurables: List<IntrinsicMeasurable>,
+            w: Int,
+            layoutDirection: LayoutDirection
+        ): Int {
+            val receiver = IntrinsicsMeasureScope(intrinsicMeasureScope, layoutDirection)
+            return receiver.minIntrinsicHeightMeasureBlock(measurables, w)
+        }
+        override fun maxIntrinsicWidth(
+            intrinsicMeasureScope: IntrinsicMeasureScope,
+            measurables: List<IntrinsicMeasurable>,
+            h: Int,
+            layoutDirection: LayoutDirection
+        ): Int {
+            val receiver = IntrinsicsMeasureScope(intrinsicMeasureScope, layoutDirection)
+            return receiver.maxIntrinsicWidthMeasureBlock(measurables, h)
+        }
+        override fun maxIntrinsicHeight(
+            intrinsicMeasureScope: IntrinsicMeasureScope,
+            measurables: List<IntrinsicMeasurable>,
+            w: Int,
+            layoutDirection: LayoutDirection
+        ): Int {
+            val receiver = IntrinsicsMeasureScope(intrinsicMeasureScope, layoutDirection)
+            return receiver.maxIntrinsicHeightMeasureBlock(measurables, w)
+        }
+    }
+    Layout(children, measureBlocks, modifier)
+}
+
+@Deprecated(
+    "Use Layout() function with 'MeasureScope.(List<Measurable>, Constraints) -> MeasureScope" +
+            ".MeasureResult' measure block and 'IntrinsicMeasureScope.(List<IntrinsicMeasurable>," +
+            " Int) -> Int' intrinsic measure blocks instead.",
+    ReplaceWith("Layout(children, {measurable, height -> minIntrinsicWidthMeasureBlock}, " +
+            "{measurable, width -> minIntrinsicHeightMeasureBlock}, " +
+            "{measurable, height -> maxIntrinsicWidthMeasureBlock}, " +
+            "{measurable, width -> maxIntrinsicHeightMeasureBlock}," +
+            " modifier, " +
+            "{measurables, constraints -> measureBlock})"
+    )
+)
+@Suppress("DEPRECATION")
+@Composable
+/*inline*/ fun Layout(
+    /*crossinline*/
+    children: @Composable () -> Unit,
+    /*crossinline*/
     minIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock,
     /*crossinline*/
     minIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock,
@@ -150,6 +226,26 @@ import kotlin.math.max
     children: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     /*noinline*/
+    measureBlock: MeasureBlock2
+) {
+
+    val measureBlocks = remember(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
+    Layout(children, measureBlocks, modifier)
+}
+
+@Deprecated(
+    """Use Layout() function with 
+        'MeasureScope.(List<Measurable>, Constraints) -> MeasureScope.MeasureResult'
+        measure block instead.""",
+    ReplaceWith("Layout(children, modifier, {measurables, constraints -> measureBlock})")
+)
+@Suppress("DEPRECATION")
+@Composable
+/*inline*/ fun Layout(
+    /*crossinline*/
+    children: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    /*noinline*/
     measureBlock: MeasureBlock
 ) {
 
@@ -180,7 +276,7 @@ import kotlin.math.max
 fun MultiMeasureLayout(
     modifier: Modifier = Modifier,
     children: @Composable () -> Unit,
-    measureBlock: MeasureBlock
+    measureBlock: MeasureBlock2
 ) {
     val measureBlocks = remember(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
     val materialized = currentComposer.materialize(modifier)
@@ -284,6 +380,71 @@ internal class IntrinsicsMeasureScope(
  * Default [LayoutNode.MeasureBlocks] object implementation, providing intrinsic measurements
  * that use the measure block replacing the measure calls with intrinsic measurement calls.
  */
+fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock2) =
+    object : LayoutNode.MeasureBlocks {
+        override fun measure(
+            measureScope: MeasureScope,
+            measurables: List<Measurable>,
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
+        ) = measureScope.measureBlock(measurables, constraints)
+        override fun minIntrinsicWidth(
+            intrinsicMeasureScope: IntrinsicMeasureScope,
+            measurables: List<IntrinsicMeasurable>,
+            h: Int,
+            layoutDirection: LayoutDirection
+        ) = intrinsicMeasureScope.MeasuringMinIntrinsicWidth(
+            measureBlock,
+            measurables,
+            h,
+            layoutDirection
+        )
+        override fun minIntrinsicHeight(
+            intrinsicMeasureScope: IntrinsicMeasureScope,
+            measurables: List<IntrinsicMeasurable>,
+            w: Int,
+            layoutDirection: LayoutDirection
+        ) = intrinsicMeasureScope.MeasuringMinIntrinsicHeight(
+            measureBlock,
+            measurables,
+            w,
+            layoutDirection
+        )
+        override fun maxIntrinsicWidth(
+            intrinsicMeasureScope: IntrinsicMeasureScope,
+            measurables: List<IntrinsicMeasurable>,
+            h: Int,
+            layoutDirection: LayoutDirection
+        ) = intrinsicMeasureScope.MeasuringMaxIntrinsicWidth(
+            measureBlock,
+            measurables,
+            h,
+            layoutDirection
+        )
+        override fun maxIntrinsicHeight(
+            intrinsicMeasureScope: IntrinsicMeasureScope,
+            measurables: List<IntrinsicMeasurable>,
+            w: Int,
+            layoutDirection: LayoutDirection
+        ) = intrinsicMeasureScope.MeasuringMaxIntrinsicHeight(
+            measureBlock,
+            measurables,
+            w,
+            layoutDirection
+        )
+
+        override fun toString(): String {
+            // this calls simpleIdentityToString on measureBlock because it is typically a lambda,
+            // which has a useless toString that doesn't hint at the source location
+            return simpleIdentityToString(
+                this,
+                "MeasuringIntrinsicsMeasureBlocks"
+            ) + "{ measureBlock=${simpleIdentityToString(measureBlock)} }"
+        }
+    }
+
+@Deprecated("Use MeasuringIntrinsicsMeasureBlocks with MeasureBlock2 instead")
+@Suppress("DEPRECATION")
 fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
     object : LayoutNode.MeasureBlocks {
         override fun measure(
@@ -352,6 +513,22 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
 private inline fun Density.MeasuringMinIntrinsicWidth(
+    measureBlock: MeasureBlock2 /*TODO: crossinline*/,
+    measurables: List<IntrinsicMeasurable>,
+    h: Int,
+    layoutDirection: LayoutDirection
+): Int {
+    val mapped = measurables.map {
+        DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
+    }
+    val constraints = Constraints(maxHeight = h)
+    val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
+    val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
+    return layoutResult.width
+}
+
+@Suppress("DEPRECATION")
+private inline fun Density.MeasuringMinIntrinsicWidth(
     measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
     h: Int,
@@ -370,6 +547,22 @@ private inline fun Density.MeasuringMinIntrinsicWidth(
  * Default implementation for the min intrinsic width of a layout. This works by running the
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
+private inline fun Density.MeasuringMinIntrinsicHeight(
+    measureBlock: MeasureBlock2 /*TODO: crossinline*/,
+    measurables: List<IntrinsicMeasurable>,
+    w: Int,
+    layoutDirection: LayoutDirection
+): Int {
+    val mapped = measurables.map {
+        DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
+    }
+    val constraints = Constraints(maxWidth = w)
+    val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
+    val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
+    return layoutResult.height
+}
+
+@Suppress("DEPRECATION")
 private inline fun Density.MeasuringMinIntrinsicHeight(
     measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
@@ -390,6 +583,22 @@ private inline fun Density.MeasuringMinIntrinsicHeight(
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
 private inline fun Density.MeasuringMaxIntrinsicWidth(
+    measureBlock: MeasureBlock2 /*TODO: crossinline*/,
+    measurables: List<IntrinsicMeasurable>,
+    h: Int,
+    layoutDirection: LayoutDirection
+): Int {
+    val mapped = measurables.map {
+        DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
+    }
+    val constraints = Constraints(maxHeight = h)
+    val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
+    val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
+    return layoutResult.width
+}
+
+@Suppress("DEPRECATION")
+private inline fun Density.MeasuringMaxIntrinsicWidth(
     measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
     h: Int,
@@ -408,6 +617,22 @@ private inline fun Density.MeasuringMaxIntrinsicWidth(
  * Default implementation for the max intrinsic height of a layout. This works by running the
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
+private inline fun Density.MeasuringMaxIntrinsicHeight(
+    measureBlock: MeasureBlock2 /*TODO: crossinline*/,
+    measurables: List<IntrinsicMeasurable>,
+    w: Int,
+    layoutDirection: LayoutDirection
+): Int {
+    val mapped = measurables.map {
+        DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
+    }
+    val constraints = Constraints(maxWidth = w)
+    val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
+    val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
+    return layoutResult.height
+}
+
+@Suppress("DEPRECATION")
 private inline fun Density.MeasuringMaxIntrinsicHeight(
     measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,

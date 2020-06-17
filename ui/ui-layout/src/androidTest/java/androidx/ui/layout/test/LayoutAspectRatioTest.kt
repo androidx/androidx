@@ -97,7 +97,7 @@ class LayoutAspectRatioTest : LayoutTest() {
                         Modifier.saveLayoutInfo(size, position, positionedLatch)
                 ) {
                 }
-            }) { measurables, incomingConstraints, _ ->
+            }) { measurables, incomingConstraints ->
                 require(measurables.isNotEmpty())
                 val placeable = measurables.first().measure(childContraints)
                 layout(incomingConstraints.maxWidth, incomingConstraints.maxHeight) {

@@ -943,7 +943,7 @@ internal fun TextFieldScroller(
                 enabled = scrollerPosition.maximum != 0f
             ),
         children = textField,
-        measureBlock = { measurables, constraints, _ ->
+        measureBlock = { measurables, constraints ->
             val childConstraints = constraints.copy(maxHeight = Constraints.Infinity)
             val placeable = measurables.first().measure(childConstraints)
             val height = min(placeable.height, constraints.maxHeight)
@@ -1020,7 +1020,7 @@ private object FilledTextField {
                 textField(Modifier.layoutId(TextFieldId))
             },
             modifier = modifier
-        ) { measurables, constraints, _ ->
+        ) { measurables, constraints ->
             val placeholderPlaceable =
                 measurables.find { it.id == PlaceholderId }?.measure(constraints)
 
@@ -1105,7 +1105,7 @@ private object FilledTextField {
                 textField()
             },
             modifier = modifier
-        ) { measurables, incomingConstraints, _ ->
+        ) { measurables, incomingConstraints ->
             val constraints =
                 incomingConstraints.copy(minWidth = 0, minHeight = 0)
             var occupiedSpace = 0
@@ -1250,7 +1250,7 @@ private object OutlinedTextField {
                 Box(modifier = Modifier.layoutId(LabelId), children = label)
             },
             modifier = modifier
-        ) { measurables, incomingConstraints, _ ->
+        ) { measurables, incomingConstraints ->
             // used to calculate the constraints for measuring elements that will be placed in a row
             var occupiedSpaceHorizontally = 0
             val bottomPadding = TextFieldPadding.toIntPx()

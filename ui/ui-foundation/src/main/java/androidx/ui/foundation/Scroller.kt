@@ -311,7 +311,7 @@ private fun ScrollerLayout(
     Layout(
         modifier = modifier.clipToBounds(),
         children = child,
-        measureBlock = { measurables, constraints, _ ->
+        measureBlock = { measurables, constraints ->
             val childConstraints = constraints.copy(
                 maxHeight = if (isVertical) Constraints.Infinity else constraints.maxHeight,
                 maxWidth = if (isVertical) constraints.maxWidth else Constraints.Infinity

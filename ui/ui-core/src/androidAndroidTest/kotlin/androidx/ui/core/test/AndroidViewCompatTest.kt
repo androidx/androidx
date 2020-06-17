@@ -91,7 +91,7 @@ class AndroidViewCompatTest {
                             it.ref = squareRef
                         }
                     }
-                ) { measurables, constraints, _ ->
+                ) { measurables, constraints ->
                     assertEquals(1, measurables.size)
                     val placeable = measurables.first().measure(
                         constraints.copy(minWidth = 0, minHeight = 0)
@@ -446,7 +446,7 @@ class AndroidViewCompatTest {
         modifier: Modifier = Modifier,
         children: @Composable () -> Unit
     ) {
-        Layout(children, modifier) { measurables, constraints, _ ->
+        Layout(children, modifier) { measurables, constraints ->
             val placeable = measurables[0].measure(constraints)
             layout(placeable.width, placeable.height) {
                 placeable.place(0, 0)

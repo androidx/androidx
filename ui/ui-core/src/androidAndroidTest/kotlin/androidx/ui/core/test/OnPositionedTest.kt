@@ -150,7 +150,7 @@ class OnPositionedTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 Layout(
-                    measureBlock = { measurables, constraints, _ ->
+                    measureBlock = { measurables, constraints ->
                         layout(10, 10) {
                             measurables[0].measure(constraints).place(position, 0)
                         }
@@ -197,7 +197,7 @@ class OnPositionedTest {
                     modifier = Modifier.onChildPositioned {
                         onChildPositionedCalledTimes++
                     },
-                    measureBlock = { measurables, constraints, _ ->
+                    measureBlock = { measurables, constraints ->
                         layout(10, 10) {
                             measurables[1].measure(constraints).place(0, 0)
                         }

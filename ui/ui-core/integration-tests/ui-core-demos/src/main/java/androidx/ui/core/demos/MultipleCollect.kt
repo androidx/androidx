@@ -38,7 +38,7 @@ fun HeaderFooterLayout(
         Box(Modifier.layoutId("header"), children = header)
         Box(Modifier.layoutId("footer"), children = footer)
         content()
-    }) { measurables, constraints, _ ->
+    }) { measurables, constraints ->
         val headerPlaceable = measurables.first { it.id == "header" }.measure(
             Constraints.fixed(constraints.maxWidth, 100)
         )

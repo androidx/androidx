@@ -72,7 +72,7 @@ class ScaleGestureFilterTest {
                     touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
                     Layout(
                         modifier = Modifier.scaleGestureFilter(scaleObserver),
-                        measureBlock = { _, _, _ ->
+                        measureBlock = { _, _ ->
                             layout(
                                 ceil(touchSlop * LayoutDimensionFactor).toInt(),
                                 ceil(touchSlop * LayoutDimensionFactor).toInt()

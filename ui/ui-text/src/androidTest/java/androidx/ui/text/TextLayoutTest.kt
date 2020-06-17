@@ -124,11 +124,11 @@ class TextLayoutTest {
             }
             Layout(
                 text,
-                minIntrinsicWidthMeasureBlock = { _, _, _ -> 0 },
-                minIntrinsicHeightMeasureBlock = { _, _, _ -> 0 },
-                maxIntrinsicWidthMeasureBlock = { _, _, _ -> 0 },
-                maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0 }
-            ) { measurables, _, _ ->
+                minIntrinsicWidthMeasureBlock = { _, _ -> 0 },
+                minIntrinsicHeightMeasureBlock = { _, _ -> 0 },
+                maxIntrinsicWidthMeasureBlock = { _, _ -> 0 },
+                maxIntrinsicHeightMeasureBlock = { _, _ -> 0 }
+            ) { measurables, _ ->
                 val textMeasurable = measurables.first()
                 // Min width.
                 assertThat(textWidth).isEqualTo(textMeasurable.minIntrinsicWidth(0))
@@ -160,7 +160,7 @@ class TextLayoutTest {
             val text = @Composable {
                 TestingText("aa")
             }
-            Layout(text) { measurables, _, _ ->
+            Layout(text) { measurables, _ ->
                 val placeable = measurables.first().measure(Constraints())
                 assertThat(placeable[FirstBaseline]).isNotNull()
                 assertThat(placeable[LastBaseline]).isNotNull()
@@ -168,7 +168,7 @@ class TextLayoutTest {
                 layoutLatch.countDown()
                 layout(0, 0) {}
             }
-            Layout(text) { measurables, _, _ ->
+            Layout(text) { measurables, _ ->
                 val placeable = measurables.first().measure(Constraints(maxWidth = 0))
                 assertThat(placeable[FirstBaseline]).isNotNull()
                 assertThat(placeable[LastBaseline]).isNotNull()
@@ -189,7 +189,7 @@ class TextLayoutTest {
             val text = @Composable {
                 TestingText("aa", onTextLayout = callback)
             }
-            Layout(text) { measurables, _, _ ->
+            Layout(text) { measurables, _ ->
                 measurables.first().measure(Constraints())
                 layoutLatch.countDown()
                 layout(0, 0) {}
@@ -203,7 +203,7 @@ class TextLayoutTest {
         val runnable: Runnable = object : Runnable {
             override fun run() {
                 activity.setContent {
-                    Layout(composable) { measurables, constraints, _ ->
+                    Layout(composable) { measurables, constraints ->
                         val placeables = measurables.map {
                             it.measure(constraints.copy(minWidth = 0, minHeight = 0))
                         }

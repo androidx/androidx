@@ -100,7 +100,7 @@ private fun TextOnlySnackbar(text: @Composable () -> Unit) {
     Layout(
         text,
         modifier = Modifier.padding(start = HorizontalSpacing, end = HorizontalSpacing)
-    ) { measurables, constraints, _ ->
+    ) { measurables, constraints ->
         require(measurables.size == 1) {
             "text for Snackbar expected to have exactly only one child"
         }
@@ -155,7 +155,7 @@ private fun OneRowSnackbar(
             Box(Modifier.layoutId(actionTag), children = action)
         },
         modifier = Modifier.padding(start = HorizontalSpacing, end = HorizontalSpacingButtonSide)
-    ) { measurables, constraints, _ ->
+    ) { measurables, constraints ->
         val buttonPlaceable = measurables.first { it.id == actionTag }.measure(constraints)
         val textMaxWidth =
             (constraints.maxWidth - buttonPlaceable.width - TextEndExtraSpacing.toIntPx())

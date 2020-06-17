@@ -64,7 +64,7 @@ class ParentDataModifierTest {
             activity.setContent {
                 Layout(children = {
                     SimpleDrawChild(drawLatch = drawLatch)
-                }, measureBlock = { measurables, constraints, _ ->
+                }, measureBlock = { measurables, constraints ->
                     assertEquals(1, measurables.size)
                     parentData.value = measurables[0].parentData
 
@@ -91,7 +91,7 @@ class ParentDataModifierTest {
                     children = {
                         SimpleDrawChild(drawLatch = drawLatch)
                     },
-                    measureBlock = { measurables, constraints, _ ->
+                    measureBlock = { measurables, constraints ->
                         assertEquals(1, measurables.size)
                         parentData.value = measurables[0].parentData
 
@@ -115,16 +115,16 @@ class ParentDataModifierTest {
                     Layout(
                         modifier = Modifier.layoutId(0),
                         children = emptyContent()
-                    ) { _, _, _ -> layout(0, 0) {} }
+                    ) { _, _ -> layout(0, 0) {} }
                 }
                 val footer = @Composable {
                     Layout(
                         modifier = Modifier.layoutId(1),
                         children = emptyContent()
-                    ) { _, _, _ -> layout(0, 0) {} }
+                    ) { _, _ -> layout(0, 0) {} }
                 }
 
-                Layout({ header(); footer() }) { measurables, _, _ ->
+                Layout({ header(); footer() }) { measurables, _ ->
                     assertEquals(0, ((measurables[0]).parentData as? LayoutIdParentData)?.id)
                     assertEquals(1, ((measurables[1]).parentData as? LayoutIdParentData)?.id)
                     layout(0, 0) { }

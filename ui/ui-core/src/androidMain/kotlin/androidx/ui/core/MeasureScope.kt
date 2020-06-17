@@ -91,5 +91,9 @@ abstract class MeasureScope : IntrinsicMeasureScope() {
 /**
  * A function for performing layout measurement.
  */
+typealias MeasureBlock2 =
+        MeasureScope.(List<Measurable>, Constraints) -> MeasureScope.MeasureResult
+
+@Deprecated("Use MeasureBlock2 instead")
 typealias MeasureBlock =
         MeasureScope.(List<Measurable>, Constraints, LayoutDirection) -> MeasureScope.MeasureResult
