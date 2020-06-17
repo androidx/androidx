@@ -14,40 +14,26 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation.samples
+package androidx.ui.text.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
-import androidx.ui.foundation.TextField
 import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.Stack
 import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.ui.text.CoreTextField
 
 @Sampled
 @Composable
-fun TextFieldSample() {
+fun CoreTextFieldSample() {
     var value by savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    TextField(
+    CoreTextField(
         value = value,
-        onValueChange = { value = it }
-    )
-}
-
-@Sampled
-@Composable
-fun PlaceholderTextFieldSample() {
-    val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    Stack {
-        TextField(
-            value = state.value,
-            onValueChange = { state.value = it }
-        )
-        if (state.value.text.isEmpty()) {
-            androidx.ui.foundation.Text(
-                text = "Placeholder"
-            )
+        onValueChange = {
+            // it is crucial that the update is fed back into CoreTextField in order to
+            // see updates on the text
+            value = it
         }
-    }
+    )
 }

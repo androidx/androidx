@@ -169,32 +169,40 @@ fun TextField(
 }
 
 /**
- * A user interface element for entering and modifying text.
+ * Composable that enables users to edit text via hardware or software keyboard.
  *
- * The TextField component renders an input and additional decorations set by input service
- * which is software keyboard in Android. Once input service modify the text, you will get callback
- * [onValueChange] with new text. Then, you can set this new text so that this component renders
- * up-to-date text from input service.
+ * Whenever the user edits the text, [onValueChange] is called with the most up to date state
+ * represented by [androidx.ui.input.TextFieldValue]. [androidx.ui.input.TextFieldValue] contains
+ * the text entered by user, as well as selection, cursor and text composition information.
+ * Please check [TextFieldValue] for the description of its contents.
  *
- * Example usage:
+ * It is crucial that the value provided in the [onValueChange] is fed back into [TextField] in
+ * order to have the final state of the text being displayed. Example usage:
  * @sample androidx.ui.foundation.samples.TextFieldSample
  *
- * Note: Please be careful if you setting model other than the one passed to [onValueChange]
- * callback including selection or cursor. Especially, it is not recommended to modify the model
- * passed to [onValueChange] callback. Any change to text, selection or cursor may be translated to
- * full context reset by input service and end up with input session restart. This will be visible
- * to users, for example, any ongoing composition text will be cleared or committed, then software
- * keyboard may go back to the default one.
+ * Please keep in mind that [onValueChange] is useful to be informed about the latest state of the
+ * text input by users, however it is generally not recommended to modify the values in the
+ * [TextFieldValue] that you get via [onValueChange] callback. Any change to the values in
+ * [TextFieldValue] may result in a context reset and end up with input session restart. Such
+ * a scenario would cause glitches in the UI or text input experience for users.
+ *
+ * This composable provides basic text editing functionality, however does not include any
+ * decorations such as borders, hints/placeholder. A design system based implementation such as
+ * Material `FilledTextField` is typically what is needed to cover most of the needs. This
+ * composable is designed to be used when a custom implementation for different design system is
+ * needed.
+ *
+ * For example, if you need to include a hint in your TextField you can write a composable as below:
+ * @sample androidx.ui.foundation.samples.PlaceholderTextFieldSample
  *
  * @param value The [androidx.ui.input.TextFieldValue] to be shown in the [TextField].
- * @param onValueChange Called when the input service updates the text, selection or cursor. When
- * the input service update the text, selection or cursor, this callback is called with the updated
- * [androidx.ui.input.TextFieldValue]. If you want to observe the composition text, use [TextField] with
- * compositionRange instead.
+ * @param onValueChange Called when the input service updates values in
+ * [androidx.ui.input.TextFieldValue].
  * @param modifier optional [Modifier] for this text field.
  * @param textColor [Color] to apply to the text. If [Color.Unset], and [textStyle] has no color
  * set, this will be [contentColor].
  * @param textStyle Style configuration that applies at character level such as color, font etc.
+ * The default [textStyle] uses the [currentTextStyle] defined by the theme
  * @param keyboardType The keyboard type to be used in this text field. Note that this input type
  * is honored by IME and shows corresponding keyboard but this is not guaranteed. For example,
  * some IME may send non-ASCII character even if you set [KeyboardType.Ascii].
