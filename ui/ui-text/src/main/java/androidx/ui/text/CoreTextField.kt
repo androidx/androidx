@@ -109,12 +109,55 @@ fun CoreTextField(
 }
 
 /**
- * The common TextField implementation.
+ * Base composable that enables users to edit text via hardware or software keyboard.
+ *
+ * This composable provides basic text editing functionality, however does not include any
+ * decorations such as borders, hints/placeholder.
+ *
+ * Whenever the user edits the text, [onValueChange] is called with the most up to date state
+ * represented by [TextFieldValue]. [TextFieldValue] contains the text entered by user, as well
+ * as selection, cursor and text composition information. Please check [TextFieldValue] for the
+ * description of its contents.
+ *
+ * It is crucial that the value provided in the [onValueChange] is fed back into [CoreTextField] in
+ * order to have the final state of the text being displayed. Example usage:
+ * @sample androidx.ui.text.samples.CoreTextFieldSample
+ *
+ * Please keep in mind that [onValueChange] is useful to be informed about the latest state of the
+ * text input by users, however it is generally not recommended to modify the values in the
+ * [TextFieldValue] that you get via [onValueChange] callback. Any change to the values in
+ * [TextFieldValue] may result in a context reset and end up with input session restart. Such
+ * a scenario would cause glitches in the UI or text input experience for users.
+ *
+ * @param value The [androidx.ui.input.TextFieldValue] to be shown in the [CoreTextField].
+ * @param onValueChange Called when the input service updates the values in [TextFieldValue].
+ * @param modifier optional [Modifier] for this text field.
+ * @param textStyle Style configuration that applies at character level such as color, font etc.
+ * @param keyboardType The keyboard type to be used in this text field. Note that this input type
+ * is honored by IME and shows corresponding keyboard but this is not guaranteed. For example,
+ * some IME may send non-ASCII character even if you set [KeyboardType.Ascii].
+ * @param imeAction The IME action. This IME action is honored by IME and may show specific icons
+ * on the keyboard. For example, search icon may be shown if [ImeAction.Search] is specified.
+ * Then, when user tap that key, the [onImeActionPerformed] callback is called with specified
+ * ImeAction.
+ * @param onFocusChange Called with true value when the input field gains focus and with false
+ * value when the input field loses focus. Use [FocusModifier.requestFocus] to obtain text input
+ * focus to this TextField.
+ * @param onImeActionPerformed Called when the input service requested an IME action. When the
+ * input service emitted an IME action, this callback is called with the emitted IME action. Note
+ * that this IME action may be different from what you specified in [imeAction].
+ * @param visualTransformation The visual transformation filter for changing the visual
+ * representation of the input. By default no visual transformation is applied.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated.
+ * @param onTextInputStarted Callback that is executed when the initialization has done for
+ * communicating with platform text input service, e.g. software keyboard on Android. Called with
+ * [SoftwareKeyboardController] instance which can be used for requesting input show/hide software
+ * keyboard.
  */
 @Composable
 fun CoreTextField(
     value: TextFieldValue,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onValueChange: (TextFieldValue) -> Unit,
     textStyle: TextStyle = TextStyle.Default,
     keyboardType: KeyboardType = KeyboardType.Text,
