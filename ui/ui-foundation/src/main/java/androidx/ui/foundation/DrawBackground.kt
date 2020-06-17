@@ -44,7 +44,7 @@ import androidx.ui.graphics.drawscope.Fill
 fun Modifier.drawBackground(
     color: Color,
     shape: Shape = RectangleShape,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = DrawScope.DefaultAlpha,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode
@@ -82,7 +82,7 @@ fun Modifier.drawBackground(
 fun Modifier.drawBackground(
     brush: Brush,
     shape: Shape = RectangleShape,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = DrawScope.DefaultAlpha,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode

@@ -17,7 +17,6 @@
 package androidx.ui.graphics.painter
 
 import androidx.test.filters.SmallTest
-import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
@@ -29,6 +28,8 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.drawscope.drawPainter
 import androidx.ui.graphics.toPixelMap
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.fail
@@ -134,8 +135,8 @@ class ImagePainterTest {
         val canvas = Canvas(dst)
 
         val topLeftPainter = ImagePainter(srcImage,
-            srcOffset = Offset.Zero,
-            srcSize = Size(50.0f, 50.0f)
+            srcOffset = IntOffset.Origin,
+            srcSize = IntSize(50, 50)
         )
 
         val intrinsicSize = topLeftPainter.intrinsicSize
@@ -150,8 +151,8 @@ class ImagePainterTest {
         assertEquals(Color.Red, topLeftMap[49, 49])
 
         val topRightPainter = ImagePainter(srcImage,
-            srcOffset = Offset(50.0f, 0.0f),
-            srcSize = Size(50.0f, 50.0f)
+            srcOffset = IntOffset(50, 0),
+            srcSize = IntSize(50, 50)
         )
 
         val topRightDst = createTestDstImage()
@@ -164,8 +165,8 @@ class ImagePainterTest {
         assertEquals(Color.Blue, topRightMap[49, 49])
 
         val bottomLeftPainter = ImagePainter(srcImage,
-            srcOffset = Offset(0.0f, 50.0f),
-            srcSize = Size(50.0f, 50.0f)
+            srcOffset = IntOffset(0, 50),
+            srcSize = IntSize(50, 50)
         )
 
         drawPainter(bottomLeftPainter, canvas, bottomLeftPainter.intrinsicSize)
@@ -177,8 +178,8 @@ class ImagePainterTest {
         assertEquals(Color.Blue, bottomLeftMap[49, 49])
 
         val bottomRightPainter = ImagePainter(srcImage,
-            srcOffset = Offset(50.0f, 50.0f),
-            srcSize = Size(50.0f, 50.0f)
+            srcOffset = IntOffset(50, 50),
+            srcSize = IntSize(50, 50)
         )
 
         drawPainter(bottomRightPainter, canvas, bottomRightPainter.intrinsicSize)
@@ -194,8 +195,8 @@ class ImagePainterTest {
     fun testInvalidLeftBoundThrows() {
         try {
             ImagePainter(createTestSrcImage(),
-                Offset(-1.0f, 1.0f),
-                Size(10.0f, 10.0f)
+                IntOffset(-1, 1),
+                IntSize(10, 10)
             )
             fail("Left bound must be greater than or equal to zero")
         } catch (e: IllegalArgumentException) {
@@ -207,8 +208,8 @@ class ImagePainterTest {
     fun testInvalidTopBoundThrows() {
         try {
             ImagePainter(createTestSrcImage(),
-                Offset(0.0f, -1.0f),
-                Size(10.0f, 10.0f)
+                IntOffset(0, -1),
+                IntSize(10, 10)
             )
             fail("Top bound must be greater than or equal to zero")
         } catch (e: IllegalArgumentException) {
@@ -221,8 +222,8 @@ class ImagePainterTest {
         try {
             val image = createTestSrcImage()
             ImagePainter(image,
-                Offset(0.0f, 0.0f),
-                Size(image.width + 1.0f, 10.0f)
+                IntOffset(0, 0),
+                IntSize(image.width + 1, 10)
             )
             fail("Right bound must be less than ImageAsset width")
         } catch (e: IllegalArgumentException) {
@@ -235,8 +236,8 @@ class ImagePainterTest {
         try {
             val image = createTestSrcImage()
             ImagePainter(image,
-                Offset(0.0f, 0.0f),
-                Size(10.0f, image.height + 1.0f)
+                IntOffset(0, 0),
+                IntSize(10, image.height + 1)
             )
             fail("Bottom bound must be less than ImageAsset height")
         } catch (e: IllegalArgumentException) {
@@ -248,8 +249,8 @@ class ImagePainterTest {
     fun testRightLessThanLeftThrows() {
         try {
             ImagePainter(createTestSrcImage(),
-                Offset(50.0f, 0.0f),
-                Size(-40.0f, 10.0f)
+                IntOffset(50, 0),
+                IntSize(-40, 10)
             )
             fail("Right bound must be greater than left bound")
         } catch (e: IllegalArgumentException) {
@@ -261,8 +262,8 @@ class ImagePainterTest {
     fun testTopLessThanBottomThrows() {
         try {
             ImagePainter(createTestSrcImage(),
-                Offset(0.0f, 100.0f),
-                Size(-90.0f, -90.0f)
+                IntOffset(0, 100),
+                IntSize(-90, -90)
             )
             fail("Bottom bound must be larger than top bound")
         } catch (e: IllegalArgumentException) {

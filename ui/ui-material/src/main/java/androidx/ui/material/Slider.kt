@@ -49,7 +49,6 @@ import androidx.ui.geometry.lerp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
@@ -195,8 +194,14 @@ private fun SliderImpl(
             trackStrokeWidth = TrackHeight.toPx()
             thumbPx = ThumbRadius.toPx()
         }
-        val trackStroke = Stroke(trackStrokeWidth, cap = StrokeCap.round)
-        Track(center.fillMaxSize(), color, positionFraction, tickFractions, thumbPx, trackStroke)
+        Track(
+            center.fillMaxSize(),
+            color,
+            positionFraction,
+            tickFractions,
+            thumbPx,
+            trackStrokeWidth
+        )
         Box(center.padding(start = offset)) {
             val elevation = if (
                 Interaction.Pressed in interactionState || Interaction.Dragged in interactionState
@@ -230,7 +235,7 @@ private fun Track(
     positionFraction: Float,
     tickFractions: List<Float>,
     thumbPx: Float,
-    trackStroke: Stroke
+    trackStrokeWidth: Float
 ) {
     val activeTickColor = MaterialTheme.colors.onPrimary.copy(alpha = TickColorAlpha)
     val inactiveTickColor = color.copy(alpha = TickColorAlpha)
@@ -241,14 +246,15 @@ private fun Track(
             color.copy(alpha = InactiveTrackColorAlpha),
             sliderStart,
             sliderMax,
-            trackStroke
+            trackStrokeWidth,
+            StrokeCap.round
         )
         val sliderValue = Offset(
             sliderStart.x + (sliderMax.x - sliderStart.x) * positionFraction,
             center.y
         )
 
-        drawLine(color, sliderStart, sliderValue, trackStroke)
+        drawLine(color, sliderStart, sliderValue, trackStrokeWidth)
         tickFractions.groupBy { it > positionFraction }.forEach { (afterFraction, list) ->
             drawPoints(
                 list.map {
@@ -256,7 +262,7 @@ private fun Track(
                 },
                 PointMode.points,
                 if (afterFraction) inactiveTickColor else activeTickColor,
-                trackStroke
+                trackStrokeWidth
             )
         }
     }

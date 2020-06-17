@@ -1468,7 +1468,7 @@ private fun Modifier.drawIndicatorLine(lineWidth: Dp, color: Color): Modifier {
             color,
             Offset(0f, y),
             Offset(size.width, y),
-            stroke = Stroke(width = strokeWidth)
+            strokeWidth
         )
     }
 }

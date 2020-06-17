@@ -23,6 +23,7 @@ import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.drawCanvas
+import androidx.ui.graphics.drawscope.inset
 import androidx.ui.graphics.withSaveLayer
 
 /**
@@ -190,17 +191,24 @@ abstract class Painter {
         configureLayoutDirection(layoutDirection)
 
         // b/156512437 to expose saveLayer on DrawScope
-        drawCanvas { canvas, _ ->
+        inset(
+            left = 0.0f,
+            top = 0.0f,
+            right = this.size.width - size.width,
+            bottom = this.size.height - size.height) {
+
             if (alpha > 0.0f) {
                 if (useLayer) {
                     val layerRect =
                         Rect.fromLTWH(0.0f, 0.0f, size.width, size.height)
                     // TODO (b/154550724) njawad replace with RenderNode/Layer API usage
-                    canvas.withSaveLayer(layerRect, obtainPaint()) {
-                        draw(canvas, size, drawLambda)
+                    drawCanvas { canvas, _ ->
+                        canvas.withSaveLayer(layerRect, obtainPaint()) {
+                            onDraw()
+                        }
                     }
                 } else {
-                    draw(canvas, size, drawLambda)
+                    onDraw()
                 }
             }
         }

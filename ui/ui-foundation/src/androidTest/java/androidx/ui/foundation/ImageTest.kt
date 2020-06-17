@@ -33,8 +33,6 @@ import androidx.ui.core.ContentScale
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.core.drawBehind
 import androidx.ui.core.testTag
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredSizeIn
@@ -44,6 +42,8 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.findRoot
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import org.junit.Assert
 import org.junit.Rule
@@ -138,11 +138,11 @@ class ImageTest {
             ) {
                 Image(
                     ImagePainter(createImageAsset(),
-                        Offset(
-                            imageWidth / 2.0f - subsectionWidth / 2.0f,
-                            imageHeight / 2.0f - subsectionHeight / 2.0f
+                        IntOffset(
+                            imageWidth / 2 - subsectionWidth / 2,
+                            imageHeight / 2 - subsectionHeight / 2
                         ),
-                        Size(subsectionWidth.toFloat(), subsectionHeight.toFloat())
+                        IntSize(subsectionWidth, subsectionHeight)
                     )
                 )
             }
