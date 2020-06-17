@@ -18,6 +18,7 @@ package androidx.benchmark
 
 import android.app.Application
 import android.os.Bundle
+import androidx.test.platform.app.InstrumentationRegistry
 
 /**
  * Hack to enable overriding benchmark arguments (since we can't easily do this in CI, per apk)
@@ -47,6 +48,11 @@ class ArgumentInjectingApplication : Application() {
                 "androidx.benchmark.suppressErrors",
                 "ACTIVITY-MISSING,CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED," +
                         "UNSUSTAINED-ACTIVITY-MISSING"
+            )
+            // TODO: consider moving default directory to files dir.
+            putString(
+                "additionalTestOutputDir",
+                InstrumentationRegistry.getInstrumentation().targetContext.filesDir.absolutePath
             )
         }
     }

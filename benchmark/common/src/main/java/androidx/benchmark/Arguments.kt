@@ -16,7 +16,6 @@
 
 package androidx.benchmark
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Environment
 import androidx.annotation.RestrictTo
@@ -37,7 +36,7 @@ internal object Arguments {
     val startupMode: Boolean
     val dryRunMode: Boolean
     val suppressedErrors: Set<String>
-    val profilingMode: ProfilingMode
+    val profiler: Profiler?
 
     var error: String? = null
 
@@ -46,23 +45,19 @@ internal object Arguments {
     private fun Bundle.getArgument(key: String, defaultValue: String = "") =
         getString(prefix + key, defaultValue)
 
-    @SuppressLint("DefaultLocale")
-    private fun Bundle.getProfilingMode(outputIsEnabled: Boolean): ProfilingMode {
+    private fun Bundle.getProfiler(outputIsEnabled: Boolean): Profiler? {
         val argumentName = "profiling.mode"
-        val argumentValue = getArgument(argumentName, ProfilingMode.None.toString())
-
-        val mode = ProfilingMode.getFromString(argumentValue)
-        if (mode == null) {
-            val validOptions = ProfilingMode.values().joinToString()
-            error =
-                "Could not parse $prefix$argumentName=$argumentValue, must be one of: $validOptions"
-            return ProfilingMode.None
+        val argumentValue = getArgument(argumentName)
+        val profiler = Profiler.getByName(argumentValue)
+        if (profiler == null && argumentValue.isNotEmpty()) {
+            error = "Could not parse $prefix$argumentName=$argumentValue"
+            return null
         }
-        if (mode.needsLibraryOutputDir() && !outputIsEnabled) {
+        if (profiler?.requiresLibraryOutputDir == true && !outputIsEnabled) {
             error = "Output is not enabled, so cannot profile with mode $argumentValue"
-            return ProfilingMode.None
+            return null
         }
-        return mode
+        return profiler
     }
 
     // note: initialization may happen at any time
@@ -85,7 +80,7 @@ internal object Arguments {
             .filter { it.isNotEmpty() }
             .toSet()
 
-        profilingMode = arguments.getProfilingMode(outputEnable)
+        profiler = arguments.getProfiler(outputEnable)
 
         val additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
         @Suppress("DEPRECATION") // Legacy code path for versions of agp older than 3.6
