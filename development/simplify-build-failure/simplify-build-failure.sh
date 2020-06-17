@@ -22,7 +22,7 @@ function usage() {
   echo '  simplify-build-failure.sh'
   echo
   echo 'SYNOPSIS'
-  echo "  $0 (--task <gradle task> <error message> | --command <shell command> ) [--continue] [--limit-to-path <file path>] [--check-lines-in <subfile path>]"
+  echo "  $0 (--task <gradle task> <error message> | --command <shell command> ) [--continue] [--limit-to-path <file path>] [--check-lines-in <subfile path>] [--num-jobs <count>]"
   echo
   echo DESCRIPTION
   echo '  Searches for a minimal set of files and/or lines required to reproduce a given build failure'
@@ -44,6 +44,8 @@ function usage() {
   echo
   echo '  --check-lines-in <subfile path>'
   echo '    Specifies that individual lines in files in <subfile path> will be considered for removal, too'
+  echo '  --num-jobs <count>'
+  echo '    Specifies the number of jobs to run at once'
   exit 1
 }
 
@@ -65,6 +67,7 @@ testCommand=""
 resume=false
 subfilePath=""
 limitToPath=""
+numJobs="1"
 
 export ALLOW_MISSING_PROJECTS=true # so that if we delete entire projects then the AndroidX build doesn't think we made a spelling mistake
 
@@ -136,6 +139,11 @@ while [ "$1" != "" ]; do
     shift
     continue
   fi
+  if [ "$arg" == "--num-jobs" ]; then
+    numJobs="$1"
+    shift
+    continue
+  fi
   echo "Unrecognized argument '$arg'"
   usage
 done
@@ -195,7 +203,7 @@ else
     sed -i 's/.*Werror.*//' "$referenceFailingDir/buildSrc/build.gradle"
   fi
   echo Running diff-filterer.py once to identify the minimal set of files needed to reproduce the error
-  if ./development/file-utils/diff-filterer.py --assume-no-side-effects --work-path $filtererStep1Work --num-jobs 4 "$referenceFailingDir" "$referencePassingDir" "$testCommand"; then
+  if ./development/file-utils/diff-filterer.py --assume-no-side-effects --work-path $filtererStep1Work --num-jobs "$numJobs" "$referenceFailingDir" "$referencePassingDir" "$testCommand"; then
     echo diff-filterer completed successfully
   else
     failed
@@ -225,7 +233,7 @@ else
   noFunctionBodies_output="$tempDir/noFunctionBodies_output"
 
   # set up command for running diff-filterer against diffs within files
-  filtererOptions="--num-jobs 4"
+  filtererOptions="--num-jobs $numJobs"
   if echo $subfilePath | grep -v buildSrc >/dev/null 2>/dev/null; then
     # If we're not making changes in buildSrc, then we want to keep the gradle caches around for more speed
     # If we are making changes in buildSrc, then Gradle doesn't necessarily do up-to-date checks correctly, and we want to clear the caches between builds
