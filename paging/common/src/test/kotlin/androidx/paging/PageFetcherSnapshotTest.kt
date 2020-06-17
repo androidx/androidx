@@ -708,7 +708,7 @@ class PageFetcherSnapshotTest {
                 retryCh.offer(Unit)
                 advanceUntilIdle()
 
-                assertEvents(expected, pageEvents)
+                assertThat(pageEvents).isEqualTo(expected)
             }
         }
     }
@@ -1132,7 +1132,7 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
-    fun remoteMediator_initialLoadLoadStateError() = testScope.runBlockingTest {
+    fun remoteMediator_initialLoadErrorTriggersLocal() = testScope.runBlockingTest {
         @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
@@ -1155,13 +1155,16 @@ class PageFetcherSnapshotTest {
         collectPagerData(pager) { pageEvents, _ ->
             advanceUntilIdle()
 
-            assertEvents(
-                listOf(
-                    LoadStateUpdate(REFRESH, true, Loading),
-                    LoadStateUpdate(REFRESH, true, Error(EXCEPTION))
-                ),
-                pageEvents
+            val expected = listOf<PageEvent<Int>>(
+                LoadStateUpdate(REFRESH, true, Loading),
+                LoadStateUpdate(REFRESH, true, Error(EXCEPTION)),
+                LoadStateUpdate(REFRESH, false, Loading),
+                createRefresh(0..2, remoteLoadStatesOf(refreshRemote = Error(EXCEPTION))),
+                LoadStateUpdate(PREPEND, true, Loading),
+                LoadStateUpdate(PREPEND, true, Error(EXCEPTION))
             )
+
+            assertThat(pageEvents).isEqualTo(expected)
         }
     }
 

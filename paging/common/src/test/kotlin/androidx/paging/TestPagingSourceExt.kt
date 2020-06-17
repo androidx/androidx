@@ -21,6 +21,16 @@ import androidx.paging.TestPagingSource.Companion.ITEMS
 
 internal fun createRefresh(
     range: IntRange,
+    combinedLoadStates: CombinedLoadStates
+) = PageEvent.Insert.Refresh(
+    pages = pages(0, range),
+    placeholdersBefore = range.first.coerceAtLeast(0),
+    placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
+    combinedLoadStates = combinedLoadStates
+)
+
+internal fun createRefresh(
+    range: IntRange,
     startState: LoadState = NotLoading.Idle,
     endState: LoadState = NotLoading.Idle
 ) = PageEvent.Insert.Refresh(
