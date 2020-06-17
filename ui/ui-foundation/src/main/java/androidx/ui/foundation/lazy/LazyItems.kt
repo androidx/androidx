@@ -46,7 +46,36 @@ fun <T> LazyColumnItems(
     modifier: Modifier = Modifier,
     itemContent: @Composable (T) -> Unit
 ) {
-    val state = remember { LazyItemsState<T>() }
+    LazyItems(items, modifier, itemContent, isVertical = true)
+}
+
+/**
+ * A horizontally scrolling list that only composes and lays out the currently visible items.
+ *
+ * @param items the backing list of data to display
+ * @param modifier the modifier to apply to this layout
+ * @param itemContent emits the UI for an item from [items] list. May emit any number of components,
+ * which will be stacked horizontally. Note that [LazyRowItems] can start scrolling incorrectly
+ * if you emit nothing and then lazily recompose with the real content, so even if you load the
+ * content asynchronously please reserve some space for the item, for example using [Spacer].
+ */
+@Composable
+fun <T> LazyRowItems(
+    items: List<T>,
+    modifier: Modifier = Modifier,
+    itemContent: @Composable (T) -> Unit
+) {
+    LazyItems(items, modifier, itemContent, isVertical = false)
+}
+
+@Composable
+private fun <T> LazyItems(
+    items: List<T>,
+    modifier: Modifier = Modifier,
+    itemContent: @Composable (T) -> Unit,
+    isVertical: Boolean
+) {
+    val state = remember { LazyItemsState<T>(isVertical = isVertical) }
     @OptIn(ExperimentalComposeApi::class)
     state.recomposer = currentComposer.recomposer
     state.itemContent = itemContent
@@ -55,11 +84,12 @@ fun <T> LazyColumnItems(
     state.compositionRef = compositionReference()
     state.forceRecompose = true
 
+    val dragDirection = if (isVertical) DragDirection.Vertical else DragDirection.Horizontal
     androidx.ui.core.LayoutNode(
         modifier = currentComposer.materialize(
             modifier
                 .scrollable(
-                    dragDirection = DragDirection.Vertical,
+                    dragDirection = dragDirection,
                     scrollableState = androidx.ui.foundation.gestures.ScrollableState(
                         onScrollDeltaConsumptionRequested =
                         state.onScrollDeltaConsumptionRequestedListener
