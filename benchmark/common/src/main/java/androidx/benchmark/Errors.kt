@@ -178,6 +178,33 @@ internal object Errors {
                 |            = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
             """.trimMarginWrapNewlines()
         }
+        if (Arguments.profiler == MethodSamplingSimpleperf) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                warningPrefix += "SIMPLEPERF_"
+                warningString += """
+                    |ERROR: Cannot use Simpleperf on this device's API level (${Build.VERSION.SDK_INT})
+                    |    Simpleperf prior to API 28 (P) requires AOT compilation, and isn't 
+                    |    currently supported by the benchmark library.
+                """.trimMarginWrapNewlines()
+            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P && !isDeviceRooted) {
+                warningPrefix += "SIMPLEPERF_"
+                warningString += """
+                    |ERROR: Cannot use Simpleperf on this device's API level (${Build.VERSION.SDK_INT})
+                    |    without root. Simpleperf on API 28 (P) can only be used on a rooted device,
+                    |    or when the APK is debuggable. Debuggable performance measurements should
+                    |    be avoided, due to measurement inaccuracy.
+                """.trimMarginWrapNewlines()
+            } else if (
+                Build.VERSION.SDK_INT >= 29 && !context.applicationInfo.isProfileableByShell
+            ) {
+                warningPrefix += "SIMPLEPERF_"
+                warningString += """
+                    |ERROR: Apk must be profileable to use simpleperf.
+                    |    ensure you put <profileable android:shell="true"/> within the
+                    |    <application ...> tag of your benchmark module
+                """.trimMarginWrapNewlines()
+            }
+        }
 
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         val batteryPercent = context.registerReceiver(null, filter)?.run {
@@ -216,7 +243,8 @@ internal object Errors {
             .toSet()
 
         val alwaysSuppressed = setOf("PROFILED")
-        val suppressedWarnings = Arguments.suppressedErrors + alwaysSuppressed
+        val neverSuppressed = setOf("SIMPLEPERF")
+        val suppressedWarnings = Arguments.suppressedErrors + alwaysSuppressed - neverSuppressed
         val unsuppressedWarningSet = warningSet - suppressedWarnings
         UNSUPPRESSED_WARNING_MESSAGE = if (unsuppressedWarningSet.isNotEmpty()) {
             """

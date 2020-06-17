@@ -18,6 +18,7 @@ package androidx.benchmark
 
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
@@ -37,6 +38,8 @@ internal object Arguments {
     val dryRunMode: Boolean
     val suppressedErrors: Set<String>
     val profiler: Profiler?
+    val profilerSampleFrequency: Int
+    val profilerSampleDurationSeconds: Long
 
     var error: String? = null
 
@@ -81,6 +84,16 @@ internal object Arguments {
             .toSet()
 
         profiler = arguments.getProfiler(outputEnable)
+        profilerSampleFrequency =
+            arguments.getArgument("profiling.sampleFrequency")?.ifBlank { null }?.toInt() ?: 10000
+        profilerSampleDurationSeconds =
+            arguments.getArgument("profiling.sampleDurationSeconds")?.ifBlank { null }?.toLong()
+                ?: 5
+
+        if (profiler != null) {
+            Log.d(BenchmarkState.TAG, "Profiler ${profiler.javaClass.simpleName}, freq " +
+                    "$profilerSampleFrequency, duration $profilerSampleDurationSeconds")
+        }
 
         val additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
         @Suppress("DEPRECATION") // Legacy code path for versions of agp older than 3.6

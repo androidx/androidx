@@ -19,6 +19,9 @@ package androidx.benchmark
 import android.os.Build
 import android.os.Debug
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.benchmark.simpleperf.ProfileSession
+import androidx.benchmark.simpleperf.RecordOptions
 import java.io.File
 
 /**
@@ -72,6 +75,8 @@ internal sealed class Profiler {
                 "ConnectedAllocation" to ConnectedAllocation,
                 "ConnectedSampling" to ConnectedSampling,
 
+                "MethodSamplingSimpleperf" to MethodSamplingSimpleperf,
+
                 // Below are compat codepaths for old names. Remove before 1.1 stable.
                 "Method" to MethodTracing,
                 "Sampled" to MethodSampling,
@@ -81,12 +86,8 @@ internal sealed class Profiler {
     }
 }
 
-internal fun startRuntimeMethodTracing(traceUniqueName: String, sampled: Boolean) {
-    val traceType = if (sampled) "methodSampling" else "methodTracing"
-    val path = File(
-        Arguments.testOutputDir,
-        "$traceUniqueName-$traceType.trace"
-    ).absolutePath
+internal fun startRuntimeMethodTracing(traceFileName: String, sampled: Boolean) {
+    val path = File(Arguments.testOutputDir, traceFileName).absolutePath
 
     Log.d(BenchmarkState.TAG, "Profiling output file: $path")
     InstrumentationResults.reportAdditionalFileToCopy("profiling_trace", path)
@@ -95,7 +96,7 @@ internal fun startRuntimeMethodTracing(traceUniqueName: String, sampled: Boolean
     if (sampled &&
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
     ) {
-        Debug.startMethodTracingSampling(path, bufferSize, 100)
+        Debug.startMethodTracingSampling(path, bufferSize, Arguments.profilerSampleFrequency)
     } else {
         Debug.startMethodTracing(path, bufferSize, 0)
     }
@@ -107,7 +108,10 @@ internal fun stopRuntimeMethodTracing() {
 
 internal object MethodSampling : Profiler() {
     override fun start(traceUniqueName: String) {
-        startRuntimeMethodTracing(traceUniqueName = traceUniqueName, sampled = true)
+        startRuntimeMethodTracing(
+            traceFileName = "$traceUniqueName-methodSampling.trace",
+            sampled = true
+        )
     }
 
     override fun stop() {
@@ -119,7 +123,10 @@ internal object MethodSampling : Profiler() {
 
 internal object MethodTracing : Profiler() {
     override fun start(traceUniqueName: String) {
-        startRuntimeMethodTracing(traceUniqueName = traceUniqueName, sampled = false)
+        startRuntimeMethodTracing(
+            traceFileName = "$traceUniqueName-methodTracing.trace",
+            sampled = false
+        )
     }
 
     override fun stop() {
@@ -153,5 +160,32 @@ internal object ConnectedSampling : Profiler() {
     }
 
     override val requiresDebuggable: Boolean = true
+    override val requiresLibraryOutputDir: Boolean = false
+}
+
+internal object MethodSamplingSimpleperf : Profiler() {
+    @RequiresApi(28)
+    private var session: ProfileSession? = null
+
+    @RequiresApi(28)
+    override fun start(traceUniqueName: String) {
+        session?.stopRecording() // stop previous
+        session = ProfileSession().also {
+            it.startRecording(
+                RecordOptions()
+                    .setSampleFrequency(Arguments.profilerSampleFrequency)
+                    .recordDwarfCallGraph() // enable Java/Kotlin callstacks
+                    .traceOffCpu() // track time sleeping
+                    .setOutputFilename("$traceUniqueName.data")
+            )
+        }
+    }
+
+    @RequiresApi(28)
+    override fun stop() {
+        session!!.stopRecording()
+        session = null
+    }
+
     override val requiresLibraryOutputDir: Boolean = false
 }
