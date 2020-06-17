@@ -54,15 +54,17 @@ public final class CameraSelector {
     }
 
     /**
-     * Selects the first camera that filtered by the {@link CameraFilter} assigned to the selector.
+     * Selects the first camera that filtered by the {@link CameraFilter}s assigned to this
+     * {@link CameraSelector}.
      *
-     * <p>The camera filtered must be contained in the input set. Otherwise it will throw an
-     * exception.
+     * <p>When filtering with {@link CameraFilter}, the output set must be contained in the input
+     * set, otherwise an IllegalArgumentException will be thrown. The output set is compared with
+     * a copy of the original input set despite the input set isn't expected to be modified.
      *
      * @param cameras The camera set being filtered.
      * @return The first camera filtered.
-     * @throws IllegalArgumentException If there's no available camera after being filtered or
-     *                                  the filtered camera ids aren't contained in the input set.
+     * @throws IllegalArgumentException If there's no available camera after filtering or the
+     *                                  filtered cameras aren't contained in the input set.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -72,9 +74,9 @@ public final class CameraSelector {
         LinkedHashSet<Camera> camerasCopy = new LinkedHashSet<>(cameras);
         LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>(cameras);
         for (CameraFilter filter : mCameraFilterSet) {
-            filter.filter(resultCameras);
-            // If the result is empty or has extra camera id that isn't contained in the
-            // input, throws an exception.
+            resultCameras = filter.filter(resultCameras);
+            // If the result is empty or has extra camera that isn't contained in the input,
+            // throws an exception.
             if (resultCameras.isEmpty()) {
                 throw new IllegalArgumentException("No available camera can be found.");
             } else if (!camerasCopy.containsAll(resultCameras)) {

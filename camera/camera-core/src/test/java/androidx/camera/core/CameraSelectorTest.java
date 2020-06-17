@@ -155,12 +155,31 @@ public class CameraSelectorTest {
 
     @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     @Test(expected = IllegalArgumentException.class)
-    public void exception_extraCameraInResult() {
+    public void exception_extraOutputCamera() {
         CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
         cameraSelectorBuilder.addCameraFilter((cameras) -> {
-            // Add an camera not contained in the input to result.
-            cameras.add(new FakeCamera());
+            LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
+            // Add an extra camera to output.
+            resultCameras.add(new FakeCamera());
+            return resultCameras;
         });
+        cameraSelectorBuilder.build().select(mCameras);
+    }
+
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @Test(expected = IllegalArgumentException.class)
+    public void exception_extraInputAndOutputCamera() {
+        CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
+        cameraSelectorBuilder.addCameraFilter((cameras) -> {
+            Camera camera = new FakeCamera();
+            // Add an extra camera to input.
+            cameras.add(camera);
+            LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
+            // Add an extra camera to output.
+            resultCameras.add(camera);
+            return resultCameras;
+        });
+        // Should throw an exception even the extra camera is also added to the input.
         cameraSelectorBuilder.build().select(mCameras);
     }
 }

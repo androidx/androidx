@@ -28,7 +28,6 @@ import androidx.core.util.Preconditions;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Provides ability to filter cameras with camera IDs and characteristics and create the
@@ -57,11 +56,11 @@ public final class Camera2CameraFilter {
                         camera2CameraInfoImpl.getCameraCharacteristics());
             }
 
-            filter.filter(characteristicsMap);
+            LinkedHashMap<String, CameraCharacteristics> resultMap = filter.filter(
+                    characteristicsMap);
 
-            Set<Camera> resultCameras = new LinkedHashSet<>();
-            for (Map.Entry<String, CameraCharacteristics> entry :
-                    characteristicsMap.entrySet()) {
+            LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
+            for (Map.Entry<String, CameraCharacteristics> entry : resultMap.entrySet()) {
                 String cameraId = entry.getKey();
                 // The extra camera IDs not contained in the camera map will be ignored.
                 if (cameraMap.containsKey(cameraId)) {
@@ -71,7 +70,8 @@ public final class Camera2CameraFilter {
                             "There are camera IDs not contained in the original camera map.");
                 }
             }
-            cameras.retainAll(resultCameras);
+
+            return resultCameras;
         };
     }
 
@@ -81,13 +81,12 @@ public final class Camera2CameraFilter {
      */
     public interface Camera2Filter {
         /**
-         * Filters the input camera IDs based on their {@link CameraCharacteristics}. The method
-         * modifies the input map directly, leaves the entries that match requirement and remove
-         * the rest.
+         * Filters a map of camera IDs and their {@link CameraCharacteristics} then returns those
+         * matching the requirements.
          *
-         * <p>If the filtered map has extra camera IDs not contained in the original map, when
-         * used by a {@link androidx.camera.core.CameraSelector} then it will result in an
-         * IllegalArgumentException thrown when calling bindToLifecycle.
+         * <p>If the key set of the output map contains camera IDs not in the key set of the
+         * input map, when used by a {@link androidx.camera.core.CameraSelector} then it will
+         * result in an IllegalArgumentException thrown when calling bindToLifecycle.
          *
          * <p>The camera ID that has lower index in the map has higher priority. When used by
          * {@link androidx.camera.core.CameraSelector.Builder#addCameraFilter(CameraFilter)}, the
@@ -95,10 +94,15 @@ public final class Camera2CameraFilter {
          * {@link CameraFilter}s by the order they were added. The first camera in the result
          * will be selected if there are multiple cameras left.
          *
-         * @param idCharacteristicsMap The map of camera ID and {@link CameraCharacteristics} of
-         *                             the cameras being filtered.
+         * @param idCharacteristicsMap The input map of camera IDs and their
+         *                             {@link CameraCharacteristics} of the cameras being
+         *                             filtered. It's not expected to be modified.
+         * @return The output map of camera IDs and their {@link CameraCharacteristics} that
+         * match the requirements. Users are expected to create a new map to return with.
          */
-        void filter(@NonNull LinkedHashMap<String, CameraCharacteristics> idCharacteristicsMap);
+        @NonNull
+        LinkedHashMap<String, CameraCharacteristics> filter(
+                @NonNull LinkedHashMap<String, CameraCharacteristics> idCharacteristicsMap);
     }
 
     // Should not be instantiated.
