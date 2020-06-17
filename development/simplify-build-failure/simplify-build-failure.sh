@@ -68,6 +68,23 @@ limitToPath=""
 
 export ALLOW_MISSING_PROJECTS=true # so that if we delete entire projects then the AndroidX build doesn't think we made a spelling mistake
 
+workingDir="$(pwd)"
+cd "$(dirname $0)"
+scriptPath="$(pwd)"
+cd ../..
+supportRoot="$(pwd)"
+checkoutRoot="$(cd $supportRoot/../.. && pwd)"
+tempDir="$checkoutRoot/simplify-tmp"
+
+# If the this script was run from a subdirectory, then we run our test command from the same subdirectory
+commandSubdir="$(echo $workingDir | sed "s|^$supportRoot|.|g")"
+
+if [ ! -e "$workingDir/gradlew" ]; then
+  echo "Error; ./gradlew does not exist. Must cd to a dir containing a ./gradlew first"
+  # so that this script knows which gradlew to use (in frameworks/support or frameworks/support/ui)
+  exit 1
+fi
+
 while [ "$1" != "" ]; do
   arg="$1"
   shift
@@ -92,17 +109,17 @@ while [ "$1" != "" ]; do
     grepCommand="grep \"$errorMessage\" log"
     # Sleep in case Gradle fails very quickly
     # We don't want to run too many Gradle commands in a row or else the daemons might get confused
-    testCommand="$gradleCommand; sleep 2; $grepCommand"
+    testCommand="cd $commandSubdir && $gradleCommand; sleep 2; $grepCommand"
     continue
   fi
   if [ "$arg" == "--command" ]; then
-    testCommand="$1"
+    if [ "$1" == "" ]; then
+      usage
+    fi
+    testCommand="cd $commandSubdir && $1"
     shift
     gradleCommand=""
     grepCommand=""
-    if [ "$testCommand" == "" ]; then
-      usage
-    fi
     if echo "$testCommand" | grep -v OUT_DIR 2>/dev/null; then
       echo "Error: must set OUT_DIR in the test command to prevent concurrent Gradle executions from interfering with each other"
       exit 1
@@ -127,13 +144,6 @@ if [ "$testCommand" == "" ]; then
   usage
 fi
 
-cd "$(dirname $0)"
-scriptPath="$(pwd)"
-cd ../..
-supportRoot="$(pwd)"
-checkoutRoot="$(cd $supportRoot/../.. && pwd)"
-
-tempDir="$checkoutRoot/simplify-tmp"
 if [ "$resume" == "true" ]; then
   if [ -d "$tempDir" ]; then
     echo "Not deleting temp dir $tempDir"
@@ -226,7 +236,7 @@ else
       # If we're making changes in buildSrc, then we want to make sure that a clean build passes because Gradle doesn't always do up-to-date checks correctly when we're making strange changes in buildSrc
       # However, the build runs much more quickly when incremental than when clean
       # So, we first run an incremental build and then if it passes we run a clean build
-      testCommand="$gradleCommand; $grepCommand && rm log out -rf && $gradleCommand --no-daemon; $grepCommand"
+      testCommand="cd $commandSubdir && $gradleCommand; $grepCommand && rm log out -rf && $gradleCommand --no-daemon; $grepCommand"
     fi
   fi
 
