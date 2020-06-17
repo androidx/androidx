@@ -24,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
@@ -208,7 +209,11 @@ public class NavHostFragment extends Fragment implements NavHost {
 
         mNavController = new NavHostController(context);
         mNavController.setLifecycleOwner(this);
-        mNavController.setOnBackPressedDispatcher(requireActivity().getOnBackPressedDispatcher());
+        if (context instanceof OnBackPressedDispatcherOwner) {
+            mNavController.setOnBackPressedDispatcher(
+                    ((OnBackPressedDispatcherOwner) context).getOnBackPressedDispatcher());
+            // Otherwise, caller must register a dispatcher on the controller explicitly.
+        }
         // Set the default state - this will be updated whenever
         // onPrimaryNavigationFragmentChanged() is called
         mNavController.enableOnBackPressed(
