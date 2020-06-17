@@ -28,8 +28,8 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.foundation.AdapterList
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.lazy.LazyColumnItems
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.drawBorder
@@ -60,7 +60,7 @@ fun PointerInputDuringSubComp() {
                     "it is actually a new item that has not been hit tested yet.  If you keep " +
                     "your finger there and then add more fingers, it will track those new fingers."
         )
-        AdapterList(
+        LazyColumnItems(
             List(100) { index -> index },
             Modifier
                 .fillMaxSize()

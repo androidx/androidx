@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation
+package androidx.ui.foundation.lazy
 
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
@@ -26,6 +26,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.TouchSlop
 import androidx.ui.core.testTag
 import androidx.ui.geometry.Offset
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
@@ -58,8 +60,8 @@ import java.util.concurrent.CountDownLatch
 
 @LargeTest
 @RunWith(JUnit4::class)
-class AdapterListTest {
-    private val AdapterListTag = "TestAdapterList"
+class LazyColumnItemsTest {
+    private val LazyColumnItemsTag = "TestLazyColumnItems"
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -75,8 +77,8 @@ class AdapterListTest {
 
         composeTestRule.setContent {
             // Fixed height to eliminate device size as a factor
-            Box(Modifier.testTag(AdapterListTag).preferredHeight(300.dp)) {
-                AdapterList(data = data, modifier = Modifier.fillMaxSize()) {
+            Box(Modifier.testTag(LazyColumnItemsTag).preferredHeight(300.dp)) {
+                LazyColumnItems(items = data, modifier = Modifier.fillMaxSize()) {
                     onCommit {
                         composed = true
                         // Signal when everything is done composing
@@ -102,7 +104,7 @@ class AdapterListTest {
         assertWithMessage("Additional composition occurred for no apparent reason")
             .that(composed).isFalse()
 
-        findByTag(AdapterListTag)
+        findByTag(LazyColumnItemsTag)
             .doGesture { sendSwipeUp() }
 
         waitForIdle()
@@ -128,9 +130,9 @@ class AdapterListTest {
         var part2 by mutableStateOf(false)
 
         composeTestRule.setContent {
-            AdapterList(
-                data = if (!part2) data1 else data2,
-                modifier = Modifier.testTag(AdapterListTag).fillMaxSize()
+            LazyColumnItems(
+                items = if (!part2) data1 else data2,
+                modifier = Modifier.testTag(LazyColumnItemsTag).fillMaxSize()
             ) {
                 onCommit {
                     composed = true
@@ -175,8 +177,8 @@ class AdapterListTest {
 
         composeTestRule.setContent {
             if (emitAdapterList) {
-                AdapterList(
-                    data = listOf(0, 1),
+                LazyColumnItems(
+                    items = listOf(0, 1),
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Box(Modifier.size(100.dp))
@@ -214,7 +216,7 @@ class AdapterListTest {
         var numItemsModel by mutableStateOf(numItems)
         val tag = "List"
         composeTestRule.setContent {
-            AdapterList((1..numItemsModel).toList(), modifier = Modifier.testTag(tag)) {
+            LazyColumnItems((1..numItemsModel).toList(), modifier = Modifier.testTag(tag)) {
                 Text("$it")
             }
         }
@@ -253,7 +255,7 @@ class AdapterListTest {
         var dataModel by mutableStateOf(dataLists[0])
         val tag = "List"
         composeTestRule.setContent {
-            AdapterList(dataModel, modifier = Modifier.testTag(tag)) {
+            LazyColumnItems(dataModel, modifier = Modifier.testTag(tag)) {
                 Text("$it")
             }
         }
@@ -281,11 +283,11 @@ class AdapterListTest {
         var thirdHasSize by mutableStateOf(false)
 
         composeTestRule.setContent {
-            AdapterList(
-                data = items,
+            LazyColumnItems(
+                items = items,
                 modifier = Modifier.fillMaxWidth()
                     .preferredHeight(100.dp)
-                    .testTag(AdapterListTag)
+                    .testTag(LazyColumnItemsTag)
             ) {
                 if (it == 3) {
                     Spacer(Modifier.testTag(thirdTag)
@@ -297,7 +299,7 @@ class AdapterListTest {
             }
         }
 
-        findByTag(AdapterListTag)
+        findByTag(LazyColumnItemsTag)
             .scrollBy(y = 21.dp, density = composeTestRule.density)
 
         findByTag(thirdTag)
@@ -310,7 +312,7 @@ class AdapterListTest {
 
         waitForIdle()
 
-        findByTag(AdapterListTag)
+        findByTag(LazyColumnItemsTag)
             .scrollBy(y = 10.dp, density = composeTestRule.density)
 
         findByTag(thirdTag)
