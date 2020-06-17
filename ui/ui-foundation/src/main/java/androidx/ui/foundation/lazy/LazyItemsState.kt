@@ -30,10 +30,10 @@ import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.MeasuringIntrinsicsMeasureBlocks
+import androidx.ui.core.Placeable
 import androidx.ui.core.Ref
 import androidx.ui.core.subcomposeInto
 import kotlin.math.abs
-import kotlin.math.round
 import kotlin.math.roundToInt
 
 private inline class ScrollDirection(val isForward: Boolean)
@@ -50,7 +50,7 @@ private inline class DataIndex(val value: Int) {
 
 private inline class LayoutIndex(val value: Int)
 
-internal class LazyItemsState<T> {
+internal class LazyItemsState<T>(val isVertical: Boolean) {
     lateinit var recomposer: Recomposer
     lateinit var itemContent: @Composable (T) -> Unit
     lateinit var items: List<T>
@@ -102,7 +102,7 @@ internal class LazyItemsState<T> {
      * The children that have been measured this measure pass.
      * Used to avoid measuring twice in a single pass, which is illegal
      */
-    private val measuredThisPass: MutableMap<DataIndex, Boolean> = mutableMapOf()
+    private val measuredThisPass: MutableMap<DataIndex, Placeable> = mutableMapOf()
 
     /**
      * The listener to be passed to onScrollDeltaConsumptionRequested.
@@ -115,6 +115,9 @@ internal class LazyItemsState<T> {
      * they can be disposed later
      */
     private val compositionsForLayoutNodes = mutableMapOf<LayoutNode, Composition>()
+
+    private val Placeable.mainAxisSize get() = if (isVertical) height else width
+    private val Placeable.crossAxisSize get() = if (!isVertical) height else width
 
     // TODO: really want an Int here
     private fun onScroll(distance: Float): Float {
@@ -226,15 +229,15 @@ internal class LazyItemsState<T> {
         val nextItem = composeChildForDataIndex(nextItemIndex)
 
         val childPlaceable = nextItem.measure(childConstraints, layoutDirection)
-        measuredThisPass[nextItemIndex] = true
+        measuredThisPass[nextItemIndex] = childPlaceable
 
-        val childHeight = childPlaceable.height
+        val childSize = childPlaceable.mainAxisSize
 
         // Add in our newly composed space so that it may be consumed
         if (scrollDirection.isForward) {
-            lastItemRemainingSpace += childHeight
+            lastItemRemainingSpace += childSize
         } else {
-            firstItemScrollOffset += childHeight
+            firstItemScrollOffset += childSize
         }
 
         return true
@@ -271,11 +274,13 @@ internal class LazyItemsState<T> {
                 FrameManager.nextFrame()
             }
 
-            val width = constraints.maxWidth
-            val height = constraints.maxHeight
             this@LazyItemsState.layoutDirection = layoutDirection
-            // TODO: axis
-            val childConstraints = Constraints(maxWidth = width, maxHeight = Constraints.Infinity)
+
+            val maxMainAxis = if (isVertical) constraints.maxHeight else constraints.maxWidth
+            val childConstraints = Constraints(
+                maxWidth = if (isVertical) constraints.maxWidth else Constraints.Infinity,
+                maxHeight = if (!isVertical) constraints.maxHeight else Constraints.Infinity
+            )
 
             // We're being asked to consume scroll by the Scrollable
             if (abs(scrollToBeConsumed) >= 0.5f) {
@@ -287,7 +292,7 @@ internal class LazyItemsState<T> {
                 consumePendingScroll(childConstraints)
             }
 
-            var heightUsed = round(-firstItemScrollOffset)
+            var mainAxisUsed = (-firstItemScrollOffset).roundToInt()
 
             // The index of the first item that should be displayed, regardless of what is
             // currently displayed.  Will be moved forward as we determine what's offscreen
@@ -296,19 +301,18 @@ internal class LazyItemsState<T> {
             // TODO: handle the case where we can't fill the viewport due to children shrinking,
             //  but there are more items at the start that we could fill with
             var index = itemIndexOffset
-            while (heightUsed <= height && index.value < items.size) {
+            while (mainAxisUsed <= maxMainAxis && index.value < items.size) {
                 val node = getNodeForDataIndex(index)
-                if (measuredThisPass[index] != true) {
+                val placeable = measuredThisPass.getOrPut(index) {
                     node.measure(childConstraints, layoutDirection)
-                    measuredThisPass[index] = true
                 }
-                val childHeight = node.height
-                heightUsed += childHeight
+                val childMainAxisSize = placeable.mainAxisSize
+                mainAxisUsed += childMainAxisSize
 
-                if (heightUsed < 0f) {
+                if (mainAxisUsed < 0f) {
                     // this item is offscreen, remove it and the offset it took up
                     itemIndexOffset = index + 1
-                    firstItemScrollOffset -= childHeight
+                    firstItemScrollOffset -= childMainAxisSize
                 }
 
                 index++
@@ -326,8 +330,8 @@ internal class LazyItemsState<T> {
             }
             firstComposedItem = itemIndexOffset
 
-            lastItemRemainingSpace = if (heightUsed > height) {
-                (heightUsed - height)
+            lastItemRemainingSpace = if (mainAxisUsed > maxMainAxis) {
+                (mainAxisUsed - maxMainAxis).toFloat()
             } else {
                 0f
             }
@@ -344,11 +348,17 @@ internal class LazyItemsState<T> {
                 )
             }
 
-            return measureScope.layout(width = width, height = height) {
-                var currentY = round(-firstItemScrollOffset)
+            return measureScope.layout(constraints.maxWidth, constraints.maxHeight) {
+                val currentMainAxis = (-firstItemScrollOffset).roundToInt()
+                var x = if (isVertical) 0 else currentMainAxis
+                var y = if (!isVertical) 0 else currentMainAxis
                 rootNode.children.forEach {
-                    it.place(x = 0, y = currentY.roundToInt())
-                    currentY += it.height
+                    it.place(x = x, y = y)
+                    if (isVertical) {
+                        y += it.height
+                    } else {
+                        x += it.width
+                    }
                 }
             }
         }
@@ -471,29 +481,26 @@ internal class LazyItemsState<T> {
         compositionsForLayoutNodes[node] = composition
         return node
     }
-}
 
-private val ListItemMeasureBlocks = MeasuringIntrinsicsMeasureBlocks { measurables, constraints,
-                                                                       _ ->
-    val placeables = measurables.map { measurable ->
-        measurable.measure(
-            Constraints(
-                minWidth = constraints.minWidth,
-                maxWidth = constraints.maxWidth
-            )
-        )
-    }
-    val columnWidth = (placeables.maxBy { it.width }?.width ?: 0)
-        .coerceAtLeast(constraints.minWidth)
-    val columnHeight = placeables.sumBy { it.height }.coerceIn(
-        constraints.minHeight,
-        constraints.maxHeight
-    )
-    layout(columnWidth, columnHeight) {
-        var top = 0
-        placeables.forEach { placeable ->
-            placeable.placeAbsolute(0, top)
-            top += placeable.height
+    private val ListItemMeasureBlocks =
+        MeasuringIntrinsicsMeasureBlocks { measurables, constraints, _ ->
+            val placeables = measurables.map { it.measure(constraints) }
+            val mainAxisSize = placeables.sumBy { it.mainAxisSize }
+            val crossAxisSize = placeables.maxBy { it.crossAxisSize }?.crossAxisSize ?: 0
+            layout(
+                width = if (!isVertical) mainAxisSize else crossAxisSize,
+                height = if (isVertical) mainAxisSize else crossAxisSize
+            ) {
+                var y = 0
+                var x = 0
+                placeables.forEach { placeable ->
+                    placeable.placeAbsolute(x, y)
+                    if (isVertical) {
+                        y += placeable.mainAxisSize
+                    } else {
+                        x += placeable.mainAxisSize
+                    }
+                }
+            }
         }
-    }
 }
