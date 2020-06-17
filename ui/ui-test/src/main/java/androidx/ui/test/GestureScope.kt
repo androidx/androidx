@@ -82,6 +82,18 @@ val BaseGestureScope.size: IntSize
     get() = semanticsNode.size
 
 /**
+ * Shorthand for `size.width`
+ */
+inline val BaseGestureScope.width: Int
+    get() = size.width
+
+/**
+ * Shorthand for `size.height`
+ */
+inline val BaseGestureScope.height: Int
+    get() = size.height
+
+/**
  * Returns the x-coordinate for the left edge of the component we're interacting with, in the
  * component's local coordinate system, where (0, 0) is the top left corner of the component.
  */
@@ -102,28 +114,32 @@ inline val BaseGestureScope.top: Float
  * component's local coordinate system, where (0, 0) is the top left corner of the component.
  */
 inline val BaseGestureScope.centerX: Float
-    get() = right / 2
+    get() = width / 2f
 
 /**
  * Returns the y-coordinate for the center of the component we're interacting with, in the
  * component's local coordinate system, where (0, 0) is the top left corner of the component.
  */
 inline val BaseGestureScope.centerY: Float
-    get() = bottom / 2
+    get() = height / 2f
 
 /**
  * Returns the x-coordinate for the right edge of the component we're interacting with, in the
  * component's local coordinate system, where (0, 0) is the top left corner of the component.
+ * Note that, unless `width == 0`, `right != width`. In particular, `right == width - 1f`, because
+ * pixels are 0-based. If `width == 0`, `right == 0` too.
  */
 inline val BaseGestureScope.right: Float
-    get() = size.width.let { if (it == 0) 0f else it - 1f }
+    get() = width.let { if (it == 0) 0f else it - 1f }
 
 /**
  * Returns the y-coordinate for the bottom of the component we're interacting with, in the
  * component's local coordinate system, where (0, 0) is the top left corner of the component.
+ * Note that, unless `height == 0`, `bottom != height`. In particular, `bottom == height - 1f`,
+ * because pixels are 0-based. If `height == 0`, `bottom == 0` too.
  */
 inline val BaseGestureScope.bottom: Float
-    get() = size.height.let { if (it == 0) 0f else it - 1f }
+    get() = height.let { if (it == 0) 0f else it - 1f }
 
 /**
  * Returns the top left corner of the component we're interacting with, in the component's
@@ -142,14 +158,15 @@ val BaseGestureScope.topCenter: Offset
 
 /**
  * Returns the top right corner of the component we're interacting with, in the component's
- * local coordinate system, where (0, 0) is the top left corner of the component.
+ * local coordinate system, where (0, 0) is the top left corner of the component. Note that
+ * `topRight.x != width`, see [right].
  */
 val BaseGestureScope.topRight: Offset
     get() = Offset(right, top)
 
 /**
- * Returns the center of the left edge of the component we're interacting with, in the component's
- * local coordinate system, where (0, 0) is the top left corner of the component.
+ * Returns the center of the left edge of the component we're interacting with, in the
+ * component's local coordinate system, where (0, 0) is the top left corner of the component.
  */
 val BaseGestureScope.centerLeft: Offset
     get() = Offset(left, centerY)
@@ -162,32 +179,53 @@ val BaseGestureScope.center: Offset
     get() = Offset(centerX, centerY)
 
 /**
- * Returns the center of the right edge of the component we're interacting with, in the component's
- * local coordinate system, where (0, 0) is the top left corner of the component.
+ * Returns the center of the right edge of the component we're interacting with, in the
+ * component's local coordinate system, where (0, 0) is the top left corner of the component.
+ * Note that `centerRight.x != width`, see [right].
  */
 val BaseGestureScope.centerRight: Offset
     get() = Offset(right, centerY)
 
 /**
  * Returns the bottom left corner of the component we're interacting with, in the component's
- * local coordinate system, where (0, 0) is the top left corner of the component.
+ * local coordinate system, where (0, 0) is the top left corner of the component. Note that
+ * `bottomLeft.y != height`, see [bottom].
  */
 val BaseGestureScope.bottomLeft: Offset
     get() = Offset(left, bottom)
 
 /**
  * Returns the center of the bottom edge of the component we're interacting with, in the component's
- * local coordinate system, where (0, 0) is the top left corner of the component.
+ * local coordinate system, where (0, 0) is the top left corner of the component. Note that
+ * `bottomCenter.y != height`, see [bottom].
  */
 val BaseGestureScope.bottomCenter: Offset
     get() = Offset(centerX, bottom)
 
 /**
  * Returns the bottom right corner of the component we're interacting with, in the component's
- * local coordinate system, where (0, 0) is the top left corner of the component.
+ * local coordinate system, where (0, 0) is the top left corner of the component. Note that
+ * `bottomRight.x != width` and `bottomRight.y != height`, see [right] and [bottom].
  */
 val BaseGestureScope.bottomRight: Offset
     get() = Offset(right, bottom)
+
+/**
+ * Creates an [Offset] relative to the size of the component we're interacting with. [x] and [y]
+ * are fractions of the [width] and [height]. Note that `percentOffset(1f, 1f) != bottomRight`,
+ * see [right] and [bottom].
+ *
+ * For example: `percentOffset(.5f, .5f)` is the same as the [center]; `centerLeft +
+ * percentOffset(.1f, 0f)` is a point 10% inward from the middle of the left edge; and
+ * `bottomRight - percentOffset(.2f, .1f)` is a point 20% to the left and 10% to the top of the
+ * bottom right corner.
+ */
+fun BaseGestureScope.percentOffset(
+    @FloatRange(from = -1.0, to = 1.0) x: Float = 0f,
+    @FloatRange(from = -1.0, to = 1.0) y: Float = 0f
+): Offset {
+    return Offset(x * width, y * height)
+}
 
 /**
  * Returns the global bounds of the component we're interacting with

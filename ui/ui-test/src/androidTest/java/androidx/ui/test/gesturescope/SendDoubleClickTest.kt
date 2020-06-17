@@ -71,7 +71,7 @@ class SendDoubleClickTest(private val config: TestConfig) {
 
     private val recordedDoubleClicks = mutableListOf<Offset>()
     private val expectedClickPosition =
-        config.position ?: Offset((defaultSize - 1) / 2, (defaultSize - 1) / 2)
+        config.position ?: Offset(defaultSize / 2, defaultSize / 2)
     // The delay plus 2 clicks
     private val expectedDuration =
         (config.delay ?: 145.milliseconds) + (2 * eventPeriod).milliseconds
