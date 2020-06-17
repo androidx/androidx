@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -1051,12 +1052,22 @@ class PostponedTransitionTest {
         assertThat(fromFragment.requireView().isAttachedToWindow).isTrue()
         assertThat(toFragment.requireView().isAttachedToWindow).isTrue()
         assertThat(fromFragment.requireView().visibility).isEqualTo(View.VISIBLE)
-        assertThat(toFragment.requireView().visibility).isEqualTo(View.VISIBLE)
-        assertThat(toFragment.requireView().alpha).isWithin(0f).of(0f)
+
+        if (FragmentManager.USE_STATE_MANAGER) {
+            assertThat(toFragment.requireView().visibility).isEqualTo(View.INVISIBLE)
+        } else {
+            assertThat(toFragment.requireView().visibility).isEqualTo(View.VISIBLE)
+            assertThat(toFragment.requireView().alpha).isWithin(0f).of(0f)
+        }
         verifyNoOtherTransitions(fromFragment)
         verifyNoOtherTransitions(toFragment)
-        assertThat(fromFragment.isResumed).isTrue()
-        assertThat(toFragment.isResumed).isFalse()
+        if (FragmentManager.USE_STATE_MANAGER) {
+            assertThat(fromFragment.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+            assertThat(toFragment.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        } else {
+            assertThat(fromFragment.isResumed).isTrue()
+            assertThat(toFragment.isResumed).isFalse()
+        }
     }
 
     private fun clearTargets(fragment: TransitionFragment) {
