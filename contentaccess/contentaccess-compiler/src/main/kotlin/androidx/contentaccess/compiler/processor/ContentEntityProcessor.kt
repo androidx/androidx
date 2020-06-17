@@ -19,26 +19,22 @@ package androidx.contentaccess.compiler.processor
 import androidx.contentaccess.ContentColumn
 import androidx.contentaccess.ContentEntity
 import androidx.contentaccess.ContentPrimaryKey
-import androidx.contentaccess.compiler.ext.reportError
-import androidx.contentaccess.compiler.utils.ErrorIndicator
+import androidx.contentaccess.compiler.utils.ErrorReporter
 import androidx.contentaccess.compiler.vo.ContentColumnVO
 import androidx.contentaccess.compiler.vo.ContentEntityVO
 import androidx.contentaccess.ext.getAllFieldsIncludingPrivateSupers
 import androidx.contentaccess.ext.hasAnnotation
 import asTypeElement
 import com.google.auto.common.MoreTypes
-import org.jetbrains.annotations.Nullable
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
 
 class ContentEntityProcessor(
-    val contentEntity: TypeMirror,
-    val processingEnv: ProcessingEnvironment,
-    val errorIndicator: ErrorIndicator
+    private val contentEntity: TypeMirror,
+    private val processingEnv: ProcessingEnvironment,
+    private val errorReporter: ErrorReporter
 ) {
-
-    val messager = processingEnv.messager
 
     fun processEntity(): ContentEntityVO? {
         val entity = contentEntity.asTypeElement()
@@ -49,7 +45,13 @@ class ContentEntityProcessor(
         columns.forEach { column ->
             // TODO(obenabde): handle all the checks that need to happen here (e.g supported
             //  column types)
-            if (column.hasAnnotation(ContentColumn::class)) {
+            if (column.hasAnnotation(ContentColumn::class) &&
+                column.hasAnnotation(ContentPrimaryKey::class)) {
+                errorReporter.reportError("Field ${column.simpleName} in '${entity
+                    .qualifiedName}' is annotated with both @ContentPrimaryKey and " +
+                        "@ContentColumn, these annotations are mutually exclusive and  a field " +
+                        "can only be annotated by one of the two.", entity)
+            } else if (column.hasAnnotation(ContentColumn::class)) {
                 val vo = ContentColumnVO(
                     column.simpleName.toString(), column.asType(),
                     column.getAnnotation(ContentColumn::class.java).columnName,
@@ -57,7 +59,6 @@ class ContentEntityProcessor(
                 )
                 contentColumns.put(vo.columnName, vo)
             } else if (column.hasAnnotation(ContentPrimaryKey::class)) {
-                // TODO(obenabde): error if a primary key already exists.
                 val vo = ContentColumnVO(column.simpleName.toString(), column.asType(), column
                     .getAnnotation(ContentPrimaryKey::class.java).columnName,
                     fieldIsNullable(column)
@@ -65,25 +66,25 @@ class ContentEntityProcessor(
                 contentColumns.put(vo.columnName, vo)
                 contentPrimaryKey.add(vo)
             } else {
-                errorIndicator.indicateError()
-                messager.reportError("Field ${column.simpleName} in ${entity.qualifiedName} is " +
-                        "neither annotated with @ContentPrimaryKey nor with @ContentColumn, all " +
-                        "fields in a content entity must be be annotated by one of the two", entity)
+                errorReporter.reportError("Field ${column.simpleName} in ${entity.qualifiedName} " +
+                        "is neither annotated with @ContentPrimaryKey nor with @ContentColumn, " +
+                        "all fields in a content entity must be be annotated by one of the two",
+                    entity)
             }
         }
         if (contentPrimaryKey.isEmpty()) {
             if (columns.isEmpty()) {
-                messager.reportError("Content entity ${entity.qualifiedName} has no fields, a " +
-                        "content entity must have at least one field and exactly one primary key" +
-                        ".", entity)
+                errorReporter.reportError("Content entity ${entity.qualifiedName} has no fields, " +
+                        "a content entity must have at least one field and exactly one primary " +
+                        "key.", entity)
             } else {
-                messager.reportError("Content entity ${entity.qualifiedName} doesn't have a " +
-                        "primary key, a content entity must have one field annotated with " +
+                errorReporter.reportError("Content entity ${entity.qualifiedName} doesn't have a" +
+                        " primary key, a content entity must have one field annotated with " +
                         "@ContentPrimaryKey.", entity)
             }
         }
         if (contentPrimaryKey.size > 1) {
-            messager.reportError("Content entity ${entity.qualifiedName} has two or more " +
+            errorReporter.reportError("Content entity ${entity.qualifiedName} has two or more " +
                     "primary keys, a content entity must have exactly one field annotated with " +
                     "@ContentPrimaryKey.", entity)
         }
@@ -93,7 +94,10 @@ class ContentEntityProcessor(
 }
 
 fun fieldIsNullable(field: VariableElement): Boolean {
-    return field.hasAnnotation(Nullable::class) || field.annotationMirrors.any {
-        it.toString() == "androidx.annotation.Nullable"
-    }
+    return field.annotationMirrors.any { NULLABLE_ANNOTATIONS.contains(it.toString()) }
 }
+
+val NULLABLE_ANNOTATIONS = listOf(
+    "@org.jetbrains.annotations.Nullable",
+    "@androidx.annotation.Nullable"
+)

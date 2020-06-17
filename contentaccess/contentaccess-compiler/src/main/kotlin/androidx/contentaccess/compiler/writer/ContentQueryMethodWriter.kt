@@ -184,10 +184,10 @@ class ContentQueryMethodWriter(val processingEnv: ProcessingEnvironment) {
             return
         }
         val constructorParams = ArrayList<String>()
-        val pojoFields = PojoProcessor(returnType, processingEnv).process()
-        val pojoColumnsToFieldNames = pojoFields.map { it.columnName to it.name }.toMap()
+        val pojo = PojoProcessor(returnType, processingEnv).process()
+        val pojoColumnsToFieldNames = pojo.pojoFields.map { it.columnName to it.name }.toMap()
         val columnNamesBeingSelected = columns.map { it.columnName }
-        val unPopulatedPojoFields = pojoFields.filter { it.columnName !in
+        val unPopulatedPojoFields = pojo.pojoFields.filter { it.columnName !in
                 columnNamesBeingSelected }.map { it.name }
         for ((currIndex, column) in columns.withIndex()) {
             if (column.isNullable) {
