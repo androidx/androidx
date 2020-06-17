@@ -75,7 +75,7 @@ class SendLongClickTest(private val config: TestConfig) {
 
     private val recordedLongClicks = mutableListOf<Offset>()
     private val expectedClickPosition =
-        config.position ?: Offset((defaultSize - 1) / 2, (defaultSize - 1) / 2)
+        config.position ?: Offset(defaultSize / 2, defaultSize / 2)
     private val expectedDuration = config.duration ?: 600.milliseconds
 
     private fun recordLongPress(position: Offset) {
