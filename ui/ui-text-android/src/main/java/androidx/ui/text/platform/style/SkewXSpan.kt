@@ -17,7 +17,7 @@ package androidx.ui.text.platform.style
 
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
-import androidx.annotation.RestrictTo
+import androidx.ui.text.platform.InternalPlatformTextApi
 
 /**
  * Span which shear text in x direction. A pixel at (x, y) will be transfer to (x + y * skewX, y),
@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 open class SkewXSpan(val skewX: Float) : MetricAffectingSpan() {
     override fun updateDrawState(textPaint: TextPaint) {
         textPaint.textSkewX = skewX + textPaint.textSkewX

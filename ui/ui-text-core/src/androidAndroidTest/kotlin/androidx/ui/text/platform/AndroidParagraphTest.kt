@@ -60,6 +60,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.math.ceil
 
+@OptIn(InternalPlatformTextApi::class)
 @RunWith(JUnit4::class)
 @SmallTest
 class AndroidParagraphTest {

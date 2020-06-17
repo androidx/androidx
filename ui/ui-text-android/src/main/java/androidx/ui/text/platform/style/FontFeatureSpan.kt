@@ -18,14 +18,14 @@ package androidx.ui.text.platform.style
 
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
-import androidx.annotation.RestrictTo
+import androidx.ui.text.platform.InternalPlatformTextApi
 
 /**
  * Span that change font feature settings for font.
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 class FontFeatureSpan(val fontFeatureSettings: String) : MetricAffectingSpan() {
     override fun updateMeasureState(textPaint: TextPaint) {
         textPaint.fontFeatureSettings = fontFeatureSettings

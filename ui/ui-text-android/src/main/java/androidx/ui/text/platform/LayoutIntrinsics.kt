@@ -19,7 +19,6 @@ package androidx.ui.text.platform
 import android.text.BoringLayout
 import android.text.Layout
 import android.text.TextPaint
-import androidx.annotation.RestrictTo
 import java.text.BreakIterator
 import java.util.PriorityQueue
 
@@ -28,7 +27,7 @@ import java.util.PriorityQueue
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 class LayoutIntrinsics(
     charSequence: CharSequence,
     textPaint: TextPaint,
@@ -66,10 +65,8 @@ class LayoutIntrinsics(
  * Returns the word with the longest length. To calculate it in a performant way, it applies a heuristics where
  *  - it first finds a set of words with the longest length
  *  - finds the word with maximum width in that set
- *
- *  @suppress
  */
-fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
+internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
     val iterator = BreakIterator.getLineInstance(paint.textLocale)
     iterator.text = CharSequenceCharacterIterator(text, 0, text.length)
 

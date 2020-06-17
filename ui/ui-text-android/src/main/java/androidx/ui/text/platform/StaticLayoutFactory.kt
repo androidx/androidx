@@ -31,6 +31,7 @@ import androidx.ui.text.platform.LayoutCompat.JustificationMode
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 
+@OptIn(InternalPlatformTextApi::class)
 internal object StaticLayoutFactory {
     private const val TAG = "StaticLayoutFactory"
     private var isInitialized = false

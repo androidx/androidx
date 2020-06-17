@@ -52,6 +52,7 @@ import java.util.Locale as JavaLocale
 /**
  * Android specific implementation for [Paragraph]
  */
+@OptIn(InternalPlatformTextApi::class)
 internal class AndroidParagraph constructor(
     val paragraphIntrinsics: AndroidParagraphIntrinsics,
     val maxLines: Int,
@@ -327,6 +328,7 @@ internal class AndroidParagraph constructor(
 /**
  * Converts [TextAlign] into [TextLayout] alignment constants.
  */
+@OptIn(InternalPlatformTextApi::class)
 private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
     TextAlign.Left -> ALIGN_LEFT
     TextAlign.Right -> ALIGN_RIGHT

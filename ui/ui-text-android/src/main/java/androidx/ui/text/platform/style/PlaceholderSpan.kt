@@ -21,7 +21,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.style.ReplacementSpan
 import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
+import androidx.ui.text.platform.InternalPlatformTextApi
 import java.lang.IllegalArgumentException
 import kotlin.math.ceil
 import kotlin.math.max
@@ -43,7 +43,7 @@ import kotlin.math.min
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 class PlaceholderSpan(
     private val width: Float,
     @Unit

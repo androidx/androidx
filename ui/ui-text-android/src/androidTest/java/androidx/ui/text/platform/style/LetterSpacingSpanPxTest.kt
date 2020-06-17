@@ -18,6 +18,7 @@ package androidx.ui.text.platform.style
 
 import android.text.TextPaint
 import androidx.test.filters.SmallTest
+import androidx.ui.text.platform.InternalPlatformTextApi
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -27,6 +28,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(InternalPlatformTextApi::class)
 @SmallTest
 @RunWith(JUnit4::class)
 class LetterSpacingSpanPxTest {

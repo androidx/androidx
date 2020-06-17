@@ -25,6 +25,7 @@ import android.text.TextUtils.TruncateAt
 /**
  * Factory Class for BoringLayout
  */
+@OptIn(InternalPlatformTextApi::class)
 internal object BoringLayoutFactory {
     /**
      * Try to lay out text by BoringLayout with provided paint and text direction.
