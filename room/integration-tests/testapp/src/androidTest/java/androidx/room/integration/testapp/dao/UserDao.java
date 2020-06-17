@@ -88,6 +88,7 @@ public abstract class UserDao {
     @Query("select * from user where custommm = :customField")
     public abstract List<User> findByCustomField(String customField);
 
+    @Transaction
     @Query("select * from user")
     public abstract List<UserAndFriends> loadUserAndFriends();
 
@@ -324,6 +325,7 @@ public abstract class UserDao {
             + "SELECT us.mName, us.mLastName  FROM User as us WHERE mName = :name")
     public abstract List<NameAndLastName> selectByName_withTablePrefixAndUnion(String name);
 
+    @Transaction
     @Query("SELECT mName FROM User")
     public abstract List<NameAndUsers> getNameAndUsers();
 }

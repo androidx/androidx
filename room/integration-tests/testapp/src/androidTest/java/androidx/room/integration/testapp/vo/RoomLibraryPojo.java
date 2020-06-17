@@ -18,11 +18,13 @@ package androidx.room.integration.testapp.vo;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.RoomWarnings;
 
 /**
  * A Room POJO is just wraps a POJO provided by some library.
  */
 @Entity(tableName = "library_items", ignoredColumns = "mJsonObj")
+@SuppressWarnings(RoomWarnings.MISMATCHED_GETTER)
 public class RoomLibraryPojo extends LibraryPojo {
 
     @PrimaryKey

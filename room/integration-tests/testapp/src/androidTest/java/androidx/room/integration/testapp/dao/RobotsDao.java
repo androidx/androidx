@@ -19,6 +19,7 @@ package androidx.room.integration.testapp.dao;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.RoomWarnings;
 import androidx.room.integration.testapp.vo.Cluster;
 import androidx.room.integration.testapp.vo.Hivemind;
 import androidx.room.integration.testapp.vo.Robot;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Dao
+@SuppressWarnings(RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION)
 public interface RobotsDao {
 
     @Insert
