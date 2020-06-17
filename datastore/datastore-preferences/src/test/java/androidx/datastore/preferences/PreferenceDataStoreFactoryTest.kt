@@ -93,7 +93,7 @@ class PreferenceDataStoreFactoryTest {
 
         val migrateTo5 = {
             object : DataMigration<Preferences> {
-                override suspend fun shouldMigrate() = true
+                override suspend fun shouldMigrate(currentData: Preferences) = true
 
                 override suspend fun migrate(currentData: Preferences) =
                     currentData.toBuilder().setString("string_key", "value").build()
@@ -103,7 +103,7 @@ class PreferenceDataStoreFactoryTest {
         }
         val migratePlus1 = {
             object : DataMigration<Preferences> {
-                override suspend fun shouldMigrate() = true
+                override suspend fun shouldMigrate(currentData: Preferences) = true
 
                 override suspend fun migrate(currentData: Preferences) =
                     currentData.toBuilder().setBoolean("boolean_key", true).build()

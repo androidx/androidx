@@ -47,22 +47,29 @@ class DataMigrationInitializer<T>() {
             migrations: List<DataMigration<T>>,
             api: InitializerApi<T>
         ) {
-            val migrationsToRun = migrations.filter { it.shouldMigrate() }
+            val cleanUps = mutableListOf<suspend () -> Unit>()
 
             api.updateData { startingData ->
-                migrationsToRun.fold(startingData) { data, migration -> migration.migrate(data) }
+                migrations.fold(startingData) { data, migration ->
+                    if (migration.shouldMigrate(data)) {
+                        cleanUps.add { migration.cleanUp() }
+                        migration.migrate(data)
+                    } else {
+                        data
+                    }
+                }
             }
 
             var cleanUpFailure: Throwable? = null
 
-            for (migration in migrationsToRun) {
+            cleanUps.forEach { cleanUp ->
                 try {
-                    migration.cleanUp()
+                    cleanUp()
                 } catch (exception: Throwable) {
                     if (cleanUpFailure == null) {
                         cleanUpFailure = exception
                     } else {
-                        cleanUpFailure.addSuppressed(exception)
+                        cleanUpFailure!!.addSuppressed(exception)
                     }
                 }
             }
