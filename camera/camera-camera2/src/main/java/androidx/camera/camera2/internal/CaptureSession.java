@@ -573,13 +573,14 @@ final class CaptureSession {
         }
     }
 
-    // Force the onClosed() callback to be made. This is necessary because the onClosed()
+    // Force to close the capture session in some situations. 1. Releases the capture session
+    // before any onConfigured() or onConfigureFailed() callback gets called. 2. The onClosed()
     // callback never gets called if CameraDevice.StateCallback.onDisconnected() is called. See
     // TODO(b/140955560) If the issue is fixed then on OS releases with the fix this should not
     //  be called and instead onClosed() should be called by the framework instead.
     void forceClose() {
-        if (mCaptureSessionCompat != null) {
-            mCaptureSessionStateCallback.onClosed(mCaptureSessionCompat.toCameraCaptureSession());
+        synchronized (mStateLock) {
+            finishClose();
         }
     }
 
