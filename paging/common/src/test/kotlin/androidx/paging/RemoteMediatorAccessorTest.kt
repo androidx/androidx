@@ -75,7 +75,7 @@ class RemoteMediatorAccessorTest {
                     pages = listOf(),
                     anchorPosition = null,
                     config = PagingConfig(10),
-                    placeholdersBefore = COUNT_UNDEFINED
+                    leadingPlaceholderCount = COUNT_UNDEFINED
                 )
             )
         }
