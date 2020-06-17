@@ -93,7 +93,7 @@ fun Activity.setViewContent(composable: @Composable () -> Unit): Composition {
 // nextFrame() inside recompose() doesn't really start a new frame, but a new subframe
 // instead.
 @MainThread
-@OptIn(ExperimentalComposeApi::class)
+@OptIn(ExperimentalComposeApi::class, ExperimentalLayoutNodeApi::class)
 fun subcomposeInto(
     container: LayoutNode,
     recomposer: Recomposer,
@@ -116,6 +116,7 @@ fun subcomposeInto(
     )
 )
 @MainThread
+@OptIn(ExperimentalLayoutNodeApi::class)
 fun subcomposeInto(
     container: LayoutNode,
     parent: CompositionReference? = null,

@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.keyinput.KeyEvent
 
 /**
@@ -25,6 +26,7 @@ import androidx.ui.core.keyinput.KeyEvent
  */
 fun SemanticsNodeInteraction.doSendKeyEvent(keyEvent: KeyEvent): Boolean {
     val semanticsNode = fetchSemanticsNode("Failed to send key Event (${keyEvent.key})")
+    @OptIn(ExperimentalLayoutNodeApi::class)
     val owner = semanticsNode.componentNode.owner
     requireNotNull(owner) { "Failed to find owner" }
     return runOnUiThread { owner.sendKeyEvent(keyEvent) }

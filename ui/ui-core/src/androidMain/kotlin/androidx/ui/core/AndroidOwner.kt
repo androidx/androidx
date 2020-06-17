@@ -35,6 +35,7 @@ interface AndroidOwner : Owner {
      * Called to inform the owner that a new Android [View] was [attached][Owner.onAttach]
      * to the hierarchy.
      */
+    @ExperimentalLayoutNodeApi
     fun addAndroidView(view: View, layoutNode: LayoutNode)
 
     /**

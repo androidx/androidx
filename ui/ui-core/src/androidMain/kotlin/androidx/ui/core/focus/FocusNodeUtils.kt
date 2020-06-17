@@ -16,11 +16,13 @@
 
 package androidx.ui.core.focus
 
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.util.fastForEach
 
 internal val FOCUS_TAG = "Compose Focus"
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal fun LayoutNode.focusableChildren(): List<ModifiedFocusNode> {
     val focusableChildren = mutableListOf<ModifiedFocusNode>()
     // TODO(b/152529395): Write a test for LayoutNode.focusableChildren(). We were calling the wrong

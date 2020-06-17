@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.semantics.findClosestParentNode
 import androidx.ui.geometry.Offset
 import androidx.ui.semantics.AccessibilityAction
@@ -63,6 +64,7 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
 
     val layoutNode = scrollableSemanticsNode.componentNode
 
+    @OptIn(ExperimentalLayoutNodeApi::class)
     val position = layoutNode.coordinates.localToGlobal(Offset(0.0f, 0.0f))
 
     runOnUiThread {

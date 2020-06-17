@@ -21,6 +21,7 @@ import android.os.Build
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.ui.core.AndroidOwner
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
@@ -58,6 +59,7 @@ fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
         nodeBounds.right.roundToInt(),
         nodeBounds.bottom.roundToInt())
 
+    @OptIn(ExperimentalLayoutNodeApi::class)
     val view = (node.componentNode.owner as AndroidOwner).view
 
     val locationInWindow = intArrayOf(0, 0)

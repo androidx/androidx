@@ -23,6 +23,7 @@ import androidx.compose.currentComposer
 import androidx.compose.emit
 import androidx.compose.onDispose
 import androidx.compose.remember
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
@@ -72,6 +73,7 @@ fun <T> LazyRowItems(
 }
 
 @Composable
+@OptIn(ExperimentalLayoutNodeApi::class)
 private fun <T> LazyItems(
     items: List<T>,
     modifier: Modifier = Modifier,
@@ -115,6 +117,7 @@ private fun <T> LazyItems(
 /**
  * Object of pre-allocated lambdas used to make emits to LayoutNodes allocation-less.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 private object LayoutEmitHelper {
     val constructor: () -> LayoutNode = { LayoutNode() }
     val setModifier: LayoutNode.(Modifier) -> Unit = { this.modifier = it }

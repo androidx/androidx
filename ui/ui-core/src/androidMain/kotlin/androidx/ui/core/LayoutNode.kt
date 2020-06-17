@@ -49,11 +49,10 @@ private const val DebugChanges = false
 internal val sharedDrawScope = LayoutNodeDrawScope()
 
 /**
- * The base type for all nodes from the tree generated from a component hierarchy.
- *
- * Specific components are backed by a tree of nodes: Draw, Layout, GestureDetector.
- * All other components are not represented in the backing hierarchy.
+ * An element in the layout hierarchy, built with compose UI.
  */
+@ExperimentalLayoutNodeApi
+@OptIn(ExperimentalLayoutNodeApi::class)
 class LayoutNode : Measurable {
     private val _children = mutableListOf<LayoutNode>()
 
@@ -1087,6 +1086,7 @@ class LayoutNode : Measurable {
 /**
  * Object of pre-allocated lambdas used to make emits to LayoutNodes allocation-less.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal object LayoutEmitHelper {
     val constructor: () -> LayoutNode = { LayoutNode() }
     val setModifier: LayoutNode.(Modifier) -> Unit = { this.modifier = it }
@@ -1098,6 +1098,7 @@ internal object LayoutEmitHelper {
 /**
  * Comparator allowing to sort nodes by zIndex
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 private val ZIndexComparator = Comparator<LayoutNode> { node1, node2 ->
     sign(node1.zIndex - node2.zIndex).toInt()
 }
@@ -1107,6 +1108,7 @@ private val ZIndexComparator = Comparator<LayoutNode> { node1, node2 ->
  * this means that the LayoutNode is currently a part of a component tree.
  */
 @Suppress("NOTHING_TO_INLINE")
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal inline fun LayoutNode.isAttached() = owner != null
 
 /**
@@ -1121,12 +1123,14 @@ class ModifierInfo(
 /**
  * Returns [LayoutNode.owner] or throws if it is null.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal fun LayoutNode.requireOwner(): Owner = owner ?: ErrorMessages.NodeShouldBeAttached.state()
 
 /**
  * Inserts a child [LayoutNode] at a last index. If this LayoutNode [isAttached]
  * then [child] will become [isAttached]ed also. [child] must have a `null` [LayoutNode.parent].
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal fun LayoutNode.add(child: LayoutNode) {
     insertAt(children.size, child)
 }
@@ -1136,6 +1140,7 @@ internal fun LayoutNode.add(child: LayoutNode) {
  * [LayoutNode] to return `true` from [selector] or null if [selector] returns false
  * for all ancestors.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean): LayoutNode? {
     var currentParent = parent
     while (currentParent != null) {
@@ -1153,6 +1158,7 @@ fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean): LayoutN
  * [ContentDrawScope] implementation that extracts density and layout direction information
  * from the given LayoutNodeWrapper
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class LayoutNodeDrawScope : ContentDrawScope() {
 
     // NOTE, currently a single ComponentDrawScope is shared across composables

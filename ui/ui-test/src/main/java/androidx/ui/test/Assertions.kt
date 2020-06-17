@@ -18,6 +18,7 @@ package androidx.ui.test
 
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.ui.core.AndroidOwner
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsNode
@@ -296,6 +297,7 @@ fun SemanticsNodeInteractionCollection.assertAll(
     return this
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
     // hierarchy check - check layout nodes are visible
     val errorMessageOnFail = "Failed to perform isDisplayed check."
@@ -325,6 +327,7 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
     return (globalRect.width > 0f && globalRect.height > 0f)
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 private fun SemanticsNode.nodeBoundsInWindow(): Rect {
     val composeView = (componentNode.owner as AndroidOwner).view
     val rootLocationInWindow = intArrayOf(0, 0).let {
@@ -334,6 +337,7 @@ private fun SemanticsNode.nodeBoundsInWindow(): Rect {
     return boundsInRoot.toRect().shift(rootLocationInWindow)
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 private fun SemanticsNode.isInScreenBounds(): Boolean {
     val composeView = (componentNode.owner as AndroidOwner).view
 

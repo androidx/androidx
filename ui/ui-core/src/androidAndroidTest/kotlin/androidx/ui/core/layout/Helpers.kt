@@ -17,6 +17,7 @@
 package androidx.ui.core.layout
 
 import androidx.ui.core.Constraints
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
@@ -32,6 +33,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 @Suppress("UNCHECKED_CAST")
+@ExperimentalLayoutNodeApi
 internal fun createDelegate(
     root: LayoutNode,
     firstMeasureCompleted: Boolean = true
@@ -64,6 +66,7 @@ internal fun createDelegate(
 
 internal fun defaultRootConstraints() = Constraints(maxWidth = 100, maxHeight = 100)
 
+@ExperimentalLayoutNodeApi
 internal fun assertNotRemeasured(node: LayoutNode, block: (LayoutNode) -> Unit) {
     val measuresCountBefore = node.measuresCount
     block(node)
@@ -71,6 +74,7 @@ internal fun assertNotRemeasured(node: LayoutNode, block: (LayoutNode) -> Unit) 
     assertMeasuredAndLaidOut(node)
 }
 
+@ExperimentalLayoutNodeApi
 internal fun assertRemeasured(
     node: LayoutNode,
     times: Int = 1,
@@ -86,6 +90,7 @@ internal fun assertRemeasured(
     assertMeasuredAndLaidOut(node)
 }
 
+@ExperimentalLayoutNodeApi
 internal fun assertRelaidOut(node: LayoutNode, times: Int = 1, block: (LayoutNode) -> Unit) {
     val layoutsCountBefore = node.layoutsCount
     block(node)
@@ -93,6 +98,7 @@ internal fun assertRelaidOut(node: LayoutNode, times: Int = 1, block: (LayoutNod
     assertMeasuredAndLaidOut(node)
 }
 
+@ExperimentalLayoutNodeApi
 internal fun assertNotRelaidOut(node: LayoutNode, block: (LayoutNode) -> Unit) {
     val layoutsCountBefore = node.layoutsCount
     block(node)
@@ -100,14 +106,17 @@ internal fun assertNotRelaidOut(node: LayoutNode, block: (LayoutNode) -> Unit) {
     assertMeasuredAndLaidOut(node)
 }
 
+@ExperimentalLayoutNodeApi
 internal fun assertMeasureRequired(node: LayoutNode) {
     Truth.assertThat(node.layoutState).isEqualTo(LayoutNode.LayoutState.NeedsRemeasure)
 }
 
+@ExperimentalLayoutNodeApi
 internal fun assertMeasuredAndLaidOut(node: LayoutNode) {
     Truth.assertThat(node.layoutState).isEqualTo(LayoutNode.LayoutState.Ready)
 }
 
+@ExperimentalLayoutNodeApi
 internal fun assertLayoutRequired(node: LayoutNode) {
     Truth.assertThat(node.layoutState).isEqualTo(LayoutNode.LayoutState.NeedsRelayout)
 }
@@ -139,12 +148,15 @@ internal fun assertRelaidOut(
     Truth.assertThat(modifier.layoutsCount).isEqualTo(layoutsCountBefore + 1)
 }
 
+@ExperimentalLayoutNodeApi
 internal fun root(block: LayoutNode.() -> Unit = {}): LayoutNode {
     return node(block).apply {
+        @OptIn(ExperimentalLayoutNodeApi::class)
         isPlaced = true
     }
 }
 
+@ExperimentalLayoutNodeApi
 internal fun node(block: LayoutNode.() -> Unit = {}): LayoutNode {
     return LayoutNode().apply {
         measureBlocks = MeasureInMeasureBlock()
@@ -152,46 +164,60 @@ internal fun node(block: LayoutNode.() -> Unit = {}): LayoutNode {
     }
 }
 
+@ExperimentalLayoutNodeApi
 internal fun LayoutNode.add(child: LayoutNode) = insertAt(children.count(), child)
 
+@ExperimentalLayoutNodeApi
 internal fun LayoutNode.measureInLayoutBlock() {
     measureBlocks = MeasureInLayoutBlock()
 }
 
+@ExperimentalLayoutNodeApi
 internal fun LayoutNode.doNotMeasure() {
     measureBlocks = NoMeasureBlock()
 }
 
+@ExperimentalLayoutNodeApi
 internal fun LayoutNode.queryAlignmentLineDuringMeasure() {
     (measureBlocks as SmartMeasureBlock).queryAlignmentLinesDuringMeasure = true
 }
 
+@ExperimentalLayoutNodeApi
 internal fun LayoutNode.runDuringMeasure(block: () -> Unit) {
     (measureBlocks as SmartMeasureBlock).preMeasureCallback = block
 }
 
+@ExperimentalLayoutNodeApi
 internal fun LayoutNode.runDuringLayout(block: () -> Unit) {
     (measureBlocks as SmartMeasureBlock).preLayoutCallback = block
 }
 
+@ExperimentalLayoutNodeApi
 internal val LayoutNode.first: LayoutNode get() = children.first()
+@ExperimentalLayoutNodeApi
 internal val LayoutNode.second: LayoutNode get() = children[1]
+@ExperimentalLayoutNodeApi
 internal val LayoutNode.measuresCount: Int
     get() = (measureBlocks as SmartMeasureBlock).measuresCount
+@ExperimentalLayoutNodeApi
 internal val LayoutNode.layoutsCount: Int
     get() = (measureBlocks as SmartMeasureBlock).layoutsCount
+@ExperimentalLayoutNodeApi
 internal var LayoutNode.wrapChildren: Boolean
     get() = (measureBlocks as SmartMeasureBlock).wrapChildren
     set(value) {
         (measureBlocks as SmartMeasureBlock).wrapChildren = value
     }
+@ExperimentalLayoutNodeApi
 internal val LayoutNode.measuredWithLayoutDirection: LayoutDirection
     get() = (measureBlocks as SmartMeasureBlock).measuredLayoutDirection!!
+@ExperimentalLayoutNodeApi
 internal var LayoutNode.size: Int?
     get() = (measureBlocks as SmartMeasureBlock).size
     set(value) {
         (measureBlocks as SmartMeasureBlock).size = value
     }
+@ExperimentalLayoutNodeApi
 internal var LayoutNode.childrenDirection: LayoutDirection?
     get() = (measureBlocks as SmartMeasureBlock).childrenLayoutDirection
     set(value) {
@@ -200,6 +226,7 @@ internal var LayoutNode.childrenDirection: LayoutDirection?
 
 internal val TestAlignmentLine = HorizontalAlignmentLine(::min)
 
+@ExperimentalLayoutNodeApi
 internal abstract class SmartMeasureBlock : LayoutNode.NoIntrinsicsMeasureBlocks("") {
     var measuresCount = 0
         protected set
@@ -216,6 +243,7 @@ internal abstract class SmartMeasureBlock : LayoutNode.NoIntrinsicsMeasureBlocks
     var size: Int? = null
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class MeasureInMeasureBlock : SmartMeasureBlock() {
     override fun measure(
         measureScope: MeasureScope,
@@ -261,6 +289,7 @@ internal class MeasureInMeasureBlock : SmartMeasureBlock() {
     }
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class MeasureInLayoutBlock : SmartMeasureBlock() {
 
     override var wrapChildren: Boolean
@@ -308,6 +337,7 @@ internal class MeasureInLayoutBlock : SmartMeasureBlock() {
     }
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class NoMeasureBlock : SmartMeasureBlock() {
 
     override var queryAlignmentLinesDuringMeasure: Boolean

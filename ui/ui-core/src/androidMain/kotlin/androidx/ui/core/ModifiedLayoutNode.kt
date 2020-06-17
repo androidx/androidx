@@ -20,6 +20,8 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
+
+@OptIn(ExperimentalLayoutNodeApi::class)
 internal class ModifiedLayoutNode(
     wrapped: LayoutNodeWrapper,
     modifier: LayoutModifier

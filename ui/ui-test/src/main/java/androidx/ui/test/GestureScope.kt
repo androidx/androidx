@@ -17,6 +17,7 @@
 package androidx.ui.test
 
 import androidx.annotation.FloatRange
+import androidx.ui.core.ExperimentalLayoutNodeApi
 import androidx.ui.core.gesture.DoubleTapTimeout
 import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.core.semantics.SemanticsNode
@@ -58,6 +59,7 @@ sealed class BaseGestureScope(node: SemanticsNode) {
         }
 
     // Convenience property
+    @OptIn(ExperimentalLayoutNodeApi::class)
     private val owner get() = semanticsNode.componentNode.owner
 
     // TODO(b/133217292): Better error: explain which gesture couldn't be performed
