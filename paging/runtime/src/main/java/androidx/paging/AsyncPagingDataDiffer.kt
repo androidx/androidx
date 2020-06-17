@@ -303,21 +303,23 @@ class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
     }
 
     /**
-     * A [Flow] of [Unit] that is emitted when new [PagingData] generations are submitted and
-     * displayed.
+     * A [Flow] of [Boolean] that is emitted when new [PagingData] generations are submitted and
+     * displayed. The [Boolean] that is emitted is `true` if the new [PagingData] is empty,
+     * `false` otherwise.
      */
     @ExperimentalPagingApi
-    val dataRefreshFlow: Flow<Unit> = differBase.dataRefreshFlow
+    val dataRefreshFlow: Flow<Boolean> = differBase.dataRefreshFlow
 
     /**
      * Add a listener to observe new [PagingData] generations.
      *
-     * @param listener called whenever a new [PagingData] is submitted and displayed.
+     * @param listener called whenever a new [PagingData] is submitted and displayed. `true` is
+     * passed to the [listener] if the new [PagingData] is empty, `false` otherwise.
      *
      * @see removeDataRefreshListener
      */
     @ExperimentalPagingApi
-    fun addDataRefreshListener(listener: () -> Unit) {
+    fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
         differBase.addDataRefreshListener(listener)
     }
 
@@ -329,7 +331,7 @@ class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
      * @see addDataRefreshListener
      */
     @ExperimentalPagingApi
-    fun removeDataRefreshListener(listener: () -> Unit) {
+    fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
         differBase.removeDataRefreshListener(listener)
     }
 }
