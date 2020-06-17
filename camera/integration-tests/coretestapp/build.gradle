@@ -40,14 +40,6 @@ android {
         }
     }
 
-    sourceSets {
-        main.manifest.srcFile 'src/main/AndroidManifest.xml'
-        main.java.srcDirs = ['src/main/java']
-        main.java.excludes = ['**/build/**']
-        main.java.includes = ['**/*.java']
-        main.res.srcDirs = ['src/main/res']
-    }
-
     buildTypes {
         debug {
             pseudoLocalesEnabled true
