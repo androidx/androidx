@@ -20,17 +20,21 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.wrapContentSize
+import androidx.ui.test.bottomRight
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.sendSwipe
 import androidx.ui.test.sendSwipeDown
 import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
 import androidx.ui.test.sendSwipeUp
+import androidx.ui.test.topLeft
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.SinglePointerInputRecorder
 import androidx.ui.test.util.assertDecreasing
@@ -38,6 +42,8 @@ import androidx.ui.test.util.assertIncreasing
 import androidx.ui.test.util.assertOnlyLastEventIsUp
 import androidx.ui.test.util.assertSame
 import androidx.ui.test.util.assertTimestampsAreIncreasing
+import androidx.ui.test.util.verify
+import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -111,6 +117,32 @@ class SendSwipeTest {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
                 assertSwipeIsRight()
+            }
+        }
+    }
+
+    @Test
+    fun swipeShort() {
+        composeTestRule.setContent { Ui(Alignment.Center) }
+        findByTag(tag).doGesture { sendSwipe(topLeft, bottomRight, 1.milliseconds) }
+        runOnIdleCompose {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertOnlyLastEventIsUp()
+
+                // DOWN, MOVE, UP
+                assertThat(events.size).isEqualTo(3)
+
+                // DOWN is in top left corner (0, 0)
+                events[0].verify(null, null, true, Offset(0f, 0f))
+
+                val t = events[0].timestamp + 1.milliseconds
+                val pointerId = events[0].id
+
+                // MOVE is in bottom right corner (box is 100x100, so corner is (99, 99))
+                events[1].verify(t, pointerId, true, Offset(99f, 99f))
+                // UP is also in bottom right corner
+                events[2].verify(t, pointerId, false, Offset(99f, 99f))
             }
         }
     }
