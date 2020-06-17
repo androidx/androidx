@@ -444,11 +444,11 @@ internal data class GroupComponent(val name: String = DefaultGroupName) : VNode(
         }
 
         withTransform({
+            groupMatrix?.let { transform(it) }
             val targetClip = clipPath
             if (willClipPath && targetClip != null) {
                 clipPath(targetClip)
             }
-            groupMatrix?.let { transform(it) }
         }) {
             children.fastForEach { node ->
                 with(node) {
