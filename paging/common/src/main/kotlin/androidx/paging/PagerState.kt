@@ -54,9 +54,12 @@ internal class PagerState<Key : Any, Value : Any>(
     private val prependLoadIdCh = Channel<Int>(Channel.CONFLATED)
     private val appendLoadIdCh = Channel<Int>(Channel.CONFLATED)
 
-    // TODO: use LoadType + Origin as key! (is this redundant with loadStates???)
-    internal val failedHintsByLoadType = mutableMapOf<LoadType, LoadError<Key, Value>>()
-
+    /**
+     * Cache previous ViewportHint which triggered any failed PagingSource APPEND / PREPEND that
+     * we can later retry. This is so we always trigger loads based on hints, instead of having
+     * two different ways to trigger.
+     */
+    internal val failedHintsByLoadType = mutableMapOf<LoadType, ViewportHint>()
     internal val loadStates = MutableLoadStateCollection(hasRemoteState)
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -175,6 +178,8 @@ internal class PagerState<Key : Any, Value : Any>(
             "invalid drop count. have ${pages.size} but wanted to drop $pageCount"
         }
 
+        // Reset load state to NotLoading(endOfPaginationReached = false).
+        failedHintsByLoadType.remove(loadType)
         loadStates.set(loadType, false, NotLoading.Idle)
 
         when (loadType) {

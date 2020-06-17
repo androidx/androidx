@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-
 package androidx.paging
 
 import androidx.paging.ActiveFlowTracker.FlowType
@@ -24,6 +22,7 @@ import androidx.paging.ActiveFlowTracker.FlowType.PAGE_EVENT_FLOW
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelAndJoin
@@ -46,11 +45,13 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.atomic.AtomicInteger
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class CachingTest {
     private val testScope = TestCoroutineScope()
 
     private val tracker = ActiveFlowTrackerImpl()
+
     @After
     fun checkResources() {
         testScope.cleanupTestCoroutines()
