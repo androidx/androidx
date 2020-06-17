@@ -228,7 +228,7 @@ class DataMigrationInitializerTest {
         private val migration: suspend (byte: Byte) -> Byte = { 0 },
         private val cleanUpFunction: suspend () -> Unit = { }
     ) : DataMigration<Byte> {
-        override suspend fun shouldMigrate(): Boolean = shouldMigrate
+        override suspend fun shouldMigrate(currentData: Byte): Boolean = shouldMigrate
 
         override suspend fun migrate(currentData: Byte): Byte = migration(currentData)
 

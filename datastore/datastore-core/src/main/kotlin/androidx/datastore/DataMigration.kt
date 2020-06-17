@@ -26,7 +26,7 @@ interface DataMigration<T> {
      * cleanup will occur. Apps should do the cheapest possible check to determine if this migration
      * should run, since this will be called every time the DataStore is initialized.
      */
-    suspend fun shouldMigrate(): Boolean
+    suspend fun shouldMigrate(currentData: T): Boolean
 
     /**
      * Perform the migration. Implementations should be idempotent since this may be called
