@@ -237,7 +237,7 @@ class FlattenedPageEventStorageTest {
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
                 combinedLoadStates = localLoadStatesOf(
-                    refreshLocal = NotLoading.Idle,
+                    refreshLocal = NotLoading.Incomplete,
                     prependLocal = Loading,
                     appendLocal = error
                 )
@@ -249,7 +249,7 @@ class FlattenedPageEventStorageTest {
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
                 combinedLoadStates = localLoadStatesOf(
-                    refreshLocal = NotLoading.Idle,
+                    refreshLocal = NotLoading.Incomplete,
                     prependLocal = Loading,
                     appendLocal = error
                 )

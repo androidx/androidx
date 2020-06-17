@@ -311,7 +311,7 @@ class PagePresenterTest {
         data.dropPages(false, pagesToDrop, newNulls, callback)
 
         assertEquals(
-            events + listOf(StateEvent(APPEND, false, NotLoading.Idle)),
+            events + listOf(StateEvent(APPEND, false, NotLoading.Incomplete)),
             callback.getAllAndClear()
         )
 
@@ -347,7 +347,7 @@ class PagePresenterTest {
         data.dropPages(true, pagesToDrop, newNulls, callback)
 
         assertEvents(
-            events + listOf(StateEvent(PREPEND, false, NotLoading.Idle)),
+            events + listOf(StateEvent(PREPEND, false, NotLoading.Incomplete)),
             callback.getAllAndClear()
         )
 
@@ -553,9 +553,9 @@ class PagePresenterTest {
 
     companion object {
         val IDLE_EVENTS = listOf<PresenterEvent>(
-            StateEvent(REFRESH, false, NotLoading.Idle),
-            StateEvent(PREPEND, false, NotLoading.Idle),
-            StateEvent(APPEND, false, NotLoading.Idle)
+            StateEvent(REFRESH, false, NotLoading.Incomplete),
+            StateEvent(PREPEND, false, NotLoading.Incomplete),
+            StateEvent(APPEND, false, NotLoading.Incomplete)
         )
     }
 }

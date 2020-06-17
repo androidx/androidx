@@ -279,8 +279,8 @@ class SeparatorsTest {
 
     private fun refresh(
         pages: List<String?>,
-        prepend: LoadState = NotLoading.Idle,
-        append: LoadState = NotLoading.Idle
+        prepend: LoadState = NotLoading.Incomplete,
+        append: LoadState = NotLoading.Incomplete
     ) = Refresh(
         pages = pages.map {
             if (it != null) listOf(it) else emptyList()
@@ -292,7 +292,7 @@ class SeparatorsTest {
 
     private fun prepend(
         pages: List<String?>,
-        prepend: LoadState = NotLoading.Idle
+        prepend: LoadState = NotLoading.Incomplete
     ) = Prepend(
         pages = pages.map {
             if (it != null) listOf(it) else emptyList()
@@ -303,7 +303,7 @@ class SeparatorsTest {
 
     private fun append(
         pages: List<String?>,
-        append: LoadState = NotLoading.Idle
+        append: LoadState = NotLoading.Incomplete
     ) = Append(
         pages = pages.map {
             if (it != null) listOf(it) else emptyList()
@@ -336,7 +336,7 @@ class SeparatorsTest {
                 refresh(pages = listOf("A", "a1"))
             ),
             flowOf(
-                refresh(pages = listOf("a1"), prepend = NotLoading.Done)
+                refresh(pages = listOf("a1"), prepend = NotLoading.Complete)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -348,7 +348,7 @@ class SeparatorsTest {
                 refresh(pages = listOf("a1", "END"))
             ),
             flowOf(
-                refresh(pages = listOf("a1"), append = NotLoading.Done)
+                refresh(pages = listOf("a1"), append = NotLoading.Complete)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -362,8 +362,8 @@ class SeparatorsTest {
             flowOf(
                 refresh(
                     pages = listOf("a1"),
-                    prepend = NotLoading.Done,
-                    append = NotLoading.Done
+                    prepend = NotLoading.Complete,
+                    append = NotLoading.Complete
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
@@ -397,10 +397,10 @@ class SeparatorsTest {
                 append(pages = listOf("END"))
             ),
             flowOf(
-                refresh(pages = listOf(), prepend = NotLoading.Done),
+                refresh(pages = listOf(), prepend = NotLoading.Complete),
                 append(pages = listOf("a1")),
                 append(pages = listOf()),
-                append(pages = listOf(), append = NotLoading.Done)
+                append(pages = listOf(), append = NotLoading.Complete)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -419,10 +419,10 @@ class SeparatorsTest {
                 prepend(pages = listOf("A"))
             ),
             flowOf(
-                refresh(pages = listOf(), append = NotLoading.Done),
+                refresh(pages = listOf(), append = NotLoading.Complete),
                 prepend(pages = listOf("a1")),
                 prepend(pages = listOf()),
-                prepend(pages = listOf(), prepend = NotLoading.Done)
+                prepend(pages = listOf(), prepend = NotLoading.Complete)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -439,10 +439,10 @@ class SeparatorsTest {
                 prepend(pages = listOf("A"))
             ),
             flowOf(
-                refresh(pages = listOf(), prepend = NotLoading.Done),
+                refresh(pages = listOf(), prepend = NotLoading.Complete),
                 drop(loadType = PREPEND, count = 0),
                 append(pages = listOf("a1")),
-                prepend(pages = listOf(), prepend = NotLoading.Done)
+                prepend(pages = listOf(), prepend = NotLoading.Complete)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -459,10 +459,10 @@ class SeparatorsTest {
                 append(pages = listOf("END"))
             ),
             flowOf(
-                refresh(pages = listOf(), append = NotLoading.Done),
+                refresh(pages = listOf(), append = NotLoading.Complete),
                 drop(loadType = APPEND, count = 0),
                 prepend(pages = listOf("a1")),
-                append(pages = listOf(), append = NotLoading.Done)
+                append(pages = listOf(), append = NotLoading.Complete)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -531,14 +531,14 @@ class SeparatorsTest {
                     ),
                     placeholdersBefore = 0,
                     placeholdersAfter = 1,
-                    combinedLoadStates = localLoadStatesOf(prependLocal = NotLoading.Done)
+                    combinedLoadStates = localLoadStatesOf(prependLocal = NotLoading.Complete)
                 ),
                 drop(loadType = PREPEND, count = 3)
             ),
             flowOf(
                 refresh(
                     pages = listOf("a1", "b1"),
-                    prepend = NotLoading.Done
+                    prepend = NotLoading.Complete
                 ),
                 drop(loadType = PREPEND, count = 1)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
@@ -579,14 +579,14 @@ class SeparatorsTest {
                     ),
                     placeholdersBefore = 0,
                     placeholdersAfter = 1,
-                    combinedLoadStates = localLoadStatesOf(appendLocal = NotLoading.Done)
+                    combinedLoadStates = localLoadStatesOf(appendLocal = NotLoading.Complete)
                 ),
                 drop(loadType = APPEND, count = 3)
             ),
             flowOf(
                 refresh(
                     pages = listOf("a1", "b1"),
-                    append = NotLoading.Done
+                    append = NotLoading.Complete
                 ),
                 drop(loadType = APPEND, count = 1)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()

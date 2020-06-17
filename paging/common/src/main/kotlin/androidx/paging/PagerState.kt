@@ -180,7 +180,7 @@ internal class PagerState<Key : Any, Value : Any>(
 
         // Reset load state to NotLoading(endOfPaginationReached = false).
         failedHintsByLoadType.remove(loadType)
-        loadStates.set(loadType, false, NotLoading.Idle)
+        loadStates.set(loadType, false, NotLoading.Incomplete)
 
         when (loadType) {
             PREPEND -> {

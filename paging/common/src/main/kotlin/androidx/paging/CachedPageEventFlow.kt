@@ -228,7 +228,7 @@ internal class FlattenedPageEventStorage<T : Any> {
         // TODO: include state in drop event for simplicity, instead of reconstructing behavior.
         //  This allows upstream to control how drop affects states (e.g. letting drop affect both
         //  remote and local)
-        loadStates.set(event.loadType, false, LoadState.NotLoading.Idle)
+        loadStates.set(event.loadType, false, LoadState.NotLoading.Incomplete)
 
         when (event.loadType) {
             LoadType.PREPEND -> {
