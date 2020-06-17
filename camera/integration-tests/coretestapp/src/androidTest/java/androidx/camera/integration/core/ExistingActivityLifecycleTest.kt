@@ -16,7 +16,7 @@
 package androidx.camera.integration.core
 
 import android.Manifest
-import android.content.pm.ActivityInfo
+import android.app.Instrumentation
 import androidx.camera.core.CameraSelector
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
@@ -43,6 +43,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 private const val HOME_TIMEOUT_MS = 3000L
+private const val ROTATE_TIMEOUT_MS = 2000L
 
 // Test application lifecycle when using CameraX.
 @RunWith(AndroidJUnit4::class)
@@ -67,10 +68,18 @@ class ExistingActivityLifecycleTest {
         assertThat(mLauncherPackageName).isNotNull()
         // Clear the device UI before start each test.
         CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Use the natural orientation throughout these tests to ensure the activity isn't
+        // recreated unexpectedly. This will also freeze the sensors until
+        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
+        // explicitly initiated from within the test.
+        mDevice.setOrientationNatural()
     }
 
     @After
     fun tearDown() {
+        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
+        // to other tests :)
+        mDevice.unfreezeRotation()
         mDevice.pressHome()
         mDevice.waitForIdle(HOME_TIMEOUT_MS)
     }
@@ -163,10 +172,10 @@ class ExistingActivityLifecycleTest {
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
                 waitForViewfinderIdle()
 
-                // Rotate to Landscape and the activity will be recreated.
-                withActivity {
-                    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                }
+                // Rotate to the orientation left of natural and wait for the activity to be
+                // recreated.
+                rotateDeviceLeftAndWait()
+
                 // Get idling from the re-created activity.
                 withActivity { resetViewIdlingResource() }
                 waitForViewfinderIdle()
@@ -177,5 +186,20 @@ class ExistingActivityLifecycleTest {
                 waitForViewfinderIdle()
             }
         }
+    }
+
+    private fun rotateDeviceLeftAndWait() {
+        // Create an ActivityMonitor to explicitly wait for the activity to be recreated after
+        // rotating the device.
+        val monitor =
+            Instrumentation.ActivityMonitor(CameraXActivity::class.java.name, null, false)
+        InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
+        mDevice.setOrientationLeft()
+        // Wait for the rotation to complete
+        InstrumentationRegistry.getInstrumentation().waitForMonitorWithTimeout(
+            monitor,
+            ROTATE_TIMEOUT_MS
+        )
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 }
