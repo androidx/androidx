@@ -377,14 +377,14 @@ internal fun XmlPullParser.parseGroup(
     val translateX = TypedArrayUtils.getNamedFloat(
         a,
         this,
-        "translationX",
+        "translateX",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_GROUP_TRANSLATE_X,
         DefaultTranslationX
     )
     val translateY = TypedArrayUtils.getNamedFloat(
         a,
         this,
-        "translationY",
+        "translateY",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_GROUP_TRANSLATE_Y,
         DefaultTranslationY
     )

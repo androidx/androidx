@@ -114,8 +114,16 @@ class XmlVectorParserTest {
         val root = asset.root
         assertEquals(1, root.size)
 
+        val delta = 0.001f
         val group = root[0].assertType<VectorGroup>()
         assertEquals(1, group.size)
+        assertEquals(1f, group.pivotX, delta)
+        assertEquals(2f, group.pivotY, delta)
+        assertEquals(3f, group.rotation, delta)
+        assertEquals(4f, group.scaleX, delta)
+        assertEquals(5f, group.scaleY, delta)
+        assertEquals(6f, group.translationX, delta)
+        assertEquals(7f, group.translationY, delta)
 
         val path = group[0].assertType<VectorPath>().pathData
 
