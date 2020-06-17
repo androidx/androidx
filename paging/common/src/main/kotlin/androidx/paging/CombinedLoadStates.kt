@@ -49,11 +49,11 @@ data class CombinedLoadStates(
 
     internal companion object {
         val IDLE_SOURCE = CombinedLoadStates(
-            source = LoadStates.IDLE_SOURCE
+            source = LoadStates.IDLE
         )
         val IDLE_MEDIATOR = CombinedLoadStates(
-            source = LoadStates.IDLE_SOURCE,
-            mediator = LoadStates.IDLE_MEDIATOR
+            source = LoadStates.IDLE,
+            mediator = LoadStates.IDLE
         )
     }
 }

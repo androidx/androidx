@@ -235,10 +235,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         // Skip this generationId of loads if there is no more to load in this
                         // direction. In the case of the terminal page getting dropped, a new
                         // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates.get(PREPEND, false) == NotLoading.Done) {
+                        if (state.loadStates.get(PREPEND, false) == NotLoading.Complete) {
                             return@transformLatest
                         } else if (state.loadStates.get(PREPEND, false) !is Error) {
-                            state.loadStates.set(PREPEND, false, NotLoading.Idle)
+                            state.loadStates.set(PREPEND, false, NotLoading.Incomplete)
                         }
                     }
 
@@ -266,10 +266,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         // Skip this generationId of loads if there is no more to load in this
                         // direction. In the case of the terminal page getting dropped, a new
                         // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates.get(APPEND, false) == NotLoading.Done) {
+                        if (state.loadStates.get(APPEND, false) == NotLoading.Complete) {
                             return@transformLatest
                         } else if (state.loadStates.get(APPEND, false) !is Error) {
-                            state.loadStates.set(APPEND, false, NotLoading.Idle)
+                            state.loadStates.set(APPEND, false, NotLoading.Incomplete)
                         }
                     }
 
@@ -309,21 +309,25 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
                 // Update loadStates which are sent along with this load's Insert PageEvent.
                 stateLock.withLock {
-                    state.loadStates.set(REFRESH, false, NotLoading.Idle)
+                    state.loadStates.set(REFRESH, false, NotLoading.Incomplete)
                     if (result.prevKey == null) {
                         state.loadStates.set(
-                            PREPEND, false, NotLoading.instance(
-                                endOfPaginationReached = remoteMediatorAccessor == null,
-                                fromMediator = false
-                            )
+                            type = PREPEND,
+                            remote = false,
+                            state = when (remoteMediatorAccessor) {
+                                null -> NotLoading.Complete
+                                else -> NotLoading.Incomplete
+                            }
                         )
                     }
                     if (result.nextKey == null) {
                         state.loadStates.set(
-                            APPEND, false, NotLoading.instance(
-                                endOfPaginationReached = remoteMediatorAccessor == null,
-                                fromMediator = false
-                            )
+                            type = APPEND,
+                            remote = false,
+                            state = when (remoteMediatorAccessor) {
+                                null -> NotLoading.Complete
+                                else -> NotLoading.Incomplete
+                            }
                         )
                     }
                 }
@@ -480,7 +484,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     state.loadStates.set(
                         type = loadType,
                         remote = false,
-                        state = NotLoading.instance(endOfPaginationReached, false)
+                        state = when {
+                            endOfPaginationReached -> NotLoading.Complete
+                            else -> NotLoading.Incomplete
+                        }
                     )
                 }
 
@@ -526,12 +533,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             }
             is RemoteMediator.MediatorResult.Success -> {
                 stateLock.withLock {
+                    val isComplete = mediatorResult.endOfPaginationReached && loadType != REFRESH
                     this@PageFetcherSnapshot.state.loadStates.set(
-                        loadType, true, NotLoading.instance(
-                            endOfPaginationReached = mediatorResult.endOfPaginationReached &&
-                                    loadType != REFRESH,
-                            fromMediator = true
-                        )
+                        type = loadType,
+                        remote = true,
+                        state = if (isComplete) NotLoading.Complete else NotLoading.Incomplete
                     )
 
                     // Remote REFRESH doesn't send state update immediately, and instead lets local

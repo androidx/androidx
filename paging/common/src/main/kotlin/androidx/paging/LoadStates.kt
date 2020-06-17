@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
+import androidx.paging.LoadState.NotLoading
 
 /**
  * Collection of pagination [LoadState]s - refresh, prepend, and append.
@@ -43,15 +44,10 @@ data class LoadStates(
     }
 
     internal companion object {
-        val IDLE_SOURCE = LoadStates(
-            refresh = LoadState.NotLoading.Idle,
-            prepend = LoadState.NotLoading.Idle,
-            append = LoadState.NotLoading.Idle
-        )
-        val IDLE_MEDIATOR = LoadStates(
-            refresh = LoadState.NotLoading.IdleRemote,
-            prepend = LoadState.NotLoading.IdleRemote,
-            append = LoadState.NotLoading.IdleRemote
+        val IDLE = LoadStates(
+            refresh = NotLoading.Incomplete,
+            prepend = NotLoading.Incomplete,
+            append = NotLoading.Incomplete
         )
     }
 }

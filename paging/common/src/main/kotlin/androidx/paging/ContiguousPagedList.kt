@@ -162,7 +162,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                         )
                     ) {
                         // trimmed from front, ensure we can fetch in that dir
-                        pager.loadStateManager.setState(PREPEND, NotLoading.Idle)
+                        pager.loadStateManager.setState(PREPEND, NotLoading.Incomplete)
                     }
                 }
             } else {
@@ -174,7 +174,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                             this@ContiguousPagedList
                         )
                     ) {
-                        pager.loadStateManager.setState(APPEND, NotLoading.Idle)
+                        pager.loadStateManager.setState(APPEND, NotLoading.Incomplete)
                     }
                 }
             }

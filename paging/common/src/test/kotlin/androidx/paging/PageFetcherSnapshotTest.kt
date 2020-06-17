@@ -82,7 +82,7 @@ class PageFetcherSnapshotTest {
             createPrepend(
                 pageOffset = -1,
                 range = 0..0,
-                startState = NotLoading.Done
+                startState = NotLoading.Complete
             )
         )
 
@@ -108,15 +108,15 @@ class PageFetcherSnapshotTest {
             createPrepend(
                 pageOffset = -1,
                 range = 0..0,
-                startState = NotLoading.Done
+                startState = NotLoading.Complete
             ),
             LoadStateUpdate(APPEND, false, Loading),
             Drop(PREPEND, 1, 1),
             createAppend(
                 pageOffset = 1,
                 range = 3..3,
-                startState = NotLoading.Idle,
-                endState = NotLoading.Idle
+                startState = NotLoading.Incomplete,
+                endState = NotLoading.Incomplete
             )
         )
 
@@ -137,7 +137,7 @@ class PageFetcherSnapshotTest {
             LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(range = 97..98),
             LoadStateUpdate(APPEND, false, Loading),
-            createAppend(pageOffset = 1, range = 99..99, endState = NotLoading.Done)
+            createAppend(pageOffset = 1, range = 99..99, endState = NotLoading.Complete)
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -162,16 +162,16 @@ class PageFetcherSnapshotTest {
             createAppend(
                 pageOffset = 1,
                 range = 99..99,
-                startState = NotLoading.Idle,
-                endState = NotLoading.Done
+                startState = NotLoading.Incomplete,
+                endState = NotLoading.Complete
             ),
             LoadStateUpdate(PREPEND, false, Loading),
             Drop(APPEND, 1, 1),
             createPrepend(
                 pageOffset = -1,
                 range = 96..96,
-                startState = NotLoading.Idle,
-                endState = NotLoading.Idle
+                startState = NotLoading.Incomplete,
+                endState = NotLoading.Incomplete
             )
         )
 
@@ -188,7 +188,11 @@ class PageFetcherSnapshotTest {
 
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, false, Loading),
-            createRefresh(range = 0..1, startState = NotLoading.Done, endState = NotLoading.Idle)
+            createRefresh(
+                range = 0..1,
+                startState = NotLoading.Complete,
+                endState = NotLoading.Incomplete
+            )
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -206,8 +210,8 @@ class PageFetcherSnapshotTest {
             LoadStateUpdate(REFRESH, false, Loading),
             createRefresh(
                 range = 98..99,
-                startState = NotLoading.Idle,
-                endState = NotLoading.Done
+                startState = NotLoading.Incomplete,
+                endState = NotLoading.Complete
             )
         )
 
@@ -440,7 +444,7 @@ class PageFetcherSnapshotTest {
             createAppend(
                 pageOffset = 1,
                 range = 53..53,
-                startState = NotLoading.Idle,
+                startState = NotLoading.Incomplete,
                 endState = Loading
             ),
             createAppend(2, 54..54)
@@ -538,8 +542,8 @@ class PageFetcherSnapshotTest {
                 createAppend(
                     pageOffset = 2,
                     range = 53..53,
-                    startState = NotLoading.Idle,
-                    endState = NotLoading.Idle
+                    startState = NotLoading.Incomplete,
+                    endState = NotLoading.Incomplete
                 )
             )
 
@@ -732,7 +736,7 @@ class PageFetcherSnapshotTest {
                     createPrepend(
                         pageOffset = -1,
                         range = 49..49,
-                        startState = NotLoading.Idle,
+                        startState = NotLoading.Incomplete,
                         endState = Loading
                     ),
                     Drop(PREPEND, 1, 50),
@@ -1363,7 +1367,7 @@ class PageFetcherSnapshotTest {
                         ),
                         placeholdersBefore = 0,
                         combinedLoadStates = remoteLoadStatesOf(
-                            prependRemote = NotLoading.DoneRemote
+                            prependRemote = NotLoading.Complete
                         )
                     )
                 ),
@@ -1443,7 +1447,7 @@ class PageFetcherSnapshotTest {
                             ),
                             placeholdersBefore = 0,
                             combinedLoadStates = remoteLoadStatesOf(
-                                prependLocal = NotLoading.Done
+                                prependLocal = NotLoading.Complete
                             )
                         ),
                         LoadStateUpdate(
@@ -1462,8 +1466,8 @@ class PageFetcherSnapshotTest {
                             ),
                             placeholdersBefore = 0,
                             combinedLoadStates = remoteLoadStatesOf(
-                                prependLocal = NotLoading.Done,
-                                prependRemote = NotLoading.DoneRemote
+                                prependLocal = NotLoading.Complete,
+                                prependRemote = NotLoading.Complete
                             )
                         )
                     )
@@ -1612,7 +1616,7 @@ class PageFetcherSnapshotTest {
                         ),
                         placeholdersAfter = 0,
                         combinedLoadStates = remoteLoadStatesOf(
-                            appendRemote = NotLoading.DoneRemote
+                            appendRemote = NotLoading.Complete
                         )
                     )
                 ),
@@ -1692,7 +1696,7 @@ class PageFetcherSnapshotTest {
                             ),
                             placeholdersAfter = 0,
                             combinedLoadStates = remoteLoadStatesOf(
-                                appendLocal = NotLoading.Done
+                                appendLocal = NotLoading.Complete
                             )
                         ),
                         LoadStateUpdate(
@@ -1711,8 +1715,8 @@ class PageFetcherSnapshotTest {
                             ),
                             placeholdersAfter = 0,
                             combinedLoadStates = remoteLoadStatesOf(
-                                appendLocal = NotLoading.Done,
-                                appendRemote = NotLoading.DoneRemote
+                                appendLocal = NotLoading.Complete,
+                                appendRemote = NotLoading.Complete
                             )
                         )
                     )

@@ -79,7 +79,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
         } else {
             loadStateManager.setState(
                 type,
-                if (value.data.isEmpty()) NotLoading.Done else NotLoading.Idle
+                if (value.data.isEmpty()) NotLoading.Complete else NotLoading.Incomplete
             )
         }
     }

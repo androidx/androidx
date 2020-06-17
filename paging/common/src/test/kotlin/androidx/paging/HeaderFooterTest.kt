@@ -34,8 +34,8 @@ import kotlin.test.assertEquals
  * Prepend and append are both Done, so that headers will appear
  */
 private val fullLoadStates = localLoadStatesOf(
-    prependLocal = NotLoading.Done,
-    appendLocal = NotLoading.Done
+    prependLocal = NotLoading.Complete,
+    appendLocal = NotLoading.Complete
 )
 
 @RunWith(JUnit4::class)

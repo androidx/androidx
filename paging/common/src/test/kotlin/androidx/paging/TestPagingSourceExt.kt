@@ -31,8 +31,8 @@ internal fun createRefresh(
 
 internal fun createRefresh(
     range: IntRange,
-    startState: LoadState = NotLoading.Idle,
-    endState: LoadState = NotLoading.Idle
+    startState: LoadState = NotLoading.Incomplete,
+    endState: LoadState = NotLoading.Incomplete
 ) = PageEvent.Insert.Refresh(
     pages = pages(0, range),
     placeholdersBefore = range.first.coerceAtLeast(0),
@@ -43,8 +43,8 @@ internal fun createRefresh(
 internal fun createPrepend(
     pageOffset: Int,
     range: IntRange,
-    startState: LoadState = NotLoading.Idle,
-    endState: LoadState = NotLoading.Idle
+    startState: LoadState = NotLoading.Incomplete,
+    endState: LoadState = NotLoading.Incomplete
 ) = PageEvent.Insert.Prepend(
     pages = pages(pageOffset, range),
     placeholdersBefore = range.first.coerceAtLeast(0),
@@ -54,8 +54,8 @@ internal fun createPrepend(
 internal fun createAppend(
     pageOffset: Int,
     range: IntRange,
-    startState: LoadState = NotLoading.Idle,
-    endState: LoadState = NotLoading.Idle
+    startState: LoadState = NotLoading.Incomplete,
+    endState: LoadState = NotLoading.Incomplete
 ) = PageEvent.Insert.Append(
     pages = pages(pageOffset, range),
     placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
