@@ -32,6 +32,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -430,5 +431,66 @@ class AsyncPagingDataDifferTest {
             job.cancel()
             job2.cancel()
         }
+    }
+
+    @Test
+    fun submitData_doesNotCancelCollectionsCoroutine() = testScope.runBlockingTest {
+        lateinit var source1: TestPagingSource
+        lateinit var source2: TestPagingSource
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 5, enablePlaceholders = false, prefetchDistance = 1,
+                initialLoadSize = 17
+            ),
+            initialKey = 50
+        ) {
+            TestPagingSource().also {
+                source1 = it
+            }
+        }
+        val pager2 = Pager(
+            config = PagingConfig(
+                pageSize = 7, enablePlaceholders = false, prefetchDistance = 1,
+                initialLoadSize = 19
+            ),
+            initialKey = 50
+        ) {
+            TestPagingSource().also {
+                source2 = it
+            }
+        }
+        val job1 = launch {
+            pager.flow.collectLatest(differ::submitData)
+        }
+        advanceUntilIdle()
+        assertEquals(17, differ.itemCount)
+        val job2 = launch {
+            pager2.flow.collectLatest(differ::submitData)
+        }
+        advanceUntilIdle()
+        assertEquals(26, differ.itemCount)
+
+        // now if pager1 gets an invalidation, it overrides pager2
+        source1.invalidate()
+        advanceUntilIdle()
+        assertEquals(22, differ.itemCount)
+
+        // now if we refresh via differ, it should go into source 1
+        differ.refresh()
+        advanceUntilIdle()
+        assertEquals(22, differ.itemCount)
+
+        // now manual set data that'll clear both
+        differ.submitData(PagingData.empty())
+        advanceUntilIdle()
+        assertEquals(0, differ.itemCount)
+
+        // if source2 has new value, we reconnect to that
+        source2.invalidate()
+        advanceUntilIdle()
+        assertEquals(19, differ.itemCount)
+
+        job1.cancelAndJoin()
+        job2.cancelAndJoin()
     }
 }

@@ -134,8 +134,9 @@ class PagingDataDifferTest {
             differ.collectFrom(infinitelySuspendingPagingData(), dummyPresenterCallback)
         }
 
-        // job2 collection should cancel job1.
-        assertTrue { job1.isCancelled }
+        // job2 collection should complete job1 but not cancel.
+        assertFalse { job1.isCancelled }
+        assertTrue { job1.isCompleted }
         job2.cancel()
     }
 
