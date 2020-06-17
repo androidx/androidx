@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation
+package androidx.ui.foundation.lazy
 
 import android.content.Context
 import androidx.compose.Composable
@@ -24,26 +24,14 @@ import androidx.compose.ExperimentalComposeApi
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.Untracked
-import androidx.compose.compositionReference
-import androidx.compose.currentComposer
-import androidx.compose.onDispose
-import androidx.compose.remember
 import androidx.ui.core.Constraints
-import androidx.ui.core.ContextAmbient
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.MeasuringIntrinsicsMeasureBlocks
-import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.core.clipToBounds
-import androidx.ui.core.materialize
 import androidx.ui.core.subcomposeInto
-import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.ScrollableState
-import androidx.ui.foundation.gestures.scrollable
-import androidx.ui.layout.Spacer
 import kotlin.math.abs
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -62,10 +50,10 @@ private inline class DataIndex(val value: Int) {
 
 private inline class LayoutIndex(val value: Int)
 
-private class ListState<T> {
+internal class LazyItemsState<T> {
     lateinit var recomposer: Recomposer
-    lateinit var itemCallback: @Composable (T) -> Unit
-    lateinit var data: List<T>
+    lateinit var itemContent: @Composable (T) -> Unit
+    lateinit var items: List<T>
 
     var forceRecompose = false
     var compositionRef: CompositionReference? = null
@@ -78,38 +66,38 @@ private class ListState<T> {
      */
     val rootNodeRef = Ref<LayoutNode>()
     /**
-     * The root [LayoutNode] of this [AdapterList]
+     * The root [LayoutNode]
      */
-    val rootNode get() = rootNodeRef.value!!
+    private val rootNode get() = rootNodeRef.value!!
     /**
      * The measure blocks for [rootNode]
      */
-    val measureBlocks = ListMeasureBlocks()
+    val measureBlocks: LayoutNode.MeasureBlocks = ListMeasureBlocks()
     /**
-     * The layout direction of the [AdapterList]
+     * The layout direction
      */
-    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+    private var layoutDirection: LayoutDirection = LayoutDirection.Ltr
     /**
      * The index of the first item that is composed into the layout tree
      */
-    var firstComposedItem = DataIndex(0)
+    private var firstComposedItem = DataIndex(0)
     /**
      * The index of the last item that is composed into the layout tree
      */
-    var lastComposedItem = DataIndex(-1) // obviously-bogus sentinel value
+    private var lastComposedItem = DataIndex(-1) // obviously-bogus sentinel value
     /**
      * Scrolling forward is positive - i.e., the amount that the item is offset backwards
      */
-    var firstItemScrollOffset = 0f
+    private var firstItemScrollOffset = 0f
     /**
      * The amount of space remaining in the last item
      */
-    var lastItemRemainingSpace = 0f
+    private var lastItemRemainingSpace = 0f
     /**
      * The amount of scroll to be consumed in the next layout pass.  Scrolling forward is negative
      * - that is, it is the amount that the items are offset in y
      */
-    var scrollToBeConsumed = 0f
+    private var scrollToBeConsumed = 0f
     /**
      * The children that have been measured this measure pass.
      * Used to avoid measuring twice in a single pass, which is illegal
@@ -222,7 +210,7 @@ private class ListState<T> {
         scrollDirection: ScrollDirection
     ): Boolean {
         val nextItemIndex = if (scrollDirection.isForward) {
-            if (data.size > lastComposedItem.value + 1) {
+            if (items.size > lastComposedItem.value + 1) {
                 lastComposedItem + 1
             } else {
                 return false
@@ -285,7 +273,7 @@ private class ListState<T> {
 
             val width = constraints.maxWidth
             val height = constraints.maxHeight
-            this@ListState.layoutDirection = layoutDirection
+            this@LazyItemsState.layoutDirection = layoutDirection
             // TODO: axis
             val childConstraints = Constraints(maxWidth = width, maxHeight = Constraints.Infinity)
 
@@ -308,7 +296,7 @@ private class ListState<T> {
             // TODO: handle the case where we can't fill the viewport due to children shrinking,
             //  but there are more items at the start that we could fill with
             var index = itemIndexOffset
-            while (heightUsed <= height && index.value < data.size) {
+            while (heightUsed <= height && index.value < items.size) {
                 val node = getNodeForDataIndex(index)
                 if (measuredThisPass[index] != true) {
                     node.measure(childConstraints, layoutDirection)
@@ -400,7 +388,7 @@ private class ListState<T> {
             val dataIdx = LayoutIndex(idx).toDataIndex()
             // Make sure that we're only recomposing items that still exist in the data.
             // Excess layout children will be removed in the next measure/layout pass
-            if (dataIdx.value < data.size && dataIdx.value >= 0) {
+            if (dataIdx.value < items.size && dataIdx.value >= 0) {
                 composeChildForDataIndex(dataIdx)
             }
         }
@@ -478,7 +466,7 @@ private class ListState<T> {
         // TODO(b/150390669): Review use of @Untracked
         @OptIn(ExperimentalComposeApi::class)
         val composition = subcomposeInto(context!!, node, recomposer, compositionRef) @Untracked {
-            itemCallback(data[dataIndex.value])
+            itemContent(items[dataIndex.value])
         }
         compositionsForLayoutNodes[node] = composition
         return node
@@ -507,52 +495,5 @@ private val ListItemMeasureBlocks = MeasuringIntrinsicsMeasureBlocks { measurabl
             placeable.placeAbsolute(0, top)
             top += placeable.height
         }
-    }
-}
-
-/**
- * A vertically scrolling list that only composes and lays out the currently visible items.
- *
- * @param data the backing list of data to display
- * @param modifier the modifier to apply to this `AdapterList`
- * @param itemCallback a callback that takes an item from [data] and emits the UI for that item.
- * May emit any number of components, which will be stacked vertically. Note that [AdapterList]
- * can start scrolling incorrectly if you emit nothing and then lazily recompose with the real
- * content, so even if you load the content asynchronously please reserve some space for the
- * item, for example using [Spacer].
- */
-@Composable
-fun <T> AdapterList(
-    data: List<T>,
-    modifier: Modifier = Modifier,
-    itemCallback: @Composable (T) -> Unit
-) {
-    val state = remember { ListState<T>() }
-    @OptIn(ExperimentalComposeApi::class)
-    state.recomposer = currentComposer.recomposer
-    state.itemCallback = itemCallback
-    state.data = data
-    state.context = ContextAmbient.current
-    state.compositionRef = compositionReference()
-    state.forceRecompose = true
-
-    androidx.ui.core.LayoutNode(
-        modifier = currentComposer.materialize(
-            modifier
-                .scrollable(
-                    dragDirection = DragDirection.Vertical,
-                    scrollableState = ScrollableState(
-                        onScrollDeltaConsumptionRequested =
-                        state.onScrollDeltaConsumptionRequestedListener
-                    )
-                )
-                .clipToBounds()
-        ),
-        ref = state.rootNodeRef,
-        measureBlocks = state.measureBlocks
-    )
-    state.recomposeIfAttached()
-    onDispose {
-        state.disposeAllChildren()
     }
 }
