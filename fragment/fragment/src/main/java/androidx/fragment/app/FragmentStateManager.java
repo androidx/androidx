@@ -179,9 +179,9 @@ class FragmentStateManager {
         // For fragments that are created from a layout using the <fragment> tag (mFromLayout)
         if (mFragment.mFromLayout) {
             if (mFragment.mInLayout) {
-                // Move them immediately to CREATED when they are
+                // Move them immediately to VIEW_CREATED when they are
                 // actually added to the layout (mInLayout).
-                maxState = Math.max(mFragmentManagerState, Fragment.CREATED);
+                maxState = Math.max(mFragmentManagerState, Fragment.VIEW_CREATED);
             } else {
                 if (mFragmentManagerState < Fragment.ACTIVITY_CREATED) {
                     // But while they are not in the layout, don't allow their
@@ -345,10 +345,11 @@ class FragmentStateManager {
                             mFragment.mState = Fragment.AWAITING_EXIT_EFFECTS;
                             break;
                         case Fragment.VIEW_CREATED:
+                            destroyFragmentView();
                             mFragment.mState = Fragment.VIEW_CREATED;
                             break;
                         case Fragment.CREATED:
-                            destroyFragmentView();
+                            mFragment.mState = Fragment.CREATED;
                             break;
                         case Fragment.ATTACHED:
                             destroy();
