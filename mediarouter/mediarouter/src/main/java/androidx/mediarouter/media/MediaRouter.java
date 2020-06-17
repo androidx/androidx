@@ -885,8 +885,10 @@ public final class MediaRouter {
      * Returns whether the seamless transfer feature is enabled.
      *
      * @see MediaRouter
+     * @hide
      */
-    static boolean isTransferEnabled() {
+    @RestrictTo(LIBRARY)
+    public static boolean isTransferEnabled() {
         if (sGlobal == null) {
             return false;
         }
@@ -2264,7 +2266,7 @@ public final class MediaRouter {
             }
         };
 
-        @SuppressLint("SyntheticAccessor")
+        @SuppressLint({"SyntheticAccessor", "NewApi"})
         GlobalMediaRouter(Context applicationContext) {
             mApplicationContext = applicationContext;
             mDisplayManager = DisplayManagerCompat.getInstance(applicationContext);
@@ -2284,7 +2286,7 @@ public final class MediaRouter {
 
             if (TextUtils.equals(feature, METADATA_FEATURE_SEAMLESS_TRANSFER)) {
                 mDynamicGroupEnabled = true;
-                mTransferEnabled = true;
+                mTransferEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
             } else if (TextUtils.equals(feature, METADATA_FEATURE_DYNAMIC_GROUP)) {
                 mDynamicGroupEnabled = true;
                 mTransferEnabled = false;
@@ -2294,7 +2296,7 @@ public final class MediaRouter {
                 mTransferEnabled = false;
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && mTransferEnabled) {
+            if (mTransferEnabled) {
                 mMr2Provider = new MediaRoute2Provider(
                         mApplicationContext, new Mr2ProviderCallback());
             } else {
