@@ -241,7 +241,7 @@ internal class PagePresenter<T : Any>(
             callback.onStateUpdate(
                 loadType = PREPEND,
                 fromMediator = false,
-                loadState = NotLoading.Idle
+                loadState = NotLoading.Incomplete
             )
         } else {
             val removeCount = pages.takeLast(drop.count).fullCount()
@@ -273,7 +273,7 @@ internal class PagePresenter<T : Any>(
             callback.onStateUpdate(
                 loadType = APPEND,
                 fromMediator = false,
-                loadState = NotLoading.Idle
+                loadState = NotLoading.Incomplete
             )
         }
     }

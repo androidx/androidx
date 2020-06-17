@@ -25,8 +25,8 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class MutableLoadStateCollection(hasRemoteState: Boolean) {
-    private var source: LoadStates = LoadStates.IDLE_SOURCE
-    private var mediator: LoadStates? = if (hasRemoteState) LoadStates.IDLE_MEDIATOR else null
+    private var source: LoadStates = LoadStates.IDLE
+    private var mediator: LoadStates? = if (hasRemoteState) LoadStates.IDLE else null
 
     fun snapshot() = CombinedLoadStates(source, mediator)
 
@@ -38,7 +38,7 @@ class MutableLoadStateCollection(hasRemoteState: Boolean) {
     fun set(type: LoadType, remote: Boolean, state: LoadState): Boolean {
         return if (remote) {
             val lastMediator = mediator
-            mediator = (mediator ?: LoadStates.IDLE_MEDIATOR).modifyState(type, state)
+            mediator = (mediator ?: LoadStates.IDLE).modifyState(type, state)
             mediator != lastMediator
         } else {
             val lastSource = source

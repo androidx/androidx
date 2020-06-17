@@ -58,26 +58,8 @@ sealed class LoadState(
         }
 
         internal companion object {
-            internal fun instance(
-                endOfPaginationReached: Boolean,
-                fromMediator: Boolean
-            ): NotLoading = when {
-                fromMediator -> when {
-                    endOfPaginationReached -> DoneRemote
-                    else -> IdleRemote
-                }
-                else -> when {
-                    endOfPaginationReached -> Done
-                    else -> Idle
-                }
-            }
-
-            internal val Done = NotLoading(true)
-            internal val Idle = NotLoading(false)
-
-            // TODO: remove
-            internal val DoneRemote = Done
-            internal val IdleRemote = Idle
+            internal val Complete = NotLoading(endOfPaginationReached = true)
+            internal val Incomplete = NotLoading(endOfPaginationReached = false)
         }
     }
 

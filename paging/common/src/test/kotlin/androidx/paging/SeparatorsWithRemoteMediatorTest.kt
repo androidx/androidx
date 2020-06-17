@@ -36,12 +36,12 @@ class SeparatorsWithRemoteMediatorTest {
     @Test
     fun addRemotePrependAfterRefresh() = runBlockingTest {
         val pageEventFlow = flowOf(
-            generateRefresh(listOf("a1"), localLoadStatesOf(prependLocal = NotLoading.Done)),
+            generateRefresh(listOf("a1"), localLoadStatesOf(prependLocal = NotLoading.Complete)),
             generatePrepend(
                 originalPageOffset = -1,
                 pages = listOf(),
                 // Now switching to states with mediator != null - this is invalid!
-                loadStates = remoteLoadStatesOf(prependRemote = NotLoading.Done)
+                loadStates = remoteLoadStatesOf(prependRemote = NotLoading.Complete)
             )
         )
         assertFailsWith<IllegalArgumentException>(
@@ -56,12 +56,12 @@ class SeparatorsWithRemoteMediatorTest {
     @Test
     fun addRemoteAppendAfterRefresh() = runBlockingTest {
         val pageEventFlow = flowOf(
-            generateRefresh(listOf("a1"), localLoadStatesOf(appendLocal = NotLoading.Done)),
+            generateRefresh(listOf("a1"), localLoadStatesOf(appendLocal = NotLoading.Complete)),
             generateAppend(
                 originalPageOffset = 1,
                 pages = listOf(),
                 // Now switching to states with mediator != null - this is invalid!
-                loadStates = remoteLoadStatesOf(appendRemote = NotLoading.Done)
+                loadStates = remoteLoadStatesOf(appendRemote = NotLoading.Complete)
             )
         )
         assertFailsWith<IllegalArgumentException>(
@@ -80,14 +80,14 @@ class SeparatorsWithRemoteMediatorTest {
             generatePrepend(
                 originalPageOffset = 1,
                 pages = listOf(),
-                loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Done)
+                loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
             ),
             generatePrepend(
                 originalPageOffset = 2,
                 pages = listOf(),
                 loadStates = remoteLoadStatesOf(
-                    prependLocal = NotLoading.Done,
-                    prependRemote = NotLoading.Done
+                    prependLocal = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete
                 )
             )
         )
@@ -96,7 +96,7 @@ class SeparatorsWithRemoteMediatorTest {
             generatePrepend(
                 originalPageOffset = 1,
                 pages = listOf(),
-                loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Done)
+                loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
             ),
             generatePrepend(
                 // page offset becomes 0 here, as it's adjacent to page 0, the only page with data.
@@ -106,8 +106,8 @@ class SeparatorsWithRemoteMediatorTest {
                 originalPageOffset = 0,
                 pages = listOf(listOf("A")),
                 loadStates = remoteLoadStatesOf(
-                    prependLocal = NotLoading.Done,
-                    prependRemote = NotLoading.Done
+                    prependLocal = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete
                 )
             )
         )
@@ -126,14 +126,14 @@ class SeparatorsWithRemoteMediatorTest {
             generateAppend(
                 originalPageOffset = 1,
                 pages = listOf(),
-                loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Done)
+                loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
             ),
             generateAppend(
                 originalPageOffset = 2,
                 pages = listOf(),
                 loadStates = remoteLoadStatesOf(
-                    appendLocal = NotLoading.Done,
-                    appendRemote = NotLoading.Done
+                    appendLocal = NotLoading.Complete,
+                    appendRemote = NotLoading.Complete
                 )
             )
         )
@@ -142,7 +142,7 @@ class SeparatorsWithRemoteMediatorTest {
             generateAppend(
                 originalPageOffset = 1,
                 pages = listOf(),
-                loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Done)
+                loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
             ),
             generateAppend(
                 // page offset becomes 0 here, as it's adjacent to page 0, the only page with data.
@@ -152,8 +152,8 @@ class SeparatorsWithRemoteMediatorTest {
                 originalPageOffset = 0,
                 pages = listOf(listOf("END")),
                 loadStates = remoteLoadStatesOf(
-                    appendLocal = NotLoading.Done,
-                    appendRemote = NotLoading.Done
+                    appendLocal = NotLoading.Complete,
+                    appendRemote = NotLoading.Complete
                 )
             )
         )
