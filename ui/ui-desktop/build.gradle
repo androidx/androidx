@@ -51,7 +51,7 @@ plugins {
 
 repositories {
     // To allow using local Skija build.
-    mavenLocal()
+    // mavenLocal()
 }
 
 configurations {
@@ -84,14 +84,10 @@ dependencies {
     ui_components "org.jogamp.gluegen:gluegen-rt-natives-macosx-universal:2.4.0-rc-20200306"
 
     compose_compiler_jar project(":compose:compose-compiler")
-}
 
-dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 }
 
-def joglDir = "${project.rootDir}/ui-desktop/libs"
-def androidxDir = "${project.rootDir}/ui-desktop/libs"
 def composeClassDir = project.rootDir.absolutePath + "/ui-desktop/compose-libs/"
 
 kotlin {
@@ -100,9 +96,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(KOTLIN_STDLIB_COMMON)
-            implementation project(":compose:compose-runtime")
+            api project(":compose:compose-runtime")
         }
-        
 
         jvmMain {
             resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
@@ -117,23 +112,20 @@ kotlin {
 
             api project(":ui:ui-desktop:android-emu")
 
-            api files("$joglDir/gluegen-rt.jar")
-            api files("$joglDir/jogl-all.jar")
-
-            api fileTree(project.rootDir.absolutePath + "/ui-desktop/compose-libs")
+            api fileTree(composeClassDir)
 
             implementation(KOTLIN_COROUTINES_SWING)
-            implementation files("$androidxDir/core-common-2.1.0.jar")
             implementation "androidx.lifecycle:lifecycle-common:2.3.0-alpha01"
             implementation "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01"
-
-            implementation files("$joglDir/gluegen-rt-natives-macosx-universal.jar")
-            implementation files("$joglDir/jogl-all-natives-macosx-universal.jar")
 
             // TODO: this is a bit ugly. We introduce dependency here, but in fact
             // manually copy it later, as run task will have .aar in the classpath.
             implementation "androidx.core:core:1.0.0"
             implementation "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01"
+        }
+
+        jvmTest.dependencies {
+            implementation(JUNIT)
         }
     }
 }
@@ -201,7 +193,6 @@ def copyToJar(File source, String outPath) {
     fis.close()
 }
 
-
 // Find in dependencies first (BFS) task's output ending with `name`.
 String findInDeps(Task root, Closure<Boolean> matcher) {
     // Do BFS by deps.
@@ -242,7 +233,60 @@ void addToJar(String jarName, String entryName, String entryContentPath) {
     fs.close()
 }
 
-task extractJars {
+project.tasks.register("extractJars").configure {
+    inputs.files(project.provider {
+        def result = []
+        uiComponents.each { component ->
+            def depProject = project(":ui:" + component)
+            def task = depProject.tasks.named("assemble").get()
+            def srcJar = findInDeps(task, { absolutePath ->
+                absolutePath.endsWith("classes.jar") && absolutePath.contains(component)
+            })
+            result.add(file(srcJar))
+        }
+        configurations.ui_components.getIncoming().artifactView(
+                { config ->
+                    config.attributes({container ->
+                        // ... container.attribute(Attribute.of("artifactType", String.class), "android-classes")
+                    })
+                })
+                .getArtifacts().getArtifactFiles().each { component ->
+                    result.add(component)
+                }
+        def runtimeProject = project(":compose:compose-runtime")
+        def runtimeJar = findInDeps(runtimeProject.tasks.named("assemble").get(), {
+            absolutePath ->
+            Pattern.matches(".*/compose-runtime-desktop.*.jar", absolutePath)
+        })
+        if (runtimeJar == null)
+            throw new Error("cannot find compose-runtime.jar")
+        result.add(file(runtimeJar))
+
+        return result
+    })
+
+    outputs.files(project.provider {
+        def result = [fileTree(dir: composeClassDir, include: [])]
+        uiComponents.each { component ->
+            def depProject = project(":ui:" + component)
+            def task = depProject.tasks.named("assemble").get()
+            def srcJar = findInDeps(task, { absolutePath ->
+                absolutePath.endsWith("classes.jar") && absolutePath.contains(component)
+            })
+            result.add(file(composeClassDir + component + ".jar"))
+        }
+        configurations.ui_components.getIncoming().artifactView(
+                { config ->
+                    config.attributes({container ->
+                        // ... container.attribute(Attribute.of("artifactType", String.class), "android-classes")
+                    })
+                })
+                .getArtifacts().getArtifactFiles().each { component ->
+                    result.add(file(composeClassDir + component.name))
+                }
+        return result
+    })
+
     doLast {
         // Find all JAR files matching components.
         file(composeClassDir).mkdir()
@@ -259,24 +303,6 @@ task extractJars {
                 makeLinkOrCopy(srcJar, destJar)
             }
         }
-        // Compose compiler plugin build does ugly renaming tricks, so find the proper jar.
-        def compilerProject = project(":compose:compose-compiler")
-        def compilerJar = findInDeps(compilerProject.tasks.named("embeddedPlugin").get(), {
-            absolutePath ->
-            println(absolutePath)
-            Pattern.matches(".*/jarjar/compose-compiler.jar", absolutePath)
-        })
-        if (compilerJar == null)
-            throw new Error("cannot find compose-compiler.jar")
-        makeLinkOrCopy(compilerJar, composeClassDir + "compose-compiler.jar")
-        def runtimeProject = project(":compose:compose-runtime")
-        def runtimeJar = findInDeps(runtimeProject.tasks.named("assemble").get(), {
-            absolutePath ->
-            Pattern.matches(".*/compose-runtime-desktop.*.jar", absolutePath)
-        })
-        if (runtimeJar == null)
-            throw new Error("cannot find compose-runtime.jar")
-        makeLinkOrCopy(runtimeJar, composeClassDir + "compose-runtime.jar")
 
         configurations.ui_components.getIncoming().artifactView(
                 { config ->
@@ -305,13 +331,25 @@ tasks.withType(KotlinCompile).configureEach {
         useIR = true
     }
 }
-
-task desktopJar(type: Jar) {
+project.tasks.register("jar", Jar).configure {
     baseName = "ui-desktop"
     from { kotlin.jvm().compilations["main"].output.allOutputs }
     destinationDir file(composeClassDir)
 }
 
+project.tasks.register("test", JavaExec).configure {
+    dependsOn(":ui:ui-desktop:jar")
+    main = 'androidx.ui.desktop.RunnerKt'
+    def compilation = kotlin.jvm().compilations["test"]
+    classpath =
+        compilation.output.allOutputs +
+        compilation.runtimeDependencyFiles +
+        fileTree(composeClassDir)
+}
+
 clean.doFirst {
     delete composeClassDir
 }
+
+// TODO(igotti): figure out buildbots breakage.
+// rootProject.tasks.getByName("buildOnServer").dependsOn(project.path + ":jar")

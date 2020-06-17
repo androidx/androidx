@@ -26,7 +26,8 @@ import org.jetbrains.skija.RoundedRect
 abstract class ViewGroup(context: Context) : View(context), ViewParent {
     var clipChildren: Boolean = true
     var children = mutableListOf<View>()
-    val childCount = children.count()
+    val childCount: Int
+        get() = children.count()
 
     fun getChildAt(i: Int) = children[i]
 
@@ -46,6 +47,13 @@ abstract class ViewGroup(context: Context) : View(context), ViewParent {
     fun addView(child: android.view.View, params: ViewGroup.LayoutParams?) {
         child.parent = this
         children.add(child)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        children.forEach {
+            it.onAttachedToWindow()
+        }
     }
 
     override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
