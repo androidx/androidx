@@ -16,19 +16,16 @@
 
 package androidx.contentaccess.compiler.processor
 
-import androidx.contentaccess.compiler.ext.reportError
-import androidx.contentaccess.compiler.utils.ErrorIndicator
+import androidx.contentaccess.compiler.utils.ErrorReporter
 import androidx.contentaccess.compiler.vo.SelectionVO
-import javax.annotation.processing.Messager
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.TypeMirror
 
 class SelectionProcessor(
-    val method: ExecutableElement,
-    val messager: Messager,
-    val selection: String,
-    val paramsNamesAndTypes: HashMap<String, TypeMirror>,
-    val errorIndicator: ErrorIndicator
+    private val method: ExecutableElement,
+    private val selection: String,
+    private val paramsNamesAndTypes: HashMap<String, TypeMirror>,
+    private val errorReporter: ErrorReporter
 ) {
 
     // TODO(obenabde): validate the selection: make sure it's valid syntax, make sure the
@@ -46,14 +43,13 @@ class SelectionProcessor(
             if (splitSelection.get(i).startsWith(":")) {
                 val word = splitSelection.get(i)
                 if (word.length == 1) {
-                    messager.reportError("Found stray \":\" in the selection", method,
-                        errorIndicator)
+                    errorReporter.reportError("Found stray \":\" in the selection", method)
                     return null
                 }
                 val strippedParamName = splitSelection.get(i).substring(1)
                 if (!paramsNamesAndTypes.containsKey(strippedParamName)) {
-                    messager.reportError("Selection argument :${strippedParamName.substring(1)} " +
-                            "is not specified in the method's parameters.", method, errorIndicator)
+                    errorReporter.reportError("Selection argument :${strippedParamName.substring
+                        (1)} is not specified in the method's parameters.", method)
                     return null
                 }
                 selectionsArgs.add(strippedParamName)
