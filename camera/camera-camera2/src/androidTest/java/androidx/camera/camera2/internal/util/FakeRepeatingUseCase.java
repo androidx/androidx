@@ -62,8 +62,8 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     }
 
     @Override
-    public void clear() {
-        super.clear();
+    public void onDetached() {
+        super.onDetached();
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
         }

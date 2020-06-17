@@ -404,19 +404,8 @@ public final class ImageAnalysis extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void clear() {
+    public void onDetached() {
         clearPipeline();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public void onDestroy() {
-        clearAnalyzer();
     }
 
     /**
@@ -435,6 +424,24 @@ public final class ImageAnalysis extends UseCase {
         }
 
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void onAttached() {
+        synchronized (mAnalysisLock) {
+            // The use case should be reused so that mSubscribedAnalyzer is not null but
+            // mImageAnalysisAbstractAnalyzer is closed. Re-open mImageAnalysisAbstractAnalyzer
+            // after the use case is attached to make it work again.
+            if (mSubscribedAnalyzer != null && mImageAnalysisAbstractAnalyzer.isClosed()) {
+                mImageAnalysisAbstractAnalyzer.open();
+            }
+        }
     }
 
     /**

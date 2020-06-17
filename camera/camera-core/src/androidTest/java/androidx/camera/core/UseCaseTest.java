@@ -26,6 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.graphics.Rect;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -153,6 +154,36 @@ public class UseCaseTest {
         UseCaseConfig<?> useCaseConfig = fakeUseCase.getUseCaseConfig();
 
         assertThat(useCaseConfig.getOptionPriority(opt)).isEqualTo(ALWAYS_OVERRIDE);
+    }
+
+    @Test
+    public void attachedSurfaceResolutionCanBeReset_whenOnDetach() {
+        FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
+                "UseCase").getUseCaseConfig();
+        TestUseCase testUseCase = new TestUseCase(config);
+
+        testUseCase.updateSuggestedResolution(new Size(640, 480));
+        assertThat(testUseCase.getAttachedSurfaceResolution()).isNotNull();
+
+        testUseCase.onAttach(mMockCameraInternal);
+        testUseCase.onDetach(mMockCameraInternal);
+
+        assertThat(testUseCase.getAttachedSurfaceResolution()).isNull();
+    }
+
+    @Test
+    public void viewPortCropRectCanBeReset_whenOnDetach() {
+        FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
+                "UseCase").getUseCaseConfig();
+        TestUseCase testUseCase = new TestUseCase(config);
+
+        testUseCase.setViewPortCropRect(new Rect());
+        assertThat(testUseCase.getViewPortCropRect()).isNotNull();
+
+        testUseCase.onAttach(mMockCameraInternal);
+        testUseCase.onDetach(mMockCameraInternal);
+
+        assertThat(testUseCase.getViewPortCropRect()).isNull();
     }
 
     static class TestUseCase extends FakeUseCase {

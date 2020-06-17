@@ -167,13 +167,11 @@ public final class VideoCapture extends UseCase {
     private final BufferInfo mVideoBufferInfo = new BufferInfo();
     private final Object mMuxerLock = new Object();
     /** Thread on which all encoding occurs. */
-    private final HandlerThread mVideoHandlerThread =
-            new HandlerThread(CameraXThreads.TAG + "video encoding thread");
-    private final Handler mVideoHandler;
+    private HandlerThread mVideoHandlerThread;
+    private Handler mVideoHandler;
     /** Thread on which audio encoding occurs. */
-    private final HandlerThread mAudioHandlerThread =
-            new HandlerThread(CameraXThreads.TAG + "audio encoding thread");
-    private final Handler mAudioHandler;
+    private HandlerThread mAudioHandlerThread;
+    private Handler mAudioHandler;
     private final AtomicBoolean mEndOfVideoStreamSignal = new AtomicBoolean(true);
     private final AtomicBoolean mEndOfAudioStreamSignal = new AtomicBoolean(true);
     private final AtomicBoolean mEndOfAudioVideoSignal = new AtomicBoolean(true);
@@ -216,14 +214,6 @@ public final class VideoCapture extends UseCase {
      */
     VideoCapture(@NonNull VideoCaptureConfig config) {
         super(config);
-
-        // video thread start
-        mVideoHandlerThread.start();
-        mVideoHandler = new Handler(mVideoHandlerThread.getLooper());
-
-        // audio thread start
-        mAudioHandlerThread.start();
-        mAudioHandler = new Handler(mAudioHandlerThread.getLooper());
     }
 
     /** Creates a {@link MediaFormat} using parameters from the configuration */
@@ -256,6 +246,27 @@ public final class VideoCapture extends UseCase {
         }
 
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @SuppressWarnings("WrongConstant")
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void onAttached() {
+        mVideoHandlerThread = new HandlerThread(CameraXThreads.TAG + "video encoding thread");
+        mAudioHandlerThread = new HandlerThread(CameraXThreads.TAG + "audio encoding thread");
+
+        // video thread start
+        mVideoHandlerThread.start();
+        mVideoHandler = new Handler(mVideoHandlerThread.getLooper());
+
+        // audio thread start
+        mAudioHandlerThread.start();
+        mAudioHandler = new Handler(mAudioHandlerThread.getLooper());
     }
 
     /**
@@ -410,7 +421,7 @@ public final class VideoCapture extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void clear() {
+    public void onDetached() {
         mVideoHandlerThread.quitSafely();
 
         // audio encoder release

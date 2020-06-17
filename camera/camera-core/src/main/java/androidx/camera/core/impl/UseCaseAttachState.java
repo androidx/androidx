@@ -149,6 +149,13 @@ public final class UseCaseAttachState {
         mAttachedUseCasesToInfoMap.put(useCaseName, newUseCaseAttachInfo);
     }
 
+    /**
+     * Removes the item from the map.
+     */
+    public void removeUseCase(@NonNull String useCaseName) {
+        mAttachedUseCasesToInfoMap.remove(useCaseName);
+    }
+
     /** Returns a session configuration builder for use cases which are both active and attached. */
     @NonNull
     public SessionConfig.ValidatingBuilder getActiveAndAttachedBuilder() {

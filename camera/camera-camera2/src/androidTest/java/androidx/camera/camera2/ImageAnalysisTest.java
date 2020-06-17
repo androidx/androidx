@@ -16,6 +16,9 @@
 
 package androidx.camera.camera2;
 
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
@@ -37,8 +40,10 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysis.Analyzer;
 import androidx.camera.core.ImageAnalysis.BackpressureStrategy;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageAnalysisConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
@@ -54,6 +59,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -66,7 +72,6 @@ import java.util.concurrent.TimeoutException;
 public final class ImageAnalysisTest {
     private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private final ImageAnalysisConfig mDefaultConfig = ImageAnalysis.DEFAULT_CONFIG.getConfig(null);
     private final Object mAnalysisResultLock = new Object();
     @GuardedBy("mAnalysisResultLock")
     private Set<ImageProperties> mAnalysisResults;
@@ -325,13 +330,103 @@ public final class ImageAnalysisTest {
         useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), slowAnalyzer);
 
         Thread.sleep(100);
+    }
+
+    @Test
+    public void useCaseConfigCanBeReset_afterUnbind() {
+        final ImageAnalysis useCase = new ImageAnalysis.Builder().build();
+        UseCaseConfig<?> initialConfig = useCase.getUseCaseConfig();
+
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                mCameraSelector, useCase);
+
+        mInstrumentation.runOnMainSync(() -> {
+            camera.removeUseCases(Collections.singleton(useCase));
+        });
+
+        UseCaseConfig<?> configAfterUnbinding = useCase.getUseCaseConfig();
+
+        // After detaching from a camera the options from getUseCaseConfig() should be restored
+        // to those prior to attaching to the camera. The option list should have the same option
+        // list as the initial config after the use case is unbound.
+        for (Config.Option<?> opt : configAfterUnbinding.listOptions()) {
+            // There is no equivalence relation between two SessionConfig or CaptureConfig
+            // objects. Therefore, only checking that the default SessionConfig or CaptureConfig
+            // also exists in initialConfig when it exists in configAfterUnbinding.
+            if (opt.equals(OPTION_DEFAULT_SESSION_CONFIG) || opt.equals(
+                    OPTION_DEFAULT_CAPTURE_CONFIG)) {
+                assertThat(initialConfig.containsOption(opt)).isTrue();
+            } else {
+                assertThat(initialConfig.retrieveOption(opt).equals(
+                        configAfterUnbinding.retrieveOption(opt))).isTrue();
+            }
+        }
+    }
+
+    @Test
+    public void targetRotationIsRetained_whenUseCaseIsReused() {
+        ImageAnalysis useCase = new ImageAnalysis.Builder().build();
+
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                mCameraSelector, useCase);
+
+        // Generally, the device can't be rotated to Surface.ROTATION_180. Therefore,
+        // use it to do the test.
+        useCase.setTargetRotation(Surface.ROTATION_180);
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Check the target rotation is kept when the use case is unbound.
+            camera.removeUseCases(Collections.singleton(useCase));
+            assertThat(useCase.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
+        });
+
+        // Check the target rotation is kept when the use case is rebound to the
+        // lifecycle.
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
+        assertThat(useCase.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
+    }
+
+    @Test
+    public void useCaseCanBeReusedInSameCamera() throws InterruptedException {
+        ImageAnalysis useCase = new ImageAnalysis.Builder().build();
+
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                mCameraSelector, useCase);
         useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
 
-        mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS);
+        assertThat(mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
 
-        synchronized (mAnalysisResultLock) {
-            assertThat(mAnalysisResults).isNotEmpty();
-        }
+        mInstrumentation.runOnMainSync(() -> {
+            camera.removeUseCases(Collections.singleton(useCase));
+        });
+
+        mAnalysisResultsSemaphore = new Semaphore(/*permits=*/ 0);
+        // Rebind the use case to the same camera.
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
+
+        assertThat(mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void useCaseCanBeReusedInDifferentCamera() throws InterruptedException {
+        ImageAnalysis useCase = new ImageAnalysis.Builder().build();
+
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
+
+        assertThat(mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
+
+        mInstrumentation.runOnMainSync(() -> {
+            camera.removeUseCases(Collections.singleton(useCase));
+        });
+
+        mAnalysisResultsSemaphore = new Semaphore(/*permits=*/ 0);
+        // Rebind the use case to different camera.
+        CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_FRONT_CAMERA,
+                useCase);
+
+        assertThat(mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
     }
 
     private static class ImageProperties {

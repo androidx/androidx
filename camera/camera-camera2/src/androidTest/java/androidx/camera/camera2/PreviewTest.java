@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2;
 
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -43,7 +45,9 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
@@ -362,6 +366,125 @@ public final class PreviewTest {
 
         assertThat(useCase.getUseCaseConfig().containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
+    }
+
+    @Test
+    public void useCaseConfigCanBeReset_afterUnbind() {
+        final Preview preview = mDefaultBuilder.build();
+        UseCaseConfig<?> initialConfig = preview.getUseCaseConfig();
+
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                mCameraSelector, preview);
+
+        mInstrumentation.runOnMainSync(() -> {
+            camera.removeUseCases(Collections.singleton(preview));
+        });
+
+        UseCaseConfig<?> configAfterUnbinding = preview.getUseCaseConfig();
+
+        // After detaching from a camera the options from getUseCaseConfig() should be restored
+        // to those prior to attaching to the camera. The option list should have the same option
+        // list as the initial config after the use case is unbound.
+        for (Config.Option<?> opt : configAfterUnbinding.listOptions()) {
+            // There is no equivalence relation between two SessionConfig or CaptureConfig
+            // objects. Therefore, only checking that the default SessionConfig or CaptureConfig
+            // also exists in initialConfig when it exists in configAfterUnbinding.
+            if (opt.equals(OPTION_DEFAULT_SESSION_CONFIG) || opt.equals(
+                    OPTION_DEFAULT_CAPTURE_CONFIG)) {
+                assertThat(initialConfig.containsOption(opt)).isTrue();
+            } else {
+                assertThat(initialConfig.retrieveOption(opt).equals(
+                        configAfterUnbinding.retrieveOption(opt))).isTrue();
+            }
+        }
+    }
+
+    @Test
+    public void targetRotationIsRetained_whenUseCaseIsReused() {
+        Preview useCase = mDefaultBuilder.build();
+
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                mCameraSelector, useCase);
+
+        // Generally, the device can't be rotated to Surface.ROTATION_180. Therefore,
+        // use it to do the test.
+        useCase.setTargetRotation(Surface.ROTATION_180);
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind the use case.
+            camera.removeUseCases(Collections.singleton(useCase));
+        });
+
+        // Check the target rotation is kept when the use case is unbound.
+        assertThat(useCase.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
+
+        // Check the target rotation is kept when the use case is rebound to the
+        // lifecycle.
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
+        assertThat(useCase.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
+    }
+
+    @Test
+    public void useCaseCanBeReusedInSameCamera() throws InterruptedException {
+        final Preview preview = mDefaultBuilder.build();
+
+        mInstrumentation.runOnMainSync(() -> {
+            preview.setSurfaceProvider(getSurfaceProvider(null));
+        });
+
+        // This is the first time the use case bound to the lifecycle.
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                mCameraSelector, preview);
+
+        // Check the frame available callback is called.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind and rebind the use case to the same lifecycle.
+            camera.removeUseCases(Collections.singleton(preview));
+        });
+
+        assertThat(mSafeToReleaseSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
+
+        // Recreate the semaphore to monitor the frame available callback.
+        mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
+        // Rebind the use case to the same camera.
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+
+        // Check the frame available callback can be called after reusing the use case.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void useCaseCanBeReusedInDifferentCamera() throws InterruptedException {
+        final Preview preview = mDefaultBuilder.build();
+
+        mInstrumentation.runOnMainSync(() -> {
+            preview.setSurfaceProvider(getSurfaceProvider(null));
+        });
+
+        // This is the first time the use case bound to the lifecycle.
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, preview);
+
+        // Check the frame available callback is called.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind and rebind the use case to the same lifecycle.
+            camera.removeUseCases(Collections.singleton(preview));
+        });
+
+        assertThat(mSafeToReleaseSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
+
+        // Recreate the semaphore to monitor the frame available callback.
+        mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
+        // Rebind the use case to different camera.
+        CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_FRONT_CAMERA,
+                preview);
+
+        // Check the frame available callback can be called after reusing the use case.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
     }
 
     private Executor getWorkExecutorWithNamedThread() {
