@@ -17,21 +17,16 @@
 package androidx.paging
 
 import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
-import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -186,7 +181,7 @@ class PagingDataDifferTest {
 
         // Start collection for ListUpdates before collecting from differ to prevent conflation
         // from affecting the expected events.
-        val listUpdates = mutableListOf<Unit>()
+        val listUpdates = mutableListOf<Boolean>()
         val listUpdateJob = launch {
             differ.dataRefreshFlow.collect { listUpdates.add(it) }
         }
@@ -196,8 +191,7 @@ class PagingDataDifferTest {
         }
 
         advanceUntilIdle()
-        assertThat(listUpdates)
-            .isEqualTo(pageEventFlow.toListChangedEvents().toList())
+        assertThat(listUpdates).isEqualTo(listOf(true, false))
 
         listUpdateJob.cancel()
         job.cancel()
@@ -217,30 +211,17 @@ class PagingDataDifferTest {
 
         // Start listening for ListUpdates before collecting from differ to prevent conflation
         // from affecting the expected events.
-        val listUpdates = mutableListOf<Unit>()
-        differ.addDataRefreshListener {
-            listUpdates.add(Unit)
-        }
+        val listUpdates = mutableListOf<Boolean>()
+        differ.addDataRefreshListener { listUpdates.add(it) }
 
         val job = launch {
             differ.collectFrom(pagingData, dummyPresenterCallback)
         }
 
         advanceUntilIdle()
-        assertThat(listUpdates)
-            .isEqualTo(pageEventFlow.toListChangedEvents().toList())
+        assertThat(listUpdates).isEqualTo(listOf(true, false))
 
         job.cancel()
-    }
-}
-
-private fun <T : Any> Flow<PageEvent<T>>.toListChangedEvents() = mapNotNull { event ->
-    when (event) {
-        is Insert -> when (event.loadType) {
-            REFRESH -> Unit
-            else -> null
-        }
-        else -> null
     }
 }
 
