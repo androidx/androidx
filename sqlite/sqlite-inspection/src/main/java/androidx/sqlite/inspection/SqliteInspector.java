@@ -39,6 +39,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteStatement;
+import android.os.Build;
 import android.os.CancellationSignal;
 import android.util.Log;
 
@@ -95,25 +96,34 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings({"TryFinallyCanBeTryWithResources", "SameParameterValue"})
 @SuppressLint("SyntheticAccessor")
 final class SqliteInspector extends Inspector {
-    // TODO: identify all SQLiteDatabase openDatabase methods
-    private static final String sOpenDatabaseCommandSignature = "openDatabase"
+    private static final String OPEN_DATABASE_COMMAND_SIGNATURE_API_11 = "openDatabase"
+            + "("
+            + "Ljava/lang/String;"
+            + "Landroid/database/sqlite/SQLiteDatabase$CursorFactory;"
+            + "I"
+            + "Landroid/database/DatabaseErrorHandler;"
+            + ")"
+            + "Landroid/database/sqlite/SQLiteDatabase;";
+
+    private static final String OPEN_DATABASE_COMMAND_SIGNATURE_API_27 = "openDatabase"
             + "("
             + "Ljava/io/File;"
             + "Landroid/database/sqlite/SQLiteDatabase$OpenParams;"
             + ")"
             + "Landroid/database/sqlite/SQLiteDatabase;";
 
-    private static final String sCreateInMemoryDatabaseCommandSignature = "createInMemory"
+    private static final String CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API_27 =
+            "createInMemory"
             + "("
             + "Landroid/database/sqlite/SQLiteDatabase$OpenParams;"
             + ")"
             + "Landroid/database/sqlite/SQLiteDatabase;";
 
-    private static final String sAllReferencesReleaseCommandSignature =
+    private static final String ALL_REFERENCES_RELEASE_COMMAND_SIGNATURE =
             "onAllReferencesReleased()V";
 
     // SQLiteStatement methods
-    private static final List<String> sSqliteStatementExecuteMethodsSignatures = Arrays.asList(
+    private static final List<String> SQLITE_STATEMENT_EXECUTE_METHODS_SIGNATURES = Arrays.asList(
             "execute()V",
             "executeInsert()J",
             "executeUpdateDelete()I");
@@ -268,10 +278,11 @@ final class SqliteInspector extends Inspector {
     }
 
     /**
-     * Tracking potential database closed events via {@link #sAllReferencesReleaseCommandSignature}
+     * Tracking potential database closed events via
+     * {@link #ALL_REFERENCES_RELEASE_COMMAND_SIGNATURE}
      */
     private void registerDatabaseClosedHooks(EntryExitMatchingHookRegistry hookRegistry) {
-        hookRegistry.registerHook(SQLiteDatabase.class, sAllReferencesReleaseCommandSignature,
+        hookRegistry.registerHook(SQLiteDatabase.class, ALL_REFERENCES_RELEASE_COMMAND_SIGNATURE,
                 new EntryExitMatchingHookRegistry.OnExitCallback() {
                     @Override
                     public void onExit(EntryExitMatchingHookRegistry.Frame exitFrame) {
@@ -284,8 +295,13 @@ final class SqliteInspector extends Inspector {
     }
 
     private void registerDatabaseOpenedHooks() {
-        for (String method : Arrays.asList(sOpenDatabaseCommandSignature,
-                sCreateInMemoryDatabaseCommandSignature)) {
+        List<String> methods = (Build.VERSION.SDK_INT < 27)
+                ? Arrays.asList(OPEN_DATABASE_COMMAND_SIGNATURE_API_11)
+                : Arrays.asList(OPEN_DATABASE_COMMAND_SIGNATURE_API_11,
+                        OPEN_DATABASE_COMMAND_SIGNATURE_API_27,
+                        CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API_27);
+
+        for (String method : methods) {
             mEnvironment.registerExitHook(
                     SQLiteDatabase.class,
                     method,
@@ -352,7 +368,26 @@ final class SqliteInspector extends Inspector {
                 }, deferredExecutor);
 
         registerInvalidationHooksSqliteStatement(throttler);
+        registerInvalidationHooksTransaction(throttler);
         registerInvalidationHooksSQLiteCursor(throttler, hookRegistry);
+    }
+
+    /**
+     * Triggering invalidation on {@link SQLiteDatabase#endTransaction} allows us to avoid
+     * showing incorrect stale values that could originate from a mid-transaction query.
+     *
+     * TODO: track if transaction committed or rolled back by observing if
+     * {@link SQLiteDatabase#setTransactionSuccessful} was called
+     */
+    private void registerInvalidationHooksTransaction(final RequestCollapsingThrottler throttler) {
+        mEnvironment.registerExitHook(SQLiteDatabase.class, "endTransaction()V",
+                new InspectorEnvironment.ExitHook<Object>() {
+                    @Override
+                    public Object onExit(Object result) {
+                        throttler.submitRequest();
+                        return result;
+                    }
+                });
     }
 
     /**
@@ -365,7 +400,7 @@ final class SqliteInspector extends Inspector {
      */
     private void registerInvalidationHooksSqliteStatement(
             final RequestCollapsingThrottler throttler) {
-        for (String method : sSqliteStatementExecuteMethodsSignatures) {
+        for (String method : SQLITE_STATEMENT_EXECUTE_METHODS_SIGNATURES) {
             mEnvironment.registerExitHook(SQLiteStatement.class, method,
                     new InspectorEnvironment.ExitHook<Object>() {
                         @Override

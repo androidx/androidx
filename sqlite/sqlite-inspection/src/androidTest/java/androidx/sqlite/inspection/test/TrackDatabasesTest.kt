@@ -19,6 +19,7 @@ package androidx.sqlite.inspection.test
 import android.app.Application
 import android.database.sqlite.SQLiteClosable
 import android.database.sqlite.SQLiteDatabase
+import android.os.Build
 import androidx.inspection.InspectorEnvironment.ExitHook
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response
@@ -37,14 +38,23 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import java.io.File
 
-private const val OPEN_DATABASE_COMMAND_SIGNATURE: String = "openDatabase" +
+private const val OPEN_DATABASE_COMMAND_SIGNATURE_API11: String = "openDatabase" +
+        "(" +
+        "Ljava/lang/String;" +
+        "Landroid/database/sqlite/SQLiteDatabase\$CursorFactory;" +
+        "I" +
+        "Landroid/database/DatabaseErrorHandler;" +
+        ")" +
+        "Landroid/database/sqlite/SQLiteDatabase;"
+
+private const val OPEN_DATABASE_COMMAND_SIGNATURE_API27: String = "openDatabase" +
         "(" +
         "Ljava/io/File;" +
         "Landroid/database/sqlite/SQLiteDatabase\$OpenParams;" +
         ")" +
         "Landroid/database/sqlite/SQLiteDatabase;"
 
-private const val CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE = "createInMemory" +
+private const val CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27 = "createInMemory" +
         "(" +
         "Landroid/database/sqlite/SQLiteDatabase\$OpenParams;" +
         ")" +
@@ -87,12 +97,24 @@ class TrackDatabasesTest {
         }
 
         // evaluate registered hooks
-        val methodSignatures =
-            listOf(OPEN_DATABASE_COMMAND_SIGNATURE, CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE)
+        val possibleSignatures = listOf(
+            OPEN_DATABASE_COMMAND_SIGNATURE_API11,
+            OPEN_DATABASE_COMMAND_SIGNATURE_API27,
+            CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27
+        )
+        val wantedSignatures = when {
+            Build.VERSION.SDK_INT < 27 -> listOf(OPEN_DATABASE_COMMAND_SIGNATURE_API11)
+            else -> listOf(
+                OPEN_DATABASE_COMMAND_SIGNATURE_API11,
+                OPEN_DATABASE_COMMAND_SIGNATURE_API27,
+                CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27
+            )
+        }
+
         val hookEntries = testEnvironment.consumeRegisteredHooks()
-            .filter { methodSignatures.contains(it.originMethod) }
-        assertThat(hookEntries).hasSize(2)
-        assertThat(hookEntries.map { it.originMethod }.containsAll(methodSignatures)).isTrue()
+            .filter { possibleSignatures.contains(it.originMethod) }
+        assertThat(hookEntries).hasSize(wantedSignatures.size)
+        assertThat(hookEntries.map { it.originMethod }.containsAll(wantedSignatures)).isTrue()
         hookEntries.forEachIndexed { ix, entry ->
                 // expect one exit hook tracking database open events
                 assertThat(entry).isInstanceOf(Hook.ExitHook::class.java)
@@ -117,7 +139,7 @@ class TrackDatabasesTest {
         // given
         testEnvironment.sendCommand(createTrackDatabasesCommand())
         val onOpenHook = testEnvironment.consumeRegisteredHooks()
-            .first { it.originMethod == OPEN_DATABASE_COMMAND_SIGNATURE }
+            .first { it.originMethod == OPEN_DATABASE_COMMAND_SIGNATURE_API11 }
         @Suppress("UNCHECKED_CAST")
         val onOpen = (onOpenHook.asExitHook as ExitHook<SQLiteDatabase>)::onExit
 
@@ -628,7 +650,7 @@ class TrackDatabasesTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun List<Hook>.triggerOnOpened(db: SQLiteDatabase) {
-        val onOpen = filter { it.originMethod == OPEN_DATABASE_COMMAND_SIGNATURE }
+        val onOpen = filter { it.originMethod == OPEN_DATABASE_COMMAND_SIGNATURE_API11 }
         assertThat(onOpen).hasSize(1)
         (onOpen.first().asExitHook as ExitHook<SQLiteDatabase>).onExit(db)
     }
