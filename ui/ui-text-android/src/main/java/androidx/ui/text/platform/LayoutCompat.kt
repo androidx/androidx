@@ -22,6 +22,7 @@ import android.text.Layout.Alignment
 import android.text.TextDirectionHeuristic
 import android.text.TextDirectionHeuristics
 import androidx.annotation.IntDef
+import androidx.annotation.IntRange
 
 /**
  * LayoutCompat class which provides all supported attributes by framework, and also defines
@@ -120,4 +121,40 @@ object LayoutCompat {
 
     internal val DEFAULT_TEXT_DIRECTION_HEURISTIC: TextDirectionHeuristic =
         TextDirectionHeuristics.FIRSTSTRONG_LTR
+}
+
+/**
+ * Returns the line number at the offset
+ *
+ * If the automatic line break didn't happen at the given offset, this returns the 0 origin line
+ * number that contains the given offset character.
+ * If the automatic line break happened at the given offset, this returns the preceding 0 origin
+ * line number that contains the given offset character if upstream is true. Otherwise, returns
+ * the line number that contains the given offset character.
+ *
+ * @param offset a character offset in the text
+ * @param upstream true if you want to get preceding line number for the line broken offset.
+ * false if you want to get the following line number for the line broken offset. This is ignored
+ * if the offset it not a line broken offset.
+ * @return the line number
+ *
+ * @suppress
+ */
+@InternalPlatformTextApi
+fun Layout.getLineForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean): Int {
+    if (offset <= 0) return 0
+    if (offset >= text.length) return lineCount - 1
+    val downstreamLineNo = getLineForOffset(offset)
+    val lineStart = getLineStart(downstreamLineNo)
+    val lineEnd = getLineEnd(downstreamLineNo)
+
+    if (lineStart != offset && lineEnd != offset) {
+        return downstreamLineNo
+    }
+
+    if (lineStart == offset) {
+        return if (upstream) downstreamLineNo - 1 else downstreamLineNo
+    } else { // lineEnd == offset
+        return if (upstream) downstreamLineNo else downstreamLineNo + 1
+    }
 }
