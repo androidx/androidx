@@ -31,7 +31,6 @@ import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.drawscope.DrawScope
-import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.material.internal.stateDraggable
@@ -103,23 +102,20 @@ private fun DrawSwitch(
         MaterialTheme.colors.onSurface.copy(alpha = UncheckedTrackOpacity)
     }
 
-    val trackStroke: Stroke
-    with(DensityAmbient.current) {
-        trackStroke = Stroke(width = TrackStrokeWidth.toPx(), cap = StrokeCap.round)
-    }
     Canvas(Modifier.preferredSize(SwitchWidth, SwitchHeight)) {
-        drawTrack(trackColor, TrackWidth.toPx(), trackStroke)
+        drawTrack(trackColor, TrackWidth.toPx(), TrackStrokeWidth.toPx())
         drawThumb(thumbValue.value, ThumbDiameter.toPx(), thumbColor)
     }
 }
 
-private fun DrawScope.drawTrack(trackColor: Color, trackWidth: Float, stroke: Stroke) {
-    val strokeRadius = stroke.width / 2
+private fun DrawScope.drawTrack(trackColor: Color, trackWidth: Float, strokeWidth: Float) {
+    val strokeRadius = strokeWidth / 2
     drawLine(
         trackColor,
         Offset(strokeRadius, center.y),
         Offset(trackWidth - strokeRadius, center.y),
-        stroke
+        strokeWidth,
+        StrokeCap.round
     )
 }
 

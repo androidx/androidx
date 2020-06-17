@@ -89,7 +89,7 @@ fun Path.addOutline(outline: Outline) = when (outline) {
 fun DrawScope.drawOutline(
     outline: Outline,
     color: Color,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = DrawScope.DefaultAlpha,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode
@@ -128,7 +128,7 @@ fun DrawScope.drawOutline(
 fun DrawScope.drawOutline(
     outline: Outline,
     brush: Brush,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = DrawScope.DefaultAlpha,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode

@@ -60,19 +60,14 @@ fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary
 ) {
-    val stroke = with(DensityAmbient.current) {
-        Stroke(
-            width = ProgressIndicatorConstants.DefaultStrokeWidth.toPx(),
-            cap = StrokeCap.butt
-        )
-    }
     val backgroundColor = color.copy(alpha = BackgroundOpacity)
     Canvas(
         modifier.determinateProgressIndicator(progress)
             .preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)
     ) {
-        drawLinearIndicatorBackground(backgroundColor, stroke)
-        drawLinearIndicator(0f, progress, color, stroke)
+        val strokeWidth = ProgressIndicatorConstants.DefaultStrokeWidth.toPx()
+        drawLinearIndicatorBackground(backgroundColor, strokeWidth)
+        drawLinearIndicator(0f, progress, color, strokeWidth)
     }
 }
 
@@ -97,24 +92,19 @@ fun LinearProgressIndicator(
         val secondLineHead = state[SecondLineHeadProp]
         val secondLineTail = state[SecondLineTailProp]
         val backgroundColor = color.copy(alpha = BackgroundOpacity)
-        val stroke = with(DensityAmbient.current) {
-            Stroke(
-                width = ProgressIndicatorConstants.DefaultStrokeWidth.toPx(),
-                cap = StrokeCap.butt
-            )
-        }
         Canvas(modifier
             // TODO(b/154875304) create IndeterminateProgressIndicator in foundation and move the
             //  semantics there
             .semantics { accessibilityValue = Strings.InProgress }
             .preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)) {
-            drawLinearIndicatorBackground(backgroundColor, stroke)
+            val strokeWidth = ProgressIndicatorConstants.DefaultStrokeWidth.toPx()
+            drawLinearIndicatorBackground(backgroundColor, strokeWidth)
             if (firstLineHead - firstLineTail > 0) {
                 drawLinearIndicator(
                     firstLineHead,
                     firstLineTail,
                     color,
-                    stroke
+                    strokeWidth
                 )
             }
             if ((secondLineHead - secondLineTail) > 0) {
@@ -122,7 +112,7 @@ fun LinearProgressIndicator(
                     secondLineHead,
                     secondLineTail,
                     color,
-                    stroke
+                    strokeWidth
                 )
             }
         }
@@ -133,7 +123,7 @@ private fun DrawScope.drawLinearIndicator(
     startFraction: Float,
     endFraction: Float,
     color: Color,
-    stroke: Stroke
+    strokeWidth: Float
 ) {
     val width = size.width
     val height = size.height
@@ -145,13 +135,13 @@ private fun DrawScope.drawLinearIndicator(
     val barEnd = (if (isLtr) endFraction else 1f - startFraction) * width
 
     // Progress line
-    drawLine(color, Offset(barStart, yOffset), Offset(barEnd, yOffset), stroke)
+    drawLine(color, Offset(barStart, yOffset), Offset(barEnd, yOffset), strokeWidth)
 }
 
 private fun DrawScope.drawLinearIndicatorBackground(
     color: Color,
-    stroke: Stroke
-) = drawLinearIndicator(0f, 1f, color, stroke)
+    strokeWidth: Float
+) = drawLinearIndicator(0f, 1f, color, strokeWidth)
 
 /**
  * A determinate circular progress indicator that represents progress by drawing an arc ranging from

@@ -18,9 +18,10 @@ package androidx.ui.graphics
 
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
-import androidx.ui.geometry.Size
 import androidx.ui.graphics.vectormath.Matrix4
 import androidx.ui.graphics.vectormath.degrees
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 
 /**
  * Create a new Canvas instance that targets its drawing commands
@@ -560,10 +561,10 @@ interface Canvas {
      */
     fun drawImageRect(
         image: ImageAsset,
-        srcOffset: Offset = Offset.Zero,
-        srcSize: Size = Size(image.width.toFloat(), image.height.toFloat()),
-        dstOffset: Offset,
-        dstSize: Size,
+        srcOffset: IntOffset = IntOffset.Origin,
+        srcSize: IntSize = IntSize(image.width, image.height),
+        dstOffset: IntOffset = IntOffset.Origin,
+        dstSize: IntSize = srcSize,
         paint: Paint
     )
 

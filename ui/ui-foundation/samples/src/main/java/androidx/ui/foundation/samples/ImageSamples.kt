@@ -34,6 +34,8 @@ import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.layout.preferredSize
 import androidx.ui.res.loadVectorResource
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 
 @Sampled
@@ -52,8 +54,8 @@ fun ImagePainterSubsectionSample() {
     Image(
         painter = ImagePainter(
             imageAsset,
-            Offset(10.0f, 12.0f),
-            Size(50.0f, 60.0f)
+            IntOffset(10, 12),
+            IntSize(50, 60)
         )
     )
 }

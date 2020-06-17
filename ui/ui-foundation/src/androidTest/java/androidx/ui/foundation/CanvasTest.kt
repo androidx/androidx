@@ -29,7 +29,6 @@ import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
@@ -79,10 +78,10 @@ class CanvasTest {
                 .wrapContentSize(Alignment.Center)) {
                     Canvas(modifier = Modifier.preferredSize(minWidth, minHeight)) {
                         drawLine(
-                            p1 = Offset.Zero,
-                            p2 = Offset(size.width, size.height),
+                            start = Offset.Zero,
+                            end = Offset(size.width, size.height),
                             color = Color.Red,
-                            stroke = Stroke(width = strokeWidth)
+                            strokeWidth = strokeWidth
                         )
                     }
             }

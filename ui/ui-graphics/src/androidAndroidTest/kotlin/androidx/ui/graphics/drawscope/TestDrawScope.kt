@@ -31,6 +31,10 @@ class TestDrawScope() : DrawScope() {
     override var density: Float = 1.0f
 
     override var fontScale: Float = 1.0f
+
+    fun drawInto(canvas: Canvas, size: Size, block: DrawScope.() -> Unit) {
+        draw(canvas, size, block)
+    }
 }
 
 /**
@@ -41,11 +45,11 @@ fun drawPainter(
     painter: Painter,
     canvas: Canvas,
     size: Size,
-    alpha: Float = DrawScope.DefaultAlpha,
+    alpha: Float = 1.0f,
     colorFilter: ColorFilter? = null,
     layoutDirection: LayoutDirection = LayoutDirection.Ltr
 ) {
-    TestDrawScope().apply { this.layoutDirection = layoutDirection }.draw(canvas, size) {
+    TestDrawScope().apply { this.layoutDirection = layoutDirection }.drawInto(canvas, size) {
         with (painter) {
             draw(size, alpha = alpha, colorFilter = colorFilter)
         }

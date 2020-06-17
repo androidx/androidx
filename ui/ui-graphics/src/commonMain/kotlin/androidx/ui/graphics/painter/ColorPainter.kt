@@ -26,7 +26,7 @@ import androidx.ui.graphics.drawscope.DrawScope
  */
 data class ColorPainter(val color: Color) : Painter() {
 
-    private var alpha: Float = DrawScope.DefaultAlpha
+    private var alpha: Float = 1.0f
 
     private var colorFilter: ColorFilter? = null
 

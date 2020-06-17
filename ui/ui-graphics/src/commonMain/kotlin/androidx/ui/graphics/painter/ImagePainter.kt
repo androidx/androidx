@@ -16,11 +16,13 @@
 
 package androidx.ui.graphics.painter
 
-import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
+import androidx.ui.unit.toSize
 
 /**
  * [Painter] implementation used to draw an [ImageAsset] into the provided canvas
@@ -38,13 +40,13 @@ import androidx.ui.graphics.drawscope.DrawScope
  */
 data class ImagePainter(
     private val image: ImageAsset,
-    private val srcOffset: Offset = Offset.Zero,
-    private val srcSize: Size = Size(image.width.toFloat(), image.height.toFloat())
+    private val srcOffset: IntOffset = IntOffset.Origin,
+    private val srcSize: IntSize = IntSize(image.width, image.height)
 ) : Painter() {
 
-    private val size: Size = validateSize(srcOffset, srcSize)
+    private val size: IntSize = validateSize(srcOffset, srcSize)
 
-    private var alpha: Float = DrawScope.DefaultAlpha
+    private var alpha: Float = 1.0f
 
     private var colorFilter: ColorFilter? = null
 
@@ -61,7 +63,7 @@ data class ImagePainter(
     /**
      * Return the dimension of the underlying [ImageAsset] as it's intrinsic width and height
      */
-    override val intrinsicSize: Size get() = size
+    override val intrinsicSize: Size get() = size.toSize()
 
     override fun applyAlpha(alpha: Float): Boolean {
         this.alpha = alpha
@@ -73,7 +75,7 @@ data class ImagePainter(
         return true
     }
 
-    private fun validateSize(srcOffset: Offset, srcSize: Size): Size {
+    private fun validateSize(srcOffset: IntOffset, srcSize: IntSize): IntSize {
         require(
             srcOffset.x >= 0 &&
             srcOffset.y >= 0 &&
