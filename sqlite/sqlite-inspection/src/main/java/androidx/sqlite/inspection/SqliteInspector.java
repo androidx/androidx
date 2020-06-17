@@ -297,32 +297,31 @@ final class SqliteInspector extends Inspector {
     private void registerDatabaseOpenedHooks() {
         List<String> methods = (Build.VERSION.SDK_INT < 27)
                 ? Arrays.asList(OPEN_DATABASE_COMMAND_SIGNATURE_API_11)
-                : Arrays.asList(OPEN_DATABASE_COMMAND_SIGNATURE_API_11,
-                        OPEN_DATABASE_COMMAND_SIGNATURE_API_27,
+                : Arrays.asList(OPEN_DATABASE_COMMAND_SIGNATURE_API_27,
+                        OPEN_DATABASE_COMMAND_SIGNATURE_API_11,
                         CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API_27);
 
-        for (String method : methods) {
-            mEnvironment.registerExitHook(
-                    SQLiteDatabase.class,
-                    method,
-                    new InspectorEnvironment.ExitHook<SQLiteDatabase>() {
-                        @SuppressLint("SyntheticAccessor")
-                        @Override
-                        public SQLiteDatabase onExit(SQLiteDatabase database) {
-                            try {
-                                onDatabaseOpened(database);
-                            } catch (Exception exception) {
-                                getConnection().sendEvent(createErrorOccurredEvent(
-                                        "Unhandled Exception while processing an onDatabaseAdded "
-                                                + "event: "
-                                                + exception.getMessage(),
-                                        stackTraceFromException(exception), null,
-                                        ERROR_ISSUE_WITH_PROCESSING_NEW_DATABASE_CONNECTION)
-                                        .toByteArray());
-                            }
-                            return database;
+        InspectorEnvironment.ExitHook<SQLiteDatabase> hook =
+                new InspectorEnvironment.ExitHook<SQLiteDatabase>() {
+                    @SuppressLint("SyntheticAccessor")
+                    @Override
+                    public SQLiteDatabase onExit(SQLiteDatabase database) {
+                        try {
+                            onDatabaseOpened(database);
+                        } catch (Exception exception) {
+                            getConnection().sendEvent(createErrorOccurredEvent(
+                                    "Unhandled Exception while processing an onDatabaseAdded "
+                                            + "event: "
+                                            + exception.getMessage(),
+                                    stackTraceFromException(exception), null,
+                                    ERROR_ISSUE_WITH_PROCESSING_NEW_DATABASE_CONNECTION)
+                                    .toByteArray());
                         }
-                    });
+                        return database;
+                    }
+                };
+        for (String method : methods) {
+            mEnvironment.registerExitHook(SQLiteDatabase.class, method, hook);
         }
     }
 
