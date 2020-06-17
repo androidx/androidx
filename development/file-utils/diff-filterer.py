@@ -16,7 +16,7 @@
 #
 
 
-import datetime, filecmp, math, multiprocessing, os, shutil, subprocess, stat, sys
+import datetime, filecmp, math, multiprocessing, os, psutil, shutil, subprocess, stat, sys
 from collections import OrderedDict
 
 def usage():
@@ -37,6 +37,7 @@ OPTIONS
     This file path will be overwritten and modified as needed for testing purposes, and will also be the working directory of the shell command when it is run
   --num-jobs <count>
     The maximum number of concurrent executions of <shellCommand> to spawn at once
+    Specify 'auto' to have diff-filterer.py dynamically adjust the number of jobs based on system load
   --debug
     Enable some debug checks in diff-filterer.py
 """)
@@ -718,12 +719,10 @@ class DiffRunner(object):
 
   def cleanupTempDirs(self):
     print("Clearing work directories")
-    for jobId in range(self.maxNumJobsAtOnce):
-      path = self.getWorkPath(jobId)
-      try:
-        fileIo.removePath(path)
-      except Exception as e:
-        print("Failed to clean up " + str(path))
+    if os.path.isdir(self.workPath):
+      for child in os.listdir(self.workPath):
+        if child.startswith("job-"):
+          fileIo.removePath(os.path.join(self.workPath, child))
 
   def runnerTest(self, testState, timeout = None):
     workPath = self.getWorkPath(0)
@@ -797,17 +796,18 @@ class DiffRunner(object):
     queue = multiprocessing.Queue()
     activeJobs = {}
     boxesById = {}
-    pendingBoxes = self.targetState.splitOnce(max(self.maxNumJobsAtOnce, 2))
+    initialSplitSize = 2
+    if self.maxNumJobsAtOnce != "auto" and self.maxNumJobsAtOnce > 2:
+      initialSplitSize = self.maxNumJobsAtOnce
+    pendingBoxes = self.targetState.splitOnce(initialSplitSize)
     numConsecutiveFailures = 0
     numFailuresSinceLastSplitOrSuccess = 0
+    numCompletionsSinceLastPoolSizeChange = 0
     invalidatedIds = set()
     probablyAcceptableStates = []
     numCompletedTests = 2 # Already tested initial passing state and initial failing state
     # continue until all files fail and no jobs are running
     while numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size() or len(activeJobs) > 0:
-      if self.maxNumJobsAtOnce > self.resetTo_state.size():
-        self.maxNumJobsAtOnce = self.resetTo_state.size()
-
       # display status message
       now = datetime.datetime.now()
       elapsedDuration = now - start
@@ -830,20 +830,21 @@ class DiffRunner(object):
         box = boxesById[identifier]
         didAcceptState = response[1]
         numCompletedTests += 1
+        numCompletionsSinceLastPoolSizeChange += 1
         if didAcceptState:
           numConsecutiveFailures = 0
           numFailuresSinceLastSplitOrSuccess = 0
           acceptedState = box #.getAllFiles()
           #print("Succeeded : " + acceptedState.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()))
           maxRunningSize = max([state.size() for state in boxesById.values()])
-          maxRelevantSize = maxRunningSize / self.maxNumJobsAtOnce
+          maxRelevantSize = maxRunningSize / len(activeJobs)
           if acceptedState.size() < maxRelevantSize:
             print("Queuing a retest of response of size " + str(acceptedState.size()) + " from job " + str(identifier) + " because a much larger job of size " + str(maxRunningSize) + " is still running")
             probablyAcceptableStates.append(acceptedState)
           else:
             if identifier in invalidatedIds:
               # queue a retesting of this box
-              print("Queuing a re-test of response from job " + str(identifier) + " due to previous cancellation. Successful state: " + str(acceptedState.summarize()))
+              print("Queuing a re-test of response from job " + str(identifier) + " due to previous invalidation. Successful state: " + str(acceptedState.summarize()))
               probablyAcceptableStates.append(acceptedState)
             else:
               # A worker discovered a nonempty change that can be made successfully; update our best accepted state
@@ -854,8 +855,7 @@ class DiffRunner(object):
                   print("Successful state from work path " + str(identifier) + " wasn't correctly copied to bestState. Could the test command be deleting files that previously existed?")
                   sys.exit(1)
               # record that the results from any previously started process are no longer guaranteed to be valid
-              for i in activeJobs.keys()[:]:
-                connection = activeJobs[i]
+              for i in activeJobs.keys():
                 if i != identifier:
                   invalidatedIds.add(i)
         else:
@@ -896,7 +896,7 @@ class DiffRunner(object):
         del boxesById[identifier]
 
       # if probablyAcceptableStates has become large enough, then retest its contents too
-      if len(probablyAcceptableStates) > 0 and (len(probablyAcceptableStates) >= self.maxNumJobsAtOnce + 1 or numConsecutiveFailures >= self.maxNumJobsAtOnce or len(activeJobs) < 1):
+      if len(probablyAcceptableStates) > 0 and (len(probablyAcceptableStates) >= len(activeJobs) + 1 or numConsecutiveFailures >= len(activeJobs) or len(activeJobs) < 1):
         probablyAcceptableState = FilesState()
         for state in probablyAcceptableStates:
           probablyAcceptableState = probablyAcceptableState.expandedWithEmptyEntriesFor(state).withConflictsFrom(state)
@@ -912,7 +912,31 @@ class DiffRunner(object):
       # if we haven't checked everything yet, then try to queue more jobs
       if numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size():
         pendingBoxes.sort(reverse=True, key=FilesState.size)
-        while len(activeJobs) < self.maxNumJobsAtOnce and len(activeJobs) < self.resetTo_state.size() and len(pendingBoxes) > 0:
+
+        if self.maxNumJobsAtOnce != "auto":
+          targetNumJobs = self.maxNumJobsAtOnce
+        else:
+          # If N jobs are running then wait for all N to fail before increasing the number of running jobs
+            # Recalibrate the number of processes based on the system load
+            systemUsageStats = psutil.cpu_times_percent(interval=None)
+            systemIdleFraction = systemUsageStats.idle / 100
+            if systemIdleFraction >= 0.5:
+              if numCompletionsSinceLastPoolSizeChange <= len(activeJobs):
+                # Not much time has passed since the previous time we changed the pool size
+                targetNumJobs = len(activeJobs) + 1 # just replace existing job
+              else:
+                # We've been using less than the target capacity for a while, so add another job
+                targetNumJobs = len(activeJobs) + 2 # replace existing job and add a new one
+                numCompletionsSinceLastPoolSizeChange = 0
+            else:
+              targetNumJobs = len(activeJobs) # don't replace existing job
+              numCompletionsSinceLastPoolSizeChange = 0
+
+              if targetNumJobs < 1:
+                targetNumJobs = 1
+            print("System idle = " + str(systemIdleFraction) + ", current num jobs = " + str(len(activeJobs) + 1) + ", target num jobs = " + str(targetNumJobs))
+
+        while len(activeJobs) < targetNumJobs and len(activeJobs) < self.resetTo_state.size() and len(pendingBoxes) > 0:
           # find next pending job
           box = pendingBoxes[0]
           # find next unused job id
@@ -920,7 +944,6 @@ class DiffRunner(object):
           while jobId in activeJobs:
             jobId += 1
           # start job
-          #print("Starting process " + str(jobId) + " testing " + str(box.summarize()) + " at " + str(datetime.datetime.now()))
           workingDir = self.getWorkPath(jobId)
           activeJobs[jobId] = runJobInOtherProcess(self.testScript_path, workingDir, self.full_resetTo_state, self.assumeNoSideEffects, box, queue, jobId)
           boxesById[jobId] = box
@@ -978,7 +1001,11 @@ def main(args):
     if arg == "--num-jobs":
       if len(args) < 2:
         usage()
-      maxNumJobsAtOnce = int(args[1])
+      val = args[1]
+      if val == "auto":
+        maxNumJobsAtOnce = val
+      else:
+        maxNumJobsAtOnce = int(val)
       args = args[2:]
       continue
     if arg == "--debug":
