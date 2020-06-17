@@ -69,7 +69,9 @@ fun AlignmentLineOffset(
             if (alignmentLine.horizontal) constraints.copy(minHeight = 0)
             else constraints.copy(minWidth = 0)
         )
-        val linePosition = placeable[alignmentLine] ?: 0
+        val linePosition = placeable[alignmentLine].let {
+            if (it != AlignmentLine.Unspecified) it else 0
+        }
         val axis = if (alignmentLine.horizontal) placeable.height else placeable.width
         val axisMax = if (alignmentLine.horizontal) constraints.maxHeight else constraints.maxWidth
         // Compute padding required to satisfy the total before and after offsets.
@@ -138,7 +140,9 @@ private data class AlignmentLineOffset(
             if (alignmentLine.horizontal) constraints.copy(minHeight = 0)
             else constraints.copy(minWidth = 0)
         )
-        val linePosition = placeable[alignmentLine] ?: 0
+        val linePosition = placeable[alignmentLine].let {
+            if (it != AlignmentLine.Unspecified) it else 0
+        }
         val axis = if (alignmentLine.horizontal) placeable.height else placeable.width
         val axisMax = if (alignmentLine.horizontal) constraints.maxHeight else constraints.maxWidth
         // Compute padding required to satisfy the total before and after offsets.

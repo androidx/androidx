@@ -3467,7 +3467,7 @@ class LayoutCoordinatesStub(
         TODO("not implemented")
     }
 
-    override fun get(line: AlignmentLine): Int? {
+    override fun get(line: AlignmentLine): Int {
         TODO("not implemented")
     }
 }

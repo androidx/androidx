@@ -359,8 +359,7 @@ class TextFieldTest {
                         Text(text = "label", modifier = Modifier.onPositioned {
                             labelPosition.value = it.globalPosition
                             labelSize.value = it.size
-                            baseline.value =
-                                it[FirstBaseline]!!.toFloat() + labelPosition.value!!.y
+                            baseline.value = it[FirstBaseline].toFloat() + labelPosition.value!!.y
                         })
                     }
                 )
@@ -435,7 +434,7 @@ class TextFieldTest {
                             labelPosition.value = it.globalPosition
                             labelSize.value = it.size
                             baseline.value =
-                                it[FirstBaseline]!!.toFloat() + labelPosition.value!!.y
+                                it[FirstBaseline].toFloat() + labelPosition.value!!.y
                         })
                     }
                 )
@@ -506,7 +505,7 @@ class TextFieldTest {
                             placeholderPosition.value = it.globalPosition
                             placeholderSize.value = it.size
                             placeholderBaseline.value =
-                                it[FirstBaseline]!!.toFloat() + placeholderPosition.value!!.y
+                                it[FirstBaseline].toFloat() + placeholderPosition.value!!.y
                         })
                     }
                 )
@@ -592,7 +591,7 @@ class TextFieldTest {
                             placeholderPosition.value = it.positionInRoot
                             placeholderSize.value = it.size
                             placeholderBaseline.value =
-                                it[FirstBaseline]!!.toFloat() + placeholderPosition.value!!.y
+                                it[FirstBaseline].toFloat() + placeholderPosition.value!!.y
                         })
                     }
                 )

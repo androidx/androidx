@@ -18,6 +18,7 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
+import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
@@ -42,7 +43,6 @@ import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.max
 import androidx.ui.util.fastForEachIndexed
 import kotlin.math.max
 
@@ -422,11 +422,11 @@ private fun BaselinesOffsetColumn(
         var containerHeight = 0
         placeables.fastForEachIndexed { index, placeable ->
             val toPreviousBaseline = if (index > 0) {
-                placeables[index - 1].height - placeables[index - 1][LastBaseline]!!
+                placeables[index - 1].height - placeables[index - 1][LastBaseline]
             } else 0
             val topPadding = max(
                 0,
-                offsets[index].toIntPx() - placeable[FirstBaseline]!! - toPreviousBaseline
+                offsets[index].toIntPx() - placeable[FirstBaseline] - toPreviousBaseline
             )
             y[index] = topPadding + containerHeight
             containerHeight += topPadding + placeable.height
@@ -458,7 +458,7 @@ private fun OffsetToBaselineOrCenter(
         val baseline = placeable[FirstBaseline]
         val y: Int
         val containerHeight: Int
-        if (baseline != null) {
+        if (baseline != AlignmentLine.Unspecified) {
             y = offset.toIntPx() - baseline
             containerHeight = max(constraints.minHeight, y + placeable.height)
         } else {

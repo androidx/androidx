@@ -143,7 +143,7 @@ class BottomNavigationTest {
             val textBaseline = 12.dp.toIntPx().toFloat()
 
             // Relative position of the baseline to the top of text
-            val relativeTextBaseline = textCoords[LastBaseline]!!.toFloat()
+            val relativeTextBaseline = textCoords[LastBaseline].toFloat()
             // Absolute y position of the text baseline
             val absoluteTextBaseline = textCoords.globalPosition.y + relativeTextBaseline
 

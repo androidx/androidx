@@ -166,6 +166,11 @@ package androidx.ui.core {
   }
 
   @androidx.compose.Immutable public abstract sealed class AlignmentLine {
+    field public static final androidx.ui.core.AlignmentLine.Companion! Companion;
+    field public static final int Unspecified = -2147483648; // 0x80000000
+  }
+
+  public static final class AlignmentLine.Companion {
   }
 
   public final class AlignmentLineKt {
@@ -379,7 +384,7 @@ package androidx.ui.core {
   public interface LayoutCoordinates {
     method public androidx.ui.unit.PxBounds childBoundingBox(androidx.ui.core.LayoutCoordinates child);
     method public androidx.ui.geometry.Offset childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.geometry.Offset childLocal);
-    method public operator Integer? get(androidx.ui.core.AlignmentLine line);
+    method public operator int get(androidx.ui.core.AlignmentLine line);
     method public androidx.ui.core.LayoutCoordinates? getParentCoordinates();
     method public java.util.Set<androidx.ui.core.AlignmentLine> getProvidedAlignmentLines();
     method public androidx.ui.unit.IntSize getSize();
@@ -552,7 +557,7 @@ package androidx.ui.core {
     method public static androidx.ui.core.Placeable! constructor-impl(internal androidx.ui.core.Placeable placeable);
     method public static inline boolean equals-impl(androidx.ui.core.Placeable! p, Object? p1);
     method public static boolean equals-impl0(androidx.ui.core.Placeable p1, androidx.ui.core.Placeable p2);
-    method public static operator Integer? get-impl(androidx.ui.core.Placeable $this, androidx.ui.core.AlignmentLine alignmentLine);
+    method public static operator int get-impl(androidx.ui.core.Placeable $this, androidx.ui.core.AlignmentLine alignmentLine);
     method public static int getHeight-impl(androidx.ui.core.Placeable! $this);
     method public static int getWidth-impl(androidx.ui.core.Placeable! $this);
     method public static inline int hashCode-impl(androidx.ui.core.Placeable! p);
@@ -693,7 +698,7 @@ package androidx.ui.core {
 
   public abstract class Placeable {
     ctor public Placeable();
-    method public abstract operator Integer? get(androidx.ui.core.AlignmentLine line);
+    method public abstract operator int get(androidx.ui.core.AlignmentLine line);
     method protected final androidx.ui.unit.IntOffset getApparentToRealOffset();
     method public final int getHeight();
     method protected final androidx.ui.unit.IntSize getMeasuredSize();
