@@ -25,15 +25,6 @@ package androidx.ui.text {
     method public static void appendInlineContent(androidx.ui.text.AnnotatedString.Builder, String id, String alternateText = "\ufffd");
   }
 
-  public final class TextFieldDelegate {
-    ctor public TextFieldDelegate();
-    field public static final androidx.ui.text.TextFieldDelegate.Companion! Companion;
-  }
-
-  public static final class TextFieldDelegate.Companion {
-    method public androidx.ui.input.TransformedText applyCompositionDecoration(androidx.ui.text.TextRange compositionRange, androidx.ui.input.TransformedText transformed);
-  }
-
   public final class TextFieldDelegateKt {
   }
 

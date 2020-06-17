@@ -49,6 +49,7 @@ import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.listSaver
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.CoreTextField
+import androidx.ui.text.InternalTextApi
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextFieldDelegate
 import androidx.ui.text.TextLayoutResult
@@ -350,6 +351,7 @@ private data class CursorModifier(
             val transformed = visualTransformation.filter(
                 AnnotatedString(textFieldValue.value.text)
             )
+            @OptIn(InternalTextApi::class)
             val transformedText = textFieldValue.value.composition?.let {
                 TextFieldDelegate.applyCompositionDecoration(it, transformed)
             } ?: transformed

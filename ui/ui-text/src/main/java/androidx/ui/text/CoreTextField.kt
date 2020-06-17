@@ -54,6 +54,7 @@ import kotlin.math.roundToInt
 @Suppress("DEPRECATION")
 @Composable
 @Deprecated("Use the Composable with androidx.ui.input.TextFieldValue instead.")
+@OptIn(InternalTextApi::class)
 fun CoreTextField(
     value: androidx.ui.input.EditorValue,
     modifier: Modifier,
@@ -155,6 +156,7 @@ fun CoreTextField(
  * keyboard.
  */
 @Composable
+@OptIn(InternalTextApi::class)
 fun CoreTextField(
     value: TextFieldValue,
     modifier: Modifier = Modifier,
@@ -347,6 +349,7 @@ fun CoreTextField(
     }
 }
 
+@OptIn(InternalTextApi::class)
 private class TextFieldState(
     var textDelegate: TextDelegate
 ) {

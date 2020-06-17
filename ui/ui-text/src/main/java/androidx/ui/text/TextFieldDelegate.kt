@@ -79,6 +79,9 @@ private fun computeLineHeightForEmptyText(
 
 private fun Float.toIntPx(): Int = ceil(this).roundToInt()
 
+/** @suppress **/
+@OptIn(InternalTextApi::class)
+@InternalTextApi
 class TextFieldDelegate {
     companion object {
         /**
@@ -301,7 +304,10 @@ class TextFieldDelegate {
          *  @param compositionRange An input state
          *  @param transformed A transformed text
          *  @return The transformed text with composition decoration.
+         *
+         *  @suppress
          */
+        @InternalTextApi
         fun applyCompositionDecoration(
             compositionRange: TextRange,
             transformed: TransformedText
