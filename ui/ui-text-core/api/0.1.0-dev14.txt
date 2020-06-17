@@ -633,7 +633,7 @@ package androidx.ui.text {
   }
 
   @androidx.compose.Immutable public final class TextRange {
-    ctor public TextRange(int start, int end);
+    ctor public TextRange(@IntRange(from=null) int start, @IntRange(from=null) int end);
     method public int component1();
     method public int component2();
     method public operator boolean contains(androidx.ui.text.TextRange other);

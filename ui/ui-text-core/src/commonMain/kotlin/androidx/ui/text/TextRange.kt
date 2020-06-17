@@ -17,6 +17,7 @@
 package androidx.ui.text
 
 import androidx.compose.Immutable
+import androidx.ui.util.annotation.IntRange
 
 fun CharSequence.substring(range: TextRange): String = this.substring(range.min, range.max)
 
@@ -25,11 +26,13 @@ fun CharSequence.substring(range: TextRange): String = this.substring(range.min,
  * (exclusive). [end] can be smaller than [start] and in those cases [min] and [max] can be
  * used in order to fetch the values.
  *
- * @param start the inclusive start offset of the range.
- * @param end the exclusive end offset of the range
+ * @param start the inclusive start offset of the range. Must be non-negative, otherwise an
+ * exception will be thrown.
+ * @param end the exclusive end offset of the range. Must be non-negative, otherwise an
+ * exception will be thrown.
  */
 @Immutable
-data class TextRange(val start: Int, val end: Int) {
+data class TextRange(@IntRange(from = 0) val start: Int, @IntRange(from = 0) val end: Int) {
     /** The minimum offset of the range. */
     val min: Int get() = if (start > end) end else start
 
@@ -45,6 +48,15 @@ data class TextRange(val start: Int, val end: Int) {
      * Returns the length of the range.
      */
     val length: Int get() = max - min
+
+    init {
+        require(start >= 0) {
+            "start cannot be negative. [start: $start]"
+        }
+        require(end >= 0) {
+            "end cannot negative. [end: $end]"
+        }
+    }
 
     /**
      * Returns true if the given range has intersection with this range

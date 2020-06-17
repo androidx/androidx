@@ -91,10 +91,12 @@ data class EditorValue(
  *
  * @param text the text will be rendered
  * @param selection the selection range. If the selection is collapsed, it represents cursor
- * location. Do not specify outside of the text buffer.
+ * location. Selection range must be within the bounds of the [text], otherwise an exception will be
+ * thrown.
  * @param composition A composition range visible to IME. If null, there is no composition range.
- * If non-null, the composition range must be valid range in the given text. For description of
- * composition please check [W3C IME Composition](https://www.w3.org/TR/ime-api/#ime-composition).
+ * Composition range must be within the bounds of the [text], otherwise an exception will be
+ * thrown. For description of composition please check [W3C IME Composition](https://www.w3
+ * .org/TR/ime-api/#ime-composition).
  */
 @Immutable
 data class TextFieldValue(
@@ -105,6 +107,21 @@ data class TextFieldValue(
     @Stable
     val composition: TextRange? = null
 ) {
+    init {
+        // TextRange end is exclusive therefore can be at the end of the text
+        require(selection.end <= text.length) {
+            "Selection is out of bounds. [selection: $selection, text.length = ${text.length}]"
+        }
+
+        // TextRange end is exclusive therefore can be at the end of the text
+        composition?.let {
+            require(composition.end <= text.length) {
+                "Composition is out of bounds. " +
+                        "[composition: $selection, text.length = ${text.length}]"
+            }
+        }
+    }
+
     companion object {
         /**
          * The default [Saver] implementation for [TextFieldValue].
