@@ -76,14 +76,14 @@ package androidx.ui.graphics {
     method public android.graphics.Path getInternalPath();
     method public boolean isConvex();
     method public boolean isEmpty();
-    method public void lineTo(float dx, float dy);
-    method public void moveTo(float dx, float dy);
+    method public void lineTo(float x, float y);
+    method public void moveTo(float x, float y);
     method public boolean op(androidx.ui.graphics.Path path1, androidx.ui.graphics.Path path2, androidx.ui.graphics.PathOperation operation);
     method public void quadraticBezierTo(float x1, float y1, float x2, float y2);
-    method public void relativeCubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
+    method public void relativeCubicTo(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
     method public void relativeLineTo(float dx, float dy);
     method public void relativeMoveTo(float dx, float dy);
-    method public void relativeQuadraticBezierTo(float x1, float y1, float x2, float y2);
+    method public void relativeQuadraticBezierTo(float dx1, float dy1, float dx2, float dy2);
     method public void reset();
     method public void setFillType(androidx.ui.graphics.PathFillType value);
     method public void shift(androidx.ui.geometry.Offset offset);
@@ -428,14 +428,14 @@ package androidx.ui.graphics {
     method public androidx.ui.graphics.PathFillType getFillType();
     method public boolean isConvex();
     method public boolean isEmpty();
-    method public void lineTo(float dx, float dy);
-    method public void moveTo(float dx, float dy);
+    method public void lineTo(float x, float y);
+    method public void moveTo(float x, float y);
     method public boolean op(androidx.ui.graphics.Path path1, androidx.ui.graphics.Path path2, androidx.ui.graphics.PathOperation operation);
     method public void quadraticBezierTo(float x1, float y1, float x2, float y2);
-    method public void relativeCubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
+    method public void relativeCubicTo(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
     method public void relativeLineTo(float dx, float dy);
     method public void relativeMoveTo(float dx, float dy);
-    method public void relativeQuadraticBezierTo(float x1, float y1, float x2, float y2);
+    method public void relativeQuadraticBezierTo(float dx1, float dy1, float dx2, float dy2);
     method public void reset();
     method public void setFillType(androidx.ui.graphics.PathFillType p);
     method public void shift(androidx.ui.geometry.Offset offset);
@@ -901,25 +901,25 @@ package androidx.ui.graphics.vector {
   public final class PathBuilder {
     ctor public PathBuilder();
     method public androidx.ui.graphics.vector.PathBuilder arcTo(float horizontalEllipseRadius, float verticalEllipseRadius, float theta, boolean isMoreThanHalf, boolean isPositiveArc, float x1, float y1);
-    method public androidx.ui.graphics.vector.PathBuilder arcToRelative(float a, float b, float theta, boolean isMoreThanHalf, boolean isPositiveArc, float x1, float y1);
+    method public androidx.ui.graphics.vector.PathBuilder arcToRelative(float a, float b, float theta, boolean isMoreThanHalf, boolean isPositiveArc, float dx1, float dy1);
     method public androidx.ui.graphics.vector.PathBuilder close();
     method public androidx.ui.graphics.vector.PathBuilder curveTo(float x1, float y1, float x2, float y2, float x3, float y3);
     method public androidx.ui.graphics.vector.PathBuilder curveToRelative(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
     method public java.util.List<androidx.ui.graphics.vector.PathNode> getNodes();
     method public androidx.ui.graphics.vector.PathBuilder horizontalLineTo(float x);
-    method public androidx.ui.graphics.vector.PathBuilder horizontalLineToRelative(float x);
+    method public androidx.ui.graphics.vector.PathBuilder horizontalLineToRelative(float dx);
     method public androidx.ui.graphics.vector.PathBuilder lineTo(float x, float y);
-    method public androidx.ui.graphics.vector.PathBuilder lineToRelative(float x, float y);
+    method public androidx.ui.graphics.vector.PathBuilder lineToRelative(float dx, float dy);
     method public androidx.ui.graphics.vector.PathBuilder moveTo(float x, float y);
-    method public androidx.ui.graphics.vector.PathBuilder moveToRelative(float x, float y);
+    method public androidx.ui.graphics.vector.PathBuilder moveToRelative(float dx, float dy);
     method public androidx.ui.graphics.vector.PathBuilder quadTo(float x1, float y1, float x2, float y2);
-    method public androidx.ui.graphics.vector.PathBuilder quadToRelative(float x1, float y1, float x2, float y2);
+    method public androidx.ui.graphics.vector.PathBuilder quadToRelative(float dx1, float dy1, float dx2, float dy2);
     method public androidx.ui.graphics.vector.PathBuilder reflectiveCurveTo(float x1, float y1, float x2, float y2);
-    method public androidx.ui.graphics.vector.PathBuilder reflectiveCurveToRelative(float x1, float y1, float x2, float y2);
+    method public androidx.ui.graphics.vector.PathBuilder reflectiveCurveToRelative(float dx1, float dy1, float dx2, float dy2);
     method public androidx.ui.graphics.vector.PathBuilder reflectiveQuadTo(float x1, float y1);
-    method public androidx.ui.graphics.vector.PathBuilder reflectiveQuadToRelative(float x1, float y1);
+    method public androidx.ui.graphics.vector.PathBuilder reflectiveQuadToRelative(float dx1, float dy1);
     method public androidx.ui.graphics.vector.PathBuilder verticalLineTo(float y);
-    method public androidx.ui.graphics.vector.PathBuilder verticalLineToRelative(float y);
+    method public androidx.ui.graphics.vector.PathBuilder verticalLineToRelative(float dy);
   }
 
   public abstract sealed class PathNode {
@@ -1064,70 +1064,70 @@ package androidx.ui.graphics.vector {
   }
 
   public static final class PathNode.RelativeHorizontalTo extends androidx.ui.graphics.vector.PathNode {
-    ctor public PathNode.RelativeHorizontalTo(float x);
+    ctor public PathNode.RelativeHorizontalTo(float dx);
     method public float component1();
-    method public androidx.ui.graphics.vector.PathNode.RelativeHorizontalTo copy(float x);
-    method public float getX();
+    method public androidx.ui.graphics.vector.PathNode.RelativeHorizontalTo copy(float dx);
+    method public float getDx();
   }
 
   public static final class PathNode.RelativeLineTo extends androidx.ui.graphics.vector.PathNode {
-    ctor public PathNode.RelativeLineTo(float x, float y);
+    ctor public PathNode.RelativeLineTo(float dx, float dy);
     method public float component1();
     method public float component2();
-    method public androidx.ui.graphics.vector.PathNode.RelativeLineTo copy(float x, float y);
-    method public float getX();
-    method public float getY();
+    method public androidx.ui.graphics.vector.PathNode.RelativeLineTo copy(float dx, float dy);
+    method public float getDx();
+    method public float getDy();
   }
 
   public static final class PathNode.RelativeMoveTo extends androidx.ui.graphics.vector.PathNode {
-    ctor public PathNode.RelativeMoveTo(float x, float y);
+    ctor public PathNode.RelativeMoveTo(float dx, float dy);
     method public float component1();
     method public float component2();
-    method public androidx.ui.graphics.vector.PathNode.RelativeMoveTo copy(float x, float y);
-    method public float getX();
-    method public float getY();
+    method public androidx.ui.graphics.vector.PathNode.RelativeMoveTo copy(float dx, float dy);
+    method public float getDx();
+    method public float getDy();
   }
 
   public static final class PathNode.RelativeQuadTo extends androidx.ui.graphics.vector.PathNode {
-    ctor public PathNode.RelativeQuadTo(float x1, float y1, float x2, float y2);
+    ctor public PathNode.RelativeQuadTo(float dx1, float dy1, float dx2, float dy2);
     method public float component1();
     method public float component2();
     method public float component3();
     method public float component4();
-    method public androidx.ui.graphics.vector.PathNode.RelativeQuadTo copy(float x1, float y1, float x2, float y2);
-    method public float getX1();
-    method public float getX2();
-    method public float getY1();
-    method public float getY2();
+    method public androidx.ui.graphics.vector.PathNode.RelativeQuadTo copy(float dx1, float dy1, float dx2, float dy2);
+    method public float getDx1();
+    method public float getDx2();
+    method public float getDy1();
+    method public float getDy2();
   }
 
   public static final class PathNode.RelativeReflectiveCurveTo extends androidx.ui.graphics.vector.PathNode {
-    ctor public PathNode.RelativeReflectiveCurveTo(float x1, float y1, float x2, float y2);
+    ctor public PathNode.RelativeReflectiveCurveTo(float dx1, float dy1, float dx2, float dy2);
     method public float component1();
     method public float component2();
     method public float component3();
     method public float component4();
-    method public androidx.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo copy(float x1, float y1, float x2, float y2);
-    method public float getX1();
-    method public float getX2();
-    method public float getY1();
-    method public float getY2();
+    method public androidx.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo copy(float dx1, float dy1, float dx2, float dy2);
+    method public float getDx1();
+    method public float getDx2();
+    method public float getDy1();
+    method public float getDy2();
   }
 
   public static final class PathNode.RelativeReflectiveQuadTo extends androidx.ui.graphics.vector.PathNode {
-    ctor public PathNode.RelativeReflectiveQuadTo(float x, float y);
+    ctor public PathNode.RelativeReflectiveQuadTo(float dx, float dy);
     method public float component1();
     method public float component2();
-    method public androidx.ui.graphics.vector.PathNode.RelativeReflectiveQuadTo copy(float x, float y);
-    method public float getX();
-    method public float getY();
+    method public androidx.ui.graphics.vector.PathNode.RelativeReflectiveQuadTo copy(float dx, float dy);
+    method public float getDx();
+    method public float getDy();
   }
 
   public static final class PathNode.RelativeVerticalTo extends androidx.ui.graphics.vector.PathNode {
-    ctor public PathNode.RelativeVerticalTo(float y);
+    ctor public PathNode.RelativeVerticalTo(float dy);
     method public float component1();
-    method public androidx.ui.graphics.vector.PathNode.RelativeVerticalTo copy(float y);
-    method public float getY();
+    method public androidx.ui.graphics.vector.PathNode.RelativeVerticalTo copy(float dy);
+    method public float getDy();
   }
 
   public static final class PathNode.VerticalTo extends androidx.ui.graphics.vector.PathNode {

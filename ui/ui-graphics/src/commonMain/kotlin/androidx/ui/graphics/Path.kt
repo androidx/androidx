@@ -55,7 +55,7 @@ expect class NativePathEffect
     /**
      * Starts a new subpath at the given coordinate
      */
-    fun moveTo(dx: Float, dy: Float)
+    fun moveTo(x: Float, y: Float)
 
     /**
      * Starts a new subpath at the given offset from the current point
@@ -65,7 +65,7 @@ expect class NativePathEffect
     /**
      * Adds a straight line segment from the current point to the given point
      */
-    fun lineTo(dx: Float, dy: Float)
+    fun lineTo(x: Float, y: Float)
 
     /**
      * Adds a straight line segment from the current point to the point
@@ -75,33 +75,33 @@ expect class NativePathEffect
 
     /**
      * Adds a quadratic bezier segment that curves from the current
-     * point to the given point (x2,y2), using the control point
-     * (x1,y1).
+     * point to the given point ([x2], [y2]), using the control point
+     * ([x1], [y1]).
      */
     fun quadraticBezierTo(x1: Float, y1: Float, x2: Float, y2: Float)
 
     /**
      * Adds a quadratic bezier segment that curves from the current
-     * point to the point at the offset (x2,y2) from the current point,
-     * using the control point at the offset (x1,y1) from the current
+     * point to the point at the offset ([dx2], [dy2]) from the current point,
+     * using the control point at the offset ([dx1], [dy1]) from the current
      * point.
      */
-    fun relativeQuadraticBezierTo(x1: Float, y1: Float, x2: Float, y2: Float)
+    fun relativeQuadraticBezierTo(dx1: Float, dy1: Float, dx2: Float, dy2: Float)
 
     /**
      * Adds a cubic bezier segment that curves from the current point
-     * to the given point (x3,y3), using the control points (x1,y1) and
-     * (x2,y2).
+     * to the given point ([x3], [y3]), using the control points ([x1], [y1]) and
+     * ([x2], [y2]).
      */
     fun cubicTo(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float)
 
     /**
      * Adds a cubic bezier segment that curves from the current point
-     * to the point at the offset (x3,y3) from the current point, using
-     * the control points at the offsets (x1,y1) and (x2,y2) from the
+     * to the point at the offset ([dx3], [dy3]) from the current point, using
+     * the control points at the offsets ([dx1], [dy1]) and ([dx2], [dy2]) from the
      * current point.
      */
-    fun relativeCubicTo(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float)
+    fun relativeCubicTo(dx1: Float, dy1: Float, dx2: Float, dy2: Float, dx3: Float, dy3: Float)
 
     /**
      * If the [forceMoveTo] argument is false, adds a straight line

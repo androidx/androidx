@@ -21,7 +21,6 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.vectormath.degrees
-import java.lang.UnsupportedOperationException
 
 actual fun Path(): Path = AndroidPath()
 
@@ -70,16 +69,16 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
                 }
         }
 
-    override fun moveTo(dx: Float, dy: Float) {
-        internalPath.moveTo(dx, dy)
+    override fun moveTo(x: Float, y: Float) {
+        internalPath.moveTo(x, y)
     }
 
     override fun relativeMoveTo(dx: Float, dy: Float) {
         internalPath.rMoveTo(dx, dy)
     }
 
-    override fun lineTo(dx: Float, dy: Float) {
-        internalPath.lineTo(dx, dy)
+    override fun lineTo(x: Float, y: Float) {
+        internalPath.lineTo(x, y)
     }
 
     override fun relativeLineTo(dx: Float, dy: Float) {
@@ -90,8 +89,8 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
         internalPath.quadTo(x1, y1, x2, y2)
     }
 
-    override fun relativeQuadraticBezierTo(x1: Float, y1: Float, x2: Float, y2: Float) {
-        internalPath.rQuadTo(x1, y1, x2, y2)
+    override fun relativeQuadraticBezierTo(dx1: Float, dy1: Float, dx2: Float, dy2: Float) {
+        internalPath.rQuadTo(dx1, dy1, dx2, dy2)
     }
 
     override fun cubicTo(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
@@ -102,11 +101,18 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
         )
     }
 
-    override fun relativeCubicTo(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
+    override fun relativeCubicTo(
+        dx1: Float,
+        dy1: Float,
+        dx2: Float,
+        dy2: Float,
+        dx3: Float,
+        dy3: Float
+    ) {
         internalPath.rCubicTo(
-            x1, y1,
-            x2, y2,
-            x3, y3
+            dx1, dy1,
+            dx2, dy2,
+            dx3, dy3
         )
     }
 

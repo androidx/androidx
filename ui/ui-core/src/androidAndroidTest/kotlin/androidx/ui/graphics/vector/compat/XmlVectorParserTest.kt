@@ -63,16 +63,16 @@ class XmlVectorParserTest {
         assertEquals(10.0f, moveTo.y)
 
         val relativeLineTo1 = path[1].assertType<PathNode.RelativeLineTo>()
-        assertEquals(10.0f, relativeLineTo1.x)
-        assertEquals(0.0f, relativeLineTo1.y)
+        assertEquals(10.0f, relativeLineTo1.dx)
+        assertEquals(0.0f, relativeLineTo1.dy)
 
         val relativeLineTo2 = path[2].assertType<PathNode.RelativeLineTo>()
-        assertEquals(0.0f, relativeLineTo2.x)
-        assertEquals(10.0f, relativeLineTo2.y)
+        assertEquals(0.0f, relativeLineTo2.dx)
+        assertEquals(10.0f, relativeLineTo2.dy)
 
         val relativeLineTo3 = path[3].assertType<PathNode.RelativeLineTo>()
-        assertEquals(-10.0f, relativeLineTo3.x)
-        assertEquals(0.0f, relativeLineTo3.y)
+        assertEquals(-10.0f, relativeLineTo3.dx)
+        assertEquals(0.0f, relativeLineTo3.dy)
 
         path[4].assertType<PathNode.Close>()
     }
