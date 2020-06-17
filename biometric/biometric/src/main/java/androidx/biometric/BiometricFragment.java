@@ -337,8 +337,10 @@ public class BiometricFragment extends Fragment {
                         DISMISS_INSTANTLY_DELAY_MS);
             }
 
-            final FingerprintDialogFragment dialog = FingerprintDialogFragment.newInstance();
-            dialog.show(getParentFragmentManager(), FINGERPRINT_DIALOG_FRAGMENT_TAG);
+            if (!shouldHideFingerprintDialog) {
+                final FingerprintDialogFragment dialog = FingerprintDialogFragment.newInstance();
+                dialog.show(getParentFragmentManager(), FINGERPRINT_DIALOG_FRAGMENT_TAG);
+            }
 
             mViewModel.setCanceledFrom(CANCELED_FROM_NONE);
             fingerprintManagerCompat.authenticate(
