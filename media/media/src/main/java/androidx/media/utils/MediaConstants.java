@@ -19,8 +19,10 @@ package androidx.media.utils;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 
 import androidx.annotation.RestrictTo;
 
@@ -66,6 +68,20 @@ public final class MediaConstants {
     @SuppressLint("IntentName")
     public static final String SESSION_EXTRAS_KEY_AUTHTOKEN =
             "androidx.media.MediaSessionCompat.Extras.KEY_AUTHTOKEN";
+
+    /**
+     * Bundle key used for the media id in {@link PlaybackStateCompat playback state} extras. It's
+     * for associating the playback state with the media being played so the value is expected to be
+     * same with {@link MediaMetadataCompat#METADATA_KEY_MEDIA_ID media id} of the current metadata.
+     *
+     * <p>TYPE: String</p>
+     *
+     * @see PlaybackStateCompat#getExtras
+     * @see PlaybackStateCompat.Builder#setExtras
+     */
+    @SuppressLint("IntentName")
+    public static final String PLAYBACK_STATE_EXTRAS_KEY_MEDIA_ID =
+            "androidx.media.PlaybackStateCompat.Extras.KEY_MEDIA_ID";
 
     private MediaConstants() {}
 }
