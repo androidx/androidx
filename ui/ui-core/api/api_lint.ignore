@@ -7,13 +7,7 @@ ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotli
     Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.ui.core.PointerInputChange[]`
 
 
-AutoBoxing: androidx.ui.core.LayoutCoordinates#get(androidx.ui.core.AlignmentLine):
-    Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.core.LayoutNode#getAlignmentLine(androidx.ui.core.AlignmentLine):
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.core.Measured#get-impl(androidx.ui.core.Placeable, androidx.ui.core.AlignmentLine):
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.core.Placeable#get(androidx.ui.core.AlignmentLine):
     Must avoid boxed primitives (`java.lang.Integer`)
 
 

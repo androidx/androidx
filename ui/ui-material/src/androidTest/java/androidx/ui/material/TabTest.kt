@@ -195,7 +195,7 @@ class TabTest {
                         text = {
                             Text(text, Modifier.onPositioned { coords: LayoutCoordinates ->
                                 textCoords = coords
-                                textBaseline = coords[LastBaseline]!!.toFloat()
+                                textBaseline = coords[LastBaseline].toFloat()
                             })
                         },
                         selected = state == index,
@@ -240,7 +240,7 @@ class TabTest {
                         text = {
                             Text(text, Modifier.onPositioned { coords: LayoutCoordinates ->
                                 textCoords = coords
-                                textBaseline = coords[LastBaseline]!!.toFloat()
+                                textBaseline = coords[LastBaseline].toFloat()
                             })
                         },
                         icon = { Icon(Icons.Filled.Favorite) },
@@ -286,7 +286,7 @@ class TabTest {
                         text = {
                             Text(text, Modifier.preferredWidth(100.dp).onPositioned { coords ->
                                 textCoords = coords
-                                textBaseline = coords[LastBaseline]!!.toFloat()
+                                textBaseline = coords[LastBaseline].toFloat()
                             }, maxLines = 2)
                         },
                         selected = state == index,

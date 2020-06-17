@@ -107,7 +107,7 @@ class SnackbarTest {
                 assertThat(it[FirstBaseline]).isNotEqualTo(0)
                 assertThat(it[FirstBaseline])
                     .isEqualTo(it[LastBaseline])
-                assertThat(it.positionInParent.y.roundToInt() + it[FirstBaseline]!!)
+                assertThat(it.positionInParent.y.roundToInt() + it[FirstBaseline])
                     .isEqualTo(30.dp.toIntPx())
             }
         }
@@ -164,11 +164,10 @@ class SnackbarTest {
                 assertThat(localTextCoords[FirstBaseline]).isNotEqualTo(0)
                 assertThat(localButtonTextCoords[FirstBaseline]).isNotEqualTo(0)
                 assertThat(
-                    localTextCoords.globalPosition.y.roundToInt() +
-                            localTextCoords[FirstBaseline]!!
+                    localTextCoords.globalPosition.y.roundToInt() + localTextCoords[FirstBaseline]
                 ).isEqualTo(30.dp.toIntPx())
                 assertThat(
-                    buttonTextPos.y.roundToInt() + localButtonTextCoords[FirstBaseline]!!
+                    buttonTextPos.y.roundToInt() + localButtonTextCoords[FirstBaseline]
                 ).isEqualTo(30.dp.toIntPx())
             }
         }
@@ -196,7 +195,7 @@ class SnackbarTest {
                 assertThat(it[FirstBaseline]).isNotEqualTo(0)
                 assertThat(it[LastBaseline]).isNotEqualTo(0)
                 assertThat(it[FirstBaseline]).isNotEqualTo(it[LastBaseline])
-                assertThat(it.positionInParent.y.roundToInt() + it[FirstBaseline]!!)
+                assertThat(it.positionInParent.y.roundToInt() + it[FirstBaseline])
                     .isEqualTo(30.dp.toIntPx())
             }
         }
@@ -249,8 +248,7 @@ class SnackbarTest {
                 assertThat(localTextCoords[FirstBaseline])
                     .isNotEqualTo(localTextCoords[LastBaseline])
                 assertThat(
-                    localTextCoords.globalPosition.y.roundToInt() +
-                            localTextCoords[FirstBaseline]!!
+                    localTextCoords.globalPosition.y.roundToInt() + localTextCoords[FirstBaseline]
                 ).isEqualTo(30.dp.toIntPx())
 
                 assertThat(buttonCenter).isEqualTo(
@@ -301,13 +299,13 @@ class SnackbarTest {
                     localSnackCoords.childToLocal(localTextCoords, Offset.Zero)
 
                 assertThat(
-                    textPositionInSnack.y.roundToInt() + localTextCoords[FirstBaseline]!!
+                    textPositionInSnack.y.roundToInt() + localTextCoords[FirstBaseline]
                 ).isEqualTo(30.dp.toIntPx())
 
                 assertThat(
                     buttonPositionInSnack.y.roundToInt() -
                             textPositionInSnack.y.roundToInt() -
-                            localTextCoords[LastBaseline]!!
+                            localTextCoords[LastBaseline]
                 ).isEqualTo(18.dp.toIntPx())
 
                 assertThat(

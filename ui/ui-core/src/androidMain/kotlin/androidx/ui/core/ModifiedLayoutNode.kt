@@ -60,11 +60,14 @@ internal class ModifiedLayoutNode(
             measureScope.maxIntrinsicHeight(wrapped, width, layoutDirection)
         }
 
-    override operator fun get(line: AlignmentLine): Int? {
+    override operator fun get(line: AlignmentLine): Int {
         if (measureResult.alignmentLines.containsKey(line)) {
-            return measureResult.alignmentLines[line]
+            return measureResult.alignmentLines[line] ?: AlignmentLine.Unspecified
         }
-        val positionInWrapped = wrapped[line] ?: return null
+        val positionInWrapped = wrapped[line]
+        if (positionInWrapped == AlignmentLine.Unspecified) {
+            return AlignmentLine.Unspecified
+        }
         // Place our wrapped to obtain their position inside ourselves.
         isShallowPlacing = true
         place(this.position)

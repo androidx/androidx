@@ -244,7 +244,7 @@ private object MeasuringIntrinsics {
         init {
             measuredSize = IntSize(width, height)
         }
-        override fun get(line: AlignmentLine): Int? = null
+        override fun get(line: AlignmentLine): Int = AlignmentLine.Unspecified
         override fun place(position: IntOffset) { }
     }
 

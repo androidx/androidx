@@ -172,11 +172,18 @@ internal fun RowColumnImpl(
                 if (alignmentLinePosition != null) {
                     beforeCrossAxisAlignmentLine = max(
                         beforeCrossAxisAlignmentLine,
-                        alignmentLinePosition
+                        alignmentLinePosition.let { if (it != AlignmentLine.Unspecified) it else 0 }
                     )
                     afterCrossAxisAlignmentLine = max(
                         afterCrossAxisAlignmentLine,
-                        placeable.crossAxisSize() - alignmentLinePosition
+                        placeable.crossAxisSize() -
+                                (alignmentLinePosition.let {
+                                    if (it != AlignmentLine.Unspecified) {
+                                        it
+                                    } else {
+                                        placeable.crossAxisSize()
+                                    }
+                                })
                     )
                 }
             }

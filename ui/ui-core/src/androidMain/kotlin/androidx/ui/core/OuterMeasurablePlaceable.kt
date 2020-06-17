@@ -107,7 +107,7 @@ internal class OuterMeasurablePlaceable(
         return false
     }
 
-    override fun get(line: AlignmentLine): Int? = outerWrapper[line]
+    override fun get(line: AlignmentLine): Int = outerWrapper[line]
 
     override fun place(position: IntOffset) {
         lastPosition = position

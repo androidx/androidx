@@ -35,6 +35,7 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
+import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
@@ -1031,23 +1032,24 @@ private object FilledTextField {
                 .offset(vertical = -LastBaselineOffset.toIntPx())
                 .copy(minWidth = 0, minHeight = 0)
             val labelPlaceable = measurables.first { it.tag == LabelTag }.measure(labelConstraints)
-            val labelBaseline = labelPlaceable[LastBaseline] ?: labelPlaceable.height
+            val labelBaseline = labelPlaceable[LastBaseline].let {
+                if (it != AlignmentLine.Unspecified) it else labelPlaceable.height
+            }
             val labelEndPosition = (baseLineOffset - labelBaseline).coerceAtLeast(0)
             val effectiveLabelBaseline = max(labelBaseline, baseLineOffset)
 
             val textFieldConstraints = constraints
                 .offset(vertical = -LastBaselineOffset.toIntPx() - effectiveLabelBaseline)
                 .copy(minHeight = 0)
-            val textfieldPlaceable = measurables
+            val textFieldPlaceable = measurables
                 .first { it.tag == TextFieldTag }
                 .measure(textFieldConstraints)
-            val textfieldLastBaseline = requireNotNull(textfieldPlaceable[LastBaseline]) {
-                "No text last baseline."
-            }
+            val textFieldLastBaseline = textFieldPlaceable[LastBaseline]
+            require(textFieldLastBaseline != AlignmentLine.Unspecified) { "No text last baseline." }
 
-            val width = max(textfieldPlaceable.width, constraints.minWidth)
+            val width = max(textFieldPlaceable.width, constraints.minWidth)
             val height = max(
-                effectiveLabelBaseline + textfieldPlaceable.height + LastBaselineOffset.toIntPx(),
+                effectiveLabelBaseline + textFieldPlaceable.height + LastBaselineOffset.toIntPx(),
                 constraints.minHeight
             )
 
@@ -1057,11 +1059,11 @@ private object FilledTextField {
                 if (labelPlaceable.width != 0) {
                     // only respects the offset from the last baseline to the bottom of the text field
                     val textfieldPositionY = height - LastBaselineOffset.toIntPx() -
-                            min(textfieldLastBaseline, textfieldPlaceable.height)
+                            min(textFieldLastBaseline, textFieldPlaceable.height)
                     placeLabelAndTextfield(
                         width,
                         height,
-                        textfieldPlaceable,
+                        textFieldPlaceable,
                         labelPlaceable,
                         placeholderPlaceable,
                         labelEndPosition,
@@ -1069,7 +1071,7 @@ private object FilledTextField {
                         animationProgress
                     )
                 } else {
-                    placeTextfield(width, height, textfieldPlaceable, placeholderPlaceable)
+                    placeTextfield(width, height, textFieldPlaceable, placeholderPlaceable)
                 }
             }
         }

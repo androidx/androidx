@@ -90,8 +90,7 @@ class AppBarTest {
                     title = {
                         Text("title", Modifier.onPositioned { coords: LayoutCoordinates ->
                             titleCoords = coords
-                            titleLastBaselineRelativePosition =
-                                coords[LastBaseline]!!.toFloat()
+                            titleLastBaselineRelativePosition = coords[LastBaseline].toFloat()
                         })
                     },
                     actions = {
