@@ -307,6 +307,48 @@ class ButtonTest {
             )
     }
 
+    @Test
+    fun buttonContentColorIsCorrect() {
+        var onPrimary = Color.Transparent
+        var content = Color.Transparent
+        composeTestRule.setMaterialContent {
+            onPrimary = MaterialTheme.colors.onPrimary
+            Button(onClick = {}) {
+                content = contentColor()
+            }
+        }
+
+        assertThat(content).isEqualTo(onPrimary)
+    }
+
+    @Test
+    fun outlinedButtonContentColorIsCorrect() {
+        var primary = Color.Transparent
+        var content = Color.Transparent
+        composeTestRule.setMaterialContent {
+            primary = MaterialTheme.colors.primary
+            OutlinedButton(onClick = {}) {
+                content = contentColor()
+            }
+        }
+
+        assertThat(content).isEqualTo(primary)
+    }
+
+    @Test
+    fun textButtonContentColorIsCorrect() {
+        var primary = Color.Transparent
+        var content = Color.Transparent
+        composeTestRule.setMaterialContent {
+            primary = MaterialTheme.colors.primary
+            TextButton(onClick = {}) {
+                content = contentColor()
+            }
+        }
+
+        assertThat(content).isEqualTo(primary)
+    }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun containedButtonDisabledBackgroundIsCorrect() {
