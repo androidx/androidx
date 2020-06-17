@@ -124,6 +124,22 @@ class VectorTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testVectorClipPath() {
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                VectorClip()
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        takeScreenShot(200).apply {
+            assertEquals(getPixel(100, 50), Color.Cyan.toArgb())
+            assertEquals(getPixel(100, 150), Color.Black.toArgb())
+        }
+    }
+
     @Composable
     private fun VectorTint(
         size: Int = 200,
@@ -149,6 +165,61 @@ class VectorTest {
                 drawLatch.countDown()
             },
             colorFilter = ColorFilter.tint(Color.Cyan),
+            alignment = alignment
+        )
+        AtLeastSize(size = minimumSize, modifier = background) {
+        }
+    }
+
+    @Composable
+    private fun VectorClip(
+        size: Int = 200,
+        minimumSize: Int = size,
+        alignment: Alignment = Alignment.Center
+    ) {
+        val sizePx = size.toFloat()
+        val sizeDp = (size / DensityAmbient.current.density).dp
+        val background = Modifier.paint(
+            VectorPainter(
+                defaultWidth = sizeDp,
+                defaultHeight = sizeDp
+            ) { _, _ ->
+                Path(
+                    // Cyan background.
+                    pathData = PathData {
+                        lineTo(sizePx, 0.0f)
+                        lineTo(sizePx, sizePx)
+                        lineTo(0.0f, sizePx)
+                        close()
+                    },
+                    fill = SolidColor(Color.Cyan)
+                )
+                Group(
+                    // Only show the top half...
+                    clipPathData = PathData {
+                        lineTo(sizePx, 0.0f)
+                        lineTo(sizePx, sizePx / 2)
+                        lineTo(0.0f, sizePx / 2)
+                        close()
+                    },
+                    // And rotate it, resulting in the bottom half being black.
+                    pivotX = sizePx / 2,
+                    pivotY = sizePx / 2,
+                    rotation = 180f
+                ) {
+                    Path(
+                        pathData = PathData {
+                            lineTo(sizePx, 0.0f)
+                            lineTo(sizePx, sizePx)
+                            lineTo(0.0f, sizePx)
+                            close()
+                        },
+                        fill = SolidColor(Color.Black)
+                    )
+                }
+
+                drawLatch.countDown()
+            },
             alignment = alignment
         )
         AtLeastSize(size = minimumSize, modifier = background) {
