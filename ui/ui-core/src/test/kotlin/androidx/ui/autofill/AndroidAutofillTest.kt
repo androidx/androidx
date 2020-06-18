@@ -24,6 +24,7 @@ import androidx.test.filters.SmallTest
 import androidx.ui.ComposeUiRobolectricTestRunner
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
@@ -68,8 +69,8 @@ class AndroidAutofillTest {
         assertThat(view.importantForAutofill).isEqualTo(View.IMPORTANT_FOR_AUTOFILL_YES)
     }
 
-    // TODO: fix and reenable the test.
-    // @Test
+    @Ignore("b/159210000")
+    @Test
     fun requestAutofillForNode_calls_notifyViewEntered() {
         // Arrange.
         val bounds = Rect(0f, 0f, 0f, 0f)

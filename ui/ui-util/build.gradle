@@ -47,7 +47,7 @@ kotlin {
         commonTest.dependencies {
             implementation kotlin("test-junit")
         }
-        // TODO: should be unitTest, figure out why that doesn't work
+
         androidTest.dependencies {
             implementation(TRUTH)
         }
