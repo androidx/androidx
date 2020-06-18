@@ -17,14 +17,14 @@ package androidx.ui.text.platform.style
 
 import android.text.TextPaint
 import android.text.style.CharacterStyle
-import androidx.annotation.RestrictTo
+import androidx.ui.text.platform.InternalPlatformTextApi
 
 /**
  * A span which applies a shadow effect to the covered text.
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 class ShadowSpan(
     val color: Int,
     val offsetX: Float,

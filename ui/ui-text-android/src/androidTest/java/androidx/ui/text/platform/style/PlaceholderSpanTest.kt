@@ -18,10 +18,12 @@ package androidx.ui.text.platform.style
 
 import android.graphics.Paint
 import android.text.TextPaint
+import androidx.ui.text.platform.InternalPlatformTextApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import kotlin.math.abs
 
+@OptIn(InternalPlatformTextApi::class)
 class PlaceholderSpanTest {
     @Test
     fun width_isSp_equalsGiven() {

@@ -26,6 +26,7 @@ import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
 
+@OptIn(InternalPlatformTextApi::class)
 internal class AndroidParagraphIntrinsics(
     val text: String,
     val style: TextStyle,

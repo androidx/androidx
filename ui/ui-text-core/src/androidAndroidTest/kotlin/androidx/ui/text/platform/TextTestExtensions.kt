@@ -43,6 +43,7 @@ fun Layout.bitmap(): Bitmap {
     return bitmap
 }
 
+@OptIn(InternalPlatformTextApi::class)
 fun TextLayout.bitmap(): Bitmap {
     return layout.bitmap()
 }
@@ -51,6 +52,7 @@ fun Typeface.bitmap(): Bitmap {
     return bitmap("abc")
 }
 
+@OptIn(InternalPlatformTextApi::class)
 fun Typeface.bitmap(text: String): Bitmap {
     val fontSize = 10.0f
     val paint = TextPaint()

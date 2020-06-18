@@ -37,6 +37,7 @@ import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.spy
 import org.mockito.stubbing.Answer
 
+@OptIn(InternalPlatformTextApi::class)
 @RunWith(JUnit4::class)
 @SmallTest
 class TextLayoutSpanTest {

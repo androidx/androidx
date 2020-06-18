@@ -15,8 +15,7 @@
  */
 package androidx.ui.text.platform.selection
 
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
+import androidx.ui.text.platform.InternalPlatformTextApi
 import java.text.BreakIterator
 import java.util.Locale
 
@@ -36,7 +35,7 @@ import java.util.Locale
  * @param text The input text to be analyzed.
  * @suppress
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 class WordBoundary(
     locale: Locale,
     text: CharSequence
