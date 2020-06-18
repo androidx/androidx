@@ -17,12 +17,14 @@
 package androidx.ui.input
 
 import androidx.test.filters.SmallTest
+import androidx.ui.text.InternalTextApi
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.random.Random
 
+@OptIn(InternalTextApi::class)
 @SmallTest
 @RunWith(JUnit4::class)
 class GapBufferTest {

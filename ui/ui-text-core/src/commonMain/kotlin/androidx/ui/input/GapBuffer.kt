@@ -16,6 +16,8 @@
 
 package androidx.ui.input
 
+import androidx.ui.text.InternalTextApi
+
 private fun String.toCharArray(
     destination: CharArray,
     destinationOffset: Int = 0,
@@ -211,6 +213,7 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
  * @param text The initial text
  * @suppress
  */
+@InternalTextApi
 class PartialGapBuffer(var text: String) {
     internal companion object {
         const val BUF_SIZE = 255

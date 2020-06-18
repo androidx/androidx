@@ -43,6 +43,7 @@ import androidx.ui.text.font.test.R
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 import androidx.ui.geometry.Offset
+import androidx.ui.text.InternalTextApi
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
@@ -59,6 +60,7 @@ val BASIC_MEASURE_FONT = font(
     style = FontStyle.Normal
 )
 
+@OptIn(InternalTextApi::class)
 @RunWith(JUnit4::class)
 @SmallTest
 class TextSelectionDelegateTest {

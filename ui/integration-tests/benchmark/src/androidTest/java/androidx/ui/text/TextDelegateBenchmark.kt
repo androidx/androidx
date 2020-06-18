@@ -39,6 +39,7 @@ import org.junit.runners.Parameterized
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
+@OptIn(InternalTextApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class TextDelegateBenchmark(

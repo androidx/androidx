@@ -70,6 +70,7 @@ import kotlin.math.ceil
  *
  * @suppress
  */
+@InternalTextApi
 class TextDelegate(
     val text: AnnotatedString,
     val style: TextStyle,
@@ -95,7 +96,7 @@ class TextDelegate(
      * Valid only after [layout] has been called.
      */
     val minIntrinsicWidth: Int get() = assumeIntrinsics {
-        kotlin.math.ceil(it.minIntrinsicWidth).toInt()
+        ceil(it.minIntrinsicWidth).toInt()
     }
 
     /**
@@ -104,7 +105,7 @@ class TextDelegate(
      * Valid only after [layout] has been called.
      */
     val maxIntrinsicWidth: Int get() = assumeIntrinsics {
-        kotlin.math.ceil(it.maxIntrinsicWidth).toInt()
+        ceil(it.maxIntrinsicWidth).toInt()
     }
 
     init {
