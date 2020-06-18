@@ -51,12 +51,13 @@ internal object ResultWriter {
                 } catch (exception: IOException) {
                     throw IOException(
                         """
-                            Failed to create file for benchmark report. Make sure the
-                            instrumentation argument additionalOutputDir is set to a writable
-                            directory on device. If using a version of Android Gradle Plugin that
-                            doesn't support additionalOutputDir, ensure your app's manifest file
-                            enables legacy storage behavior by adding the application attribute:
-                            android:requestLegacyExternalStorage="true"
+                            Failed to create file for benchmark report in:
+                            $parent
+                            Make sure the instrumentation argument additionalOutputDir is set to 
+                            a writable directory on device. If using a version of Android Gradle 
+                            Plugin that doesn't support additionalOutputDir, ensure your app's 
+                            manifest file enables legacy storage behavior by adding the 
+                            application attribute: android:requestLegacyExternalStorage="true"
                         """.trimIndent(),
                         exception
                     )
