@@ -62,7 +62,7 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public MyViewModel create(@NonNull SavedStateHandle arg0) {
+            public MyViewModel create(SavedStateHandle arg0) {
                 return new MyViewModel();
             }
         }
@@ -112,7 +112,7 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public MyViewModel create(@NonNull SavedStateHandle arg0) {
+            public MyViewModel create(SavedStateHandle arg0) {
                 return new MyViewModel(arg0);
             }
         }
@@ -180,7 +180,7 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public MyViewModel create(@NonNull SavedStateHandle arg0) {
+            public MyViewModel create(SavedStateHandle arg0) {
                 return new MyViewModel(s.get(), f.get(), arg0, l.get());
             }
         }
@@ -246,7 +246,7 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public MyViewModel create(@NonNull SavedStateHandle arg0) {
+            public MyViewModel create(SavedStateHandle arg0) {
                 return new MyViewModel(s.get(), f, arg0);
             }
         }
@@ -322,7 +322,7 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public MyViewModel create(@NonNull SavedStateHandle arg0) {
+            public MyViewModel create(SavedStateHandle arg0) {
                 return new MyViewModel(s.get(), l, arg0);
             }
         }
@@ -421,7 +421,7 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public Outer.InnerViewModel create(@NonNull SavedStateHandle arg0) {
+            public Outer.InnerViewModel create(SavedStateHandle arg0) {
                 return new Outer.InnerViewModel();
             }
         }
