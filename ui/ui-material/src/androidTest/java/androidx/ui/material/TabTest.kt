@@ -20,11 +20,8 @@ import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.LargeTest
-import androidx.ui.text.LastBaseline
-import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
-import androidx.ui.core.onChildPositioned
-import androidx.ui.core.onPositioned
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
@@ -32,7 +29,6 @@ import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.preferredWidth
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.samples.ScrollingTextTabs
@@ -40,13 +36,18 @@ import androidx.ui.material.samples.TextTabs
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertIsUnselected
+import androidx.ui.test.assertPositionInRootIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findAll
+import androidx.ui.test.findByTag
+import androidx.ui.test.getAlignmentLinePosition
+import androidx.ui.test.getBoundsInRoot
 import androidx.ui.test.isInMutuallyExclusiveGroup
-import androidx.ui.test.runOnIdleCompose
-import androidx.ui.geometry.Offset
+import androidx.ui.text.LastBaseline
 import androidx.ui.unit.dp
+import androidx.ui.unit.height
+import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -108,8 +109,6 @@ class TabTest {
     @Test
     fun fixedTabRow_indicatorPosition() {
         val indicatorHeight = 1.dp
-        lateinit var tabRowCoords: LayoutCoordinates
-        lateinit var indicatorCoords: LayoutCoordinates
 
         composeTestRule.setMaterialContent {
             var state by state { 0 }
@@ -118,15 +117,15 @@ class TabTest {
             val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
                 TabRow.IndicatorContainer(tabPositions, state) {
                     Box(Modifier
-                        .onPositioned { indicatorCoords = it }
                         .fillMaxWidth()
                         .preferredHeight(indicatorHeight)
                         .drawBackground(Color.Red)
+                        .testTag("indicator")
                     )
                 }
             }
 
-            Box(Modifier.onChildPositioned { tabRowCoords = it }) {
+            Box(Modifier.testTag("tabRow")) {
                 TabRow(
                     items = titles,
                     selectedIndex = state,
@@ -141,62 +140,41 @@ class TabTest {
             }
         }
 
-        val (tabRowWidth, tabRowHeight) = composeTestRule.runOnIdleComposeWithDensity {
-            val tabRowWidth = tabRowCoords.size.width
-            val tabRowHeight = tabRowCoords.size.height
+        val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
 
-            val indicatorPositionX = indicatorCoords.localToGlobal(Offset.Zero).x
-            val expectedPositionX = 0.dp.toPx()
-            assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
-
-            val indicatorPositionY = indicatorCoords.localToGlobal(Offset.Zero).y
-            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toFloat()
-            assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
-
-            tabRowWidth to tabRowHeight
-        }
+        findByTag("indicator")
+            .assertPositionInRootIsEqualTo(
+                expectedLeft = 0.dp,
+                expectedTop = tabRowBounds.height - indicatorHeight
+            )
 
         // Click the second tab
         findAll(isInMutuallyExclusiveGroup())[1].doClick()
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
-        runOnIdleCompose {
-            with(composeTestRule.density) {
-                val indicatorPositionX = indicatorCoords.localToGlobal(Offset.Zero).x
-                val expectedPositionX = (tabRowWidth / 2).toFloat()
-                assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
-
-                val indicatorPositionY = indicatorCoords.localToGlobal(Offset.Zero).y
-                val expectedPositionY =
-                    (tabRowHeight - indicatorHeight.toIntPx()).toFloat()
-                assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
-            }
-        }
+        findByTag("indicator")
+            .assertPositionInRootIsEqualTo(
+                expectedLeft = (tabRowBounds.width / 2),
+                expectedTop = tabRowBounds.height - indicatorHeight
+            )
     }
 
     @Test
     fun singleLineTab_textBaseline() {
-        lateinit var tabRowCoords: LayoutCoordinates
-        lateinit var textCoords: LayoutCoordinates
-        var textBaseline = Float.NEGATIVE_INFINITY
-
         composeTestRule.setMaterialContent {
             var state by state { 0 }
             val titles = listOf("TAB")
 
             Box {
                 TabRow(
-                    modifier = Modifier.onPositioned { tabRowCoords = it },
+                    modifier = Modifier.testTag("tabRow"),
                     items = titles,
                     selectedIndex = state
                 ) { index, text ->
                     Tab(
                         text = {
-                            Text(text, Modifier.onPositioned { coords: LayoutCoordinates ->
-                                textCoords = coords
-                                textBaseline = coords[LastBaseline].toFloat()
-                            })
+                            Text(text, Modifier.testTag("text"))
                         },
                         selected = state == index,
                         onSelected = { state = index }
@@ -205,43 +183,35 @@ class TabTest {
             }
         }
 
-        composeTestRule.runOnIdleComposeWithDensity {
-            val expectedBaseline = 18.dp
-            val indicatorHeight = 2.dp
-            val expectedBaselineDistance =
-                (expectedBaseline.toIntPx() + indicatorHeight.toIntPx()).toFloat()
+        val expectedBaseline = 18.dp
+        val indicatorHeight = 2.dp
+        val expectedBaselineDistance = expectedBaseline + indicatorHeight
 
-            val tabRowHeight = tabRowCoords.size.height
+        val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
+        val textBounds = findByTag("text").getBoundsInRoot()
+        val textBaselinePos = findByTag("text").getAlignmentLinePosition(LastBaseline)
 
-            val textPositionY = textCoords.localToGlobal(Offset.Zero).y
-            val baselinePositionY = textPositionY + textBaseline
-            val expectedPositionY = (tabRowHeight.toFloat() - expectedBaselineDistance)
-            assertThat(baselinePositionY).isEqualTo(expectedPositionY)
-        }
+        val baselinePositionY = textBounds.top + textBaselinePos
+        val expectedPositionY = tabRowBounds.height - expectedBaselineDistance
+
+        assertThat(baselinePositionY.value).isWithin(0.5f).of(expectedPositionY.value)
     }
 
     @Test
     fun singleLineTab_withIcon_textBaseline() {
-        lateinit var tabRowCoords: LayoutCoordinates
-        lateinit var textCoords: LayoutCoordinates
-        var textBaseline = Float.NEGATIVE_INFINITY
-
         composeTestRule.setMaterialContent {
             var state by state { 0 }
             val titles = listOf("TAB")
 
             Box {
                 TabRow(
-                    modifier = Modifier.onPositioned { tabRowCoords = it },
+                    modifier = Modifier.testTag("tabRow"),
                     items = titles,
                     selectedIndex = state
                 ) { index, text ->
                     Tab(
                         text = {
-                            Text(text, Modifier.onPositioned { coords: LayoutCoordinates ->
-                                textCoords = coords
-                                textBaseline = coords[LastBaseline].toFloat()
-                            })
+                            Text(text, Modifier.testTag("text"))
                         },
                         icon = { Icon(Icons.Filled.Favorite) },
                         selected = state == index,
@@ -251,43 +221,34 @@ class TabTest {
             }
         }
 
-        composeTestRule.runOnIdleComposeWithDensity {
-            val expectedBaseline = 14.dp
-            val indicatorHeight = 2.dp
-            val expectedBaselineDistance =
-                (expectedBaseline.toIntPx() + indicatorHeight.toIntPx()).toFloat()
+        val expectedBaseline = 14.dp
+        val indicatorHeight = 2.dp
+        val expectedBaselineDistance = expectedBaseline + indicatorHeight
 
-            val tabRowHeight = tabRowCoords.size.height
+        val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
+        val textBounds = findByTag("text").getBoundsInRoot()
+        val textBaselinePos = findByTag("text").getAlignmentLinePosition(LastBaseline)
 
-            val textPositionY = textCoords.localToGlobal(Offset.Zero).y
-            val baselinePositionY = textPositionY + textBaseline
-            val expectedPositionY = (tabRowHeight.toFloat() - expectedBaselineDistance)
-            assertThat(baselinePositionY).isEqualTo(expectedPositionY)
-        }
+        val baselinePositionY = textBounds.top + textBaselinePos
+        val expectedPositionY = tabRowBounds.height - expectedBaselineDistance
+        assertThat(baselinePositionY).isEqualTo(expectedPositionY)
     }
 
     @Test
     fun twoLineTab_textBaseline() {
-        lateinit var tabRowCoords: LayoutCoordinates
-        lateinit var textCoords: LayoutCoordinates
-        var textBaseline = Float.NEGATIVE_INFINITY
-
         composeTestRule.setMaterialContent {
             var state by state { 0 }
             val titles = listOf("VERY LONG TAB TITLE THAT WILL BE FORCED TO GO TO TWO LINES")
 
             Box {
                 TabRow(
-                    modifier = Modifier.onPositioned { tabRowCoords = it },
+                    modifier = Modifier.testTag("tabRow"),
                     items = titles,
                     selectedIndex = state
                 ) { index, text ->
                     Tab(
                         text = {
-                            Text(text, Modifier.preferredWidth(100.dp).onPositioned { coords ->
-                                textCoords = coords
-                                textBaseline = coords[LastBaseline].toFloat()
-                            }, maxLines = 2)
+                            Text(text, Modifier.testTag("text"), maxLines = 2)
                         },
                         selected = state == index,
                         onSelected = { state = index }
@@ -296,19 +257,18 @@ class TabTest {
             }
         }
 
-        composeTestRule.runOnIdleComposeWithDensity {
-            val expectedBaseline = 10.dp
-            val indicatorHeight = 2.dp
-            val expectedBaselineDistance =
-                (expectedBaseline.toIntPx() + indicatorHeight.toIntPx()).toFloat()
+        val expectedBaseline = 10.dp
+        val indicatorHeight = 2.dp
 
-            val tabRowHeight = tabRowCoords.size.height
+        val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
+        val textBounds = findByTag("text").getBoundsInRoot()
+        val textBaselinePos = findByTag("text").getAlignmentLinePosition(LastBaseline)
 
-            val textPositionY = textCoords.localToGlobal(Offset.Zero).y
-            val baselinePositionY = textPositionY + textBaseline
-            val expectedPositionY = (tabRowHeight.toFloat() - expectedBaselineDistance)
-            assertThat(baselinePositionY).isEqualTo(expectedPositionY)
-        }
+        val expectedBaselineDistance = expectedBaseline + indicatorHeight
+
+        val baselinePositionY = textBounds.top + textBaselinePos
+        val expectedPositionY = (tabRowBounds.height - expectedBaselineDistance)
+        assertThat(baselinePositionY.value).isWithin(0.5f).of(expectedPositionY.value)
     }
 
     @Test
@@ -316,8 +276,6 @@ class TabTest {
         val indicatorHeight = 1.dp
         val scrollableTabRowOffset = 52.dp
         val minimumTabWidth = 90.dp
-        lateinit var tabRowCoords: LayoutCoordinates
-        lateinit var indicatorCoords: LayoutCoordinates
 
         composeTestRule.setMaterialContent {
             var state by state { 0 }
@@ -326,17 +284,17 @@ class TabTest {
             val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
                 TabRow.IndicatorContainer(tabPositions, state) {
                     Box(Modifier
-                        .onPositioned { indicatorCoords = it }
                         .fillMaxWidth()
                         .preferredHeight(indicatorHeight)
                         .drawBackground(Color.Red)
+                        .testTag("indicator")
                     )
                 }
             }
 
             Box {
                 TabRow(
-                    modifier = Modifier.onPositioned { tabRowCoords = it },
+                    modifier = Modifier.testTag("tabRow"),
                     items = titles,
                     scrollable = true,
                     selectedIndex = state,
@@ -351,38 +309,26 @@ class TabTest {
             }
         }
 
-        val tabRowHeight = composeTestRule.runOnIdleComposeWithDensity {
-            val tabRowHeight = tabRowCoords.size.height
+        val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
 
-            // Indicator should be placed in the bottom left of the first tab
-            val indicatorPositionX = indicatorCoords.localToGlobal(Offset.Zero).x
-            // Tabs in a scrollable tab row are offset 52.dp from each end
-            val expectedPositionX = scrollableTabRowOffset.toIntPx().toFloat()
-            assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
-
-            val indicatorPositionY = indicatorCoords.localToGlobal(Offset.Zero).y
-            val expectedPositionY = (tabRowHeight - indicatorHeight.toIntPx()).toFloat()
-            assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
-
-            tabRowHeight
-        }
+        // Indicator should be placed in the bottom left of the first tab
+        findByTag("indicator")
+            .assertPositionInRootIsEqualTo(
+                // Tabs in a scrollable tab row are offset 52.dp from each end
+                expectedLeft = scrollableTabRowOffset,
+                expectedTop = tabRowBounds.height - indicatorHeight
+            )
 
         // Click the second tab
         findAll(isInMutuallyExclusiveGroup())[1].doClick()
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
-        composeTestRule.runOnIdleComposeWithDensity {
-            val indicatorPositionX = indicatorCoords.localToGlobal(Offset.Zero).x
-            val expectedPositionX =
-                (scrollableTabRowOffset + minimumTabWidth).toIntPx().toFloat()
-            assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
-
-            val indicatorPositionY = indicatorCoords.localToGlobal(Offset.Zero).y
-            val expectedPositionY =
-                (tabRowHeight - indicatorHeight.toIntPx()).toFloat()
-            assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
-        }
+        findByTag("indicator")
+            .assertPositionInRootIsEqualTo(
+                expectedLeft = scrollableTabRowOffset + minimumTabWidth,
+                expectedTop = tabRowBounds.height - indicatorHeight
+            )
     }
 
     @Test

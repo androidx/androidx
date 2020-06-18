@@ -16,6 +16,7 @@
 
 package androidx.ui.core.semantics
 
+import androidx.ui.core.AlignmentLine
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.LayoutNodeWrapper
 import androidx.ui.core.boundsInRoot
@@ -118,6 +119,14 @@ class SemanticsNode internal constructor(
         get() {
             return buildMergedConfig()
         }
+
+    /**
+     * Returns the position of an [alignment line][AlignmentLine], or [AlignmentLine.Unspecified]
+     * if the line is not provided.
+     */
+    fun getAlignmentLinePosition(line: AlignmentLine): Int {
+        return componentNode.coordinates[line]
+    }
 
     private fun buildMergedConfig(
         parentNode: SemanticsNode? = null,
