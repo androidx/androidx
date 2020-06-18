@@ -138,6 +138,29 @@ public class AppSearchManagerTest {
     }
 
     @Test
+    public void testGetDocuments_DataClass() throws Exception {
+        // Schema registration
+        checkIsSuccess(mAppSearch.setSchema(
+                new SetSchemaRequest.Builder().addDataClass(EmailDataClass.class).build()));
+
+        // Index a document
+        EmailDataClass inEmail = new EmailDataClass();
+        inEmail.uri = "uri1";
+        inEmail.subject = "testPut example";
+        inEmail.body = "This is the body of the testPut inEmail";
+        checkIsSuccess(mAppSearch.putDocuments(
+                new PutDocumentsRequest.Builder().addDataClass(inEmail).build()));
+
+        // Get the document
+        List<GenericDocument> outDocuments = doGet("uri1");
+        assertThat(outDocuments).hasSize(1);
+        EmailDataClass outEmail = outDocuments.get(0).toDataClass(EmailDataClass.class);
+        assertThat(inEmail.uri).isEqualTo(outEmail.uri);
+        assertThat(inEmail.subject).isEqualTo(outEmail.subject);
+        assertThat(inEmail.body).isEqualTo(outEmail.body);
+    }
+
+    @Test
     public void testQuery() throws Exception {
         // Schema registration
         checkIsSuccess(mAppSearch.setSchema(
