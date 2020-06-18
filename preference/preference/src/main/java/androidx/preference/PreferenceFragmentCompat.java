@@ -407,6 +407,12 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
                 handled = ((OnPreferenceStartFragmentCallback) getContext())
                         .onPreferenceStartFragment(this, preference);
             }
+            // Check the Activity as well in case getContext was overridden to return something
+            // other than the Activity.
+            if (!handled && getActivity() instanceof OnPreferenceStartFragmentCallback) {
+                handled = ((OnPreferenceStartFragmentCallback) getActivity())
+                        .onPreferenceStartFragment(this, preference);
+            }
             if (!handled) {
                 Log.w(TAG,
                         "onPreferenceStartFragment is not implemented in the parent activity - "
@@ -452,6 +458,12 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         }
         if (!handled && getContext() instanceof OnPreferenceStartScreenCallback) {
             ((OnPreferenceStartScreenCallback) getContext())
+                    .onPreferenceStartScreen(this, preferenceScreen);
+        }
+        // Check the Activity as well in case getContext was overridden to return something other
+        // than the Activity.
+        if (!handled && getActivity() instanceof OnPreferenceStartScreenCallback) {
+            ((OnPreferenceStartScreenCallback) getActivity())
                     .onPreferenceStartScreen(this, preferenceScreen);
         }
     }
@@ -586,6 +598,12 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         }
         if (!handled && getContext() instanceof OnPreferenceDisplayDialogCallback) {
             handled = ((OnPreferenceDisplayDialogCallback) getContext())
+                    .onPreferenceDisplayDialog(this, preference);
+        }
+        // Check the Activity as well in case getContext was overridden to return something other
+        // than the Activity.
+        if (!handled && getActivity() instanceof OnPreferenceDisplayDialogCallback) {
+            handled = ((OnPreferenceDisplayDialogCallback) getActivity())
                     .onPreferenceDisplayDialog(this, preference);
         }
 
