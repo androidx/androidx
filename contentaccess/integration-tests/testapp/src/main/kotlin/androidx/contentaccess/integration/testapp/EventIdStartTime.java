@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020 The Android Open Source Project
  *
@@ -14,13 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.contentaccess
+
+package androidx.contentaccess.integration.testapp;
+
+import androidx.annotation.Nullable;
+import androidx.contentaccess.ContentColumn;
 
 /**
- * Represents a content provider table column that is the primary key (usually the ._ID column.)
- *
- * @property columnName The column name in the content provider table.
+ * Java Pojo to test that we properly transition between considering constructor fields and
+ * public fields when the constructor is empty. Also for testing nullability when using java.
  */
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
-annotation class ContentPrimaryKey(val columnName: String)
+public class EventIdStartTime {
+    @ContentColumn(columnName = "_id")
+    public long eventId;
+
+    @ContentColumn(columnName = "dtstart")
+    @Nullable
+    public long startTime;
+
+    @Nullable
+    public String randomNonColumnField;
+}

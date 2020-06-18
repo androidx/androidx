@@ -19,6 +19,8 @@ package androidx.contentaccess.compiler.writer
 import androidx.contentaccess.compiler.processor.PojoProcessor
 import androidx.contentaccess.compiler.vo.ContentColumnVO
 import androidx.contentaccess.compiler.vo.ContentQueryVO
+import androidx.contentaccess.ext.hasNonEmptyNonPrivateConstructor
+import asTypeElement
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -173,50 +175,77 @@ class ContentQueryMethodWriter(val processingEnv: ProcessingEnvironment) {
     }
 
     fun createReturnTypeFromCursor(
-        returnType: TypeMirror,
+        realReturnType: TypeMirror,
         methodBuilder: FunSpec.Builder,
         columns: List<ContentColumnVO>
     ) {
-        if (returnType.isSupportedColumnType()) {
+        if (realReturnType.isSupportedColumnType()) {
             // This isn't a pojo but a single column, get that type directly.
             methodBuilder.addStatement("val %L : %T = %L", RETURN_OBJECT_NAME,
-                returnType.toKotlinClassName(), "_cursor.${returnType.getCursorMethod()}(0)")
+                realReturnType.toKotlinClassName(), "_cursor" +
+                        ".${realReturnType.getCursorMethod()}(0)")
             return
         }
-        val constructorParams = ArrayList<String>()
-        val pojo = PojoProcessor(returnType, processingEnv).process()
+        val pojo = PojoProcessor(realReturnType, processingEnv).process()
         val pojoColumnsToFieldNames = pojo.pojoFields.map { it.columnName to it.name }.toMap()
-        val columnNamesBeingSelected = columns.map { it.columnName }
-        val unPopulatedPojoFields = pojo.pojoFields.filter { it.columnName !in
-                columnNamesBeingSelected }.map { it.name }
-        for ((currIndex, column) in columns.withIndex()) {
-            if (column.isNullable) {
-                methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames.get(column
-                    .columnName)}_value" +
-                        " = if (_cursor.isNull($currIndex))")
-                methodBuilder.addStatement("null")
-                methodBuilder.nextControlFlow("else")
-                methodBuilder.addStatement("_cursor.${column.type.getCursorMethod()}($currIndex)")
-                methodBuilder.endControlFlow()
-            } else {
-                methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames.get(column
-                    .columnName)}_value" +
-                        " = if (_cursor.isNull($currIndex))")
-                methodBuilder.addStatement("throw NullPointerException(%S)", "Column ${column
-                    .columnName} associated with field ${column.name} in $returnType return " +
-                        "null, however field ${column.name} is not nullable")
-                methodBuilder.nextControlFlow("else")
-                methodBuilder.addStatement("_cursor.${column.type.getCursorMethod()}($currIndex)")
-                methodBuilder.endControlFlow()
+        if (realReturnType.asTypeElement().hasNonEmptyNonPrivateConstructor(processingEnv)) {
+            val constructorParams = ArrayList<String>()
+
+            val columnNamesBeingSelected = columns.map { it.columnName }
+            val unPopulatedPojoFields = pojo.pojoFields.filter { it.columnName !in
+                    columnNamesBeingSelected }.map { it.name }
+            for ((currIndex, column) in columns.withIndex()) {
+                if (column.isNullable) {
+                    methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames
+                        .get(column.columnName)}_value = if (_cursor.isNull($currIndex))")
+                    methodBuilder.addStatement("null")
+                    methodBuilder.nextControlFlow("else")
+                    methodBuilder.addStatement("_cursor" +
+                            ".${column.type.getCursorMethod()}($currIndex)")
+                    methodBuilder.endControlFlow()
+                } else {
+                    methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames.get(column
+                        .columnName)}_value" +
+                            " = if (_cursor.isNull($currIndex))")
+                    methodBuilder.addStatement("throw NullPointerException(%S)", "Column ${column
+                        .columnName} associated with field ${column.name} in $realReturnType " +
+                            "return null, however field ${column.name} is not nullable")
+                    methodBuilder.nextControlFlow("else")
+                    methodBuilder.addStatement("_cursor" +
+                            ".${column.type.getCursorMethod()}($currIndex)")
+                    methodBuilder.endControlFlow()
+                }
+                constructorParams.add("${pojoColumnsToFieldNames.get(column.columnName)}" +
+                        " = _${pojoColumnsToFieldNames.get(column.columnName)}_value")
             }
-            constructorParams.add("${pojoColumnsToFieldNames.get(column.columnName)}" +
-                    " = _${pojoColumnsToFieldNames.get(column.columnName)}_value")
+            for (unPopoulatedPojoField in unPopulatedPojoFields) {
+                constructorParams.add("$unPopoulatedPojoField = null")
+            }
+            methodBuilder.addStatement("val $RETURN_OBJECT_NAME = %T(%L)", realReturnType,
+                constructorParams.joinToString(","))
+        } else {
+            // We should instead assign to public fields directly.
+            methodBuilder.addStatement("val $RETURN_OBJECT_NAME = %T()", realReturnType)
+            for ((currIndex, column) in columns.withIndex()) {
+                if (column.isNullable) {
+                    methodBuilder.beginControlFlow("if (!_cursor.isNull($currIndex))")
+                    methodBuilder.addStatement("$RETURN_OBJECT_NAME.${pojoColumnsToFieldNames
+                        .get(column.columnName)} =" +
+                            " _cursor.${column.type.getCursorMethod()}($currIndex)")
+                    methodBuilder.endControlFlow()
+                } else {
+                    methodBuilder.beginControlFlow("if (_cursor.isNull($currIndex))")
+                    methodBuilder.addStatement("throw NullPointerException(%S)", "Column ${column
+                        .columnName} associated with field ${column.name} in $realReturnType " +
+                            "return null, however field ${column.name} is not nullable")
+                    methodBuilder.nextControlFlow("else")
+                    methodBuilder.addStatement("$RETURN_OBJECT_NAME.${pojoColumnsToFieldNames
+                        .get(column.columnName)} = " +
+                            "_cursor.${column.type.getCursorMethod()}($currIndex)")
+                    methodBuilder.endControlFlow()
+                }
+            }
         }
-        for (unPopoulatedPojoField in unPopulatedPojoFields) {
-            constructorParams.add("$unPopoulatedPojoField = null")
-        }
-        methodBuilder.addStatement("val $RETURN_OBJECT_NAME = %T(%L)", returnType,
-            constructorParams.joinToString(","))
     }
 }
 
