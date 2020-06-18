@@ -23,8 +23,7 @@ import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.padding
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.samples.CustomRadioGroupSample
-import androidx.ui.material.samples.DefaultRadioGroupSample
+import androidx.ui.material.samples.RadioGroupSample
 import androidx.ui.material.samples.RadioButtonSample
 import androidx.ui.material.samples.SwitchSample
 import androidx.ui.material.samples.TriStateCheckboxSample
@@ -40,9 +39,7 @@ fun SelectionControlsDemo() {
         SwitchSample()
         Text(text = "RadioButton", style = headerStyle)
         RadioButtonSample()
-        Text(text = "Radio group :: Default usage", style = headerStyle)
-        DefaultRadioGroupSample()
-        Text(text = "Radio group :: Custom usage", style = headerStyle)
-        CustomRadioGroupSample()
+        Text(text = "Radio group", style = headerStyle)
+        RadioGroupSample()
     }
 }

@@ -22,17 +22,20 @@ import androidx.compose.getValue
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.selection.ToggleableState
+import androidx.ui.foundation.selection.selectable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
 import androidx.ui.material.Checkbox
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.RadioButton
-import androidx.ui.material.RadioGroup
 import androidx.ui.material.Switch
 import androidx.ui.material.TriStateCheckbox
 import androidx.ui.unit.dp
@@ -95,52 +98,43 @@ fun RadioButtonSample() {
     Row {
         RadioButton(
             selected = enterTheMatrix,
-            onSelect = { enterTheMatrix = true },
-            color = Color.Red
+            onClick = { enterTheMatrix = true },
+            selectedColor = Color.Red
         )
         RadioButton(
             selected = !enterTheMatrix,
-            onSelect = { enterTheMatrix = false },
-            color = Color.Blue
+            onClick = { enterTheMatrix = false },
+            selectedColor = Color.Blue
         )
     }
 }
 
 @Sampled
 @Composable
-fun DefaultRadioGroupSample() {
+fun RadioGroupSample() {
     val radioOptions = listOf("Calls", "Missed", "Friends")
     val (selectedOption, onOptionSelected) = state { radioOptions[0] }
-    RadioGroup(
-        options = radioOptions,
-        selectedOption = selectedOption,
-        onSelectedChange = onOptionSelected
-    )
-}
-
-@Sampled
-@Composable
-fun CustomRadioGroupSample() {
-    val radioOptions = listOf("Disagree", "Neutral", "Agree")
-    val (selectedOption, onOptionSelected) = state { radioOptions[0] }
-
-    RadioGroup {
-        Row {
-            radioOptions.forEach { text ->
-                val selected = text == selectedOption
-                RadioGroupItem(
-                    selected = selected,
-                    onSelect = { onOptionSelected(text) }) {
-                    // TODO: remove Box when Ripple becomes a modifier
-                    Box {
-                        Column(modifier = Modifier.padding(10.dp)) {
-                            RadioButton(
-                                selected = selected,
-                                onSelect = { onOptionSelected(text) })
-                            Text(text = text)
-                        }
-                    }
-                }
+    Column {
+        radioOptions.forEach { text ->
+            Row(Modifier
+                .fillMaxWidth()
+                .preferredHeight(56.dp)
+                .selectable(
+                    selected = (text == selectedOption),
+                    onClick = { onOptionSelected(text) }
+                )
+                .padding(horizontal = 16.dp),
+                verticalGravity = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = (text == selectedOption),
+                    onClick = { onOptionSelected(text) }
+                )
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.body1.merge(),
+                    modifier = Modifier.padding(start = 16.dp)
+                )
             }
         }
     }
