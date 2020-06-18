@@ -16,19 +16,10 @@
 
 package androidx.camera.core
 
-import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
-
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
-
 import android.graphics.ImageFormat
 import android.media.ImageWriter
-import android.os.Build
 import android.util.Size
 import android.view.Surface
-
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureBundle
 import androidx.camera.core.impl.CaptureProcessor
@@ -38,15 +29,20 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.fakes.FakeCaptureStage
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import org.junit.Assume.assumeTrue
-
+import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 23) // This test uses ImageWriter which is supported from api 23.
 class ProcessingImageReaderDeviceTest {
     private companion object Bundle {
         private const val CAPTURE_ID_0 = 0
@@ -80,7 +76,6 @@ class ProcessingImageReaderDeviceTest {
 
     @Before
     fun setUp() {
-        assumeTrue(Build.VERSION.SDK_INT >= 23); // ImageWrite is added since API 23.
         mCaptureBundle = CaptureBundles.createCaptureBundle(mCaptureStage0, mCaptureStage1)
     }
 
