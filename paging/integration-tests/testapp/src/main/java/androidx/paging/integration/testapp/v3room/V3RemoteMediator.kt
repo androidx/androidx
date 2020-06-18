@@ -55,9 +55,8 @@ internal class V3RemoteMediator(
                 pageSize = 10
             )
         }
-        val result = networkSource.load(loadParams)
 
-        return when (result) {
+        return when (val result = networkSource.load(loadParams)) {
             is PagingSource.LoadResult.Page -> {
                 withContext(Dispatchers.IO) {
                     database.withTransaction {
