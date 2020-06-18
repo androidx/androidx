@@ -469,6 +469,8 @@ public abstract class MediaRouteProvider {
         @GuardedBy("mLock")
         OnDynamicRoutesChangedListener mListener;
         @GuardedBy("mLock")
+        MediaRouteDescriptor mPendingGroupRoute;
+        @GuardedBy("mLock")
         Collection<DynamicRouteDescriptor> mPendingRoutes;
 
         /**
@@ -524,12 +526,15 @@ public abstract class MediaRouteProvider {
                 mListener = listener;
 
                 if (mPendingRoutes != null && !mPendingRoutes.isEmpty()) {
-                    final Collection<DynamicRouteDescriptor> routes = mPendingRoutes;
+                    MediaRouteDescriptor groupRoute = mPendingGroupRoute;
+                    Collection<DynamicRouteDescriptor> routes = mPendingRoutes;
+                    mPendingGroupRoute = null;
                     mPendingRoutes = null;
                     mExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
                             listener.onRoutesChanged(DynamicGroupRouteController.this,
+                                    groupRoute,
                                     routes);
                         }
                     });
@@ -544,7 +549,10 @@ public abstract class MediaRouteProvider {
          * dynamic group state of routes.
          * </p>
          * @param routes The dynamic route descriptors for published routes.
+         * @deprecated Use {@link #notifyDynamicRoutesChanged(MediaRouteDescriptor, Collection)}
+         * instead to notify information of the group.
          */
+        @Deprecated
         public final void notifyDynamicRoutesChanged(
                 final Collection<DynamicRouteDescriptor> routes) {
             synchronized (mLock) {
@@ -554,11 +562,50 @@ public abstract class MediaRouteProvider {
                         @Override
                         public void run() {
                             listener.onRoutesChanged(
-                                    DynamicGroupRouteController.this, routes);
+                                    DynamicGroupRouteController.this,
+                                    null,
+                                    routes);
                         }
                     });
                 } else {
                     mPendingRoutes = new ArrayList<>(routes);
+                }
+            }
+        }
+
+        /**
+         * Sets the group route descriptor and the dynamic route descriptors for dynamicRoutes.
+         * <p>
+         * The dynamic group controller must call this method to notify the current
+         * dynamic group state of dynamicRoutes.
+         * </p>
+         * @param groupRoute The media route descriptor describing the dynamic group.
+         * @param dynamicRoutes The dynamic route descriptors for published routes.
+         */
+        public final void notifyDynamicRoutesChanged(
+                @NonNull MediaRouteDescriptor groupRoute,
+                @NonNull Collection<DynamicRouteDescriptor> dynamicRoutes) {
+            if (groupRoute == null) {
+                throw new NullPointerException("groupRoute must not be null");
+            }
+            if (dynamicRoutes == null) {
+                throw new NullPointerException("dynamicRoutes must not be null");
+            }
+            synchronized (mLock) {
+                if (mExecutor != null) {
+                    final OnDynamicRoutesChangedListener listener = mListener;
+                    mExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onRoutesChanged(
+                                    DynamicGroupRouteController.this,
+                                    groupRoute,
+                                    dynamicRoutes);
+                        }
+                    });
+                } else {
+                    mPendingGroupRoute = groupRoute;
+                    mPendingRoutes = new ArrayList<>(dynamicRoutes);
                 }
             }
         }
@@ -584,12 +631,14 @@ public abstract class MediaRouteProvider {
              * (e.g. when a route becomes ungroupable)
              *
              * @param controller the {@link DynamicGroupRouteController} which keeps this listener.
-             * @param routes the collection of routes contains selected routes
+             * @param groupRoute the route descriptor about the dynamic group.
+             * @param routes the collection of routes contains selected routes.
              *               (can be unselectable or not)
              *               and unselected routes (can be groupable or transferable or not).
              */
             void onRoutesChanged(
                     DynamicGroupRouteController controller,
+                    MediaRouteDescriptor groupRoute,
                     Collection<DynamicRouteDescriptor> routes);
         }
 

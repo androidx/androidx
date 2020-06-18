@@ -1635,38 +1635,38 @@ public final class MediaRouter {
 
         @Override
         public String toString() {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("MediaRouter.RouteInfo{ uniqueId=" + mUniqueId
+                    + ", name=" + mName
+                    + ", description=" + mDescription
+                    + ", iconUri=" + mIconUri
+                    + ", enabled=" + mEnabled
+                    + ", connectionState=" + mConnectionState
+                    + ", canDisconnect=" + mCanDisconnect
+                    + ", playbackType=" + mPlaybackType
+                    + ", playbackStream=" + mPlaybackStream
+                    + ", deviceType=" + mDeviceType
+                    + ", volumeHandling=" + mVolumeHandling
+                    + ", volume=" + mVolume
+                    + ", volumeMax=" + mVolumeMax
+                    + ", presentationDisplayId=" + mPresentationDisplayId
+                    + ", extras=" + mExtras
+                    + ", settingsIntent=" + mSettingsIntent
+                    + ", providerPackageName=" + mProvider.getPackageName());
             if (isGroup()) {
-                StringBuilder sb = new StringBuilder(super.toString());
-                sb.append('[');
+                sb.append(", members=[");
                 final int count = mMemberRoutes.size();
                 for (int i = 0; i < count; i++) {
                     if (i > 0) sb.append(", ");
                     if (mMemberRoutes.get(i) != this) {
-                        sb.append(mMemberRoutes.get(i));
+                        sb.append(mMemberRoutes.get(i).getId());
                     }
                 }
                 sb.append(']');
-                return sb.toString();
-            } else {
-                return "MediaRouter.RouteInfo{ uniqueId=" + mUniqueId
-                        + ", name=" + mName
-                        + ", description=" + mDescription
-                        + ", iconUri=" + mIconUri
-                        + ", enabled=" + mEnabled
-                        + ", connectionState=" + mConnectionState
-                        + ", canDisconnect=" + mCanDisconnect
-                        + ", playbackType=" + mPlaybackType
-                        + ", playbackStream=" + mPlaybackStream
-                        + ", deviceType=" + mDeviceType
-                        + ", volumeHandling=" + mVolumeHandling
-                        + ", volume=" + mVolume
-                        + ", volumeMax=" + mVolumeMax
-                        + ", presentationDisplayId=" + mPresentationDisplayId
-                        + ", extras=" + mExtras
-                        + ", settingsIntent=" + mSettingsIntent
-                        + ", providerPackageName=" + mProvider.getPackageName()
-                        + " }";
             }
+            sb.append(" }");
+            return sb.toString();
         }
 
         int maybeUpdateDescriptor(MediaRouteDescriptor descriptor) {
@@ -1833,7 +1833,7 @@ public final class MediaRouter {
             return mProvider.getProviderInstance();
         }
 
-        void updateDescriptors(Collection<DynamicRouteDescriptor> dynamicDescriptors) {
+        void updateDynamicDescriptors(Collection<DynamicRouteDescriptor> dynamicDescriptors) {
             mMemberRoutes.clear();
 
             for (DynamicRouteDescriptor dynamicDescriptor :
@@ -2784,7 +2784,7 @@ public final class MediaRouter {
             mCallbackHandler.post(CallbackHandler.MSG_PROVIDER_CHANGED, provider);
         }
 
-        private int updateRouteDescriptorAndNotify(RouteInfo route,
+        int updateRouteDescriptorAndNotify(RouteInfo route,
                 MediaRouteDescriptor routeDescriptor) {
             int changes = route.maybeUpdateDescriptor(routeDescriptor);
             if (changes != 0) {
@@ -2985,6 +2985,7 @@ public final class MediaRouter {
 
             clearSelectedRoute(unselectReason);
 
+            //TODO: defer onRouteSelected for dynamic grouping (it will be selected)
             RouteController newController;
             if (route.getProvider().supportsDynamicGroup()) {
                 MediaRouteProvider.DynamicGroupRouteController dynamicGroupRouteController =
@@ -3027,6 +3028,20 @@ public final class MediaRouter {
             updatePlaybackInfoFromSelectedRoute();
         }
 
+        void replaceSelectedRouteForSelectedRouteController(RouteInfo route, int reason) {
+            if (mSelectedRoute == route) {
+                return;
+            }
+
+            //TODO: Remove this when the initial member is not selected.
+            mCallbackHandler.post(CallbackHandler.MSG_ROUTE_UNSELECTED, mSelectedRoute,
+                    reason);
+            mSelectedRoute = route;
+            mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute, reason);
+
+            updatePlaybackInfoFromSelectedRoute();
+        }
+
         void clearSelectedRoute(@UnselectReason int unselectReason) {
             if (mSelectedRoute == null) {
                 return;
@@ -3058,10 +3073,28 @@ public final class MediaRouter {
                     @Override
                     public void onRoutesChanged(
                             @NonNull DynamicGroupRouteController controller,
+                            @Nullable MediaRouteDescriptor groupRouteDescriptor,
                             @NonNull Collection<DynamicGroupRouteController.DynamicRouteDescriptor>
                                     routes) {
                         if (controller == mSelectedRouteController) {
-                            mSelectedRoute.updateDescriptors(routes);
+                            if (groupRouteDescriptor != null) {
+                                if (!TextUtils.equals(mSelectedRoute.getDescriptorId(),
+                                        groupRouteDescriptor.getId())) {
+                                    ProviderInfo provider = mSelectedRoute.getProvider();
+                                    String groupId = groupRouteDescriptor.getId();
+
+                                    String uniqueId = assignRouteUniqueId(provider, groupId);
+                                    RouteInfo route = new RouteInfo(provider, groupId, uniqueId);
+                                    route.maybeUpdateDescriptor(groupRouteDescriptor);
+
+                                    replaceSelectedRouteForSelectedRouteController(route,
+                                            UNSELECT_REASON_ROUTE_CHANGED);
+                                } else {
+                                    updateRouteDescriptorAndNotify(mSelectedRoute,
+                                            groupRouteDescriptor);
+                                }
+                            }
+                            mSelectedRoute.updateDynamicDescriptors(routes);
                         }
                     }
                 };
@@ -3264,8 +3297,8 @@ public final class MediaRouter {
 
             MediaSessionRecord(MediaSessionCompat mediaSessionCompat) {
                 mMsCompat = mediaSessionCompat;
-
             }
+
             public void configureVolume(@VolumeProviderCompat.ControlType int controlType,
                     int max, int current) {
                 if (mMsCompat != null) {
