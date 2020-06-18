@@ -223,12 +223,92 @@ public class AppSearchManager {
     }
 
     /**
+     * Encapsulates a request to index a document into an {@link AppSearchManager} database.
+     *
+     * @see AppSearchManager#putDocuments
+     */
+    public static final class PutDocumentsRequest {
+        final List<GenericDocument> mDocuments;
+
+        PutDocumentsRequest(List<GenericDocument> documents) {
+            mDocuments = documents;
+        }
+
+        /** Builder for {@link PutDocumentsRequest} objects. */
+        public static final class Builder {
+            private final List<GenericDocument> mDocuments = new ArrayList<>();
+            private boolean mBuilt = false;
+
+            /** Adds one or more documents to the request. */
+            @NonNull
+            public Builder addGenericDocument(@NonNull GenericDocument... documents) {
+                return addGenericDocument(Arrays.asList(documents));
+            }
+
+            /** Adds one or more documents to the request. */
+            @NonNull
+            public Builder addGenericDocument(@NonNull Collection<GenericDocument> documents) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                Preconditions.checkNotNull(documents);
+                mDocuments.addAll(documents);
+                return this;
+            }
+
+            /**
+             * Adds one or more documents to the request.
+             *
+             * @param dataClasses non-inner classes annotated with
+             *     {@link androidx.appsearch.annotation.AppSearchDocument}.
+             */
+            @NonNull
+            public Builder addDataClass(@NonNull Object... dataClasses) throws AppSearchException {
+                return addDataClass(Arrays.asList(dataClasses));
+            }
+
+            /**
+             * Adds one or more documents to the request.
+             *
+             * @param dataClasses non-inner classes annotated with
+             *     {@link androidx.appsearch.annotation.AppSearchDocument}.
+             */
+            @NonNull
+            public Builder addDataClass(@NonNull Collection<Object> dataClasses)
+                    throws AppSearchException {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                Preconditions.checkNotNull(dataClasses);
+                List<GenericDocument> genericDocuments = new ArrayList<>(dataClasses.size());
+                for (Object dataClass : dataClasses) {
+                    GenericDocument genericDocument = toGenericDocument(dataClass);
+                    genericDocuments.add(genericDocument);
+                }
+                return addGenericDocument(genericDocuments);
+            }
+
+            @NonNull
+            private static <T> GenericDocument toGenericDocument(@NonNull T dataClass)
+                    throws AppSearchException {
+                DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
+                DataClassFactory<T> factory = registry.getOrCreateFactory(dataClass);
+                return factory.toGenericDocument(dataClass);
+            }
+
+            /** Builds a new {@link PutDocumentsRequest}. */
+            @NonNull
+            public PutDocumentsRequest build() {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                mBuilt = true;
+                return new PutDocumentsRequest(mDocuments);
+            }
+        }
+    }
+
+    /**
      * Index {@link GenericDocument}s into AppSearch.
      *
      * <p>Each {@link GenericDocument}'s {@code schemaType} field must be set to the name of a
      * schema type previously registered via the {@link #setSchema} method.
      *
-     * @param documents {@link GenericDocument}s that need to be indexed.
+     * @param request {@link PutDocumentsRequest} containing documents to be indexed
      * @return A {@link ListenableFuture}&lt;{@link AppSearchBatchResult}&lt;{@link String},
      *     {@code Void}&gt;&gt;. Where mapping the document URIs to {@link Void} if they were
      *     successfully indexed, or a {@link Throwable} describing the failure if they could not
@@ -236,14 +316,14 @@ public class AppSearchManager {
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
-            @NonNull List<GenericDocument> documents) {
+            @NonNull PutDocumentsRequest request) {
         // TODO(b/146386470): Transmit these documents as a RemoteStream instead of sending them in
         // one big list.
         return execute(mMutateExecutor, () -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
-            for (int i = 0; i < documents.size(); i++) {
-                GenericDocument document = documents.get(i);
+            for (int i = 0; i < request.mDocuments.size(); i++) {
+                GenericDocument document = request.mDocuments.get(i);
                 try {
                     mAppSearchImpl.putDocument(document.getProto());
                     resultBuilder.setSuccess(document.getUri(), /*result=*/ null);

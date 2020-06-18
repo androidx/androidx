@@ -83,6 +83,22 @@ public final class DataClassFactoryRegistry {
         return (DataClassFactory<T>) factory;
     }
 
+    /**
+     * Gets the {@link DataClassFactory} instance that can convert to and from objects of type
+     * {@code T}.
+     *
+     * @throws AppSearchException if no factory for this data class could be found on the classpath
+     */
+    @NonNull
+    @SuppressWarnings("unchecked")
+    public <T> DataClassFactory<T> getOrCreateFactory(@NonNull T dataClass)
+            throws AppSearchException {
+        Preconditions.checkNotNull(dataClass);
+        Class<?> clazz = dataClass.getClass();
+        DataClassFactory<?> factory = getOrCreateFactory(clazz);
+        return (DataClassFactory<T>) factory;
+    }
+
     private DataClassFactory<?> loadFactoryByReflection(@NonNull Class<?> dataClass)
             throws AppSearchException {
         Package pkg = dataClass.getPackage();

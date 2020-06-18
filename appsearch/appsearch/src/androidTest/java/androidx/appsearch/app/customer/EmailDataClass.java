@@ -22,11 +22,11 @@ import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 @AppSearchDocument
 public final class EmailDataClass {
     @AppSearchDocument.Uri
-    String mUri;
+    public String uri;
 
     @AppSearchDocument.Property(indexingType = PropertyConfig.INDEXING_TYPE_PREFIXES)
-    String mSubject;
+    public String subject;
 
     @AppSearchDocument.Property(indexingType = PropertyConfig.INDEXING_TYPE_PREFIXES)
-    String mBody;
+    public String body;
 }
