@@ -1267,6 +1267,17 @@ public abstract class FragmentManager implements FragmentResultOwner {
             // Only allow this FragmentStateManager to go up to CREATED at the most
             fragmentStateManager.setFragmentManagerState(Fragment.CREATED);
         }
+        // When inflating an Activity view with a resource instead of using setContentView(), and
+        // that resource adds a fragment using the <fragment> tag (i.e. from layout and in layout),
+        // the fragment will move to the VIEW_CREATED state before the fragment manager
+        // moves to CREATED. So when moving the fragment manager moves to CREATED and the
+        // inflated fragment is already in VIEW_CREATED we need to move new state up from CREATED
+        // to VIEW_CREATED. This avoids accidentally moving the fragment back down to CREATED
+        // which would immediately destroy the Fragment's view. We rely on computeExpectedState()
+        // to pull the state back down if needed.
+        if (f.mFromLayout && f.mInLayout && f.mState == Fragment.VIEW_CREATED) {
+            newState = Math.max(newState, Fragment.VIEW_CREATED);
+        }
         newState = Math.min(newState, fragmentStateManager.computeExpectedState());
         if (f.mState <= newState) {
             // If we are moving to the same state, we do not need to give up on the animation.
