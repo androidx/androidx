@@ -38,10 +38,10 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
 /**
- * Generates java code for a translator from a data class to
+ * Generates java code for a translator from a data class to a
  * {@link androidx.appsearch.app.GenericDocument}.
  */
-class DataClassToGenericDocumentCodeGenerator {
+class ToGenericDocumentCodeGenerator {
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
     private final AppSearchDocumentModel mModel;
@@ -50,10 +50,10 @@ class DataClassToGenericDocumentCodeGenerator {
             @NonNull ProcessingEnvironment env,
             @NonNull AppSearchDocumentModel model,
             @NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
-        new DataClassToGenericDocumentCodeGenerator(env, model).generate(classBuilder);
+        new ToGenericDocumentCodeGenerator(env, model).generate(classBuilder);
     }
 
-    private DataClassToGenericDocumentCodeGenerator(
+    private ToGenericDocumentCodeGenerator(
             @NonNull ProcessingEnvironment env, @NonNull AppSearchDocumentModel model) {
         mEnv = env;
         mHelper = new IntrospectionHelper(env);

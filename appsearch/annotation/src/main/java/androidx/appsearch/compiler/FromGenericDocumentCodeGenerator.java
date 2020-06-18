@@ -44,7 +44,7 @@ import javax.lang.model.util.Types;
  * Generates java code for a translator from a {@link androidx.appsearch.app.GenericDocument} to
  * a data class.
  */
-class GenericDocumentToDataClassCodeGenerator {
+class FromGenericDocumentCodeGenerator {
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
     private final AppSearchDocumentModel mModel;
@@ -53,10 +53,10 @@ class GenericDocumentToDataClassCodeGenerator {
             @NonNull ProcessingEnvironment env,
             @NonNull AppSearchDocumentModel model,
             @NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
-        new GenericDocumentToDataClassCodeGenerator(env, model).generate(classBuilder);
+        new FromGenericDocumentCodeGenerator(env, model).generate(classBuilder);
     }
 
-    private GenericDocumentToDataClassCodeGenerator(
+    private FromGenericDocumentCodeGenerator(
             @NonNull ProcessingEnvironment env, @NonNull AppSearchDocumentModel model) {
         mEnv = env;
         mHelper = new IntrospectionHelper(env);
