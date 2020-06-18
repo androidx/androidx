@@ -84,7 +84,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Allows interaction with media controllers, volume keys, media buttons, and
@@ -825,6 +827,18 @@ public class MediaSessionCompat {
      * @param queue A list of items in the play queue.
      */
     public void setQueue(List<QueueItem> queue) {
+        if (queue != null) {
+            Set<Long> set = new HashSet<>();
+            for (QueueItem item : queue) {
+                if (item == null) {
+                    throw new IllegalArgumentException("queue shouldn't have null items");
+                }
+                if (set.contains(item.getQueueId())) {
+                    throw new IllegalArgumentException("id of each queue item should be unique");
+                }
+                set.add(item.getQueueId());
+            }
+        }
         mImpl.setQueue(queue);
     }
 
