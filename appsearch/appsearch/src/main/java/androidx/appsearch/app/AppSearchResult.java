@@ -133,15 +133,26 @@ public final class AppSearchResult<ValueType> {
         return mErrorMessage;
     }
 
+    /**
+     * Asserts that this {@link AppSearchResult} is successful.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void checkSuccess() {
+        if (!isSuccess()) {
+            throw new IllegalStateException("AppSearchResult is a failure: " + this);
+        }
+    }
+
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(@Nullable Object other) {
         if (this == other) {
             return true;
         }
         if (!(other instanceof AppSearchResult)) {
             return false;
         }
-        AppSearchResult<?> otherResult = (AppSearchResult) other;
+        AppSearchResult<?> otherResult = (AppSearchResult<?>) other;
         return mResultCode == otherResult.mResultCode
                 && ObjectsCompat.equals(mResultValue, otherResult.mResultValue)
                 && ObjectsCompat.equals(mErrorMessage, otherResult.mErrorMessage);
@@ -156,9 +167,9 @@ public final class AppSearchResult<ValueType> {
     @NonNull
     public String toString() {
         if (isSuccess()) {
-            return "AppSearchResult [SUCCESS]: " + mResultValue;
+            return "[SUCCESS]: " + mResultValue;
         }
-        return "AppSearchResult [FAILURE(" + mResultCode + ")]: " + mErrorMessage;
+        return "[FAILURE(" + mResultCode + ")]: " + mErrorMessage;
     }
 
     /** Creates a new successful {@link AppSearchResult}. */
