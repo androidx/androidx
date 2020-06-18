@@ -33,9 +33,7 @@ import java.io.OutputStream
  * replaced before launching.
  */
 internal object PreferencesSerializer : Serializer<Preferences> {
-    override val defaultValue = Preferences.empty()
-
-    override val fileExtension = "preferences_pb"
+    val fileExtension = "preferences_pb"
 
     @Throws(IOException::class, CorruptionException::class)
     override fun readFrom(input: InputStream): Preferences {

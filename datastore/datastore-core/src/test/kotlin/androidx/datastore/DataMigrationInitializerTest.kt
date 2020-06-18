@@ -44,7 +44,7 @@ class DataMigrationInitializerTest {
     @Before
     fun setUp() {
         serializer = TestingSerializer()
-        testFile = tmp.newFile("test_file." + serializer.fileExtension)
+        testFile = tmp.newFile()
     }
 
     @Test

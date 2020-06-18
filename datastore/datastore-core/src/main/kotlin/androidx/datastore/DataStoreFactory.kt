@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.datastore.preferences
+package androidx.datastore
 
-import androidx.datastore.DataMigration
-import androidx.datastore.DataStore
-import androidx.datastore.DataStoreFactory
+import androidx.datastore.handlers.NoOpCorruptionHandler
 import androidx.datastore.handlers.ReplaceFileCorruptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,52 +24,51 @@ import kotlinx.coroutines.SupervisorJob
 import java.io.File
 
 /**
- * Public factory for creating PreferenceDataStore instances.
+ * Public factory for creating DataStore instances.
  */
-class PreferenceDataStoreFactory {
-    private val dataStoreFactory = DataStoreFactory()
+class DataStoreFactory {
     /**
      * Create an instance of SingleProcessDataStore. The user is responsible for ensuring that
-     * there is never more than one instance of SingleProcessDataStore acting on a file at a time.
+     * there is never more than one DataStore acting on a file at a time.
+     *
+     * T is the type DataStore acts on. The type T must be immutable. Mutating a type used in
+     * DataStore invalidates any guarantees that DataStore provides and will result in
+     * potentially serious, hard-to-catch bugs. We strongly recommend using protocol buffers:
+     * https://developers.google.com/protocol-buffers/docs/javatutorial - which provides
+     * immutability guarantees, a simple API and efficient serialization.
      */
     @JvmOverloads
-    fun create(
+    fun <T> create(
         /**
          * Function which returns the file that the new DataStore will act on. The function
          * must return the same path every time. No two instances of PreferenceDataStore
-         * should act on the same file at the same time. The file must have the extension
-         * preferences_pb.
+         * should act on the same file at the same time.
          */
         produceFile: () -> File,
         /**
-         * The corruptionHandler is invoked if PreferenceDataStore encounters a
+         * Serializer for the type T used with DataStore. The type T must be immutable.
+         */
+        serializer: Serializer<T>,
+        /**
+         * The corruptionHandler is invoked if DataStore encounters a
          * {@link Serializer.CorruptionException} when attempting to read data. CorruptionExceptions
          * are thrown when the data can not be de-serialized.
          */
-        corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
+        corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
         /**
-         * Migrations are run before any access to data can occur. Each producer and migration
-         * may be run more than once whether or not it already succeeded (potentially because
-         * another migration failed or a write to disk failed.)
+         * Migrations are run before any access to data can occur. Migrations must be idempotent.
          */
-        migrationProducers: List<() -> DataMigration<Preferences>> = listOf(),
+        migrationProducers: List<() -> DataMigration<T>> = listOf(),
         /**
          * The scope in which IO operations and transform functions will execute.
          */
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    ): DataStore<Preferences> =
-        dataStoreFactory.create(
-            produceFile = {
-                val file = produceFile()
-                check(file.extension == PreferencesSerializer.fileExtension) {
-                    "File extension for file: $file does not match required extension for" +
-                            " Preferences file: ${PreferencesSerializer.fileExtension}"
-                }
-                file
-            },
-            serializer = PreferencesSerializer,
-            corruptionHandler = corruptionHandler,
-            migrationProducers = migrationProducers,
+    ): DataStore<T> =
+        SingleProcessDataStore(
+            produceFile = produceFile,
+            serializer = serializer,
+            corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
+            initTasksList = listOf(DataMigrationInitializer.getInitializer(migrationProducers)),
             scope = scope
         )
 }

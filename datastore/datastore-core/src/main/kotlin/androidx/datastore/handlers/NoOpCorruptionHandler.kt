@@ -16,16 +16,12 @@
 package androidx.datastore.handlers
 
 import androidx.datastore.CorruptionException
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.datastore.CorruptionHandler
 
 /**
  * Default corruption handler which does nothing but rethrow the exception.
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
-class NoOpCorruptionHandler<T> : CorruptionHandler<T> {
+internal class NoOpCorruptionHandler<T> : CorruptionHandler<T> {
 
     @Throws(CorruptionException::class)
     override suspend fun handleCorruption(ex: CorruptionException): T {
