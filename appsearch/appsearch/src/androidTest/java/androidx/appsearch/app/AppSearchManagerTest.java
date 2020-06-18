@@ -16,11 +16,13 @@
 
 package androidx.appsearch.app;
 
+import static androidx.appsearch.app.AppSearchManager.PutDocumentsRequest;
 import static androidx.appsearch.app.AppSearchManager.SetSchemaRequest;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
+import androidx.appsearch.app.customer.EmailDataClass;
 
 import com.google.common.collect.ImmutableList;
 
@@ -64,6 +66,12 @@ public class AppSearchManagerTest {
     }
 
     @Test
+    public void testSetSchema_DataClass() throws Exception {
+        checkIsSuccess(mAppSearch.setSchema(
+                new SetSchemaRequest.Builder().addDataClass(EmailDataClass.class).build()));
+    }
+
+    @Test
     public void testPutDocuments() throws Exception {
         // Schema registration
         checkIsSuccess(mAppSearch.setSchema(
@@ -77,8 +85,28 @@ public class AppSearchManagerTest {
                 .setBody("This is the body of the testPut email")
                 .build();
 
-        Future<AppSearchBatchResult<String, Void>> future =
-                mAppSearch.putDocuments(ImmutableList.of(email));
+        Future<AppSearchBatchResult<String, Void>> future = mAppSearch.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email).build());
+        checkIsSuccess(future);
+        AppSearchBatchResult<String, Void> result = future.get();
+        assertThat(result.getSuccesses()).containsExactly("uri1", null);
+        assertThat(result.getFailures()).isEmpty();
+    }
+
+    @Test
+    public void testPutDocuments_DataClass() throws Exception {
+        // Schema registration
+        checkIsSuccess(mAppSearch.setSchema(
+                new SetSchemaRequest.Builder().addDataClass(EmailDataClass.class).build()));
+
+        // Index a document
+        EmailDataClass email = new EmailDataClass();
+        email.uri = "uri1";
+        email.subject = "testPut example";
+        email.body = "This is the body of the testPut email";
+
+        Future<AppSearchBatchResult<String, Void>> future = mAppSearch.putDocuments(
+                new PutDocumentsRequest.Builder().addDataClass(email).build());
         checkIsSuccess(future);
         AppSearchBatchResult<String, Void> result = future.get();
         assertThat(result.getSuccesses()).containsExactly("uri1", null);
@@ -99,13 +127,37 @@ public class AppSearchManagerTest {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsSuccess(mAppSearch.putDocuments(ImmutableList.of(inEmail)));
+        checkIsSuccess(mAppSearch.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
 
         // Get the document
         List<GenericDocument> outDocuments = doGet("uri1");
         assertThat(outDocuments).hasSize(1);
         AppSearchEmail outEmail = new AppSearchEmail(outDocuments.get(0));
         assertThat(outEmail).isEqualTo(inEmail);
+    }
+
+    @Test
+    public void testGetDocuments_DataClass() throws Exception {
+        // Schema registration
+        checkIsSuccess(mAppSearch.setSchema(
+                new SetSchemaRequest.Builder().addDataClass(EmailDataClass.class).build()));
+
+        // Index a document
+        EmailDataClass inEmail = new EmailDataClass();
+        inEmail.uri = "uri1";
+        inEmail.subject = "testPut example";
+        inEmail.body = "This is the body of the testPut inEmail";
+        checkIsSuccess(mAppSearch.putDocuments(
+                new PutDocumentsRequest.Builder().addDataClass(inEmail).build()));
+
+        // Get the document
+        List<GenericDocument> outDocuments = doGet("uri1");
+        assertThat(outDocuments).hasSize(1);
+        EmailDataClass outEmail = outDocuments.get(0).toDataClass(EmailDataClass.class);
+        assertThat(inEmail.uri).isEqualTo(outEmail.uri);
+        assertThat(inEmail.subject).isEqualTo(outEmail.subject);
+        assertThat(inEmail.body).isEqualTo(outEmail.body);
     }
 
     @Test
@@ -122,7 +174,8 @@ public class AppSearchManagerTest {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsSuccess(mAppSearch.putDocuments(ImmutableList.of(inEmail)));
+        checkIsSuccess(mAppSearch.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
 
         // Query for the document
         List<GenericDocument> results = doQuery("body");
@@ -151,7 +204,8 @@ public class AppSearchManagerTest {
                         .build();
         GenericDocument inDoc =
                 new GenericDocument.Builder<>("uri2", "Test").setProperty("foo", "body").build();
-        checkIsSuccess(mAppSearch.putDocuments(ImmutableList.of(inEmail, inDoc)));
+        checkIsSuccess(mAppSearch.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(inEmail, inDoc).build()));
 
         // Query for the documents
         List<GenericDocument> results = doQuery("body");
@@ -185,7 +239,8 @@ public class AppSearchManagerTest {
                         .setSubject("testPut example 2")
                         .setBody("This is the body of the testPut second email")
                         .build();
-        checkIsSuccess(mAppSearch.putDocuments(ImmutableList.of(email1, email2)));
+        checkIsSuccess(mAppSearch.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2).build()));
 
         // Check the presence of the documents
         assertThat(doGet("uri1")).hasSize(1);
@@ -234,7 +289,9 @@ public class AppSearchManagerTest {
         GenericDocument document1 =
                 new GenericDocument.Builder<>("uri3", "schemaType")
                         .setProperty("foo", "bar").build();
-        checkIsSuccess(mAppSearch.putDocuments(ImmutableList.of(email1, email2, document1)));
+        checkIsSuccess(mAppSearch.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2, document1)
+                        .build()));
 
         // Check the presence of the documents
         assertThat(doGet("uri1", "uri2", "uri3")).hasSize(3);

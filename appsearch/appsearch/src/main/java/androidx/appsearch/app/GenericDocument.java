@@ -22,7 +22,9 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.collection.ArrayMap;
+import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.PropertyProto;
@@ -394,6 +396,28 @@ public class GenericDocument {
             Log.w(TAG, "Error casting to requested type for key \"" + key + "\"", e);
             return null;
         }
+    }
+
+    /**
+     * Converts this GenericDocument into an instance of the provided data class.
+     *
+     * <p>It is the developer's responsibility to ensure the right kind of data class is being
+     * supplied here, either by structuring the application code to ensure the document type is
+     * known, or by checking the return value of {@link #getSchemaType}.
+     *
+     * <p>Document properties are identified by String keys and any that are found are assigned into
+     * fields of the given data class, so the most likely outcome of supplying the wrong data class
+     * would be an empty or partially populated result.
+     *
+     * @param dataClass a non-inner class annotated with
+     *     {@link androidx.appsearch.annotation.AppSearchDocument}.
+     */
+    @NonNull
+    public <T> T toDataClass(@NonNull Class<T> dataClass) throws AppSearchException {
+        Preconditions.checkNotNull(dataClass);
+        DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
+        DataClassFactory<T> factory = registry.getOrCreateFactory(dataClass);
+        return factory.fromGenericDocument(this);
     }
 
     @Override

@@ -70,6 +70,7 @@ class ToGenericDocumentCodeGenerator {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("toGenericDocument")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(mHelper.getAppSearchClass("GenericDocument"))
+                .addAnnotation(Override.class)
                 .addParameter(classType, "dataClass");
 
         // Construct a new GenericDocument.Builder with the schema type and URI
