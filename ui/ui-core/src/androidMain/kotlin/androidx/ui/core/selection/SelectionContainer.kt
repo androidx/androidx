@@ -26,7 +26,6 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.HapticFeedBackAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.Placeable
 import androidx.ui.core.Popup
 import androidx.ui.core.TextToolbarAmbient
@@ -95,11 +94,13 @@ fun SelectionContainer(
         // cross-composable selection.
         Wrap(modifier) {
             children()
-            Handle(manager, isStartHandle = true) {
-                StartSelectionHandle(selection = selection)
-            }
-            Handle(manager, isStartHandle = false) {
-                EndSelectionHandle(selection = selection)
+            for (isStartHandle in listOf(true, false)) {
+                Handle(manager, isStartHandle) {
+                    SelectionHandle(
+                        Modifier.dragGestureFilter(manager.handleDragObserver(isStartHandle)),
+                        manager.selection,
+                        isStartHandle)
+                }
             }
             SelectionFloatingToolBar(manager = manager, selection = selection)
         }
@@ -120,27 +121,19 @@ private fun Handle(
 ) {
     val offset = if (isStartHandle) manager.startHandlePosition else manager.endHandlePosition
     val selection = manager.selection
-    if (offset != null && selection != null) {
-        Wrap {
-            val anchorInfo = if (isStartHandle) selection.start else selection.end
-            Popup(
-                alignment =
-                if (isHandleLtrDirection(anchorInfo.direction, selection.handlesCrossed)) {
-                    if (isStartHandle) Alignment.TopEnd else Alignment.TopStart
-                } else {
-                    if (isStartHandle) Alignment.TopStart else Alignment.TopEnd
-                },
-                offset = IntOffset(offset.x.roundToInt(), offset.y.roundToInt())
-            ) {
-                val drag = Modifier.dragGestureFilter(
-                    dragObserver = manager.handleDragObserver(isStartHandle = isStartHandle)
-                )
-                // TODO(b/150706555): This layout is temporary and should be removed once Semantics
-                //  is implemented with modifiers.
-                @Suppress("DEPRECATION")
-                PassThroughLayout(drag, handle)
-            }
-        }
+    if (offset == null || selection == null) {
+        return
+    }
+
+    Wrap {
+        val left = isLeft(isStartHandle, selection)
+        val alignment = if (left) Alignment.TopEnd else Alignment.TopStart
+
+        Popup(
+            alignment = alignment,
+            offset = IntOffset(offset.x.roundToInt(), offset.y.roundToInt()),
+            children = handle
+        )
     }
 }
 

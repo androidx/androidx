@@ -19,6 +19,7 @@ package androidx.ui.core.selection
 import android.os.Build
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.core.test.runOnUiThreadIR
 import androidx.ui.core.test.waitAndScreenShot
@@ -86,7 +87,9 @@ class SelectionHandlesTest {
     fun StartSelectionHandle_left_pointing() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                StartSelectionHandle(selection = selectionLtrHandleDirection)
+                SelectionHandle(Modifier,
+                    isStartHandle = true,
+                    selection = selectionLtrHandleDirection)
             }
         }
 
@@ -102,7 +105,9 @@ class SelectionHandlesTest {
     fun StartSelectionHandle_right_pointing() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                StartSelectionHandle(selection = selectionRtlHandleDirection)
+                SelectionHandle(Modifier,
+                    isStartHandle = true,
+                    selection = selectionRtlHandleDirection)
             }
         }
 
@@ -118,7 +123,9 @@ class SelectionHandlesTest {
     fun EndSelectionHandle_right_pointing() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                EndSelectionHandle(selection = selectionLtrHandleDirection)
+                SelectionHandle(Modifier,
+                    isStartHandle = false,
+                    selection = selectionLtrHandleDirection)
             }
         }
 
@@ -134,7 +141,9 @@ class SelectionHandlesTest {
     fun EndSelectionHandle_left_pointing() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                EndSelectionHandle(selection = selectionRtlHandleDirection)
+                SelectionHandle(Modifier,
+                    isStartHandle = false,
+                    selection = selectionRtlHandleDirection)
             }
         }
 

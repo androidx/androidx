@@ -36,9 +36,9 @@ internal val HANDLE_HEIGHT = 25.dp
 private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())
 
 @Composable
-private fun SelectionHandle(left: Boolean) {
+internal fun SelectionHandleLayout(modifier: Modifier, left: Boolean) {
     val selectionHandleCache = remember { SelectionHandleCache() }
-    HandleDrawLayout(width = HANDLE_WIDTH, height = HANDLE_HEIGHT) {
+    HandleDrawLayout(modifier = modifier, width = HANDLE_WIDTH, height = HANDLE_HEIGHT) {
         drawPath(selectionHandleCache.createPath(this, left), HANDLE_COLOR)
     }
 }
@@ -102,11 +102,12 @@ private class SelectionHandleCache {
  */
 @Composable
 private fun HandleDrawLayout(
+    modifier: Modifier,
     width: Dp,
     height: Dp,
     onCanvas: DrawScope.() -> Unit
 ) {
-    Layout(emptyContent(), Modifier.drawBehind(onCanvas)) { _, _, _ ->
+    Layout(emptyContent(), modifier.drawBehind(onCanvas)) { _, _, _ ->
         // take width and height space of the screen and allow draw modifier to draw inside of it
         layout(width.toIntPx(), height.toIntPx()) {
             // this layout has no children, only draw modifier.
@@ -115,24 +116,31 @@ private fun HandleDrawLayout(
 }
 
 @Composable
-internal fun StartSelectionHandle(selection: Selection?) {
-    selection?.let {
-        if (isHandleLtrDirection(it.start.direction, it.handlesCrossed)) {
-            SelectionHandle(left = true)
-        } else {
-            SelectionHandle(left = false)
-        }
+internal fun SelectionHandle(
+    modifier: Modifier,
+    selection: Selection?,
+    isStartHandle: Boolean
+) {
+    if (selection == null) {
+        return
     }
+
+    SelectionHandleLayout(
+        modifier,
+        isLeft(isStartHandle, selection))
 }
 
-@Composable
-internal fun EndSelectionHandle(selection: Selection?) {
-    selection?.let {
-        if (isHandleLtrDirection(it.end.direction, it.handlesCrossed)) {
-            SelectionHandle(left = false)
-        } else {
-            SelectionHandle(left = true)
-        }
+/**
+ * Computes whether the handle's appearance should be left-pointing or right-pointing.
+ */
+internal fun isLeft(
+    isStartHandle: Boolean,
+    selection: Selection
+): Boolean {
+    if (isStartHandle) {
+        return isHandleLtrDirection(selection.start.direction, selection.handlesCrossed)
+    } else {
+        return !isHandleLtrDirection(selection.end.direction, selection.handlesCrossed)
     }
 }
 
