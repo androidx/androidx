@@ -1,16 +1,18 @@
 package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.DataClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import java.lang.Float;
+import java.lang.Override;
 import java.lang.String;
 import java.util.Arrays;
 import java.util.List;
 
-class $$__AppSearch__Gift {
-  public static final String SCHEMA_TYPE = "Gift";
+public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
+  private static final String SCHEMA_TYPE = "Gift";
 
-  public static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
+  private static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
     .addProperty(new AppSearchSchema.PropertyConfig.Builder("repeatReq")
       .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
       .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -37,6 +39,17 @@ class $$__AppSearch__Gift {
       .build())
     .build();
 
+  @Override
+  public String getSchemaType() {
+    return SCHEMA_TYPE;
+  }
+
+  @Override
+  public AppSearchSchema getSchema() {
+    return SCHEMA;
+  }
+
+  @Override
   public GenericDocument toGenericDocument(Gift dataClass) {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
@@ -61,6 +74,7 @@ class $$__AppSearch__Gift {
     return builder.build();
   }
 
+  @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) {
     String uriConv = genericDoc.getUri();
     String[] repeatReqCopy = genericDoc.getPropertyStringArray("repeatReq");
