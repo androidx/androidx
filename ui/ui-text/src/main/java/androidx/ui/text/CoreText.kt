@@ -75,6 +75,7 @@ internal typealias InlineContentRange = AnnotatedString.Range<@Composable() (Str
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
  */
 @Composable
+@OptIn(InternalTextApi::class)
 fun CoreText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
@@ -283,6 +284,7 @@ val FirstBaseline = HorizontalAlignmentLine(::min)
  */
 val LastBaseline = HorizontalAlignmentLine(::max)
 
+@OptIn(InternalTextApi::class)
 private class TextState(
     var textDelegate: TextDelegate
 ) {
@@ -309,6 +311,7 @@ private class TextState(
  * Returns the [TextDelegate] passed as a [current] param if the input didn't change
  * otherwise creates a new [TextDelegate].
  */
+@OptIn(InternalTextApi::class)
 internal fun updateTextDelegate(
     current: TextDelegate,
     text: AnnotatedString,

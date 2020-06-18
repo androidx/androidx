@@ -20,11 +20,13 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
 import androidx.ui.integration.test.RandomTextGenerator
+import androidx.ui.text.InternalTextApi
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@OptIn(InternalTextApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class GapBufferBenchmark(val initText: InitialText) {

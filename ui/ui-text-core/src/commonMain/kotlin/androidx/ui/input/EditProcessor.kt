@@ -16,6 +16,7 @@
 
 package androidx.ui.input
 
+import androidx.ui.text.InternalTextApi
 import androidx.ui.util.annotation.VisibleForTesting
 import androidx.ui.text.TextRange
 
@@ -24,8 +25,10 @@ import androidx.ui.text.TextRange
  *
  * This class accepts latest text edit state from developer and also receives edit operations from
  * IME.
+ *
  * @suppress
  */
+@InternalTextApi
 class EditProcessor {
 
     // The previous editor state we passed back to the user of this class.

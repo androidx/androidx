@@ -17,6 +17,7 @@
 package androidx.ui.input
 
 import androidx.test.filters.SmallTest
+import androidx.ui.text.InternalTextApi
 import androidx.ui.text.TextRange
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -31,6 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(InternalTextApi::class)
 @SmallTest
 @RunWith(JUnit4::class)
 class EditProcessorTest {

@@ -16,6 +16,7 @@
 
 package androidx.ui.input
 
+import androidx.ui.text.InternalTextApi
 import androidx.ui.text.TextRange
 
 /**
@@ -23,6 +24,7 @@ import androidx.ui.text.TextRange
  *
  * This class manages the all editing relate states, editing buffers, selection, styles, etc.
  */
+@OptIn(InternalTextApi::class)
 class EditingBuffer(
     /**
      * The initial text of this editing buffer

@@ -18,7 +18,6 @@ package androidx.ui.text.platform
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.TextUtils
-import androidx.annotation.VisibleForTesting
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
@@ -47,6 +46,7 @@ import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 import androidx.ui.geometry.Offset
+import androidx.ui.util.annotation.VisibleForTesting
 import java.util.Locale as JavaLocale
 
 /**
