@@ -157,7 +157,7 @@ inline fun OutlinedButton(
         1.dp, MaterialTheme.colors.onSurface.copy(alpha = OutlinedStrokeOpacity)
     ),
     backgroundColor: Color = MaterialTheme.colors.surface,
-    contentColor: Color = contentColorFor(backgroundColor),
+    contentColor: Color = MaterialTheme.colors.primary,
     disabledContentColor: Color = Button.defaultDisabledContentColor,
     padding: InnerPadding = Button.DefaultInnerPadding,
     noinline text: @Composable () -> Unit
