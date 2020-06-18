@@ -598,6 +598,9 @@ class FromGenericDocumentCodeGenerator {
                 case URI:
                     method.addStatement("String $NConv = genericDoc.getUri()", fieldName);
                     break;
+                case NAMESPACE:
+                    method.addStatement("String $NConv = genericDoc.getNamespace()", fieldName);
+                    break;
                 case CREATION_TIMESTAMP_MILLIS:
                     method.addStatement(
                             "long $NConv = genericDoc.getCreationTimestampMillis()", fieldName);

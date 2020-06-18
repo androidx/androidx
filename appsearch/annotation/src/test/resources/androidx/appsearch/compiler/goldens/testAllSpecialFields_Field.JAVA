@@ -19,6 +19,10 @@ class $$__AppSearch__Gift {
   public GenericDocument toGenericDocument(Gift dataClass) {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
+    String namespaceCopy = dataClass.namespace;
+    if (namespaceCopy != null) {
+      builder.setNamespace(namespaceCopy);
+    }
     builder.setCreationTimestampMillis(dataClass.creationTs);
     builder.setTtlMillis(dataClass.ttlMs);
     builder.setScore(dataClass.score);
@@ -28,16 +32,18 @@ class $$__AppSearch__Gift {
 
   public Gift fromGenericDocument(GenericDocument genericDoc) {
     String uriConv = genericDoc.getUri();
+    String namespaceConv = genericDoc.getNamespace();
     long creationTsConv = genericDoc.getCreationTimestampMillis();
     long ttlMsConv = genericDoc.getTtlMillis();
     int scoreConv = genericDoc.getScore();
     int priceConv = genericDoc.getPropertyLong("price");
     Gift dataClass = new Gift();
     dataClass.uri = uriConv;
-    dataClass.score = scoreConv;
+    dataClass.namespace = namespaceConv;
     dataClass.creationTs = creationTsConv;
     dataClass.ttlMs = ttlMsConv;
     dataClass.price = priceConv;
+    dataClass.score = scoreConv;
     return dataClass;
   }
 }

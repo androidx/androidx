@@ -90,6 +90,27 @@ public @interface AppSearchDocument {
     @interface Uri {}
 
     /**
+     * Marks a member field of a document as the document's namespace.
+     *
+     * <p>The namespace is an arbitrary user-provided string that can be used to group documents
+     * during querying or deletion. Indexing a document with a particular {@link java.net.URI}
+     * replaces any existing documents with the same URI in that namespace.
+     *
+     * <p>This field is not required. If not present or not set, the document will be assigned to
+     * the default namespace, {@link androidx.appsearch.app.GenericDocument#DEFAULT_NAMESPACE}.
+     *
+     * <p>If present, the field must be of type {@code String}.
+     *
+     * <p>See the class description of {@link AppSearchDocument} for other requirements (i.e. if
+     * present it must be visible, or have a visible getter and setter, or be exposed through a
+     * visible constructor).
+     */
+    @Documented
+    @Retention(RetentionPolicy.CLASS)
+    @Target(ElementType.FIELD)
+    @interface Namespace {}
+
+    /**
      * Marks a member field of a document as the document's creation timestamp.
      *
      * <p>The creation timestamp is used for document expiry (see {@link TtlMillis}) and as one

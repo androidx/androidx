@@ -47,7 +47,7 @@ import javax.lang.model.element.VariableElement;
 class AppSearchDocumentModel {
 
     /** Enumeration of fields that must be handled specially (i.e. are not properties) */
-    enum SpecialField { URI, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE }
+    enum SpecialField { URI, NAMESPACE, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE }
     /** Determines how the annotation processor has decided to read the value of a field. */
     enum ReadKind { FIELD, GETTER }
     /** Determines how the annotation processor has decided to write the value of a field. */
@@ -162,6 +162,7 @@ class AppSearchDocumentModel {
 
     private void scanFields() throws ProcessingException {
         Element uriField = null;
+        Element namespaceField = null;
         Element creationTimestampField = null;
         Element ttlField = null;
         Element scoreField = null;
@@ -179,6 +180,14 @@ class AppSearchDocumentModel {
                     }
                     uriField = child;
                     mSpecialFieldNames.put(SpecialField.URI, fieldName);
+
+                } else if (IntrospectionHelper.NAMESPACE_CLASS.equals(annotationFq)) {
+                    if (namespaceField != null) {
+                        throw new ProcessingException(
+                                "Class contains multiple fields annotated @Namespace", child);
+                    }
+                    namespaceField = child;
+                    mSpecialFieldNames.put(SpecialField.NAMESPACE, fieldName);
 
                 } else if (
                         IntrospectionHelper.CREATION_TIMESTAMP_MILLIS_CLASS.equals(annotationFq)) {
