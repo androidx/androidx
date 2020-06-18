@@ -21,7 +21,8 @@ import androidx.compose.Composable
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.tag
+import androidx.ui.core.id
+import androidx.ui.core.layoutId
 import androidx.ui.foundation.Box
 @Sampled
 @Composable
@@ -100,11 +101,11 @@ fun LayoutTagChildrenUsage(header: @Composable () -> Unit, footer: @Composable (
     Layout({
         // Here the Containers are only needed to apply the modifiers. You could use the
         // modifier on header and footer directly if they are composables accepting modifiers.
-        Box(Modifier.tag("header"), children = header)
-        Box(Modifier.tag("footer"), children = footer)
+        Box(Modifier.layoutId("header"), children = header)
+        Box(Modifier.layoutId("footer"), children = footer)
     }) { measurables, constraints, _ ->
         val placeables = measurables.map { measurable ->
-            when (measurable.tag) {
+            when (measurable.id) {
                 // You should use appropriate constraints. Here we measure with dummy constraints.
                 "header" -> measurable.measure(Constraints.fixed(100, 100))
                 "footer" -> measurable.measure(constraints)

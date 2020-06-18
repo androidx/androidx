@@ -29,7 +29,8 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.drawOpacity
-import androidx.ui.core.tag
+import androidx.ui.core.id
+import androidx.ui.core.layoutId
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ContentGravity
@@ -208,18 +209,18 @@ private fun BottomNavigationItemBaselineLayout(
 ) {
     Layout(
         {
-            Box(Modifier.tag("icon"), children = icon)
+            Box(Modifier.layoutId("icon"), children = icon)
             Box(
-                Modifier.tag("text").drawOpacity(iconPositionAnimationProgress),
+                Modifier.layoutId("text").drawOpacity(iconPositionAnimationProgress),
                 paddingStart = BottomNavigationItemHorizontalPadding,
                 paddingEnd = BottomNavigationItemHorizontalPadding,
                 children = text
             )
         }
     ) { measurables, constraints, _ ->
-        val iconPlaceable = measurables.first { it.tag == "icon" }.measure(constraints)
+        val iconPlaceable = measurables.first { it.id == "icon" }.measure(constraints)
 
-        val textPlaceable = measurables.first { it.tag == "text" }.measure(
+        val textPlaceable = measurables.first { it.id == "text" }.measure(
             // Measure with loose constraints for height as we don't want the text to take up more
             // space than it needs
             constraints.copy(minHeight = 0)

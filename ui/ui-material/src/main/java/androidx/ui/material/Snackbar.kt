@@ -23,7 +23,8 @@ import androidx.ui.text.FirstBaseline
 import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.tag
+import androidx.ui.core.id
+import androidx.ui.core.layoutId
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.graphics.Color
@@ -150,16 +151,16 @@ private fun OneRowSnackbar(
     val actionTag = "action"
     Layout(
         {
-            Box(Modifier.tag(textTag), children = text)
-            Box(Modifier.tag(actionTag), children = action)
+            Box(Modifier.layoutId(textTag), children = text)
+            Box(Modifier.layoutId(actionTag), children = action)
         },
         modifier = Modifier.padding(start = HorizontalSpacing, end = HorizontalSpacingButtonSide)
     ) { measurables, constraints, _ ->
-        val buttonPlaceable = measurables.first { it.tag == actionTag }.measure(constraints)
+        val buttonPlaceable = measurables.first { it.id == actionTag }.measure(constraints)
         val textMaxWidth =
             (constraints.maxWidth - buttonPlaceable.width - TextEndExtraSpacing.toIntPx())
                 .coerceAtLeast(constraints.minWidth)
-        val textPlaceable = measurables.first { it.tag == textTag }.measure(
+        val textPlaceable = measurables.first { it.id == textTag }.measure(
             constraints.copy(minHeight = 0, maxWidth = textMaxWidth)
         )
 

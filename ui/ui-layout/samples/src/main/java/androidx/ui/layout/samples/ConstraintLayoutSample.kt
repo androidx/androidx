@@ -19,7 +19,7 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.core.tag
+import androidx.ui.core.layoutId
 import androidx.ui.foundation.Text
 import androidx.ui.layout.ConstraintLayout
 import androidx.ui.layout.ConstraintSet2
@@ -71,8 +71,8 @@ fun DemoConstraintSet() {
             width = Dimension.preferredWrapContent.atMost(40.dp)
         }
     }) {
-        Text("Text1", Modifier.tag("text1"))
-        Text("Text2", Modifier.tag("text2"))
-        Text("This is a very long text", Modifier.tag("text3"))
+        Text("Text1", Modifier.layoutId("text1"))
+        Text("Text2", Modifier.layoutId("text2"))
+        Text("This is a very long text", Modifier.layoutId("text3"))
     }
 }
