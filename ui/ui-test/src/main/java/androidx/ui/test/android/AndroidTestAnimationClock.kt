@@ -175,10 +175,14 @@ internal class AndroidTestAnimationClock : TestAnimationClock {
             mainChoreographer.removeFrameCallback(frameCallback)
             needsToDispatch = false
             isDisposed = true
+            // TODO(b/159102826): Reinstate check when both tests and animations switched to
+            //  coroutines
+            /*
             if (clock.hasObservers) {
                 throw AssertionError("Animation clock still has observer(s) after it is disposed." +
                         " Are there still animations running?")
             }
+            */
         }
     }
 }
