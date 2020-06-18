@@ -54,7 +54,11 @@ class CameraPipeComponentTest {
             .build()
 
         val cameraId = CameraId("0")
-        val config = CameraGraph.Config(cameraId, listOf())
+        val config = CameraGraph.Config(
+            camera = cameraId,
+            streams = listOf(),
+            defaultTemplate = 0
+        )
         val module = CameraGraphModule(config)
         val builder = component.cameraGraphComponentBuilder()
         builder.cameraGraphModule(module)
@@ -70,7 +74,15 @@ class CameraPipeComponentTest {
             .build()
 
         val graphComponent = component.cameraGraphComponentBuilder()
-            .cameraGraphModule(CameraGraphModule(CameraGraph.Config(CameraId("0"), listOf())))
+            .cameraGraphModule(
+                CameraGraphModule(
+                    CameraGraph.Config(
+                        camera = CameraId("0"),
+                        streams = listOf(),
+                        defaultTemplate = 0
+                    )
+                )
+            )
             .build()
 
         val graph = graphComponent.cameraGraph()
