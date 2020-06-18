@@ -21,6 +21,7 @@ import static androidx.appsearch.app.AppSearchManager.SetSchemaRequest;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
+import androidx.appsearch.app.customer.EmailDataClass;
 
 import com.google.common.collect.ImmutableList;
 
@@ -61,6 +62,12 @@ public class AppSearchManagerTest {
                 ).build();
         checkIsSuccess(mAppSearch.setSchema(
                 new SetSchemaRequest.Builder().addSchema(emailSchema).build()));
+    }
+
+    @Test
+    public void testSetSchema_DataClass() throws Exception {
+        checkIsSuccess(mAppSearch.setSchema(
+                new SetSchemaRequest.Builder().addDataClass(EmailDataClass.class).build()));
     }
 
     @Test

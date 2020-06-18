@@ -34,6 +34,7 @@ import com.google.android.icing.proto.StatusProto;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -94,6 +95,38 @@ public class AppSearchManager {
                 Preconditions.checkNotNull(schemas);
                 mSchemas.addAll(schemas);
                 return this;
+            }
+
+            /**
+             * Adds one or more types to the schema.
+             *
+             * @param dataClasses non-inner classes annotated with
+             *     {@link androidx.appsearch.annotation.AppSearchDocument}.
+             */
+            @NonNull
+            public Builder addDataClass(@NonNull Class<?>... dataClasses)
+                    throws AppSearchException {
+                return addDataClass(Arrays.asList(dataClasses));
+            }
+
+            /**
+             * Adds one or more types to the schema.
+             *
+             * @param dataClasses non-inner classes annotated with
+             *     {@link androidx.appsearch.annotation.AppSearchDocument}.
+             */
+            @NonNull
+            public Builder addDataClass(@NonNull Collection<Class<?>> dataClasses)
+                    throws AppSearchException {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                Preconditions.checkNotNull(dataClasses);
+                List<AppSearchSchema> schemas = new ArrayList<>(dataClasses.size());
+                DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
+                for (Class<?> dataClass : dataClasses) {
+                    DataClassFactory<?> factory = registry.getOrCreateFactory(dataClass);
+                    schemas.add(factory.getSchema());
+                }
+                return addSchema(schemas);
             }
 
             /**

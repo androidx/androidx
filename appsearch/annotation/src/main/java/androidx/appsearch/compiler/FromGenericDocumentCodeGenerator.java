@@ -73,6 +73,7 @@ class FromGenericDocumentCodeGenerator {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("fromGenericDocument")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(classType)
+                .addAnnotation(Override.class)
                 .addParameter(mHelper.getAppSearchClass("GenericDocument"), "genericDoc");
 
         unpackSpecialFields(methodBuilder);

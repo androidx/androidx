@@ -20,12 +20,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.File;
 import java.io.IOException;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Modifier;
 
 /**
  * Generates java code for an {@link androidx.appsearch.app.AppSearchSchema} and a translator
@@ -36,6 +39,7 @@ class CodeGenerator {
     static final String GEN_CLASS_PREFIX = "$$__AppSearch__";
 
     private final ProcessingEnvironment mEnv;
+    private final IntrospectionHelper mHelper;
     private final AppSearchDocumentModel mModel;
 
     private final String mOutputPackage;
@@ -52,6 +56,7 @@ class CodeGenerator {
             throws ProcessingException {
         // Prepare constants needed for processing
         mEnv = env;
+        mHelper = new IntrospectionHelper(env);
         mModel = model;
 
         // Perform the actual work of generating code
@@ -69,9 +74,16 @@ class CodeGenerator {
 
     private TypeSpec createClass() throws ProcessingException {
         String genClassName = GEN_CLASS_PREFIX + mModel.getClassElement().getSimpleName();
+        TypeName genClassType = TypeName.get(mModel.getClassElement().asType());
+        TypeName factoryType = ParameterizedTypeName.get(
+                mHelper.getAppSearchClass("DataClassFactory"),
+                genClassType);
+
         TypeSpec.Builder genClass = TypeSpec
                 .classBuilder(genClassName)
-                .addOriginatingElement(mModel.getClassElement());
+                .addOriginatingElement(mModel.getClassElement())
+                .addModifiers(Modifier.PUBLIC)
+                .addSuperinterface(factoryType);
 
         SchemaCodeGenerator.generate(mEnv, mModel, genClass);
         ToGenericDocumentCodeGenerator.generate(mEnv, mModel, genClass);

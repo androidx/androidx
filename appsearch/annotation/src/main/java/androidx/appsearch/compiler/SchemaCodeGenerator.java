@@ -21,6 +21,8 @@ import androidx.annotation.NonNull;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.util.List;
@@ -59,14 +61,30 @@ class SchemaCodeGenerator {
     private void generate(@NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
         classBuilder.addField(
                 FieldSpec.builder(String.class, "SCHEMA_TYPE")
-                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                        .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                         .initializer("$S", mModel.getSchemaName())
                         .build());
 
         classBuilder.addField(
                 FieldSpec.builder(mHelper.getAppSearchClass("AppSearchSchema"), "SCHEMA")
-                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                        .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                         .initializer(createSchemaInitializer())
+                        .build());
+
+        classBuilder.addMethod(
+                MethodSpec.methodBuilder("getSchemaType")
+                        .addModifiers(Modifier.PUBLIC)
+                        .returns(TypeName.get(mHelper.mStringType))
+                        .addAnnotation(Override.class)
+                        .addStatement("return SCHEMA_TYPE")
+                        .build());
+
+        classBuilder.addMethod(
+                MethodSpec.methodBuilder("getSchema")
+                        .addModifiers(Modifier.PUBLIC)
+                        .returns(mHelper.getAppSearchClass("AppSearchSchema"))
+                        .addAnnotation(Override.class)
+                        .addStatement("return SCHEMA")
                         .build());
     }
 
