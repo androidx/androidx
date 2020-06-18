@@ -21,13 +21,13 @@ package androidx.room;
  * <p>
  * You can use these values inside a {@link SuppressWarnings} annotation to disable the warnings.
  */
+// If you change this, don't forget to change androidx.room.vo.Warning
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class RoomWarnings {
     /**
      * The warning dispatched by Room when the return value of a {@link Query} method does not
      * exactly match the fields in the query result.
      */
-    // if you change this, don't forget to change androidx.room.vo.Warning
     public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
 
     /**
@@ -117,6 +117,16 @@ public class RoomWarnings {
      */
     public static final String MISSING_INDEX_ON_FOREIGN_KEY_CHILD =
             "ROOM_MISSING_FOREIGN_KEY_CHILD_INDEX";
+
+    /**
+     * Reported when a junction entity whose column is used in a `@Relation` field with a
+     * `@Junction` does not contain an index. If the column is not covered by any index then a
+     * full table scan might be performed when resolving the relationship.
+     * <p>
+     * It is recommended that columns on entities used as junctions contain indices, otherwise Room
+     * will print this warning.
+     */
+    public static final String MISSING_INDEX_ON_JUNCTION = "MISSING_INDEX_ON_JUNCTION";
 
     /**
      * Reported when a POJO has multiple constructors, one of which is a no-arg constructor. Room
