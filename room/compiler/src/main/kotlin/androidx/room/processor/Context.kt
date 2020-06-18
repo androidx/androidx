@@ -171,7 +171,7 @@ class Context private constructor(
     }
 
     enum class BooleanProcessorOptions(val argName: String, private val defaultValue: Boolean) {
-        INCREMENTAL("room.incremental", false),
+        INCREMENTAL("room.incremental", true),
         EXPAND_PROJECTION("room.expandProjection", false);
 
         /**
