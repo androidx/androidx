@@ -16,9 +16,6 @@
 
 package androidx.datastore
 
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
-
 /**
  * The initializer API allows changes to be made to store before data is accessed through
  * data or updateData.
@@ -26,9 +23,7 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
  * Initializers are executed in the order in which they are added. They must be idempotent
  * since they are run each time the DataStore starts, and they may be run multiple times by a
  * single instance if a downstream initializer fails.
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
-interface InitializerApi<T> {
+internal interface InitializerApi<T> {
     suspend fun updateData(transform: suspend (t: T) -> T): T
 }

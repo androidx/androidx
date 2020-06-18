@@ -15,7 +15,6 @@
  */
 package androidx.datastore
 
-import androidx.annotation.RestrictTo
 import androidx.datastore.handlers.NoOpCorruptionHandler
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -37,6 +36,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -47,14 +47,9 @@ import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Single process implementation of DataStore. This is NOT multi-process safe.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @OptIn(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class, FlowPreview::class)
-class SingleProcessDataStore<T>
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-constructor(
+internal class SingleProcessDataStore<T>(
     private val produceFile: () -> File,
     private val serializer: Serializer<T>,
     /**
@@ -94,14 +89,7 @@ constructor(
 
     private val SCRATCH_SUFFIX = ".tmp"
 
-    private val file: File by lazy {
-        val file = produceFile()
-        check(file.extension == serializer.fileExtension) {
-            "File extension for file: $file does not match required extension for" +
-                    " serializer: ${serializer.fileExtension}"
-        }
-        file
-    }
+    private val file: File by lazy { produceFile() }
 
     /**
      * The external facing channel. The data flow emits the values from this channel.
@@ -255,7 +243,9 @@ constructor(
             if (file.exists()) {
                 throw ex
             }
-            return serializer.defaultValue
+            ByteArrayInputStream(byteArrayOf()).use {
+                return serializer.readFrom(it)
+            }
         }
     }
 
