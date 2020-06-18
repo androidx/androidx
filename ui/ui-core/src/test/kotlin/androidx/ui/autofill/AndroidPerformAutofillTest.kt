@@ -17,12 +17,12 @@
 package androidx.ui.autofill
 
 import android.app.Activity
-import android.graphics.Rect
 import android.util.SparseArray
 import android.view.View
 import android.view.autofill.AutofillValue
 import androidx.test.filters.SmallTest
 import androidx.ui.ComposeUiRobolectricTestRunner
+import androidx.ui.geometry.Rect
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.Test
@@ -54,7 +54,7 @@ class AndroidPerformAutofillTest {
         val autofillNode = AutofillNode(
             onFill = { autofilledValue = it },
             autofillTypes = listOf(AutofillType.PersonFullName),
-            boundingBox = Rect(0, 0, 0, 0)
+            boundingBox = Rect(0f, 0f, 0f, 0f)
         )
         autofillTree += autofillNode
 
@@ -76,7 +76,7 @@ class AndroidPerformAutofillTest {
         val autofillNode = AutofillNode(
             onFill = { autofilledValue = it },
             autofillTypes = listOf(AutofillType.EmailAddress),
-            boundingBox = Rect(0, 0, 0, 0)
+            boundingBox = Rect(0f, 0f, 0f, 0f)
         )
         autofillTree += autofillNode
 
