@@ -72,7 +72,10 @@ fun Path(
     strokeLineWidth: Float = DefaultStrokeLineWidth,
     strokeLineCap: StrokeCap = DefaultStrokeLineCap,
     strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
-    strokeLineMiter: Float = DefaultStrokeLineMiter
+    strokeLineMiter: Float = DefaultStrokeLineMiter,
+    trimPathStart: Float = DefaultTrimPathStart,
+    trimPathEnd: Float = DefaultTrimPathEnd,
+    trimPathOffset: Float = DefaultTrimPathOffset
 ) {
     key(name) {
         emit<PathComponent, VectorApplier>(
@@ -87,6 +90,9 @@ fun Path(
                 set(strokeLineJoin) { this.strokeLineJoin = it }
                 set(strokeLineCap) { this.strokeLineCap = it }
                 set(strokeLineMiter) { this.strokeLineMiter = it }
+                set(trimPathStart) { this.trimPathStart = it }
+                set(trimPathEnd) { this.trimPathEnd = it }
+                set(trimPathOffset) { this.trimPathOffset = it }
             }
         )
     }
