@@ -39,6 +39,7 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_U
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_VERSION_1;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUPABLE_SECION_TITLE;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUP_ROUTE_DESCRIPTOR;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_TRANSFERABLE_SECTION_TITLE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_DATA_ERROR;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_FAILED;
@@ -51,6 +52,7 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_REGISTERED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_VERSION_CURRENT;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.isValidRemoteMessenger;
+import static androidx.mediarouter.media.MediaRouter.UNSELECT_REASON_UNKNOWN;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
@@ -433,9 +435,9 @@ public abstract class MediaRouteProviderService extends Service {
 
                     case CLIENT_MSG_UNSELECT_ROUTE:
                         int reason = data == null ?
-                                MediaRouter.UNSELECT_REASON_UNKNOWN
+                                UNSELECT_REASON_UNKNOWN
                                 : data.getInt(CLIENT_DATA_UNSELECT_REASON,
-                                        MediaRouter.UNSELECT_REASON_UNKNOWN);
+                                        UNSELECT_REASON_UNKNOWN);
                         return service.mImpl.onUnselectRoute(messenger, requestId, arg, reason);
 
                     case CLIENT_MSG_SET_ROUTE_VOLUME: {
@@ -930,8 +932,9 @@ public abstract class MediaRouteProviderService extends Service {
                         @Override
                         public void onRoutesChanged(
                                 @NonNull DynamicGroupRouteController controller,
+                                @NonNull MediaRouteDescriptor groupRoute,
                                 @NonNull Collection<DynamicRouteDescriptor> routes) {
-                            sendDynamicRouteDescriptors(controller, routes);
+                            sendDynamicRouteDescriptors(controller, groupRoute, routes);
                         }
                     };
 
@@ -994,7 +997,6 @@ public abstract class MediaRouteProviderService extends Service {
                                 mDynamicRoutesChangedListener);
                         mControllers.put(controllerId, controller);
                         Bundle bundle = new Bundle();
-                        bundle.putString(CLIENT_DATA_ROUTE_ID, initialMemberRouteId);
                         bundle.putString(DATA_KEY_GROUPABLE_SECION_TITLE,
                                 controller.getGroupableSelectionTitle());
                         bundle.putString(DATA_KEY_TRANSFERABLE_SECTION_TITLE,
@@ -1041,6 +1043,7 @@ public abstract class MediaRouteProviderService extends Service {
 
             void sendDynamicRouteDescriptors(
                     DynamicGroupRouteController controller,
+                    MediaRouteDescriptor groupRoute,
                     Collection<DynamicRouteDescriptor> descriptors) {
                 int index = mControllers.indexOfValue(controller);
                 if (index < 0) {
@@ -1054,6 +1057,9 @@ public abstract class MediaRouteProviderService extends Service {
                     dynamicRouteBundles.add(descriptor.toBundle());
                 }
                 Bundle bundle = new Bundle();
+                if (groupRoute != null) {
+                    bundle.putParcelable(DATA_KEY_GROUP_ROUTE_DESCRIPTOR, groupRoute.asBundle());
+                }
                 bundle.putParcelableArrayList(DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS,
                         dynamicRouteBundles);
                 sendReply(mMessenger, SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED,
@@ -1081,8 +1087,8 @@ public abstract class MediaRouteProviderService extends Service {
         // Maps the route ID to route controller.
         final Map<String, RouteController> mRouteIdToControllerMap = new ArrayMap<>();
         final OnDynamicRoutesChangedListener mDynamicRoutesChangedListener =
-                (controller, routes) -> mMR2ProviderServiceAdapter
-                        .setDynamicRouteDescriptor(controller, routes);
+                (controller, groupRoute, routes) -> mMR2ProviderServiceAdapter
+                        .setDynamicRouteDescriptor(controller, groupRoute, routes);
 
         MediaRouteProviderServiceImplApi30(MediaRouteProviderService instance) {
             super(instance);
@@ -1127,6 +1133,32 @@ public abstract class MediaRouteProviderService extends Service {
             return mRouteIdToControllerMap.get(routeId);
         }
 
+        RouteController createRouteControllerWithoutClient(String routeId, String routeGroupId) {
+            RouteController controller = mRouteIdToControllerMap.get(routeId);
+            if (controller != null) {
+                return controller;
+            }
+
+            controller = routeGroupId == null
+                    ? mService.getMediaRouteProvider().onCreateRouteController(routeId)
+                    : mService.getMediaRouteProvider()
+                            .onCreateRouteController(routeId, routeGroupId);
+            if (controller != null) {
+                mRouteIdToControllerMap.put(routeId, controller);
+            }
+            return controller;
+        }
+
+        boolean releaseRouteControllerForRouteId(String routeId) {
+            RouteController controller = mRouteIdToControllerMap.remove(routeId);
+            if (controller != null) {
+                controller.onUnselect(UNSELECT_REASON_UNKNOWN);
+                controller.onRelease();
+                return true;
+            }
+            return false;
+        }
+
         void setDynamicRoutesChangedListener(DynamicGroupRouteController controller) {
             controller.setOnDynamicRoutesChangedListener(
                     ContextCompat.getMainExecutor(mService.getApplicationContext()),
@@ -1141,6 +1173,12 @@ public abstract class MediaRouteProviderService extends Service {
             @Override
             public boolean createRouteController(String routeId, String routeGroupId,
                     int controllerId) {
+                RouteController controller = mRouteIdToControllerMap.get(routeId);
+                if (controller != null) {
+                    mControllers.put(controllerId, controller);
+                    return true;
+                }
+
                 boolean result = super.createRouteController(routeId, routeGroupId,
                         controllerId);
                 // Don't add route controllers of member routes.
@@ -1185,10 +1223,12 @@ public abstract class MediaRouteProviderService extends Service {
             @Override
             void sendDynamicRouteDescriptors(
                     DynamicGroupRouteController controller,
+                    MediaRouteDescriptor groupRoute,
                     Collection<DynamicRouteDescriptor> descriptors) {
-                super.sendDynamicRouteDescriptors(controller, descriptors);
+                super.sendDynamicRouteDescriptors(controller, groupRoute, descriptors);
                 if (mMR2ProviderServiceAdapter != null) {
-                    mMR2ProviderServiceAdapter.setDynamicRouteDescriptor(controller, descriptors);
+                    mMR2ProviderServiceAdapter.setDynamicRouteDescriptor(controller,
+                            groupRoute, descriptors);
                 }
             }
         }

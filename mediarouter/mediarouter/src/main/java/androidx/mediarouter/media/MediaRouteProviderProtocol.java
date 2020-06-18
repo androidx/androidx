@@ -163,6 +163,7 @@ abstract class MediaRouteProviderProtocol {
 
     public static final String DATA_KEY_GROUPABLE_SECION_TITLE = "groupableTitle";
     public static final String DATA_KEY_TRANSFERABLE_SECTION_TITLE = "transferableTitle";
+    public static final String DATA_KEY_GROUP_ROUTE_DESCRIPTOR = "groupRoute";
     public static final String DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS = "dynamicRoutes";
 
     /*

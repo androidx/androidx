@@ -233,6 +233,22 @@ public class SessionManager implements Player.Callback {
         return false;
     }
 
+    void syncWithManager(SessionManager manager) {
+        mSessionId = manager.mSessionId;
+        mItemId = manager.mItemId;
+        mPaused = manager.mPaused;
+        mSessionValid = manager.mSessionValid;
+        mPlaylist = new ArrayList<>();
+        for (PlaylistItem item : manager.mPlaylist) {
+            mPlaylist.add(new PlaylistItem(item));
+        }
+        if (mPlaylist.size() > 0) {
+            PlaylistItem firstItem = mPlaylist.get(0);
+            firstItem.setState(MediaItemStatus.PLAYBACK_STATE_PENDING);
+        }
+        updatePlaybackState();
+    }
+
     MediaSessionStatus getSessionStatus(String sid) {
         int sessionState = (sid != null && sid.equals(Integer.toString(mSessionId))) ?
                 MediaSessionStatus.SESSION_STATE_ACTIVE :

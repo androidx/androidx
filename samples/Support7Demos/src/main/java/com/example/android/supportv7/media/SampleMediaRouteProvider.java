@@ -57,8 +57,8 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
     private static final String VARIABLE_VOLUME_QUEUING_ROUTE_ID = "variable_queuing";
     private static final String VARIABLE_VOLUME_SESSION_ROUTE_ID = "variable_session";
 
-    protected static final int VOLUME_MAX = 100;
-    protected static final int VOLUME_DEFAULT = 25;
+    protected static final int VOLUME_MAX = 25;
+    protected static final int VOLUME_DEFAULT = 5;
 
     /**
      * A custom media control intent category for special requests that are
@@ -283,7 +283,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public void onUnselect() {
+        public void onUnselect(int reason) {
             Log.d(TAG, mRouteId + ": Unselected");
             mHelper.onUnselect();
             MediaRouteDescriptor routeDescriptor = mRouteDescriptors.get(mRouteId);
@@ -312,6 +312,10 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
         public boolean onControlRequest(Intent intent, ControlRequestCallback callback) {
             Log.d(TAG, mRouteId + ": Received control request " + intent);
             return mHelper.onControlRequest(intent, callback);
+        }
+
+        public SessionManager getSessionManager() {
+            return mHelper.mSessionManager;
         }
     }
 
@@ -416,11 +420,11 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
                 int adjustedVolume = volume
                         * audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) / VOLUME_MAX;
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, adjustedVolume, 0);
-                MediaRouteDescriptor groupDescriptor =
+                MediaRouteDescriptor routeDescriptor =
                         new MediaRouteDescriptor.Builder(mRouteDescriptors.get(mRouteId))
                                 .setVolume(volume)
                                 .build();
-                mRouteDescriptors.put(mRouteId, groupDescriptor);
+                mRouteDescriptors.put(mRouteId, routeDescriptor);
                 publishRoutes();
             }
         }
