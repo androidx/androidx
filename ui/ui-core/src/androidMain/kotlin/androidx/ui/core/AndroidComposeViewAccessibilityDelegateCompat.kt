@@ -18,6 +18,8 @@ package androidx.ui.core
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.view.MotionEvent
 import android.view.View
@@ -33,6 +35,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.findChildById
+import androidx.ui.core.semantics.getAllSemanticsNodesToMap
 import androidx.ui.core.semantics.getOrNull
 import androidx.ui.semantics.CustomAccessibilityAction
 import androidx.ui.semantics.SemanticsActions
@@ -52,45 +55,45 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
          */
         const val ParcelSafeTextLength = 100000
         private val AccessibilityActionsResourceIds = intArrayOf(
-            androidx.ui.core.R.id.accessibility_custom_action_0,
-            androidx.ui.core.R.id.accessibility_custom_action_1,
-            androidx.ui.core.R.id.accessibility_custom_action_2,
-            androidx.ui.core.R.id.accessibility_custom_action_3,
-            androidx.ui.core.R.id.accessibility_custom_action_4,
-            androidx.ui.core.R.id.accessibility_custom_action_5,
-            androidx.ui.core.R.id.accessibility_custom_action_6,
-            androidx.ui.core.R.id.accessibility_custom_action_7,
-            androidx.ui.core.R.id.accessibility_custom_action_8,
-            androidx.ui.core.R.id.accessibility_custom_action_9,
-            androidx.ui.core.R.id.accessibility_custom_action_10,
-            androidx.ui.core.R.id.accessibility_custom_action_11,
-            androidx.ui.core.R.id.accessibility_custom_action_12,
-            androidx.ui.core.R.id.accessibility_custom_action_13,
-            androidx.ui.core.R.id.accessibility_custom_action_14,
-            androidx.ui.core.R.id.accessibility_custom_action_15,
-            androidx.ui.core.R.id.accessibility_custom_action_16,
-            androidx.ui.core.R.id.accessibility_custom_action_17,
-            androidx.ui.core.R.id.accessibility_custom_action_18,
-            androidx.ui.core.R.id.accessibility_custom_action_19,
-            androidx.ui.core.R.id.accessibility_custom_action_20,
-            androidx.ui.core.R.id.accessibility_custom_action_21,
-            androidx.ui.core.R.id.accessibility_custom_action_22,
-            androidx.ui.core.R.id.accessibility_custom_action_23,
-            androidx.ui.core.R.id.accessibility_custom_action_24,
-            androidx.ui.core.R.id.accessibility_custom_action_25,
-            androidx.ui.core.R.id.accessibility_custom_action_26,
-            androidx.ui.core.R.id.accessibility_custom_action_27,
-            androidx.ui.core.R.id.accessibility_custom_action_28,
-            androidx.ui.core.R.id.accessibility_custom_action_29,
-            androidx.ui.core.R.id.accessibility_custom_action_30,
-            androidx.ui.core.R.id.accessibility_custom_action_31
+            R.id.accessibility_custom_action_0,
+            R.id.accessibility_custom_action_1,
+            R.id.accessibility_custom_action_2,
+            R.id.accessibility_custom_action_3,
+            R.id.accessibility_custom_action_4,
+            R.id.accessibility_custom_action_5,
+            R.id.accessibility_custom_action_6,
+            R.id.accessibility_custom_action_7,
+            R.id.accessibility_custom_action_8,
+            R.id.accessibility_custom_action_9,
+            R.id.accessibility_custom_action_10,
+            R.id.accessibility_custom_action_11,
+            R.id.accessibility_custom_action_12,
+            R.id.accessibility_custom_action_13,
+            R.id.accessibility_custom_action_14,
+            R.id.accessibility_custom_action_15,
+            R.id.accessibility_custom_action_16,
+            R.id.accessibility_custom_action_17,
+            R.id.accessibility_custom_action_18,
+            R.id.accessibility_custom_action_19,
+            R.id.accessibility_custom_action_20,
+            R.id.accessibility_custom_action_21,
+            R.id.accessibility_custom_action_22,
+            R.id.accessibility_custom_action_23,
+            R.id.accessibility_custom_action_24,
+            R.id.accessibility_custom_action_25,
+            R.id.accessibility_custom_action_26,
+            R.id.accessibility_custom_action_27,
+            R.id.accessibility_custom_action_28,
+            R.id.accessibility_custom_action_29,
+            R.id.accessibility_custom_action_30,
+            R.id.accessibility_custom_action_31
         )
     }
     /** Virtual view id for the currently hovered logical item. */
     private var hoveredVirtualViewId = InvalidId
     private val accessibilityManager: AccessibilityManager =
-        view.getContext().getSystemService(Context.ACCESSIBILITY_SERVICE) as
-                AccessibilityManager
+        view.context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+    private val handler = Handler(Looper.getMainLooper())
     private var nodeProvider: AccessibilityNodeProviderCompat = MyNodeProvider()
     private var focusedVirtualViewId = InvalidId
     // For actionIdToId and labelToActionId, the keys are the virtualViewIds. The value of
@@ -98,6 +101,23 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // value of labelToActionId holds custom action label to assigned custom action id mapping.
     private var actionIdToLabel = SparseArrayCompat<SparseArrayCompat<CharSequence>>()
     private var labelToActionId = SparseArrayCompat<Map<CharSequence, Int>>()
+
+    private class SemanticsNodeCopy(
+        semanticsNode: SemanticsNode
+    ) {
+        val config = semanticsNode.config
+        val children: MutableSet<Int> = mutableSetOf()
+
+        init {
+            semanticsNode.children.fastForEach { child ->
+                children.add(child.id)
+            }
+        }
+    }
+
+    private var semanticsNodes: MutableMap<Int, SemanticsNodeCopy> = mutableMapOf()
+    private var semanticsRoot = SemanticsNodeCopy(view.semanticsOwner.rootSemanticsNode)
+    private var checkingForSemanticsChanges = false
 
     fun createNodeInfo(virtualViewId: Int):
             AccessibilityNodeInfoCompat {
@@ -131,7 +151,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         // TODO(b/151240295): Should we have widgets class name?
         info.className = ClassName
-        info.setPackageName(view.getContext().getPackageName())
+        info.packageName = view.context.packageName
         try {
             info.setBoundsInScreen(
                 android.graphics.Rect(
@@ -153,13 +173,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         // Manage internal accessibility focus state.
         if (focusedVirtualViewId == virtualViewId) {
-            info.setAccessibilityFocused(true)
+            info.isAccessibilityFocused = true
             info.addAction(
                 AccessibilityNodeInfoCompat.AccessibilityActionCompat
                     .ACTION_CLEAR_ACCESSIBILITY_FOCUS
             )
         } else {
-            info.setAccessibilityFocused(false)
+            info.isAccessibilityFocused = false
             info.addAction(
                 AccessibilityNodeInfoCompat.AccessibilityActionCompat
                     .ACTION_ACCESSIBILITY_FOCUS
@@ -212,7 +232,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             )
         }
 
-        var rangeInfo =
+        val rangeInfo =
             semanticsNode.config.getOrNull(SemanticsProperties.AccessibilityRangeInfo)
         if (rangeInfo != null) {
             info.rangeInfo = AccessibilityNodeInfoCompat.RangeInfoCompat.obtain(
@@ -222,26 +242,26 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
 
         if (semanticsNode.config.contains(CustomActions)) {
-            var customActions = semanticsNode.config[CustomActions]
+            val customActions = semanticsNode.config[CustomActions]
             if (customActions.size >= AccessibilityActionsResourceIds.size) {
                 throw IllegalStateException(
                     "Can't have more than " +
                             "${AccessibilityActionsResourceIds.size} custom actions for one widget"
                 )
             }
-            var currentActionIdToLabel = SparseArrayCompat<CharSequence>()
-            var currentLabelToActionId = mutableMapOf<CharSequence, Int>()
+            val currentActionIdToLabel = SparseArrayCompat<CharSequence>()
+            val currentLabelToActionId = mutableMapOf<CharSequence, Int>()
             // If this virtual node had custom action id assignment before, we try to keep the id
             // unchanged for the same action (identified by action label). This way, we can
             // minimize the influence of custom action change between custom actions are
             // presented to the user and actually performed.
             if (labelToActionId.containsKey(virtualViewId)) {
-                var oldLabelToActionId = labelToActionId[virtualViewId]
-                var availableIds = AccessibilityActionsResourceIds.toMutableList()
-                var unassignedActions = mutableListOf<CustomAccessibilityAction>()
+                val oldLabelToActionId = labelToActionId[virtualViewId]
+                val availableIds = AccessibilityActionsResourceIds.toMutableList()
+                val unassignedActions = mutableListOf<CustomAccessibilityAction>()
                 for (action in customActions) {
                     if (oldLabelToActionId!!.contains(action.label)) {
-                        var actionId = oldLabelToActionId[action.label]
+                        val actionId = oldLabelToActionId[action.label]
                         currentActionIdToLabel.put(actionId!!, action.label)
                         currentLabelToActionId[action.label] = actionId
                         availableIds.remove(actionId)
@@ -255,7 +275,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     }
                 }
                 for ((index, action) in unassignedActions.withIndex()) {
-                    var actionId = availableIds[index]
+                    val actionId = availableIds[index]
                     currentActionIdToLabel.put(actionId, action.label)
                     currentLabelToActionId[action.label] = actionId
                     info.addAction(
@@ -266,7 +286,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 }
             } else {
                 for ((index, action) in customActions.withIndex()) {
-                    var actionId = AccessibilityActionsResourceIds[index]
+                    val actionId = AccessibilityActionsResourceIds[index]
                     currentActionIdToLabel.put(actionId, action.label)
                     currentLabelToActionId[action.label] = actionId
                     info.addAction(
@@ -305,8 +325,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * @return Whether this virtual view actually took accessibility focus.
      */
     private fun requestAccessibilityFocus(virtualViewId: Int): Boolean {
-        if (!accessibilityManager.isEnabled() ||
-            !accessibilityManager.isTouchExplorationEnabled()) {
+        if (!accessibilityManager.isEnabled ||
+            !accessibilityManager.isTouchExplorationEnabled
+        ) {
             return false
         }
         // TODO: Check virtual view visibility.
@@ -343,9 +364,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * You should call this method after performing a user action that normally
      * fires an accessibility event, such as clicking on an item.
      *
-     * <pre>public void performItemClick(T item) {
+     * <pre>public performItemClick(T item) {
      *   ...
-     *   sendEventForVirtualViewId(item.id, AccessibilityEvent.TYPE_VIEW_CLICKED)
+     *   sendEventForVirtualView(item.id, AccessibilityEvent.TYPE_VIEW_CLICKED)
      * }
      * </pre>
      *
@@ -355,13 +376,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * @param contentDescription Content description of this event.
      * @return true if the event was sent successfully.
      */
-    fun sendEventForVirtualView(
+    private fun sendEventForVirtualView(
         virtualViewId: Int,
         eventType: Int,
-        contentChangeType: Int?,
-        contentDescription: CharSequence?
+        contentChangeType: Int? = null,
+        contentDescription: CharSequence? = null
     ): Boolean {
-        if ((virtualViewId == InvalidId) || !accessibilityManager.isEnabled()) {
+        if ((virtualViewId == InvalidId) || !accessibilityManager.isEnabled) {
             return false
         }
 
@@ -374,6 +395,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (contentDescription != null) {
             event.contentDescription = contentDescription
         }
+
         return parent.requestSendAccessibilityEvent(view, event)
     }
 
@@ -393,7 +415,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         event.className = ClassName
 
         // Don't allow the client to override these properties.
-        event.packageName = view.getContext().getPackageName()
+        event.packageName = view.context.packageName
         event.setSource(view, virtualViewId)
 
         return event
@@ -426,7 +448,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         action: Int,
         arguments: Bundle?
     ): Boolean {
-        var node: SemanticsNode
+        val node: SemanticsNode
         if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
             node = view.semanticsOwner.rootSemanticsNode
         } else {
@@ -465,13 +487,17 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
             android.R.id.accessibilityActionSetProgress -> {
                 if (arguments == null || !arguments.containsKey(
-                        AccessibilityNodeInfoCompat.ACTION_ARGUMENT_PROGRESS_VALUE)) {
+                        AccessibilityNodeInfoCompat.ACTION_ARGUMENT_PROGRESS_VALUE
+                    )
+                ) {
                     return false
                 }
                 return if (node.canPerformAction(SemanticsActions.SetProgress)) {
                     node.config[SemanticsActions.SetProgress].action(
                         arguments.getFloat(
-                            AccessibilityNodeInfoCompat.ACTION_ARGUMENT_PROGRESS_VALUE))
+                            AccessibilityNodeInfoCompat.ACTION_ARGUMENT_PROGRESS_VALUE
+                        )
+                    )
                 } else {
                     false
                 }
@@ -515,7 +541,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return false
         }
 
-        when (event.getAction()) {
+        when (event.action) {
             MotionEvent.ACTION_HOVER_MOVE, MotionEvent.ACTION_HOVER_ENTER -> {
                 val virtualViewId: Int = getVirtualViewAt(event.getX(), event.getY())
                 updateHoveredVirtualView(virtualViewId)
@@ -535,8 +561,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun getVirtualViewAt(x: Float, y: Float): Int {
-        var node = view.semanticsOwner.rootSemanticsNode
-        var id = findVirtualViewAt(x + node.globalBounds.left,
+        val node = view.semanticsOwner.rootSemanticsNode
+        val id = findVirtualViewAt(x + node.globalBounds.left,
             y + node.globalBounds.top, node)
         if (id == node.id) {
             return AccessibilityNodeProviderCompat.HOST_VIEW_ID
@@ -547,7 +573,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // TODO(b/151729467): compose accessibility getVirtualViewAt needs to be more efficient
     private fun findVirtualViewAt(x: Float, y: Float, node: SemanticsNode): Int {
         node.children.fastForEach {
-            var id = findVirtualViewAt(x, y, it)
+            val id = findVirtualViewAt(x, y, it)
             if (id != InvalidId) {
                 return id
             }
@@ -619,6 +645,110 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     // TODO (in a separate cl): Called when the SemanticsNode with id semanticsNodeId disappears.
     // fun clearNode(semanticsNodeId: Int) { // clear the actionIdToId and labelToActionId nodes }
+
+    internal fun onSemanticsChange() {
+        if (accessibilityManager.isEnabled && !checkingForSemanticsChanges) {
+            checkingForSemanticsChanges = true
+            handler.post {
+                checkForSemanticsChanges()
+                checkingForSemanticsChanges = false
+            }
+        }
+    }
+
+    private fun checkForSemanticsChanges() {
+        val newSemanticsNodes = view.semanticsOwner.getAllSemanticsNodesToMap()
+
+        // Structural change
+        sendSemanticsStructureChangeEvents(view.semanticsOwner.rootSemanticsNode, semanticsRoot)
+
+        // Property change
+        sendSemanticsPropertyChangeEvents(newSemanticsNodes)
+
+        // Update the cache
+        semanticsNodes.clear()
+        for (entry in newSemanticsNodes.entries) {
+            semanticsNodes[entry.key] = SemanticsNodeCopy(entry.value)
+        }
+        semanticsRoot = SemanticsNodeCopy(view.semanticsOwner.rootSemanticsNode)
+    }
+
+    private fun sendSemanticsPropertyChangeEvents(newSemanticsNodes: Map<Int, SemanticsNode>) {
+        for (id in newSemanticsNodes.keys) {
+            if (!semanticsNodes.contains(id)) {
+                continue
+            }
+
+            // We do doing this search because the new configuration is set as a whole, so we
+            // can't indicate which property is changed when setting the new configuration.
+            val newNode = newSemanticsNodes[id]
+            val oldNode = semanticsNodes[id]
+            for (entry in newNode!!.config) {
+                if (entry.value == oldNode!!.config.getOrNull(entry.key)) {
+                    continue
+                }
+                when (entry.key) {
+                    // we are in aosp, so can't use the state description yet.
+                    SemanticsProperties.AccessibilityValue,
+                    SemanticsProperties.AccessibilityLabel ->
+                        sendEventForVirtualView(
+                            semanticsNodeIdToAccessibilityVirtualNodeId(id),
+                            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
+                            AccessibilityEvent.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION,
+                            entry.value as CharSequence
+                        )
+                    else -> {
+                        // TODO(b/151840490) send the correct events when property changes
+                    }
+                }
+            }
+        }
+    }
+
+    private fun sendSemanticsStructureChangeEvents(
+        newNode: SemanticsNode,
+        oldNode: SemanticsNodeCopy
+    ) {
+        val newChildren: MutableSet<Int> = mutableSetOf()
+
+        // If any child is added, clear the subtree rooted at this node and return.
+        newNode.children.fastForEach { child ->
+            if (!oldNode.children.contains(child.id)) {
+                sendEventForVirtualView(
+                    semanticsNodeIdToAccessibilityVirtualNodeId(newNode.id),
+                    AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
+                    AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE,
+                    null
+                )
+                return
+            }
+            newChildren.add(child.id)
+        }
+
+        // If any child is deleted, clear the subtree rooted at this node and return.
+        for (child in oldNode.children) {
+            if (!newChildren.contains(child)) {
+                sendEventForVirtualView(
+                    semanticsNodeIdToAccessibilityVirtualNodeId(newNode.id),
+                    AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
+                    AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE,
+                    null
+                )
+                return
+            }
+        }
+
+        newNode.children.fastForEach { child ->
+            sendSemanticsStructureChangeEvents(child, semanticsNodes[child.id]!!)
+        }
+    }
+
+    private fun semanticsNodeIdToAccessibilityVirtualNodeId(id: Int): Int {
+        if (id == view.semanticsOwner.rootSemanticsNode.id) {
+            return AccessibilityNodeProviderCompat.HOST_VIEW_ID
+        }
+        return id
+    }
 
     inner class MyNodeProvider() : AccessibilityNodeProviderCompat() {
         override fun createAccessibilityNodeInfo(virtualViewId: Int):
