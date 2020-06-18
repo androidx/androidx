@@ -61,6 +61,13 @@ package androidx.ui.test {
     method public static boolean contains(androidx.ui.graphics.Path, androidx.ui.geometry.Offset offset);
   }
 
+  public final class BoundsAssertionsKt {
+    method public static androidx.ui.test.SemanticsNodeInteraction assertHeightIsAtLeast-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedMinHeight);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertHeightIsEqualTo-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedHeight);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertWidthIsAtLeast-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedMinWidth);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertWidthIsEqualTo-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedWidth);
+  }
+
   public final class CollectedSizes {
     ctor public CollectedSizes(androidx.ui.geometry.Size size, androidx.ui.unit.Density density);
     method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,java.lang.Integer> expectedHeightPx);

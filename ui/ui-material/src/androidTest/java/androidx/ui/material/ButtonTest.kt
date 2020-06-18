@@ -38,7 +38,6 @@ import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.compositeOver
@@ -54,14 +53,19 @@ import androidx.ui.layout.size
 import androidx.ui.layout.widthIn
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
+import androidx.ui.test.assertHeightIsAtLeast
+import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertIsNotEnabled
 import androidx.ui.test.assertShape
+import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
+import androidx.ui.test.find
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
+import androidx.ui.test.hasClickAction
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.Dp
 import androidx.ui.unit.center
@@ -206,18 +210,19 @@ class ButtonTest {
             // so lets skip it.
             return
         }
-        composeTestRule
-            .setMaterialContentAndCollectSizes {
-                Button(onClick = {}) {
-                    Text("Test button")
-                }
+        composeTestRule.setMaterialContent {
+            Button(onClick = {}) {
+                Text("Test button")
             }
-            .assertHeightEqualsTo(36.dp)
+        }
+
+        find(hasClickAction())
+            .assertHeightIsEqualTo(36.dp)
     }
 
     @Test
     fun ButtonWithLargeFontSizeIsLargerThenMinHeight() {
-        val realSize: Size = composeTestRule.setMaterialContentAndGetPixelSize {
+        composeTestRule.setMaterialContent {
             Button(onClick = {}) {
                 Text(
                     text = "Test button",
@@ -226,10 +231,8 @@ class ButtonTest {
             }
         }
 
-        with(composeTestRule.density) {
-            assertThat(realSize.height)
-                .isGreaterThan(36.dp.toIntPx().toFloat())
-        }
+        find(hasClickAction())
+            .assertHeightIsAtLeast(37.dp)
     }
 
     @Test
@@ -586,17 +589,16 @@ class ButtonTest {
 
     @Test
     fun minHeightAndMinWidthCanBeOverridden() {
-        val realSize: Size = composeTestRule.setMaterialContentAndGetPixelSize {
+        composeTestRule.setMaterialContent {
             Button(onClick = {}, padding = InnerPadding(), modifier = Modifier.widthIn(20.dp)
-                .heightIn(15.dp)) {
+                .heightIn(15.dp).testTag("button")) {
                 Spacer(Modifier.size(10.dp))
             }
         }
 
-        with(composeTestRule.density) {
-            assertThat(realSize.width).isEqualTo(20.dp.toIntPx().toFloat())
-            assertThat(realSize.height).isEqualTo(15.dp.toIntPx().toFloat())
-        }
+        findByTag("button")
+            .assertWidthIsEqualTo(20.dp)
+            .assertHeightIsEqualTo(15.dp)
     }
 
     private fun assertLeftPaddingIs(
