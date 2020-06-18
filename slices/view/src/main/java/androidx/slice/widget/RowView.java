@@ -580,10 +580,9 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             mShowActionSpinner = true;
         }
 
-        ViewCompat.setImportantForAccessibility(mRootView,
-                (mRootView.isClickable() && mToggles.isEmpty() && mActions.isEmpty())
-                        ? ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO
-                        : ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO
+        ViewCompat.setImportantForAccessibility(mRootView, mRootView.isClickable()
+                ? ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+                : ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO
         );
     }
 
