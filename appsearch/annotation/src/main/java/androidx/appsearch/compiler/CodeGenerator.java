@@ -74,8 +74,8 @@ class CodeGenerator {
                 .addOriginatingElement(mModel.getClassElement());
 
         SchemaCodeGenerator.generate(mEnv, mModel, genClass);
-        DataClassToGenericDocumentCodeGenerator.generate(mEnv, mModel, genClass);
-        GenericDocumentToDataClassCodeGenerator.generate(mEnv, mModel, genClass);
+        ToGenericDocumentCodeGenerator.generate(mEnv, mModel, genClass);
+        FromGenericDocumentCodeGenerator.generate(mEnv, mModel, genClass);
         return genClass.build();
     }
 }
