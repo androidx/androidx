@@ -16,7 +16,6 @@
 
 package androidx.ui.core
 
-import android.content.Context
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
@@ -27,9 +26,11 @@ import androidx.compose.Stable
 import androidx.compose.Untracked
 import androidx.compose.compositionReference
 import androidx.compose.currentComposer
+import androidx.compose.emit
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.core.LayoutNode.LayoutState
+import androidx.ui.node.UiApplier
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntOffset
@@ -164,9 +165,15 @@ import kotlin.math.max
     measureBlocks: LayoutNode.MeasureBlocks,
     modifier: Modifier
 ) {
-    LayoutNode(modifier = currentComposer.materialize(modifier), measureBlocks = measureBlocks) {
-        children()
-    }
+    val materialized = currentComposer.materialize(modifier)
+    emit<LayoutNode, UiApplier>(
+        ctor = LayoutEmitHelper.constructor,
+        update = {
+            set(materialized, LayoutEmitHelper.setModifier)
+            set(measureBlocks, LayoutEmitHelper.setMeasureBlocks)
+        },
+        children = children
+    )
 }
 
 @Composable
@@ -178,14 +185,17 @@ fun MultiMeasureLayout(
     measureBlock: MeasureBlock
 ) {
     val measureBlocks = remember(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
-    LayoutNode(
-        modifier = currentComposer.materialize(modifier),
-        measureBlocks = measureBlocks,
-        canMultiMeasure =
-        true
-    ) {
-        children()
-    }
+    val materialized = currentComposer.materialize(modifier)
+    emit<LayoutNode, UiApplier>(
+        ctor = LayoutEmitHelper.constructor,
+        update = {
+            set(materialized, LayoutEmitHelper.setModifier)
+            set(measureBlocks, LayoutEmitHelper.setMeasureBlocks)
+            @Suppress("DEPRECATION")
+            set(Unit) { this.canMultiMeasure = true }
+        },
+        children = children
+    )
 }
 
 @Composable
@@ -206,14 +216,20 @@ fun PassThroughLayout(
         }
         MeasuringIntrinsicsMeasureBlocks(measureBlock)
     }
-    LayoutNode(
-        modifier = currentComposer.materialize(modifier),
-        measureBlocks = measureBlocks,
-        handlesParentData = false,
-        useChildZIndex = true
-    ) {
-        children()
-    }
+    val materialized = currentComposer.materialize(modifier)
+    emit<LayoutNode, UiApplier>(
+        ctor = LayoutEmitHelper.constructor,
+        update = {
+            set(materialized, LayoutEmitHelper.setModifier)
+            set(measureBlocks, LayoutEmitHelper.setMeasureBlocks)
+            @Suppress("DEPRECATION")
+            set(Unit) {
+                this.handlesParentData = false
+                this.useChildZIndex = true
+            }
+        },
+        children = children
+    )
 }
 
 /**
@@ -463,7 +479,6 @@ fun WithConstraints(
 ) {
     val state = remember { WithConstrainsState() }
     state.children = children
-    state.context = ContextAmbient.current
     // TODO(lmr): refactor these APIs so that recomposer isn't necessary
     @OptIn(ExperimentalComposeApi::class)
     state.recomposer = currentComposer.recomposer
@@ -471,10 +486,14 @@ fun WithConstraints(
     // if this code was executed subcomposition must be triggered as well
     state.forceRecompose = true
 
-    LayoutNode(
-        modifier = currentComposer.materialize(modifier),
-        ref = state.nodeRef,
-        measureBlocks = state.measureBlocks
+    val materialized = currentComposer.materialize(modifier)
+    emit<LayoutNode, UiApplier>(
+        ctor = LayoutEmitHelper.constructor,
+        update = {
+            set(materialized, LayoutEmitHelper.setModifier)
+            set(state.measureBlocks, LayoutEmitHelper.setMeasureBlocks)
+            set(state.nodeRef, LayoutEmitHelper.setRef)
+        }
     )
 
     // if LayoutNode scheduled the remeasuring no further steps are needed - subcomposition
@@ -535,7 +554,6 @@ interface WithConstraintsScope {
 private class WithConstrainsState {
     lateinit var recomposer: Recomposer
     var compositionRef: CompositionReference? = null
-    lateinit var context: Context
     val nodeRef = Ref<LayoutNode>()
     var children: @Composable WithConstraintsScope.() -> Unit = { }
     var forceRecompose = false
@@ -592,7 +610,7 @@ private class WithConstrainsState {
     fun subcompose() {
         // TODO(b/150390669): Review use of @Untracked
         composition =
-            subcomposeInto(context, nodeRef.value!!, recomposer, compositionRef) @Untracked {
+            subcomposeInto(nodeRef.value!!, recomposer, compositionRef) @Untracked {
                 scope.children()
             }
         forceRecompose = false

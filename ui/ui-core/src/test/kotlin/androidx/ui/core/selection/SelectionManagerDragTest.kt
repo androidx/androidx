@@ -17,6 +17,7 @@
 package androidx.ui.core.selection
 
 import androidx.compose.frames.commit
+import androidx.compose.frames.inFrame
 import androidx.compose.frames.open
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
@@ -82,7 +83,7 @@ class SelectionManagerDragTest {
 
     @Before
     fun setup() {
-        open(false) // we open a Frame so state reads are allowed
+        if (!inFrame) open(false) // we open a Frame so state reads are allowed
 
         selectionRegistrar.subscribe(selectable)
 

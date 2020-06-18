@@ -1,12 +1,4 @@
 // Signature format: 3.0
-package androidx.compose {
-
-  public final class ComposerCompatKt {
-    method @Deprecated public static androidx.ui.node.UiComposer getComposer();
-  }
-
-}
-
 package androidx.ui.autofill {
 
   public final class AndroidAutofillDebugUtilsKt {
@@ -911,8 +903,8 @@ package androidx.ui.core {
     method @Deprecated public static androidx.compose.Composition setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.Composition setViewContent(android.view.ViewGroup, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public static androidx.compose.Composition setViewContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    method @MainThread public static androidx.compose.Composition subcomposeInto(android.content.Context context, androidx.ui.core.LayoutNode container, androidx.compose.Recomposer recomposer, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    method @Deprecated @MainThread public static androidx.compose.Composition subcomposeInto(androidx.ui.core.LayoutNode container, android.content.Context context, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method @MainThread public static androidx.compose.Composition subcomposeInto(androidx.ui.core.LayoutNode container, androidx.compose.Recomposer recomposer, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method @Deprecated @MainThread public static androidx.compose.Composition subcomposeInto(androidx.ui.core.LayoutNode container, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
   }
 
   public interface ZIndexModifier extends androidx.ui.core.Modifier.Element {
@@ -1979,6 +1971,13 @@ package androidx.ui.graphics.vector {
     method public final void invalidate();
   }
 
+  public final class VectorApplier extends androidx.compose.AbstractApplier<androidx.ui.graphics.vector.VNode> {
+    ctor public VectorApplier(androidx.ui.graphics.vector.VNode root);
+    method public void insert(int index, androidx.ui.graphics.vector.VNode instance);
+    method public void move(int from, int to, int count);
+    method public void remove(int index, int count);
+  }
+
   public final class VectorAsset {
     method public String component1();
     method public float component2();
@@ -2013,8 +2012,8 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorComposeKt {
-    method @androidx.compose.Composable public static void Group(androidx.ui.graphics.vector.VectorScope, String name = "", float rotation = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translationX = 0.0f, float translationY = 0.0f, java.util.List<? extends androidx.ui.graphics.vector.PathNode> clipPathData = EmptyPath, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.vector.VectorScope,kotlin.Unit> children);
-    method @androidx.compose.Composable public static void Path(androidx.ui.graphics.vector.VectorScope, java.util.List<? extends androidx.ui.graphics.vector.PathNode> pathData, String name = "", androidx.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
+    method @androidx.compose.Composable public static void Group(String name = "", float rotation = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translationX = 0.0f, float translationY = 0.0f, java.util.List<? extends androidx.ui.graphics.vector.PathNode> clipPathData = EmptyPath, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.Composable public static void Path(java.util.List<? extends androidx.ui.graphics.vector.PathNode> pathData, String name = "", androidx.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
   }
 
   public final class VectorGroup extends androidx.ui.graphics.vector.VectorNode implements java.lang.Iterable<androidx.ui.graphics.vector.VectorNode> kotlin.jvm.internal.markers.KMappedMarker {
@@ -2067,7 +2066,7 @@ package androidx.ui.graphics.vector {
 
   public final class VectorPainterKt {
     method @androidx.compose.Composable public static androidx.ui.graphics.vector.VectorPainter VectorPainter(androidx.ui.graphics.vector.VectorAsset asset);
-    method @androidx.compose.Composable public static androidx.ui.graphics.vector.VectorPainter VectorPainter-uAXuNKI(float defaultWidth, float defaultHeight, float viewportWidth = Float.NaN, float viewportHeight = Float.NaN, String name = "VectorRootGroup", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
+    method @androidx.compose.Composable public static androidx.ui.graphics.vector.VectorPainter VectorPainter-CZQlTzY(float defaultWidth, float defaultHeight, float viewportWidth = Float.NaN, float viewportHeight = Float.NaN, String name = "VectorRootGroup", kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
     field public static final String RootGroupName = "VectorRootGroup";
   }
 
@@ -2094,9 +2093,6 @@ package androidx.ui.graphics.vector {
     method public androidx.ui.graphics.StrokeJoin getStrokeLineJoin();
     method public float getStrokeLineMiter();
     method public float getStrokeLineWidth();
-  }
-
-  public final class VectorScope {
   }
 
 }
@@ -2126,17 +2122,16 @@ package androidx.ui.node {
   public final class PointerInteropUtilsKt {
   }
 
-  public final class UiComposer extends androidx.compose.Composer<java.lang.Object> {
-    ctor public UiComposer(android.content.Context context, Object root, androidx.compose.SlotTable slotTable, androidx.compose.Recomposer recomposer);
-    method public inline <T extends android.view.View> void emit(Object key, kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<java.lang.Object,T>,kotlin.Unit> update);
-    method public inline <T extends android.view.ViewGroup> void emit(Object key, kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<java.lang.Object,T>,kotlin.Unit> update, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public inline <T extends androidx.ui.core.LayoutNode> void emit(Object key, kotlin.jvm.functions.Function0<? extends T> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<java.lang.Object,T>,kotlin.Unit> update);
-    method public inline <T extends androidx.ui.core.LayoutNode> void emit(Object key, kotlin.jvm.functions.Function0<? extends T> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<java.lang.Object,T>,kotlin.Unit> update, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public android.content.Context getContext();
-    method public Object getRoot();
-  }
-
-  public final class UiComposerKt {
+  public final class UiApplier implements androidx.compose.Applier<java.lang.Object> {
+    ctor public UiApplier(Object root);
+    method public void down(Object node);
+    method public Object getCurrent();
+    method public void insert(int index, Object instance);
+    method public void move(int from, int to, int count);
+    method public void remove(int index, int count);
+    method public void reset();
+    method public void up();
+    property public Object current;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface ViewAdapter {
@@ -2388,6 +2383,11 @@ package androidx.ui.viewinterop {
   public final class ComposedViewKt {
     method @androidx.compose.Composable public static void AndroidView(@LayoutRes int resId, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> postInflationCallback = { _ ->  });
     method @androidx.compose.Composable public static void AndroidView(android.view.View view, androidx.ui.core.Modifier modifier = Modifier);
+  }
+
+  public final class EmitViewKt {
+    method @androidx.compose.Composable public static <T extends android.view.View> void emitView(kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> update);
+    method @androidx.compose.Composable public static <T extends android.view.ViewGroup> void emitView(kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> update, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }
