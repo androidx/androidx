@@ -68,6 +68,7 @@ class $$__AppSearch__Gift {
   }
 
   public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String uriConv = genericDoc.getUri();
     String[] listOfStringCopy = genericDoc.getPropertyStringArray("listOfString");
     List<String> listOfStringConv = null;
     if (listOfStringCopy != null) {
@@ -88,6 +89,7 @@ class $$__AppSearch__Gift {
       byteArrayConv = byteArrayCopy[0];
     }
     Gift dataClass = new Gift();
+    dataClass.uri = uriConv;
     dataClass.listOfString = listOfStringConv;
     dataClass.setOfInt = setOfIntConv;
     dataClass.repeatedByteArray = repeatedByteArrayConv;

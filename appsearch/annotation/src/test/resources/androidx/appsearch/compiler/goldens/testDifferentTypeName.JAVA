@@ -17,7 +17,9 @@ class $$__AppSearch__Gift {
   }
 
   public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String uriConv = genericDoc.getUri();
     Gift dataClass = new Gift();
+    dataClass.uri = uriConv;
     return dataClass;
   }
 }
