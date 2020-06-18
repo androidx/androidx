@@ -197,7 +197,13 @@ internal fun createStyledText(
     density: Density,
     typefaceAdapter: TypefaceAdapter
 ): CharSequence {
-    if (spanStyles.isEmpty() && textIndent == null) return text
+    if (spanStyles.isEmpty() &&
+        placeholders.isEmpty() &&
+        textIndent == TextIndent.None &&
+        lineHeight.isInherit
+    ) {
+        return text
+    }
     val spannableString = SpannableString(text)
 
     val lowPrioritySpans = ArrayList<SpanRange>()
