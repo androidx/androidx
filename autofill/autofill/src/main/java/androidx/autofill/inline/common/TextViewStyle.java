@@ -20,6 +20,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
@@ -36,6 +37,7 @@ public final class TextViewStyle extends ViewStyle {
 
     private static final String KEY_TEXT_VIEW_STYLE = "text_view_style";
     private static final String KEY_TEXT_SIZE = "text_size";
+    private static final String KEY_TEXT_SIZE_UNIT = "text_size_unit";
     private static final String KEY_TEXT_COLOR = "text_color";
     private static final String KEY_TEXT_FONT_FAMILY = "text_font_family";
     private static final String KEY_TEXT_FONT_STYLE = "text_font_style";
@@ -67,7 +69,11 @@ public final class TextViewStyle extends ViewStyle {
             textView.setTextColor(mBundle.getInt(KEY_TEXT_COLOR));
         }
         if (mBundle.containsKey(KEY_TEXT_SIZE)) {
-            textView.setTextSize(mBundle.getFloat(KEY_TEXT_SIZE));
+            int unit = TypedValue.COMPLEX_UNIT_SP;
+            if (mBundle.containsKey(KEY_TEXT_SIZE_UNIT)) {
+                unit = mBundle.getInt(KEY_TEXT_SIZE_UNIT);
+            }
+            textView.setTextSize(unit, mBundle.getFloat(KEY_TEXT_SIZE));
         }
         if (mBundle.containsKey(KEY_TEXT_FONT_FAMILY)) {
             final String fontFamily = mBundle.getString(KEY_TEXT_FONT_FAMILY);
@@ -115,6 +121,20 @@ public final class TextViewStyle extends ViewStyle {
         @NonNull
         public Builder setTextSize(float textSize) {
             mBundle.putFloat(KEY_TEXT_SIZE, textSize);
+            return this;
+        }
+
+        /**
+         * Specifies the text size in the provided unit.
+         *
+         * @param unit The desired dimension unit.
+         * @param size The device independent pixel size.
+         * @see TextView#setTextSize(int, float)
+         */
+        @NonNull
+        public Builder setTextSize(int unit, float size) {
+            mBundle.putInt(KEY_TEXT_SIZE_UNIT, unit);
+            mBundle.putFloat(KEY_TEXT_SIZE, size);
             return this;
         }
 
