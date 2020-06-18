@@ -21,7 +21,9 @@ import androidx.contentaccess.compiler.utils.ErrorReporter
 import androidx.contentaccess.compiler.vo.ContentEntityVO
 import androidx.contentaccess.compiler.vo.ContentQueryVO
 import androidx.contentaccess.compiler.vo.PojoVO
+import androidx.contentaccess.ext.hasMoreThanOnePublicConstructor
 import androidx.contentaccess.ext.toAnnotationBox
+import asTypeElement
 import boxIfPrimitive
 import extractIntendedReturnType
 import isString
@@ -135,11 +137,20 @@ class ContentQueryProcessor(
                 return ContentQueryVO(method.simpleName.toString(), resolvedContentEntity.columns
                     .map { it.value }, selectionVO, toBeUsedUri, returnType, method, orderBy)
             }
-            val pojo = if (returnType.isSupportedGenericType()) {
-                PojoProcessor(returnType.extractIntendedReturnType(), processingEnv).process()
+
+            val intendedReturnType = if (returnType.isSupportedGenericType()) {
+                returnType.extractIntendedReturnType()
             } else {
-                PojoProcessor(returnType, processingEnv).process()
+                returnType
             }
+
+            if (intendedReturnType.asTypeElement().hasMoreThanOnePublicConstructor(processingEnv)) {
+                errorReporter.reportError("Pojo $intendedReturnType has more than one non private" +
+                        " constructor. Pojos should have only one non private constructor.",
+                    intendedReturnType.asTypeElement())
+                return null
+            }
+            val pojo = PojoProcessor(intendedReturnType, processingEnv).process()
             // Apply the projection (if existing) to the POJO
             val pojoWithProjection = validateAndApplyProjectionToPojo(contentQueryAnnotation
                 .projection, pojo, returnType, resolvedContentEntity)

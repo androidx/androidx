@@ -22,8 +22,9 @@ import androidx.contentaccess.ContentPrimaryKey
 import androidx.contentaccess.compiler.utils.ErrorReporter
 import androidx.contentaccess.compiler.vo.ContentColumnVO
 import androidx.contentaccess.compiler.vo.ContentEntityVO
-import androidx.contentaccess.ext.getAllFieldsIncludingPrivateSupers
+import androidx.contentaccess.ext.getAllConstructorParamsOrPublicFields
 import androidx.contentaccess.ext.hasAnnotation
+import androidx.contentaccess.ext.hasMoreThanOnePublicConstructor
 import asTypeElement
 import com.google.auto.common.MoreTypes
 import javax.annotation.processing.ProcessingEnvironment
@@ -38,8 +39,15 @@ class ContentEntityProcessor(
 
     fun processEntity(): ContentEntityVO? {
         val entity = contentEntity.asTypeElement()
-        // TODO(obenabde): change this to only consider the constructor params
-        val columns = entity.getAllFieldsIncludingPrivateSupers(processingEnv)
+        if (entity.hasMoreThanOnePublicConstructor(processingEnv)) {
+            errorReporter.reportError("Entity $contentEntity has more than one non private " +
+                    "constructor. Entities should have only one non private constructor.", entity)
+            return null
+        }
+        val columns = entity.getAllConstructorParamsOrPublicFields(processingEnv)
+        if (errorReporter.errorReported) {
+            return null
+        }
         val contentColumns = HashMap<String, ContentColumnVO>()
         val contentPrimaryKey = ArrayList<ContentColumnVO>()
         columns.forEach { column ->

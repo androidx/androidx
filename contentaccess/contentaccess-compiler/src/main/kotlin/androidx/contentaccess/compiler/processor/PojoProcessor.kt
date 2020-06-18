@@ -20,7 +20,7 @@ import androidx.contentaccess.compiler.vo.PojoFieldVO
 import androidx.contentaccess.ext.hasAnnotation
 import androidx.contentaccess.ContentColumn
 import androidx.contentaccess.compiler.vo.PojoVO
-import androidx.contentaccess.ext.getAllFieldsIncludingPrivateSupers
+import androidx.contentaccess.ext.getAllConstructorParamsOrPublicFields
 import asTypeElement
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeMirror
@@ -28,9 +28,8 @@ import javax.lang.model.type.TypeMirror
 class PojoProcessor(val typeMirror: TypeMirror, val processingEnv: ProcessingEnvironment) {
     fun process(): PojoVO {
         val returnList = mutableListOf<PojoFieldVO>()
-        // TODO(obenabde): this should either be constructor or public field specific
-        // eventually replace getAllFieldsIncludingPrivateSupers with a more appropriate function.
-        val variables = typeMirror.asTypeElement().getAllFieldsIncludingPrivateSupers(processingEnv)
+        val variables = typeMirror.asTypeElement()
+            .getAllConstructorParamsOrPublicFields(processingEnv)
         for (v in variables) {
             val type = v.asType()
             val name = v.simpleName.toString()

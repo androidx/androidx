@@ -28,6 +28,7 @@ import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
@@ -40,25 +41,55 @@ fun Element.hasAnnotation(klass: KClass<out Annotation>): Boolean {
     return MoreElements.isAnnotationPresent(this, klass.java)
 }
 
-// TODO(obenabde): This is copied from room, see what we can do about this.
+fun TypeElement.hasMoreThanOnePublicConstructor(processingEnvironment: ProcessingEnvironment):
+        Boolean {
+    return processingEnvironment.elementUtils.getAllMembers(this).filter {
+        it.kind == ElementKind.CONSTRUCTOR && !it.modifiers.contains(Modifier.PRIVATE)
+    }.size > 1
+}
 
 /**
- * gets all members including super privates. does not handle duplicate field names!!!
+ * Gets either all the parameters of the single public constructor if they exist, otherwise returns
+ * a list of all public fields, even if empty.
  */
-
-fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: ProcessingEnvironment):
-        Set<VariableElement> {
-    val myMembers = processingEnvironment.elementUtils.getAllMembers(this)
-            .filter { it.kind == ElementKind.FIELD }
-            .filter { it is VariableElement }
-            .map { it as VariableElement }
-            .toSet()
-    if (superclass.kind != TypeKind.NONE) {
-        return myMembers + superclass.asTypeElement()
-                .getAllFieldsIncludingPrivateSupers(processingEnvironment)
-    } else {
-        return myMembers
+fun TypeElement.getAllConstructorParamsOrPublicFields(processingEnvironment: ProcessingEnvironment):
+        List<VariableElement> {
+    // TODO(obenabde): is non constructor private good enough? Or does it have to be public?
+    val elementUtils = processingEnvironment.elementUtils
+    val constructors = elementUtils.getAllMembers(this).filter {
+        it.kind == ElementKind.CONSTRUCTOR && !it.modifiers.contains(Modifier.PRIVATE)
     }
+    if (constructors.isNotEmpty()) {
+        val parameters = MoreElements.asExecutable(constructors.first()).parameters
+        if (parameters.isNotEmpty()) {
+            return parameters.map { it as VariableElement }
+        }
+    }
+    // This is a class with an empty or no public constructor, check public fields.
+    val publicFields = elementUtils.getAllMembers(this).filter {
+        it.kind == ElementKind.FIELD
+    }.filter {
+        it.modifiers.contains(Modifier.PUBLIC)
+    }
+    // TODO(obenabde): Should we warn/error when a field is nullable but it's an actual primitive?
+    //  This is specifically for java when they do something like "@Nullable public long var1;",
+    //  the pojo will contain a 0 and the user will have no way of distinguishing. Alternatively
+    //  just let the user take responsbility for making it a long as opposed to Long.
+    return publicFields.map { it as VariableElement }
+}
+
+fun TypeElement.hasNonEmptyNonPrivateConstructor(processingEnvironment: ProcessingEnvironment):
+        Boolean {
+    // TODO(obenabde): is non private good enough? Or does it have to be public?
+    val elementUtils = processingEnvironment.elementUtils
+    val constructors = elementUtils.getAllMembers(this).filter {
+        it.kind == ElementKind.CONSTRUCTOR && !it.modifiers.contains(Modifier.PRIVATE)
+    }
+    if (constructors.isEmpty()) {
+        return false
+    }
+    val parameters = MoreElements.asExecutable(constructors.first()).parameters
+    return parameters.isNotEmpty()
 }
 
 fun TypeElement.getAllMethodsIncludingSupers(): Set<ExecutableElement> {

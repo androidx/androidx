@@ -51,12 +51,6 @@ class MainActivity : Activity() {
         val description: String?
     )
 
-    data class EventIdStartTime(
-        @ContentColumn(_ID) val eventId: Long,
-        @ContentColumn(DTSTART1) val startTime: Long?,
-        val randomNonColumnField: String?
-    )
-
     @ContentAccessObject(Event::class)
     interface CalendarAccessor {
 
