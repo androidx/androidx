@@ -22,7 +22,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.impl.AppSearchImpl;
+import androidx.collection.ArraySet;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.SchemaProto;
@@ -33,7 +35,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,6 +60,67 @@ public class AppSearchManager {
     // execute() won't return anything, we will hang forever waiting for the execution.
     private final ExecutorService mQueryExecutor = Executors.newCachedThreadPool();
     private final ExecutorService mMutateExecutor = Executors.newFixedThreadPool(1);
+
+    /**
+     * Encapsulates a request to update the schema of an {@link AppSearchManager} database.
+     *
+     * @see AppSearchManager#setSchema
+     */
+    public static final class SetSchemaRequest {
+        final Set<AppSearchSchema> mSchemas;
+        final boolean mForceOverride;
+
+        SetSchemaRequest(Set<AppSearchSchema> schemas, boolean forceOverride) {
+            mSchemas = schemas;
+            mForceOverride = forceOverride;
+        }
+
+        /** Builder for {@link SetSchemaRequest} objects. */
+        public static final class Builder {
+            private final Set<AppSearchSchema> mSchemas = new ArraySet<>();
+            private boolean mForceOverride = false;
+            private boolean mBuilt = false;
+
+            /** Adds one or more types to the schema. */
+            @NonNull
+            public Builder addSchema(@NonNull AppSearchSchema... schemas) {
+                return addSchema(Arrays.asList(schemas));
+            }
+
+            /** Adds one or more types to the schema. */
+            @NonNull
+            public Builder addSchema(@NonNull Collection<AppSearchSchema> schemas) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                Preconditions.checkNotNull(schemas);
+                mSchemas.addAll(schemas);
+                return this;
+            }
+
+            /**
+             * Configures the {@link SetSchemaRequest} to delete any existing documents that don't
+             * follow the new schema.
+             *
+             * <p>By default, this is {@code false} and schema incompatibility causes the
+             * {@link #setSchema} call to fail.
+             *
+             * @see #setSchema
+             */
+            @NonNull
+            public Builder setForceOverride(boolean forceOverride) {
+                mForceOverride = forceOverride;
+                return this;
+            }
+
+            /** Builds a new {@link SetSchemaRequest}. */
+            @NonNull
+            public SetSchemaRequest build() {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                mBuilt = true;
+                return new SetSchemaRequest(mSchemas, mForceOverride);
+            }
+        }
+    }
+
     /**
      * Sets the schema being used by documents provided to the #putDocuments method.
      *
@@ -87,54 +152,36 @@ public class AppSearchManager {
      *     <li>Adding a
      *         {@link AppSearchSchema.PropertyConfig#CARDINALITY_REQUIRED REQUIRED} property.
      * </ul>
-     * <p>Supplying a schema with such changes will result in this call returning an
+     * <p>Supplying a schema with such changes will, by default, result in this call returning an
      * {@link AppSearchResult} with a code of {@link AppSearchResult#RESULT_INVALID_SCHEMA} and an
      * error message describing the incompatibility. In this case the previously set schema will
      * remain active.
      *
-     * <p>If you need to make non-backwards-compatible changes as described above, instead use the
-     * {@link #setSchema(List, boolean)} method with the {@code forceOverride} parameter set to
-     * {@code true}.
+     * <p>If you need to make non-backwards-compatible changes as described above, you can set the
+     * {@link SetSchemaRequest.Builder#setForceOverride} method to {@code true}. In this case,
+     * instead of returning an {@link AppSearchResult} with the
+     * {@link AppSearchResult#RESULT_INVALID_SCHEMA} error code, all documents which are not
+     * compatible with the new schema will be deleted and the incompatible schema will be applied.
      *
      * <p>It is a no-op to set the same schema as has been previously set; this is handled
      * efficiently.
      *
-     * @param schemas The schema configs for the types used by the calling app.
+     * @param request The schema update request.
      * @return a ListenableFuture representing the pending result of performing this operation.
      */
     // TODO(b/143789408): Linkify #putDocuments after that API is made public
     @NonNull
-    public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull AppSearchSchema... schemas) {
-        return setSchema(Arrays.asList(schemas), /*forceOverride=*/false);
-    }
+    public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request) {
+        Preconditions.checkNotNull(request);
 
-    /**
-     * Sets the schema being used by documents provided to the #putDocuments method.
-     *
-     * <p>This method is similar to {@link #setSchema(AppSearchSchema...)}, except for the
-     * {@code forceOverride} parameter. If a backwards-incompatible schema is specified but the
-     * {@code forceOverride} parameter is set to {@code true}, instead of returning an
-     * {@link AppSearchResult} with the {@link AppSearchResult#RESULT_INVALID_SCHEMA} code, all
-     * documents which are not compatible with the new schema will be deleted and the incompatible
-     * schema will be applied.
-     *
-     * @param schemas The schema configs for the types used by the calling app.
-     * @param forceOverride Whether to force the new schema to be applied even if there are
-     *     incompatible changes versus the previously set schema. Documents which are incompatible
-     *     with the new schema will be deleted.
-     * @return a ListenableFuture representing the pending result of performing this operation.
-     */
-    @NonNull
-    public ListenableFuture<AppSearchResult<Void>> setSchema(
-            @NonNull List<AppSearchSchema> schemas, boolean forceOverride) {
         // Prepare the merged schema for transmission.
         return execute(mMutateExecutor, () -> {
             SchemaProto.Builder schemaProtoBuilder = SchemaProto.newBuilder();
-            for (AppSearchSchema schema : schemas) {
+            for (AppSearchSchema schema : request.mSchemas) {
                 schemaProtoBuilder.addTypes(schema.getProto());
             }
             try {
-                mAppSearchImpl.setSchema(schemaProtoBuilder.build(), forceOverride);
+                mAppSearchImpl.setSchema(schemaProtoBuilder.build(), request.mForceOverride);
                 return AppSearchResult.newSuccessfulResult(/*value=*/ null);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
