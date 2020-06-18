@@ -20,34 +20,41 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.support.v4.media.session.MediaSessionCompat;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
-import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test {@link MediaSessionCompat}.
+ * Tests for {@link MediaSessionCompat}.
  */
 public class MediaSessionCompatTest {
     private static final int TIMEOUT_MS = 1000;
 
+    private Context mContext;
+
+    @Before
+    public void setUp() {
+        mContext = ApplicationProvider.getApplicationContext();
+    }
+
     @Test
     @SmallTest
     public void testConstructor_withoutLooper() throws Exception {
-        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         CountDownLatch latch = new CountDownLatch(1);
         new Thread() {
             @Override
             public void run() {
-                MediaSessionCompat session = new MediaSessionCompat(context, "testConstructor");
+                MediaSessionCompat session = new MediaSessionCompat(mContext, "testConstructor");
                 session.setActive(true);
                 session.release();
                 latch.countDown();
             }
-        }.run();
+        }.start();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 }
