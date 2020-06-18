@@ -17,11 +17,13 @@ package androidx.ui.text.platform.style
 
 import android.text.TextPaint
 import androidx.test.filters.SmallTest
+import androidx.ui.text.platform.InternalPlatformTextApi
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito
 
+@OptIn(InternalPlatformTextApi::class)
 @RunWith(JUnit4::class)
 @SmallTest
 class ShadowSpanTest {

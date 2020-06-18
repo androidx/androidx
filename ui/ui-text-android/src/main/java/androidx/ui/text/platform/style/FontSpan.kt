@@ -21,8 +21,8 @@ import android.graphics.fonts.FontStyle
 import android.os.Build
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.ui.text.platform.InternalPlatformTextApi
 
 /**
  * Span that changes the typeface of the text.
@@ -30,7 +30,7 @@ import androidx.annotation.VisibleForTesting
  * @param getTypeface a lambda function that returns the typeface used to render the affected text.
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 class FontSpan(
     val getTypeface: (weight: Int, isItalic: Boolean) -> Typeface
 ) : MetricAffectingSpan() {

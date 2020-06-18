@@ -16,7 +16,7 @@
 package androidx.ui.text.platform.style
 
 import android.graphics.Paint.FontMetricsInt
-import androidx.annotation.RestrictTo
+import androidx.ui.text.platform.InternalPlatformTextApi
 
 /**
  * The span which modifies the height of the covered paragraphs. A paragraph is defined as a
@@ -28,7 +28,7 @@ import androidx.annotation.RestrictTo
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 class LineHeightSpan(val lineHeight: Int) : android.text.style.LineHeightSpan {
     override fun chooseHeight(
         text: CharSequence,

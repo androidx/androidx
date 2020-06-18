@@ -187,6 +187,7 @@ private data class SpanRange(
 private const val SPAN_PRIORITY_FONT = -1
 private const val SPAN_PRIORITY_LETTERSPACING = -2
 
+@OptIn(InternalPlatformTextApi::class)
 internal fun createStyledText(
     text: String,
     contextFontSize: Float,
@@ -501,6 +502,7 @@ private fun createTypeface(
  * For a given [TextDirectionAlgorithm] return [TextLayout] constants for text direction
  * heuristics.
  */
+@OptIn(InternalPlatformTextApi::class)
 internal fun resolveTextDirectionHeuristics(
     textDirectionAlgorithm: TextDirectionAlgorithm
 ): Int {
@@ -519,6 +521,7 @@ private fun LocaleList.toAndroidLocaleList(): AndroidLocaleList =
     AndroidLocaleList(*map { it.toJavaLocale() }.toTypedArray())
 
 /** Helper function that converts [TextUnit.type] to the unit in [PlaceholderSpan]. */
+@OptIn(InternalPlatformTextApi::class)
 internal val TextUnit.spanUnit: Int
     get() = when (type) {
         TextUnitType.Sp -> PlaceholderSpan.UNIT_SP
@@ -530,6 +533,7 @@ internal val TextUnit.spanUnit: Int
  * Helper function that converts [PlaceholderVerticalAlign] to the verticalAlign in
  * [PlaceholderSpan].
  */
+@OptIn(InternalPlatformTextApi::class)
 internal val PlaceholderVerticalAlign.spanVerticalAlign: Int
     get() = when (this) {
         PlaceholderVerticalAlign.AboveBaseline -> PlaceholderSpan.ALIGN_ABOVE_BASELINE

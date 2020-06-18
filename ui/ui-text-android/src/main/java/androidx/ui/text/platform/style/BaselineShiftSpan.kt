@@ -19,14 +19,14 @@ package androidx.ui.text.platform.style
 import kotlin.math.ceil
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
-import androidx.annotation.RestrictTo
+import androidx.ui.text.platform.InternalPlatformTextApi
 
 /**
  * Span which shifts the vertical position of baseline.
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 open class BaselineShiftSpan(val multiplier: Float) : MetricAffectingSpan() {
 
     override fun updateMeasureState(textPaint: TextPaint) {

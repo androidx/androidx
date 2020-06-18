@@ -16,6 +16,7 @@
 package androidx.ui.text.platform.selection
 
 import androidx.test.filters.SmallTest
+import androidx.ui.text.platform.InternalPlatformTextApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,6 +24,7 @@ import org.junit.runners.JUnit4
 import java.text.BreakIterator
 import java.util.Locale
 
+@OptIn(InternalPlatformTextApi::class)
 @SmallTest
 @RunWith(JUnit4::class)
 class WordBoundaryTest {

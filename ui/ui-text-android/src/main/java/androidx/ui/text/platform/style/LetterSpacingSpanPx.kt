@@ -3,14 +3,14 @@ package androidx.ui.text.platform.style
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
 import androidx.annotation.Px
-import androidx.annotation.RestrictTo
+import androidx.ui.text.platform.InternalPlatformTextApi
 
 /**
  * Span that sets the letter spacing as [letterSpacing], in the unit of pixel.
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalPlatformTextApi
 class LetterSpacingSpanPx(@Px val letterSpacing: Float) : MetricAffectingSpan() {
     private fun TextPaint.updatePaint() {
         // In framework, 1em letterSpacing equals to textSize * textScaleX pixels.
