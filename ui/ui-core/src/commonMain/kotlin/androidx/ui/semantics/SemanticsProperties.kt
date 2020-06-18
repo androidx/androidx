@@ -17,6 +17,7 @@
 package androidx.ui.semantics
 
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.TextRange
 import kotlin.reflect.KProperty
 
 /**
@@ -57,6 +58,13 @@ object SemanticsProperties {
     val Disabled = SemanticsPropertyKey<Unit>("Disabled")
 
     /**
+     * Whether this semantics node is input focused.
+     *
+     * @see SemanticsPropertyReceiver.focused
+     */
+    val Focused = SemanticsPropertyKey<Boolean>("Focused")
+
+    /**
      * Whether this semantics node is hidden.
      *
      * @see SemanticsPropertyReceiver.hidden
@@ -86,6 +94,14 @@ object SemanticsProperties {
      * @see SemanticsPropertyReceiver.text
      */
     val Text = SemanticsPropertyKey<AnnotatedString>("Text")
+
+    /**
+     * Text selection range for edit text.
+     *
+     * @see TextRange
+     * @see SemanticsPropertyReceiver.textSelectionRange
+     */
+    val TextSelectionRange = SemanticsPropertyKey<TextRange>("TextSelectionRange")
 }
 
 /**
@@ -135,6 +151,23 @@ object SemanticsActions {
      */
     val SetProgress =
         SemanticsPropertyKey<AccessibilityAction<(progress: Float) -> Boolean>>("SetProgress")
+
+    /**
+     * Action to set selection. If this action is provided, the selection data must be provided
+     * using [SemanticsProperties.TextSelectionRange].
+     *
+     * @see SemanticsPropertyReceiver.setSelection
+     */
+    val SetSelection = SemanticsPropertyKey<
+            AccessibilityAction<(Int, Int, Boolean) -> Boolean>>("SetSelection")
+
+    /**
+     * Action to set the text of this node.
+     *
+     * @see SemanticsPropertyReceiver.setText
+     */
+    val SetText = SemanticsPropertyKey<
+            AccessibilityAction<(AnnotatedString) -> Boolean>>("SetText")
 
     /**
      * Custom actions which are defined by app developers.
@@ -240,6 +273,13 @@ fun SemanticsPropertyReceiver.disabled() {
 }
 
 /**
+ * Whether this semantics node is focused.
+ *
+ * @See SemanticsProperties.Focused
+ */
+var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
+
+/**
  * Whether this semantics node is hidden.
  *
  * @See SemanticsProperties.Hidden
@@ -272,6 +312,14 @@ var SemanticsPropertyReceiver.testTag by SemanticsProperties.TestTag
  * @see SemanticsProperties.Text
  */
 var SemanticsPropertyReceiver.text by SemanticsProperties.Text
+
+/**
+ * Text selection range for edit text.
+ *
+ * @see TextRange
+ * @see SemanticsProperties.TextSelectionRange
+ */
+var SemanticsPropertyReceiver.textSelectionRange by SemanticsProperties.TextSelectionRange
 
 /**
  * Custom actions which are defined by app developers.
@@ -335,9 +383,31 @@ fun SemanticsPropertyReceiver.scrollBackward(label: String? = null, action: () -
  * @param label Optional label for this action.
  * @param action Action to be performed when the [SemanticsActions.SetProgress] is called.
  */
-fun SemanticsPropertyReceiver.setProgress(
-    label: String? = null,
-    action: (progress: Float) -> Boolean
-) {
+fun SemanticsPropertyReceiver.setProgress(label: String? = null, action: (Float) -> Boolean) {
     this[SemanticsActions.SetProgress] = AccessibilityAction(label, action)
+}
+
+/**
+ * This function adds the [SemanticsActions.SetText] to the [SemanticsPropertyReceiver].
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.SetText] is called.
+ */
+fun SemanticsPropertyReceiver.setText(label: String? = null, action: (AnnotatedString) -> Boolean) {
+    this[SemanticsActions.SetText] = AccessibilityAction(label, action)
+}
+
+/**
+ * This function adds the [SemanticsActions.SetSelection] to the [SemanticsPropertyReceiver]. If
+ * this action is provided, the selection data must be provided using
+ * [SemanticsProperties.TextSelectionRange].
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.SetSelection] is called.
+ */
+fun SemanticsPropertyReceiver.setSelection(
+    label: String? = null,
+    action: (Int, Int, Boolean) -> Boolean
+) {
+    this[SemanticsActions.SetSelection] = AccessibilityAction(label, action)
 }
