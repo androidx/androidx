@@ -62,18 +62,16 @@ kotlin {
             implementation(KOTLIN_COROUTINES_ANDROID)
         }
 
-        unitTest.dependencies {
+        test.dependencies {
             implementation(ANDROIDX_TEST_RULES)
             implementation(ANDROIDX_TEST_RUNNER)
             implementation(JUNIT)
             implementation(TRUTH)
             implementation(MOCKITO_CORE)
-            implementation(ROBOLECTRIC) {
-                exclude group: 'org.apache.maven'
-            }
             implementation MOCKITO_KOTLIN, {
                 exclude group: 'org.mockito' // to keep control on the mockito version
             }
+            implementation(ROBOLECTRIC)
             implementation project(":ui:ui-test")
         }
 
@@ -124,4 +122,25 @@ android {
         }
     }
     testOptions.unitTests.includeAndroidResources = true
+}
+
+// An ugly hack to workaround bug in MPP Kotlin Gradle plugin.
+afterEvaluate {
+    ["Api", "Implementation", "CompileOnly", "RuntimeOnly"].each { scope ->
+        def erroneousExtendsFrom = [
+            "androidTest$scope",
+            "androidTestDebug$scope",
+            "androidTestRelease$scope"
+            ].collect { configurations[it] }
+        [
+            "androidDebugUnitTest$scope",
+            "androidReleaseUnitTest$scope",
+            "test$scope",
+            "testDebug$scope",
+            "testRelease$scope"
+            ].each {
+                def configuration = configurations[it]
+                configuration.setExtendsFrom(configuration.extendsFrom - erroneousExtendsFrom)
+        }
+    }
 }

@@ -17,12 +17,12 @@
 package androidx.ui.autofill
 
 import android.app.Activity
-import android.graphics.Rect
 import android.view.View
 import android.view.ViewStructure
 import androidx.autofill.HintConstants.AUTOFILL_HINT_PERSON_NAME
 import androidx.test.filters.SmallTest
 import androidx.ui.ComposeUiRobolectricTestRunner
+import androidx.ui.geometry.Rect
 import androidx.ui.test.android.fake.FakeViewStructure
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -70,7 +70,7 @@ class AndroidPopulateViewStructureTest {
         val autofillNode = AutofillNode(
             onFill = {},
             autofillTypes = listOf(AutofillType.PersonFullName),
-            boundingBox = Rect(0, 0, 0, 0)
+            boundingBox = Rect(0f, 0f, 0f, 0f)
         )
         autofillTree += autofillNode
 
@@ -96,14 +96,14 @@ class AndroidPopulateViewStructureTest {
         val nameAutofillNode = AutofillNode(
             onFill = {},
             autofillTypes = listOf(AutofillType.PersonFullName),
-            boundingBox = Rect(0, 0, 0, 0)
+            boundingBox = Rect(0f, 0f, 0f, 0f)
         )
         autofillTree += nameAutofillNode
 
         val emailAutofillNode = AutofillNode(
             onFill = {},
             autofillTypes = listOf(AutofillType.EmailAddress),
-            boundingBox = Rect(0, 0, 0, 0)
+            boundingBox = Rect(0f, 0f, 0f, 0f)
         )
         autofillTree += emailAutofillNode
 
