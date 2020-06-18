@@ -432,22 +432,21 @@ Java_androidx_camera_integration_core_OpenGLRenderer_renderTexture(
         jfloatArray jvertTransformArray, jfloatArray jtexTransformArray) {
     auto *nativeContext = reinterpret_cast<NativeContext *>(context);
 
-    // We use a single triangle with the viewport inscribed within for our
-    // vertices. This could also be done with a quad or two triangles.
-    //                          ^
-    //                          |
-    //                       (-1,3)
-    //                          +_
-    //                          | \_
-    //                          |   \_
-    //                       (-1,1)   \(1,1)
-    //                          +-------+_
-    //                          |       | \_
-    //                          |   +   |   \_
-    //                          |       |     \_
-    //                          +-------+-------+-->
-    //                       (-1,-1)  (1,-1)  (3,-1)
-    constexpr GLfloat vertices[] = {-1.0f, -1.0f, 3.0f, -1.0f, -1.0f, 3.0f};
+    // We use two triangles drawn with GL_TRIANGLE_STRIP to create the surface which will be
+    // textured with the camera frame. This could also be done with a quad (GL_QUADS) on a
+    // different version of OpenGL or with a scaled single triangle in which we would inscribe
+    // the camera texture.
+    //                                  ^
+    //                       (-1,1)     |     (1,1)
+    //                          +-------|-------+
+    //                          | \_    |       |
+    //                          |    \_ |       |
+    //                          |       +-------|--->
+    //                          |         \_    |
+    //                          |            \_ |
+    //                          +---------------+
+    //                       (-1,-1)          (1,-1)
+    constexpr GLfloat vertices[] = {-1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f};
 
     GLint vertexComponents = 2;
     GLenum vertexType = GL_FLOAT;
@@ -483,7 +482,7 @@ Java_androidx_camera_integration_core_OpenGLRenderer_renderTexture(
 
     // This will typically fail if the EGL surface has been detached abnormally. In that case we
     // will return JNI_FALSE below.
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     // Check that all GL operations completed successfully. If not, log an error and return.
     GLenum glError = glGetError();
