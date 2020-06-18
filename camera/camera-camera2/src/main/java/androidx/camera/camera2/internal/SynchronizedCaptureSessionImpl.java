@@ -249,6 +249,25 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     @Override
     public void onConfigured(@NonNull SynchronizedCaptureSession session) {
         debugLog("Session onConfigured()");
+        if (mEnabledFeature.contains(SynchronizedCaptureSessionOpener.FEATURE_FORCE_CLOSE)) {
+            Set<SynchronizedCaptureSession> staleCreatingSessions = new LinkedHashSet<>();
+            for (SynchronizedCaptureSession s :
+                    mCaptureSessionRepository.getCreatingCaptureSessions()) {
+                // Collect the sessions that started configuring before the current session. The
+                // current session and the session that starts configure after the current session
+                // are not included since they don't need to be closed.
+                if (s == session) {
+                    break;
+                }
+                staleCreatingSessions.add(s);
+            }
+            // Once the CaptureSession is configured, the stale CaptureSessions should not have
+            // chance to complete the configuration flow. Force change to configure fail since
+            // the configureFail will treat the CaptureSession is closed. More detail please see
+            // b/158540776.
+            forceOnConfigureFailed(staleCreatingSessions);
+        }
+
         super.onConfigured(session);
 
         // Once the new CameraCaptureSession is created, all the previous opened
@@ -334,6 +353,12 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     static void forceOnClosed(@NonNull Set<SynchronizedCaptureSession> sessions) {
         for (SynchronizedCaptureSession session : sessions) {
             session.getStateCallback().onClosed(session);
+        }
+    }
+
+    private void forceOnConfigureFailed(@NonNull Set<SynchronizedCaptureSession> sessions) {
+        for (SynchronizedCaptureSession session : sessions) {
+            session.getStateCallback().onConfigureFailed(session);
         }
     }
 
