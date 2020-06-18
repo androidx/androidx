@@ -406,6 +406,18 @@ package androidx.ui.core {
     method public static inline androidx.ui.geometry.Offset getPositionInRoot(androidx.ui.core.LayoutCoordinates);
   }
 
+  public final class LayoutIdKt {
+    method public static Object? getId(androidx.ui.core.Measurable);
+    method @Deprecated public static Object? getTag(androidx.ui.core.Measurable);
+    method @androidx.compose.Stable public static androidx.ui.core.Modifier layoutId(androidx.ui.core.Modifier, Object id);
+    method @Deprecated @androidx.compose.Stable public static androidx.ui.core.Modifier tag(androidx.ui.core.Modifier, Object tag);
+  }
+
+  public interface LayoutIdParentData {
+    method public Object getId();
+    property public abstract Object id;
+  }
+
   public final class LayoutKt {
     method @androidx.compose.Composable public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function4<? super androidx.ui.core.IntrinsicMeasureScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super java.lang.Integer,? super androidx.ui.core.LayoutDirection,java.lang.Integer> minIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function4<? super androidx.ui.core.IntrinsicMeasureScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super java.lang.Integer,? super androidx.ui.core.LayoutDirection,java.lang.Integer> minIntrinsicHeightMeasureBlock, kotlin.jvm.functions.Function4<? super androidx.ui.core.IntrinsicMeasureScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super java.lang.Integer,? super androidx.ui.core.LayoutDirection,java.lang.Integer> maxIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function4<? super androidx.ui.core.IntrinsicMeasureScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super java.lang.Integer,? super androidx.ui.core.LayoutDirection,java.lang.Integer> maxIntrinsicHeightMeasureBlock, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.MeasureResult> measureBlock);
     method @androidx.compose.Composable public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.MeasureResult> measureBlock);
@@ -518,13 +530,8 @@ package androidx.ui.core {
     method public static androidx.ui.core.LayoutNode? findClosestParentNode(androidx.ui.core.LayoutNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,java.lang.Boolean> selector);
   }
 
-  public final class LayoutTagKt {
-    method public static Object? getTag(androidx.ui.core.Measurable);
-    method @androidx.compose.Stable public static androidx.ui.core.Modifier tag(androidx.ui.core.Modifier, Object tag);
-  }
-
-  public interface LayoutTagParentData {
-    method public Object getTag();
+  @Deprecated public interface LayoutTagParentData {
+    method @Deprecated public Object getTag();
     property public abstract Object tag;
   }
 

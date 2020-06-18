@@ -22,7 +22,8 @@ import androidx.compose.state
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.tag
+import androidx.ui.core.id
+import androidx.ui.core.layoutId
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
@@ -280,7 +281,7 @@ private fun HintEditText(hintText: @Composable () -> Unit) {
 
     val inputField = @Composable {
         TextField(
-            modifier = Modifier.tag("inputField"),
+            modifier = Modifier.layoutId("inputField"),
             value = state.value,
             onValueChange = { state.value = it },
             textStyle = TextStyle(fontSize = fontSize8)
@@ -292,11 +293,11 @@ private fun HintEditText(hintText: @Composable () -> Unit) {
     } else {
         Layout({
             inputField()
-            Box(Modifier.tag("hintText"), children = hintText)
+            Box(Modifier.layoutId("hintText"), children = hintText)
         }) { measurable, constraints, _ ->
             val inputFieldPlacable =
-                measurable.first { it.tag == "inputField" }.measure(constraints)
-            val hintTextPlacable = measurable.first { it.tag == "hintText" }.measure(constraints)
+                measurable.first { it.id == "inputField" }.measure(constraints)
+            val hintTextPlacable = measurable.first { it.id == "hintText" }.measure(constraints)
             layout(inputFieldPlacable.width, inputFieldPlacable.height) {
                 inputFieldPlacable.place(0, 0)
                 hintTextPlacable.place(0, 0)
@@ -311,21 +312,21 @@ private fun CustomCursorTextField(cursor: @Composable () -> Unit) {
     val layoutResult = state<TextLayoutResult?> { null }
     Layout({
         TextField(
-            modifier = Modifier.tag("inputField"),
+            modifier = Modifier.layoutId("inputField"),
             value = state.value,
             onValueChange = { state.value = it },
             textStyle = TextStyle(fontSize = fontSize8),
             onTextLayout = { layoutResult.value = it }
         )
-        Box(Modifier.tag("cursor"), children = cursor)
+        Box(Modifier.layoutId("cursor"), children = cursor)
     }) { measurable, constraints, _ ->
         val inputFieldPlacable =
-            measurable.first { it.tag == "inputField" }.measure(constraints)
+            measurable.first { it.id == "inputField" }.measure(constraints)
 
         // Layout cursor with tight height constraints since cursor is expected fill the line
         // height.
         val cursorConstraints = Constraints.fixedHeight(inputFieldPlacable.height)
-        val cursorPlacable = measurable.first { it.tag == "cursor" }.measure(cursorConstraints)
+        val cursorPlacable = measurable.first { it.id == "cursor" }.measure(cursorConstraints)
 
         layout(inputFieldPlacable.width, inputFieldPlacable.height) {
             inputFieldPlacable.place(0, 0)

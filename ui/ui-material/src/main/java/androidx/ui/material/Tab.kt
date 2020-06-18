@@ -37,7 +37,8 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.tag
+import androidx.ui.core.id
+import androidx.ui.core.layoutId
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ContentGravity
@@ -247,8 +248,8 @@ private fun ScrollableTabRow(
         Layout(
             {
                 tabs()
-                Box(Modifier.tag(indicatorTag), children = indicator)
-                Box(Modifier.tag(dividerTag), children = divider)
+                Box(Modifier.layoutId(indicatorTag), children = indicator)
+                Box(Modifier.layoutId(dividerTag), children = divider)
             }
         ) { measurables, constraints, _ ->
             val tabPlaceables = mutableListOf<Pair<Placeable, Int>>()
@@ -262,7 +263,7 @@ private fun ScrollableTabRow(
 
             val layoutWidth = measurables
                 // to avoid wrapping each tab with the Box only to pass the LayoutTag
-                .filter { it.tag == null }
+                .filter { it.id == null }
                 .fold(edgeOffset) { sum, measurable ->
                     val placeable = measurable.measure(tabConstraints)
 
@@ -294,13 +295,13 @@ private fun ScrollableTabRow(
 
                 // The divider is measured with its own height, and width equal to the total width
                 // of the tab row, and then placed on top of the tabs.
-                measurables.fastFirstOrNull { it.tag == dividerTag }
+                measurables.fastFirstOrNull { it.id == dividerTag }
                     ?.measure(constraints.copy(minWidth = layoutWidth, maxWidth = layoutWidth))
                     ?.run { place(0, layoutHeight - height) }
 
                 // The indicator container is measured to fill the entire space occupied by the tab
                 // row, and then placed on top of the divider.
-                measurables.fastFirstOrNull { it.tag == indicatorTag }
+                measurables.fastFirstOrNull { it.id == indicatorTag }
                     ?.measure(Constraints.fixed(layoutWidth, layoutHeight))
                     ?.place(0, 0)
             }
@@ -593,21 +594,21 @@ private fun TabBaselineLayout(
     Layout(
         {
             Box(
-                Modifier.tag("text"),
+                Modifier.layoutId("text"),
                 paddingStart = HorizontalTextPadding,
                 paddingEnd = HorizontalTextPadding,
                 children = text
             )
-            Box(Modifier.tag("icon"), children = icon)
+            Box(Modifier.layoutId("icon"), children = icon)
         }
     ) { measurables, constraints, _ ->
-        val textPlaceable = measurables.first { it.tag == "text" }.measure(
+        val textPlaceable = measurables.first { it.id == "text" }.measure(
             // Measure with loose constraints for height as we don't want the text to take up more
             // space than it needs
             constraints.copy(minHeight = 0)
         )
 
-        val iconPlaceable = measurables.first { it.tag == "icon" }.measure(constraints)
+        val iconPlaceable = measurables.first { it.id == "icon" }.measure(constraints)
 
         val hasTextPlaceable =
             textPlaceable.width != 0 && textPlaceable.height != 0

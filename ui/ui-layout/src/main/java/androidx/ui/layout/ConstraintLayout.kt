@@ -48,7 +48,7 @@ import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.hasFixedHeight
 import androidx.ui.core.hasFixedWidth
-import androidx.ui.core.tag
+import androidx.ui.core.id
 import androidx.ui.layout.ConstraintSetBuilderScope.Companion.baselineAnchorFunction
 import androidx.ui.layout.ConstraintSetBuilderScope.Companion.horizontalAnchorFunctions
 import androidx.ui.layout.ConstraintSetBuilderScope.Companion.verticalAnchorFunctions
@@ -83,12 +83,12 @@ fun ConstraintLayout(
                 scope.applyTo(state)
                 measurables.fastForEach { measurable ->
                     val parentData = measurable.parentData as? ConstraintLayoutParentData
-                    // Map the tag and the measurable, to be retrieved later during measurement.
-                    val givenTag = parentData?.ref?.tag
-                    state.map(givenTag ?: createTag(), measurable)
+                    // Map the id and the measurable, to be retrieved later during measurement.
+                    val givenTag = parentData?.ref?.id
+                    state.map(givenTag ?: createId(), measurable)
                     // Run the constrainAs block of the child, to obtain its constraints.
                     if (parentData != null) {
-                        val constrainScope = ConstrainScope(parentData.ref.tag)
+                        val constrainScope = ConstrainScope(parentData.ref.id)
                         parentData.constrain(constrainScope)
                         constrainScope.applyTo(state)
                     }
@@ -140,41 +140,41 @@ fun ConstraintLayout(
 /**
  * Represents a layout within a [ConstraintLayout].
  */
-class ConstrainedLayoutReference(val tag: Any) {
+class ConstrainedLayoutReference(val id: Any) {
     /**
      * The start anchor of this layout. Represents left in LTR layout direction, or right in RTL.
      */
-    val start = ConstraintLayoutBaseScope.VerticalAnchor(tag, -2)
+    val start = ConstraintLayoutBaseScope.VerticalAnchor(id, -2)
 
     /**
      * The left anchor of this layout.
      */
-    val absoluteLeft = ConstraintLayoutBaseScope.VerticalAnchor(tag, 0)
+    val absoluteLeft = ConstraintLayoutBaseScope.VerticalAnchor(id, 0)
 
     /**
      * The top anchor of this layout.
      */
-    val top = ConstraintLayoutBaseScope.HorizontalAnchor(tag, 0)
+    val top = ConstraintLayoutBaseScope.HorizontalAnchor(id, 0)
 
     /**
      * The end anchor of this layout. Represents right in LTR layout direction, or left in RTL.
      */
-    val end = ConstraintLayoutBaseScope.VerticalAnchor(tag, -1)
+    val end = ConstraintLayoutBaseScope.VerticalAnchor(id, -1)
 
     /**
      * The right anchor of this layout.
      */
-    val absoluteRight = ConstraintLayoutBaseScope.VerticalAnchor(tag, 1)
+    val absoluteRight = ConstraintLayoutBaseScope.VerticalAnchor(id, 1)
 
     /**
      * The bottom anchor of this layout.
      */
-    val bottom = ConstraintLayoutBaseScope.HorizontalAnchor(tag, 1)
+    val bottom = ConstraintLayoutBaseScope.HorizontalAnchor(id, 1)
 
     /**
      * The baseline anchor of this layout.
      */
-    val baseline = ConstraintLayoutBaseScope.BaselineAnchor(tag)
+    val baseline = ConstraintLayoutBaseScope.BaselineAnchor(id)
 }
 
 /**
@@ -192,41 +192,41 @@ abstract class ConstraintLayoutBaseScope {
      * Represents a vertical anchor (e.g. start/end of a layout, guideline) that layouts
      * can link to in their `Modifier.constrainAs` or `constrain` blocks.
      */
-    data class VerticalAnchor internal constructor(internal val tag: Any, internal val index: Int)
+    data class VerticalAnchor internal constructor(internal val id: Any, internal val index: Int)
 
     /**
      * Represents a horizontal anchor (e.g. top/bottom of a layout, guideline) that layouts
      * can link to in their `Modifier.constrainAs` or `constrain` blocks.
      */
-    data class HorizontalAnchor internal constructor(internal val tag: Any, internal val index: Int)
+    data class HorizontalAnchor internal constructor(internal val id: Any, internal val index: Int)
 
     /**
      * Represents a horizontal anchor corresponding to the [FirstBaseline] of a layout that other
      * layouts can link to in their `Modifier.constrainAs` or `constrain` blocks.
      */
     // TODO(popam): investigate if this can be just a HorizontalAnchor
-    data class BaselineAnchor internal constructor(internal val tag: Any)
+    data class BaselineAnchor internal constructor(internal val id: Any)
 
     /**
      * Creates a guideline at a specific offset from the start of the [ConstraintLayout].
      */
     fun createGuidelineFromStart(offset: Dp): VerticalAnchor {
-        val tag = createTag()
+        val id = createId()
         tasks.add { state ->
-            state.verticalGuideline(tag).apply {
+            state.verticalGuideline(id).apply {
                 if (state.layoutDirection == LayoutDirection.Ltr) start(offset) else end(offset)
             }
         }
-        return VerticalAnchor(tag, 0)
+        return VerticalAnchor(id, 0)
     }
 
     /**
      * Creates a guideline at a specific offset from the left of the [ConstraintLayout].
      */
     fun createGuidelineFromAbsoluteLeft(offset: Dp): VerticalAnchor {
-        val tag = createTag()
-        tasks.add { state -> state.verticalGuideline(tag).apply { start(offset) } }
-        return VerticalAnchor(tag, 0)
+        val id = createId()
+        tasks.add { state -> state.verticalGuideline(id).apply { start(offset) } }
+        return VerticalAnchor(id, 0)
     }
 
     /**
@@ -235,9 +235,9 @@ abstract class ConstraintLayoutBaseScope {
      * correspond to the end.
      */
     fun createGuidelineFromStart(fraction: Float): VerticalAnchor {
-        val tag = createTag()
+        val id = createId()
         tasks.add { state ->
-            state.verticalGuideline(tag).apply {
+            state.verticalGuideline(id).apply {
                 if (state.layoutDirection == LayoutDirection.Ltr) {
                     percent(fraction)
                 } else {
@@ -245,7 +245,7 @@ abstract class ConstraintLayoutBaseScope {
                 }
             }
         }
-        return VerticalAnchor(tag, 0)
+        return VerticalAnchor(id, 0)
     }
 
     /**
@@ -253,37 +253,37 @@ abstract class ConstraintLayoutBaseScope {
      * A [fraction] of 0f will correspond to the left of the [ConstraintLayout], while 1f will
      * correspond to the right.
      */
-    // TODO(popam, b/157781990): this is not really percentage
+    // TODO(popam, b/157781990): this is not really percenide
     fun createGuidelineFromAbsoluteLeft(fraction: Float): VerticalAnchor {
-        val tag = createTag()
-        tasks.add { state -> state.verticalGuideline(tag).apply { percent(fraction) } }
-        return VerticalAnchor(tag, 0)
+        val id = createId()
+        tasks.add { state -> state.verticalGuideline(id).apply { percent(fraction) } }
+        return VerticalAnchor(id, 0)
     }
 
     /**
      * Creates a guideline at a specific offset from the end of the [ConstraintLayout].
      */
     fun createGuidelineFromEnd(offset: Dp): VerticalAnchor {
-        val tag = createTag()
+        val id = createId()
         tasks.add { state ->
-            state.verticalGuideline(tag).apply {
+            state.verticalGuideline(id).apply {
                 if (state.layoutDirection == LayoutDirection.Ltr) end(offset) else start(offset)
             }
         }
-        return VerticalAnchor(tag, 0)
+        return VerticalAnchor(id, 0)
     }
 
     /**
      * Creates a guideline at a specific offset from the right of the [ConstraintLayout].
      */
     fun createGuidelineFromAbsoluteRight(offset: Dp): VerticalAnchor {
-        val tag = createTag()
-        tasks.add { state -> state.verticalGuideline(tag).apply { end(offset) } }
-        return VerticalAnchor(tag, 0)
+        val id = createId()
+        tasks.add { state -> state.verticalGuideline(id).apply { end(offset) } }
+        return VerticalAnchor(id, 0)
     }
 
     /**
-     * Creates a guideline at a width percentage from the end of the [ConstraintLayout].
+     * Creates a guideline at a width fraction from the end of the [ConstraintLayout].
      * A [fraction] of 0f will correspond to the end of the [ConstraintLayout], while 1f will
      * correspond to the start.
      */
@@ -292,7 +292,7 @@ abstract class ConstraintLayoutBaseScope {
     }
 
     /**
-     * Creates a guideline at a width percentage from the right of the [ConstraintLayout].
+     * Creates a guideline at a width fraction from the right of the [ConstraintLayout].
      * A [fraction] of 0f will correspond to the right of the [ConstraintLayout], while 1f will
      * correspond to the left.
      */
@@ -304,33 +304,33 @@ abstract class ConstraintLayoutBaseScope {
      * Creates a guideline at a specific offset from the top of the [ConstraintLayout].
      */
     fun createGuidelineFromTop(offset: Dp): HorizontalAnchor {
-        val tag = createTag()
-        tasks.add { state -> state.horizontalGuideline(tag).apply { start(offset) } }
-        return HorizontalAnchor(tag, 0)
+        val id = createId()
+        tasks.add { state -> state.horizontalGuideline(id).apply { start(offset) } }
+        return HorizontalAnchor(id, 0)
     }
 
     /**
-     * Creates a guideline at a height percentage from the top of the [ConstraintLayout].
+     * Creates a guideline at a height percenide from the top of the [ConstraintLayout].
      * A [fraction] of 0f will correspond to the top of the [ConstraintLayout], while 1f will
      * correspond to the bottom.
      */
     fun createGuidelineFromTop(fraction: Float): HorizontalAnchor {
-        val tag = createTag()
-        tasks.add { state -> state.horizontalGuideline(tag).apply { percent(fraction) } }
-        return HorizontalAnchor(tag, 0)
+        val id = createId()
+        tasks.add { state -> state.horizontalGuideline(id).apply { percent(fraction) } }
+        return HorizontalAnchor(id, 0)
     }
 
     /**
      * Creates a guideline at a specific offset from the bottom of the [ConstraintLayout].
      */
     fun createGuidelineFromBottom(offset: Dp): HorizontalAnchor {
-        val tag = createTag()
-        tasks.add { state -> state.horizontalGuideline(tag).apply { end(offset) } }
-        return HorizontalAnchor(tag, 0)
+        val id = createId()
+        tasks.add { state -> state.horizontalGuideline(id).apply { end(offset) } }
+        return HorizontalAnchor(id, 0)
     }
 
     /**
-     * Creates a guideline at a height percentage from the bottom of the [ConstraintLayout].
+     * Creates a guideline at a height percenide from the bottom of the [ConstraintLayout].
      * A [fraction] of 0f will correspond to the bottom of the [ConstraintLayout], while 1f will
      * correspond to the top.
      */
@@ -345,18 +345,18 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: ConstrainedLayoutReference,
         margin: Dp = 0.dp
     ): VerticalAnchor {
-        val tag = createTag()
+        val id = createId()
         tasks.add { state ->
             val direction = if (state.layoutDirection == LayoutDirection.Ltr) {
                 SolverDirection.LEFT
             } else {
                 SolverDirection.RIGHT
             }
-            state.barrier(tag, direction).apply {
-                add(*(elements.map { it.tag }.toTypedArray()))
+            state.barrier(id, direction).apply {
+                add(*(elements.map { it.id }.toTypedArray()))
             }.margin(state.convertDimension(margin))
         }
-        return VerticalAnchor(tag, 0)
+        return VerticalAnchor(id, 0)
     }
 
     /**
@@ -366,13 +366,13 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: ConstrainedLayoutReference,
         margin: Dp = 0.dp
     ): VerticalAnchor {
-        val tag = createTag()
+        val id = createId()
         tasks.add { state ->
-            state.barrier(tag, SolverDirection.LEFT).apply {
-                add(*(elements.map { it.tag }.toTypedArray()))
+            state.barrier(id, SolverDirection.LEFT).apply {
+                add(*(elements.map { it.id }.toTypedArray()))
             }.margin(state.convertDimension(margin))
         }
-        return VerticalAnchor(tag, 0)
+        return VerticalAnchor(id, 0)
     }
 
     /**
@@ -382,13 +382,13 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: ConstrainedLayoutReference,
         margin: Dp = 0.dp
     ): HorizontalAnchor {
-        val tag = createTag()
+        val id = createId()
         tasks.add { state ->
-            state.barrier(tag, SolverDirection.TOP).apply {
-                add(*(elements.map { it.tag }.toTypedArray()))
+            state.barrier(id, SolverDirection.TOP).apply {
+                add(*(elements.map { it.id }.toTypedArray()))
             }.margin(state.convertDimension(margin))
         }
-        return HorizontalAnchor(tag, 0)
+        return HorizontalAnchor(id, 0)
     }
 
     /**
@@ -398,18 +398,18 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: ConstrainedLayoutReference,
         margin: Dp = 0.dp
     ): VerticalAnchor {
-        val tag = createTag()
+        val id = createId()
         tasks.add { state ->
             val direction = if (state.layoutDirection == LayoutDirection.Ltr) {
                 SolverDirection.RIGHT
             } else {
                 SolverDirection.LEFT
             }
-            state.barrier(tag, direction).apply {
-                add(*(elements.map { it.tag }.toTypedArray()))
+            state.barrier(id, direction).apply {
+                add(*(elements.map { it.id }.toTypedArray()))
             }.margin(state.convertDimension(margin))
         }
-        return VerticalAnchor(tag, 0)
+        return VerticalAnchor(id, 0)
     }
 
     /**
@@ -419,13 +419,13 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: ConstrainedLayoutReference,
         margin: Dp = 0.dp
     ): VerticalAnchor {
-        val tag = createTag()
+        val id = createId()
         tasks.add { state ->
-            state.barrier(tag, SolverDirection.RIGHT).apply {
-                add(*(elements.map { it.tag }.toTypedArray()))
+            state.barrier(id, SolverDirection.RIGHT).apply {
+                add(*(elements.map { it.id }.toTypedArray()))
             }.margin(state.convertDimension(margin))
         }
-        return VerticalAnchor(tag, 0)
+        return VerticalAnchor(id, 0)
     }
 
     /**
@@ -435,13 +435,13 @@ abstract class ConstraintLayoutBaseScope {
         vararg elements: ConstrainedLayoutReference,
         margin: Dp = 0.dp
     ): HorizontalAnchor {
-        val tag = createTag()
+        val id = createId()
         tasks.add { state ->
-            state.barrier(tag, SolverDirection.BOTTOM).apply {
-                add(*(elements.map { it.tag }.toTypedArray()))
+            state.barrier(id, SolverDirection.BOTTOM).apply {
+                add(*(elements.map { it.id }.toTypedArray()))
             }.margin(state.convertDimension(margin))
         }
-        return HorizontalAnchor(tag, 0)
+        return HorizontalAnchor(id, 0)
     }
 
     /**
@@ -453,11 +453,11 @@ abstract class ConstraintLayoutBaseScope {
         chainStyle: ChainStyle = ChainStyle.Spread
     ) {
         tasks.add { state ->
-            state.horizontalChain(*(elements.map { it.tag }.toTypedArray()))
+            state.horizontalChain(*(elements.map { it.id }.toTypedArray()))
                 .also { it.style(chainStyle.style) }
                 .apply()
             if (chainStyle.bias != null) {
-                state.constraints(elements[0].tag).horizontalBias(chainStyle.bias)
+                state.constraints(elements[0].id).horizontalBias(chainStyle.bias)
             }
         }
     }
@@ -471,11 +471,11 @@ abstract class ConstraintLayoutBaseScope {
         chainStyle: ChainStyle = ChainStyle.Spread
     ) {
         tasks.add { state ->
-            state.verticalChain(*(elements.map { it.tag }.toTypedArray()))
+            state.verticalChain(*(elements.map { it.id }.toTypedArray()))
                 .also { it.style(chainStyle.style) }
                 .apply()
             if (chainStyle.bias != null) {
-                state.constraints(elements[0].tag).verticalBias(chainStyle.bias)
+                state.constraints(elements[0].id).verticalBias(chainStyle.bias)
             }
         }
     }
@@ -491,7 +491,7 @@ class ConstraintLayoutScope internal constructor() : ConstraintLayoutBaseScope()
      * [ConstraintLayout] as part of [Modifier.constrainAs]. To create more references at the
      * same time, see [createRefs].
      */
-    fun createRef() = ConstrainedLayoutReference(createTag())
+    fun createRef() = ConstrainedLayoutReference(createId())
 
     /**
      * Convenient way to create multiple [ConstrainedLayoutReference]s, which need to be assigned
@@ -544,18 +544,18 @@ class ConstraintLayoutScope internal constructor() : ConstraintLayoutBaseScope()
 @LayoutScopeMarker
 class ConstraintSetScope internal constructor() : ConstraintLayoutBaseScope() {
     /**
-     * Creates one [ConstrainedLayoutReference] corresponding to the [ConstraintLayout]
-     * [tagged][Modifier.tag] with [tag].
+     * Creates one [ConstrainedLayoutReference] corresponding to the [ConstraintLayout] element
+     * with [id].
      */
-    fun createRefFor(tag: Any) = ConstrainedLayoutReference(tag)
+    fun createRefFor(id: Any) = ConstrainedLayoutReference(id)
 
     /**
-     * Specifies the constraints associated to the layout tagged with [ref] via [Modifier.tag].
+     * Specifies the constraints associated to the layout identified with [ref].
      */
     fun constrain(
         ref: ConstrainedLayoutReference,
         constrainBlock: ConstrainScope.() -> Unit
-    ) = ConstrainScope(ref.tag).apply {
+    ) = ConstrainScope(ref.id).apply {
         constrainBlock()
         this@ConstraintSetScope.tasks.addAll(this.tasks)
     }
@@ -606,7 +606,7 @@ private class ConstraintLayoutParentData(
  * Scope used by `Modifier.constrainAs`.
  */
 @LayoutScopeMarker
-class ConstrainScope internal constructor(internal val tag: Any) {
+class ConstrainScope internal constructor(internal val id: Any) {
     internal val tasks = mutableListOf<(State) -> Unit>()
     internal fun applyTo(state: State) = tasks.forEach { it(state) }
 
@@ -619,37 +619,37 @@ class ConstrainScope internal constructor(internal val tag: Any) {
     /**
      * The start anchor of the layout - can be constrained using [VerticalAnchorable.linkTo].
      */
-    val start = VerticalAnchorable(tag, -2)
+    val start = VerticalAnchorable(id, -2)
 
     /**
      * The left anchor of the layout - can be constrained using [VerticalAnchorable.linkTo].
      */
-    val absoluteLeft = VerticalAnchorable(tag, 0)
+    val absoluteLeft = VerticalAnchorable(id, 0)
 
     /**
      * The top anchor of the layout - can be constrained using [HorizontalAnchorable.linkTo].
      */
-    val top = HorizontalAnchorable(tag, 0)
+    val top = HorizontalAnchorable(id, 0)
 
     /**
      * The end anchor of the layout - can be constrained using [VerticalAnchorable.linkTo].
      */
-    val end = VerticalAnchorable(tag, -1)
+    val end = VerticalAnchorable(id, -1)
 
     /**
      * The right anchor of the layout - can be constrained using [VerticalAnchorable.linkTo].
      */
-    val absoluteRight = VerticalAnchorable(tag, 1)
+    val absoluteRight = VerticalAnchorable(id, 1)
 
     /**
      * The bottom anchor of the layout - can be constrained using [HorizontalAnchorable.linkTo].
      */
-    val bottom = HorizontalAnchorable(tag, 1)
+    val bottom = HorizontalAnchorable(id, 1)
 
     /**
      * The [FirstBaseline] of the layout - can be constrained using [BaselineAnchorable.linkTo].
      */
-    val baseline = BaselineAnchorable(tag)
+    val baseline = BaselineAnchorable(id)
 
     /**
      * The width of the [ConstraintLayout] child.
@@ -658,7 +658,7 @@ class ConstrainScope internal constructor(internal val tag: Any) {
         set(value) {
             field = value
             tasks.add { state ->
-                state.constraints(tag).width(
+                state.constraints(id).width(
                     (value as DimensionDescription).toSolverDimension(state)
                 )
             }
@@ -671,7 +671,7 @@ class ConstrainScope internal constructor(internal val tag: Any) {
         set(value) {
             field = value
             tasks.add { state ->
-                state.constraints(tag).height(
+                state.constraints(id).height(
                     (value as DimensionDescription).toSolverDimension(state)
                 )
             }
@@ -682,7 +682,7 @@ class ConstrainScope internal constructor(internal val tag: Any) {
      * [linkTo] in their `Modifier.constrainAs` blocks.
      */
     inner class VerticalAnchorable internal constructor(
-        internal val tag: Any,
+        internal val id: Any,
         internal val index: Int
     ) {
         /**
@@ -691,12 +691,12 @@ class ConstrainScope internal constructor(internal val tag: Any) {
         // TODO(popam, b/158069248): add parameter for gone margin
         fun linkTo(anchor: ConstraintLayoutBaseScope.VerticalAnchor, margin: Dp = 0.dp) {
             tasks.add { state ->
-                with(state.constraints(tag)) {
+                with(state.constraints(id)) {
                     val layoutDirection = state.layoutDirection
                     val index1 = verticalAnchorIndexToFunctionIndex(index, layoutDirection)
                     val index2 = verticalAnchorIndexToFunctionIndex(anchor.index, layoutDirection)
                     verticalAnchorFunctions[index1][index2]
-                        .invoke(this, anchor.tag)
+                        .invoke(this, anchor.id)
                         .margin(margin)
                 }
             }
@@ -717,9 +717,9 @@ class ConstrainScope internal constructor(internal val tag: Any) {
         // TODO(popam, b/158069248): add parameter for gone margin
         fun linkTo(anchor: ConstraintLayoutBaseScope.HorizontalAnchor, margin: Dp = 0.dp) {
             tasks.add { state ->
-                with(state.constraints(tag)) {
+                with(state.constraints(id)) {
                     horizontalAnchorFunctions[index][anchor.index]
-                        .invoke(this, anchor.tag)
+                        .invoke(this, anchor.id)
                         .margin(margin)
                 }
             }
@@ -730,15 +730,15 @@ class ConstrainScope internal constructor(internal val tag: Any) {
      * Represents the [FirstBaseline] of a layout that can be anchored
      * using [linkTo] in their `Modifier.constrainAs` blocks.
      */
-    inner class BaselineAnchorable internal constructor(internal val tag: Any) {
+    inner class BaselineAnchorable internal constructor(internal val id: Any) {
         /**
          * Adds a link towards a [ConstraintLayoutBaseScope.BaselineAnchor].
          */
         // TODO(popam, b/158069248): add parameter for gone margin
         fun linkTo(anchor: ConstraintLayoutBaseScope.BaselineAnchor, margin: Dp = 0.dp) {
             tasks.add { state ->
-                with(state.constraints(tag)) {
-                    baselineAnchorFunction.invoke(this, anchor.tag).margin(margin)
+                with(state.constraints(id)) {
+                    baselineAnchorFunction.invoke(this, anchor.id).margin(margin)
                 }
             }
         }
@@ -758,7 +758,7 @@ class ConstrainScope internal constructor(internal val tag: Any) {
         this@ConstrainScope.start.linkTo(start, startMargin)
         this@ConstrainScope.end.linkTo(end, endMargin)
         tasks.add { state ->
-            state.constraints(tag).horizontalBias(bias)
+            state.constraints(id).horizontalBias(bias)
         }
     }
 
@@ -776,7 +776,7 @@ class ConstrainScope internal constructor(internal val tag: Any) {
         this@ConstrainScope.top.linkTo(top, topMargin)
         this@ConstrainScope.bottom.linkTo(bottom, bottomMargin)
         tasks.add { state ->
-            state.constraints(tag).verticalBias(bias)
+            state.constraints(id).verticalBias(bias)
         }
     }
 
@@ -845,11 +845,11 @@ class ConstrainScope internal constructor(internal val tag: Any) {
 }
 
 /**
- * Convenience for creating tags corresponding to layout references that cannot be referred
+ * Convenience for creating ids corresponding to layout references that cannot be referred
  * to from the outside of the scope (e.g. barriers, layout references in the modifier-based API,
  * etc.).
  */
-private fun createTag() = object : Any() {}
+private fun createId() = object : Any() {}
 
 /**
  * Represents a dimension that can be assigned to the width or height of a [ConstraintLayout]
@@ -1014,7 +1014,7 @@ interface ConstraintSet {
 fun ConstraintSet(description: ConstraintSetBuilderScope.() -> Unit) = object : ConstraintSet {
     override fun applyTo(state: State, measurables: List<Measurable>) {
         measurables.forEach { measurable ->
-            state.map((measurable.tag ?: createTag()), measurable)
+            state.map((measurable.id ?: createId()), measurable)
         }
         description(ConstraintSetBuilderScope(state))
     }
@@ -1026,7 +1026,7 @@ fun ConstraintSet(description: ConstraintSetBuilderScope.() -> Unit) = object : 
 fun ConstraintSet2(description: ConstraintSetScope.() -> Unit) = object : ConstraintSet {
     override fun applyTo(state: State, measurables: List<Measurable>) {
         measurables.forEach { measurable ->
-            state.map((measurable.tag ?: createTag()), measurable)
+            state.map((measurable.id ?: createId()), measurable)
         }
         val scope = ConstraintSetScope()
         scope.description()
@@ -1552,7 +1552,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
      * Creates a guideline at a specific offset from the left of the [ConstraintLayout].
      */
     fun createGuidelineFromLeft(offset: Dp): VerticalAnchor.GuidelineAnchor {
-        val tag = createTag()
+        val tag = createId()
         state.verticalGuideline(tag).apply { start(offset) }
         return VerticalAnchor.GuidelineAnchor(state, tag)
     }
@@ -1561,7 +1561,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
      * Creates a guideline at a width percentage from the left of the [ConstraintLayout].
      */
     fun createGuidelineFromLeft(percent: Float): VerticalAnchor.GuidelineAnchor {
-        val tag = createTag()
+        val tag = createId()
         state.verticalGuideline(tag).apply { percent(percent) }
         return VerticalAnchor.GuidelineAnchor(state, tag)
     }
@@ -1570,7 +1570,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
      * Creates a guideline at a specific offset from the right of the [ConstraintLayout].
      */
     fun createGuidelineFromRight(offset: Dp): VerticalAnchor.GuidelineAnchor {
-        val tag = createTag()
+        val tag = createId()
         state.verticalGuideline(tag).apply { end(offset) }
         return VerticalAnchor.GuidelineAnchor(state, tag)
     }
@@ -1586,7 +1586,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
      * Creates a guideline at a specific offset from the top of the [ConstraintLayout].
      */
     fun createGuidelineFromTop(offset: Dp): HorizontalAnchor.GuidelineAnchor {
-        val tag = createTag()
+        val tag = createId()
         state.horizontalGuideline(tag).apply { start(offset) }
         return HorizontalAnchor.GuidelineAnchor(state, tag)
     }
@@ -1595,7 +1595,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
      * Creates a guideline at a height percentage from the top of the [ConstraintLayout].
      */
     fun createGuidelineFromTop(percent: Float): HorizontalAnchor.GuidelineAnchor {
-        val tag = createTag()
+        val tag = createId()
         state.horizontalGuideline(tag).apply { percent(percent) }
         return HorizontalAnchor.GuidelineAnchor(state, tag)
     }
@@ -1604,7 +1604,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
      * Creates a guideline at a specific offset from the bottom of the [ConstraintLayout].
      */
     fun createGuidelineFromBottom(offset: Dp): HorizontalAnchor.GuidelineAnchor {
-        val tag = createTag()
+        val tag = createId()
         state.horizontalGuideline(tag).apply { end(offset) }
         return HorizontalAnchor.GuidelineAnchor(state, tag)
     }
@@ -1622,7 +1622,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
     fun createTopBarrier(
         vararg elements: ConstrainedLayoutReference
     ): HorizontalAnchor.BarrierAnchor {
-        val tag = createTag()
+        val tag = createId()
         val barrier = state.barrier(tag, SolverDirection.TOP).apply {
             add(*(elements.map { it.tag }.toTypedArray()))
         }
@@ -1635,7 +1635,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
     fun createBottomBarrier(
         vararg elements: ConstrainedLayoutReference
     ): HorizontalAnchor.BarrierAnchor {
-        val tag = createTag()
+        val tag = createId()
         val barrier = state.barrier(tag, SolverDirection.BOTTOM).apply {
             add(*(elements.map { it.tag }.toTypedArray()))
         }
@@ -1648,7 +1648,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
     fun createLeftBarrier(
         vararg elements: ConstrainedLayoutReference
     ): VerticalAnchor.BarrierAnchor {
-        val tag = createTag()
+        val tag = createId()
         val barrier = state.barrier(tag, SolverDirection.START).apply {
             add(*(elements.map { it.tag }.toTypedArray()))
         }
@@ -1661,7 +1661,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
     fun createRightBarrier(
         vararg elements: ConstrainedLayoutReference
     ): VerticalAnchor.BarrierAnchor {
-        val tag = createTag()
+        val tag = createId()
         val barrier = state.barrier(tag, SolverDirection.END).apply {
             add(*(elements.map { it.tag }.toTypedArray()))
         }
@@ -1756,7 +1756,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
 
         if (DEBUG) {
             Log.d(
-                "CCL", "Measuring ${measurable.tag} with: " +
+                "CCL", "Measuring ${measurable.id} with: " +
                         constraintWidget.toDebugString() + "\n" + measure.toDebugString()
             )
         }
@@ -1796,13 +1796,13 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
             constraintWidget.mMatchConstraintDefaultHeight != MATCH_CONSTRAINT_SPREAD
         ) {
             if (DEBUG) {
-                Log.d("CCL", "Measuring ${measurable.tag} with $constraints")
+                Log.d("CCL", "Measuring ${measurable.id} with $constraints")
             }
             val placeable = with(measureScope) {
                 measurable.measure(constraints).also { placeables[measurable] = it }
             }
             if (DEBUG) {
-                Log.d("CCL", "${measurable.tag} is size ${placeable.width} ${placeable.height}")
+                Log.d("CCL", "${measurable.id} is size ${placeable.width} ${placeable.height}")
             }
 
             val coercedWidth = placeable.width.coerceIn(
@@ -1831,7 +1831,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
             }
             if (remeasure) {
                 if (DEBUG) {
-                    Log.d("CCL", "Remeasuring coerced ${measurable.tag} with $constraints")
+                    Log.d("CCL", "Remeasuring coerced ${measurable.id} with $constraints")
                 }
                 with(measureScope) {
                     measurable.measure(constraints).also { placeables[measurable] = it }
@@ -1926,7 +1926,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         if (DEBUG) {
             root.debugName = "ConstraintLayout"
             root.children.forEach { child ->
-                child.debugName = (child.companionWidget as? Measurable)?.tag?.toString() ?: "NOTAG"
+                child.debugName = (child.companionWidget as? Measurable)?.id?.toString() ?: "NOTAG"
             }
             Log.d("CCL", "ConstraintLayout is asked to measure with $constraints")
             Log.d("CCL", root.toDebugString())
@@ -1948,7 +1948,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
                 if (DEBUG) {
                     Log.d(
                         "CCL",
-                        "Final measurement for ${measurable.tag} " +
+                        "Final measurement for ${measurable.id} " +
                                 "to confirm size ${child.width} ${child.height}"
                     )
                 }

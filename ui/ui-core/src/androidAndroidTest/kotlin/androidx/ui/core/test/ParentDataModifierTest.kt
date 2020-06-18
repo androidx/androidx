@@ -19,12 +19,12 @@ import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTagParentData
+import androidx.ui.core.LayoutIdParentData
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.drawBehind
+import androidx.ui.core.layoutId
 import androidx.ui.core.setContent
-import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import org.junit.Assert.assertEquals
@@ -87,7 +87,7 @@ class ParentDataModifierTest {
         runOnUiThread {
             activity.setContent {
                 Layout(
-                    modifier = Modifier.tag("Hello"),
+                    modifier = Modifier.layoutId("Hello"),
                     children = {
                         SimpleDrawChild(drawLatch = drawLatch)
                     },
@@ -113,20 +113,20 @@ class ParentDataModifierTest {
             activity.setContent {
                 val header = @Composable {
                     Layout(
-                        modifier = Modifier.tag(0),
+                        modifier = Modifier.layoutId(0),
                         children = emptyContent()
                     ) { _, _, _ -> layout(0, 0) {} }
                 }
                 val footer = @Composable {
                     Layout(
-                        modifier = Modifier.tag(1),
+                        modifier = Modifier.layoutId(1),
                         children = emptyContent()
                     ) { _, _, _ -> layout(0, 0) {} }
                 }
 
                 Layout({ header(); footer() }) { measurables, _, _ ->
-                    assertEquals(0, ((measurables[0]).parentData as? LayoutTagParentData)?.tag)
-                    assertEquals(1, ((measurables[1]).parentData as? LayoutTagParentData)?.tag)
+                    assertEquals(0, ((measurables[0]).parentData as? LayoutIdParentData)?.id)
+                    assertEquals(1, ((measurables[1]).parentData as? LayoutIdParentData)?.id)
                     layout(0, 0) { }
                 }
             }
