@@ -28,6 +28,7 @@ import android.app.slice.Slice;
 import android.app.slice.SliceSpec;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
@@ -52,6 +53,7 @@ import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,7 +66,7 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 29) // Needed only on 29 and above
-public class InlineSuggestionTest {
+public class InlineSuggestionUiTest {
 
     private static final String TITLE = "Hello world!";
     private static final String SUB_TITLE = "From God";
@@ -150,6 +152,9 @@ public class InlineSuggestionTest {
                 .setSingleIconChipStyle(new ViewStyle.Builder().setBackground(
                         Icon.createWithResource(mContext, Color.TRANSPARENT)).setPadding(12,
                         13, 14, 15).build())
+                .setSingleIconChipIconStyle(
+                        new ImageViewStyle.Builder().setTintList(
+                                ColorStateList.valueOf(Color.BLUE)).build())
                 .build();
         InlineSuggestionUi.Content content = InlineSuggestionUi.newContentBuilder(
                 mAttributionIntent).setStartIcon(
@@ -160,6 +165,10 @@ public class InlineSuggestionTest {
 
         verifyVisibility(false, false, true, false);
         TestUtils.verifyPadding(view, 12, 13, 14, 15);
+
+        ImageView iconView =
+                mLinearLayout.findViewById(R.id.autofill_inline_suggestion_start_icon);
+        Assert.assertEquals(ColorStateList.valueOf(Color.BLUE), iconView.getImageTintList());
     }
 
     @Test
@@ -167,6 +176,8 @@ public class InlineSuggestionTest {
         InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder().setChipStyle(
                 new ViewStyle.Builder().setBackgroundColor(
                         Color.GREEN).setPadding(2, 3, 4, 5).build())
+                .setStartIconStyle(new ImageViewStyle.Builder().setTintList(
+                        ColorStateList.valueOf(Color.YELLOW)).build())
                 .build();
         InlineSuggestionUi.Content content = InlineSuggestionUi.newContentBuilder(
                 mAttributionIntent).setStartIcon(
@@ -177,6 +188,10 @@ public class InlineSuggestionTest {
 
         verifyVisibility(false, false, true, false);
         TestUtils.verifyPadding(view, 2, 3, 4, 5);
+
+        ImageView iconView =
+                mLinearLayout.findViewById(R.id.autofill_inline_suggestion_start_icon);
+        Assert.assertEquals(ColorStateList.valueOf(Color.YELLOW), iconView.getImageTintList());
     }
 
     @Test
