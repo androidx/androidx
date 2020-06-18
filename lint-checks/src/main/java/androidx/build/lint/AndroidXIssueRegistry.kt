@@ -40,7 +40,8 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 SampledAnnotationEnforcer.UNRESOLVED_SAMPLE_LINK,
                 SampledAnnotationEnforcer.MULTIPLE_FUNCTIONS_FOUND,
                 SampledAnnotationEnforcer.INVALID_SAMPLES_LOCATION,
-                ObsoleteBuildCompatUsageDetector.ISSUE
+                ObsoleteBuildCompatUsageDetector.ISSUE,
+                MetadataTagInsideApplicationTagDetector.ISSUE
             )
         }
     }
