@@ -25,7 +25,6 @@ import static androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_PINNED;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -377,8 +376,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
     @LargeTest
     @Test
     public void testGetIconDimension() {
-        assertNotEquals(0, ShortcutManagerCompat.getIconMaxWidth(mContext));
-        assertNotEquals(0, ShortcutManagerCompat.getIconMaxHeight(mContext));
+        assertTrue(ShortcutManagerCompat.getIconMaxWidth(mContext) >= 0);
+        assertTrue(ShortcutManagerCompat.getIconMaxHeight(mContext) >= 0);
     }
 
     private void verifyLegacyIntent(Intent intent) {
