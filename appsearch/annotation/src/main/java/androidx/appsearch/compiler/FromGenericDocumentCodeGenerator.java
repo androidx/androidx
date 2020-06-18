@@ -75,9 +75,9 @@ class FromGenericDocumentCodeGenerator {
                 .returns(classType)
                 .addParameter(mHelper.getAppSearchClass("GenericDocument"), "genericDoc");
 
-        // TODO(b/156296904): Set score, ttl and other special fields
+        unpackSpecialFields(methodBuilder);
 
-        // Unpack all fields from the GenericDocument into the format desired by the data class
+        // Unpack properties from the GenericDocument into the format desired by the data class
         for (Map.Entry<String, VariableElement> entry : mModel.getPropertyFields().entrySet()) {
             fieldFromGenericDoc(methodBuilder, entry.getKey(), entry.getValue());
         }
@@ -87,7 +87,7 @@ class FromGenericDocumentCodeGenerator {
                 "$T dataClass = new $T($L)", classType, classType, getConstructorParams());
 
         // Assign all fields which weren't set in the constructor
-        for (String field : mModel.getPropertyFields().keySet()) {
+        for (String field : mModel.getAllFields().keySet()) {
             CodeBlock fieldWrite = createAppSearchFieldWrite(field);
             if (fieldWrite != null) {
                 methodBuilder.addStatement(fieldWrite);
@@ -585,6 +585,31 @@ class FromGenericDocumentCodeGenerator {
             builder.add(", $NConv", params.get(i));
         }
         return builder.build();
+    }
+
+    private void unpackSpecialFields(@NonNull MethodSpec.Builder method) {
+        for (AppSearchDocumentModel.SpecialField specialField :
+                AppSearchDocumentModel.SpecialField.values()) {
+            String fieldName = mModel.getSpecialFieldName(specialField);
+            if (fieldName == null) {
+                continue;  // The data class doesn't have this field, so no need to unpack it.
+            }
+            switch (specialField) {
+                case URI:
+                    method.addStatement("String $NConv = genericDoc.getUri()", fieldName);
+                    break;
+                case CREATION_TIMESTAMP_MILLIS:
+                    method.addStatement(
+                            "long $NConv = genericDoc.getCreationTimestampMillis()", fieldName);
+                    break;
+                case TTL_MILLIS:
+                    method.addStatement("long $NConv = genericDoc.getTtlMillis()", fieldName);
+                    break;
+                case SCORE:
+                    method.addStatement("int $NConv = genericDoc.getScore()", fieldName);
+                    break;
+            }
+        }
     }
 
     @Nullable

@@ -47,6 +47,7 @@ class $$__AppSearch__Gift {
   }
 
   public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String uriConv = genericDoc.getUri();
     String[] indexNoneCopy = genericDoc.getPropertyStringArray("indexNone");
     String indexNoneConv = null;
     if (indexNoneCopy != null && indexNoneCopy.length != 0) {
@@ -63,6 +64,7 @@ class $$__AppSearch__Gift {
       indexPrefixConv = indexPrefixCopy[0];
     }
     Gift dataClass = new Gift();
+    dataClass.uri = uriConv;
     dataClass.indexNone = indexNoneConv;
     dataClass.indexExact = indexExactConv;
     dataClass.indexPrefix = indexPrefixConv;

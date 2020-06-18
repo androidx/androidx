@@ -395,6 +395,7 @@ class $$__AppSearch__Gift {
   }
 
   public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String uriConv = genericDoc.getUri();
     long[] collectLongCopy = genericDoc.getPropertyLongArray("collectLong");
     List<Long> collectLongConv = null;
     if (collectLongCopy != null) {
@@ -558,6 +559,7 @@ class $$__AppSearch__Gift {
       unboxByteArrConv = unboxByteArrCopy[0];
     }
     Gift dataClass = new Gift();
+    dataClass.uri = uriConv;
     dataClass.collectLong = collectLongConv;
     dataClass.collectInteger = collectIntegerConv;
     dataClass.collectDouble = collectDoubleConv;

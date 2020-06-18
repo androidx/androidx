@@ -19,13 +19,24 @@ class $$__AppSearch__Gift {
   public GenericDocument toGenericDocument(Gift dataClass) {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
+    builder.setCreationTimestampMillis(dataClass.creationTs);
+    builder.setTtlMillis(dataClass.ttlMs);
+    builder.setScore(dataClass.score);
     builder.setProperty("price", dataClass.price);
     return builder.build();
   }
 
   public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String uriConv = genericDoc.getUri();
+    long creationTsConv = genericDoc.getCreationTimestampMillis();
+    long ttlMsConv = genericDoc.getTtlMillis();
+    int scoreConv = genericDoc.getScore();
     int priceConv = genericDoc.getPropertyLong("price");
     Gift dataClass = new Gift();
+    dataClass.uri = uriConv;
+    dataClass.score = scoreConv;
+    dataClass.creationTs = creationTsConv;
+    dataClass.ttlMs = ttlMsConv;
     dataClass.price = priceConv;
     return dataClass;
   }

@@ -62,6 +62,7 @@ class $$__AppSearch__Gift {
   }
 
   public Gift fromGenericDocument(GenericDocument genericDoc) {
+    String uriConv = genericDoc.getUri();
     String[] repeatReqCopy = genericDoc.getPropertyStringArray("repeatReq");
     List<String> repeatReqConv = null;
     if (repeatReqCopy != null) {
@@ -83,6 +84,7 @@ class $$__AppSearch__Gift {
       noReqConv = noReqCopy[0];
     }
     Gift dataClass = new Gift();
+    dataClass.uri = uriConv;
     dataClass.repeatReq = repeatReqConv;
     dataClass.repeatNoReq = repeatNoReqConv;
     dataClass.req = reqConv;
