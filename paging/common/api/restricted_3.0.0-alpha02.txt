@@ -370,9 +370,12 @@ package androidx.paging {
   public final class PagingState<Key, Value> {
     method public Value? closestItemToPosition(int anchorPosition);
     method public androidx.paging.PagingSource.LoadResult.Page<Key,Value>? closestPageToPosition(int anchorPosition);
+    method public Value? firstItemOrNull();
     method public Integer? getAnchorPosition();
     method public androidx.paging.PagingConfig getConfig();
     method public java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>> getPages();
+    method public boolean isEmpty();
+    method public Value? lastItemOrNull();
   }
 
   @Deprecated public abstract class PositionalDataSource<T> extends androidx.paging.DataSource<java.lang.Integer,T> {
