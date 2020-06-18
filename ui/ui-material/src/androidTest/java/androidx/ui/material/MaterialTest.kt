@@ -51,7 +51,7 @@ fun ComposeTestRule.setMaterialContentAndCollectSizes(
     return CollectedSizes(sizes, density)
 }
 
-fun ComposeTestRule.setMaterialContentAndGetPixelSize(
+private fun ComposeTestRule.setMaterialContentAndGetPixelSize(
     modifier: Modifier = Modifier,
     parentConstraints: DpConstraints = BigTestConstraints,
     children: @Composable () -> Unit
