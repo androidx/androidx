@@ -522,6 +522,16 @@ class ToGenericDocumentCodeGenerator {
             switch (specialField) {
                 case URI:
                     break;  // Always provided to builder constructor; cannot be set separately.
+                case NAMESPACE:
+                    method.addCode(CodeBlock.builder()
+                            .addStatement(
+                                    "String $NCopy = $L",
+                                    fieldName, createAppSearchFieldRead(fieldName))
+                            .add("if ($NCopy != null) {\n", fieldName).indent()
+                            .addStatement("builder.setNamespace($NCopy)", fieldName)
+                            .unindent().add("}\n")
+                            .build());
+                    break;
                 case CREATION_TIMESTAMP_MILLIS:
                     method.addStatement(
                             "builder.setCreationTimestampMillis($L)",

@@ -111,6 +111,19 @@ public class DocumentProcessorTest {
     }
 
     @Test
+    public void testManyNamespace() {
+        Compilation compilation = compile(
+                "@AppSearchDocument\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @AppSearchDocument.Namespace String ns1;\n"
+                        + "  @AppSearchDocument.Namespace String ns2;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).hadErrorContaining(
+                "contains multiple fields annotated @Namespace");
+    }
+
+    @Test
     public void testManyTtlMillis() {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
@@ -616,10 +629,11 @@ public class DocumentProcessorTest {
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
                         + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Score int score;\n"
+                        + "  @AppSearchDocument.Namespace String namespace;\n"
                         + "  @AppSearchDocument.CreationTimestampMillis long creationTs;\n"
                         + "  @AppSearchDocument.TtlMillis int ttlMs;\n"
                         + "  @AppSearchDocument.Property int price;\n"
+                        + "  @AppSearchDocument.Score int score;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden();
