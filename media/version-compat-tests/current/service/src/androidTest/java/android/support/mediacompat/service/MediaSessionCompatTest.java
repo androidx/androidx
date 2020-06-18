@@ -16,9 +16,12 @@
 package android.support.mediacompat.service;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
@@ -26,6 +29,8 @@ import androidx.test.filters.SmallTest;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -56,5 +61,46 @@ public class MediaSessionCompatTest {
             }
         }.start();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    @SmallTest
+    public void testSetQueue_withNullItem_throwsIAE() {
+        List<QueueItem> queue = new ArrayList<>();
+        queue.add(createQueueItemWithId(0));
+        queue.add(createQueueItemWithId(1));
+        queue.add(null);
+        queue.add(createQueueItemWithId(2));
+
+        MediaSessionCompat session = new MediaSessionCompat(mContext, "testSetQueue");
+        try {
+            session.setQueue(queue);
+            fail("setQueue should throw IAE");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void testSetQueue_withDuplicateIds_throwsIAE() {
+        List<QueueItem> queue = new ArrayList<>();
+        queue.add(createQueueItemWithId(0));
+        queue.add(createQueueItemWithId(1));
+        queue.add(createQueueItemWithId(2));
+        queue.add(createQueueItemWithId(1));
+
+        MediaSessionCompat session = new MediaSessionCompat(mContext, "testSetQueue");
+        try {
+            session.setQueue(queue);
+            fail("setQueue should throw IAE");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+
+    private QueueItem createQueueItemWithId(long id) {
+        return new QueueItem(
+                new MediaDescriptionCompat.Builder().setMediaId("item" + id).build(), id);
     }
 }
