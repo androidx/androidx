@@ -205,7 +205,10 @@ public final class NavBackStackEntry implements
         return mSavedStateHandle;
     }
 
-    // Copied from LifecycleRegistry.getStateAfter()
+    /**
+     * Copied from LifecycleRegistry.getStateAfter()
+     * TODO: update to Event.getTargetState() when navigation's lifecycle-core dependency is updated
+     */
     @NonNull
     private static Lifecycle.State getStateAfter(@NonNull Lifecycle.Event event) {
         switch (event) {
