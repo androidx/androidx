@@ -125,13 +125,15 @@ private fun DrawScope.drawThumb(position: Float, thumbDiameter: Float, thumbColo
     drawCircle(thumbColor, thumbRadius, Offset(x, center.y))
 }
 
-private const val CheckedTrackOpacity = 0.54f
-private const val UncheckedTrackOpacity = 0.38f
+// Internal to be referred to in tests
+internal const val CheckedTrackOpacity = 0.54f
+internal const val UncheckedTrackOpacity = 0.38f
 
-private val TrackWidth = 34.dp
-private val TrackStrokeWidth = 14.dp
+// Internal to be referred to in tests
+internal val TrackWidth = 34.dp
+internal val TrackStrokeWidth = 14.dp
 
-private val ThumbDiameter = 20.dp
+internal val ThumbDiameter = 20.dp
 
 // TODO(malkov): clarify this padding for Switch
 private val DefaultSwitchPadding = 2.dp

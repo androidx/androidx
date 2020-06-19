@@ -24,7 +24,9 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
+import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.SolidColor
+import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.toPixelMap
 import org.junit.Assert.assertEquals
@@ -575,6 +577,160 @@ class DrawScopeTest {
             // Restore to the save count of the initial CanvasScope.draw call
             assertEquals(1, saveCountCanvas.saveCount)
         }
+
+        val pixelMap1 = imageAsset1.toPixelMap()
+        val pixelMap2 = imageAsset2.toPixelMap()
+        assertEquals(pixelMap1.width, pixelMap2.width)
+        assertEquals(pixelMap1.height, pixelMap2.height)
+        assertEquals(pixelMap1.stride, pixelMap2.stride)
+        assertEquals(pixelMap1.bufferOffset, pixelMap2.bufferOffset)
+        for (x in 0 until pixelMap1.width) {
+            for (y in 0 until pixelMap1.height) {
+                assertEquals("coordinate: " + x + ", " + y + " expected: " +
+                        pixelMap1[x, y] + " actual: " + pixelMap2[x, y],
+                    pixelMap1[x, y],
+                    pixelMap2[x, y]
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testDrawLineStrokeParametersAreApplied() {
+        val width = 200
+        val height = 200
+        val start = Offset.Zero
+        val end = Offset(width.toFloat(), height.toFloat())
+        val strokeWidth = 10.0f
+        // Test that colors are rendered with the correct stroke parameters
+        testDrawScopeAndCanvasAreEquivalent(
+            width,
+            height,
+            {
+                drawLine(
+                    Color.Cyan,
+                    start,
+                    end,
+                    strokeWidth,
+                    StrokeCap.round
+                )
+            },
+            { canvas ->
+                canvas.drawLine(start, end, Paint().apply {
+                    this.color = Color.Cyan
+                    this.strokeWidth = strokeWidth
+                    this.strokeCap = StrokeCap.round
+                })
+            }
+        )
+
+        // ... now test that Brush parameters are also rendered with the correct stroke parameters
+        testDrawScopeAndCanvasAreEquivalent(
+            width,
+            height,
+            {
+                drawLine(
+                    SolidColor(Color.Cyan),
+                    start,
+                    end,
+                    strokeWidth,
+                    StrokeCap.round
+                )
+            },
+            { canvas ->
+                canvas.drawLine(start, end, Paint().apply {
+                    this.color = Color.Cyan
+                    this.strokeWidth = strokeWidth
+                    this.strokeCap = StrokeCap.round
+                })
+            }
+        )
+    }
+
+    @Test
+    fun testDrawPointStrokeParametersAreApplied() {
+        val width = 200
+        val height = 200
+        val points = listOf(
+            Offset.Zero,
+            Offset(10f, 10f),
+            Offset(25f, 25f),
+            Offset(40f, 40f),
+            Offset(50f, 50f),
+            Offset(75f, 75f),
+            Offset(150f, 150f)
+        )
+        // Test first that colors are rendered with the correct stroke parameters
+        testDrawScopeAndCanvasAreEquivalent(
+            width,
+            height,
+            {
+                drawPoints(
+                    points,
+                    PointMode.points,
+                    Color.Magenta,
+                    strokeWidth = 15.0f,
+                    cap = StrokeCap.butt
+                )
+            },
+            { canvas ->
+                canvas.drawPoints(
+                    PointMode.points,
+                    points,
+                    Paint().apply {
+                        this.color = Color.Magenta
+                        this.strokeWidth = 15.0f
+                        this.strokeCap = StrokeCap.butt
+                    }
+                )
+            }
+        )
+
+        // ... now verify that Brush parameters are also rendered with the correct stroke parameters
+        testDrawScopeAndCanvasAreEquivalent(
+            width,
+            height,
+            {
+                drawPoints(
+                    points,
+                    PointMode.points,
+                    SolidColor(Color.Magenta),
+                    strokeWidth = 15.0f,
+                    cap = StrokeCap.butt
+                )
+            },
+            { canvas ->
+                canvas.drawPoints(
+                    PointMode.points,
+                    points,
+                    Paint().apply {
+                        this.color = Color.Magenta
+                        this.strokeWidth = 15.0f
+                        this.strokeCap = StrokeCap.butt
+                    }
+                )
+            }
+        )
+    }
+
+    /**
+     * Helper method used  to confirm both DrawScope rendered content and Canvas drawn
+     * content are identical
+     */
+    private fun testDrawScopeAndCanvasAreEquivalent(
+        width: Int,
+        height: Int,
+        drawScopeBlock: DrawScope.() -> Unit,
+        canvasBlock: (Canvas) -> Unit
+    ) {
+        val size = Size(width.toFloat(), height.toFloat())
+        val imageAsset1 = ImageAsset(width, height)
+        TestDrawScope().drawInto(Canvas(imageAsset1), size) {
+            drawScopeBlock()
+        }
+
+        val imageAsset2 = ImageAsset(width, height)
+        canvasBlock(Canvas(imageAsset2))
 
         val pixelMap1 = imageAsset1.toPixelMap()
         val pixelMap2 = imageAsset2.toPixelMap()
