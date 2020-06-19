@@ -28,7 +28,6 @@ import androidx.ui.graphics.PaintingStyle
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntOffset
 import androidx.ui.util.fastAny
-import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.fastForEach
 
 internal class InnerPlaceable(
@@ -58,13 +57,7 @@ internal class InnerPlaceable(
     }
 
     override val parentData: Any?
-        @Suppress("DEPRECATION")
-        get() = if (layoutNode.handlesParentData) {
-            null
-        } else {
-            layoutNode.children
-                .fastFirstOrNull { it.parentData != null }?.parentData
-        }
+        get() = null
 
     override fun findPreviousFocusWrapper() = wrappedBy?.findPreviousFocusWrapper()
 

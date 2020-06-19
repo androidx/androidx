@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.ui.core.Modifier
-import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.anyPositionChangeConsumed
@@ -39,65 +38,6 @@ import androidx.ui.semantics.onClick
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntSize
 import androidx.ui.util.fastAny
-
-/**
- * Combines [tapGestureFilter] and Semantics for the clickable
- * components like Button.
- *
- * @sample androidx.ui.foundation.samples.ClickableSample
- *
- * @param onClick will be called when user clicked on the button
- * @param modifier allows to provide a modifier to be added before the gesture detector, for
- * example Ripple should be added at this point. this will be easier once we migrate this
- * function to a Modifier
- * @param enabled Controls the enabled state. When `false`, this component will not be
- * clickable
- * @param onClickLabel semantic / accessibility label for the [onClick] action
- * @param interactionState [InteractionState] that will be updated when this Clickable is
- * pressed, using [Interaction.Pressed]. Only initial (first) press will be recorded and added to
- * [InteractionState]
- *
- * @deprecated Use [clickable] modifier instead
- */
-@Deprecated(
-    "Clickable has been deprecated, use clickable modifier instead",
-    ReplaceWith(
-        "Box(modifier.clickable(onClick = onClick, enabled = enabled), children = children)",
-        "androidx.foundation.clickable",
-        "androidx.foundation.Box"
-    )
-)
-@Composable
-fun Clickable(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    onClickLabel: String? = null,
-    interactionState: InteractionState? = null,
-    children: @Composable () -> Unit
-) {
-    @Suppress("DEPRECATION")
-    PassThroughLayout(
-        modifier.clickable(
-            enabled,
-            onClickLabel,
-            tempFunToAvoidCreatingLambdaInsideClickable(interactionState),
-            onClick = onClick
-        ),
-        children
-    )
-}
-
-// when there is a lambda inside Clickable it is created as a file $Clickable\$2.class which
-// conflicts with similar lambda from Modifier.clickable which stored in $clickable\$2.class
-// on the case-insensitive FS. proper workaround would be to use different @JvmName on these
-// functions but it is currently not supported for composables b/157075847
-@Composable
-private fun tempFunToAvoidCreatingLambdaInsideClickable(
-    interactionState: InteractionState?
-): InteractionState {
-    return interactionState ?: remember { InteractionState() }
-}
 
 /**
  * Configure component to receive clicks via input or accessibility "click" event.
