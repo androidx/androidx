@@ -17,21 +17,23 @@ package androidx.ui.desktop.examples.example1
 
 import android.graphics.Bitmap
 import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.compose.state
 import androidx.compose.remember
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.graphics.Color
+import androidx.ui.desktop.examples.mainWith
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
-import androidx.ui.graphics.asImageAsset
+import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
+import androidx.ui.graphics.asImageAsset
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.wrapContentSize
 import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.material.Button
 import androidx.ui.material.CircularProgressIndicator
 import androidx.ui.material.ExtendedFloatingActionButton
@@ -39,11 +41,17 @@ import androidx.ui.material.FilledTextField
 import androidx.ui.material.Scaffold
 import androidx.ui.material.Slider
 import androidx.ui.material.TopAppBar
+import androidx.ui.text.AnnotatedString
+import androidx.ui.text.SpanStyle
 import androidx.ui.unit.dp
-
-import androidx.ui.desktop.examples.mainWith
+import androidx.ui.unit.sp
+import androidx.ui.text.font.fontFamily
+import androidx.ui.desktop.font
+import androidx.ui.layout.padding
 
 private const val title = "Desktop Compose Elements"
+
+val italicFont = fontFamily(font("Noto Italic", "NotoSans-Italic.ttf"))
 
 fun main() = mainWith(title) @Composable {
     Scaffold(
@@ -72,6 +80,46 @@ fun main() = mainWith(title) @Composable {
                         .preferredHeight(56.dp)
                         .wrapContentSize(Alignment.Center)
                 )
+
+                Text(
+                    text = with(AnnotatedString.Builder("The quick ")) {
+                        pushStyle(SpanStyle(color = Color(0xff964B00)))
+                        append("brown fox")
+                        pop()
+                        append(" 🦊 ate a ")
+                        pushStyle(SpanStyle(fontSize = 30.sp))
+                        append("zesty hamburgerfons")
+                        pop()
+                        append(" 🍔.\nThe 👩‍👩‍👧‍👧 laughed.")
+                        addStyle(SpanStyle(color = Color.Green), 25, 35)
+                        toAnnotatedString()
+                    },
+                    color = Color.Black
+                )
+
+                Text(
+                    text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do" +
+                    " eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad" +
+                    " minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip" +
+                    " ex ea commodo consequat. Duis aute irure dolor in reprehenderit in" +
+                    " voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur" +
+                    " sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt" +
+                    " mollit anim id est laborum."
+                )
+
+                Text(
+                    text = "fun <T : Comparable<T>> List<T>.quickSort(): List<T> = when {\n" +
+                    "  size < 2 -> this\n" +
+                    "  else -> {\n" +
+                    "    val pivot = first()\n" +
+                    "    val (smaller, greater) = drop(1).partition { it <= pivot }\n" +
+                    "    smaller.quickSort() + pivot + greater.quickSort()\n" +
+                    "   }\n" +
+                    "}",
+                    modifier = Modifier.padding(10.dp),
+                    fontFamily = italicFont
+                )
+
                 Button(onClick = {
                     amount.value++
                 }) {
