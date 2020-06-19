@@ -16,7 +16,6 @@
 package androidx.ui.core
 
 import android.app.Activity
-import android.content.Context
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
@@ -26,8 +25,10 @@ import androidx.annotation.MainThread
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
+import androidx.compose.ExperimentalComposeApi
 import androidx.compose.FrameManager
 import androidx.compose.InternalComposeApi
+import androidx.compose.Providers
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.compositionFor
@@ -36,7 +37,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.ui.core.selection.SelectionContainer
-import androidx.ui.node.UiComposer
+import androidx.ui.node.UiApplier
 import java.util.Collections
 import java.util.WeakHashMap
 
@@ -47,19 +48,24 @@ import java.util.WeakHashMap
  * @see Composition.dispose
  */
 // TODO: Remove this API when View/LayoutNode mixed trees work
+@OptIn(ExperimentalComposeApi::class)
 fun ViewGroup.setViewContent(
     parent: CompositionReference? = null,
     composable: @Composable () -> Unit
 ): Composition = compositionFor(
-    context = context,
-    container = this,
-    recomposer = Recomposer.current(),
-    parent = parent,
-    onBeforeFirstComposition = {
+    this,
+    UiApplier(this),
+    Recomposer.current(),
+    parent,
+    onCreated = {
         removeAllViews()
     }
 ).apply {
-    setContent(composable)
+    setContent {
+        Providers(ContextAmbient provides this@setViewContent.context) {
+            composable()
+        }
+    }
 }
 
 /**
@@ -87,13 +93,18 @@ fun Activity.setViewContent(composable: @Composable () -> Unit): Composition {
 // nextFrame() inside recompose() doesn't really start a new frame, but a new subframe
 // instead.
 @MainThread
+@OptIn(ExperimentalComposeApi::class)
 fun subcomposeInto(
-    context: Context,
     container: LayoutNode,
     recomposer: Recomposer,
     parent: CompositionReference? = null,
     composable: @Composable () -> Unit
-): Composition = compositionFor(context, container, recomposer, parent).apply {
+): Composition = compositionFor(
+    container,
+    UiApplier(container),
+    recomposer,
+    parent
+).apply {
     setContent(composable)
 }
 
@@ -107,10 +118,9 @@ fun subcomposeInto(
 @MainThread
 fun subcomposeInto(
     container: LayoutNode,
-    context: Context,
     parent: CompositionReference? = null,
     composable: @Composable () -> Unit
-): Composition = subcomposeInto(context, container, Recomposer.current(), parent, composable)
+): Composition = subcomposeInto(container, Recomposer.current(), parent, composable)
 
 /**
  * Composes the given composable into the given activity. The [content] will become the root view
@@ -134,7 +144,7 @@ fun ComponentActivity.setContent(
         ?: AndroidOwner(this, this).also {
             setContentView(it.view, DefaultLayoutParams)
         }
-    return doSetContent(this, composeView, recomposer, content)
+    return doSetContent(composeView, recomposer, content)
 }
 
 /**
@@ -168,7 +178,7 @@ fun ViewGroup.setContent(
             removeAllViews(); null
         }
             ?: AndroidOwner(context).also { addView(it.view, DefaultLayoutParams) }
-    return doSetContent(context, composeView, recomposer, content)
+    return doSetContent(composeView, recomposer, content)
 }
 
 /**
@@ -191,7 +201,6 @@ fun ViewGroup.setContent(
 ): Composition = setContent(Recomposer.current(), content)
 
 private fun doSetContent(
-    context: Context,
     owner: AndroidOwner,
     recomposer: Recomposer,
     content: @Composable () -> Unit
@@ -200,7 +209,8 @@ private fun doSetContent(
         owner.view.setTag(R.id.inspection_slot_table_set,
                 Collections.newSetFromMap(WeakHashMap<SlotTable, Boolean>()))
     }
-    val original = compositionFor(context, owner.root, recomposer)
+    @OptIn(ExperimentalComposeApi::class)
+    val original = compositionFor(owner.root, UiApplier(owner.root), recomposer)
     val wrapped = owner.view.getTag(R.id.wrapped_composition_tag)
             as? WrappedComposition
         ?: WrappedComposition(owner, original).also {
@@ -269,23 +279,6 @@ private class WrappedComposition(
         }
     }
 }
-
-@Suppress("NAME_SHADOWING")
-private fun compositionFor(
-    context: Context,
-    container: Any,
-    recomposer: Recomposer,
-    parent: CompositionReference? = null,
-    onBeforeFirstComposition: (() -> Unit)? = null
-) = compositionFor(
-    container = container,
-    recomposer = recomposer,
-    parent = parent,
-    composerFactory = { slotTable, recomposer ->
-        onBeforeFirstComposition?.invoke()
-        UiComposer(context, container, slotTable, recomposer)
-    }
-)
 
 private val DefaultLayoutParams = ViewGroup.LayoutParams(
     ViewGroup.LayoutParams.WRAP_CONTENT,

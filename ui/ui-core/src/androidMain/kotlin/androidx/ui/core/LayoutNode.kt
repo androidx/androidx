@@ -982,6 +982,17 @@ class LayoutNode : Measurable {
 }
 
 /**
+ * Object of pre-allocated lambdas used to make emits to LayoutNodes allocation-less.
+ */
+internal object LayoutEmitHelper {
+    val constructor: () -> LayoutNode = { LayoutNode() }
+    val setModifier: LayoutNode.(Modifier) -> Unit = { this.modifier = it }
+    val setMeasureBlocks: LayoutNode.(LayoutNode.MeasureBlocks) -> Unit =
+        { this.measureBlocks = it }
+    val setRef: LayoutNode.(Ref<LayoutNode>) -> Unit = { this.ref = it }
+}
+
+/**
  * Comparator allowing to sort nodes by zIndex
  */
 private val ZIndexComparator = Comparator<LayoutNode> { node1, node2 ->

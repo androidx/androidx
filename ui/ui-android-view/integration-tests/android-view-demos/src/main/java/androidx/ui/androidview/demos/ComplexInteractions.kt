@@ -20,7 +20,6 @@ import android.content.Context
 import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Recomposer
-import androidx.compose.escapeCompose
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.setContent
 import androidx.ui.demos.common.ComposableDemo
@@ -57,12 +56,11 @@ fun ComposeInAndroidInComposeEtcTargetingDemo() {
 
 @Composable
 fun AndroidWithCompose(context: Context, children: @Composable () -> Unit) {
-    val anotherLayout =
-        escapeCompose { FrameLayout(context) }.also { view ->
-            view.setContent(Recomposer.current()) {
-                children()
-            }
-            view.setPadding(50, 50, 50, 50)
+    val anotherLayout = FrameLayout(context).also { view ->
+        view.setContent(Recomposer.current()) {
+            children()
         }
+        view.setPadding(50, 50, 50, 50)
+    }
     AndroidView(anotherLayout)
 }

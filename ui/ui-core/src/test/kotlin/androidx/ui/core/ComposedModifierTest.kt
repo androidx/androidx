@@ -17,7 +17,6 @@
 package androidx.ui.core
 
 import androidx.compose.Applier
-import androidx.compose.ApplyAdapter
 import androidx.compose.Composable
 import androidx.compose.Composer
 import androidx.compose.CompositionFrameClock
@@ -48,8 +47,6 @@ fun <T> Modifier.getTestTag(name: String, default: T): T = foldIn(default) { acc
 
 @OptIn(InternalComposeApi::class)
 class ComposedModifierTest {
-
-    private val composer: Composer<*> get() = error("should not be called")
 
     /**
      * Confirm that a [composed] modifier correctly constructs separate instances when materialized
@@ -201,26 +198,24 @@ class ComposedModifierTest {
     }
 }
 
-@OptIn(InternalComposeApi::class)
+@OptIn(InternalComposeApi::class, ExperimentalComposeApi::class)
 private fun compose(
     recomposer: Recomposer,
     block: @Composable () -> Unit
-): Composer<Unit> = UnitComposer(recomposer).apply {
-    compose(block)
-    applyChanges()
-    slotTable.verifyWellFormed()
-}
-
-/**
- * This ApplyAdapter does nothing. These tests only confirm modifier materialization.
- */
-@OptIn(ExperimentalComposeApi::class)
-private object UnitApplierAdapter : ApplyAdapter<Unit> {
-    override fun Unit.start(instance: Unit) {}
-    override fun Unit.insertAt(index: Int, instance: Unit) {}
-    override fun Unit.removeAt(index: Int, count: Int) {}
-    override fun Unit.move(from: Int, to: Int, count: Int) {}
-    override fun Unit.end(instance: Unit, parent: Unit) {}
+): Composer<Unit> {
+    return Composer(
+        SlotTable(),
+        EmptyApplier(),
+        recomposer
+    ).apply {
+        composeRoot {
+            @Suppress("UNCHECKED_CAST")
+            val fn = block as (Composer<*>, Int, Int) -> Unit
+            fn(this, 0, 0)
+        }
+        applyChanges()
+        slotTable.verifyWellFormed()
+    }
 }
 
 private class TestFrameClock : CompositionFrameClock {
@@ -235,16 +230,18 @@ private class TestFrameClock : CompositionFrameClock {
 }
 
 @OptIn(ExperimentalComposeApi::class)
-private class UnitComposer(recomposer: Recomposer) : Composer<Unit>(
-    SlotTable(),
-    Applier(Unit, UnitApplierAdapter),
-    recomposer
-) {
-    fun compose(composable: @Composable () -> Unit) {
-        composeRoot {
-            @Suppress("UNCHECKED_CAST")
-            val fn = composable as (Composer<*>, Int, Int) -> Unit
-            fn(this@UnitComposer, 0, 0)
-        }
+class EmptyApplier : Applier<Unit> {
+    override val current: Unit = Unit
+    override fun down(node: Unit) {}
+    override fun up() {}
+    override fun insert(index: Int, instance: Unit) {
+        error("Unexpected")
     }
+    override fun remove(index: Int, count: Int) {
+        error("Unexpected")
+    }
+    override fun move(from: Int, to: Int, count: Int) {
+        error("Unexpected")
+    }
+    override fun reset() {}
 }

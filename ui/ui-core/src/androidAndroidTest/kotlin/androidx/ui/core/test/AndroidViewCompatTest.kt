@@ -56,6 +56,7 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.IntOffset
+import androidx.ui.viewinterop.emitView
 import junit.framework.TestCase.assertNotNull
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
@@ -84,7 +85,11 @@ class AndroidViewCompatTest {
                 Layout(
                     modifier = Modifier.testTag("content"),
                     children = @Composable {
-                        ColoredSquareView(size = squareSize.value, ref = squareRef)
+
+                        emitView(::ColoredSquareView) {
+                            it.size = squareSize.value
+                            it.ref = squareRef
+                        }
                     }
                 ) { measurables, constraints, _ ->
                     assertEquals(1, measurables.size)
@@ -140,7 +145,10 @@ class AndroidViewCompatTest {
         composeTestRule.setContent {
             Align {
                 Container(Modifier.testTag("content").drawLayer()) {
-                    ColoredSquareView(color = colorModel.value, ref = squareRef)
+                    emitView(::ColoredSquareView) {
+                        it.color = colorModel.value
+                        it.ref = squareRef
+                    }
                 }
             }
         }
@@ -328,11 +336,11 @@ class AndroidViewCompatTest {
 
         composeTestRule.setContent {
             Container(LayoutConstraints(constraintsHolder.value)) {
-                MeasureSpecSaverView(
-                    ref = viewRef,
-                    widthMeasureSpecRef = widthMeasureSpecRef,
-                    heightMeasureSpecRef = heightMeasureSpecRef
-                )
+                emitView(::MeasureSpecSaverView) {
+                    it.ref = viewRef
+                    it.widthMeasureSpecRef = widthMeasureSpecRef
+                    it.heightMeasureSpecRef = heightMeasureSpecRef
+                }
             }
         }
 
@@ -353,7 +361,7 @@ class AndroidViewCompatTest {
         val constraintsHolder = mutableStateOf(Constraints())
         composeTestRule.setContent {
             Container(LayoutConstraints(constraintsHolder.value)) {
-                MeasureSpecSaverView(ref = viewRef)
+                emitView(::MeasureSpecSaverView) { it.ref = viewRef }
             }
         }
         runOnUiThread {

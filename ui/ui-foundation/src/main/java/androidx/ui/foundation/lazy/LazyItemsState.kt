@@ -16,7 +16,6 @@
 
 package androidx.ui.foundation.lazy
 
-import android.content.Context
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
@@ -57,10 +56,6 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
 
     var forceRecompose = false
     var compositionRef: CompositionReference? = null
-    /**
-     * Should always be non-null when attached
-     */
-    var context: Context? = null
     /**
      * Used to get the reference to populate [rootNode]
      */
@@ -475,7 +470,7 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
         }
         // TODO(b/150390669): Review use of @Untracked
         @OptIn(ExperimentalComposeApi::class)
-        val composition = subcomposeInto(context!!, node, recomposer, compositionRef) @Untracked {
+        val composition = subcomposeInto(node, recomposer, compositionRef) @Untracked {
             itemContent(items[dataIndex.value])
         }
         compositionsForLayoutNodes[node] = composition

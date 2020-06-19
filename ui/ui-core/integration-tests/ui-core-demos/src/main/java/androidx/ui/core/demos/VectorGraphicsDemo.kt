@@ -33,7 +33,6 @@ import androidx.ui.graphics.vector.Path
 import androidx.ui.graphics.vector.PathBuilder
 import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.graphics.vector.VectorScope
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
@@ -108,7 +107,7 @@ private fun vectorShape(width: Dp, height: Dp): Painter =
 }
 
 @Composable
-private fun VectorScope.BackgroundPath(vectorWidth: Float, vectorHeight: Float) {
+private fun BackgroundPath(vectorWidth: Float, vectorHeight: Float) {
     val background = PathData {
         horizontalLineTo(vectorWidth)
         verticalLineTo(vectorHeight)
@@ -129,7 +128,7 @@ private fun VectorScope.BackgroundPath(vectorWidth: Float, vectorHeight: Float) 
 }
 
 @Composable
-private fun VectorScope.Triangle() {
+private fun Triangle() {
     val length = 150.0f
     Path(
         fill = RadialGradient(
@@ -152,7 +151,7 @@ private fun VectorScope.Triangle() {
 }
 
 @Composable
-private fun VectorScope.TriangleWithOffsets() {
+private fun TriangleWithOffsets() {
 
     val side1 = 150.0f
     val side2 = 150.0f
@@ -174,7 +173,7 @@ private fun VectorScope.TriangleWithOffsets() {
 }
 
 @Composable
-private fun VectorScope.StripePath(vectorWidth: Float, vectorHeight: Float) {
+private fun StripePath(vectorWidth: Float, vectorHeight: Float) {
     val stripeDelegate = PathData {
         stripe(vectorWidth, vectorHeight, 10)
     }

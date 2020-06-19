@@ -32,7 +32,6 @@ import androidx.compose.Providers
 import androidx.compose.ambientOf
 import androidx.compose.currentComposer
 import androidx.compose.emptyContent
-import androidx.compose.escapeCompose
 import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.remember
@@ -161,16 +160,14 @@ fun Popup(
 
     val popupPositionProperties = remember { PopupPositionProperties() }
     val popupLayout = remember(isFocusable) {
-        escapeCompose {
-            PopupLayout(
-                composeView = view,
-                popupIsFocusable = isFocusable,
-                onDismissRequest = onDismissRequest,
-                popupPositionProperties = popupPositionProperties,
-                popupPositionProvider = popupPositionProvider,
-                testTag = providedTestTag
-            )
-        }
+        PopupLayout(
+            composeView = view,
+            popupIsFocusable = isFocusable,
+            onDismissRequest = onDismissRequest,
+            popupPositionProperties = popupPositionProperties,
+            popupPositionProvider = popupPositionProvider,
+            testTag = providedTestTag
+        )
     }
     popupLayout.popupPositionProvider = popupPositionProvider
 

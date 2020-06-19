@@ -47,6 +47,7 @@ import androidx.compose.state
 import androidx.ui.androidview.WebComponent
 import androidx.ui.androidview.WebContext
 import androidx.ui.core.setViewContent
+import androidx.ui.viewinterop.emitView
 
 @Stable
 class WebParams {
@@ -65,7 +66,7 @@ open class WebComponentActivity : ComponentActivity() {
                 Log.e("WebCompAct", "setContent")
             }
 
-            FrameLayout {
+            emitView(::FrameLayout, {}) {
                 renderViews(webContext = webContext)
             }
         }
@@ -94,52 +95,56 @@ fun renderViews(webParams: WebParams = WebParams(), webContext: WebContext) {
         }
     }
 
-    LinearLayout(
-        orientation = LinearLayout.VERTICAL,
-        layoutWidth = MATCH_PARENT,
-        layoutHeight = MATCH_PARENT
-    ) {
-        LinearLayout(
-            orientation = LinearLayout.HORIZONTAL,
-            layoutWidth = MATCH_PARENT,
-            layoutHeight = WRAP_CONTENT,
-            weightSum = 1f
-        ) {
-            Button(
-                layoutWidth = 40.dp,
-                layoutHeight = WRAP_CONTENT,
-                text = "",
-                onClick = {
+    emitView(::LinearLayout, {
+        it.orientation = LinearLayout.VERTICAL
+        it.setLayoutWidth(MATCH_PARENT)
+        it.setLayoutHeight(MATCH_PARENT)
+    }) {
+        emitView(::LinearLayout, {
+            it.orientation = LinearLayout.HORIZONTAL
+            it.setLayoutWidth(MATCH_PARENT)
+            it.setLayoutHeight(WRAP_CONTENT)
+            it.weightSum = 1f
+        }) {
+            emitView(::Button) {
+                it.setLayoutWidth(40.dp)
+                it.setLayoutHeight(WRAP_CONTENT)
+                it.text = ""
+                it.setOnClickListener {
                     webContext.goBack()
-                })
-            Button(
-                layoutWidth = 40.dp,
-                layoutHeight = WRAP_CONTENT,
-                text = ") {",
-                onClick = {
+                }
+            }
+            emitView(::Button) {
+                it.setLayoutWidth(40.dp)
+                it.setLayoutHeight(WRAP_CONTENT)
+                it.text = ""
+                it.setOnClickListener {
                     webContext.goForward()
-                })
-            EditText(
-                layoutWidth = 0.dp,
-                layoutHeight = WRAP_CONTENT,
-                layoutWeight = 1f,
-                singleLine = true,
-                controlledText = displayedUrl.value,
-                onTextChanged = { s: CharSequence?, _, _, _ ->
+                }
+            }
+            emitView(::EditText) {
+                it.setLayoutWidth(0.dp)
+                it.setLayoutHeight(WRAP_CONTENT)
+                it.setLayoutWeight(1f)
+                it.isSingleLine = true
+                it.setControlledText(displayedUrl.value)
+                it.setOnTextChanged { s: CharSequence?, _, _, _ ->
                     displayedUrl.value = s.toString()
-                })
-            Button(
-                layoutWidth = WRAP_CONTENT,
-                layoutHeight = WRAP_CONTENT,
-                text = "Go",
-                onClick = {
+                }
+            }
+            emitView(::Button) {
+                it.setLayoutWidth(WRAP_CONTENT)
+                it.setLayoutHeight(WRAP_CONTENT)
+                it.text = "Go"
+                it.setOnClickListener {
                     if (displayedUrl.value.isNotBlank()) {
                         if (WebContext.debug) {
                             Log.d("WebCompAct", "setting url to " + displayedUrl.value)
                         }
                         webParams.url = displayedUrl.value
                     }
-                })
+                }
+            }
         }
 
         if (WebContext.debug) {

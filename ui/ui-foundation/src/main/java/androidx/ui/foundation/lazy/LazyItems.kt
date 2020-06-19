@@ -20,15 +20,18 @@ import androidx.compose.Composable
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.compositionReference
 import androidx.compose.currentComposer
+import androidx.compose.emit
 import androidx.compose.onDispose
 import androidx.compose.remember
-import androidx.ui.core.ContextAmbient
+import androidx.ui.core.LayoutNode
 import androidx.ui.core.Modifier
+import androidx.ui.core.Ref
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.materialize
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.layout.Spacer
+import androidx.ui.node.UiApplier
 
 /**
  * A vertically scrolling list that only composes and lays out the currently visible items.
@@ -80,28 +83,42 @@ private fun <T> LazyItems(
     state.recomposer = currentComposer.recomposer
     state.itemContent = itemContent
     state.items = items
-    state.context = ContextAmbient.current
     state.compositionRef = compositionReference()
     state.forceRecompose = true
 
     val dragDirection = if (isVertical) DragDirection.Vertical else DragDirection.Horizontal
-    androidx.ui.core.LayoutNode(
-        modifier = currentComposer.materialize(
-            modifier
-                .scrollable(
-                    dragDirection = dragDirection,
-                    scrollableState = androidx.ui.foundation.gestures.ScrollableState(
-                        onScrollDeltaConsumptionRequested =
-                        state.onScrollDeltaConsumptionRequestedListener
-                    )
+    val materialized = currentComposer.materialize(
+        modifier
+            .scrollable(
+                dragDirection = dragDirection,
+                scrollableState = androidx.ui.foundation.gestures.ScrollableState(
+                    onScrollDeltaConsumptionRequested =
+                    state.onScrollDeltaConsumptionRequestedListener
                 )
-                .clipToBounds()
-        ),
-        ref = state.rootNodeRef,
-        measureBlocks = state.measureBlocks
+            )
+            .clipToBounds()
+    )
+    emit<LayoutNode, UiApplier>(
+        ctor = LayoutEmitHelper.constructor,
+        update = {
+            set(materialized, LayoutEmitHelper.setModifier)
+            set(state.rootNodeRef, LayoutEmitHelper.setRef)
+            set(state.measureBlocks, LayoutEmitHelper.setMeasureBlocks)
+        }
     )
     state.recomposeIfAttached()
     onDispose {
         state.disposeAllChildren()
     }
+}
+
+/**
+ * Object of pre-allocated lambdas used to make emits to LayoutNodes allocation-less.
+ */
+private object LayoutEmitHelper {
+    val constructor: () -> LayoutNode = { LayoutNode() }
+    val setModifier: LayoutNode.(Modifier) -> Unit = { this.modifier = it }
+    val setMeasureBlocks: LayoutNode.(LayoutNode.MeasureBlocks) -> Unit =
+        { this.measureBlocks = it }
+    val setRef: LayoutNode.(Ref<LayoutNode>) -> Unit = { this.ref = it }
 }
