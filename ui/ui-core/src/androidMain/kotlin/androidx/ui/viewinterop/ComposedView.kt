@@ -26,6 +26,9 @@ import androidx.compose.Composable
 import androidx.compose.currentComposer
 import androidx.ui.core.Modifier
 import androidx.ui.core.materialize
+import androidx.compose.emit
+import androidx.ui.core.ContextAmbient
+import androidx.ui.node.UiApplier
 
 /**
  * Composes an Android [View] given a layout resource [resId]. The method handles the inflation
@@ -42,10 +45,15 @@ fun AndroidView(
     modifier: Modifier = Modifier,
     postInflationCallback: (View) -> Unit = { _ -> }
 ) {
-    AndroidViewHolder(
-        postInflationCallback = postInflationCallback,
-        resId = resId,
-        modifier = currentComposer.materialize(modifier)
+    val context = ContextAmbient.current
+    val materialized = currentComposer.materialize(modifier)
+    emit<AndroidViewHolder, UiApplier>(
+        ctor = { AndroidViewHolder(context) },
+        update = {
+            set(postInflationCallback) { this.postInflationCallback = it }
+            set(resId) { this.resId = it }
+            set(materialized) { this.modifier = it }
+        }
     )
 }
 
@@ -57,7 +65,15 @@ fun AndroidView(
  */
 @Composable
 fun AndroidView(view: View, modifier: Modifier = Modifier) {
-    AndroidViewHolder(view = view, modifier = currentComposer.materialize(modifier))
+    val context = ContextAmbient.current
+    val materialized = currentComposer.materialize(modifier)
+    emit<AndroidViewHolder, UiApplier>(
+        ctor = { AndroidViewHolder(context) },
+        update = {
+            set(view) { this.view = it }
+            set(materialized) { this.modifier = it }
+        }
+    )
 }
 
 // Open to be mockable in tests.

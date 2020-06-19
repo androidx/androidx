@@ -59,7 +59,7 @@ fun VectorPainter(
     viewportWidth: Float = Float.NaN,
     viewportHeight: Float = Float.NaN,
     name: String = RootGroupName,
-    children: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    children: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
 ): VectorPainter {
     val density = DensityAmbient.current
     val widthPx = with(density) { defaultWidth.toPx() }
@@ -137,7 +137,7 @@ private fun createVector(
     defaultHeight: Float,
     viewportWidth: Float = defaultWidth,
     viewportHeight: Float = defaultHeight,
-    children: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    children: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
 ): VectorComponent {
     val vector =
         remember(name, viewportWidth, viewportHeight) {
@@ -171,7 +171,7 @@ private fun createVector(
  * the tree structure
  */
 @Composable
-private fun VectorScope.RenderVectorGroup(group: VectorGroup) {
+private fun RenderVectorGroup(group: VectorGroup) {
     for (vectorNode in group) {
         if (vectorNode is VectorPath) {
             Path(

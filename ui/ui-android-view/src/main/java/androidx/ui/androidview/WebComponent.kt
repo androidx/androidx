@@ -21,6 +21,7 @@ import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.Composable
+import androidx.ui.viewinterop.emitView
 
 class WebContext {
 
@@ -80,8 +81,9 @@ fun WebComponent(
         Log.d("WebComponent", "WebComponent compose " + url)
     }
 
-    WebView(
-        ref = { webContext.webView = it },
-        url = url,
-        webViewClient = webViewClient)
+    emitView(::WebView) {
+        it.setRef { view -> webContext.webView = view }
+        it.setUrl(url)
+        it.webViewClient = webViewClient
+    }
 }

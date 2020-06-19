@@ -22,12 +22,14 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.compose.clearRoots
 import androidx.compose.Composable
+import androidx.compose.emit
 import androidx.compose.onCommit
 import androidx.compose.simulateHotReload
 import androidx.test.filters.MediumTest
 import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.Box
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.node.UiApplier
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertLabelEquals
@@ -62,11 +64,23 @@ class HotReloadTests {
         var value = "First value"
 
         @Composable fun text(text: String, id: Int = -1) {
-            TextView(id = id, text = text)
+            val context = ContextAmbient.current
+            emit<TextView, UiApplier>(
+                ctor = { TextView(context) },
+                update = {
+                    set(id) { this.id = it }
+                    set(text) { this.text = it }
+                }
+            )
         }
 
         @Composable fun column(children: @Composable () -> Unit) {
-            LinearLayout { children() }
+            val context = ContextAmbient.current
+            emit<LinearLayout, UiApplier>(
+                ctor = { LinearLayout(context) },
+                update = {},
+                children = children
+            )
         }
 
         val composeLatch = CountDownLatch(1)

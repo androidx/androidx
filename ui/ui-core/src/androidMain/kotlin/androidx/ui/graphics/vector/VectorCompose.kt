@@ -16,25 +16,21 @@
 @file:OptIn(ExperimentalComposeApi::class)
 package androidx.ui.graphics.vector
 
-import androidx.compose.Applier
-import androidx.compose.ApplyAdapter
+import androidx.compose.AbstractApplier
 import androidx.compose.Composable
-import androidx.compose.Composer
-import androidx.compose.ComposerUpdater
 import androidx.compose.CompositionReference
 import androidx.compose.Composition
 import androidx.compose.ExperimentalComposeApi
-import androidx.compose.ComposeCompilerApi
 import androidx.compose.Recomposer
-import androidx.compose.SlotTable
 import androidx.compose.compositionFor
-import androidx.compose.currentComposer
+import androidx.compose.emit
+import androidx.compose.key
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 
 @Composable
-fun VectorScope.Group(
+fun Group(
     name: String = DefaultGroupName,
     rotation: Float = DefaultRotation,
     pivotX: Float = DefaultPivotX,
@@ -44,25 +40,29 @@ fun VectorScope.Group(
     translationX: Float = DefaultTranslationX,
     translationY: Float = DefaultTranslationY,
     clipPathData: List<PathNode> = EmptyPath,
-    children: @Composable VectorScope.() -> Unit
+    children: @Composable () -> Unit
 ) {
-    GroupComponent(
-        name = name,
-        rotation = rotation,
-        pivotX = pivotX,
-        pivotY = pivotY,
-        scaleX = scaleX,
-        scaleY = scaleY,
-        translationX = translationX,
-        translationY = translationY,
-        clipPathData = clipPathData
-    ) {
-        children()
+    key(name) {
+        emit<GroupComponent, VectorApplier>(
+            ctor = { GroupComponent(name) },
+            update = {
+                set(rotation) { this.rotation = it }
+                set(pivotX) { this.pivotX = it }
+                set(pivotY) { this.pivotY = it }
+                set(scaleX) { this.scaleX = it }
+                set(scaleY) { this.scaleY = it }
+                set(translationX) { this.translationX = it }
+                set(translationY) { this.translationY = it }
+                set(clipPathData) { this.clipPathData = it }
+            }
+        ) {
+            children()
+        }
     }
 }
 
 @Composable
-fun VectorScope.Path(
+fun Path(
     pathData: List<PathNode>,
     name: String = DefaultPathName,
     fill: Brush? = null,
@@ -74,119 +74,58 @@ fun VectorScope.Path(
     strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
     strokeLineMiter: Float = DefaultStrokeLineMiter
 ) {
-    PathComponent(
-        name = name,
-        pathData = pathData,
-        fill = fill,
-        fillAlpha = fillAlpha,
-        stroke = stroke,
-        strokeAlpha = strokeAlpha,
-        strokeLineWidth = strokeLineWidth,
-        strokeLineJoin = strokeLineJoin,
-        strokeLineCap = strokeLineCap,
-        strokeLineMiter = strokeLineMiter
-    )
+    key(name) {
+        emit<PathComponent, VectorApplier>(
+            ctor = { PathComponent(name) },
+            update = {
+                set(pathData) { this.pathData = it }
+                set(fill) { this.fill = it }
+                set(fillAlpha) { this.fillAlpha = it }
+                set(stroke) { this.stroke = it }
+                set(strokeAlpha) { this.strokeAlpha = it }
+                set(strokeLineWidth) { this.strokeLineWidth = it }
+                set(strokeLineJoin) { this.strokeLineJoin = it }
+                set(strokeLineCap) { this.strokeLineCap = it }
+                set(strokeLineMiter) { this.strokeLineMiter = it }
+            }
+        )
+    }
 }
-
-class VectorScope internal constructor (internal val composer: VectorComposer)
 
 @Suppress("NAME_SHADOWING")
 internal fun composeVector(
     container: VectorComponent,
     recomposer: Recomposer,
     parent: CompositionReference? = null,
-    composable: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    composable: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
 ): Composition = compositionFor(
-    container = container,
-    recomposer = recomposer,
-    parent = parent,
-    composerFactory = { slots, recomposer -> VectorComposer(container.root, slots, recomposer) }
+    container,
+    VectorApplier(container.root),
+    recomposer,
+    parent
 ).apply {
     setContent {
-        val composer = currentComposer as VectorComposer
-        val scope = VectorScope(composer)
-        scope.composable(container.viewportWidth, container.viewportHeight)
+        composable(container.viewportWidth, container.viewportHeight)
     }
 }
 
-@OptIn(ComposeCompilerApi::class)
-internal class VectorComposer(
-    val root: VNode,
-    slotTable: SlotTable,
-    recomposer: Recomposer
-) : Composer<VNode>(slotTable, Applier(root, VectorApplyAdapter()), recomposer) {
-    inline fun <T : VNode> emit(
-        key: Any,
-        /*crossinline*/
-        ctor: () -> T,
-        update: VectorUpdater<VNode>.() -> Unit
-    ) {
-        startNode(key)
-
-        @Suppress("UNCHECKED_CAST")
-        val node = if (inserting) {
-            ctor().also {
-                emitNode(it)
-            }
-        } else {
-            useNode()
-        }
-
-        VectorUpdater(this, node).update()
-        endNode()
+class VectorApplier(root: VNode) : AbstractApplier<VNode>(root) {
+    override fun insert(index: Int, instance: VNode) {
+        current.asGroup().insertAt(index, instance)
     }
 
-    inline fun emit(
-        key: Any,
-        /*crossinline*/
-        ctor: () -> GroupComponent,
-        update: VectorUpdater<GroupComponent>.() -> Unit,
-        children: () -> Unit
-    ) {
-        startNode(key)
-
-        @Suppress("UNCHECKED_CAST")
-        val node = if (inserting) {
-            ctor().also {
-                emitNode(it)
-            }
-        } else {
-            useNode() as GroupComponent
-        }
-
-        VectorUpdater(this, node).update()
-        children()
-        endNode()
-    }
-}
-
-internal class VectorApplyAdapter : ApplyAdapter<VNode> {
-    override fun VNode.start(instance: VNode) {
-        // NO-OP
+    override fun remove(index: Int, count: Int) {
+        current.asGroup().remove(index, count)
     }
 
-    override fun VNode.insertAt(index: Int, instance: VNode) {
-        obtainGroup().insertAt(index, instance)
+    override fun move(from: Int, to: Int, count: Int) {
+        current.asGroup().move(from, to, count)
     }
 
-    override fun VNode.removeAt(index: Int, count: Int) {
-        obtainGroup().remove(index, count)
-    }
-
-    override fun VNode.move(from: Int, to: Int, count: Int) {
-        obtainGroup().move(from, to, count)
-    }
-
-    override fun VNode.end(instance: VNode, parent: VNode) {
-        // NO-OP
-    }
-
-    fun VNode.obtainGroup(): GroupComponent {
+    private fun VNode.asGroup(): GroupComponent {
         return when (this) {
             is GroupComponent -> this
-            else -> throw IllegalArgumentException("Cannot only insert VNode into Group")
+            else -> error("Cannot only insert VNode into Group")
         }
     }
 }
-
-typealias VectorUpdater<T> = ComposerUpdater<VNode, T>

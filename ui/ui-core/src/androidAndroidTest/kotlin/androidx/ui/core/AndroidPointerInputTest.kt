@@ -25,7 +25,6 @@ import androidx.compose.Composable
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.emptyContent
-import androidx.compose.escapeCompose
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
@@ -348,13 +347,12 @@ class AndroidPointerInputTest {
 
 @Composable
 fun AndroidWithCompose(context: Context, androidPadding: Int, children: @Composable () -> Unit) {
-    val anotherLayout =
-        escapeCompose { FrameLayout(context) }.also { view ->
-            view.setContent(Recomposer.current()) {
-                children()
-            }
-            view.setPadding(androidPadding, androidPadding, androidPadding, androidPadding)
+    val anotherLayout = FrameLayout(context).also { view ->
+        view.setContent(Recomposer.current()) {
+            children()
         }
+        view.setPadding(androidPadding, androidPadding, androidPadding, androidPadding)
+    }
     AndroidView(anotherLayout)
 }
 
