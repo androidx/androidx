@@ -16,7 +16,10 @@
 
 package androidx.camera.testing;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -39,8 +42,14 @@ import androidx.camera.core.impl.CameraInternal;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -57,6 +66,9 @@ public final class CameraUtil {
 
     /** Amount of time to wait before timing out when trying to open a {@link CameraDevice}. */
     private static final int CAMERA_OPEN_TIMEOUT_SECONDS = 2;
+
+    /** The device debug property key for the tests to enable the camera pretest. */
+    private static final String PRETEST_CAMERA_TAG = "PreTestCamera";
 
     /**
      * Gets a new instance of a {@link CameraDevice}.
@@ -443,5 +455,118 @@ public final class CameraUtil {
             throw new IllegalStateException(
                     "Unable to retrieve info for camera with id " + cameraId + ".", e);
         }
+    }
+
+    /**
+     * Create a chained rule for the test cases that need to use the camera.
+     *
+     * <p>It will
+     * (1) Grant the camera permission.
+     * (2) Check if there is at least one camera on the device.
+     * (3) Test the camera can be opened successfully.
+     *
+     * <p>The method will set PreTestCamera throw exception will set when the PRETEST_CAMERA_TAG
+     * debug key for Log.isLoggable is enabled.
+     */
+    @NonNull
+    public static RuleChain grantCameraPermissionAndPreTest() {
+        return RuleChain.outerRule(GrantPermissionRule.grant(Manifest.permission.CAMERA)).around(
+                (base, description) -> new Statement() {
+                    @Override
+                    public void evaluate() throws Throwable {
+                        assumeTrue(deviceHasCamera());
+                        base.evaluate();
+                    }
+                }).around(
+                new CameraUtil.PreTestCamera(Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG)));
+    }
+
+    /**
+     * Pretest the camera device
+     *
+     * <p>Try to open the camera with the front and back lensFacing. It throws exception when
+     * camera is unavailable and mThrowOnError is true.
+     *
+     * <p>Passing false into the constructor {@link #PreTestCamera(boolean)}
+     * will never throw the exception when the camera is unavailable.
+     */
+    public static class PreTestCamera implements TestRule {
+        final boolean mThrowOnError;
+
+        public PreTestCamera(boolean throwOnError) {
+            mThrowOnError = throwOnError;
+        }
+
+        @NonNull
+        @Override
+        public Statement apply(@NonNull Statement base, @NonNull Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    boolean backStatus = true;
+                    if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
+                        Log.w(CameraUtil.class.getSimpleName(), "Fail to open the back camera");
+                        backStatus = tryOpenCamera(CameraSelector.LENS_FACING_BACK);
+                    }
+
+                    boolean frontStatus = true;
+                    if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
+                        Log.w(CameraUtil.class.getSimpleName(), "Fail to open the front camera");
+                        frontStatus = tryOpenCamera(CameraSelector.LENS_FACING_FRONT);
+                    }
+                    boolean canOpenCamera = backStatus && frontStatus;
+
+                    if (canOpenCamera) {
+                        base.evaluate();
+                    } else {
+                        if (mThrowOnError) {
+                            throw new RuntimeException(
+                                    "CameraX_cannot_test_with_failed_camera, model:" + Build.MODEL);
+                        } else {
+                            // Ignore the test, so we only print a log without calling
+                            Log.w(CameraUtil.class.getSimpleName(),
+                                    "Camera fail, on test " + description.getDisplayName());
+                            base.evaluate();
+                        }
+                    }
+                }
+            };
+        }
+    }
+
+    /**
+     * Try to open the camera, and close it immediately.
+     *
+     * @param lensFacing the lensFacing of the camera to test
+     * @return true if the camera can be opened successfully
+     */
+    @SuppressLint("MissingPermission")
+    public static boolean tryOpenCamera(@CameraSelector.LensFacing int lensFacing) {
+        String cameraId = getCameraIdWithLensFacing(lensFacing);
+
+        if (cameraId == null) {
+            return false;
+        }
+
+        CameraDeviceHolder deviceHolder = null;
+        boolean ret = true;
+        try {
+            deviceHolder = new CameraDeviceHolder(getCameraManager(), cameraId);
+            if (deviceHolder.get() == null) {
+                ret = false;
+            }
+        } catch (Exception e) {
+            ret = false;
+        } finally {
+            if (deviceHolder != null) {
+                try {
+                    releaseCameraDevice(deviceHolder);
+                } catch (Exception e) {
+                    Log.e(CameraUtil.class.getSimpleName(), "Cannot close cameraDevice.", e);
+                }
+            }
+        }
+
+        return ret;
     }
 }
