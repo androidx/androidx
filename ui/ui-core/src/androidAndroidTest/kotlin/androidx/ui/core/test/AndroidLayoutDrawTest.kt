@@ -56,7 +56,6 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Owner
 import androidx.ui.core.ParentDataModifier
-import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.Ref
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.constrainHeight
@@ -2323,27 +2322,6 @@ class AndroidLayoutDrawTest {
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         assertFalse(outerLatch.await(200, TimeUnit.MILLISECONDS))
-    }
-
-    @Test
-    fun passThroughLayout_passesThroughParentData() {
-        val latch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            activity.setContent {
-                Layout({
-                    PassThroughLayout {
-                        FixedSize(50, Modifier.layoutId("1"))
-                    }
-                }) { measurables, constraints, _ ->
-                    assertEquals("1", measurables[0].id)
-                    val placeable = measurables[0].measure(constraints)
-                    assertEquals(50, placeable.width)
-                    latch.countDown()
-                    layout(0, 0) {}
-                }
-            }
-        }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
     // When a child with a layer is removed with its children, it shouldn't crash.

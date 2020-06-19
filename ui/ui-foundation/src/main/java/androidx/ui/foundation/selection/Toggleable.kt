@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.ui.core.Modifier
-import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.composed
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
@@ -38,49 +37,6 @@ import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
-
-/**
- * Combines [tapGestureFilter] and [Modifier.semantics] for the components that need to be
- * toggleable, like Switch.
- *
- * @see [TriStateToggleable] if you require support for an indeterminate state.
- *
- * @param value whether Toggleable is on or off
- * @param onValueChange callback to be invoked when toggleable is clicked,
- * therefore the change of the state in requested.
- * @param enabled whether or not this [Toggleable] will handle input events and appear
- * enabled for semantics purposes
- * @param modifier allows to provide a modifier to be added before the gesture detector, for
- * example Ripple should be added at this point. this will be easier once we migrate this
- * function to a Modifier
- * @Deprecated Use [Modifier.toggleable] instead.
- */
-@Deprecated(
-    "This component has been deprecated. Use [Modifier.toggleable] instead.",
-    ReplaceWith(
-        "Box(modifier.toggleable(" +
-                "value = value," +
-                " onValueChange = onValueChange," +
-                " enabled = enabled" +
-                "), children = children)",
-        "androidx.foundation.toggleable",
-        "androidx.foundation.Box"
-    )
-)
-@Composable
-fun Toggleable(
-    value: Boolean,
-    onValueChange: (Boolean) -> Unit,
-    enabled: Boolean = true,
-    modifier: Modifier = Modifier,
-    children: @Composable () -> Unit
-) {
-    @Suppress("DEPRECATION")
-    PassThroughLayout(
-        modifier.toggleable(value = value, onValueChange = onValueChange, enabled = enabled),
-        children
-    )
-}
 
 /**
  * Configure component to make it toggleable via input and accessibility events
@@ -113,54 +69,6 @@ fun Modifier.toggleable(
     interactionState = interactionState,
     indication = indication
 )
-
-/**
- * Combines [tapGestureFilter] and [Modifier.semantics] for the components with three states
- * like TriStateCheckbox.
- *
- * It supports three states: On, Off and Indeterminate.
- *
- * TriStateToggleable should be used when there are
- * dependent Toggleables associated to this component and those can have different values.
- *
- * @see [Toggleable] if you want to support only two states: on and off
- *
- * @param state current value for the component
- * @param onClick will be called when user toggles the toggleable.
- * @param enabled whether or not this [TriStateToggleable] will handle input events and
- * appear enabled for semantics purposes
- * @param modifier allows to provide a modifier to be added before the gesture detector, for
- * example Ripple should be added at this point. this will be easier once we migrate this
- * function to a Modifier
- *
- * @Deprecated Use [Modifier.triStateToggleable] instead.
- */
-@Deprecated(
-    "This component has been deprecated. Use [Modifier.triStateToggleable] instead.",
-    ReplaceWith(
-        "Box(modifier.triStateToggleable(" +
-                "state = state," +
-                " onClick = onClick," +
-                " enabled = enabled" +
-                "), children = children)",
-        "androidx.foundation.triStateToggleable",
-        "androidx.foundation.Box"
-    )
-)
-@Composable
-fun TriStateToggleable(
-    state: ToggleableState = On,
-    onClick: () -> Unit,
-    enabled: Boolean = true,
-    modifier: Modifier = Modifier,
-    children: @Composable () -> Unit
-) {
-    @Suppress("DEPRECATION")
-    PassThroughLayout(
-        modifier.triStateToggleable(state = state, onClick = onClick, enabled = enabled),
-        children
-    )
-}
 
 /**
  * Configure component to make it toggleable via input and accessibility events with three
