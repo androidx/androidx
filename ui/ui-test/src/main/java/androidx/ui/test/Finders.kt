@@ -16,9 +16,6 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.test.android.SynchronizedTreeCollector
-
 /**
  * Finds a component identified by the given tag.
  *
@@ -114,8 +111,4 @@ fun find(matcher: SemanticsMatcher): SemanticsNodeInteraction {
  */
 fun findAll(matcher: SemanticsMatcher): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(SemanticsSelector(matcher))
-}
-
-internal fun getAllSemanticsNodes(): List<SemanticsNode> {
-    return SynchronizedTreeCollector.collectAllSemanticsNodes()
 }

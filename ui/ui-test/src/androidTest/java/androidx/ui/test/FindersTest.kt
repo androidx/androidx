@@ -25,6 +25,7 @@ import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.semantics.testTag
 import androidx.ui.semantics.text
+import androidx.ui.test.util.expectError
 import androidx.ui.text.AnnotatedString
 import org.junit.Rule
 import org.junit.Test
@@ -112,14 +113,16 @@ class FindersTest {
         findBySubstring("world", ignoreCase = true)
     }
 
-    @Test(expected = AssertionError::class)
+    @Test
     fun findBySubstring_wrongCase_fails() {
         composeTestRule.setContent {
             BoundaryNode { text = AnnotatedString("Hello World") }
         }
 
-        // Need to assert exists or it won't fail
-        findBySubstring("world").assertExists()
+        expectError<AssertionError> {
+            // Need to assert exists or it won't fetch nodes
+            findBySubstring("world").assertExists()
+        }
     }
 
     @Composable

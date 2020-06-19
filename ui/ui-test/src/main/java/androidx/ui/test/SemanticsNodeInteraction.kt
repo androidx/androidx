@@ -17,6 +17,7 @@
 package androidx.ui.test
 
 import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.test.android.SynchronizedTreeCollector.getAllSemanticsNodes
 
 /**
  * Represents a semantics node and the path to fetch it from the semantics tree. One can interact

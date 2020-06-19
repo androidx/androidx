@@ -43,7 +43,7 @@ internal object SynchronizedTreeCollector {
      * Can crash in case Espresso hits time out. This is not supposed to be handled as it
      * surfaces only in incorrect tests.
      */
-    internal fun collectAllSemanticsNodes(): List<SemanticsNode> {
+    internal fun getAllSemanticsNodes(): List<SemanticsNode> {
         ensureAndroidOwnerRegistryIsSetUp()
 
         // TODO(pavlis): Instead of returning a flatMap, let all consumers handle a tree
@@ -65,6 +65,13 @@ internal object SynchronizedTreeCollector {
      * surfaces only in incorrect tests.
      */
     internal fun waitForIdle() {
+        check(!isOnUiThread()) {
+            "Functions that involve synchronization (Assertions, Actions, Synchronization; " +
+                    "e.g. assertIsSelected(), doClick(), runOnIdleCompose()) cannot be run " +
+                    "from the main thread. Did you nest such a function inside " +
+                    "runOnIdleCompose {}, runOnUiThread {} or setContent {}?"
+        }
+
         registerComposeWithEspresso()
         // First wait for Android mechanisms to settle down
         Espresso.onIdle()
