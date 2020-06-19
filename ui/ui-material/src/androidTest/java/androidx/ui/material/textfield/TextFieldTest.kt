@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.ui.material
+package androidx.ui.material.textfield
 
 import android.os.Build
 import androidx.compose.Providers
-import androidx.compose.getValue
 import androidx.compose.remember
-import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -84,6 +82,14 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import androidx.ui.layout.preferredWidth
+import androidx.ui.material.FilledTextField
+import androidx.ui.material.MaterialTheme
+import androidx.ui.material.OutlinedTextField
+import androidx.ui.material.TextFieldScroller
+import androidx.ui.material.TextFieldScrollerPosition
+import androidx.ui.material.runOnIdleComposeWithDensity
+import androidx.ui.material.setMaterialContent
+import androidx.ui.material.setMaterialContentAndCollectSizes
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -728,7 +734,11 @@ class TextFieldTest {
                 placeholder = {
                     Text("placeholder")
                     assertThat(contentColor())
-                        .isEqualTo(MaterialTheme.colors.onSurface.copy(0.6f))
+                        .isEqualTo(
+                            MaterialTheme.colors.onSurface.copy(
+                                0.6f
+                            )
+                        )
                     assertThat(currentTextStyle()).isEqualTo(MaterialTheme.typography.subtitle1)
                 }
             )
@@ -749,7 +759,11 @@ class TextFieldTest {
                 placeholder = {
                     Text("placeholder")
                     assertThat(contentColor())
-                        .isEqualTo(MaterialTheme.colors.onSurface.copy(0.6f))
+                        .isEqualTo(
+                            MaterialTheme.colors.onSurface.copy(
+                                0.6f
+                            )
+                        )
                     assertThat(currentTextStyle()).isEqualTo(MaterialTheme.typography.subtitle1)
                 }
             )
@@ -985,11 +999,19 @@ class TextFieldTest {
                     isErrorValue = false,
                     leadingIcon = {
                         assertThat(contentColor())
-                            .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                            .isEqualTo(
+                                MaterialTheme.colors.onSurface.copy(
+                                    IconColorAlpha
+                                )
+                            )
                     },
                     trailingIcon = {
                         assertThat(contentColor())
-                            .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                            .isEqualTo(
+                                MaterialTheme.colors.onSurface.copy(
+                                    IconColorAlpha
+                                )
+                            )
                     }
                 )
                 OutlinedTextField(
@@ -999,11 +1021,19 @@ class TextFieldTest {
                     isErrorValue = false,
                     leadingIcon = {
                         assertThat(contentColor())
-                            .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                            .isEqualTo(
+                                MaterialTheme.colors.onSurface.copy(
+                                    IconColorAlpha
+                                )
+                            )
                     },
                     trailingIcon = {
                         assertThat(contentColor())
-                            .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                            .isEqualTo(
+                                MaterialTheme.colors.onSurface.copy(
+                                    IconColorAlpha
+                                )
+                            )
                     }
                 )
             }
@@ -1021,7 +1051,11 @@ class TextFieldTest {
                     isErrorValue = true,
                     leadingIcon = {
                         assertThat(contentColor())
-                            .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                            .isEqualTo(
+                                MaterialTheme.colors.onSurface.copy(
+                                    IconColorAlpha
+                                )
+                            )
                     },
                     trailingIcon = {
                         assertThat(contentColor()).isEqualTo(MaterialTheme.colors.error)
@@ -1034,7 +1068,11 @@ class TextFieldTest {
                     isErrorValue = true,
                     leadingIcon = {
                         assertThat(contentColor())
-                            .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                            .isEqualTo(
+                                MaterialTheme.colors.onSurface.copy(
+                                    IconColorAlpha
+                                )
+                            )
                     },
                     trailingIcon = {
                         assertThat(contentColor()).isEqualTo(MaterialTheme.colors.error)
