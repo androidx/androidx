@@ -16,6 +16,7 @@
 
 package androidx.ui.viewinterop
 
+import android.os.Build
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.ViewGroup
@@ -30,6 +31,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withClassName
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.test.R
@@ -171,6 +173,7 @@ class ComposedViewTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun androidViewWithView_drawModifierIsApplied() {
         val size = 300
         lateinit var frameLayout: FrameLayout
