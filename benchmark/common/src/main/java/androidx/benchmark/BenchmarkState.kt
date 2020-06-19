@@ -25,7 +25,6 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Errors.PREFIX
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.Trace
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -217,6 +216,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
                 ).absolutePath
 
                 Log.d(TAG, "Profiling output file: $path")
+                InstrumentationResults.reportAdditionalFileToCopy("profiling_trace", path)
 
                 val bufferSize = 16 * 1024 * 1024
                 if (Arguments.profilingMode == ProfilingMode.Sampled &&
@@ -528,10 +528,12 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             // these 'legacy' CI output stats are considered output
             stats.forEach { it.putInBundle(status, PREFIX) }
         }
-        status.putIdeSummaryLine(
-            testName = key,
-            nanos = getMinTimeNanos(),
-            allocations = stats.firstOrNull { it.name == "allocationCount" }?.median
+        status.putAll(
+            InstrumentationResults.getIdeSummaryLine(
+                testName = key,
+                nanos = getMinTimeNanos(),
+                allocations = stats.firstOrNull { it.name == "allocationCount" }?.median
+            )
         )
         return status
     }
@@ -560,8 +562,9 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         checkState() // this method is triggered externally
         val fullTestName = "$PREFIX$simpleClassName.$methodName"
 
-        val bundle = getFullStatusReport(key = fullTestName, includeStats = !Arguments.dryRunMode)
-        reportBundle(bundle)
+        InstrumentationResults.report(
+            getFullStatusReport(key = fullTestName, includeStats = !Arguments.dryRunMode)
+        )
 
         ResultWriter.appendReport(
             getReport(
@@ -659,30 +662,18 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
                 warmupIterations = warmupIterations
             )
             // Report value to Studio console
-            val bundle = Bundle()
             val fullTestName = PREFIX +
                     if (className.isNotEmpty()) "$className.$testName" else testName
-            bundle.putIdeSummaryLine(
-                testName = fullTestName,
-                nanos = report.getStats("timeNs").min,
-                allocations = null
+            InstrumentationResults.report(
+                InstrumentationResults.getIdeSummaryLine(
+                    testName = fullTestName,
+                    nanos = report.getStats("timeNs").min,
+                    allocations = null
+                )
             )
-            reportBundle(bundle)
 
             // Report values to file output
             ResultWriter.appendReport(report)
         }
-
-        /**
-         * Report results bundle to instrumentation
-         *
-         * Before addResults() was added in the platform, we use sendStatus(). The constant '2'
-         * comes from IInstrumentationResultParser.StatusCodes.IN_PROGRESS, and signals the
-         * test infra that this is an "additional result" bundle, equivalent to addResults()
-         * NOTE: we should a version check to call addResults(), but don't yet due to b/155103514
-         */
-        internal fun reportBundle(
-            bundle: Bundle
-        ) = InstrumentationRegistry.getInstrumentation().sendStatus(2, bundle)
     }
 }
