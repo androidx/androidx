@@ -479,6 +479,7 @@ package androidx.ui.core {
     method public void move(int from, int to, int count);
     method public void onInvalidate();
     method public void place(int x, int y);
+    method public void removeAll();
     method public void removeAt(int index, int count);
     method public void requestRelayout();
     method public void requestRemeasure();
@@ -2006,6 +2007,7 @@ package androidx.ui.graphics.vector {
     ctor public VectorApplier(androidx.ui.graphics.vector.VNode root);
     method public void insert(int index, androidx.ui.graphics.vector.VNode instance);
     method public void move(int from, int to, int count);
+    method protected void onClear();
     method public void remove(int index, int count);
   }
 
@@ -2155,12 +2157,12 @@ package androidx.ui.node {
 
   public final class UiApplier implements androidx.compose.Applier<java.lang.Object> {
     ctor public UiApplier(Object root);
+    method public void clear();
     method public void down(Object node);
     method public Object getCurrent();
     method public void insert(int index, Object instance);
     method public void move(int from, int to, int count);
     method public void remove(int index, int count);
-    method public void reset();
     method public void up();
     property public Object current;
   }

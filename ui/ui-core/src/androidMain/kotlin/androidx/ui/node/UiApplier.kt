@@ -40,7 +40,9 @@ private class Stack<T> {
 }
 
 @OptIn(ExperimentalLayoutNodeApi::class)
-class UiApplier(root: Any) : Applier<Any> {
+class UiApplier(
+    private val root: Any
+) : Applier<Any> {
     private val stack = Stack<Any>()
     private data class PendingInsert(val index: Int, val instance: Any)
     // TODO(b/159073250): remove
@@ -166,7 +168,13 @@ class UiApplier(root: Any) : Applier<Any> {
         }
     }
 
-    override fun reset() {
+    override fun clear() {
         stack.clear()
+        current = root
+        when (root) {
+            is ViewGroup -> root.removeAllViews()
+            is LayoutNode -> root.removeAll()
+            else -> invalidNode(root)
+        }
     }
 }

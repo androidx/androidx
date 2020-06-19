@@ -118,6 +118,16 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     private var semanticsRoot = SemanticsNodeCopy(view.semanticsOwner.rootSemanticsNode)
     private var checkingForSemanticsChanges = false
 
+    init {
+        // Remove callbacks that rely on view being attached to a window when we become detached.
+        view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(view: View) {}
+            override fun onViewDetachedFromWindow(view: View) {
+                handler.removeCallbacks(semanticsChangeChecker)
+            }
+        })
+    }
+
     fun createNodeInfo(virtualViewId: Int):
             AccessibilityNodeInfoCompat {
         val info: AccessibilityNodeInfoCompat = AccessibilityNodeInfoCompat.obtain()
@@ -634,13 +644,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // TODO (in a separate cl): Called when the SemanticsNode with id semanticsNodeId disappears.
     // fun clearNode(semanticsNodeId: Int) { // clear the actionIdToId and labelToActionId nodes }
 
+    private val semanticsChangeChecker = Runnable {
+        checkForSemanticsChanges()
+        checkingForSemanticsChanges = false
+    }
+
     internal fun onSemanticsChange() {
         if (accessibilityManager.isEnabled && !checkingForSemanticsChanges) {
             checkingForSemanticsChanges = true
-            handler.post {
-                checkForSemanticsChanges()
-                checkingForSemanticsChanges = false
-            }
+            handler.post(semanticsChangeChecker)
         }
     }
 

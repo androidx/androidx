@@ -118,6 +118,10 @@ class VectorApplier(root: VNode) : AbstractApplier<VNode>(root) {
         current.asGroup().remove(index, count)
     }
 
+    override fun onClear() {
+        root.asGroup().let { it.remove(0, it.numChildren) }
+    }
+
     override fun move(from: Int, to: Int, count: Int) {
         current.asGroup().move(from, to, count)
     }
