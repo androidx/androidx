@@ -34,6 +34,8 @@ import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.samples.ScrollingTextTabs
 import androidx.ui.material.samples.TextTabs
 import androidx.ui.test.assertCountEquals
+import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertIsEqualTo
 import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertIsUnselected
 import androidx.ui.test.assertPositionInRootIsEqualTo
@@ -41,14 +43,11 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findAll
 import androidx.ui.test.findByTag
-import androidx.ui.test.getAlignmentLinePosition
 import androidx.ui.test.getBoundsInRoot
 import androidx.ui.test.isInMutuallyExclusiveGroup
-import androidx.ui.text.LastBaseline
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
 import androidx.ui.unit.width
-import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,42 +67,45 @@ class TabTest {
 
     @Test
     fun textTab_height() {
-        composeTestRule
-            .setMaterialContentAndCollectSizes {
-                Box {
-                    Tab(text = { Text("Text") }, selected = true, onSelected = {})
-                }
+        composeTestRule.setMaterialContent {
+            Box(Modifier.testTag("tab")) {
+                Tab(text = { Text("Text") }, selected = true, onSelected = {})
             }
-            .assertHeightEqualsTo(ExpectedSmallTabHeight)
+        }
+
+        findByTag("tab")
+            .assertHeightIsEqualTo(ExpectedSmallTabHeight)
     }
 
     @Test
     fun iconTab_height() {
-        composeTestRule
-            .setMaterialContentAndCollectSizes {
-                Box {
-                    Tab(icon = { Icon(icon) }, selected = true, onSelected = {})
-                }
+        composeTestRule.setMaterialContent {
+            Box(Modifier.testTag("tab")) {
+                Tab(icon = { Icon(icon) }, selected = true, onSelected = {})
             }
-            .assertHeightEqualsTo(ExpectedSmallTabHeight)
+        }
+
+        findByTag("tab")
+            .assertHeightIsEqualTo(ExpectedSmallTabHeight)
     }
 
     @Test
     fun textAndIconTab_height() {
-        composeTestRule
-            .setMaterialContentAndCollectSizes {
-                Box {
-                    Surface {
-                        Tab(
-                            text = { Text("Text and Icon") },
-                            icon = { Icon(icon) },
-                            selected = true,
-                            onSelected = {}
-                        )
-                    }
+        composeTestRule.setMaterialContent {
+            Box(Modifier.testTag("tab")) {
+                Surface {
+                    Tab(
+                        text = { Text("Text and Icon") },
+                        icon = { Icon(icon) },
+                        selected = true,
+                        onSelected = {}
+                    )
                 }
             }
-            .assertHeightEqualsTo(ExpectedLargeTabHeight)
+        }
+
+        findByTag("tab")
+            .assertHeightIsEqualTo(ExpectedLargeTabHeight)
     }
 
     @Test
@@ -189,12 +191,11 @@ class TabTest {
 
         val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
         val textBounds = findByTag("text").getBoundsInRoot()
-        val textBaselinePos = findByTag("text").getAlignmentLinePosition(LastBaseline)
+        val textBaselinePos = findByTag("text").getLastBaselinePosition()
 
         val baselinePositionY = textBounds.top + textBaselinePos
         val expectedPositionY = tabRowBounds.height - expectedBaselineDistance
-
-        assertThat(baselinePositionY.value).isWithin(0.5f).of(expectedPositionY.value)
+        baselinePositionY.assertIsEqualTo(expectedPositionY, "baseline y-position")
     }
 
     @Test
@@ -227,11 +228,11 @@ class TabTest {
 
         val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
         val textBounds = findByTag("text").getBoundsInRoot()
-        val textBaselinePos = findByTag("text").getAlignmentLinePosition(LastBaseline)
+        val textBaselinePos = findByTag("text").getLastBaselinePosition()
 
         val baselinePositionY = textBounds.top + textBaselinePos
         val expectedPositionY = tabRowBounds.height - expectedBaselineDistance
-        assertThat(baselinePositionY).isEqualTo(expectedPositionY)
+        baselinePositionY.assertIsEqualTo(expectedPositionY, "baseline y-position")
     }
 
     @Test
@@ -262,13 +263,13 @@ class TabTest {
 
         val tabRowBounds = findByTag("tabRow").getBoundsInRoot()
         val textBounds = findByTag("text").getBoundsInRoot()
-        val textBaselinePos = findByTag("text").getAlignmentLinePosition(LastBaseline)
+        val textBaselinePos = findByTag("text").getLastBaselinePosition()
 
         val expectedBaselineDistance = expectedBaseline + indicatorHeight
 
         val baselinePositionY = textBounds.top + textBaselinePos
         val expectedPositionY = (tabRowBounds.height - expectedBaselineDistance)
-        assertThat(baselinePositionY.value).isWithin(0.5f).of(expectedPositionY.value)
+        baselinePositionY.assertIsEqualTo(expectedPositionY, "baseline y-position")
     }
 
     @Test
