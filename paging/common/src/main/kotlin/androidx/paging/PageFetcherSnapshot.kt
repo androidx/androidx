@@ -92,7 +92,8 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     @OptIn(ExperimentalCoroutinesApi::class)
     val pageEventFlow: Flow<PageEvent<Value>> = cancelableChannelFlow(pageEventChannelFlowJob) {
         check(pageEventChCollected.compareAndSet(false, true)) {
-            "cannot collect twice from pager"
+            "Attempt to collect twice from pageEventFlow, which is an illegal operation. Did you " +
+                    "forget to call Flow<PagingData<*>>.cachedIn(coroutineScope)?"
         }
 
         // Start collection on pageEventCh, which the rest of this class uses to send PageEvents
