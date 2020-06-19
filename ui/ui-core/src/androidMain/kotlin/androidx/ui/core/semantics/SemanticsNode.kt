@@ -82,36 +82,31 @@ class SemanticsNode internal constructor(
      * Each semantic node has a unique identifier that is assigned when the node
      * is created.
      */
-    internal constructor(unmergedConfig: SemanticsConfiguration, componentNode: LayoutNode) :
-            this(generateNewId(), unmergedConfig, componentNode)
+    internal constructor(unmergedConfig: SemanticsConfiguration, layoutNode: LayoutNode) :
+            this(generateNewId(), unmergedConfig, layoutNode)
 
     // GEOMETRY
 
     /** The size of the bounding box for this node */
     val size: IntSize
         get() {
-            return layoutNode.coordinates.size
+            return componentNode.coordinates.size
         }
 
     /** The bounding box for this node relative to the root of this Compose hierarchy */
     val boundsInRoot: PxBounds
         get() {
-            return layoutNode.coordinates.boundsInRoot
+            return componentNode.coordinates.boundsInRoot
         }
 
     val globalBounds: PxBounds
         get() {
-            return layoutNode.coordinates.globalBounds
+            return componentNode.coordinates.globalBounds
         }
 
     val globalPosition: Offset
         get() {
-            return layoutNode.coordinates.globalPosition
-        }
-
-    private val layoutNode: LayoutNode
-        get() {
-            return componentNode.requireLayoutNodeAppliedTo()
+            return componentNode.coordinates.globalPosition
         }
 
     /**
@@ -174,12 +169,7 @@ class SemanticsNode internal constructor(
     private fun unmergedChildren(): List<SemanticsNode> {
         val unmergedChildren: MutableList<SemanticsNode> = mutableListOf()
 
-        var searchRoot: LayoutNode? = componentNode
-        if (searchRoot?.outerSemantics?.semanticsModifier?.applyToChildLayoutNode == true) {
-            searchRoot = componentNode.findLastConsecutiveSemanticsNode()
-        }
-        val semanticsChildren =
-            searchRoot?.findOneLayerOfSemanticsWrappers() ?: emptyList()
+        val semanticsChildren = componentNode.findOneLayerOfSemanticsWrappers()
         semanticsChildren.fastForEach { semanticsChild ->
             unmergedChildren.add(semanticsChild.semanticsNode())
         }
@@ -243,23 +233,7 @@ class SemanticsNode internal constructor(
     // TODO(b/145947383): this needs to be the *merged* parent
     val parent: SemanticsNode?
         get() {
-            // This searches up the layout tree and takes into account
-            // collapsing of adjacent SemanticsWrappers into a single
-            // SemanticsNode.
-            // Example: if L are normal layout node and S are semantics nodes,
-            // and the ComponentNode tree is a simple list-like tree
-            // "<ROOT>, S, S, L, S, S, S, L, L, S"
-            //          ^        ^              ^
-            //          a        b              c
-            // then 'c'.parent == 'b', and 'b'.parent == 'a'
-
-            // (This complexity is temporary -- semantics collapsing will be
-            // replaced by modifier chains soon.)
-
-            var node = componentNode
-                .findClosestParentNode { it.outerSemantics != null }
-                ?.findHighestConsecutiveAncestor {
-                    it.outerSemantics?.semanticsModifier?.applyToChildLayoutNode == true }
+            var node = componentNode.findClosestParentNode { it.outerSemantics != null }
 
             return node?.outerSemantics?.semanticsNode()
         }
@@ -292,21 +266,6 @@ internal val LayoutNodeWrapper.nearestSemantics: SemanticsWrapper?
     }
 
 /**
- * Returns the highest in a consecutive chain of this + this's parents all meeting the predicate.
-*/
-private fun LayoutNode.findHighestConsecutiveAncestor(
-    selector: (LayoutNode) -> Boolean
-): LayoutNode? {
-    var prev = this
-    var currentParent = parent
-    while (currentParent != null && selector(currentParent)) {
-        prev = currentParent
-        currentParent = currentParent.parent
-    }
-    return prev
-}
-
-/**
  * Executes [selector] on every parent of this [SemanticsNode] and returns the closest
  * [SemanticsNode] to return `true` from [selector] or null if [selector] returns false
  * for all ancestors.
@@ -334,11 +293,11 @@ internal fun SemanticsNode.findChildById(id: Int): SemanticsNode? {
 }
 
 private fun LayoutNode.findOneLayerOfSemanticsWrappers(): List<SemanticsWrapper> {
-    val childSemanticsComponentNodes = mutableListOf<SemanticsWrapper>()
+    val childSemanticsLayoutNodes = mutableListOf<SemanticsWrapper>()
     children.fastForEach { child ->
-        findOneLayerOfSemanticsWrappersRecursive(childSemanticsComponentNodes, child)
+        findOneLayerOfSemanticsWrappersRecursive(childSemanticsLayoutNodes, child)
     }
-    return childSemanticsComponentNodes
+    return childSemanticsLayoutNodes
 }
 
 private fun LayoutNode.findOneLayerOfSemanticsWrappersRecursive(
@@ -353,36 +312,4 @@ private fun LayoutNode.findOneLayerOfSemanticsWrappersRecursive(
             findOneLayerOfSemanticsWrappersRecursive(list, child)
         }
     }
-}
-
-private fun LayoutNode.findLastConsecutiveSemanticsNode(): LayoutNode? {
-    children.fastForEach { child ->
-        if (child.outerSemantics != null) {
-            if (child.outerSemantics?.semanticsModifier?.applyToChildLayoutNode == false)
-                return child
-            return child.findLastConsecutiveSemanticsNode()
-        } // else, keep looking through the other children
-    }
-
-    return this
-}
-
-private fun LayoutNode.findLayoutNodeAppliedTo(): LayoutNode? {
-    if ((outerSemantics == null ||
-            outerSemantics?.semanticsModifier?.applyToChildLayoutNode == false)) {
-        return this
-    }
-    children.fastForEach { child ->
-            val layoutChild = child.findLayoutNodeAppliedTo()
-            if (layoutChild != null) {
-                return layoutChild
-            }
-    }
-
-    return null
-}
-
-private fun LayoutNode.requireLayoutNodeAppliedTo(): LayoutNode {
-    return findLayoutNodeAppliedTo()
-        ?: throw IllegalStateException("This component has no layout children")
 }
