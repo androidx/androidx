@@ -138,19 +138,18 @@ abstract class PreviewViewImplementation {
         final Bitmap scaled = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
                 bitmap.getHeight(), scale, true);
 
-        // If fit* scale type, return scaled bitmap, since the whole preview is displayed, no
-        // cropping is needed.
         final PreviewView.ScaleType scaleType = mPreviewTransform.getScaleType();
-        if (scaleType == PreviewView.ScaleType.FIT_START
-                || scaleType == PreviewView.ScaleType.FIT_CENTER
-                || scaleType == PreviewView.ScaleType.FIT_END) {
-            return scaled;
-        }
 
-        // If fill* scale type, crop the scaled bitmap, then return it
         Preconditions.checkNotNull(mParent);
         int x = 0, y = 0;
         switch (scaleType) {
+            // If fit* scale type, return scaled bitmap, since the whole preview is displayed, no
+            // cropping is needed.
+            case FIT_START:
+            case FIT_CENTER:
+            case FIT_END:
+                return scaled;
+            // If fill* scale type, crop the scaled bitmap, then return it
             case FILL_START:
                 x = 0;
                 y = 0;
