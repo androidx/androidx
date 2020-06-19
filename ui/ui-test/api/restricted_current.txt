@@ -64,8 +64,11 @@ package androidx.ui.test {
   public final class BoundsAssertionsKt {
     method public static androidx.ui.test.SemanticsNodeInteraction assertHeightIsAtLeast-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedMinHeight);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHeightIsEqualTo-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedHeight);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertPositionInRootIsEqualTo-jINh5Q8(androidx.ui.test.SemanticsNodeInteraction, float expectedLeft, float expectedTop);
     method public static androidx.ui.test.SemanticsNodeInteraction assertWidthIsAtLeast-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedMinWidth);
     method public static androidx.ui.test.SemanticsNodeInteraction assertWidthIsEqualTo-Gf70O4E(androidx.ui.test.SemanticsNodeInteraction, float expectedWidth);
+    method public static float getAlignmentLinePosition(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.core.AlignmentLine line);
+    method public static androidx.ui.unit.Bounds getBoundsInRoot(androidx.ui.test.SemanticsNodeInteraction);
   }
 
   public final class CollectedSizes {

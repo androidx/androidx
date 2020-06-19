@@ -24,10 +24,12 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.padding
 import androidx.ui.layout.size
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.assertHeightIsAtLeast
 import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertPositionInRootIsEqualTo
 import androidx.ui.test.assertWidthIsAtLeast
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
@@ -52,13 +54,15 @@ class BoundsAssertionsTest {
         composeTestRule.setContent {
             Box(modifier = Modifier
                 .fillMaxSize()
-                .wrapContentSize(Alignment.Center)
+                .wrapContentSize(Alignment.TopStart)
             ) {
-                Box(modifier = Modifier
-                    .testTag(tag)
-                    .size(80.dp, 100.dp)
-                    .drawBackground(Color.Black)
-                )
+                Box(modifier = Modifier.padding(start = 50.dp, top = 100.dp)) {
+                    Box(modifier = Modifier
+                        .testTag(tag)
+                        .size(80.dp, 100.dp)
+                        .drawBackground(Color.Black)
+                    )
+                }
             }
         }
     }
@@ -110,6 +114,29 @@ class BoundsAssertionsTest {
         expectError<AssertionError> {
             findByTag(tag)
                 .assertHeightIsAtLeast(101.dp)
+        }
+    }
+
+    @Test
+    fun assertPosition() {
+        composeBox()
+
+        findByTag(tag)
+            .assertPositionInRootIsEqualTo(expectedLeft = 50.dp, expectedTop = 100.dp)
+    }
+
+    @Test
+    fun assertPosition_fail() {
+        composeBox()
+
+        expectError<AssertionError> {
+            findByTag(tag)
+                .assertPositionInRootIsEqualTo(expectedLeft = 51.dp, expectedTop = 101.dp)
+        }
+
+        expectError<AssertionError> {
+            findByTag(tag)
+                .assertPositionInRootIsEqualTo(expectedLeft = 49.dp, expectedTop = 99.dp)
         }
     }
 }
