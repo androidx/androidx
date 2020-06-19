@@ -2450,7 +2450,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="145"
+            line="146"
             column="26"/>
     </issue>
 
@@ -2461,7 +2461,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="181"
+            line="182"
             column="46"/>
     </issue>
 
@@ -2472,7 +2472,7 @@
         errorLine2="                                                                        ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="181"
+            line="182"
             column="73"/>
     </issue>
 
@@ -2483,7 +2483,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="184"
+            line="185"
             column="12"/>
     </issue>
 
@@ -2494,7 +2494,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="184"
+            line="185"
             column="30"/>
     </issue>
 
@@ -2505,7 +2505,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="184"
+            line="185"
             column="55"/>
     </issue>
 
@@ -2516,7 +2516,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="185"
+            line="186"
             column="13"/>
     </issue>
 
@@ -2527,7 +2527,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="250"
+            line="251"
             column="28"/>
     </issue>
 
@@ -2538,7 +2538,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="269"
+            line="270"
             column="31"/>
     </issue>
 
@@ -2549,7 +2549,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="269"
+            line="270"
             column="42"/>
     </issue>
 
@@ -2560,7 +2560,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="319"
+            line="320"
             column="37"/>
     </issue>
 
@@ -2571,7 +2571,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="338"
+            line="339"
             column="12"/>
     </issue>
 
@@ -2582,7 +2582,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="350"
+            line="351"
             column="37"/>
     </issue>
 
@@ -2593,7 +2593,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="368"
+            line="369"
             column="12"/>
     </issue>
 
@@ -2604,7 +2604,7 @@
         errorLine2="                                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="426"
+            line="427"
             column="42"/>
     </issue>
 
@@ -2615,7 +2615,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="455"
+            line="456"
             column="36"/>
     </issue>
 
@@ -2626,7 +2626,7 @@
         errorLine2="                                  ~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="479"
+            line="480"
             column="35"/>
     </issue>
 
@@ -2637,7 +2637,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="479"
+            line="480"
             column="52"/>
     </issue>
 
@@ -2648,7 +2648,7 @@
         errorLine2="                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="526"
+            line="527"
             column="18"/>
     </issue>
 
@@ -2659,7 +2659,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="546"
+            line="547"
             column="12"/>
     </issue>
 
@@ -2670,7 +2670,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="546"
+            line="547"
             column="46"/>
     </issue>
 
@@ -2681,7 +2681,7 @@
         errorLine2="                                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="546"
+            line="547"
             column="71"/>
     </issue>
 
@@ -2692,7 +2692,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="547"
+            line="548"
             column="13"/>
     </issue>
 
@@ -2703,7 +2703,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="576"
+            line="577"
             column="12"/>
     </issue>
 
@@ -2714,7 +2714,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="589"
+            line="590"
             column="15"/>
     </issue>
 
@@ -2725,7 +2725,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="589"
+            line="590"
             column="52"/>
     </issue>
 
@@ -2736,7 +2736,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="604"
+            line="605"
             column="43"/>
     </issue>
 
@@ -2747,7 +2747,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="647"
+            line="648"
             column="12"/>
     </issue>
 
@@ -2758,7 +2758,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="655"
+            line="656"
             column="42"/>
     </issue>
 
@@ -2769,7 +2769,7 @@
         errorLine2="                                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="663"
+            line="664"
             column="42"/>
     </issue>
 
@@ -2780,7 +2780,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="719"
+            line="720"
             column="43"/>
     </issue>
 
@@ -2791,7 +2791,7 @@
         errorLine2="                                                                     ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="719"
+            line="720"
             column="70"/>
     </issue>
 
@@ -2802,7 +2802,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="735"
+            line="736"
             column="41"/>
     </issue>
 
@@ -2813,7 +2813,7 @@
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="735"
+            line="736"
             column="68"/>
     </issue>
 
@@ -2824,7 +2824,7 @@
         errorLine2="                                                                              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="748"
+            line="749"
             column="79"/>
     </issue>
 
@@ -2835,7 +2835,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="173"
+            line="174"
             column="46"/>
     </issue>
 
@@ -2846,7 +2846,7 @@
         errorLine2="                                                                        ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="173"
+            line="174"
             column="73"/>
     </issue>
 
@@ -2857,7 +2857,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="176"
+            line="177"
             column="12"/>
     </issue>
 
@@ -2868,7 +2868,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="242"
+            line="243"
             column="28"/>
     </issue>
 
@@ -2879,7 +2879,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="324"
+            line="325"
             column="12"/>
     </issue>
 
@@ -2890,7 +2890,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="333"
+            line="334"
             column="12"/>
     </issue>
 
@@ -2901,7 +2901,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="342"
+            line="343"
             column="37"/>
     </issue>
 
@@ -2912,7 +2912,7 @@
         errorLine2="                                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="398"
+            line="399"
             column="42"/>
     </issue>
 
@@ -2923,7 +2923,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="446"
+            line="447"
             column="36"/>
     </issue>
 
@@ -2934,7 +2934,7 @@
         errorLine2="                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="512"
+            line="513"
             column="18"/>
     </issue>
 
@@ -2945,7 +2945,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="530"
+            line="531"
             column="12"/>
     </issue>
 
@@ -2956,7 +2956,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="530"
+            line="531"
             column="46"/>
     </issue>
 
@@ -2967,7 +2967,7 @@
         errorLine2="                                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="530"
+            line="531"
             column="71"/>
     </issue>
 
@@ -2978,7 +2978,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="531"
+            line="532"
             column="13"/>
     </issue>
 
@@ -2989,7 +2989,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="557"
+            line="558"
             column="12"/>
     </issue>
 
@@ -3000,7 +3000,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="567"
+            line="568"
             column="15"/>
     </issue>
 
@@ -3011,7 +3011,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="567"
+            line="568"
             column="52"/>
     </issue>
 
@@ -3022,7 +3022,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="579"
+            line="580"
             column="43"/>
     </issue>
 
@@ -3033,7 +3033,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="625"
+            line="626"
             column="12"/>
     </issue>
 
@@ -3044,7 +3044,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="629"
+            line="630"
             column="42"/>
     </issue>
 
@@ -3055,7 +3055,7 @@
         errorLine2="                                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="633"
+            line="634"
             column="42"/>
     </issue>
 
@@ -3066,7 +3066,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="690"
+            line="691"
             column="43"/>
     </issue>
 
@@ -3077,7 +3077,7 @@
         errorLine2="                                                                           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="690"
+            line="691"
             column="76"/>
     </issue>
 
@@ -3088,7 +3088,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="706"
+            line="707"
             column="41"/>
     </issue>
 
@@ -3099,7 +3099,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="706"
+            line="707"
             column="74"/>
     </issue>
 
@@ -3110,7 +3110,7 @@
         errorLine2="                ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="720"
+            line="721"
             column="17"/>
     </issue>
 
@@ -3121,7 +3121,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="81"
+            line="82"
             column="28"/>
     </issue>
 
@@ -3132,7 +3132,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="81"
+            line="82"
             column="45"/>
     </issue>
 
@@ -3143,7 +3143,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="101"
+            line="102"
             column="28"/>
     </issue>
 
@@ -3154,7 +3154,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="101"
+            line="102"
             column="45"/>
     </issue>
 
@@ -3165,7 +3165,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="105"
+            line="106"
             column="28"/>
     </issue>
 
@@ -3176,7 +3176,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="105"
+            line="106"
             column="45"/>
     </issue>
 
@@ -3187,7 +3187,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="169"
+            line="170"
             column="37"/>
     </issue>
 
@@ -3198,7 +3198,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="188"
+            line="189"
             column="12"/>
     </issue>
 
@@ -3209,7 +3209,7 @@
         errorLine2="                                 ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="198"
+            line="199"
             column="34"/>
     </issue>
 
@@ -3220,7 +3220,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="273"
+            line="274"
             column="37"/>
     </issue>
 
@@ -3231,7 +3231,7 @@
         errorLine2="                                             ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="349"
+            line="350"
             column="46"/>
     </issue>
 
@@ -3242,7 +3242,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="490"
+            line="491"
             column="46"/>
     </issue>
 
@@ -3253,7 +3253,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="501"
+            line="502"
             column="49"/>
     </issue>
 
@@ -3264,7 +3264,7 @@
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="512"
+            line="513"
             column="15"/>
     </issue>
 
@@ -3275,7 +3275,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="518"
+            line="519"
             column="43"/>
     </issue>
 
@@ -3286,7 +3286,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="544"
+            line="545"
             column="42"/>
     </issue>
 
@@ -3297,7 +3297,7 @@
         errorLine2="                                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroup.java"
-            line="553"
+            line="554"
             column="42"/>
     </issue>
 
@@ -3308,7 +3308,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroupAdapter.java"
-            line="88"
+            line="89"
             column="35"/>
     </issue>
 
@@ -3319,7 +3319,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroupAdapter.java"
-            line="327"
+            line="328"
             column="12"/>
     </issue>
 
@@ -3330,7 +3330,7 @@
         errorLine2="                                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroupAdapter.java"
-            line="346"
+            line="347"
             column="36"/>
     </issue>
 
@@ -3341,7 +3341,7 @@
         errorLine2="                                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroupAdapter.java"
-            line="356"
+            line="357"
             column="45"/>
     </issue>
 
@@ -3352,7 +3352,7 @@
         errorLine2="                                             ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroupAdapter.java"
-            line="362"
+            line="363"
             column="46"/>
     </issue>
 
@@ -3363,7 +3363,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroupAdapter.java"
-            line="423"
+            line="424"
             column="45"/>
     </issue>
 
@@ -3374,7 +3374,7 @@
         errorLine2="                                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceGroupAdapter.java"
-            line="435"
+            line="436"
             column="45"/>
     </issue>
 

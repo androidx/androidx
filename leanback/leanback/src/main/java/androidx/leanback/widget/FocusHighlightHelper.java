@@ -20,6 +20,7 @@ import static androidx.leanback.widget.FocusHighlight.ZOOM_FACTOR_SMALL;
 import static androidx.leanback.widget.FocusHighlight.ZOOM_FACTOR_XSMALL;
 
 import android.animation.TimeAnimator;
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.util.TypedValue;
 import android.view.View;
@@ -340,6 +341,7 @@ public class FocusHighlightHelper {
 
     /** @deprecated This type should not be instantiated as it contains only static methods. */
     @Deprecated
+    @SuppressLint("PrivateConstructorForUtilityClass")
     @SuppressWarnings("PrivateConstructorForUtilityClass")
     public FocusHighlightHelper() {
     }

@@ -1,4 +1,114 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
 
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/biometric/AuthenticationCallbackProvider.java"
+            line="165"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/biometric/BiometricFragment.java"
+            line="852"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/biometric/BiometricFragment.java"
+            line="885"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/biometric/BiometricFragment.java"
+            line="1011"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/biometric/BiometricFragment.java"
+            line="1028"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/biometric/BiometricManager.java"
+            line="152"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/biometric/CancellationSignalProvider.java"
+            line="96"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/biometric/CryptoObjectUtils.java"
+            line="179"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/biometric/FingerprintDialogFragment.java"
+            line="424"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class with non private constructor"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/biometric/FingerprintDialogFragment.java"
+            line="437"
+            column="5"/>
+    </issue>
+
 </issues>

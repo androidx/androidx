@@ -800,7 +800,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="988"
+            line="990"
             column="35"/>
     </issue>
 
@@ -811,7 +811,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="1000"
+            line="1002"
             column="25"/>
     </issue>
 
@@ -822,7 +822,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="1039"
+            line="1041"
             column="32"/>
     </issue>
 
@@ -833,7 +833,7 @@
         errorLine2="                                                      ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="1039"
+            line="1041"
             column="55"/>
     </issue>
 
@@ -844,7 +844,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="1074"
+            line="1076"
             column="35"/>
     </issue>
 
@@ -1944,7 +1944,7 @@
         errorLine2="                             ~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="257"
+            line="258"
             column="30"/>
     </issue>
 
@@ -1955,7 +1955,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="262"
+            line="263"
             column="25"/>
     </issue>
 
@@ -1966,7 +1966,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="288"
+            line="289"
             column="36"/>
     </issue>
 
@@ -1977,7 +1977,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="293"
+            line="294"
             column="40"/>
     </issue>
 
@@ -1988,7 +1988,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="299"
+            line="300"
             column="42"/>
     </issue>
 
@@ -1999,7 +1999,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="305"
+            line="306"
             column="33"/>
     </issue>
 
@@ -2010,7 +2010,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="819"
+            line="820"
             column="19"/>
     </issue>
 
@@ -2021,7 +2021,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="860"
+            line="861"
             column="40"/>
     </issue>
 
