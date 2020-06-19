@@ -82,10 +82,11 @@ import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.rememberSavedInstanceState
+import androidx.ui.text.InternalTextApi
 import androidx.ui.text.LastBaseline
 import androidx.ui.text.SoftwareKeyboardController
-import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
+import androidx.ui.text.constrain
 import androidx.ui.text.lerp
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntSize
@@ -202,11 +203,11 @@ fun FilledTextField(
 ) {
     var textFieldValue by state { TextFieldValue() }
     if (textFieldValue.text != value) {
-        val newSelection = TextRange(
-            textFieldValue.selection.start.coerceIn(0, value.length),
-            textFieldValue.selection.end.coerceIn(0, value.length)
+        @OptIn(InternalTextApi::class)
+        textFieldValue = TextFieldValue(
+            text = value,
+            selection = textFieldValue.selection.constrain(0, value.length)
         )
-        textFieldValue = TextFieldValue(text = value, selection = newSelection)
     }
     TextFieldImpl(
         type = TextFieldType.Filled,
@@ -375,13 +376,10 @@ fun FilledTextField(
 
     val fullModel = state { TextFieldValue() }
     if (fullModel.value.text != value.text || fullModel.value.selection != value.selection) {
-        val newSelection = TextRange(
-            value.selection.start.coerceIn(0, value.text.length),
-            value.selection.end.coerceIn(0, value.text.length)
-        )
+        @OptIn(InternalTextApi::class)
         fullModel.value = TextFieldValue(
             text = value.text,
-            selection = newSelection
+            selection = value.selection.constrain(0, value.text.length)
         )
     }
 
@@ -500,11 +498,10 @@ fun OutlinedTextField(
 ) {
     var textFieldValue by state { TextFieldValue() }
     if (textFieldValue.text != value) {
-        val newSelection = TextRange(
-            textFieldValue.selection.start.coerceIn(0, value.length),
-            textFieldValue.selection.end.coerceIn(0, value.length)
-        )
-        textFieldValue = TextFieldValue(text = value, selection = newSelection)
+        @OptIn(InternalTextApi::class)
+        textFieldValue = TextFieldValue(
+            text = value,
+            selection = textFieldValue.selection.constrain(0, value.length))
     }
 
     TextFieldImpl(

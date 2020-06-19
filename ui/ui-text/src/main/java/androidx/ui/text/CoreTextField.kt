@@ -71,14 +71,11 @@ fun CoreTextField(
     if (fullModel.value.text != value.text ||
         fullModel.value.selection != value.selection ||
         fullModel.value.composition != value.composition) {
-        val newSelection = TextRange(
-            value.selection.start.coerceIn(0, value.text.length),
-            value.selection.end.coerceIn(0, value.text.length)
-        )
+        @OptIn(InternalTextApi::class)
         fullModel.value = TextFieldValue(
             text = value.text,
-            selection = newSelection,
-            composition = value.composition
+            selection = value.selection.constrain(0, value.text.length),
+            composition = value.composition?.constrain(0, value.text.length)
         )
     }
 
