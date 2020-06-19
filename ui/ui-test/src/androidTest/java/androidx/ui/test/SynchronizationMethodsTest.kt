@@ -18,6 +18,7 @@ package androidx.ui.test
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.android.AndroidOwnerRegistry
+import androidx.ui.test.util.expectError
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,6 +69,39 @@ class SynchronizationMethodsTest {
         withAndroidOwnerRegistry {
             val result: String? = runOnIdleCompose { null }
             assertThat(result).isEqualTo(null)
+        }
+    }
+
+    @Test
+    fun runOnIdleCompose_assert_fails() {
+        withAndroidOwnerRegistry {
+            runOnIdleCompose {
+                expectError<IllegalStateException> {
+                    findByTag("dummy").assertExists()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun runOnIdleCompose_waitForIdle_fails() {
+        withAndroidOwnerRegistry {
+            runOnIdleCompose {
+                expectError<IllegalStateException> {
+                    waitForIdle()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun runOnIdleCompose_runOnIdleCompose_fails() {
+        withAndroidOwnerRegistry {
+            runOnIdleCompose {
+                expectError<IllegalStateException> {
+                    runOnIdleCompose {}
+                }
+            }
         }
     }
 
