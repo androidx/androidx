@@ -36,8 +36,6 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.util.fastForEach
-import androidx.ui.util.fastMap
-import androidx.ui.util.fastMaxBy
 import kotlin.math.max
 
 /**
@@ -193,40 +191,6 @@ fun MultiMeasureLayout(
             set(measureBlocks, LayoutEmitHelper.setMeasureBlocks)
             @Suppress("DEPRECATION")
             set(Unit) { this.canMultiMeasure = true }
-        },
-        children = children
-    )
-}
-
-@Composable
-@Deprecated("This composable supports our transition from single child composables to modifiers. " +
-        "It should not be used in app code directly.")
-fun PassThroughLayout(
-    modifier: Modifier = Modifier,
-    children: @Composable () -> Unit
-) {
-    val measureBlocks = remember {
-        val measureBlock: MeasureBlock = { measurables, constraints, _ ->
-            val placeables = measurables.fastMap { it.measure(constraints) }
-            val width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth
-            val height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
-            layout(width, height) {
-                placeables.fastForEach { it.place(0, 0) }
-            }
-        }
-        MeasuringIntrinsicsMeasureBlocks(measureBlock)
-    }
-    val materialized = currentComposer.materialize(modifier)
-    emit<LayoutNode, UiApplier>(
-        ctor = LayoutEmitHelper.constructor,
-        update = {
-            set(materialized, LayoutEmitHelper.setModifier)
-            set(measureBlocks, LayoutEmitHelper.setMeasureBlocks)
-            @Suppress("DEPRECATION")
-            set(Unit) {
-                this.handlesParentData = false
-                this.useChildZIndex = true
-            }
         },
         children = children
     )

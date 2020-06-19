@@ -19,11 +19,8 @@ package androidx.ui.foundation.selection
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
-import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.composed
-import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.semantics.semantics
-import androidx.ui.foundation.Box
 import androidx.ui.foundation.Indication
 import androidx.ui.foundation.IndicationAmbient
 import androidx.ui.foundation.Interaction
@@ -34,55 +31,6 @@ import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
 import androidx.ui.foundation.semantics.selected
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.semantics.onClick
-
-/**
- * Component for representing one option out of many
- * in mutually exclusion set, e.g [androidx.ui.material.RadioGroup]
- *
- * Provides click handling as well as [Modifier.semantics] for accessibility
- *
- * @param selected whether or not this item is selected in mutually exclusion set
- * @param onClick callback to invoke when this item is clicked
- * @param modifier allows to provide a modifier to be added before the gesture detector, for
- * example Ripple should be added at this point. this will be easier once we migrate this
- * function to a Modifier
- *
- * @Deprecated Use [Modifier.selectable] instead.
- */
-@Deprecated(
-    "MutuallyExclusiveSetItem has been deprecated, use Modifier.selectable " +
-            "instead",
-    ReplaceWith(
-        "Box(modifier.selectable(" +
-                "selected = selected, " +
-                "onClick = onClick" +
-                ")," +
-                " children = children)",
-        "androidx.foundation.selectable",
-        "androidx.foundation.Box"
-    )
-)
-@Composable
-fun MutuallyExclusiveSetItem(
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    children: @Composable () -> Unit
-) {
-    // TODO: when semantics can be merged, we should make this use Clickable internally rather
-    //  than duplicating logic
-    Box(Modifier.semantics {
-        inMutuallyExclusiveGroup = true
-        this.selected = selected
-        this.accessibilityValue = if (selected) Strings.Selected else Strings.NotSelected
-        onClick(action = { onClick(); return@onClick true })
-    }) {
-        // TODO(b/150706555): This layout is temporary and should be removed once Semantics
-        //  is implemented with modifiers.
-        @Suppress("DEPRECATION")
-        PassThroughLayout(modifier.tapGestureFilter { onClick() }, children)
-    }
-}
 
 /**
  * Configure component to be selectable, usually as a part of a mutually exclusive group, where

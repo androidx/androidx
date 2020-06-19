@@ -25,9 +25,9 @@ import androidx.ui.core.AutofillAmbient
 import androidx.ui.core.AutofillTreeAmbient
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
-import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.toComposeRect
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
 import androidx.ui.input.ImeAction
@@ -106,8 +106,7 @@ private fun Autofill(
     val autofillTree = AutofillTreeAmbient.current
     autofillTree += autofillNode
 
-    @Suppress("DEPRECATION")
-    PassThroughLayout(onChildPositioned {
+    Box(Modifier.onChildPositioned {
         autofillNode.boundingBox = it.boundingBox().toComposeRect()
     }) {
         children(autofillNode)

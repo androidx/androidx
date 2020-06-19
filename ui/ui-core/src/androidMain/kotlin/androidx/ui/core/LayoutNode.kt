@@ -465,20 +465,7 @@ class LayoutNode : Measurable {
      * this features.
      */
     internal val zIndex: Float
-        get() {
-            @Suppress("DEPRECATION")
-            return if (useChildZIndex) {
-                // While some temporary components for adding semantics have to add
-                // PassThroughLayout it breaks zIndex calculation via adding extra layout layer.
-                // To workaround it we use the zIndex of the first child of PassThroughLayout
-                children.firstOrNull()?.zIndex ?: 0f
-            } else {
-                outerZIndexModifier?.zIndex ?: 0f
-            }
-        }
-
-    @Deprecated("To be removed when we remove PassThroughLayout")
-    internal var useChildZIndex = false
+        get() = outerZIndexModifier?.zIndex ?: 0f
 
     /**
      * The outermost ZIndexModifier in the modifier chain or `null` if there are no
@@ -583,12 +570,6 @@ class LayoutNode : Measurable {
             }
             owner?.onInvalidate(this)
         }
-
-    @Deprecated(
-        "Temporary API to support our transition from single child composables to modifiers."
-    )
-    // TODO(popam): remove this
-    var handlesParentData: Boolean = true
 
     /**
      * Coordinates of just the contents of the LayoutNode, after being affected by all modifiers.

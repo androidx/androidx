@@ -415,7 +415,6 @@ package androidx.ui.core {
     method @androidx.compose.Composable public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.MeasureResult> measureBlock);
     method public static androidx.ui.core.LayoutNode.MeasureBlocks MeasuringIntrinsicsMeasureBlocks(kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.MeasureResult> measureBlock);
     method @Deprecated @androidx.compose.Composable public static void MultiMeasureLayout(androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.MeasureResult> measureBlock);
-    method @Deprecated @androidx.compose.Composable public static void PassThroughLayout(androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method @androidx.compose.Composable public static void WithConstraints(androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.WithConstraintsScope,kotlin.Unit> children);
   }
 
@@ -437,7 +436,6 @@ package androidx.ui.core {
     method public java.util.List<androidx.ui.core.LayoutNode> getChildren();
     method public androidx.ui.core.LayoutCoordinates getCoordinates();
     method public int getDepth();
-    method @Deprecated public boolean getHandlesParentData();
     method public int getHeight();
     method public androidx.ui.core.LayoutNode.LayoutState getLayoutState();
     method public androidx.ui.core.LayoutNode.MeasureBlocks getMeasureBlocks();
@@ -468,7 +466,6 @@ package androidx.ui.core {
     method public void requestRemeasure();
     method @Deprecated public void setCanMultiMeasure(boolean p);
     method public void setDepth(int p);
-    method @Deprecated public void setHandlesParentData(boolean p);
     method public void setMeasureBlocks(androidx.ui.core.LayoutNode.MeasureBlocks value);
     method public void setModifier(androidx.ui.core.Modifier value);
     method public void setOnAttach(kotlin.jvm.functions.Function1<? super androidx.ui.core.Owner,kotlin.Unit>? p);
@@ -478,7 +475,6 @@ package androidx.ui.core {
     property public final java.util.List<androidx.ui.core.LayoutNode> children;
     property public final androidx.ui.core.LayoutCoordinates coordinates;
     property public final int depth;
-    property @Deprecated public final boolean handlesParentData;
     property public final int height;
     property public final boolean isPlaced;
     property public final androidx.ui.core.LayoutNode.LayoutState layoutState;
