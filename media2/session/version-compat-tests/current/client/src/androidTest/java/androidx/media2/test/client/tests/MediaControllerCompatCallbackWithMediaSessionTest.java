@@ -497,6 +497,8 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
 
     @Test
     public void currentMediaItemChange() throws Exception {
+        int testItemIndex = 3;
+        long testPosition = 1234;
         String displayTitle = "displayTitle";
         MediaMetadata metadata = new MediaMetadata.Builder()
                 .putText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, displayTitle).build();
@@ -505,30 +507,45 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
                 .build();
 
         List<MediaItem> playlist = MediaTestUtils.createFileMediaItems(5);
-        int testItemIndex = 3;
         playlist.set(testItemIndex, currentMediaItem);
         mSession.getMockPlayer().setPlaylistWithDummyItem(playlist);
 
         AtomicReference<MediaMetadataCompat> metadataRef = new AtomicReference<>();
-        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<PlaybackStateCompat> playbackStateRef = new AtomicReference<>();
+        CountDownLatch latchForMetadata = new CountDownLatch(1);
+        CountDownLatch latchForPlaybackState = new CountDownLatch(1);
         MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
             @Override
             public void onMetadataChanged(MediaMetadataCompat metadata) {
                 metadataRef.set(metadata);
-                latch.countDown();
+                latchForMetadata.countDown();
+            }
+
+            @Override
+            public void onPlaybackStateChanged(PlaybackStateCompat state) {
+                playbackStateRef.set(state);
+                latchForPlaybackState.countDown();
             }
         };
         mControllerCompat.registerCallback(callback, sHandler);
 
         mSession.getMockPlayer().setCurrentMediaItem(testItemIndex);
+        mSession.getMockPlayer().setCurrentPosition(testPosition);
         mSession.getMockPlayer().notifyCurrentMediaItemChanged(testItemIndex);
 
-        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latchForMetadata.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(displayTitle,
                 metadataRef.get().getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE));
         assertEquals(displayTitle,
                 mControllerCompat.getMetadata().getString(
                         MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE));
+        if (MediaTestUtils.isServiceToT()) {
+            // TODO(b/156594425): Move these assertions out of this condition once the
+            //  previous session is updated to have the fix of b/159147455.
+            assertTrue(latchForPlaybackState.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            assertEquals(testPosition, playbackStateRef.get().getPosition());
+            assertEquals(testPosition, mControllerCompat.getPlaybackState().getPosition());
+        }
     }
 
     @Test
