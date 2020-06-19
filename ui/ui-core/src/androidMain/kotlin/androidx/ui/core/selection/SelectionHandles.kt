@@ -26,6 +26,7 @@ import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.drawscope.DrawScope
+import androidx.ui.text.InternalTextApi
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -115,19 +116,20 @@ private fun HandleDrawLayout(
     }
 }
 
+/**
+ * @suppress
+ */
+@InternalTextApi
 @Composable
-internal fun SelectionHandle(
+fun SelectionHandle(
     modifier: Modifier,
-    selection: Selection?,
-    isStartHandle: Boolean
+    isStartHandle: Boolean,
+    directions: Pair<TextDirection, TextDirection>,
+    handlesCrossed: Boolean
 ) {
-    if (selection == null) {
-        return
-    }
-
     SelectionHandleLayout(
         modifier,
-        isLeft(isStartHandle, selection))
+        isLeft(isStartHandle, directions, handlesCrossed))
 }
 
 /**
@@ -135,12 +137,13 @@ internal fun SelectionHandle(
  */
 internal fun isLeft(
     isStartHandle: Boolean,
-    selection: Selection
+    directions: Pair<TextDirection, TextDirection>,
+    handlesCrossed: Boolean
 ): Boolean {
     if (isStartHandle) {
-        return isHandleLtrDirection(selection.start.direction, selection.handlesCrossed)
+        return isHandleLtrDirection(directions.first, handlesCrossed)
     } else {
-        return !isHandleLtrDirection(selection.end.direction, selection.handlesCrossed)
+        return !isHandleLtrDirection(directions.second, handlesCrossed)
     }
 }
 

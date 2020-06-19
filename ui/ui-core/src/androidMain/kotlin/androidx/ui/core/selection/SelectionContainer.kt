@@ -20,27 +20,15 @@ import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.remember
 import androidx.compose.state
-import androidx.ui.core.Alignment
 import androidx.ui.core.ClipboardManagerAmbient
-import androidx.ui.core.Constraints
 import androidx.ui.core.HapticFeedBackAmbient
-import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.Placeable
-import androidx.ui.core.Popup
 import androidx.ui.core.TextToolbarAmbient
-import androidx.ui.core.enforce
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.gesture.longPressDragGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.core.hasFixedHeight
-import androidx.ui.core.hasFixedWidth
 import androidx.ui.core.onPositioned
-import androidx.ui.unit.Dp
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.IntSize
-import kotlin.math.max
-import kotlin.math.roundToInt
+import androidx.ui.text.InternalTextApi
 
 /**
  * Default SelectionContainer to be used in order to make composables selectable by default.
@@ -61,6 +49,7 @@ internal fun SelectionContainer(children: @Composable () -> Unit) {
  * The selection composable wraps composables and let them to be selectable. It paints the selection
  * area with start and end handles.
  */
+@OptIn(InternalTextApi::class)
 @Composable
 fun SelectionContainer(
     /** Current Selection status.*/
@@ -92,131 +81,33 @@ fun SelectionContainer(
     Providers(SelectionRegistrarAmbient provides registrarImpl) {
         // Get the layout coordinates of the selection container. This is for hit test of
         // cross-composable selection.
-        Wrap(modifier) {
+        SelectionLayout(modifier) {
             children()
-            for (isStartHandle in listOf(true, false)) {
-                Handle(manager, isStartHandle) {
-                    SelectionHandle(
-                        Modifier.dragGestureFilter(manager.handleDragObserver(isStartHandle)),
-                        manager.selection,
-                        isStartHandle)
+            manager.selection?.let {
+                for (isStartHandle in listOf(true, false)) {
+                    SelectionHandleLayout(
+                        startHandlePosition = manager.startHandlePosition,
+                        endHandlePosition = manager.endHandlePosition,
+                        isStartHandle = isStartHandle,
+                        directions = Pair(it.start.direction, it.end.direction),
+                        handlesCrossed = it.handlesCrossed
+                    ) {
+                        SelectionHandle(
+                            modifier =
+                            Modifier.dragGestureFilter(manager.handleDragObserver(isStartHandle)),
+                            isStartHandle = isStartHandle,
+                            directions = Pair(it.start.direction, it.end.direction),
+                            handlesCrossed = it.handlesCrossed
+                        )
+                    }
                 }
+                SelectionFloatingToolBar(manager = manager)
             }
-            SelectionFloatingToolBar(manager = manager, selection = selection)
         }
     }
 }
 
 @Composable
-private fun SelectionFloatingToolBar(manager: SelectionManager, selection: Selection?) {
-    if (selection == null) return
+private fun SelectionFloatingToolBar(manager: SelectionManager) {
     manager.showSelectionToolbar()
-}
-
-@Composable
-private fun Handle(
-    manager: SelectionManager,
-    isStartHandle: Boolean,
-    handle: @Composable () -> Unit
-) {
-    val offset = if (isStartHandle) manager.startHandlePosition else manager.endHandlePosition
-    val selection = manager.selection
-    if (offset == null || selection == null) {
-        return
-    }
-
-    Wrap {
-        val left = isLeft(isStartHandle, selection)
-        val alignment = if (left) Alignment.TopEnd else Alignment.TopStart
-
-        Popup(
-            alignment = alignment,
-            offset = IntOffset(offset.x.roundToInt(), offset.y.roundToInt()),
-            children = handle
-        )
-    }
-}
-
-/**
- * Selection is transparent in terms of measurement and layout and passes the same constraints to
- * the children.
- */
-@Composable
-private fun Wrap(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
-    Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
-        val placeables = measurables.map { measurable ->
-            measurable.measure(constraints)
-        }
-
-        val width = placeables.fold(0) { maxWidth, placeable ->
-            max(maxWidth, (placeable.width))
-        }
-
-        val height = placeables.fold(0) { minWidth, placeable ->
-            max(minWidth, (placeable.height))
-        }
-
-        layout(width, height) {
-            placeables.forEach { placeable ->
-                placeable.placeAbsolute(0, 0)
-            }
-        }
-    }
-}
-
-/**
- * A Container Box implementation used for selection children and handle layout
- */
-@Composable
-internal fun SimpleContainer(
-    modifier: Modifier = Modifier,
-    width: Dp? = null,
-    height: Dp? = null,
-    children: @Composable () -> Unit
-) {
-    Layout(children, modifier) { measurables, incomingConstraints, _ ->
-        val containerConstraints = Constraints()
-            .copy(
-                width?.toIntPx() ?: 0,
-                width?.toIntPx() ?: Constraints.Infinity,
-                height?.toIntPx() ?: 0,
-                height?.toIntPx() ?: Constraints.Infinity
-            )
-            .enforce(incomingConstraints)
-        val childConstraints = containerConstraints.copy(minWidth = 0, minHeight = 0)
-        var placeable: Placeable? = null
-        val containerWidth = if (
-            containerConstraints.hasFixedWidth
-        ) {
-            containerConstraints.maxWidth
-        } else {
-            placeable = measurables.firstOrNull()?.measure(childConstraints)
-            max((placeable?.width ?: 0), containerConstraints.minWidth)
-        }
-        val containerHeight = if (
-            containerConstraints.hasFixedHeight
-        ) {
-            containerConstraints.maxHeight
-        } else {
-            if (placeable == null) {
-                placeable = measurables.firstOrNull()?.measure(childConstraints)
-            }
-            max((placeable?.height ?: 0), containerConstraints.minHeight)
-        }
-        layout(containerWidth, containerHeight) {
-            val p = placeable ?: measurables.firstOrNull()?.measure(childConstraints)
-            p?.let {
-                val position = Alignment.Center.align(
-                    IntSize(
-                        containerWidth - it.width,
-                        containerHeight - it.height
-                    )
-                )
-                it.place(
-                    position.x,
-                    position.y
-                )
-            }
-        }
-    }
 }

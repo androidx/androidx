@@ -26,6 +26,7 @@ import androidx.ui.core.test.waitAndScreenShot
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
+import androidx.ui.text.InternalTextApi
 import androidx.ui.text.style.TextDirection
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
@@ -38,6 +39,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
+@OptIn(InternalTextApi::class)
 class SelectionHandlesTest {
     @Suppress("DEPRECATION")
     @get:Rule
@@ -87,9 +89,15 @@ class SelectionHandlesTest {
     fun StartSelectionHandle_left_pointing() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                SelectionHandle(Modifier,
+                SelectionHandle(
+                    modifier = Modifier,
                     isStartHandle = true,
-                    selection = selectionLtrHandleDirection)
+                    directions = Pair(
+                        selectionLtrHandleDirection.start.direction,
+                        selectionLtrHandleDirection.end.direction
+                    ),
+                    handlesCrossed = selectionLtrHandleDirection.handlesCrossed
+                )
             }
         }
 
@@ -105,9 +113,15 @@ class SelectionHandlesTest {
     fun StartSelectionHandle_right_pointing() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                SelectionHandle(Modifier,
+                SelectionHandle(
+                    modifier = Modifier,
                     isStartHandle = true,
-                    selection = selectionRtlHandleDirection)
+                    directions = Pair(
+                        selectionRtlHandleDirection.start.direction,
+                        selectionRtlHandleDirection.end.direction
+                    ),
+                    handlesCrossed = selectionRtlHandleDirection.handlesCrossed
+                )
             }
         }
 
@@ -123,9 +137,15 @@ class SelectionHandlesTest {
     fun EndSelectionHandle_right_pointing() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                SelectionHandle(Modifier,
+                SelectionHandle(
+                    modifier = Modifier,
                     isStartHandle = false,
-                    selection = selectionLtrHandleDirection)
+                    directions = Pair(
+                        selectionLtrHandleDirection.start.direction,
+                        selectionLtrHandleDirection.end.direction
+                    ),
+                    handlesCrossed = selectionLtrHandleDirection.handlesCrossed
+                )
             }
         }
 
@@ -141,9 +161,15 @@ class SelectionHandlesTest {
     fun EndSelectionHandle_left_pointing() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                SelectionHandle(Modifier,
+                SelectionHandle(
+                    modifier = Modifier,
                     isStartHandle = false,
-                    selection = selectionRtlHandleDirection)
+                    directions = Pair(
+                        selectionRtlHandleDirection.start.direction,
+                        selectionRtlHandleDirection.end.direction
+                    ),
+                    handlesCrossed = selectionRtlHandleDirection.handlesCrossed
+                )
             }
         }
 
