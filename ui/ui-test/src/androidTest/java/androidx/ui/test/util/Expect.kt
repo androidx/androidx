@@ -16,39 +16,67 @@
 
 package androidx.ui.test.util
 
-import com.google.common.truth.Truth.assertWithMessage
 import java.io.PrintWriter
 import java.io.StringWriter
+import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
 /**
- * Runs the [block] and asserts that an [AssertionError] is thrown if [expectError] is `true`, or
- * that it is not thrown if [expectError] is `false`.
+ * Runs the [block] and asserts that a [AssertionError] is thrown with the [expectedMessage] if
+ * [expectError] is `true`, or that nothing is thrown if [expectError] is `false`. The
+ * [expectedMessage] is a regex with just the option [DOT_MATCHES_ALL] enabled.
  */
-fun expectAssertionError(expectError: Boolean, block: () -> Unit) {
-    expectError<AssertionError>(expectError, block)
+fun expectAssertionError(
+    expectError: Boolean,
+    expectedMessage: String = ".*",
+    block: () -> Unit
+) {
+    expectError<AssertionError>(expectError, expectedMessage, block)
 }
 
 /**
- * Runs the [block] and asserts that a [T] is thrown if [expectError] is `true`, or that it is
- * not thrown if [expectError] is `false`.
+ * Runs the [block] and asserts that a [T] is thrown with the [expectedMessage] if [expectError]
+ * is `true`, or that nothing is thrown if [expectError] is `false`. The [expectedMessage] is a
+ * regex with just the option [DOT_MATCHES_ALL] enabled.
  */
-inline fun <reified T : Throwable> expectError(expectError: Boolean = true, block: () -> Unit) {
-    var thrown = false
-    val errorClassName = T::class.java.simpleName
-    var errorMessage = "Expected a $errorClassName, got nothing"
+inline fun <reified T : Throwable> expectError(
+    expectError: Boolean = true,
+    expectedMessage: String = ".*",
+    block: () -> Unit
+) {
+    val expectClassName = T::class.java.simpleName
     try {
         block()
-    } catch (t: Throwable) {
-        if (t !is T) {
-            throw t
+    } catch (thrown: Throwable) {
+        val actualClassName = thrown.javaClass.simpleName
+        if (!expectError) {
+            throwExpectError("nothing", "a $actualClassName", thrown)
+        } else if (thrown !is T) {
+            throwExpectError("a $expectClassName", "a $actualClassName", thrown)
+        } else if (!expectedMessage.toRegex(DOT_MATCHES_ALL).matches(thrown.message ?: "")) {
+            throwExpectError(
+                "a $expectClassName with message \"$expectedMessage\"",
+                "a $actualClassName with message \"${thrown.message}\"",
+                thrown
+            )
         }
-        thrown = true
+        // Thrown error matched what was expected
+        return
+    }
+    if (expectError) {
+        // Nothing was thrown, but we did expect it
+        throwExpectError("a $expectClassName", "nothing")
+    }
+}
+
+@PublishedApi
+internal fun throwExpectError(expect: String, actual: String, throwable: Throwable? = null) {
+    val suffix = throwable?.let {
         StringWriter().use { sw ->
             PrintWriter(sw).use { pw ->
-                t.printStackTrace(pw)
+                it.printStackTrace(pw)
             }
-            errorMessage = "Expected no $errorClassName, got:\n==============\n$sw=============="
+            ":\n==============================\n$sw=============================="
         }
-    }
-    assertWithMessage(errorMessage).that(thrown).isEqualTo(expectError)
+    } ?: ""
+    throw AssertionError("Expected that $expect was thrown, but $actual was thrown$suffix")
 }
