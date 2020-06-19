@@ -66,7 +66,9 @@ fun Row(
     RowColumnImpl(
         orientation = LayoutOrientation.Horizontal,
         modifier = modifier,
-        arrangement = horizontalArrangement,
+        arrangement = { totalSize, size, layoutDirection ->
+            horizontalArrangement.arrange(totalSize, size, layoutDirection)
+        },
         crossAxisAlignment = CrossAxisAlignment.vertical(verticalGravity),
         crossAxisSize = SizeMode.Wrap,
         children = { RowScope.children() }

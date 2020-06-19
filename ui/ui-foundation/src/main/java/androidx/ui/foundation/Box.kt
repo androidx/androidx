@@ -128,11 +128,10 @@ private fun needsPadding(
 private fun Alignment.toColumnArrangement() = object : Arrangement.Vertical {
     override fun arrange(
         totalSize: Int,
-        size: List<Int>,
-        layoutDirection: LayoutDirection
+        size: List<Int>
     ): List<Int> {
         val usedSize = size.fold(0) { sum, current -> sum + current }
-        var y = align(IntSize(0, totalSize - usedSize), layoutDirection).y
+        var y = align(IntSize(0, totalSize - usedSize)).y
 
         val positions = mutableListOf<Int>()
         size.fastForEach { childSize ->

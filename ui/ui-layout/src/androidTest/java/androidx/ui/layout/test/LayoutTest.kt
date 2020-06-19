@@ -307,8 +307,7 @@ open class LayoutTest {
     internal val customVerticalArrangement = object : Arrangement.Vertical {
         override fun arrange(
             totalSize: Int,
-            size: List<Int>,
-            layoutDirection: LayoutDirection
+            size: List<Int>
         ): List<Int> {
             val positions = mutableListOf<Int>()
             var current = 0f
@@ -336,8 +335,8 @@ open class LayoutTest {
             val positions = mutableListOf<Int>()
             var current = 0f
             if (layoutDirection == LayoutDirection.Rtl) {
-                size.forEach {
-                    positions.add(current.roundToInt())
+                size.asReversed().forEach {
+                    positions.add(0, current.roundToInt())
                     current += it.toFloat()
                 }
             } else {
