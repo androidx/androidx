@@ -144,6 +144,92 @@ class FragmentResultTest {
     }
 
     @Test
+    fun testClearResultListenerInCallback() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+
+            val fragment1 = ClearResultFragment()
+
+            // set a result while no listener is available so it is stored in the fragment manager
+            fm.setFragmentResult("requestKey", Bundle())
+
+            // adding the fragment is going to execute and clear its listener.
+            withActivity {
+                fm.beginTransaction()
+                    .add(R.id.fragmentContainer, fragment1)
+                    .commitNow()
+            }
+
+            // lets set another listener with the same key as the original
+            fm.setFragmentResultListener("requestKey", fragment1,
+                FragmentResultListener { _, _ -> })
+
+            // do a replace to force the lifecycle back below STARTED
+            fm.beginTransaction()
+                .replace(R.id.fragmentContainer, StrictFragment())
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+
+            // store the result in the fragment manager since no listener is available
+            fm.setFragmentResult("requestKey", Bundle())
+
+            // pop the back stack to execute the new listener
+            withActivity {
+                fm.popBackStackImmediate()
+            }
+
+            assertWithMessage("the first listener should only be executed once")
+                .that(fragment1.callbackCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun testResetResultListener() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+
+            var firstListenerFired = false
+            var secondListenerFired = false
+
+            val fragment1 = StrictFragment()
+
+            // set a listener
+            fm.setFragmentResultListener("requestKey", fragment1,
+                FragmentResultListener { _, _ ->
+                    firstListenerFired = true
+                })
+
+            // lets set another listener before the first is fired
+            fm.setFragmentResultListener("requestKey", fragment1,
+                FragmentResultListener { _, _ ->
+                    secondListenerFired = true
+                })
+
+            // set a result while no listener is available so it is stored in the fragment manager
+            fm.setFragmentResult("requestKey", Bundle())
+
+            // adding the fragment is going to execute the listener's callback
+            withActivity {
+                fm.beginTransaction()
+                    .add(R.id.fragmentContainer, fragment1)
+                    .commitNow()
+            }
+
+            assertWithMessage("the first listener should never be executed")
+                .that(firstListenerFired).isFalse()
+            assertWithMessage("the second listener should have be executed")
+                .that(secondListenerFired).isTrue()
+        }
+    }
+
+    @Test
     fun testSetResultWhileResumed() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
@@ -290,6 +376,20 @@ class ResultFragment : StrictFragment() {
 
         parentFragmentManager.setFragmentResultListener("requestKey", this, FragmentResultListener
         { _, bundle -> actualResult = bundle.getString("bundleKey") })
+    }
+}
+
+class ClearResultFragment : StrictFragment() {
+    var callbackCount = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        parentFragmentManager.setFragmentResultListener("requestKey", this,
+            FragmentResultListener { _, _ ->
+                callbackCount++
+                parentFragmentManager.clearFragmentResultListener("requestKey")
+            })
     }
 }
 

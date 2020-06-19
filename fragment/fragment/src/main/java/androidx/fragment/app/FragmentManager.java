@@ -210,11 +210,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
     private static class LifecycleAwareResultListener implements FragmentResultListener {
         private final Lifecycle mLifecycle;
         private final FragmentResultListener mListener;
+        private final LifecycleEventObserver mObserver;
 
         LifecycleAwareResultListener(@NonNull Lifecycle lifecycle,
-                @NonNull FragmentResultListener listener) {
+                @NonNull FragmentResultListener listener,
+                @NonNull LifecycleEventObserver observer) {
             mLifecycle = lifecycle;
             mListener = listener;
+            mObserver = observer;
         }
 
         public boolean isAtLeast(Lifecycle.State state) {
@@ -224,6 +227,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
         @Override
         public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
             mListener.onFragmentResult(requestKey, result);
+        }
+
+        public void removeObserver() {
+            mLifecycle.removeObserver(mObserver);
         }
     }
 
@@ -871,12 +878,19 @@ public abstract class FragmentManager implements FragmentResultOwner {
             }
         };
         lifecycle.addObserver(observer);
-        mResultListeners.put(requestKey, new LifecycleAwareResultListener(lifecycle, listener));
+        LifecycleAwareResultListener storedListener = mResultListeners.put(requestKey,
+                new LifecycleAwareResultListener(lifecycle, listener, observer));
+        if (storedListener != null) {
+            storedListener.removeObserver();
+        }
     }
 
     @Override
     public final void clearFragmentResultListener(@NonNull String requestKey) {
-        mResultListeners.remove(requestKey);
+        LifecycleAwareResultListener listener = mResultListeners.remove(requestKey);
+        if (listener != null) {
+            listener.removeObserver();
+        }
     }
 
     /**
