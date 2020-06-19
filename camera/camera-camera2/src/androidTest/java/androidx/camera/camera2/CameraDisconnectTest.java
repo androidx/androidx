@@ -20,7 +20,6 @@ package androidx.camera.camera2;
 import static androidx.camera.testing.CoreAppTestUtil.clearDeviceUI;
 
 import static org.junit.Assume.assumeNotNull;
-import static org.junit.Assume.assumeTrue;
 
 import android.app.Instrumentation;
 import android.content.Context;
@@ -41,12 +40,13 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
@@ -55,9 +55,9 @@ import java.util.concurrent.ExecutionException;
 @LargeTest
 public class CameraDisconnectTest {
 
-    @Rule
-    public GrantPermissionRule mCameraPermissionRule =
-            GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
+    @ClassRule
+    public static TestRule sCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+
     @Rule
     public ActivityTestRule<CameraXTestActivity> mCameraXTestActivityRule =
             new ActivityTestRule<>(CameraXTestActivity.class, true, false);
@@ -70,7 +70,6 @@ public class CameraDisconnectTest {
 
     @Before
     public void setUp() {
-        assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
 
         Context context = ApplicationProvider.getApplicationContext();

@@ -19,7 +19,6 @@ package androidx.camera.camera2;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doAnswer;
@@ -88,8 +87,10 @@ import androidx.test.rule.GrantPermissionRule;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
@@ -113,9 +114,12 @@ import java.util.concurrent.TimeUnit;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageCaptureTest {
+    @ClassRule
+    public static TestRule sCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
     private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
@@ -147,8 +151,6 @@ public final class ImageCaptureTest {
     @Before
     @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void setUp() throws ExecutionException, InterruptedException {
-        assumeTrue(CameraUtil.deviceHasCamera());
-
         createDefaultPictureFolderIfNotExist();
         Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();

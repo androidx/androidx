@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 
-import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -32,7 +31,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import android.Manifest;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -66,15 +64,15 @@ import androidx.camera.testing.CameraUtil;
 import androidx.core.os.HandlerCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.AssumptionViolatedException;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -107,14 +105,12 @@ public final class CaptureSessionTest {
 
     private final List<CaptureSession> mCaptureSessions = new ArrayList<>();
 
-    @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    @ClassRule
+    public static TestRule sUseCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
 
     @Before
     public void setup() throws CameraAccessException, InterruptedException,
             AssumptionViolatedException, TimeoutException, ExecutionException {
-        assumeTrue(CameraUtil.deviceHasCamera());
         mTestParameters0 = new CaptureSessionTestParameters("mTestParameters0");
         mTestParameters1 = new CaptureSessionTestParameters("mTestParameters1");
         mCameraDeviceHolder = CameraUtil.getCameraDevice();

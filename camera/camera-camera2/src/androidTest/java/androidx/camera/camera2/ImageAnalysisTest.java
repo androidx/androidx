@@ -18,9 +18,6 @@ package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assume.assumeTrue;
-
-import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.os.Handler;
@@ -48,12 +45,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.HashSet;
@@ -78,13 +75,11 @@ public final class ImageAnalysisTest {
     private CameraSelector mCameraSelector;
     private FakeLifecycleOwner mLifecycleOwner;
 
-    @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    @ClassRule
+    public static TestRule sCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
 
     @Before
     public void setUp() {
-        assumeTrue(CameraUtil.deviceHasCamera());
         synchronized (mAnalysisResultLock) {
             mAnalysisResults = new HashSet<>();
         }
