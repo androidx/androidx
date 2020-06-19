@@ -1828,6 +1828,9 @@ package androidx.ui.core.selection {
   public final class SelectionHandlesKt {
   }
 
+  public final class SelectionLayoutKt {
+  }
+
   public final class SelectionManagerKt {
   }
 
