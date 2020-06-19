@@ -892,12 +892,19 @@ package androidx.ui.text.platform {
   }
 
   public final class AndroidParagraphIntrinsicsKt {
+    method @Deprecated public static kotlin.jvm.functions.Function6<java.lang.String,androidx.ui.text.TextStyle,java.util.List<androidx.ui.text.AnnotatedString.Range<androidx.ui.text.SpanStyle>>,java.util.List<androidx.ui.text.AnnotatedString.Range<androidx.ui.text.Placeholder>>,androidx.ui.unit.Density,androidx.ui.text.font.Font.ResourceLoader,androidx.ui.text.ParagraphIntrinsics> getParagraphIntrinsicsActualFactory();
+    method @Deprecated public static void setParagraphIntrinsicsActualFactory(kotlin.jvm.functions.Function6<? super java.lang.String,? super androidx.ui.text.TextStyle,? super java.util.List<androidx.ui.text.AnnotatedString.Range<androidx.ui.text.SpanStyle>>,? super java.util.List<androidx.ui.text.AnnotatedString.Range<androidx.ui.text.Placeholder>>,? super androidx.ui.unit.Density,? super androidx.ui.text.font.Font.ResourceLoader,? extends androidx.ui.text.ParagraphIntrinsics> p);
   }
 
   public final class AndroidParagraphKt {
+    method @Deprecated public static kotlin.jvm.functions.Function4<androidx.ui.text.ParagraphIntrinsics,java.lang.Integer,java.lang.Boolean,androidx.ui.text.ParagraphConstraints,androidx.ui.text.Paragraph> getParagraphActualFactory();
+    method @Deprecated public static void setParagraphActualFactory(kotlin.jvm.functions.Function4<? super androidx.ui.text.ParagraphIntrinsics,? super java.lang.Integer,? super java.lang.Boolean,? super androidx.ui.text.ParagraphConstraints,? extends androidx.ui.text.Paragraph> p);
   }
 
   public final class AndroidStringDelegateKt {
+  }
+
+  @kotlin.RequiresOptIn(message="This API is internal to library.") @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY}) public @interface InternalTextApi {
   }
 
   public final class TypefaceAdapterKt {

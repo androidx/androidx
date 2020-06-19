@@ -82,14 +82,21 @@ internal class AndroidParagraphIntrinsics(
     }
 }
 
-internal actual fun ActualParagraphIntrinsics(
+// TODO(b/159152328): temporary workaround for ui-desktop. remove when full support of MPP will be in-place
+@Deprecated(
+    "Temporary workaround. Supposed to be used only in ui-desktop before MPP",
+    level = DeprecationLevel.ERROR
+)
+@InternalPlatformTextApi
+var paragraphIntrinsicsActualFactory: ((
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
     resourceLoader: Font.ResourceLoader
-): ParagraphIntrinsics = AndroidParagraphIntrinsics(
+) -> ParagraphIntrinsics) = { text, style, spanStyles, placeholders, density, resourceLoader ->
+    AndroidParagraphIntrinsics(
         text = text,
         style = style,
         placeholders = placeholders,
@@ -98,4 +105,19 @@ internal actual fun ActualParagraphIntrinsics(
         ),
         spanStyles = spanStyles,
         density = density
+    )
+}
+
+@OptIn(InternalPlatformTextApi::class)
+internal actual fun ActualParagraphIntrinsics(
+    text: String,
+    style: TextStyle,
+    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
+    density: Density,
+    resourceLoader: Font.ResourceLoader
+): ParagraphIntrinsics =
+    @Suppress("DEPRECATION_ERROR")
+    paragraphIntrinsicsActualFactory(
+        text, style, spanStyles, placeholders, density, resourceLoader
     )
