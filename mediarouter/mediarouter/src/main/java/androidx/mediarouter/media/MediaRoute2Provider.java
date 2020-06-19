@@ -176,6 +176,16 @@ class MediaRoute2Provider extends MediaRouteProvider {
                 MediaRouter2Utils.KEY_MESSENGER);
     }
 
+    @Nullable
+    static String getSessionIdForRouteController(@Nullable RouteController controller) {
+        if (!(controller instanceof DynamicMediaRoute2Controller)) {
+            return null;
+        }
+        MediaRouter2.RoutingController routingController =
+                ((DynamicMediaRoute2Controller) controller).mRoutingController;
+        return (routingController == null) ? null : routingController.getId();
+    }
+
     private class RouteCallback extends MediaRouter2.RouteCallback {
         RouteCallback() {}
 
