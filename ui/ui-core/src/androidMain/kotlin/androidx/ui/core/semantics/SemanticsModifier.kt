@@ -32,13 +32,6 @@ interface SemanticsModifier : Modifier.Element {
     val id: Int
 
     /**
-     * If true, then the semantics modifier applies to the first layout node below it in the tree,
-     * not the composable the modifier is applied to.  This is for use by legacy non-modifier-style
-     * semantics and is planned to be removed (with the behavior 'false' made universal).
-     */
-    val applyToChildLayoutNode: Boolean
-
-    /**
      * The SemanticsConfiguration holds substantive data, especially a list of key/value pairs
      * such as (label -> "buttonName").
      */
@@ -47,7 +40,6 @@ interface SemanticsModifier : Modifier.Element {
 
 internal class SemanticsModifierCore(
     override val id: Int,
-    override val applyToChildLayoutNode: Boolean,
     mergeAllDescendants: Boolean,
     properties: (SemanticsPropertyReceiver.() -> Unit)?
 ) : SemanticsModifier {
@@ -62,20 +54,15 @@ internal class SemanticsModifierCore(
 /**
  * Add semantics key/value for use in testing, accessibility, and similar use cases.
  *
- * @param applyToChildLayoutNode If true, then the semantics modifier applies to the first layout
- * node below it in the tree, not the composable the modifier is applied to.  This is for use by
- * legacy non-modifier-style semantics and is planned to be removed (with the behavior 'false'
- * made universal).
  * @param mergeAllDescendants Whether the semantic information provided by the owning component and
  * all of its descendants should be treated as one logical entity.
  * @param properties properties to add to the semantics. [SemanticsPropertyReceiver] will be
  * provided in the scope to allow access for common properties and its values.
  */
 fun Modifier.semantics(
-    applyToChildLayoutNode: Boolean = false,
     mergeAllDescendants: Boolean = false,
     properties: (SemanticsPropertyReceiver.() -> Unit)? = null
 ): Modifier = composed {
     val id = remember { SemanticsNode.generateNewId() }
-    SemanticsModifierCore(id, applyToChildLayoutNode, mergeAllDescendants, properties)
+    SemanticsModifierCore(id, mergeAllDescendants, properties)
 }

@@ -29,7 +29,6 @@ import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
-import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.drawBehind
 import androidx.ui.core.gesture.DragObserver
@@ -211,23 +210,11 @@ fun CoreTextField(
         )
 
         // TODO: Stop lookup FocusModifier from modifier chain. (b/155434146)
-        var focusModifier: FocusModifier? = null
-        modifier.foldIn(Unit) { _, element ->
-            if (element is FocusModifier) {
-                focusModifier = element
-                return@foldIn
-            }
-        }
-
-        val updatedModifier = if (focusModifier == null) {
-            modifier + FocusModifier().also { focusModifier = it }
-        } else {
-            modifier
-        }
+        val focusModifier = chainedFocusModifier(modifier) ?: FocusModifier()
 
         state.processor.onNewState(value, textInputService, state.inputSession)
-        TextInputEventObserver(
-            focusModifier = focusModifier!!,
+        val observer = textInputEventObserver(
+            focusModifier = focusModifier,
             onPress = { },
             onFocus = {
                 state.hasFocus = true
@@ -292,58 +279,66 @@ fun CoreTextField(
                 }
             },
             imeAction = imeAction
-        ) {
-            Layout(
-                emptyContent(),
-                updatedModifier.drawBehind {
-                    state.layoutResult?.let { layoutResult ->
-                        drawCanvas { canvas, _ ->
-                            TextFieldDelegate.draw(
-                                canvas,
-                                value,
-                                offsetMap,
-                                layoutResult,
-                                DefaultSelectionColor
-                            )
-                        }
-                    }
-                }.onPositioned {
-                    if (textInputService != null) {
-                        state.layoutCoordinates = it
-                        state.layoutResult?.let { layoutResult ->
-                            TextFieldDelegate.notifyFocusedRect(
-                                value,
-                                state.textDelegate,
-                                layoutResult,
-                                it,
-                                textInputService,
-                                state.inputSession,
-                                state.hasFocus,
-                                offsetMap
-                            )
-                        }
-                    }
+        )
+
+        val drawModifier = Modifier.drawBehind {
+            state.layoutResult?.let { layoutResult ->
+                drawCanvas { canvas, _ ->
+                    TextFieldDelegate.draw(
+                        canvas,
+                        value,
+                        offsetMap,
+                        layoutResult,
+                        DefaultSelectionColor
+                    )
                 }
-            ) { _, constraints, layoutDirection ->
-                TextFieldDelegate.layout(
-                    state.textDelegate,
-                    constraints,
-                    layoutDirection,
-                    state.layoutResult
-                ).let { (width, height, result) ->
-                    if (state.layoutResult != result) {
-                        state.layoutResult = result
-                        onTextLayout(result)
-                    }
-                    layout(
-                        width,
-                        height,
-                        mapOf(
-                            FirstBaseline to result.firstBaseline.roundToInt(),
-                            LastBaseline to result.lastBaseline.roundToInt()
-                        )
-                    ) {}
+            }
+        }
+
+        val onPositionedModifier = Modifier.onPositioned {
+            if (textInputService != null) {
+                state.layoutCoordinates = it
+                state.layoutResult?.let { layoutResult ->
+                    TextFieldDelegate.notifyFocusedRect(
+                        value,
+                        state.textDelegate,
+                        layoutResult,
+                        it,
+                        textInputService,
+                        state.inputSession,
+                        state.hasFocus,
+                        offsetMap
+                    )
                 }
+            }
+        }
+
+        Layout(
+            emptyContent(),
+            modifier
+                .plus(observer)
+                .plus(focusModifier)
+                .plus(drawModifier)
+                .plus(onPositionedModifier)
+        ) { _, constraints, layoutDirection ->
+            TextFieldDelegate.layout(
+                state.textDelegate,
+                constraints,
+                layoutDirection,
+                state.layoutResult
+            ).let { (width, height, result) ->
+                if (state.layoutResult != result) {
+                    state.layoutResult = result
+                    onTextLayout(result)
+                }
+                layout(
+                    width,
+                    height,
+                    mapOf(
+                        FirstBaseline to result.firstBaseline.roundToInt(),
+                        LastBaseline to result.lastBaseline.roundToInt()
+                    )
+                ) {}
             }
         }
     }
@@ -366,19 +361,29 @@ private class TextFieldState(
     var layoutResult: TextLayoutResult? = null
 }
 
+private fun chainedFocusModifier(modifier: Modifier): FocusModifier? {
+    var focusModifier: FocusModifier? = null
+    modifier.foldIn(Unit) { _, element ->
+        if (element is FocusModifier) {
+            focusModifier = element
+            return@foldIn
+        }
+    }
+    return focusModifier
+}
+
 /**
  * Helper composable for observing all text input related events.
  */
 @Composable
-private fun TextInputEventObserver(
+private fun textInputEventObserver(
     onPress: (Offset) -> Unit,
     onRelease: (Offset) -> Unit,
     onFocus: () -> Unit,
     onBlur: (hasNextClient: Boolean) -> Unit,
     focusModifier: FocusModifier,
-    imeAction: ImeAction,
-    children: @Composable () -> Unit
-) {
+    imeAction: ImeAction
+): Modifier {
     val prevState = state { FocusState.NotFocused }
     if (focusModifier.focusState == FocusState.Focused &&
         prevState.value == FocusState.NotFocused
@@ -404,8 +409,7 @@ private fun TextInputEventObserver(
         onBlur(false)
     }
 
-    val semantics = Modifier.semantics(applyToChildLayoutNode = true,
-        mergeAllDescendants = true,
+    val semantics = Modifier.semantics(mergeAllDescendants = true,
         properties = {
             this.imeAction = imeAction
             this.supportsInputMethods = true
@@ -422,13 +426,7 @@ private fun TextInputEventObserver(
         onRelease = onRelease
     )
 
-    // TODO(b/150706555): This layout is temporary and should be removed once Semantics
-    //  is implemented with modifiers.
-    @Suppress("DEPRECATION")
-    PassThroughLayout(semantics) {
-        @Suppress("DEPRECATION")
-        PassThroughLayout(drag, children)
-    }
+    return semantics.plus(drag)
 }
 
 /**

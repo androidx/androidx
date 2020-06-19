@@ -16,25 +16,10 @@
 
 package androidx.ui.core
 
-import androidx.compose.Composable
 import androidx.compose.Stable
 import androidx.ui.core.semantics.semantics
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.testTag
-
-/**
- * Applies a tag to allow this element to be found in tests.
- *
- * This is a convenience method for a [Semantics] that sets [SemanticsPropertyReceiver.testTag].
- */
-@Composable
-@Deprecated(message = "Use Modifier.testTag instead.")
-fun TestTag(tag: String, children: @Composable () -> Unit) {
-    @Suppress("DEPRECATION")
-    PassThroughLayout(
-        Modifier.semantics(applyToChildLayoutNode = true, properties = { testTag = tag }),
-        children)
-}
 
 /**
  * Applies a tag to allow modified element to be found in tests.
