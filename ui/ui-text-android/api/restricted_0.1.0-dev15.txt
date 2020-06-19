@@ -7,6 +7,9 @@ package androidx.ui.text.platform {
   public final class LayoutCompatKt {
   }
 
+  public final class LayoutHelperKt {
+  }
+
   public final class LayoutIntrinsicsKt {
   }
 
