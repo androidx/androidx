@@ -87,7 +87,7 @@ class WorkerGeneratorTest {
 
             @Override
             @NonNull
-            public MyWorker create(@NonNull Context arg0, @NonNull WorkerParameters arg1) {
+            public MyWorker create(Context arg0, WorkerParameters arg1) {
                 return new MyWorker(arg0, arg1, s.get(), f.get(), l.get());
             }
         }
