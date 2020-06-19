@@ -22,11 +22,17 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.StreamConfigurationMap
+import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
+import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.camera2.pipe.RequestNumber
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.ResultMetadata
+import androidx.camera.camera2.pipe.SequenceNumber
+import androidx.camera.camera2.pipe.StreamId
 
 /**
  * Utility class for interacting with objects that require pre-populated Metadata.
@@ -44,8 +50,6 @@ open class FakeMetadata(metadata: Map<Metadata.Key<*>, Any?> = emptyMap()) : Met
         val value = values[key]
         return if (value == null) default else value as T
     }
-
-    override fun <T> getChecked(key: Metadata.Key<T>): T = (values[key] as T)!!
 }
 
 /**
@@ -59,12 +63,9 @@ class FakeCameraMetadata(
     private val values = characteristics.toMap()
 
     override fun <T> get(key: CameraCharacteristics.Key<T>): T? = values[key] as T?
-    override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
-        val value = values[key]
-        return if (value == null) default else value as T
-    }
+    override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T =
+        get(key) ?: default
 
-    override fun <T> getChecked(key: CameraCharacteristics.Key<T>): T = (values[key] as T)!!
     override val camera = CameraId("Fake")
     override val isRedacted = false
     override val keys: Set<CameraCharacteristics.Key<*>> = emptySet()
@@ -78,7 +79,8 @@ class FakeCameraMetadata(
 
     override fun unwrap(): CameraCharacteristics? {
         throw UnsupportedOperationException(
-            "FakeCameraMetadata does not wrap CameraCharacteristics")
+            "FakeCameraMetadata does not wrap CameraCharacteristics"
+        )
     }
 }
 
@@ -86,21 +88,22 @@ class FakeCameraMetadata(
  * Utility class for interacting with objects require specific [CaptureRequest] metadata
  */
 class FakeRequestMetadata(
-    request: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
-    metadata: Map<Metadata.Key<*>, Any?> = emptyMap()
-) : FakeMetadata(metadata), RequestMetadata {
-    private val values = request.toMap()
+    private val requestParameters: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
+    extraRequestParameters: Map<Metadata.Key<*>, Any?> = emptyMap(),
+    override val template: RequestTemplate = RequestTemplate(0),
+    override val streams: Map<Surface, StreamId> = mapOf(),
+    override val request: Request = Request(listOf()),
+    override val requestNumber: RequestNumber = RequestNumber(4321),
+    override val sequenceNumber: SequenceNumber = SequenceNumber(1234)
+) : FakeMetadata(request.extraRequestParameters.plus(extraRequestParameters)), RequestMetadata {
 
-    override fun <T> get(key: CaptureRequest.Key<T>): T? = values[key] as T?
-    override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T {
-        val value = values[key]
-        return if (value == null) default else value as T
-    }
+    override fun <T> get(key: CaptureRequest.Key<T>): T? = requestParameters[key] as T?
+    override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
 
-    override fun <T> getChecked(key: CaptureRequest.Key<T>): T = (values[key] as T)!!
     override fun unwrap(): CaptureRequest? {
         throw UnsupportedOperationException(
-            "FakeCameraMetadata does not wrap CameraCharacteristics")
+            "FakeCameraMetadata does not wrap a real CaptureRequest"
+        )
     }
 }
 
@@ -108,24 +111,18 @@ class FakeRequestMetadata(
  * Utility class for interacting with objects require specific [CaptureResult] metadata
  */
 class FakeResultMetadata(
-    override val request: RequestMetadata,
-    override val camera: CameraId = CameraId("Fake"),
-    result: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
-    metadata: Map<Metadata.Key<*>, Any?> = emptyMap()
-) : FakeMetadata(metadata), ResultMetadata {
+    private val resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
+    extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
+    override val requestMetadata: RequestMetadata = FakeRequestMetadata(),
+    override val camera: CameraId = CameraId("Fake")
+) : FakeMetadata(extraResultMetadata), ResultMetadata {
 
-    private val values = result.toMap()
-
-    override fun <T> get(key: CaptureResult.Key<T>): T? = values[key] as T?
-    override fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T {
-        val value = values[key]
-        return if (value == null) default else value as T
-    }
-
-    override fun <T> getChecked(key: CaptureResult.Key<T>): T = (values[key] as T)!!
+    override fun <T> get(key: CaptureResult.Key<T>): T? = resultMetadata[key] as T?
+    override fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T = get(key) ?: default
 
     override fun unwrap(): CaptureResult? {
         throw UnsupportedOperationException(
-            "FakeCameraMetadata does not wrap CameraCharacteristics")
+            "FakeCameraMetadata does not wrap a real CaptureResult"
+        )
     }
 }

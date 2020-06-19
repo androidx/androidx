@@ -40,7 +40,11 @@ class CameraGraphImplTest {
 
     @Before
     fun setUp() {
-        val config = CameraGraph.Config(CameraId("0"), listOf())
+        val config = CameraGraph.Config(
+            camera = CameraId("0"),
+            streams = listOf(),
+            defaultTemplate = 0
+        )
         val context = ApplicationProvider.getApplicationContext() as Context
         impl = CameraGraphImpl(context, config)
     }
