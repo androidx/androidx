@@ -21,7 +21,7 @@ import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
 import androidx.animation.TargetAnimation
-import androidx.animation.TweenBuilder
+import androidx.animation.TweenSpec
 import androidx.annotation.IntRange
 import androidx.compose.Composable
 import androidx.compose.remember
@@ -469,4 +469,4 @@ private val DefaultSliderConstraints =
 // Internal to be referred to in tests
 internal val InactiveTrackColorAlpha = 0.24f
 private val TickColorAlpha = 0.54f
-private val SliderToTickAnimation = TweenBuilder<Float>().apply { duration = 100 }
+private val SliderToTickAnimation = TweenSpec<Float>(durationMillis = 100)

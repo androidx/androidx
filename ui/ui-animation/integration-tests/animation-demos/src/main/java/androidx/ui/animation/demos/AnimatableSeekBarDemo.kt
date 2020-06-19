@@ -19,8 +19,9 @@ package androidx.ui.animation.demos
 import androidx.animation.FastOutSlowInEasing
 import androidx.animation.FloatPropKey
 import androidx.animation.ManualAnimationClock
-import androidx.animation.TweenBuilder
+import androidx.animation.TweenSpec
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.remember
@@ -104,10 +105,7 @@ fun MovingTargetExample(clock: ManualAnimationClock) {
     }
 
     val onPress: (Offset) -> Unit = { position ->
-        animValue.animateTo(position.x,
-            TweenBuilder<Float>().apply {
-                duration = 400
-            })
+        animValue.animateTo(position.x, TweenSpec(durationMillis = 400))
     }
 
     DrawSeekBar(
@@ -169,21 +167,21 @@ private val transDef = transitionDefinition {
     }
 
     transition {
-        alphaKey using tween {
-            easing = FastOutSlowInEasing
-            duration = 400
-        }
-        offset1 using tween {
-            easing = FastOutSlowInEasing
-            duration = 400
-        }
-        offset2 using tween {
-            easing = FastOutSlowInEasing
-            duration = 400
-        }
-        offset3 using tween {
-            easing = FastOutSlowInEasing
-            duration = 400
-        }
+        alphaKey using tween(
+            easing = FastOutSlowInEasing,
+            durationMillis = 400
+        )
+        offset1 using tween(
+            easing = FastOutSlowInEasing,
+            durationMillis = 400
+        )
+        offset2 using tween(
+            easing = FastOutSlowInEasing,
+            durationMillis = 400
+        )
+        offset3 using tween(
+            easing = FastOutSlowInEasing,
+            durationMillis = 400
+        )
     }
 }

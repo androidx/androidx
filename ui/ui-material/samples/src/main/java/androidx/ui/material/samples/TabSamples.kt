@@ -16,6 +16,7 @@
 
 package androidx.ui.material.samples
 
+import androidx.animation.spring
 import androidx.animation.transitionDefinition
 import androidx.annotation.Sampled
 import androidx.compose.Composable
@@ -310,14 +311,14 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
                                 // moving to the left, we want the left side to move faster.
                                 val startStiffness = if (from < to) 50f else 1000f
                                 val endStiffness = if (from < to) 1000f else 50f
-                                indicatorStart using physics {
-                                    dampingRatio = 1f
+                                indicatorStart using spring(
+                                    dampingRatio = 1f,
                                     stiffness = startStiffness
-                                }
-                                indicatorEnd using physics {
-                                    dampingRatio = 1f
+                                )
+                                indicatorEnd using spring(
+                                    dampingRatio = 1f,
                                     stiffness = endStiffness
-                                }
+                                )
                             }
                         }
                     }

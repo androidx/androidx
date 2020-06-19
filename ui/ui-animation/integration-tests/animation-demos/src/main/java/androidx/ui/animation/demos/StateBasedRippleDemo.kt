@@ -21,7 +21,9 @@ import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
 import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
+import androidx.animation.keyframes
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
@@ -113,22 +115,18 @@ private fun createTransDef(targetRadius: Float): TransitionDefinition<ButtonStat
         // Grow the ripple
         transition(ButtonStatus.Initial to ButtonStatus.Pressed) {
             alpha using keyframes {
-                duration = 225
+                durationMillis = 225
                 0f at 0 // optional
                 0.2f at 75
                 0.2f at 225 // optional
             }
-            radius using tween {
-                duration = 225
-            }
+            radius using tween(durationMillis = 225)
             interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE
         }
 
         // Fade out the ripple
         transition(ButtonStatus.Pressed to ButtonStatus.Released) {
-            alpha using tween {
-                duration = 200
-            }
+            alpha using tween(durationMillis = 200)
             interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE
             // switch back to Initial to prepare for the next ripple cycle
             nextState = ButtonStatus.Initial

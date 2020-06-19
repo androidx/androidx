@@ -16,8 +16,9 @@
 
 package androidx.ui.material
 
+import androidx.animation.VectorizedAnimationSpec
 import androidx.animation.FastOutSlowInEasing
-import androidx.animation.TweenBuilder
+import androidx.animation.TweenSpec
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.compose.Providers
@@ -48,7 +49,6 @@ import androidx.ui.text.LastBaseline
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.unit.max
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -181,7 +181,7 @@ private fun BottomNavigationTransition(
 ) {
     val animationProgress = animate(
         target = if (selected) 1f else 0f,
-        animBuilder = BottomNavigationAnimationBuilder
+        animSpec = BottomNavigationAnimationSpec
     )
 
     val color = lerp(inactiveColor, activeColor, animationProgress)
@@ -321,13 +321,13 @@ private fun MeasureScope.placeTextAndIcon(
 }
 
 /**
- * [AnimationBuilder] controlling the transition between unselected and selected
+ * [VectorizedAnimationSpec] controlling the transition between unselected and selected
  * [BottomNavigationItem]s.
  */
-private val BottomNavigationAnimationBuilder = TweenBuilder<Float>().apply {
-    duration = 300
+private val BottomNavigationAnimationSpec = TweenSpec<Float>(
+    durationMillis = 300,
     easing = FastOutSlowInEasing
-}
+)
 
 /**
  * Height of a [BottomNavigation] component

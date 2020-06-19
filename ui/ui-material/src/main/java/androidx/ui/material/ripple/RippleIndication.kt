@@ -16,10 +16,10 @@
 
 package androidx.ui.material.ripple
 
-import androidx.animation.AnimationBuilder
 import androidx.animation.AnimationClockObservable
+import androidx.animation.AnimationSpec
 import androidx.animation.LinearEasing
-import androidx.animation.TweenBuilder
+import androidx.animation.TweenSpec
 import androidx.compose.Composable
 import androidx.compose.Stable
 import androidx.compose.State
@@ -31,18 +31,18 @@ import androidx.ui.animation.AnimatedFloatModel
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.ContentDrawScope
-import androidx.ui.foundation.IndicationInstance
 import androidx.ui.foundation.Indication
+import androidx.ui.foundation.IndicationInstance
 import androidx.ui.foundation.Interaction
 import androidx.ui.foundation.InteractionState
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.graphics.useOrElse
 import androidx.ui.material.MaterialTheme
 import androidx.ui.unit.Dp
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
 import androidx.ui.util.fastForEach
 
 /**
@@ -243,10 +243,10 @@ private class StateLayer(
             val targetOpacity = rippleOpacity.opacityForInteraction(interaction)
             if (targetOpacity == 0f) continue
 
-            val animationBuilder = animationBuilderForInteraction(interaction)
+            val animationSpec = animationSpecForInteraction(interaction)
             animatedOpacity.animateTo(
                 targetOpacity,
-                animationBuilder
+                animationSpec
             )
 
             lastDrawnInteraction = interaction
@@ -259,7 +259,7 @@ private class StateLayer(
             if (previousInteraction != null && previousInteraction !in currentInteractions) {
                 animatedOpacity.animateTo(
                     0f,
-                    animationBuilderForInteraction(previousInteraction)
+                    animationSpecForInteraction(previousInteraction)
                 )
 
                 lastDrawnInteraction = null
@@ -287,10 +287,12 @@ private class StateLayer(
      * TODO: handle [interaction] for hover / focus states
      */
     @Suppress("UNUSED_PARAMETER")
-    private fun animationBuilderForInteraction(interaction: Interaction): AnimationBuilder<Float> {
-        return TweenBuilder<Float>().apply {
-            duration = 15
+    private fun animationSpecForInteraction(
+        interaction: Interaction
+    ): AnimationSpec<Float> {
+        return TweenSpec(
+            durationMillis = 15,
             easing = LinearEasing
-        }
+        )
     }
 }

@@ -17,9 +17,9 @@
 package androidx.ui.animation
 
 import androidx.animation.AnimatedFloat
-import androidx.animation.AnimationBuilder
 import androidx.animation.AnimationEndReason
-import androidx.animation.TweenBuilder
+import androidx.animation.AnimationSpec
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.invalidate
 import androidx.compose.key
@@ -38,12 +38,12 @@ import androidx.ui.util.fastForEach
  * @param current is a key representing your current layout state. every time you change a key
  * the animation will be triggered. The [children] called with the old key will be faded out while
  * the [children] called with the new key will be faded in.
- * @param animation the [AnimationBuilder] to configure the animation.
+ * @param animation the [AnimationSpec] to configure the animation.
  */
 @Composable
 fun <T> Crossfade(
     current: T,
-    animation: AnimationBuilder<Float> = TweenBuilder(),
+    animation: AnimationSpec<Float> = tween(),
     children: @Composable (T) -> Unit
 ) {
     val state = remember { CrossfadeState<T>() }
@@ -101,7 +101,7 @@ private typealias CrossfadeTransition = @Composable (children: @Composable () ->
 
 @Composable
 private fun animatedOpacity(
-    animation: AnimationBuilder<Float>,
+    animation: AnimationSpec<Float>,
     visible: Boolean,
     onAnimationFinish: () -> Unit = {}
 ): AnimatedFloat {

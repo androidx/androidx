@@ -15,8 +15,8 @@
  */
 package androidx.ui.animation
 
-import androidx.animation.DefaultDuration
-import androidx.animation.TweenBuilder
+import androidx.animation.AnimationConstants.DefaultDurationMillis
+import androidx.animation.TweenSpec
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
@@ -51,7 +51,7 @@ class CrossfadeTest {
                 Text(if (it) First else Second)
             }
         }
-        composeTestRule.clockTestRule.advanceClock(DefaultDuration)
+        composeTestRule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
 
         findByText(First).assertExists()
     }
@@ -70,7 +70,7 @@ class CrossfadeTest {
                 }
             }
         }
-        composeTestRule.clockTestRule.advanceClock(DefaultDuration)
+        composeTestRule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
 
         runOnIdleCompose {
             showFirst = false
@@ -78,7 +78,7 @@ class CrossfadeTest {
 
         waitForIdle()
 
-        composeTestRule.clockTestRule.advanceClock(DefaultDuration)
+        composeTestRule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
 
         runOnIdleCompose {
             assertTrue(disposed)
@@ -89,23 +89,23 @@ class CrossfadeTest {
     }
 
     @Test
-    fun crossfadeTest_durationCanBeModifierUsingAnimationBuilder() {
+    fun crossfadeTest_durationCanBeModifierUsingAnimationSpec() {
         composeTestRule.clockTestRule.pauseClock()
 
-        val duration = 100L // smaller than default 300
+        val duration = 100 // smaller than default 300
         var showFirst by mutableStateOf(true)
         var disposed = false
         composeTestRule.setContent {
-            Crossfade(showFirst, TweenBuilder<Float>().apply {
-                this.duration = duration.toInt()
-            }) {
+            Crossfade(
+                showFirst, TweenSpec(durationMillis = duration)
+            ) {
                 Text(if (it) First else Second)
                 onDispose {
                     disposed = true
                 }
             }
         }
-        composeTestRule.clockTestRule.advanceClock(duration)
+        composeTestRule.clockTestRule.advanceClock(duration.toLong())
 
         runOnIdleCompose {
             showFirst = false
@@ -113,7 +113,7 @@ class CrossfadeTest {
 
         waitForIdle()
 
-        composeTestRule.clockTestRule.advanceClock(duration)
+        composeTestRule.clockTestRule.advanceClock(duration.toLong())
 
         runOnIdleCompose {
             assertTrue(disposed)
@@ -130,7 +130,7 @@ class CrossfadeTest {
                 Text(if (value == null) First else Second)
             }
         }
-        composeTestRule.clockTestRule.advanceClock(DefaultDuration.toLong())
+        composeTestRule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
 
         findByText(First).assertExists()
         findByText(Second).assertDoesNotExist()
@@ -141,7 +141,7 @@ class CrossfadeTest {
 
         waitForIdle()
 
-        composeTestRule.clockTestRule.advanceClock(DefaultDuration.toLong())
+        composeTestRule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
 
         findByText(First).assertDoesNotExist()
         findByText(Second).assertExists()

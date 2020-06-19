@@ -25,22 +25,18 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class RepeatableAnimationTest {
 
-    private val Animation = TweenBuilder<Float>().apply {
-        duration = Duration
-    }
+    private val Animation = TweenSpec<AnimationVector1D>(durationMillis = Duration)
 
-    private val DelayedAnimation = TweenBuilder<Float>().apply {
-        delay = DelayDuration
-        duration = Duration
-    }
+    private val DelayedAnimation = VectorizedTweenSpec<AnimationVector1D>(
+        delayMillis = DelayDuration,
+        durationMillis = Duration)
 
     @Test
     fun twoRepeatsValuesCalculation() {
-        val repeat = RepeatableBuilder<Float>().run {
-            iterations = 2
-            animation = Animation
-            build()
-        }
+        val repeat = VectorizedRepeatableSpec(
+            iterations = 2,
+            animation = VectorizedTweenSpec<AnimationVector1D>(durationMillis = Duration))
+
         val animationWrapper = TargetBasedAnimation(
             repeat,
             0f,
@@ -61,10 +57,9 @@ class RepeatableAnimationTest {
     @Test
     fun testRepeatedAnimationDuration() {
         val iters = 5
-        val repeat = RepeatableBuilder<Float>().apply {
-            iterations = iters
-            animation = DelayedAnimation
-        }.build()
+        val repeat = VectorizedRepeatableSpec<AnimationVector1D>(
+            iterations = iters,
+            animation = DelayedAnimation)
 
         val duration = repeat.getDurationMillis(
             AnimationVector1D(0f),

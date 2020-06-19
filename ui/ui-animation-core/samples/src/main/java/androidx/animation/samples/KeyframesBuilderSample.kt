@@ -17,26 +17,45 @@
 package androidx.animation.samples
 
 import androidx.animation.FastOutSlowInEasing
-import androidx.animation.KeyframesBuilder
+import androidx.animation.KeyframesSpec
+import androidx.animation.LinearEasing
+import androidx.animation.LinearOutSlowInEasing
+import androidx.animation.keyframes
 import androidx.annotation.Sampled
+import androidx.ui.unit.Position
+import androidx.ui.unit.dp
 
 @Sampled
 fun FloatKeyframesBuilder() {
-    KeyframesBuilder<Float>().apply {
+    KeyframesSpec(KeyframesSpec.KeyframesSpecConfig<Float>().apply {
         0f at 0 // ms  // Optional
-        duration = 375
         0.4f at 75 // ms
         0.4f at 225 // ms
         0f at 375 // ms  // Optional
-    }
+        durationMillis = 375
+    })
 }
 
 @Sampled
 fun KeyframesBuilderWithEasing() {
-    // Use FastOutSlowInEasing for the interval from 0 to 100 ms.
-    KeyframesBuilder<Float>().apply {
-        duration = 100
+    // Use FastOutSlowInEasing for the interval from 0 to 50 ms, and LinearOutSlowInEasing for the
+    // time between 50 and 100ms
+    keyframes<Float> {
+        durationMillis = 100
         0f at 0 with FastOutSlowInEasing
+        1.5f at 50 with LinearOutSlowInEasing
         1f at 100
+    }
+}
+
+@Sampled
+fun KeyframesBuilderForPosition() {
+    // Use FastOutSlowInEasing for the interval from 0 to 50 ms, and LinearOutSlowInEasing for the
+    // time between 50 and 100ms
+    keyframes<Position> {
+        durationMillis = 200
+        Position(0.dp, 0.dp) at 0 with LinearEasing
+        Position(500.dp, 100.dp) at 100 with LinearOutSlowInEasing
+        Position(400.dp, 50.dp) at 150
     }
 }

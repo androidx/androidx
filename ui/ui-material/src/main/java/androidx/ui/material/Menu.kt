@@ -20,6 +20,7 @@ import android.util.DisplayMetrics
 import androidx.animation.FloatPropKey
 import androidx.animation.LinearOutSlowInEasing
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.getValue
@@ -225,23 +226,23 @@ private val DropdownMenuOpenCloseTransition = transitionDefinition {
     }
     transition(false, true) {
         // Dismissed to expanded.
-        Scale using tween {
-            duration = InTransitionDuration
+        Scale using tween(
+            durationMillis = InTransitionDuration,
             easing = LinearOutSlowInEasing
-        }
-        Alpha using tween {
-            duration = 30
-        }
+        )
+        Alpha using tween(
+            durationMillis = 30
+        )
     }
     transition(true, false) {
         // Expanded to dismissed.
-        Scale using tween {
-            duration = 1
-            delay = OutTransitionDuration - 1
-        }
-        Alpha using tween {
-            duration = OutTransitionDuration
-        }
+        Scale using tween(
+            durationMillis = 1,
+            delayMillis = OutTransitionDuration - 1
+        )
+        Alpha using tween(
+            durationMillis = OutTransitionDuration
+        )
     }
 }
 

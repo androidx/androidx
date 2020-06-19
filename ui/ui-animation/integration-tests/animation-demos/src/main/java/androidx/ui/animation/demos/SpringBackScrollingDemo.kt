@@ -17,7 +17,7 @@
 package androidx.ui.animation.demos
 
 import android.util.Log
-import androidx.animation.PhysicsBuilder
+import androidx.animation.SpringSpec
 import androidx.animation.fling
 import androidx.compose.Composable
 import androidx.compose.state
@@ -87,7 +87,7 @@ fun SpringBackScrollingDemo() {
                 ) {
                     animScroll.animateTo(
                         springBackTarget,
-                        PhysicsBuilder(dampingRatio = 0.8f, stiffness = 200f)
+                        SpringSpec(dampingRatio = 0.8f, stiffness = 200f)
                     )
                 }
             }

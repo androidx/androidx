@@ -16,18 +16,18 @@
 
 package androidx.ui.animation
 
-import androidx.animation.AnimationBuilder
 import androidx.animation.AnimationEndReason
+import androidx.animation.AnimationSpec
 import androidx.animation.AnimationVector
-import androidx.animation.AnimationVector1D
-import androidx.animation.AnimationVector2D
 import androidx.animation.AnimationVector4D
-import androidx.animation.PhysicsBuilder
+import androidx.animation.IntToVectorConverter
+import androidx.animation.SpringSpec
 import androidx.animation.TwoWayConverter
 import androidx.compose.Composable
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.ui.core.AnimationClockAmbient
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.unit.Bounds
@@ -36,17 +36,12 @@ import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.Position
 import androidx.ui.unit.PxBounds
-import androidx.ui.geometry.Offset
+import androidx.ui.unit.dp
 
-private const val DpVisibilityThreshold = 0.1f
-private const val PxVisibilityThreshold = 0.5f
+internal const val DpVisibilityThreshold = 0.1f
+internal const val PxVisibilityThreshold = 0.5f
 
 // Dp-based visibility threshold
-private val DpVisibilityThreshold1D = AnimationVector1D(DpVisibilityThreshold)
-private val DpVisibilityThreshold2D = AnimationVector2D(
-    DpVisibilityThreshold,
-    DpVisibilityThreshold
-)
 private val DpVisibilityThreshold4D = AnimationVector4D(
     DpVisibilityThreshold,
     DpVisibilityThreshold,
@@ -55,17 +50,14 @@ private val DpVisibilityThreshold4D = AnimationVector4D(
 )
 
 // Px-based visibility threshold
-private val PxVisibilityThreshold1D = AnimationVector1D(PxVisibilityThreshold)
-private val PxVisibilityThreshold2D = AnimationVector2D(
-    PxVisibilityThreshold,
-    PxVisibilityThreshold
-)
 private val PxVisibilityThreshold4D = AnimationVector4D(
     PxVisibilityThreshold,
     PxVisibilityThreshold,
     PxVisibilityThreshold,
     PxVisibilityThreshold
 )
+
+private val defaultAnimation = SpringSpec<Float>()
 
 /**
  * Fire-and-forget animation [Composable] for [Float]. Once such an animation is created, it will be
@@ -78,8 +70,8 @@ private val PxVisibilityThreshold4D = AnimationVector4D(
  * @sample androidx.ui.animation.samples.VisibilityTransition
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
+ * @param animSpec The animation that will be used to change the value through time. [SpringSpec]
+ *                 will be used by default.
  * @param visibilityThreshold An optional threshold for deciding when the animation value is
  *                            considered close enough to the target.
  * @param endListener An optional end listener to get notified when the animation is finished.
@@ -87,7 +79,7 @@ private val PxVisibilityThreshold4D = AnimationVector4D(
 @Composable
 fun animate(
     target: Float,
-    animBuilder: AnimationBuilder<Float> = remember { PhysicsBuilder() },
+    animSpec: AnimationSpec<Float> = defaultAnimation,
     visibilityThreshold: Float = 0.01f,
     endListener: ((Float) -> Unit)? = null
 ): Float {
@@ -95,16 +87,23 @@ fun animate(
     val anim = remember {
         AnimatedFloatModel(target, clock, visibilityThreshold)
     }
+
+    val resolvedAnimSpec =
+        if (animSpec == defaultAnimation) {
+            remember(visibilityThreshold) { SpringSpec(visibilityThreshold = visibilityThreshold) }
+        } else {
+            animSpec
+        }
     // TODO: Support changing animation while keeping the same target
     onCommit(target) {
         if (endListener != null) {
-            anim.animateTo(target, animBuilder) { reason, value ->
+            anim.animateTo(target, resolvedAnimSpec) { reason, value ->
                 if (reason == AnimationEndReason.TargetReached) {
                     endListener.invoke(value)
                 }
             }
         } else {
-            anim.animateTo(target, animBuilder)
+            anim.animateTo(target, resolvedAnimSpec)
         }
     }
     return anim.value
@@ -121,18 +120,18 @@ fun animate(
  * @sample androidx.ui.animation.samples.ColorTransition
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
+ * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
  * @param endListener An optional end listener to get notified when the animation is finished.
  */
 @Composable
 fun animate(
     target: Color,
-    animBuilder: AnimationBuilder<Color> = remember { PhysicsBuilder() },
+    animSpec: AnimationSpec<Color> = remember { SpringSpec() },
     endListener: ((Color) -> Unit)? = null
 ): Color {
     val converter = remember(target.colorSpace) { ColorToVectorConverter(target.colorSpace) }
-    return animate(target, converter, animBuilder, endListener = endListener)
+    return animate(target, converter, animSpec, endListener = endListener)
 }
 
 /**
@@ -146,17 +145,19 @@ fun animate(
  *     val height : Dp = animate(if (collapsed) 10.dp else 20.dp)
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
+ * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
  * @param endListener An optional end listener to get notified when the animation is finished.
  */
 @Composable
 fun animate(
     target: Dp,
-    animBuilder: AnimationBuilder<Dp> = remember { PhysicsBuilder() },
+    animSpec: AnimationSpec<Dp> = remember {
+        SpringSpec(visibilityThreshold = DpVisibilityThreshold.dp)
+    },
     endListener: ((Dp) -> Unit)? = null
 ): Dp {
-    return animate(target, DpToVectorConverter, animBuilder, DpVisibilityThreshold1D, endListener)
+    return animate(target, DpToVectorConverter, animSpec, endListener = endListener)
 }
 
 /**
@@ -171,18 +172,23 @@ fun animate(
  *         if (selected) Position(0.dp, 0.dp) else Position(20.dp, 20.dp))
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
+ * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
  * @param endListener An optional end listener to get notified when the animation is finished.
  */
 @Composable
 fun animate(
     target: Position,
-    animBuilder: AnimationBuilder<Position> = remember { PhysicsBuilder() },
+    animSpec: AnimationSpec<Position> = remember {
+        SpringSpec(
+            visibilityThreshold = Position(DpVisibilityThreshold.dp, DpVisibilityThreshold.dp)
+        )
+    },
     endListener: ((Position) -> Unit)? = null
 ): Position {
     return animate(
-        target, PositionToVectorConverter, animBuilder, DpVisibilityThreshold2D, endListener)
+        target, PositionToVectorConverter, animSpec, endListener = endListener
+    )
 }
 
 /**
@@ -197,17 +203,19 @@ fun animate(
  *         if (selected) Size(20f, 20f) else Size(10f, 10f))
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
+ * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
  * @param endListener An optional end listener to get notified when the animation is finished.
  */
 @Composable
 fun animate(
     target: Size,
-    animBuilder: AnimationBuilder<Size> = remember { PhysicsBuilder() },
+    animSpec: AnimationSpec<Size> = remember {
+        SpringSpec(visibilityThreshold = Size(PxVisibilityThreshold, PxVisibilityThreshold))
+    },
     endListener: ((Size) -> Unit)? = null
 ): Size {
-    return animate(target, SizeToVectorConverter, animBuilder, DpVisibilityThreshold2D, endListener)
+    return animate(target, SizeToVectorConverter, animSpec, endListener = endListener)
 }
 
 /**
@@ -222,47 +230,27 @@ fun animate(
  *        if (collapsed) Bounds(0.dp, 0.dp, 10.dp, 20.dp) else Bounds(0.dp, 0.dp, 100.dp, 200.dp))
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
+ * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
  * @param endListener An optional end listener to get notified when the animation is finished.
  */
 @Composable
 fun animate(
     target: Bounds,
-    animBuilder: AnimationBuilder<Bounds> = remember { PhysicsBuilder() },
+    animSpec: AnimationSpec<Bounds> = remember {
+        SpringSpec(
+            visibilityThreshold = BoundsToVectorConverter.convertFromVector
+                (DpVisibilityThreshold4D)
+        )
+    },
     endListener: ((Bounds) -> Unit)? = null
 ): Bounds {
     return animate(
         target,
         BoundsToVectorConverter,
-        animBuilder,
-        DpVisibilityThreshold4D,
-        endListener
+        animSpec,
+        endListener = endListener
     )
-}
-
-/**
- * Fire-and-forget animation [Composable] for pixels. Once such an animation is created, it will be
- * positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
- * course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animate] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
- *
- *    val height : Float = animate(if (collapsed) 10f else 20f)
- *
- * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun animate(
-    target: Float,
-    animBuilder: AnimationBuilder<Float> = remember { PhysicsBuilder() },
-    endListener: ((Float) -> Unit)? = null
-): Float {
-    return animate(target, PxToVectorConverter, animBuilder, PxVisibilityThreshold1D, endListener)
 }
 
 /**
@@ -277,18 +265,21 @@ fun animate(
  *        if (selected) Offset(0.px, 0.px) else Offset(20.px, 20.px))
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
+ * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
  * @param endListener An optional end listener to get notified when the animation is finished.
  */
 @Composable
 fun animate(
     target: Offset,
-    animBuilder: AnimationBuilder<Offset> = remember { PhysicsBuilder() },
+    animSpec: AnimationSpec<Offset> = remember {
+        SpringSpec(visibilityThreshold = Offset(PxVisibilityThreshold, PxVisibilityThreshold))
+    },
     endListener: ((Offset) -> Unit)? = null
 ): Offset {
     return animate(
-        target, PxPositionToVectorConverter, animBuilder, PxVisibilityThreshold2D, endListener)
+        target, OffsetToVectorConverter, animSpec, endListener = endListener
+    )
 }
 
 /**
@@ -303,19 +294,23 @@ fun animate(
  *        if (enabled) PxBounds(0.px, 0.px, 100.px, 100.px) else PxBounds(8.px, 8.px, 80.px, 80.px))
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
+ * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
  * @param endListener An optional end listener to get notified when the animation is finished.
  */
 @Composable
 fun animate(
     target: PxBounds,
-    animBuilder: AnimationBuilder<PxBounds> = remember { PhysicsBuilder() },
+    animSpec: AnimationSpec<PxBounds> = remember {
+        SpringSpec(
+            visibilityThreshold =
+            PxBoundsToVectorConverter.convertFromVector(PxVisibilityThreshold4D)
+        )
+    },
     endListener: ((PxBounds) -> Unit)? = null
 ): PxBounds {
     return animate(
-        target, PxBoundsToVectorConverter, animBuilder, PxVisibilityThreshold4D,
-        endListener
+        target, PxBoundsToVectorConverter, animSpec, endListener = endListener
     )
 }
 
@@ -328,19 +323,20 @@ fun animate(
  * see [animatedValue].
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
+ * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
  * @param endListener An optional end listener to get notified when the animation is finished.
  */
 @Composable
 fun animate(
     target: Int,
-    animBuilder: AnimationBuilder<Int> = remember { PhysicsBuilder() },
+    animSpec: AnimationSpec<Int> = remember {
+        SpringSpec(visibilityThreshold = 1)
+    },
     endListener: ((Int) -> Unit)? = null
 ): Int {
     return animate(
-        target, IntPxToVectorConverter, animBuilder, PxVisibilityThreshold1D,
-        endListener
+        target, IntToVectorConverter, animSpec, endListener = endListener
     )
 }
 
@@ -353,19 +349,20 @@ fun animate(
  * see [animatedValue].
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
+ * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
  * @param endListener An optional end listener to get notified when the animation is finished.
  */
 @Composable
 fun animate(
     target: IntOffset,
-    animBuilder: AnimationBuilder<IntOffset> = remember { PhysicsBuilder() },
+    animSpec: AnimationSpec<IntOffset> = remember {
+        SpringSpec(visibilityThreshold = IntOffset(1, 1))
+    },
     endListener: ((IntOffset) -> Unit)? = null
 ): IntOffset {
     return animate(
-        target, IntPxPositionToVectorConverter, animBuilder, PxVisibilityThreshold2D,
-        endListener
+        target, IntPxPositionToVectorConverter, animSpec, endListener = endListener
     )
 }
 
@@ -378,19 +375,20 @@ fun animate(
  * see [animatedValue].
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
+ * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
  * @param endListener An optional end listener to get notified when the animation is finished.
  */
 @Composable
 fun animate(
     target: IntSize,
-    animBuilder: AnimationBuilder<IntSize> = remember { PhysicsBuilder() },
+    animSpec: AnimationSpec<IntSize> = remember {
+        SpringSpec(visibilityThreshold = IntSize(1, 1))
+    },
     endListener: ((IntSize) -> Unit)? = null
 ): IntSize {
     return animate(
-        target, IntPxSizeToVectorConverter, animBuilder, PxVisibilityThreshold2D,
-        endListener
+        target, IntSizeToVectorConverter, animSpec, endListener = endListener
     )
 }
 
@@ -403,7 +401,7 @@ fun animate(
  * see [animatedValue].
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
+ * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
  * @param visibilityThreshold An optional threshold to define when the animation value can be
  *                            considered close enough to the target to end the animation.
@@ -412,16 +410,18 @@ fun animate(
 @Composable
 fun <T : AnimationVector> animate(
     target: T,
-    animBuilder: AnimationBuilder<T> = remember { PhysicsBuilder() },
+    animSpec: AnimationSpec<T> = remember {
+        android.util.Log.w("LTD", "visibility threshold: $visibilityThreshold")
+        SpringSpec(visibilityThreshold = visibilityThreshold)
+    },
     visibilityThreshold: T? = null,
     endListener: ((T) -> Unit)? = null
 ): T {
     return animate(
         target,
         remember { TwoWayConverter<T, T>({ it }, { it }) },
-        animBuilder,
-        visibilityThreshold,
-        endListener
+        animSpec,
+        endListener = endListener
     )
 }
 
@@ -436,7 +436,7 @@ fun <T : AnimationVector> animate(
  * @sample androidx.ui.animation.samples.ArbitraryValueTypeTransition
  *
  * @param target Target value of the animation
- * @param animBuilder The animation that will be used to change the value through time. Physics
+ * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
  * @param visibilityThreshold An optional threshold to define when the animation value can be
  *                            considered close enough to the target to end the animation.
@@ -446,8 +446,10 @@ fun <T : AnimationVector> animate(
 fun <T, V : AnimationVector> animate(
     target: T,
     converter: TwoWayConverter<T, V>,
-    animBuilder: AnimationBuilder<T> = remember { PhysicsBuilder() },
-    visibilityThreshold: V? = null,
+    animSpec: AnimationSpec<T> = remember {
+        SpringSpec(visibilityThreshold = visibilityThreshold)
+    },
+    visibilityThreshold: T? = null,
     endListener: ((T) -> Unit)? = null
 ): T {
     val clock = AnimationClockAmbient.current.asDisposableClock()
@@ -457,13 +459,13 @@ fun <T, V : AnimationVector> animate(
     // TODO: Support changing animation while keeping the same target
     onCommit(target) {
         if (endListener != null) {
-            anim.animateTo(target, animBuilder) { reason, value ->
+            anim.animateTo(target, animSpec) { reason, value ->
                 if (reason == AnimationEndReason.TargetReached) {
                     endListener.invoke(value)
                 }
             }
         } else {
-            anim.animateTo(target, animBuilder)
+            anim.animateTo(target, animSpec)
         }
     }
     return anim.value
