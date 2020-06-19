@@ -254,7 +254,7 @@ private fun Track(
             center.y
         )
 
-        drawLine(color, sliderStart, sliderValue, trackStrokeWidth)
+        drawLine(color, sliderStart, sliderValue, trackStrokeWidth, StrokeCap.round)
         tickFractions.groupBy { it > positionFraction }.forEach { (afterFraction, list) ->
             drawPoints(
                 list.map {
@@ -262,7 +262,8 @@ private fun Track(
                 },
                 PointMode.points,
                 if (afterFraction) inactiveTickColor else activeTickColor,
-                trackStrokeWidth
+                trackStrokeWidth,
+                StrokeCap.round
             )
         }
     }
@@ -451,16 +452,21 @@ private class CallbackBasedAnimatedFloat(
         }
 }
 
-private val ThumbRadius = 10.dp
+// Internal to be referred to in tests
+internal val ThumbRadius = 10.dp
 private val ThumbRippleRadius = 24.dp
 private val ThumbDefaultElevation = 1.dp
 private val ThumbPressedElevation = 6.dp
-private val TrackHeight = 4.dp
+
+// Internal to be referred to in tests
+internal val TrackHeight = 4.dp
 private val SliderHeight = 48.dp
 private val SliderMinWidth = 144.dp // TODO: clarify min width
 private val DefaultSliderConstraints =
     Modifier.preferredWidthIn(minWidth = SliderMinWidth)
         .preferredHeightIn(maxHeight = SliderHeight)
-private val InactiveTrackColorAlpha = 0.24f
+
+// Internal to be referred to in tests
+internal val InactiveTrackColorAlpha = 0.24f
 private val TickColorAlpha = 0.54f
 private val SliderToTickAnimation = TweenBuilder<Float>().apply { duration = 100 }

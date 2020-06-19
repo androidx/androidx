@@ -1078,8 +1078,8 @@ abstract class DrawScope : Density {
             if (this.blendMode != blendMode) this.blendMode = blendMode
             if (this.strokeWidth != strokeWidth) this.strokeWidth = strokeWidth
             if (this.strokeMiterLimit != miter) this.strokeMiterLimit = miter
-            if (this.strokeCap != strokeCap) this.strokeCap = cap
-            if (this.strokeJoin != strokeJoin) this.strokeJoin = join
+            if (this.strokeCap != cap) this.strokeCap = cap
+            if (this.strokeJoin != join) this.strokeJoin = join
             this.asFrameworkPaint().setNativePathEffect(pathEffect)
         }
 
@@ -1103,8 +1103,8 @@ abstract class DrawScope : Density {
             if (this.blendMode != blendMode) this.blendMode = blendMode
             if (this.strokeWidth != strokeWidth) this.strokeWidth = strokeWidth
             if (this.strokeMiterLimit != miter) this.strokeMiterLimit = miter
-            if (this.strokeCap != strokeCap) this.strokeCap = cap
-            if (this.strokeJoin != strokeJoin) this.strokeJoin = join
+            if (this.strokeCap != cap) this.strokeCap = cap
+            if (this.strokeJoin != join) this.strokeJoin = join
             this.asFrameworkPaint().setNativePathEffect(pathEffect)
         }
 
