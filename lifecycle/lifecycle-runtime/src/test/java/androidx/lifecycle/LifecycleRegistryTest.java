@@ -280,10 +280,6 @@ public class LifecycleRegistryTest {
         final TestObserver observer2 = mock(TestObserver.class);
         mRegistry.addObserver(observer2);
         verify(observer2, never()).onCreate();
-        reset(observer1);
-        dispatchEvent(ON_CREATE);
-        verify(observer1).onCreate();
-        verify(observer2).onCreate();
     }
 
     @Test
@@ -605,7 +601,7 @@ public class LifecycleRegistryTest {
     }
 
     private void dispatchEvent(Lifecycle.Event event) {
-        when(mLifecycle.getCurrentState()).thenReturn(LifecycleRegistry.getStateAfter(event));
+        when(mLifecycle.getCurrentState()).thenReturn(event.getTargetState());
         mRegistry.handleLifecycleEvent(event);
     }
 

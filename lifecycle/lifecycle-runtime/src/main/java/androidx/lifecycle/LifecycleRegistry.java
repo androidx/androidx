@@ -16,17 +16,8 @@
 
 package androidx.lifecycle;
 
-import static androidx.lifecycle.Lifecycle.Event.ON_CREATE;
-import static androidx.lifecycle.Lifecycle.Event.ON_DESTROY;
-import static androidx.lifecycle.Lifecycle.Event.ON_PAUSE;
-import static androidx.lifecycle.Lifecycle.Event.ON_RESUME;
-import static androidx.lifecycle.Lifecycle.Event.ON_START;
-import static androidx.lifecycle.Lifecycle.Event.ON_STOP;
-import static androidx.lifecycle.Lifecycle.State.CREATED;
 import static androidx.lifecycle.Lifecycle.State.DESTROYED;
 import static androidx.lifecycle.Lifecycle.State.INITIALIZED;
-import static androidx.lifecycle.Lifecycle.State.RESUMED;
-import static androidx.lifecycle.Lifecycle.State.STARTED;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -127,8 +118,7 @@ public class LifecycleRegistry extends Lifecycle {
      * @param event The event that was received
      */
     public void handleLifecycleEvent(@NonNull Lifecycle.Event event) {
-        State next = getStateAfter(event);
-        moveToState(next);
+        moveToState(event.getTargetState());
     }
 
     private void moveToState(State next) {
@@ -185,7 +175,11 @@ public class LifecycleRegistry extends Lifecycle {
         while ((statefulObserver.mState.compareTo(targetState) < 0
                 && mObserverMap.contains(observer))) {
             pushParentState(statefulObserver.mState);
-            statefulObserver.dispatchEvent(lifecycleOwner, upEvent(statefulObserver.mState));
+            final Event event = Event.upFrom(statefulObserver.mState);
+            if (event == null) {
+                throw new IllegalStateException("no event up from " + statefulObserver.mState);
+            }
+            statefulObserver.dispatchEvent(lifecycleOwner, event);
             popParentState();
             // mState / subling may have been changed recalculate
             targetState = calculateTargetState(observer);
@@ -239,55 +233,6 @@ public class LifecycleRegistry extends Lifecycle {
         return mState;
     }
 
-    static State getStateAfter(Event event) {
-        switch (event) {
-            case ON_CREATE:
-            case ON_STOP:
-                return CREATED;
-            case ON_START:
-            case ON_PAUSE:
-                return STARTED;
-            case ON_RESUME:
-                return RESUMED;
-            case ON_DESTROY:
-                return DESTROYED;
-            case ON_ANY:
-                break;
-        }
-        throw new IllegalArgumentException("Unexpected event value " + event);
-    }
-
-    private static Event downEvent(State state) {
-        switch (state) {
-            case INITIALIZED:
-                throw new IllegalArgumentException();
-            case CREATED:
-                return ON_DESTROY;
-            case STARTED:
-                return ON_STOP;
-            case RESUMED:
-                return ON_PAUSE;
-            case DESTROYED:
-                throw new IllegalArgumentException();
-        }
-        throw new IllegalArgumentException("Unexpected state value " + state);
-    }
-
-    private static Event upEvent(State state) {
-        switch (state) {
-            case INITIALIZED:
-            case DESTROYED:
-                return ON_CREATE;
-            case CREATED:
-                return ON_START;
-            case STARTED:
-                return ON_RESUME;
-            case RESUMED:
-                throw new IllegalArgumentException();
-        }
-        throw new IllegalArgumentException("Unexpected state value " + state);
-    }
-
     private void forwardPass(LifecycleOwner lifecycleOwner) {
         Iterator<Entry<LifecycleObserver, ObserverWithState>> ascendingIterator =
                 mObserverMap.iteratorWithAdditions();
@@ -297,7 +242,11 @@ public class LifecycleRegistry extends Lifecycle {
             while ((observer.mState.compareTo(mState) < 0 && !mNewEventOccurred
                     && mObserverMap.contains(entry.getKey()))) {
                 pushParentState(observer.mState);
-                observer.dispatchEvent(lifecycleOwner, upEvent(observer.mState));
+                final Event event = Event.upFrom(observer.mState);
+                if (event == null) {
+                    throw new IllegalStateException("no event up from " + observer.mState);
+                }
+                observer.dispatchEvent(lifecycleOwner, event);
                 popParentState();
             }
         }
@@ -311,8 +260,11 @@ public class LifecycleRegistry extends Lifecycle {
             ObserverWithState observer = entry.getValue();
             while ((observer.mState.compareTo(mState) > 0 && !mNewEventOccurred
                     && mObserverMap.contains(entry.getKey()))) {
-                Event event = downEvent(observer.mState);
-                pushParentState(getStateAfter(event));
+                Event event = Event.downFrom(observer.mState);
+                if (event == null) {
+                    throw new IllegalStateException("no event down from " + observer.mState);
+                }
+                pushParentState(event.getTargetState());
                 observer.dispatchEvent(lifecycleOwner, event);
                 popParentState();
             }
@@ -356,7 +308,7 @@ public class LifecycleRegistry extends Lifecycle {
         }
 
         void dispatchEvent(LifecycleOwner owner, Event event) {
-            State newState = getStateAfter(event);
+            State newState = event.getTargetState();
             mState = min(mState, newState);
             mLifecycleObserver.onStateChanged(owner, event);
             mState = newState;
