@@ -16,7 +16,10 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.AlignmentLine
 import androidx.ui.core.AndroidOwner
+import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.unit.Bounds
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.PxBounds
@@ -69,6 +72,64 @@ fun SemanticsNodeInteraction.assertHeightIsAtLeast(
     return withBoundsInRoot {
         isAtLeastOrThrow("height", it.height, expectedMinHeight)
     }
+}
+
+/**
+* Returns the bounds of the layout of this node. The bounds are relative to the root composable.
+*/
+fun SemanticsNodeInteraction.getBoundsInRoot(): Bounds {
+    lateinit var bounds: Bounds
+    withBoundsInRoot {
+        bounds = Bounds(
+            left = it.left.toDp(),
+            top = it.top.toDp(),
+            right = it.right.toDp(),
+            bottom = it.bottom.toDp()
+        )
+    }
+    return bounds
+}
+
+/**
+ * Asserts that the layout of this node has position in the root composable that is equal to the
+ * given position.
+ *
+ * @param expectedLeft The left (x) position to assert.
+ * @param expectedTop The top (y) position to assert.
+ *
+ * @throws AssertionError if comparison fails.
+ */
+fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
+    expectedLeft: Dp,
+    expectedTop: Dp
+): SemanticsNodeInteraction {
+    return withBoundsInRoot {
+        areEqualOrThrow("left", it.left, expectedLeft)
+        areEqualOrThrow("top", it.top, expectedTop)
+    }
+}
+
+/**
+ * Returns the position of an [alignment line][AlignmentLine], or [Dp.Unspecified] if the line is
+ * not provided.
+ */
+fun SemanticsNodeInteraction.getAlignmentLinePosition(line: AlignmentLine): Dp {
+    return withDensity {
+        val pos = it.getAlignmentLinePosition(line)
+        if (pos == AlignmentLine.Unspecified) {
+            Dp.Unspecified
+        } else {
+            pos.toDp()
+        }
+    }
+}
+
+private fun <R> SemanticsNodeInteraction.withDensity(
+    operation: Density.(SemanticsNode) -> R
+): R {
+    val node = fetchSemanticsNode("Failed to retrieve density for the node.")
+    val density = (node.componentNode.owner as AndroidOwner).density
+    return operation.invoke(density, node)
 }
 
 private fun SemanticsNodeInteraction.withBoundsInRoot(

@@ -1840,6 +1840,7 @@ package androidx.ui.core.semantics {
   }
 
   public final class SemanticsNode {
+    method public int getAlignmentLinePosition(androidx.ui.core.AlignmentLine line);
     method public androidx.ui.unit.PxBounds getBoundsInRoot();
     method public java.util.List<androidx.ui.core.semantics.SemanticsNode> getChildren();
     method public androidx.ui.core.LayoutNode getComponentNode();
