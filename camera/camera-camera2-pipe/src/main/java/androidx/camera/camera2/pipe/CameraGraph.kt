@@ -38,7 +38,8 @@ interface CameraGraph {
 
     data class Config(
         val camera: CameraId,
-        val streams: List<StreamConfig>
+        val streams: List<StreamConfig>,
+        val defaultTemplate: Int
     )
 
     /**

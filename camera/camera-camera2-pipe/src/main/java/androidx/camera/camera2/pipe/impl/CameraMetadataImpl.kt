@@ -41,14 +41,10 @@ class CameraMetadataImpl constructor(
     override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> getChecked(key: Metadata.Key<T>): T = (metadata[key] as T)!!
-
-    @Suppress("UNCHECKED_CAST")
     override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T =
         metadata[key] as T? ?: default
 
     override fun <T> get(key: CameraCharacteristics.Key<T>): T? = characteristics[key]
-    override fun <T> getChecked(key: CameraCharacteristics.Key<T>): T = characteristics[key]!!
     override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T =
         characteristics[key] ?: default
 
@@ -138,6 +134,6 @@ class CameraMetadataImpl constructor(
 
     private val _streamMap: Lazy<StreamConfigurationMap> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
-            getChecked(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+            get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
         }
 }
