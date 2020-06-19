@@ -124,7 +124,9 @@ android {
     testOptions.unitTests.includeAndroidResources = true
 }
 
-// An ugly hack to workaround bug in MPP Kotlin Gradle plugin.
+// An ugly hack to workaround b/159426957 causing MPP+AGP to conflict.
+// See also: https://youtrack.jetbrains.com/issue/KT-34650
+// See also: https://youtrack.jetbrains.com/issue/KT-39712
 afterEvaluate {
     ["Api", "Implementation", "CompileOnly", "RuntimeOnly"].each { scope ->
         def erroneousExtendsFrom = [
