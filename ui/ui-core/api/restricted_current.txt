@@ -788,6 +788,13 @@ package androidx.ui.core {
     property public abstract int parentWidth;
   }
 
+  public final class PointerEvent {
+    ctor public PointerEvent(java.util.List<androidx.ui.core.PointerInputChange> changes);
+    method public java.util.List<androidx.ui.core.PointerInputChange> component1();
+    method public androidx.ui.core.PointerEvent copy(java.util.List<androidx.ui.core.PointerInputChange> changes);
+    method public java.util.List<androidx.ui.core.PointerInputChange> getChanges();
+  }
+
   public enum PointerEventPass {
     method public static androidx.ui.core.PointerEventPass valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.ui.core.PointerEventPass[] values();
@@ -1804,6 +1811,7 @@ package androidx.ui.core.pointerinput {
     method public abstract void onCancel();
     method public void onCustomEvent(androidx.ui.core.CustomEvent customEvent, androidx.ui.core.PointerEventPass pass);
     method public void onInit(androidx.ui.core.CustomEventDispatcher customEventDispatcher);
+    method public java.util.List<androidx.ui.core.PointerInputChange> onPointerEvent(androidx.ui.core.PointerEvent pointerEvent, androidx.ui.core.PointerEventPass pass, androidx.ui.unit.IntSize bounds);
     method public abstract java.util.List<androidx.ui.core.PointerInputChange> onPointerInput(java.util.List<androidx.ui.core.PointerInputChange> changes, androidx.ui.core.PointerEventPass pass, androidx.ui.unit.IntSize bounds);
   }
 

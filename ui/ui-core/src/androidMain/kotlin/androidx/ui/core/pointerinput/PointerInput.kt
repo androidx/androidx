@@ -22,6 +22,7 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PointerEvent
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
@@ -40,6 +41,24 @@ interface PointerInputModifier : Modifier.Element {
  * PointerInputFilters don't also react to them.
  */
 abstract class PointerInputFilter {
+
+    /**
+     * Invoked when pointers that previously hit this [PointerInputFilter] have changed.
+     *
+     * @param pointerEvent The list of [PointerInputChange]s with positions relative to this
+     * [PointerInputFilter].
+     * @param pass The [PointerEventPass] in which this function is being called.
+     * @param bounds The width and height associated with this [PointerInputFilter].
+     * @return The list of [PointerInputChange]s after any aspect of the changes have been consumed.
+     *
+     * @see PointerInputChange
+     * @see PointerEventPass
+     */
+    open fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ): List<PointerInputChange> = onPointerInput(pointerEvent.changes, pass, bounds)
 
     /**
      * Invoked when pointers that previously hit this [PointerInputFilter] have changed.

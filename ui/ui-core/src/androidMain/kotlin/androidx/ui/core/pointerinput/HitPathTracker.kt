@@ -19,9 +19,11 @@ package androidx.ui.core.pointerinput
 import androidx.annotation.VisibleForTesting
 import androidx.ui.core.CustomEvent
 import androidx.ui.core.CustomEventDispatcher
+import androidx.ui.core.InternalPointerEvent
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PointerEvent
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.plus
@@ -39,10 +41,15 @@ internal class HitPathTracker {
     private val retainedHitPaths: MutableSet<PointerId> = mutableSetOf()
 
     private val dispatchChangesRetVal = object : DispatchChangesRetVal {
-        lateinit var changes: List<PointerInputChange>
+        lateinit var internalPointerEvent: InternalPointerEvent
         var wasDispatchedToSomething: Boolean = false
-        override operator fun component1() = changes
+        override operator fun component1() = internalPointerEvent
         override operator fun component2() = wasDispatchedToSomething
+    }
+
+    internal interface DispatchChangesRetVal {
+        operator fun component1(): InternalPointerEvent
+        operator fun component2(): Boolean
     }
 
     /**
@@ -107,7 +114,7 @@ internal class HitPathTracker {
     }
 
     /**
-     * Dispatches [pointerInputChanges] through the hierarchy.
+     * Dispatches [internalPointerEvent] through the hierarchy.
      *
      * Returns a [DispatchChangesRetVal] that should not be referenced directly, but instead
      * should be destrutured immediately.  Each instance of [HitPathTracker] reuses a single
@@ -117,35 +124,34 @@ internal class HitPathTracker {
      * [DispatchChangesRetVal.component2] is true if the dispatch reached at least one
      * [PointerInputModifier].
      *
-     * @param pointerInputChanges The changes to dispatch.
+     * @param internalPointerEvent The change to dispatch.
      *
      * @return The DispatchChangesRetVal that should be destructured immediately.
      */
-    fun dispatchChanges(pointerInputChanges: List<PointerInputChange>): DispatchChangesRetVal {
-        val idToChangesMap = pointerInputChanges.associateByTo(mutableMapOf()) { it.id }
+    fun dispatchChanges(internalPointerEvent: InternalPointerEvent): DispatchChangesRetVal {
         var dispatchHit = false
 
         dispatchHit =
             root.dispatchChanges(
-                idToChangesMap,
+                internalPointerEvent,
                 PointerEventPass.InitialDown,
                 PointerEventPass.PreUp
             ) || dispatchHit
         dispatchHit =
             root.dispatchChanges(
-                idToChangesMap,
+                internalPointerEvent,
                 PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             ) || dispatchHit
         dispatchHit =
             root.dispatchChanges(
-                idToChangesMap,
+                internalPointerEvent,
                 PointerEventPass.PostDown,
                 null
             ) || dispatchHit
 
         dispatchChangesRetVal.wasDispatchedToSomething = dispatchHit
-        dispatchChangesRetVal.changes = idToChangesMap.values.toList()
+        dispatchChangesRetVal.internalPointerEvent = internalPointerEvent
         return dispatchChangesRetVal
     }
 
@@ -250,11 +256,6 @@ internal class HitPathTracker {
         root.removePointerId(pointerId)
     }
 
-    internal interface DispatchChangesRetVal {
-        operator fun component1(): List<PointerInputChange>
-        operator fun component2(): Boolean
-    }
-
     private class CustomEventDispatcherImpl(
         val dispatchingNode: Node,
         val hitPathTracker: HitPathTracker
@@ -283,19 +284,23 @@ internal open class NodeParent {
     val children: MutableSet<Node> = mutableSetOf()
 
     /**
-     * Dispatches the [pointerInputChanges] to all child nodes.
+     * Dispatches the [InternalPointerEvent] down the tree.
      *
-     * Note: [pointerInputChanges] is expected to be mutated during dispatch.
+     * Note: [InternalPointerEvent] is expected to be mutated during dispatch.
      */
     open fun dispatchChanges(
-        pointerInputChanges: MutableMap<PointerId, PointerInputChange>,
+        internalPointerEvent: InternalPointerEvent,
         downPass: PointerEventPass,
         upPass: PointerEventPass?
     ): Boolean {
         var dispatchedToSomething = false
         children.forEach {
             dispatchedToSomething =
-                it.dispatchChanges(pointerInputChanges, downPass, upPass) || dispatchedToSomething
+                it.dispatchChanges(
+                    internalPointerEvent,
+                    downPass,
+                    upPass
+                ) || dispatchedToSomething
         }
         return dispatchedToSomething
     }
@@ -401,14 +406,16 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
     val pointerIds: MutableSet<PointerId> = mutableSetOf()
 
     override fun dispatchChanges(
-        pointerInputChanges: MutableMap<PointerId, PointerInputChange>,
+        internalPointerEvent: InternalPointerEvent,
         downPass: PointerEventPass,
         upPass: PointerEventPass?
     ): Boolean {
 
+        // TODO(shepshapard): Creating a new map everytime here, we could create a reusable one
+        //  per node.
         // Filter for changes that are associated with pointer ids that are relevant to this node.
         val relevantChanges =
-            pointerInputChanges.filterTo(mutableMapOf()) { entry ->
+            internalPointerEvent.changes.filterTo(mutableMapOf()) { entry ->
                 pointerIds.contains(entry.key)
             }
 
@@ -417,12 +424,16 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
             return false
         }
 
+        // Store all of the changes locally and put the relevant changes back into our event.
+        val allChanges = internalPointerEvent.changes
+        internalPointerEvent.changes = relevantChanges
+
         // TODO(b/158243568): For this attached check, and all of the following checks like this, we
         //  should ideally be dispatching cancel to the sub tree with this node as it's root, and
         //  we should remove the same sub tree from the tracker.  This will currently happen on
         //  the next dispatch of events, but we shouldn't have to wait for another event.
         if (pointerInputFilter.isAttached) {
-            relevantChanges.let {
+            internalPointerEvent.let {
                 // TODO(shepshapard): would be nice if we didn't have to subtract and then add
                 //  offsets. This is currently done because the calculated offsets are currently
                 //  global, not relative to each other.
@@ -437,11 +448,11 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
         }
 
         if (pointerInputFilter.isAttached) {
-            children.forEach { it.dispatchChanges(relevantChanges, downPass, upPass) }
+            children.forEach { it.dispatchChanges(internalPointerEvent, downPass, upPass) }
         }
 
         if (pointerInputFilter.isAttached && upPass != null) {
-            relevantChanges.let {
+            internalPointerEvent.let {
                 // TODO(shepshapard): would be nice if we didn't have to subtract and then add
                 //  offsets.  This is currently done because the calculated offsets are currently
                 //  global, not relative to each other.
@@ -451,8 +462,12 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
             }
         }
 
-        // Mutate the pointerInputChanges with the ones we modified.
-        pointerInputChanges.putAll(relevantChanges)
+        // Put all of the relevant changes that were in the internalPointerEvent back into all of
+        // the changes, and then set all of the changes back onto the internalPointerEvent.
+        allChanges.putAll(internalPointerEvent.changes)
+        internalPointerEvent.changes = allChanges
+
+        // We dispatched to at least one pointer input filter, so return true.
         return true
     }
 
@@ -517,19 +532,22 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
                 "pointerIds=$pointerIds)"
     }
 
-    private fun MutableMap<PointerId, PointerInputChange>.dispatchToPointerInputFilter(
+    private fun InternalPointerEvent.dispatchToPointerInputFilter(
         filter: PointerInputFilter,
         pass: PointerEventPass,
         size: IntSize
     ) {
-        filter.onPointerInput(values.toList(), pass, size).forEach {
-            this[it.id] = it
+        filter.onPointerEvent(toPointerEvent(), pass, size).forEach {
+            this.changes[it.id] = it
         }
     }
 
-    private fun MutableMap<out Any, PointerInputChange>.addOffset(position: IntOffset) {
+    private fun InternalPointerEvent.addOffset(position: IntOffset) {
+        // TODO(shepshapard): Replace everything is costly, we should be able to simply change
+        //  data in place here and prevent it from being changed when dispatched to
+        //  PointerInputFilters.
         if (position != IntOffset.Origin) {
-            replaceEverything {
+            changes.replaceEverything {
                 it.copy(
                     current = it.current.copy(position = it.current.position?.plus(position)),
                     previous = it.previous.copy(position = it.previous.position?.plus(position))
@@ -538,9 +556,11 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
         }
     }
 
-    private fun MutableMap<out Any, PointerInputChange>.subtractOffset(position: IntOffset) {
+    private fun InternalPointerEvent.subtractOffset(position: IntOffset) {
         addOffset(-position)
     }
+
+    private fun InternalPointerEvent.toPointerEvent() = PointerEvent(changes.values.toList())
 
     private inline fun <K, V> MutableMap<K, V>.replaceEverything(f: (V) -> V) {
         for (entry in this) {

@@ -20,9 +20,6 @@ import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputData
 import androidx.ui.unit.Uptime
 
-// TODO(shepshapard): PointerInputEvent probably doesn't need it's own Uptime because each
-// PointerInputData has a Uptime associated with it.  Going to wait to refactor sometime later
-// after more things are set (and after things like API review) to avoid thrashing.
 /**
  * The normalized data structure for pointer input event information that is taken in processed by
  * Compose (via the [PointerInputEventProcessor]).
