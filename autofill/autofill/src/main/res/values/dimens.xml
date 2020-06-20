@@ -17,5 +17,4 @@
 
 <resources>
     <dimen name="autofill_inline_suggestion_icon_size">20dp</dimen>
-    <dimen name="autofill_inline_suggestion_single_icon_size">24dp</dimen>
 </resources>

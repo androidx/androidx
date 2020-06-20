@@ -159,6 +159,7 @@ package androidx.autofill.inline.v1 {
   public static final class InlineSuggestionUi.Style implements androidx.autofill.inline.UiVersions.Style {
     method public androidx.autofill.inline.common.ViewStyle? getChipStyle();
     method public androidx.autofill.inline.common.ImageViewStyle? getEndIconStyle();
+    method public int getLayoutDirection();
     method public androidx.autofill.inline.common.ImageViewStyle? getSingleIconChipIconStyle();
     method public androidx.autofill.inline.common.ViewStyle? getSingleIconChipStyle();
     method public androidx.autofill.inline.common.ImageViewStyle? getStartIconStyle();
@@ -170,6 +171,7 @@ package androidx.autofill.inline.v1 {
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style build();
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setChipStyle(androidx.autofill.inline.common.ViewStyle);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setEndIconStyle(androidx.autofill.inline.common.ImageViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setLayoutDirection(int);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setSingleIconChipIconStyle(androidx.autofill.inline.common.ImageViewStyle);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setSingleIconChipStyle(androidx.autofill.inline.common.ViewStyle);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setStartIconStyle(androidx.autofill.inline.common.ImageViewStyle);

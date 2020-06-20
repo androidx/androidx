@@ -225,7 +225,6 @@ public class InlineSuggestionUiTest {
         assertEquals(TITLE, titleView.getText());
         assertEquals(Color.BLUE, titleView.getCurrentTextColor());
 
-
         TextView subtitleView =
                 mLinearLayout.findViewById(R.id.autofill_inline_suggestion_subtitle);
         assertEquals(SUB_TITLE, subtitleView.getText());
@@ -237,6 +236,72 @@ public class InlineSuggestionUiTest {
 
         ImageView endIcon = mLinearLayout.findViewById(R.id.autofill_inline_suggestion_end_icon);
         TestUtils.verifyPadding(endIcon, 21, 22, 23, 24);
+    }
+
+    @Test
+    public void testRender_allWidgets_rtl() {
+        InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder()
+                .setLayoutDirection(View.LAYOUT_DIRECTION_RTL)
+                .setChipStyle(new ViewStyle.Builder().setPadding(11, 12, 13, 14).build())
+                .setStartIconStyle(new ImageViewStyle.Builder()
+                        .setPadding(21, 22, 23, 24)
+                        .setLayoutMargin(31, 32, 33, 34).build())
+                .setSingleIconChipStyle(new ViewStyle.Builder().setPadding(41, 42, 43, 44).build())
+                .setSingleIconChipIconStyle(new ImageViewStyle.Builder()
+                        .setPadding(51, 52, 53, 54)
+                        .setLayoutMargin(61, 62, 63, 64).build())
+                .build();
+        InlineSuggestionUi.Content contentAllWidgets = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent)
+                .setContentDescription("Content blabla")
+                .setTitle(TITLE)
+                .setSubtitle(SUB_TITLE)
+                .setStartIcon(Icon.createWithResource(mContext,
+                        androidx.autofill.test.R.drawable.ic_settings))
+                .setEndIcon(Icon.createWithResource(mContext,
+                        androidx.autofill.test.R.drawable.ic_settings)).build();
+        View view = InlineSuggestionUi.render(mContext, contentAllWidgets, style);
+        addView(view);
+
+        verifyVisibility(true, true, true, true);
+        TestUtils.verifyPadding(view, 13, 12, 11, 14);
+        assertEquals("Content blabla", view.getContentDescription());
+
+        ImageView startIcon =
+                mLinearLayout.findViewById(R.id.autofill_inline_suggestion_start_icon);
+        TestUtils.verifyPadding(startIcon, 23, 22, 21, 24);
+        TestUtils.verifyLayoutMargin(startIcon, 33, 32, 31, 34);
+    }
+
+    @Test
+    public void testRender_singleIcon_rtl() {
+        InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder()
+                .setLayoutDirection(View.LAYOUT_DIRECTION_RTL)
+                .setChipStyle(new ViewStyle.Builder().setPadding(11, 12, 13, 14).build())
+                .setStartIconStyle(new ImageViewStyle.Builder()
+                        .setPadding(21, 22, 23, 24)
+                        .setLayoutMargin(31, 32, 33, 34).build())
+                .setSingleIconChipStyle(new ViewStyle.Builder().setPadding(41, 42, 43, 44).build())
+                .setSingleIconChipIconStyle(new ImageViewStyle.Builder()
+                        .setPadding(51, 52, 53, 54)
+                        .setLayoutMargin(61, 62, 63, 64).build())
+                .build();
+        InlineSuggestionUi.Content contentSingleIcon = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent)
+                .setContentDescription("Content blabla")
+                .setStartIcon(Icon.createWithResource(mContext,
+                        androidx.autofill.test.R.drawable.ic_settings)).build();
+        View view = InlineSuggestionUi.render(mContext, contentSingleIcon, style);
+        addView(view);
+
+        verifyVisibility(false, false, true, false);
+        TestUtils.verifyPadding(view, 43, 42, 41, 44);
+        assertEquals("Content blabla", view.getContentDescription());
+
+        ImageView startIcon =
+                mLinearLayout.findViewById(R.id.autofill_inline_suggestion_start_icon);
+        TestUtils.verifyPadding(startIcon, 53, 52, 51, 54);
+        TestUtils.verifyLayoutMargin(startIcon, 63, 62, 61, 64);
     }
 
     /** Below are tests for the Content class */
@@ -395,6 +460,35 @@ public class InlineSuggestionUiTest {
         TestUtils.verifyBackgroundColor(titleView, Color.LTGRAY);
         TestUtils.verifyBackgroundColor(subtitleView, Color.WHITE);
         TestUtils.verifyBackgroundColor(endIconView, Color.RED);
+    }
+
+    @Test
+    public void testStyleWithRtl() {
+        InlineSuggestionUi.Style.Builder builder = new InlineSuggestionUi.Style.Builder();
+        InlineSuggestionUi.Style style = builder.setLayoutDirection(
+                View.LAYOUT_DIRECTION_RTL).build();
+
+        View suggestionView = LayoutInflater.from(mContext).inflate(
+                R.layout.autofill_inline_suggestion, null);
+        ImageView startIconView = suggestionView.findViewById(
+                R.id.autofill_inline_suggestion_start_icon);
+        startIconView.setVisibility(View.VISIBLE);
+        TextView titleView = suggestionView.findViewById(R.id.autofill_inline_suggestion_title);
+        titleView.setVisibility(View.VISIBLE);
+        TextView subtitleView = suggestionView.findViewById(
+                R.id.autofill_inline_suggestion_subtitle);
+        subtitleView.setVisibility(View.VISIBLE);
+        ImageView endIconView = suggestionView.findViewById(
+                R.id.autofill_inline_suggestion_end_icon);
+        endIconView.setVisibility(View.VISIBLE);
+
+        style.applyStyle(suggestionView, startIconView, titleView, subtitleView, endIconView);
+
+        assertEquals(View.LAYOUT_DIRECTION_RTL, suggestionView.getLayoutDirection());
+        assertEquals(View.LAYOUT_DIRECTION_RTL, startIconView.getLayoutDirection());
+        assertEquals(View.LAYOUT_DIRECTION_RTL, titleView.getLayoutDirection());
+        assertEquals(View.LAYOUT_DIRECTION_RTL, subtitleView.getLayoutDirection());
+        assertEquals(View.LAYOUT_DIRECTION_RTL, endIconView.getLayoutDirection());
     }
 
     /** Below are private helper methods */
