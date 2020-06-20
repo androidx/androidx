@@ -30,9 +30,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.compose.Composition
-import androidx.compose.CompositionFrameClock
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
+import androidx.compose.dispatch.MonotonicFrameClock
 import androidx.compose.frames.currentFrame
 import androidx.compose.frames.inFrame
 import androidx.ui.core.AndroidOwner
@@ -83,7 +83,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
     private class AutoFrameClock(
         private val singleFrameTimeNanos: Long = 16_000_000
-    ) : CompositionFrameClock {
+    ) : MonotonicFrameClock {
         private val lastFrameTime = AtomicLong(0L)
 
         override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R =
