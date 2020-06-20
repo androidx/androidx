@@ -45,6 +45,7 @@ public class ActionBarContextView extends AbsActionBarView {
     private CharSequence mSubtitle;
 
     private View mClose;
+    private View mCloseButton;
     private View mCustomView;
     private LinearLayout mTitleLayout;
     private TextView mTitleView;
@@ -167,8 +168,8 @@ public class ActionBarContextView extends AbsActionBarView {
             addView(mClose);
         }
 
-        View closeButton = mClose.findViewById(R.id.action_mode_close_button);
-        closeButton.setOnClickListener(new OnClickListener() {
+        mCloseButton = mClose.findViewById(R.id.action_mode_close_button);
+        mCloseButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 mode.finish();
@@ -201,6 +202,10 @@ public class ActionBarContextView extends AbsActionBarView {
         removeAllViews();
         mCustomView = null;
         mMenuView = null;
+        mActionMenuPresenter = null;
+        if (mCloseButton != null) {
+            mCloseButton.setOnClickListener(null);
+        }
     }
 
     @Override
