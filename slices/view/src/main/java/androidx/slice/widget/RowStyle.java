@@ -50,6 +50,7 @@ public class RowStyle {
     private int mProgressBarStartPadding;
     private int mProgressBarEndPadding;
     private int mIconSize;
+    private boolean mDisableRecyclerViewItemAnimator;
 
     public RowStyle(Context context, int resId) {
         TypedArray a = context.getTheme().obtainStyledAttributes(resId, R.styleable.RowStyle);
@@ -90,6 +91,8 @@ public class RowStyle {
                     R.styleable.RowStyle_progressBarEndPadding, UNBOUNDED);
             mIconSize = (int) a.getDimension(
                     R.styleable.RowStyle_iconSize, UNBOUNDED);
+            mDisableRecyclerViewItemAnimator = a.getBoolean(
+                    R.styleable.RowStyle_disableRecyclerViewItemAnimator, false);
         } finally {
             a.recycle();
         }
@@ -165,5 +168,9 @@ public class RowStyle {
 
     public int getIconSize() {
         return mIconSize;
+    }
+
+    public boolean getDisableRecyclerViewItemAnimator() {
+        return mDisableRecyclerViewItemAnimator;
     }
 }
