@@ -37,6 +37,7 @@ import androidx.core.util.Pair;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -78,6 +79,11 @@ final class OpenGLRenderer {
 
     private Pair<Executor, Consumer<Long>> mFrameUpdateListener;
 
+    OpenGLRenderer() {
+        // Initialize the GL context on the GL thread
+        mExecutor.execute(() -> mNativeContext = initContext());
+    }
+
     @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     @MainThread
     void attachInputPreview(@NonNull Preview preview) {
@@ -87,10 +93,6 @@ final class OpenGLRenderer {
                     if (mIsShutdown) {
                         surfaceRequest.willNotProvideSurface();
                         return;
-                    }
-
-                    if (mNativeContext == 0) {
-                        mNativeContext = initContext();
                     }
 
                     SurfaceTexture surfaceTexture = resetPreviewTexture(
@@ -108,7 +110,7 @@ final class OpenGLRenderer {
                                     mPreviewTexture = null;
                                 }
                                 mNumOutstandingSurfaces--;
-                                doShutdownIfNeeded();
+                                doShutdownExecutorIfNeeded();
                             });
                 });
     }
@@ -120,10 +122,6 @@ final class OpenGLRenderer {
                     () -> {
                         if (mIsShutdown) {
                             return;
-                        }
-
-                        if (mNativeContext == 0) {
-                            mNativeContext = initContext();
                         }
 
                         if (setWindowSurface(mNativeContext, surface)) {
@@ -150,9 +148,7 @@ final class OpenGLRenderer {
      */
     void setFrameUpdateListener(@NonNull Executor executor, @NonNull Consumer<Long> listener) {
         try {
-            mExecutor.execute(() -> {
-                mFrameUpdateListener = new Pair<>(executor, listener);
-            });
+            mExecutor.execute(() -> mFrameUpdateListener = new Pair<>(executor, listener));
         } catch (RejectedExecutionException e) {
             // Renderer is shutting down. Ignore.
         }
@@ -163,7 +159,7 @@ final class OpenGLRenderer {
             mExecutor.execute(
                     () -> {
                         this.mSurfaceRotationDegrees = surfaceRotationDegrees;
-                        if (mPreviewTexture != null && mNativeContext != 0) {
+                        if (mPreviewTexture != null && !mIsShutdown) {
                             renderLatest();
                         }
                     });
@@ -185,7 +181,7 @@ final class OpenGLRenderer {
             try {
                 mExecutor.execute(
                         () -> {
-                            if (mNativeContext != 0) {
+                            if (!mIsShutdown) {
                                 setWindowSurface(mNativeContext, null);
                                 mSurfaceSize = null;
                             }
@@ -203,12 +199,12 @@ final class OpenGLRenderer {
         try {
             mExecutor.execute(
                     () -> {
-                        mIsShutdown = true;
-                        if (mNativeContext != 0) {
+                        if (!mIsShutdown) {
                             closeContext(mNativeContext);
                             mNativeContext = 0;
+                            mIsShutdown = true;
                         }
-                        doShutdownIfNeeded();
+                        doShutdownExecutorIfNeeded();
                     });
         } catch (RejectedExecutionException e) {
             // Renderer already shutting down. Ignore.
@@ -216,7 +212,7 @@ final class OpenGLRenderer {
     }
 
     @WorkerThread
-    private void doShutdownIfNeeded() {
+    private void doShutdownExecutorIfNeeded() {
         if (mIsShutdown && mNumOutstandingSurfaces == 0) {
             mFrameUpdateListener = null;
             mExecutor.shutdown();
@@ -234,7 +230,7 @@ final class OpenGLRenderer {
         mPreviewTexture.setDefaultBufferSize(size.getWidth(), size.getHeight());
         mPreviewTexture.setOnFrameAvailableListener(
                 surfaceTexture -> {
-                    if (surfaceTexture == mPreviewTexture && mNativeContext != 0) {
+                    if (surfaceTexture == mPreviewTexture && !mIsShutdown) {
                         surfaceTexture.updateTexImage();
                         renderLatest();
                     }
@@ -266,12 +262,10 @@ final class OpenGLRenderer {
             boolean success = renderTexture(mNativeContext, timestampNs, mSurfaceTransform,
                     mFragmentShaderTransform);
             if (success && mFrameUpdateListener != null) {
-                Executor executor = mFrameUpdateListener.first;
-                Consumer<Long> listener = mFrameUpdateListener.second;
+                Executor executor = Objects.requireNonNull(mFrameUpdateListener.first);
+                Consumer<Long> listener = Objects.requireNonNull(mFrameUpdateListener.second);
                 try {
-                    executor.execute(() -> {
-                        listener.accept(timestampNs);
-                    });
+                    executor.execute(() -> listener.accept(timestampNs));
                 } catch (RejectedExecutionException e) {
                     // Unable to send frame update. Ignore.
                 }
