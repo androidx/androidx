@@ -54,4 +54,5 @@
     <public type="attr" name="progressBarStartPadding" />
     <public type="attr" name="progressBarEndPadding" />
     <public type="attr" name="iconSize" />
+    <public type="attr" name="disableRecyclerViewItemAnimator" />
 </resources>

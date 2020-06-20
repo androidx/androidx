@@ -117,5 +117,8 @@
 
         <!-- Size of icon. -->
         <attr name="iconSize" format="dimension" />
+        <!-- Control whether RecyclerView item animator is disable or not, true for disable
+        otherwise enable. -->
+        <attr name="disableRecyclerViewItemAnimator" format="boolean" />
     </declare-styleable>
 </resources>
