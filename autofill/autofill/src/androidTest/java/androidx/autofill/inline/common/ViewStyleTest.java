@@ -99,4 +99,18 @@ public class ViewStyleTest {
         // When both background and background color are set, the background color takes precedence.
         TestUtils.verifyBackgroundColor(view, Color.YELLOW);
     }
+
+    @Test
+    public void testStyleWithRtl() {
+        ViewStyle.Builder builder = new ViewStyle.Builder();
+        ViewStyle style = builder
+                .setPadding(1, 2, 3, 4)
+                .setLayoutMargin(5, 6, 7, 8)
+                .build();
+        View view = new View(mContext);
+        view.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        style.applyStyleOnViewIfValid(view);
+        TestUtils.verifyPadding(view, 3, 2, 1, 4);
+        TestUtils.verifyLayoutMargin(view, 7, 6, 5, 8);
+    }
 }

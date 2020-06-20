@@ -210,6 +210,7 @@ public final class InlineSuggestionUi {
         private static final String KEY_END_ICON_STYLE = "end_icon_style";
         private static final String KEY_SINGLE_ICON_CHIP_STYLE = "single_icon_chip_style";
         private static final String KEY_SINGLE_ICON_CHIP_ICON_STYLE = "single_icon_chip_icon_style";
+        private static final String KEY_LAYOUT_DIRECTION = "layout_direction";
 
         /**
          * Use {@link InlineSuggestionUi#fromBundle(Bundle)} or {@link Builder#build()} to
@@ -238,6 +239,10 @@ public final class InlineSuggestionUi {
             if (!isValid()) {
                 return;
             }
+
+            // layout direction
+            singleIconChipView.setLayoutDirection(getLayoutDirection());
+
             // single icon
             if (singleIconView.getVisibility() != View.GONE) {
                 ImageViewStyle singleIconViewStyle = getSingleIconChipIconStyle();
@@ -268,6 +273,10 @@ public final class InlineSuggestionUi {
             if (!isValid()) {
                 return;
             }
+
+            // layout direction
+            chipView.setLayoutDirection(getLayoutDirection());
+
             // start icon
             if (startIconView.getVisibility() != View.GONE) {
                 ImageViewStyle startIconViewStyle = getStartIconStyle();
@@ -313,6 +322,17 @@ public final class InlineSuggestionUi {
             return UiVersions.INLINE_UI_VERSION_1;
         }
 
+        /**
+         * @see Builder#setLayoutDirection(int)
+         */
+        public int getLayoutDirection() {
+            int layoutDirection = mBundle.getInt(KEY_LAYOUT_DIRECTION, View.LAYOUT_DIRECTION_LTR);
+            if (layoutDirection != View.LAYOUT_DIRECTION_LTR
+                    && layoutDirection != View.LAYOUT_DIRECTION_RTL) {
+                layoutDirection = View.LAYOUT_DIRECTION_LTR;
+            }
+            return layoutDirection;
+        }
 
         /**
          * @see Builder#setChipStyle(ViewStyle)
@@ -387,6 +407,24 @@ public final class InlineSuggestionUi {
              */
             Builder() {
                 super(KEY_STYLE_V1);
+            }
+
+            /**
+             * Sets the layout direction for the UI.
+             *
+             * <p>Note that the process that renders the UI needs to have
+             * {@code android:supportsRtl="true"} for this to take effect.
+             *
+             * @param layoutDirection the layout direction to set. Should be one of:
+             *                        {@link View#LAYOUT_DIRECTION_LTR},
+             *                        {@link View#LAYOUT_DIRECTION_RTL}.
+             *
+             * @see View#setLayoutDirection(int)
+             */
+            @NonNull
+            public Builder setLayoutDirection(int layoutDirection) {
+                mBundle.putInt(KEY_LAYOUT_DIRECTION, layoutDirection);
+                return this;
             }
 
             /**
