@@ -19,12 +19,12 @@ package androidx.ui.core
 import androidx.compose.Applier
 import androidx.compose.Composable
 import androidx.compose.Composer
-import androidx.compose.CompositionFrameClock
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.InternalComposeApi
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.currentComposer
+import androidx.compose.dispatch.MonotonicFrameClock
 import androidx.compose.invalidate
 import androidx.compose.remember
 import androidx.compose.withRunningRecomposer
@@ -218,7 +218,7 @@ private fun compose(
     }
 }
 
-private class TestFrameClock : CompositionFrameClock {
+private class TestFrameClock : MonotonicFrameClock {
 
     private val frameCh = Channel<Long>()
 
