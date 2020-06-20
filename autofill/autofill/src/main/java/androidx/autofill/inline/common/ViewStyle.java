@@ -80,7 +80,11 @@ public class ViewStyle extends BundledStyle {
         if (mBundle.containsKey(KEY_PADDING)) {
             int[] padding = mBundle.getIntArray(KEY_PADDING);
             if (padding != null && padding.length == 4) {
-                view.setPadding(padding[0], padding[1], padding[2], padding[3]);
+                if (view.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR) {
+                    view.setPadding(padding[0], padding[1], padding[2], padding[3]);
+                } else {
+                    view.setPadding(padding[2], padding[1], padding[0], padding[3]);
+                }
             }
         }
         if (mBundle.containsKey(KEY_LAYOUT_MARGIN)) {
@@ -94,9 +98,16 @@ public class ViewStyle extends BundledStyle {
                 } else if (!(layoutParams instanceof ViewGroup.MarginLayoutParams)) {
                     layoutParams = new ViewGroup.MarginLayoutParams(layoutParams);
                 }
-                ((ViewGroup.MarginLayoutParams) layoutParams).setMargins(layoutMargin[0],
-                        layoutMargin[1], layoutMargin[2], layoutMargin[3]);
-                view.setLayoutParams(layoutParams);
+                ViewGroup.MarginLayoutParams marginLayoutParams =
+                        (ViewGroup.MarginLayoutParams) layoutParams;
+                if (view.getLayoutDirection() == View.LAYOUT_DIRECTION_LTR) {
+                    marginLayoutParams.setMargins(layoutMargin[0],
+                            layoutMargin[1], layoutMargin[2], layoutMargin[3]);
+                } else {
+                    marginLayoutParams.setMargins(layoutMargin[2],
+                            layoutMargin[1], layoutMargin[0], layoutMargin[3]);
+                }
+                view.setLayoutParams(marginLayoutParams);
             }
         }
     }
@@ -163,32 +174,38 @@ public class ViewStyle extends BundledStyle {
         /**
          * Sets the padding.
          *
-         * @param left   the left padding in pixels
+         * <p> Note that the method takes start/end rather than left/right, respecting the layout
+         * direction.
+         *
+         * @param start   the start padding in pixels
          * @param top    the top padding in pixels
-         * @param right  the right padding in pixels
+         * @param end  the end padding in pixels
          * @param bottom the bottom padding in pixels
          * @see android.view.View#setPadding(int, int, int, int)
          */
         @NonNull
-        public B setPadding(int left, int top, int right, int bottom) {
-            mBundle.putIntArray(KEY_PADDING, new int[]{left, top, right, bottom});
+        public B setPadding(int start, int top, int end, int bottom) {
+            mBundle.putIntArray(KEY_PADDING, new int[]{start, top, end, bottom});
             return getThis();
         }
 
         /**
          * Sets the layout margin through the view's layout param.
          *
-         * @param left   the left margin size
+         * <p> Note that the method takes start/end rather than left/right, respecting the layout
+         * direction.
+         *
+         * @param start   the start margin size
          * @param top    the top margin size
-         * @param right  the right margin size
+         * @param end  the end margin size
          * @param bottom the bottom margin size
          * @see android.view.ViewGroup.MarginLayoutParams#setMargins(int, int, int, int)
          * @see android.view.View#setLayoutParams(android.view.ViewGroup.LayoutParams)
          */
         @NonNull
-        public B setLayoutMargin(int left, int top, int right,
+        public B setLayoutMargin(int start, int top, int end,
                 int bottom) {
-            mBundle.putIntArray(KEY_LAYOUT_MARGIN, new int[]{left, top, right, bottom});
+            mBundle.putIntArray(KEY_LAYOUT_MARGIN, new int[]{start, top, end, bottom});
             return getThis();
         }
     }
