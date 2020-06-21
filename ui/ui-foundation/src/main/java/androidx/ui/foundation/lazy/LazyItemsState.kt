@@ -17,12 +17,12 @@
 package androidx.ui.foundation.lazy
 
 import androidx.compose.Composable
+import androidx.compose.ComposableContract
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
-import androidx.compose.Untracked
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutNode
@@ -468,9 +468,13 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
         } else {
             node = rootNode.children[layoutIndex.value]
         }
-        // TODO(b/150390669): Review use of @Untracked
+        // TODO(b/150390669): Review use of @ComposableContract(tracked = false)
         @OptIn(ExperimentalComposeApi::class)
-        val composition = subcomposeInto(node, recomposer, compositionRef) @Untracked {
+        val composition = subcomposeInto(
+            node,
+            recomposer,
+            compositionRef
+        ) @ComposableContract(tracked = false) {
             itemContent(items[dataIndex.value])
         }
         compositionsForLayoutNodes[node] = composition
