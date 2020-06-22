@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.ui.tooling.animation
+package androidx.ui.tooling.preview.animation
 
 import androidx.animation.AnimationClockObserver
-import androidx.ui.tooling.preview.animation.PreviewAnimationClock
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
