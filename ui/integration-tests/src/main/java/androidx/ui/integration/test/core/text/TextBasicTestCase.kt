@@ -19,19 +19,22 @@ package androidx.ui.integration.test.core.text
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.integration.test.RandomTextGenerator
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
+import androidx.ui.unit.Dp
+import androidx.ui.unit.TextUnit
 
 /**
  * The benchmark test case for [Text], where the input is a plain string.
  */
 class TextBasicTestCase(
+    private val width: Dp,
+    private val fontSize: TextUnit,
     textLength: Int,
     randomTextGenerator: RandomTextGenerator
 ) : ComposeTestCase {
@@ -48,9 +51,10 @@ class TextBasicTestCase(
 
     @Composable
     override fun emitContent() {
-        Text(
-            text = text, color = Color.Black, fontSize = 8.sp,
-            modifier = Modifier.wrapContentSize(Alignment.Center).preferredWidth(160.dp)
-        )
+        Box(
+            modifier = Modifier.wrapContentSize(Alignment.Center).preferredWidth(width)
+        ) {
+            Text(text = text, color = Color.Black, fontSize = fontSize)
+        }
     }
 }

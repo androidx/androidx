@@ -40,13 +40,6 @@ import kotlin.math.roundToInt
 @LargeTest
 @RunWith(Parameterized::class)
 class FrameworkTextLayoutBenchmark(private val textLength: Int) {
-    lateinit var instrumentationContext: Context
-
-    @Before
-    fun setup() {
-        instrumentationContext = InstrumentationRegistry.getInstrumentation().context
-    }
-
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "length={0} ")
@@ -59,25 +52,38 @@ class FrameworkTextLayoutBenchmark(private val textLength: Int) {
     @get:Rule
     val textBenchmarkRule = TextBenchmarkTestRule(Alphabet.Latin)
 
-    private fun toDip(value: Float): Float = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP,
-        value,
-        instrumentationContext.resources.displayMetrics
-    )
+    private lateinit var instrumentationContext: Context
+    // Width and fontSize initialized in setup().
+    private var width: Int = 0
+    private var fontSize: Float = 0f
+
+    @Before
+    fun setup() {
+        instrumentationContext = InstrumentationRegistry.getInstrumentation().context
+        width = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            textBenchmarkRule.widthDp,
+            instrumentationContext.resources.displayMetrics
+        ).roundToInt()
+        fontSize = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_SP,
+            textBenchmarkRule.fontSizeSp,
+            instrumentationContext.resources.displayMetrics
+        )
+    }
 
     @Test
     fun staticLayoutCreation() {
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureRepeated {
-                val (text, paint, width) = runWithTimingDisabled {
+                val (text, paint) = runWithTimingDisabled {
                     val text = textGenerator.nextParagraph(textLength)
                     val paint = TextPaint().apply {
                         this.typeface = Typeface.DEFAULT
                         this.color = Color.BLACK
-                        this.textSize = toDip(8f)
+                        this.textSize = fontSize
                     }
-                    val width = toDip(160f).roundToInt()
-                    Triple(text, paint, width)
+                    Pair(text, paint)
                 }
                 StaticLayout.Builder.obtain(text, 0, text.length, paint, width).build()
             }
@@ -90,7 +96,10 @@ class FrameworkTextLayoutBenchmark(private val textLength: Int) {
             benchmarkRule.measureRepeated {
                 val (text, paint) = runWithTimingDisabled {
                     val text = textGenerator.nextParagraph(textLength)
-                    val paint = TextPaint().apply { this.typeface = Typeface.DEFAULT }
+                    val paint = TextPaint().apply {
+                        this.typeface = Typeface.DEFAULT
+                        this.textSize = fontSize
+                    }
                     Pair(text, paint)
                 }
                 val metrics = BoringLayout.isBoring(text, paint)

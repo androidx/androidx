@@ -47,6 +47,13 @@ class TextBenchmarkTestRule(alphabet: Alphabet = Alphabet.Latin) : TestRule {
     fun <T> generator(block: (generator: RandomTextGenerator) -> T): T {
         return textGeneratorTestRule.generator(block)
     }
+
+    // Width and fontSize used for Layout measurement should be the same for all text benchmarks.
+    // It is helpful when we compare the performance of different layers.
+    // Notice that different test cases accept different length units. The unit of width and
+    // fontSize here are dp and sp, which should be converted into needed unit in the test case.
+    val widthDp: Float = 160f
+    val fontSizeSp: Float = 8f
 }
 
 /**

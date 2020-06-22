@@ -16,9 +16,12 @@
 
 package androidx.ui.text
 
+import android.content.Context
+import android.util.TypedValue
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.unit.Density
 import androidx.ui.unit.sp
 import androidx.ui.graphics.Canvas
@@ -30,6 +33,7 @@ import androidx.ui.integration.test.TextType
 import androidx.ui.integration.test.cartesian
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirection
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,7 +47,6 @@ class ParagraphBenchmark(
     private val textType: TextType,
     alphabet: Alphabet
 ) {
-
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "length={0} type={1} alphabet={2}")
@@ -59,6 +62,21 @@ class ParagraphBenchmark(
 
     @get:Rule
     val textBenchmarkRule = TextBenchmarkTestRule(alphabet)
+
+    private lateinit var instrumentationContext: Context
+    // Width initialized in setup().
+    private var width: Float = 0f
+    private val fontSize = textBenchmarkRule.fontSizeSp.sp
+
+    @Before
+    fun setup() {
+        instrumentationContext = InstrumentationRegistry.getInstrumentation().context
+        width = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            textBenchmarkRule.widthDp,
+            instrumentationContext.resources.displayMetrics
+        )
+    }
 
     // dummy object required to construct Paragraph
     private val resourceLoader = object : Font.ResourceLoader {
@@ -104,9 +122,9 @@ class ParagraphBenchmark(
     ): ParagraphIntrinsics {
         return ParagraphIntrinsics(
             text = text,
-            density = Density(density = 1f),
+            density = Density(density = instrumentationContext.resources.displayMetrics.density),
             style = TextStyle(
-                fontSize = 12.sp,
+                fontSize = fontSize,
                 textDirection = TextDirection.ContentOrLtr
             ),
             resourceLoader = resourceLoader,
@@ -144,20 +162,16 @@ class ParagraphBenchmark(
     fun construct() {
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureRepeated {
-                val textAndWidth = runWithTimingDisabled {
-                    val intrinsics = paragraphIntrinsics(textGenerator)
+                val annotatedString = runWithTimingDisabled {
                     // create a new paragraph and use a smaller width to get
                     // some line breaking in the result
-                    Pair(
-                        text(textGenerator),
-                        intrinsics.maxIntrinsicWidth / 4f
-                    )
+                    text(textGenerator)
                 }
 
                 paragraph(
-                    text = textAndWidth.first.text,
-                    spanStyles = textAndWidth.first.spanStyles,
-                    constraints = ParagraphConstraints(textAndWidth.second)
+                    text = annotatedString.text,
+                    spanStyles = annotatedString.spanStyles,
+                    constraints = ParagraphConstraints(width)
                 )
             }
         }
@@ -169,12 +183,9 @@ class ParagraphBenchmark(
     @Test
     fun first_paint() {
         textBenchmarkRule.generator { textGenerator ->
-            val width = paragraphIntrinsics(textGenerator).maxIntrinsicWidth / 4f
             benchmarkRule.measureRepeated {
                 val (paragraph, canvas) = runWithTimingDisabled {
                     val (text, style) = text(textGenerator)
-                    // create a new paragraph and use a smaller width to get
-                    // some line breaking in the result
                     val paragraph = paragraph(text, style, ParagraphConstraints(width))
                     val canvas = Canvas(
                         ImageAsset(paragraph.width.roundToInt(), paragraph.height.roundToInt())
@@ -192,7 +203,6 @@ class ParagraphBenchmark(
     @Test
     fun paint() {
         textBenchmarkRule.generator { textGenerator ->
-            val width = paragraphIntrinsics(textGenerator).maxIntrinsicWidth / 4f
             val (text, style) = text(textGenerator)
             // create a new paragraph and use a smaller width to get
             // some line breaking in the result
