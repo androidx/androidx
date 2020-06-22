@@ -128,7 +128,6 @@ public abstract class RoomDatabase {
         return mSuspendingTransactionId;
     }
 
-
     private final Map<String, Object> mBackingFieldMap =
             Collections.synchronizedMap(new HashMap<>());
 
