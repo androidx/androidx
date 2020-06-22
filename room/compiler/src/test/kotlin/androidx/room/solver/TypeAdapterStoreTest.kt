@@ -36,16 +36,11 @@ import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderPro
 import androidx.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
-import androidx.room.solver.binderprovider.RxFlowableQueryResultBinderProvider
-import androidx.room.solver.binderprovider.RxObservableQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxCompletableDeleteOrUpdateMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxCompletableInsertMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxMaybeDeleteOrUpdateMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxMaybeInsertMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxSingleDeleteOrUpdateMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxSingleInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinderProvider
 import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.TestInvocation
@@ -242,8 +237,10 @@ class TypeAdapterStoreTest {
             val publisherElement = invocation.processingEnv.elementUtils
                     .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
             assertThat(publisherElement, notNullValue())
-            assertThat(RxFlowableQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(publisherElement.asType())), `is`(true))
+            assertThat(
+                RxQueryResultBinderProvider.getAll(invocation.context).any {
+                    it.matches(MoreTypes.asDeclared(publisherElement.asType()))
+                }, `is`(true))
         }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
     }
 
@@ -254,8 +251,10 @@ class TypeAdapterStoreTest {
             val publisher = invocation.processingEnv.elementUtils
                     .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
             assertThat(publisher, notNullValue())
-            assertThat(RxFlowableQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(publisher.asType())), `is`(true))
+            assertThat(
+                RxQueryResultBinderProvider.getAll(invocation.context).any {
+                    it.matches(MoreTypes.asDeclared(publisher.asType()))
+                }, `is`(true))
         }.compilesWithoutError()
     }
 
@@ -266,8 +265,10 @@ class TypeAdapterStoreTest {
             val flowable = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.FLOWABLE.toString())
             assertThat(flowable, notNullValue())
-            assertThat(RxFlowableQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(flowable.asType())), `is`(true))
+            assertThat(
+                RxQueryResultBinderProvider.getAll(invocation.context).any {
+                    it.matches(MoreTypes.asDeclared(flowable.asType()))
+                }, `is`(true))
         }.compilesWithoutError()
     }
 
@@ -278,8 +279,10 @@ class TypeAdapterStoreTest {
             val observable = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.OBSERVABLE.toString())
             assertThat(observable, notNullValue())
-            assertThat(RxObservableQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(observable.asType())), `is`(true))
+            assertThat(
+                RxQueryResultBinderProvider.getAll(invocation.context).any {
+                    it.matches(MoreTypes.asDeclared(observable.asType()))
+                }, `is`(true))
         }.compilesWithoutError()
     }
 
@@ -290,8 +293,10 @@ class TypeAdapterStoreTest {
             val single = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.SINGLE.toString())
             assertThat(single, notNullValue())
-            assertThat(RxSingleInsertMethodBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(single.asType())), `is`(true))
+            assertThat(
+                RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
+                    it.matches(MoreTypes.asDeclared(single.asType()))
+                }, `is`(true))
         }.compilesWithoutError()
     }
 
@@ -302,8 +307,10 @@ class TypeAdapterStoreTest {
             val maybe = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.MAYBE.toString())
             assertThat(maybe, notNullValue())
-            assertThat(RxMaybeInsertMethodBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(maybe.asType())), `is`(true))
+            assertThat(
+                RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
+                    it.matches(MoreTypes.asDeclared(maybe.asType()))
+                }, `is`(true))
         }.compilesWithoutError()
     }
 
@@ -314,8 +321,10 @@ class TypeAdapterStoreTest {
             val completable = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())
             assertThat(completable, notNullValue())
-            assertThat(RxCompletableInsertMethodBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(completable.asType())), `is`(true))
+            assertThat(
+                RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
+                    it.matches(MoreTypes.asDeclared(completable.asType()))
+                }, `is`(true))
         }.compilesWithoutError()
     }
 
@@ -338,8 +347,10 @@ class TypeAdapterStoreTest {
             val single = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.SINGLE.toString())
             assertThat(single, notNullValue())
-            assertThat(RxSingleDeleteOrUpdateMethodBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(single.asType())), `is`(true))
+            assertThat(
+                RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
+                    it.matches(MoreTypes.asDeclared(single.asType()))
+                }, `is`(true))
         }.compilesWithoutError()
     }
 
@@ -350,8 +361,10 @@ class TypeAdapterStoreTest {
             val maybe = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.MAYBE.toString())
             assertThat(maybe, notNullValue())
-            assertThat(RxMaybeDeleteOrUpdateMethodBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(maybe.asType())), `is`(true))
+            assertThat(
+                RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
+                    it.matches(MoreTypes.asDeclared(maybe.asType()))
+                }, `is`(true))
         }.compilesWithoutError()
     }
 
@@ -362,8 +375,10 @@ class TypeAdapterStoreTest {
             val completable = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())
             assertThat(completable, notNullValue())
-            assertThat(RxCompletableDeleteOrUpdateMethodBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(completable.asType())), `is`(true))
+            assertThat(
+                RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
+                    it.matches(MoreTypes.asDeclared(completable.asType()))
+                }, `is`(true))
         }.compilesWithoutError()
     }
 
