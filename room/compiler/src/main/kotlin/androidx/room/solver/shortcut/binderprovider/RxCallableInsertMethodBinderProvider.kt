@@ -17,21 +17,20 @@
 package androidx.room.solver.shortcut.binderprovider
 
 import androidx.room.ext.L
-import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
+import androidx.room.solver.RxType
 import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
-import com.squareup.javapoet.ClassName
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
 /**
  * Provider for Rx Callable binders.
  */
-sealed class RxCallableInsertMethodBinderProvider(
+open class RxCallableInsertMethodBinderProvider internal constructor(
     val context: Context,
     private val rxType: RxType
 ) : InsertMethodBinderProvider {
@@ -40,7 +39,7 @@ sealed class RxCallableInsertMethodBinderProvider(
      * [Single] and [Maybe] are generics but [Completable] is not so each implementation of this
      * class needs to define how to extract the type argument.
      */
-    abstract fun extractTypeArg(declared: DeclaredType): TypeMirror
+    open fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
 
     override fun matches(declared: DeclaredType): Boolean =
             declared.typeArguments.size == 1 && matchesRxType(declared)
@@ -61,35 +60,23 @@ sealed class RxCallableInsertMethodBinderProvider(
         }
     }
 
-    /**
-     * Supported types for insert
-     */
-    enum class RxType(val className: ClassName) {
-        SINGLE(RxJava2TypeNames.SINGLE),
-        MAYBE(RxJava2TypeNames.MAYBE),
-        COMPLETABLE(RxJava2TypeNames.COMPLETABLE)
+    companion object {
+        fun getAll(context: Context) = listOf(
+            RxCallableInsertMethodBinderProvider(context, RxType.RX2_SINGLE),
+            RxCallableInsertMethodBinderProvider(context, RxType.RX2_MAYBE),
+            RxCompletableInsertMethodBinderProvider(context, RxType.RX2_COMPLETABLE)
+        )
     }
 }
 
-class RxSingleInsertMethodBinderProvider(context: Context) :
-    RxCallableInsertMethodBinderProvider(context, RxType.SINGLE) {
-
-    override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
-}
-
-class RxMaybeInsertMethodBinderProvider(context: Context) :
-    RxCallableInsertMethodBinderProvider(context, RxType.MAYBE) {
-
-    override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
-}
-
-class RxCompletableInsertMethodBinderProvider(context: Context) :
-    RxCallableInsertMethodBinderProvider(context,
-        RxType.COMPLETABLE) {
+private class RxCompletableInsertMethodBinderProvider(
+    context: Context,
+    rxType: RxType
+) : RxCallableInsertMethodBinderProvider(context, rxType) {
 
     private val completableTypeMirror: TypeMirror? by lazy {
         context.processingEnv.elementUtils
-                .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())?.asType()
+                .getTypeElement(rxType.className.toString())?.asType()
     }
 
     /**

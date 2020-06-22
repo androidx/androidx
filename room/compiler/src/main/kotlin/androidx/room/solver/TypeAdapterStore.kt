@@ -36,17 +36,14 @@ import androidx.room.solver.binderprovider.GuavaListenableFutureQueryResultBinde
 import androidx.room.solver.binderprovider.InstantQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
-import androidx.room.solver.binderprovider.RxFlowableQueryResultBinderProvider
-import androidx.room.solver.binderprovider.RxMaybeQueryResultBinderProvider
-import androidx.room.solver.binderprovider.RxObservableQueryResultBinderProvider
-import androidx.room.solver.binderprovider.RxSingleQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxCallableQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
 import androidx.room.solver.prepared.binder.InstantPreparedQueryResultBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.prepared.binderprovider.GuavaListenableFuturePreparedQueryResultBinderProvider
 import androidx.room.solver.prepared.binderprovider.InstantPreparedQueryResultBinderProvider
-import androidx.room.solver.prepared.binderprovider.RxCompletablePreparedQueryResultBinderProvider
-import androidx.room.solver.prepared.binderprovider.RxMaybePreparedQueryResultBinderProvider
-import androidx.room.solver.prepared.binderprovider.RxSinglePreparedQueryResultBinderProvider
+import androidx.room.solver.prepared.binderprovider.PreparedQueryResultBinderProvider
+import androidx.room.solver.prepared.binderprovider.RxPreparedQueryResultBinderProvider
 import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
 import androidx.room.solver.query.parameter.ArrayQueryParameterAdapter
 import androidx.room.solver.query.parameter.BasicQueryParameterAdapter
@@ -69,16 +66,14 @@ import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.solver.shortcut.binder.InstantDeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InstantInsertMethodBinder
+import androidx.room.solver.shortcut.binderprovider.DeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.InsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.InstantDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.InstantInsertMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxCompletableDeleteOrUpdateMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxCompletableInsertMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxMaybeDeleteOrUpdateMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxMaybeInsertMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxSingleDeleteOrUpdateMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxSingleInsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinderProvider
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
 import androidx.room.solver.types.BoxedBooleanToBoxedIntConverter
@@ -169,44 +164,40 @@ class TypeAdapterStore private constructor(
         }
     }
 
-    val queryResultBinderProviders = listOf(
-            CursorQueryResultBinderProvider(context),
-            LiveDataQueryResultBinderProvider(context),
-            GuavaListenableFutureQueryResultBinderProvider(context),
-            RxFlowableQueryResultBinderProvider(context),
-            RxObservableQueryResultBinderProvider(context),
-            RxMaybeQueryResultBinderProvider(context),
-            RxSingleQueryResultBinderProvider(context),
-            DataSourceQueryResultBinderProvider(context),
-            DataSourceFactoryQueryResultBinderProvider(context),
-            PagingSourceQueryResultBinderProvider(context),
-            CoroutineFlowResultBinderProvider(context),
-            InstantQueryResultBinderProvider(context)
-    )
+    val queryResultBinderProviders: List<QueryResultBinderProvider> =
+        mutableListOf<QueryResultBinderProvider>().apply {
+            add(CursorQueryResultBinderProvider(context))
+            add(LiveDataQueryResultBinderProvider(context))
+            add(GuavaListenableFutureQueryResultBinderProvider(context))
+            addAll(RxQueryResultBinderProvider.getAll(context))
+            addAll(RxCallableQueryResultBinderProvider.getAll(context))
+            add(DataSourceQueryResultBinderProvider(context))
+            add(DataSourceFactoryQueryResultBinderProvider(context))
+            add(PagingSourceQueryResultBinderProvider(context))
+            add(CoroutineFlowResultBinderProvider(context))
+            add(InstantQueryResultBinderProvider(context))
+        }
 
-    val preparedQueryResultBinderProviders = listOf(
-            RxSinglePreparedQueryResultBinderProvider(context),
-            RxMaybePreparedQueryResultBinderProvider(context),
-            RxCompletablePreparedQueryResultBinderProvider(context),
-            GuavaListenableFuturePreparedQueryResultBinderProvider(context),
-            InstantPreparedQueryResultBinderProvider(context)
-    )
+    val preparedQueryResultBinderProviders: List<PreparedQueryResultBinderProvider> =
+        mutableListOf<PreparedQueryResultBinderProvider>().apply {
+            addAll(RxPreparedQueryResultBinderProvider.getAll(context))
+            add(GuavaListenableFuturePreparedQueryResultBinderProvider(context))
+            add(InstantPreparedQueryResultBinderProvider(context))
+        }
 
-    val insertBinderProviders = listOf(
-            RxSingleInsertMethodBinderProvider(context),
-            RxMaybeInsertMethodBinderProvider(context),
-            RxCompletableInsertMethodBinderProvider(context),
-            GuavaListenableFutureInsertMethodBinderProvider(context),
-            InstantInsertMethodBinderProvider(context)
-    )
+    val insertBinderProviders: List<InsertMethodBinderProvider> =
+        mutableListOf<InsertMethodBinderProvider>().apply {
+            addAll(RxCallableInsertMethodBinderProvider.getAll(context))
+            add(GuavaListenableFutureInsertMethodBinderProvider(context))
+            add(InstantInsertMethodBinderProvider(context))
+        }
 
-    val deleteOrUpdateBinderProvider = listOf(
-            RxSingleDeleteOrUpdateMethodBinderProvider(context),
-            RxMaybeDeleteOrUpdateMethodBinderProvider(context),
-            RxCompletableDeleteOrUpdateMethodBinderProvider(context),
-            GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(context),
-            InstantDeleteOrUpdateMethodBinderProvider(context)
-    )
+    val deleteOrUpdateBinderProvider: List<DeleteOrUpdateMethodBinderProvider> =
+        mutableListOf<DeleteOrUpdateMethodBinderProvider>().apply {
+            addAll(RxCallableDeleteOrUpdateMethodBinderProvider.getAll(context))
+            add(GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(context))
+            add(InstantDeleteOrUpdateMethodBinderProvider(context))
+        }
 
     // type mirrors that be converted into columns w/o an extra converter
     private val knownColumnTypeMirrors by lazy {
