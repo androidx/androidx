@@ -18,6 +18,8 @@ package androidx.ui.text.selection
 
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.gesture.LongPressDragObserver
+import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.geometry.Offset
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.TextFieldValue
@@ -58,6 +60,11 @@ internal class TextFieldSelectionManager {
      * [ClipboardManager] to perform clipboard features.
      */
     internal var clipboardManager: ClipboardManager? = null
+
+    /**
+     * [HapticFeedback] handle to perform haptic feedback.
+     */
+    var hapticFeedBack: HapticFeedback? = null
 
     /**
      * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
@@ -210,6 +217,8 @@ internal class TextFieldSelectionManager {
         )
 
         if (range == value.selection) return
+
+        hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
 
         val newValue = TextFieldValue(
             text = value.text,
