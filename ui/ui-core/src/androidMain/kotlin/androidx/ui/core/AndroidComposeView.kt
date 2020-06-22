@@ -198,16 +198,6 @@ internal class AndroidComposeView constructor(
         }
     }
 
-    override fun dispatchWindowFocusChanged(hasFocus: Boolean) {
-        Log.d(FOCUS_TAG, "Owner WindowFocusChanged($hasFocus)")
-        // If the focus state is not Inactive, it indicates that this is not the first time that
-        // this Window got focus. So we maintain the previous focus state.
-        if (hasFocus && focusModifier.focusDetailedState == Inactive) {
-            focusModifier.focusDetailedState = Active
-            // TODO(b/152535715): propagate focus to children based on child focusability.
-        }
-    }
-
     override fun sendKeyEvent(keyEvent: KeyEvent): Boolean {
         return keyInputModifier.processKeyInput(keyEvent)
     }
