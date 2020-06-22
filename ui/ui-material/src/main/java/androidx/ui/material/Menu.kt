@@ -197,7 +197,7 @@ internal val OutTransitionDuration = 75
 private val DropdownMenuOpenCloseTransition = transitionDefinition {
     state(false) {
         // Menu is dismissed.
-        this[Scale] = 0f
+        this[Scale] = 0.8f
         this[Alpha] = 0f
     }
     state(true) {
