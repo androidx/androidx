@@ -16,41 +16,55 @@
 
 package androidx.lifecycle
 
+import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @RunWith(AndroidJUnit4::class)
 class FlowAsLiveDataIntegrationTest {
+
+    @Before
+    fun clearArchExecutors() {
+        // make sure we don't receive a modified delegate. b/159212029
+        ArchTaskExecutor.getInstance().setDelegate(null)
+    }
+
     @Test
     @SmallTest
     fun startStopImmediately() {
         runBlocking {
-            val mediator = withContext(Dispatchers.Main) {
+            val stopChannelFlow = CompletableDeferred<Unit>()
+            val (mediator, liveData) = withContext(Dispatchers.Main) {
                 val mediator = MediatorLiveData<Int>()
                 val liveData = channelFlow {
                     send(1)
-                    delay(30000) // prevent block from ending
+                    // prevent block from ending
+                    stopChannelFlow.await()
                 }.asLiveData()
                 mediator.addSource(liveData) {
                     mediator.removeSource(liveData)
                     mediator.value = -it
                 }
-                mediator
+                mediator to liveData
             }
             val read = mediator.asFlow().first()
-            Truth.assertThat(read).isEqualTo(-1)
+            assertThat(read).isEqualTo(-1)
+            assertThat(liveData.hasObservers()).isFalse()
+            // make sure this test doesn't leak a running coroutine
+            stopChannelFlow.complete(Unit)
         }
     }
 }
