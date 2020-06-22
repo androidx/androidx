@@ -18,10 +18,16 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
+import androidx.ui.layout.Spacer
+import androidx.ui.layout.size
 import androidx.ui.material.Button
 import androidx.ui.material.OutlinedButton
 import androidx.ui.material.TextButton
+import androidx.ui.material.icons.Icons
+import androidx.ui.material.icons.filled.Favorite
 
 @Sampled
 @Composable
@@ -44,5 +50,15 @@ fun OutlinedButtonSample() {
 fun TextButtonSample() {
     TextButton(onClick = { /* Do something! */ }) {
         Text("Text Button")
+    }
+}
+
+@Sampled
+@Composable
+fun ButtonWithIconSample() {
+    Button(onClick = { /* Do something! */ }) {
+        Icon(Icons.Filled.Favorite, Modifier.size(Button.DefaultIconSize))
+        Spacer(Modifier.size(Button.DefaultIconSpacing))
+        Text("Like")
     }
 }

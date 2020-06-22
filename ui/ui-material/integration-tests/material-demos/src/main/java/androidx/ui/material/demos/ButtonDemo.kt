@@ -36,6 +36,7 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.OutlinedButton
 import androidx.ui.material.TextButton
 import androidx.ui.material.samples.ButtonSample
+import androidx.ui.material.samples.ButtonWithIconSample
 import androidx.ui.material.samples.IconButtonSample
 import androidx.ui.material.samples.IconToggleButtonSample
 import androidx.ui.material.samples.OutlinedButtonSample
@@ -78,14 +79,15 @@ private fun Buttons() {
         Button(onClick = {}, backgroundColor = MaterialTheme.colors.secondary) {
             Text("Secondary Color")
         }
-        Button(onClick = {}, enabled = false) {
-            Text("Disabled")
-        }
+        ButtonWithIconSample()
     }
 
     Spacer(Modifier.preferredHeight(DefaultSpace))
 
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+        Button(onClick = {}, enabled = false) {
+            Text("Disabled")
+        }
         OutlinedButton(onClick = {}, enabled = false) {
             Text("Disabled")
         }
