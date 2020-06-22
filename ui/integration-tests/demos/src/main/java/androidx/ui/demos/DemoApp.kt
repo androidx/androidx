@@ -21,7 +21,9 @@ import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.ui.animation.Crossfade
 import androidx.ui.core.Alignment
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
+import androidx.ui.core.WithConstraints
 import androidx.ui.core.testTag
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.ComposableDemo
@@ -44,6 +46,7 @@ import androidx.ui.material.Surface
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.ArrowBack
+import androidx.ui.material.icons.filled.ArrowForward
 import androidx.ui.material.icons.filled.Search
 import androidx.ui.material.icons.filled.Settings
 import androidx.ui.savedinstancestate.savedInstanceState
@@ -61,11 +64,7 @@ fun DemoApp(
     onNavigateUp: () -> Unit,
     launchSettings: () -> Unit
 ) {
-    val navigationIcon = (@Composable {
-        IconButton(onClick = onNavigateUp) {
-            Icon(Icons.Filled.ArrowBack)
-        }
-    }).takeIf { canNavigateUp }
+    val navigationIcon = (@Composable { AppBarIcons.Back(onNavigateUp) }).takeIf { canNavigateUp }
 
     var filterText by savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
 
@@ -172,6 +171,19 @@ private fun DemoAppBar(
 }
 
 private object AppBarIcons {
+    @Composable
+    fun Back(onClick: () -> Unit) {
+        WithConstraints {
+            val icon = when (layoutDirection) {
+                LayoutDirection.Ltr -> Icons.Filled.ArrowBack
+                LayoutDirection.Rtl -> Icons.Filled.ArrowForward
+            }
+            IconButton(onClick = onClick) {
+                Icon(icon)
+            }
+        }
+    }
+
     @Composable
     fun Filter(onClick: () -> Unit) {
         IconButton(modifier = Modifier.testTag(Tags.FilterButton), onClick = onClick) {
