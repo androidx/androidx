@@ -1,6 +1,27 @@
 // Signature format: 3.0
 package androidx.appsearch.app {
 
+  public final class AppSearchBatchResult<KeyType, ValueType> {
+    method public java.util.Map<KeyType!,androidx.appsearch.app.AppSearchResult<ValueType!>!> getFailures();
+    method public java.util.Map<KeyType!,ValueType!> getSuccesses();
+    method public boolean isSuccess();
+  }
+
+  public final class AppSearchResult<ValueType> {
+    method public String? getErrorMessage();
+    method public int getResultCode();
+    method public ValueType? getResultValue();
+    method public boolean isSuccess();
+    field public static final int RESULT_INTERNAL_ERROR = 2; // 0x2
+    field public static final int RESULT_INVALID_ARGUMENT = 3; // 0x3
+    field public static final int RESULT_INVALID_SCHEMA = 7; // 0x7
+    field public static final int RESULT_IO_ERROR = 4; // 0x4
+    field public static final int RESULT_NOT_FOUND = 6; // 0x6
+    field public static final int RESULT_OK = 0; // 0x0
+    field public static final int RESULT_OUT_OF_SPACE = 5; // 0x5
+    field public static final int RESULT_UNKNOWN_ERROR = 1; // 0x1
+  }
+
   public final class AppSearchSchema {
   }
 
