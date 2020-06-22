@@ -448,7 +448,7 @@ final class OpenGLRenderer {
         }
 
         // Finally add in rotation. This will be applied to vertices first.
-        Matrix.rotateM(mSurfaceTransform, 0, -mSurfaceRotationDegrees, 0, 0, 1.0f);
+        Matrix.rotateM(mSurfaceTransform, 0, mSurfaceRotationDegrees, 0, 0, 1.0f);
 
         // For custom transformation, the fragment shader uses the SurfaceTexture transformation
         // directly.
@@ -475,7 +475,7 @@ final class OpenGLRenderer {
 
         // Correct for display rotation.
         Matrix.setIdentityM(mSurfaceTransform, 0);
-        Matrix.rotateM(mSurfaceTransform, 0, -mSurfaceRotationDegrees, 0, 0, 1.0f);
+        Matrix.rotateM(mSurfaceTransform, 0, mSurfaceRotationDegrees, 0, 0, 1.0f);
     }
 
     @WorkerThread

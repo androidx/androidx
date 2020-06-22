@@ -141,12 +141,13 @@ namespace {
 namespace {
     constexpr char VERTEX_SHADER_SRC[] = R"SRC(
       attribute vec4 position;
-      varying vec2 texCoord;
-      uniform mat4 vertTransform;
+      attribute vec4 texCoords;
+      uniform mat4 mvpTransform;
+      uniform mat4 texTransform;
+      varying vec2 fragCoord;
       void main() {
-        texCoord = ((vertTransform * vec4(position.xy, 0, 1.0)).xy
-            + vec2(1.0, 1.0)) * 0.5;
-        gl_Position = position;
+        fragCoord = (texTransform * texCoords).xy;
+        gl_Position = mvpTransform * position;
       }
 )SRC";
 
@@ -154,11 +155,9 @@ namespace {
       #extension GL_OES_EGL_image_external : require
       precision mediump float;
       uniform samplerExternalOES sampler;
-      uniform mat4 texTransform;
-      varying vec2 texCoord;
+      varying vec2 fragCoord;
       void main() {
-        vec2 transTexCoord = (texTransform * vec4(texCoord, 0, 1.0)).xy;
-        gl_FragColor = texture2D(sampler, transTexCoord);
+        gl_FragColor = texture2D(sampler, fragCoord);
       }
 )SRC";
 
@@ -170,8 +169,9 @@ namespace {
         EGLSurface pbufferSurface;
         GLuint program;
         GLint positionHandle;
+        GLint texCoordsHandle;
         GLint samplerHandle;
-        GLint vertTransformHandle;
+        GLint mvpTransformHandle;
         GLint texTransformHandle;
         GLuint textureId;
 
@@ -185,8 +185,9 @@ namespace {
                   pbufferSurface(pbufferSurface),
                   program(0),
                   positionHandle(-1),
+                  texCoordsHandle(1),
                   samplerHandle(-1),
-                  vertTransformHandle(-1),
+                  mvpTransformHandle(-1),
                   texTransformHandle(-1),
                   textureId(0) {}
     };
@@ -364,13 +365,17 @@ Java_androidx_camera_integration_core_OpenGLRenderer_initContext(
             CHECK_GL(glGetAttribLocation(nativeContext->program, "position"));
     assert(nativeContext->positionHandle != -1);
 
+    nativeContext->texCoordsHandle =
+            CHECK_GL(glGetAttribLocation(nativeContext->program, "texCoords"));
+    assert(nativeContext->texCoordsHandle != -1);
+
     nativeContext->samplerHandle =
             CHECK_GL(glGetUniformLocation(nativeContext->program, "sampler"));
     assert(nativeContext->samplerHandle != -1);
 
-    nativeContext->vertTransformHandle =
-            CHECK_GL(glGetUniformLocation(nativeContext->program, "vertTransform"));
-    assert(nativeContext->vertTransformHandle != -1);
+    nativeContext->mvpTransformHandle =
+            CHECK_GL(glGetUniformLocation(nativeContext->program, "mvpTransform"));
+    assert(nativeContext->mvpTransformHandle != -1);
 
     nativeContext->texTransformHandle =
             CHECK_GL(glGetUniformLocation(nativeContext->program, "texTransform"));
@@ -429,7 +434,7 @@ Java_androidx_camera_integration_core_OpenGLRenderer_getTexName(
 JNIEXPORT jboolean JNICALL
 Java_androidx_camera_integration_core_OpenGLRenderer_renderTexture(
         JNIEnv *env, jclass clazz, jlong context, jlong timestampNs,
-        jfloatArray jvertTransformArray, jfloatArray jtexTransformArray) {
+        jfloatArray jmvpTransformArray, jfloatArray jtexTransformArray) {
     auto *nativeContext = reinterpret_cast<NativeContext *>(context);
 
     // We use two triangles drawn with GL_TRIANGLE_STRIP to create the surface which will be
@@ -446,7 +451,18 @@ Java_androidx_camera_integration_core_OpenGLRenderer_renderTexture(
     //                          |            \_ |
     //                          +---------------+
     //                       (-1,-1)          (1,-1)
-    constexpr GLfloat vertices[] = {-1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f};
+    constexpr GLfloat vertices[] = {
+            -1.0f, -1.0f, // Lower-left
+             1.0f, -1.0f, // Lower-right
+            -1.0f,  1.0f, // Upper-left (notice order here. We're drawing triangles, not a quad.)
+             1.0f,  1.0f  // Upper-right
+    };
+    constexpr GLfloat texCoords[] = {
+            0.0f, 0.0f, // Lower-left
+            1.0f, 0.0f, // Lower-right
+            0.0f, 1.0f, // Upper-left (order must match the vertices)
+            1.0f, 1.0f  // Upper-right
+    };
 
     GLint vertexComponents = 2;
     GLenum vertexType = GL_FLOAT;
@@ -456,15 +472,21 @@ Java_androidx_camera_integration_core_OpenGLRenderer_renderTexture(
                                    vertexComponents, vertexType, normalized,
                                    vertexStride, vertices));
     CHECK_GL(glEnableVertexAttribArray(nativeContext->positionHandle));
+
+    CHECK_GL(glVertexAttribPointer(nativeContext->texCoordsHandle,
+                                   vertexComponents, vertexType, normalized,
+                                   vertexStride, texCoords));
+    CHECK_GL(glEnableVertexAttribArray(nativeContext->texCoordsHandle));
+
     CHECK_GL(glUseProgram(nativeContext->program));
 
     GLsizei numMatrices = 1;
     GLboolean transpose = GL_FALSE;
-    GLfloat *vertTransformArray =
-            env->GetFloatArrayElements(jvertTransformArray, nullptr);
-    CHECK_GL(glUniformMatrix4fv(nativeContext->vertTransformHandle, numMatrices,
-                                transpose, vertTransformArray));
-    env->ReleaseFloatArrayElements(jvertTransformArray, vertTransformArray,
+    GLfloat *mvpTransformArray =
+            env->GetFloatArrayElements(jmvpTransformArray, nullptr);
+    CHECK_GL(glUniformMatrix4fv(nativeContext->mvpTransformHandle, numMatrices,
+                                transpose, mvpTransformArray));
+    env->ReleaseFloatArrayElements(jmvpTransformArray, mvpTransformArray,
                                    JNI_ABORT);
 
     CHECK_GL(glUniform1i(nativeContext->samplerHandle, 0));
