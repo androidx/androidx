@@ -18,7 +18,6 @@ package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
 
@@ -30,9 +29,7 @@ import java.util.Map;
  *
  * @param <KeyType> The type of the keys for {@link #getSuccesses} and {@link #getFailures}.
  * @param <ValueType> The type of result objects associated with the keys.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AppSearchBatchResult<KeyType, ValueType> {
     @NonNull private final Map<KeyType, ValueType> mSuccesses;
     @NonNull private final Map<KeyType, AppSearchResult<ValueType>> mFailures;
@@ -75,7 +72,6 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
      * Asserts that this {@link AppSearchBatchResult} has no failures.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void checkSuccess() {
         if (!isSuccess()) {
             throw new IllegalStateException("AppSearchBatchResult has failures: " + this);
@@ -93,6 +89,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
      *
      * @param <KeyType> The type of keys.
      * @param <ValueType> The type of result objects associated with the keys.
+     * @hide
      */
     public static final class Builder<KeyType, ValueType> {
         private final Map<KeyType, ValueType> mSuccesses = new ArrayMap<>();

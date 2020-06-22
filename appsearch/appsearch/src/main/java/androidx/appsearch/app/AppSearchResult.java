@@ -19,7 +19,6 @@ package androidx.appsearch.app;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
 
 import java.lang.annotation.Retention;
@@ -29,11 +28,12 @@ import java.lang.annotation.RetentionPolicy;
  * Information about the success or failure of an AppSearch call.
  *
  * @param <ValueType> The type of result object for successful calls.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AppSearchResult<ValueType> {
-    /** Result codes from {@link AppSearchManager} methods.  */
+    /**
+     * Result codes from {@link AppSearchManager} methods.
+     * @hide
+     */
     @IntDef(value = {
             RESULT_OK,
             RESULT_UNKNOWN_ERROR,
@@ -111,9 +111,10 @@ public final class AppSearchResult<ValueType> {
      *
      * <p>If {@link #isSuccess} is {@code false}, the result value is always {@code null}. The value
      * may be {@code null} even if {@link #isSuccess} is {@code true}. See the documentation of the
-     * particular {@link AppSearchManager} call producing this {@link AppSearchResult} for what is
+     * particular {@code AppSearchManager} call producing this {@link AppSearchResult} for what is
      * returned by {@link #getResultValue}.
      */
+    // TODO(b/157082794): Linkify AppSearchManager once that API is public
     @Nullable
     public ValueType getResultValue() {
         return mResultValue;
@@ -124,9 +125,10 @@ public final class AppSearchResult<ValueType> {
      *
      * <p>If {@link #isSuccess} is {@code true}, the error message is always {@code null}. The error
      * message may be {@code null} even if {@link #isSuccess} is {@code false}. See the
-     * documentation of the particular {@link AppSearchManager} call producing this
+     * documentation of the particular {@code AppSearchManager} call producing this
      * {@link AppSearchResult} for what is returned by {@link #getErrorMessage}.
      */
+    // TODO(b/157082794): Linkify AppSearchManager once that API is public
     @Nullable
     public String getErrorMessage() {
         return mErrorMessage;
@@ -136,7 +138,6 @@ public final class AppSearchResult<ValueType> {
      * Asserts that this {@link AppSearchResult} is successful.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void checkSuccess() {
         if (!isSuccess()) {
             throw new IllegalStateException("AppSearchResult is a failure: " + this);
@@ -171,14 +172,20 @@ public final class AppSearchResult<ValueType> {
         return "[FAILURE(" + mResultCode + ")]: " + mErrorMessage;
     }
 
-    /** Creates a new successful {@link AppSearchResult}. */
+    /**
+     * Creates a new successful {@link AppSearchResult}.
+     * @hide
+     */
     @NonNull
     public static <ValueType> AppSearchResult<ValueType> newSuccessfulResult(
             @Nullable ValueType value) {
         return new AppSearchResult<>(RESULT_OK, value, /*errorMessage=*/ null);
     }
 
-    /** Creates a new failed {@link AppSearchResult}.  */
+    /**
+     * Creates a new failed {@link AppSearchResult}.
+     * @hide
+     */
     @NonNull
     public static <ValueType> AppSearchResult<ValueType> newFailedResult(
             @ResultCode int resultCode, @Nullable String errorMessage) {
