@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
-import androidx.ui.text.LastBaseline
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.globalPosition
@@ -36,7 +35,6 @@ import androidx.ui.test.findByText
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Density
 import androidx.ui.unit.dp
-import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -78,8 +76,6 @@ class AppBarTest {
         var appBarCoords: LayoutCoordinates? = null
         var navigationIconCoords: LayoutCoordinates? = null
         var titleCoords: LayoutCoordinates? = null
-        // Position of the baseline relative to the top of the text
-        var titleLastBaselineRelativePosition: Float? = null
         var actionCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
             Box(Modifier.onChildPositioned { appBarCoords = it }) {
@@ -88,10 +84,7 @@ class AppBarTest {
                         FakeIcon(Modifier.onPositioned { navigationIconCoords = it })
                     },
                     title = {
-                        Text("title", Modifier.onPositioned { coords: LayoutCoordinates ->
-                            titleCoords = coords
-                            titleLastBaselineRelativePosition = coords[LastBaseline].toFloat()
-                        })
+                        Text("title", Modifier.onPositioned { titleCoords = it })
                     },
                     actions = {
                         FakeIcon(Modifier.onPositioned { actionCoords = it })
@@ -122,13 +115,12 @@ class AppBarTest {
             val titleExpectedPositionX = (4.dp.toIntPx() + 68.dp.toIntPx()).toFloat()
             assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
 
-            // Absolute position of the baseline
-            val titleLastBaselinePositionY = titleLastBaselineRelativePosition!! +
-                    titleCoords!!.globalPosition.y
-            // Baseline should be 20.sp from the bottom of the app bar
-            val titleExpectedLastBaselinePositionY =
-                (appBarBottomEdgeY - 20.sp.toIntPx().toFloat())
-            assertThat(titleLastBaselinePositionY).isEqualTo(titleExpectedLastBaselinePositionY)
+            // Title should be vertically centered
+            val titlePositionY = titleCoords!!.globalPosition.y
+            val titleHeight = titleCoords!!.size.height
+            val appBarHeight = appBarCoords!!.size.height
+            val titleExpectedPositionY = (appBarHeight - titleHeight) / 2
+            assertThat(titlePositionY).isEqualTo(titleExpectedPositionY)
 
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.globalPosition.x
@@ -154,8 +146,7 @@ class AppBarTest {
             Box(Modifier.onChildPositioned { appBarCoords = it }) {
                 TopAppBar(
                     title = {
-                        Text("title",
-                            Modifier.onPositioned { titleCoords = it })
+                        Text("title", Modifier.onPositioned { titleCoords = it })
                     },
                     actions = {
                         FakeIcon(Modifier.onPositioned { actionCoords = it })

@@ -16,10 +16,8 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.semantics.semantics
-import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -43,14 +41,11 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredWidth
-import androidx.ui.layout.relativePaddingFrom
-import androidx.ui.text.LastBaseline
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
-import androidx.ui.unit.sp
 import androidx.ui.unit.width
 import kotlin.math.sqrt
 
@@ -58,8 +53,10 @@ import kotlin.math.sqrt
  * A TopAppBar displays information and actions relating to the current screen and is placed at the
  * top of the screen.
  *
- * This TopAppBar has slots for a title, navigation icon, and actions. Use the other TopAppBar
- * overload for a generic TopAppBar with no restriction on content.
+ * This TopAppBar has slots for a title, navigation icon, and actions. Note that the [title] slot
+ * is inset from the start according to spec - for custom use cases such as horizontally
+ * centering the title, use the other TopAppBar overload for a generic TopAppBar with no
+ * restriction on content.
  *
  * @sample androidx.ui.material.samples.SimpleTopAppBar
  *
@@ -95,12 +92,12 @@ fun TopAppBar(
             }
         }
 
-        Box(Modifier.fillMaxHeight().weight(1f).semantics(), gravity = ContentGravity.BottomStart) {
+        Row(
+            Modifier.fillMaxHeight().weight(1f).semantics(),
+            verticalGravity = ContentGravity.CenterVertically
+        ) {
             ProvideTextStyle(value = MaterialTheme.typography.h6) {
-                val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
-                Row(Modifier.relativePaddingFrom(LastBaseline, after = baselineOffset)) {
-                    ProvideEmphasis(emphasisLevels.high, title)
-                }
+                ProvideEmphasis(emphasisLevels.high, title)
             }
         }
 
@@ -463,8 +460,6 @@ private val TitleInsetWithoutIcon = Modifier.preferredWidth(16.dp - AppBarHorizo
 // Start inset for the title when there is a navigation icon provided
 private val TitleIconModifier = Modifier.fillMaxHeight()
     .preferredWidth(72.dp - AppBarHorizontalPadding)
-// The baseline distance for the title from the bottom of the app bar
-private val TitleBaselineOffset = 20.sp
 
 private val BottomAppBarElevation = 8.dp
 // TODO: clarify elevation in surface mapping - spec says 0.dp but it appears to have an
