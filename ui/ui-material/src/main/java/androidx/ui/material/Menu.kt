@@ -23,17 +23,19 @@ import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.getValue
+import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.Transition
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
 import androidx.ui.core.PopupPositionProvider
+import androidx.ui.core.TransformOrigin
 import androidx.ui.unit.Position
-import androidx.ui.core.drawLayer
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
@@ -50,7 +52,15 @@ import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.dp
+import androidx.ui.unit.height
+import androidx.ui.unit.toOffset
+import androidx.ui.unit.toSize
+import androidx.ui.unit.width
+import kotlin.math.max
+import kotlin.math.min
+
 /**
  * A Material Design [dropdown menu](https://material.io/components/menus#dropdown-menu).
  *
@@ -94,11 +104,15 @@ fun DropdownMenu(
         toggle()
 
         if (visibleMenu) {
+            var transformOrigin by state { TransformOrigin.Center }
+            val density = DensityAmbient.current
             val popupPositionProvider = DropdownMenuPositionProvider(
                 dropdownOffset,
-                DensityAmbient.current,
+                density,
                 ContextAmbient.current.resources.displayMetrics
-            )
+            ) { parentBounds, menuBounds ->
+                transformOrigin = calculateTransformOrigin(parentBounds, menuBounds, density)
+            }
 
             Popup(
                 isFocusable = true,
@@ -113,18 +127,22 @@ fun DropdownMenu(
                         visibleMenu = it
                     }
                 ) { state ->
-                    val scale = state[Scale]
-                    val alpha = state[Alpha]
+                    val drawLayer = remember {
+                        MenuDrawLayerModifier(
+                            { state[Scale] },
+                            { state[Alpha] },
+                            { transformOrigin }
+                        )
+                    }
                     Card(
-                        modifier = Modifier
-                            .drawLayer(scaleX = scale, scaleY = scale, alpha = alpha, clip = true)
+                        modifier = drawLayer
                             // Padding to account for the elevation, otherwise it is clipped.
                             .padding(MenuElevation),
                         elevation = MenuElevation
                     ) {
                         @OptIn(ExperimentalLayout::class)
                         Column(
-                            dropdownModifier
+                            modifier = dropdownModifier
                                 .padding(vertical = DropdownMenuVerticalPadding)
                                 .preferredWidth(IntrinsicSize.Max),
                             children = dropdownContent
@@ -227,6 +245,53 @@ private val DropdownMenuOpenCloseTransition = transitionDefinition {
     }
 }
 
+private class MenuDrawLayerModifier(
+    val scaleProvider: () -> Float,
+    val alphaProvider: () -> Float,
+    val transformOriginProvider: () -> TransformOrigin
+) : DrawLayerModifier {
+    override val scaleX: Float get() = scaleProvider()
+    override val scaleY: Float get() = scaleProvider()
+    override val alpha: Float get() = alphaProvider()
+    override val transformOrigin: TransformOrigin get() = transformOriginProvider()
+    override val clip: Boolean = true
+}
+
+private fun calculateTransformOrigin(
+    parentBounds: PxBounds,
+    menuBounds: PxBounds,
+    density: Density
+): TransformOrigin {
+    val inset = with(density) { MenuElevation.toPx() }
+    val realMenuBounds = PxBounds(
+        menuBounds.left + inset,
+        menuBounds.top + inset,
+        menuBounds.right - inset,
+        menuBounds.bottom - inset
+    )
+    val pivotX = when {
+        realMenuBounds.left >= parentBounds.right -> 0f
+        realMenuBounds.right <= parentBounds.left -> 1f
+        else -> {
+            val intersectionCenter =
+                (max(parentBounds.left, realMenuBounds.left) +
+                        min(parentBounds.right, realMenuBounds.right)) / 2
+            (intersectionCenter + inset - menuBounds.left) / menuBounds.width
+        }
+    }
+    val pivotY = when {
+        realMenuBounds.top >= parentBounds.bottom -> 0f
+        realMenuBounds.bottom <= parentBounds.top -> 1f
+        else -> {
+            val intersectionCenter =
+                (max(parentBounds.top, realMenuBounds.top) +
+                        min(parentBounds.bottom, realMenuBounds.bottom)) / 2
+            (intersectionCenter + inset - menuBounds.top) / menuBounds.height
+        }
+    }
+    return TransformOrigin(pivotX, pivotY)
+}
+
 // Menu positioning.
 
 /**
@@ -237,7 +302,8 @@ private val DropdownMenuOpenCloseTransition = transitionDefinition {
 internal data class DropdownMenuPositionProvider(
     val contentOffset: Position,
     val density: Density,
-    val displayMetrics: DisplayMetrics
+    val displayMetrics: DisplayMetrics,
+    val onPositionCalculated: (PxBounds, PxBounds) -> Unit = { _, _ -> }
 ) : PopupPositionProvider {
     override fun calculatePosition(
         parentLayoutPosition: IntOffset,
@@ -276,6 +342,16 @@ internal data class DropdownMenuPositionProvider(
             it >= 0 && it + realPopupHeight <= displayMetrics.heightPixels
         } ?: toTop
 
+        // TODO(popam, b/159596546): we should probably have androidx.ui.unit.IntBounds instead
+        onPositionCalculated(
+            PxBounds(parentLayoutPosition.toOffset(), parentLayoutSize.toSize()),
+            PxBounds(
+                x.toFloat() - inset,
+                y.toFloat() - inset,
+                x.toFloat() + inset + realPopupWidth,
+                y.toFloat() + inset + realPopupHeight
+            )
+        )
         return IntOffset(x - inset, y - inset)
     }
 }
