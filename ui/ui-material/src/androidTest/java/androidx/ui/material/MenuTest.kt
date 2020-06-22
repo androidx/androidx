@@ -46,7 +46,10 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntOffset
 import androidx.ui.unit.IntSize
 import androidx.ui.unit.Position
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.dp
+import androidx.ui.unit.toOffset
+import androidx.ui.unit.toSize
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -230,6 +233,51 @@ class MenuTest {
         )
         assertThat(rtlPosition.y).isEqualTo(
             anchorPositionRtl.y - popupSize.height + inset - offsetY
+        )
+    }
+
+    @Test
+    fun menu_positioning_callback() {
+        val screenWidth = 500
+        val screenHeight = 1000
+        val density = Density(1f)
+        val displayMetrics = DisplayMetrics().apply {
+            widthPixels = screenWidth
+            heightPixels = screenHeight
+        }
+        val anchorPosition = IntOffset(100, 200)
+        val anchorSize = IntSize(10, 20)
+        val inset = with(density) { MenuElevation.toIntPx() }
+        val offsetX = 20
+        val offsetY = 40
+        val popupSize = IntSize(50, 80)
+
+        var obtainedParentBounds = PxBounds(0f, 0f, 0f, 0f)
+        var obtainedMenuBounds = PxBounds(0f, 0f, 0f, 0f)
+        DropdownMenuPositionProvider(
+            Position(offsetX.dp, offsetY.dp),
+            density,
+            displayMetrics
+        ) { parentBounds, menuBounds ->
+            obtainedParentBounds = parentBounds
+            obtainedMenuBounds = menuBounds
+        }.calculatePosition(
+            anchorPosition,
+            anchorSize,
+            LayoutDirection.Ltr,
+            popupSize
+        )
+
+        assertThat(obtainedParentBounds).isEqualTo(
+            PxBounds(anchorPosition.toOffset(), anchorSize.toSize())
+        )
+        assertThat(obtainedMenuBounds).isEqualTo(
+            PxBounds(
+                anchorPosition.x.toFloat() + anchorSize.width - inset + offsetX,
+                anchorPosition.y.toFloat() + anchorSize.height - inset + offsetY,
+                anchorPosition.x.toFloat() + anchorSize.width - inset + offsetX + popupSize.width,
+                anchorPosition.y.toFloat() + anchorSize.height - inset + offsetY + popupSize.height
+            )
         )
     }
 
