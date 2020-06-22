@@ -26,7 +26,9 @@ import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaRouter;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 
 import androidx.collection.ArrayMap;
@@ -160,6 +162,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
 
     @Override
     public RouteController onCreateRouteController(String routeId) {
+        if (!checkDrawOverlay()) return null;
         return new SampleRouteController(routeId);
     }
 
@@ -242,6 +245,17 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
                 .addRoutes(mRouteDescriptors.values())
                 .build();
         setDescriptor(providerDescriptor);
+    }
+
+    boolean checkDrawOverlay() {
+        if (Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(getContext())) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getContext().getPackageName()));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(intent);
+            return false;
+        }
+        return true;
     }
 
     int getVolumeForRoute(String routeId) {

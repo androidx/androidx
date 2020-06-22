@@ -64,6 +64,8 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
     @Override
     public RouteController onCreateRouteController(String routeId) {
+        if (!checkDrawOverlay()) return null;
+
         MediaRouteDescriptor routeDescriptor = mRouteDescriptors.get(routeId);
         if (routeDescriptor == null) {
             Log.w(TAG, "onCreateRouteController: Unknown route ID " + routeId);
@@ -91,6 +93,8 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
     @Override
     public DynamicGroupRouteController onCreateDynamicGroupRouteController(
             @NonNull String initialMemberRouteId) {
+        if (!checkDrawOverlay()) return null;
+
         List<String> memberIds = new ArrayList<>();
         MediaRouteDescriptor initialRoute = mRouteDescriptors.get(initialMemberRouteId);
         if (initialRoute == null || !initialRoute.isValid()) {
