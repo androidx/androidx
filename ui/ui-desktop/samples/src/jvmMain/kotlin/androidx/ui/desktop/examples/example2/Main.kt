@@ -20,7 +20,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.graphics.drawscope.inset
 import androidx.ui.graphics.drawscope.rotate
 import androidx.ui.graphics.drawscope.withTransform
@@ -37,9 +36,9 @@ fun main() = mainWith(title) @Composable {
         drawRect(Color.Magenta)
         inset(10.0f) {
             drawLine(
-                p1 = Offset.Zero,
-                p2 = Offset(size.width, size.height),
-                stroke = Stroke(width = 5.0f),
+                start = Offset.Zero,
+                end = Offset(size.width, size.height),
+                strokeWidth = 5.0f,
                 color = Color.Red
             )
         }

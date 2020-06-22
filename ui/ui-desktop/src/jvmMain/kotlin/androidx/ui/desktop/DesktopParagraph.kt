@@ -18,12 +18,14 @@ package androidx.ui.desktop
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.AndroidPath
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphIntrinsics
 import androidx.ui.text.TextRange
 import androidx.ui.text.style.TextDirection
 import androidx.ui.geometry.Offset
+import org.jetbrains.skija.Paragraph as SkParagraph
 
 internal class DesktopParagraph(
     intrinsics: ParagraphIntrinsics,
@@ -53,16 +55,10 @@ internal class DesktopParagraph(
         get() = paragraphIntrinsics.maxIntrinsicWidth
 
     override val firstBaseline: Float
-        get() {
-            println("Paragraph.firstBaseline")
-            return 0.0f
-        }
+        get() = para.getLineMetrics().first().baseline.toFloat()
 
     override val lastBaseline: Float
-        get() {
-            println("Paragraph.lastBaseline")
-            return 0.0f
-        }
+        get() = para.getLineMetrics().last().baseline.toFloat()
 
     override val didExceedMaxLines: Boolean
         // TODO: support text ellipsize.
@@ -77,8 +73,17 @@ internal class DesktopParagraph(
     }
 
     override fun getPathForRange(start: Int, end: Int): Path {
-        println("Paragraph.getPathForRange $start $end")
-        return Path()
+        val boxes = para.getRectsForRange(
+            start,
+            end,
+            SkParagraph.RectHeightStyle.MAX,
+            SkParagraph.RectWidthStyle.MAX
+        )
+        val path = Path() as AndroidPath
+        for (b in boxes) {
+            path.internalPath.skijaPath.addRect(b.rect)
+        }
+        return path
     }
 
     override fun getCursorRect(offset: Int): Rect {
@@ -151,8 +156,7 @@ internal class DesktopParagraph(
     override fun getBidiRunDirection(offset: Int): TextDirection = TextDirection.Ltr
 
     override fun getOffsetForPosition(position: Offset): Int {
-        println("getOffsetForPosition $position")
-        return 0
+        return para.getGlyphPositionAtCoordinate(position.x, position.y).position
     }
 
     override fun getBoundingBox(offset: Int): Rect {
