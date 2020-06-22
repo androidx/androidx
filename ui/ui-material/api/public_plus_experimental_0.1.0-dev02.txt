@@ -2,6 +2,8 @@
 package androidx.ui.material {
 
   public enum AlertDialogButtonLayout {
+    method public static androidx.ui.material.AlertDialogButtonLayout valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.material.AlertDialogButtonLayout[] values();
     enum_constant public static final androidx.ui.material.AlertDialogButtonLayout SideBySide;
     enum_constant public static final androidx.ui.material.AlertDialogButtonLayout Stacked;
   }
@@ -24,7 +26,7 @@ package androidx.ui.material {
   }
 
   public final class BottomAppBar {
-    field public static final androidx.ui.material.BottomAppBar! INSTANCE;
+    field public static final androidx.ui.material.BottomAppBar INSTANCE;
   }
 
   public static final class BottomAppBar.FabConfiguration {
@@ -33,6 +35,8 @@ package androidx.ui.material {
   }
 
   public enum BottomAppBar.FabPosition {
+    method public static androidx.ui.material.BottomAppBar.FabPosition valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.material.BottomAppBar.FabPosition[] values();
     enum_constant public static final androidx.ui.material.BottomAppBar.FabPosition Center;
     enum_constant public static final androidx.ui.material.BottomAppBar.FabPosition End;
   }
@@ -145,6 +149,8 @@ package androidx.ui.material {
   }
 
   public enum DrawerState {
+    method public static androidx.ui.material.DrawerState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.material.DrawerState[] values();
     enum_constant public static final androidx.ui.material.DrawerState Closed;
     enum_constant public static final androidx.ui.material.DrawerState Opened;
   }
@@ -300,7 +306,7 @@ package androidx.ui.material {
   public final class TabRow {
     method @androidx.compose.Composable public void Indicator();
     method @androidx.compose.Composable public void IndicatorContainer(java.util.List<androidx.ui.material.TabRow.TabPosition> tabPositions, int selectedIndex, kotlin.jvm.functions.Function0<kotlin.Unit> indicator);
-    field public static final androidx.ui.material.TabRow! INSTANCE;
+    field public static final androidx.ui.material.TabRow INSTANCE;
   }
 
   public static final class TabRow.TabPosition {
@@ -331,7 +337,7 @@ package androidx.ui.material.ripple {
 
   public final class DefaultRippleEffectFactory implements androidx.ui.material.ripple.RippleEffectFactory {
     method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition startPosition, androidx.ui.core.Density density, androidx.ui.core.Dp? radius, boolean clipped, kotlin.jvm.functions.Function0<kotlin.Unit> requestRedraw, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
-    field public static final androidx.ui.material.ripple.DefaultRippleEffectFactory! INSTANCE;
+    field public static final androidx.ui.material.ripple.DefaultRippleEffectFactory INSTANCE;
   }
 
   public final class DefaultRippleEffectKt {

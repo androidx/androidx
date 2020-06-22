@@ -46,6 +46,8 @@ package androidx.ui.autofill {
   }
 
   public enum AutofillType {
+    method public static androidx.ui.autofill.AutofillType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.autofill.AutofillType[] values();
     enum_constant public static final androidx.ui.autofill.AutofillType AddressAuxiliaryDetails;
     enum_constant public static final androidx.ui.autofill.AutofillType AddressCountry;
     enum_constant public static final androidx.ui.autofill.AutofillType AddressLocality;
@@ -92,7 +94,7 @@ package androidx.ui.core {
   @androidx.compose.Immutable public final class AbsoluteAlignment implements androidx.ui.core.Alignment {
     method public androidx.ui.unit.IntOffset align(androidx.ui.unit.IntSize size, androidx.ui.core.LayoutDirection layoutDirection);
     method @androidx.compose.Immutable public androidx.ui.core.AbsoluteAlignment copy(float verticalBias, float horizontalBias);
-    field public static final androidx.ui.core.AbsoluteAlignment.Companion! Companion;
+    field public static final androidx.ui.core.AbsoluteAlignment.Companion Companion;
   }
 
   public static final class AbsoluteAlignment.Companion {
@@ -121,7 +123,7 @@ package androidx.ui.core {
 
   @androidx.compose.Immutable public interface Alignment {
     method public androidx.ui.unit.IntOffset align(androidx.ui.unit.IntSize size, androidx.ui.core.LayoutDirection layoutDirection = LayoutDirection.Ltr);
-    field public static final androidx.ui.core.Alignment.Companion! Companion;
+    field public static final androidx.ui.core.Alignment.Companion Companion;
   }
 
   public static final class Alignment.Companion {
@@ -166,7 +168,7 @@ package androidx.ui.core {
   }
 
   @androidx.compose.Immutable public abstract sealed class AlignmentLine {
-    field public static final androidx.ui.core.AlignmentLine.Companion! Companion;
+    field public static final androidx.ui.core.AlignmentLine.Companion Companion;
     field public static final int Unspecified = -2147483648; // 0x80000000
   }
 
@@ -256,7 +258,7 @@ package androidx.ui.core {
 
   @androidx.compose.Stable public interface ContentScale {
     method public float scale(androidx.ui.geometry.Size srcSize, androidx.ui.geometry.Size dstSize);
-    field public static final androidx.ui.core.ContentScale.Companion! Companion;
+    field public static final androidx.ui.core.ContentScale.Companion Companion;
   }
 
   public static final class ContentScale.Companion {
@@ -290,6 +292,8 @@ package androidx.ui.core {
   }
 
   public enum Direction {
+    method public static androidx.ui.core.Direction valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.Direction[] values();
     enum_constant public static final androidx.ui.core.Direction DOWN;
     enum_constant public static final androidx.ui.core.Direction LEFT;
     enum_constant public static final androidx.ui.core.Direction RIGHT;
@@ -342,6 +346,8 @@ package androidx.ui.core {
   }
 
   public enum DropDownAlignment {
+    method public static androidx.ui.core.DropDownAlignment valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.DropDownAlignment[] values();
     enum_constant public static final androidx.ui.core.DropDownAlignment End;
     enum_constant public static final androidx.ui.core.DropDownAlignment Start;
   }
@@ -404,18 +410,6 @@ package androidx.ui.core {
     method public static inline androidx.ui.geometry.Offset getGlobalPosition(androidx.ui.core.LayoutCoordinates);
     method public static androidx.ui.geometry.Offset getPositionInParent(androidx.ui.core.LayoutCoordinates);
     method public static inline androidx.ui.geometry.Offset getPositionInRoot(androidx.ui.core.LayoutCoordinates);
-  }
-
-  public final class LayoutIdKt {
-    method public static Object? getId(androidx.ui.core.Measurable);
-    method @Deprecated public static Object? getTag(androidx.ui.core.Measurable);
-    method @androidx.compose.Stable public static androidx.ui.core.Modifier layoutId(androidx.ui.core.Modifier, Object id);
-    method @Deprecated @androidx.compose.Stable public static androidx.ui.core.Modifier tag(androidx.ui.core.Modifier, Object tag);
-  }
-
-  public interface LayoutIdParentData {
-    method public Object getId();
-    property public abstract Object id;
   }
 
   public final class LayoutKt {
@@ -503,6 +497,8 @@ package androidx.ui.core {
   }
 
   public enum LayoutNode.LayoutState {
+    method public static androidx.ui.core.LayoutNode.LayoutState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.LayoutNode.LayoutState[] values();
     enum_constant public static final androidx.ui.core.LayoutNode.LayoutState LayingOut;
     enum_constant public static final androidx.ui.core.LayoutNode.LayoutState Measuring;
     enum_constant public static final androidx.ui.core.LayoutNode.LayoutState NeedsRelayout;
@@ -530,8 +526,13 @@ package androidx.ui.core {
     method public static androidx.ui.core.LayoutNode? findClosestParentNode(androidx.ui.core.LayoutNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,java.lang.Boolean> selector);
   }
 
-  @Deprecated public interface LayoutTagParentData {
-    method @Deprecated public Object getTag();
+  public final class LayoutTagKt {
+    method public static Object? getTag(androidx.ui.core.Measurable);
+    method @androidx.compose.Stable public static androidx.ui.core.Modifier tag(androidx.ui.core.Modifier, Object tag);
+  }
+
+  public interface LayoutTagParentData {
+    method public Object getTag();
     property public abstract Object tag;
   }
 
@@ -584,7 +585,7 @@ package androidx.ui.core {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public default operator androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
-    field public static final androidx.ui.core.Modifier.Companion! Companion;
+    field public static final androidx.ui.core.Modifier.Companion Companion;
   }
 
   public static final class Modifier.Companion implements androidx.ui.core.Modifier {
@@ -684,7 +685,7 @@ package androidx.ui.core {
     property public abstract boolean showLayoutBounds;
     property public abstract androidx.ui.input.TextInputService textInputService;
     property public abstract androidx.ui.core.texttoolbar.TextToolbar textToolbar;
-    field public static final androidx.ui.core.Owner.Companion! Companion;
+    field public static final androidx.ui.core.Owner.Companion Companion;
   }
 
   public static final class Owner.Companion {
@@ -734,6 +735,8 @@ package androidx.ui.core {
   }
 
   public enum PointerEventPass {
+    method public static androidx.ui.core.PointerEventPass valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.PointerEventPass[] values();
     enum_constant public static final androidx.ui.core.PointerEventPass InitialDown;
     enum_constant public static final androidx.ui.core.PointerEventPass PostDown;
     enum_constant public static final androidx.ui.core.PointerEventPass PostUp;
@@ -826,7 +829,7 @@ package androidx.ui.core {
     method public static float getPivotFractionY-impl(long $this);
     method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
     method @androidx.compose.Immutable public static inline String! toString-impl(long p);
-    field public static final androidx.ui.core.TransformOrigin.Companion! Companion;
+    field public static final androidx.ui.core.TransformOrigin.Companion Companion;
   }
 
   public static final class TransformOrigin.Companion {
@@ -889,6 +892,8 @@ package androidx.ui.core.clipboard {
 package androidx.ui.core.focus {
 
   public enum FocusDetailedState {
+    method public static androidx.ui.core.focus.FocusDetailedState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.focus.FocusDetailedState[] values();
     enum_constant public static final androidx.ui.core.focus.FocusDetailedState Active;
     enum_constant public static final androidx.ui.core.focus.FocusDetailedState ActiveParent;
     enum_constant public static final androidx.ui.core.focus.FocusDetailedState Captured;
@@ -913,6 +918,8 @@ package androidx.ui.core.focus {
   }
 
   public enum FocusState {
+    method public static androidx.ui.core.focus.FocusState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.focus.FocusState[] values();
     enum_constant public static final androidx.ui.core.focus.FocusState Focused;
     enum_constant public static final androidx.ui.core.focus.FocusState NotFocusable;
     enum_constant public static final androidx.ui.core.focus.FocusState NotFocused;
@@ -1045,13 +1052,15 @@ package androidx.ui.core.gesture.customevents {
   }
 
   public enum DelayUpMessage {
+    method public static androidx.ui.core.gesture.customevents.DelayUpMessage valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.gesture.customevents.DelayUpMessage[] values();
     enum_constant public static final androidx.ui.core.gesture.customevents.DelayUpMessage DelayUp;
     enum_constant public static final androidx.ui.core.gesture.customevents.DelayUpMessage DelayedUpConsumed;
     enum_constant public static final androidx.ui.core.gesture.customevents.DelayUpMessage DelayedUpNotConsumed;
   }
 
   public final class LongPressFiredEvent implements androidx.ui.core.CustomEvent {
-    field public static final androidx.ui.core.gesture.customevents.LongPressFiredEvent! INSTANCE;
+    field public static final androidx.ui.core.gesture.customevents.LongPressFiredEvent INSTANCE;
   }
 
 }
@@ -1080,6 +1089,8 @@ package androidx.ui.core.hapticfeedback {
   }
 
   public enum HapticFeedbackType {
+    method public static androidx.ui.core.hapticfeedback.HapticFeedbackType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.hapticfeedback.HapticFeedbackType[] values();
     enum_constant public static final androidx.ui.core.hapticfeedback.HapticFeedbackType LongPress;
     enum_constant public static final androidx.ui.core.hapticfeedback.HapticFeedbackType TextHandleMove;
   }
@@ -1113,7 +1124,7 @@ package androidx.ui.core.keyinput {
     method public int getKeyCode();
     method public static inline int hashCode-impl(int p);
     method public static String toString-impl(int $this);
-    field public static final androidx.ui.core.keyinput.Key.Companion! Companion;
+    field public static final androidx.ui.core.keyinput.Key.Companion Companion;
   }
 
   public static final class Key.Companion {
@@ -1706,6 +1717,8 @@ package androidx.ui.core.keyinput {
   }
 
   public enum KeyEventType {
+    method public static androidx.ui.core.keyinput.KeyEventType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.keyinput.KeyEventType[] values();
     enum_constant public static final androidx.ui.core.keyinput.KeyEventType KeyDown;
     enum_constant public static final androidx.ui.core.keyinput.KeyEventType KeyUp;
   }
@@ -1873,7 +1886,7 @@ package androidx.ui.core.semantics {
     property public final boolean isRoot;
     property public final androidx.ui.core.semantics.SemanticsNode? parent;
     property public final androidx.ui.unit.IntSize size;
-    field public static final androidx.ui.core.semantics.SemanticsNode.Companion! Companion;
+    field public static final androidx.ui.core.semantics.SemanticsNode.Companion Companion;
   }
 
   public static final class SemanticsNode.Companion {
@@ -1907,6 +1920,8 @@ package androidx.ui.core.texttoolbar {
   }
 
   public enum TextToolbarStatus {
+    method public static androidx.ui.core.texttoolbar.TextToolbarStatus valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.texttoolbar.TextToolbarStatus[] values();
     enum_constant public static final androidx.ui.core.texttoolbar.TextToolbarStatus Hidden;
     enum_constant public static final androidx.ui.core.texttoolbar.TextToolbarStatus Shown;
   }
@@ -2209,7 +2224,7 @@ package androidx.ui.semantics {
     property @Deprecated public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> ScrollForward;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Float,java.lang.Boolean>>> ScrollTo;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Boolean>>> SetProgress;
-    field public static final androidx.ui.semantics.SemanticsActions! INSTANCE;
+    field public static final androidx.ui.semantics.SemanticsActions INSTANCE;
   }
 
   public final class SemanticsKt {
@@ -2233,7 +2248,7 @@ package androidx.ui.semantics {
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsPopup;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> TestTag;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.AnnotatedString> Text;
-    field public static final androidx.ui.semantics.SemanticsProperties! INSTANCE;
+    field public static final androidx.ui.semantics.SemanticsProperties INSTANCE;
   }
 
   public final class SemanticsPropertiesKt {

@@ -46,6 +46,8 @@ package androidx.ui.autofill {
   }
 
   public enum AutofillType {
+    method public static androidx.ui.autofill.AutofillType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.autofill.AutofillType[] values();
     enum_constant public static final androidx.ui.autofill.AutofillType AddressAuxiliaryDetails;
     enum_constant public static final androidx.ui.autofill.AutofillType AddressCountry;
     enum_constant public static final androidx.ui.autofill.AutofillType AddressLocality;
@@ -97,7 +99,7 @@ package androidx.ui.core {
     method @androidx.compose.Immutable public androidx.ui.core.Alignment copy(float verticalBias, float horizontalBias);
     method public float getHorizontalBias();
     method public float getVerticalBias();
-    field public static final androidx.ui.core.Alignment.Companion! Companion;
+    field public static final androidx.ui.core.Alignment.Companion Companion;
   }
 
   public static final class Alignment.Companion {
@@ -247,7 +249,7 @@ package androidx.ui.core {
 
   public interface ContentScale {
     method public float scale(androidx.ui.unit.PxSize srcSize, androidx.ui.unit.PxSize dstSize);
-    field public static final androidx.ui.core.ContentScale.Companion! Companion;
+    field public static final androidx.ui.core.ContentScale.Companion Companion;
   }
 
   public static final class ContentScale.Companion {
@@ -307,6 +309,8 @@ package androidx.ui.core {
   }
 
   public enum Direction {
+    method public static androidx.ui.core.Direction valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.Direction[] values();
     enum_constant public static final androidx.ui.core.Direction DOWN;
     enum_constant public static final androidx.ui.core.Direction LEFT;
     enum_constant public static final androidx.ui.core.Direction RIGHT;
@@ -385,6 +389,8 @@ package androidx.ui.core {
   }
 
   public enum DropDownAlignment {
+    method public static androidx.ui.core.DropDownAlignment valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.DropDownAlignment[] values();
     enum_constant public static final androidx.ui.core.DropDownAlignment End;
     enum_constant public static final androidx.ui.core.DropDownAlignment Start;
   }
@@ -428,11 +434,15 @@ package androidx.ui.core {
   }
 
   @kotlin.PublishedApi internal enum IntrinsicMinMax {
+    method public static androidx.ui.core.IntrinsicMinMax valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.IntrinsicMinMax[] values();
     enum_constant public static final androidx.ui.core.IntrinsicMinMax Max;
     enum_constant public static final androidx.ui.core.IntrinsicMinMax Min;
   }
 
   @kotlin.PublishedApi internal enum IntrinsicWidthHeight {
+    method public static androidx.ui.core.IntrinsicWidthHeight valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.IntrinsicWidthHeight[] values();
     enum_constant public static final androidx.ui.core.IntrinsicWidthHeight Height;
     enum_constant public static final androidx.ui.core.IntrinsicWidthHeight Width;
   }
@@ -659,7 +669,7 @@ package androidx.ui.core {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public default operator androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
-    field public static final androidx.ui.core.Modifier.Companion! Companion;
+    field public static final androidx.ui.core.Modifier.Companion Companion;
   }
 
   public static final class Modifier.Companion implements androidx.ui.core.Modifier {
@@ -766,7 +776,7 @@ package androidx.ui.core {
     property public abstract boolean showLayoutBounds;
     property public abstract androidx.ui.input.TextInputService textInputService;
     property public abstract androidx.ui.core.texttoolbar.TextToolbar textToolbar;
-    field public static final androidx.ui.core.Owner.Companion! Companion;
+    field public static final androidx.ui.core.Owner.Companion Companion;
   }
 
   public static final class Owner.Companion {
@@ -821,6 +831,8 @@ package androidx.ui.core {
   }
 
   public enum PointerEventPass {
+    method public static androidx.ui.core.PointerEventPass valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.PointerEventPass[] values();
     enum_constant public static final androidx.ui.core.PointerEventPass InitialDown;
     enum_constant public static final androidx.ui.core.PointerEventPass PostDown;
     enum_constant public static final androidx.ui.core.PointerEventPass PostUp;
@@ -925,7 +937,7 @@ package androidx.ui.core {
   }
 
   @Deprecated public interface ScaleFit extends androidx.ui.core.ContentScale {
-    field @Deprecated public static final androidx.ui.core.ScaleFit.Companion! Companion;
+    field @Deprecated public static final androidx.ui.core.ScaleFit.Companion Companion;
   }
 
   @Deprecated public static final class ScaleFit.Companion {
@@ -956,7 +968,7 @@ package androidx.ui.core {
     method public static float getPivotFractionY-impl(long $this);
     method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
     method @androidx.compose.Immutable public static inline String! toString-impl(long p);
-    field public static final androidx.ui.core.TransformOrigin.Companion! Companion;
+    field public static final androidx.ui.core.TransformOrigin.Companion Companion;
   }
 
   public static final class TransformOrigin.Companion {
@@ -1096,7 +1108,7 @@ package androidx.ui.core.gesture {
   }
 
   public final class LongPressFiredEvent implements androidx.ui.core.CustomEvent {
-    field public static final androidx.ui.core.gesture.LongPressFiredEvent! INSTANCE;
+    field public static final androidx.ui.core.gesture.LongPressFiredEvent INSTANCE;
   }
 
   public final class LongPressGestureFilterKt {
@@ -1178,6 +1190,8 @@ package androidx.ui.core.hapticfeedback {
   }
 
   public enum HapticFeedbackType {
+    method public static androidx.ui.core.hapticfeedback.HapticFeedbackType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.hapticfeedback.HapticFeedbackType[] values();
     enum_constant public static final androidx.ui.core.hapticfeedback.HapticFeedbackType LongPress;
     enum_constant public static final androidx.ui.core.hapticfeedback.HapticFeedbackType TextHandleMove;
   }
@@ -1355,7 +1369,7 @@ package androidx.ui.core.semantics {
     property public final boolean isSemanticBoundary;
     property public final androidx.ui.core.semantics.SemanticsNode? parent;
     property public final androidx.ui.unit.IntPxSize size;
-    field public static final androidx.ui.core.semantics.SemanticsNode.Companion! Companion;
+    field public static final androidx.ui.core.semantics.SemanticsNode.Companion Companion;
   }
 
   public static final class SemanticsNode.Companion {
@@ -1388,6 +1402,8 @@ package androidx.ui.core.texttoolbar {
   }
 
   public enum TextToolbarStatus {
+    method public static androidx.ui.core.texttoolbar.TextToolbarStatus valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.texttoolbar.TextToolbarStatus[] values();
     enum_constant public static final androidx.ui.core.texttoolbar.TextToolbarStatus Hidden;
     enum_constant public static final androidx.ui.core.texttoolbar.TextToolbarStatus Shown;
   }
@@ -1404,6 +1420,8 @@ package androidx.ui.core.texttoolbar.actionmodecallback {
 package androidx.ui.focus {
 
   public enum FocusDetailedState {
+    method public static androidx.ui.focus.FocusDetailedState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.focus.FocusDetailedState[] values();
     enum_constant public static final androidx.ui.focus.FocusDetailedState Active;
     enum_constant public static final androidx.ui.focus.FocusDetailedState ActiveParent;
     enum_constant public static final androidx.ui.focus.FocusDetailedState Captured;
@@ -1429,6 +1447,8 @@ package androidx.ui.focus {
   }
 
   public enum FocusState {
+    method public static androidx.ui.focus.FocusState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.focus.FocusState[] values();
     enum_constant public static final androidx.ui.focus.FocusState Focused;
     enum_constant public static final androidx.ui.focus.FocusState NotFocusable;
     enum_constant public static final androidx.ui.focus.FocusState NotFocused;
@@ -1709,7 +1729,7 @@ package androidx.ui.semantics {
 
   public final class SemanticsActions {
     ctor public SemanticsActions();
-    field public static final androidx.ui.semantics.SemanticsActions.Companion! Companion;
+    field public static final androidx.ui.semantics.SemanticsActions.Companion Companion;
   }
 
   public static final class SemanticsActions.Companion {
@@ -1738,7 +1758,7 @@ package androidx.ui.semantics {
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Enabled;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Hidden;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> TestTag;
-    field public static final androidx.ui.semantics.SemanticsProperties! INSTANCE;
+    field public static final androidx.ui.semantics.SemanticsProperties INSTANCE;
   }
 
   public final class SemanticsPropertiesKt {

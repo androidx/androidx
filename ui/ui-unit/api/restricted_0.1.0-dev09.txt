@@ -59,7 +59,7 @@ package androidx.ui.unit {
     method public inline operator float times(androidx.ui.unit.Dp other);
     method public inline operator float times-x8crYZs(float other);
     method public inline operator androidx.ui.unit.Dp unaryMinus();
-    field public static final androidx.ui.unit.Dp.Companion! Companion;
+    field public static final androidx.ui.unit.Dp.Companion Companion;
   }
 
   public static final class Dp.Companion {
@@ -172,7 +172,7 @@ package androidx.ui.unit {
     method public operator androidx.ui.unit.Duration plus(androidx.ui.unit.Duration other);
     method public operator androidx.ui.unit.Duration times(int factor);
     method public operator androidx.ui.unit.Duration times(double factor);
-    field public static final androidx.ui.unit.Duration.Companion! Companion;
+    field public static final androidx.ui.unit.Duration.Companion Companion;
   }
 
   public static final class Duration.Companion {
@@ -232,7 +232,7 @@ package androidx.ui.unit {
     method public operator androidx.ui.unit.IntPx times(double other);
     method public operator androidx.ui.unit.IntPx times(int other);
     method public operator androidx.ui.unit.IntPx unaryMinus();
-    field public static final androidx.ui.unit.IntPx.Companion! Companion;
+    field public static final androidx.ui.unit.IntPx.Companion Companion;
   }
 
   public static final class IntPx.Companion {
@@ -297,7 +297,7 @@ package androidx.ui.unit {
     method public inline operator androidx.ui.unit.IntPxPosition unaryMinus();
     property public final inline androidx.ui.unit.IntPx x;
     property public final inline androidx.ui.unit.IntPx y;
-    field public static final androidx.ui.unit.IntPxPosition.Companion! Companion;
+    field public static final androidx.ui.unit.IntPxPosition.Companion Companion;
   }
 
   public static final class IntPxPosition.Companion {
@@ -349,7 +349,7 @@ package androidx.ui.unit {
     method public inline operator float times(androidx.ui.unit.Px other);
     method public inline operator float times-RjPF0Mw(float other);
     method public inline operator androidx.ui.unit.Px unaryMinus();
-    field public static final androidx.ui.unit.Px.Companion! Companion;
+    field public static final androidx.ui.unit.Px.Companion Companion;
   }
 
   public static final class Px.Companion {
@@ -460,7 +460,7 @@ package androidx.ui.unit {
     method public inline operator androidx.ui.unit.PxPosition unaryMinus();
     property public final inline androidx.ui.unit.Px x;
     property public final inline androidx.ui.unit.Px y;
-    field public static final androidx.ui.unit.PxPosition.Companion! Companion;
+    field public static final androidx.ui.unit.PxPosition.Companion Companion;
   }
 
   public static final class PxPosition.Companion {
@@ -481,7 +481,7 @@ package androidx.ui.unit {
     method public inline operator androidx.ui.unit.PxSize times(double other);
     property public final inline androidx.ui.unit.Px height;
     property public final inline androidx.ui.unit.Px width;
-    field public static final androidx.ui.unit.PxSize.Companion! Companion;
+    field public static final androidx.ui.unit.PxSize.Companion Companion;
   }
 
   public static final class PxSize.Companion {
@@ -554,7 +554,7 @@ package androidx.ui.unit {
     property public final boolean isSp;
     property public final androidx.ui.unit.TextUnitType type;
     property public final float value;
-    field public static final androidx.ui.unit.TextUnit.Companion! Companion;
+    field public static final androidx.ui.unit.TextUnit.Companion Companion;
   }
 
   public static final class TextUnit.Companion {
@@ -591,6 +591,8 @@ package androidx.ui.unit {
   }
 
   public enum TextUnitType {
+    method public static androidx.ui.unit.TextUnitType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.unit.TextUnitType[] values();
     enum_constant public static final androidx.ui.unit.TextUnitType Em;
     enum_constant public static final androidx.ui.unit.TextUnitType Inherit;
     enum_constant public static final androidx.ui.unit.TextUnitType Sp;
@@ -605,7 +607,7 @@ package androidx.ui.unit {
     method public operator androidx.ui.unit.Uptime minus(androidx.ui.unit.Duration duration);
     method public operator androidx.ui.unit.Duration minus(androidx.ui.unit.Uptime other);
     method public operator androidx.ui.unit.Uptime plus(androidx.ui.unit.Duration duration);
-    field public static final androidx.ui.unit.Uptime.Companion! Companion;
+    field public static final androidx.ui.unit.Uptime.Companion Companion;
   }
 
   public static final class Uptime.Companion {
@@ -623,7 +625,7 @@ package androidx.ui.unit {
     method public androidx.ui.unit.Velocity copy(androidx.ui.unit.PxPosition pixelsPerSecond);
     method public androidx.ui.unit.PxPosition getPixelsPerSecond();
     method public operator androidx.ui.unit.Velocity unaryMinus();
-    field public static final androidx.ui.unit.Velocity.Companion! Companion;
+    field public static final androidx.ui.unit.Velocity.Companion Companion;
   }
 
   public static final class Velocity.Companion {

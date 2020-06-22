@@ -30,6 +30,8 @@ package androidx.animation {
   }
 
   public enum AnimationEndReason {
+    method public static androidx.animation.AnimationEndReason valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.animation.AnimationEndReason[] values();
     enum_constant public static final androidx.animation.AnimationEndReason BoundReached;
     enum_constant public static final androidx.animation.AnimationEndReason Interrupted;
     enum_constant public static final androidx.animation.AnimationEndReason TargetReached;
@@ -129,6 +131,8 @@ package androidx.animation {
   }
 
   public enum InterruptionHandling {
+    method public static androidx.animation.InterruptionHandling valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.animation.InterruptionHandling[] values();
     enum_constant public static final androidx.animation.InterruptionHandling PHYSICS;
     enum_constant public static final androidx.animation.InterruptionHandling SNAP_TO_END;
     enum_constant public static final androidx.animation.InterruptionHandling TWEEN;

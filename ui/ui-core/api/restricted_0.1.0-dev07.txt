@@ -29,6 +29,8 @@ package androidx.ui.autofill {
   }
 
   public enum AutofillType {
+    method public static androidx.ui.autofill.AutofillType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.autofill.AutofillType[] values();
     enum_constant public static final androidx.ui.autofill.AutofillType EmailAddress;
     enum_constant public static final androidx.ui.autofill.AutofillType Name;
   }
@@ -39,6 +41,8 @@ package androidx.ui.core {
 
   public enum Alignment {
     method public final androidx.ui.unit.IntPxPosition align(androidx.ui.unit.IntPxSize size, androidx.ui.core.LayoutDirection layoutDirection = androidx.ui.core.LayoutDirection.Ltr);
+    method public static androidx.ui.core.Alignment valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.Alignment[] values();
     enum_constant public static final androidx.ui.core.Alignment BottomCenter;
     enum_constant public static final androidx.ui.core.Alignment BottomEnd;
     enum_constant public static final androidx.ui.core.Alignment BottomStart;
@@ -69,7 +73,7 @@ package androidx.ui.core {
     method public androidx.ui.unit.IntPx getMaxWidth();
     method public androidx.ui.unit.IntPx getMinHeight();
     method public androidx.ui.unit.IntPx getMinWidth();
-    field public static final androidx.ui.core.Constraints.Companion! Companion;
+    field public static final androidx.ui.core.Constraints.Companion Companion;
   }
 
   public static final class Constraints.Companion {
@@ -108,6 +112,8 @@ package androidx.ui.core {
   }
 
   public enum Direction {
+    method public static androidx.ui.core.Direction valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.Direction[] values();
     enum_constant public static final androidx.ui.core.Direction DOWN;
     enum_constant public static final androidx.ui.core.Direction LEFT;
     enum_constant public static final androidx.ui.core.Direction RIGHT;
@@ -200,6 +206,8 @@ package androidx.ui.core {
   }
 
   public enum LayoutDirection {
+    method public static androidx.ui.core.LayoutDirection valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.LayoutDirection[] values();
     enum_constant public static final androidx.ui.core.LayoutDirection Ltr;
     enum_constant public static final androidx.ui.core.LayoutDirection Rtl;
   }
@@ -253,7 +261,7 @@ package androidx.ui.core {
   public static final class Modifier.None implements androidx.ui.core.Modifier {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
-    field public static final androidx.ui.core.Modifier.None! INSTANCE;
+    field public static final androidx.ui.core.Modifier.None INSTANCE;
   }
 
   public interface OnChildPositionedModifier extends androidx.ui.core.Modifier.Element {
@@ -285,7 +293,7 @@ package androidx.ui.core {
     property public final androidx.ui.unit.IntPx height;
     property public abstract androidx.ui.unit.IntPxSize size;
     property public final androidx.ui.unit.IntPx width;
-    field public static final androidx.ui.core.Placeable.PlacementScope! PlacementScope;
+    field public static final androidx.ui.core.Placeable.PlacementScope PlacementScope;
   }
 
   public static final class Placeable.PlacementScope {
@@ -300,6 +308,8 @@ package androidx.ui.core {
   }
 
   public enum PointerEventPass {
+    method public static androidx.ui.core.PointerEventPass valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.PointerEventPass[] values();
     enum_constant public static final androidx.ui.core.PointerEventPass InitialDown;
     enum_constant public static final androidx.ui.core.PointerEventPass PostDown;
     enum_constant public static final androidx.ui.core.PointerEventPass PostUp;
@@ -362,6 +372,8 @@ package androidx.ui.core {
 package androidx.ui.focus {
 
   public enum FocusDetailedState {
+    method public static androidx.ui.focus.FocusDetailedState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.focus.FocusDetailedState[] values();
     enum_constant public static final androidx.ui.focus.FocusDetailedState Active;
     enum_constant public static final androidx.ui.focus.FocusDetailedState ActiveParent;
     enum_constant public static final androidx.ui.focus.FocusDetailedState Captured;
@@ -370,6 +382,8 @@ package androidx.ui.focus {
   }
 
   public enum FocusState {
+    method public static androidx.ui.focus.FocusState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.focus.FocusState[] values();
     enum_constant public static final androidx.ui.focus.FocusState Focused;
     enum_constant public static final androidx.ui.focus.FocusState NotFocusable;
     enum_constant public static final androidx.ui.focus.FocusState NotFocused;

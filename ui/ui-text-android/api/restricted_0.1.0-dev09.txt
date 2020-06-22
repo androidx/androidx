@@ -119,7 +119,7 @@ package androidx.ui.text.platform.style {
     field public static final int ALIGN_TEXT_CENTER = 6; // 0x6
     field public static final int ALIGN_TEXT_TOP = 4; // 0x4
     field public static final int ALIGN_TOP = 1; // 0x1
-    field public static final androidx.ui.text.platform.style.PlaceholderSpan.Companion! Companion;
+    field public static final androidx.ui.text.platform.style.PlaceholderSpan.Companion Companion;
     field public static final int UNIT_EM = 1; // 0x1
     field public static final int UNIT_INHERIT = 2; // 0x2
     field public static final int UNIT_SP = 0; // 0x0

@@ -23,7 +23,7 @@ package androidx.ui.geometry {
     method public static long translate-impl(long $this, float translateX, float translateY);
     method public static long truncDiv-impl(long $this, float operand);
     method public static operator long unaryMinus-impl(long $this);
-    field public static final androidx.ui.geometry.Offset.Companion! Companion;
+    field public static final androidx.ui.geometry.Offset.Companion Companion;
   }
 
   public static final class Offset.Companion {
@@ -87,7 +87,7 @@ package androidx.ui.geometry {
     method @Deprecated public androidx.ui.geometry.RRect inflate(float delta);
     property public final float height;
     property public final float width;
-    field public static final androidx.ui.geometry.RRect.Companion! Companion;
+    field public static final androidx.ui.geometry.RRect.Companion Companion;
   }
 
   public static final class RRect.Companion {
@@ -142,7 +142,7 @@ package androidx.ui.geometry {
     method public operator androidx.ui.geometry.Radius times(float operand);
     method public androidx.ui.geometry.Radius truncDiv(float operand);
     method public operator androidx.ui.geometry.Radius unaryMinus();
-    field public static final androidx.ui.geometry.Radius.Companion! Companion;
+    field public static final androidx.ui.geometry.Radius.Companion Companion;
   }
 
   public static final class Radius.Companion {
@@ -197,7 +197,7 @@ package androidx.ui.geometry {
     property public final float maxDimension;
     property public final float minDimension;
     property public final float width;
-    field public static final androidx.ui.geometry.Rect.Companion! Companion;
+    field public static final androidx.ui.geometry.Rect.Companion Companion;
   }
 
   public static final class Rect.Companion {
@@ -247,7 +247,7 @@ package androidx.ui.geometry {
     method public static long topLeft-RIqb49o(long $this, long origin);
     method public static long topRight-RIqb49o(long $this, long origin);
     method public static long truncDiv-impl(long $this, float operand);
-    field public static final androidx.ui.geometry.Size.Companion! Companion;
+    field public static final androidx.ui.geometry.Size.Companion Companion;
   }
 
   public static final class Size.Companion {
