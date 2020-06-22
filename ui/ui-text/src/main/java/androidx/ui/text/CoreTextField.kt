@@ -24,6 +24,7 @@ import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
+import androidx.ui.core.ClipboardManagerAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.Layout
@@ -220,6 +221,7 @@ fun CoreTextField(
         manager.onValueChange = onValueChangeWrapper
         manager.state = state
         manager.value = value
+        manager.clipboardManager = ClipboardManagerAmbient.current
 
         val observer = textInputEventObserver(
             focusModifier = focusModifier,

@@ -19,6 +19,7 @@ package androidx.ui.text.selection
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
+import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.geometry.Offset
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.TextFieldValue
@@ -33,6 +34,9 @@ import androidx.ui.unit.Density
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Before
 import org.junit.Test
@@ -47,6 +51,7 @@ class TextFieldSelectionManagerTest {
     private val offsetMap = OffsetMap.identityOffsetMap
     private var value = TextFieldValue(text)
     private val lambda: (TextFieldValue) -> Unit = { value = it }
+    private val spyLambda = spy(lambda)
     private val state = TextFieldState(mock())
 
     private val dragBeginPosition = Offset.Zero
@@ -58,12 +63,15 @@ class TextFieldSelectionManagerTest {
 
     private val manager = TextFieldSelectionManager()
 
+    private val clipboardManager = mock<ClipboardManager>()
+
     @Before
     fun setup() {
         manager.offsetMap = offsetMap
         manager.onValueChange = lambda
         manager.state = state
         manager.value = value
+        manager.clipboardManager = clipboardManager
 
         state.layoutResult = mock()
         whenever(state.layoutResult!!.layoutInput).thenReturn(
@@ -111,5 +119,81 @@ class TextFieldSelectionManagerTest {
         manager.longPressDragObserver.onDrag(dragDistance)
 
         assertThat(value.selection).isEqualTo(TextRange(0, text.length))
+    }
+
+    @Test
+    fun copy_selection_collapse() {
+        manager.value = TextFieldValue(text = text, selection = TextRange(4, 4))
+
+        manager.copy()
+
+        verify(clipboardManager, times(0)).setText(any())
+    }
+
+    @Test
+    fun copy_selection_not_null() {
+        manager.value = TextFieldValue(text = text, selection = TextRange(0, "Hello".length))
+
+        manager.copy()
+
+        verify(clipboardManager, times(1)).setText(AnnotatedString("Hello"))
+        assertThat(value.selection).isEqualTo(TextRange("Hello".length, "Hello".length))
+        assertThat(state.selectionIsOn).isFalse()
+    }
+
+    @Test
+    fun paste_clipBoardManager_null() {
+        manager.clipboardManager = null
+
+        manager.paste()
+
+        verify(spyLambda, times(0)).invoke(any())
+    }
+
+    @Test
+    fun paste_clipBoardManager_empty() {
+        whenever(clipboardManager.getText()).thenReturn(null)
+
+        manager.paste()
+
+        verify(spyLambda, times(0)).invoke(any())
+    }
+
+    @Test
+    fun paste_clipBoardManager_not_empty() {
+        whenever(clipboardManager.getText()).thenReturn(AnnotatedString("Hello"))
+        manager.value = TextFieldValue(
+            text = text,
+            selection = TextRange("Hel".length, "Hello Wo".length)
+        )
+
+        manager.paste()
+
+        assertThat(value.text).isEqualTo("HelHellorld")
+        assertThat(value.selection).isEqualTo(TextRange("Hello Wo".length, "Hello Wo".length))
+        assertThat(state.selectionIsOn).isFalse()
+    }
+
+    @Test
+    fun cut_selection_collapse() {
+        manager.value = TextFieldValue(text = text, selection = TextRange(4, 4))
+
+        manager.cut()
+
+        verify(clipboardManager, times(0)).setText(any())
+    }
+
+    @Test
+    fun cut_selection_not_null() {
+        manager.value = TextFieldValue(
+            text = text + text,
+            selection = TextRange("Hello".length, text.length))
+
+        manager.cut()
+
+        verify(clipboardManager, times(1)).setText(AnnotatedString(" World"))
+        assertThat(value.text).isEqualTo("HelloHello World")
+        assertThat(value.selection).isEqualTo(TextRange("Hello".length, "Hello".length))
+        assertThat(state.selectionIsOn).isFalse()
     }
 }
