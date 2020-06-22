@@ -647,12 +647,14 @@ package androidx.ui.text {
     method public int getLength();
     method public int getMax();
     method public int getMin();
+    method public boolean getReversed();
     method public int getStart();
     method public boolean intersects(androidx.ui.text.TextRange other);
     property public final boolean collapsed;
     property public final int length;
     property public final int max;
     property public final int min;
+    property public final boolean reversed;
     field public static final androidx.ui.text.TextRange.Companion! Companion;
   }
 

@@ -63,7 +63,7 @@ val BASIC_MEASURE_FONT = font(
 @OptIn(InternalTextApi::class)
 @RunWith(JUnit4::class)
 @SmallTest
-class TextSelectionDelegateTest {
+class MultiWidgetSelectionDelegateTest {
     @get:Rule
     val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
 
@@ -88,13 +88,13 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
                 )
 
-                val selectableInvalid = TextSelectionDelegate(
+                val selectableInvalid = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { null },
                     layoutResultCallback = { layoutResult }
@@ -145,13 +145,13 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
                 )
 
-                val selectableInvalid = TextSelectionDelegate(
+                val selectableInvalid = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { null },
                     layoutResultCallback = { layoutResult }
@@ -203,7 +203,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -257,7 +257,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -311,7 +311,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -365,7 +365,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -421,7 +421,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -477,7 +477,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -531,7 +531,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -585,7 +585,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -639,7 +639,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -693,7 +693,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -749,7 +749,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -805,7 +805,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -851,7 +851,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -881,7 +881,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = {},
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -909,7 +909,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = mock(),
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -946,7 +946,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = mock(),
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -981,7 +981,7 @@ class TextSelectionDelegateTest {
                 val layoutCoordinates = mock<LayoutCoordinates>()
                 whenever(layoutCoordinates.isAttached).thenReturn(true)
 
-                val selectable = TextSelectionDelegate(
+                val selectable = MultiWidgetSelectionDelegate(
                     selectionRangeUpdate = mock(),
                     coordinatesCallback = { layoutCoordinates },
                     layoutResultCallback = { layoutResult }
@@ -1310,7 +1310,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_single_widget_handles_crossed_ltr() {
+    fun getTextSelectionInfo_single_widget_handles_crossed_ltr() {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -1351,7 +1351,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_single_widget_handles_crossed_rtl() {
+    fun getTextSelectionInfo_single_widget_handles_crossed_rtl() {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
@@ -1399,7 +1399,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_single_widget_handles_crossed_bidi() {
+    fun getTextSelectionInfo_single_widget_handles_crossed_bidi() {
         with(defaultDensity) {
             val textLtr = "Hello"
             val textRtl = "\u05D0\u05D1\u05D2\u05D3\u05D4"
@@ -1449,7 +1449,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_ltr_drag_endHandle() {
+    fun getTextSelectionInfo_bound_to_one_character_ltr_drag_endHandle() {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -1505,7 +1505,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_rtl_drag_endHandle() {
+    fun getTextSelectionInfo_bound_to_one_character_rtl_drag_endHandle() {
         with(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
@@ -1567,7 +1567,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_drag_startHandle_not_crossed() {
+    fun getTextSelectionInfo_bound_to_one_character_drag_startHandle_not_crossed() {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -1624,7 +1624,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_drag_startHandle_crossed() {
+    fun getTextSelectionInfo_bound_to_one_character_drag_startHandle_crossed() {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -1681,7 +1681,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_drag_startHandle_not_crossed_bounded() {
+    fun getTextSelectionInfo_bound_to_one_character_drag_startHandle_not_crossed_bounded() {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -1728,7 +1728,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_drag_startHandle_crossed_bounded() {
+    fun getTextSelectionInfo_bound_to_one_character_drag_startHandle_crossed_bounded() {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -1775,7 +1775,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_drag_startHandle_not_crossed_boundary() {
+    fun getTextSelectionInfo_bound_to_one_character_drag_startHandle_not_crossed_boundary() {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
@@ -1824,7 +1824,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_drag_startHandle_crossed_boundary() {
+    fun getTextSelectionInfo_bound_to_one_character_drag_startHandle_crossed_boundary() {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -1871,7 +1871,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_drag_endHandle_crossed() {
+    fun getTextSelectionInfo_bound_to_one_character_drag_endHandle_crossed() {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -1928,7 +1928,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_drag_endHandle_not_crossed_bounded() {
+    fun getTextSelectionInfo_bound_to_one_character_drag_endHandle_not_crossed_bounded() {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -1975,7 +1975,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_drag_endHandle_crossed_bounded() {
+    fun getTextSelectionInfo_bound_to_one_character_drag_endHandle_crossed_bounded() {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -2022,7 +2022,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_drag_endHandle_not_crossed_boundary() {
+    fun getTextSelectionInfo_bound_to_one_character_drag_endHandle_not_crossed_boundary() {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
@@ -2071,7 +2071,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_bound_to_one_character_drag_endHandle_crossed_boundary() {
+    fun getTextSelectionInfo_bound_to_one_character_drag_endHandle_crossed_boundary() {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
@@ -2120,7 +2120,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_cross_widget_not_contain_start() {
+    fun getTextSelectionInfo_cross_widget_not_contain_start() {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -2160,7 +2160,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_cross_widget_not_contain_end() {
+    fun getTextSelectionInfo_cross_widget_not_contain_end() {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
@@ -2201,7 +2201,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_cross_widget_not_contain_start_handles_crossed() {
+    fun getTextSelectionInfo_cross_widget_not_contain_start_handles_crossed() {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
@@ -2243,7 +2243,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_cross_widget_not_contain_end_handles_crossed() {
+    fun getTextSelectionInfo_cross_widget_not_contain_end_handles_crossed() {
         with(defaultDensity) {
             val text = "hello world"
             val fontSize = 20.sp
@@ -2285,7 +2285,7 @@ class TextSelectionDelegateTest {
     }
 
     @Test
-    fun testTextSelectionProcessor_not_selected() {
+    fun getTextSelectionInfo_not_selected() {
         with(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
