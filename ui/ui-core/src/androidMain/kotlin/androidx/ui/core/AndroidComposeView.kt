@@ -311,15 +311,20 @@ internal class AndroidComposeView constructor(
 
     private val measureAndLayoutDelegate = MeasureAndLayoutDelegate(root)
 
+    private var measureAndLayoutScheduled = false
+
     private val measureAndLayoutHandler: Handler =
         HandlerCompat.createAsync(Looper.getMainLooper()) {
+            measureAndLayoutScheduled = false
             measureAndLayout()
             true
         }
 
     private fun scheduleMeasureAndLayout() {
-        measureAndLayoutHandler.removeMessages(0)
-        measureAndLayoutHandler.sendEmptyMessage(0)
+        if (!isLayoutRequested && !measureAndLayoutScheduled) {
+            measureAndLayoutScheduled = true
+            measureAndLayoutHandler.sendEmptyMessage(0)
+        }
     }
 
     override val measureIteration: Long get() = measureAndLayoutDelegate.measureIteration
@@ -585,6 +590,9 @@ internal class AndroidComposeView constructor(
         super.onDetachedFromWindow()
         modelObserver.enableModelUpdatesObserving(false)
         ifDebug { if (autofillSupported()) _autofill?.unregisterCallback() }
+        if (measureAndLayoutScheduled) {
+            measureAndLayoutHandler.removeMessages(0)
+        }
         root.detach()
     }
 
