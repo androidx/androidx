@@ -43,34 +43,33 @@ inline fun <reified T : Throwable> expectError(
     expectedMessage: String = ".*",
     block: () -> Unit
 ) {
-    val expectClassName = T::class.java.simpleName
+    val expectedClassName = T::class.java.simpleName
     try {
         block()
     } catch (thrown: Throwable) {
-        val actualClassName = thrown.javaClass.simpleName
         if (!expectError) {
-            throwExpectError("nothing", "a $actualClassName", thrown)
+            throwExpectError(null, thrown)
         } else if (thrown !is T) {
-            throwExpectError("a $expectClassName", "a $actualClassName", thrown)
+            throwExpectError(expectedClassName, thrown)
         } else if (!expectedMessage.toRegex(DOT_MATCHES_ALL).matches(thrown.message ?: "")) {
-            throwExpectError(
-                "a $expectClassName with message \"$expectedMessage\"",
-                "a $actualClassName with message \"${thrown.message}\"",
-                thrown
-            )
+            throwExpectError(expectedClassName, thrown, expectedMessage)
         }
         // Thrown error matched what was expected
         return
     }
     if (expectError) {
         // Nothing was thrown, but we did expect it
-        throwExpectError("a $expectClassName", "nothing")
+        throwExpectError(expectedClassName)
     }
 }
 
 @PublishedApi
-internal fun throwExpectError(expect: String, actual: String, throwable: Throwable? = null) {
-    val suffix = throwable?.let {
+internal fun throwExpectError(
+    expectedClassName: String?,
+    thrown: Throwable? = null,
+    expectedMessage: String? = null
+) {
+    val stackTrace = thrown?.let {
         StringWriter().use { sw ->
             PrintWriter(sw).use { pw ->
                 it.printStackTrace(pw)
@@ -78,5 +77,14 @@ internal fun throwExpectError(expect: String, actual: String, throwable: Throwab
             ":\n==============================\n$sw=============================="
         }
     } ?: ""
-    throw AssertionError("Expected that $expect was thrown, but $actual was thrown$suffix")
+
+    fun String.plusMessage(message: String?): String {
+        return if (expectedMessage == null) this else "$this with message \"$message\""
+    }
+
+    val expected = expectedClassName?.let { "a $it".plusMessage(expectedMessage) } ?: "nothing"
+    val actual = thrown?.run { "a ${javaClass.simpleName}".plusMessage(message) } ?: "nothing"
+    throw AssertionError(
+        "Expected that $expected was thrown, but $actual was thrown$stackTrace"
+    )
 }
