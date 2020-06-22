@@ -97,6 +97,7 @@ dependencies {
     androidTestImplementation(projectOrArtifact(":paging:paging-runtime"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
     androidTestImplementation(FINDBUGS)
