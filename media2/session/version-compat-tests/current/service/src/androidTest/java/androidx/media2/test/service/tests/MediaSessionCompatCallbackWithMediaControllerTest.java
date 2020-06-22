@@ -70,7 +70,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class MediaSessionCompatCallbackTestWithMediaController extends MediaSessionTestBase {
+public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSessionTestBase {
     private static final String TAG = "MediaControllerTest";
 
     // The maximum time to wait for an operation.
@@ -123,7 +123,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testPlay() throws Exception {
+    public void play() throws Exception {
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -133,7 +133,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testPause() throws Exception {
+    public void pause() throws Exception {
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -143,7 +143,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testPrepare() throws Exception {
+    public void prepare() throws Exception {
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -153,7 +153,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSeekTo() throws Exception {
+    public void seekTo() throws Exception {
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -165,7 +165,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSetPlaybackSpeed() throws Exception {
+    public void setPlaybackSpeed() throws Exception {
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -177,7 +177,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testAddPlaylistItem() throws Exception {
+    public void addPlaylistItem() throws Exception {
         final List<MediaItem> testList = MediaTestUtils.createPlaylist(2);
         final List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
         final String testMediaId = "testAddPlaylistItem";
@@ -197,7 +197,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testRemovePlaylistItem() throws Exception {
+    public void removePlaylistItem() throws Exception {
         final List<MediaItem> testList = MediaTestUtils.createPlaylist(2);
         final List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
 
@@ -216,7 +216,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testReplacePlaylistItem() throws Exception {
+    public void replacePlaylistItem() throws Exception {
         final int testReplaceIndex = 1;
         // replace = remove + add
         final List<MediaItem> testList = MediaTestUtils.createPlaylist(2);
@@ -242,7 +242,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSkipToPreviousItem() throws Exception {
+    public void skipToPreviousItem() throws Exception {
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -252,7 +252,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSkipToNextItem() throws Exception {
+    public void skipToNextItem() throws Exception {
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -262,7 +262,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSkipToPlaylistItem() throws Exception {
+    public void skipToPlaylistItem() throws Exception {
         final int testSkipToIndex = 1;
         final List<MediaItem> testList = MediaTestUtils.createPlaylist(2);
         final List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
@@ -279,7 +279,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSetShuffleMode() throws Exception {
+    public void setShuffleMode() throws Exception {
         final int testShuffleMode = SessionPlayer.SHUFFLE_MODE_GROUP;
 
         mSession.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE);
@@ -293,7 +293,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSetRepeatMode() throws Exception {
+    public void setRepeatMode() throws Exception {
         final int testRepeatMode = SessionPlayer.REPEAT_MODE_ALL;
 
         mSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE);
@@ -307,7 +307,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSetVolumeTo() throws Exception {
+    public void setVolumeTo() throws Exception {
         final int maxVolume = 100;
         final int currentVolume = 23;
         final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
@@ -324,7 +324,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testAdjustVolume() throws Exception {
+    public void adjustVolume() throws Exception {
         final int maxVolume = 100;
         final int currentVolume = 23;
         final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
@@ -341,7 +341,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSetVolumeWithLocalVolume() throws Exception {
+    public void setVolumeWithLocalVolume() throws Exception {
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
             return;
@@ -378,7 +378,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testAdjustVolumeWithLocalVolume() throws Exception {
+    public void adjustVolumeWithLocalVolume() throws Exception {
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
             return;
@@ -417,7 +417,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSendCustomCommand() throws Exception {
+    public void sendCustomCommand() throws Exception {
         final String command = "test_custom_command";
         final Bundle testArgs = new Bundle();
         testArgs.putString("args", "test_args");
@@ -433,7 +433,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testFastForward() throws Exception {
+    public void fastForward() throws Exception {
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -443,7 +443,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testRewind() throws Exception {
+    public void rewind() throws Exception {
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -453,7 +453,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSetRating() throws Exception {
+    public void setRating() throws Exception {
         final float ratingValue = 3.5f;
         final Rating rating2 = new StarRating(5, ratingValue);
         final String mediaId = "media_id";

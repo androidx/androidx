@@ -81,7 +81,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSessionTestBase {
+public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSessionTestBase {
     private static final String TAG = "MediaSessionCallbackTestWithMediaControllerCompat";
     private static final long VOLUME_CHANGE_TIMEOUT_MS = 5000L;
 
@@ -153,7 +153,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testDisconnectedAfterTimeout() throws InterruptedException {
+    public void disconnectedAfterTimeout() throws InterruptedException {
         CountDownLatch disconnectedLatch = new CountDownLatch(1);
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
                 .setId("testDisconnectedAfterTimeout")
@@ -186,7 +186,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testConnectedCallbackAfterDisconnectedByTimeout() throws InterruptedException {
+    public void connectedCallbackAfterDisconnectedByTimeout() throws InterruptedException {
         CountDownLatch connectedLatch = new CountDownLatch(1);
         CountDownLatch disconnectedLatch = new CountDownLatch(1);
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -227,7 +227,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testPlay() {
+    public void play() {
         mController.getTransportControls().play();
         try {
             assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -238,7 +238,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testPause() {
+    public void pause() {
         mController.getTransportControls().pause();
         try {
             assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -249,7 +249,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testStop() {
+    public void stop() {
         // MediaControllerCompat#stop() will call MediaSession#pause() and MediaSession#seekTo(0).
         // Therefore, the latch's initial count is 2.
         MockPlayer player = new MockPlayer(2);
@@ -268,7 +268,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testPrepare() {
+    public void prepare() {
         mController.getTransportControls().prepare();
         try {
             assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -279,7 +279,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testSeekTo() {
+    public void seekTo() {
         final long seekPosition = 12125L;
         mController.getTransportControls().seekTo(seekPosition);
         try {
@@ -292,7 +292,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testSetPlaybackSpeed() {
+    public void setPlaybackSpeed() {
         final float testSpeed = 2.0f;
         mController.getTransportControls().setPlaybackSpeed(testSpeed);
         try {
@@ -305,7 +305,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testAddQueueItem() throws InterruptedException {
+    public void addQueueItem() throws InterruptedException {
         final int playlistSize = 10;
 
         List<MediaItem> playlist = MediaTestUtils.createPlaylist(playlistSize);
@@ -327,7 +327,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testAddQueueItemWithIndex() throws InterruptedException {
+    public void addQueueItemWithIndex() throws InterruptedException {
         final int playlistSize = 10;
 
         List<MediaItem> playlist = MediaTestUtils.createPlaylist(playlistSize);
@@ -351,7 +351,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testRemoveQueueItem() throws InterruptedException {
+    public void removeQueueItem() throws InterruptedException {
         final int playlistSize = 10;
 
         List<MediaItem> playlist = MediaTestUtils.createPlaylist(playlistSize);
@@ -374,21 +374,21 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testSkipToPrevious() throws InterruptedException {
+    public void skipToPrevious() throws InterruptedException {
         mController.getTransportControls().skipToPrevious();
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mSkipToPreviousItemCalled);
     }
 
     @Test
-    public void testSkipToNext() throws InterruptedException {
+    public void skipToNext() throws InterruptedException {
         mController.getTransportControls().skipToNext();
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mSkipToNextItemCalled);
     }
 
     @Test
-    public void testSkipToQueueItem() throws InterruptedException {
+    public void skipToQueueItem() throws InterruptedException {
         final int playlistSize = 10;
 
         List<MediaItem> playlist = MediaTestUtils.createPlaylist(playlistSize);
@@ -408,7 +408,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testSetShuffleMode() throws InterruptedException {
+    public void setShuffleMode() throws InterruptedException {
         final int testShuffleMode = SessionPlayer.SHUFFLE_MODE_GROUP;
         mController.getTransportControls().setShuffleMode(testShuffleMode);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -418,7 +418,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testSetRepeatMode() throws InterruptedException {
+    public void setRepeatMode() throws InterruptedException {
         final int testRepeatMode = SessionPlayer.REPEAT_MODE_GROUP;
         mController.getTransportControls().setRepeatMode(testRepeatMode);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -428,7 +428,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testSetVolumeTo() throws Exception {
+    public void setVolumeTo() throws Exception {
         final int maxVolume = 100;
         final int currentVolume = 23;
         final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
@@ -445,7 +445,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testAdjustVolume() throws Exception {
+    public void adjustVolume() throws Exception {
         final int maxVolume = 100;
         final int currentVolume = 23;
         final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
@@ -462,7 +462,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testSetVolumeWithLocalVolume() throws Exception {
+    public void setVolumeWithLocalVolume() throws Exception {
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
             return;
@@ -504,7 +504,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testAdjustVolumeWithLocalVolume() throws Exception {
+    public void adjustVolumeWithLocalVolume() throws Exception {
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
             return;
@@ -547,7 +547,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testSendCommand() throws InterruptedException {
+    public void sendCommand() throws InterruptedException {
         // TODO(jaewan): Need to revisit with the permission.
         final String testCommand = "test_command";
         final Bundle testArgs = new Bundle();
@@ -586,7 +586,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testControllerCallback_sessionRejects() throws Exception {
+    public void controllerCallback_sessionRejects() throws Exception {
         final SessionCallback sessionCallback = new SessionCallback() {
             @Override
             public SessionCommandGroup onConnect(@NonNull MediaSession session,
@@ -611,7 +611,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testFastForward() throws InterruptedException {
+    public void fastForward() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
@@ -633,7 +633,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testRewind() throws InterruptedException {
+    public void rewind() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
@@ -654,7 +654,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testPrepareFromMediaUri() throws InterruptedException {
+    public void prepareFromMediaUri() throws InterruptedException {
         final Uri mediaId = Uri.parse("foo://bar");
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -683,7 +683,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testPlayFromMediaUri() throws InterruptedException {
+    public void playFromMediaUri() throws InterruptedException {
         final Uri request = Uri.parse("foo://bar");
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -712,7 +712,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testPrepareFromMediaId() throws InterruptedException {
+    public void prepareFromMediaId() throws InterruptedException {
         final String request = "media_id";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -742,7 +742,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testPlayFromMediaId() throws InterruptedException {
+    public void playFromMediaId() throws InterruptedException {
         final String mediaId = "media_id";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -772,7 +772,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testPrepareFromSearch() throws InterruptedException {
+    public void prepareFromSearch() throws InterruptedException {
         final String query = "test_query";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -802,7 +802,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testPlayFromSearch() throws InterruptedException {
+    public void playFromSearch() throws InterruptedException {
         final String query = "test_query";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -832,7 +832,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testSetRating() throws InterruptedException {
+    public void setRating() throws InterruptedException {
         final int ratingType = RatingCompat.RATING_5_STARS;
         final float ratingValue = 3.5f;
         final RatingCompat rating = RatingCompat.newStarRating(ratingType, ratingValue);
@@ -864,7 +864,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
-    public void testOnCommandCallback() throws InterruptedException {
+    public void onCommandCallback() throws InterruptedException {
         final ArrayList<SessionCommand> commands = new ArrayList<>();
         final CountDownLatch latchForPause = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
@@ -917,7 +917,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
      */
     @Test
     @LargeTest
-    public void testDeadlock() throws InterruptedException {
+    public void deadlock() throws InterruptedException {
         sHandler.postAndSync(new Runnable() {
             @Override
             public void run() {
@@ -995,7 +995,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
 
     @Test
     @LargeTest
-    public void testControllerAfterSessionIsGone() throws InterruptedException {
+    public void controllerAfterSessionIsGone() throws InterruptedException {
         mSession.close();
         testSessionCallbackIsNotCalled();
 
