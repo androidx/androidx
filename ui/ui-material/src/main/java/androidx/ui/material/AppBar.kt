@@ -168,6 +168,7 @@ fun TopAppBar(
  * should typically be the same shape used inside the [FloatingActionButton], when [BottomAppBar]
  * and [FloatingActionButton] are being used together in [Scaffold]. This shape will be drawn with
  * an offset around all sides. If null, where will be no cutout.
+ * @param elevation the elevation of this BottomAppBar.
  * @param content the content of this BottomAppBar. The default layout here is a [Row],
  * so content inside will be placed horizontally.
  */
@@ -177,6 +178,7 @@ fun BottomAppBar(
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     cutoutShape: Shape? = null,
+    elevation: Dp = BottomAppBarElevation,
     content: @Composable RowScope.() -> Unit
 ) {
     val scaffoldGeometry = ScaffoldGeometryAmbient.current
@@ -186,7 +188,7 @@ fun BottomAppBar(
     } else {
         RectangleShape
     }
-    AppBar(backgroundColor, contentColor, BottomAppBarElevation, shape, modifier) {
+    AppBar(backgroundColor, contentColor, elevation, shape, modifier) {
         // TODO: b/150609566 clarify emphasis for children
         Row(
             Modifier.fillMaxSize(),
