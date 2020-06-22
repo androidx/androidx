@@ -217,6 +217,7 @@ internal class AndroidComposeView constructor(
         }
     }
 
+    @OptIn(InternalCoreApi::class)
     override var showLayoutBounds = false
 
     override fun pauseModelReadObserveration(block: () -> Unit) =

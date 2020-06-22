@@ -20,7 +20,17 @@ import androidx.ui.graphics.Brush
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.unit.Dp
-import java.util.Stack
+
+private inline class Stack<T>(private val backing: ArrayList<T> = ArrayList<T>()) {
+    val size: Int get() = backing.size
+
+    fun push(value: T) = backing.add(value)
+    fun pop(): T = backing.removeAt(size - 1)
+    fun peek(): T = backing[size - 1]
+    fun isEmpty() = backing.isEmpty()
+    fun isNotEmpty() = !isEmpty()
+    fun clear() = backing.clear()
+}
 
 /**
  * Builder used to construct a Vector graphic tree.
@@ -69,7 +79,7 @@ class VectorAssetBuilder(
         get() = nodes.peek()
 
     init {
-        nodes.add(root)
+        nodes.push(root)
     }
 
     /**
@@ -111,7 +121,7 @@ class VectorAssetBuilder(
             clipPathData
         )
         currentGroup.addNode(group)
-        nodes.add(group)
+        nodes.push(group)
         return this
     }
 

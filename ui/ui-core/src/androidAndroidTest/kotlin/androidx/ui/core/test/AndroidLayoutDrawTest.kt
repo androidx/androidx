@@ -46,6 +46,7 @@ import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.HorizontalAlignmentLine
+import androidx.ui.core.InternalCoreApi
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.Layout
@@ -2087,6 +2088,7 @@ class AndroidLayoutDrawTest {
     // Tests that show layout bounds draws outlines around content and modifiers
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
+    @OptIn(InternalCoreApi::class)
     fun showLayoutBounds_content() {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
