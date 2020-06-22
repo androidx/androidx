@@ -17,13 +17,13 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
+import androidx.compose.ComposableContract
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.Stable
-import androidx.compose.Untracked
 import androidx.compose.compositionReference
 import androidx.compose.currentComposer
 import androidx.compose.emit
@@ -572,9 +572,13 @@ private class WithConstrainsState {
 
     @OptIn(ExperimentalComposeApi::class)
     fun subcompose() {
-        // TODO(b/150390669): Review use of @Untracked
+        // TODO(b/150390669): Review use of @ComposableContract(tracked = false)
         composition =
-            subcomposeInto(nodeRef.value!!, recomposer, compositionRef) @Untracked {
+            subcomposeInto(
+                nodeRef.value!!,
+                recomposer,
+                compositionRef
+            ) @ComposableContract(tracked = false) {
                 scope.children()
             }
         forceRecompose = false
