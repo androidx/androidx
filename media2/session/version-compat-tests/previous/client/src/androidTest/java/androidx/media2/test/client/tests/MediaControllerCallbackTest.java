@@ -875,22 +875,27 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     @Test
     public void onTrackInfoChanged() throws InterruptedException {
         prepareLooper();
-        final List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
+        List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
+        AtomicReference<List<SessionPlayer.TrackInfo>> returnedTracksRef = new AtomicReference<>();
 
-        final CountDownLatch latch = new CountDownLatch(1);
-        final MediaController.ControllerCallback callback =
+        CountDownLatch latch = new CountDownLatch(1);
+        MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
-                    public void onTrackInfoChanged(MediaController controller,
-                            List<SessionPlayer.TrackInfo> trackInfos) {
-                        assertEquals(testTracks, trackInfos);
+                    public void onTrackInfoChanged(@NonNull MediaController controller,
+                            @NonNull List<SessionPlayer.TrackInfo> tracks) {
+                        returnedTracksRef.set(tracks);
                         latch.countDown();
                     }
                 };
-        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
-                callback);
+        createController(mRemoteSession2.getToken(), true, null, callback);
         mRemoteSession2.getMockPlayer().notifyTrackInfoChanged(testTracks);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
+        assertEquals(testTracks.size(), returnedTracksRef.get().size());
+        for (int i = 0; i < testTracks.size(); i++) {
+            assertEquals(testTracks.get(i).getId(), returnedTracksRef.get().get(i).getId());
+        }
     }
 
     @Test

@@ -1099,22 +1099,23 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onTracksChanged() throws InterruptedException {
-        final List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
+        List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
+        AtomicReference<List<SessionPlayer.TrackInfo>> returnedTracksRef = new AtomicReference<>();
 
-        final CountDownLatch latch = new CountDownLatch(1);
-        final MediaController.ControllerCallback callback =
+        CountDownLatch latch = new CountDownLatch(1);
+        MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
                     public void onTracksChanged(@NonNull MediaController controller,
                             @NonNull List<TrackInfo> tracks) {
-                        assertEquals(testTracks, tracks);
+                        returnedTracksRef.set(tracks);
                         latch.countDown();
                     }
                 };
-        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
-                callback);
+        createController(mRemoteSession2.getToken(), true, null, callback);
         mRemoteSession2.getMockPlayer().notifyTracksChanged(testTracks);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testTracks, returnedTracksRef.get());
     }
 
     @Test
