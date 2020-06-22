@@ -1059,9 +1059,9 @@ public abstract class SessionPlayer implements Closeable {
 
         @ParcelField(1)
         int mId;
-        @ParcelField(2)
-        @Deprecated
-        MediaItem mUpCastMediaItem;
+
+        // Removed @ParcelField(2)
+
         @ParcelField(3)
         int mTrackType;
 

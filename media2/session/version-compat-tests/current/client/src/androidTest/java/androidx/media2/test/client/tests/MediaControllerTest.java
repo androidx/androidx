@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Tests {@link MediaController}.
@@ -453,11 +454,13 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void selectDeselectTrackAndGetSelectedTrack() throws Exception {
-        final CountDownLatch selectTrackLatch = new CountDownLatch(1);
-        final CountDownLatch deselectTrackLatch = new CountDownLatch(1);
+        CountDownLatch selectTrackLatch = new CountDownLatch(1);
+        CountDownLatch deselectTrackLatch = new CountDownLatch(1);
+        AtomicReference<SessionPlayer.TrackInfo> selectedTrackRef = new AtomicReference<>();
+        AtomicReference<SessionPlayer.TrackInfo> deselectedTrackRef = new AtomicReference<>();
 
-        final List<TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
-        final TrackInfo testTrack = testTracks.get(2);
+        List<TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
+        TrackInfo testTrack = testTracks.get(2);
         int testTrackType = testTrack.getTrackType();
         Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
                 .setTrackInfo(testTracks)
@@ -468,14 +471,14 @@ public class MediaControllerTest extends MediaSessionTestBase {
                     @Override
                     public void onTrackSelected(@NonNull MediaController controller,
                             @NonNull SessionPlayer.TrackInfo trackInfo) {
-                        assertEquals(testTrack, trackInfo);
+                        selectedTrackRef.set(trackInfo);
                         selectTrackLatch.countDown();
                     }
 
                     @Override
                     public void onTrackDeselected(@NonNull MediaController controller,
                             @NonNull SessionPlayer.TrackInfo trackInfo) {
-                        assertEquals(testTrack, trackInfo);
+                        deselectedTrackRef.set(trackInfo);
                         deselectTrackLatch.countDown();
                     }
                 });
@@ -483,10 +486,12 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
         controller.selectTrack(testTrack);
         assertTrue(selectTrackLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testTrack, selectedTrackRef.get());
         assertEquals(testTrack, controller.getSelectedTrack(testTrackType));
 
         controller.deselectTrack(testTrack);
         assertTrue(deselectTrackLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testTrack, deselectedTrackRef.get());
         assertNull(controller.getSelectedTrack(testTrackType));
     }
 
