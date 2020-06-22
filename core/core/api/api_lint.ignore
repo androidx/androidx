@@ -1085,14 +1085,6 @@ MissingNullability: androidx.core.text.TextDirectionHeuristicsCompat#LTR:
     Missing nullability on field `LTR` in class `class androidx.core.text.TextDirectionHeuristicsCompat`
 MissingNullability: androidx.core.text.TextDirectionHeuristicsCompat#RTL:
     Missing nullability on field `RTL` in class `class androidx.core.text.TextDirectionHeuristicsCompat`
-MissingNullability: androidx.core.util.PatternsCompat#DOMAIN_NAME:
-    Missing nullability on field `DOMAIN_NAME` in class `class androidx.core.util.PatternsCompat`
-MissingNullability: androidx.core.util.PatternsCompat#EMAIL_ADDRESS:
-    Missing nullability on field `EMAIL_ADDRESS` in class `class androidx.core.util.PatternsCompat`
-MissingNullability: androidx.core.util.PatternsCompat#IP_ADDRESS:
-    Missing nullability on field `IP_ADDRESS` in class `class androidx.core.util.PatternsCompat`
-MissingNullability: androidx.core.util.PatternsCompat#WEB_URL:
-    Missing nullability on field `WEB_URL` in class `class androidx.core.util.PatternsCompat`
 MissingNullability: androidx.core.view.AccessibilityDelegateCompat#dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `host` in method `dispatchPopulateAccessibilityEvent`
 MissingNullability: androidx.core.view.AccessibilityDelegateCompat#dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
@@ -2111,11 +2103,11 @@ NoClone: androidx.core.app.NotificationCompat.WearableExtender#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
 
 
-OptionalBuilderConstructorAgrument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #0:
+OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #0:
     Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter icon in androidx.core.app.NotificationCompat.Action.Builder(androidx.core.graphics.drawable.IconCompat icon, CharSequence title, android.app.PendingIntent intent)
-OptionalBuilderConstructorAgrument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #1:
+OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #1:
     Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter title in androidx.core.app.NotificationCompat.Action.Builder(androidx.core.graphics.drawable.IconCompat icon, CharSequence title, android.app.PendingIntent intent)
-OptionalBuilderConstructorAgrument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #2:
+OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #2:
     Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter intent in androidx.core.app.NotificationCompat.Action.Builder(androidx.core.graphics.drawable.IconCompat icon, CharSequence title, android.app.PendingIntent intent)
 
 

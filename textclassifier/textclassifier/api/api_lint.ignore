@@ -47,7 +47,5 @@ MissingNullability: androidx.textclassifier.TextLinks.SpanFactory#createSpan(and
     Missing nullability on method `createSpan` return
 MissingNullability: androidx.textclassifier.TextLinks.TextLink#getConfidenceScore(String) parameter #0:
     Missing nullability on parameter `entityType` in method `getConfidenceScore`
-MissingNullability: androidx.textclassifier.TextLinksParams#DEFAULT_PARAMS:
-    Missing nullability on field `DEFAULT_PARAMS` in class `class androidx.textclassifier.TextLinksParams`
 MissingNullability: androidx.textclassifier.TextSelection#getConfidenceScore(String) parameter #0:
     Missing nullability on parameter `entity` in method `getConfidenceScore`

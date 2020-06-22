@@ -1740,7 +1740,7 @@ package androidx.leanback.widget {
     field public static final int VIEW_TYPE_EXTRA = 2; // 0x2
     field public static final int VIEW_TYPE_INFO = 1; // 0x1
     field public static final int VIEW_TYPE_MAIN = 0; // 0x0
-    field @android.view.ViewDebug.ExportedProperty(category="layout", mapping={@android.view.ViewDebug.IntToString(from=androidx.leanback.widget.BaseCardView.LayoutParams.VIEW_TYPE_MAIN, to="MAIN"), @android.view.ViewDebug.IntToString(from=androidx.leanback.widget.BaseCardView.LayoutParams.VIEW_TYPE_INFO, to="INFO"), @android.view.ViewDebug.IntToString(from=androidx.leanback.widget.BaseCardView.LayoutParams.VIEW_TYPE_EXTRA, to="EXTRA")}) public int viewType;
+    field public int viewType;
   }
 
   public abstract class BaseGridView extends androidx.recyclerview.widget.RecyclerView {

@@ -936,14 +936,14 @@ package androidx.appcompat.view.menu {
     method public int getGroupId();
     method public android.graphics.drawable.Drawable! getIcon();
     method public android.content.Intent! getIntent();
-    method @android.view.ViewDebug.CapturedViewProperty public int getItemId();
+    method public int getItemId();
     method public android.view.ContextMenu.ContextMenuInfo! getMenuInfo();
     method public char getNumericShortcut();
     method public int getOrder();
     method public int getOrdering();
     method public android.view.SubMenu! getSubMenu();
     method public androidx.core.view.ActionProvider! getSupportActionProvider();
-    method @android.view.ViewDebug.CapturedViewProperty public CharSequence! getTitle();
+    method public CharSequence! getTitle();
     method public CharSequence! getTitleCondensed();
     method public boolean hasCollapsibleActionView();
     method public boolean hasSubMenu();
@@ -1295,11 +1295,11 @@ package androidx.appcompat.widget {
     ctor public ActionMenuView.LayoutParams(android.view.ViewGroup.LayoutParams!);
     ctor public ActionMenuView.LayoutParams(androidx.appcompat.widget.ActionMenuView.LayoutParams!);
     ctor public ActionMenuView.LayoutParams(int, int);
-    field @android.view.ViewDebug.ExportedProperty public int cellsUsed;
-    field @android.view.ViewDebug.ExportedProperty public boolean expandable;
-    field @android.view.ViewDebug.ExportedProperty public int extraPixels;
-    field @android.view.ViewDebug.ExportedProperty public boolean isOverflowButton;
-    field @android.view.ViewDebug.ExportedProperty public boolean preventEdgeOffset;
+    field public int cellsUsed;
+    field public boolean expandable;
+    field public int extraPixels;
+    field public boolean isOverflowButton;
+    field public boolean preventEdgeOffset;
   }
 
   public static interface ActionMenuView.OnMenuItemClickListener {

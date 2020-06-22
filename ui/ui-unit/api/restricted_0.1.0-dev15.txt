@@ -17,7 +17,7 @@ package androidx.ui.core {
     property public final int maxWidth;
     property public final int minHeight;
     property public final int minWidth;
-    field public static final androidx.ui.core.Constraints.Companion! Companion;
+    field public static final androidx.ui.core.Constraints.Companion Companion;
     field public static final int Infinity = 2147483647; // 0x7fffffff
   }
 
@@ -41,6 +41,8 @@ package androidx.ui.core {
   }
 
   public enum LayoutDirection {
+    method public static androidx.ui.core.LayoutDirection valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.LayoutDirection[] values();
     enum_constant public static final androidx.ui.core.LayoutDirection Ltr;
     enum_constant public static final androidx.ui.core.LayoutDirection Rtl;
   }
@@ -108,7 +110,7 @@ package androidx.ui.unit {
     method @androidx.compose.Stable public static inline operator float times-x8crYZs(float $this, float other);
     method @androidx.compose.Stable public static String toString-impl(float $this);
     method @androidx.compose.Stable public static inline operator float unaryMinus-impl(float $this);
-    field public static final androidx.ui.unit.Dp.Companion! Companion;
+    field public static final androidx.ui.unit.Dp.Companion Companion;
   }
 
   public static final class Dp.Companion {
@@ -214,7 +216,7 @@ package androidx.ui.unit {
     method @androidx.compose.Stable public operator androidx.ui.unit.Duration plus(androidx.ui.unit.Duration other);
     method @androidx.compose.Stable public operator androidx.ui.unit.Duration times(int factor);
     method @androidx.compose.Stable public operator androidx.ui.unit.Duration times(double factor);
-    field public static final androidx.ui.unit.Duration.Companion! Companion;
+    field public static final androidx.ui.unit.Duration.Companion Companion;
   }
 
   public static final class Duration.Companion {
@@ -268,7 +270,7 @@ package androidx.ui.unit {
     method @androidx.compose.Stable public inline operator androidx.ui.unit.IntOffset unaryMinus();
     property public final int x;
     property public final int y;
-    field public static final androidx.ui.unit.IntOffset.Companion! Companion;
+    field public static final androidx.ui.unit.IntOffset.Companion Companion;
   }
 
   public static final class IntOffset.Companion {
@@ -296,7 +298,7 @@ package androidx.ui.unit {
     method @androidx.compose.Stable public operator androidx.ui.unit.IntSize times(int other);
     property public final int height;
     property public final int width;
-    field public static final androidx.ui.unit.IntSize.Companion! Companion;
+    field public static final androidx.ui.unit.IntSize.Companion Companion;
   }
 
   public static final class IntSize.Companion {
@@ -425,7 +427,7 @@ package androidx.ui.unit {
     method public static inline operator long times-impl(long $this, int other);
     method public static String toString-impl(long $this);
     method public static inline operator long unaryMinus-impl(long $this);
-    field public static final androidx.ui.unit.TextUnit.Companion! Companion;
+    field public static final androidx.ui.unit.TextUnit.Companion Companion;
   }
 
   public static final class TextUnit.Companion {
@@ -462,6 +464,8 @@ package androidx.ui.unit {
   }
 
   public enum TextUnitType {
+    method public static androidx.ui.unit.TextUnitType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.unit.TextUnitType[] values();
     enum_constant public static final androidx.ui.unit.TextUnitType Em;
     enum_constant public static final androidx.ui.unit.TextUnitType Inherit;
     enum_constant public static final androidx.ui.unit.TextUnitType Sp;
@@ -476,7 +480,7 @@ package androidx.ui.unit {
     method public operator androidx.ui.unit.Uptime minus(androidx.ui.unit.Duration duration);
     method public operator androidx.ui.unit.Duration minus(androidx.ui.unit.Uptime other);
     method public operator androidx.ui.unit.Uptime plus(androidx.ui.unit.Duration duration);
-    field public static final androidx.ui.unit.Uptime.Companion! Companion;
+    field public static final androidx.ui.unit.Uptime.Companion Companion;
   }
 
   public static final class Uptime.Companion {
@@ -494,7 +498,7 @@ package androidx.ui.unit {
     method @androidx.compose.Immutable public androidx.ui.unit.Velocity copy(androidx.ui.geometry.Offset pixelsPerSecond);
     method public androidx.ui.geometry.Offset getPixelsPerSecond();
     method public operator androidx.ui.unit.Velocity unaryMinus();
-    field public static final androidx.ui.unit.Velocity.Companion! Companion;
+    field public static final androidx.ui.unit.Velocity.Companion Companion;
   }
 
   public static final class Velocity.Companion {

@@ -449,11 +449,11 @@ package androidx.appcompat.widget {
     ctor public ActionMenuView.LayoutParams(android.view.ViewGroup.LayoutParams!);
     ctor public ActionMenuView.LayoutParams(androidx.appcompat.widget.ActionMenuView.LayoutParams!);
     ctor public ActionMenuView.LayoutParams(int, int);
-    field @android.view.ViewDebug.ExportedProperty public int cellsUsed;
-    field @android.view.ViewDebug.ExportedProperty public boolean expandable;
-    field @android.view.ViewDebug.ExportedProperty public int extraPixels;
-    field @android.view.ViewDebug.ExportedProperty public boolean isOverflowButton;
-    field @android.view.ViewDebug.ExportedProperty public boolean preventEdgeOffset;
+    field public int cellsUsed;
+    field public boolean expandable;
+    field public int extraPixels;
+    field public boolean isOverflowButton;
+    field public boolean preventEdgeOffset;
   }
 
   public static interface ActionMenuView.OnMenuItemClickListener {

@@ -17,8 +17,6 @@ AutoBoxing: androidx.animation.RepeatableBuilder#setIterations(Integer) paramete
 
 CallbackName: androidx.animation.AnimationClockObserver:
     Class should be named AnimationClockCallback
-CallbackName: androidx.animation.TransitionAnimation.TransitionAnimationClockObserver:
-    Class should be named TransitionAnimationClockCallback
 
 
 DocumentExceptions: androidx.animation.DurationBasedAnimationBuilder#setDelay(int):

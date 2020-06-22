@@ -33,7 +33,7 @@ package androidx.ui.text {
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getSupportsInputMethods();
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.input.ImeAction> ImeAction;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> SupportsInputMethods;
-    field public static final androidx.ui.text.TextSemanticsProperties! INSTANCE;
+    field public static final androidx.ui.text.TextSemanticsProperties INSTANCE;
   }
 
   public final class TextSemanticsPropertiesKt {
