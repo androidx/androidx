@@ -31,14 +31,17 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.drawBehind
-import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.dragGestureFilter
-import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.onPositioned
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.core.focus.FocusState
 import androidx.ui.core.focus.focusState
+import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.gesture.LongPressDragObserver
+import androidx.ui.core.gesture.dragGestureFilter
+import androidx.ui.core.gesture.longPressDragGestureFilter
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.semantics.semantics
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.drawscope.drawCanvas
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.TextFieldValue
@@ -47,7 +50,8 @@ import androidx.ui.input.KeyboardType
 import androidx.ui.input.NO_SESSION
 import androidx.ui.input.VisualTransformation
 import androidx.ui.semantics.onClick
-import androidx.ui.geometry.Offset
+import androidx.ui.text.selection.TextFieldSelectionManager
+import androidx.ui.text.style.TextDirection
 import kotlin.math.roundToInt
 
 @Suppress("DEPRECATION")
@@ -210,6 +214,13 @@ fun CoreTextField(
         val focusModifier = chainedFocusModifier(modifier) ?: FocusModifier()
 
         state.processor.onNewState(value, textInputService, state.inputSession)
+
+        val manager = remember { TextFieldSelectionManager() }
+        manager.offsetMap = offsetMap
+        manager.onValueChange = onValueChangeWrapper
+        manager.state = state
+        manager.value = value
+
         val observer = textInputEventObserver(
             focusModifier = focusModifier,
             onPress = { },
@@ -262,19 +273,23 @@ fun CoreTextField(
                 onFocusChange(false)
             },
             onRelease = {
-                state.layoutResult?.let { layoutResult ->
-                    TextFieldDelegate.onRelease(
-                        it,
-                        layoutResult,
-                        state.processor,
-                        offsetMap,
-                        onValueChangeWrapper,
-                        textInputService,
-                        state.inputSession,
-                        state.hasFocus
-                    )
+                if (state.selectionIsOn == false) {
+                    state.layoutResult?.let { layoutResult ->
+                        TextFieldDelegate.onRelease(
+                            it,
+                            layoutResult,
+                            state.processor,
+                            offsetMap,
+                            onValueChangeWrapper,
+                            textInputService,
+                            state.inputSession,
+                            state.hasFocus
+                        )
+                    }
                 }
             },
+            state = state,
+            longPressDragObserver = manager.longPressDragObserver,
             imeAction = imeAction
         )
 
@@ -342,7 +357,7 @@ fun CoreTextField(
 }
 
 @OptIn(InternalTextApi::class)
-private class TextFieldState(
+internal class TextFieldState(
     var textDelegate: TextDelegate
 ) {
     val processor = EditProcessor()
@@ -356,6 +371,21 @@ private class TextFieldState(
     var layoutCoordinates: LayoutCoordinates? = null
     /** The latest TextLayoutResult calculated in the measure block */
     var layoutResult: TextLayoutResult? = null
+    /**
+     * The gesture detector status, to indicate whether current status is selection or editing.
+     *
+     * In the editing mode, there is no selection shown, only cursor is shown. To enter the editing
+     * mode from selection mode, just tap on the screen.
+     *
+     * In the selection mode, there is no cursor shown, only selection is shown. To enter
+     * the selection mode, just long press on the screen. In this mode, finger movement on the
+     * screen changes selection instead of moving the cursor.
+     */
+    var selectionIsOn: Boolean = false
+    /** The [TextDirection] for the start of the selection. */
+    var selectionStartDirection: TextDirection = TextDirection.Ltr
+    /** The [TextDirection] for the end of the selection. */
+    var selectionEndDirection: TextDirection = TextDirection.Ltr
 }
 
 private fun chainedFocusModifier(modifier: Modifier): FocusModifier? {
@@ -377,6 +407,8 @@ private fun textInputEventObserver(
     onPress: (Offset) -> Unit,
     onRelease: (Offset) -> Unit,
     onFocus: () -> Unit,
+    state: TextFieldState,
+    longPressDragObserver: LongPressDragObserver,
     onBlur: (hasNextClient: Boolean) -> Unit,
     focusModifier: FocusModifier,
     imeAction: ImeAction
@@ -414,13 +446,15 @@ private fun textInputEventObserver(
         })
     val drag = Modifier.dragPositionGestureFilter(
         onPress = {
+            state.selectionIsOn = false
             if (focusModifier.focusState == FocusState.Focused) {
                 onPress(it)
             } else {
                 doFocusIn()
             }
         },
-        onRelease = onRelease
+        onRelease = onRelease,
+        longPressDragObserver = longPressDragObserver
     )
 
     return semantics.plus(drag)
@@ -467,7 +501,8 @@ internal class DragEventTracker {
 @Composable
 private fun Modifier.dragPositionGestureFilter(
     onPress: (Offset) -> Unit,
-    onRelease: (Offset) -> Unit
+    onRelease: (Offset) -> Unit,
+    longPressDragObserver: LongPressDragObserver
 ): Modifier {
     val tracker = state { DragEventTracker() }
     // TODO(shepshapard): PressIndicator doesn't seem to be the right thing to use here.  It
@@ -489,4 +524,5 @@ private fun Modifier.dragPositionGestureFilter(
                 return Offset.Zero
             }
         })
+        .longPressDragGestureFilter(longPressDragObserver)
 }
