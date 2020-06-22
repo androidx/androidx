@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-NotCloseable: androidx.ui.material.ripple.RippleEffect:
-    Classes that release resources (finish()) should implement AutoClosable and CloseGuard: class androidx.ui.material.ripple.RippleEffect

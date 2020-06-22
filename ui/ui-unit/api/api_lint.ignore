@@ -1,7 +1,3 @@
 // Baseline format: 1.0
 MethodNameUnits: androidx.ui.unit.Durations#inSeconds(androidx.ui.unit.Duration):
     Returned time values must be in milliseconds, was `inSeconds`
-
-
-MissingNullability: androidx.ui.core.Constraints2#toString-impl(long):
-    Missing nullability on method `toString-impl` return

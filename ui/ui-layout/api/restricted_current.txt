@@ -8,22 +8,22 @@ package androidx.ui.layout {
 
   @androidx.compose.Immutable public interface Arrangement {
     method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.ui.core.LayoutDirection layoutDirection);
-    field @Deprecated public static final androidx.ui.layout.Arrangement.Companion! Companion;
+    field @Deprecated public static final androidx.ui.layout.Arrangement.Companion Companion;
   }
 
   public static final class Arrangement.Bottom implements androidx.ui.layout.Arrangement.Vertical {
     method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.ui.core.LayoutDirection layoutDirection);
-    field public static final androidx.ui.layout.Arrangement.Bottom! INSTANCE;
+    field public static final androidx.ui.layout.Arrangement.Bottom INSTANCE;
   }
 
   public static final class Arrangement.Center implements androidx.ui.layout.Arrangement.Horizontal androidx.ui.layout.Arrangement.Vertical {
     method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.ui.core.LayoutDirection layoutDirection);
-    field public static final androidx.ui.layout.Arrangement.Center! INSTANCE;
+    field public static final androidx.ui.layout.Arrangement.Center INSTANCE;
   }
 
   public static final class Arrangement.End implements androidx.ui.layout.Arrangement.Horizontal {
     method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.ui.core.LayoutDirection layoutDirection);
-    field public static final androidx.ui.layout.Arrangement.End! INSTANCE;
+    field public static final androidx.ui.layout.Arrangement.End INSTANCE;
   }
 
   public static interface Arrangement.Horizontal extends androidx.ui.layout.Arrangement {
@@ -31,34 +31,34 @@ package androidx.ui.layout {
 
   public static final class Arrangement.SpaceAround implements androidx.ui.layout.Arrangement.Horizontal androidx.ui.layout.Arrangement.Vertical {
     method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.ui.core.LayoutDirection layoutDirection);
-    field public static final androidx.ui.layout.Arrangement.SpaceAround! INSTANCE;
+    field public static final androidx.ui.layout.Arrangement.SpaceAround INSTANCE;
   }
 
   public static final class Arrangement.SpaceBetween implements androidx.ui.layout.Arrangement.Horizontal androidx.ui.layout.Arrangement.Vertical {
     method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.ui.core.LayoutDirection layoutDirection);
-    field public static final androidx.ui.layout.Arrangement.SpaceBetween! INSTANCE;
+    field public static final androidx.ui.layout.Arrangement.SpaceBetween INSTANCE;
   }
 
   public static final class Arrangement.SpaceEvenly implements androidx.ui.layout.Arrangement.Horizontal androidx.ui.layout.Arrangement.Vertical {
     method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.ui.core.LayoutDirection layoutDirection);
-    field public static final androidx.ui.layout.Arrangement.SpaceEvenly! INSTANCE;
+    field public static final androidx.ui.layout.Arrangement.SpaceEvenly INSTANCE;
   }
 
   public static final class Arrangement.Start implements androidx.ui.layout.Arrangement.Horizontal {
     method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.ui.core.LayoutDirection layoutDirection);
-    field public static final androidx.ui.layout.Arrangement.Start! INSTANCE;
+    field public static final androidx.ui.layout.Arrangement.Start INSTANCE;
   }
 
   public static final class Arrangement.Top implements androidx.ui.layout.Arrangement.Vertical {
     method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.ui.core.LayoutDirection layoutDirection);
-    field public static final androidx.ui.layout.Arrangement.Top! INSTANCE;
+    field public static final androidx.ui.layout.Arrangement.Top INSTANCE;
   }
 
   public static interface Arrangement.Vertical extends androidx.ui.layout.Arrangement {
   }
 
   public final class ChainStyle {
-    field public static final androidx.ui.layout.ChainStyle.Companion! Companion;
+    field public static final androidx.ui.layout.ChainStyle.Companion Companion;
   }
 
   public static final class ChainStyle.Companion {
@@ -80,7 +80,7 @@ package androidx.ui.layout {
     method @androidx.compose.Stable public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.Measured,java.lang.Integer> alignmentLineBlock);
     method @androidx.compose.Stable public androidx.ui.core.Modifier gravity(androidx.ui.core.Modifier, androidx.ui.core.Alignment.Horizontal align);
     method @androidx.compose.Stable public androidx.ui.core.Modifier weight(androidx.ui.core.Modifier, @FloatRange(from=0.0, fromInclusive=false) float weight, boolean fill = true);
-    field public static final androidx.ui.layout.ColumnScope! INSTANCE;
+    field public static final androidx.ui.layout.ColumnScope INSTANCE;
   }
 
   @androidx.ui.layout.LayoutScopeMarker public final class ConstrainScope {
@@ -273,7 +273,7 @@ package androidx.ui.layout {
   }
 
   @Deprecated public static final class ConstraintSetBuilderScope.ChainStyle {
-    field @Deprecated public static final androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle.Companion! Companion;
+    field @Deprecated public static final androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle.Companion Companion;
   }
 
   @Deprecated public static final class ConstraintSetBuilderScope.ChainStyle.Companion {
@@ -419,7 +419,7 @@ package androidx.ui.layout {
   }
 
   @androidx.compose.Immutable public abstract sealed class CrossAxisAlignment {
-    field public static final androidx.ui.layout.CrossAxisAlignment.Companion! Companion;
+    field public static final androidx.ui.layout.CrossAxisAlignment.Companion Companion;
   }
 
   public static final class CrossAxisAlignment.Companion {
@@ -433,7 +433,7 @@ package androidx.ui.layout {
   }
 
   public interface Dimension {
-    field public static final androidx.ui.layout.Dimension.Companion! Companion;
+    field public static final androidx.ui.layout.Dimension.Companion Companion;
   }
 
   public static interface Dimension.Coercible extends androidx.ui.layout.Dimension {
@@ -467,7 +467,7 @@ package androidx.ui.layout {
     method public float getMaxWidth();
     method public float getMinHeight();
     method public float getMinWidth();
-    field public static final androidx.ui.layout.DpConstraints.Companion! Companion;
+    field public static final androidx.ui.layout.DpConstraints.Companion Companion;
   }
 
   public static final class DpConstraints.Companion {
@@ -493,6 +493,8 @@ package androidx.ui.layout {
   }
 
   public enum FlowCrossAxisAlignment {
+    method public static androidx.ui.layout.FlowCrossAxisAlignment valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.layout.FlowCrossAxisAlignment[] values();
     enum_constant public static final androidx.ui.layout.FlowCrossAxisAlignment Center;
     enum_constant public static final androidx.ui.layout.FlowCrossAxisAlignment End;
     enum_constant public static final androidx.ui.layout.FlowCrossAxisAlignment Start;
@@ -525,6 +527,8 @@ package androidx.ui.layout {
   }
 
   public enum IntrinsicSize {
+    method public static androidx.ui.layout.IntrinsicSize valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.layout.IntrinsicSize[] values();
     enum_constant public static final androidx.ui.layout.IntrinsicSize Max;
     enum_constant public static final androidx.ui.layout.IntrinsicSize Min;
   }
@@ -581,6 +585,8 @@ package androidx.ui.layout {
   }
 
   public enum MainAxisAlignment {
+    method public static androidx.ui.layout.MainAxisAlignment valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.layout.MainAxisAlignment[] values();
     enum_constant public static final androidx.ui.layout.MainAxisAlignment Center;
     enum_constant public static final androidx.ui.layout.MainAxisAlignment End;
     enum_constant public static final androidx.ui.layout.MainAxisAlignment SpaceAround;
@@ -601,10 +607,12 @@ package androidx.ui.layout {
     method @androidx.compose.Stable public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.Measured,java.lang.Integer> alignmentLineBlock);
     method @androidx.compose.Stable public androidx.ui.core.Modifier gravity(androidx.ui.core.Modifier, androidx.ui.core.Alignment.Vertical align);
     method @androidx.compose.Stable public androidx.ui.core.Modifier weight(androidx.ui.core.Modifier, @FloatRange(from=0.0, fromInclusive=false) float weight, boolean fill = true);
-    field public static final androidx.ui.layout.RowScope! INSTANCE;
+    field public static final androidx.ui.layout.RowScope INSTANCE;
   }
 
   public enum SizeMode {
+    method public static androidx.ui.layout.SizeMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.layout.SizeMode[] values();
     enum_constant public static final androidx.ui.layout.SizeMode Expand;
     enum_constant public static final androidx.ui.layout.SizeMode Wrap;
   }
