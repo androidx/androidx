@@ -20,6 +20,10 @@ import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
+import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.Popup
@@ -50,7 +54,7 @@ fun SelectionHandleLayout(
 ) {
     val offset = (if (isStartHandle) startHandlePosition else endHandlePosition) ?: return
 
-    SelectionLayout {
+    SelectionLayout(AllowZeroSize) {
         val left = isLeft(
             isStartHandle = isStartHandle,
             directions = directions,
@@ -148,6 +152,43 @@ internal fun SimpleContainer(
                     position.y
                 )
             }
+        }
+    }
+}
+
+/**
+ * Adjust coordinates for given text offset.
+ *
+ * Currently [android.text.Layout.getLineBottom] returns y coordinates of the next
+ * line's top offset, which is not included in current line's hit area. To be able to
+ * hit current line, move up this y coordinates by 1 pixel.
+ *
+ * @suppress
+ */
+@InternalTextApi
+fun getAdjustedCoordinates(position: Offset): Offset {
+    return Offset(position.x, position.y - 1f)
+}
+
+/**
+ * This modifier allows the content to measure at its desired size without regard for the incoming
+ * measurement [minimum width][Constraints.minWidth] or [minimum height][Constraints.minHeight]
+ * constraints.
+ *
+ * The same as "wrapContentSize" in ui-layout, which we cannot use in this module.
+ */
+private object AllowZeroSize : LayoutModifier {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): MeasureScope.MeasureResult {
+        val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
+        return layout(
+            max(constraints.minWidth, placeable.width),
+            max(constraints.minHeight, placeable.height)
+        ) {
+            placeable.place(0, 0)
         }
     }
 }

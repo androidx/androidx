@@ -42,6 +42,7 @@ import androidx.ui.core.gesture.LongPressDragObserver
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.gesture.longPressDragGestureFilter
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
+import androidx.ui.core.selection.SelectionLayout
 import androidx.ui.core.semantics.semantics
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.drawscope.drawCanvas
@@ -52,6 +53,7 @@ import androidx.ui.input.KeyboardType
 import androidx.ui.input.NO_SESSION
 import androidx.ui.input.VisualTransformation
 import androidx.ui.semantics.onClick
+import androidx.ui.text.selection.SelectionHandle
 import androidx.ui.text.selection.TextFieldSelectionManager
 import androidx.ui.text.style.ResolvedTextDirection
 import kotlin.math.roundToInt
@@ -328,33 +330,40 @@ fun CoreTextField(
                 }
             }
         }
-
-        Layout(
-            emptyContent(),
+        SelectionLayout(
             modifier
                 .plus(observer)
                 .plus(focusModifier)
                 .plus(drawModifier)
                 .plus(onPositionedModifier)
-        ) { _, constraints ->
-            TextFieldDelegate.layout(
-                state.textDelegate,
-                constraints,
-                layoutDirection,
-                state.layoutResult
-            ).let { (width, height, result) ->
-                if (state.layoutResult != result) {
-                    state.layoutResult = result
-                    onTextLayout(result)
+        ) {
+            Layout(
+                emptyContent(),
+                Modifier
+            ) { _, constraints ->
+                TextFieldDelegate.layout(
+                    state.textDelegate,
+                    constraints,
+                    layoutDirection,
+                    state.layoutResult
+                ).let { (width, height, result) ->
+                    if (state.layoutResult != result) {
+                        state.layoutResult = result
+                        onTextLayout(result)
+                    }
+                    layout(
+                        width,
+                        height,
+                        mapOf(
+                            FirstBaseline to result.firstBaseline.roundToInt(),
+                            LastBaseline to result.lastBaseline.roundToInt()
+                        )
+                    ) {}
                 }
-                layout(
-                    width,
-                    height,
-                    mapOf(
-                        FirstBaseline to result.firstBaseline.roundToInt(),
-                        LastBaseline to result.lastBaseline.roundToInt()
-                    )
-                ) {}
+            }
+            if (!value.selection.collapsed && state.layoutResult != null) {
+                SelectionHandle(isStartHandle = true, manager = manager)
+                SelectionHandle(isStartHandle = false, manager = manager)
             }
         }
     }
@@ -390,6 +399,13 @@ internal class TextFieldState(
     var selectionStartDirection: ResolvedTextDirection = ResolvedTextDirection.Ltr
     /** The [ResolvedTextDirection] for the end of the selection. */
     var selectionEndDirection: ResolvedTextDirection = ResolvedTextDirection.Ltr
+    /**
+     * A flag to check if the selection start or end handle is being dragged.
+     * If this value is true, then onPress will not select any text.
+     * This value will be set to true when either handle is being dragged, and be reset to false
+     * when the dragging is stopped.
+     */
+    var draggingHandle = false
 }
 
 private fun chainedFocusModifier(modifier: Modifier): FocusModifier? {
