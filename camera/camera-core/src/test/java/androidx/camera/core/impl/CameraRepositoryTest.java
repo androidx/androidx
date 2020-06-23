@@ -111,7 +111,8 @@ public final class CameraRepositoryTest {
     public void camerasAreReleasedByDeinit() throws ExecutionException, InterruptedException {
         List<CameraInternal> cameraInternals = new ArrayList<>();
         for (String cameraId : mCameraRepository.getCameraIds()) {
-            cameraInternals.add(mCameraRepository.getCamera(cameraId));
+            cameraInternals.add(
+                    mCameraRepository.getCamera(cameraId));
         }
 
         ListenableFuture<Void> deinitFuture = mCameraRepository.deinit();

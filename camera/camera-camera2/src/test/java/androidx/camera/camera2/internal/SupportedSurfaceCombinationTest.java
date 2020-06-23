@@ -56,9 +56,11 @@ import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
 import androidx.camera.core.impl.SurfaceConfig.ConfigType;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.VideoCaptureConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.Configs;
 import androidx.camera.testing.StreamConfigurationMapUtil;
+import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
@@ -486,6 +488,9 @@ public final class SupportedSurfaceCombinationTest {
         final Preview preview = new Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
+        preview.setSurfaceProvider(CameraXExecutors.directExecutor(),
+                SurfaceTextureProvider.createSurfaceTextureProvider(mock(
+                        SurfaceTextureProvider.SurfaceTextureCallback.class)));
 
         // Ensure we are bound to a camera to ensure aspect ratio correction is applied.
         FakeLifecycleOwner fakeLifecycle = new FakeLifecycleOwner();
@@ -534,6 +539,9 @@ public final class SupportedSurfaceCombinationTest {
                 mContext, CAMERA_ID, mMockCamcorderProfileHelper);
 
         Preview preview = new Preview.Builder().build();
+        preview.setSurfaceProvider(CameraXExecutors.directExecutor(),
+                SurfaceTextureProvider.createSurfaceTextureProvider(mock(
+                        SurfaceTextureProvider.SurfaceTextureCallback.class)));
         ImageCapture imageCapture = new ImageCapture.Builder().build();
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
 

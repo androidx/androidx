@@ -240,10 +240,10 @@ public final class CameraXTest {
 
     @Test
     @UiThreadTest
-    public void bind_createsNewUseCaseMediator() {
+    public void bind_createsNewLifecycleCamera() {
         initCameraX();
         CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, new FakeUseCase());
-        // One observer is the use case mediator. The other observer removes the use case upon the
+        // One observer is the LifecycleCamera. The other observer removes the use case upon the
         // lifecycle's destruction.
         assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
     }
@@ -275,7 +275,7 @@ public final class CameraXTest {
 
     @Test
     @UiThreadTest
-    public void bind_createsDifferentUseCaseMediators_forDifferentLifecycles() {
+    public void bind_createsDifferentLifecycleCameras_forDifferentLifecycles() {
         initCameraX();
         CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR,
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build());
@@ -284,7 +284,7 @@ public final class CameraXTest {
         CameraX.bindToLifecycle(anotherLifecycle, CAMERA_SELECTOR,
                 new FakeUseCaseConfig.Builder().setTargetName("config1").build());
 
-        // One observer is the use case mediator. The other observer removes the use case upon the
+        // One observer is the LifecycleCamera. The other observer removes the use case upon the
         // lifecycle's destruction.
         assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
         assertThat(anotherLifecycle.getObserverCount()).isEqualTo(2);
@@ -370,19 +370,6 @@ public final class CameraXTest {
         // The front camera is not defined, we should get the IllegalArgumentException when it
         // tries to get the camera.
         CameraX.bindToLifecycle(mLifecycle, CameraSelector.DEFAULT_FRONT_CAMERA, fakeUseCase);
-    }
-
-    @Test
-    @UiThreadTest
-    public void bindUseCases_canUpdateUseCase() {
-        initCameraX();
-        FakeUseCaseConfig config0 = new FakeUseCaseConfig.Builder().getUseCaseConfig();
-        FakeUseCase fakeUseCase = new FakeUseCase(config0);
-
-        Camera camera = CameraX.bindToLifecycle(mLifecycle, CameraSelector.DEFAULT_BACK_CAMERA,
-                fakeUseCase);
-
-        assertThat(fakeUseCase.getCamera()).isEqualTo(camera);
     }
 
     @Test

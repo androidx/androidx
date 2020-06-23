@@ -19,6 +19,7 @@ package androidx.camera.camera2;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doAnswer;
@@ -163,11 +164,6 @@ public final class ImageCaptureTest {
         mLifecycleOwner = new FakeLifecycleOwner();
         mMainExecutor = ContextCompat.getMainExecutor(context);
         mContentResolver = ApplicationProvider.getApplicationContext().getContentResolver();
-
-        // Get the camera ID
-        mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR);
-        });
     }
 
     @After
@@ -215,52 +211,95 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void canSupportGuaranteedSize()
+    public void canSupportGuaranteedSizeFront()
             throws CameraInfoUnavailableException, ExecutionException, InterruptedException {
         // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
         // Using for-loop to check both front and back device cameras can support the guaranteed
         // 640x480 size.
-        for (int i = 0; i <= 1; i++) {
-            final int lensFacing = i;
-            if (!CameraUtil.hasCameraWithLensFacing(lensFacing)) {
-                continue;
-            }
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
 
-            // Checks camera device sensor degrees to set correct target rotation value to make sure
-            // the exactly matching result size 640x480 can be selected if the device supports it.
-            Integer sensorOrientation = CameraUtil.getSensorOrientation(BACK_LENS_FACING);
-            boolean isRotateNeeded = (sensorOrientation % 180) != 0;
-            ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
-                    GUARANTEED_RESOLUTION).setTargetRotation(
-                    isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
+        // Checks camera device sensor degrees to set correct target rotation value to make sure
+        // the exactly matching result size 640x480 can be selected if the device supports it.
+        Integer sensorOrientation = CameraUtil.getSensorOrientation(
+                CameraSelector.LENS_FACING_FRONT);
+        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
+        ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
+                GUARANTEED_RESOLUTION).setTargetRotation(
+                isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
 
-            mInstrumentation.runOnMainSync(
-                    () -> {
-                        CameraSelector cameraSelector =
-                                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-                        CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase,
-                                mRepeatingUseCase);
-                        mLifecycleOwner.startAndResume();
-                    });
+        mInstrumentation.runOnMainSync(
+                () -> {
+                    CameraSelector cameraSelector =
+                            new CameraSelector.Builder().requireLensFacing(
+                                    CameraSelector.LENS_FACING_FRONT).build();
+                    CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase,
+                            mRepeatingUseCase);
+                    mLifecycleOwner.startAndResume();
+                });
 
-            ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
-            OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
-            useCase.takePicture(mMainExecutor, callback);
-            // Wait for the signal that the image has been captured.
-            verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
+        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        useCase.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
 
-            // Check the captured image exactly matches 640x480 size. This test can also check
-            // whether the guaranteed resolution 640x480 is really supported for JPEG format on the
-            // devices when running the test.
-            assertEquals(GUARANTEED_RESOLUTION, imageProperties.get().size);
+        // Check the captured image exactly matches 640x480 size. This test can also check
+        // whether the guaranteed resolution 640x480 is really supported for JPEG format on the
+        // devices when running the test.
+        assertEquals(GUARANTEED_RESOLUTION, imageProperties.get().size);
 
-            // Reset the environment to run test for the other lens facing camera device.
-            mInstrumentation.runOnMainSync(() -> {
-                CameraX.unbindAll();
-                mLifecycleOwner.pauseAndStop();
-                mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfig);
-            });
-        }
+        // Reset the environment to run test for the other lens facing camera device.
+        mInstrumentation.runOnMainSync(() -> {
+            CameraX.unbindAll();
+            mLifecycleOwner.pauseAndStop();
+            mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfig);
+        });
+    }
+
+    @Test
+    public void canSupportGuaranteedSizeBack()
+            throws CameraInfoUnavailableException, ExecutionException, InterruptedException {
+        // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
+        // Using for-loop to check both front and back device cameras can support the guaranteed
+        // 640x480 size.
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
+        // Checks camera device sensor degrees to set correct target rotation value to make sure
+        // the exactly matching result size 640x480 can be selected if the device supports it.
+        Integer sensorOrientation = CameraUtil.getSensorOrientation(
+                CameraSelector.LENS_FACING_BACK);
+        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
+        ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
+                GUARANTEED_RESOLUTION).setTargetRotation(
+                isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
+
+        mInstrumentation.runOnMainSync(
+                () -> {
+                    CameraSelector cameraSelector =
+                            new CameraSelector.Builder().requireLensFacing(
+                                    CameraSelector.LENS_FACING_BACK).build();
+                    CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, useCase,
+                            mRepeatingUseCase);
+                    mLifecycleOwner.startAndResume();
+                });
+
+        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        useCase.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
+
+        // Check the captured image exactly matches 640x480 size. This test can also check
+        // whether the guaranteed resolution 640x480 is really supported for JPEG format on the
+        // devices when running the test.
+        assertEquals(GUARANTEED_RESOLUTION, imageProperties.get().size);
+
+        // Reset the environment to run test for the other lens facing camera device.
+        mInstrumentation.runOnMainSync(() -> {
+            CameraX.unbindAll();
+            mLifecycleOwner.pauseAndStop();
+            mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfig);
+        });
     }
 
     @Test

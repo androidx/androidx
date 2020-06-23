@@ -19,12 +19,10 @@ package androidx.camera.core;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Rect;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.util.Log;
-import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
@@ -39,17 +37,14 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraThreadConfig;
-import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.core.impl.UseCaseMediator;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.camera.core.internal.UseCaseOccupancy;
-import androidx.camera.core.internal.ViewPorts;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.core.util.Preconditions;
@@ -59,12 +54,10 @@ import androidx.lifecycle.LifecycleOwner;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -172,9 +165,10 @@ public final class CameraX {
 
     final CameraRepository mCameraRepository = new CameraRepository();
     private final Object mInitializeLock = new Object();
-    private final UseCaseMediatorRepository
-            mUseCaseMediatorRepository = new UseCaseMediatorRepository();
+
     private final CameraXConfig mCameraXConfig;
+    private final LifecycleCameraRepository
+            mLifecycleCameraRepository = new LifecycleCameraRepository();
     private final Executor mCameraExecutor;
     private final Handler mSchedulerHandler;
     @Nullable
@@ -294,26 +288,8 @@ public final class CameraX {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
         // TODO(b/153096869): override UseCase's target rotation.
-
-        UseCaseMediatorLifecycleController useCaseMediatorLifecycleController =
-                cameraX.getOrCreateUseCaseMediator(lifecycleOwner);
-        UseCaseMediator useCaseMediatorToBind =
-                useCaseMediatorLifecycleController.getUseCaseMediator();
-
-        Collection<UseCaseMediatorLifecycleController> controllers =
-                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
-        for (UseCase useCase : useCases) {
-            for (UseCaseMediatorLifecycleController controller : controllers) {
-                UseCaseMediator useCaseMediator = controller.getUseCaseMediator();
-                if (useCaseMediator.contains(useCase) && useCaseMediator != useCaseMediatorToBind) {
-                    throw new IllegalStateException(
-                            String.format(
-                                    "Use case %s already bound to a different lifecycle.",
-                                    useCase));
-                }
-            }
-        }
-
+        // TODO(b/154939118) The filter appending should be removed after extensions are moved to
+        //  the CheckedCameraInternal
         CameraSelector.Builder selectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
         // Append the camera filter required internally if there's any.
@@ -326,68 +302,53 @@ public final class CameraX {
             }
         }
 
-        // Try to get the camera before binding to the use case, and throw IllegalArgumentException
-        // if the camera not found.
-        CameraInternal camera = CameraX.getCameraWithCameraSelector(selectorBuilder.build());
+        CameraSelector modifiedSelector = selectorBuilder.build();
 
-        if (useCases.length == 0) {
-            return camera;
-        }
+        LinkedHashSet<CameraInternal> cameraInternals =
+                modifiedSelector.filter(cameraX.mCameraRepository.getCameras());
+        CameraUseCaseAdapter.CameraId cameraId =
+                CameraUseCaseAdapter.generateCameraId(cameraInternals);
 
-        List<UseCase> originalUseCases = new ArrayList<>();
+        LifecycleCamera lifecycleCameraToBind =
+                cameraX.mLifecycleCameraRepository.getLifecycleCamera(lifecycleOwner, cameraId);
 
-        // Collect original use cases attached to the camera
-        for (UseCase useCase : useCaseMediatorToBind.getUseCases()) {
-            CameraInternal attachedCamera = useCase.getCamera();
-            if (attachedCamera != null) {
-                if (camera.equals(attachedCamera)) {
-                    originalUseCases.add(useCase);
+        Collection<LifecycleCamera> lifecycleCameras =
+                cameraX.mLifecycleCameraRepository.getLifecycleCameras();
+        for (UseCase useCase : useCases) {
+            for (LifecycleCamera lifecycleCamera : lifecycleCameras) {
+                if (lifecycleCamera.isBound(useCase)
+                        && lifecycleCamera != lifecycleCameraToBind) {
+                    throw new IllegalStateException(
+                            String.format(
+                                    "Use case %s already bound to a different lifecycle.",
+                                    useCase));
                 }
             }
         }
 
-        // Only do resolution calculation if UseCases were attached
-        List<UseCase> totalUseCases = new ArrayList<>(originalUseCases);
-        totalUseCases.addAll(Arrays.asList(useCases));
-        if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(totalUseCases)) {
-            throw new IllegalArgumentException("Attempting to bind too many ImageCapture or "
-                    + "VideoCapture instances");
+        // Try to get the camera before binding to the use case, and throw IllegalArgumentException
+        // if the camera not found.
+        if (lifecycleCameraToBind == null) {
+            lifecycleCameraToBind =
+                    cameraX.mLifecycleCameraRepository.createLifecycleCamera(lifecycleOwner,
+                            new CameraUseCaseAdapter(cameraInternals.iterator().next(),
+                                    cameraInternals,
+                                    cameraX.getCameraDeviceSurfaceManager()));
         }
 
-        Map<UseCase, Size> suggestedResolutionsMap = calculateSuggestedResolutions(
-                camera.getCameraInfoInternal(),
-                originalUseCases,
-                Arrays.asList(useCases));
 
-        if (viewPort != null) {
-            // Calculate crop rect if view port is provided.
-            Map<UseCase, Rect> cropRectMap = ViewPorts.calculateViewPortRects(
-                    camera.getCameraControlInternal().getSensorRect(),
-                    viewPort.getAspectRatio(),
-                    camera.getCameraInfoInternal().getSensorRotationDegrees(
-                            viewPort.getRotation()),
-                    viewPort.getScaleType(),
-                    viewPort.getLayoutDirection(),
-                    suggestedResolutionsMap);
-            for (UseCase useCase : useCases) {
-                useCase.setViewPortCropRect(cropRectMap.get(useCase));
-            }
+        if (useCases.length == 0) {
+            return lifecycleCameraToBind;
         }
 
-        // At this point the binding will succeed since all the calculations are done
-        // Do all binding related work
-        for (UseCase useCase : useCases) {
-            useCase.onAttach(camera);
-            useCase.updateSuggestedResolution(
-                    Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
-
-            // Update the UseCaseMediator
-            useCaseMediatorToBind.addUseCase(useCase);
+        try {
+            lifecycleCameraToBind.getCameraUseCaseAdapter().setViewPort(viewPort);
+            lifecycleCameraToBind.bind(Arrays.asList(useCases));
+        } catch (CameraUseCaseAdapter.CameraException e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
 
-        useCaseMediatorLifecycleController.notifyState();
-
-        return camera;
+        return lifecycleCameraToBind;
     }
 
     /**
@@ -403,12 +364,9 @@ public final class CameraX {
     public static boolean isBound(@NonNull UseCase useCase) {
         CameraX cameraX = checkInitialized();
 
-        Collection<UseCaseMediatorLifecycleController> controllers =
-                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
-
-        for (UseCaseMediatorLifecycleController controller : controllers) {
-            UseCaseMediator useCaseMediator = controller.getUseCaseMediator();
-            if (useCaseMediator.contains(useCase)) {
+        for (LifecycleCamera lifecycleCamera :
+                cameraX.mLifecycleCameraRepository.getLifecycleCameras()) {
+            if (lifecycleCamera.isBound(useCase)) {
                 return true;
             }
         }
@@ -436,26 +394,9 @@ public final class CameraX {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
 
-        Collection<UseCaseMediatorLifecycleController> useCaseMediators =
-                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
-
-        for (UseCase useCase : useCases) {
-            // Remove the UseCase from the mediator.
-            boolean wasUnbound = false;
-            for (UseCaseMediatorLifecycleController useCaseMediatorLifecycleController :
-                    useCaseMediators) {
-                if (useCaseMediatorLifecycleController.getUseCaseMediator().removeUseCase(
-                        useCase)) {
-                    wasUnbound = true;
-                }
-            }
-
-            // Unbind the UseCase from the currently bound camera if it is bound
-            CameraInternal attachedCamera = useCase.getCamera();
-            if (wasUnbound && attachedCamera != null) {
-                useCase.onDetach(attachedCamera);
-                useCase.onDestroy();
-            }
+        for (LifecycleCamera lifecycleCamera :
+                cameraX.mLifecycleCameraRepository.getLifecycleCameras()) {
+            lifecycleCamera.unbind(Arrays.asList(useCases));
         }
     }
 
@@ -472,18 +413,10 @@ public final class CameraX {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
 
-        Collection<UseCaseMediatorLifecycleController> useCaseMediators =
-                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
-
-        List<UseCase> useCases = new ArrayList<>();
-        for (UseCaseMediatorLifecycleController useCaseMediatorLifecycleController :
-                useCaseMediators) {
-            UseCaseMediator useCaseMediator =
-                    useCaseMediatorLifecycleController.getUseCaseMediator();
-            useCases.addAll(useCaseMediator.getUseCases());
+        for (LifecycleCamera lifecycleCamera :
+                cameraX.mLifecycleCameraRepository.getLifecycleCameras()) {
+            lifecycleCamera.unbindAll();
         }
-
-        unbind(useCases.toArray(new UseCase[0]));
     }
 
     /**
@@ -771,12 +704,12 @@ public final class CameraX {
 
         Collection<UseCase> activeUseCases = null;
 
-        Collection<UseCaseMediatorLifecycleController> controllers =
-                cameraX.mUseCaseMediatorRepository.getUseCaseMediators();
+        Collection<LifecycleCamera> lifecycleCameras =
+                cameraX.mLifecycleCameraRepository.getLifecycleCameras();
 
-        for (UseCaseMediatorLifecycleController controller : controllers) {
-            if (controller.getUseCaseMediator().isActive()) {
-                activeUseCases = controller.getUseCaseMediator().getUseCases();
+        for (LifecycleCamera lifecycleCamera : lifecycleCameras) {
+            if (lifecycleCamera.isActive()) {
+                activeUseCases = lifecycleCamera.getUseCases();
                 break;
             }
         }
@@ -935,45 +868,6 @@ public final class CameraX {
 
     }
 
-    private static Map<UseCase, Size> calculateSuggestedResolutions(
-            @NonNull CameraInfoInternal cameraInfo,
-            @NonNull List<UseCase> originalUseCases, @NonNull List<UseCase> newUseCases) {
-        List<SurfaceConfig> existingSurfaces = new ArrayList<>();
-        String cameraId = cameraInfo.getCameraId();
-
-        // Collect original use cases for different camera devices
-        for (UseCase useCase : originalUseCases) {
-            SurfaceConfig surfaceConfig =
-                    getSurfaceManager().transformSurfaceConfig(cameraId,
-                            useCase.getImageFormat(),
-                            useCase.getAttachedSurfaceResolution());
-            existingSurfaces.add(surfaceConfig);
-        }
-
-        Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
-        for (UseCase useCase : newUseCases) {
-            UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder(cameraInfo);
-
-            // Combine with default configuration.
-            UseCaseConfig<?> combinedUseCaseConfig =
-                    useCase.applyDefaults(useCase.getUseCaseConfig(),
-                            defaultBuilder);
-            configToUseCaseMap.put(combinedUseCaseConfig, useCase);
-        }
-
-        // Get suggested resolutions and update the use case session configuration
-        Map<UseCaseConfig<?>, Size> useCaseConfigSizeMap = getSurfaceManager()
-                .getSuggestedResolutions(cameraId, existingSurfaces,
-                        new ArrayList<>(configToUseCaseMap.keySet()));
-
-        Map<UseCase, Size> suggestedResolutions = new HashMap<>();
-        for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
-            suggestedResolutions.put(entry.getValue(), useCaseConfigSizeMap.get(entry.getKey()));
-        }
-
-        return suggestedResolutions;
-    }
-
     /**
      * Returns the {@link CameraDeviceSurfaceManager} instance.
      *
@@ -1119,12 +1013,6 @@ public final class CameraX {
         synchronized (mInitializeLock) {
             return mInitState == InternalInitState.INITIALIZED;
         }
-    }
-
-    private UseCaseMediatorLifecycleController getOrCreateUseCaseMediator(
-            LifecycleOwner lifecycleOwner) {
-        return mUseCaseMediatorRepository.getOrCreateUseCaseMediator(
-                lifecycleOwner, useCaseMediator -> useCaseMediator.setListener(mCameraRepository));
     }
 
     private CameraRepository getCameraRepository() {

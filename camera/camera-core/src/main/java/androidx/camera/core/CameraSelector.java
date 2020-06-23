@@ -71,6 +71,25 @@ public final class CameraSelector {
     @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     @NonNull
     public CameraInternal select(@NonNull LinkedHashSet<CameraInternal> cameras) {
+        return filter(cameras).iterator().next();
+    }
+
+    /**
+     * Filters the input cameras using the {@link CameraFilter} assigned to the selector.
+     *
+     * <p>The camera filtered must be contained in the input set. Otherwise it will throw an
+     * exception.
+     *
+     * @param cameras The camera set being filtered.
+     * @return The remain set of cameras.
+     * @throws IllegalArgumentException If there's no available camera after being filtered or
+     *                                  the filtered camera ids aren't contained in the input set.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @NonNull
+    public LinkedHashSet<CameraInternal> filter(@NonNull LinkedHashSet<CameraInternal> cameras) {
         LinkedHashSet<Camera> camerasCopy = new LinkedHashSet<>(cameras);
         LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>(cameras);
         for (CameraFilter filter : mCameraFilterSet) {
@@ -85,7 +104,12 @@ public final class CameraSelector {
             camerasCopy.retainAll(resultCameras);
         }
 
-        return (CameraInternal) resultCameras.iterator().next();
+        LinkedHashSet<CameraInternal> returnCameras = new LinkedHashSet<>();
+        for (Camera camera : resultCameras) {
+            returnCameras.add((CameraInternal) camera);
+        }
+
+        return returnCameras;
     }
 
     /**

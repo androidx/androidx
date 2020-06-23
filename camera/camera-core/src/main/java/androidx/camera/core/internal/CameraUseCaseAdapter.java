@@ -32,26 +32,36 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 /**
  * A {@link CameraInternal} adapter which checks that the UseCases to make sure that the resolutions
  * and image formats can be supported.
+ *
+ * <p> The CameraUseCaseAdapter wraps a set of CameraInternals which it can dynamically switch
+ * between based on different configurations that are required by the adapter. This is used by
+ * extensions in order to select the correct CameraInternal instance which has the required
+ * camera id.
  */
 public final class CameraUseCaseAdapter {
     private final CameraInternal mCameraInternal;
+    private final LinkedHashSet<CameraInternal> mCameraInternals;
     private final CameraDeviceSurfaceManager mCameraDeviceSurfaceManager;
 
     private static final String TAG = "CameraUseCaseAdapter";
 
+    private final CameraId mId;
+
     @GuardedBy("mLock")
-    private final List<UseCase> mAttachedUseCases = new ArrayList<>();
+    private final List<UseCase> mUseCases = new ArrayList<>();
 
     @GuardedBy("mLock")
     @Nullable
@@ -59,17 +69,49 @@ public final class CameraUseCaseAdapter {
 
     private final Object mLock = new Object();
 
+    // This indicates whether or not the UseCases that have been added to this adapter has
+    // actually been attached to the CameraInternal instance.
+    @GuardedBy("mLock")
+    private boolean mAttached = true;
+
     /**
      * Create a new {@link CameraUseCaseAdapter} instance.
      *
-     * @param cameraInternal the actual camera implementation that is wrapped
+     * @param cameraInternal             the actual camera implementation that is current attached
+     * @param cameras                    the set of cameras that are wrapped
      * @param cameraDeviceSurfaceManager A class that checks for whether a specific camera
      *                                   can support the set of Surface with set resolutions.
      */
     public CameraUseCaseAdapter(@NonNull CameraInternal cameraInternal,
+            @NonNull LinkedHashSet<CameraInternal> cameras,
             @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager) {
         mCameraInternal = cameraInternal;
+        mCameraInternals = new LinkedHashSet<>(cameras);
+        mId = new CameraId(mCameraInternals);
         mCameraDeviceSurfaceManager = cameraDeviceSurfaceManager;
+    }
+
+    /**
+     * Generate a identifier for the set of {@link CameraInternal}.
+     */
+    @NonNull
+    public static CameraId generateCameraId(@NonNull LinkedHashSet<CameraInternal> cameras) {
+        return new CameraId(cameras);
+    }
+
+    /**
+     * Returns the identifier for this {@link CameraUseCaseAdapter}.
+     */
+    @NonNull
+    public CameraId getCameraId() {
+        return mId;
+    }
+
+    /**
+     * Returns true if the {@link CameraUseCaseAdapter} is an equivalent camera.
+     */
+    public boolean isEquivalent(@NonNull CameraUseCaseAdapter cameraUseCaseAdapter) {
+        return mId.equals(cameraUseCaseAdapter.getCameraId());
     }
 
     /**
@@ -85,8 +127,6 @@ public final class CameraUseCaseAdapter {
      * Check to see if the set of {@link UseCase} can be attached to the camera.
      *
      * <p> This does not take into account UseCases which are already attached to the camera.
-     *
-     * @throws CameraException
      */
     public void checkAttachUseCases(@NonNull List<UseCase> useCases) throws CameraException {
         // Only do resolution calculation if UseCases were bound
@@ -104,19 +144,19 @@ public final class CameraUseCaseAdapter {
     }
 
     /**
-     * Attach the specified collection of {@link UseCase} to the camera.
+     * Add the specified collection of {@link UseCase} to the adapter.
      *
-     * @throws CameraException Thrown if the combination of newly attached UseCases and the
-     * currently attached UseCases exceed the capability of the camera.
+     * @throws CameraException Thrown if the combination of newly added UseCases and the
+     *                         currently added UseCases exceed the capability of the camera.
      */
     @UseExperimental(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)
-    public void attachUseCases(@NonNull Collection<UseCase> useCases) throws CameraException {
+    public void addUseCases(@NonNull Collection<UseCase> useCases) throws CameraException {
         synchronized (mLock) {
-            List<UseCase> useCaseListAfterUpdate = new ArrayList<>(mAttachedUseCases);
+            List<UseCase> useCaseListAfterUpdate = new ArrayList<>(mUseCases);
             List<UseCase> newUseCases = new ArrayList<>();
 
             for (UseCase useCase : useCases) {
-                if (mAttachedUseCases.contains(useCase)) {
+                if (mUseCases.contains(useCase)) {
                     Log.e(TAG, "Attempting to attach already attached UseCase");
                 } else {
                     useCaseListAfterUpdate.add(useCase);
@@ -133,8 +173,8 @@ public final class CameraUseCaseAdapter {
             Map<UseCase, Size> suggestedResolutionsMap;
             try {
                 suggestedResolutionsMap =
-                        calculateSuggestedResolutions(newUseCases, mAttachedUseCases);
-            }  catch (IllegalArgumentException e) {
+                        calculateSuggestedResolutions(newUseCases, mUseCases);
+            } catch (IllegalArgumentException e) {
                 throw new CameraException(e.getMessage());
             }
 
@@ -157,23 +197,26 @@ public final class CameraUseCaseAdapter {
             // Do all attaching related work
             for (UseCase useCase : newUseCases) {
                 useCase.onAttach(mCameraInternal);
-                useCase.updateSuggestedResolution(suggestedResolutionsMap.get(useCase));
+                useCase.updateSuggestedResolution(
+                        Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
             }
 
-            mAttachedUseCases.addAll(newUseCases);
-            mCameraInternal.attachUseCases(newUseCases);
+            mUseCases.addAll(newUseCases);
+            if (mAttached) {
+                mCameraInternal.attachUseCases(newUseCases);
+            }
         }
     }
 
     /**
-     * Detached the specified collection of {@link UseCase} from the camera.
+     * Remove the specified collection of {@link UseCase} from the adapter.
      */
-    public void detachUseCases(@NonNull Collection<UseCase> useCases) {
+    public void removeUseCases(@NonNull Collection<UseCase> useCases) {
         synchronized (mLock) {
             mCameraInternal.detachUseCases(useCases);
 
             for (UseCase useCase : useCases) {
-                if (mAttachedUseCases.contains(useCase)) {
+                if (mUseCases.contains(useCase)) {
                     useCase.onDetach(mCameraInternal);
                     useCase.onDestroy();
                 } else {
@@ -181,7 +224,49 @@ public final class CameraUseCaseAdapter {
                 }
             }
 
-            mAttachedUseCases.removeAll(useCases);
+            mUseCases.removeAll(useCases);
+        }
+    }
+
+    /**
+     * Returns the UseCases currently associated with the adapter.
+     *
+     * <p> The UseCases may or may not be actually attached to the underlying
+     * {@link CameraInternal} instance.
+     */
+    @NonNull
+    public List<UseCase> getUseCases() {
+        synchronized (mLock) {
+            return mUseCases;
+        }
+    }
+
+    /**
+     * Attach the UseCases to the {@link CameraInternal} camera so that the UseCases can receive
+     * data if they are active.
+     *
+     * <p> This will start the underlying {@link CameraInternal} instance.
+     */
+    public void attachUseCases() {
+        synchronized (mLock) {
+            if (!mAttached) {
+                mCameraInternal.attachUseCases(mUseCases);
+                mAttached = true;
+            }
+        }
+    }
+
+    /**
+     * Detach the UseCases from the {@link CameraInternal} so that the UseCases stop receiving data.
+     *
+     * <p> This will stop the underlying {@link CameraInternal} instance.
+     */
+    public void detachUseCases() {
+        synchronized (mLock) {
+            if (mAttached) {
+                mCameraInternal.detachUseCases(mUseCases);
+                mAttached = false;
+            }
         }
     }
 
@@ -224,14 +309,6 @@ public final class CameraUseCaseAdapter {
         return suggestedResolutions;
     }
 
-    /**
-     * Get the {@link CameraInternal} instance that is wrapped by this {@link CameraUseCaseAdapter}.
-     */
-    @NonNull
-    public CameraInternal getCameraInternal() {
-        return mCameraInternal;
-    }
-
     @NonNull
     public CameraInfoInternal getCameraInfoInternal() {
         return mCameraInternal.getCameraInfoInternal();
@@ -240,6 +317,36 @@ public final class CameraUseCaseAdapter {
     @NonNull
     public CameraControlInternal getCameraControlInternal() {
         return mCameraInternal.getCameraControlInternal();
+    }
+
+    /**
+     * An identifier for a {@link CameraUseCaseAdapter}.
+     *
+     * <p>This identifies the actual camera instances that are wrapped by the
+     * CameraUseCaseAdapter and is used to determine if 2 different instances of
+     * CameraUseCaseAdapter are actually equivalent.
+     */
+    public static final class CameraId {
+        private final List<String> mIds;
+        CameraId(LinkedHashSet<CameraInternal> cameraInternals) {
+            mIds = new ArrayList<>();
+            for (CameraInternal cameraInternal : cameraInternals) {
+                mIds.add(cameraInternal.getCameraInfoInternal().getCameraId());
+            }
+        }
+
+        @Override
+        public boolean equals(Object cameraId) {
+            if (cameraId instanceof CameraId) {
+                return mIds.equals(((CameraId) cameraId).mIds);
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return 53 * mIds.hashCode();
+        }
     }
 
     /**
