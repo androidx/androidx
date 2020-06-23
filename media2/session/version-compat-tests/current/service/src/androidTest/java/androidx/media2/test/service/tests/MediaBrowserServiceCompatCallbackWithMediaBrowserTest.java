@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit;
  * Tests {@link MediaBrowser} with {@link MediaBrowserServiceCompat}.
  */
 @LargeTest
-public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends MediaSessionTestBase {
+public class MediaBrowserServiceCompatCallbackWithMediaBrowserTest extends MediaSessionTestBase {
     private SessionToken mToken;
 
     @Before
@@ -71,8 +71,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
     }
 
     @Test
-    public void testOnGetRootCalledByGetLibraryRoot() throws InterruptedException {
-        prepareLooper();
+    public void onGetRootCalledByGetLibraryRoot() throws InterruptedException {
         final String testMediaId = "testOnGetRootCalledByGetLibraryRoot";
         final Bundle testExtras = new Bundle();
         testExtras.putString(testMediaId, testMediaId);
@@ -101,8 +100,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
     }
 
     @Test
-    public void testOnLoadItemCalledByGetItem() throws InterruptedException {
-        prepareLooper();
+    public void onLoadItemCalledByGetItem() throws InterruptedException {
         final String testMediaId = "test_media_item";
         final MediaItem testItem = createMediaItem(testMediaId);
         final CountDownLatch latch = new CountDownLatch(1);
@@ -121,8 +119,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
     }
 
     @Test
-    public void testOnLoadChildrenWithoutOptionsCalledByGetChildren() throws InterruptedException {
-        prepareLooper();
+    public void onLoadChildrenWithoutOptionsCalledByGetChildren() throws InterruptedException {
         final String testParentId = "test_media_parent";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -143,8 +140,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
     }
 
     @Test
-    public void testOnLoadChildrenWithOptionsCalledByGetChildren() throws InterruptedException {
-        prepareLooper();
+    public void onLoadChildrenWithOptionsCalledByGetChildren() throws InterruptedException {
         final String testParentId = "test_media_parent";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -173,8 +169,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
     }
 
     @Test
-    public void testOnLoadChildrenCalledBySubscribe() throws InterruptedException {
-        prepareLooper();
+    public void onLoadChildrenCalledBySubscribe() throws InterruptedException {
         final String testParentId = "testOnLoadChildrenCalledBySubscribe";
         final LibraryParams testParams = MediaTestUtils.createLibraryParams();
         final CountDownLatch subscribeLatch = new CountDownLatch(1);
@@ -194,8 +189,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
     }
 
     @Test
-    public void testOnSearchCalledBySearch() throws InterruptedException {
-        prepareLooper();
+    public void onSearchCalledBySearch() throws InterruptedException {
         final String testQuery = "search_query";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -220,8 +214,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
     }
 
     @Test
-    public void testOnSearchCalledByGetSearchResult() throws InterruptedException {
-        prepareLooper();
+    public void onSearchCalledByGetSearchResult() throws InterruptedException {
         final String testQuery = "search_query";
         final int testPage = 2;
         final int testPageSize = 4;

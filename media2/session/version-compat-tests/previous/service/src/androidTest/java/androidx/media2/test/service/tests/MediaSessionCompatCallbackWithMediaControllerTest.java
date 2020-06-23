@@ -70,7 +70,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class MediaSessionCompatCallbackTestWithMediaController extends MediaSessionTestBase {
+public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSessionTestBase {
     private static final String TAG = "MediaControllerTest";
 
     // The maximum time to wait for an operation.
@@ -127,7 +127,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testPlay() throws Exception {
+    public void play() throws Exception {
         prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
@@ -138,7 +138,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testPause() throws Exception {
+    public void pause() throws Exception {
         prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
@@ -149,7 +149,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testPrepare() throws Exception {
+    public void prepare() throws Exception {
         prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
@@ -160,7 +160,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSeekTo() throws Exception {
+    public void seekTo() throws Exception {
         prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
@@ -173,7 +173,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testAddPlaylistItem() throws Exception {
+    public void addPlaylistItem() throws Exception {
         prepareLooper();
         final List<MediaItem> testList = MediaTestUtils.createPlaylist(2);
         final List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
@@ -194,7 +194,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testRemovePlaylistItem() throws Exception {
+    public void removePlaylistItem() throws Exception {
         prepareLooper();
         final List<MediaItem> testList = MediaTestUtils.createPlaylist(2);
         final List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
@@ -214,7 +214,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testReplacePlaylistItem() throws Exception {
+    public void replacePlaylistItem() throws Exception {
         prepareLooper();
         final int testReplaceIndex = 1;
         // replace = remove + add
@@ -241,7 +241,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSkipToPreviousItem() throws Exception {
+    public void skipToPreviousItem() throws Exception {
         prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
@@ -252,7 +252,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSkipToNextItem() throws Exception {
+    public void skipToNextItem() throws Exception {
         prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
@@ -263,7 +263,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSkipToPlaylistItem() throws Exception {
+    public void skipToPlaylistItem() throws Exception {
         prepareLooper();
 
         final int testSkipToIndex = 1;
@@ -282,7 +282,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSetShuffleMode() throws Exception {
+    public void setShuffleMode() throws Exception {
         prepareLooper();
         final int testShuffleMode = SessionPlayer.SHUFFLE_MODE_GROUP;
 
@@ -297,7 +297,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSetRepeatMode() throws Exception {
+    public void setRepeatMode() throws Exception {
         prepareLooper();
         final int testRepeatMode = SessionPlayer.REPEAT_MODE_ALL;
 
@@ -312,7 +312,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSetVolumeTo() throws Exception {
+    public void setVolumeTo() throws Exception {
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
@@ -330,7 +330,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testAdjustVolume() throws Exception {
+    public void adjustVolume() throws Exception {
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
@@ -348,7 +348,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSetVolumeWithLocalVolume() throws Exception {
+    public void setVolumeWithLocalVolume() throws Exception {
         prepareLooper();
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
@@ -386,7 +386,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testAdjustVolumeWithLocalVolume() throws Exception {
+    public void adjustVolumeWithLocalVolume() throws Exception {
         prepareLooper();
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
@@ -426,7 +426,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSendCustomCommand() throws Exception {
+    public void sendCustomCommand() throws Exception {
         prepareLooper();
         final String command = "test_custom_command";
         final Bundle testArgs = new Bundle();
@@ -443,7 +443,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testFastForward() throws Exception {
+    public void fastForward() throws Exception {
         prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
@@ -454,7 +454,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testRewind() throws Exception {
+    public void rewind() throws Exception {
         prepareLooper();
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
@@ -465,7 +465,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
-    public void testSetRating() throws Exception {
+    public void setRating() throws Exception {
         prepareLooper();
         final float ratingValue = 3.5f;
         final Rating rating2 = new StarRating(5, ratingValue);
