@@ -152,9 +152,9 @@ class PathParser {
     }
 
     private fun RelativeMoveTo.relativeMoveTo(target: Path) {
-        currentPoint.x += x
-        currentPoint.y += y
-        target.relativeMoveTo(x, y)
+        currentPoint.x += dx
+        currentPoint.y += dy
+        target.relativeMoveTo(dx, dy)
         segmentPoint.x = currentPoint.x
         segmentPoint.y = currentPoint.y
     }
@@ -168,9 +168,9 @@ class PathParser {
     }
 
     private fun RelativeLineTo.relativeLineTo(target: Path) {
-        target.relativeLineTo(x, y)
-        currentPoint.x += x
-        currentPoint.y += y
+        target.relativeLineTo(dx, dy)
+        currentPoint.x += dx
+        currentPoint.y += dy
     }
 
     private fun LineTo.lineTo(target: Path) {
@@ -180,8 +180,8 @@ class PathParser {
     }
 
     private fun RelativeHorizontalTo.relativeHorizontalTo(target: Path) {
-        target.relativeLineTo(x, 0.0f)
-        currentPoint.x += x
+        target.relativeLineTo(dx, 0.0f)
+        currentPoint.x += dx
     }
 
     private fun HorizontalTo.horizontalTo(target: Path) {
@@ -190,8 +190,8 @@ class PathParser {
     }
 
     private fun RelativeVerticalTo.relativeVerticalTo(target: Path) {
-        target.relativeLineTo(0.0f, y)
-        currentPoint.y += y
+        target.relativeLineTo(0.0f, dy)
+        currentPoint.y += dy
     }
 
     private fun VerticalTo.verticalTo(target: Path) {
@@ -236,13 +236,13 @@ class PathParser {
 
         target.relativeCubicTo(
             reflectiveCtrlPoint.x, reflectiveCtrlPoint.y,
-            x1, y1,
-            x2, y2
+            dx1, dy1,
+            dx2, dy2
         )
-        ctrlPoint.x = currentPoint.x + x1
-        ctrlPoint.y = currentPoint.y + y1
-        currentPoint.x += x2
-        currentPoint.y += y2
+        ctrlPoint.x = currentPoint.x + dx1
+        ctrlPoint.y = currentPoint.y + dy1
+        currentPoint.x += dx2
+        currentPoint.y += dy2
     }
 
     private fun ReflectiveCurveTo.reflectiveCurveTo(prevIsCurve: Boolean, target: Path) {
@@ -265,11 +265,11 @@ class PathParser {
     }
 
     private fun RelativeQuadTo.relativeQuadTo(target: Path) {
-        target.relativeQuadraticBezierTo(x1, y1, x2, y2)
-        ctrlPoint.x = currentPoint.x + x1
-        ctrlPoint.y = currentPoint.y + y1
-        currentPoint.x += x1
-        currentPoint.y += y1
+        target.relativeQuadraticBezierTo(dx1, dy1, dx2, dy2)
+        ctrlPoint.x = currentPoint.x + dx1
+        ctrlPoint.y = currentPoint.y + dy1
+        currentPoint.x += dx1
+        currentPoint.y += dy1
     }
 
     private fun QuadTo.quadTo(target: Path) {
@@ -293,12 +293,12 @@ class PathParser {
 
         target.relativeQuadraticBezierTo(
             reflectiveCtrlPoint.x,
-            reflectiveCtrlPoint.y, x, y
+            reflectiveCtrlPoint.y, dx, dy
         )
         ctrlPoint.x = currentPoint.x + reflectiveCtrlPoint.x
         ctrlPoint.y = currentPoint.y + reflectiveCtrlPoint.y
-        currentPoint.x += x
-        currentPoint.y += y
+        currentPoint.x += dx
+        currentPoint.y += dy
     }
 
     private fun ReflectiveQuadTo.reflectiveQuadTo(prevIsQuad: Boolean, target: Path) {
