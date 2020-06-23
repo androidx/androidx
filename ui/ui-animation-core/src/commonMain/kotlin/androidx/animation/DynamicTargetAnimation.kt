@@ -25,7 +25,7 @@ package androidx.animation
  */
 data class TargetAnimation(
     val target: Float,
-    val animation: AnimationBuilder<Float> = PhysicsBuilder()
+    val animation: AnimationSpec<Float> = SpringSpec()
 )
 
 /**

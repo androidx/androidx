@@ -16,7 +16,7 @@
 
 package androidx.ui.material.samples
 
-import androidx.animation.TweenBuilder
+import androidx.animation.TweenSpec
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.remember
@@ -124,7 +124,7 @@ fun ScaffoldWithBottomBarAndCutout() {
         val nextTarget = if (target == roundEdgePercent) sharpEdgePercent else roundEdgePercent
         animatedProgress.animateTo(
             targetValue = nextTarget,
-            anim = TweenBuilder<Float>().apply { duration = 600 }
+            anim = TweenSpec(durationMillis = 600)
         )
     }
 

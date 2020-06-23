@@ -19,8 +19,8 @@ package androidx.ui.foundation.gestures
 import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
-import androidx.animation.PhysicsBuilder
 import androidx.animation.Spring
+import androidx.animation.SpringSpec
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.asDisposableClock
@@ -67,7 +67,7 @@ class ZoomableState(val onZoomDelta: (Float) -> Unit, animationClock: AnimationC
         animatedFloat.animateTo(
             to,
             onEnd = onEnd,
-            anim = PhysicsBuilder(stiffness = Spring.StiffnessLow)
+            anim = SpringSpec(stiffness = Spring.StiffnessLow)
         )
     }
 

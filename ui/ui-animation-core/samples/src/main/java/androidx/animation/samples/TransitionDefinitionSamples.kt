@@ -18,6 +18,8 @@ package androidx.animation.samples
 
 import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
+import androidx.animation.keyframes
+import androidx.animation.spring
 import androidx.animation.transitionDefinition
 import androidx.annotation.Sampled
 
@@ -40,11 +42,11 @@ fun TransitionDefSample() {
         // Optional configuration for transition from Pressed to Released. If no transition is
         // defined, the default physics-based transition will be used.
         transition(fromState = ButtonState.Released, toState = ButtonState.Pressed) {
-            radius using physics {
+            radius using spring(
                 dampingRatio = 1.0f
-            }
+            )
             alpha using keyframes {
-                duration = 375
+                durationMillis = 375
                 0f at 0 // ms  // Optional
                 0.4f at 75 // ms
                 0.4f at 225 // ms

@@ -18,6 +18,7 @@ package androidx.ui.material.studies.rally
 
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
@@ -103,19 +104,19 @@ private fun TabTransition(
             }
 
             transition(fromState = false, toState = true) {
-                TabTintColorKey using tween {
-                    duration = TabFadeInAnimationDuration
-                    delay = TabFadeInAnimationDelay
+                TabTintColorKey using tween(
+                    durationMillis = TabFadeInAnimationDuration,
+                    delayMillis = TabFadeInAnimationDelay,
                     easing = LinearEasing
-                }
+                )
             }
 
             transition(fromState = true, toState = false) {
-                TabTintColorKey using tween {
-                    duration = TabFadeOutAnimationDuration
-                    delay = TabFadeInAnimationDelay
+                TabTintColorKey using tween(
+                    durationMillis = TabFadeOutAnimationDuration,
+                    delayMillis = TabFadeInAnimationDelay,
                     easing = LinearEasing
-                }
+                )
             }
         }
     }

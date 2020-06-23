@@ -16,21 +16,23 @@
 
 package androidx.animation
 
+import androidx.animation.AnimationConstants.DefaultDurationMillis
+
 /**
- * [FloatAnimationSpec] interface is similar to [AnimationSpec], except it deals exclusively with
+ * [FloatAnimationSpec] interface is similar to [VectorizedAnimationSpec], except it deals exclusively with
  * floats.
  *
- * Like [AnimationSpec], [FloatAnimationSpec] is entirely stateless as well. It requires start/end
+ * Like [VectorizedAnimationSpec], [FloatAnimationSpec] is entirely stateless as well. It requires start/end
  * values and start velocity to be passed in for the query of velocity and value of the animation.
  * The [FloatAnimationSpec] itself stores only the animation configuration (such as the
  * delay, duration and easing curve for [FloatTweenSpec], or spring constants for
  * [FloatSpringSpec].
  *
- * A [FloatAnimationSpec] can be converted to an [AnimationSpec] using [vectorize].
+ * A [FloatAnimationSpec] can be converted to an [VectorizedAnimationSpec] using [vectorize].
  *
- * @see [AnimationSpec]
+ * @see [VectorizedAnimationSpec]
  */
-interface FloatAnimationSpec {
+interface FloatAnimationSpec : AnimationSpec<Float> {
     /**
      * Calculates the value of the animation at given the playtime, with the provided start/end
      * values, and start velocity.
@@ -97,6 +99,13 @@ interface FloatAnimationSpec {
         end: Float,
         startVelocity: Float
     ): Long
+
+    /**
+     * Create an [VectorizedAnimationSpec] that animates [AnimationVector] from a [FloatAnimationSpec]. Every
+     * dimension of the [AnimationVector] will be animated using the given [FloatAnimationSpec].
+     */
+    override fun <V : AnimationVector> vectorize(converter: TwoWayConverter<Float, V>) =
+        VectorizedFloatAnimationSpec<V>(this)
 }
 
 /**
@@ -106,14 +115,14 @@ interface FloatAnimationSpec {
  *
  * @param dampingRatio damping ratio of the spring. Defaults to [Spring.DampingRatioNoBouncy]
  * @param stiffness Stiffness of the spring. Defaults to [Spring.StiffnessMedium]
- * @param displacementThreshold The value threshold such that the animation is no longer
+ * @param visibilityThreshold The value threshold such that the animation is no longer
  *                              significant. e.g. 1px for translation animations. Defaults to
  *                              [Spring.DefaultDisplacementThreshold]
  */
 class FloatSpringSpec(
-    dampingRatio: Float = Spring.DampingRatioNoBouncy,
-    stiffness: Float = Spring.StiffnessMedium,
-    private val displacementThreshold: Float = Spring.DefaultDisplacementThreshold
+    val dampingRatio: Float = Spring.DampingRatioNoBouncy,
+    val stiffness: Float = Spring.StiffnessMedium,
+    private val visibilityThreshold: Float = Spring.DefaultDisplacementThreshold
 ) : FloatAnimationSpec {
 
     private val spring = SpringSimulation(1f).also {
@@ -153,8 +162,8 @@ class FloatSpringSpec(
         estimateAnimationDurationMillis(
             stiffness = spring.stiffness,
             dampingRatio = spring.dampingRatio,
-            initialDisplacement = (start - end) / displacementThreshold,
-            initialVelocity = startVelocity / displacementThreshold,
+            initialDisplacement = (start - end) / visibilityThreshold,
+            initialVelocity = startVelocity / visibilityThreshold,
             delta = 1f
         )
 }
@@ -171,8 +180,8 @@ class FloatSpringSpec(
  *               value of the animation. Defaults to [FastOutSlowInEasing].
  */
 class FloatTweenSpec(
-    val duration: Long = DefaultDuration,
-    val delay: Long = 0L,
+    val duration: Int = DefaultDurationMillis,
+    val delay: Int = 0,
     private val easing: Easing = FastOutSlowInEasing
 ) : FloatAnimationSpec {
     override fun getValue(
@@ -182,17 +191,17 @@ class FloatTweenSpec(
         startVelocity: Float
     ): Float {
         val clampedPlayTime = clampPlayTime(playTime)
-        val rawFraction = if (duration == 0L) 1f else clampedPlayTime / duration.toFloat()
+        val rawFraction = if (duration == 0) 1f else clampedPlayTime / duration.toFloat()
         val fraction = easing(rawFraction.coerceIn(0f, 1f))
         return lerp(start, end, fraction)
     }
 
     private fun clampPlayTime(playTime: Long): Long {
-        return (playTime - delay).coerceIn(0, duration)
+        return (playTime - delay).coerceIn(0, duration.toLong())
     }
 
     override fun getDurationMillis(start: Float, end: Float, startVelocity: Float): Long {
-        return delay + duration
+        return delay + duration.toLong()
     }
 
     // Calculate velocity by difference between the current value and the value 1 ms ago. This is a
@@ -215,10 +224,3 @@ class FloatTweenSpec(
         return (endNum - startNum) * 1000f
     }
 }
-
-/**
- * Create an [AnimationSpec] that animates [AnimationVector] from a [FloatAnimationSpec]. Every
- * dimension of the [AnimationVector] will be animated using the given [FloatAnimationSpec].
- */
-fun <V : AnimationVector> FloatAnimationSpec.vectorize(): AnimationSpec<V> =
-    VectorizedAnimationSpec(this)

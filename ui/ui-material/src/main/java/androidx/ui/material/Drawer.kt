@@ -16,7 +16,7 @@
 
 package androidx.ui.material
 
-import androidx.animation.PhysicsBuilder
+import androidx.animation.SpringSpec
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.state
@@ -104,7 +104,7 @@ fun ModalDrawerLayout(
             state = drawerState,
             onStateChange = onStateChange,
             anchorsToState = anchors,
-            animationBuilder = AnimationBuilder,
+            animationSpec = AnimationSpec,
             dragDirection = DragDirection.Horizontal,
             minValue = minValue,
             maxValue = maxValue,
@@ -194,7 +194,7 @@ fun BottomDrawerLayout(
                 state = drawerState,
                 onStateChange = onStateChange,
                 anchorsToState = anchors,
-                animationBuilder = AnimationBuilder,
+                animationSpec = AnimationSpec,
                 dragDirection = DragDirection.Vertical,
                 minValue = minValue,
                 maxValue = maxValue,
@@ -292,9 +292,6 @@ private val VerticalDrawerPadding = 56.dp
 
 private const val DrawerStiffness = 1000f
 
-private val AnimationBuilder =
-    PhysicsBuilder<Float>().apply {
-        stiffness = DrawerStiffness
-    }
+private val AnimationSpec = SpringSpec<Float>(stiffness = DrawerStiffness)
 
 internal const val BottomDrawerOpenFraction = 0.5f

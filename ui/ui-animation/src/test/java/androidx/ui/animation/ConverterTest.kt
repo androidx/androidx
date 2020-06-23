@@ -51,15 +51,6 @@ class ConverterTest {
     }
 
     @Test
-    fun testPxConverter() {
-        val value = Random.nextFloat()
-        assertEquals(PxToVectorConverter.convertFromVector(AnimationVector1D(value)), value)
-
-        val value2 = Random.nextFloat()
-        assertEquals(PxToVectorConverter.convertToVector(value2), AnimationVector1D(value2))
-    }
-
-    @Test
     fun testDpConverter() {
         val value = Random.nextFloat()
         assertEquals(DpToVectorConverter.convertFromVector(AnimationVector1D(value)), value.dp)
@@ -69,12 +60,12 @@ class ConverterTest {
     }
 
     @Test
-    fun testPxPositionConverter() {
+    fun testOffsetConverter() {
         val x = Random.nextFloat()
         val y = Random.nextFloat()
         assertEquals(Offset(x, y),
-            PxPositionToVectorConverter.convertFromVector(AnimationVector2D(x, y)))
+            OffsetToVectorConverter.convertFromVector(AnimationVector2D(x, y)))
         assertEquals(AnimationVector2D(x, y),
-            PxPositionToVectorConverter.convertToVector(Offset(x, y)))
+            OffsetToVectorConverter.convertToVector(Offset(x, y)))
     }
 }

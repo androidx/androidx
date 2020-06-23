@@ -19,7 +19,10 @@ package androidx.ui.material
 import android.graphics.PathMeasure
 import androidx.animation.FloatPropKey
 import androidx.animation.TransitionSpec
+import androidx.animation.keyframes
+import androidx.animation.snap
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.remember
@@ -311,9 +314,9 @@ private fun generateTransitionDefinition(color: Color, unselectedColor: Color) =
             ToggleableState.On to ToggleableState.Indeterminate,
             ToggleableState.Indeterminate to ToggleableState.On
         ) {
-            CheckCenterGravitationShiftFraction using tween {
-                duration = CheckAnimationDuration
-            }
+            CheckCenterGravitationShiftFraction using tween(
+                durationMillis = CheckAnimationDuration
+            )
         }
         transition(
             ToggleableState.Indeterminate to ToggleableState.Off,
@@ -325,41 +328,41 @@ private fun generateTransitionDefinition(color: Color, unselectedColor: Color) =
 
 private fun TransitionSpec<ToggleableState>.boxTransitionToChecked() {
     CheckCenterGravitationShiftFraction using snap()
-    BoxBorderColor using tween {
-        duration = BoxInDuration
-    }
-    BoxOpacityFraction using tween {
-        duration = BoxInDuration
-    }
-    CheckOpacityFraction using tween {
-        duration = BoxInDuration
-    }
-    CheckDrawFraction using tween {
-        duration = CheckAnimationDuration
-    }
+    BoxBorderColor using tween(
+        durationMillis = BoxInDuration
+    )
+    BoxOpacityFraction using tween(
+        durationMillis = BoxInDuration
+    )
+    CheckOpacityFraction using tween(
+        durationMillis = BoxInDuration
+    )
+    CheckDrawFraction using tween(
+        durationMillis = CheckAnimationDuration
+    )
 }
 
 private fun TransitionSpec<ToggleableState>.checkboxTransitionToUnchecked() {
-    BoxBorderColor using tween {
-        duration = BoxOutDuration
-    }
-    BoxOpacityFraction using tween {
-        duration = BoxOutDuration
-    }
-    CheckOpacityFraction using tween {
-        duration = BoxOutDuration
-    }
+    BoxBorderColor using tween(
+        durationMillis = BoxOutDuration
+    )
+    BoxOpacityFraction using tween(
+        durationMillis = BoxOutDuration
+    )
+    CheckOpacityFraction using tween(
+        durationMillis = BoxOutDuration
+    )
     // TODO: emulate delayed snap and replace when actual API is available b/158189074
     CheckDrawFraction using keyframes {
-        duration = BoxOutDuration
+        durationMillis = BoxOutDuration
         1f at 0
         1f at BoxOutDuration - 1
         0f at BoxOutDuration
     }
-    CheckCenterGravitationShiftFraction using tween {
-        duration = 1
-        delay = BoxOutDuration - 1
-    }
+    CheckCenterGravitationShiftFraction using tween(
+        durationMillis = 1,
+        delayMillis = BoxOutDuration - 1
+    )
 }
 
 private val CheckboxRippleRadius = 24.dp

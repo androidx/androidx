@@ -7,26 +7,10 @@ ArrayReturn: androidx.animation.TransitionDefinition#transition(kotlin.Pair<? ex
 
 AutoBoxing: androidx.animation.CubicBezierEasing#invoke(float):
     Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.animation.DecayAnimation#getValue(long):
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.animation.RepeatableBuilder#getIterations():
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.animation.RepeatableBuilder#setIterations(Integer) parameter #0:
-    Must avoid boxed primitives (`java.lang.Integer`)
 
 
 CallbackName: androidx.animation.AnimationClockObserver:
     Class should be named AnimationClockCallback
-
-
-DocumentExceptions: androidx.animation.DurationBasedAnimationBuilder#setDelay(int):
-    Method DurationBasedAnimationBuilder.setDelay appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.animation.DurationBasedAnimationBuilder#setDuration(int):
-    Method DurationBasedAnimationBuilder.setDuration appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.animation.KeyframesBuilder#at(T, int):
-    Method KeyframesBuilder.at appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.animation.RepeatableBuilder#setIterations(Integer):
-    Method RepeatableBuilder.setIterations appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
 HiddenTypeParameter: androidx.animation.BaseAnimationClock#Companion:
@@ -35,13 +19,7 @@ HiddenTypeParameter: androidx.animation.BaseAnimationClock#Companion:
 
 MissingNullability: androidx.animation.CubicBezierEasing#invoke(float):
     Missing nullability on method `invoke` return
-MissingNullability: androidx.animation.DecayAnimation#getValue(long):
-    Missing nullability on method `getValue` return
 
 
 NotCloseable: androidx.animation.BaseAnimatedValue:
     Classes that release resources (stop()) should implement AutoClosable and CloseGuard: class androidx.animation.BaseAnimatedValue
-
-
-TopLevelBuilder: androidx.animation.AnimationBuilder:
-    Builder should be defined as inner class: androidx.animation.AnimationBuilder

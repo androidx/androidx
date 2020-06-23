@@ -17,7 +17,7 @@
 package androidx.ui.animation.demos
 
 import android.util.Log
-import androidx.animation.PhysicsBuilder
+import androidx.animation.SpringSpec
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import androidx.compose.Composable
@@ -66,12 +66,12 @@ fun FancyScrollingDemo() {
                 // animating to the adjusted target.
                 animScroll.fling(velocity.x, adjustTarget = { target ->
                     // Adjust the target position to center align the item
-                    val animation = PhysicsBuilder<Float>(dampingRatio = 2.0f, stiffness = 100f)
                     var rem = target % itemWidth.value
                     if (rem < 0) {
                         rem += itemWidth.value
                     }
-                    TargetAnimation((target - rem), animation)
+                    TargetAnimation((target - rem),
+                        SpringSpec(dampingRatio = 2.0f, stiffness = 100f))
                 })
             }
         })

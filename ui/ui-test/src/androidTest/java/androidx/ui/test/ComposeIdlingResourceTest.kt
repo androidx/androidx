@@ -20,7 +20,9 @@ import android.os.Handler
 import android.os.Looper
 import androidx.animation.FloatPropKey
 import androidx.animation.LinearEasing
+import androidx.animation.snap
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.mutableStateOf
@@ -207,10 +209,10 @@ class ComposeIdlingResourceTest {
             this[x] = animateToX
         }
         transition(AnimationStates.From to AnimationStates.To) {
-            x using tween {
-                easing = LinearEasing
-                duration = nonIdleDuration.toInt()
-            }
+            x using tween(
+                easing = LinearEasing,
+                durationMillis = nonIdleDuration.toInt()
+            )
         }
         transition(AnimationStates.To to AnimationStates.From) {
             x using snap()

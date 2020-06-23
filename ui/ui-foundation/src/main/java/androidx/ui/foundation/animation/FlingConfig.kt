@@ -17,12 +17,12 @@
 package androidx.ui.foundation.animation
 
 import androidx.animation.AnimatedFloat
-import androidx.animation.AnimationBuilder
 import androidx.animation.AnimationEndReason
-import androidx.animation.FloatDecayAnimationSpec
+import androidx.animation.AnimationSpec
 import androidx.animation.ExponentialDecay
+import androidx.animation.FloatDecayAnimationSpec
 import androidx.animation.OnAnimationEnd
-import androidx.animation.PhysicsBuilder
+import androidx.animation.SpringSpec
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import androidx.compose.Composable
@@ -112,20 +112,20 @@ fun AnimatedFloat.fling(config: FlingConfig, startVelocity: Float) {
  * @param onAnimationEnd callback to be invoked when animation value reaches desired anchor
  * or fling being interrupted by gesture input.
  * Consult [AnimationEndReason] param to know what happened.
- * @param animationBuilder animation which will be used for animations
+ * @param animationSpec animation which will be used for animations
  * @param decayAnimation decay animation to be used to calculate closest point in the anchors set
  * considering velocity.
  */
 fun AnchorsFlingConfig(
     anchors: List<Float>,
-    animationBuilder: AnimationBuilder<Float> = PhysicsBuilder(),
+    animationSpec: AnimationSpec<Float> = SpringSpec(),
     onAnimationEnd: OnAnimationEnd? = null,
     decayAnimation: FloatDecayAnimationSpec = ExponentialDecay()
 ): FlingConfig {
     val adjustTarget: (Float) -> TargetAnimation? = { target ->
         val point = anchors.minBy { abs(it - target) }
         val adjusted = point ?: target
-        TargetAnimation(adjusted, animationBuilder)
+        TargetAnimation(adjusted, animationSpec)
     }
     return FlingConfig(decayAnimation, onAnimationEnd, adjustTarget)
 }

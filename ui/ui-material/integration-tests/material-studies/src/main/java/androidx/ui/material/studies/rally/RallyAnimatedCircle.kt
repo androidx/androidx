@@ -20,6 +20,7 @@ import androidx.animation.CubicBezierEasing
 import androidx.animation.FloatPropKey
 import androidx.animation.LinearOutSlowInEasing
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
@@ -45,16 +46,16 @@ private val CircularTransition = transitionDefinition {
         this[Shift] = 30f
     }
     transition(fromState = 0, toState = 1) {
-        AngleOffset using tween {
-            delay = 500
-            duration = 900
+        AngleOffset using tween(
+            delayMillis = 500,
+            durationMillis = 900,
             easing = CubicBezierEasing(0f, 0.75f, 0.35f, 0.85f)
-        }
-        Shift using tween {
-            delay = 500
-            duration = 900
+        )
+        Shift using tween(
+            delayMillis = 500,
+            durationMillis = 900,
             easing = LinearOutSlowInEasing
-        }
+        )
     }
 }
 

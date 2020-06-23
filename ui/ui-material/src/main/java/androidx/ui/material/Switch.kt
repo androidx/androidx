@@ -16,7 +16,7 @@
 
 package androidx.ui.material
 
-import androidx.animation.TweenBuilder
+import androidx.animation.TweenSpec
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.remember
@@ -90,7 +90,7 @@ fun Switch(
                 state = checked,
                 onStateChange = onCheckedChange,
                 anchorsToState = listOf(minBound to false, maxBound to true),
-                animationBuilder = AnimationBuilder,
+                animationSpec = AnimationSpec,
                 dragDirection = DragDirection.Horizontal,
                 minValue = minBound,
                 maxValue = maxBound,
@@ -168,7 +168,7 @@ private val SwitchWidth = TrackWidth
 private val SwitchHeight = ThumbDiameter
 private val ThumbPathLength = TrackWidth - ThumbDiameter
 
-private val AnimationBuilder = TweenBuilder<Float>().apply { duration = 100 }
+private val AnimationSpec = TweenSpec<Float>(durationMillis = 100)
 
 internal object SwitchDefaults {
 

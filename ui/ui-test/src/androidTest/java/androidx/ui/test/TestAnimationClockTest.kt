@@ -18,7 +18,9 @@ package androidx.ui.test
 
 import androidx.animation.FloatPropKey
 import androidx.animation.LinearEasing
+import androidx.animation.snap
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.FrameManager
@@ -212,10 +214,10 @@ class TestAnimationClockTest {
             this[x] = 50f
         }
         transition(AnimationStates.From to AnimationStates.To) {
-            x using tween {
-                easing = LinearEasing
-                duration = 1000L.toInt()
-            }
+            x using tween(
+                easing = LinearEasing,
+                durationMillis = 1000
+            )
         }
         transition(AnimationStates.To to AnimationStates.From) {
             x using snap()

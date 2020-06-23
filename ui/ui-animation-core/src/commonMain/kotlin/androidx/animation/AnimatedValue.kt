@@ -34,13 +34,13 @@ import androidx.animation.AnimationEndReason.TargetReached
  *                      versa.
  * @param clock An animation clock observable controlling the progression of the animated value
  * @param visibilityThreshold Visibility threshold of the animation specifies the end condition:
- *      for t > duration, value < visibilityThreshold. Null value defaults to [PhysicsBuilder]
+ *      for t > duration, value < visibilityThreshold. Null value defaults to [SpringSpec]
  *      default.
  */
 sealed class BaseAnimatedValue<T, V : AnimationVector>(
     internal val typeConverter: TwoWayConverter<T, V>,
     private val clock: AnimationClockObservable,
-    internal val visibilityThreshold: V?
+    internal val visibilityThreshold: T?
 ) {
 
     /**
@@ -113,11 +113,8 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
             }
         }
 
-    private fun defaultPhysicsBuilder(): PhysicsBuilder<T> {
-        return visibilityThreshold?.let {
-            PhysicsBuilder(displacementThreshold = typeConverter.convertFromVector(it))
-        } ?: PhysicsBuilder()
-    }
+    private val defaultSpringSpec: SpringSpec<T> =
+        SpringSpec<T>(visibilityThreshold = visibilityThreshold)
 
     // TODO: Need a test for animateTo(...) being called with the same target value
     /**
@@ -134,7 +131,7 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
      */
     fun animateTo(
         targetValue: T,
-        anim: AnimationBuilder<T> = defaultPhysicsBuilder(),
+        anim: AnimationSpec<T> = defaultSpringSpec,
         onEnd: ((AnimationEndReason, T) -> Unit)? = null
     ) {
         if (isRunning) {
@@ -142,8 +139,10 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
         }
 
         this.targetValue = targetValue
-        val animationWrapper = TargetBasedAnimation(anim.build(typeConverter),
-            value, targetValue, velocityVector, typeConverter)
+        val animationWrapper = TargetBasedAnimation(
+            anim.vectorize(typeConverter),
+            value, targetValue, velocityVector, typeConverter
+        )
 
         this.onEnd = onEnd
         startAnimation(animationWrapper)
@@ -236,11 +235,14 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
  * transition AnimatedValue from its current value (i.e. value at the point of interruption) to the
  * new target. This ensures that the value change is always continuous.
  *
+ * @param typeConverter Converter for converting value type [T] to [AnimationVector], and vice versa
+ * @param clock The animation clock used to drive the animation.
+ * @param visibilityThreshold Threshold at which the animation may round off to its target value.
  */
 abstract class AnimatedValue<T, V : AnimationVector>(
     typeConverter: TwoWayConverter<T, V>,
     clock: AnimationClockObservable,
-    visibilityThreshold: V? = null
+    visibilityThreshold: T? = null
 ) : BaseAnimatedValue<T, V>(typeConverter, clock, visibilityThreshold) {
     val velocity: V
         get() = velocityVector
@@ -253,12 +255,14 @@ abstract class AnimatedValue<T, V : AnimationVector>(
  * velocity is non-zero.
  *
  * @param clock An animation clock observable controlling the progression of the animated value
+ * @param visibilityThreshold Threshold at which the animation may round off to its target value.
  */
 abstract class AnimatedFloat(
     clock: AnimationClockObservable,
     visibilityThreshold: Float = Spring.DefaultDisplacementThreshold
 ) : BaseAnimatedValue<Float, AnimationVector1D>(
-    FloatToVectorConverter, clock, AnimationVector(visibilityThreshold)) {
+    FloatToVectorConverter, clock, visibilityThreshold
+) {
 
     /**
      * Lower bound of the animation value. When animations reach this lower bound, it will
@@ -399,7 +403,7 @@ fun AnimatedFloat.fling(
     } else {
         targetValue = targetAnimation.target
         val animWrapper = TargetBasedAnimation(
-            targetAnimation.animation.build(typeConverter),
+            targetAnimation.animation,
             value,
             targetAnimation.target,
             AnimationVector1D(startVelocity),
@@ -418,14 +422,13 @@ private const val Unset: Long = -1
  * @param initVal Initial value to initialize the animation to.
  * @param typeConverter Converter for converting value type [T] to [AnimationVector], and vice versa
  * @param clock The animation clock used to drive the animation.
+ * @param visibilityThreshold Threshold at which the animation may round off to its target value.
  */
 fun <T, V : AnimationVector> AnimatedValue(
     initVal: T,
     typeConverter: TwoWayConverter<T, V>,
     clock: AnimationClockObservable,
-    visibilityThreshold: V = typeConverter
-        .convertToVector(initVal)
-        .newInstanceOfValue(Spring.DefaultDisplacementThreshold)
+    visibilityThreshold: T? = null
 ): AnimatedValue<T, V> =
     AnimatedValueImpl(initVal, typeConverter, clock, visibilityThreshold)
 
@@ -435,6 +438,7 @@ fun <T, V : AnimationVector> AnimatedValue(
  *
  * @param initVal Initial value to initialize the animation to.
  * @param clock The animation clock used to drive the animation.
+ * @param visibilityThreshold Threshold at which the animation may round off to its target value.
  */
 fun <V : AnimationVector> AnimatedVector(
     initVal: V,
@@ -462,7 +466,7 @@ private class AnimatedValueImpl<T, V : AnimationVector>(
     initVal: T,
     typeConverter: TwoWayConverter<T, V>,
     clock: AnimationClockObservable,
-    visibilityThreshold: V
+    visibilityThreshold: T? = null
 ) : AnimatedValue<T, V>(typeConverter, clock, visibilityThreshold) {
     override var value: T = initVal
 }

@@ -16,6 +16,8 @@
 
 package androidx.animation
 
+import androidx.animation.AnimationConstants.DefaultDurationMillis
+import androidx.animation.AnimationConstants.Infinite
 import androidx.ui.util.fastFirstOrNull
 import kotlin.experimental.ExperimentalTypeInference
 
@@ -52,89 +54,111 @@ class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out 
     /**
      * The default animation to use when it wasn't explicitly provided for a property
      */
-    internal var defaultAnimation: DefaultTransitionAnimation = SpringTransition()
+    internal enum class DefaultAnimation {
+        Spring,
+        Snap
+    }
 
-    private val propAnimation: MutableMap<PropKey<*, *>, AnimationSpec<*>> = mutableMapOf()
+    internal var defaultAnimation: DefaultAnimation = DefaultAnimation.Spring
+
+    private val propAnimation: MutableMap<PropKey<*, *>, VectorizedAnimationSpec<*>> =
+        mutableMapOf()
 
     internal fun <T, V : AnimationVector> getAnimationForProp(
         prop: PropKey<T, V>
-    ): AnimationSpec<V> {
+    ): VectorizedAnimationSpec<V> {
         @Suppress("UNCHECKED_CAST")
         return (propAnimation.getOrPut(prop,
-            { defaultAnimation.createDefault(prop.typeConverter) })) as AnimationSpec<V>
+            { createSpec<V>(defaultAnimation) })) as VectorizedAnimationSpec<V>
     }
+
+    private fun <V : AnimationVector> createSpec(
+        anim: DefaultAnimation
+    ): VectorizedAnimationSpec<V> =
+        when (anim) {
+            DefaultAnimation.Spring -> VectorizedSpringSpec()
+            DefaultAnimation.Snap -> VectorizedSnapSpec()
+        }
 
     internal fun defines(from: S?, to: S?) =
         fromToPairs.any { it.first == from && it.second == to }
 
     /**
-     * Associates a property with a [AnimationBuilder]
+     * Associates a property with an [AnimationSpec]
      *
-     * @param builder: [AnimationBuilder] for animating [this] property value changes
+     * @param animationSpec: [AnimationSpec] for animating [this] property value changes
      */
-    infix fun <T, V : AnimationVector> PropKey<T, V>.using(builder: AnimationBuilder<T>) {
-        propAnimation[this] = builder.build(typeConverter)
-    }
-
-    /**
-     * Creates a [FloatTweenSpec] animation, initialized with [init]
-     *
-     * @param init Initialization function for the [FloatTweenSpec] animation
-     */
-    fun <T> tween(init: TweenBuilder<T>.() -> Unit): DurationBasedAnimationBuilder<T> =
-        TweenBuilder<T>().apply(init)
-
-    /**
-     * Creates a [FloatSpringSpec] animation, initialized with [init]
-     *
-     * @param init Initialization function for the [FloatSpringSpec] animation
-     */
-    fun <T> physics(init: PhysicsBuilder<T>.() -> Unit): AnimationBuilder<T> =
-        PhysicsBuilder<T>().apply(init)
-
-    /**
-     * Creates a [KeyframesSpec] animation, initialized with [init]
-     *
-     * @param init Initialization function for the [KeyframesSpec] animation
-     */
-    fun <T> keyframes(init: KeyframesBuilder<T>.() -> Unit): KeyframesBuilder<T> =
-        KeyframesBuilder<T>().apply(init)
-
-    /**
-     * Creates a [RepeatableSpec] animation, initialized with [init]
-     *
-     * @param init Initialization function for the [RepeatableSpec] animation
-     */
-    fun <T> repeatable(init: RepeatableBuilder<T>.() -> Unit): AnimationBuilder<T> =
-        RepeatableBuilder<T>().apply(init)
-
-    /**
-     * Creates a Snap animation for immediately switching the animating value to the end value.
-     */
-    fun <T> snap(): AnimationBuilder<T> = SnapBuilder()
-}
-
-internal interface DefaultTransitionAnimation {
-    fun <T, V : AnimationVector> createDefault(
-        typeConverter: TwoWayConverter<T, V>
-    ): AnimationSpec<V>
-}
-
-internal class SnapTransition : DefaultTransitionAnimation {
-    override fun <T, V : AnimationVector> createDefault(
-        typeConverter: TwoWayConverter<T, V>
-    ): AnimationSpec<V> {
-        return SnapBuilder<T>().build(typeConverter)
+    infix fun <T, V : AnimationVector> PropKey<T, V>.using(animationSpec: AnimationSpec<T>) {
+        propAnimation[this] =
+            animationSpec.vectorize(this.typeConverter) as VectorizedAnimationSpec<*>
     }
 }
 
-internal class SpringTransition : DefaultTransitionAnimation {
-    override fun <T, V : AnimationVector> createDefault(
-        typeConverter: TwoWayConverter<T, V>
-    ): AnimationSpec<V> {
-        return PhysicsBuilder<T>().build(typeConverter)
-    }
+/**
+ * Creates a [TweenSpec] configured with the given duration, delay and easing curve.
+ *
+ * @param durationMillis duration of the animation spec
+ * @param delayMillis the amount of time in milliseconds that animation waits before starting
+ * @param easing the easing curve that will be used to interpolate between start and end
+ */
+fun <T> tween(
+    durationMillis: Int = DefaultDurationMillis,
+    delayMillis: Int = 0,
+    easing: Easing = FastOutSlowInEasing
+): TweenSpec<T> = TweenSpec(durationMillis, delayMillis, easing)
+
+/**
+ * Creates a [SpringSpec] that uses the given spring constants (i.e. [dampingRatio] and
+ * [stiffness]. The optional [visibilityThreshold] defines when the animation
+ * should be considered to be visually close enough to round off to its target.
+ *
+ * @param dampingRatio damping ratio of the spring. [Spring.DampingRatioNoBouncy] by default.
+ * @param stiffness stiffness of the spring. [Spring.StiffnessMedium] by default.
+ * @param visibilityThreshold optionally specifies the visibility threshold.
+ */
+fun <T> spring(
+    dampingRatio: Float = Spring.DampingRatioNoBouncy,
+    stiffness: Float = Spring.StiffnessMedium,
+    visibilityThreshold: T? = null
+): SpringSpec<T> =
+    SpringSpec(dampingRatio, stiffness, visibilityThreshold)
+
+/**
+ * Creates a [KeyframesSpec] animation, initialized with [init]. For example:
+ *
+ * @sample androidx.animation.samples.KeyframesBuilderForPosition
+ *
+ * @param init Initialization function for the [KeyframesSpec] animation
+ * @See KeyframesSpec.KeyframesSpecConfig
+ */
+fun <T> keyframes(
+    init: KeyframesSpec.KeyframesSpecConfig<T>.() -> Unit
+): KeyframesSpec<T> {
+    return KeyframesSpec(KeyframesSpec.KeyframesSpecConfig<T>().apply(init))
 }
+
+/**
+ * Creates a [RepeatableSpec] that plays a [DurationBasedAnimationSpec] (e.g.
+ * [TweenSpec], [KeyframesSpec]) the amount of iterations specified by [iterations].
+ *
+ * The iteration count describes the amount of times the animation will run.
+ * 1 means no repeat. Use [Infinite] to create an infinity repeating animation.
+ *
+ * @param iterations the total count of iterations, should be greater than 1 to repeat.
+ * @param animation animation that will be repeated
+ */
+fun <T> repeatable(
+    iterations: Int,
+    animation: DurationBasedAnimationSpec<T>
+): AnimationSpec<T> =
+    RepeatableSpec(iterations, animation)
+
+/**
+ * Creates a Snap animation for immediately switching the animating value to the end value.
+ *
+ * @param delayMillis the number of milliseconds to wait before the animation runs. 0 by default.
+ */
+fun <T> snap(delayMillis: Int = 0): AnimationSpec<T> = SnapSpec(delayMillis)
 
 /**
  * [TransitionDefinition] contains all the animation related configurations that will be used in
@@ -149,9 +173,8 @@ internal class SpringTransition : DefaultTransitionAnimation {
  * [TransitionSpec] defines how to animate from one state to another with a specific animation for
  * each property defined in the states. [TransitionSpec] can be created using [transition] method
  * inside of a [TransitionDefinition]. Currently the animations supported in a [transition] are:
- * [TransitionSpec.tween], [TransitionSpec.keyframes], [TransitionSpec.physics],
- * [TransitionSpec.snap], [TransitionSpec.repeatable]. When no [TransitionSpec] is specified,
- * the default [TransitionSpec.physics] animation will be used for all properties involved.
+ * [tween], [keyframes], [spring], [snap], [repeatable]. When no [TransitionSpec] is specified,
+ * the default [spring] animation will be used for all properties involved.
  * Similarly, when no animation is provided in a [TransitionSpec] for a particular property,
  * the default physics animation will be used. For each [transition], both the from and the to state
  * can be omitted. Omitting in this case is equivalent to a wildcard on the starting state or ending
@@ -271,7 +294,7 @@ class TransitionDefinition<T> {
     fun snapTransition(vararg fromToPairs: Pair<T?, T?>, nextState: T? = null) =
         transition(*fromToPairs) {
             this.nextState = nextState
-            defaultAnimation = SnapTransition()
+            defaultAnimation = TransitionSpec.DefaultAnimation.Snap
         }
 
     internal fun getSpec(fromState: T, toState: T): TransitionSpec<T> {
