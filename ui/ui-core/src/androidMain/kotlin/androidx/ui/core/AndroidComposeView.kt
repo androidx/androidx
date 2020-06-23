@@ -31,14 +31,11 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStructure
-import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityManager
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.core.os.HandlerCompat
 import androidx.core.view.ViewCompat
-import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
@@ -63,8 +60,6 @@ import androidx.ui.core.pointerinput.ProcessResult
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.SemanticsModifierCore
 import androidx.ui.core.semantics.SemanticsOwner
-import androidx.ui.core.semantics.getAllSemanticsNodesToMap
-import androidx.ui.core.semantics.getOrNull
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.core.texttoolbar.AndroidTextToolbar
 import androidx.ui.core.texttoolbar.TextToolbar
@@ -80,11 +75,9 @@ import androidx.ui.graphics.CanvasHolder
 import androidx.ui.input.TextInputServiceAndroid
 import androidx.ui.input.textInputServiceFactory
 import androidx.ui.savedinstancestate.UiSavedStateRegistry
-import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntOffset
-import androidx.ui.unit.max
 import androidx.ui.util.fastForEach
 import androidx.ui.util.trace
 import java.lang.reflect.Method
@@ -116,7 +109,6 @@ internal class AndroidComposeView constructor(
 ) : ViewGroup(context), AndroidOwner {
 
     override val view: View = this
-    private val accessibilityDelegate = AndroidComposeViewAccessibilityDelegateCompat(this)
 
     override var density = Density(context)
         private set
@@ -136,23 +128,8 @@ internal class AndroidComposeView constructor(
         it.modifier = Modifier.drawLayer() + semanticsModifier + focusModifier + keyInputModifier
     }
 
-    private inner class SemanticsNodeCopy(
-        semanticsNode: SemanticsNode
-    ) {
-        val config = semanticsNode.config
-        val children: MutableSet<Int> = mutableSetOf()
-
-        init {
-            semanticsNode.children.fastForEach { child ->
-                children.add(child.id)
-            }
-        }
-    }
-
     override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
-    private var semanticsNodes: MutableMap<Int, SemanticsNodeCopy> = mutableMapOf()
-    private var semanticsRoot = SemanticsNodeCopy(semanticsOwner.rootSemanticsNode)
-    private var checkingForSemanticsChanges = false
+    private val accessibilityDelegate = AndroidComposeViewAccessibilityDelegateCompat(this)
 
     // Used by components that want to provide autofill semantic information.
     // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.
@@ -404,109 +381,13 @@ internal class AndroidComposeView constructor(
     }
 
     override fun onSemanticsChange() {
-        if ((context.getSystemService(Context.ACCESSIBILITY_SERVICE)
-                    as AccessibilityManager).isEnabled && !checkingForSemanticsChanges
-        ) {
-            checkingForSemanticsChanges = true
-            Handler(Looper.getMainLooper()).post {
-                checkForSemanticsChanges()
-                checkingForSemanticsChanges = false
-            }
-        }
+        accessibilityDelegate.onSemanticsChange()
     }
 
     private fun updateLayerProperties(layer: OwnedLayer) {
         modelObserver.observeReads(layer, onCommitAffectingLayerParams) {
             layer.updateLayerProperties()
         }
-    }
-
-    private fun checkForSemanticsChanges() {
-        val newSemanticsNodes = semanticsOwner.getAllSemanticsNodesToMap()
-
-        // Structural change
-        sendSemanticsStructureChangeEvents(semanticsOwner.rootSemanticsNode, semanticsRoot)
-
-        // Property change
-        for (id in newSemanticsNodes.keys) {
-            if (semanticsNodes.contains(id)) {
-                // We do doing this search because the new configuration is set as a whole, so we
-                // can't indicate which property is changed when setting the new configuration.
-                var newNode = newSemanticsNodes[id]
-                var oldNode = semanticsNodes[id]
-                for (entry in newNode!!.config) {
-                    if (entry.value == oldNode!!.config.getOrNull(entry.key)) {
-                        continue
-                    }
-                    when (entry.key) {
-                        // we are in aosp, so can't use the state description yet.
-                        SemanticsProperties.AccessibilityValue,
-                        SemanticsProperties.AccessibilityLabel ->
-                            accessibilityDelegate.sendEventForVirtualView(
-                                semanticsNodeIdToAccessibilityVirtualNodeId(id),
-                                AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
-                                AccessibilityEvent.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION,
-                                entry.value as CharSequence
-                            )
-                        else -> {
-                            // TODO(b/151840490) send the correct events when property changes
-                        }
-                    }
-                }
-            }
-        }
-
-        // Update the cache
-        semanticsNodes.clear()
-        for (entry in newSemanticsNodes.entries) {
-            semanticsNodes[entry.key] = SemanticsNodeCopy(entry.value)
-        }
-        semanticsRoot = SemanticsNodeCopy(semanticsOwner.rootSemanticsNode)
-    }
-
-    private fun sendSemanticsStructureChangeEvents(
-        newNode: SemanticsNode,
-        oldNode: SemanticsNodeCopy
-    ) {
-        var newChildren: MutableSet<Int> = mutableSetOf()
-
-        // If any child is added, clear the subtree rooted at this node and return.
-        newNode.children.fastForEach { child ->
-            if (!oldNode.children.contains(child.id)) {
-                accessibilityDelegate.sendEventForVirtualView(
-                    semanticsNodeIdToAccessibilityVirtualNodeId(newNode.id),
-                    AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
-                    AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE,
-                    null
-                )
-                return
-            }
-            newChildren.add(child.id)
-        }
-
-        // If any child is deleted, clear the subtree rooted at this node and return.
-        for (child in oldNode.children) {
-            if (!newChildren.contains(child)) {
-                accessibilityDelegate.sendEventForVirtualView(
-                    semanticsNodeIdToAccessibilityVirtualNodeId(newNode.id),
-                    AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
-                    AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE,
-                    null
-                )
-                return
-            }
-        }
-
-        newNode.children.fastForEach { child ->
-            sendSemanticsStructureChangeEvents(child, semanticsNodes[child.id]!!)
-        }
-    }
-
-    private fun semanticsNodeIdToAccessibilityVirtualNodeId(id: Int): Int {
-        if (id == semanticsOwner.rootSemanticsNode.id) {
-            return AccessibilityNodeProviderCompat.HOST_VIEW_ID
-        }
-        return id
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
