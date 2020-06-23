@@ -38,6 +38,7 @@ internal object ResultWriter {
 
             val file = File(Arguments.testOutputDir, "$packageName-benchmarkData.json")
             writeReport(file, reports)
+            InstrumentationResults.reportAdditionalFileToCopy("results_json", file.absolutePath)
         }
     }
 

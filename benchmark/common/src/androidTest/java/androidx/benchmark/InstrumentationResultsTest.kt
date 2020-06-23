@@ -24,11 +24,11 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class IdeOutputTest {
+class InstrumentationResultsTest {
     @Test
     fun ideSummary_alignment() {
-        val summary1 = ideSummaryLine("foo", 1000, 100)
-        val summary2 = ideSummaryLine("fooBarLongerKey", 10000, 0)
+        val summary1 = InstrumentationResults.ideSummaryLine("foo", 1000, 100)
+        val summary2 = InstrumentationResults.ideSummaryLine("fooBarLongerKey", 10000, 0)
 
         assertEquals(
             summary1.indexOf("foo"),
@@ -40,11 +40,11 @@ class IdeOutputTest {
     fun ideSummary_allocs() {
         assertEquals(
             "        1,000 ns    foo",
-            ideSummaryLine("foo", 1000, null)
+            InstrumentationResults.ideSummaryLine("foo", 1000, null)
         )
         assertEquals(
             "        1,000 ns          10 allocs    foo",
-            ideSummaryLine("foo", 1000, 10)
+            InstrumentationResults.ideSummaryLine("foo", 1000, 10)
         )
     }
 }
