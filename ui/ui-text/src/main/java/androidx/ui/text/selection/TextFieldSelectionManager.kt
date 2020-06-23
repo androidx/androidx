@@ -16,17 +16,23 @@
 
 package androidx.ui.text.selection
 
+import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.gesture.LongPressDragObserver
 import androidx.ui.geometry.Offset
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.TextFieldValue
+import androidx.ui.input.getSelectedText
+import androidx.ui.input.getTextAfterSelection
+import androidx.ui.input.getTextBeforeSelection
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextFieldState
+import androidx.ui.text.TextRange
 import kotlin.math.max
 
 /**
  * A bridge class between user interaction to the text field selection.
  */
-internal class TextFieldSelectionManager() {
+internal class TextFieldSelectionManager {
 
     /**
      * The current [OffsetMap] for text field.
@@ -49,6 +55,11 @@ internal class TextFieldSelectionManager() {
     internal var value: TextFieldValue = TextFieldValue()
 
     /**
+     * [ClipboardManager] to perform clipboard features.
+     */
+    internal var clipboardManager: ClipboardManager? = null
+
+    /**
      * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
      * recalculated.
      */
@@ -67,7 +78,7 @@ internal class TextFieldSelectionManager() {
         override fun onLongPress(pxPosition: Offset) {
             // selection never started
             if (value.text == "") return
-            state?.selectionIsOn = true
+            setSelectionStatus(true)
             state?.layoutResult?.let { layoutResult ->
                 val offset = offsetMap.transformedToOriginal(
                     layoutResult.getOffsetForPosition(pxPosition)
@@ -105,6 +116,82 @@ internal class TextFieldSelectionManager() {
         }
     }
 
+    /**
+     * The method for copying text.
+     *
+     * If there is no selection, return.
+     * Put the selected text into the [ClipboardManager], and cancel the selection.
+     * The text in the text field should be unchanged.
+     * The new cursor offset should be at the end of the previous selected text.
+     */
+    internal fun copy() {
+        if (value.selection.collapsed) return
+
+        clipboardManager?.setText(AnnotatedString(value.getSelectedText()))
+
+        val newCursorOffset = value.selection.end
+        val newValue = TextFieldValue(
+            text = value.text,
+            selection = TextRange(newCursorOffset, newCursorOffset)
+        )
+        onValueChange(newValue)
+        updateTextDirections(TextRange(newCursorOffset, newCursorOffset))
+        setSelectionStatus(false)
+    }
+
+    /**
+     * The method for pasting text.
+     *
+     * Get the text from [ClipboardManager]. If it's null, return.
+     * The new text should be the text before the selected text, plus the text from the
+     * [ClipboardManager], and plus the text after the selected text.
+     * Then the selection should collapse, and the new cursor offset should be the end of the
+     * newly added text.
+     */
+    internal fun paste() {
+        val text = clipboardManager?.getText()?.text ?: return
+
+        val newText = value.getTextBeforeSelection(value.text.length) +
+                text +
+                value.getTextAfterSelection(value.text.length)
+        val newCursorOffset = value.selection.start + text.length
+
+        val newValue = TextFieldValue(
+            text = newText,
+            selection = TextRange(newCursorOffset, newCursorOffset)
+        )
+        onValueChange(newValue)
+        updateTextDirections(TextRange(newCursorOffset, newCursorOffset))
+        setSelectionStatus(false)
+    }
+
+    /**
+     * The method for cutting text.
+     *
+     * If there is no selection, return.
+     * Put the selected text into the [ClipboardManager].
+     * The new text should be the text before the selection plus the text after the selection.
+     * And the new cursor offset should be between the text before the selection, and the text
+     * after the selection.
+     */
+    internal fun cut() {
+        if (value.selection.collapsed) return
+
+        clipboardManager?.setText(AnnotatedString(value.getSelectedText()))
+
+        val newText = value.getTextBeforeSelection(value.text.length) +
+                value.getTextAfterSelection(value.text.length)
+        val newCursorOffset = value.selection.start
+
+        val newValue = TextFieldValue(
+            text = newText,
+            selection = TextRange(newCursorOffset, newCursorOffset)
+        )
+        onValueChange(newValue)
+        updateTextDirections(TextRange(newCursorOffset, newCursorOffset))
+        setSelectionStatus(false)
+    }
+
     private fun updateSelection(
         value: TextFieldValue,
         startOffset: Int,
@@ -129,9 +216,19 @@ internal class TextFieldSelectionManager() {
             selection = range
         )
         onValueChange(newValue)
+        updateTextDirections(range)
+    }
+
+    private fun updateTextDirections(range: TextRange) {
         state?.let {
             it.selectionStartDirection = it.layoutResult!!.getBidiRunDirection(range.start)
             it.selectionEndDirection = it.layoutResult!!.getBidiRunDirection(max(range.end - 1, 0))
+        }
+    }
+
+    private fun setSelectionStatus(on: Boolean) {
+        state?.let {
+            it.selectionIsOn = on
         }
     }
 }
