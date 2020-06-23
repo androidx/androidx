@@ -106,8 +106,7 @@ class FragmentScenarioDialogFragmentTest {
 
     @Test
     fun fromCreatedToCreated() {
-        with(launchFragment<SimpleDialogFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragment<SimpleDialogFragment>(initialState = State.CREATED)) {
             moveToState(State.CREATED)
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.CREATED)
@@ -120,8 +119,7 @@ class FragmentScenarioDialogFragmentTest {
 
     @Test
     fun fromCreatedToStarted() {
-        with(launchFragment<SimpleDialogFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragment<SimpleDialogFragment>(initialState = State.CREATED)) {
             moveToState(State.STARTED)
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.STARTED)
@@ -133,8 +131,7 @@ class FragmentScenarioDialogFragmentTest {
 
     @Test
     fun fromCreatedToResumed() {
-        with(launchFragment<SimpleDialogFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragment<SimpleDialogFragment>(initialState = State.CREATED)) {
             moveToState(State.RESUMED)
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.RESUMED)
@@ -146,16 +143,14 @@ class FragmentScenarioDialogFragmentTest {
 
     @Test
     fun fromCreatedToDestroyed() {
-        with(launchFragment<SimpleDialogFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragment<SimpleDialogFragment>(initialState = State.CREATED)) {
             moveToState(State.DESTROYED)
         }
     }
 
     @Test
     fun fromStartedToCreated() {
-        with(launchFragment<SimpleDialogFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragment<SimpleDialogFragment>(initialState = State.STARTED)) {
             moveToState(State.CREATED)
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.CREATED)
@@ -168,8 +163,7 @@ class FragmentScenarioDialogFragmentTest {
 
     @Test
     fun fromStartedToStarted() {
-        with(launchFragment<SimpleDialogFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragment<SimpleDialogFragment>(initialState = State.STARTED)) {
             moveToState(State.STARTED)
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.STARTED)
@@ -181,8 +175,7 @@ class FragmentScenarioDialogFragmentTest {
 
     @Test
     fun fromStartedToResumed() {
-        with(launchFragment<SimpleDialogFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragment<SimpleDialogFragment>(initialState = State.STARTED)) {
             moveToState(State.RESUMED)
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.RESUMED)
@@ -194,8 +187,7 @@ class FragmentScenarioDialogFragmentTest {
 
     @Test
     fun fromStartedToDestroyed() {
-        with(launchFragment<SimpleDialogFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragment<SimpleDialogFragment>(initialState = State.STARTED)) {
             moveToState(State.DESTROYED)
         }
     }
@@ -211,12 +203,11 @@ class FragmentScenarioDialogFragmentTest {
     @Test
     fun recreateCreatedFragment() {
         var numOfInstantiation = 0
-        with(launchFragment {
+        with(launchFragment(initialState = State.CREATED) {
             ++numOfInstantiation
             SimpleDialogFragment()
         }) {
             assertThat(numOfInstantiation).isEqualTo(1)
-            moveToState(State.CREATED)
             recreate()
             assertThat(numOfInstantiation).isEqualTo(2)
             onFragment { fragment ->
@@ -231,12 +222,11 @@ class FragmentScenarioDialogFragmentTest {
     @Test
     fun recreateStartedFragment() {
         var numOfInstantiation = 0
-        with(launchFragment {
+        with(launchFragment(initialState = State.STARTED) {
             ++numOfInstantiation
             SimpleDialogFragment()
         }) {
             assertThat(numOfInstantiation).isEqualTo(1)
-            moveToState(State.STARTED)
             recreate()
             assertThat(numOfInstantiation).isEqualTo(2)
             onFragment { fragment ->

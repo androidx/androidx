@@ -36,6 +36,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.testing.R;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -209,7 +210,31 @@ public final class FragmentScenario<F extends Fragment> {
     public static <F extends Fragment> FragmentScenario<F> launch(
             @NonNull Class<F> fragmentClass, @Nullable Bundle fragmentArgs,
             @StyleRes int themeResId, @Nullable FragmentFactory factory) {
-        return internalLaunch(fragmentClass, fragmentArgs, themeResId, factory,
+        return launch(fragmentClass, fragmentArgs, themeResId, Lifecycle.State.RESUMED,
+                factory);
+    }
+
+    /**
+     * Launches a Fragment with given arguments hosted by an empty {@link FragmentActivity} themed
+     * by {@code themeResId}, using the given {@link FragmentFactory} and waits for it to reach
+     * {@code initialState}.
+     * <p>
+     * This method cannot be called from the main thread.
+     *
+     * @param fragmentClass a fragment class to instantiate
+     * @param fragmentArgs a bundle to passed into fragment
+     * @param themeResId a style resource id to be set to the host activity's theme
+     * @param initialState The initial {@link Lifecycle.State}. This must be one of
+     * {@link State#CREATED CREATED}, {@link State#STARTED STARTED}, and
+     * {@link State#RESUMED RESUMED}.
+     * @param factory a fragment factory to use or null to use default factory
+     */
+    @NonNull
+    public static <F extends Fragment> FragmentScenario<F> launch(
+            @NonNull Class<F> fragmentClass, @Nullable Bundle fragmentArgs,
+            @StyleRes int themeResId, @NonNull Lifecycle.State initialState,
+            @Nullable FragmentFactory factory) {
+        return internalLaunch(fragmentClass, fragmentArgs, themeResId, initialState, factory,
                 /*containerViewId=*/ 0);
     }
 
@@ -278,15 +303,41 @@ public final class FragmentScenario<F extends Fragment> {
     public static <F extends Fragment> FragmentScenario<F> launchInContainer(
             @NonNull Class<F> fragmentClass, @Nullable Bundle fragmentArgs,
             @StyleRes int themeResId, @Nullable FragmentFactory factory) {
+        return launchInContainer(fragmentClass, fragmentArgs, themeResId, Lifecycle.State.RESUMED,
+                factory);
+    }
+
+    /**
+     * Launches a Fragment in the Activity's root view container {@code android.R.id.content}, with
+     * given arguments hosted by an empty {@link FragmentActivity} themed by {@code themeResId},
+     * using the given {@link FragmentFactory} and waits for it to reach {@code initialState}.
+     * <p>
+     * This method cannot be called from the main thread.
+     *
+     * @param fragmentClass a fragment class to instantiate
+     * @param fragmentArgs a bundle to passed into fragment
+     * @param themeResId a style resource id to be set to the host activity's theme
+     * @param initialState The initial {@link Lifecycle.State}. This must be one of
+     * {@link State#CREATED CREATED}, {@link State#STARTED STARTED}, and
+     * {@link State#RESUMED RESUMED}.
+     * @param factory a fragment factory to use or null to use default factory
+     */
+    @NonNull
+    public static <F extends Fragment> FragmentScenario<F> launchInContainer(
+            @NonNull Class<F> fragmentClass, @Nullable Bundle fragmentArgs,
+            @StyleRes int themeResId, @NonNull Lifecycle.State initialState,
+            @Nullable FragmentFactory factory) {
         return internalLaunch(
-                fragmentClass, fragmentArgs, themeResId, factory, android.R.id.content);
+                fragmentClass, fragmentArgs, themeResId, initialState, factory,
+                android.R.id.content);
     }
 
     @NonNull
     @SuppressLint("RestrictedApi")
     private static <F extends Fragment> FragmentScenario<F> internalLaunch(
             @NonNull final Class<F> fragmentClass, final @Nullable Bundle fragmentArgs,
-            @StyleRes int themeResId, @Nullable final FragmentFactory factory,
+            @StyleRes int themeResId, @NonNull Lifecycle.State initialState,
+            @Nullable final FragmentFactory factory,
             @IdRes final int containerViewId) {
         Intent startActivityIntent =
                 Intent.makeMainActivity(
@@ -310,6 +361,7 @@ public final class FragmentScenario<F extends Fragment> {
             activity.getSupportFragmentManager()
                     .beginTransaction()
                     .add(containerViewId, fragment, FRAGMENT_TAG)
+                    .setMaxLifecycle(fragment, initialState)
                     .commitNow();
         });
         return scenario;
