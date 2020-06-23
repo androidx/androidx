@@ -14,26 +14,14 @@
  * limitations under the License.
  */
 
-package android.os
+package androidx.ui.desktop
 
-import javax.swing.SwingUtilities
+import org.junit.runner.JUnitCore
+import org.junit.internal.TextListener
 
-public class Handler() {
-    constructor(looper: Looper) : this()
-    constructor(looper: Looper, callback: Handler.Callback) : this()
-
-    constructor(looper: Looper, callback: Callback, async: Boolean) : this()
-
-    interface Callback {
-        fun handleMessage(msg: Message): Boolean
-    }
-    val looper = Looper()
-    fun post(runnable: Runnable): Boolean {
-        SwingUtilities.invokeLater(runnable)
-        return true
-    }
-
-    fun removeMessages(what: Int) {}
-
-    fun sendEmptyMessage(what: Int): Boolean = true
+fun main() {
+    val junit = JUnitCore()
+    junit.addListener(TextListener(System.out))
+    junit.run(WrapperTest::class.java)
+    System.exit(0)
 }
