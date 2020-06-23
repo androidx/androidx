@@ -34,6 +34,7 @@ android {
 dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
 
+    implementation(project(":annotation:annotation-experimental"))
     implementation(project(":annotation:annotation-sampled"))
     implementation(project(":lifecycle:lifecycle-viewmodel-ktx"))
     implementation(project(":fragment:fragment-ktx"))

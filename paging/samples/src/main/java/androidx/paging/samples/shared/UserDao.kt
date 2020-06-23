@@ -24,11 +24,15 @@ import androidx.room.Query
 
 @Dao
 interface UserDao {
+    // Normally suspend when using Kotlin Coroutines, but sync version allows this Dao to be used
+    // in both Java and Kotlin samples.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(users: List<User>)
+    fun insertAll(users: List<User>)
 
     fun pagingSource(): PagingSource<Int, User>
 
+    // Normally suspend when using Kotlin Coroutines, but sync version allows this Dao to be used
+    // in both Java and Kotlin samples.
     @Query("DELETE FROM users WHERE label = :query")
-    suspend fun deleteByQuery(query: String)
+    fun deleteByQuery(query: String)
 }

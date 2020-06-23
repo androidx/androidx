@@ -16,11 +16,8 @@
 
 package androidx.paging.samples.shared
 
-interface ExampleBackendService {
-    suspend fun searchUsers(query: String, after: String?): SearchUserResponse
-}
+import io.reactivex.Single
 
-class SearchUserResponse(
-    val users: List<User>,
-    val nextKey: String?
-)
+interface ExampleRxBackendService {
+    fun searchUsers(query: String, after: String?): Single<SearchUserResponse>
+}
