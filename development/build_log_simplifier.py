@@ -74,10 +74,12 @@ def remove_known_uninteresting_lines(lines):
       "A fine-grained performance profile is available: use the --scan option.",
       "* Get more help at https://help.gradle.org",
       "Use '--warning-mode all' to show the individual deprecation warnings.",
-      "See https://docs.gradle.org/6.5/userguide/command_line_interface.html#sec:command_line_warnings"
+      "See https://docs.gradle.org/6.5/userguide/command_line_interface.html#sec:command_line_warnings",
 
       "Note: Some input files use or override a deprecated API.",
-      "Note: Recompile with -Xlint:deprecation for details."
+      "Note: Recompile with -Xlint:deprecation for details.",
+      "Note: Some input files use unchecked or unsafe operations.",
+      "Note: Recompile with -Xlint:unchecked for details."
   }
   skipPrefixes = [
       "See the profiling report at:",
