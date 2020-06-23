@@ -53,4 +53,10 @@ class Path {
     }
 
     fun isConvex(): Boolean = skijaPath.isConvex
+    fun addPath(src: Path, dx: Float, dy: Float) {
+        skijaPath.addPath(src.skijaPath, dx, dy)
+    }
+
+    fun transform(matrix: Matrix) {
+    }
 }
