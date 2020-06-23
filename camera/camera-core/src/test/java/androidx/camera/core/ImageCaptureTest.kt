@@ -125,31 +125,6 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun captureImageWithViewPortCropRectLargerThanBuffer_cropRectIsFullSize() {
-        // Arrange.
-        val imageCapture = bindImageCapture(
-            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
-        )
-        // Overwrites the view port crop rect to be larger than the surface. Cannot rely on the
-        // real code path to test this because ShadowMatrix#invert doesn't work.
-        val largerThanBufferRect = Rect(-1, -1, 10000, 10000)
-        imageCapture.viewPortCropRect = largerThanBufferRect
-
-        // Act
-        imageCapture.takePicture(executor, onImageCapturedCallback)
-        // Send fake image.
-        fakeImageReaderProxy?.triggerImageAvailable("tag", 0)
-        flushHandler(callbackHandler)
-
-        // Assert.
-        Truth.assertThat(capturedImage!!.viewPortRect).isEqualTo(largerThanBufferRect)
-        // When view port rect is larger, crop rect is full buffer size.
-        Truth.assertThat(capturedImage!!.cropRect).isEqualTo(
-            Rect(0, 0, fakeImageReaderProxy!!.width, fakeImageReaderProxy!!.height)
-        )
-    }
-
-    @Test
     fun captureImageWithViewPort_isSet() {
         // Arrange
         val imageCapture = bindImageCapture(
@@ -166,13 +141,7 @@ class ImageCaptureTest {
         // The expected value is based on fitting the 1:1 view port into a rect with the size of
         // the ImageReader.
         val expectedPadding = (fakeImageReaderProxy!!.width - fakeImageReaderProxy!!.height) / 2
-        Truth.assertThat(capturedImage!!.viewPortRect).isEqualTo(
-            Rect(
-                expectedPadding, 0, fakeImageReaderProxy!!.width - expectedPadding,
-                fakeImageReaderProxy!!.height
-            )
-        )
-        Truth.assertThat(capturedImage!!.cropRect).isEqualTo(
+        assertThat(capturedImage!!.cropRect).isEqualTo(
             Rect(
                 expectedPadding, 0, fakeImageReaderProxy!!.width - expectedPadding,
                 fakeImageReaderProxy!!.height

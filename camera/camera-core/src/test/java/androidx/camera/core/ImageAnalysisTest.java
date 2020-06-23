@@ -118,29 +118,6 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    public void largerThanBufferViewPortRect_cropRectIsBufferSize() throws InterruptedException {
-        // Arrange.
-        Rect largerThanBufferRect = new Rect(-1, -1, 10000, 10000);
-        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST,
-                new ViewPort.Builder(new Rational(1, 1), Surface.ROTATION_0)
-                        .build());
-        // Sets viewPortRect directly because Shadow#invert() doesn't work in unit test.
-        mImageAnalysis.setViewPortCropRect(largerThanBufferRect);
-
-        // Act.
-        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
-        flushHandler(mBackgroundHandler);
-        flushHandler(mCallbackHandler);
-
-        // Assert.
-        ImageProxy imageProxyReceived = Iterables.getOnlyElement(mImageProxiesReceived);
-        assertThat(imageProxyReceived.getCropRect())
-                .isEqualTo(new Rect(0, 0, mFakeImageReaderProxy.getWidth(),
-                        mFakeImageReaderProxy.getHeight()));
-        assertThat(imageProxyReceived.getViewPortRect()).isEqualTo(largerThanBufferRect);
-    }
-
-    @Test
     public void bindViewPortWithFillStyle_returnsSameViewPortRectAndCropRect()
             throws InterruptedException {
         // Arrange.
@@ -160,10 +137,6 @@ public class ImageAnalysisTest {
         int expectedPadding =
                 (mFakeImageReaderProxy.getWidth() - mFakeImageReaderProxy.getHeight()) / 2;
         assertThat(imageProxyReceived.getCropRect())
-                .isEqualTo(new Rect(expectedPadding, 0,
-                        mFakeImageReaderProxy.getWidth() - expectedPadding,
-                        mFakeImageReaderProxy.getHeight()));
-        assertThat(imageProxyReceived.getViewPortRect())
                 .isEqualTo(new Rect(expectedPadding, 0,
                         mFakeImageReaderProxy.getWidth() - expectedPadding,
                         mFakeImageReaderProxy.getHeight()));

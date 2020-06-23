@@ -251,21 +251,23 @@ public final class SurfaceRequest {
         return mCamera;
     }
 
-
     /**
-     * Return the crop rect rectangle.
+     * Returns the crop rect rectangle.
      *
      * <p> The returned value dictates how the {@link Surface} provided in
-     * {@link #provideSurface(Surface, Executor, Consumer)} should be displayed.
+     * {@link #provideSurface(Surface, Executor, Consumer)} should be displayed. The {@link Rect}
+     * is based on the Surface coordinates. The caller should update the UI so that only the area
+     * defined by the {@link Rect} is visible to app users.
      *
-     * <p> The {@link Rect} is based on the Surface coordinates. The caller should update the UI
-     * so that only the area defined by the {@link Rect} is visible to app users.
+     * <p> If {@link Preview} is configured with a {@link ViewPort}, this value is calculated
+     * based on the configuration of {@link ViewPort}; if not, it returns the full rect of the
+     * buffer.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public Rect getViewPortRect() {
+    public Rect getCropRect() {
         return mViewPortRect;
     }
 
