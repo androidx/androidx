@@ -28,9 +28,9 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.material.CircularProgressIndicator
@@ -43,7 +43,7 @@ fun ProgressIndicatorDemo() {
     onActive { state.start() }
     onDispose { state.stop() }
 
-    Column {
+    VerticalScroller {
         val modifier = Modifier.weight(1f, true)
             .gravity(Alignment.CenterHorizontally)
             .fillMaxWidth()

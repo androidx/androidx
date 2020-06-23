@@ -21,11 +21,10 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
 import androidx.ui.layout.Spacer
-import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.height
 import androidx.ui.layout.preferredHeight
 import androidx.ui.material.Button
 import androidx.ui.material.samples.FancyIndicatorContainerTabs
@@ -40,21 +39,29 @@ import androidx.ui.unit.dp
 
 @Composable
 fun TabDemo() {
-    Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
+    VerticalScroller {
         val showingSimple = state { true }
         val buttonText = "Show ${if (showingSimple.value) "custom" else "simple"} tabs"
 
+        Spacer(Modifier.height(24.dp))
         if (showingSimple.value) {
             TextTabs()
+            Spacer(Modifier.height(24.dp))
             IconTabs()
+            Spacer(Modifier.height(24.dp))
             TextAndIconTabs()
+            Spacer(Modifier.height(24.dp))
             ScrollingTextTabs()
         } else {
             FancyTabs()
+            Spacer(Modifier.height(24.dp))
             FancyIndicatorTabs()
+            Spacer(Modifier.height(24.dp))
             FancyIndicatorContainerTabs()
+            Spacer(Modifier.height(24.dp))
             ScrollingFancyIndicatorContainerTabs()
         }
+        Spacer(Modifier.height(24.dp))
         Button(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
             onClick = {
