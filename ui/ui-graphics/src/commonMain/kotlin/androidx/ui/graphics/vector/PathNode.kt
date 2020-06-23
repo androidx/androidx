@@ -27,16 +27,16 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
     // for simplicity and to make equals comparisons robust.
     object Close : PathNode()
 
-    data class RelativeMoveTo(val x: Float, val y: Float) : PathNode()
+    data class RelativeMoveTo(val dx: Float, val dy: Float) : PathNode()
     data class MoveTo(val x: Float, val y: Float) : PathNode()
 
-    data class RelativeLineTo(val x: Float, val y: Float) : PathNode()
+    data class RelativeLineTo(val dx: Float, val dy: Float) : PathNode()
     data class LineTo(val x: Float, val y: Float) : PathNode()
 
-    data class RelativeHorizontalTo(val x: Float) : PathNode()
+    data class RelativeHorizontalTo(val dx: Float) : PathNode()
     data class HorizontalTo(val x: Float) : PathNode()
 
-    data class RelativeVerticalTo(val y: Float) : PathNode()
+    data class RelativeVerticalTo(val dy: Float) : PathNode()
     data class VerticalTo(val y: Float) : PathNode()
 
     data class RelativeCurveTo(
@@ -58,10 +58,10 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
     ) : PathNode(isCurve = true)
 
     data class RelativeReflectiveCurveTo(
-        val x1: Float,
-        val y1: Float,
-        val x2: Float,
-        val y2: Float
+        val dx1: Float,
+        val dy1: Float,
+        val dx2: Float,
+        val dy2: Float
     ) : PathNode(isCurve = true)
 
     data class ReflectiveCurveTo(
@@ -72,10 +72,10 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
     ) : PathNode(isCurve = true)
 
     data class RelativeQuadTo(
-        val x1: Float,
-        val y1: Float,
-        val x2: Float,
-        val y2: Float
+        val dx1: Float,
+        val dy1: Float,
+        val dx2: Float,
+        val dy2: Float
     ) : PathNode(isQuad = true)
 
     data class QuadTo(
@@ -86,8 +86,8 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
     ) : PathNode(isQuad = true)
 
     data class RelativeReflectiveQuadTo(
-        val x: Float,
-        val y: Float
+        val dx: Float,
+        val dy: Float
     ) : PathNode(isQuad = true)
 
     data class ReflectiveQuadTo(
@@ -125,7 +125,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
 internal fun Char.toPathNodes(args: FloatArray): List<PathNode> = when (this) {
     RelativeCloseKey, CloseKey -> listOf(PathNode.Close)
     RelativeMoveToKey -> pathNodesFromArgs(args, NUM_MOVE_TO_ARGS) { array ->
-        PathNode.RelativeMoveTo(x = array[0], y = array[1])
+        PathNode.RelativeMoveTo(dx = array[0], dy = array[1])
     }
 
     MoveToKey -> pathNodesFromArgs(args, NUM_MOVE_TO_ARGS) { array ->
@@ -133,7 +133,7 @@ internal fun Char.toPathNodes(args: FloatArray): List<PathNode> = when (this) {
     }
 
     RelativeLineToKey -> pathNodesFromArgs(args, NUM_LINE_TO_ARGS) { array ->
-        PathNode.RelativeLineTo(x = array[0], y = array[1])
+        PathNode.RelativeLineTo(dx = array[0], dy = array[1])
     }
 
     LineToKey -> pathNodesFromArgs(args, NUM_LINE_TO_ARGS) { array ->
@@ -141,7 +141,7 @@ internal fun Char.toPathNodes(args: FloatArray): List<PathNode> = when (this) {
     }
 
     RelativeHorizontalToKey -> pathNodesFromArgs(args, NUM_HORIZONTAL_TO_ARGS) { array ->
-        PathNode.RelativeHorizontalTo(x = array[0])
+        PathNode.RelativeHorizontalTo(dx = array[0])
     }
 
     HorizontalToKey -> pathNodesFromArgs(args, NUM_HORIZONTAL_TO_ARGS) { array ->
@@ -149,7 +149,7 @@ internal fun Char.toPathNodes(args: FloatArray): List<PathNode> = when (this) {
     }
 
     RelativeVerticalToKey -> pathNodesFromArgs(args, NUM_VERTICAL_TO_ARGS) { array ->
-        PathNode.RelativeVerticalTo(y = array[0])
+        PathNode.RelativeVerticalTo(dy = array[0])
     }
 
     VerticalToKey -> pathNodesFromArgs(args, NUM_VERTICAL_TO_ARGS) { array ->
@@ -180,10 +180,10 @@ internal fun Char.toPathNodes(args: FloatArray): List<PathNode> = when (this) {
 
     RelativeReflectiveCurveToKey -> pathNodesFromArgs(args, NUM_REFLECTIVE_CURVE_TO_ARGS) { array ->
         PathNode.RelativeReflectiveCurveTo(
-            x1 = array[0],
-            y1 = array[1],
-            x2 = array[2],
-            y2 = array[3]
+            dx1 = array[0],
+            dy1 = array[1],
+            dx2 = array[2],
+            dy2 = array[3]
         )
     }
 
@@ -198,10 +198,10 @@ internal fun Char.toPathNodes(args: FloatArray): List<PathNode> = when (this) {
 
     RelativeQuadToKey -> pathNodesFromArgs(args, NUM_QUAD_TO_ARGS) { array ->
         PathNode.RelativeQuadTo(
-            x1 = array[0],
-            y1 = array[1],
-            x2 = array[2],
-            y2 = array[3]
+            dx1 = array[0],
+            dy1 = array[1],
+            dx2 = array[2],
+            dy2 = array[3]
         )
     }
 
@@ -215,7 +215,7 @@ internal fun Char.toPathNodes(args: FloatArray): List<PathNode> = when (this) {
     }
 
     RelativeReflectiveQuadToKey -> pathNodesFromArgs(args, NUM_REFLECTIVE_QUAD_TO_ARGS) { array ->
-        PathNode.RelativeReflectiveQuadTo(x = array[0], y = array[1])
+        PathNode.RelativeReflectiveQuadTo(dx = array[0], dy = array[1])
     }
 
     ReflectiveQuadToKey -> pathNodesFromArgs(args, NUM_REFLECTIVE_QUAD_TO_ARGS) { array ->
