@@ -18,6 +18,8 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.material.icons.Icons
+import androidx.ui.material.icons.filled.Call
 import androidx.ui.material.samples.OneLineListItems
 import androidx.ui.material.samples.ThreeLineListItems
 import androidx.ui.material.samples.TwoLineListItems
@@ -28,9 +30,10 @@ fun ListItemDemo() {
     val icon24 = imageResource(R.drawable.ic_bluetooth)
     val icon40 = imageResource(R.drawable.ic_account_box)
     val icon56 = imageResource(R.drawable.ic_android)
+    val vectorIcon = Icons.Default.Call
     VerticalScroller {
-        OneLineListItems(icon24, icon40, icon56)
+        OneLineListItems(icon24, icon40, icon56, vectorIcon)
         TwoLineListItems(icon24, icon40)
-        ThreeLineListItems(icon24, icon40)
+        ThreeLineListItems(icon24, vectorIcon)
     }
 }
