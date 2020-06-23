@@ -29,11 +29,14 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.captureToBitmap
+import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
+import androidx.ui.test.doPartialGesture
 import androidx.ui.test.find
 import androidx.ui.test.findByTag
 import androidx.ui.test.isToggleable
+import androidx.ui.test.sendDown
 import androidx.ui.test.waitForIdle
 import org.junit.Rule
 import org.junit.Test
@@ -75,6 +78,19 @@ class CheckboxScreenshotTest {
             }
         }
         assertToggeableAgainstGolden("checkbox_unchecked")
+    }
+
+    @Test
+    fun checkBoxTest_pressed() {
+        composeTestRule.setMaterialContent {
+            Box(wrap.semantics().testTag(wrapperTestTag)) {
+                Checkbox(modifier = wrap, checked = false, onCheckedChange = { })
+            }
+        }
+        findByTag(wrapperTestTag).doPartialGesture {
+            sendDown(center)
+        }
+        assertToggeableAgainstGolden("checkbox_pressed")
     }
 
     @Test
