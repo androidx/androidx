@@ -93,7 +93,7 @@ printf "
 g4d -f androidx-ref-docs-stage && \
 cd third_party/devsite/android/en/reference && \
 g4 sync && \
-cp -r $newDir/reference/* . && \
+cp -r $(pwd)/* . && \
 /google/data/ro/projects/devsite/two/live/devsite2.par stage kotlin/androidx
 \`\`\`\n"
 
