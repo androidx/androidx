@@ -2,7 +2,7 @@
 # This is because they are discovered and instantiated during application initialization.
 -keep class * extends androidx.startup.Initializer {
     # Keep the public no-argument constructor while allowing other methods to be optimized.
-    public <init>();
+    <init>();
 }
 
 -assumenosideeffects class androidx.startup.StartupLogger
