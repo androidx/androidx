@@ -22,40 +22,40 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 internal class ModifiedLayoutNode(
     wrapped: LayoutNodeWrapper,
-    private val layoutModifier: LayoutModifier
-) : DelegatingLayoutNodeWrapper<LayoutModifier>(wrapped, layoutModifier) {
+    modifier: LayoutModifier
+) : DelegatingLayoutNodeWrapper<LayoutModifier>(wrapped, modifier) {
 
     override val measureScope = ModifierMeasureScope()
 
     override fun performMeasure(
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ): Placeable = with(layoutModifier) {
+    ): Placeable = with(modifier) {
         measureScope.layoutDirection = layoutDirection
         measureResult = measureScope.measure(wrapped, constraints, layoutDirection)
         this@ModifiedLayoutNode
     }
 
     override fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
-        with(layoutModifier) {
+        with(modifier) {
             measureScope.layoutDirection = layoutDirection
             measureScope.minIntrinsicWidth(wrapped, height, layoutDirection)
         }
 
     override fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
-        with(layoutModifier) {
+        with(modifier) {
             measureScope.layoutDirection = layoutDirection
             measureScope.maxIntrinsicWidth(wrapped, height, layoutDirection)
         }
 
     override fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
-        with(layoutModifier) {
+        with(modifier) {
             measureScope.layoutDirection = layoutDirection
             measureScope.minIntrinsicHeight(wrapped, width, layoutDirection)
         }
 
     override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
-        with(layoutModifier) {
+        with(modifier) {
             measureScope.layoutDirection = layoutDirection
             measureScope.maxIntrinsicHeight(wrapped, width, layoutDirection)
         }

@@ -40,6 +40,15 @@ internal class SemanticsWrapper(
         return config
     }
 
+    override fun detach() {
+        super.detach()
+        layoutNode.owner?.onSemanticsChange()
+    }
+
+    override fun onModifierChanged() {
+        layoutNode.owner?.onSemanticsChange()
+    }
+
     override fun toString(): String {
         return "${super.toString()} localConfig: ${modifier.semanticsConfiguration}"
     }

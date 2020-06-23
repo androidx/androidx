@@ -376,6 +376,12 @@ internal abstract class LayoutNodeWrapper(
      */
     abstract fun findLastKeyInputWrapper(): ModifiedKeyInputNode?
 
+    /**
+     * Called when [LayoutNode.modifier] has changed and all the LayoutNodeWrappers have been
+     * configured.
+     */
+    open fun onModifierChanged() {}
+
     internal companion object {
         const val ExpectAttachedLayoutCoordinates = "LayoutCoordinate operations are only valid " +
                 "when isAttached is true"

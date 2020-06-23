@@ -90,6 +90,12 @@ class LayoutNode : Measurable {
         get() = requireOwner().measureIteration == outerMeasurablePlaceable.measureIteration
 
     /**
+     * A cache of modifiers to be used when setting and reusing previous modifiers.
+     */
+    private var wrapperCache = emptyArray<DelegatingLayoutNodeWrapper<*>?>()
+    private var wrapperCacheCount = 0
+
+    /**
      * Inserts a child [LayoutNode] at a particular index. If this LayoutNode [owner] is not `null`
      * then [instance] will become [attach]ed also. [instance] must have a `null` [parent].
      */
@@ -179,7 +185,7 @@ class LayoutNode : Measurable {
 
         requestRemeasure()
         parent?.requestRemeasure()
-        outerLayoutNodeWrapper.attach()
+        forEachDelegate { it.attach() }
         onAttach?.invoke(owner)
     }
 
@@ -198,7 +204,7 @@ class LayoutNode : Measurable {
         alignmentLinesQueryOwner = null
         alignmentUsageByParent = UsageByParent.NotUsed
         onDetach?.invoke(owner)
-        outerLayoutNodeWrapper.detach()
+        forEachDelegate { it.detach() }
 
         if (outerSemantics != null) {
             owner.onSemanticsChange()
@@ -494,6 +500,8 @@ class LayoutNode : Measurable {
             if (value == field) return
             field = value
 
+            copyWrappersToCache()
+
             // Rebuild layoutNodeWrapper
             val oldOuterWrapper = outerMeasurablePlaceable.outerWrapper
             if (outerSemantics != null && isAttached()) {
@@ -504,65 +512,95 @@ class LayoutNode : Measurable {
             onChildPositionedCallbacks.clear()
             outerZIndexModifier = null
             innerLayerWrapper = null
+
+            // Create a new chain of LayoutNodeWrappers, reusing existing ones from wrappers
+            // when possible.
             val outerWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
                 var wrapper = toWrap
-                // The order in which the following blocks occur matters.  For example, the
-                // DrawModifier block should be before the LayoutModifier block so that a Modifier
-                // that implements both DrawModifier and LayoutModifier will have it's draw bounds
-                // reflect the dimensions defined by the LayoutModifier.
                 if (mod is OnPositionedModifier) {
                     onPositionedCallbacks += mod
                 }
                 if (mod is OnChildPositionedModifier) {
                     onChildPositionedCallbacks += mod
                 }
-                if (mod is DrawModifier) {
-                    wrapper = ModifiedDrawNode(wrapper, mod)
-                }
-                if (mod is DrawLayerModifier) {
-                    val layerWrapper = LayerWrapper(wrapper, mod)
-                    wrapper = layerWrapper
-                    if (innerLayerWrapper == null) {
-                        innerLayerWrapper = layerWrapper
-                    }
-                }
-                if (mod is FocusModifier) {
-                    require(mod is FocusModifierImpl)
-                    wrapper = ModifiedFocusNode(wrapper, mod).also { mod.focusNode = it }
-                }
-                if (mod is KeyInputModifier) {
-                    wrapper = ModifiedKeyInputNode(wrapper, mod).also { mod.keyInputNode = it }
-                }
-                if (mod is PointerInputModifier) {
-                    wrapper = PointerInputDelegatingWrapper(wrapper, mod)
-                }
-                if (mod is LayoutModifier) {
-                    wrapper = ModifiedLayoutNode(wrapper, mod)
-                }
-                if (mod is ParentDataModifier) {
-                    wrapper = ModifiedParentDataNode(wrapper, mod)
-                }
-                if (mod is SemanticsModifier) {
-                    wrapper = SemanticsWrapper(wrapper, mod)
-                    if (isAttached()) {
-                        owner!!.onSemanticsChange()
-                    }
-                }
                 if (mod is ZIndexModifier) {
                     outerZIndexModifier = mod
                 }
+
+                val delegate = reuseLayoutNodeWrapper(mod, toWrap)
+                if (delegate != null) {
+                    wrapper = delegate
+                } else {
+                    // The order in which the following blocks occur matters. For example, the
+                    // DrawModifier block should be before the LayoutModifier block so that a
+                    // Modifier that implements both DrawModifier and LayoutModifier will have
+                    // it's draw bounds reflect the dimensions defined by the LayoutModifier.
+                    if (mod is DrawModifier) {
+                        wrapper = ModifiedDrawNode(wrapper, mod)
+                    }
+                    if (mod is DrawLayerModifier) {
+                        val layerWrapper = LayerWrapper(wrapper, mod).assignChained(toWrap)
+                        wrapper = layerWrapper
+                        if (innerLayerWrapper == null) {
+                            innerLayerWrapper = layerWrapper
+                        }
+                    }
+                    if (mod is FocusModifier) {
+                        require(mod is FocusModifierImpl)
+                        wrapper = ModifiedFocusNode(wrapper, mod).also { mod.focusNode = it }
+                            .assignChained(toWrap)
+                    }
+                    if (mod is KeyInputModifier) {
+                        wrapper = ModifiedKeyInputNode(wrapper, mod).also { mod.keyInputNode = it }
+                            .assignChained(toWrap)
+                    }
+                    if (mod is PointerInputModifier) {
+                        wrapper = PointerInputDelegatingWrapper(wrapper, mod).assignChained(toWrap)
+                    }
+                    if (mod is LayoutModifier) {
+                        wrapper = ModifiedLayoutNode(wrapper, mod).assignChained(toWrap)
+                    }
+                    if (mod is ParentDataModifier) {
+                        wrapper = ModifiedParentDataNode(wrapper, mod).assignChained(toWrap)
+                    }
+                    if (mod is SemanticsModifier) {
+                        wrapper = SemanticsWrapper(wrapper, mod).assignChained(toWrap)
+                    }
+                }
                 wrapper
             }
+
             outerWrapper.wrappedBy = parent?.innerLayoutNodeWrapper
             outerMeasurablePlaceable.outerWrapper = outerWrapper
+
+            if (isAttached()) {
+                // call detach() on all removed LayoutNodeWrappers
+                for (i in 0 until wrapperCacheCount) {
+                    wrapperCache[i]?.detach()
+                }
+
+                // attach() all new LayoutNodeWrappers
+                forEachDelegate {
+                    if (!it.isAttached) {
+                        it.attach()
+                    }
+                }
+            }
+            for (i in 0 until wrapperCacheCount) {
+                wrapperCache[i] = null
+            }
+            wrapperCacheCount = 0
+
+            // call onModifierChanged() on all LayoutNodeWrappers
+            forEachDelegate { it.onModifierChanged() }
+
             // Optimize the case where the layout itself is not modified. A common reason for
             // this is if no wrapping actually occurs above because no LayoutModifiers are
             // present in the modifier chain.
-            if (oldOuterWrapper != outerWrapper) {
-                oldOuterWrapper.detach()
+            if (oldOuterWrapper != innerLayoutNodeWrapper ||
+                outerWrapper != innerLayoutNodeWrapper) {
                 requestRemeasure()
                 parent?.requestRelayout()
-                outerWrapper.attach()
             } else if (layoutState == Ready && addedCallback) {
                 // We need to notify the callbacks of a change in position since there's
                 // a new one.
@@ -874,9 +912,7 @@ class LayoutNode : Measurable {
      */
     fun getModifierInfo(): List<ModifierInfo> {
         val infoList = mutableListOf<ModifierInfo>()
-        var wrapper = outerLayoutNodeWrapper
-
-        while (wrapper != innerLayoutNodeWrapper) {
+        forEachDelegate { wrapper ->
             val info = if (wrapper is LayerWrapper) {
                 ModifierInfo(wrapper.modifier, wrapper, wrapper.layer)
             } else {
@@ -884,9 +920,93 @@ class LayoutNode : Measurable {
                 ModifierInfo(wrapper.modifier, wrapper)
             }
             infoList += info
-            wrapper = wrapper.wrapped!!
         }
         return infoList
+    }
+
+    /**
+     * Reuses a [DelegatingLayoutNodeWrapper] from [wrapperCache] if one matches the class
+     * type of [modifier]. This walks backward through the [wrapperCache] and
+     * extracts all [DelegatingLayoutNodeWrapper]s that are
+     * [chained][DelegatingLayoutNodeWrapper.isChained] together.
+     * If none can be reused, `null` is returned.
+     */
+    private fun reuseLayoutNodeWrapper(
+        modifier: Modifier.Element,
+        wrapper: LayoutNodeWrapper
+    ): DelegatingLayoutNodeWrapper<*>? {
+        if (wrapperCacheCount == 0) {
+            return null
+        }
+        val index = lastMatchingModifierIndex(modifier)
+
+        if (index < 0) {
+            return null
+        }
+
+        val endWrapper = removeFromWrapperCache(index)
+        var startWrapper = endWrapper
+        var chainedIndex = index
+        startWrapper.setModifierTo(modifier)
+        if (innerLayerWrapper == null && startWrapper is LayerWrapper) {
+            innerLayerWrapper = startWrapper
+        }
+
+        while (startWrapper.isChained) {
+            chainedIndex--
+            startWrapper = removeFromWrapperCache(chainedIndex)
+            startWrapper.setModifierTo(modifier)
+            if (innerLayerWrapper == null && startWrapper is LayerWrapper) {
+                innerLayerWrapper = startWrapper
+            }
+        }
+
+        endWrapper.wrapped = wrapper
+        wrapper.wrappedBy = endWrapper
+        return startWrapper
+    }
+
+    private fun lastMatchingModifierIndex(modifier: Modifier): Int {
+        var index = wrapperCacheCount - 1
+        while (index >= 0) {
+            val wrapper = wrapperCache[index]
+            if (wrapper != null && (wrapper.modifier === modifier ||
+                        wrapper.modifier.javaClass == modifier.javaClass)) {
+                    return index
+            }
+            index--
+        }
+        return -1
+    }
+
+    private fun removeFromWrapperCache(index: Int): DelegatingLayoutNodeWrapper<*> {
+        val wrapper = wrapperCache[index]!!
+        wrapperCache[index] = null
+        if (index == wrapperCacheCount - 1) {
+            wrapperCacheCount--
+        }
+        return wrapper
+    }
+
+    /**
+     * Copies all [DelegatingLayoutNodeWrapper]s currently in use and returns them in a new
+     * Array.
+     */
+    private fun copyWrappersToCache() {
+        // first count them:
+        var count = 0
+        forEachDelegate { count++ }
+        if (count == 0) {
+            return
+        }
+        if (wrapperCache.size < count) {
+            wrapperCache = arrayOfNulls(count)
+        }
+        wrapperCacheCount = count
+        var i = 0
+        forEachDelegate {
+            wrapperCache[i++] = it as DelegatingLayoutNodeWrapper<*>
+        }
     }
 
     // Delegation from Measurable to measurableAndPlaceable
@@ -914,6 +1034,18 @@ class LayoutNode : Measurable {
 
     override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
         outerMeasurablePlaceable.maxIntrinsicHeight(width, layoutDirection)
+
+    /**
+     * Calls [block] on all [DelegatingLayoutNodeWrapper]s in the LayoutNodeWrapper chain.
+     */
+    private inline fun forEachDelegate(block: (LayoutNodeWrapper) -> Unit) {
+        var delegate = outerLayoutNodeWrapper
+        val inner = innerLayoutNodeWrapper
+        while (delegate != inner) {
+            block(delegate)
+            delegate = delegate.wrapped!!
+        }
+    }
 
     internal companion object {
         private val ErrorMeasureBlocks = object : NoIntrinsicsMeasureBlocks(
@@ -1066,4 +1198,21 @@ internal class LayoutNodeDrawScope : ContentDrawScope() {
 
     override val layoutDirection: LayoutDirection
         get() = wrapped!!.measureScope.layoutDirection
+}
+
+/**
+ * Sets [DelegatingLayoutNodeWrapper#isChained] to `true` of the [wrapped] when it
+ * is part of a chain of LayoutNodes for the same modifier.
+ *
+ * @param originalWrapper The LayoutNodeWrapper that the modifier chain should be wrapping.
+ */
+@Suppress("NOTHING_TO_INLINE")
+private inline fun <T : DelegatingLayoutNodeWrapper<*>> T.assignChained(
+    originalWrapper: LayoutNodeWrapper
+): T {
+    if (originalWrapper !== wrapped) {
+        var wrapper = wrapped as DelegatingLayoutNodeWrapper<*>
+        wrapper.isChained = true
+    }
+    return this
 }
