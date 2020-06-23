@@ -62,7 +62,7 @@ android {
 
 androidx {
     name = "AndroidX UI View components"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    publish = Publish.NONE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
