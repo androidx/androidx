@@ -105,6 +105,8 @@ public class RowView extends SliceChildView implements View.OnClickListener,
 
     private static final String TAG = "RowView";
 
+    private static final int HEIGHT_UNBOUND = -1;
+
     // The number of items that fit on the right hand side of a small slice
     // TODO: this should be based on available width
     private static final int MAX_END_ITEMS = 3;
@@ -176,6 +178,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
 
     private int mImageSize;
     private int mIconSize;
+    private int mStyleRowHeight = HEIGHT_UNBOUND;
     // How big mRangeBar wants to be.
     private int mMeasuredRangeHeight;
 
@@ -848,7 +851,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
      */
     private void addAction(final SliceActionImpl actionContent, int color, ViewGroup container,
                            boolean isStart) {
-        SliceActionView sav = new SliceActionView(getContext());
+        SliceActionView sav = new SliceActionView(getContext(), mSliceStyle);
         container.addView(sav);
         if (container.getVisibility() == GONE) {
             container.setVisibility(VISIBLE);
@@ -916,16 +919,25 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             } else {
                 container.addView(iv);
             }
+            if (mSliceStyle != null) {
+                mStyleRowHeight = mSliceStyle.getRowMinHeight();
+                if (mSliceStyle.getRowStyle() != null) {
+                    int styleIconSize = mSliceStyle.getRowStyle().getIconSize();
+                    mIconSize = styleIconSize > 0 ? styleIconSize : mIconSize;
+                    int styleImageSize = mSliceStyle.getRowStyle().getImageSize();
+                    mImageSize = styleImageSize > 0 ? styleImageSize : mImageSize;
+                }
+            }
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
             lp.width = useIntrinsicSize ? Math.round(d.getIntrinsicWidth() / density) : mImageSize;
             lp.height = useIntrinsicSize ? Math.round(d.getIntrinsicHeight() / density) :
                     mImageSize;
             iv.setLayoutParams(lp);
-            if (mSliceStyle != null && mSliceStyle.getRowStyle() != null) {
-                int styleIconSize = mSliceStyle.getRowStyle().getIconSize();
-                mIconSize = styleIconSize > 0 ? styleIconSize : mIconSize;
+            int p = 0;
+            if (isIcon) {
+                p = mStyleRowHeight == HEIGHT_UNBOUND
+                    ? mIconSize / 2 : (mStyleRowHeight - mIconSize) / 2;
             }
-            int p = isIcon ? mIconSize / 2 : 0;
             iv.setPadding(p, p, p, p);
             addedView = iv;
         } else if (timeStamp != null) {

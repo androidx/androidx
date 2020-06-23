@@ -59,6 +59,8 @@
              may set this in your app theme pointing to your custom RowView style.-->
         <attr name="rowStyle" format="reference" />
 
+        <!-- Min height of row view; default size if one line of text -->
+        <attr name="rowMinHeight" format="dimension" />
         <!-- Size of row view with two lines of text -->
         <attr name="rowMaxHeight" format="dimension" />
         <!-- Size of range area in a row to fit a slider or progress bar -->
@@ -117,6 +119,8 @@
 
         <!-- Size of icon. -->
         <attr name="iconSize" format="dimension" />
+        <!-- Size of small images in a slice. -->
+        <attr name="imageSize" format="dimension" />
         <!-- Control whether RecyclerView item animator is disable or not, true for disable
         otherwise enable. -->
         <attr name="disableRecyclerViewItemAnimator" format="boolean" />
