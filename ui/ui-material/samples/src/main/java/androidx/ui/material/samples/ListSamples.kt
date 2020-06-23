@@ -18,16 +18,27 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.compose.getValue
+import androidx.compose.setValue
+import androidx.compose.state
+import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.ImageAsset
+import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.layout.Column
+import androidx.ui.material.Checkbox
 import androidx.ui.material.Divider
 import androidx.ui.material.ListItem
 
 @Sampled
 @Composable
-fun OneLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset, icon56x56: ImageAsset) {
+fun OneLineListItems(
+    icon24x24: ImageAsset,
+    icon40x40: ImageAsset,
+    icon56x56: ImageAsset,
+    vectorIcon: VectorAsset
+) {
     Column {
         ListItem(text = "One line list item with no icon")
         Divider()
@@ -43,13 +54,13 @@ fun OneLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset, icon56x56: Im
         Divider()
         ListItem(
             text = { Text("One line list item with trailing icon") },
-            trailing = { Image(icon24x24) }
+            trailing = { Icon(vectorIcon) }
         )
         Divider()
         ListItem(
             text = { Text("One line list item") },
             icon = { Image(icon40x40) },
-            trailing = { Image(icon24x24) }
+            trailing = { Icon(vectorIcon) }
         )
         Divider()
     }
@@ -57,6 +68,7 @@ fun OneLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset, icon56x56: Im
 
 @Sampled
 @Composable
+// TODO(popam, b/159689286): material icons instead of ImageAsset when they can have custom sizes
 fun TwoLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
     Column {
         ListItem(text = "Two line list item", secondaryText = "Secondary text")
@@ -82,13 +94,13 @@ fun TwoLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
             icon = icon40x40
         )
         Divider()
+        var checked by state { false }
         ListItem(
             text = { Text("Two line list item") },
             secondaryText = { Text("Secondary text") },
             icon = { Image(icon40x40) },
             trailing = {
-                // TODO(popam): put checkbox here after b/140292836 is fixed
-                Image(icon24x24)
+                Checkbox(checked, onCheckedChange = { checked = !checked })
             }
         )
         Divider()
@@ -97,7 +109,7 @@ fun TwoLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
 
 @Sampled
 @Composable
-fun ThreeLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
+fun ThreeLineListItems(icon24x24: ImageAsset, vectorIcon: VectorAsset) {
     Column {
         ListItem(
             text = "Three line list item",
@@ -126,7 +138,7 @@ fun ThreeLineListItems(icon24x24: ImageAsset, icon40x40: ImageAsset) {
             secondaryText = { Text("This is a long secondary text for the current list" +
                 " item, displayed on two lines") },
             singleLineSecondaryText = false,
-            trailing = { Image(icon40x40) }
+            trailing = { Icon(vectorIcon) }
         )
         Divider()
         ListItem(
