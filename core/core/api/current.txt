@@ -1708,10 +1708,10 @@ package androidx.core.util {
   }
 
   public final class PatternsCompat {
-    field public static final java.util.regex.Pattern! DOMAIN_NAME;
-    field public static final java.util.regex.Pattern! EMAIL_ADDRESS;
-    field public static final java.util.regex.Pattern! IP_ADDRESS;
-    field public static final java.util.regex.Pattern! WEB_URL;
+    field public static final java.util.regex.Pattern DOMAIN_NAME;
+    field public static final java.util.regex.Pattern EMAIL_ADDRESS;
+    field public static final java.util.regex.Pattern IP_ADDRESS;
+    field public static final java.util.regex.Pattern WEB_URL;
   }
 
   public final class Pools {

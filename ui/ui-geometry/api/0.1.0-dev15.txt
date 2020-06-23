@@ -17,7 +17,7 @@ package androidx.ui.geometry {
     method @androidx.compose.Stable public operator androidx.ui.geometry.Offset unaryMinus();
     property public final float x;
     property public final float y;
-    field public static final androidx.ui.geometry.Offset.Companion! Companion;
+    field public static final androidx.ui.geometry.Offset.Companion Companion;
   }
 
   public static final class Offset.Companion {
@@ -78,7 +78,7 @@ package androidx.ui.geometry {
     method public static androidx.ui.geometry.RRect getZero();
     property public final float height;
     property public final float width;
-    field public static final androidx.ui.geometry.RRect.Companion! Companion;
+    field public static final androidx.ui.geometry.RRect.Companion Companion;
   }
 
   public static final class RRect.Companion {
@@ -135,7 +135,7 @@ package androidx.ui.geometry {
     method public static String toString-impl(long $this);
     method public static long truncDiv-impl(long $this, float operand);
     method @androidx.compose.Stable public static operator long unaryMinus-impl(long $this);
-    field public static final androidx.ui.geometry.Radius.Companion! Companion;
+    field public static final androidx.ui.geometry.Radius.Companion Companion;
   }
 
   public static final class Radius.Companion {
@@ -189,7 +189,7 @@ package androidx.ui.geometry {
     property public final float maxDimension;
     property public final float minDimension;
     property public final float width;
-    field public static final androidx.ui.geometry.Rect.Companion! Companion;
+    field public static final androidx.ui.geometry.Rect.Companion Companion;
   }
 
   public static final class Rect.Companion {
@@ -239,7 +239,7 @@ package androidx.ui.geometry {
     property public final float maxDimension;
     property public final float minDimension;
     property public final float width;
-    field public static final androidx.ui.geometry.Size.Companion! Companion;
+    field public static final androidx.ui.geometry.Size.Companion Companion;
   }
 
   public static final class Size.Companion {

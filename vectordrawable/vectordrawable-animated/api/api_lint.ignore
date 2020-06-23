@@ -59,7 +59,3 @@ MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDraw
     Missing nullability on parameter `dr` in method `unregisterAnimationCallback`
 MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#unregisterAnimationCallback(android.graphics.drawable.Drawable, androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback) parameter #1:
     Missing nullability on parameter `callback` in method `unregisterAnimationCallback`
-
-
-NotCloseable: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat:
-    Classes that release resources (stop()) should implement AutoClosable and CloseGuard: class androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat

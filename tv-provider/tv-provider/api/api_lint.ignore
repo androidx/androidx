@@ -305,12 +305,6 @@ MissingNullability: androidx.tvprovider.media.tv.PreviewChannelHelper#downloadBi
     Missing nullability on method `downloadBitmap` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewChannelHelper#getAllChannels():
     Missing nullability on method `getAllChannels` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewChannelHelper#getPreviewChannel(long):
-    Missing nullability on method `getPreviewChannel` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewChannelHelper#getPreviewProgram(long):
-    Missing nullability on method `getPreviewProgram` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewChannelHelper#getWatchNextProgram(long):
-    Missing nullability on method `getWatchNextProgram` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#fromCursor(android.database.Cursor):
     Missing nullability on method `fromCursor` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#fromCursor(android.database.Cursor) parameter #0:

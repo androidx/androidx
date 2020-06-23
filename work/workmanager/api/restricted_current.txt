@@ -46,7 +46,7 @@ package androidx.work {
     method public boolean requiresCharging();
     method @RequiresApi(23) public boolean requiresDeviceIdle();
     method public boolean requiresStorageNotLow();
-    field public static final androidx.work.Constraints! NONE;
+    field public static final androidx.work.Constraints NONE;
   }
 
   public static final class Constraints.Builder {
@@ -84,7 +84,7 @@ package androidx.work {
     method public String![]? getStringArray(String);
     method public <T> boolean hasKeyWithValueOfType(String, Class<T!>);
     method public byte[] toByteArray();
-    field public static final androidx.work.Data! EMPTY;
+    field public static final androidx.work.Data EMPTY;
     field public static final int MAX_DATA_BYTES = 10240; // 0x2800
   }
 

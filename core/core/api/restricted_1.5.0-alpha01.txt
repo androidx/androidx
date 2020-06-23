@@ -2051,12 +2051,12 @@ package androidx.core.util {
   }
 
   public final class PatternsCompat {
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final java.util.regex.Pattern! AUTOLINK_EMAIL_ADDRESS;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final java.util.regex.Pattern! AUTOLINK_WEB_URL;
-    field public static final java.util.regex.Pattern! DOMAIN_NAME;
-    field public static final java.util.regex.Pattern! EMAIL_ADDRESS;
-    field public static final java.util.regex.Pattern! IP_ADDRESS;
-    field public static final java.util.regex.Pattern! WEB_URL;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final java.util.regex.Pattern AUTOLINK_EMAIL_ADDRESS;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final java.util.regex.Pattern AUTOLINK_WEB_URL;
+    field public static final java.util.regex.Pattern DOMAIN_NAME;
+    field public static final java.util.regex.Pattern EMAIL_ADDRESS;
+    field public static final java.util.regex.Pattern IP_ADDRESS;
+    field public static final java.util.regex.Pattern WEB_URL;
   }
 
   public final class Pools {
@@ -2878,7 +2878,7 @@ package androidx.core.view {
     method @Deprecated public androidx.core.view.WindowInsetsCompat replaceSystemWindowInsets(android.graphics.Rect);
     method @RequiresApi(20) public android.view.WindowInsets? toWindowInsets();
     method @RequiresApi(20) public static androidx.core.view.WindowInsetsCompat toWindowInsetsCompat(android.view.WindowInsets);
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.core.view.WindowInsetsCompat! CONSUMED;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.core.view.WindowInsetsCompat CONSUMED;
   }
 
   public static final class WindowInsetsCompat.Builder {

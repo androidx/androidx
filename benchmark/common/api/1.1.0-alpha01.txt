@@ -8,7 +8,7 @@ package androidx.benchmark {
     method public boolean keepRunning();
     method public void pauseTiming();
     method public void resumeTiming();
-    field public static final androidx.benchmark.BenchmarkState.Companion! Companion;
+    field public static final androidx.benchmark.BenchmarkState.Companion Companion;
   }
 
   public static final class BenchmarkState.Companion {

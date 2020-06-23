@@ -300,7 +300,7 @@ package androidx.ui.test {
     method public boolean matchesAny(Iterable<androidx.ui.core.semantics.SemanticsNode> nodes);
     method public operator androidx.ui.test.SemanticsMatcher not();
     method public infix androidx.ui.test.SemanticsMatcher or(androidx.ui.test.SemanticsMatcher other);
-    field public static final androidx.ui.test.SemanticsMatcher.Companion! Companion;
+    field public static final androidx.ui.test.SemanticsMatcher.Companion Companion;
   }
 
   public static final class SemanticsMatcher.Companion {
