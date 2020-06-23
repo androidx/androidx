@@ -131,7 +131,7 @@ fun TriStateCheckbox(
                 state = state,
                 onClick = onClick,
                 enabled = enabled,
-                indication = RippleIndication(bounded = false)
+                indication = RippleIndication(bounded = false, radius = CheckboxRippleRadius)
             )
             .padding(CheckboxDefaultPadding),
         enabled = enabled,
@@ -362,6 +362,7 @@ private fun TransitionSpec<ToggleableState>.checkboxTransitionToUnchecked() {
     }
 }
 
+private val CheckboxRippleRadius = 24.dp
 private val CheckboxDefaultPadding = 2.dp
 private val CheckboxSize = 20.dp
 private val StrokeWidth = 2.dp

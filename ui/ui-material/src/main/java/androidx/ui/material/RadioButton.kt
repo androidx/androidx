@@ -339,7 +339,7 @@ fun RadioButton(
                     selected = selected,
                     onClick = onClick,
                     enabled = enabled,
-                    indication = RippleIndication(bounded = false)
+                    indication = RippleIndication(bounded = false, radius = RadioButtonRippleRadius)
                 )
                 .wrapContentSize(Alignment.Center)
                 .padding(RadioButtonPadding)
@@ -409,6 +409,7 @@ private fun generateTransitionDefinition(selectedColor: Color, unselectedColor: 
         }
     }
 
+private val RadioButtonRippleRadius = 24.dp
 private val RadioButtonPadding = 2.dp
 private val RadioButtonSize = 20.dp
 private val RadioRadius = RadioButtonSize / 2
