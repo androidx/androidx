@@ -67,8 +67,8 @@ import java.util.concurrent.TimeUnit;
  * Tests whether {@link MediaBrowserCompat} works well with {@link MediaLibraryService}.
  */
 @LargeTest
-public class MediaBrowserCompatTestWithMediaLibraryService extends
-        MediaBrowserCompatTestWithMediaSessionService {
+public class MediaBrowserCompatWithMediaLibraryServiceTest extends
+        MediaBrowserCompatWithMediaSessionServiceTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -85,7 +85,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     }
 
     @Test
-    public void testGetRoot() throws InterruptedException {
+    public void getRoot() throws InterruptedException {
         prepareLooper();
         // The MockMediaLibraryService gives MediaBrowserConstants.ROOT_ID as root ID, and
         // MediaBrowserConstants.ROOT_EXTRAS as extras.
@@ -105,7 +105,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     }
 
     @Test
-    public void testGetItem() throws InterruptedException {
+    public void getItem() throws InterruptedException {
         prepareLooper();
         final String mediaId = MEDIA_ID_GET_ITEM;
 
@@ -123,7 +123,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     }
 
     @Test
-    public void testGetItem_nullResult() throws InterruptedException {
+    public void getItem_nullResult() throws InterruptedException {
         prepareLooper();
         final String mediaId = "random_media_id";
 
@@ -145,7 +145,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     }
 
     @Test
-    public void testGetChildren() throws InterruptedException {
+    public void getChildren() throws InterruptedException {
         prepareLooper();
         final String testParentId = PARENT_ID;
 
@@ -174,7 +174,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     }
 
     @Test
-    public void testGetChildren_withLongList() throws InterruptedException {
+    public void getChildren_withLongList() throws InterruptedException {
         prepareLooper();
         final String testParentId = PARENT_ID_LONG_LIST;
 
@@ -203,7 +203,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     }
 
     @Test
-    public void testGetChildren_withPagination() throws InterruptedException {
+    public void getChildren_withPagination() throws InterruptedException {
         prepareLooper();
         final String testParentId = PARENT_ID;
         final int page = 4;
@@ -246,7 +246,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     }
 
     @Test
-    public void testGetChildren_emptyResult() throws InterruptedException {
+    public void getChildren_emptyResult() throws InterruptedException {
         prepareLooper();
         final String testParentId = PARENT_ID_NO_CHILDREN;
 
@@ -264,7 +264,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     }
 
     @Test
-    public void testGetChildren_nullResult() throws InterruptedException {
+    public void getChildren_nullResult() throws InterruptedException {
         prepareLooper();
         final String testParentId = PARENT_ID_ERROR;
 
@@ -287,7 +287,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     }
 
     @Test
-    public void testSearch() throws InterruptedException {
+    public void search() throws InterruptedException {
         prepareLooper();
         final String testQuery = SEARCH_QUERY;
         final int page = 4;
@@ -326,7 +326,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     }
 
     @Test
-    public void testSearch_withLongList() throws InterruptedException {
+    public void search_withLongList() throws InterruptedException {
         prepareLooper();
         final String testQuery = SEARCH_QUERY_LONG_LIST;
         final int page = 0;
@@ -356,7 +356,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     }
 
     @Test
-    public void testSearch_emptyResult() throws InterruptedException {
+    public void search_emptyResult() throws InterruptedException {
         prepareLooper();
         final String testQuery = SEARCH_QUERY_EMPTY_RESULT;
         final Bundle testExtras = new Bundle();
@@ -378,7 +378,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
     }
 
     @Test
-    public void testSearch_error() throws InterruptedException {
+    public void search_error() throws InterruptedException {
         prepareLooper();
         final String testQuery = SEARCH_QUERY_ERROR;
         final Bundle testExtras = new Bundle();
@@ -404,7 +404,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
     @Test
-    public void testSubscribe() throws InterruptedException {
+    public void subscribe() throws InterruptedException {
 //        prepareLooper();
 //        final String testParentId = "testSubscribeId";
 //        final List<MediaItem> testList = TestUtils.createMediaItems(3);
@@ -450,7 +450,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
     @Test
-    public void testSubscribe_withExtras() throws InterruptedException {
+    public void subscribe_withExtras() throws InterruptedException {
 //        prepareLooper();
 //        final String testParentId = "testSubscribe_withExtras";
 //        final Bundle testExtras = new Bundle();
@@ -502,7 +502,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
     @Test
-    public void testSubscribe_withPagination() throws InterruptedException {
+    public void subscribe_withPagination() throws InterruptedException {
 //        prepareLooper();
 //        final String testParentId = "testSubscribe_pagination_ID";
 //        final List<MediaItem> testList = TestUtils.createMediaItems(3);
@@ -569,7 +569,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
     @Test
-    public void testSubscribeAndUnsubscribe() throws InterruptedException {
+    public void subscribeAndUnsubscribe() throws InterruptedException {
 //        prepareLooper();
 //        final String testParentId = "testUnsubscribe";
 //        final Bundle testExtras = new Bundle();
@@ -610,7 +610,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     @Ignore("TODO: Split this test to here and MediaLibrarySessionLegacyCallbackTest.")
     @Test
-    public void testNotifyChildrenChanged() throws InterruptedException {
+    public void notifyChildrenChanged() throws InterruptedException {
 //        prepareLooper();
 //        final String testSubscribedParentId = "testNotifyChildrenChanged";
 //        final String testUnsubscribedParentId = "testNotifyChildrenChanged22";
@@ -664,7 +664,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
     @Test
-    public void testCustomAction() throws InterruptedException {
+    public void customAction() throws InterruptedException {
         prepareLooper();
         final Bundle testArgs = new Bundle();
         testArgs.putString("args_key", "args_value");
@@ -685,7 +685,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
 
     // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
     @Test
-    public void testCustomAction_rejected() throws InterruptedException {
+    public void customAction_rejected() throws InterruptedException {
         prepareLooper();
         // This action will not be allowed by the library session.
         final String testAction = "random_custom_action";
