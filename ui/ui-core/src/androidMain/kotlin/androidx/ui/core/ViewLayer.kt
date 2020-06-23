@@ -35,7 +35,7 @@ import java.lang.reflect.Method
 internal class ViewLayer(
     val ownerView: AndroidComposeView,
     val container: ViewLayerContainer,
-    val drawLayerModifier: DrawLayerModifier,
+    drawLayerModifier: DrawLayerModifier,
     val drawBlock: (Canvas) -> Unit,
     val invalidateParentLayer: () -> Unit
 ) : View(ownerView.context), OwnedLayer {
@@ -48,6 +48,14 @@ internal class ViewLayer(
     private var isInvalidated = false
     private var drawnWithZ = false
     private val canvasHolder = CanvasHolder()
+
+    override var modifier: DrawLayerModifier = drawLayerModifier
+        set(value) {
+            if (value !== field) {
+                field = value
+                updateLayerProperties()
+            }
+        }
 
     /**
      * Local copy of the transform origin as DrawLayerModifier can be implemented
@@ -66,20 +74,20 @@ internal class ViewLayer(
         get() = id.toLong()
 
     override fun updateLayerProperties() {
-        this.mTransformOrigin = drawLayerModifier.transformOrigin
-        this.scaleX = drawLayerModifier.scaleX
-        this.scaleY = drawLayerModifier.scaleY
-        this.alpha = drawLayerModifier.alpha
-        this.translationX = drawLayerModifier.translationX
-        this.translationY = drawLayerModifier.translationY
-        this.elevation = drawLayerModifier.shadowElevation
-        this.rotation = drawLayerModifier.rotationZ
-        this.rotationX = drawLayerModifier.rotationX
-        this.rotationY = drawLayerModifier.rotationY
+        this.mTransformOrigin = modifier.transformOrigin
+        this.scaleX = modifier.scaleX
+        this.scaleY = modifier.scaleY
+        this.alpha = modifier.alpha
+        this.translationX = modifier.translationX
+        this.translationY = modifier.translationY
+        this.elevation = modifier.shadowElevation
+        this.rotation = modifier.rotationZ
+        this.rotationX = modifier.rotationX
+        this.rotationY = modifier.rotationY
         this.pivotX = mTransformOrigin.pivotFractionX * width
         this.pivotY = mTransformOrigin.pivotFractionY * height
-        val shape = drawLayerModifier.shape
-        val clip = drawLayerModifier.clip
+        val shape = modifier.shape
+        val clip = modifier.clip
         this.clipToBounds = clip && shape === RectangleShape
         resetClipBounds()
         val wasClippingManually = manualClipPath != null
