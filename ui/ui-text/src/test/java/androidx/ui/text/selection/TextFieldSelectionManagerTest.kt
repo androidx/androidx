@@ -20,6 +20,8 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.clipboard.ClipboardManager
+import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.geometry.Offset
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.TextFieldValue
@@ -64,6 +66,7 @@ class TextFieldSelectionManagerTest {
     private val manager = TextFieldSelectionManager()
 
     private val clipboardManager = mock<ClipboardManager>()
+    private val hapticFeedback = mock<HapticFeedback>()
 
     @Before
     fun setup() {
@@ -72,6 +75,7 @@ class TextFieldSelectionManagerTest {
         manager.state = state
         manager.value = value
         manager.clipboardManager = clipboardManager
+        manager.hapticFeedBack = hapticFeedback
 
         state.layoutResult = mock()
         whenever(state.layoutResult!!.layoutInput).thenReturn(
@@ -111,6 +115,10 @@ class TextFieldSelectionManagerTest {
 
         assertThat(state.selectionIsOn).isTrue()
         assertThat(value.selection).isEqualTo(longPressTextRange)
+        verify(
+            hapticFeedback,
+            times(1)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
     @Test
@@ -119,6 +127,10 @@ class TextFieldSelectionManagerTest {
         manager.longPressDragObserver.onDrag(dragDistance)
 
         assertThat(value.selection).isEqualTo(TextRange(0, text.length))
+        verify(
+            hapticFeedback,
+            times(2)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
     @Test
