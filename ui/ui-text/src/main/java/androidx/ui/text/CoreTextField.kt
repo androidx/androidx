@@ -27,6 +27,7 @@ import androidx.compose.state
 import androidx.ui.core.ClipboardManagerAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.FontLoaderAmbient
+import androidx.ui.core.HapticFeedBackAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
@@ -222,6 +223,7 @@ fun CoreTextField(
         manager.state = state
         manager.value = value
         manager.clipboardManager = ClipboardManagerAmbient.current
+        manager.hapticFeedBack = HapticFeedBackAmbient.current
 
         val observer = textInputEventObserver(
             focusModifier = focusModifier,
