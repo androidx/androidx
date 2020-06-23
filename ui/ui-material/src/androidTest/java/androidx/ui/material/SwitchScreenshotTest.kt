@@ -29,11 +29,14 @@ import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.captureToBitmap
+import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
+import androidx.ui.test.doPartialGesture
 import androidx.ui.test.find
 import androidx.ui.test.findByTag
 import androidx.ui.test.isToggleable
+import androidx.ui.test.sendDown
 import androidx.ui.test.waitForIdle
 import org.junit.Rule
 import org.junit.Test
@@ -87,6 +90,20 @@ class SwitchScreenshotTest {
             }
         }
         assertToggeableAgainstGolden("switch_unchecked")
+    }
+
+    @Test
+    fun switchTest_pressed() {
+        composeTestRule.setMaterialContent {
+            Box(wrapperModifier) {
+                Switch(checked = false, enabled = true, onCheckedChange = { })
+            }
+        }
+
+        findByTag(wrapperTestTag).doPartialGesture {
+            sendDown(center)
+        }
+        assertToggeableAgainstGolden("switch_pressed")
     }
 
     @Test
