@@ -32,6 +32,7 @@ dependencies {
     api("androidx.annotation:annotation-experimental:1.0.0-beta01")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation(GUAVA_LISTENABLE_FUTURE)
+    implementation(AUTO_VALUE_ANNOTATIONS)
 
     annotationProcessor(AUTO_VALUE)
 
