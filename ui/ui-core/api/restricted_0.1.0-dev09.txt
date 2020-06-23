@@ -29,6 +29,8 @@ package androidx.ui.autofill {
   }
 
   public enum AutofillType {
+    method public static androidx.ui.autofill.AutofillType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.autofill.AutofillType[] values();
     enum_constant public static final androidx.ui.autofill.AutofillType AddressAuxiliaryDetails;
     enum_constant public static final androidx.ui.autofill.AutofillType AddressCountry;
     enum_constant public static final androidx.ui.autofill.AutofillType AddressLocality;
@@ -80,7 +82,7 @@ package androidx.ui.core {
     method @androidx.compose.Immutable public androidx.ui.core.Alignment copy(float verticalBias, float horizontalBias);
     method public float getHorizontalBias();
     method public float getVerticalBias();
-    field public static final androidx.ui.core.Alignment.Companion! Companion;
+    field public static final androidx.ui.core.Alignment.Companion Companion;
   }
 
   public static final class Alignment.Companion {
@@ -151,7 +153,7 @@ package androidx.ui.core {
     method public androidx.ui.unit.IntPx getMaxWidth();
     method public androidx.ui.unit.IntPx getMinHeight();
     method public androidx.ui.unit.IntPx getMinWidth();
-    field public static final androidx.ui.core.Constraints.Companion! Companion;
+    field public static final androidx.ui.core.Constraints.Companion Companion;
   }
 
   public static final class Constraints.Companion {
@@ -188,7 +190,7 @@ package androidx.ui.core {
 
   public interface ContentScale {
     method public float scale(androidx.ui.unit.PxSize srcSize, androidx.ui.unit.PxSize dstSize);
-    field public static final androidx.ui.core.ContentScale.Companion! Companion;
+    field public static final androidx.ui.core.ContentScale.Companion Companion;
   }
 
   public static final class ContentScale.Companion {
@@ -217,6 +219,8 @@ package androidx.ui.core {
   }
 
   public enum Direction {
+    method public static androidx.ui.core.Direction valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.Direction[] values();
     enum_constant public static final androidx.ui.core.Direction DOWN;
     enum_constant public static final androidx.ui.core.Direction LEFT;
     enum_constant public static final androidx.ui.core.Direction RIGHT;
@@ -326,6 +330,8 @@ package androidx.ui.core {
   }
 
   public enum LayoutDirection {
+    method public static androidx.ui.core.LayoutDirection valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.LayoutDirection[] values();
     enum_constant public static final androidx.ui.core.LayoutDirection Ltr;
     enum_constant public static final androidx.ui.core.LayoutDirection Rtl;
   }
@@ -385,7 +391,7 @@ package androidx.ui.core {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public default operator androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
-    field public static final androidx.ui.core.Modifier.Companion! Companion;
+    field public static final androidx.ui.core.Modifier.Companion Companion;
   }
 
   public static final class Modifier.Companion implements androidx.ui.core.Modifier {
@@ -433,7 +439,7 @@ package androidx.ui.core {
     property protected abstract androidx.ui.unit.IntPxSize measuredSize;
     property protected abstract androidx.ui.core.Constraints measurementConstraints;
     property public final androidx.ui.unit.IntPx width;
-    field public static final androidx.ui.core.Placeable.PlacementScope! PlacementScope;
+    field public static final androidx.ui.core.Placeable.PlacementScope PlacementScope;
   }
 
   public static final class Placeable.PlacementScope {
@@ -448,6 +454,8 @@ package androidx.ui.core {
   }
 
   public enum PointerEventPass {
+    method public static androidx.ui.core.PointerEventPass valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.core.PointerEventPass[] values();
     enum_constant public static final androidx.ui.core.PointerEventPass InitialDown;
     enum_constant public static final androidx.ui.core.PointerEventPass PostDown;
     enum_constant public static final androidx.ui.core.PointerEventPass PostUp;
@@ -509,7 +517,7 @@ package androidx.ui.core {
   }
 
   @Deprecated public interface ScaleFit extends androidx.ui.core.ContentScale {
-    field @Deprecated public static final androidx.ui.core.ScaleFit.Companion! Companion;
+    field @Deprecated public static final androidx.ui.core.ScaleFit.Companion Companion;
   }
 
   @Deprecated public static final class ScaleFit.Companion {
@@ -533,7 +541,7 @@ package androidx.ui.core {
     method public float getPivotFractionY();
     property public final float pivotFractionX;
     property public final float pivotFractionY;
-    field public static final androidx.ui.core.TransformOrigin.Companion! Companion;
+    field public static final androidx.ui.core.TransformOrigin.Companion Companion;
   }
 
   public static final class TransformOrigin.Companion {
@@ -550,6 +558,8 @@ package androidx.ui.core {
 package androidx.ui.focus {
 
   public enum FocusDetailedState {
+    method public static androidx.ui.focus.FocusDetailedState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.focus.FocusDetailedState[] values();
     enum_constant public static final androidx.ui.focus.FocusDetailedState Active;
     enum_constant public static final androidx.ui.focus.FocusDetailedState ActiveParent;
     enum_constant public static final androidx.ui.focus.FocusDetailedState Captured;
@@ -566,6 +576,8 @@ package androidx.ui.focus {
   }
 
   public enum FocusState {
+    method public static androidx.ui.focus.FocusState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.focus.FocusState[] values();
     enum_constant public static final androidx.ui.focus.FocusState Focused;
     enum_constant public static final androidx.ui.focus.FocusState NotFocusable;
     enum_constant public static final androidx.ui.focus.FocusState NotFocused;

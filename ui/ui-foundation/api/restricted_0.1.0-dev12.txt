@@ -106,11 +106,11 @@ package androidx.ui.foundation {
   }
 
   public static final class Interaction.Dragged implements androidx.ui.foundation.Interaction {
-    field public static final androidx.ui.foundation.Interaction.Dragged! INSTANCE;
+    field public static final androidx.ui.foundation.Interaction.Dragged INSTANCE;
   }
 
   public static final class Interaction.Pressed implements androidx.ui.foundation.Interaction {
-    field public static final androidx.ui.foundation.Interaction.Pressed! INSTANCE;
+    field public static final androidx.ui.foundation.Interaction.Pressed INSTANCE;
   }
 
   @androidx.compose.Stable public final class InteractionState implements androidx.compose.State<java.util.Set<? extends androidx.ui.foundation.Interaction>> {
@@ -141,7 +141,7 @@ package androidx.ui.foundation {
     property public final boolean isAnimating;
     property public final float maxPosition;
     property public final float value;
-    field public static final androidx.ui.foundation.ScrollerPosition.Companion! Companion;
+    field public static final androidx.ui.foundation.ScrollerPosition.Companion Companion;
   }
 
   public static final class ScrollerPosition.Companion {
@@ -163,7 +163,7 @@ package androidx.ui.foundation {
     property public final String Selected;
     property public final String TemplatePercent;
     property public final String Unchecked;
-    field public static final androidx.ui.foundation.Strings! INSTANCE;
+    field public static final androidx.ui.foundation.Strings INSTANCE;
   }
 
   public final class TextFieldKt {
@@ -178,7 +178,7 @@ package androidx.ui.foundation {
     method public androidx.ui.foundation.TextFieldValue copy(String text, androidx.ui.text.TextRange selection);
     method public androidx.ui.text.TextRange getSelection();
     method public String getText();
-    field public static final androidx.ui.foundation.TextFieldValue.Companion! Companion;
+    field public static final androidx.ui.foundation.TextFieldValue.Companion Companion;
   }
 
   public static final class TextFieldValue.Companion {
@@ -236,7 +236,7 @@ package androidx.ui.foundation.animation {
   public final class AndroidFlingSpline {
     method public double deceleration(float velocity, float friction);
     method public androidx.ui.foundation.animation.AndroidFlingSpline.FlingResult flingPosition(float time);
-    field public static final androidx.ui.foundation.animation.AndroidFlingSpline! INSTANCE;
+    field public static final androidx.ui.foundation.animation.AndroidFlingSpline INSTANCE;
   }
 
   public static final class AndroidFlingSpline.FlingResult {
@@ -276,11 +276,11 @@ package androidx.ui.foundation.gestures {
   }
 
   public static final class DragDirection.Horizontal extends androidx.ui.foundation.gestures.DragDirection {
-    field public static final androidx.ui.foundation.gestures.DragDirection.Horizontal! INSTANCE;
+    field public static final androidx.ui.foundation.gestures.DragDirection.Horizontal INSTANCE;
   }
 
   public static final class DragDirection.Vertical extends androidx.ui.foundation.gestures.DragDirection {
-    field public static final androidx.ui.foundation.gestures.DragDirection.Vertical! INSTANCE;
+    field public static final androidx.ui.foundation.gestures.DragDirection.Vertical INSTANCE;
   }
 
   public final class DraggableKt {
@@ -317,6 +317,8 @@ package androidx.ui.foundation.selection {
   }
 
   public enum ToggleableState {
+    method public static androidx.ui.foundation.selection.ToggleableState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.foundation.selection.ToggleableState[] values();
     enum_constant public static final androidx.ui.foundation.selection.ToggleableState Indeterminate;
     enum_constant public static final androidx.ui.foundation.selection.ToggleableState Off;
     enum_constant public static final androidx.ui.foundation.selection.ToggleableState On;
@@ -335,7 +337,7 @@ package androidx.ui.foundation.semantics {
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsDialog;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Selected;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.foundation.selection.ToggleableState> ToggleableState;
-    field public static final androidx.ui.foundation.semantics.FoundationSemanticsProperties! INSTANCE;
+    field public static final androidx.ui.foundation.semantics.FoundationSemanticsProperties INSTANCE;
   }
 
   public final class FoundationSemanticsPropertiesKt {

@@ -32,7 +32,7 @@ package androidx.ui.text {
     method public static void onBlur(androidx.ui.input.TextInputService? textInputService, int token, androidx.ui.input.EditProcessor editProcessor, boolean hasNextClient, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorValue,kotlin.Unit> onValueChange);
     method public static int onFocus(androidx.ui.input.TextInputService? textInputService, androidx.ui.input.EditorValue value, androidx.ui.input.EditProcessor editProcessor, androidx.ui.input.KeyboardType keyboardType, androidx.ui.input.ImeAction imeAction, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorValue,kotlin.Unit> onValueChange, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed);
     method public static void onRelease(androidx.ui.unit.PxPosition position, androidx.ui.text.TextLayoutResult textLayoutResult, androidx.ui.input.EditProcessor editProcessor, androidx.ui.input.OffsetMap offsetMap, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorValue,kotlin.Unit> onValueChange, androidx.ui.input.TextInputService? textInputService, int token, boolean hasFocus);
-    field public static final androidx.ui.text.TextFieldDelegate.Companion! Companion;
+    field public static final androidx.ui.text.TextFieldDelegate.Companion Companion;
   }
 
   public static final class TextFieldDelegate.Companion {
@@ -53,7 +53,7 @@ package androidx.ui.text {
     method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getSupportsInputMethods();
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.input.ImeAction> ImeAction;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> SupportsInputMethods;
-    field public static final androidx.ui.text.TextSemanticsProperties! INSTANCE;
+    field public static final androidx.ui.text.TextSemanticsProperties INSTANCE;
   }
 
   public final class TextSemanticsPropertiesKt {

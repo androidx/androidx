@@ -36,6 +36,8 @@ package androidx.ui.foundation {
   }
 
   public enum DropDownAlignment {
+    method public static androidx.ui.foundation.DropDownAlignment valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.foundation.DropDownAlignment[] values();
     enum_constant public static final androidx.ui.foundation.DropDownAlignment Left;
     enum_constant public static final androidx.ui.foundation.DropDownAlignment Right;
   }
@@ -93,7 +95,7 @@ package androidx.ui.foundation {
     property public final String NotSelected;
     property public final String Selected;
     property public final String Unchecked;
-    field public static final androidx.ui.foundation.Strings! INSTANCE;
+    field public static final androidx.ui.foundation.Strings INSTANCE;
   }
 
   public final class TableBordersKt {
@@ -143,11 +145,11 @@ package androidx.ui.foundation.gestures {
   }
 
   public static final class DragDirection.Horizontal extends androidx.ui.foundation.gestures.DragDirection {
-    field public static final androidx.ui.foundation.gestures.DragDirection.Horizontal! INSTANCE;
+    field public static final androidx.ui.foundation.gestures.DragDirection.Horizontal INSTANCE;
   }
 
   public static final class DragDirection.Vertical extends androidx.ui.foundation.gestures.DragDirection {
-    field public static final androidx.ui.foundation.gestures.DragDirection.Vertical! INSTANCE;
+    field public static final androidx.ui.foundation.gestures.DragDirection.Vertical INSTANCE;
   }
 
   public interface DragValueController {
@@ -193,6 +195,8 @@ package androidx.ui.foundation.selection {
   }
 
   public enum ToggleableState {
+    method public static androidx.ui.foundation.selection.ToggleableState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.foundation.selection.ToggleableState[] values();
     enum_constant public static final androidx.ui.foundation.selection.ToggleableState Checked;
     enum_constant public static final androidx.ui.foundation.selection.ToggleableState Indeterminate;
     enum_constant public static final androidx.ui.foundation.selection.ToggleableState Unchecked;
@@ -209,7 +213,7 @@ package androidx.ui.foundation.semantics {
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> InMutuallyExclusiveGroup;
     property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Selected;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.foundation.selection.ToggleableState> ToggleableState;
-    field public static final androidx.ui.foundation.semantics.FoundationSemanticsProperties! INSTANCE;
+    field public static final androidx.ui.foundation.semantics.FoundationSemanticsProperties INSTANCE;
   }
 
   public final class FoundationSemanticsPropertiesKt {

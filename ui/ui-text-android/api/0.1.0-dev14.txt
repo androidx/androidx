@@ -4,9 +4,6 @@ package androidx.ui.text.platform {
   @kotlin.RequiresOptIn(level=RequiresOptIn.Level.ERROR, message="This is internal API that may change frequently and without warning.") @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY}) public @interface InternalPlatformTextApi {
   }
 
-  public final class LayoutCompatKt {
-  }
-
   public final class LayoutIntrinsicsKt {
   }
 
