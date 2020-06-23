@@ -79,8 +79,6 @@ open class View(val context: Context) {
 
     open fun onLayout (changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {}
 
-    open fun onAttachedToWindow() {}
-
     open fun dispatchDraw(canvas: Canvas) {}
 
     open fun dispatchTouchEvent(event: MotionEvent): Boolean = true
@@ -148,6 +146,10 @@ open class View(val context: Context) {
 
     var mRecreateDisplayList: Boolean = false
 
+    var isAttachedToWindow = false
+
+    var isLayoutRequested = false
+
     fun layout(left: Int, top: Int, right: Int, bottom: Int) {
         this.left = left
         this.top = top
@@ -180,5 +182,9 @@ open class View(val context: Context) {
             top += offset
             bottom += offset
         }
+    }
+
+    open fun onAttachedToWindow() {
+        isAttachedToWindow = true
     }
 }

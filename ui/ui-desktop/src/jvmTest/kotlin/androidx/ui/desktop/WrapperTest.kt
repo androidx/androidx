@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
-package android.os
+package androidx.ui.desktop
 
-import javax.swing.SwingUtilities
+import androidx.ui.foundation.Text
 
-public class Handler() {
-    constructor(looper: Looper) : this()
-    constructor(looper: Looper, callback: Handler.Callback) : this()
+import java.awt.event.WindowEvent
+import javax.swing.WindowConstants
 
-    constructor(looper: Looper, callback: Callback, async: Boolean) : this()
+import org.junit.Test
 
-    interface Callback {
-        fun handleMessage(msg: Message): Boolean
+class WrapperTest {
+    @Test
+    fun wrapWindow() {
+        val frame = SkiaWindow(width = 640, height = 480)
+
+        frame.title = "Test"
+        frame.setLocation(400, 400)
+        frame.defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
+
+        frame.setContent {
+            Text("Simple")
+        }
+        frame.setVisible(true)
+
+        frame.dispatchEvent(WindowEvent(frame, WindowEvent.WINDOW_CLOSING))
     }
-    val looper = Looper()
-    fun post(runnable: Runnable): Boolean {
-        SwingUtilities.invokeLater(runnable)
-        return true
-    }
-
-    fun removeMessages(what: Int) {}
-
-    fun sendEmptyMessage(what: Int): Boolean = true
 }

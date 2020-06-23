@@ -72,10 +72,9 @@ fun SkiaWindow.setContent(content: @Composable () -> Unit) {
                 DesktopSelectionContainer(children = content)
             }
         })
-        val view = viewGroup.getChildAt(0)
-        view.onAttachedToWindow()
+        viewGroup.onAttachedToWindow()
 
-        this.renderer = Renderer(view, clocks, fps, platformInputService)
+        this.renderer = Renderer(viewGroup.getChildAt(0), clocks, fps, platformInputService)
         this.setFps(fps)
     }
 }

@@ -36,8 +36,8 @@ internal class DesktopParagraphIntrinsics(
     val text: String,
     style: TextStyle,
     spanStyles: List<SpanStyleRange>,
-    placeholders: List<AnnotatedString.Range<Placeholder>>,
-    density: Density,
+    @Suppress("UNUSED_PARAMETER") placeholders: List<AnnotatedString.Range<Placeholder>>,
+    @Suppress("UNUSED_PARAMETER") density: Density,
     resourceLoader: Font.ResourceLoader
 ) : ParagraphIntrinsics {
 
