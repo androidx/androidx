@@ -24,6 +24,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -31,6 +32,7 @@ import android.os.RemoteException;
 import android.support.customtabs.ICustomTabsCallback;
 import android.support.customtabs.ICustomTabsService;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,6 +46,8 @@ import java.util.List;
  * {@link CustomTabsSession} from it.
  */
 public class CustomTabsClient {
+    private static final String TAG = "CustomTabsClient";
+
     private final ICustomTabsService mService;
     private final ComponentName mServiceComponentName;
     private final Context mApplicationContext;
@@ -115,6 +119,19 @@ public class CustomTabsClient {
      * Tabs. To modify this preferred behavior, set <code>ignoreDefault</code> to true and give a
      * non empty list of package names in <code>packages</code>.
      *
+     * This method queries the {@link PackageManager} to determine which packages support the
+     * Custom Tabs API. On apps that target Android 11 and above, this requires adding the
+     * following package visibility elements to your manifest.
+     *
+     * <pre>
+     * {@code
+     * <!-- Place inside the <queries> element. -->
+     * <intent>
+     *   <action android:name="android.support.customtabs.action.CustomTabsService" />
+     * </intent>
+     * }
+     * </pre>
+     *
      * @param context       {@link Context} to use for querying the packages.
      * @param packages      Ordered list of packages to test for Custom Tabs support, in
      *                      decreasing order of priority.
@@ -142,6 +159,12 @@ public class CustomTabsClient {
         for (String packageName : packageNames) {
             serviceIntent.setPackage(packageName);
             if (pm.resolveService(serviceIntent, 0) != null) return packageName;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Log.w(TAG, "Unable to find any Custom Tabs packages, you may need to add a "
+                    + "<queries> element to your manifest. See the docs for "
+                    + "CustomTabsClient#getPackageName.");
         }
         return null;
     }
