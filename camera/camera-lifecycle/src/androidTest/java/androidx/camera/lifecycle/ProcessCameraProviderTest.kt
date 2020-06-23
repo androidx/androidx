@@ -19,6 +19,7 @@ package androidx.camera.lifecycle
 import androidx.camera.core.CameraSelector
 import androidx.annotation.experimental.UseExperimental
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.Preview
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.concurrent.futures.await
@@ -37,7 +38,10 @@ import org.junit.Test
 class ProcessCameraProviderTest {
 
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
-    private val lifecycleOwner = FakeLifecycleOwner()
+    private val lifecycleOwner0 = FakeLifecycleOwner()
+    private val lifecycleOwner1 = FakeLifecycleOwner()
+
+    private var provider: ProcessCameraProvider? = null
 
     @After
     fun tearDown() {
@@ -75,7 +79,7 @@ class ProcessCameraProviderTest {
     fun configuredGetInstance_returnsProvider() {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
         runBlocking {
-            val provider = ProcessCameraProvider.getInstance(context).await()
+            provider = ProcessCameraProvider.getInstance(context).await()
             assertThat(provider).isNotNull()
         }
     }
@@ -103,10 +107,120 @@ class ProcessCameraProviderTest {
     fun canRetrieveCamera_withZeroUseCases() {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
         runBlocking(MainScope().coroutineContext) {
-            val provider = ProcessCameraProvider.getInstance(context).await()
+            provider = ProcessCameraProvider.getInstance(context).await()
             val camera =
-                provider.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA)
+                provider!!.bindToLifecycle(lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA)
             assertThat(camera).isNotNull()
+        }
+    }
+
+    @Test
+    fun bindUseCase_isBound() {
+        ProcessCameraProvider.configureInstance(FakeAppConfig.create())
+
+        runBlocking(MainScope().coroutineContext) {
+            provider = ProcessCameraProvider.getInstance(context).await()
+            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+
+            provider!!.bindToLifecycle(
+                lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA,
+                useCase
+            )
+
+            assertThat(provider!!.isBound(useCase)).isTrue()
+        }
+    }
+
+    @Test
+    fun bindSecondUseCaseToDifferentLifecycle_firstUseCaseStillBound() {
+        ProcessCameraProvider.configureInstance(FakeAppConfig.create())
+
+        runBlocking(MainScope().coroutineContext) {
+            provider = ProcessCameraProvider.getInstance(context).await()
+
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+
+            provider!!.bindToLifecycle(
+                lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA,
+                useCase0
+            )
+            provider!!.bindToLifecycle(
+                lifecycleOwner1, CameraSelector.DEFAULT_BACK_CAMERA,
+                useCase1
+            )
+
+            // TODO(b/158595693) Add check on whether or not camera for fakeUseCase0 should be
+            //  exist or not
+            // assertThat(fakeUseCase0.camera).isNotNull() (or isNull()?)
+            assertThat(provider!!.isBound(useCase0)).isTrue()
+            assertThat(useCase1.camera).isNotNull()
+            assertThat(provider!!.isBound(useCase1)).isTrue()
+        }
+    }
+
+    @Test
+    fun isNotBound_afterUnbind() {
+        ProcessCameraProvider.configureInstance(FakeAppConfig.create())
+
+        runBlocking(MainScope().coroutineContext) {
+            provider = ProcessCameraProvider.getInstance(context).await()
+
+            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+
+            provider!!.bindToLifecycle(
+                lifecycleOwner0,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                useCase
+            )
+
+            provider!!.unbind(useCase)
+
+            assertThat(provider!!.isBound(useCase)).isFalse()
+        }
+    }
+
+    @Test
+    fun unbindFirstUseCase_secondUseCaseStillBound() {
+        ProcessCameraProvider.configureInstance(FakeAppConfig.create())
+
+        runBlocking(MainScope().coroutineContext) {
+            provider = ProcessCameraProvider.getInstance(context).await()
+
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+
+            provider!!.bindToLifecycle(
+                lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA,
+                useCase0, useCase1
+            )
+
+            provider!!.unbind(useCase0)
+
+            assertThat(useCase0.camera).isNull()
+            assertThat(provider!!.isBound(useCase0)).isFalse()
+            assertThat(useCase1.camera).isNotNull()
+            assertThat(provider!!.isBound(useCase1)).isTrue()
+        }
+    }
+
+    @Test
+    fun unbindAll_unbindsAllUseCasesFromCameras() {
+        ProcessCameraProvider.configureInstance(FakeAppConfig.create())
+
+        runBlocking(MainScope().coroutineContext) {
+            provider = ProcessCameraProvider.getInstance(context).await()
+
+            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+
+            provider!!.bindToLifecycle(
+                lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA, useCase
+            )
+
+            provider!!.unbindAll()
+
+            assertThat(useCase.camera).isNull()
+            assertThat(provider!!.isBound(useCase)).isFalse()
         }
     }
 }

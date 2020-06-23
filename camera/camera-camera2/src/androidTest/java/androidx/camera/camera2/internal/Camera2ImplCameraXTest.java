@@ -41,6 +41,7 @@ import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks.SessionCaptureCallback;
+import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Camera;
@@ -51,7 +52,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
@@ -607,7 +607,7 @@ public final class Camera2ImplCameraXTest {
                 useCase);
 
         List<String> camera2IdList = Arrays.asList(CameraUtil.getCameraManager().getCameraIdList());
-        assertThat(((CameraInternal) camera).getCameraInfoInternal().getCameraId()).isEqualTo(
+        assertThat(Camera2CameraInfo.extractCameraId(camera.getCameraInfo())).isEqualTo(
                 camera2IdList.iterator().next());
     }
 
@@ -621,7 +621,7 @@ public final class Camera2ImplCameraXTest {
                 new CameraSelector.Builder().requireLensFacing(DEFAULT_LENS_FACING).build(),
                 useCase);
 
-        assertThat(((CameraInternal) camera).getCameraInfoInternal().getCameraId()).isEqualTo(
+        assertThat(Camera2CameraInfo.extractCameraId(camera.getCameraInfo())).isEqualTo(
                 CameraUtil.getCameraIdWithLensFacing(DEFAULT_LENS_FACING));
     }
 
