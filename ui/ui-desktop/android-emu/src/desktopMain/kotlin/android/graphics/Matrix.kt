@@ -18,4 +18,10 @@ package android.graphics
 
 class Matrix() {
     fun isIdentity() = true
+
+    fun reset() {
+    }
+
+    fun setTranslate(dx: Float, dy: Float) {
+    }
 }

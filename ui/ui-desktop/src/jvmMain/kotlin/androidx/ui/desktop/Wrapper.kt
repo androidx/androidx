@@ -67,9 +67,10 @@ fun SkiaWindow.setContent(content: @Composable () -> Unit) {
             Providers(
                 TextInputServiceAmbient provides TextInputService(
                     platformInputService),
-                FontLoaderAmbient provides FontLoader(),
-                children = content
-            )
+                FontLoaderAmbient provides FontLoader()
+            ) {
+                DesktopSelectionContainer(children = content)
+            }
         })
         val view = viewGroup.getChildAt(0)
         view.onAttachedToWindow()
