@@ -20,15 +20,23 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import io.reactivex.Single
 
 @Dao
 interface RemoteKeyDao {
+    // Normally suspend when using Kotlin Coroutines, but sync version allows this Dao to be used
+    // in both Java and Kotlin samples.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertOrReplace(remoteKey: RemoteKey)
+    fun insertOrReplace(remoteKey: RemoteKey)
 
     @Query("SELECT * FROM remote_keys WHERE label = :query")
-    suspend fun remoteKeyByQuery(query: String): RemoteKey
+    fun remoteKeyByQuery(query: String): RemoteKey
 
+    @Query("SELECT * FROM remote_keys WHERE label = :query")
+    fun remoteKeyByQuerySingle(query: String): Single<RemoteKey>
+
+    // Normally suspend when using Kotlin Coroutines, but sync version allows this Dao to be used
+    // in both Java and Kotlin samples.
     @Query("DELETE FROM remote_keys WHERE label = :query")
-    suspend fun deleteByQuery(query: String)
+    fun deleteByQuery(query: String)
 }
