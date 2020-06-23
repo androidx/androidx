@@ -37,11 +37,11 @@ import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 
 /**
- * Simple demo that shows off how DragGestureDetector and ScaleGestureDetector automatically
+ * Simple demo that shows off how [dragGestureFilter] and [scaleGestureFilter] automatically
  * interoperate.
  */
 @Composable
-fun DragAndScaleGestureDetectorDemo() {
+fun DragAndScaleGestureFilterDemo() {
     val size = state { 200.dp }
     val offset = state { Offset.Zero }
     val dragInScale = state { false }

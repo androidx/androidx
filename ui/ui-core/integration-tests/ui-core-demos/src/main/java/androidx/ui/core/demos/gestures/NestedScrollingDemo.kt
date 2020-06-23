@@ -24,11 +24,12 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.gesture.doubleTapGestureFilter
-import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.gesture.ScrollCallback
 import androidx.ui.core.gesture.longPressGestureFilter
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.core.gesture.dragGestureFilter
+import androidx.ui.core.gesture.scrollGestureFilter
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
@@ -52,12 +53,12 @@ fun NestedScrollingDemo() {
         Text("Demonstrates nested scrolling.")
         Text("There are 3 fake vertical scrollers inside another vertical scroller.  Try " +
                 "scrolling with 1 or many fingers.")
-        Draggable {
-            RepeatingList(repetitions = 3) {
+        Scrollable {
+            RepeatingColumn(repetitions = 3) {
                 Box(Modifier.preferredHeight(398.dp), padding = 72.dp) {
                     // Inner composable that scrolls
-                    Draggable {
-                        RepeatingList(repetitions = 5) {
+                    Scrollable {
+                        RepeatingColumn(repetitions = 5) {
                             // Composable that indicates it is being pressed
                             Pressable(
                                 height = 72.dp
@@ -74,13 +75,13 @@ fun NestedScrollingDemo() {
  * A very simple ScrollView like implementation that allows for vertical scrolling.
  */
 @Composable
-private fun Draggable(children: @Composable () -> Unit) {
+private fun Scrollable(children: @Composable () -> Unit) {
     val offset = state { 0f }
     val maxOffset = state { 0f }
 
-    val dragObserver = object : DragObserver {
-        override fun onDrag(dragDistance: Offset): Offset {
-            val resultingOffset = offset.value + dragDistance.y
+    val scrollObserver = object : ScrollCallback {
+        override fun onScroll(scrollDistance: Float): Float {
+            val resultingOffset = offset.value + scrollDistance
             val dyToConsume =
                 when {
                     resultingOffset > 0f -> {
@@ -90,11 +91,11 @@ private fun Draggable(children: @Composable () -> Unit) {
                         maxOffset.value - offset.value
                     }
                     else -> {
-                        dragDistance.y
+                        scrollDistance
                     }
                 }
-            offset.value = offset.value + dyToConsume
-            return Offset(0f, dyToConsume)
+            offset.value += dyToConsume
+            return dyToConsume
         }
     }
 
@@ -109,7 +110,7 @@ private fun Draggable(children: @Composable () -> Unit) {
     Layout(
         children = children,
         modifier = Modifier
-            .dragGestureFilter(dragObserver, canDrag)
+            .scrollGestureFilter(scrollObserver, Orientation.Vertical, canDrag)
             .clipToBounds(),
         measureBlock = { measurables, constraints, _ ->
             val placeable =
@@ -151,7 +152,7 @@ private fun Pressable(
     }
 
     val onDoubleTap: (Offset) -> Unit = {
-        color.value = color.value.prev().prev()
+        color.value = color.value.prev()
     }
 
     val onLongPress = { _: Offset ->
@@ -178,7 +179,7 @@ private fun Pressable(
  * times.
  */
 @Composable
-private fun RepeatingList(repetitions: Int, row: @Composable () -> Unit) {
+private fun RepeatingColumn(repetitions: Int, row: @Composable () -> Unit) {
     Column(Modifier.drawBorder(border = Border(2.dp, BorderColor))) {
         for (i in 1..repetitions) {
             row()
