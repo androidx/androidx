@@ -61,7 +61,11 @@ fun TriStateCheckboxSample() {
             onStateChange2(s)
         }
 
-        TriStateCheckbox(state = parentState, onClick = onParentClick, checkedColor = Color.Black)
+        TriStateCheckbox(
+            state = parentState,
+            onClick = onParentClick,
+            checkedColor = MaterialTheme.colors.primary
+        )
         Column(Modifier.padding(10.dp, 0.dp, 0.dp, 0.dp)) {
             Checkbox(state, onStateChange)
             Checkbox(state2, onStateChange2)

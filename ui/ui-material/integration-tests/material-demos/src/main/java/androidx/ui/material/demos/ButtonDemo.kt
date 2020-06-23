@@ -20,6 +20,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
@@ -48,14 +49,16 @@ private val DefaultSpace = 20.dp
 
 @Composable
 fun ButtonDemo() {
-    Column(Modifier.padding(10.dp)) {
-        Buttons()
-        Spacer(Modifier.preferredHeight(DefaultSpace))
-        Fabs()
-        Spacer(Modifier.preferredHeight(DefaultSpace))
-        IconButtons()
-        Spacer(Modifier.preferredHeight(DefaultSpace))
-        CustomShapeButton()
+    VerticalScroller {
+        Column(Modifier.padding(10.dp)) {
+            Buttons()
+            Spacer(Modifier.preferredHeight(DefaultSpace))
+            Fabs()
+            Spacer(Modifier.preferredHeight(DefaultSpace))
+            IconButtons()
+            Spacer(Modifier.preferredHeight(DefaultSpace))
+            CustomShapeButton()
+        }
     }
 }
 

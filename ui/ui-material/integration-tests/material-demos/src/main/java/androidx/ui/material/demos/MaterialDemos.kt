@@ -30,9 +30,9 @@ val MaterialDemos = DemoCategory("Material", listOf(
     ComposableDemo("App Bars") { AppBarDemo() },
     ComposableDemo("Bottom Navigation") { BottomNavigationDemo() },
     ComposableDemo("Buttons & FABs") { ButtonDemo() },
-    DemoCategory("Drawer", listOf(
-        ComposableDemo("Modal") { ModalDrawerSample() },
-        ComposableDemo("Bottom") { BottomDrawerSample() }
+    DemoCategory("Navigation drawer", listOf(
+        ComposableDemo("Modal drawer") { ModalDrawerSample() },
+        ComposableDemo("Bottom drawer") { BottomDrawerSample() }
     )),
     ComposableDemo("Elevation") { ElevationDemo() },
     ComposableDemo("Emphasis") { EmphasisSample() },
