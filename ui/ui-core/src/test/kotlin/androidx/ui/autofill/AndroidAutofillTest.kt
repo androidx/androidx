@@ -17,14 +17,15 @@
 package androidx.ui.autofill
 
 import android.app.Activity
-import androidx.ui.geometry.Rect
+import android.graphics.Rect as AndroidRect
 import android.view.View
 import android.view.autofill.AutofillManager
 import androidx.test.filters.SmallTest
 import androidx.ui.ComposeUiRobolectricTestRunner
+import androidx.ui.core.toComposeRect
+import androidx.ui.geometry.Rect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
@@ -69,7 +70,6 @@ class AndroidAutofillTest {
         assertThat(view.importantForAutofill).isEqualTo(View.IMPORTANT_FOR_AUTOFILL_YES)
     }
 
-    @Ignore("b/159210000")
     @Test
     fun requestAutofillForNode_calls_notifyViewEntered() {
         // Arrange.
@@ -121,8 +121,8 @@ internal class ShadowAutofillManager {
     val viewExitedStats = mutableListOf<NotifyViewExited>()
 
     @Implementation
-    fun notifyViewEntered(view: View, virtualId: Int, rect: Rect) {
-        viewEnteredStats += NotifyViewEntered(view, virtualId, rect)
+    fun notifyViewEntered(view: View, virtualId: Int, rect: AndroidRect) {
+        viewEnteredStats += NotifyViewEntered(view, virtualId, rect.toComposeRect())
     }
 
     @Implementation
