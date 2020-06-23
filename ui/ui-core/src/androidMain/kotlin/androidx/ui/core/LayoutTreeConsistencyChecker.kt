@@ -57,10 +57,16 @@ internal class LayoutTreeConsistencyChecker(
                 // `onRequestMeasure` will be called for all items in `postponedMeasureRequests`
                 return true
             }
-            if (layoutState == LayoutState.NeedsRemeasure ||
-                layoutState == LayoutState.NeedsRelayout) {
-                // remeasure or relayout is scheduled
-                return relayoutNodes.contains(this)
+            // remeasure or relayout is scheduled
+            val parentLayoutState = parent?.layoutState
+            if (layoutState == LayoutState.NeedsRemeasure) {
+                return relayoutNodes.contains(this) ||
+                        parentLayoutState == LayoutState.NeedsRemeasure
+            }
+            if (layoutState == LayoutState.NeedsRelayout) {
+                return relayoutNodes.contains(this) ||
+                        parentLayoutState == LayoutState.NeedsRemeasure ||
+                        parentLayoutState == LayoutState.NeedsRelayout
             }
         }
         return true

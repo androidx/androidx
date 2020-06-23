@@ -129,7 +129,10 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             } else {
                 layoutNode.layoutState = NeedsRemeasure
                 if (layoutNode.isPlaced || layoutNode.canAffectPlacedParent) {
-                    relayoutNodes.add(layoutNode)
+                    val parentLayoutState = layoutNode.parent?.layoutState
+                    if (parentLayoutState != NeedsRemeasure) {
+                        relayoutNodes.add(layoutNode)
+                    }
                 }
             }
             !duringMeasureLayout
@@ -152,7 +155,10 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         Ready -> {
             layoutNode.layoutState = NeedsRelayout
             if (layoutNode.isPlaced) {
-                relayoutNodes.add(layoutNode)
+                val parentLayoutState = layoutNode.parent?.layoutState
+                if (parentLayoutState != NeedsRemeasure && parentLayoutState != NeedsRelayout) {
+                    relayoutNodes.add(layoutNode)
+                }
             }
             !duringMeasureLayout
         }
