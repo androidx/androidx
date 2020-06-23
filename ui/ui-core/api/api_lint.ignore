@@ -29,6 +29,14 @@ CallbackName: androidx.ui.core.gesture.ScaleObserver:
     Class should be named ScaleCallback
 
 
+ListenerLast: androidx.ui.core.gesture.ScrollGestureFilterKt#scrollGestureFilter(androidx.ui.core.Modifier, androidx.ui.core.gesture.ScrollCallback, androidx.ui.core.gesture.scrollorientationlocking.Orientation, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>, boolean) parameter #2:
+    Listeners should always be at end of argument list (method `scrollGestureFilter`)
+ListenerLast: androidx.ui.core.gesture.ScrollGestureFilterKt#scrollGestureFilter(androidx.ui.core.Modifier, androidx.ui.core.gesture.ScrollCallback, androidx.ui.core.gesture.scrollorientationlocking.Orientation, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>, boolean) parameter #3:
+    Listeners should always be at end of argument list (method `scrollGestureFilter`)
+ListenerLast: androidx.ui.core.gesture.ScrollGestureFilterKt#scrollGestureFilter(androidx.ui.core.Modifier, androidx.ui.core.gesture.ScrollCallback, androidx.ui.core.gesture.scrollorientationlocking.Orientation, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>, boolean) parameter #4:
+    Listeners should always be at end of argument list (method `scrollGestureFilter`)
+
+
 MissingNullability: androidx.ui.core.Measured#constructor-impl(androidx.ui.core.Placeable):
     Missing nullability on method `constructor-impl` return
 MissingNullability: androidx.ui.core.Measured#equals-impl(androidx.ui.core.Placeable, Object) parameter #0:

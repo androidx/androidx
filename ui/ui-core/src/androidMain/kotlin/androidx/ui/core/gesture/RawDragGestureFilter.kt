@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalPointerInput::class)
+
 package androidx.ui.core.gesture
 
 import androidx.compose.remember
+import androidx.ui.core.CustomEvent
+import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
@@ -28,6 +32,8 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
+import androidx.ui.core.gesture.scrollorientationlocking.ScrollOrientationLocker
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.positionChange
@@ -36,6 +42,9 @@ import androidx.ui.geometry.Offset
 import androidx.ui.util.fastAny
 import androidx.ui.util.fastForEach
 
+/**
+ * Defines the callbacks associated with dragging.
+ */
 interface DragObserver {
 
     /**
@@ -45,10 +54,11 @@ interface DragObserver {
      * is null or returns true) and the average distance the pointers have moved are not 0 on
      * both the x and y axes.
      *
-     * @param downPosition The pointer input position of the down event.
+     * Only called if the last called if the most recent call among [onStart], [onStop], and
+     * [onCancel] was [onStop] or [onCancel].
      *
-     * @see onDrag
-     * @see onStop
+     * @param downPosition The average position of all pointer positions when they first touched
+     * down.
      */
     fun onStart(downPosition: Offset) {}
 
@@ -74,16 +84,22 @@ interface DragObserver {
      *
      * This is called once all pointers have stopped interacting with this DragGestureDetector.
      *
-     * Only called if the last call between [onStart] and [onStop] was [onStart].
+     * Only called if the last called if the most recent call among [onStart], [onStop], and
+     * [onCancel] was [onStart].
+     *
+     * @param velocity The velocity of the drag in both orientations at the point in time when all
+     * pointers have released the relevant PointerInputFilter. In pixels per second.
      */
     fun onStop(velocity: Offset) {}
 
     /**
      * Override to be notified when the drag has been cancelled.
      *
-     * This is called if [onStart] has ben called and then a cancellation event has occurs
-     * (for example, due to the gesture detector being removed from the tree) before [onStop] is
-     * called.
+     * This is called in response to a cancellation event such as the associated
+     * PointerInputFilter having been removed from the hierarchy.
+     *
+     * Only called if the last called if the most recent call among [onStart], [onStop], and
+     * [onCancel] was [onStart].
      */
     fun onCancel() {}
 }
@@ -115,29 +131,47 @@ interface DragObserver {
  * When multiple pointers are touching the detector, the drag distance is taken as the average of
  * all of the pointers.
  *
+ * Note: Changing the value of [orientation] will reset the gesture filter such that it will not
+ * respond to input until new pointers are detected.
+ *
  * @param dragObserver The callback interface to report all events related to dragging.
  * @param canStartDragging If set, Before dragging is started ([DragObserver.onStart] is called),
  *                         canStartDragging is called to check to see if it is allowed to start.
+ * @param orientation Limits the directions under which dragging can occur to those that are
+ *                    within the provided orientation, locks pointers that are used to drag in
+ *                    the given orientation to that orientation, and ignores pointers that are
+ *                    locked to other orientations.  If no orientation is provided, does none of
+ *                    the above.
  */
 
-// TODO(b/129784010): Consider also allowing onStart, onDrag, and onStop to be set individually (instead of all being
-//  set via DragObserver).
+// TODO(b/129784010): Consider also allowing onStart, onDrag, and onStop to be set individually
+//  (instead of all being set via DragObserver).
 fun Modifier.rawDragGestureFilter(
     dragObserver: DragObserver,
-    canStartDragging: (() -> Boolean)? = null
+    canStartDragging: (() -> Boolean)? = null,
+    orientation: Orientation? = null
 ): Modifier = composed {
     val filter = remember { RawDragGestureFilter() }
     filter.dragObserver = dragObserver
     filter.canStartDragging = canStartDragging
+    filter.orientation = orientation
     PointerInputModifierImpl(filter)
 }
 
 internal class RawDragGestureFilter : PointerInputFilter() {
     private val velocityTrackers: MutableMap<PointerId, VelocityTracker> = mutableMapOf()
     private val downPositions: MutableMap<PointerId, Offset> = mutableMapOf()
+
+    internal lateinit var dragObserver: DragObserver
+    internal var canStartDragging: (() -> Boolean)? = null
+    internal var orientation: Orientation? = null
+
     private var started = false
-    var canStartDragging: (() -> Boolean)? = null
-    lateinit var dragObserver: DragObserver
+    internal lateinit var scrollOrientationLocker: ScrollOrientationLocker
+
+    override fun onInit(customEventDispatcher: CustomEventDispatcher) {
+        scrollOrientationLocker = ScrollOrientationLocker(customEventDispatcher)
+    }
 
     override fun onPointerInput(
         changes: List<PointerInputChange>,
@@ -145,161 +179,201 @@ internal class RawDragGestureFilter : PointerInputFilter() {
         bounds: IntSize
     ): List<PointerInputChange> {
 
-            var changesToReturn = changes
+        scrollOrientationLocker.onPointerInputSetup(changes, pass)
 
-            if (pass == PointerEventPass.InitialDown) {
+        var changesToReturn = changes
 
-                if (started) {
-                    // If we are have started we want to prevent any descendants from reacting to
-                    // any down change.
-                    changesToReturn = changesToReturn.map {
-                        if (it.changedToDown()) {
-                            it.consumeDownChange()
-                        } else {
-                            it
-                        }
+        if (pass == PointerEventPass.InitialDown) {
+
+            if (started) {
+                // If we are have started we want to prevent any descendants from reacting to
+                // any down change.
+                changesToReturn = changesToReturn.map {
+                    if (it.changedToDown()) {
+                        it.consumeDownChange()
+                    } else {
+                        it
+                    }
+                }
+            }
+        }
+
+        if (pass == PointerEventPass.PostUp) {
+
+            val applicableChanges =
+                with(orientation) {
+                    if (this != null) {
+                        scrollOrientationLocker.getPointersFor(changes, this)
+                    } else {
+                        changes
+                    }
+                }
+
+            // Handle up changes, which includes removing individual pointer VelocityTrackers
+            // and potentially calling onStop().
+            if (changesToReturn.fastAny { it.changedToUpIgnoreConsumed() }) {
+
+                var velocityTracker: VelocityTracker? = null
+
+                changesToReturn.fastForEach {
+                    // This pointer is up (consumed or not), so we should stop tracking
+                    // information about it.  If the pointer is not locked out of our
+                    // orientation, get the velocity tracker because this might be a fling.
+                    if (it.changedToUp() && applicableChanges.contains(it)) {
+                        velocityTracker = velocityTrackers.remove(it.id)
+                    } else if (it.changedToUpIgnoreConsumed()) {
+                        velocityTrackers.remove(it.id)
+                    }
+                    // removing stored down position for the pointer.
+                    if (it.changedToUp()) {
+                        downPositions.remove(it.id)
+                    }
+                }
+
+                if (changesToReturn.all { it.changedToUpIgnoreConsumed() }) {
+                    // All of the pointers are up, so reset and call onStop.  If we have a
+                    // velocityTracker at this point, that means at least one of the up events
+                    // was not consumed so we should send velocity for flinging.
+                    if (started) {
+                        val velocity: Offset? =
+                            if (velocityTracker != null) {
+                                changesToReturn = changesToReturn.map {
+                                    it.consumeDownChange()
+                                }
+                                velocityTracker!!.calculateVelocity().pixelsPerSecond
+                            } else {
+                                null
+                            }
+                        started = false
+                        dragObserver.onStop(velocity ?: Offset.Zero)
+                        reset()
                     }
                 }
             }
 
-            if (pass == PointerEventPass.PostUp) {
-
-                // Handle up changes, which includes removing individual pointer VelocityTrackers
-                // and potentially calling onStop().
-                if (changesToReturn.fastAny { it.changedToUpIgnoreConsumed() }) {
-
-                    var velocityTracker: VelocityTracker? = null
-
-                    changesToReturn.fastForEach {
-                        // This pointer is up (consumed or not), so we should stop tracking
-                        // information about it.  Get a reference for the velocity tracker in case
-                        // this is the last pointer and thus we are going to fling.
-                        if (it.changedToUp()) {
-                            velocityTracker = velocityTrackers.remove(it.id)
-                        } else if (it.changedToUpIgnoreConsumed()) {
-                            velocityTrackers.remove(it.id)
-                        }
-                        // removing stored down position for the pointer.
-                        if (it.changedToUp()) {
-                            downPositions.remove(it.id)
-                        }
-                    }
-
-                    if (changesToReturn.all { it.changedToUpIgnoreConsumed() }) {
-                        // All of the pointers are up, so reset and call onStop.  If we have a
-                        // velocityTracker at this point, that means at least one of the up events
-                        // was not consumed so we should send velocity for flinging.
-                        if (started) {
-                            val velocity: Offset? =
-                                if (velocityTracker != null) {
-                                    changesToReturn = changesToReturn.map {
-                                        it.consumeDownChange()
-                                    }
-                                    velocityTracker!!.calculateVelocity().pixelsPerSecond
-                                } else {
-                                    null
-                                }
-                            started = false
-                            dragObserver.onStop(velocity ?: Offset.Zero)
-                        }
+            // For each new pointer that has been added, start tracking information about it.
+            if (changesToReturn.fastAny { it.changedToDownIgnoreConsumed() }) {
+                changesToReturn.fastForEach {
+                    // If a pointer has changed to down, we should start tracking information
+                    // about it.
+                    if (it.changedToDownIgnoreConsumed()) {
+                        velocityTrackers[it.id] = VelocityTracker()
+                            .apply {
+                                addPosition(
+                                    it.current.uptime!!,
+                                    it.current.position!!
+                                )
+                            }
+                        downPositions[it.id] = it.current.position!!
                     }
                 }
+            }
+        }
 
-                // For each new pointer that has been added, start tracking information about it.
-                if (changesToReturn.fastAny { it.changedToDownIgnoreConsumed() }) {
-                    changesToReturn.fastForEach {
-                        // If a pointer has changed to down, we should start tracking information
-                        // about it.
-                        if (it.changedToDownIgnoreConsumed()) {
-                            velocityTrackers[it.id] = VelocityTracker()
-                                .apply {
-                                    addPosition(
-                                        it.current.uptime!!,
-                                        it.current.position!!
-                                    )
-                                }
-                            downPositions[it.id] = it.current.position!!
-                        }
+        // This if block is run for both PostUp and PostDown to allow for the detector to
+        // respond to modified changes after ancestors may have modified them.  (This allows
+        // for things like dragging an ancestor scrolling container, while keeping a pointer on
+        // a descendant scrolling container, and the descendant scrolling container keeping the
+        // descendant still.)
+        if (pass == PointerEventPass.PostUp || pass == PointerEventPass.PostDown) {
+
+            var (movedChanges, otherChanges) = changesToReturn.partition {
+                it.current.down && !it.changedToDownIgnoreConsumed()
+            }
+
+            movedChanges.fastForEach {
+                // TODO(shepshapard): handle the case that the pointerTrackingData is null,
+                // either with an exception or a logged error, or something else.
+                val velocityTracker = velocityTrackers[it.id]
+
+                if (velocityTracker != null) {
+
+                    // Add information to the velocity tracker only during one pass.
+                    // TODO(shepshapard): VelocityTracker needs to be updated to not accept
+                    // position information, but rather vector information about movement.
+                    if (pass == PointerEventPass.PostUp) {
+                        velocityTracker.addPosition(
+                            it.current.uptime!!,
+                            it.current.position!!
+                        )
                     }
                 }
             }
 
-            // This if block is run for both PostUp and PostDown to allow for the detector to
-            // respond to modified changes after ancestors may have modified them.  (This allows
-            // for things like dragging an ancestor scrolling container, while keeping a pointer on
-            // a descendant scrolling container, and the descendant scrolling container keeping the
-            // descendant still.)
-            if (pass == PointerEventPass.PostUp || pass == PointerEventPass.PostDown) {
+            // Check to see if we are already started so we don't have to call canStartDragging again.
+            val canStart = !started && canStartDragging?.invoke() ?: true
 
-                var (movedChanges, otherChanges) = changesToReturn.partition {
-                    it.current.down && !it.changedToDownIgnoreConsumed()
-                }
+            // At this point, check to see if we have started, and if we have, we may
+            // be calling onDrag and updating change information on the PointerInputChanges.
+            if (started || canStart) {
+
+                var totalDx = 0f
+                var totalDy = 0f
+
+                val verticalPointers =
+                    scrollOrientationLocker.getPointersFor(
+                        movedChanges,
+                        Orientation.Vertical
+                    )
+                val horizontalPointers =
+                    scrollOrientationLocker.getPointersFor(
+                        movedChanges,
+                        Orientation.Horizontal
+                    )
 
                 movedChanges.fastForEach {
-                    // TODO(shepshapard): handle the case that the pointerTrackingData is null,
-                    // either with an exception or a logged error, or something else.
-                    val velocityTracker = velocityTrackers[it.id]
-
-                    if (velocityTracker != null) {
-
-                        // Add information to the velocity tracker only during one pass.
-                        // TODO(shepshapard): VelocityTracker needs to be updated to not accept
-                        // position information, but rather vector information about movement.
-                        if (pass == PointerEventPass.PostUp) {
-                            velocityTracker.addPosition(
-                                it.current.uptime!!,
-                                it.current.position!!
-                            )
-                        }
-                    }
-                }
-
-                // Check to see if we are already started so we don't have to call canStartDragging again.
-                val canStart = !started && canStartDragging?.invoke() ?: true
-
-                // At this point, check to see if we have started, and if we have, we may
-                // be calling onDrag and updating change information on the PointerInputChanges.
-                if (started || canStart) {
-
-                    var totalDx = 0f
-                    var totalDy = 0f
-
-                    movedChanges.fastForEach {
+                    if (horizontalPointers.contains(it) && orientation !=
+                        Orientation.Vertical
+                    ) {
                         totalDx += it.positionChange().x
+                    }
+                    if (verticalPointers.contains(it) && orientation !=
+                        Orientation.Horizontal
+                    ) {
                         totalDy += it.positionChange().y
                     }
-
-                    if (totalDx != 0f || totalDy != 0f) {
-
-                        // At this point, if we have not started, check to see if we should start
-                        // and if we should, update our state and call onStart().
-                        if (!started && canStart) {
-                            started = true
-                            dragObserver.onStart(downPositions.values.averagePosition())
-                            downPositions.clear()
-                        }
-
-                        if (started) {
-
-                            val consumed = dragObserver.onDrag(
-                                Offset(
-                                    totalDx / changesToReturn.size,
-                                    totalDy / changesToReturn.size
-                                )
-                            )
-
-                            movedChanges = movedChanges.map {
-                                it.consumePositionChange(consumed.x, consumed.y)
-                            }
-                        }
-                    }
                 }
 
-                changesToReturn = movedChanges + otherChanges
+                if (totalDx != 0f || totalDy != 0f) {
+
+                    // At this point, if we have not started, check to see if we should start
+                    // and if we should, update our state and call onStart().
+                    if (!started) {
+                        started = true
+                        dragObserver.onStart(downPositions.values.averagePosition())
+                        downPositions.clear()
+                    }
+
+                    // Only need to do this during the first pass that we care about (PostUp).
+                    if (pass == PointerEventPass.PostUp) {
+                        orientation?.let {
+                            scrollOrientationLocker.attemptToLockPointers(
+                                movedChanges,
+                                it
+                            )
+                        }
+                    }
+
+                    val consumed = dragObserver.onDrag(
+                        Offset(
+                            totalDx / changesToReturn.size,
+                            totalDy / changesToReturn.size
+                        )
+                    )
+
+                    movedChanges = movedChanges.map {
+                        it.consumePositionChange(consumed.x, consumed.y)
+                    }
+                }
             }
 
-            return changesToReturn
+            changesToReturn = movedChanges + otherChanges
         }
+
+        scrollOrientationLocker.onPointerInputTearDown(changes, pass)
+
+        return changesToReturn
+    }
 
     override fun onCancel() {
         downPositions.clear()
@@ -308,13 +382,24 @@ internal class RawDragGestureFilter : PointerInputFilter() {
             started = false
             dragObserver.onCancel()
         }
+        scrollOrientationLocker.onCancel()
+        reset()
+    }
+
+    override fun onCustomEvent(customEvent: CustomEvent, pass: PointerEventPass) {
+        scrollOrientationLocker.onCustomEvent(customEvent, pass)
+    }
+
+    private fun reset() {
+        downPositions.clear()
+        velocityTrackers.clear()
     }
 }
 
 private fun Iterable<Offset>.averagePosition(): Offset {
     var x = 0f
     var y = 0f
-    forEach {
+    this.forEach {
         x += it.x
         y += it.y
     }

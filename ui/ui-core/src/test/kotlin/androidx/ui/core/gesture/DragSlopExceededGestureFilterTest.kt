@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalPointerInput::class)
+@file:Suppress("PrivatePropertyName")
+
 package androidx.ui.core.gesture
 
 import androidx.ui.core.Direction
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.gesture.scrollorientationlocking.InternalScrollOrientationLocker
+import androidx.ui.core.gesture.scrollorientationlocking.Orientation
+import androidx.ui.core.gesture.scrollorientationlocking.ScrollOrientationLocker
+import androidx.ui.core.gesture.scrollorientationlocking.ShareScrollOrientationLockerEvent
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
@@ -29,6 +36,7 @@ import androidx.ui.testutils.up
 import androidx.ui.unit.Duration
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,8 +74,9 @@ class DragSlopExceededGestureFilterTest {
         canDragDirections.clear()
         filter =
             DragSlopExceededGestureFilter(TestTouchSlop.toFloat())
-        filter.canDrag = canDrag
+        filter.setDraggableData(null, canDrag)
         filter.onDragSlopExceeded = onDragSlopExceeded
+        filter.scrollOrientationLocker = ScrollOrientationLocker(mock())
     }
 
     // Verify the circumstances under which canDrag should not be called.
@@ -879,6 +888,219 @@ class DragSlopExceededGestureFilterTest {
         }
 
         assertThat(onDragSlopExceededCallCount).isEqualTo(2)
+    }
+
+    // Orientation tests
+
+    // Tests that verify correct behavior when orientation is set.
+
+    @Test
+    fun onPointerInput_filterIsHorizontalMovementVertical_canDragNotCalled() {
+        filter.setDraggableData(Orientation.Horizontal, canDrag)
+
+        val down = down(0)
+        filter::onPointerInput.invokeOverAllPasses(down)
+        val move1 = down.moveBy(Duration(milliseconds = 10), 0f, 1f)
+        filter::onPointerInput.invokeOverAllPasses(move1)
+        val move2 = down.moveBy(Duration(milliseconds = 10), 0f, -1f)
+        filter::onPointerInput.invokeOverAllPasses(move2)
+
+        assertThat(canDragDirections).isEmpty()
+    }
+
+    @Test
+    fun onPointerInput_filterIsVerticalMovementIsHorizontal_canDragNotCalled() {
+        filter.setDraggableData(Orientation.Vertical, canDrag)
+
+        val down = down(0)
+        filter::onPointerInput.invokeOverAllPasses(down)
+        val move1 = down.moveBy(Duration(milliseconds = 10), 1f, 0f)
+        filter::onPointerInput.invokeOverAllPasses(move1)
+        val move2 = down.moveBy(Duration(milliseconds = 10), -1f, 0f)
+        filter::onPointerInput.invokeOverAllPasses(move2)
+
+        assertThat(canDragDirections).isEmpty()
+    }
+
+    @Test
+    fun onPointerInput_filterIsHorizontalMovementHorizontal_canDragCalled() {
+        filter.setDraggableData(Orientation.Horizontal, canDrag)
+
+        val down = down(0)
+        filter::onPointerInput.invokeOverAllPasses(down)
+        val move1 = down.moveBy(Duration(milliseconds = 10), 1f, 0f)
+        filter::onPointerInput.invokeOverAllPasses(move1)
+        val move2 = down.moveBy(Duration(milliseconds = 10), -1f, 0f)
+        filter::onPointerInput.invokeOverAllPasses(move2)
+
+        // 2 for each because canDrag is currently checked on both postUp and postDown
+        assertThat(canDragDirections.filter { it == Direction.LEFT }).hasSize(2)
+        assertThat(canDragDirections.filter { it == Direction.RIGHT }).hasSize(2)
+    }
+
+    @Test
+    fun onPointerInput_filterIsVerticalMovementIsVertical_canDragCalled() {
+        filter.setDraggableData(Orientation.Vertical, canDrag)
+
+        val down = down(0)
+        filter::onPointerInput.invokeOverAllPasses(down)
+        val move1 = down.moveBy(Duration(milliseconds = 10), 0f, 1f)
+        filter::onPointerInput.invokeOverAllPasses(move1)
+        val move2 = down.moveBy(Duration(milliseconds = 10), 0f, -1f)
+        filter::onPointerInput.invokeOverAllPasses(move2)
+
+        // 2 for each because canDrag is currently checked on both postUp and postDown
+        assertThat(canDragDirections.filter { it == Direction.UP }).hasSize(2)
+        assertThat(canDragDirections.filter { it == Direction.DOWN }).hasSize(2)
+    }
+
+    @Test
+    fun onPointerInput_filterIsHorizontalMoveLeftPassedSlop_onTouchSlopExceededCalled() {
+        onPointerInput_filterHasOrientationMovePassedSlop(Orientation.Horizontal, -1, 0, 1)
+    }
+
+    @Test
+    fun onPointerInput_filterIsHorizontalMoveUpPassedSlop_onTouchSlopExceededNotCalled() {
+        onPointerInput_filterHasOrientationMovePassedSlop(Orientation.Horizontal, 0, -1, 0)
+    }
+
+    @Test
+    fun onPointerInput_filterIsHorizontalMoveRightPassedSlop_onTouchSlopExceededCalled() {
+        onPointerInput_filterHasOrientationMovePassedSlop(Orientation.Horizontal, 1, 0, 1)
+    }
+
+    @Test
+    fun onPointerInput_filterIsHorizontalMoveDownPassedSlop_onTouchSlopExceededNotCalled() {
+        onPointerInput_filterHasOrientationMovePassedSlop(Orientation.Horizontal, 0, 1, 0)
+    }
+
+    @Test
+    fun onPointerInput_filterIsVerticalMoveLeftPassedSlop_onTouchSlopExceededNotCalled() {
+        onPointerInput_filterHasOrientationMovePassedSlop(Orientation.Vertical, -1, 0, 0)
+    }
+
+    @Test
+    fun onPointerInput_filterIsVerticalMoveUpPassedSlop_onTouchSlopExceededCalled() {
+        onPointerInput_filterHasOrientationMovePassedSlop(Orientation.Vertical, 0, -1, 1)
+    }
+
+    @Test
+    fun onPointerInput_filterIsVerticalMoveRightPassedSlop_onTouchSlopExceededNotCalled() {
+        onPointerInput_filterHasOrientationMovePassedSlop(Orientation.Vertical, 1, 0, 0)
+    }
+
+    @Test
+    fun onPointerInput_filterIsVerticalMoveDownPassedSlop_onTouchSlopExceededCalled() {
+        onPointerInput_filterHasOrientationMovePassedSlop(Orientation.Vertical, 0, 1, 1)
+    }
+
+    private fun onPointerInput_filterHasOrientationMovePassedSlop(
+        filterOrientation: Orientation,
+        horizontalDirection: Int,
+        verticalDirection: Int,
+        expectecdOnDragSlopExceededCallCount: Int
+    ) {
+        val beyondSlop = TestTouchSlop + TinyNum
+
+        filter.setDraggableData(filterOrientation, canDrag)
+
+        val down = down(0)
+        filter::onPointerInput.invokeOverAllPasses(down)
+        val move = down.moveBy(
+            Duration(milliseconds = 100),
+            horizontalDirection * beyondSlop,
+            verticalDirection * beyondSlop
+        )
+        filter::onPointerInput.invokeOverAllPasses(move)
+
+        assertThat(onDragSlopExceededCallCount).isEqualTo(expectecdOnDragSlopExceededCallCount)
+    }
+
+    @Test
+    fun onPointerInput_filterHorizontalPointerVerticalMovesLeftPastSlop_callBackNotCalled() {
+        onPointerInput_pointerIsLockedMovesPassedSlop(
+            Orientation.Horizontal, Orientation.Vertical, -1, 0, 0
+        )
+    }
+
+    @Test
+    fun onPointerInput_filterHorizontalPointerVerticalMovesRightPastSlop_callBackNotCalled() {
+        onPointerInput_pointerIsLockedMovesPassedSlop(
+            Orientation.Horizontal, Orientation.Vertical, 1, 0, 0
+        )
+    }
+
+    @Test
+    fun onPointerInput_filterHorizontalPointerHorizontalMovesLeftPastSlop_callBackCalled() {
+        onPointerInput_pointerIsLockedMovesPassedSlop(
+            Orientation.Horizontal, Orientation.Horizontal, -1, 0, 1
+        )
+    }
+
+    @Test
+    fun onPointerInput_filterHorizontalPointerHorizontallMovesRightPastSlop_callBackCalled() {
+        onPointerInput_pointerIsLockedMovesPassedSlop(
+            Orientation.Horizontal, Orientation.Horizontal, 1, 0, 1
+        )
+    }
+
+    @Test
+    fun onPointerInput_filterVerticalPointerHorizontalMovesUpPastSlop_callBackNotCalled() {
+        onPointerInput_pointerIsLockedMovesPassedSlop(
+            Orientation.Vertical, Orientation.Horizontal, 0, -1, 0
+        )
+    }
+
+    @Test
+    fun onPointerInput_filterVerticalPointerHorizontalMovesDownPastSlop_callBackNotCalled() {
+        onPointerInput_pointerIsLockedMovesPassedSlop(
+            Orientation.Vertical, Orientation.Horizontal, 0, 1, 0
+        )
+    }
+
+    @Test
+    fun onPointerInput_filterVerticalPointerVerticalMovesUpPastSlop_callBackCalled() {
+        onPointerInput_pointerIsLockedMovesPassedSlop(
+            Orientation.Vertical, Orientation.Vertical, 0, -1, 1
+        )
+    }
+
+    @Test
+    fun onPointerInput_filterVerticalPointerVerticalMovesDownPastSlop_callBackCalled() {
+        onPointerInput_pointerIsLockedMovesPassedSlop(
+            Orientation.Vertical, Orientation.Vertical, 0, 1, 1
+        )
+    }
+
+    private fun onPointerInput_pointerIsLockedMovesPassedSlop(
+        filterOrientation: Orientation,
+        lockedOrientation: Orientation,
+        horizontalDirection: Int,
+        verticalDirection: Int,
+        expectedOnDragSlopExceededCallCount: Int
+    ) {
+        val beyondSlop = TestTouchSlop + TinyNum
+
+        filter.onInit(mock())
+        val scrollOrientationLocker = InternalScrollOrientationLocker()
+        filter::onCustomEvent.invokeOverAllPasses(
+            ShareScrollOrientationLockerEvent(scrollOrientationLocker)
+        )
+
+        filter.setDraggableData(filterOrientation, canDrag)
+
+        val down = down(0)
+        filter::onPointerInput.invokeOverAllPasses(down)
+        val move = down.moveBy(
+            Duration(milliseconds = 100),
+            horizontalDirection * beyondSlop,
+            verticalDirection * beyondSlop
+        )
+        scrollOrientationLocker.attemptToLockPointers(listOf(move), lockedOrientation)
+
+        filter::onPointerInput.invokeOverAllPasses(move)
+
+        assertThat(onDragSlopExceededCallCount).isEqualTo(expectedOnDragSlopExceededCallCount)
     }
 
     // Verification that cancellation behavior is correct.
