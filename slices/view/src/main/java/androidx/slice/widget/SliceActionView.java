@@ -58,6 +58,8 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
         CompoundButton.OnCheckedChangeListener {
     private static final String TAG = "SliceActionView";
 
+    private static final int HEIGHT_UNBOUND = -1;
+
     static final int[] CHECKED_STATE_SET = {
             android.R.attr.state_checked
     };
@@ -76,12 +78,20 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
 
     private int mIconSize;
     private int mImageSize;
+    private int mStyleRowHeight = HEIGHT_UNBOUND;
 
-    public SliceActionView(Context context) {
+    public SliceActionView(Context context, SliceStyle style) {
         super(context);
         Resources res = getContext().getResources();
         mIconSize = res.getDimensionPixelSize(R.dimen.abc_slice_icon_size);
         mImageSize = res.getDimensionPixelSize(R.dimen.abc_slice_small_image_size);
+        if (style != null) {
+            mStyleRowHeight = style.getRowMinHeight();
+            if (style.getRowStyle() != null) {
+                mIconSize = style.getRowStyle().getIconSize();
+                mImageSize = style.getRowStyle().getImageSize();
+            }
+        }
     }
 
     /**
@@ -164,7 +174,11 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
             lp.width = mImageSize;
             lp.height = mImageSize;
             mActionView.setLayoutParams(lp);
-            int p = action.getImageMode() == ICON_IMAGE ? mIconSize / 2 : 0;
+            int p = 0;
+            if (action.getImageMode() == ICON_IMAGE) {
+                p = mStyleRowHeight == HEIGHT_UNBOUND
+                    ? mIconSize / 2 : (mStyleRowHeight - mIconSize) / 2;
+            }
             mActionView.setPadding(p, p, p, p);
             int touchFeedbackAttr = android.R.attr.selectableItemBackground;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -224,7 +238,7 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
     }
 
     @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+    public void onCheckedChanged(@Nullable CompoundButton buttonView, boolean isChecked) {
         if (mSliceAction == null || mActionView == null) {
             return;
         }

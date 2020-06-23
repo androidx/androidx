@@ -117,6 +117,11 @@ public class SliceStyle {
                 mRowStyle = new RowStyle(context, rowStyleRes);
             }
 
+            int defaultRowMinHeight = context.getResources().getDimensionPixelSize(
+                    R.dimen.abc_slice_row_min_height);
+            mRowMinHeight = (int) a.getDimension(
+                    R.styleable.SliceView_rowMinHeight, defaultRowMinHeight);
+
             int defaultRowMaxHeight = context.getResources().getDimensionPixelSize(
                     R.dimen.abc_slice_row_max_height);
             mRowMaxHeight = (int) a.getDimension(
@@ -142,7 +147,6 @@ public class SliceStyle {
 
         mRowTextWithRangeHeight = r.getDimensionPixelSize(
                 R.dimen.abc_slice_row_range_multi_text_height);
-        mRowMinHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
         mRowSelectionHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_selection_height);
         mRowTextWithSelectionHeight = r.getDimensionPixelSize(
                 R.dimen.abc_slice_row_selection_multi_text_height);
@@ -159,6 +163,10 @@ public class SliceStyle {
 
         mListMinScrollHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
         mListLargeHeight = r.getDimensionPixelSize(R.dimen.abc_slice_large_height);
+    }
+
+    public int getRowMinHeight() {
+        return mRowMinHeight;
     }
 
     public int getRowMaxHeight() {
