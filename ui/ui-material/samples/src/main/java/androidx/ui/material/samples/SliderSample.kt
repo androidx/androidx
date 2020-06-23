@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.graphics.Color
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Slider
 
 @Sampled
@@ -40,6 +40,6 @@ fun StepsSliderSample() {
         onValueChange = { sliderPosition = it },
         valueRange = 0f..100f,
         steps = 5,
-        color = Color.Black
+        color = MaterialTheme.colors.secondary
     )
 }
