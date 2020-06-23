@@ -19,6 +19,7 @@ package androidx.ui.input
 import android.content.Context
 import android.text.InputType
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
@@ -45,10 +46,30 @@ internal class TextInputServiceAndroid(val view: View) : PlatformTextInputServic
     private var imeAction = ImeAction.Unspecified
     private var ic: RecordingInputConnection? = null
 
+    private var focusedRect: android.graphics.Rect? = null
+
     /**
      * The editable buffer used for BaseInputConnection.
      */
     private lateinit var imm: InputMethodManager
+
+    private val layoutListener = ViewTreeObserver.OnGlobalLayoutListener {
+        // focusedRect is null if there is not ongoing text input session. So safe to request
+        // latest focused rectangle whenever global layout has changed.
+        focusedRect?.let { view.requestRectangleOnScreen(it) }
+    }
+
+    init {
+        view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewDetachedFromWindow(v: View?) {
+                v?.rootView?.viewTreeObserver?.removeOnGlobalLayoutListener(layoutListener)
+            }
+
+            override fun onViewAttachedToWindow(v: View?) {
+                v?.rootView?.viewTreeObserver?.addOnGlobalLayoutListener(layoutListener)
+            }
+        })
+    }
 
     /**
      * Creates new input connection.
@@ -104,6 +125,7 @@ internal class TextInputServiceAndroid(val view: View) : PlatformTextInputServic
         editorHasFocus = false
         onEditCommand = {}
         onImeActionPerformed = {}
+        focusedRect = null
 
         imm.restartInput(view)
         editorHasFocus = false
@@ -123,11 +145,22 @@ internal class TextInputServiceAndroid(val view: View) : PlatformTextInputServic
     }
 
     override fun notifyFocusedRect(rect: Rect) {
-        view.requestRectangleOnScreen(android.graphics.Rect(
+        focusedRect = android.graphics.Rect(
             rect.left.roundToInt(),
             rect.top.roundToInt(),
             rect.right.roundToInt(),
-            rect.bottom.roundToInt()))
+            rect.bottom.roundToInt()
+        )
+
+        // Requesting rectangle too early after obtaining focus may bring view into wrong place
+        // probably due to transient IME inset change. We don't know the correct timing of calling
+        // requestRectangleOnScreen API, so try to call this API only after the IME is ready to
+        // use, i.e. InputConnection has created.
+        // Even if we miss all the timing of requesting rectangle during initial text field focus,
+        // focused rectangle will be requested when software keyboard has shown.
+        if (ic == null) {
+            view.requestRectangleOnScreen(focusedRect)
+        }
     }
 
     /**
