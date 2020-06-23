@@ -18,20 +18,29 @@ package androidx.contentaccess
 
 import android.content.ContentResolver
 import kotlin.reflect.KClass
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
+import androidx.arch.core.executor.ArchTaskExecutor
+import java.util.concurrent.Executor
 
 class ContentAccess {
     companion object {
         @Suppress("UNCHECKED_CAST")
         fun <T : Any> getAccessor(
             contentAccessObject: KClass<T>,
-            contentResolver: ContentResolver
+            contentResolver: ContentResolver,
+            queryExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
         ): T {
             val generatedClassName = "_${contentAccessObject.simpleName}Impl"
             val packageName = contentAccessObject.java.`package`!!.name
             try {
                 val cl = Class.forName("$packageName.$generatedClassName")
-                val constructor = cl.getConstructor(ContentResolver::class.java)
-                return constructor.newInstance(contentResolver) as T
+                val constructor = cl.getConstructor(
+                    ContentResolver::class.java,
+                    CoroutineDispatcher::class.java
+                )
+                return constructor.newInstance(contentResolver, queryExecutor
+                    .asCoroutineDispatcher()) as T
             } catch (e: ClassNotFoundException) {
                 error("Cannot find generated class for content accessor ${contentAccessObject
                     .qualifiedName}, this is most likely because the class is not annotated " +

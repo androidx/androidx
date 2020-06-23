@@ -17,7 +17,11 @@
 package androidx.contentaccess.compiler.processor
 
 import androidx.contentaccess.compiler.utils.ErrorReporter
+import androidx.contentaccess.compiler.vo.ContentEntityVO
 import androidx.contentaccess.compiler.vo.SelectionVO
+import net.sf.jsqlparser.expression.ExpressionVisitorAdapter
+import net.sf.jsqlparser.parser.CCJSqlParserUtil
+import net.sf.jsqlparser.schema.Column
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.TypeMirror
 
@@ -25,37 +29,70 @@ class SelectionProcessor(
     private val method: ExecutableElement,
     private val selection: String,
     private val paramsNamesAndTypes: HashMap<String, TypeMirror>,
-    private val errorReporter: ErrorReporter
+    private val errorReporter: ErrorReporter,
+    private val resolvedContentEntity: ContentEntityVO
 ) {
 
-    // TODO(obenabde): validate the selection: make sure it's valid syntax, make sure the
-    //  comparisons between parameters are valid etc...
+    // TODO(obenabde): this is low priority but maybe validate that method arguments being compared
+    //  to columns have the same type (e.g "description = :param", if description is a string, then
+    //  ensure that param is a string as well.
     fun process(): SelectionVO? {
         // TODO(obenabde): Consider returning a kotlin Result to avoid returning null in case
-        // of failure.
-        // TODO(obenabde): right now this forces all to be separated by spaces, so a=:param won't
-        //  work since we split here by spaces, either make it support no spaces for comparisons
-        //  or decide to keep it this way. Also the detection and substitution logic is pretty
-        //  basic, maybe more should be done.
+        //  of failure.
+        var modifiedSelection = selection
         val selectionsArgs = ArrayList<String>()
-        val splitSelection = ArrayList<String>(selection.split(" "))
-        for (i in splitSelection.indices) {
-            if (splitSelection.get(i).startsWith(":")) {
-                val word = splitSelection.get(i)
-                if (word.length == 1) {
-                    errorReporter.reportError("Found stray \":\" in the selection", method)
+        val wordsStartingWithColumn = findWordsStartingWithColumn(selection)
+        for (wordStartingWithColumn in wordsStartingWithColumn) {
+                if (wordStartingWithColumn.length == 1) {
+                    errorReporter.reportError(strayColumnInSelectionErrorMessage(), method)
                     return null
                 }
-                val strippedParamName = splitSelection.get(i).substring(1)
+                val strippedParamName = wordStartingWithColumn.substring(1)
                 if (!paramsNamesAndTypes.containsKey(strippedParamName)) {
-                    errorReporter.reportError("Selection argument :${strippedParamName.substring
-                        (1)} is not specified in the method's parameters.", method)
+                    errorReporter.reportError(selectionParameterNotInMethodParameters
+                        (strippedParamName), method)
                     return null
                 }
                 selectionsArgs.add(strippedParamName)
-                splitSelection[i] = "?"
-            }
+                modifiedSelection = modifiedSelection.replaceFirst(wordStartingWithColumn, "?")
         }
-        return SelectionVO(splitSelection.joinToString(" "), selectionsArgs)
+        val selectionExpression = CCJSqlParserUtil.parseCondExpression(modifiedSelection)
+        var foundMissingColumn = false
+        selectionExpression.accept(object : ExpressionVisitorAdapter() {
+            override fun visit(column: Column?) {
+                val columnString = column.toString()
+                // So it seems to assume that in the expression col1 = "ll" that "ll" is a column
+                // and doesn't understand that it's a string reference for some reasons... work
+                // around this for now.
+                if (!columnString.startsWith('"') || !columnString.endsWith('"')) {
+                    if (!resolvedContentEntity.columns.contains(columnString)) {
+                        errorReporter.reportError(columnInSelectionMissingFromEntity(columnString,
+                                resolvedContentEntity.type.toString()), method)
+                        foundMissingColumn = true
+                    }
+                }
+            }
+        })
+        if (foundMissingColumn) {
+            return null
+        }
+        return SelectionVO(modifiedSelection, selectionsArgs)
+    }
+
+    fun findWordsStartingWithColumn(expression: String): List<String> {
+        val wordsStartingWithColumn = mutableListOf<String>()
+        var currIndex = 0
+        while (currIndex < expression.length) {
+            if (expression[currIndex] == ':') {
+                val startingIndex = currIndex
+                while (currIndex + 1 < expression.length && expression[currIndex + 1]
+                        .isLetterOrDigit()) {
+                    currIndex++
+                }
+                wordsStartingWithColumn.add(expression.substring(startingIndex, currIndex + 1))
+            }
+            currIndex++
+        }
+        return wordsStartingWithColumn
     }
 }

@@ -17,10 +17,6 @@
 package androidx.contentaccess.compiler.writer
 
 import androidx.contentaccess.compiler.vo.ContentAccessObjectVO
-import com.squareup.kotlinpoet.classinspector.elements.ElementsClassInspector
-import com.squareup.kotlinpoet.metadata.specs.toTypeSpec
-import com.squareup.kotlinpoet.metadata.ImmutableKmFunction
-import com.squareup.kotlinpoet.tag
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -28,38 +24,47 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
-import androidx.contentaccess.compiler.utils.JvmSignatureUtil
+import androidx.contentaccess.ext.getKotlinFunspec
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
 
 class ContentAccessObjectWriter(
     val contentAccessObject: ContentAccessObjectVO,
-    val processingEnv:
-    ProcessingEnvironment
+    val processingEnv: ProcessingEnvironment
 ) {
     @KotlinPoetMetadataPreview
     fun generateFile() {
         val generatedClassName =
             "_${ClassName.bestGuess(contentAccessObject.interfaceName).simpleName}Impl"
-
+        val fileSpecBuilder = FileSpec.builder(contentAccessObject.packageName, generatedClassName)
         val contentResolverTypePlaceholder = ClassName("android.content", "ContentResolver")
+        val coroutineDispatcherTypePlaceholder = ClassName("kotlinx.coroutines",
+            "CoroutineDispatcher")
         val generatedClassBuilder = TypeSpec.classBuilder(generatedClassName)
             .addSuperinterface(ClassName.bestGuess(contentAccessObject.interfaceName))
             .primaryConstructor(FunSpec.constructorBuilder()
-                .addParameter("contentResolver", contentResolverTypePlaceholder.copy())
+                .addParameter("contentResolver", contentResolverTypePlaceholder)
+                .addParameter("coroutineDispatcher", coroutineDispatcherTypePlaceholder)
                 .build())
-            .addProperty(PropertySpec.builder("_contentResolver", contentResolverTypePlaceholder
-                .copy()).initializer("contentResolver")
-                .build())
+            .addProperty(PropertySpec.builder("_contentResolver",
+                contentResolverTypePlaceholder).initializer("contentResolver").build())
+            .addProperty(PropertySpec.builder("_coroutineDispatcher",
+                coroutineDispatcherTypePlaceholder)
+                .initializer("coroutineDispatcher").build())
+
         for (contentQuery in contentAccessObject.queries) {
             generatedClassBuilder.addFunction(
-                ContentQueryMethodWriter(processingEnv)
-                    .createContentQueryMethod(contentQuery)!!
+                ContentQueryMethodWriter(processingEnv, contentQuery)
+                    .createContentQueryMethod()!!
             )
         }
-        val accessorFile = FileSpec.builder(contentAccessObject.packageName, generatedClassName)
-            .addType(generatedClassBuilder.build()).build()
+        for (contentUpdate in contentAccessObject.updates) {
+            generatedClassBuilder.addFunction(
+                ContentUpdateMethodWriter(processingEnv, contentUpdate)
+                    .createContentUpdateMethod()!!
+            )
+        }
+        val accessorFile = fileSpecBuilder.addType(generatedClassBuilder.build()).build()
         accessorFile.writeTo(processingEnv.filer)
     }
 }
@@ -67,16 +72,7 @@ class ContentAccessObjectWriter(
 @KotlinPoetMetadataPreview
 fun funSpecOverriding(element: ExecutableElement, processingEnv: ProcessingEnvironment):
         FunSpec.Builder {
-    val classInspector = ElementsClassInspector.create(processingEnv.elementUtils, processingEnv
-        .typeUtils)
-    val enclosingClass = element.enclosingElement as TypeElement
-
-    val kotlinApi = enclosingClass.toTypeSpec(classInspector)
-    val jvmSignature = JvmSignatureUtil.getMethodDescriptor(element)
-    val funSpec = kotlinApi.funSpecs.find {
-        it.tag<ImmutableKmFunction>()?.signature?.asString() == jvmSignature
-    } ?: error("No matching funSpec found for $jvmSignature.")
-    val builder = funSpec.toBuilder()
+    val builder = element.getKotlinFunspec(processingEnv).toBuilder()
     builder.modifiers.remove(KModifier.ABSTRACT)
     builder.annotations.removeAll { true }
     builder.addModifiers(KModifier.OVERRIDE)

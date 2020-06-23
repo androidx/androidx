@@ -16,9 +16,13 @@
 
 package androidx.contentaccess.compiler.vo
 
-import javax.lang.model.type.TypeMirror
+import javax.lang.model.element.ExecutableElement
 
-data class PojoVO(
-    val pojoFields: List<PojoFieldVO>,
-    val type: TypeMirror
+data class ContentUpdateVO(
+    val name: String,
+    val toUpdate: List<Pair<String, String>>,
+    val where: SelectionVO?,
+    val uri: String,
+    val method: ExecutableElement,
+    val isSuspend: Boolean
 )

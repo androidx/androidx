@@ -27,18 +27,20 @@ import kotlin.reflect.KClass
  *
  * @property selection The matching conditions, if empty applies to all (e.g "column1 = :value").
  *
- * @property orderBy The entity fields to query (e.g arrayOf("column1", "column2")),
- * if empty then queries the whole content entity.
+ * @property orderBy The entity fields to order by, passed to the content provider in the
+ * specified order. An entry in the array can either a single column name, or a single column
+ * name followed by "asc" or "desc". (e.g order by = arrayOf("column1", "column2 asc")).
  *
  * @property uri The string representation of the uri to query, if empty then uses the entity's uri,
  * if existing.
  */
+
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
 annotation class ContentQuery(
     val projection: Array<String> = arrayOf(),
     val selection: String = "",
-    val orderBy: String = "",
+    val orderBy: Array<String> = arrayOf(),
     val uri: String = "",
     val contentEntity: KClass<*> = Void::class
 )
