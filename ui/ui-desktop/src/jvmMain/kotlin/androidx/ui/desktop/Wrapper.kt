@@ -63,7 +63,7 @@ fun SkiaWindow.setContent(content: @Composable () -> Unit) {
         ViewTreeViewModelStoreOwner.set(viewGroup, ViewModelStoreOwner {
             throw IllegalStateException("ViewModels creation is not supported")
         })
-        viewGroup.setContent(Recomposer.current(), @Composable {
+        viewGroup.setContent(Recomposer.current(), null, @Composable {
             Providers(
                 TextInputServiceAmbient provides TextInputService(
                     platformInputService),

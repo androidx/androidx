@@ -30,6 +30,7 @@ import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.ambientOf
+import androidx.compose.compositionReference
 import androidx.compose.currentComposer
 import androidx.compose.emptyContent
 import androidx.compose.onCommit
@@ -195,8 +196,9 @@ fun Popup(
     // TODO(lmr): refactor these APIs so that recomposer isn't necessary
     @OptIn(ExperimentalComposeApi::class)
     val recomposer = currentComposer.recomposer
+    val parentComposition = compositionReference()
     onCommit {
-        composition = popupLayout.setContent(recomposer) {
+        composition = popupLayout.setContent(recomposer, parentComposition) {
             SimpleStack(Modifier.semantics { this.popup = true }.onPositioned {
                 // Get the size of the content
                 popupLayout.popupPositionProperties.childrenSize = it.size
