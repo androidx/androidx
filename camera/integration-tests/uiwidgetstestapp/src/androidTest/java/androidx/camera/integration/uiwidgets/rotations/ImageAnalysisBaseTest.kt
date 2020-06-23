@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.uiwidgets.rotations.imageanalysis
+package androidx.camera.integration.uiwidgets.rotations
 
 import android.content.Intent
-import androidx.camera.integration.uiwidgets.rotations.CameraActivity
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
@@ -39,7 +38,7 @@ import java.util.concurrent.TimeUnit
  * - Wait a couple of frames
  * - Verify the image analysis image rotation
  */
-abstract class ImageAnalysisTest<A : CameraActivity> {
+abstract class ImageAnalysisBaseTest<A : CameraActivity> {
 
     protected fun setUp(lensFacing: Int) {
         CoreAppTestUtil.assumeCompatibleDevice()

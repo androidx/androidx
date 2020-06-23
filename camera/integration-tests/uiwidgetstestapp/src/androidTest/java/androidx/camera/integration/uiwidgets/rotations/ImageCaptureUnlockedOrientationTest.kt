@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.uiwidgets.rotations.imagecapture
+package androidx.camera.integration.uiwidgets.rotations
 
-import android.view.Surface
-import androidx.camera.integration.uiwidgets.rotations.CameraActivity
-import androidx.camera.integration.uiwidgets.rotations.OrientationConfigChangesOverriddenActivity
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
+import androidx.camera.integration.uiwidgets.rotations.UnlockedOrientationActivity.Companion.mCreated
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
@@ -31,31 +30,32 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
 @RunWith(Parameterized::class)
 @LargeTest
-class OrientationConfigChangesTest(
+class ImageCaptureUnlockedOrientationTest(
     private val lensFacing: Int,
-    private val rotation: Int,
+    private val orientation: Int,
     private val captureMode: Int
-) : ImageCaptureTest<OrientationConfigChangesOverriddenActivity>() {
+) : ImageCaptureBaseTest<UnlockedOrientationActivity>() {
 
     companion object {
-        private val rotations = arrayOf(
-            Surface.ROTATION_0,
-            Surface.ROTATION_90,
-            Surface.ROTATION_180,
-            Surface.ROTATION_270
+        val ORIENTATION_MAP = hashMapOf(
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT to Configuration.ORIENTATION_PORTRAIT,
+            ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT to Configuration.ORIENTATION_PORTRAIT,
+            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE to Configuration.ORIENTATION_LANDSCAPE,
+            ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE to Configuration.ORIENTATION_LANDSCAPE
         )
 
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}, rotation={1}, captureMode={2}")
+        @Parameterized.Parameters(name = "lensFacing={0}, orientation={1}, captureMode={2}")
         fun data() = mutableListOf<Array<Any?>>().apply {
             lensFacing.forEach { lens ->
-                rotations.forEach { rotation ->
+                ORIENTATION_MAP.keys.forEach { orientation ->
                     captureModes.forEach { mode ->
-                        add(arrayOf(lens, rotation, mode))
+                        add(arrayOf(lens, orientation, mode))
                     }
                 }
             }
@@ -78,11 +78,8 @@ class OrientationConfigChangesTest(
 
     @Test
     fun verifyRotation() {
-        verifyRotation<OrientationConfigChangesOverriddenActivity>(
-            lensFacing,
-            captureMode
-        ) {
-            if (rotate(rotation)) {
+        verifyRotation<UnlockedOrientationActivity>(lensFacing, captureMode) {
+            if (rotate(orientation)) {
 
                 // Wait for the rotation to occur
                 waitForRotation()
@@ -90,15 +87,17 @@ class OrientationConfigChangesTest(
         }
     }
 
-    private fun ActivityScenario<OrientationConfigChangesOverriddenActivity>.rotate(rotation: Int):
-            Boolean {
-        val currentRotation = withActivity { this.display!!.rotation }
-        InstrumentationRegistry.getInstrumentation().uiAutomation.setRotation(rotation)
-        return currentRotation != rotation
+    private fun ActivityScenario<UnlockedOrientationActivity>.rotate(orientation: Int): Boolean {
+        val currentOrientation = withActivity { resources.configuration.orientation }
+        val didRotate = ORIENTATION_MAP[orientation] != currentOrientation
+        mCreated = Semaphore(0)
+        onActivity { activity ->
+            activity.requestedOrientation = orientation
+        }
+        return didRotate
     }
 
-    private fun ActivityScenario<OrientationConfigChangesOverriddenActivity>.waitForRotation() {
-        val displayChanged = withActivity { mDisplayChanged }
-        assertThat(displayChanged.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+    private fun waitForRotation() {
+        assertThat(mCreated.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
     }
 }
