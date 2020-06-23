@@ -70,6 +70,7 @@ import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
+import androidx.mediarouter.media.MediaRouterParams;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -210,6 +211,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
     Bitmap mArtIconLoadedBitmap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mArtIconBackgroundColor;
+    final boolean mDisableGroupVolumeUX;
 
     public MediaRouteDynamicControllerDialog(@NonNull Context context) {
         this(context, 0);
@@ -221,6 +223,10 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         mContext = getContext();
 
         mRouter = MediaRouter.getInstance(mContext);
+        MediaRouterParams params = mRouter.getRouterParams();
+        Bundle extras = (params != null) ? params.getExtras() : null;
+        mDisableGroupVolumeUX = (extras != null
+                && extras.getBoolean(MediaRouterParams.EXTRAS_KEY_DISABLE_GROUP_VOLUME_UX));
         mCallback = new MediaRouterCallback();
         mSelectedRoute = mRouter.getSelectedRoute();
         mControllerCallback = new MediaControllerCallback();
@@ -790,7 +796,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
 
         boolean isGroupVolumeNeeded() {
-            return mSelectedRoute.getMemberRoutes().size() > 1;
+            return !mDisableGroupVolumeUX && mSelectedRoute.getMemberRoutes().size() > 1;
         }
 
         void animateLayoutHeight(final View view, int targetHeight) {
@@ -843,7 +849,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
 
             boolean wasShown = isGroupVolumeNeeded();
             // Group volume is shown when two or more members are in the selected route.
-            boolean shouldShow = memberCount >= 2;
+            boolean shouldShow = !mDisableGroupVolumeUX && memberCount >= 2;
 
             if (wasShown != shouldShow) {
                 RecyclerView.ViewHolder viewHolder =

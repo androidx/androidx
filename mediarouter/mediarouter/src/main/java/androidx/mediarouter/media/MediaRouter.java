@@ -1511,6 +1511,12 @@ public final class MediaRouter {
          */
         @PlaybackVolume
         public int getVolumeHandling() {
+            Bundle extras = (sGlobal.getRouterParams() == null)
+                    ? null : sGlobal.getRouterParams().getExtras();
+            if (isGroup() && extras != null
+                    && extras.getBoolean(MediaRouterParams.EXTRAS_KEY_DISABLE_GROUP_VOLUME_UX)) {
+                return PLAYBACK_VOLUME_FIXED;
+            }
             return mVolumeHandling;
         }
 
