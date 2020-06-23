@@ -16,7 +16,9 @@
 
 package androidx.ui.animation.demos
 
+import androidx.animation.spring
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.StructurallyEqual
 import androidx.compose.remember
@@ -95,11 +97,11 @@ private fun createTransDef(width: Float, height: Float) =
         }
 
         transition {
-            bounds using physics {
+            bounds using spring(
                 stiffness = 100f
-            }
-            background using tween {
-                duration = 500
-            }
+            )
+            background using tween(
+                durationMillis = 500
+            )
         }
     }

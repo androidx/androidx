@@ -16,18 +16,17 @@
 
 package androidx.animation
 
-internal fun AnimationSpec<AnimationVector1D>.at(time: Int): Float =
+internal fun VectorizedAnimationSpec<AnimationVector1D>.at(time: Long): Float =
     getValue(
-        time.toLong(),
+        time,
         AnimationVector1D(0f),
         AnimationVector1D(1f),
         AnimationVector1D(0f)
     ).value
 
-// Convenient method to build a Float animation.
-internal fun AnimationBuilder<Float>.build() = this.build(FloatToVectorConverter)
+internal fun VectorizedAnimationSpec<AnimationVector1D>.at(time: Int): Float = at(time.toLong())
 
-internal fun AnimationSpec<AnimationVector1D>.getValue(
+internal fun VectorizedAnimationSpec<AnimationVector1D>.getValue(
     playTime: Long,
     start: Number,
     end: Number,
@@ -39,7 +38,7 @@ internal fun AnimationSpec<AnimationVector1D>.getValue(
     AnimationVector1D(startVelocity.toFloat())
 ).value
 
-internal fun AnimationSpec<AnimationVector1D>.getVelocity(
+internal fun VectorizedAnimationSpec<AnimationVector1D>.getVelocity(
     playTime: Long,
     start: Number,
     end: Number,

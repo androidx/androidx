@@ -16,12 +16,15 @@
 
 package androidx.ui.material
 
+import androidx.animation.AnimationConstants.Infinite
 import androidx.animation.CubicBezierEasing
 import androidx.animation.FloatPropKey
-import androidx.animation.Infinite
 import androidx.animation.IntPropKey
 import androidx.animation.LinearEasing
+import androidx.animation.keyframes
+import androidx.animation.repeatable
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.ui.animation.Transition
@@ -347,38 +350,38 @@ private val LinearIndeterminateTransition = transitionDefinition {
     }
 
     transition(fromState = 0, toState = 1) {
-        FirstLineHeadProp using repeatable {
-            iterations = Infinite
+        FirstLineHeadProp using repeatable(
+            iterations = Infinite,
             animation = keyframes {
-                duration = LinearAnimationDuration
+                durationMillis = LinearAnimationDuration
                 0f at FirstLineHeadDelay with FirstLineHeadEasing
                 1f at FirstLineHeadDuration + FirstLineHeadDelay
             }
-        }
-        FirstLineTailProp using repeatable {
-            iterations = Infinite
+        )
+        FirstLineTailProp using repeatable(
+            iterations = Infinite,
             animation = keyframes {
-                duration = LinearAnimationDuration
+                durationMillis = LinearAnimationDuration
                 0f at FirstLineTailDelay with FirstLineTailEasing
                 1f at FirstLineTailDuration + FirstLineTailDelay
             }
-        }
-        SecondLineHeadProp using repeatable {
-            iterations = Infinite
+        )
+        SecondLineHeadProp using repeatable(
+            iterations = Infinite,
             animation = keyframes {
-                duration = LinearAnimationDuration
+                durationMillis = LinearAnimationDuration
                 0f at SecondLineHeadDelay with SecondLineHeadEasing
                 1f at SecondLineHeadDuration + SecondLineHeadDelay
             }
-        }
-        SecondLineTailProp using repeatable {
-            iterations = Infinite
+        )
+        SecondLineTailProp using repeatable(
+            iterations = Infinite,
             animation = keyframes {
-                duration = LinearAnimationDuration
+                durationMillis = LinearAnimationDuration
                 0f at SecondLineTailDelay with SecondLineTailEasing
                 1f at SecondLineTailDuration + SecondLineTailDelay
             }
-        }
+        )
     }
 }
 
@@ -436,35 +439,35 @@ private val CircularIndeterminateTransition = transitionDefinition {
     }
 
     transition(fromState = 0, toState = 1) {
-        IterationProp using repeatable {
-            iterations = Infinite
-            animation = tween {
-                duration = RotationDuration * RotationsPerCycle
+        IterationProp using repeatable(
+            iterations = Infinite,
+            animation = tween(
+                durationMillis = RotationDuration * RotationsPerCycle,
                 easing = LinearEasing
-            }
-        }
-        BaseRotationProp using repeatable {
-            iterations = Infinite
-            animation = tween {
-                duration = RotationDuration
+            )
+        )
+        BaseRotationProp using repeatable(
+            iterations = Infinite,
+            animation = tween(
+                durationMillis = RotationDuration,
                 easing = LinearEasing
-            }
-        }
-        HeadRotationProp using repeatable {
-            iterations = Infinite
+            )
+        )
+        HeadRotationProp using repeatable(
+            iterations = Infinite,
             animation = keyframes {
-                duration = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
+                durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
                 0f at 0 with CircularEasing
                 JumpRotationAngle at HeadAndTailAnimationDuration
             }
-        }
-        TailRotationProp using repeatable {
-            iterations = Infinite
+        )
+        TailRotationProp using repeatable(
+            iterations = Infinite,
             animation = keyframes {
-                duration = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
+                durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
                 0f at HeadAndTailDelayDuration with CircularEasing
-                JumpRotationAngle at duration
+                JumpRotationAngle at durationMillis
             }
-        }
+        )
     }
 }

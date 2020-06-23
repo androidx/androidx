@@ -19,7 +19,7 @@ package androidx.ui.animation.demos
 import androidx.animation.AnimationEndReason
 import androidx.animation.ExponentialDecay
 import androidx.animation.FastOutSlowInEasing
-import androidx.animation.PhysicsBuilder
+import androidx.animation.SpringSpec
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import androidx.compose.Composable
@@ -93,7 +93,9 @@ private fun SwipeToDismiss() {
                 if (target <= 0) {
                     null
                 } else {
-                    val animation = PhysicsBuilder<Float>(dampingRatio = 0.8f, stiffness = 300f)
+                    val animation = SpringSpec<Float>(
+                        dampingRatio = 0.8f, stiffness = 300f
+                    )
                     val projectedTarget = target + sign(velocity) * 0.2f * height
                     if (projectedTarget < 0.6 * height) {
                         TargetAnimation(0f, animation)
@@ -163,11 +165,11 @@ private fun DrawScope.drawDismissingItem(
     index: Int,
     alpha: Float
 ) = drawRect(
-        colors[index % colors.size],
-        topLeft = Offset(center.x - width / 2 + padding, bottom - height),
-        size = Size(width - (2 * padding), height),
-        alpha = alpha
-    )
+    colors[index % colors.size],
+    topLeft = Offset(center.x - width / 2 + padding, bottom - height),
+    size = Size(width - (2 * padding), height),
+    alpha = alpha
+)
 
 private val colors = listOf(
     Color(0xFFffd7d7),

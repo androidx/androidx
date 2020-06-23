@@ -20,7 +20,9 @@ import android.os.Handler
 import android.os.Looper
 import androidx.animation.FloatPropKey
 import androidx.animation.TransitionState
+import androidx.animation.spring
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
@@ -62,13 +64,13 @@ private val definition = transitionDefinition {
     }
     // Apply this transition to all state changes (i.e. Open -> Closed and Closed -> Open)
     transition {
-        background using tween {
-            duration = 800
-        }
-        y using physics {
+        background using tween(
+            durationMillis = 800
+        )
+        y using spring(
             // Extremely low stiffness
             stiffness = 40f
-        }
+        )
     }
 }
 

@@ -17,33 +17,27 @@
 package androidx.ui.animation
 
 import androidx.animation.AnimationVector
-import androidx.animation.AnimationVector2D
-import androidx.animation.AnimationVector4D
 import androidx.animation.FastOutLinearInEasing
 import androidx.animation.FastOutSlowInEasing
+import androidx.animation.FloatSpringSpec
 import androidx.animation.LinearEasing
 import androidx.animation.LinearOutSlowInEasing
-import androidx.animation.TweenBuilder
+import androidx.animation.TweenSpec
 import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.ui.foundation.Box
-import androidx.ui.geometry.Size
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.waitForIdle
 import androidx.ui.unit.Bounds
-import androidx.ui.unit.Dp
-import androidx.ui.unit.Position
-import androidx.ui.unit.PxBounds
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
 import androidx.ui.util.lerp
-
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -66,24 +60,26 @@ class SingleValueAnimationTest {
         var dpValue = startVal.dp
         var pxValue = startVal
 
-        val animConfig: TweenBuilder<*>.() -> Unit = {
-            easing = FastOutSlowInEasing
-            duration = 100
-        }
+        fun <T> tween(): TweenSpec<T> =
+            TweenSpec(
+                easing = FastOutSlowInEasing,
+                durationMillis = 100
+            )
+
         val children: @Composable() (Boolean) -> Unit = { enabled ->
             floatValue = animate(
                 if (enabled) endVal else startVal,
-                TweenBuilder<Float>().apply(animConfig)
+                tween()
             )
 
             dpValue = animate(
                 if (enabled) endVal.dp else startVal.dp,
-                TweenBuilder<Dp>().apply(animConfig)
+                tween()
             )
 
             pxValue = animate(
                 if (enabled) endVal else startVal,
-                TweenBuilder<Float>().apply(animConfig)
+                tween()
             )
         }
 
@@ -113,16 +109,18 @@ class SingleValueAnimationTest {
         var vectorValue = startVal
         var positionValue = PositionToVectorConverter.convertFromVector(startVal)
         var sizeValue = SizeToVectorConverter.convertFromVector(startVal)
-        var pxPositionValue = PxPositionToVectorConverter.convertFromVector(startVal)
+        var pxPositionValue = OffsetToVectorConverter.convertFromVector(startVal)
 
-        val animConfig: TweenBuilder<*>.() -> Unit = {
-            easing = LinearEasing
-            duration = 100
-        }
+        fun <V> tween(): TweenSpec<V> =
+            TweenSpec(
+                easing = LinearEasing,
+                durationMillis = 100
+            )
+
         val children: @Composable() (Boolean) -> Unit = { enabled ->
             vectorValue = animate(
                 if (enabled) endVal else startVal,
-                TweenBuilder<AnimationVector2D>().apply(animConfig)
+                tween()
             )
 
             positionValue = animate(
@@ -130,7 +128,7 @@ class SingleValueAnimationTest {
                     PositionToVectorConverter.convertFromVector(endVal)
                 else
                     PositionToVectorConverter.convertFromVector(startVal),
-                TweenBuilder<Position>().apply(animConfig)
+                tween()
             )
 
             sizeValue = animate(
@@ -138,15 +136,15 @@ class SingleValueAnimationTest {
                     SizeToVectorConverter.convertFromVector(endVal)
                 else
                     SizeToVectorConverter.convertFromVector(startVal),
-                TweenBuilder<Size>().apply(animConfig)
+                tween()
             )
 
             pxPositionValue = animate(
                 if (enabled)
-                    PxPositionToVectorConverter.convertFromVector(endVal)
+                    OffsetToVectorConverter.convertFromVector(endVal)
                 else
-                    PxPositionToVectorConverter.convertFromVector(startVal),
-                TweenBuilder<Offset>().apply(animConfig)
+                    OffsetToVectorConverter.convertFromVector(startVal),
+                tween()
             )
         }
 
@@ -160,7 +158,7 @@ class SingleValueAnimationTest {
                 assertEquals(expect, vectorValue)
                 assertEquals(SizeToVectorConverter.convertFromVector(expect), sizeValue)
                 assertEquals(PositionToVectorConverter.convertFromVector(expect), positionValue)
-                assertEquals(PxPositionToVectorConverter.convertFromVector(expect), pxPositionValue)
+                assertEquals(OffsetToVectorConverter.convertFromVector(expect), pxPositionValue)
                 composeTestRule.clockTestRule.advanceClock(50)
                 waitForIdle()
             }
@@ -178,14 +176,16 @@ class SingleValueAnimationTest {
         var boundsValue = BoundsToVectorConverter.convertFromVector(startVal)
         var pxBoundsValue = PxBoundsToVectorConverter.convertFromVector(startVal)
 
-        val animConfig: TweenBuilder<*>.() -> Unit = {
-            easing = LinearOutSlowInEasing
-            duration = 100
-        }
+        fun <V> tween(): TweenSpec<V> =
+            TweenSpec(
+                easing = LinearOutSlowInEasing,
+                durationMillis = 100
+            )
+
         val children: @Composable() (Boolean) -> Unit = { enabled ->
             vectorValue = animate(
                 if (enabled) endVal else startVal,
-                TweenBuilder<AnimationVector4D>().apply(animConfig)
+                tween()
             )
 
             boundsValue = animate(
@@ -193,7 +193,7 @@ class SingleValueAnimationTest {
                     BoundsToVectorConverter.convertFromVector(endVal)
                 else
                     BoundsToVectorConverter.convertFromVector(startVal),
-                TweenBuilder<Bounds>().apply(animConfig)
+                tween()
             )
 
             pxBoundsValue = animate(
@@ -201,7 +201,7 @@ class SingleValueAnimationTest {
                     PxBoundsToVectorConverter.convertFromVector(endVal)
                 else
                     PxBoundsToVectorConverter.convertFromVector(startVal),
-                TweenBuilder<PxBounds>().apply(animConfig)
+                tween()
             )
         }
 
@@ -230,10 +230,12 @@ class SingleValueAnimationTest {
     fun animateColorTest() {
         var value = Color.Black
         val children: @Composable() (Boolean) -> Unit = { enabled ->
-            value = animate(if (enabled) Color.Cyan else Color.Black, TweenBuilder<Color>().apply {
-                duration = 100
-                easing = FastOutLinearInEasing
-            })
+            value = animate(
+                if (enabled) Color.Cyan else Color.Black, TweenSpec(
+                    durationMillis = 100,
+                    easing = FastOutLinearInEasing
+                )
+            )
         }
 
         val verify: () -> Unit = {
@@ -242,6 +244,83 @@ class SingleValueAnimationTest {
                 val fraction = FastOutLinearInEasing.invoke(i / 100f)
                 val expected = lerp(Color.Black, Color.Cyan, fraction)
                 assertEquals(expected, value)
+                composeTestRule.clockTestRule.advanceClock(50)
+                waitForIdle()
+            }
+        }
+
+        animateTest(children, verify)
+    }
+
+    @Test
+    fun visibilityThresholdTest() {
+
+        var floatValue = 0f
+        var vectorValue = AnimationVector(0f)
+        var offsetValue = Offset(0f, 0f)
+        var boundsValue = Bounds(0.dp, 0.dp, 0.dp, 0.dp)
+
+        val specForFloat = FloatSpringSpec(visibilityThreshold = 0.01f)
+        val specForVector = FloatSpringSpec(visibilityThreshold = PxVisibilityThreshold)
+        val specForOffset = FloatSpringSpec(visibilityThreshold = PxVisibilityThreshold)
+        val specForBounds = FloatSpringSpec(visibilityThreshold = DpVisibilityThreshold)
+
+        val children: @Composable() (Boolean) -> Unit = { enabled ->
+            floatValue = animate(if (enabled) 100f else 0f)
+
+            vectorValue = animate(
+                if (enabled) AnimationVector(100f) else AnimationVector(0f),
+                visibilityThreshold = AnimationVector(PxVisibilityThreshold)
+            )
+
+            offsetValue = animate(
+                if (enabled)
+                    Offset(100f, 100f)
+                else
+                    Offset(0f, 0f)
+            )
+
+            boundsValue = animate(
+                if (enabled)
+                    Bounds(100.dp, 100.dp, 100.dp, 100.dp)
+                else
+                    Bounds(0.dp, 0.dp, 0.dp, 0.dp)
+            )
+        }
+
+        val durationForFloat = specForFloat.getDurationMillis(0f, 100f, 0f)
+        val durationForVector = specForVector.getDurationMillis(0f, 100f, 0f)
+        val durationForOffset = specForOffset.getDurationMillis(0f, 100f, 0f)
+        val durationForBounds = specForBounds.getDurationMillis(0f, 100f, 0f)
+        val verify: () -> Unit = {
+            for (i in 0..durationForFloat step 50) {
+                val expectFloat = specForFloat.getValue(i, 0f, 100f, 0f)
+                assertEquals("play time: $i", expectFloat, floatValue)
+
+                if (i < durationForVector) {
+                    val expectVector = specForVector.getValue(i, 0f, 100f, 0f)
+                    assertEquals(AnimationVector(expectVector), vectorValue)
+                } else {
+                    assertEquals(AnimationVector(100f), vectorValue)
+                }
+
+                if (i < durationForOffset) {
+                    val expectOffset = specForOffset.getValue(i, 0f, 100f, 0f)
+                    assertEquals(Offset(expectOffset, expectOffset), offsetValue)
+                } else {
+                    assertEquals(Offset(100f, 100f), offsetValue)
+                }
+
+                if (i < durationForBounds) {
+                    val expectBounds = specForBounds.getValue(i, 0f, 100f, 0f)
+                    assertEquals(
+                        Bounds(expectBounds.dp, expectBounds.dp, expectBounds.dp, expectBounds.dp),
+                        boundsValue
+                    )
+                } else {
+                    assertEquals(Bounds(100.dp, 100.dp, 100.dp, 100.dp), boundsValue)
+                }
+
                 composeTestRule.clockTestRule.advanceClock(50)
                 waitForIdle()
             }

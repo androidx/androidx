@@ -26,7 +26,7 @@ class SnapAnimationTest {
 
     @Test
     fun isFinishedAtTheBeginning() {
-        val animation = SnapBuilder<Float>().build()
+        val animation = VectorizedSnapSpec<AnimationVector1D>()
         val animationWrapper = TargetBasedAnimation(
             animation,
             0f,

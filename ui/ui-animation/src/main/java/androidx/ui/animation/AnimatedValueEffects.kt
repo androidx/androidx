@@ -48,7 +48,7 @@ import androidx.ui.graphics.Color
 fun <T, V : AnimationVector> animatedValue(
     initVal: T,
     converter: TwoWayConverter<T, V>,
-    visibilityThreshold: V? = null,
+    visibilityThreshold: T? = null,
     clock: AnimationClockObservable = AnimationClockAmbient.current
 ): AnimatedValue<T, V> = clock.asDisposableClock().let { disposableClock ->
     remember(disposableClock) {
@@ -101,13 +101,14 @@ fun animatedColor(
  * @param typeConverter The converter for converting any value of type [T] to an
  *                      [AnimationVector] type
  * @param clock The animation clock that will be used to drive the animation
+ * @param visibilityThreshold Threshold at which the animation may round off to its target value.
  */
 @Stable
 class AnimatedValueModel<T, V : AnimationVector>(
     initialValue: T,
     typeConverter: TwoWayConverter<T, V>,
     clock: AnimationClockObservable,
-    visibilityThreshold: V? = null
+    visibilityThreshold: T? = null
 ) : AnimatedValue<T, V>(typeConverter, clock, visibilityThreshold) {
     override var value: T by mutableStateOf(initialValue, StructurallyEqual)
 }
@@ -118,6 +119,8 @@ class AnimatedValueModel<T, V : AnimationVector>(
  *
  * @param initialValue The overridden value field that can only be mutated by animation
  * @param clock The animation clock that will be used to drive the animation
+ * @param visibilityThreshold a threshold to determine when the animation is considered close
+ *                            enough to the target to terminate
  */
 @Stable
 class AnimatedFloatModel(

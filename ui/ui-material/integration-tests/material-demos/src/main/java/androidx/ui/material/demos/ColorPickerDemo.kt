@@ -19,6 +19,7 @@ package androidx.ui.material.demos
 import android.graphics.SweepGradient
 import androidx.animation.FloatPropKey
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.compose.getValue
@@ -227,17 +228,17 @@ private fun MagnifierTransition(
                 this[OpacityPropKey] = 1f
             }
             transition(false to true) {
-                LabelWidthPropKey using tween {}
-                MagnifierDiameterPropKey using tween {}
-                OpacityPropKey using tween {}
+                LabelWidthPropKey using tween()
+                MagnifierDiameterPropKey using tween()
+                OpacityPropKey using tween()
             }
             transition(true to false) {
-                LabelWidthPropKey using tween {}
-                MagnifierDiameterPropKey using tween {}
-                OpacityPropKey using tween {
-                    delay = 100
-                    duration = 200
-                }
+                LabelWidthPropKey using tween()
+                MagnifierDiameterPropKey using tween()
+                OpacityPropKey using tween(
+                    delayMillis = 100,
+                    durationMillis = 200
+                )
             }
         }
     }

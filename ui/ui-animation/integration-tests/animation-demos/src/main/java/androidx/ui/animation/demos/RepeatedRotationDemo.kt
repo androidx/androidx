@@ -18,7 +18,9 @@ package androidx.ui.animation.demos
 
 import androidx.animation.FloatPropKey
 import androidx.animation.LinearEasing
+import androidx.animation.repeatable
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.Transition
@@ -85,17 +87,17 @@ private val definition = transitionDefinition {
         this[rotation] = 360f
     }
     transition(RotationStates.Original to RotationStates.Rotated) {
-        rotation using repeatable {
-            iterations = 10
-            animation = tween {
-                easing = LinearEasing
-                duration = 1000
-            }
-        }
+        rotation using repeatable(
+            iterations = 10,
+            animation = tween(
+                easing = LinearEasing,
+                durationMillis = 1000
+            )
+        )
     }
     transition(RotationStates.Rotated to RotationStates.Original) {
-        rotation using tween {
-            duration = 300
-        }
+        rotation using tween(
+            durationMillis = 300
+        )
     }
 }

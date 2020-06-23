@@ -16,10 +16,11 @@
 
 package androidx.animation
 
+import androidx.ui.util.annotation.VisibleForTesting
 import kotlin.math.sign
 
 /**
- * This interface provides a convenient way to query from an [AnimationSpec] or
+ * This interface provides a convenient way to query from an [VectorizedAnimationSpec] or
  * [FloatDecayAnimationSpec]: It spares the need to pass the starting conditions and in some cases
  * ending condition for each value or velocity query, and instead only requires the play time to be
  * passed for such queries.
@@ -35,7 +36,9 @@ import kotlin.math.sign
  *
  * @see [AnimatedValue]
  * @see [androidx.ui.animation.Transition]
+ * @suppress
  */
+@VisibleForTesting(otherwise = 3 /*package private*/)
 interface Animation<T, V : AnimationVector> {
     /**
      * This amount of time in milliseconds that the animation will run before it finishes
@@ -77,19 +80,21 @@ interface Animation<T, V : AnimationVector> {
  *
  * @param playTime the play time that is used to calculate the velocity of the animation.
  */
-fun <T, V : AnimationVector> Animation<T, V>.getVelocity(playTime: Long): T =
+internal fun <T, V : AnimationVector> Animation<T, V>.getVelocity(playTime: Long): T =
     converter.convertFromVector(getVelocityVector(playTime))
 
 /**
- * Creates a [TargetBasedAnimation] from a given [AnimationSpec] of [AnimationVector] type. This
+ * Creates a [TargetBasedAnimation] from a given [VectorizedAnimationSpec] of [AnimationVector] type. This
  * convenient method is intended for when the value being animated (i.e. start value, end value,
  * etc) is of [AnimationVector] type.
  *
  * @param startValue the value that the animation will start from
  * @param endValue the value that the animation will end at
  * @param startVelocity the initial velocity to start the animation at
+ * @suppress
  */
-fun <V : AnimationVector> AnimationSpec<V>.createAnimation(
+@VisibleForTesting(otherwise = 3 /*PACKAGE_PRIVATE*/)
+fun <V : AnimationVector> VectorizedAnimationSpec<V>.createAnimation(
     startValue: V,
     endValue: V,
     startVelocity: V
@@ -103,7 +108,7 @@ fun <V : AnimationVector> AnimationSpec<V>.createAnimation(
     )
 
 /**
- * Creates a [TargetBasedAnimation] from a given [AnimationSpec] of [AnimationVector] type.
+ * Creates a [TargetBasedAnimation] from a given [VectorizedAnimationSpec] of [AnimationVector] type.
  *
  * @param startValue the value that the animation will start from
  * @param endValue the value that the animation will end at
@@ -114,7 +119,7 @@ fun <V : AnimationVector> AnimationSpec<V>.createAnimation(
  *
  * @see TargetBasedAnimation
  */
-fun <T, V : AnimationVector> AnimationSpec<V>.createAnimation(
+internal fun <T, V : AnimationVector> VectorizedAnimationSpec<V>.createAnimation(
     startValue: T,
     endValue: T,
     startVelocityVector: V,
@@ -126,6 +131,22 @@ fun <T, V : AnimationVector> AnimationSpec<V>.createAnimation(
     startVelocityVector = startVelocityVector,
     converter = converter
 )
+
+// TODO("Doc")
+internal fun <T, V : AnimationVector> TargetBasedAnimation(
+    animationSpec: AnimationSpec<T>,
+    startValue: T,
+    endValue: T,
+    startVelocityVector: V,
+    converter: TwoWayConverter<T, V>
+): TargetBasedAnimation<T, V> =
+    TargetBasedAnimation(
+        animationSpec.vectorize(converter),
+        startValue,
+        endValue,
+        startVelocityVector,
+        converter
+    )
 
 /**
  * This is a convenient animation wrapper class that works for all target based animations, i.e.
@@ -141,7 +162,7 @@ fun <T, V : AnimationVector> AnimationSpec<V>.createAnimation(
  * [TransitionAnimation]. Consider using those APIs for the interruption handling, as well as
  * built-in animation lifecycle management.
  *
- * @param animationSpec the [AnimationSpec] that will be used to calculate value/velocity
+ * @param animationSpec the [VectorizedAnimationSpec] that will be used to calculate value/velocity
  * @param startValue the start value of the animation
  * @param endValue the end value of the animation
  * @param startVelocityVector the start velocity of the animation in the form of [AnimationVector]
@@ -150,9 +171,11 @@ fun <T, V : AnimationVector> AnimationSpec<V>.createAnimation(
  * @see [TransitionAnimation]
  * @see [androidx.ui.animation.Transition]
  * @see [AnimatedValue]
+ * @suppress
  */
+@VisibleForTesting(otherwise = 3 /*PACKAGE_PRIVATE*/)
 class TargetBasedAnimation<T, V : AnimationVector>(
-    private val animationSpec: AnimationSpec<V>,
+    private val animationSpec: VectorizedAnimationSpec<V>,
     startValue: T,
     val endValue: T,
     private val startVelocityVector: V,
@@ -173,14 +196,14 @@ class TargetBasedAnimation<T, V : AnimationVector>(
      * [TransitionAnimation]. Consider using those APIs for the interruption handling, as well as
      * built-in animation lifecycle management.
      *
-     * @param animationSpec the [AnimationSpec] that will be used to calculate value/velocity
+     * @param animationSpec the [VectorizedAnimationSpec] that will be used to calculate value/velocity
      * @param startValue the start value of the animation
      * @param endValue the end value of the animation
      * @param startVelocity the start velocity (of type [T] of the animation
      * @param converter the [TwoWayConverter] that is used to convert animation type [T] from/to [V]
      */
     constructor(
-        animationSpec: AnimationSpec<V>,
+        animationSpec: VectorizedAnimationSpec<V>,
         startValue: T,
         endValue: T,
         startVelocity: T,
@@ -243,7 +266,7 @@ class TargetBasedAnimation<T, V : AnimationVector>(
  * @param startValue starting value that will be passed to the decay animation
  * @param startVelocity starting velocity for the decay animation
  */
-class DecayAnimation(
+internal class DecayAnimation(
     private val anim: FloatDecayAnimationSpec,
     private val startValue: Float,
     private val startVelocity: Float = 0f

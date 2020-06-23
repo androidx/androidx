@@ -21,13 +21,13 @@ import androidx.animation.AnimationVector2D
 import androidx.animation.AnimationVector3D
 import androidx.animation.AnimationVector4D
 import androidx.animation.FastOutSlowInEasing
-import androidx.animation.KeyframesSpec
 import androidx.animation.LinearEasing
 import androidx.animation.LinearOutSlowInEasing
-import androidx.animation.SnapSpec
 import androidx.animation.Spring
-import androidx.animation.SpringSpec
-import androidx.animation.TweenSpec
+import androidx.animation.VectorizedKeyframesSpec
+import androidx.animation.VectorizedSnapSpec
+import androidx.animation.VectorizedSpringSpec
+import androidx.animation.VectorizedTweenSpec
 import androidx.animation.createAnimation
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
@@ -45,7 +45,7 @@ class AnimationBenchmark {
 
     @Test
     fun animationSpec1D() {
-        val anim = SpringSpec<AnimationVector1D>(1f, Spring.StiffnessLow)
+        val anim = VectorizedSpringSpec<AnimationVector1D>(1f, Spring.StiffnessLow)
         val start = AnimationVector1D(0f)
         val end = AnimationVector1D(100f)
 
@@ -58,7 +58,7 @@ class AnimationBenchmark {
 
     @Test
     fun animation1D() {
-        val anim = SpringSpec<AnimationVector1D>(1f, Spring.StiffnessLow)
+        val anim = VectorizedSpringSpec<AnimationVector1D>(1f, Spring.StiffnessLow)
         val start = AnimationVector1D(0f)
         val end = AnimationVector1D(100f)
         val fixedAnimation = anim.createAnimation(start, end, start)
@@ -72,7 +72,7 @@ class AnimationBenchmark {
 
     @Test
     fun animationSpec2D() {
-        val anim = TweenSpec<AnimationVector2D>(1000)
+        val anim = VectorizedTweenSpec<AnimationVector2D>(1000)
         val start = AnimationVector2D(0f, 0f)
         val end = AnimationVector2D(100f, 300f)
 
@@ -85,7 +85,7 @@ class AnimationBenchmark {
 
     @Test
     fun animation2D() {
-        val anim = TweenSpec<AnimationVector2D>(1000)
+        val anim = VectorizedTweenSpec<AnimationVector2D>(1000)
         val start = AnimationVector2D(0f, 0f)
         val end = AnimationVector2D(100f, 300f)
         val fixedAnimation = anim.createAnimation(start, end, start)
@@ -99,7 +99,7 @@ class AnimationBenchmark {
 
     @Test
     fun animationSpec3D() {
-        val anim = SnapSpec<AnimationVector3D>()
+        val anim = VectorizedSnapSpec<AnimationVector3D>()
         val start = AnimationVector3D(0f, 0f, -500f)
         val end = AnimationVector3D(100f, 300f, 780f)
 
@@ -112,7 +112,7 @@ class AnimationBenchmark {
 
     @Test
     fun animation3D() {
-        val anim = SnapSpec<AnimationVector3D>()
+        val anim = VectorizedSnapSpec<AnimationVector3D>()
         val start = AnimationVector3D(0f, 0f, -500f)
         val end = AnimationVector3D(100f, 300f, 780f)
         val fixedAnimation = anim.createAnimation(start, end, start)
@@ -128,12 +128,12 @@ class AnimationBenchmark {
     fun animationSpec4D() {
         val start = AnimationVector4D(0f, 0f, 0f, 0f)
         val end = AnimationVector4D(120f, -50f, 256f, 0f)
-        val anim = KeyframesSpec<AnimationVector4D>(
+        val anim = VectorizedKeyframesSpec<AnimationVector4D>(
             keyframes = mapOf(
-                0L to (start to LinearEasing),
-                900L to (start to FastOutSlowInEasing), 1000L to (end to LinearOutSlowInEasing)
+                0 to (start to LinearEasing),
+                900 to (start to FastOutSlowInEasing), 1000 to (end to LinearOutSlowInEasing)
             ),
-            duration = 1000L
+            durationMillis = 1000
         )
 
         benchmarkRule.measureRepeated {
@@ -147,12 +147,12 @@ class AnimationBenchmark {
     fun animation4D() {
         val start = AnimationVector4D(0f, 0f, 0f, 0f)
         val end = AnimationVector4D(120f, -50f, 256f, 0f)
-        val anim = KeyframesSpec<AnimationVector4D>(
+        val anim = VectorizedKeyframesSpec<AnimationVector4D>(
             keyframes = mapOf(
-                0L to (start to LinearEasing),
-                900L to (start to FastOutSlowInEasing), 1000L to (end to LinearOutSlowInEasing)
+                0 to (start to LinearEasing),
+                900 to (start to FastOutSlowInEasing), 1000 to (end to LinearOutSlowInEasing)
             ),
-            duration = 1000L
+            durationMillis = 1000
         )
         val fixedAnimation = anim.createAnimation(start, end, start)
 

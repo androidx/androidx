@@ -18,8 +18,8 @@ package androidx.ui.material
 
 import androidx.animation.FloatPropKey
 import androidx.animation.TransitionSpec
-import androidx.animation.TweenBuilder
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.annotation.VisibleForTesting
 import androidx.compose.Composable
 import androidx.compose.Providers
@@ -1637,16 +1637,14 @@ private object TextFieldTransitionScope {
     }
 
     private fun TransitionSpec<InputPhase>.indicatorTransition() {
-        IndicatorColorProp using tweenAnimation()
-        IndicatorWidthProp using tweenAnimation()
+        IndicatorColorProp using tween(durationMillis = AnimationDuration)
+        IndicatorWidthProp using tween(durationMillis = AnimationDuration)
     }
 
     private fun TransitionSpec<InputPhase>.labelTransition() {
-        LabelColorProp using tweenAnimation()
-        LabelProgressProp using tweenAnimation()
+        LabelColorProp using tween(durationMillis = AnimationDuration)
+        LabelProgressProp using tween(durationMillis = AnimationDuration)
     }
-
-    private fun <T> tweenAnimation() = TweenBuilder<T>().apply { duration = AnimationDuration }
 }
 
 /**

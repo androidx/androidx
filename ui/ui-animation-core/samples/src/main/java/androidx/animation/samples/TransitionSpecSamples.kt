@@ -19,7 +19,10 @@ package androidx.animation.samples
 import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
 import androidx.animation.LinearEasing
+import androidx.animation.keyframes
+import androidx.animation.spring
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.annotation.Sampled
 
 enum class ButtonState {
@@ -38,20 +41,20 @@ fun TransitionSpecWith3Properties() {
     transitionDefinition {
         // This defines animations for 3 properties: Radius, Alpha, and Background.
         transition(fromState = ButtonState.Released, toState = ButtonState.Pressed) {
-            Radius using tween {
-                easing = LinearEasing
-                duration = 75
-            }
+            Radius using tween(
+                easing = LinearEasing,
+                durationMillis = 75
+            )
             Alpha using keyframes {
-                duration = 375
+                durationMillis = 375
                 0f at 0 // ms  // Optional
                 0.4f at 75 // ms
                 0.4f at 225 // ms
                 0f at 375 // ms  // Optional
             }
-            Background using physics {
+            Background using spring(
                 dampingRatio = 1.0f
-            }
+            )
             interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE
         }
     }

@@ -17,6 +17,7 @@
 package androidx.ui.material
 
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.Stable
 import androidx.compose.remember
@@ -400,12 +401,12 @@ private fun generateTransitionDefinition(selectedColor: Color, unselectedColor: 
             this[ColorProp] = selectedColor
         }
         transition {
-            ColorProp using tween {
-                duration = RadioAnimationDuration
-            }
-            DotRadiusProp using tween {
-                duration = RadioAnimationDuration
-            }
+            ColorProp using tween(
+                durationMillis = RadioAnimationDuration
+            )
+            DotRadiusProp using tween(
+                durationMillis = RadioAnimationDuration
+            )
         }
     }
 

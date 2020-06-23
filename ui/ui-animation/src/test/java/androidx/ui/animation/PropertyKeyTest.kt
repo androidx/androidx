@@ -20,6 +20,7 @@ import androidx.animation.FastOutLinearInEasing
 import androidx.animation.ManualAnimationClock
 import androidx.animation.createAnimation
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.ui.geometry.Rect
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
@@ -43,10 +44,10 @@ class PropertyKeyTest {
                 this[rectProp] = end
             }
             transition {
-                rectProp using tween {
-                    duration = 400
+                rectProp using tween(
+                    durationMillis = 400,
                     easing = FastOutLinearInEasing
-                }
+                )
             }
         }
 

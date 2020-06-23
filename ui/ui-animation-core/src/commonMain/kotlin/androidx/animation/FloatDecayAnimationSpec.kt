@@ -156,7 +156,7 @@ class ExponentialDecay(
  * @param startValue the starting value of the fixed animation.
  * @param startVelocity the starting velocity of the fixed animation.
  */
-fun FloatDecayAnimationSpec.createAnimation(
+internal fun FloatDecayAnimationSpec.createAnimation(
     startValue: Float,
     startVelocity: Float = 0f
 ): Animation<Float, AnimationVector1D> {

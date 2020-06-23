@@ -22,19 +22,19 @@ import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
 import androidx.animation.LinearEasing
 import androidx.animation.TransitionAnimation
-import androidx.animation.TweenBuilder
 import androidx.animation.createAnimation
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
-import androidx.ui.animation.PxPositionPropKey
+import androidx.ui.animation.OffsetPropKey
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.unit.Density
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
 import androidx.ui.unit.dp
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
@@ -151,7 +151,7 @@ private object RippleTransition {
 
     val Alpha = FloatPropKey()
     val Radius = FloatPropKey()
-    val Center = PxPositionPropKey()
+    val Center = OffsetPropKey()
 
     fun definition(
         startRadius: Float,
@@ -176,29 +176,31 @@ private object RippleTransition {
             this[Center] = endCenter
         }
         transition(State.Initial to State.Revealed) {
-            Alpha using tween {
-                duration = FadeInDuration.inMilliseconds().toInt()
+            Alpha using tween(
+                durationMillis = FadeInDuration.inMilliseconds().toInt(),
                 easing = LinearEasing
-            }
-            Radius using tween {
-                duration = RadiusDuration.inMilliseconds().toInt()
+            )
+            Radius using tween(
+                durationMillis = RadiusDuration.inMilliseconds().toInt(),
                 easing = FastOutSlowInEasing
-            }
-            Center using tween {
-                duration = RadiusDuration.inMilliseconds().toInt()
+            )
+            Center using tween(
+                durationMillis = RadiusDuration.inMilliseconds().toInt(),
                 easing = LinearEasing
-            }
+            )
             // we need to always finish the radius animation before starting fading out
             interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE
         }
         transition(State.Revealed to State.Finished) {
-            fun <T> TweenBuilder<T>.toFinished() {
-                duration = FadeOutDuration.inMilliseconds().toInt()
-                easing = LinearEasing
-            }
-            Alpha using tween { toFinished() }
-            Radius using tween { toFinished() }
-            Center using tween { toFinished() }
+            fun <T> toFinished() =
+                tween<T>(
+                    durationMillis = FadeOutDuration.inMilliseconds().toInt(),
+                    easing = LinearEasing
+                )
+
+            Alpha using toFinished()
+            Radius using toFinished()
+            Center using toFinished()
         }
     }
 }

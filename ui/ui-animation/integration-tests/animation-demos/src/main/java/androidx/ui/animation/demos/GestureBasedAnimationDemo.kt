@@ -17,6 +17,7 @@
 package androidx.ui.animation.demos
 
 import androidx.animation.FloatPropKey
+import androidx.animation.spring
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.state
@@ -47,12 +48,12 @@ private val definition = transitionDefinition {
         this[color] = Color(red = 0, green = 100, blue = 0, alpha = 255)
     }
     transition {
-        scale using physics {
+        scale using spring(
             stiffness = 50f
-        }
-        color using physics {
+        )
+        color using spring(
             stiffness = 50f
-        }
+        )
     }
 }
 

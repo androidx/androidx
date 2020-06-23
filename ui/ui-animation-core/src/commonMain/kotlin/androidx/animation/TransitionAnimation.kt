@@ -232,7 +232,7 @@ class TransitionAnimation<T>(
 }
 
 internal fun <T, V : AnimationVector> PropKey<T, V>.createAnimationWrapper(
-    anim: AnimationSpec<V>,
+    anim: VectorizedAnimationSpec<V>,
     start: T,
     startVelocity: V?,
     end: T

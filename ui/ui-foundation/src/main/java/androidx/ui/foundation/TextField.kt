@@ -17,9 +17,9 @@
 package androidx.ui.foundation
 
 import androidx.animation.AnimatedValue
-import androidx.animation.Infinite
-import androidx.animation.KeyframesBuilder
-import androidx.animation.RepeatableBuilder
+import androidx.animation.AnimationConstants.Infinite
+import androidx.animation.keyframes
+import androidx.animation.repeatable
 import androidx.annotation.RestrictTo
 import androidx.compose.Composable
 import androidx.compose.Immutable
@@ -266,15 +266,15 @@ fun TextField(
         if (cursorNeeded) {
             // TODO(b/151940543): Disable blinking in tests until we handle idling animations
             if (blinkingCursorEnabled) {
-                animColor.animateTo(Color.Transparent, anim = RepeatableBuilder<Color>().apply {
-                    iterations = Infinite
-                    animation = KeyframesBuilder<Color>().apply {
-                        duration = 1000
+                animColor.animateTo(Color.Transparent, anim = repeatable(
+                    iterations = Infinite,
+                    animation = keyframes {
+                        durationMillis = 1000
                         cursorColor at 0
                         cursorColor at 499
                         Color.Transparent at 500
                     }
-                })
+                ))
             } else {
                 animColor.snapTo(cursorColor)
             }

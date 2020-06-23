@@ -19,6 +19,7 @@ package androidx.ui.material
 import androidx.animation.FastOutSlowInEasing
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
+import androidx.animation.tween
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.Providers
@@ -453,10 +454,10 @@ object TabRow {
                 }
 
                 transition {
-                    IndicatorOffset using tween {
-                        duration = 250
+                    IndicatorOffset using tween(
+                        durationMillis = 250,
                         easing = FastOutSlowInEasing
-                    }
+                    )
                 }
             }
         }
@@ -561,18 +562,18 @@ private fun TabTransition(
             }
 
             transition(toState = false, fromState = true) {
-                TabTintColor using tween {
-                    duration = TabFadeInAnimationDuration
-                    delay = TabFadeInAnimationDelay
+                TabTintColor using tween(
+                    durationMillis = TabFadeInAnimationDuration,
+                    delayMillis = TabFadeInAnimationDelay,
                     easing = LinearEasing
-                }
+                )
             }
 
             transition(fromState = true, toState = false) {
-                TabTintColor using tween {
-                    duration = TabFadeOutAnimationDuration
+                TabTintColor using tween(
+                    durationMillis = TabFadeOutAnimationDuration,
                     easing = LinearEasing
-                }
+                )
             }
         }
     }

@@ -17,9 +17,9 @@
 package androidx.ui.material.internal
 
 import androidx.animation.AnimatedFloat
-import androidx.animation.AnimationBuilder
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
+import androidx.animation.AnimationSpec
 import androidx.animation.Spring
 import androidx.compose.onCommit
 import androidx.compose.remember
@@ -53,7 +53,7 @@ import androidx.ui.util.fastFirstOrNull
  * @param state current state to represent Float value with
  * @param onStateChange callback to update call site's state
  * @param anchorsToState pairs of anchors to states to map anchors to state and vise versa
- * @param animationBuilder animation which will be used for animations
+ * @param animationSpec animation which will be used for animations
  * @param dragDirection direction in which drag should be happening.
  * Either [DragDirection.Vertical] or [DragDirection.Horizontal]
  * @param enabled whether or not this Draggable is enabled and should consume events
@@ -66,7 +66,7 @@ internal fun <T> Modifier.stateDraggable(
     state: T,
     onStateChange: (T) -> Unit,
     anchorsToState: List<Pair<Float, T>>,
-    animationBuilder: AnimationBuilder<Float>,
+    animationSpec: AnimationSpec<Float>,
     dragDirection: DragDirection,
     enabled: Boolean = true,
     minValue: Float = Float.MIN_VALUE,
@@ -79,7 +79,7 @@ internal fun <T> Modifier.stateDraggable(
     val anchors = remember(anchorsToState) { anchorsToState.map { it.first } }
     val currentValue = anchorsToState.fastFirstOrNull { it.second == state }!!.first
     val flingConfig =
-        AnchorsFlingConfig(anchors, animationBuilder, onAnimationEnd = { reason, finalValue, _ ->
+        AnchorsFlingConfig(anchors, animationSpec, onAnimationEnd = { reason, finalValue, _ ->
             if (reason != AnimationEndReason.Interrupted) {
                 val newState = anchorsToState.firstOrNull { it.first == finalValue }?.second
                 if (newState != null && newState != state) {
@@ -99,7 +99,7 @@ internal fun <T> Modifier.stateDraggable(
     // This state is to force this component to be recomposed and trigger onCommit below
     // This is needed to stay in sync with drag state that caller side holds
     onCommit(currentValue, forceAnimationCheck.value) {
-        position.animateTo(currentValue, animationBuilder)
+        position.animateTo(currentValue, animationSpec)
     }
     Modifier.draggable(
         dragDirection = dragDirection,
