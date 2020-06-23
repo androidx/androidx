@@ -55,6 +55,7 @@ import androidx.test.espresso.action.Swipe;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.PollingCheck;
 
@@ -67,6 +68,7 @@ import org.junit.Test;
  * In addition to all tinting-related tests done by the base class, this class provides
  * tests specific to {@link AppCompatSpinner} class.
  */
+@SdkSuppress(maxSdkVersion=29) // Broken on API 30 b/159743495
 @LargeTest
 public class AppCompatSpinnerTest
         extends AppCompatBaseViewTest<AppCompatSpinnerActivity, AppCompatSpinner> {
