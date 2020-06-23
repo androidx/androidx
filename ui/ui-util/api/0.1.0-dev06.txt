@@ -32,7 +32,7 @@ package androidx.ui.util {
     property public final int exponent;
     property public final androidx.ui.util.Float16 sign;
     property public final int significand;
-    field public static final androidx.ui.util.Float16.Companion! Companion;
+    field public static final androidx.ui.util.Float16.Companion Companion;
     field public static final int MaxExponent = 15; // 0xf
     field public static final int MinExponent = -14; // 0xfffffff2
     field public static final int Size = 16; // 0x10

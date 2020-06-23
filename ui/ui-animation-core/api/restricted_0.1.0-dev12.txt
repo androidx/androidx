@@ -49,6 +49,8 @@ package androidx.animation {
   }
 
   public enum AnimationEndReason {
+    method public static androidx.animation.AnimationEndReason valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.animation.AnimationEndReason[] values();
     enum_constant public static final androidx.animation.AnimationEndReason BoundReached;
     enum_constant public static final androidx.animation.AnimationEndReason Interrupted;
     enum_constant public static final androidx.animation.AnimationEndReason TargetReached;
@@ -141,7 +143,7 @@ package androidx.animation {
   public abstract sealed class BaseAnimationClock implements androidx.animation.AnimationClockObservable {
     method public void subscribe(androidx.animation.AnimationClockObserver observer);
     method public void unsubscribe(androidx.animation.AnimationClockObserver observer);
-    field @Deprecated public static final androidx.animation.BaseAnimationClock.Companion! Companion;
+    field @Deprecated public static final androidx.animation.BaseAnimationClock.Companion Companion;
   }
 
   public final class ComplexDoubleKt {
@@ -213,6 +215,8 @@ package androidx.animation {
   }
 
   public enum InterruptionHandling {
+    method public static androidx.animation.InterruptionHandling valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.animation.InterruptionHandling[] values();
     enum_constant public static final androidx.animation.InterruptionHandling PHYSICS;
     enum_constant public static final androidx.animation.InterruptionHandling SNAP_TO_END;
     enum_constant public static final androidx.animation.InterruptionHandling TWEEN;
@@ -295,7 +299,7 @@ package androidx.animation {
     field public static final float DampingRatioMediumBouncy = 0.5f;
     field public static final float DampingRatioNoBouncy = 1.0f;
     field public static final float DefaultDisplacementThreshold = 0.01f;
-    field public static final androidx.animation.Spring! INSTANCE;
+    field public static final androidx.animation.Spring INSTANCE;
     field public static final float StiffnessHigh = 10000.0f;
     field public static final float StiffnessLow = 200.0f;
     field public static final float StiffnessMedium = 1500.0f;

@@ -64,6 +64,8 @@ package androidx.ui.graphics {
 
   public enum BlendMode {
     method public final android.graphics.PorterDuff.Mode toPorterDuffMode();
+    method public static androidx.ui.graphics.BlendMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.BlendMode[] values();
     enum_constant public static final androidx.ui.graphics.BlendMode clear;
     enum_constant public static final androidx.ui.graphics.BlendMode color;
     enum_constant public static final androidx.ui.graphics.BlendMode colorBurn;
@@ -160,6 +162,8 @@ package androidx.ui.graphics {
   }
 
   public enum ClipOp {
+    method public static androidx.ui.graphics.ClipOp valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.ClipOp[] values();
     enum_constant public static final androidx.ui.graphics.ClipOp difference;
     enum_constant public static final androidx.ui.graphics.ClipOp intersect;
   }
@@ -184,7 +188,7 @@ package androidx.ui.graphics {
     method public long getValue();
     method @androidx.compose.Immutable public static inline int hashCode-impl(long p);
     method public static String toString-impl(long $this);
-    field public static final androidx.ui.graphics.Color.Companion! Companion;
+    field public static final androidx.ui.graphics.Color.Companion Companion;
   }
 
   public static final class Color.Companion {
@@ -222,7 +226,7 @@ package androidx.ui.graphics {
     method public androidx.ui.graphics.ColorFilter copy-vOa7YyA(long color, androidx.ui.graphics.BlendMode blendMode);
     method public androidx.ui.graphics.BlendMode getBlendMode();
     method public long getColor();
-    field public static final androidx.ui.graphics.ColorFilter.Companion! Companion;
+    field public static final androidx.ui.graphics.ColorFilter.Companion Companion;
   }
 
   public static final class ColorFilter.Companion {
@@ -244,6 +248,8 @@ package androidx.ui.graphics {
   }
 
   public enum FilterQuality {
+    method public static androidx.ui.graphics.FilterQuality valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.FilterQuality[] values();
     enum_constant public static final androidx.ui.graphics.FilterQuality high;
     enum_constant public static final androidx.ui.graphics.FilterQuality low;
     enum_constant public static final androidx.ui.graphics.FilterQuality medium;
@@ -269,6 +275,8 @@ package androidx.ui.graphics {
   }
 
   public enum ImageAssetConfig {
+    method public static androidx.ui.graphics.ImageAssetConfig valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.ImageAssetConfig[] values();
     enum_constant public static final androidx.ui.graphics.ImageAssetConfig Alpha8;
     enum_constant public static final androidx.ui.graphics.ImageAssetConfig Argb8888;
     enum_constant public static final androidx.ui.graphics.ImageAssetConfig F16;
@@ -361,6 +369,8 @@ package androidx.ui.graphics {
   }
 
   public enum PaintingStyle {
+    method public static androidx.ui.graphics.PaintingStyle valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.PaintingStyle[] values();
     enum_constant public static final androidx.ui.graphics.PaintingStyle fill;
     enum_constant public static final androidx.ui.graphics.PaintingStyle stroke;
   }
@@ -394,7 +404,7 @@ package androidx.ui.graphics {
     property public abstract androidx.ui.graphics.PathFillType fillType;
     property public abstract boolean isConvex;
     property public abstract boolean isEmpty;
-    field public static final androidx.ui.graphics.Path.Companion! Companion;
+    field public static final androidx.ui.graphics.Path.Companion Companion;
   }
 
   public static final class Path.Companion {
@@ -402,11 +412,15 @@ package androidx.ui.graphics {
   }
 
   public enum PathFillType {
+    method public static androidx.ui.graphics.PathFillType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.PathFillType[] values();
     enum_constant public static final androidx.ui.graphics.PathFillType evenOdd;
     enum_constant public static final androidx.ui.graphics.PathFillType nonZero;
   }
 
   public enum PathOperation {
+    method public static androidx.ui.graphics.PathOperation valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.PathOperation[] values();
     enum_constant public static final androidx.ui.graphics.PathOperation difference;
     enum_constant public static final androidx.ui.graphics.PathOperation intersect;
     enum_constant public static final androidx.ui.graphics.PathOperation reverseDifference;
@@ -439,6 +453,8 @@ package androidx.ui.graphics {
   }
 
   public enum PointMode {
+    method public static androidx.ui.graphics.PointMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.PointMode[] values();
     enum_constant public static final androidx.ui.graphics.PointMode lines;
     enum_constant public static final androidx.ui.graphics.PointMode points;
     enum_constant public static final androidx.ui.graphics.PointMode polygon;
@@ -481,7 +497,7 @@ package androidx.ui.graphics {
     method public float getBlurRadius();
     method public long getColor();
     method public long getOffset();
-    field public static final androidx.ui.graphics.Shadow.Companion! Companion;
+    field public static final androidx.ui.graphics.Shadow.Companion Companion;
   }
 
   public static final class Shadow.Companion {
@@ -505,12 +521,16 @@ package androidx.ui.graphics {
   }
 
   public enum StrokeCap {
+    method public static androidx.ui.graphics.StrokeCap valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.StrokeCap[] values();
     enum_constant public static final androidx.ui.graphics.StrokeCap butt;
     enum_constant public static final androidx.ui.graphics.StrokeCap round;
     enum_constant public static final androidx.ui.graphics.StrokeCap square;
   }
 
   public enum StrokeJoin {
+    method public static androidx.ui.graphics.StrokeJoin valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.StrokeJoin[] values();
     enum_constant public static final androidx.ui.graphics.StrokeJoin bevel;
     enum_constant public static final androidx.ui.graphics.StrokeJoin miter;
     enum_constant public static final androidx.ui.graphics.StrokeJoin round;
@@ -518,6 +538,8 @@ package androidx.ui.graphics {
 
   public enum TileMode {
     method public final android.graphics.Shader.TileMode getNativeTileMode();
+    method public static androidx.ui.graphics.TileMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.TileMode[] values();
     enum_constant public static final androidx.ui.graphics.TileMode Clamp;
     enum_constant public static final androidx.ui.graphics.TileMode Mirror;
     enum_constant public static final androidx.ui.graphics.TileMode Repeated;
@@ -531,6 +553,8 @@ package androidx.ui.graphics {
 
   public enum VertexMode {
     method public final android.graphics.Canvas.VertexMode toFrameworkVertexMode();
+    method public static androidx.ui.graphics.VertexMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.VertexMode[] values();
     enum_constant public static final androidx.ui.graphics.VertexMode triangleFan;
     enum_constant public static final androidx.ui.graphics.VertexMode triangleStrip;
     enum_constant public static final androidx.ui.graphics.VertexMode triangles;
@@ -554,6 +578,8 @@ package androidx.ui.graphics {
 package androidx.ui.graphics.colorspace {
 
   public enum Adaptation {
+    method public static androidx.ui.graphics.colorspace.Adaptation valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.colorspace.Adaptation[] values();
     enum_constant public static final androidx.ui.graphics.colorspace.Adaptation Bradford;
     enum_constant public static final androidx.ui.graphics.colorspace.Adaptation Ciecat02;
     enum_constant public static final androidx.ui.graphics.colorspace.Adaptation VonKries;
@@ -561,6 +587,8 @@ package androidx.ui.graphics.colorspace {
 
   public enum ColorModel {
     method public final int getComponentCount();
+    method public static androidx.ui.graphics.colorspace.ColorModel valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.colorspace.ColorModel[] values();
     enum_constant public static final androidx.ui.graphics.colorspace.ColorModel Cmyk;
     enum_constant public static final androidx.ui.graphics.colorspace.ColorModel Lab;
     enum_constant public static final androidx.ui.graphics.colorspace.ColorModel Rgb;
@@ -625,7 +653,7 @@ package androidx.ui.graphics.colorspace {
     property public final androidx.ui.graphics.colorspace.Rgb ProPhotoRgb;
     property public final androidx.ui.graphics.colorspace.Rgb SmpteC;
     property public final androidx.ui.graphics.colorspace.Rgb Srgb;
-    field public static final androidx.ui.graphics.colorspace.ColorSpaces! INSTANCE;
+    field public static final androidx.ui.graphics.colorspace.ColorSpaces INSTANCE;
   }
 
   public class Connector {
@@ -655,10 +683,12 @@ package androidx.ui.graphics.colorspace {
     property public final androidx.ui.graphics.colorspace.WhitePoint D65;
     property public final androidx.ui.graphics.colorspace.WhitePoint D75;
     property public final androidx.ui.graphics.colorspace.WhitePoint E;
-    field public static final androidx.ui.graphics.colorspace.Illuminant! INSTANCE;
+    field public static final androidx.ui.graphics.colorspace.Illuminant INSTANCE;
   }
 
   public enum RenderIntent {
+    method public static androidx.ui.graphics.colorspace.RenderIntent valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.colorspace.RenderIntent[] values();
     enum_constant public static final androidx.ui.graphics.colorspace.RenderIntent Absolute;
     enum_constant public static final androidx.ui.graphics.colorspace.RenderIntent Perceptual;
     enum_constant public static final androidx.ui.graphics.colorspace.RenderIntent Relative;
@@ -770,7 +800,7 @@ package androidx.ui.graphics.drawscope {
     property public final long center;
     property public abstract androidx.ui.core.LayoutDirection layoutDirection;
     property public final long size;
-    field public static final androidx.ui.graphics.drawscope.DrawScope.Companion! Companion;
+    field public static final androidx.ui.graphics.drawscope.DrawScope.Companion Companion;
     field public static final float DefaultAlpha = 1.0f;
   }
 
@@ -804,7 +834,7 @@ package androidx.ui.graphics.drawscope {
   }
 
   public final class Fill extends androidx.ui.graphics.drawscope.DrawStyle {
-    field public static final androidx.ui.graphics.drawscope.Fill! INSTANCE;
+    field public static final androidx.ui.graphics.drawscope.Fill INSTANCE;
   }
 
   public final class Stroke extends androidx.ui.graphics.drawscope.DrawStyle {
@@ -907,7 +937,7 @@ package androidx.ui.graphics.vector {
   }
 
   public static final class PathNode.Close extends androidx.ui.graphics.vector.PathNode {
-    field public static final androidx.ui.graphics.vector.PathNode.Close! INSTANCE;
+    field public static final androidx.ui.graphics.vector.PathNode.Close INSTANCE;
   }
 
   public static final class PathNode.CurveTo extends androidx.ui.graphics.vector.PathNode {
@@ -1148,7 +1178,7 @@ package androidx.ui.graphics.vectormath {
     method public float[] toFloatArray();
     method public operator androidx.ui.graphics.vectormath.Matrix3 unaryMinus();
     property public final inline java.util.List<java.lang.Float> m3storage;
-    field public static final androidx.ui.graphics.vectormath.Matrix3.Companion! Companion;
+    field public static final androidx.ui.graphics.vectormath.Matrix3.Companion Companion;
   }
 
   public static final class Matrix3.Companion {
@@ -1228,7 +1258,7 @@ package androidx.ui.graphics.vectormath {
     property public final inline androidx.ui.graphics.vectormath.Vector3 translation;
     property public final inline androidx.ui.graphics.vectormath.Vector3 up;
     property public final inline androidx.ui.graphics.vectormath.Matrix3 upperLeft;
-    field public static final androidx.ui.graphics.vectormath.Matrix4.Companion! Companion;
+    field public static final androidx.ui.graphics.vectormath.Matrix4.Companion Companion;
   }
 
   public static final class Matrix4.Companion {
@@ -1255,6 +1285,8 @@ package androidx.ui.graphics.vectormath {
   }
 
   public enum MatrixColumn {
+    method public static androidx.ui.graphics.vectormath.MatrixColumn valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.vectormath.MatrixColumn[] values();
     enum_constant public static final androidx.ui.graphics.vectormath.MatrixColumn W;
     enum_constant public static final androidx.ui.graphics.vectormath.MatrixColumn X;
     enum_constant public static final androidx.ui.graphics.vectormath.MatrixColumn Y;
@@ -1543,6 +1575,8 @@ package androidx.ui.graphics.vectormath {
   }
 
   public enum VectorComponent {
+    method public static androidx.ui.graphics.vectormath.VectorComponent valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.graphics.vectormath.VectorComponent[] values();
     enum_constant public static final androidx.ui.graphics.vectormath.VectorComponent A;
     enum_constant public static final androidx.ui.graphics.vectormath.VectorComponent B;
     enum_constant public static final androidx.ui.graphics.vectormath.VectorComponent G;

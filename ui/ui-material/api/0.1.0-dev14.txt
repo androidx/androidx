@@ -2,6 +2,8 @@
 package androidx.ui.material {
 
   public enum AlertDialogButtonLayout {
+    method public static androidx.ui.material.AlertDialogButtonLayout valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.material.AlertDialogButtonLayout[] values();
     enum_constant public static final androidx.ui.material.AlertDialogButtonLayout SideBySide;
     enum_constant public static final androidx.ui.material.AlertDialogButtonLayout Stacked;
   }
@@ -33,12 +35,12 @@ package androidx.ui.material {
     property public final float DefaultMinWidth;
     property public final long defaultDisabledBackgroundColor;
     property public final long defaultDisabledContentColor;
-    field public static final androidx.ui.material.Button! INSTANCE;
+    field public static final androidx.ui.material.Button INSTANCE;
   }
 
   public final class ButtonKt {
     method @androidx.compose.Composable public static void Button-YWYas6U(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, float elevation = 2.dp, float disabledElevation = 0.dp, androidx.ui.graphics.Shape shape = small, androidx.ui.foundation.Border? border = null, long backgroundColor = MaterialTheme.colors.primary, long disabledBackgroundColor = Button.defaultDisabledBackgroundColor, long contentColor = contentColorFor(backgroundColor), long disabledContentColor = Button.defaultDisabledContentColor, androidx.ui.layout.InnerPadding padding = Button.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> text);
-    method @androidx.compose.Composable public static inline void OutlinedButton-5tjLhF8(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, float elevation = 0.dp, androidx.ui.graphics.Shape shape = small, androidx.ui.foundation.Border? border = Border(1.dp, MaterialTheme.colors.onSurface.copy(OutlinedStrokeOpacity)), long backgroundColor = MaterialTheme.colors.surface, long contentColor = MaterialTheme.colors.primary, long disabledContentColor = Button.defaultDisabledContentColor, androidx.ui.layout.InnerPadding padding = Button.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> text);
+    method @androidx.compose.Composable public static inline void OutlinedButton-5tjLhF8(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, float elevation = 0.dp, androidx.ui.graphics.Shape shape = small, androidx.ui.foundation.Border? border = Border(1.dp, MaterialTheme.colors.onSurface.copy(OutlinedStrokeOpacity)), long backgroundColor = MaterialTheme.colors.surface, long contentColor = contentColorFor(backgroundColor), long disabledContentColor = Button.defaultDisabledContentColor, androidx.ui.layout.InnerPadding padding = Button.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> text);
     method @androidx.compose.Composable public static inline void TextButton-5tjLhF8(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, float elevation = 0.dp, androidx.ui.graphics.Shape shape = small, androidx.ui.foundation.Border? border = null, long backgroundColor = Color.Transparent, long contentColor = MaterialTheme.colors.primary, long disabledContentColor = Button.defaultDisabledContentColor, androidx.ui.layout.InnerPadding padding = TextButton.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> text);
   }
 
@@ -94,7 +96,7 @@ package androidx.ui.material {
   public final class DrawerConstants {
     method public float getDefaultElevation();
     property public final float DefaultElevation;
-    field public static final androidx.ui.material.DrawerConstants! INSTANCE;
+    field public static final androidx.ui.material.DrawerConstants INSTANCE;
   }
 
   public final class DrawerKt {
@@ -103,6 +105,8 @@ package androidx.ui.material {
   }
 
   public enum DrawerState {
+    method public static androidx.ui.material.DrawerState valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.material.DrawerState[] values();
     enum_constant public static final androidx.ui.material.DrawerState Closed;
     enum_constant public static final androidx.ui.material.DrawerState Opened;
   }
@@ -147,7 +151,7 @@ package androidx.ui.material {
     property public final androidx.ui.material.ColorPalette colors;
     property public final androidx.ui.material.Shapes shapes;
     property public final androidx.ui.material.Typography typography;
-    field public static final androidx.ui.material.MaterialTheme! INSTANCE;
+    field public static final androidx.ui.material.MaterialTheme INSTANCE;
   }
 
   public final class MaterialThemeKt {
@@ -162,7 +166,7 @@ package androidx.ui.material {
   public final class ProgressIndicatorConstants {
     method public float getDefaultStrokeWidth();
     property public final float DefaultStrokeWidth;
-    field public static final androidx.ui.material.ProgressIndicatorConstants! INSTANCE;
+    field public static final androidx.ui.material.ProgressIndicatorConstants INSTANCE;
   }
 
   public final class ProgressIndicatorKt {
@@ -172,30 +176,24 @@ package androidx.ui.material {
     method @androidx.compose.Composable public static void LinearProgressIndicator-kB8eKMs(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.core.Modifier modifier = Modifier, long color = MaterialTheme.colors.primary);
   }
 
-  public final class RadioButtonConstants {
-    method public long getDefaultDisabledColor();
-    method public long getDefaultUnselectedColor();
-    property public final long defaultDisabledColor;
-    property public final long defaultUnselectedColor;
-    field public static final androidx.ui.material.RadioButtonConstants! INSTANCE;
-  }
-
   public final class RadioButtonKt {
-    method @androidx.compose.Composable public static void RadioButton-mLaF0B0(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier, boolean enabled = true, long selectedColor = MaterialTheme.colors.secondary, long unselectedColor = RadioButtonConstants.defaultUnselectedColor, long disabledColor = RadioButtonConstants.defaultDisabledColor);
-    method @Deprecated @androidx.compose.Composable public static void RadioGroup(kotlin.jvm.functions.Function1<? super androidx.ui.material.RadioGroupScope,kotlin.Unit> content);
-    method @Deprecated @androidx.compose.Composable public static void RadioGroup-HJ2D5H4(java.util.List<java.lang.String> options, String? selectedOption, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onSelectedChange, androidx.ui.core.Modifier modifier = Modifier, long radioColor = MaterialTheme.colors.secondary, androidx.ui.text.TextStyle? textStyle = null);
+    method @androidx.compose.Composable public static void RadioButton-HeBYgfA(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit>? onSelect, androidx.ui.core.Modifier modifier = Modifier, long color = MaterialTheme.colors.secondary);
+    method @androidx.compose.Composable public static void RadioGroup(kotlin.jvm.functions.Function1<? super androidx.ui.material.RadioGroupScope,kotlin.Unit> content);
+    method @androidx.compose.Composable public static void RadioGroup-HJ2D5H4(java.util.List<java.lang.String> options, String? selectedOption, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onSelectedChange, androidx.ui.core.Modifier modifier = Modifier, long radioColor = MaterialTheme.colors.secondary, androidx.ui.text.TextStyle? textStyle = null);
   }
 
-  @Deprecated @androidx.compose.Stable public final class RadioGroupScope {
-    method @Deprecated @androidx.compose.Composable public void RadioGroupItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @Deprecated @androidx.compose.Composable public void RadioGroupTextItem-JJAyy3w(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, String text, androidx.ui.core.Modifier modifier = Modifier, long radioColor = MaterialTheme.colors.secondary, androidx.ui.text.TextStyle? textStyle = null);
+  @androidx.compose.Stable public final class RadioGroupScope {
+    method @androidx.compose.Composable public void RadioGroupItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.Composable public void RadioGroupTextItem-JJAyy3w(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, String text, androidx.ui.core.Modifier modifier = Modifier, long radioColor = MaterialTheme.colors.secondary, androidx.ui.text.TextStyle? textStyle = null);
   }
 
   public final class Scaffold {
-    field public static final androidx.ui.material.Scaffold! INSTANCE;
+    field public static final androidx.ui.material.Scaffold INSTANCE;
   }
 
   public enum Scaffold.FabPosition {
+    method public static androidx.ui.material.Scaffold.FabPosition valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.ui.material.Scaffold.FabPosition[] values();
     enum_constant public static final androidx.ui.material.Scaffold.FabPosition Center;
     enum_constant public static final androidx.ui.material.Scaffold.FabPosition End;
   }
@@ -267,7 +265,7 @@ package androidx.ui.material {
   public final class TabRow {
     method @androidx.compose.Composable public void Indicator-e8O-MNM(androidx.ui.core.Modifier modifier = Modifier, long color = contentColor());
     method @androidx.compose.Composable public void IndicatorContainer(java.util.List<androidx.ui.material.TabRow.TabPosition> tabPositions, int selectedIndex, kotlin.jvm.functions.Function0<kotlin.Unit> indicator);
-    field public static final androidx.ui.material.TabRow! INSTANCE;
+    field public static final androidx.ui.material.TabRow INSTANCE;
   }
 
   @androidx.compose.Immutable public static final class TabRow.TabPosition {
@@ -283,7 +281,7 @@ package androidx.ui.material {
   public final class TextButton {
     method public androidx.ui.layout.InnerPadding getDefaultInnerPadding();
     property public final androidx.ui.layout.InnerPadding DefaultInnerPadding;
-    field public static final androidx.ui.material.TextButton! INSTANCE;
+    field public static final androidx.ui.material.TextButton INSTANCE;
   }
 
   public final class TextFieldKt {

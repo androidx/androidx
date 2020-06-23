@@ -233,7 +233,7 @@ package androidx.ui.test {
     method public String getDescription();
     method public operator androidx.ui.test.SemanticsPredicate not();
     method public infix androidx.ui.test.SemanticsPredicate or(androidx.ui.test.SemanticsPredicate other);
-    field public static final androidx.ui.test.SemanticsPredicate.Companion! Companion;
+    field public static final androidx.ui.test.SemanticsPredicate.Companion Companion;
   }
 
   public static final class SemanticsPredicate.Companion {

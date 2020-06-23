@@ -21,7 +21,7 @@ package androidx.ui.geometry {
     method public androidx.ui.geometry.Offset translate(float translateX, float translateY);
     method public androidx.ui.geometry.Offset truncDiv(float operand);
     method public operator androidx.ui.geometry.Offset unaryMinus();
-    field public static final androidx.ui.geometry.Offset.Companion! Companion;
+    field public static final androidx.ui.geometry.Offset.Companion Companion;
   }
 
   public static final class Offset.Companion {
@@ -81,7 +81,7 @@ package androidx.ui.geometry {
     method @Deprecated public androidx.ui.geometry.RRect inflate(float delta);
     property public final float height;
     property public final float width;
-    field public static final androidx.ui.geometry.RRect.Companion! Companion;
+    field public static final androidx.ui.geometry.RRect.Companion Companion;
   }
 
   public static final class RRect.Companion {
@@ -135,7 +135,7 @@ package androidx.ui.geometry {
     method public operator androidx.ui.geometry.Radius times(float operand);
     method public androidx.ui.geometry.Radius truncDiv(float operand);
     method public operator androidx.ui.geometry.Radius unaryMinus();
-    field public static final androidx.ui.geometry.Radius.Companion! Companion;
+    field public static final androidx.ui.geometry.Radius.Companion Companion;
   }
 
   public static final class Radius.Companion {
@@ -188,7 +188,7 @@ package androidx.ui.geometry {
     method public androidx.ui.geometry.Rect translate(float translateX, float translateY);
     property public final float height;
     property public final float width;
-    field public static final androidx.ui.geometry.Rect.Companion! Companion;
+    field public static final androidx.ui.geometry.Rect.Companion Companion;
   }
 
   public static final class Rect.Companion {
@@ -237,7 +237,7 @@ package androidx.ui.geometry {
     method public final androidx.ui.geometry.Size truncDiv(float operand);
     property public float dx;
     property public float dy;
-    field public static final androidx.ui.geometry.Size.Companion! Companion;
+    field public static final androidx.ui.geometry.Size.Companion Companion;
   }
 
   public static final class Size.Companion {
