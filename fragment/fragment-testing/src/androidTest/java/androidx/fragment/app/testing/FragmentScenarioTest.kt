@@ -283,8 +283,7 @@ class FragmentScenarioTest {
 
     @Test
     fun fromCreatedToCreated() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.CREATED)) {
             moveToState(State.CREATED)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.CREATED)
@@ -295,8 +294,7 @@ class FragmentScenarioTest {
 
     @Test
     fun fromCreatedToStarted() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.CREATED)) {
             moveToState(State.STARTED)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.STARTED)
@@ -307,8 +305,7 @@ class FragmentScenarioTest {
 
     @Test
     fun fromCreatedToResumed() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.CREATED)) {
             moveToState(State.RESUMED)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.RESUMED)
@@ -319,16 +316,14 @@ class FragmentScenarioTest {
 
     @Test
     fun fromCreatedToDestroyed() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.CREATED)) {
             moveToState(State.DESTROYED)
         }
     }
 
     @Test
     fun fromStartedToCreated() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.STARTED)) {
             moveToState(State.CREATED)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.CREATED)
@@ -339,8 +334,7 @@ class FragmentScenarioTest {
 
     @Test
     fun fromStartedToStarted() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.STARTED)) {
             moveToState(State.STARTED)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.STARTED)
@@ -351,8 +345,7 @@ class FragmentScenarioTest {
 
     @Test
     fun fromStartedToResumed() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.STARTED)) {
             moveToState(State.RESUMED)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.RESUMED)
@@ -363,8 +356,7 @@ class FragmentScenarioTest {
 
     @Test
     fun fromStartedToDestroyed() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.STARTED)) {
             moveToState(State.DESTROYED)
         }
     }
@@ -379,8 +371,7 @@ class FragmentScenarioTest {
 
     @Test
     fun recreateCreatedFragment() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.CREATED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.CREATED)) {
             recreate()
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.CREATED)
@@ -391,8 +382,7 @@ class FragmentScenarioTest {
 
     @Test
     fun recreateStartedFragment() {
-        with(launchFragmentInContainer<StateRecordingFragment>()) {
-            moveToState(State.STARTED)
+        with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.STARTED)) {
             recreate()
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.STARTED)
