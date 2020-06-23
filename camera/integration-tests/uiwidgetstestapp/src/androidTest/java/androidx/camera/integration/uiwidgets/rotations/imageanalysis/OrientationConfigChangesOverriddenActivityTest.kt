@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.uiwidgets.rotations.imageanalysis
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.view.Surface
@@ -82,7 +81,7 @@ class OrientationConfigChangesOverriddenActivityTest(
 
     @get:Rule
     val mCameraPermissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.CAMERA)
+        GrantPermissionRule.grant(*CameraActivity.PERMISSIONS)
 
     @Before
     fun setUp() {
