@@ -741,6 +741,7 @@ package androidx.media.session {
 package androidx.media.utils {
 
   public final class MediaConstants {
+    field public static final String PLAYBACK_STATE_EXTRAS_KEY_MEDIA_ID = "androidx.media.PlaybackStateCompat.Extras.KEY_MEDIA_ID";
     field public static final String SESSION_EXTRAS_KEY_ACCOUNT_NAME = "androidx.media.MediaSessionCompat.Extras.KEY_ACCOUNT_NAME";
     field public static final String SESSION_EXTRAS_KEY_ACCOUNT_TYPE = "androidx.media.MediaSessionCompat.Extras.KEY_ACCOUNT_TYPE";
   }
