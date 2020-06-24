@@ -58,5 +58,52 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setTokenizerType(int);
   }
 
+  public class GenericDocument {
+    ctor protected GenericDocument(androidx.appsearch.app.GenericDocument);
+    method public long getCreationTimestampMillis();
+    method public String getNamespace();
+    method public boolean getPropertyBoolean(String);
+    method public boolean[]? getPropertyBooleanArray(String);
+    method public byte[]? getPropertyBytes(String);
+    method public byte[]![]? getPropertyBytesArray(String);
+    method public androidx.appsearch.app.GenericDocument? getPropertyDocument(String);
+    method public androidx.appsearch.app.GenericDocument![]? getPropertyDocumentArray(String);
+    method public double getPropertyDouble(String);
+    method public double[]? getPropertyDoubleArray(String);
+    method public long getPropertyLong(String);
+    method public long[]? getPropertyLongArray(String);
+    method public String? getPropertyString(String);
+    method public String![]? getPropertyStringArray(String);
+    method public String getSchemaType();
+    method public int getScore();
+    method public long getTtlMillis();
+    method public String getUri();
+    method public <T> T toDataClass(Class<T!>) throws androidx.appsearch.exceptions.AppSearchException;
+    field public static final String DEFAULT_NAMESPACE = "";
+  }
+
+  public static class GenericDocument.Builder<BuilderType extends androidx.appsearch.app.GenericDocument.Builder> {
+    ctor public GenericDocument.Builder(String, String);
+    method public androidx.appsearch.app.GenericDocument build();
+    method public BuilderType setCreationTimestampMillis(long);
+    method public BuilderType setNamespace(String);
+    method public BuilderType setProperty(String, java.lang.String!...);
+    method public BuilderType setProperty(String, boolean...);
+    method public BuilderType setProperty(String, long...);
+    method public BuilderType setProperty(String, double...);
+    method public BuilderType setProperty(String, byte[]!...);
+    method public BuilderType setProperty(String, androidx.appsearch.app.GenericDocument!...);
+    method public BuilderType setScore(@IntRange(from=0, to=java.lang.Integer.MAX_VALUE) int);
+    method public BuilderType setTtlMillis(long);
+  }
+
+}
+
+package androidx.appsearch.exceptions {
+
+  public class AppSearchException extends java.lang.Exception {
+    method public <T> androidx.appsearch.app.AppSearchResult<T!> toAppSearchResult();
+  }
+
 }
 
