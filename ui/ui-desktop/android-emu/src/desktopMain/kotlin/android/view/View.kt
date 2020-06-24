@@ -88,6 +88,11 @@ open class View(val context: Context) {
         outLocation[1] = 0
     }
 
+    open fun getRootView(): View {
+        if (parent != null && parent is View) return (parent as View).getRootView()
+        return this
+    }
+
     fun setMeasuredDimension(measuredWidth: Int, measuredHeight: Int) {}
 
     private val tags = mutableMapOf<Int, Any?>()
@@ -98,7 +103,15 @@ open class View(val context: Context) {
         tags[key] = obj
     }
 
+    private val attachListeners = mutableListOf<View.OnAttachStateChangeListener>()
+
+    open fun addOnAttachStateChangeListener(listener: View.OnAttachStateChangeListener) {
+        attachListeners.add(listener)
+    }
+
     var parent: ViewParent? = null
+
+    var viewTreeObserver: ViewTreeObserver? = null
 
     class MeasureSpec {
         companion object {
@@ -186,5 +199,8 @@ open class View(val context: Context) {
 
     open fun onAttachedToWindow() {
         isAttachedToWindow = true
+        attachListeners.forEach {
+            it.onViewAttachedToWindow(this)
+        }
     }
 }

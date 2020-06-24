@@ -334,7 +334,6 @@ tasks.withType(KotlinCompile).configureEach {
 project.tasks.register("jar", Jar).configure {
     baseName = "ui-desktop"
     from { kotlin.jvm().compilations["main"].output.allOutputs }
-    destinationDir file(composeClassDir)
 }
 
 project.tasks.register("test", JavaExec).configure {
@@ -351,5 +350,6 @@ clean.doFirst {
     delete composeClassDir
 }
 
-// TODO(igotti): figure out buildbots breakage.
-// rootProject.tasks.getByName("buildOnServer").dependsOn(project.path + ":jar")
+rootProject.tasks.getByName("buildOnServer").configure {
+    dependsOn(":ui:ui-desktop:jar")
+}
