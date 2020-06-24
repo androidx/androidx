@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.datastore.DataMigration
 import androidx.datastore.DataStore
+import androidx.datastore.migrations.SharedPreferencesMigration
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -36,7 +37,7 @@ import java.io.File
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.FlowPreview
 @MediumTest
-class SharedPreferencesMigrationTest {
+class SharedPreferencesToPreferencesTest {
 
     @get:Rule
     val temporaryFolder = TemporaryFolder()
