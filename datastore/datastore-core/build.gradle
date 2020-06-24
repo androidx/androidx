@@ -20,10 +20,19 @@ import androidx.build.AndroidXExtension
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+android {
+    sourceSets {
+        androidTest {
+            // Shared TestingSerializer between test and androidTest
+            kotlin.srcDirs += test.kotlin.srcDirs
+        }
+    }
 }
 
 dependencies {
@@ -35,6 +44,13 @@ dependencies {
     testImplementation(KOTLIN_COROUTINES_TEST)
     testImplementation(TRUTH)
     testImplementation(project(":internal-testutils-truth"))
+
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(KOTLIN_COROUTINES_TEST)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
 }
 
 androidx {
