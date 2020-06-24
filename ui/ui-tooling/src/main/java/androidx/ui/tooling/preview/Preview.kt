@@ -53,6 +53,7 @@ import androidx.compose.Composable
 @Target(
     AnnotationTarget.FUNCTION
 )
+@Repeatable
 annotation class Preview(
     val name: String = "",
     val group: String = "",
