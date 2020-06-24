@@ -91,7 +91,7 @@ class FakeRequestMetadata(
     private val requestParameters: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
     extraRequestParameters: Map<Metadata.Key<*>, Any?> = emptyMap(),
     override val template: RequestTemplate = RequestTemplate(0),
-    override val streams: Map<Surface, StreamId> = mapOf(),
+    override val streams: Map<StreamId, Surface> = mapOf(),
     override val request: Request = Request(listOf()),
     override val requestNumber: RequestNumber = RequestNumber(4321),
     override val sequenceNumber: SequenceNumber = SequenceNumber(1234)

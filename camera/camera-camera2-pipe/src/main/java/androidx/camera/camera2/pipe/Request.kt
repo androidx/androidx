@@ -33,7 +33,7 @@ data class Request(
     val requestParameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
     val extraRequestParameters: Map<Metadata.Key<*>, Any> = emptyMap(),
     val listeners: List<Listener> = emptyList(),
-    val template: Int? = null
+    val template: RequestTemplate? = null
 ) {
 
     /**
