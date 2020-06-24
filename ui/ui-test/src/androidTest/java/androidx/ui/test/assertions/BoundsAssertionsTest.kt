@@ -29,7 +29,11 @@ import androidx.ui.layout.size
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.assertHeightIsAtLeast
 import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertIsEqualTo
+import androidx.ui.test.assertIsNotEqualTo
+import androidx.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.ui.test.assertPositionInRootIsEqualTo
+import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.assertWidthIsAtLeast
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
@@ -64,6 +68,33 @@ class BoundsAssertionsTest {
                     )
                 }
             }
+        }
+    }
+
+    @Test
+    fun dp_assertEquals() {
+        5.dp.assertIsEqualTo(5.dp)
+        5.dp.assertIsEqualTo(4.6.dp)
+        5.dp.assertIsEqualTo(5.4.dp)
+    }
+
+    @Test
+    fun dp_assertNotEquals() {
+        5.dp.assertIsNotEqualTo(6.dp)
+    }
+
+    @Test
+    fun dp_assertEquals_fail() {
+        expectError<AssertionError> {
+            5.dp.assertIsEqualTo(6.dp)
+        }
+    }
+
+    @Test
+    fun dp_assertNotEquals_fail() {
+        expectError<AssertionError> {
+            5.dp.assertIsNotEqualTo(5.dp)
+            5.dp.assertIsNotEqualTo(5.4.dp)
         }
     }
 
@@ -123,6 +154,8 @@ class BoundsAssertionsTest {
 
         findByTag(tag)
             .assertPositionInRootIsEqualTo(expectedLeft = 50.dp, expectedTop = 100.dp)
+            .assertLeftPositionInRootIsEqualTo(50.dp)
+            .assertTopPositionInRootIsEqualTo(100.dp)
     }
 
     @Test

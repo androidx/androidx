@@ -36,7 +36,7 @@ private const val floatTolerance = 0.5f
  */
 fun SemanticsNodeInteraction.assertWidthIsEqualTo(expectedWidth: Dp): SemanticsNodeInteraction {
     return withBoundsInRoot {
-        areEqualOrThrow("width", it.width, expectedWidth)
+        it.width.toDp().assertIsEqualTo(expectedWidth, "width")
     }
 }
 
@@ -47,7 +47,7 @@ fun SemanticsNodeInteraction.assertWidthIsEqualTo(expectedWidth: Dp): SemanticsN
  */
 fun SemanticsNodeInteraction.assertHeightIsEqualTo(expectedHeight: Dp): SemanticsNodeInteraction {
     return withBoundsInRoot {
-        areEqualOrThrow("height", it.height, expectedHeight)
+        it.height.toDp().assertIsEqualTo(expectedHeight, "height")
     }
 }
 /**
@@ -104,8 +104,40 @@ fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
     expectedTop: Dp
 ): SemanticsNodeInteraction {
     return withBoundsInRoot {
-        areEqualOrThrow("left", it.left, expectedLeft)
-        areEqualOrThrow("top", it.top, expectedTop)
+        it.left.toDp().assertIsEqualTo(expectedLeft, "left")
+        it.top.toDp().assertIsEqualTo(expectedTop, "top")
+    }
+}
+
+/**
+ * Asserts that the layout of this node has the top position in the root composable that is equal to
+ * the given position.
+ *
+ * @param expectedTop The top (y) position to assert.
+ *
+ * @throws AssertionError if comparison fails.
+ */
+fun SemanticsNodeInteraction.assertTopPositionInRootIsEqualTo(
+    expectedTop: Dp
+): SemanticsNodeInteraction {
+    return withBoundsInRoot {
+        it.top.toDp().assertIsEqualTo(expectedTop, "top")
+    }
+}
+
+/**
+ * Asserts that the layout of this node has the left position in the root composable that is
+ * equal to the given position.
+ *
+ * @param expectedTop The left (x) position to assert.
+ *
+ * @throws AssertionError if comparison fails.
+ */
+fun SemanticsNodeInteraction.assertLeftPositionInRootIsEqualTo(
+    expectedTop: Dp
+): SemanticsNodeInteraction {
+    return withBoundsInRoot {
+        it.left.toDp().assertIsEqualTo(expectedTop, "left")
     }
 }
 
@@ -121,6 +153,54 @@ fun SemanticsNodeInteraction.getAlignmentLinePosition(line: AlignmentLine): Dp {
         } else {
             pos.toDp()
         }
+    }
+}
+
+/**
+ * Asserts that this value is equal to the given [expected] value.
+ *
+ * Performs the comparison with the given [tolerance] or the default one if none is provided. It is
+ * recommended to use tolerance when comparing positions and size coming from the framework as there
+ * can be rounding operation performed by individual layouts so the values can be slightly off from
+ * the expected ones.
+ *
+ * @param expected The expected value to which this one should be equal to.
+ * @param subject Used in the error message to identify which item this assertion failed on.
+ * @param tolerance The tolerance within which the values should be treated as equal.
+ *
+ * @throws AssertionError if comparison fails.
+ */
+fun Dp.assertIsEqualTo(expected: Dp, subject: String = "", tolerance: Dp = Dp(.5f)) {
+    val diff = (this - expected).value.absoluteValue
+    if (diff > tolerance.value) {
+        // Comparison failed, report the error in DPs
+        throw AssertionError(
+            "Actual $subject is $this, expected $expected (tolerance: $tolerance)")
+    }
+}
+
+/**
+ * Asserts that this value is not equal to the given [unexpected] value.
+ *
+ * Performs the comparison with the given [tolerance] or the default one if none is provided. It is
+ * recommended to use tolerance when comparing positions and size coming from the framework as there
+ * can be rounding operation performed by individual layouts so the values can be slightly off from
+ * the expected ones.
+ *
+ * @param unexpected The value to which this one should not be equal to.
+ * @param subject Used in the error message to identify which item this assertion failed on.
+ * @param tolerance The tolerance that is expected to be greater than the difference between the
+ * given values to treat them as non-equal.
+ *
+ * @throws AssertionError if comparison fails.
+ */
+fun Dp.assertIsNotEqualTo(unexpected: Dp, subject: String = "", tolerance: Dp = Dp(.5f)) {
+    val diff = (this - unexpected).value.absoluteValue
+    if (diff <= tolerance.value) {
+        // Comparison failed, report the error in DPs
+        throw AssertionError(
+            "Actual $subject is $this, not expected to be equal to $unexpected within a " +
+                    "tolerance of $tolerance")
     }
 }
 
@@ -140,19 +220,6 @@ private fun SemanticsNodeInteraction.withBoundsInRoot(
 
     assertion.invoke(density, node.boundsInRoot)
     return this
-}
-
-private fun Density.areEqualOrThrow(
-    subject: String,
-    actualPx: Float,
-    expected: Dp
-) {
-    val diff = (actualPx - expected.toPx()).absoluteValue
-    if (diff > floatTolerance) {
-        // Comparison failed, report the error in DPs
-        throw AssertionError(
-            "Actual $subject is ${actualPx.toDp()}, expected $expected")
-    }
 }
 
 private fun Density.isAtLeastOrThrow(

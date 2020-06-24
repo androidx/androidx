@@ -20,35 +20,38 @@ import android.os.Build
 import androidx.compose.Providers
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.text.FirstBaseline
-import androidx.ui.text.LastBaseline
-import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
-import androidx.ui.core.globalPosition
-import androidx.ui.core.onPositioned
-import androidx.ui.core.positionInParent
 import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.CutCornerShape
-import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack
+import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertIsEqualTo
+import androidx.ui.test.assertIsNotEqualTo
 import androidx.ui.test.assertShape
+import androidx.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
+import androidx.ui.test.getAlignmentLinePosition
+import androidx.ui.test.getBoundsInRoot
+import androidx.ui.text.FirstBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.unit.dp
+import androidx.ui.unit.height
+import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.math.roundToInt
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -86,138 +89,100 @@ class SnackbarTest {
 
     @Test
     fun snackbar_shortTextOnly_sizes() {
-        var textCoords: LayoutCoordinates? = null
-        val sizes = composeTestRule.setMaterialContentAndCollectSizes(
-            parentConstraints = DpConstraints(maxWidth = 300.dp)
-        ) {
+        composeTestRule.setMaterialContentWithConstraints(DpConstraints(maxWidth = 300.dp)) {
             Snackbar(
+                modifier = Modifier.testTag("snackbar"),
                 text = {
-                    Text("Message",
-                        Modifier.onPositioned { textCoords = it }
-                    )
+                    Text("Message")
                 }
             )
         }
-        sizes
-            .assertHeightEqualsTo(48.dp)
-            .assertWidthEqualsTo(300.dp)
-        assertThat(textCoords).isNotNull()
-        textCoords?.let {
-            with(composeTestRule.density) {
-                assertThat(it[FirstBaseline]).isNotEqualTo(0)
-                assertThat(it[FirstBaseline])
-                    .isEqualTo(it[LastBaseline])
-                assertThat(it.positionInParent.y.roundToInt() + it[FirstBaseline])
-                    .isEqualTo(30.dp.toIntPx())
-            }
-        }
+
+        findByTag("snackbar")
+            .assertWidthIsEqualTo(300.dp)
+            .assertHeightIsEqualTo(48.dp)
+
+        val fistBaseLine = findByText("Message").getAlignmentLinePosition(FirstBaseline)
+        val lastBaseLine = findByText("Message").getAlignmentLinePosition(LastBaseline)
+        fistBaseLine.assertIsNotEqualTo(0.dp, "first baseline")
+        fistBaseLine.assertIsEqualTo(lastBaseLine, "first baseline")
+
+        findByText("Message")
+            .assertTopPositionInRootIsEqualTo(30.dp - fistBaseLine)
     }
 
     @Test
     fun snackbar_shortTextAndButton_alignment() {
-        var snackCoords: LayoutCoordinates? = null
-        var textCoords: LayoutCoordinates? = null
-        var buttonCoords: LayoutCoordinates? = null
-        var buttonTextCoords: LayoutCoordinates? = null
-        val sizes = composeTestRule.setMaterialContentAndCollectSizes(
-            parentConstraints = DpConstraints(maxWidth = 300.dp)
-        ) {
+        composeTestRule.setMaterialContentWithConstraints(DpConstraints(maxWidth = 300.dp)) {
             Snackbar(
-                modifier = Modifier.onPositioned { snackCoords = it },
+                modifier = Modifier.testTag("snackbar"),
                 text = {
-                    Text("Message",
-                        Modifier.onPositioned { textCoords = it }
-                    )
+                    Text("Message")
                 },
                 action = {
                     TextButton(
                         onClick = {},
-                        modifier = Modifier.onPositioned { buttonCoords = it }
+                        modifier = Modifier.testTag("button")
                     ) {
-                        Text("Undo",
-                            Modifier.onPositioned { buttonTextCoords = it }
-                        )
+                        Text("Undo")
                     }
                 }
             )
         }
-        sizes
-            .assertHeightEqualsTo(48.dp)
-            .assertWidthEqualsTo(300.dp)
-        assertThat(textCoords).isNotNull()
-        assertThat(buttonCoords).isNotNull()
-        assertThat(buttonTextCoords).isNotNull()
-        assertThat(snackCoords).isNotNull()
-        val localTextCoords = textCoords
-        val localButtonCoords = buttonCoords
-        val localButtonTextCoords = buttonTextCoords
-        val localSnackCoords = snackCoords
 
-        if (localTextCoords != null &&
-            localButtonCoords != null &&
-            localButtonTextCoords != null &&
-            localSnackCoords != null
-        ) {
-            with(composeTestRule.density) {
-                val buttonTextPos =
-                    localSnackCoords.childToLocal(localButtonTextCoords, Offset.Zero)
-                assertThat(localTextCoords[FirstBaseline]).isNotEqualTo(0)
-                assertThat(localButtonTextCoords[FirstBaseline]).isNotEqualTo(0)
-                assertThat(
-                    localTextCoords.globalPosition.y.roundToInt() + localTextCoords[FirstBaseline]
-                ).isEqualTo(30.dp.toIntPx())
-                assertThat(
-                    buttonTextPos.y.roundToInt() + localButtonTextCoords[FirstBaseline]
-                ).isEqualTo(30.dp.toIntPx())
-            }
-        }
+        findByTag("snackbar")
+            .assertWidthIsEqualTo(300.dp)
+            .assertHeightIsEqualTo(48.dp)
+
+        val textBaseLine = findByText("Message").getAlignmentLinePosition(FirstBaseline)
+        val buttonBaseLine = findByTag("button").getAlignmentLinePosition(FirstBaseline)
+        textBaseLine.assertIsNotEqualTo(0.dp, "text baseline")
+        buttonBaseLine.assertIsNotEqualTo(0.dp, "button baseline")
+
+        findByText("Message")
+            .assertTopPositionInRootIsEqualTo(30.dp - textBaseLine)
+
+        findByTag("button")
+            .assertTopPositionInRootIsEqualTo(30.dp - buttonBaseLine)
     }
 
     @Test
     fun snackbar_longText_sizes() {
-        var textCoords: LayoutCoordinates? = null
-        val sizes = composeTestRule.setMaterialContentAndCollectSizes(
-            parentConstraints = DpConstraints(maxWidth = 300.dp)
-        ) {
+        composeTestRule.setMaterialContentWithConstraints(DpConstraints(maxWidth = 300.dp)) {
             Snackbar(
+                modifier = Modifier.testTag("snackbar"),
                 text = {
-                    Text(longText,
-                        Modifier.onPositioned { textCoords = it }, maxLines = 2)
+                    Text(longText, Modifier.testTag("text"), maxLines = 2)
                 }
             )
         }
-        sizes
-            .assertHeightEqualsTo(68.dp)
-            .assertWidthEqualsTo(300.dp)
-        assertThat(textCoords).isNotNull()
-        textCoords?.let {
-            with(composeTestRule.density) {
-                assertThat(it[FirstBaseline]).isNotEqualTo(0)
-                assertThat(it[LastBaseline]).isNotEqualTo(0)
-                assertThat(it[FirstBaseline]).isNotEqualTo(it[LastBaseline])
-                assertThat(it.positionInParent.y.roundToInt() + it[FirstBaseline])
-                    .isEqualTo(30.dp.toIntPx())
-            }
-        }
+
+        findByTag("snackbar")
+            .assertWidthIsEqualTo(300.dp)
+            .assertHeightIsEqualTo(68.dp)
+
+        val firstBaseline = findByTag("text").getFirstBaselinePosition()
+        val lastBaseline = findByTag("text").getLastBaselinePosition()
+
+        firstBaseline.assertIsNotEqualTo(0.dp, "first baseline")
+        lastBaseline.assertIsNotEqualTo(0.dp, "last baseline")
+        firstBaseline.assertIsNotEqualTo(lastBaseline, "first baseline")
+
+        findByTag("text")
+            .assertTopPositionInRootIsEqualTo(30.dp - firstBaseline)
     }
 
     @Test
     fun snackbar_longTextAndButton_alignment() {
-        var snackCoords: LayoutCoordinates? = null
-        var textCoords: LayoutCoordinates? = null
-        var buttonCoords: LayoutCoordinates? = null
-        val sizes = composeTestRule.setMaterialContentAndCollectSizes(
-            parentConstraints = DpConstraints(maxWidth = 300.dp)
-        ) {
+        composeTestRule.setMaterialContentWithConstraints(DpConstraints(maxWidth = 300.dp)) {
             Snackbar(
-                modifier = Modifier.onPositioned { snackCoords = it },
+                modifier = Modifier.testTag("snackbar"),
                 text = {
-                    Text(longText,
-                        Modifier.onPositioned { textCoords = it }, maxLines = 2)
+                    Text(longText, Modifier.testTag("text"), maxLines = 2)
                 },
                 action = {
                     TextButton(
-                        modifier = Modifier.onPositioned { buttonCoords = it },
+                        modifier = Modifier.testTag("button"),
                         onClick = {}
                     ) {
                         Text("Undo")
@@ -225,58 +190,40 @@ class SnackbarTest {
                 }
             )
         }
-        sizes
-            .assertHeightEqualsTo(68.dp)
-            .assertWidthEqualsTo(300.dp)
-        assertThat(textCoords).isNotNull()
-        assertThat(buttonCoords).isNotNull()
-        assertThat(snackCoords).isNotNull()
-        val localTextCoords = textCoords
-        val localButtonCoords = buttonCoords
-        val localSnackCoords = snackCoords
 
-        if (localTextCoords != null && localButtonCoords != null && localSnackCoords != null) {
-            with(composeTestRule.density) {
-                val buttonPositionInSnack =
-                    localSnackCoords.childToLocal(localButtonCoords, Offset.Zero)
-                val buttonCenter =
-                    buttonPositionInSnack.y.roundToInt() +
-                            (localButtonCoords.size.height / 2).toFloat()
+        findByTag("snackbar")
+            .assertWidthIsEqualTo(300.dp)
+            .assertHeightIsEqualTo(68.dp)
 
-                assertThat(localTextCoords[FirstBaseline]).isNotEqualTo(0)
-                assertThat(localTextCoords[LastBaseline]).isNotEqualTo(0)
-                assertThat(localTextCoords[FirstBaseline])
-                    .isNotEqualTo(localTextCoords[LastBaseline])
-                assertThat(
-                    localTextCoords.globalPosition.y.roundToInt() + localTextCoords[FirstBaseline]
-                ).isEqualTo(30.dp.toIntPx())
+        val textFirstBaseLine = findByTag("text").getFirstBaselinePosition()
+        val textLastBaseLine = findByTag("text").getLastBaselinePosition()
 
-                assertThat(buttonCenter).isEqualTo(
-                    (localSnackCoords.size.height / 2).toFloat()
-                )
-            }
-        }
+        textFirstBaseLine.assertIsNotEqualTo(0.dp, "first baseline")
+        textLastBaseLine.assertIsNotEqualTo(0.dp, "last baseline")
+        textFirstBaseLine.assertIsNotEqualTo(textLastBaseLine, "first baseline")
+
+        findByTag("text")
+            .assertTopPositionInRootIsEqualTo(30.dp - textFirstBaseLine)
+
+        val buttonBounds = findByTag("button").getBoundsInRoot()
+        val snackBounds = findByTag("snackbar").getBoundsInRoot()
+
+        val buttonCenter = buttonBounds.top + (buttonBounds.height / 2)
+        buttonCenter.assertIsEqualTo(snackBounds.height / 2, "button center")
     }
 
     @Test
     fun snackbar_textAndButtonOnSeparateLine_alignment() {
-        var snackCoords: LayoutCoordinates? = null
-        var textCoords: LayoutCoordinates? = null
-        var buttonCoords: LayoutCoordinates? = null
-        composeTestRule.setMaterialContentAndCollectSizes(
-            parentConstraints = DpConstraints(maxWidth = 300.dp)
-        ) {
+        composeTestRule.setMaterialContentWithConstraints(DpConstraints(maxWidth = 300.dp)) {
             Snackbar(
-                modifier = Modifier.onPositioned { snackCoords = it },
+                modifier = Modifier.testTag("snackbar"),
                 text = {
-                    Text("Message",
-                        Modifier.onPositioned { textCoords = it }
-                    )
+                    Text("Message")
                 },
                 action = {
                     TextButton(
                         onClick = {},
-                        modifier = Modifier.onPositioned { buttonCoords = it }
+                        modifier = Modifier.testTag("button")
                     ) {
                         Text("Undo")
                     }
@@ -284,41 +231,21 @@ class SnackbarTest {
                 actionOnNewLine = true
             )
         }
-        assertThat(textCoords).isNotNull()
-        assertThat(buttonCoords).isNotNull()
-        assertThat(snackCoords).isNotNull()
-        val localTextCoords = textCoords
-        val localButtonCoords = buttonCoords
-        val localSnackCoords = snackCoords
 
-        if (localTextCoords != null && localButtonCoords != null && localSnackCoords != null) {
-            with(composeTestRule.density) {
-                val buttonPositionInSnack =
-                    localSnackCoords.childToLocal(localButtonCoords, Offset.Zero)
-                val textPositionInSnack =
-                    localSnackCoords.childToLocal(localTextCoords, Offset.Zero)
+        val textFirstBaseLine = findByText("Message").getFirstBaselinePosition()
+        val textLastBaseLine = findByText("Message").getLastBaselinePosition()
+        val textBounds = findByText("Message").getBoundsInRoot()
+        val buttonBounds = findByTag("button").getBoundsInRoot()
 
-                assertThat(
-                    textPositionInSnack.y.roundToInt() + localTextCoords[FirstBaseline]
-                ).isEqualTo(30.dp.toIntPx())
+        findByText("Message")
+            .assertTopPositionInRootIsEqualTo(30.dp - textFirstBaseLine)
 
-                assertThat(
-                    buttonPositionInSnack.y.roundToInt() -
-                            textPositionInSnack.y.roundToInt() -
-                            localTextCoords[LastBaseline]
-                ).isEqualTo(18.dp.toIntPx())
+        findByTag("button")
+            .assertTopPositionInRootIsEqualTo(18.dp + textBounds.top + textLastBaseLine)
 
-                assertThat(
-                    localSnackCoords.size.height - buttonPositionInSnack.y.roundToInt() -
-                            localButtonCoords.size.height
-                ).isEqualTo(8.dp.toIntPx())
-
-                assertThat(
-                    localSnackCoords.size.width - buttonPositionInSnack.x.roundToInt() -
-                            localButtonCoords.size.width
-                ).isEqualTo(8.dp.toIntPx())
-            }
-        }
+        findByTag("snackbar")
+            .assertHeightIsEqualTo(8.dp + buttonBounds.top + buttonBounds.height)
+            .assertWidthIsEqualTo(8.dp + buttonBounds.left + buttonBounds.width)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
