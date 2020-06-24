@@ -39,6 +39,7 @@ public final class FakeImageProxy implements ImageProxy {
     private int mHeight = 0;
     private int mWidth = 0;
     private PlaneProxy[] mPlaneProxy = new PlaneProxy[0];
+    private boolean mClosed = false;
 
     @NonNull
     private ImageInfo mImageInfo;
@@ -59,6 +60,7 @@ public final class FakeImageProxy implements ImageProxy {
     @Override
     public void close() {
         synchronized (mReleaseLock) {
+            mClosed = true;
             if (mReleaseCompleter != null) {
                 mReleaseCompleter.set(null);
                 mReleaseCompleter = null;
@@ -69,7 +71,12 @@ public final class FakeImageProxy implements ImageProxy {
     @Override
     @NonNull
     public Rect getCropRect() {
-        return mCropRect;
+        synchronized (mReleaseLock) {
+            if (mClosed) {
+                throw new IllegalStateException("FakeImageProxy already closed");
+            }
+            return mCropRect;
+        }
     }
 
     @Override
@@ -79,23 +86,43 @@ public final class FakeImageProxy implements ImageProxy {
 
     @Override
     public int getFormat() {
-        return mFormat;
+        synchronized (mReleaseLock) {
+            if (mClosed) {
+                throw new IllegalStateException("FakeImageProxy already closed");
+            }
+            return mFormat;
+        }
     }
 
     @Override
     public int getHeight() {
-        return mHeight;
+        synchronized (mReleaseLock) {
+            if (mClosed) {
+                throw new IllegalStateException("FakeImageProxy already closed");
+            }
+            return mHeight;
+        }
     }
 
     @Override
     public int getWidth() {
-        return mWidth;
+        synchronized (mReleaseLock) {
+            if (mClosed) {
+                throw new IllegalStateException("FakeImageProxy already closed");
+            }
+            return mWidth;
+        }
     }
 
     @Override
     @NonNull
     public PlaneProxy[] getPlanes() {
-        return mPlaneProxy;
+        synchronized (mReleaseLock) {
+            if (mClosed) {
+                throw new IllegalStateException("FakeImageProxy already closed");
+            }
+            return mPlaneProxy;
+        }
     }
 
     @Override
