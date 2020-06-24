@@ -89,6 +89,7 @@ abstract class MediaRouteProviderProtocol {
      * - arg1    : request id
      * - arg2    : route controller id
      * - CLIENT_DATA_VOLUME : volume integer
+     * - CLIENT_DATA_ROUTE_ID : (client v4, only used for MediaRouter2) original route ID
      */
     public static final int CLIENT_MSG_SET_ROUTE_VOLUME = 7;
 
@@ -98,6 +99,7 @@ abstract class MediaRouteProviderProtocol {
      * - arg1    : request id
      * - arg2    : route controller id
      * - CLIENT_DATA_VOLUME : volume delta integer
+     * - CLIENT_DATA_ROUTE_ID : (client v4, only used for MediaRouter2) original route ID
      */
     public static final int CLIENT_MSG_UPDATE_ROUTE_VOLUME = 8;
 
@@ -256,9 +258,15 @@ abstract class MediaRouteProviderProtocol {
     public static final int CLIENT_VERSION_3 = 3;
 
     /**
+     * The client version used from androidx 1.2.0.
+     * Seamless transfer feature is added in this version.
+     */
+    public static final int CLIENT_VERSION_4 = 4;
+
+    /**
      * The current client version.
      */
-    public static final int CLIENT_VERSION_CURRENT = CLIENT_VERSION_3;
+    public static final int CLIENT_VERSION_CURRENT = CLIENT_VERSION_4;
 
     /*
      * Recognized server version numbers.  (Reserved for future use.)
@@ -276,9 +284,15 @@ abstract class MediaRouteProviderProtocol {
     public static final int SERVICE_VERSION_2 = 2;
 
     /**
+     * The service version used from androidx 1.2.0.
+     * Seamless transfer feature is added in this version.
+     */
+    public static final int SERVICE_VERSION_3 = 3;
+
+    /**
      * The current service version.
      */
-    public static final int SERVICE_VERSION_CURRENT = SERVICE_VERSION_2;
+    public static final int SERVICE_VERSION_CURRENT = SERVICE_VERSION_3;
 
     static final int CLIENT_VERSION_START = CLIENT_VERSION_1;
 

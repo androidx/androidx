@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,10 +47,16 @@ import java.util.stream.Collectors;
 @RequiresApi(api = Build.VERSION_CODES.R)
 class MediaRouter2Utils {
     static final String FEATURE_EMPTY = "android.media.route.feature.EMPTY";
+
+    // Used in MediaRoute2Info#getExtras()
     static final String KEY_EXTRAS = "androidx.mediarouter.media.KEY_EXTRAS";
     static final String KEY_CONTROL_FILTERS = "androidx.mediarouter.media.KEY_CONTROL_FILTERS";
     static final String KEY_DEVICE_TYPE = "androidx.mediarouter.media.KEY_DEVICE_TYPE";
+    static final String KEY_ORIGINAL_ROUTE_ID = "androidx.mediarouter.media.KEY_ORIGINAL_ROUTE_ID";
+
+    // Used in RoutingController#getControlHints()
     static final String KEY_MESSENGER = "androidx.mediarouter.media.KEY_MESSENGER";
+    static final String KEY_SESSION_NAME = "androidx.mediarouter.media.KEY_SESSION_NAME";
 
     private MediaRouter2Utils() {}
 
@@ -79,6 +86,7 @@ class MediaRouter2Utils {
         extras.putParcelableArrayList(KEY_CONTROL_FILTERS,
                 new ArrayList<>(descriptor.getControlFilters()));
         extras.putInt(KEY_DEVICE_TYPE, descriptor.getDeviceType());
+        extras.putString(KEY_ORIGINAL_ROUTE_ID, descriptor.getId());
         builder.setExtras(extras);
 
         // This is a workaround for preventing IllegalArgumentException in MediaRoute2Info.
@@ -163,6 +171,15 @@ class MediaRouter2Utils {
             // filter.addAction(MediaControlIntent.ACTION_SEEK);
             return filter;
         }).collect(Collectors.toList());
+    }
+
+    @NonNull
+    static List<String> getRouteIds(@Nullable List<MediaRoute2Info> routes) {
+        if (routes == null) {
+            return new ArrayList<>();
+        }
+        return routes.stream().filter(Objects::nonNull)
+                .map(MediaRoute2Info::getId).collect(Collectors.toList());
     }
 
     @NonNull

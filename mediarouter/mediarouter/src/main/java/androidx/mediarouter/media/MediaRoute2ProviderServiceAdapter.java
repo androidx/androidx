@@ -16,7 +16,11 @@
 
 package androidx.mediarouter.media;
 
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_ID;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_VOLUME;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_ROUTE_CONTROL_REQUEST;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_SET_ROUTE_VOLUME;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UPDATE_ROUTE_VOLUME;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_DATA_ERROR;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_FAILED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED;
@@ -148,11 +152,13 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         String sessionId = assignSessionId(controller);
         controller.onSelect();
 
+        String sessionName = selectedRoute.getName();
+
         //TODO: Handle a static group
         RoutingSessionInfo.Builder builder =
                 new RoutingSessionInfo.Builder(sessionId, packageName)
                         .addSelectedRoute(routeId)
-                        .setName(selectedRoute.getName())
+                        .setName(sessionName)
                         .setVolumeHandling(selectedRoute.getVolumeHandling())
                         .setVolume(selectedRoute.getVolume())
                         .setVolumeMax(selectedRoute.getVolumeMax());
@@ -162,6 +168,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
 
         Bundle controlHints = new Bundle();
         controlHints.putParcelable(MediaRouter2Utils.KEY_MESSENGER, messenger);
+        controlHints.putString(MediaRouter2Utils.KEY_SESSION_NAME, sessionName);
         builder.setControlHints(controlHints).build();
 
         // Dynamic grouping info will be notified by the provider.
@@ -340,6 +347,14 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                     .setVolume(groupRoute.getVolume())
                     .setVolumeMax(groupRoute.getVolumeMax())
                     .setVolumeHandling(groupRoute.getVolumeHandling());
+
+            Bundle controlHints = sessionInfo.getControlHints();
+            if (controlHints == null) {
+                Log.w(TAG, "The controlHints is null. This shouldn't happen.");
+                controlHints = new Bundle();
+            }
+            controlHints.putString(MediaRouter2Utils.KEY_SESSION_NAME, groupRoute.getName());
+            builder.setControlHints(controlHints);
         }
 
         for (DynamicRouteDescriptor descriptor : descriptors) {
@@ -432,6 +447,24 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         };
 
         controller.onControlRequest(intent, callback);
+    }
+
+    void setRouteVolume(@NonNull String routeId, int volume) {
+        RouteController controller = mServiceImpl.getControllerForRouteId(routeId);
+        if (controller == null) {
+            Log.w(TAG, "setRouteVolume: Couldn't find a controller for routeId=" + routeId);
+            return;
+        }
+        controller.onSetVolume(volume);
+    }
+
+    void updateRouteVolume(@NonNull String routeId, int delta) {
+        RouteController controller = mServiceImpl.getControllerForRouteId(routeId);
+        if (controller == null) {
+            Log.w(TAG, "updateRouteVolume: Couldn't find a controller for routeId=" + routeId);
+            return;
+        }
+        controller.onUpdateVolume(delta);
     }
 
     void updateMemberRouteControllers(String groupId, RoutingSessionInfo oldSession,
@@ -588,6 +621,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             final int what = msg.what;
             final int requestId = msg.arg1;
             final Object obj = msg.obj;
+            final Bundle data = msg.getData();
 
             switch (what) {
                 case CLIENT_MSG_ROUTE_CONTROL_REQUEST:
@@ -596,6 +630,24 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                                 mSessionId, (Intent) obj);
                     }
                     break;
+
+                case CLIENT_MSG_SET_ROUTE_VOLUME: {
+                    int volume = data.getInt(CLIENT_DATA_VOLUME, -1);
+                    String routeId = data.getString(CLIENT_DATA_ROUTE_ID);
+                    if (volume >= 0 && routeId != null) {
+                        mServiceAdapter.setRouteVolume(routeId, volume);
+                    }
+                    break;
+                }
+
+                case CLIENT_MSG_UPDATE_ROUTE_VOLUME: {
+                    int delta = data.getInt(CLIENT_DATA_VOLUME, 0);
+                    String routeId = data.getString(CLIENT_DATA_ROUTE_ID);
+                    if (delta != 0 && routeId != null) {
+                        mServiceAdapter.updateRouteVolume(routeId, delta);
+                    }
+                    break;
+                }
             }
         }
     }
