@@ -54,7 +54,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
@@ -71,8 +71,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @RunWith(AndroidJUnit4.class)
 public final class PreviewTest {
 
-    @ClassRule
-    public static TestRule sCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+    @Rule
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
 
     private static final String ANY_THREAD_NAME = "any-thread-name";
     private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);

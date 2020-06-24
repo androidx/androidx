@@ -46,7 +46,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
@@ -63,8 +63,8 @@ import java.util.concurrent.Semaphore;
 public final class UseCaseCombinationTest {
     private static final CameraSelector DEFAULT_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA;
     private final MutableLiveData<Long> mAnalysisResult = new MutableLiveData<>();
-    @ClassRule
-    public static TestRule sCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+    @Rule
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Semaphore mSemaphore;
     private FakeLifecycleOwner mLifecycle;

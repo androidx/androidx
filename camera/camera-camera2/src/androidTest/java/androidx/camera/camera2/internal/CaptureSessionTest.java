@@ -70,7 +70,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.junit.After;
 import org.junit.AssumptionViolatedException;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
@@ -105,8 +105,8 @@ public final class CaptureSessionTest {
 
     private final List<CaptureSession> mCaptureSessions = new ArrayList<>();
 
-    @ClassRule
-    public static TestRule sUseCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+    @Rule
+    public TestRule mUseCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
 
     @Before
     public void setup() throws CameraAccessException, InterruptedException,

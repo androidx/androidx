@@ -79,7 +79,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
@@ -117,8 +117,8 @@ public final class Camera2CameraImplTest {
     private static CameraFactory sCameraFactory;
     static ExecutorService sCameraExecutor;
 
-    @ClassRule
-    public static TestRule sCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+    @Rule
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
 
 
     private ArrayList<FakeUseCase> mFakeUseCases = new ArrayList<>();
