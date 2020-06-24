@@ -15,7 +15,6 @@
  */
 package androidx.ui.core
 
-import androidx.annotation.RestrictTo
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.clipboard.ClipboardManager
@@ -29,7 +28,6 @@ import androidx.ui.savedinstancestate.UiSavedStateRegistry
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntOffset
-import org.jetbrains.annotations.TestOnly
 
 /**
  * Owner implements the connection to the underlying view system. On Android, this connects
@@ -95,8 +93,7 @@ interface Owner {
      */
     var showLayoutBounds: Boolean
         /** @suppress */
-        @TestOnly
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @InternalCoreApi
         set
 
     /**

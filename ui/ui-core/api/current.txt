@@ -356,6 +356,9 @@ package androidx.ui.core {
     ctor public HorizontalAlignmentLine(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Integer> merger);
   }
 
+  @kotlin.RequiresOptIn(message="This API is internal to library.") @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER}) public @interface InternalCoreApi {
+  }
+
   public interface IntrinsicMeasurable {
     method public Object? getParentData();
     method public int maxIntrinsicHeight(int width, androidx.ui.core.LayoutDirection layoutDirection);
@@ -670,6 +673,7 @@ package androidx.ui.core {
     method public boolean requestFocus();
     method public boolean sendKeyEvent(androidx.ui.core.keyinput.KeyEvent keyEvent);
     method public void setOnSavedStateRegistryAvailable(kotlin.jvm.functions.Function1<? super androidx.ui.savedinstancestate.UiSavedStateRegistry,kotlin.Unit> callback);
+    method @androidx.ui.core.InternalCoreApi public void setShowLayoutBounds(boolean p);
     property public abstract androidx.ui.autofill.Autofill? autofill;
     property public abstract androidx.ui.autofill.AutofillTree autofillTree;
     property public abstract androidx.ui.core.clipboard.ClipboardManager clipboardManager;
