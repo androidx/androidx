@@ -31,7 +31,8 @@ dependencies {
 
 androidx {
     name = "Compose Animation Tooling"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    description = "Compose Animation APIs for tooling support. Internal use only."
+    publish = Publish.SNAPSHOT_ONLY
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     generateDocs = false
