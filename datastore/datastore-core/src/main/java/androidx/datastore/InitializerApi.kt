@@ -23,6 +23,8 @@ package androidx.datastore
  * Initializers are executed in the order in which they are added. They must be idempotent
  * since they are run each time the DataStore starts, and they may be run multiple times by a
  * single instance if a downstream initializer fails.
+ *
+ * Note: Initializers are internal only. Instead, see [DataMigration].
  */
 internal interface InitializerApi<T> {
     suspend fun updateData(transform: suspend (t: T) -> T): T
