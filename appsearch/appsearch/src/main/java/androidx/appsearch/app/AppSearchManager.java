@@ -18,6 +18,8 @@ package androidx.appsearch.app;
 
 import static androidx.appsearch.app.AppSearchResult.newFailedResult;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -55,12 +57,25 @@ import java.util.concurrent.Executors;
 // TODO(b/149787478): Rename this class to AppSearch.
 public class AppSearchManager {
 
-    private final AppSearchImpl mAppSearchImpl = new AppSearchImpl();
-
     // Never call Executor.shutdownNow(), it will cancel the futures it's returned. And since
     // execute() won't return anything, we will hang forever waiting for the execution.
-    private final ExecutorService mQueryExecutor = Executors.newCachedThreadPool();
-    private final ExecutorService mMutateExecutor = Executors.newFixedThreadPool(1);
+    // AppSearch support multi-thread execute for query but we should use single thread for mutate
+    // requests(put, delete, etc..) to avoid data manipulation conflict.
+    private static final ExecutorService QUERY_EXECUTOR = Executors.newCachedThreadPool();
+    private static final ExecutorService MUTATE_EXECUTOR = Executors.newFixedThreadPool(1);
+
+    private final AppSearchImpl mAppSearchImpl;
+    private final String mInstanceName;
+
+    /**
+     * Gets a instance of {@link AppSearchManager} with the name of it.
+     * <p>Documents, schemas and types are fully isolated between different instances.
+     * @param instanceName The name of this instance.
+     */
+    public AppSearchManager(@NonNull String instanceName, @NonNull Context context) {
+        mInstanceName = instanceName;
+        mAppSearchImpl = AppSearchImpl.getInstance(context);
+    }
 
     /**
      * Encapsulates a request to update the schema of an {@link AppSearchManager} database.
@@ -208,13 +223,14 @@ public class AppSearchManager {
         Preconditions.checkNotNull(request);
 
         // Prepare the merged schema for transmission.
-        return execute(mMutateExecutor, () -> {
+        return execute(MUTATE_EXECUTOR, () -> {
             SchemaProto.Builder schemaProtoBuilder = SchemaProto.newBuilder();
             for (AppSearchSchema schema : request.mSchemas) {
                 schemaProtoBuilder.addTypes(schema.getProto());
             }
             try {
-                mAppSearchImpl.setSchema(schemaProtoBuilder.build(), request.mForceOverride);
+                mAppSearchImpl.setSchema(mInstanceName, schemaProtoBuilder.build(),
+                        request.mForceOverride);
                 return AppSearchResult.newSuccessfulResult(/*value=*/ null);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
@@ -319,13 +335,13 @@ public class AppSearchManager {
             @NonNull PutDocumentsRequest request) {
         // TODO(b/146386470): Transmit these documents as a RemoteStream instead of sending them in
         // one big list.
-        return execute(mMutateExecutor, () -> {
+        return execute(MUTATE_EXECUTOR, () -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < request.mDocuments.size(); i++) {
                 GenericDocument document = request.mDocuments.get(i);
                 try {
-                    mAppSearchImpl.putDocument(document.getProto());
+                    mAppSearchImpl.putDocument(mInstanceName, document.getProto());
                     resultBuilder.setSuccess(document.getUri(), /*result=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(document.getUri(), throwableToFailedResult(t));
@@ -356,13 +372,14 @@ public class AppSearchManager {
             @NonNull List<String> uris) {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
-        return execute(mQueryExecutor, () -> {
+        return execute(QUERY_EXECUTOR, () -> {
             AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < uris.size(); i++) {
                 String uri = uris.get(i);
                 try {
-                    DocumentProto documentProto = mAppSearchImpl.getDocument(namespace, uri);
+                    DocumentProto documentProto = mAppSearchImpl.getDocument(mInstanceName,
+                            namespace, uri);
                     if (documentProto == null) {
                         resultBuilder.setFailure(
                                 uri, AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null);
@@ -460,14 +477,15 @@ public class AppSearchManager {
             @NonNull SearchSpec searchSpec) {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
-        return execute(mQueryExecutor, () -> {
+        return execute(QUERY_EXECUTOR, () -> {
             try {
                 SearchSpecProto searchSpecProto = searchSpec.getSearchSpecProto();
                 searchSpecProto = searchSpecProto.toBuilder().setQuery(queryExpression).build();
-                SearchResultProto searchResultProto = mAppSearchImpl.query(searchSpecProto,
-                        searchSpec.getResultSpecProto(), searchSpec.getScoringSpecProto());
-                // TODO(sidchhabra): Translate SearchResultProto errors into error codes. This
-                //  might better be done in AppSearchImpl by throwing an AppSearchException.
+                SearchResultProto searchResultProto = mAppSearchImpl.query(mInstanceName,
+                        searchSpecProto, searchSpec.getResultSpecProto(),
+                        searchSpec.getScoringSpecProto());
+                // TODO(sidchhabra): Translate SearchResultProto errors into error codes. This might
+                //     better be done in AppSearchImpl by throwing an AppSearchException.
                 if (searchResultProto.getStatus().getCode() != StatusProto.Code.OK) {
                     return AppSearchResult.newFailedResult(
                             AppSearchResult.RESULT_INTERNAL_ERROR,
@@ -500,13 +518,13 @@ public class AppSearchManager {
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> delete(@NonNull String namespace,
             @NonNull List<String> uris) {
-        return execute(mMutateExecutor, () -> {
+        return execute(MUTATE_EXECUTOR, () -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < uris.size(); i++) {
                 String uri = uris.get(i);
                 try {
-                    if (!mAppSearchImpl.delete(namespace, uri)) {
+                    if (!mAppSearchImpl.delete(mInstanceName, namespace, uri)) {
                         resultBuilder.setFailure(
                                 uri, AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null);
                     } else {
@@ -556,13 +574,13 @@ public class AppSearchManager {
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> deleteByTypes(
             @NonNull List<String> schemaTypes) {
-        return execute(mMutateExecutor, () -> {
+        return execute(MUTATE_EXECUTOR, () -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < schemaTypes.size(); i++) {
                 String schemaType = schemaTypes.get(i);
                 try {
-                    if (!mAppSearchImpl.deleteByType(schemaType)) {
+                    if (!mAppSearchImpl.deleteByType(mInstanceName, schemaType)) {
                         resultBuilder.setFailure(
                                 schemaType,
                                 AppSearchResult.RESULT_NOT_FOUND,
@@ -586,7 +604,7 @@ public class AppSearchManager {
      */
     @NonNull
     public <ValueType> ListenableFuture<AppSearchResult<ValueType>> deleteAll() {
-        return execute(mMutateExecutor, () -> {
+        return execute(MUTATE_EXECUTOR, () -> {
             try {
                 mAppSearchImpl.deleteAll();
                 return AppSearchResult.newSuccessfulResult(null);
