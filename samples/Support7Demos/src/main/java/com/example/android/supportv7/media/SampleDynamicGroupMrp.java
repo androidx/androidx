@@ -301,7 +301,8 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
         @Override
         public void onUpdateMemberRoutes(List<String> routeIds) {
-            for (String routeId : mMemberRouteIds) {
+            List<String> routeIdsToRemove = new ArrayList<>(mMemberRouteIds);
+            for (String routeId : routeIdsToRemove) {
                 removeMember(routeId);
             }
             for (String routeId : routeIds) {

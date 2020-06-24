@@ -2383,6 +2383,11 @@ public final class MediaRouter {
         public void requestUpdateVolume(RouteInfo route, int delta) {
             if (route == mSelectedRoute && mSelectedRouteController != null) {
                 mSelectedRouteController.onUpdateVolume(delta);
+            } else if (!mRouteControllerMap.isEmpty()) {
+                RouteController controller = mRouteControllerMap.get(route.mUniqueId);
+                if (controller != null) {
+                    controller.onUpdateVolume(delta);
+                }
             }
         }
 
@@ -3265,11 +3270,7 @@ public final class MediaRouter {
             }
 
             @Override
-            public void onReleaseController(@Nullable RouteController controller) {
-                if (controller == null) {
-                    return;
-                }
-
+            public void onReleaseController(@NonNull RouteController controller) {
                 if (controller == mSelectedRouteController) {
                     // Stop casting
                     setSelectedRouteToFallbackRoute(UNSELECT_REASON_STOPPED);
