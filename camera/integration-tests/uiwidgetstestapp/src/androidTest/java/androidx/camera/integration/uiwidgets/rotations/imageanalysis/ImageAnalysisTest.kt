@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.uiwidgets.rotations.imagecapture
+package androidx.camera.integration.uiwidgets.rotations.imageanalysis
 
 import android.content.Intent
-import android.os.Build
-import android.view.View
-import androidx.camera.core.CameraSelector
-import androidx.camera.integration.uiwidgets.R
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
@@ -31,31 +27,21 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume
-import org.junit.Assume.assumeFalse
 import java.util.concurrent.TimeUnit
 
 /**
- * Base class for rotation image capture tests.
+ * Base class for rotation image analysis tests.
  *
  * The flow of the tests is:
  * - Launch the activity
  * - Wait fo the camera to be set up
  * - Rotate
  * - Wait a couple of frames
- * - Take a picture
- * - Wait for the image capture callback
- * - Verify the picture's rotation or resolution
+ * - Verify the image analysis image rotation
  */
-abstract class ImageCaptureTest<A : CameraActivity> {
+abstract class ImageAnalysisTest<A : CameraActivity> {
 
     protected fun setUp(lensFacing: Int) {
-        // TODO(b/147448711) Cuttlefish seems to have an issue handling rotation. Might be
-        //  related to the attached bug.
-        assumeFalse(
-            "Cuttlefish does not correctly handle rotating. Unable to test.",
-            Build.MODEL.contains("Cuttlefish")
-        )
-
         CoreAppTestUtil.assumeCompatibleDevice()
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
@@ -72,10 +58,9 @@ abstract class ImageCaptureTest<A : CameraActivity> {
 
     protected inline fun <reified A : CameraActivity> verifyRotation(
         lensFacing: Int,
-        captureMode: Int,
         rotate: ActivityScenario<A>.() -> Unit
     ) {
-        val activityScenario: ActivityScenario<A> = launchActivity(lensFacing, captureMode)
+        val activityScenario: ActivityScenario<A> = launchActivity(lensFacing)
         activityScenario.use { scenario ->
 
             // Wait until the camera is set up and analysis starts receiving frames
@@ -90,50 +75,21 @@ abstract class ImageCaptureTest<A : CameraActivity> {
             // Wait a couple of frames after rotation
             scenario.waitOnCameraFrames()
 
-            // Take picture
-            scenario.onActivity {
-                val view = it.findViewById<View>(R.id.previewView)
-                view.performClick()
-            }
-
-            // Wait until a picture is taken and the capture callback is invoked
-            val captureDone = scenario.withActivity { mCaptureDone }
-            assertThat(captureDone.tryAcquire(TIMEOUT, TimeUnit.SECONDS)).isTrue()
-
-            // If the camera HAL doesn't rotate the image, the captured image should contain a
-            // rotation that's equal to the sensor rotation relative to target rotation
+            // Image rotation is correct if equal to sensor rotation relative to target rotation
             val (sensorToTargetRotation, imageRotationDegrees) = scenario.withActivity {
-                Pair(
-                    getSensorRotationRelativeToCaptureTargetRotation(),
-                    mCaptureResult?.getRotation()
-                )
+                Pair(getSensorRotationRelativeToAnalysisTargetRotation(), mAnalysisImageRotation)
             }
-            val areRotationsEqual = sensorToTargetRotation == imageRotationDegrees
-
-            // If the camera HAL did rotate the image, verifying the image's rotation isn't
-            // possible, so we make sure the image has the correct orientation/resolution.
-            val (expectedResolution, imageSize) = scenario.withActivity {
-                Pair(getCaptureResolution(), mCaptureResult?.getResolution())
-            }
-            val areResolutionsEqual = expectedResolution == imageSize
-
-            assertThat(areRotationsEqual || areResolutionsEqual).isTrue()
-
-            // Delete captured image
-            scenario.withActivity { mCaptureResult?.delete() ?: Unit }
+            assertThat(sensorToTargetRotation).isEqualTo(imageRotationDegrees)
         }
     }
 
-    protected inline fun <reified A : CameraActivity> launchActivity(
-        lensFacing: Int,
-        captureMode: Int
-    ): ActivityScenario<A> {
+    protected inline fun <reified A : CameraActivity> launchActivity(lensFacing: Int):
+            ActivityScenario<A> {
         val intent = Intent(
             ApplicationProvider.getApplicationContext(),
             A::class.java
         ).apply {
             putExtra(CameraActivity.KEY_LENS_FACING, lensFacing)
-            putExtra(CameraActivity.KEY_IMAGE_CAPTURE_MODE, captureMode)
         }
         return ActivityScenario.launch<A>(intent)
     }
@@ -150,15 +106,5 @@ abstract class ImageCaptureTest<A : CameraActivity> {
     companion object {
         protected const val IMAGES_COUNT = 30
         protected const val TIMEOUT = 5L
-        @JvmStatic
-        protected val captureModes = arrayOf(
-            CameraActivity.IMAGE_CAPTURE_MODE_IN_MEMORY,
-            CameraActivity.IMAGE_CAPTURE_MODE_FILE,
-            CameraActivity.IMAGE_CAPTURE_MODE_OUTPUT_STREAM,
-            CameraActivity.IMAGE_CAPTURE_MODE_MEDIA_STORE
-        )
-        @JvmStatic
-        protected val lensFacing =
-            arrayOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
     }
 }
