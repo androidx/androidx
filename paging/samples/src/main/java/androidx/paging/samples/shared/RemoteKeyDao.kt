@@ -20,6 +20,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.google.common.util.concurrent.ListenableFuture
 import io.reactivex.Single
 
 @Dao
@@ -34,6 +35,9 @@ interface RemoteKeyDao {
 
     @Query("SELECT * FROM remote_keys WHERE label = :query")
     fun remoteKeyByQuerySingle(query: String): Single<RemoteKey>
+
+    @Query("SELECT * FROM remote_keys WHERE label = :query")
+    fun remoteKeyByQueryFuture(query: String): ListenableFuture<RemoteKey>
 
     // Normally suspend when using Kotlin Coroutines, but sync version allows this Dao to be used
     // in both Java and Kotlin samples.
