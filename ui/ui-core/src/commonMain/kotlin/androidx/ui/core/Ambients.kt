@@ -17,11 +17,7 @@
 package androidx.ui.core
 
 import androidx.animation.AnimationClockObservable
-import androidx.animation.rootAnimationClockFactory
-import androidx.compose.Composable
-import androidx.compose.Providers
 import androidx.compose.ambientOf
-import androidx.compose.remember
 import androidx.compose.staticAmbientOf
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
@@ -30,7 +26,6 @@ import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.input.TextInputService
 import androidx.ui.platform.UriHandler
-import androidx.ui.savedinstancestate.UiSavedStateRegistryAmbient
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import kotlin.coroutines.CoroutineContext
@@ -101,31 +96,3 @@ val TextToolbarAmbient = staticAmbientOf<TextToolbar>()
  * The ambient to provide functionality related to URL, e.g. open URI.
  */
 val UriHandlerAmbient = staticAmbientOf<UriHandler>()
-
-@Composable
-@OptIn(androidx.animation.InternalAnimationApi::class)
-internal fun ProvideCommonAmbients(
-    owner: Owner,
-    uriHandler: UriHandler,
-    coroutineContext: CoroutineContext,
-    content: @Composable () -> Unit
-) {
-    val rootAnimationClock = remember { rootAnimationClockFactory() }
-
-    Providers(
-        AnimationClockAmbient provides rootAnimationClock,
-        AutofillAmbient provides owner.autofill,
-        AutofillTreeAmbient provides owner.autofillTree,
-        ClipboardManagerAmbient provides owner.clipboardManager,
-        @Suppress("DEPRECATION")
-        CoroutineContextAmbient provides coroutineContext,
-        DensityAmbient provides owner.density,
-        FontLoaderAmbient provides owner.fontLoader,
-        HapticFeedBackAmbient provides owner.hapticFeedBack,
-        TextInputServiceAmbient provides owner.textInputService,
-        TextToolbarAmbient provides owner.textToolbar,
-        UiSavedStateRegistryAmbient provides owner.savedStateRegistry,
-        UriHandlerAmbient provides uriHandler,
-        children = content
-    )
-}
