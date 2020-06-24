@@ -40,7 +40,7 @@ import androidx.ui.text.platform.style.SkewXSpan
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
-import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.Density
@@ -1218,7 +1218,7 @@ class AndroidParagraphTest {
         spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
         textIndent: TextIndent? = null,
         textAlign: TextAlign? = null,
-        textDirectionAlgorithm: TextDirectionAlgorithm? = TextDirectionAlgorithm.ContentOrLtr,
+        textDirection: TextDirection? = TextDirection.ContentOrLtr,
         ellipsis: Boolean = false,
         maxLines: Int = Int.MAX_VALUE,
         constraints: ParagraphConstraints,
@@ -1233,7 +1233,7 @@ class AndroidParagraphTest {
             style = TextStyle(
                 textAlign = textAlign,
                 textIndent = textIndent,
-                textDirectionAlgorithm = textDirectionAlgorithm
+                textDirection = textDirection
             ).merge(style),
             maxLines = maxLines,
             ellipsis = ellipsis,

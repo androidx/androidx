@@ -18,7 +18,7 @@ package androidx.ui.text
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.text.font.asFontFamily
-import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.em
@@ -372,7 +372,7 @@ class ParagraphPlaceholderIntegrationTest {
             placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             fontSize = fontSize.sp,
             width = paragraphWidth,
-            textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrRtl
+            textDirection = TextDirection.ContentOrRtl
         )
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(1)
@@ -402,7 +402,7 @@ class ParagraphPlaceholderIntegrationTest {
             placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             fontSize = fontSize.sp,
             width = paragraphWidth,
-            textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+            textDirection = TextDirection.ContentOrLtr
         )
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(1)
@@ -432,7 +432,7 @@ class ParagraphPlaceholderIntegrationTest {
             placeholders = listOf(AnnotatedString.Range(placeholder, 2, 3)),
             fontSize = fontSize.sp,
             width = paragraphWidth,
-            textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+            textDirection = TextDirection.ContentOrLtr
         )
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(1)
@@ -462,7 +462,7 @@ class ParagraphPlaceholderIntegrationTest {
             placeholders = listOf(AnnotatedString.Range(placeholder, 1, 3)),
             fontSize = fontSize.sp,
             width = paragraphWidth,
-            textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+            textDirection = TextDirection.ContentOrLtr
         )
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(1)
@@ -513,7 +513,7 @@ class ParagraphPlaceholderIntegrationTest {
         spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
         placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
         width: Float = Float.MAX_VALUE,
-        textDirectionAlgorithm: TextDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr,
+        textDirection: TextDirection = TextDirection.ContentOrLtr,
         maxLines: Int = Int.MAX_VALUE,
         ellipsis: Boolean = false
     ): Paragraph {
@@ -522,7 +522,7 @@ class ParagraphPlaceholderIntegrationTest {
             style = TextStyle(
                 fontSize = fontSize,
                 fontFamily = fontFamilyMeasureFont,
-                textDirectionAlgorithm = textDirectionAlgorithm
+                textDirection = textDirection
             ),
             spanStyles = spanStyles,
             placeholders = placeholders,

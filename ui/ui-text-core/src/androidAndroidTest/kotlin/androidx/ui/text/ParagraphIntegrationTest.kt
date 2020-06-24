@@ -37,7 +37,7 @@ import androidx.ui.text.matchers.assertThat
 import androidx.ui.text.matchers.isZero
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.ResolvedTextDirection
-import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.Density
@@ -823,7 +823,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+                    textDirection = TextDirection.ForceRtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -850,7 +850,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
+                    textDirection = TextDirection.ForceLtr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -880,7 +880,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
+                    textDirection = TextDirection.ForceLtr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -913,7 +913,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+                    textDirection = TextDirection.ForceRtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -979,7 +979,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+                    textDirection = TextDirection.ForceRtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1000,7 +1000,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
+                    textDirection = TextDirection.ForceLtr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1086,7 +1086,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+                    textDirection = TextDirection.ForceRtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1114,7 +1114,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
+                    textDirection = TextDirection.ForceLtr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1143,7 +1143,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
+                    textDirection = TextDirection.ForceLtr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1176,7 +1176,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+                    textDirection = TextDirection.ForceRtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1243,7 +1243,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+                    textDirection = TextDirection.ForceRtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1264,7 +1264,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
+                    textDirection = TextDirection.ForceLtr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1303,7 +1303,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+                    textDirection = TextDirection.ForceRtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1344,7 +1344,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
+                    textDirection = TextDirection.ForceLtr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1389,7 +1389,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
+                    textDirection = TextDirection.ForceLtr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1413,7 +1413,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+                    textDirection = TextDirection.ForceRtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1454,7 +1454,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+                    textDirection = TextDirection.ForceRtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1495,7 +1495,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
+                    textDirection = TextDirection.ForceLtr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1547,7 +1547,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
+                    textDirection = TextDirection.ForceLtr
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1575,7 +1575,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+                    textDirection = TextDirection.ForceRtl
                 ),
                 constraints = ParagraphConstraints(width)
             )
@@ -1611,7 +1611,7 @@ class ParagraphIntegrationTest {
                     style = TextStyle(
                         fontSize = fontSize,
                         localeList = localeList,
-                        textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                        textDirection = TextDirection.ContentOrLtr
                     ),
                     density = defaultDensity,
                     resourceLoader = resourceLoader,
@@ -2204,7 +2204,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
+                    textDirection = TextDirection.ForceLtr
                 ),
                 constraints = ParagraphConstraints(width = layoutWidth)
             )
@@ -2228,7 +2228,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+                    textDirection = TextDirection.ForceRtl
                 ),
                 constraints = ParagraphConstraints(width = layoutWidth)
             )
@@ -3860,7 +3860,7 @@ class ParagraphIntegrationTest {
                 style = TextStyle(
                     fontSize = fontSize,
                     fontFamily = fontFamilyMeasureFont,
-                    textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                    textDirection = TextDirection.ContentOrLtr
                 ),
                 spanStyles = listOf(),
                 density = defaultDensity,
@@ -3881,7 +3881,7 @@ class ParagraphIntegrationTest {
     fun nullTextDirectionAlgorithm_throwsException() {
         Paragraph(
             text = "",
-            style = TextStyle(textDirectionAlgorithm = null),
+            style = TextStyle(textDirection = null),
             constraints = ParagraphConstraints(Float.MAX_VALUE),
             density = defaultDensity,
             resourceLoader = resourceLoader
@@ -3911,7 +3911,7 @@ class ParagraphIntegrationTest {
             spanStyles = spanStyles,
             style = TextStyle(
                 fontFamily = fontFamilyMeasureFont,
-                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                textDirection = TextDirection.ContentOrLtr
             ).merge(style),
             maxLines = maxLines,
             ellipsis = ellipsis,

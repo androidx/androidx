@@ -19,7 +19,7 @@ package androidx.ui.text
 import androidx.compose.Immutable
 import androidx.compose.Stable
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextIndent
 import androidx.ui.text.style.lerp
 import androidx.ui.unit.TextUnit
@@ -35,7 +35,7 @@ import androidx.ui.unit.TextUnit
  * @sample androidx.ui.text.samples.ParagraphStyleAnnotatedStringsSample
  *
  * @param textAlign The alignment of the text within the lines of the paragraph.
- * @param textDirectionAlgorithm The algorithm to be used to resolve the final text direction:
+ * @param textDirection The algorithm to be used to resolve the final text direction:
  * Left To Right or Right To Left.
  * @param textIndent The indentation of the paragraph.
  * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
@@ -48,7 +48,7 @@ import androidx.ui.unit.TextUnit
 @Immutable
 data class ParagraphStyle constructor(
     val textAlign: TextAlign? = null,
-    val textDirectionAlgorithm: TextDirectionAlgorithm? = null,
+    val textDirection: TextDirection? = null,
     val lineHeight: TextUnit = TextUnit.Inherit,
     val textIndent: TextIndent? = null
 ) {
@@ -79,7 +79,7 @@ data class ParagraphStyle constructor(
             },
             textIndent = other.textIndent ?: this.textIndent,
             textAlign = other.textAlign ?: this.textAlign,
-            textDirectionAlgorithm = other.textDirectionAlgorithm ?: this.textDirectionAlgorithm
+            textDirection = other.textDirection ?: this.textDirection
         )
     }
 
@@ -107,9 +107,9 @@ data class ParagraphStyle constructor(
 fun lerp(start: ParagraphStyle, stop: ParagraphStyle, fraction: Float): ParagraphStyle {
     return ParagraphStyle(
         textAlign = lerpDiscrete(start.textAlign, stop.textAlign, fraction),
-        textDirectionAlgorithm = lerpDiscrete(
-            start.textDirectionAlgorithm,
-            stop.textDirectionAlgorithm,
+        textDirection = lerpDiscrete(
+            start.textDirection,
+            stop.textDirection,
             fraction
         ),
         lineHeight = lerpTextUnitInheritable(start.lineHeight, stop.lineHeight, fraction),

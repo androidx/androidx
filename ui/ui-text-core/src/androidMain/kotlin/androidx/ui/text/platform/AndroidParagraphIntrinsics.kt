@@ -48,8 +48,8 @@ internal class AndroidParagraphIntrinsics(
     override val minIntrinsicWidth: Float
         get() = layoutIntrinsics.minIntrinsicWidth
 
-    internal val textDirectionHeuristic = style.textDirectionAlgorithm?.let {
-        resolveTextDirectionHeuristics(style.textDirectionAlgorithm)
+    internal val textDirectionHeuristic = style.textDirection?.let {
+        resolveTextDirectionHeuristics(style.textDirection)
     } ?: throw IllegalArgumentException(
         "TextStyle.textDirectionAlgorithm should not be null"
     )

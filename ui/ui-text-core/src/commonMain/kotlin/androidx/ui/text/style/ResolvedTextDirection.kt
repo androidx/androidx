@@ -18,7 +18,7 @@ package androidx.ui.text.style
 /**
  * Describes the directionality of a text.
  *
- * @see TextDirectionAlgorithm
+ * @see TextDirection
  * @see androidx.ui.text.Paragraph.getParagraphDirection
  * @see androidx.ui.text.Paragraph.getBidiRunDirection
  */

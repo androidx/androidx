@@ -17,7 +17,7 @@
 package androidx.ui.text
 
 import androidx.ui.text.font.Font
-import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 
 /**
@@ -34,7 +34,7 @@ import androidx.ui.unit.Density
  * @see MultiParagraph
  * @see Placeholder
  *
- * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set, or any
+ * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set, or any
  * of the [placeholders] crosses paragraph boundary.
  */
 class MultiParagraphIntrinsics(
@@ -64,7 +64,7 @@ class MultiParagraphIntrinsics(
     internal val infoList: List<ParagraphIntrinsicInfo>
 
     init {
-        requireNotNull(style.textDirectionAlgorithm) {
+        requireNotNull(style.textDirection) {
             "ParagraphStyle.textDirectionAlgorithm should not be null"
         }
 
@@ -95,19 +95,19 @@ class MultiParagraphIntrinsics(
     }
 
     /**
-     * if the [style] does `not` have [TextDirectionAlgorithm] set, it will return a new
-     * [ParagraphStyle] where [TextDirectionAlgorithm] is set using the [defaultStyle]. Otherwise
+     * if the [style] does `not` have [TextDirection] set, it will return a new
+     * [ParagraphStyle] where [TextDirection] is set using the [defaultStyle]. Otherwise
      * returns the same [style] object.
      *
-     * @param style ParagraphStyle to be checked for [TextDirectionAlgorithm]
+     * @param style ParagraphStyle to be checked for [TextDirection]
      * @param defaultStyle [ParagraphStyle] passed to [MultiParagraphIntrinsics] as the main style
      */
     private fun resolveTextDirection(
         style: ParagraphStyle,
         defaultStyle: ParagraphStyle
     ): ParagraphStyle {
-        return style.textDirectionAlgorithm?.let { style } ?: style.copy(
-            textDirectionAlgorithm = defaultStyle.textDirectionAlgorithm
+        return style.textDirection?.let { style } ?: style.copy(
+            textDirection = defaultStyle.textDirection
         )
     }
 }
