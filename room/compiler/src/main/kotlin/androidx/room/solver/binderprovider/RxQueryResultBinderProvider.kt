@@ -71,7 +71,9 @@ class RxQueryResultBinderProvider private constructor(
     companion object {
         fun getAll(context: Context) = listOf(
             RxType.RX2_FLOWABLE,
-            RxType.RX2_OBSERVABLE
+            RxType.RX2_OBSERVABLE,
+            RxType.RX3_FLOWABLE,
+            RxType.RX3_OBSERVABLE
         ).map { RxQueryResultBinderProvider(context, it) }
     }
 }

@@ -75,10 +75,10 @@ class DaoWriterTest {
     private fun singleDao(vararg jfo: JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(jfo.toList() + COMMON.USER + COMMON.MULTI_PKEY_ENTITY + COMMON.BOOK +
-                        COMMON.LIVE_DATA + COMMON.COMPUTABLE_LIVE_DATA + COMMON.SINGLE +
-                        COMMON.MAYBE + COMMON.COMPLETABLE + COMMON.USER_SUMMARY + COMMON.RX2_ROOM +
-                        COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 + COMMON.INFO +
-                        COMMON.LISTENABLE_FUTURE + COMMON.GUAVA_ROOM)
+                        COMMON.LIVE_DATA + COMMON.COMPUTABLE_LIVE_DATA + COMMON.RX2_SINGLE +
+                        COMMON.RX2_MAYBE + COMMON.RX2_COMPLETABLE + COMMON.USER_SUMMARY +
+                        COMMON.RX2_ROOM + COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 +
+                        COMMON.INFO + COMMON.LISTENABLE_FUTURE + COMMON.GUAVA_ROOM)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Dao::class)
                         .nextRunHandler { invocation ->

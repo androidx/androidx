@@ -23,7 +23,9 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
+import androidx.room.ext.RoomRxJava3TypeNames
 import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
 import androidx.room.processor.DatabaseViewProcessor
 import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
@@ -100,29 +102,54 @@ object COMMON {
         loadJavaCode("common/input/reactivestreams/Publisher.java",
                 ReactiveStreamsTypeNames.PUBLISHER.toString())
     }
-    val FLOWABLE by lazy {
+    val RX2_FLOWABLE by lazy {
         loadJavaCode("common/input/rxjava2/Flowable.java",
                 RxJava2TypeNames.FLOWABLE.toString())
     }
-    val OBSERVABLE by lazy {
+    val RX2_OBSERVABLE by lazy {
         loadJavaCode("common/input/rxjava2/Observable.java",
                 RxJava2TypeNames.OBSERVABLE.toString())
     }
-    val SINGLE by lazy {
+    val RX2_SINGLE by lazy {
         loadJavaCode("common/input/rxjava2/Single.java",
                 RxJava2TypeNames.SINGLE.toString())
     }
-    val MAYBE by lazy {
+    val RX2_MAYBE by lazy {
         loadJavaCode("common/input/rxjava2/Maybe.java",
                 RxJava2TypeNames.MAYBE.toString())
     }
-    val COMPLETABLE by lazy {
+    val RX2_COMPLETABLE by lazy {
         loadJavaCode("common/input/rxjava2/Completable.java",
                 RxJava2TypeNames.COMPLETABLE.toString())
     }
 
     val RX2_ROOM by lazy {
         loadJavaCode("common/input/Rx2Room.java", RoomRxJava2TypeNames.RX_ROOM.toString())
+    }
+
+    val RX3_FLOWABLE by lazy {
+        loadJavaCode("common/input/rxjava3/Flowable.java",
+            RxJava3TypeNames.FLOWABLE.toString())
+    }
+    val RX3_OBSERVABLE by lazy {
+        loadJavaCode("common/input/rxjava3/Observable.java",
+            RxJava3TypeNames.OBSERVABLE.toString())
+    }
+    val RX3_SINGLE by lazy {
+        loadJavaCode("common/input/rxjava3/Single.java",
+            RxJava3TypeNames.SINGLE.toString())
+    }
+    val RX3_MAYBE by lazy {
+        loadJavaCode("common/input/rxjava3/Maybe.java",
+            RxJava3TypeNames.MAYBE.toString())
+    }
+    val RX3_COMPLETABLE by lazy {
+        loadJavaCode("common/input/rxjava3/Completable.java",
+            RxJava3TypeNames.COMPLETABLE.toString())
+    }
+
+    val RX3_ROOM by lazy {
+        loadJavaCode("common/input/Rx3Room.java", RoomRxJava3TypeNames.RX_ROOM.toString())
     }
 
     val DATA_SOURCE_FACTORY by lazy {

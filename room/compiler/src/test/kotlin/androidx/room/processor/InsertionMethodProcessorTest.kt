@@ -22,6 +22,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.typeName
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
 import androidx.room.testing.TestInvocation
@@ -413,7 +414,17 @@ class InsertionMethodProcessorTest {
                 Pair("${RxJava2TypeNames.MAYBE}<Long>",
                         InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID),
                 Pair("${RxJava2TypeNames.MAYBE}<List<Long>>",
-                        InsertMethodAdapter.InsertionType.INSERT_ID_LIST)
+                        InsertMethodAdapter.InsertionType.INSERT_ID_LIST),
+                Pair(RxJava3TypeNames.COMPLETABLE,
+                    InsertMethodAdapter.InsertionType.INSERT_VOID_OBJECT),
+                Pair("${RxJava3TypeNames.SINGLE}<Long>",
+                    InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID),
+                Pair("${RxJava3TypeNames.SINGLE}<List<Long>>",
+                    InsertMethodAdapter.InsertionType.INSERT_ID_LIST),
+                Pair("${RxJava3TypeNames.MAYBE}<Long>",
+                    InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID),
+                Pair("${RxJava3TypeNames.MAYBE}<List<Long>>",
+                    InsertMethodAdapter.InsertionType.INSERT_ID_LIST)
         ).forEach { pair ->
             val dots = if (pair.second in setOf(
                             InsertMethodAdapter.InsertionType.INSERT_ID_LIST,
@@ -740,8 +751,9 @@ class InsertionMethodProcessorTest {
         return assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX),
-                        COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY,
-                        COMMON.COMPLETABLE, COMMON.MAYBE, COMMON.SINGLE) + additionalJFOs
+                        COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
+                        COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX3_COMPLETABLE,
+                        COMMON.RX3_MAYBE, COMMON.RX3_SINGLE) + additionalJFOs
                 )
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(Insert::class, Dao::class)

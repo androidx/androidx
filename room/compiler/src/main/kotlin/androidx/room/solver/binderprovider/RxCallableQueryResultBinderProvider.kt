@@ -55,7 +55,9 @@ class RxCallableQueryResultBinderProvider private constructor(
     companion object {
         fun getAll(context: Context) = listOf(
             RxType.RX2_SINGLE,
-            RxType.RX2_MAYBE
+            RxType.RX2_MAYBE,
+            RxType.RX3_SINGLE,
+            RxType.RX3_MAYBE
         ).map { RxCallableQueryResultBinderProvider(context, it) }
     }
 }
