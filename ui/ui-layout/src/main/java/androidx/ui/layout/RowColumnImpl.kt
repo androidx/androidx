@@ -45,13 +45,14 @@ import kotlin.math.sign
 internal fun RowColumnImpl(
     orientation: LayoutOrientation,
     modifier: Modifier = Modifier,
-    arrangement: Arrangement,
+    arrangement: (Int, List<Int>, LayoutDirection) -> List<Int>,
     crossAxisSize: SizeMode,
     crossAxisAlignment: CrossAxisAlignment,
     children: @Composable () -> Unit
 ) {
     fun Placeable.mainAxisSize() =
         if (orientation == LayoutOrientation.Horizontal) width else height
+
     fun Placeable.crossAxisSize() =
         if (orientation == LayoutOrientation.Horizontal) height else width
 
@@ -62,15 +63,7 @@ internal fun RowColumnImpl(
         minIntrinsicHeightMeasureBlock = MinIntrinsicHeightMeasureBlock(orientation),
         maxIntrinsicWidthMeasureBlock = MaxIntrinsicWidthMeasureBlock(orientation),
         maxIntrinsicHeightMeasureBlock = MaxIntrinsicHeightMeasureBlock(orientation)
-    ) { ltrMeasurables, outerConstraints, layoutDirection ->
-        // rtl support
-        val measurables = if (orientation == LayoutOrientation.Horizontal &&
-            layoutDirection == LayoutDirection.Rtl) {
-            ltrMeasurables.asReversed()
-        } else {
-            ltrMeasurables
-        }
-
+    ) { measurables, outerConstraints, layoutDirection ->
         val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
 
         var totalWeight = 0f
@@ -219,13 +212,15 @@ internal fun RowColumnImpl(
         } else {
             mainAxisLayoutSize
         }
+
         layout(layoutWidth, layoutHeight) {
             val childrenMainAxisSize = placeables.map { it!!.mainAxisSize() }
-            val mainAxisPositions = arrangement.arrange(
+            val mainAxisPositions = arrangement(
                 mainAxisLayoutSize,
                 childrenMainAxisSize,
                 layoutDirection
             )
+
             placeables.forEachIndexed { index, placeable ->
                 placeable!!
                 val parentData = rowColumnParentData[index]
@@ -255,30 +250,36 @@ internal fun RowColumnImpl(
 /**
  * Used to specify the arrangement of the layout's children in [Row] or [Column] in the main axis
  * direction (horizontal and vertical, respectively).
- * @constructor Creates an arrangement using the [arrange] function. Use it to provide your own
- * arrangement of the layout's children.
  */
 @Immutable
-interface Arrangement {
-    /**
-     * Places the layout children inside the parent layout along the main axis.
-     *
-     * @param totalSize Available space that can be occupied by the children.
-     * @param size A list of sizes of all children.
-     * @param layoutDirection A layout direction, left-to-right or right-to-left, of the parent
-     * layout that should be taken into account when determining positions of the children in
-     * horizontal direction.
-     */
-    fun arrange(totalSize: Int, size: List<Int>, layoutDirection: LayoutDirection): List<Int>
-
+object Arrangement {
     /**
      * Used to specify the vertical arrangement of the layout's children in a [Column].
      */
-    interface Vertical : Arrangement
+    interface Vertical {
+        /**
+         * Vertically places the layout children inside the [Column].
+         *
+         * @param totalSize Available space that can be occupied by the children.
+         * @param size A list of sizes of all children.
+         */
+        fun arrange(totalSize: Int, size: List<Int>): List<Int>
+    }
+
     /**
      * Used to specify the horizontal arrangement of the layout's children in a [Row].
      */
-    interface Horizontal : Arrangement
+    interface Horizontal {
+        /**
+         * Horizontally places the layout children inside the [Row].
+         *
+         * @param totalSize Available space that can be occupied by the children.
+         * @param size A list of sizes of all children.
+         * @param layoutDirection A layout direction, left-to-right or right-to-left, of the parent
+         * layout that should be taken into account when determining positions of the children.
+         */
+        fun arrange(totalSize: Int, size: List<Int>, layoutDirection: LayoutDirection): List<Int>
+    }
 
     /**
      * Place children horizontally such that they are as close as possible to the beginning of the
@@ -292,7 +293,7 @@ interface Arrangement {
         ) = if (layoutDirection == LayoutDirection.Ltr) {
             placeLeftOrTop(size)
         } else {
-            placeRightOrBottom(totalSize, size)
+            placeRightOrBottom(totalSize, size.asReversed()).asReversed()
         }
     }
 
@@ -308,7 +309,7 @@ interface Arrangement {
         ) = if (layoutDirection == LayoutDirection.Ltr) {
             placeRightOrBottom(totalSize, size)
         } else {
-            placeLeftOrTop(size)
+            placeLeftOrTop(size.asReversed()).asReversed()
         }
     }
 
@@ -317,11 +318,7 @@ interface Arrangement {
      * axis.
      */
     object Top : Vertical {
-        override fun arrange(
-            totalSize: Int,
-            size: List<Int>,
-            layoutDirection: LayoutDirection
-        ) = placeLeftOrTop(size)
+        override fun arrange(totalSize: Int, size: List<Int>) = placeLeftOrTop(size)
     }
 
     /**
@@ -329,11 +326,7 @@ interface Arrangement {
      * axis.
      */
     object Bottom : Vertical {
-        override fun arrange(
-            totalSize: Int,
-            size: List<Int>,
-            layoutDirection: LayoutDirection
-        ) = placeRightOrBottom(totalSize, size)
+        override fun arrange(totalSize: Int, size: List<Int>) = placeRightOrBottom(totalSize, size)
     }
 
     /**
@@ -344,16 +337,13 @@ interface Arrangement {
             totalSize: Int,
             size: List<Int>,
             layoutDirection: LayoutDirection
-        ): List<Int> {
-            val consumedSize = size.fold(0) { a, b -> a + b }
-            val positions = mutableListOf<Int>()
-            var current = (totalSize - consumedSize).toFloat() / 2
-            size.fastForEach {
-                positions.add(current.roundToInt())
-                current += it.toFloat()
-            }
-            return positions
+        ) = if (layoutDirection == LayoutDirection.Ltr) {
+            placeCenter(totalSize, size)
+        } else {
+            placeCenter(totalSize, size.asReversed()).asReversed()
         }
+
+        override fun arrange(totalSize: Int, size: List<Int>) = placeCenter(totalSize, size)
     }
 
     /**
@@ -365,17 +355,13 @@ interface Arrangement {
             totalSize: Int,
             size: List<Int>,
             layoutDirection: LayoutDirection
-        ): List<Int> {
-            val consumedSize = size.fold(0) { a, b -> a + b }
-            val gapSize = (totalSize - consumedSize).toFloat() / (size.size + 1)
-            val positions = mutableListOf<Int>()
-            var current = gapSize
-            size.fastForEach {
-                positions.add(current.roundToInt())
-                current += it.toFloat() + gapSize
-            }
-            return positions
+        ) = if (layoutDirection == LayoutDirection.Ltr) {
+            placeSpaceEvenly(totalSize, size)
+        } else {
+            placeSpaceEvenly(totalSize, size.asReversed()).asReversed()
         }
+
+        override fun arrange(totalSize: Int, size: List<Int>) = placeSpaceEvenly(totalSize, size)
     }
 
     /**
@@ -387,21 +373,13 @@ interface Arrangement {
             totalSize: Int,
             size: List<Int>,
             layoutDirection: LayoutDirection
-        ): List<Int> {
-            val consumedSize = size.fold(0) { a, b -> a + b }
-            val gapSize = if (size.size > 1) {
-                (totalSize - consumedSize).toFloat() / (size.size - 1)
-            } else {
-                0f
-            }
-            val positions = mutableListOf<Int>()
-            var current = 0f
-            size.fastForEach {
-                positions.add(current.roundToInt())
-                current += it.toFloat() + gapSize
-            }
-            return positions
+        ) = if (layoutDirection == LayoutDirection.Ltr) {
+            placeSpaceBetween(totalSize, size)
+        } else {
+            placeSpaceBetween(totalSize, size.asReversed()).asReversed()
         }
+
+        override fun arrange(totalSize: Int, size: List<Int>) = placeSpaceBetween(totalSize, size)
     }
 
     /**
@@ -414,43 +392,182 @@ interface Arrangement {
             totalSize: Int,
             size: List<Int>,
             layoutDirection: LayoutDirection
-        ): List<Int> {
-            val consumedSize = size.fold(0) { a, b -> a + b }
-            val gapSize = if (size.isNotEmpty()) {
-                (totalSize - consumedSize).toFloat() / size.size
-            } else {
-                0f
-            }
-            val positions = mutableListOf<Int>()
-            var current = gapSize / 2
-            size.fastForEach {
-                positions.add(current.roundToInt())
-                current += it.toFloat() + gapSize
-            }
-            return positions
+        ) = if (layoutDirection == LayoutDirection.Ltr) {
+            placeSpaceAround(totalSize, size)
+        } else {
+            placeSpaceAround(totalSize, size.asReversed()).asReversed()
         }
+
+        override fun arrange(totalSize: Int, size: List<Int>) = placeSpaceAround(totalSize, size)
     }
 
-    private companion object {
-        private fun placeRightOrBottom(totalSize: Int, size: List<Int>): List<Int> {
-            val consumedSize = size.fold(0) { a, b -> a + b }
-            val positions = mutableListOf<Int>()
-            var current = totalSize - consumedSize
-            size.fastForEach {
-                positions.add(current)
-                current += it
-            }
-            return positions
+    internal fun placeRightOrBottom(totalSize: Int, size: List<Int>): List<Int> {
+        val consumedSize = size.fold(0) { a, b -> a + b }
+        val positions = mutableListOf<Int>()
+        var current = totalSize - consumedSize
+        size.fastForEach {
+            positions.add(current)
+            current += it
         }
-        private fun placeLeftOrTop(size: List<Int>): List<Int> {
-            val positions = mutableListOf<Int>()
-            var current = 0
-            size.fastForEach {
-                positions.add(current)
-                current += it
-            }
-            return positions
+        return positions
+    }
+
+    internal fun placeLeftOrTop(size: List<Int>): List<Int> {
+        val positions = mutableListOf<Int>()
+        var current = 0
+        size.fastForEach {
+            positions.add(current)
+            current += it
         }
+        return positions
+    }
+
+    internal fun placeCenter(totalSize: Int, size: List<Int>): List<Int> {
+        val consumedSize = size.fold(0) { a, b -> a + b }
+        val positions = mutableListOf<Int>()
+        var current = (totalSize - consumedSize).toFloat() / 2
+        size.fastForEach {
+            positions.add(current.roundToInt())
+            current += it.toFloat()
+        }
+        return positions
+    }
+
+    internal fun placeSpaceEvenly(totalSize: Int, size: List<Int>): List<Int> {
+        val consumedSize = size.fold(0) { a, b -> a + b }
+        val gapSize = (totalSize - consumedSize).toFloat() / (size.size + 1)
+        val positions = mutableListOf<Int>()
+        var current = gapSize
+        size.fastForEach {
+            positions.add(current.roundToInt())
+            current += it.toFloat() + gapSize
+        }
+        return positions
+    }
+
+    internal fun placeSpaceBetween(totalSize: Int, size: List<Int>): List<Int> {
+        val consumedSize = size.fold(0) { a, b -> a + b }
+        val gapSize = if (size.size > 1) {
+            (totalSize - consumedSize).toFloat() / (size.size - 1)
+        } else {
+            0f
+        }
+        val positions = mutableListOf<Int>()
+        var current = 0f
+        size.fastForEach {
+            positions.add(current.roundToInt())
+            current += it.toFloat() + gapSize
+        }
+        return positions
+    }
+
+    internal fun placeSpaceAround(totalSize: Int, size: List<Int>): List<Int> {
+        val consumedSize = size.fold(0) { a, b -> a + b }
+        val gapSize = if (size.isNotEmpty()) {
+            (totalSize - consumedSize).toFloat() / size.size
+        } else {
+            0f
+        }
+        val positions = mutableListOf<Int>()
+        var current = gapSize / 2
+        size.fastForEach {
+            positions.add(current.roundToInt())
+            current += it.toFloat() + gapSize
+        }
+        return positions
+    }
+}
+
+@Immutable
+object AbsoluteArrangement {
+    /**
+     * Place children horizontally such that they are as close as possible to the left edge of
+     * the [Row].
+     *
+     * Unlike [Arrangement.Start], in RTL context positions of the children will not be
+     * mirrored and as such children will appear in the order they are put inside the [Row].
+     */
+    object Left : Arrangement.Horizontal {
+        override fun arrange(
+            totalSize: Int,
+            size: List<Int>,
+            layoutDirection: LayoutDirection
+        ) = Arrangement.placeLeftOrTop(size)
+    }
+
+    /**
+     * Place children such that they are as close as possible to the middle of the [Row].
+     *
+     * Unlike [Arrangement.Center], in RTL context positions of the children will not be
+     * mirrored and as such children will appear in the order they are put inside the [Row].
+     */
+    object Center : Arrangement.Horizontal {
+        override fun arrange(
+            totalSize: Int,
+            size: List<Int>,
+            layoutDirection: LayoutDirection
+        ) = Arrangement.placeCenter(totalSize, size)
+    }
+
+    /**
+     * Place children horizontally such that they are as close as possible to the right edge of
+     * the [Row].
+     *
+     * Unlike [Arrangement.End], in RTL context positions of the children will not be
+     * mirrored and as such children will appear in the order they are put inside the [Row].
+     */
+    object Right : Arrangement.Horizontal {
+        override fun arrange(
+            totalSize: Int,
+            size: List<Int>,
+            layoutDirection: LayoutDirection
+        ) = Arrangement.placeRightOrBottom(totalSize, size)
+    }
+
+    /**
+     * Place children such that they are spaced evenly across the main axis, without free
+     * space before the first child or after the last child.
+     *
+     * Unlike [Arrangement.SpaceBetween], in RTL context positions of the children will not be
+     * mirrored and as such children will appear in the order they are put inside the [Row].
+     */
+    object SpaceBetween : Arrangement.Horizontal {
+        override fun arrange(
+            totalSize: Int,
+            size: List<Int>,
+            layoutDirection: LayoutDirection
+        ) = Arrangement.placeSpaceBetween(totalSize, size)
+    }
+
+    /**
+     * Place children such that they are spaced evenly across the main axis, including free
+     * space before the first child and after the last child.
+     *
+     * Unlike [Arrangement.SpaceEvenly], in RTL context positions of the children will not be
+     * mirrored and as such children will appear in the order they are put inside the [Row].
+     */
+    object SpaceEvenly : Arrangement.Horizontal {
+        override fun arrange(
+            totalSize: Int,
+            size: List<Int>,
+            layoutDirection: LayoutDirection
+        ) = Arrangement.placeSpaceEvenly(totalSize, size)
+    }
+
+    /**
+     * Place children such that they are spaced evenly horizontally, including free
+     * space before the first child and after the last child, but half the amount of space
+     * existing otherwise between two consecutive children.
+     *
+     * Unlike [Arrangement.SpaceAround], in RTL context positions of the children will not be
+     * mirrored and as such children will appear in the order they are put inside the [Row].
+     */
+    object SpaceAround : Arrangement.Horizontal {
+        override fun arrange(
+            totalSize: Int,
+            size: List<Int>,
+            layoutDirection: LayoutDirection
+        ) = Arrangement.placeSpaceAround(totalSize, size)
     }
 }
 
@@ -482,31 +599,36 @@ enum class SizeMode {
 /**
  * Used to specify the alignment of a layout's children, in main axis direction.
  */
-enum class MainAxisAlignment(internal val arrangement: Arrangement) {
+enum class MainAxisAlignment(internal val arrangement: Arrangement.Vertical) {
     // TODO(soboleva) support RTl in Flow
     // workaround for now - use Arrangement that equals to previous Arrangement
     /**
      * Place children such that they are as close as possible to the middle of the main axis.
      */
     Center(Arrangement.Center),
+
     /**
      * Place children such that they are as close as possible to the start of the main axis.
      */
     Start(Arrangement.Top),
+
     /**
      * Place children such that they are as close as possible to the end of the main axis.
      */
     End(Arrangement.Bottom),
+
     /**
      * Place children such that they are spaced evenly across the main axis, including free
      * space before the first child and after the last child.
      */
     SpaceEvenly(Arrangement.SpaceEvenly),
+
     /**
      * Place children such that they are spaced evenly across the main axis, without free
      * space before the first child or after the last child.
      */
     SpaceBetween(Arrangement.SpaceBetween),
+
     /**
      * Place children such that they are spaced evenly across the main axis, including free
      * space before the first child and after the last child, but half the amount of space
@@ -569,11 +691,13 @@ sealed class CrossAxisAlignment {
          */
         @Stable
         val End: CrossAxisAlignment = EndCrossAxisAlignment
+
         /**
          * Align children by their baseline.
          */
         fun AlignmentLine(alignmentLine: AlignmentLine): CrossAxisAlignment =
             AlignmentLineCrossAxisAlignment(AlignmentLineProvider.Value(alignmentLine))
+
         /**
          * Align children relative to their siblings using the alignment line provided as a
          * parameter using [AlignmentLineProvider].

@@ -146,7 +146,7 @@ private fun Flow(
     fun Placeable.crossAxisSize() =
         if (orientation == LayoutOrientation.Horizontal) height else width
 
-    Layout(children) { measurables, outerConstraints, layoutDirection ->
+    Layout(children) { measurables, outerConstraints, _ ->
         val sequences = mutableListOf<List<Placeable>>()
         val crossAxisSizes = mutableListOf<Int>()
         val crossAxisPositions = mutableListOf<Int>()
@@ -241,8 +241,7 @@ private fun Flow(
                 // Handle vertical direction
                 val mainAxisPositions = arrangement.arrange(
                     mainAxisLayoutSize,
-                    childrenMainAxisSizes,
-                    layoutDirection
+                    childrenMainAxisSizes
                 )
                 placeables.fastForEachIndexed { j, placeable ->
                     val crossAxis = when (crossAxisAlignment) {
