@@ -411,11 +411,11 @@ class DrawScopeTest {
 
         try {
             canvasScope.drawInto(Canvas(imageAsset), size) {
-                inset(100.0f, 0.0f, 100.0f, 0.0f) {
+                inset(100.0f, 0.0f, 101.0f, 0.0f) {
                     drawRect(color = Color.Red)
                 }
             }
-            fail("Width must be greater than zero after applying inset")
+            fail("Width must be greater than or equal to zero after applying inset")
         } catch (e: IllegalArgumentException) {
             // no-op
         }
@@ -432,13 +432,63 @@ class DrawScopeTest {
 
         try {
             canvasScope.drawInto(Canvas(imageAsset), size) {
+                inset(0.0f, 100.0f, 0.0f, 101.0f) {
+                    drawRect(color = Color.Red)
+                }
+            }
+            fail("Height must be greater than or equal to zero after applying inset")
+        } catch (e: IllegalArgumentException) {
+            // no-op
+        }
+    }
+
+    @Test
+    fun testInsetZeroHeight() {
+        // Verify that the inset call does not crash even though we are adding an inset
+        // to the right and bottom such that the drawing size after the inset is zero in both
+        // dimensions.
+        // This is useful for animations that slowly reveal the drawing bounds of the area.
+        // Alternatively this could happen if the a sibling UI element
+        val canvasScope = TestDrawScope()
+
+        val width = 200
+        val height = 200
+        val size = Size(width.toFloat(), height.toFloat())
+        val imageAsset = ImageAsset(width, height)
+
+        try {
+            canvasScope.drawInto(Canvas(imageAsset), size) {
                 inset(0.0f, 100.0f, 0.0f, 100.0f) {
                     drawRect(color = Color.Red)
                 }
             }
-            fail("Height must be greater than zero after applying inset")
         } catch (e: IllegalArgumentException) {
-            // no-op
+            fail("Zero height after applying inset is allowed")
+        }
+    }
+
+    @Test
+    fun testInsetZeroWidth() {
+        // Verify that the inset call does not crash even though we are adding an inset
+        // to the right and bottom such that the drawing size after the inset is zero in both
+        // dimensions.
+        // This is useful for animations that slowly reveal the drawing bounds of the area.
+        // Alternatively this could happen if the a sibling UI element
+        val canvasScope = TestDrawScope()
+
+        val width = 200
+        val height = 200
+        val size = Size(width.toFloat(), height.toFloat())
+        val imageAsset = ImageAsset(width, height)
+
+        try {
+            canvasScope.drawInto(Canvas(imageAsset), size) {
+                inset(100.0f, 0.0f, 100.0f, 0.0f) {
+                    drawRect(color = Color.Red)
+                }
+            }
+        } catch (e: IllegalArgumentException) {
+            fail("Zero width after applying inset is allowed")
         }
     }
 
