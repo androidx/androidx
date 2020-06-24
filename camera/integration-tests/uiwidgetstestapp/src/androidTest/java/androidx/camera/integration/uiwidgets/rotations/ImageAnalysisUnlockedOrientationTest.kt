@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.uiwidgets.rotations.imageanalysis
+package androidx.camera.integration.uiwidgets.rotations
 
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -22,8 +22,6 @@ import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
 import android.content.res.Configuration
 import androidx.camera.core.CameraSelector
-import androidx.camera.integration.uiwidgets.rotations.CameraActivity
-import androidx.camera.integration.uiwidgets.rotations.UnlockedOrientationActivity
 import androidx.camera.integration.uiwidgets.rotations.UnlockedOrientationActivity.Companion.mCreated
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
@@ -41,8 +39,10 @@ import java.util.concurrent.TimeUnit
 
 @RunWith(Parameterized::class)
 @LargeTest
-class UnlockedOrientationActivityTest(private val lensFacing: Int, private val orientation: Int) :
-    ImageAnalysisTest<UnlockedOrientationActivity>() {
+class ImageAnalysisUnlockedOrientationTest(
+    private val lensFacing: Int,
+    private val orientation: Int
+) : ImageAnalysisBaseTest<UnlockedOrientationActivity>() {
 
     companion object {
         private val ORIENTATION_MAP = hashMapOf(
