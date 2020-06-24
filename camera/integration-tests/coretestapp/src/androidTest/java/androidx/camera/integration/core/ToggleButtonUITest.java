@@ -27,6 +27,7 @@ import static junit.framework.TestCase.assertNotNull;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
 import android.content.Intent;
@@ -163,26 +164,19 @@ public final class ToggleButtonUITest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
         waitFor(new WaitForViewToShow(R.id.direction_toggle));
 
-        boolean isPreviewExist = mActivityRule.getActivity().getPreview() != null;
-        boolean isImageCaptureExist = mActivityRule.getActivity().getImageCapture() != null;
-        boolean isVideoCaptureExist = mActivityRule.getActivity().getVideoCapture() != null;
-        boolean isImageAnalysisExist = mActivityRule.getActivity().getImageAnalysis() != null;
+        assumeNotNull(mActivityRule.getActivity().getPreview());
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 5; i++) {
+
+            // Wait for preview update.
+            mActivityRule.getActivity().resetViewIdlingResource();
+            IdlingRegistry.getInstance().register(
+                    mActivityRule.getActivity().getViewIdlingResource());
+            onView(withId(R.id.viewFinder)).check(matches(isDisplayed()));
+            IdlingRegistry.getInstance().unregister(
+                    mActivityRule.getActivity().getViewIdlingResource());
+
             onView(withId(R.id.direction_toggle)).perform(click());
-            waitFor(new ElapsedTimeIdlingResource(2000));
-            if (isImageCaptureExist) {
-                assertNotNull(mActivityRule.getActivity().getImageCapture());
-            }
-            if (isImageAnalysisExist) {
-                assertNotNull(mActivityRule.getActivity().getImageAnalysis());
-            }
-            if (isVideoCaptureExist) {
-                assertNotNull(mActivityRule.getActivity().getVideoCapture());
-            }
-            if (isPreviewExist) {
-                assertNotNull(mActivityRule.getActivity().getPreview());
-            }
         }
     }
 
