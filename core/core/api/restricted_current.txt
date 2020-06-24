@@ -1669,6 +1669,22 @@ package androidx.core.net {
   @IntDef({androidx.core.net.ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_DISABLED, androidx.core.net.ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_WHITELISTED, androidx.core.net.ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_ENABLED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ConnectivityManagerCompat.RestrictBackgroundStatus {
   }
 
+  public class MailTo {
+    method public String? getBcc();
+    method public String? getBody();
+    method public String? getCc();
+    method public java.util.Map<java.lang.String!,java.lang.String!>? getHeaders();
+    method public String? getSubject();
+    method public String? getTo();
+    method public static boolean isMailTo(String?);
+    method public static androidx.core.net.MailTo parse(String) throws androidx.core.net.ParseException;
+    field public static final String MAILTO_SCHEME = "mailto:";
+  }
+
+  public class ParseException extends java.lang.RuntimeException {
+    field public final String response;
+  }
+
   public final class TrafficStatsCompat {
     method @Deprecated public static void clearThreadStatsTag();
     method @Deprecated public static int getThreadStatsTag();
