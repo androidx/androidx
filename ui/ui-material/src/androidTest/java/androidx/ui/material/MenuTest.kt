@@ -122,9 +122,9 @@ class MenuTest {
                     hasAnyChildThat(hasTestTag("MenuContent2"))
         ).assertExists().fetchSemanticsNode()
         with(composeTestRule.density) {
-            assertThat(node.size.width).isEqualTo(130 + MenuElevation.toIntPx() * 2)
+            assertThat(node.size.width).isEqualTo(130 + MenuElevationInset.toIntPx() * 2)
             assertThat(node.size.height).isEqualTo(200 +
-                    DropdownMenuVerticalPadding.toIntPx() * 2 + MenuElevation.toIntPx() * 2
+                    DropdownMenuVerticalPadding.toIntPx() * 2 + MenuElevationInset.toIntPx() * 2
             )
         }
     }
@@ -140,7 +140,7 @@ class MenuTest {
         }
         val anchorPosition = IntOffset(100, 200)
         val anchorSize = IntSize(10, 20)
-        val inset = with(density) { MenuElevation.toIntPx() }
+        val inset = with(density) { MenuElevationInset.toIntPx() }
         val offsetX = 20
         val offsetY = 40
         val popupSize = IntSize(50, 80)
@@ -194,7 +194,7 @@ class MenuTest {
         val anchorPosition = IntOffset(450, 950)
         val anchorPositionRtl = IntOffset(50, 950)
         val anchorSize = IntSize(10, 20)
-        val inset = with(density) { MenuElevation.toIntPx() }
+        val inset = with(density) { MenuElevationInset.toIntPx() }
         val offsetX = 20
         val offsetY = 40
         val popupSize = IntSize(150, 80)
@@ -247,7 +247,7 @@ class MenuTest {
         }
         val anchorPosition = IntOffset(100, 200)
         val anchorSize = IntSize(10, 20)
-        val inset = with(density) { MenuElevation.toIntPx() }
+        val inset = with(density) { MenuElevationInset.toIntPx() }
         val offsetX = 20
         val offsetY = 40
         val popupSize = IntSize(50, 80)

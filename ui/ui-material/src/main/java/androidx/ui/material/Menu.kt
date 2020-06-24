@@ -138,7 +138,7 @@ fun DropdownMenu(
                     Card(
                         modifier = drawLayer
                             // Padding to account for the elevation, otherwise it is clipped.
-                            .padding(MenuElevation),
+                            .padding(MenuElevationInset),
                         elevation = MenuElevation
                     ) {
                         @OptIn(ExperimentalLayout::class)
@@ -200,18 +200,19 @@ fun DropdownMenuItem(
 }
 
 // Size constants.
-internal val MenuElevation = 8.dp
-internal val DropdownMenuHorizontalPadding = 16.dp
+private val MenuElevation = 8.dp
+internal val MenuElevationInset = 16.dp
+private val DropdownMenuHorizontalPadding = 16.dp
 internal val DropdownMenuVerticalPadding = 8.dp
-internal val DropdownMenuItemDefaultMinWidth = 112.dp
-internal val DropdownMenuItemDefaultMaxWidth = 280.dp
-internal val DropdownMenuItemDefaultMinHeight = 48.dp
+private val DropdownMenuItemDefaultMinWidth = 112.dp
+private val DropdownMenuItemDefaultMaxWidth = 280.dp
+private val DropdownMenuItemDefaultMinHeight = 48.dp
 
 // Menu open/close animation.
 private val Scale = FloatPropKey()
 private val Alpha = FloatPropKey()
-internal val InTransitionDuration = 120
-internal val OutTransitionDuration = 75
+internal const val InTransitionDuration = 120
+internal const val OutTransitionDuration = 75
 
 private val DropdownMenuOpenCloseTransition = transitionDefinition {
     state(false) {
@@ -263,7 +264,7 @@ private fun calculateTransformOrigin(
     menuBounds: PxBounds,
     density: Density
 ): TransformOrigin {
-    val inset = with(density) { MenuElevation.toPx() }
+    val inset = with(density) { MenuElevationInset.toPx() }
     val realMenuBounds = PxBounds(
         menuBounds.left + inset,
         menuBounds.top + inset,
@@ -313,7 +314,7 @@ internal data class DropdownMenuPositionProvider(
         popupSize: IntSize
     ): IntOffset {
         // The padding inset that accommodates elevation, needs to be taken into account.
-        val inset = with(density) { MenuElevation.toIntPx() }
+        val inset = with(density) { MenuElevationInset.toIntPx() }
         val realPopupWidth = popupSize.width - inset * 2
         val realPopupHeight = popupSize.height - inset * 2
         val contentOffsetX = with(density) { contentOffset.x.toIntPx() }
