@@ -12,6 +12,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      # https://github.com/tikurahul/github-workflow-webhook-action
+      - name: Start WebHook
+        uses: tikurahul/github-workflow-webhook-action@master
+        with:
+          url: 'https://androidx.dev/github/androidX/presubmit/hook'
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
+          payload: '{ "platform": "macOS" }'
       - name: Setup Java environment based on setup-java
         uses: actions/setup-java@v1
         with:
@@ -56,3 +63,10 @@ jobs:
         with:
           name: artifacts
           path: ~/dist
+      - name: Completed WebHook
+        if: always()
+        uses: tikurahul/github-workflow-webhook-action@master
+        with:
+          url: 'https://androidx.dev/github/androidX/presubmit/hook'
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
+          payload: '{ "platform": "macOS" }'
