@@ -270,7 +270,11 @@ internal class SingleProcessDataStore<T>(
         }
     }
 
-    private fun writeData(newData: T) {
+    /**
+     * Internal only to prevent creation of synthetic accessor function. Do not call this from
+     * outside this class.
+     */
+    internal fun writeData(newData: T) {
         file.createParentDirectories()
 
         val scratchFile = File(file.absolutePath + SCRATCH_SUFFIX)
