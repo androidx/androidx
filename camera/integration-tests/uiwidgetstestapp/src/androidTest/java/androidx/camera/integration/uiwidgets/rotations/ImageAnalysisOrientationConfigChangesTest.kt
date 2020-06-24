@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.uiwidgets.rotations.imageanalysis
+package androidx.camera.integration.uiwidgets.rotations
 
 import android.view.Surface
 import androidx.camera.core.CameraSelector
-import androidx.camera.integration.uiwidgets.rotations.CameraActivity
-import androidx.camera.integration.uiwidgets.rotations.OrientationConfigChangesOverriddenActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -36,10 +34,10 @@ import java.util.concurrent.TimeUnit
 
 @RunWith(Parameterized::class)
 @LargeTest
-class OrientationConfigChangesOverriddenActivityTest(
+class ImageAnalysisOrientationConfigChangesTest(
     private val lensFacing: Int,
     private val rotation: Int
-) : ImageAnalysisTest<OrientationConfigChangesOverriddenActivity>() {
+) : ImageAnalysisBaseTest<OrientationConfigChangesOverriddenActivity>() {
 
     companion object {
         @JvmStatic

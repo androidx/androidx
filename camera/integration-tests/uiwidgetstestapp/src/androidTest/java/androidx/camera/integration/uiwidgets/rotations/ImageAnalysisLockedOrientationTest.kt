@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.uiwidgets.rotations.imagecapture
+package androidx.camera.integration.uiwidgets.rotations
 
-import androidx.camera.integration.uiwidgets.rotations.CameraActivity
-import androidx.camera.integration.uiwidgets.rotations.LockedOrientationActivity
+import androidx.camera.core.CameraSelector
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
@@ -30,24 +29,23 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @LargeTest
-class LockedOrientationTest(
+class ImageAnalysisLockedOrientationTest(
     private val lensFacing: Int,
-    private val rotationDegrees: Int,
-    private val captureMode: Int
-) : ImageCaptureTest<LockedOrientationActivity>() {
+    private val rotationDegrees: Int
+) : ImageAnalysisBaseTest<LockedOrientationActivity>() {
 
     companion object {
-        private val rotationDegrees = arrayOf(0, 90, 180, 270)
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}, rotationDegrees={1}, captureMode={2}")
+        @Parameterized.Parameters(name = "lensFacing={0}, rotationDegrees={1}")
         fun data() = mutableListOf<Array<Any?>>().apply {
-            lensFacing.forEach { lens ->
-                rotationDegrees.forEach { rotation ->
-                    captureModes.forEach { mode ->
-                        add(arrayOf(lens, rotation, mode))
-                    }
-                }
-            }
+            add(arrayOf(CameraSelector.LENS_FACING_BACK, 0))
+            add(arrayOf(CameraSelector.LENS_FACING_BACK, 90))
+            add(arrayOf(CameraSelector.LENS_FACING_BACK, 180))
+            add(arrayOf(CameraSelector.LENS_FACING_BACK, 270))
+            add(arrayOf(CameraSelector.LENS_FACING_FRONT, 0))
+            add(arrayOf(CameraSelector.LENS_FACING_FRONT, 90))
+            add(arrayOf(CameraSelector.LENS_FACING_FRONT, 180))
+            add(arrayOf(CameraSelector.LENS_FACING_FRONT, 270))
         }
     }
 
@@ -67,7 +65,7 @@ class LockedOrientationTest(
 
     @Test
     fun verifyRotation() {
-        verifyRotation<LockedOrientationActivity>(lensFacing, captureMode) {
+        verifyRotation<LockedOrientationActivity>(lensFacing) {
             rotate(rotationDegrees)
         }
     }

@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.uiwidgets.rotations.imagecapture
+package androidx.camera.integration.uiwidgets.rotations
 
 import android.content.Intent
 import android.os.Build
 import android.view.View
 import androidx.camera.core.CameraSelector
 import androidx.camera.integration.uiwidgets.R
-import androidx.camera.integration.uiwidgets.rotations.CameraActivity
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
@@ -46,7 +45,7 @@ import java.util.concurrent.TimeUnit
  * - Wait for the image capture callback
  * - Verify the picture's rotation or resolution
  */
-abstract class ImageCaptureTest<A : CameraActivity> {
+abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     protected fun setUp(lensFacing: Int) {
         // TODO(b/147448711) Cuttlefish seems to have an issue handling rotation. Might be
