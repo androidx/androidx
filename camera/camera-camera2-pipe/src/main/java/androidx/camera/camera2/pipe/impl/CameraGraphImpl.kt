@@ -17,33 +17,45 @@
 package androidx.camera.camera2.pipe.impl
 
 import android.content.Context
+import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.StreamId
 import javax.inject.Inject
 
 @CameraGraphScope
 class CameraGraphImpl @Inject constructor(
     private val context: Context,
-    private val config: CameraGraph.Config
+    private val config: CameraGraph.Config,
+    private val graphProcessor: GraphProcessor,
+    private val streamMap: StreamMap
 ) : CameraGraph {
     // Only one session can be active at a time.
     private val sessionLock = TokenLockImpl(1)
 
     override fun start() {
-        Log.debug { "Starting Camera Graph!" }
-        TODO("Not Implemented")
+        graphProcessor.start()
     }
 
     override fun stop() {
-        TODO("Not Implemented")
+        graphProcessor.stop()
     }
 
     override suspend fun acquireSession(): CameraGraph.Session {
         val token = sessionLock.acquire(1)
-        return CameraGraphSessionImpl(token)
+        return CameraGraphSessionImpl(token, graphProcessor)
     }
 
     override fun acquireSessionOrNull(): CameraGraph.Session? {
         val token = sessionLock.acquireOrNull(1) ?: return null
-        return CameraGraphSessionImpl(token)
+        return CameraGraphSessionImpl(token, graphProcessor)
+    }
+
+    override fun setSurface(stream: StreamId, surface: Surface?) {
+        streamMap[stream] = surface
+    }
+
+    override fun close() {
+        sessionLock.close()
+        graphProcessor.close()
     }
 }
