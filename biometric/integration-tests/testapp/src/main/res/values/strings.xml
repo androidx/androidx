@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2019 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="biometric_test_app_title">Biometric Test App</string>
+
+    <string name="show_prompt_label">Show prompt</string>
+    <string name="device_credential_label">Allow device credential</string>
+    <string name="cancel_config_change_label">Cancel when configuration changes</string>
+    <string name="require_confirmation_label">Require confirmation</string>
+    <string name="clear_log_label">Clear logs</string>
+
+    <string name="biometric_prompt_title">Title</string>
+    <string name="biometric_prompt_subtitle">Subtitle</string>
+    <string name="biometric_prompt_description">Description</string>
+    <string name="biometric_prompt_negative_label">Negative button</string>
+</resources>
