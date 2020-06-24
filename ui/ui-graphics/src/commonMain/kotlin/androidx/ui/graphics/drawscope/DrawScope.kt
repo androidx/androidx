@@ -266,8 +266,8 @@ abstract class DrawScope : Density {
         override fun inset(left: Float, top: Float, right: Float, bottom: Float) {
             this@DrawScope.canvas.let {
                 val updatedSize = size - Offset(left + right, top + bottom)
-                require(updatedSize.width > 0 && updatedSize.height > 0) {
-                    "Width and height must be greater than zero"
+                require(updatedSize.width >= 0 && updatedSize.height >= 0) {
+                    "Width and height must be greater than or equal to zero"
                 }
                 this@DrawScope.setSize(updatedSize)
                 it.translate(left, top)
